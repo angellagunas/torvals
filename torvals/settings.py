@@ -45,7 +45,13 @@ THIRD_PARTY_APPS = [
     'soft_drf'
 ]
 
-LOCAL_APPS = []
+LOCAL_APPS = [
+    'angular',
+    'app.apps',
+    'app.domains',
+    'app.providers',
+    'app.servers'
+]
 
 INSTALLED_APPS += THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -64,7 +70,9 @@ ROOT_URLCONF = 'torvals.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.realpath(os.path.join(BASE_DIR, 'angular'))
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
