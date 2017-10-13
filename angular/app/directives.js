@@ -6,17 +6,14 @@
             function($localStorage, $content) {
                 return {
                   restrict: 'E',
-                  templateUrl: $content.url('views/admin/components/profile-info/profile-sidebar.html'),
+                  templateUrl: $content.url('app/shared/partials/profile-sidebar.html'),
                   link: function(scope) {
 
                     // Placing a placeholder, when thumbnail is not given.
-                    var thumbnail = $localStorage.profileInfo.thumbnail;
-                    if(!thumbnail){
-                        thumbnail = 'http://placehold.it/100x100'
-                    }
+                    var thumbnail = 'http://placehold.it/100x100';
                     scope.profileInfo = {
-                        name: $localStorage.profileInfo.name,
-                        role: $localStorage.profileInfo.role.text,
+                        name: 'lorem_ipsum__',
+                        role: 'lorem_ipsum__',
                         thumbnail: thumbnail,
                     };
 
@@ -31,10 +28,10 @@
             function($localStorage, $content) {
                 return {
                   restrict: 'E',
-                  templateUrl: $content.url('views/admin/components/place-info/place-info-sidebar.html'),
+                  templateUrl: $content.url('app/shared/partials/place-info-sidebar.html'),
                   link: function(scope) {
                     scope.placeInfo = {
-                        name: $localStorage.placeInfo.name,
+                        name: 'lorem_ipsum__',
                     };
 
                     return scope;

@@ -4,13 +4,13 @@
 			<form name="loginForm" ng-submit="login.signin()">
 				<md-content class="md-padding login-content">
 					<md-input-container class="md-block">
-						<label>Username</label>
+						<label>Email</label>
 						<ng-md-icon icon="person" style="fill: #ffc107" size="32"></ng-md-icon>
-						<input ng-model="login.user.username" type="text" name="username" ng-required="true" required>
+						<input ng-model="login.user.email" type="email" name="email" ng-required="true" required>
 
-						<div ng-messages="loginForm.username.$error">
+						<div ng-messages="loginForm.email.$error">
 							<div ng-message="required" class="login-error-align">
-								Escriba su nombre de usuario.
+								Escriba su email.
 							</div>
 						</div>
 					</md-input-container>
@@ -28,7 +28,7 @@
 
 					<md-input-container class="md-block">
 						<div ng-show="login.error">
-							El usuario o contraseña son incorrectas.
+							El emial o contraseña son incorrectas.
 						</div></md-input-container>
 					<md-input-container class="md-block text-center">
 						<md-button type="submit" class="md-raised md-primary btn-md">Entrar</md-button>

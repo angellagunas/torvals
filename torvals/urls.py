@@ -15,12 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from django.views.generic import TemplateView
 
 from soft_drf.routing import urls as api_urls
 
+from torvals.views import IndexView
+
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name="index.html")),
+    url(r'^$', IndexView.as_view(), name="index_view"),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(api_urls, namespace="api")),
 ]

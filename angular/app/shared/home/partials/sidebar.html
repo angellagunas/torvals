@@ -1,0 +1,27 @@
+<md-sidenav layout="column" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" class="md-sidenav-left md-whiteframe-z2 md-closed md-locked-open">
+    <!-- Main toolbar-->
+    <md-toolbar class="md-tall md-layout-row">
+        <div layout="row" class="md-toolbar-tools-bottom inset">
+            <img ng-src="{{ $content.url('assets/imgs/logo.png') }}" alt="torvals-project" width="95px" height="100px"/>
+        </div>
+    </md-toolbar>
+
+    <profile-info-sidebar></profile-info-sidebar>
+
+    <md-content flex="">
+        <!-- Items for menu-->
+        <md-list layout-padding="" role="list" class="side-menu-list">
+            <md-list-item>
+                <a ui-sref="admin" ui-sref-opts="{reload: true}">
+                    <div md-ink-ripple="" layout="row" layout-align="start center" class="md-list-item-text">
+                        <div class="inset">
+                            <ng-md-icon icon="date_range" fill="#000" class="side-menu-icon"></ng-md-icon>
+                        </div>
+                        <div class="inset side-menu-item">Home</div>
+                    </div>
+                </a>
+            </md-list-item>
+        </md-list>
+    </md-content>
+</md-sidenav>
+

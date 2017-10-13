@@ -1,0 +1,35 @@
+<md-toolbar ng-show="!showSearch">
+    <div class="md-toolbar-tools dashboard-header">
+        <md-button ng-click="toggleSidebar()" aria-label="Menu" hide-gt-md="hide-gt-md">
+            <ng-md-icon icon="menu" style="fill: #2196f3;" class="dashboard-icon"></ng-md-icon>
+        </md-button>
+        <span flex=""></span>
+        <span>
+            <ng-md-icon icon="account_circle" size="32"></ng-md-icon>
+        </span>
+        <md-menu md-position-mode="target-right target">
+            <md-button aria-label="Open demo menu" ng-click="$mdOpenMenu($event)" class="md-icon-button">
+                <ng-md-icon icon="keyboard_arrow_down" size="30" style="fill: #000;"></ng-md-icon>
+            </md-button>
+            <md-menu-content width="4">
+                <md-menu-item>
+                    <md-button ng-click="h.logout()">
+                        <ng-md-icon icon="logout" size="24" style="fill: #000;"></ng-md-icon> Salir
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
+    </div>
+</md-toolbar>
+<!-- Secondary header-->
+<md-toolbar ng-show="!showSearch">
+    <div class="md-toolbar-tools dashboard-secondary-header">
+        <div flex="1">
+            <route-name></route-name>
+        </div>
+        <div flex="6"><span></span></div>
+        <div flex="1">
+            <div ncy-breadcrumb="ncy-breadcrumb"></div>
+        </div>
+    </div>
+</md-toolbar>
