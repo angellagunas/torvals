@@ -1,0 +1,40 @@
+<div ng-app="torvals" class="login margin-main-section">
+	<div flex="" layout="row" layout-align="center center">
+		<div flex-sm="80" flex-md="60" flex-lg="30" class="md-whiteframe-z2">
+			<form name="loginForm" ng-submit="login.signin()">
+				<md-content class="md-padding login-content">
+					<md-input-container class="md-block">
+						<label>Username</label>
+						<ng-md-icon icon="person" style="fill: #ffc107" size="32"></ng-md-icon>
+						<input ng-model="login.user.username" type="text" name="username" ng-required="true" required>
+
+						<div ng-messages="loginForm.username.$error">
+							<div ng-message="required" class="login-error-align">
+								Escriba su nombre de usuario.
+							</div>
+						</div>
+					</md-input-container>
+					<md-input-container class="md-block">
+						<label>Password</label>
+						<ng-md-icon icon="lock" style="fill: #ffc107" size="32"></ng-md-icon>
+						<input ng-model="login.user.password" type="password" name="password" ng-required="true" required>
+
+						<div ng-messages="loginForm.password.$error">
+							<div ng-message="required" class="login-error-align">
+								Escriba su contraseña.
+							</div>
+						</div>
+					</md-input-container>
+
+					<md-input-container class="md-block">
+						<div ng-show="login.error">
+							El usuario o contraseña son incorrectas.
+						</div></md-input-container>
+					<md-input-container class="md-block text-center">
+						<md-button type="submit" class="md-raised md-primary btn-md">Entrar</md-button>
+					</md-input-container>
+				</md-content>
+			</form>
+		</div>
+	</div>
+</div>

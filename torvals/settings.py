@@ -137,5 +137,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = (
+    os.path.realpath(os.path.join(BASE_DIR, 'angular')),
+)
+
 SHOW_DOCUMENTATION = True
 TITLE_DOCUMENTATION = "Torvals Project"

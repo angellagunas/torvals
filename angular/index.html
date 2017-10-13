@@ -1,8 +1,84 @@
-<html>
+{% load static %}
+<html lang="en" ng-app="torvals" >
     <head>
-        
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'assets/bower_components/angular-material/angular-material.min.css' %}">
+
+        <link rel="stylesheet" href="{% static 'assets/css/bootstrap-theme.min.css' %}"/>
+
+        <link rel="stylesheet" href="{% static 'assets/bower_components/angular/angular-csp.css' %}"/>
+        <link rel="stylesheet" href="{% static 'assets/bower_components/angular-material/angular-material.css' %}"/>
+        <link rel="stylesheet" href="{% static 'assets/bower_components/angular-material-data-table/dist/md-data-table.min.css' %}"/>
+        <link rel="stylesheet" href="{% static 'assets/bower_components/angular-material-datetimepicker/css/material-datetimepicker.css' %}"/>
+        <link rel="stylesheet" href="{% static 'assets/bower_components/angular-material-icons/angular-material-icons.css' %}"/>
+        <link rel="stylesheet" href="{% static 'assets/bower_components/angular-toastr/dist/angular-toastr.min.css' %}"/>
+        <link rel="stylesheet" href="{% static 'assets/bower_components/angular-ui-router-anim-in-out/css/anim-in-out.css' %}"/>
+        <link rel="stylesheet" href="{% static 'assets/bower_components/animate.css/animate.min.css' %}"/>
+
+        <link rel="stylesheet" href="{% static 'assets/css/app.css' %}"/>
+        <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}"/>
+        <link rel="stylesheet" href="{% static 'assets/css/login.css' %}"/>
+        <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}"/>
     </head>
-    <body>
-        <h1>Hello AngularJS.</h1>
-    </body>
+    <body layout="row">
+        <div ui-view="sidebar" layout="wrap"></div>
+
+        <div layout="column" flex>
+            <div ui-view="header"></div>
+
+            <md-content md-scroll-y layout="column" layout-padding flex>
+                <div ui-view="content" class="anim-in-out anim-fade main-content" data-anim-speed="1000" data-anim-sync="true"></div>
+            </md-content>
+
+            <footer>
+                <div ui-view="footer" layout="row" layout-align="center center" layout-padding></div>
+            </footer>
+        </div>
+
+        <script>
+            var staticUrl = "{{ static_url }}";
+        </script>
+
+        <!-- AngularJS Libraries -->
+        <script type="text/javascript" src="{% static 'assets/bower_components/jquery/dist/jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular/angular.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/ngstorage/ngStorage.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-animate/angular-animate.min.js' %}"></script>
+
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-aria/angular-aria.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-base64/angular-base64.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-breadcrumb/dist/angular-breadcrumb.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-material/angular-material.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-material-icons/angular-material-icons.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-material-data-table/dist/md-data-table.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/moment/min/moment.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/moment/min/locales.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/moment-timezone/builds/moment-timezone.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/moment-timezone/builds/moment-timezone-with-data.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/moment-timezone/builds/moment-timezone-with-data-2012-2022.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-material-datetimepicker/js/angular-material-datetimepicker.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-material-icons/angular-material-icons.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-messages/angular-messages.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-mocks/angular-mocks.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-resource/angular-resource.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-sanitize/angular-sanitize.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-toastr/dist/angular-toastr.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-ui-router/release/angular-ui-router.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/angular-ui-router-anim-in-out/anim-in-out.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/bower_components/malarkey/dist/malarkey.min.js' %}"></script>
+
+        <script type="text/javascript" src="{% static 'assets/js/toastr.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/js/vo-angular-content.js' %}"></script>
+        
+        <!-- App scripts -->
+        <script type="text/javascript" src="{% static 'app/app.js' %}"></script>
+        <script type="text/javascript" src="{% static 'app/run.js' %}"></script>
+        <script type="text/javascript" src="{% static 'app/config.js' %}"></script>
+        <script type="text/javascript" src="{% static 'app/resources.js' %}"></script>
+        <script type="text/javascript" src="{% static 'app/directives.js' %}"></script>
+        <script type="text/javascript" src="{% static 'app/constantes.js' %}"></script>
+
+        <script type="text/javascript" src="{% static 'app/shared/auth/login.js' %}"></script>
+
+      </body>
 </html>

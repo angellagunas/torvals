@@ -1,0 +1,9 @@
+{
+    "name": "Torvals",
+    "version": "0.1",
+    "authors": [
+        "al <angel.david.lagunas@gmail.com>"
+    ],
+    "description": "Web project to manage some server configurations",
+    "directory": "./angular/assets/bower_components/"
+}

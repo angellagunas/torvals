@@ -1,0 +1,36 @@
+.basic-anchor{
+    color: #2196f3 !important;
+    font-size: 13px;
+}
+
+.basic-anchor:hover{
+    text-decoration: underline;
+}
+
+hr.sidebar-separation {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #e1e1e1;
+    margin: 1em 0;
+    padding: 0; 
+
+}
+
+.twelve-points {
+    font-size: 12px !important;
+}
+
+md-grid-tile.yellow {
+  background: #ffff8d;
+}
+
+md-grid-tile.blue {
+  background: #84ffff;
+}
+
+md-grid-tile.green {
+  background: #b9f6ca;
+}
+
+
