@@ -107,3 +107,6 @@ ENV/
 
 # vim
 *.swp
+
+# statics files
+/static

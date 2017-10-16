@@ -6,7 +6,7 @@
 					<md-input-container class="md-block">
 						<label>Email</label>
 						<ng-md-icon icon="person" style="fill: #ffc107" size="32"></ng-md-icon>
-						<input ng-model="login.user.email" type="email" name="email" ng-required="true" required>
+						<input ng-model="login.user.email" type="email" name="email" ng-required="true" autocomplete="off" required>
 
 						<div ng-messages="loginForm.email.$error">
 							<div ng-message="required" class="login-error-align">
@@ -17,7 +17,7 @@
 					<md-input-container class="md-block">
 						<label>Password</label>
 						<ng-md-icon icon="lock" style="fill: #ffc107" size="32"></ng-md-icon>
-						<input ng-model="login.user.password" type="password" name="password" ng-required="true" required>
+						<input ng-model="login.user.password" type="password" name="password" ng-required="true" autocomplete="off" required>
 
 						<div ng-messages="loginForm.password.$error">
 							<div ng-message="required" class="login-error-align">

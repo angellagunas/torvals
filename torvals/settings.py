@@ -194,6 +194,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.realpath(os.path.join(BASE_DIR, 'static'))
+
 STATICFILES_DIRS = (
     os.path.realpath(os.path.join(BASE_DIR, 'angular')),
 )
@@ -204,5 +206,12 @@ TITLE_DOCUMENTATION = "Torvals Project"
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:8000',
-    'http://127.0.0.1:8000'
+    'http://127.0.0.1:8000',
+    'http://192.168.100.251:9004',
+    'http://192.168.100.251:9005'
 )
+
+ALLOWED_HOSTS = [
+    '192.168.100.251',
+    '127.0.0.1',
+]
