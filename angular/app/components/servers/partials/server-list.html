@@ -1,0 +1,46 @@
+<section class="fade">
+    <div layout="column">
+        <div flex="100">
+            <div class="md-content layout-margin layout-padding">
+                <md-content>
+                    <md-tabs md-dynamic-height md-border-bottom>
+                        <md-tab label="Servers" class="md-primary">
+                            <md-table-container>
+                                <table md-table="md-table">
+                                    <thead md-head="">
+                                        <tr md-row="">
+                                            <th md-column="">Name</th>
+                                            <th md-column="">IP v4</th>
+                                            <th md-column="">IP v6</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body="">
+                                        <tr md-row="" ng-repeat="serverDetail in server.servers">
+                                            <td md-cell="">{{ serverDetail.name }}</td>
+                                            <td md-cell="">{{ serverDetail.ipV4 }}</td>
+                                            <td md-cell="">{{ serverDetail.ipV6 }}</td>
+                                            <td md-cell="">
+                                                <div class="actions-section">
+                                                    <a href="#" ui-sref="admin.servers.detail({server_id: serverDetail.id })">
+                                                        <md-tooltip>Ver detalle</md-tooltip>
+                                                        <ng-md-icon icon="visibility" aria-label="Detail.."></ng-md-icon>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                        </md-tab>
+                    </md-tabs>
+                </md-content>
+            </div>
+        </div>
+    </div>
+</section>
+<style>
+    .events {
+    margin-top: 10px;
+    margin-bottom: 0;
+    }
+</style>

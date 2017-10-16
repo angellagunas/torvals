@@ -15,9 +15,19 @@
                 <a ui-sref="admin" ui-sref-opts="{reload: true}">
                     <div md-ink-ripple="" layout="row" layout-align="start center" class="md-list-item-text">
                         <div class="inset">
-                            <ng-md-icon icon="date_range" fill="#000" class="side-menu-icon"></ng-md-icon>
+                            <ng-md-icon icon="home" fill="#000" class="side-menu-icon"></ng-md-icon>
                         </div>
                         <div class="inset side-menu-item">Home</div>
+                    </div>
+                </a>
+            </md-list-item>
+            <md-list-item>
+                <a ui-sref="admin.servers" ui-sref-opts="{reload: true}">
+                    <div md-ink-ripple="" layout="row" layout-align="start center" class="md-list-item-text">
+                        <div class="inset">
+                            <ng-md-icon icon="dns" fill="#000" class="side-menu-icon"></ng-md-icon>
+                        </div>
+                        <div class="inset side-menu-item">Servers</div>
                     </div>
                 </a>
             </md-list-item>

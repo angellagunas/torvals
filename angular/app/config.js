@@ -1,6 +1,24 @@
 angular.module('torvals').config([
-  '$stateProvider', '$urlRouterProvider', '$contentProvider', '$httpProvider', '$logProvider', '$locationProvider', 'toastrConfig', '$mdThemingProvider', '$breadcrumbProvider',
-  function($stateProvider, $urlRouterProvider, $contentProvider, $httpProvider, $logProvider, $locationProvider, toastrConfig, $mdThemingProvider, $breadcrumbProvider) {
+    '$stateProvider',
+    '$urlRouterProvider',
+    '$contentProvider',
+    '$httpProvider',
+    '$logProvider',
+    '$locationProvider',
+    'toastrConfig',
+    '$mdThemingProvider',
+    '$breadcrumbProvider',
+    function(
+        $stateProvider,
+        $urlRouterProvider,
+        $contentProvider,
+        $httpProvider,
+        $logProvider,
+        $locationProvider,
+        toastrConfig,
+        $mdThemingProvider,
+        $breadcrumbProvider,
+    ) {
     // Configure content base url.
     $contentProvider.urlPrefix = staticUrl;
 
@@ -51,7 +69,8 @@ angular.module('torvals').config([
           templateUrl: $contentProvider.url('app/shared/partials/public-header.html'),
         }
       }
-    }).state('public.login', {
+    })
+    .state('public.login', {
       url: '',
       views: {
         "content@": {
@@ -83,6 +102,32 @@ angular.module('torvals').config([
             templateUrl: $contentProvider.url('app/shared/home/partials/footer.html')
         }
       }
+    })
+   .state('admin.servers', {
+      url: '/servers',
+      ncyBreadcrumb: {
+        label: 'Servers /'
+      },
+      views: {
+        "content@": {
+            templateUrl: $contentProvider.url('app/components/servers/partials/server-list.html'),
+            controller: 'ServerController',
+            controllerAs: 'server'
+        }
+      }
+    })
+    .state('admin.servers.detail', {
+        url: '/:server_id/detail',
+        ncyBreadcrumb: {
+            label: 'Server /'
+        },
+        views: {
+            "content@": {
+                templateUrl: $contentProvider.url('app/components/servers/partials/server-detail.html'),
+                controller: 'ServerDetailController',
+                controllerAs: 'server'
+            }
+        }
     });
 
     return $urlRouterProvider.otherwise('/');

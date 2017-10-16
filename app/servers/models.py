@@ -39,6 +39,9 @@ class Server(models.Model):
             }
         }
 
+    def __str__(self):
+        return self.name
+
 
 class Environment(models.Model):
     name = models.CharField(
@@ -71,3 +74,6 @@ class Environment(models.Model):
                 'scaffolding': True
             }
         }
+
+    def __str__(self):
+        return self.name

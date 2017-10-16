@@ -10,4 +10,5 @@ class ServerAdminForm(forms.ModelForm):
             'id',
             'name',
             'ip_v4',
+            'ip_v6'
         ]

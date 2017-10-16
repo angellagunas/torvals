@@ -1,0 +1,88 @@
+<section class="anim-slide-left">
+    <div layout="row" layout-xs="column">
+        <div flex="50" class="md-padding">
+            <form>
+                <div flex="100">
+                    <div layout="row" flex="100" layout-align="center center">
+                        <div flex="50">
+                            <md-input-container class="md-block">
+                                <label>Server</label>
+                                <input ng-model="server.server.name" type="text" name="name" ng-disabled="true"/>
+                            </md-input-container>
+
+                            <md-content class="md-no-momentum"></md-content>
+
+                            <md-input-container class="md-block">
+                                <label>IP V4</label>
+                                <input ng-model="server.server.ipV4" type="text" name="name" ng-disabled="true"/>
+                            </md-input-container>
+
+                            <md-content class="md-no-momentum"></md-content>
+
+                            <md-input-container class="md-block">
+                                <label>IP V6</label>
+                                <input ng-model="server.server.ipV6" type="text" name="name" ng-disabled="true"/>
+                            </md-input-container>
+                            
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div flex="50" class="md-padding">
+            <md-card-md-content>
+                <md-tabs md-dynamic-height="" md-border-bottom="">
+                    <md-tab label="Ports">
+                        <md-content class="md-padding">
+                            <p>Ports used in {{server.server.name}}</p>
+                            <md-input-container class="md-block"><input ng-model="filterPort" type="text" autocomplete="off" name="name" placeholder="Filter..."/></md-input-container>
+                            <div ng-repeat="port in server.server.ports | filter:filterPort" flex="50">
+                                <md-checkbox ng-checked="true" class="md-primary" ng-disabled="true">
+                                    {{ port.number }} - {{port.app.name}}
+                                </md-checkbox>
+                            </div>
+                        </md-content>
+                    </md-tab>
+                    <md-tab label="Programs">
+                        <md-content class="md-padding">
+                            <p>Programs installed in {{server.server.name}}</p>
+                            <md-input-container class="md-block"><input ng-model="filterProgram" type="text" autocomplete="off" name="name" placeholder="Filter..."/></md-input-container>
+                            <div ng-repeat="program in server.server.programs | filter:filterProgram" flex="50">
+                                <md-checkbox ng-checked="true" class="md-primary" ng-disabled="true">
+                                    <a href="{{program.source_URL}}" target="_blank">
+                                        {{ program.name }}
+                                    </a>
+                                        ({{ program.type.name }} v{{program.version}})
+                                </md-checkbox>
+                            </div>
+                        </md-content>
+                    </md-tab>
+
+                    <md-tab label="Envs">
+                        <md-content class="md-padding">
+                            <p>Envs in {{server.server.name}}</p>
+                            <md-input-container class="md-block"><input ng-model="filterEnv" type="text" autocomplete="off" name="name" placeholder="Filter..."/></md-input-container>
+                            <div ng-repeat="env in server.server.envs | filter:filterEnv" flex="50">
+                                <md-checkbox ng-checked="true" aria-label="2" ng-disabled="true">{{ env.name }}</md-checkbox>
+                            </div>
+                        </md-content>
+                    </md-tab>
+
+                    <md-tab label="Domains">
+                        <md-content class="md-padding">
+                            <p>Domains in {{server.server.name}}</p>
+                            <md-input-container class="md-block"><input ng-model="filterDomain" type="text" autocomplete="off" name="name" placeholder="Filter..."/></md-input-container>
+                            <div ng-repeat="domain in server.server.domains | filter:filterDomain" flex="50">
+                                <md-checkbox ng-checked="true" class="md-primary" ng-disabled="true">
+                                    <strong>{{ domain.name }}</strong> powered by <strong>{{ domain.provider.name }}</strong>
+                                </md-checkbox>
+                            </div>
+                        </md-content>
+                    </md-tab>
+
+                </md-tabs>
+            </md-card-md-content>
+        </div>
+    </div>
+</section>

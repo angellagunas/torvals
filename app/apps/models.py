@@ -28,6 +28,9 @@ class AppType(models.Model):
             }
         }
 
+    def __str__(self):
+        return self.name
+
 
 class App(models.Model):
     name = models.CharField(
@@ -37,7 +40,9 @@ class App(models.Model):
         help_text="Java, Python, Jenkins, Intertours project, etc."
     )
 
-    version = models.PositiveIntegerField(
+    version = models.CharField(
+        max_length=12,
+        default="1",
         help_text=(
             "For example the python version is 3.6, the JDK version is 8, etc"
         )
@@ -73,6 +78,9 @@ class App(models.Model):
             }
         }
 
+    def __str__(self):
+        return self.name
+
 
 class Port(models.Model):
     number = models.PositiveIntegerField(
@@ -101,3 +109,6 @@ class Port(models.Model):
                 'scaffolding': True
             }
         }
+
+    def __str__(self):
+        return str(self.number)

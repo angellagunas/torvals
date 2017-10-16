@@ -5,6 +5,23 @@ angular.module('torvals')
             return $resource('/api/v1/signin');
         }
     ])
+    .factory('Server', [
+        '$resource',
+        function ($resource) {
+            return $resource(
+                '/api/v1/servers/:id',
+                {
+                    id: '@id'
+                },
+                {
+                    'query': {
+                        method: 'GET',
+                        isArray: true
+                    }
+                }
+            );
+        }
+    ])
     .service('GlobalService', ["$http", "$state", "$localStorage", "$base64", "baseUrl", function($http, $state, $localStorage, $base64, baseUrl) {
         'ngInject';
         var logout;

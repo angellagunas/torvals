@@ -39,3 +39,6 @@ class Domain(models.Model):
                 'scaffolding': True
             }
         }
+
+    def __str__(self):
+        return self.name
