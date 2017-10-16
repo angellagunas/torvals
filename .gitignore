@@ -110,3 +110,5 @@ ENV/
 
 # statics files
 /static
+
+/angular/assets/bower_components
