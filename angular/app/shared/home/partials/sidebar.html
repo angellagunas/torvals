@@ -9,7 +9,6 @@
     <profile-info-sidebar></profile-info-sidebar>
 
     <md-content flex="">
-        <!-- Items for menu-->
         <md-list layout-padding="" role="list" class="side-menu-list">
             <md-list-item>
                 <a ui-sref="admin" ui-sref-opts="{reload: true}">
@@ -28,6 +27,16 @@
                             <ng-md-icon icon="dns" fill="#000" class="side-menu-icon"></ng-md-icon>
                         </div>
                         <div class="inset side-menu-item">Servers</div>
+                    </div>
+                </a>
+            </md-list-item>
+            <md-list-item>
+                <a ui-sref="admin.documentation" ui-sref-opts="{reload: true}">
+                    <div md-ink-ripple="" layout="row" layout-align="start center" class="md-list-item-text">
+                        <div class="inset">
+                            <ng-md-icon icon="book" fill="#000" class="side-menu-icon"></ng-md-icon>
+                        </div>
+                        <div class="inset side-menu-item">Documentation</div>
                     </div>
                 </a>
             </md-list-item>

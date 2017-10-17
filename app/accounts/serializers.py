@@ -8,6 +8,15 @@ from soft_drf.auth.utilities import create_token
 User = get_user_model()
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'email',
+            'username'
+        ]
+
+
 class SigninSerializer(serializers.Serializer):
     email = serializers.CharField(required=True)
     password = serializers.CharField(required=True)

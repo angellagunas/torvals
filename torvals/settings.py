@@ -51,6 +51,7 @@ LOCAL_APPS = [
     'angular',
     'app.accounts',
     'app.apps',
+    'app.documentation',
     'app.domains',
     'app.providers',
     'app.servers'

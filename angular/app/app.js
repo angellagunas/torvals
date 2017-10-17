@@ -15,6 +15,7 @@
         'ngMaterialDatePicker',
         'anim-in-out',
         'ncy-angular-breadcrumb',
+        'btford.markdown',
         'vo.content',
         'ui.router'
     ]);

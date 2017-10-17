@@ -34,7 +34,7 @@ angular.module('torvals').config([
     };
 
     // Theme configurations.
-    $mdThemingProvider.theme('default').primaryPalette('amber').accentPalette('amber');
+    $mdThemingProvider.theme('altTheme').primaryPalette('purple').accentPalette('green');
 
     // Token interceptor.
     $httpProvider.interceptors.push(function($q, $localStorage, $rootScope) {
@@ -119,7 +119,7 @@ angular.module('torvals').config([
     .state('admin.servers.detail', {
         url: '/:server_id/detail',
         ncyBreadcrumb: {
-            label: 'Server /'
+            label: 'Detail /'
         },
         views: {
             "content@": {
@@ -128,7 +128,33 @@ angular.module('torvals').config([
                 controllerAs: 'server'
             }
         }
-    });
+    })
+    .state('admin.documentation', {
+      url: '/documentation',
+      ncyBreadcrumb: {
+        label: 'Documents /'
+      },
+      views: {
+        "content@": {
+            templateUrl: $contentProvider.url('app/components/documentation/partials/home_documentation.html'),
+            controller: 'DocsController',
+            controllerAs: 'document'
+        }
+      }
+    })
+    .state('admin.documentation.detail', {
+        url: '/:document_id/detail',
+        ncyBreadcrumb: {
+            label: 'Detail /'
+        },
+        views: {
+            "content@": {
+                templateUrl: $contentProvider.url('app/components/documentation/partials/document-detail.html'),
+                controller: 'DocsDetailController',
+                controllerAs: 'document'
+            }
+        }
+    })
 
     return $urlRouterProvider.otherwise('/');
 }]);

@@ -1,0 +1,29 @@
+<section class="anim-slide-left">
+    <div layout="row" layout-xs="column">
+        <div flex="70" class="md-padding">
+            <form>
+                <div flex="100">
+                    <div layout="row" flex="100" layout-align="center center">
+                        <div flex="100">
+                            <h2>{{document.doc.type.name}} - {{document.doc.title}}</h2>
+                            <md-input-container class="md-block">
+                                <div btf-markdown="document.doc.body"></div>
+                            </md-input-container>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div flex="30" class="md-padding">
+            <md-card-md-content>
+                <md-tabs md-dynamic-height="" md-border-bottom="">
+                    <md-tab label="Answers / Notes">
+                        <md-content class="md-padding">
+                        </md-content>
+                    </md-tab>
+                </md-tabs>
+            </md-card-md-content>
+        </div>
+    </div>
+</section>
