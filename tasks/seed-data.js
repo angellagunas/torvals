@@ -91,7 +91,7 @@ var seedData = async function () {
 
     console.log('Saving roles ....')
     for (var role of data.roles) {
-      const existingRole = Role.findOne({
+      const existingRole = await Role.findOne({
         name: role.name,
         slug: slugify(role.name),
       })
@@ -103,24 +103,29 @@ var seedData = async function () {
           console.log("You can't have two default roles!")
           console.log('=========================================================')
 
+          connection.close()
           return
         }
 
         const newRole = await Role.create({
           name: role.name,
-          description: role.description,
           slug: slugify(role.name),
           isDefault: role.isDefault
         })
 
+
         if(role.isDefault) {
           defaultRole = newRole
+        }
+      } else {
+        if (existingRole.isDefault) {
+          defaultRole = existingRole
         }
       }
     }
 
     if(!defaultRole) {
-      defaultRole = Role.findOne({})
+      defaultRole = await Role.findOne({})
 
       defaultRole.isDefault = true
       defaultRole.save()
@@ -199,11 +204,11 @@ var seedData = async function () {
   }
 
   console.log('All done, bye!')
+  connection.close()
 }
 
 if (require.main === module) {
   seedData()
-  connection.close()
 } else {
   module.exports = seedData
 }

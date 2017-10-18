@@ -37,7 +37,7 @@
         },
         {
             "name": "Analista",
-            "isDefault": true
+            "isDefault": false
         },
         {
             "name": "Supervisor Ops",
