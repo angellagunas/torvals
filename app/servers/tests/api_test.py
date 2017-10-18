@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 
-class PollsTests(APITestCase):
+class ServersTests(APITestCase):
 
     def test_server_list_without_token(self):
         endpoint_url = reverse(
