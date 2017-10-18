@@ -1,10 +1,10 @@
-from app.apps.forms.apptype import AppTypeAdminForm
 from app.apps.forms.app import AppAdminForm
+from app.apps.forms.apptype import AppTypeAdminForm
 from app.apps.forms.port import PortAdminForm
 
 from app.apps.models import (
-    AppType,
     App,
+    AppType,
     Port,
 )
 

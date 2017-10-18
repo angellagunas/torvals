@@ -2,8 +2,8 @@
 from soft_drf.routing.v1.routers import router
 
 from .viewsets import (
-    apptype,
     app,
+    apptype,
     port,
 )
 

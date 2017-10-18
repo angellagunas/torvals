@@ -1,11 +1,13 @@
-from app.documentation.forms.documentationtype import DocumentationTypeAdminForm
-from app.documentation.forms.documentation import DocumentationAdminForm
 from app.documentation.forms.answer import AnswerAdminForm
+from app.documentation.forms.documentation import DocumentationAdminForm
+from app.documentation.forms.documentationtype import (
+    DocumentationTypeAdminForm
+)
 
 from app.documentation.models import (
-    DocumentationType,
-    Documentation,
     Answer,
+    Documentation,
+    DocumentationType,
 )
 
 from django.contrib import admin

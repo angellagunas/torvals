@@ -2,9 +2,9 @@
 from soft_drf.routing.v1.routers import router
 
 from .viewsets import (
-    documentationtype,
-    documentation,
     answer,
+    documentation,
+    documentationtype,
 )
 
 
