@@ -20,8 +20,6 @@ class PortViewSet(
     create_serializer_class = serializers.PortSerializer
     update_serializer_class = serializers.PortSerializer
 
-    permission_classes = []  # put your custom permissions here
-
     def get_queryset(self, *args, **kwargs):
         queryset = Port.objects.all()
         return queryset

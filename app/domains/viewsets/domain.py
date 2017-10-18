@@ -20,8 +20,6 @@ class DomainViewSet(
     create_serializer_class = serializers.DomainSerializer
     update_serializer_class = serializers.DomainSerializer
 
-    permission_classes = []  # put your custom permissions here
-
     def get_queryset(self, *args, **kwargs):
         queryset = Domain.objects.all()
         return queryset

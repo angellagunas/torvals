@@ -20,8 +20,6 @@ class AppTypeViewSet(
     create_serializer_class = serializers.AppTypeSerializer
     update_serializer_class = serializers.AppTypeSerializer
 
-    permission_classes = []  # put your custom permissions here
-
     def get_queryset(self, *args, **kwargs):
         queryset = AppType.objects.all()
         return queryset

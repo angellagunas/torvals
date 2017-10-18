@@ -1,6 +1,6 @@
 var app = angular.module('torvals');
 
-app.controller('LoginController', function($http, $state, $mdDialog, $localStorage, baseUrl, Auth) {
+app.controller('LoginController', function($http, $state, $mdDialog, $localStorage, baseUrl, Auth, Profile) {
     var getUserInfo, signin, vm;
     vm = this;
 
@@ -9,6 +9,9 @@ app.controller('LoginController', function($http, $state, $mdDialog, $localStora
             vm.user,
             function(response){
                 $localStorage.token = response.token;
+                Profile.get({}, function(profile){
+                    $localStorage.profile = profile;
+                });
                 return $state.go('admin');
             },
             function(error){

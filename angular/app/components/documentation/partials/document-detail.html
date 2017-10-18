@@ -1,6 +1,6 @@
 <section class="anim-slide-left">
-    <div layout="row" layout-xs="column">
-        <div flex="70" class="md-padding">
+    <div layout="column">
+        <div flex="100" class="md-padding">
             <form>
                 <div flex="100">
                     <div layout="row" flex="100" layout-align="center center">
@@ -15,11 +15,21 @@
             </form>
         </div>
 
-        <div flex="30" class="md-padding">
+        <div flex="100" class="md-padding">
             <md-card-md-content>
                 <md-tabs md-dynamic-height="" md-border-bottom="">
                     <md-tab label="Answers / Notes">
                         <md-content class="md-padding">
+                            <md-list>
+                                <md-list-item class="md-3-line" ng-repeat="answer in document.doc.answers">
+                                    <img ng-src="http://placehold.it/95x95" class="md-avatar">
+                                    <div class="md-list-item-text">
+                                    <h4>{{answer.author.username}}</h4>
+                                    <div btf-markdown="answer.body"></div>
+                                    </div>
+                                    <md-divider md-inset ng-if="!$last"></md-divider>
+                                </md-list-item>
+                            </md-list>
                         </md-content>
                     </md-tab>
                 </md-tabs>

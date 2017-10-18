@@ -20,8 +20,6 @@ class EnvironmentViewSet(
     create_serializer_class = serializers.EnvironmentSerializer
     update_serializer_class = serializers.EnvironmentSerializer
 
-    permission_classes = []  # put your custom permissions here
-
     def get_queryset(self, *args, **kwargs):
         queryset = Environment.objects.all()
         return queryset

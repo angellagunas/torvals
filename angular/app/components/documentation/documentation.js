@@ -11,6 +11,7 @@ app.controller('DocsController', function(Document) {
     var vm = this;
     Document.get({id: $stateParams.document_id}, function(doc){
         vm.doc = doc;
+        console.info(vm.doc);
     });
     return vm;
 });

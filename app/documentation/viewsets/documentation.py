@@ -20,8 +20,6 @@ class DocumentationViewSet(
     create_serializer_class = serializers.DocumentationSerializer
     update_serializer_class = serializers.DocumentationSerializer
 
-    permission_classes = []  # put your custom permissions here
-
     def get_queryset(self, *args, **kwargs):
         queryset = Documentation.objects.all()
         return queryset

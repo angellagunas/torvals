@@ -5,6 +5,12 @@ angular.module('torvals')
             return $resource('/api/v1/signin');
         }
     ])
+    .factory('Profile', [
+        '$resource',
+        function ($resource) {
+            return $resource('/api/v1/me');
+        }
+    ])
     .factory('Server', [
         '$resource',
         function ($resource) {

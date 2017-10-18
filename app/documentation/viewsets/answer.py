@@ -20,8 +20,6 @@ class AnswerViewSet(
     create_serializer_class = serializers.AnswerSerializer
     update_serializer_class = serializers.AnswerSerializer
 
-    permission_classes = []  # put your custom permissions here
-
     def get_queryset(self, *args, **kwargs):
         queryset = Answer.objects.all()
         return queryset

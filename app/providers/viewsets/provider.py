@@ -20,8 +20,6 @@ class ProviderViewSet(
     create_serializer_class = serializers.ProviderSerializer
     update_serializer_class = serializers.ProviderSerializer
 
-    permission_classes = []  # put your custom permissions here
-
     def get_queryset(self, *args, **kwargs):
         queryset = Provider.objects.all()
         return queryset

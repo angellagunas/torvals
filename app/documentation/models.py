@@ -101,6 +101,13 @@ class Answer(models.Model):
 
     author = models.ForeignKey(
         User,
+        related_name="answers",
+        null=True,
+        blank=True
+    )
+
+    document = models.ForeignKey(
+        Documentation,
         related_name="answers"
     )
 
@@ -124,4 +131,4 @@ class Answer(models.Model):
         }
 
     def __str__(self):
-        return self.author
+        return self.document.title

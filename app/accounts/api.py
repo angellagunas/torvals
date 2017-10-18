@@ -8,12 +8,22 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from soft_drf.api import mixins
+from soft_drf.api.routers.single import SingleObjectRouter
 from soft_drf.api.viewsets import GenericViewSet
 from soft_drf.routing.v1.routers import router
 
+User = get_user_model()  # noqa
+
+
+class ProfileViewSet(mixins.RetrieveModelMixin, GenericViewSet):
+    serializer_class = serializers.UserSerializer
+    retrieve_serializer_class = serializers.UserSerializer
+
+    def get_object(self):
+        return self.request.user
+
 
 class SigninViewSet(mixins.CreateModelMixin, GenericViewSet):
-    User = get_user_model()  # noqa
     serializer_class = serializers.SigninSerializer
     create_serializer_class = serializers.SigninSerializer
     retrieve_serializer_class = serializers.SigninResponseSerializer
@@ -44,4 +54,11 @@ router.register(
     r"signin",
     SigninViewSet,
     base_name="signin"
+)
+
+router.register(
+    'me',
+    ProfileViewSet,
+    base_name='me',
+    router_class=SingleObjectRouter
 )

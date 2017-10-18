@@ -20,8 +20,6 @@ class ServerViewSet(
     create_serializer_class = serializers.ServerSerializer
     update_serializer_class = serializers.ServerSerializer
 
-    permission_classes = []  # put your custom permissions here
-
     def get_queryset(self, *args, **kwargs):
         queryset = Server.objects.all()
         return queryset

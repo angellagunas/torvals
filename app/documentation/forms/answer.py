@@ -9,5 +9,5 @@ class AnswerAdminForm(forms.ModelForm):
         fields = [
             'id',
             'body',
-            'author',
+            'document'
         ]

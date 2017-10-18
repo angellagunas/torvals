@@ -1,7 +1,10 @@
-angular.module('torvals').controller('HeaderController', function($state, GlobalService, $mdSidenav, $scope, $timeout) {
+angular.module('torvals').controller('HeaderController', function($state, GlobalService, $mdSidenav, $scope, $timeout, $localStorage) {
     'ngInject';
     var buildDelayedToggler, debounce, logout, vm;
     vm = this;
+
+    vm.profile = $localStorage.profile;
+
     debounce = function(func, wait, context) {
         var timer;
         timer = void 0;
@@ -26,7 +29,7 @@ angular.module('torvals').controller('HeaderController', function($state, Global
     $scope.toggleSidebar = buildDelayedToggler('left');
 
     logout = function() {
-        return Global.logout();
+        return GlobalService.logout();
     };
 
     vm.logout = logout;

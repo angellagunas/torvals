@@ -10,12 +10,8 @@
                   link: function(scope) {
 
                     // Placing a placeholder, when thumbnail is not given.
-                    var thumbnail = 'http://placehold.it/100x100';
-                    scope.profileInfo = {
-                        name: 'lorem_ipsum__',
-                        role: 'lorem_ipsum__',
-                        thumbnail: thumbnail,
-                    };
+                    scope.profile = $localStorage.profile;
+                    scope.profile.thumbnail = 'http://placehold.it/95x95';
 
                     return scope;
                   }
