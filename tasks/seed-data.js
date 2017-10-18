@@ -1,4 +1,4 @@
-// node tasks/delete-calendly-webhook --id <calendly_webhook_id> --token <calendly_token>
+// node tasks/seed-data --file <file>
 require('../config')
 const connection = require('lib/databases/mongo')
 const fs = require('fs')
@@ -42,8 +42,7 @@ const schema = lov.object().required().keys({
   roles: lov.array().required().items(
     lov.object().keys({
       name: lov.string().required(),
-      isDefault: lov.boolean().required(),
-      description: lov.string(),
+      isDefault: lov.boolean()
     })
   )
 })

@@ -1,0 +1,47 @@
+{
+    "users": [],
+    "admins": [
+        {
+            "name": "Luis Lizarraga",
+            "email": "luis@commonsense.io",
+            "password": "123macarena"
+        },
+        {
+            "name": "Daniel Zavala",
+            "email": "d@commonsense.io",
+            "password": "xMLewQXLz8"
+        }
+    ],
+    "organizations": [
+        {
+            "name": "Barcel",
+            "description": "Organización de Barcel"
+        },
+        {
+            "name": "Globo",
+            "description": "Organización de Globo"
+        }
+    ],
+    "roles": [
+        {
+            "name": "Admin Organización",
+            "isDefault": false
+        },
+        {
+            "name": "Ops",
+            "isDefault": true
+        },
+        {
+            "name": "Supervisor",
+            "isDefault": false
+        },
+        {
+            "name": "Analista",
+            "isDefault": true
+        },
+        {
+            "name": "Supervisor Ops",
+            "isDefault": false
+        }
+    ]
+}
