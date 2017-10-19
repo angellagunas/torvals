@@ -133,9 +133,10 @@ var seedData = async function () {
 
     console.log('Saving users ....')
     for (var user of data.users) {
-      const existingUser = User.findOne({
+      const existingUser = await User.findOne({
         email: user.email,
         name: user.name,
+        screenName: admin.name,
         isAdmin: false,
         validEmail: true
       })
@@ -145,6 +146,7 @@ var seedData = async function () {
           email: user.email,
           password: user.password,
           name: user.name,
+          screenName: admin.name,
           isAdmin: false,
           validEmail: true,
           role: defaultRole
@@ -156,8 +158,9 @@ var seedData = async function () {
 
     console.log('Saving admins ....')
     for (var admin of data.admins) {
-      const existingUser = User.findOne({
+      const existingUser = await User.findOne({
         email: admin.email,
+        screenName: admin.name,
         name: admin.name,
         isAdmin: true,
         validEmail: true
@@ -167,6 +170,7 @@ var seedData = async function () {
         await User.create({
           email: admin.email,
           password: admin.password,
+          screenName: admin.name,
           name: admin.name,
           isAdmin: true,
           validEmail: true,
@@ -179,7 +183,7 @@ var seedData = async function () {
 
     console.log('Saving organizations ....')
     for (var org of data.organizations) {
-      const existingOrg = Organization.findOne({
+      const existingOrg = await Organization.findOne({
         name: org.name,
         slug: slugify(org.name)
       })
@@ -201,6 +205,7 @@ var seedData = async function () {
     console.log(e)
     output.write('ERROR!!!! \n')
     output.write(e)
+    connection.close()
   }
 
   console.log('All done, bye!')
