@@ -136,6 +136,7 @@ var seedData = async function () {
       const existingUser = await User.findOne({
         email: user.email,
         name: user.name,
+        screenName: admin.name,
         isAdmin: false,
         validEmail: true
       })
@@ -145,6 +146,7 @@ var seedData = async function () {
           email: user.email,
           password: user.password,
           name: user.name,
+          screenName: admin.name,
           isAdmin: false,
           validEmail: true,
           role: defaultRole
@@ -159,6 +161,7 @@ var seedData = async function () {
       const existingUser = await User.findOne({
         email: admin.email,
         screenName: admin.name,
+        name: admin.name,
         isAdmin: true,
         validEmail: true
       })
@@ -168,6 +171,7 @@ var seedData = async function () {
           email: admin.email,
           password: admin.password,
           screenName: admin.name,
+          name: admin.name,
           isAdmin: true,
           validEmail: true,
           role: defaultRole
