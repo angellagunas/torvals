@@ -90,7 +90,7 @@ class NavBar extends Component {
     return (<nav className='c-topbar navbar c-fixed'>
       <div className='c-topbar__aside navbar-brand'>
         <Link to='/' className='navbar-item'>
-          <img className='is-flex' src='http://bulma.io/images/bulma-logo.png' />
+          <img className='is-flex' src='/admin/public/img/pythia-logo.png' />
         </Link>
       </div>
       <div className='c-topbar__main'>
