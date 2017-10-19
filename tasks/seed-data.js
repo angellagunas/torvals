@@ -158,7 +158,7 @@ var seedData = async function () {
     for (var admin of data.admins) {
       const existingUser = await User.findOne({
         email: admin.email,
-        name: admin.name,
+        screenName: admin.name,
         isAdmin: true,
         validEmail: true
       })
@@ -167,7 +167,7 @@ var seedData = async function () {
         await User.create({
           email: admin.email,
           password: admin.password,
-          name: admin.name,
+          screenName: admin.name,
           isAdmin: true,
           validEmail: true,
           role: defaultRole
@@ -201,6 +201,7 @@ var seedData = async function () {
     console.log(e)
     output.write('ERROR!!!! \n')
     output.write(e)
+    connection.close()
   }
 
   console.log('All done, bye!')
