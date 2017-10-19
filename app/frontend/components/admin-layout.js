@@ -1,12 +1,15 @@
+import {isEmpty} from 'lodash'
 import React, { Component } from 'react'
 import { root } from 'baobab-react/higher-order'
 
+import api from '~base/api'
 import tree from '~core/tree'
-import api from '~core/api'
 
-import NavBar from '~components/navbar'
+import Sidebar from '~components/sidebar'
+import Footer from '~components/footer'
+import AdminNavBar from '~components/admin-navbar'
 
-class Layout extends Component {
+class AdminLayout extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -51,14 +54,25 @@ class Layout extends Component {
       return <div>Loading...</div>
     }
 
-    var userData
-
-    return (<div>
-      <NavBar />
-      {userData}
-      {this.props.children}
-    </div>)
+    if (!isEmpty(this.state.user)) {
+      return (<div className='is-wrapper'>
+        <AdminNavBar />
+        <div className='is-flex c-flex-1 columns is-gapless'>
+          <Sidebar />
+          <div className='column is-flex is-flex-column main-wrapper'>
+            <section className='c-flex-1 is-flex'>
+              {this.props.children}
+            </section>
+            <Footer />
+          </div>
+        </div>
+      </div>)
+    } else {
+      return (<div>
+        {this.props.children}
+      </div>)
+    }
   }
 }
 
-export default root(tree, Layout)
+export default root(tree, AdminLayout)
