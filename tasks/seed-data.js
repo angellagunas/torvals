@@ -133,7 +133,7 @@ var seedData = async function () {
 
     console.log('Saving users ....')
     for (var user of data.users) {
-      const existingUser = User.findOne({
+      const existingUser = await User.findOne({
         email: user.email,
         name: user.name,
         isAdmin: false,
@@ -156,7 +156,7 @@ var seedData = async function () {
 
     console.log('Saving admins ....')
     for (var admin of data.admins) {
-      const existingUser = User.findOne({
+      const existingUser = await User.findOne({
         email: admin.email,
         name: admin.name,
         isAdmin: true,
@@ -179,7 +179,7 @@ var seedData = async function () {
 
     console.log('Saving organizations ....')
     for (var org of data.organizations) {
-      const existingOrg = Organization.findOne({
+      const existingOrg = await Organization.findOne({
         name: org.name,
         slug: slugify(org.name)
       })
