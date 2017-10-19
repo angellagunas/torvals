@@ -21,7 +21,7 @@ const schema = {
     description: {type: 'string', title: 'Description'},
     organization: {
       type: 'string',
-      title: 'Organización',
+      title: 'Organization',
       enum: [],
       enumNames: []
     }
