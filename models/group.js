@@ -9,6 +9,7 @@ const groupSchema = new Schema({
   description: { type: String },
   slug: { type: String },
   users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
@@ -23,6 +24,7 @@ groupSchema.methods.toPublic = function () {
     name: this.name,
     description: this.description,
     slug: this.slug,
+    organization: this.organization,
     dateCreated: this.dateCreated
   }
 }
@@ -32,7 +34,8 @@ groupSchema.methods.format = function () {
     uuid: this.uuid,
     name: this.name,
     description: this.description,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    organization: this.organization
   }
 }
 

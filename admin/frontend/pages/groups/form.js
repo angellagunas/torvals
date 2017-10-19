@@ -5,8 +5,10 @@ import api from '~base/api'
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget
+  TextareaWidget,
+  SelectWidget
 } from '~base/components/base-form'
+import Loader from '~base/components/spinner'
 
 const schema = {
   type: 'object',
@@ -16,13 +18,20 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
-    description: {type: 'string', title: 'Description'}
+    description: {type: 'string', title: 'Description'},
+    organization: {
+      type: 'string',
+      title: 'Organización',
+      enum: [],
+      enumNames: []
+    }
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
+  description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
+  organization: {'ui:widget': SelectWidget}
 }
 
 class GroupForm extends Component {
@@ -77,6 +86,15 @@ class GroupForm extends Component {
         Error: {this.state.error}
       </div>
     }
+
+    if (this.props.organizations.length === 0) {
+      return <Loader />
+    }
+
+    let org = schema.properties.organization
+
+    org.enum = this.props.organizations.map(item => { return item._id })
+    org.enumNames = this.props.organizations.map(item => { return item.name })
 
     return (
       <div>

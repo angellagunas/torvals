@@ -14,6 +14,7 @@ class GroupDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
+      orgs: [],
       group: {}
     }
   }
@@ -27,6 +28,7 @@ class GroupDetail extends Component {
     })
     this.context.tree.commit()
     this.load()
+    this.loadOrgs()
   }
 
   async load () {
@@ -37,6 +39,22 @@ class GroupDetail extends Component {
       loading: false,
       loaded: true,
       group: body.data
+    })
+  }
+
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      orgs: body.data
     })
   }
 
@@ -111,6 +129,7 @@ class GroupDetail extends Component {
                           url={'/admin/groups/' + this.props.match.params.uuid}
                           initialState={this.state.group}
                           load={this.load.bind(this)}
+                          organizations={this.state.orgs || []}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
