@@ -12,10 +12,6 @@ import Dashboard from './pages/app'
 import Users from './pages/users/list'
 import UserDetail from './pages/users/detail'
 import Profile from './pages/profile'
-import Organizations from './pages/organizations/list'
-import OrganizationDetail from './pages/organizations/detail'
-import Roles from './pages/roles/list'
-import RoleDetail from './pages/roles/detail'
 import Groups from './pages/groups/list'
 import GroupDetail from './pages/groups/detail'
 
@@ -28,10 +24,6 @@ const AppRouter = () => {
         <PrivateRoute exact path='/manage/users' component={Users} />
         <PrivateRoute exact path='/manage/users/:uuid' component={UserDetail} />
         <PrivateRoute exact path='/manage/profile' component={Profile} />
-        <PrivateRoute exact path='/manage/organizations' component={Organizations} />
-        <PrivateRoute exact path='/manage/organizations/:uuid' component={OrganizationDetail} />
-        <PrivateRoute exact path='/manage/roles' component={Roles} />
-        <PrivateRoute exact path='/manage/roles/:uuid' component={RoleDetail} />
         <PrivateRoute exact path='/manage/groups' component={Groups} />
         <PrivateRoute exact path='/manage/groups/:uuid' component={GroupDetail} />
       </div>

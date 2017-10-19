@@ -16,7 +16,6 @@ class UserDetail extends Component {
       loading: true,
       user: {},
       roles: [],
-      orgs: [],
       groups: []
     }
   }
@@ -24,7 +23,6 @@ class UserDetail extends Component {
   componentWillMount () {
     this.load()
     this.loadRoles()
-    this.loadOrgs()
     this.loadGroups()
   }
 
@@ -55,23 +53,6 @@ class UserDetail extends Component {
     })
   }
 
-  async loadOrgs () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        user: this.props.match.params.uuid,
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      orgs: body.data
-    })
-  }
-
   async loadGroups () {
     var url = '/admin/groups/'
     const body = await api.get(
@@ -97,30 +78,6 @@ class UserDetail extends Component {
     }
 
     return 'N/A'
-  }
-
-  async availableOrgOnClick (uuid) {
-    var url = '/admin/users/' + this.props.match.params.uuid + '/add/organization'
-    await api.post(url,
-      {
-        organization: uuid
-      }
-    )
-
-    this.load()
-    this.loadOrgs()
-  }
-
-  async assignedOrgOnClick (uuid) {
-    var url = '/admin/users/' + this.props.match.params.uuid + '/remove/organization'
-    await api.post(url,
-      {
-        organization: uuid
-      }
-    )
-
-    this.load()
-    this.loadOrgs()
   }
 
   async availableGroupOnClick (uuid) {
@@ -196,15 +153,8 @@ class UserDetail extends Component {
                           Organizations
                         </p>
                       </header>
-                      <div className='card-content'>
-                        <Multiselect
-                          assignedList={user.organizations}
-                          availableList={this.state.orgs}
-                          dataFormatter={(item) => { return item.name || 'N/A' }}
-                          availableClickHandler={this.availableOrgOnClick.bind(this)}
-                          assignedClickHandler={this.assignedOrgOnClick.bind(this)}
-                        />
-                      </div>
+                      <div className='card-content' />
+
                     </div>
                   </div>
                 </div>

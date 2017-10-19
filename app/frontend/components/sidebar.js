@@ -27,16 +27,6 @@ class Sidebar extends Component {
       to: '/manage',
       dropdown: [
         {
-          title: 'Roles',
-          icon: 'address-book',
-          to: '/manage/roles'
-        },
-        {
-          title: 'Organizations',
-          icon: 'address-book',
-          to: '/manage/organizations'
-        },
-        {
           title: 'Groups',
           icon: 'users',
           to: '/manage/groups'
