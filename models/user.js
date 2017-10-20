@@ -80,6 +80,7 @@ userSchema.methods.toPublic = function () {
     displayName: this.displayName,
     name: this.name,
     email: this.email,
+    role: this.role,
     validEmail: this.validEmail
   }
 }
