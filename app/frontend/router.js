@@ -1,57 +1,33 @@
 import React from 'react'
 import {
-  BrowserRouter as Router,
-  Route,
-  Redirect
+  BrowserRouter as Router
 } from 'react-router-dom'
 
-import tree from '~core/tree'
-import Layout from '~components/layout'
+import AdminLayout from '~components/admin-layout'
 
-import Home from './pages/home'
-import About from './pages/about'
-import SignUp from './pages/sign-up'
+import {PrivateRoute, LoginRoute} from '~base/router'
+
 import LogIn from './pages/log-in'
+import Dashboard from './pages/app'
+import Users from './pages/users/list'
+import UserDetail from './pages/users/detail'
 import Profile from './pages/profile'
-
-import App from './pages/app'
-
-const LoginRoute = ({ component: Component, ...rest }) => {
-  return <Route {...rest} render={props => {
-    if (tree.get('loggedIn')) {
-      return <Redirect to={{
-        pathname: '/app'
-      }} />
-    } else {
-      return <Component {...props} />
-    }
-  }} />
-}
-
-const PrivateRoute = ({ component: Component, ...rest }) => {
-  return <Route {...rest} render={props => {
-    if (!tree.get('loggedIn')) {
-      return <Redirect to={{
-        pathname: '/log-in'
-      }} />
-    } else {
-      return <Component {...props} />
-    }
-  }} />
-}
+import Groups from './pages/groups/list'
+import GroupDetail from './pages/groups/detail'
 
 const AppRouter = () => {
   return (<Router>
-    <Layout>
-      <div>
-        <Route exact path='/' component={Home} />
-        <Route exact path='/about' component={About} />
-        <LoginRoute exact path='/sign-up' component={SignUp} />
+    <AdminLayout>
+      <div className='c-flex-1 is-flex is-flex-column is-relative'>
         <LoginRoute exact path='/log-in' component={LogIn} />
-        <PrivateRoute path='/app' component={App} />
-        <PrivateRoute path='/profile' component={Profile} />
+        <PrivateRoute exact path='/' component={Dashboard} />
+        <PrivateRoute exact path='/manage/users' component={Users} />
+        <PrivateRoute exact path='/manage/users/:uuid' component={UserDetail} />
+        <PrivateRoute exact path='/manage/profile' component={Profile} />
+        <PrivateRoute exact path='/manage/groups' component={Groups} />
+        <PrivateRoute exact path='/manage/groups/:uuid' component={GroupDetail} />
       </div>
-    </Layout>
+    </AdminLayout>
   </Router>)
 }
 
