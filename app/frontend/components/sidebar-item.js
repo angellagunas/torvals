@@ -43,20 +43,34 @@ class SidebarItem extends Component {
     this.setState({open: !this.state.open})
   }
 
+  testRoles (roles) {
+    if (!roles) return true
+    let rolesList = roles.split(',')
+    let user = tree.get('user')
+    let test = false
+
+    for (var role of rolesList) {
+      role = role.trim()
+      if (role && user && user.role && user.role.slug === role) {
+        test = true
+      }
+    }
+
+    return test
+  }
+
   render () {
-    let {title, icon, to, dropdown, onClick, role} = this.props
+    let {title, icon, to, dropdown, onClick, roles} = this.props
     let mainLink = this.getItemLink(to, icon, title, onClick)
     let ulDropdown
-    console.log(this.props)
-    let user = tree.get('user')
+
+    if (!this.testRoles(roles)) return null
 
     if (dropdown) {
       mainLink = this.getDropdownButton(to, icon, title, this.onToggle)
       ulDropdown = (<ul className={this.state.open ? '' : 'is-hidden'}>
         {dropdown.map((e, i) => {
-          if (e.role && user && user.role && user.role.slug !== e.role) {
-            return null
-          }
+          if (!this.testRoles(e.roles)) return null
 
           return (
             <li key={e.title.toLowerCase().replace(/\s/g, '')}>
@@ -65,11 +79,6 @@ class SidebarItem extends Component {
           )
         })}
       </ul>)
-    }
-
-    // console.log(user)
-    if (role && user && user.role && user.role.slug !== role) {
-      return null
     }
 
     return (<li>

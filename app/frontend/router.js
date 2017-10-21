@@ -25,26 +25,26 @@ const AppRouter = () => {
           exact
           path='/manage/users'
           component={Users}
-          role='admin-organizacion'
+          roles='admin-organizacion, admin'
         />
         <PrivateRoleRoute
           exact
           path='/manage/users/:uuid'
           component={UserDetail}
-          role='admin-organizacion'
+          roles='admin-organizacion, admin'
         />
         <PrivateRoute exact path='/profile' component={Profile} />
         <PrivateRoleRoute
           exact
           path='/manage/groups'
           component={Groups}
-          role='admin-organizacion'
+          roles='admin-organizacion, admin'
         />
         <PrivateRoleRoute
           exact
           path='/manage/groups/:uuid'
           component={GroupDetail}
-          role='admin-organizacion'
+          roles='admin-organizacion, admin'
         />
       </div>
     </AdminLayout>
