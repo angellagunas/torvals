@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Link from '~base/router/link'
 import FontAwesome from 'react-fontawesome'
+import tree from '~core/tree'
 
 class SidebarItem extends Component {
   constructor (props) {
@@ -43,17 +44,32 @@ class SidebarItem extends Component {
   }
 
   render () {
-    let {title, icon, to, dropdown, onClick} = this.props
+    let {title, icon, to, dropdown, onClick, role} = this.props
     let mainLink = this.getItemLink(to, icon, title, onClick)
     let ulDropdown
+    console.log(this.props)
+    let user = tree.get('user')
 
     if (dropdown) {
       mainLink = this.getDropdownButton(to, icon, title, this.onToggle)
-      ulDropdown = (<ul className={this.state.open ? '' : 'is-hidden'}>{dropdown.map((e, i) => {
-        return (<li key={e.title.toLowerCase().replace(/\s/g, '')}>
-          {this.getItemLink(e.to, e.icon, e.title, onClick)}
-        </li>)
-      })}</ul>)
+      ulDropdown = (<ul className={this.state.open ? '' : 'is-hidden'}>
+        {dropdown.map((e, i) => {
+          if (e.role && user && user.role && user.role.slug !== e.role) {
+            return null
+          }
+
+          return (
+            <li key={e.title.toLowerCase().replace(/\s/g, '')}>
+              {this.getItemLink(e.to, e.icon, e.title, onClick)}
+            </li>
+          )
+        })}
+      </ul>)
+    }
+
+    // console.log(user)
+    if (role && user && user.role && user.role.slug !== role) {
+      return null
     }
 
     return (<li>

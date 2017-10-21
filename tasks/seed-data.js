@@ -159,11 +159,7 @@ var seedData = async function () {
     console.log('Saving admins ....')
     for (var admin of data.admins) {
       const existingUser = await User.findOne({
-        email: admin.email,
-        screenName: admin.name,
-        name: admin.name,
-        isAdmin: true,
-        validEmail: true
+        email: admin.email
       })
 
       if (!existingUser) {

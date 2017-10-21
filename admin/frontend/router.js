@@ -27,7 +27,7 @@ const AppRouter = () => {
         <PrivateRoute exact path='/' component={Dashboard} />
         <PrivateRoute exact path='/manage/users' component={Users} />
         <PrivateRoute exact path='/manage/users/:uuid' component={UserDetail} />
-        <PrivateRoute exact path='/manage/profile' component={Profile} />
+        <PrivateRoute exact path='/profile' component={Profile} />
         <PrivateRoute exact path='/manage/organizations' component={Organizations} />
         <PrivateRoute exact path='/manage/organizations/:uuid' component={OrganizationDetail} />
         <PrivateRoute exact path='/manage/roles' component={Roles} />

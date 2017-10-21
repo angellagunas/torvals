@@ -5,7 +5,7 @@ import {
 
 import AdminLayout from '~components/admin-layout'
 
-import {PrivateRoute, LoginRoute} from '~base/router'
+import {PrivateRoute, LoginRoute, PrivateRoleRoute} from '~base/router'
 
 import LogIn from './pages/log-in'
 import Dashboard from './pages/app'
@@ -21,11 +21,31 @@ const AppRouter = () => {
       <div className='c-flex-1 is-flex is-flex-column is-relative'>
         <LoginRoute exact path='/log-in' component={LogIn} />
         <PrivateRoute exact path='/' component={Dashboard} />
-        <PrivateRoute exact path='/manage/users' component={Users} />
-        <PrivateRoute exact path='/manage/users/:uuid' component={UserDetail} />
-        <PrivateRoute exact path='/manage/profile' component={Profile} />
-        <PrivateRoute exact path='/manage/groups' component={Groups} />
-        <PrivateRoute exact path='/manage/groups/:uuid' component={GroupDetail} />
+        <PrivateRoleRoute
+          exact
+          path='/manage/users'
+          component={Users}
+          role='admin-organizacion'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/manage/users/:uuid'
+          component={UserDetail}
+          role='admin-organizacion'
+        />
+        <PrivateRoute exact path='/profile' component={Profile} />
+        <PrivateRoleRoute
+          exact
+          path='/manage/groups'
+          component={Groups}
+          role='admin-organizacion'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/manage/groups/:uuid'
+          component={GroupDetail}
+          role='admin-organizacion'
+        />
       </div>
     </AdminLayout>
   </Router>)
