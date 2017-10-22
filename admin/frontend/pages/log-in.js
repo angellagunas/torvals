@@ -27,14 +27,18 @@ class LogIn extends Component {
       formData: {
         email: '',
         password: ''
-      }
+      },
+      apiCallErrorMessage: 'is-hidden'
     }
   }
 
   errorHandler (e) {}
 
   changeHandler ({formData}) {
-    this.setState({formData})
+    this.setState({
+      formData,
+      apiCallErrorMessage: 'is-hidden'
+    })
   }
 
   async submitHandler ({formData}) {
@@ -42,8 +46,10 @@ class LogIn extends Component {
     try {
       data = await api.post('/user/login', formData)
     } catch (e) {
+      console.log(e)
       return this.setState({
         error: e.message,
+        apiCallErrorMessage: 'message is-danger',
         formData: {
           email: '',
           password: ''
@@ -88,13 +94,17 @@ class LogIn extends Component {
           </header>
           <div className='card-content'>
             <div className='content'>
-              {error}
               <BaseForm schema={schema}
                 uiSchema={uiSchema}
                 formData={this.state.formData}
                 onChange={(e) => { this.changeHandler(e) }}
                 onSubmit={(e) => { this.submitHandler(e) }}
                 onError={(e) => { this.errorHandler(e) }}>
+                <div className={this.state.apiCallErrorMessage}>
+                  <div className='message-body is-size-7 has-text-centered'>
+                    {error}
+                  </div>
+                </div>
                 <div>
                   <button className='button is-primary is-fullwidth' type='submit'>Log in</button>
                 </div>

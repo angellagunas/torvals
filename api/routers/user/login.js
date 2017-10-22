@@ -10,11 +10,12 @@ module.exports = new Route({
     const user = await User.auth(email, password)
 
     ctx.body = {
-      user: user.format(),
+      user: user.toPublic(),
       isAdmin: user.isAdmin,
       jwt: jwt.sign({
         uuid: user.uuid,
-        apiToken: user.apiToken
+        apiToken: user.apiToken,
+        organization: user.selectedOrg
       })
     }
   }

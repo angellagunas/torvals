@@ -21,6 +21,7 @@ const userSchema = new Schema({
   organizations: [{ type: Schema.Types.ObjectId, ref: 'Organization' }],
   role: { type: Schema.Types.ObjectId, ref: 'Role' },
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
+  selectedOrg: { type: String },
 
   resetPasswordToken: { type: String, default: v4 },
 
@@ -81,6 +82,7 @@ userSchema.methods.toPublic = function () {
     name: this.name,
     email: this.email,
     role: this.role,
+    organizations: this.organizations,
     validEmail: this.validEmail
   }
 }
@@ -103,7 +105,7 @@ userSchema.methods.toAdmin = function () {
 // Statics
 userSchema.statics.auth = async function (email, password) {
   const userEmail = email.toLowerCase()
-  const user = await this.findOne({email: userEmail})
+  const user = await this.findOne({email: userEmail}).populate('organizations')
   assert(user, 401, 'Invalid email/password')
 
   const isValid = await new Promise((resolve, reject) => {

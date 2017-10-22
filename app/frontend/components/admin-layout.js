@@ -43,7 +43,16 @@ class AdminLayout extends Component {
 
       tree.set('user', me.user)
       tree.set('loggedIn', me.loggedIn)
+      tree.set('organization', me.organization)
       tree.commit()
+
+      if (!me.organization && me.loggedIn) {
+        if (!me.user.organizations || me.user.organizations.length === 0) {
+          window.localStorage.removeItem('jwt')
+          tree.set('jwt', null)
+          tree.commit()
+        }
+      }
     }
 
     this.setState({loaded: true})
@@ -54,7 +63,7 @@ class AdminLayout extends Component {
       return <div>Loading...</div>
     }
 
-    if (!isEmpty(this.state.user)) {
+    if (!isEmpty(tree.get('organization')) && !isEmpty(this.state.user)) {
       return (<div className='is-wrapper'>
         <AdminNavBar />
         <div className='is-flex c-flex-1 columns is-gapless'>

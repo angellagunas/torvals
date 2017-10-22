@@ -28,11 +28,22 @@ class LogIn extends Component {
       formData: {
         email: '',
         password: ''
-      }
+      },
+      apiCallMessage: 'is-hidden',
+      apiCallErrorMessage: 'is-hidden'
     }
   }
 
   errorHandler (e) {}
+
+  changeHandler ({formData}) {
+    this.setState({
+      ...this.state,
+      formData,
+      apiCallMessage: 'is-hidden',
+      apiCallErrorMessage: 'is-hidden'
+    })
+  }
 
   async submitHandler ({formData}) {
     this.setState({loading: true})
@@ -41,16 +52,61 @@ class LogIn extends Component {
     try {
       data = await api.post('/user/login', formData)
     } catch (e) {
-      return this.setState({error: e.message})
+      return this.setState({
+        error: e.message,
+        loading: false,
+        apiCallErrorMessage: 'message is-danger',
+        formData: {
+          email: '',
+          password: ''
+        }
+      })
     }
 
     this.setState({loading: false})
+    let user = data.user
+    if (!user.organizations || user.organizations.length === 0) {
+      return this.setState({
+        error: 'El usuario no tiene una organización asignada!',
+        loading: false,
+        apiCallErrorMessage: 'message is-danger',
+        formData: {
+          email: '',
+          password: ''
+        }
+      })
+    }
 
     window.localStorage.setItem('jwt', data.jwt)
     tree.set('jwt', data.jwt)
     tree.set('user', data.user)
     tree.set('loggedIn', true)
+    await tree.commit()
+
+    if (user.organizations && user.organizations.length > 1) {
+      console.log('Mas de una!')
+      this.props.history.push('/select_org', {})
+      return
+    }
+
+    tree.set('organization', data.user.organizations[0].slug)
     tree.commit()
+
+    try {
+      data = await api.post('/user/select/organization', {
+        organization: data.user.organizations[0].slug
+      })
+    } catch (e) {
+      return this.setState({
+        error: e.message,
+        loading: false,
+        apiCallErrorMessage: 'message is-danger',
+        formData: {
+          email: '',
+          password: ''
+        }
+      })
+    }
 
     this.props.history.push('/app', {})
   }
@@ -62,28 +118,38 @@ class LogIn extends Component {
       spinner = <Loader />
     }
 
+    var error
+    if (this.state.error) {
+      error = <div>
+        Error: {this.state.error}
+      </div>
+    }
+
     return (
       <div className='LogIn single-form'>
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Log in
-            </p>
-            <a className='card-header-icon'>
-              <span className='icon'>
-                <i className='fa fa-angle-down' />
-              </span>
-            </a>
+                Log in
+              </p>
           </header>
           <div className='card-content'>
             <div className='content'>
+              { spinner }
               <BaseForm schema={schema}
+                action='#'
                 uiSchema={uiSchema}
+                formData={this.state.formData}
+                onChange={(e) => { this.changeHandler(e) }}
                 onSubmit={(e) => { this.submitHandler(e) }}
                 onError={(e) => { this.errorHandler(e) }}>
-                { spinner }
+                <div className={this.state.apiCallErrorMessage}>
+                  <div className='message-body is-size-7 has-text-centered'>
+                    {error}
+                  </div>
+                </div>
                 <div>
-                  <button className='button is-primary is-fullwidth' type='submit'>Log in</button>
+                  <button className='button is-primary is-fullwidth'>Log in</button>
                 </div>
               </BaseForm>
             </div>
