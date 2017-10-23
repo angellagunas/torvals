@@ -85,28 +85,13 @@ class LogIn extends Component {
 
     if (user.organizations && user.organizations.length > 1) {
       console.log('Mas de una!')
-      this.props.history.push('/select_org', {})
-      return
+      tree.set('shouldSelectOrg', true)
+      await tree.commit()
+      return this.props.history.push('/select_org', {})
     }
 
-    tree.set('organization', data.user.organizations[0].slug)
-    tree.commit()
-
-    try {
-      data = await api.post('/user/select/organization', {
-        organization: data.user.organizations[0].slug
-      })
-    } catch (e) {
-      return this.setState({
-        error: e.message,
-        loading: false,
-        apiCallErrorMessage: 'message is-danger',
-        formData: {
-          email: '',
-          password: ''
-        }
-      })
-    }
+    alert(data[0] + '://' + formData.organization + '.' + data[1])
+    window.location = data[0] + '://' + formData.organization + '.' + data[1]
 
     this.props.history.push('/app', {})
   }

@@ -21,7 +21,6 @@ const userSchema = new Schema({
   organizations: [{ type: Schema.Types.ObjectId, ref: 'Organization' }],
   role: { type: Schema.Types.ObjectId, ref: 'Role' },
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
-  selectedOrg: { type: String },
 
   resetPasswordToken: { type: String, default: v4 },
 

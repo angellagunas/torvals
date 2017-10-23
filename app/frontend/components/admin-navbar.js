@@ -5,7 +5,6 @@ import { withRouter } from 'react-router'
 import Image from '~base/components/image'
 import Link from '~base/router/link'
 import tree from '~core/tree'
-import api from '~core/api'
 
 class NavBar extends Component {
   constructor (props) {
@@ -41,7 +40,6 @@ class NavBar extends Component {
 
   async handleLogout () {
     const {history} = this.props
-    await api.get('/user/logout')
 
     window.localStorage.removeItem('jwt')
     tree.set('jwt', null)

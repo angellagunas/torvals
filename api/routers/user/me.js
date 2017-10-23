@@ -7,8 +7,7 @@ module.exports = new Route({
     if (ctx.state.user) {
       ctx.body = {
         loggedIn: true,
-        user: await ctx.state.user.toPublic(),
-        organization: ctx.state.user.selectedOrg
+        user: await ctx.state.user.toPublic()
       }
     } else {
       ctx.body = {

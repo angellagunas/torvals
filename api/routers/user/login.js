@@ -14,8 +14,7 @@ module.exports = new Route({
       isAdmin: user.isAdmin,
       jwt: jwt.sign({
         uuid: user.uuid,
-        apiToken: user.apiToken,
-        organization: user.selectedOrg
+        apiToken: user.apiToken
       })
     }
   }
