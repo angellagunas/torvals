@@ -38,14 +38,15 @@ class NavBar extends Component {
     }
   }
 
-  handleLogout () {
+  async handleLogout () {
     const {history} = this.props
 
     window.localStorage.removeItem('jwt')
     tree.set('jwt', null)
     tree.set('user', null)
     tree.set('loggedIn', false)
-    tree.commit()
+    tree.set('organization', null)
+    await tree.commit()
 
     history.push('/')
   }

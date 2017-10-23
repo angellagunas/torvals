@@ -17,7 +17,7 @@ module.exports = async function (ctx, next) {
       let user = await User.findOne({
         uuid: data.uuid,
         apiToken: data.apiToken
-      }).populate('role')
+      }).populate('role').populate('organizations')
 
       if (!user) {
         ctx.throw(401, 'Invalid User')
