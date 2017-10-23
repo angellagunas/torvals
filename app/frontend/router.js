@@ -8,6 +8,7 @@ import AdminLayout from '~components/admin-layout'
 import {PrivateRoute, LoginRoute, PrivateRoleRoute} from '~base/router'
 
 import LogIn from './pages/log-in'
+import SelectOrg from './pages/select-org'
 import Dashboard from './pages/app'
 import Users from './pages/users/list'
 import UserDetail from './pages/users/detail'
@@ -20,6 +21,8 @@ const AppRouter = () => {
     <AdminLayout>
       <div className='c-flex-1 is-flex is-flex-column is-relative'>
         <LoginRoute exact path='/log-in' component={LogIn} />
+        <PrivateRoute exact path='/profile' component={Profile} />
+        <PrivateRoute exact path='/select_org' component={SelectOrg} />
         <PrivateRoute exact path='/' component={Dashboard} />
         <PrivateRoleRoute
           exact
@@ -33,7 +36,6 @@ const AppRouter = () => {
           component={UserDetail}
           roles='admin-organizacion, admin'
         />
-        <PrivateRoute exact path='/profile' component={Profile} />
         <PrivateRoleRoute
           exact
           path='/manage/groups'
