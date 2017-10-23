@@ -45,7 +45,8 @@ module.exports = {
     new webpack.DefinePlugin({
       'ENV': JSON.stringify(config.env),
       'PREFIX': JSON.stringify(config.server.adminPrefix),
-      'API_HOST': JSON.stringify(config.server.apiHost)
+      'API_HOST': JSON.stringify(config.server.apiHost),
+      'APP_HOST': JSON.stringify(config.server.appHost)
     })
   ],
   resolve: {

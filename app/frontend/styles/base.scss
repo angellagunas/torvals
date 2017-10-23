@@ -28,6 +28,121 @@ body {
   margin: 100px auto;
 }
 
+html, body {
+    height: 100%;
+}
+
+.c-fixed {
+  position: fixed;
+}
+
+.navbar-menu {
+    background-color: whitesmoke;
+}
+
+.c-topbar {
+    position: relative;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background-color: #fff;
+}
+
+.c-topbar__aside {
+  width: 250px;
+  display: block;
+  flex: 0 0 auto;
+  box-sizing: inherit;
+  background-color: #000000;
+}
+
+.c-topbar__main {
+  flex: 1 1 0%;
+  max-width: 100%;
+}
+
+.offcanvas {
+  background-color: #5d5d5d;
+}
+
+.burger-desktop {
+    cursor: pointer;
+    display: block;
+    height: 3.25rem;
+    position: relative;
+    width: 3.25rem;
+    margin-left: auto;
+}
+
+.main {
+  flex: 1 1 0%;
+  max-width: 100%;
+}
+
+.full-height {
+  min-height: 100%;
+}
+
+.full-viewport-height {
+  min-height: 100vh;
+}
+
+.is-wrapper {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  flex: 1;
+}
+
+.is-flex-column {
+  flex-direction: column;
+}
+
+.c-stack {
+    box-sizing: border-box;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-flow: row wrap;
+    flex-flow: row wrap;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.is-relative {
+  position: relative
+}
+
+.searchbox {
+  position: absolute;
+  top: 20px;
+  right: 0px;
+  padding: 0px;
+  background-color: #5d5d5d;
+  color: white;
+  border-radius: 5px 0px 0px 5px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.side-filters {
+  width: 250px;
+  background-color: #cccccc;
+}
+
+.panel-body {
+  padding: 1.5em;
+}
+
 .is-fullwidth {
   width: 100%;
 }
@@ -44,27 +159,95 @@ body {
   align-items: center;
 }
 
-.full-height {
-  min-height: 100%;
+a .navbar-item:hover {
+  background-color: transparent;
 }
 
-.is-flex-1 {
-  flex: 1;
+.menu {
+  width: 250px;
+  height: 100%;
 }
 
-.wrapper {
-  min-height: 100vh;
-  flex-direction: column;
+.menu li {
+  background-color: #f1f1f1;
+}
+
+.menu ul li > ul {
+  margin: 0px;
+  padding: 0px;
+  li {
+    background-color: #f7f7f7;
+    a {
+      padding-left: 1.8em;
+      &.is-active {
+        background: #f7f7f7;
+        color: $primary;
+      }
+    }
+  }
+}
+
+footer {
+  padding: 20px;
+  width: 100%;
+}
+
+footer.footer {
+    padding:1rem 1.5rem 2rem;
+}
+
+.c-content {
+    min-height: calc(100% - 52px);
+}
+
+.c-flex-1 {
+    flex: 1;
 }
 
 .is-rounded {
   border-radius: 50%;
 }
 
+.is-align-center {
+  align-items: center;
+}
+
 .is-bg-white {
   background-color: white;
 }
 
-.panel-body {
-  padding: 1.5em;
+.is-paddingless-top {
+  padding-top: 0px;
+}
+
+.is-padding-top-small {
+  padding-top: 0.5em;
+}
+.is-padding-bottom-small {
+  padding-bottom: 0.5em;
+}
+
+.card-header-select {    
+  padding: .30em   
+}    
+   
+.card-header-select.select:not(.is-multiple)::after {    
+  margin-top: -.130em    
+}
+
+.multiselect-column {
+  height: 15em;
+  max-height: 70%;
+  overflow-y: auto;
+  border: 1px solid;
+  border-color: #dbdbdb;
+  border-radius: 3px;
+}
+
+.multiselect-icon {
+  padding-top: 7.8em;
+}
+
+select.placeholder {  
+  color: gray;
 }
