@@ -15,7 +15,7 @@ var schema = {
   type: 'object',
   title: '',
   required: [
-    'email', 'screenName'
+    'email', 'screenName', 'organization'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
@@ -27,6 +27,12 @@ var schema = {
       title: 'Role',
       enum: [],
       enumNames: []
+    },
+    organization: {
+      type: 'string',
+      title: 'Organization',
+      enum: [],
+      enumNames: []
     }
   }
 }
@@ -36,7 +42,8 @@ const uiSchema = {
   email: {'ui:widget': EmailWidget},
   screenName: {'ui:widget': TextWidget},
   isAdmin: {'ui:widget': CheckboxWidget},
-  role: {'ui:widget': SelectWidget}
+  role: {'ui:widget': SelectWidget},
+  organization: {'ui:widget': SelectWidget}
 }
 
 class InviteUserForm extends Component {
@@ -98,8 +105,14 @@ class InviteUserForm extends Component {
       return <Loader />
     }
 
+    if (this.props.roles.length === 0 || this.props.orgs.length === 0) {
+      return <Loader />
+    }
+
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
+    schema.properties.organization.enum = this.props.orgs.map(item => { return item._id })
+    schema.properties.organization.enumNames = this.props.orgs.map(item => { return item.name })
 
     return (
       <div>
@@ -109,7 +122,6 @@ class InviteUserForm extends Component {
           onChange={(e) => { this.changeHandler(e) }}
           onSubmit={(e) => { this.submitHandler(e) }}
           onError={(e) => { this.errorHandler(e) }}
-          liveValidate
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>

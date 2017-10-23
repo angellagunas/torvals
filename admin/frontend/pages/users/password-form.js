@@ -23,7 +23,7 @@ var schema = {
   type: 'object',
   title: '',
   required: [
-    'email', 'screenName', 'password_1', 'password_2'
+    'email', 'screenName', 'password_1', 'password_2', 'organization'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
@@ -37,6 +37,12 @@ var schema = {
       title: 'Role',
       enum: [],
       enumNames: []
+    },
+    organization: {
+      type: 'string',
+      title: 'Organization',
+      enum: [],
+      enumNames: []
     }
   }
 }
@@ -48,7 +54,8 @@ const uiSchema = {
   password_2: {'ui:widget': PasswordWidget},
   screenName: {'ui:widget': TextWidget},
   isAdmin: {'ui:widget': CheckboxWidget},
-  role: {'ui:widget': SelectWidget}
+  role: {'ui:widget': SelectWidget},
+  organization: {'ui:widget': SelectWidget}
 }
 
 class PasswordUserForm extends Component {
@@ -108,12 +115,14 @@ class PasswordUserForm extends Component {
       </div>
     }
 
-    if (this.props.roles.length === 0) {
+    if (this.props.roles.length === 0 || this.props.orgs.length === 0) {
       return <Loader />
     }
 
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
+    schema.properties.organization.enum = this.props.orgs.map(item => { return item._id })
+    schema.properties.organization.enumNames = this.props.orgs.map(item => { return item.name })
 
     return (
       <div>

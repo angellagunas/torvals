@@ -21,13 +21,15 @@ class CreateUser extends Component {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
-      roles: []
+      roles: [],
+      orgs: []
     }
   }
 
   componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
     this.loadRoles()
+    this.loadOrgs()
   }
 
   async load () {
@@ -64,6 +66,22 @@ class CreateUser extends Component {
     })
   }
 
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      orgs: body.data
+    })
+  }
+
   getPasswordForm () {
     return (
       <PasswordUserForm
@@ -73,6 +91,7 @@ class CreateUser extends Component {
         finishUp={this.props.finishUp}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
+        orgs={this.state.orgs || []}
       >
         <div className='field is-grouped'>
           <div className='control'>
@@ -95,6 +114,7 @@ class CreateUser extends Component {
         finishUp={this.props.finishUp}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
+        orgs={this.state.orgs || []}
       >
         <div className='field is-grouped'>
           <div className='control'>
