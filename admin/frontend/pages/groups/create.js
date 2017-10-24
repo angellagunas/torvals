@@ -15,10 +15,14 @@ class CreateGroup extends Component {
   constructor (props) {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
+    this.state = {
+      orgs: []
+    }
   }
 
   componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
+    this.loadOrgs()
   }
 
   async load () {
@@ -39,6 +43,22 @@ class CreateGroup extends Component {
     this.context.tree.commit()
   }
 
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      orgs: body.data
+    })
+  }
+
   render () {
     return (
       <BaseModal
@@ -52,6 +72,7 @@ class CreateGroup extends Component {
           finishUp={this.props.finishUp}
           initialState={initialState}
           load={this.load.bind(this)}
+          organizations={this.state.orgs || []}
         >
           <div className='field is-grouped'>
             <div className='control'>
