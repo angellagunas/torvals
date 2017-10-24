@@ -36,7 +36,9 @@ module.exports = {
           fallback: 'style-loader',
           use: ['css-loader', 'sass-loader']
         })
-      }
+      },
+      { test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: 'url-loader?limit=10000&mimetype=application/font-woff' },
+      { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: 'file-loader' }
     ]
   },
   plugins: [
@@ -48,6 +50,11 @@ module.exports = {
       'PREFIX': JSON.stringify(''),
       'API_HOST': JSON.stringify(config.server.apiHost)
     }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
+    }),    
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: true,
       compress: {
@@ -58,6 +65,7 @@ module.exports = {
   resolve: {
     modules: ['node_modules'],
     alias: {
+      '~base': path.resolve('./lib/frontend/'),
       '~core': path.resolve('./app/frontend/core'),
       '~components': path.resolve('./app/frontend/components')
     }
