@@ -14,6 +14,9 @@ class UserDetail extends Component {
     this.state = {
       loaded: false,
       loading: true,
+      resetLoading: false,
+      resetText: 'Reset password',
+      resetClass: 'button is-danger',
       user: {},
       roles: [],
       groups: []
@@ -104,6 +107,41 @@ class UserDetail extends Component {
     this.loadGroups()
   }
 
+  async resetOnClick () {
+    await this.setState({
+      resetLoading: true,
+      resetText: 'Sending email...',
+      resetClass: 'button is-info'
+    })
+
+    var url = '/user/reset-password'
+
+    try {
+      await api.post(url, {email: this.state.user.email})
+      setTimeout(() => {
+        this.setState({
+          resetLoading: true,
+          resetText: 'Sucess!',
+          resetClass: 'button is-success'
+        })
+      }, 3000)
+    } catch (e) {
+      await this.setState({
+        resetLoading: true,
+        resetText: 'Error!',
+        resetClass: 'button is-danger'
+      })
+    }
+
+    setTimeout(() => {
+      this.setState({
+        resetLoading: false,
+        resetText: 'Reset Password',
+        resetClass: 'button is-danger'
+      })
+    }, 10000)
+  }
+
   render () {
     const { user } = this.state
 
@@ -111,16 +149,39 @@ class UserDetail extends Component {
       return <Loader />
     }
 
+    var resetButton
+    if (env.EMAIL_SEND) {
+      resetButton = (
+        <div className='columns'>
+          <div className='column has-text-right'>
+            <div className='field is-grouped is-grouped-right'>
+              <div className='control'>
+                <button
+                  className={this.state.resetClass}
+                  type='button'
+                  onClick={() => this.resetOnClick()}
+                  disabled={!!this.state.resetLoading}
+                  >
+                  {this.state.resetText}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section'>
+            {resetButton}
             <div className='columns is-mobile'>
               <div className='column'>
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      { user.displayName }
+                      { user.screenName }
                     </p>
                   </header>
                   <div className='card-content'>

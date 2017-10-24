@@ -1,6 +1,7 @@
 import React from 'react'
 import {
-  BrowserRouter as Router
+  BrowserRouter as Router,
+  Route
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
@@ -15,11 +16,17 @@ import UserDetail from './pages/users/detail'
 import Profile from './pages/profile'
 import Groups from './pages/groups/list'
 import GroupDetail from './pages/groups/detail'
+import EmailInviteLanding from './pages/emails/invited'
+import EmailResetLanding from './pages/emails/reset'
+import ResetPassword from './pages/reset-password'
 
 const AppRouter = () => {
   return (<Router>
     <AdminLayout>
       <div className='c-flex-1 is-flex is-flex-column is-relative'>
+        <Route exact path='/emails/invite' component={EmailInviteLanding} />
+        <Route exact path='/emails/reset' component={EmailResetLanding} />
+        <Route exact path='/password/forgotten' component={ResetPassword} />
         <LoginRoute exact path='/log-in' component={LogIn} />
         <PrivateRoute exact path='/profile' component={Profile} />
         <PrivateRoute exact path='/select_org' component={SelectOrg} />
