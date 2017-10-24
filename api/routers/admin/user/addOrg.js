@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {Organization, User} = require('models')
+const {Organization, User, Role} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -10,14 +10,40 @@ module.exports = new Route({
     const user = await User.findOne({'uuid': userId})
     ctx.assert(user, 404, 'User not found')
 
-    const org = await Organization.findOne({'uuid': ctx.request.body.organization})
+    var orgData = ctx.request.body
+
+    const org = await Organization.findOne({'uuid': orgData.organization})
     ctx.assert(org, 404, 'Organization not found')
 
-    user.organizations.push(org)
-    user.save()
+    const role = await Role.findOne({'uuid': orgData.role})
+    ctx.assert(org, 404, 'Role not found')
 
-    org.users.push(user)
-    org.save()
+    var pos = user.organizations.findIndex(e => {
+      return (
+        String(e.organization) === String(org._id)
+      )
+    })
+
+    if (pos >= 0) {
+      ctx.throw(400, 'You cannot add another role to an organization!')
+    }
+
+    pos = user.organizations.findIndex(e => {
+      return (
+        String(e.organization) === String(org._id) &&
+        String(e.role) === String(role._id)
+      )
+    })
+
+    if (pos >= 0) {
+      ctx.throw(400, 'You cannot add the same role and organization twice!')
+    }
+
+    user.organizations.push({
+      organization: org,
+      role: role
+    })
+    user.save()
 
     ctx.body = {
       data: user.toAdmin()

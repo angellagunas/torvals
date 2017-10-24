@@ -19,8 +19,10 @@ const userSchema = new Schema({
   screenName: { type: String, unique: true, required: true },
   displayName: { type: String },
   isAdmin: {type: Boolean, default: false},
-  organizations: [{ type: Schema.Types.ObjectId, ref: 'Organization' }],
-  role: { type: Schema.Types.ObjectId, ref: 'Role' },
+  organizations: [{
+    organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
+    role: { type: Schema.Types.ObjectId, ref: 'Role' }
+  }],
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
 
   resetPasswordToken: { type: String, default: v4 },

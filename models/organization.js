@@ -8,7 +8,6 @@ const organizationSchema = new Schema({
   name: { type: String },
   description: { type: String },
   slug: { type: String },
-  users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
 
   dateCreated: { type: Date, default: moment.utc },

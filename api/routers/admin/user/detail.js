@@ -8,7 +8,8 @@ module.exports = new Route({
     const userId = ctx.params.uuid
 
     const user = await User.findOne({'uuid': userId})
-      .populate('organizations')
+      .populate('organizations.organization')
+      .populate('organizations.role')
       .populate('groups')
 
     ctx.assert(user, 404, 'User not found')

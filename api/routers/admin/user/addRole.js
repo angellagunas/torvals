@@ -3,28 +3,33 @@ const {Organization, User, Role} = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/:uuid/remove/organization',
+  path: '/:uuid/add/role',
   handler: async function (ctx) {
     const userId = ctx.params.uuid
 
     const user = await User.findOne({'uuid': userId})
     ctx.assert(user, 404, 'User not found')
 
-    var orgData = ctx.request.body
+    var roleData = ctx.request.body
 
-    const org = await Organization.findOne({'uuid': orgData.organization})
+    const org = await Organization.findOne({'uuid': roleData.organization})
     ctx.assert(org, 404, 'Organization not found')
 
-    const role = await Role.findOne({'uuid': orgData.role})
-    ctx.assert(org, 404, 'Role not found')
+    const role = await Role.findOne({'uuid': roleData.role})
+    ctx.assert(role, 404, 'Role not found')
 
     var pos = user.organizations.findIndex(e => {
       return (
-        String(e.organization) === String(org._id) &&
-        String(e.role) === String(role._id)
+        String(e.organization) === String(org._id)
       )
     })
-    user.organizations.splice(pos, 1)
+
+    if (pos === -1) {
+      ctx.throw(400, 'Invalid organization!')
+    }
+
+    user.organizations[pos] = {organization: org, role: role}
+
     user.save()
 
     ctx.body = {

@@ -8,6 +8,9 @@ import env from '~base/env-variables'
 import Loader from '~base/components/spinner'
 import UserForm from './form'
 import Multiselect from '~base/components/base-multiselect'
+import { BaseTable } from '~base/components/base-table'
+import Link from '~base/router/link'
+import AddOrganization from './add-organization'
 
 class UserDetail extends Component {
   constructor (props) {
@@ -20,7 +23,6 @@ class UserDetail extends Component {
       resetClass: 'button is-danger',
       user: {},
       roles: [],
-      orgs: [],
       groups: []
     }
   }
@@ -28,7 +30,6 @@ class UserDetail extends Component {
   componentWillMount () {
     this.load()
     this.loadRoles()
-    this.loadOrgs()
     this.loadGroups()
   }
 
@@ -59,29 +60,12 @@ class UserDetail extends Component {
     })
   }
 
-  async loadOrgs () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        user: this.props.match.params.uuid,
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      orgs: body.data
-    })
-  }
-
   async loadGroups () {
     var url = '/admin/groups/'
     const body = await api.get(
       url,
       {
-        user: this.props.match.params.uuid,
+        user_orgs: this.props.match.params.uuid,
         start: 0,
         limit: 0
       }
@@ -103,28 +87,16 @@ class UserDetail extends Component {
     return 'N/A'
   }
 
-  async availableOrgOnClick (uuid) {
-    var url = '/admin/users/' + this.props.match.params.uuid + '/add/organization'
-    await api.post(url,
-      {
-        organization: uuid
-      }
-    )
-
-    this.load()
-    this.loadOrgs()
-  }
-
-  async assignedOrgOnClick (uuid) {
+  async removeOrgOnClick (org, role) {
     var url = '/admin/users/' + this.props.match.params.uuid + '/remove/organization'
     await api.post(url,
       {
-        organization: uuid
+        organization: org,
+        role: role
       }
     )
 
     this.load()
-    this.loadOrgs()
   }
 
   async availableGroupOnClick (uuid) {
@@ -186,6 +158,90 @@ class UserDetail extends Component {
     }, 10000)
   }
 
+  async roleSelectOnChange (role, org) {
+    var url = '/admin/users/' + this.props.match.params.uuid + '/add/role'
+    await api.post(url,
+      {
+        organization: org,
+        role: role
+      }
+    )
+
+    this.load()
+  }
+
+  getColumns () {
+    return [
+      {
+        'title': 'Organization',
+        'property': 'organization',
+        'default': 'N/A',
+        formatter: (row) => {
+          return (
+            <Link to={'/manage/organizations/' + row.organization.uuid}>
+              {row.organization.name}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'Role',
+        'property': 'role',
+        'default': 'N/A',
+        formatter: (row) => {
+          return (
+            <div className='select'>
+              <select
+                value={row.role.uuid}
+                onChange={event => {
+                  this.roleSelectOnChange(event.target.value, row.organization.uuid)
+                }}>
+                {this.state.roles.map((obj) => {
+                  return (
+                    <option key={obj.uuid} value={obj.uuid}>
+                      {obj.name}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+          )
+        }
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          return <button
+            className='button'
+            onClick={() => { this.removeOrgOnClick(row.organization.uuid, row.role.uuid) }}
+          >
+            Remove
+          </button>
+        }
+      }
+    ]
+  }
+
+  showModal () {
+    this.setState({
+      className: ' is-active'
+    })
+  }
+
+  hideModal () {
+    this.setState({
+      className: ''
+    })
+  }
+
+  finishUp (object) {
+    window.setTimeout(() => {
+      this.setState({
+        className: ''
+      })
+    }, 2000)
+  }
+
   render () {
     const { user } = this.state
 
@@ -236,7 +292,6 @@ class UserDetail extends Component {
                           url={'/admin/users/' + this.props.match.params.uuid}
                           initialState={this.state.user}
                           load={this.load.bind(this)}
-                          roles={this.state.roles || []}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
@@ -257,14 +312,24 @@ class UserDetail extends Component {
                         <p className='card-header-title'>
                           Organizations
                         </p>
+                        <div className='card-header-select'>
+                          <button className='button is-primary' onClick={() => this.showModal()}>
+                            Add Organization
+                          </button>
+                          <AddOrganization
+                            className={this.state.className}
+                            hideModal={this.hideModal.bind(this)}
+                            finishUp={this.finishUp.bind(this)}
+                            load={this.load.bind(this)}
+                            baseUrl='/admin/users'
+                            url={'/admin/users/' + this.props.match.params.uuid + '/add/organization'}
+                          />
+                        </div>
                       </header>
                       <div className='card-content'>
-                        <Multiselect
-                          assignedList={user.organizations}
-                          availableList={this.state.orgs}
-                          dataFormatter={(item) => { return item.name || 'N/A' }}
-                          availableClickHandler={this.availableOrgOnClick.bind(this)}
-                          assignedClickHandler={this.assignedOrgOnClick.bind(this)}
+                        <BaseTable
+                          columns={this.getColumns()}
+                          data={this.state.user.organizations}
                         />
                       </div>
                     </div>
@@ -282,7 +347,7 @@ class UserDetail extends Component {
                         <Multiselect
                           assignedList={user.groups}
                           availableList={this.state.groups}
-                          dataFormatter={(item) => { return item.name || 'N/A' }}
+                          dataFormatter={(item) => { return item.name + ' de ' + item.organization.name || 'N/A' }}
                           availableClickHandler={this.availableGroupOnClick.bind(this)}
                           assignedClickHandler={this.assignedGroupOnClick.bind(this)}
                         />

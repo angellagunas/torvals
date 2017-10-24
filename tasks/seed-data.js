@@ -149,7 +149,6 @@ var seedData = async function () {
           screenName: admin.name,
           isAdmin: false,
           validEmail: true,
-          role: defaultRole
         })
       }
 
@@ -170,7 +169,6 @@ var seedData = async function () {
           name: admin.name,
           isAdmin: true,
           validEmail: true,
-          role: defaultRole
         })
       }
 
