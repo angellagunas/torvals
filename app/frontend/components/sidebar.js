@@ -25,6 +25,7 @@ class Sidebar extends Component {
       title: 'Manage Your Team',
       icon: 'users',
       to: '/manage',
+      roles: 'admin-organizacion, admin',
       dropdown: [
         {
           title: 'Groups',
@@ -64,6 +65,7 @@ class Sidebar extends Component {
               icon={e.icon}
               to={e.to}
               dropdown={e.dropdown}
+              roles={e.roles}
               onClick={this.handleActiveLink}
               activeItem={this.state.active}
               key={e.title.toLowerCase().replace(/\s/g, '')} />
