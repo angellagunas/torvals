@@ -3,6 +3,7 @@ import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
 import moment from 'moment'
+import env from '~base/env-variables'
 
 import Loader from '~base/components/spinner'
 import UserForm from './form'
@@ -206,19 +207,6 @@ class UserDetail extends Component {
                 </div>
               </div>
               <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Organizations
-                        </p>
-                      </header>
-                      <div className='card-content' />
-
-                    </div>
-                  </div>
-                </div>
                 <div className='columns'>
                   <div className='column'>
                     <div className='card'>

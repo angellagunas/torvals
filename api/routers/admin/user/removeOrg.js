@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {Organization, User} = require('models')
+const {Organization, User, Role} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -10,16 +10,22 @@ module.exports = new Route({
     const user = await User.findOne({'uuid': userId})
     ctx.assert(user, 404, 'User not found')
 
-    const org = await Organization.findOne({'uuid': ctx.request.body.organization})
+    var orgData = ctx.request.body
+
+    const org = await Organization.findOne({'uuid': orgData.organization})
     ctx.assert(org, 404, 'Organization not found')
 
-    var pos = user.organizations.indexOf(org._id)
+    const role = await Role.findOne({'uuid': orgData.role})
+    ctx.assert(org, 404, 'Role not found')
+
+    var pos = user.organizations.findIndex(e => {
+      return (
+        String(e.organization) === String(org._id) &&
+        String(e.role) === String(role._id)
+      )
+    })
     user.organizations.splice(pos, 1)
     user.save()
-
-    pos = org.users.indexOf(user._id)
-    org.users.splice(pos, 1)
-    org.save()
 
     ctx.body = {
       data: user.toAdmin()

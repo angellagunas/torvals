@@ -22,8 +22,6 @@ module.exports = new Route({
       userData.password = crypto.randomBytes(15).toString('base64')
     }
 
-    const user = await User.register(userData)
-
     if (!userData.role) {
       let defaultRole = await Role.findOne({isDefault: true})
       if (!defaultRole) {
@@ -35,9 +33,15 @@ module.exports = new Route({
         })
       }
 
-      user.role = defaultRole
+      userData.role = defaultRole
     }
 
+    userData.organizations = [{
+      organization: userData.organization,
+      role: userData.role
+    }]
+
+    const user = await User.register(userData)
     user.save()
 
     if (userData.sendInvite) {

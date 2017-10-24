@@ -7,8 +7,7 @@ import {
   BaseForm,
   TextWidget,
   EmailWidget,
-  SelectWidget,
-  CheckboxWidget
+  SelectWidget
 } from '~base/components/base-form'
 
 var schema = {
@@ -22,7 +21,6 @@ var schema = {
     email: {type: 'string', title: 'Email'},
     screenName: {type: 'string', title: 'Screen Name'},
     displayName: {type: 'string', title: 'Display Name'},
-    isAdmin: {type: 'boolean', title: 'Is Admin?', default: false},
     role: {
       type: 'string',
       title: 'Role',
@@ -37,7 +35,6 @@ const uiSchema = {
   email: {'ui:widget': EmailWidget},
   screenName: {'ui:widget': TextWidget},
   displayName: {'ui:widget': TextWidget},
-  isAdmin: {'ui:widget': CheckboxWidget},
   role: {'ui:widget': SelectWidget}
 }
 

@@ -1,38 +1,41 @@
 import React, { Component } from 'react'
+import Loader from '~base/components/spinner'
 
 import api from '~base/api'
 
 import {
   BaseForm,
-  TextWidget,
-  EmailWidget,
-  CheckboxWidget
+  SelectWidget
 } from '~base/components/base-form'
 
 var schema = {
   type: 'object',
   title: '',
   required: [
-    'email'
+    'role', 'organization'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    email: {type: 'string', title: 'Email'},
-    screenName: {type: 'string', title: 'Screen Name'},
-    displayName: {type: 'string', title: 'Display Name'},
-    isAdmin: {type: 'boolean', title: 'Is Admin?', default: false}
+    role: {
+      type: 'string',
+      title: 'Role',
+      enum: [],
+      enumNames: []
+    },
+    organization: {
+      type: 'string',
+      title: 'Organization',
+      enum: [],
+      enumNames: []
+    }
   }
 }
 
 const uiSchema = {
-  name: {'ui:widget': TextWidget},
-  email: {'ui:widget': EmailWidget},
-  screenName: {'ui:widget': TextWidget},
-  displayName: {'ui:widget': TextWidget},
-  isAdmin: {'ui:widget': CheckboxWidget}
+  role: {'ui:widget': SelectWidget},
+  organization: {'ui:widget': SelectWidget}
 }
 
-class UserForm extends Component {
+class OrganizationRoleForm extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -63,7 +66,7 @@ class UserForm extends Component {
   async submitHandler ({formData}) {
     try {
       var data = await api.post(this.props.url, formData)
-      await this.props.load()
+      this.props.load()
       this.clearState()
       this.setState({...this.state, apiCallMessage: 'message is-success'})
       if (this.props.finishUp) this.props.finishUp(data.data)
@@ -85,9 +88,14 @@ class UserForm extends Component {
       </div>
     }
 
-    if (this.state.formData.email) {
-      uiSchema.email['ui:disabled'] = true
+    if (this.props.roles.length === 0 || this.props.orgs.length === 0) {
+      return <Loader />
     }
+
+    schema.properties.role.enum = this.props.roles.map(item => { return item.uuid })
+    schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
+    schema.properties.organization.enum = this.props.orgs.map(item => { return item.uuid })
+    schema.properties.organization.enumNames = this.props.orgs.map(item => { return item.name })
 
     return (
       <div>
@@ -100,7 +108,7 @@ class UserForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+              Se ha agregado correctamente la organización!
             </div>
           </div>
 
@@ -116,4 +124,4 @@ class UserForm extends Component {
   }
 }
 
-export default UserForm
+export default OrganizationRoleForm
