@@ -76,7 +76,7 @@ class Groups extends Component {
     this.setState({
       className: ''
     })
-    this.props.history.push('/admin/manage/groups/' + object.uuid)
+    this.props.history.push('/manage/groups/' + object.uuid)
   }
 
   render () {
@@ -99,8 +99,8 @@ class Groups extends Component {
                     hideModal={this.hideModal.bind(this)}
                     finishUp={this.finishUp.bind(this)}
                     branchName='groups'
-                    baseUrl='/admin/groups'
-                    url='/admin/groups'
+                    baseUrl='/app/groups'
+                    url='/app/groups'
                   />
                 </div>
               </header>
@@ -109,7 +109,7 @@ class Groups extends Component {
                   <div className='column'>
                     <BranchedPaginatedTable
                       branchName='groups'
-                      baseUrl='/admin/groups'
+                      baseUrl='/app/groups'
                       columns={this.getColumns()}
                       // getData={this.getData.bind(this)}
                        />

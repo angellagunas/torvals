@@ -26,12 +26,11 @@ class UserDetail extends Component {
 
   componentWillMount () {
     this.load()
-    this.loadRoles()
     this.loadGroups()
   }
 
   async load () {
-    var url = '/admin/users/' + this.props.match.params.uuid
+    var url = '/app/users/' + this.props.match.params.uuid
     const body = await api.get(url)
 
     await this.setState({
@@ -41,28 +40,12 @@ class UserDetail extends Component {
     })
   }
 
-  async loadRoles () {
-    var url = '/admin/roles/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      roles: body.data
-    })
-  }
-
   async loadGroups () {
-    var url = '/admin/groups/'
+    var url = '/app/groups/'
     const body = await api.get(
       url,
       {
-        user: this.props.match.params.uuid,
+        user_orgs: this.props.match.params.uuid,
         start: 0,
         limit: 0
       }
@@ -85,7 +68,7 @@ class UserDetail extends Component {
   }
 
   async availableGroupOnClick (uuid) {
-    var url = '/admin/users/' + this.props.match.params.uuid + '/add/group'
+    var url = '/app/users/' + this.props.match.params.uuid + '/add/group'
     await api.post(url,
       {
         group: uuid
@@ -97,7 +80,7 @@ class UserDetail extends Component {
   }
 
   async assignedGroupOnClick (uuid) {
-    var url = '/admin/users/' + this.props.match.params.uuid + '/remove/group'
+    var url = '/app/users/' + this.props.match.params.uuid + '/remove/group'
     await api.post(url,
       {
         group: uuid
@@ -189,11 +172,10 @@ class UserDetail extends Component {
                     <div className='columns'>
                       <div className='column'>
                         <UserForm
-                          baseUrl='/admin/users'
-                          url={'/admin/users/' + this.props.match.params.uuid}
+                          baseUrl='/app/users'
+                          url={'/app/users/' + this.props.match.params.uuid}
                           initialState={this.state.user}
                           load={this.load.bind(this)}
-                          roles={this.state.roles || []}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>

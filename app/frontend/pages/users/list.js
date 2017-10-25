@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
-import api from '~base/api'
 
 import BaseFilterPanel from '~base/components/base-filters'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
@@ -45,25 +44,6 @@ class Users extends Component {
       pageLength: 10
     })
     this.context.tree.commit()
-    this.loadOrgs()
-  }
-
-  async loadOrgs () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      orgs: body.data
-    })
-
-    schema.properties.organization['values'] = body.data
   }
 
   getColumns () {
@@ -121,7 +101,7 @@ class Users extends Component {
       this.setState({
         className: ''
       })
-      this.props.history.push('/admin/manage/users/' + object.uuid)
+      this.props.history.push('/manage/users/' + object.uuid)
     }, 2000)
   }
 
@@ -180,8 +160,8 @@ class Users extends Component {
                     hideModal={this.hideModal.bind(this)}
                     finishUp={this.finishUp.bind(this)}
                     branchName='users'
-                    baseUrl='/admin/users'
-                    url='/admin/users'
+                    baseUrl='/app/users'
+                    url='/app/users'
                   />
                 </div>
               </header>
@@ -190,7 +170,7 @@ class Users extends Component {
                   <div className='column'>
                     <BranchedPaginatedTable
                       branchName='users'
-                      baseUrl='/admin/users'
+                      baseUrl='/app/users'
                       columns={this.getColumns()}
                       filters={filters}
                      />
