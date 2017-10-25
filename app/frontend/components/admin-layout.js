@@ -2,6 +2,7 @@ import {isEmpty} from 'lodash'
 import React, { Component } from 'react'
 import { root } from 'baobab-react/higher-order'
 
+import cookies from '~base/cookies'
 import api from '~base/api'
 import tree from '~core/tree'
 
@@ -32,8 +33,11 @@ class AdminLayout extends Component {
         me = await api.get('/user/me')
       } catch (err) {
         if (err.status === 401) {
-          window.localStorage.removeItem('jwt')
+          cookies.remove('jwt')
           tree.set('jwt', null)
+          tree.set('user', null)
+          tree.set('organization', null)
+          tree.set('role', null)
           tree.commit()
         }
 
@@ -41,8 +45,20 @@ class AdminLayout extends Component {
       }
 
       tree.set('user', me.user)
+      tree.set('organization', me.user.currentOrganization)
+      tree.set('role', me.user.currentRole)
       tree.set('loggedIn', me.loggedIn)
       tree.commit()
+
+      if (!me.user.currentOrganization) {
+        cookies.remove('jwt')
+        tree.set('jwt', null)
+        tree.set('user', null)
+        tree.set('organization', null)
+        tree.set('role', null)
+        tree.set('loggedIn', false)
+        await tree.commit()
+      }
     }
 
     this.setState({loaded: true})

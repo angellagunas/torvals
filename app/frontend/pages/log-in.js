@@ -94,7 +94,8 @@ class LogIn extends Component {
       this.props.history.push('/select_org', {})
     } else {
       const baseUrl = env.APP_HOST.split('://')
-      const organization = user.organizations[0]
+      const organization = user.organizations[0].organization
+      cookies.set('organization', organization.slug)
 
       window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1]
     }

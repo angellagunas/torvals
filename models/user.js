@@ -108,7 +108,7 @@ userSchema.methods.toAdmin = function () {
 // Statics
 userSchema.statics.auth = async function (email, password) {
   const userEmail = email.toLowerCase()
-  const user = await this.findOne({email: userEmail}).populate('organizations')
+  const user = await this.findOne({email: userEmail}).populate('organizations.organization')
   assert(user, 401, 'Invalid email/password')
 
   const isValid = await new Promise((resolve, reject) => {

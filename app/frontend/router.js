@@ -6,7 +6,7 @@ import {
 
 import AdminLayout from '~components/admin-layout'
 
-import {PrivateRoute, LoginRoute, PrivateRoleRoute} from '~base/router'
+import {AppPrivateRoute, LoginRoute, PrivateRoleRoute} from '~base/router'
 
 import LogIn from './pages/log-in'
 import SelectOrg from './pages/select-org'
@@ -28,9 +28,9 @@ const AppRouter = () => {
         <Route exact path='/emails/reset' component={EmailResetLanding} />
         <Route exact path='/password/forgotten' component={ResetPassword} />
         <LoginRoute exact path='/log-in' component={LogIn} />
-        <PrivateRoute exact path='/profile' component={Profile} />
-        <PrivateRoute exact path='/select_org' component={SelectOrg} />
-        <PrivateRoute exact path='/' component={Dashboard} />
+        <AppPrivateRoute exact path='/profile' component={Profile} />
+        <AppPrivateRoute exact path='/select_org' component={SelectOrg} />
+        <AppPrivateRoute exact path='/' component={Dashboard} />
         <PrivateRoleRoute
           exact
           path='/manage/users'

@@ -55,7 +55,6 @@ class LogIn extends Component {
     try {
       data = await api.post('/user/login', formData)
     } catch (e) {
-      console.log(e)
       return this.setState({
         error: e.message,
         apiCallErrorMessage: 'message is-danger'

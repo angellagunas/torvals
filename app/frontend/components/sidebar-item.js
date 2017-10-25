@@ -46,12 +46,12 @@ class SidebarItem extends Component {
   testRoles (roles) {
     if (!roles) return true
     let rolesList = roles.split(',')
-    let user = tree.get('user')
+    let currentRole = tree.get('role')
     let test = false
 
     for (var role of rolesList) {
       role = role.trim()
-      if (role && user && user.role && user.role.slug === role) {
+      if (role && currentRole && currentRole.slug === role) {
         test = true
       }
     }

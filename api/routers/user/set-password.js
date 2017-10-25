@@ -12,14 +12,16 @@ module.exports = new Route({
   }),
   handler: async function (ctx) {
     const { uuid, password } = ctx.request.body
-    const user = await User.findOne({uuid: uuid})
+    var user = await User.findOne({uuid: uuid})
     ctx.assert(user, 404, 'Invalid user!')
 
     user.set({password})
-    user.save()
+    await user.save()
+
+    user = await User.auth(user.email, password)
 
     ctx.body = {
-      user: user.format(),
+      user: user.toPublic(),
       isAdmin: user.isAdmin,
       jwt: jwt.sign({
         uuid: user.uuid,
