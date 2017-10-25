@@ -76,7 +76,7 @@ class NavBar extends Component {
       avatar = '/public/img/avt-default.jpg'
 
       if (tree.get('user')) {
-        username = tree.get('user').screenName
+        username = tree.get('user').name
       }
 
       navButtons = (<div className='dropdown-content'>

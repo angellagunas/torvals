@@ -23,14 +23,13 @@ var schema = {
   type: 'object',
   title: '',
   required: [
-    'email', 'screenName', 'password_1', 'password_2', 'organization'
+    'email', 'password_1', 'password_2', 'organization'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
     email: {type: 'string', title: 'Email'},
     password_1: {type: 'string', title: 'Password'},
     password_2: {type: 'string', title: 'Confirm Password'},
-    screenName: {type: 'string', title: 'Screen Name'},
     isAdmin: {type: 'boolean', title: 'Is Admin?', default: false},
     role: {
       type: 'string',
@@ -52,7 +51,6 @@ const uiSchema = {
   email: {'ui:widget': EmailWidget},
   password_1: {'ui:widget': PasswordWidget},
   password_2: {'ui:widget': PasswordWidget},
-  screenName: {'ui:widget': TextWidget},
   isAdmin: {'ui:widget': CheckboxWidget},
   role: {'ui:widget': SelectWidget},
   organization: {'ui:widget': SelectWidget}

@@ -6,7 +6,7 @@ module.exports = new Route({
   path: '/me/update',
   validator: lov.object().keys({
     email: lov.string().email().required(),
-    screenName: lov.string().required(),
+    name: lov.string().required(),
     uuid: lov.string()
   }),
   handler: async function (ctx) {

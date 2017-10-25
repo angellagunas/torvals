@@ -23,7 +23,7 @@ class UpdateProfileForm extends Component {
     let username
     let email
     if (tree.get('user')) {
-      username = tree.get('user').screenName
+      username = tree.get('user').name
       email = tree.get('user').email
     }
 

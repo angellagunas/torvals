@@ -19,8 +19,6 @@ var schema = {
   properties: {
     name: {type: 'string', title: 'Name'},
     email: {type: 'string', title: 'Email'},
-    screenName: {type: 'string', title: 'Screen Name'},
-    displayName: {type: 'string', title: 'Display Name'},
     role: {
       type: 'string',
       title: 'Role',
@@ -33,8 +31,6 @@ var schema = {
 const uiSchema = {
   name: {'ui:widget': TextWidget},
   email: {'ui:widget': EmailWidget},
-  screenName: {'ui:widget': TextWidget},
-  displayName: {'ui:widget': TextWidget},
   role: {'ui:widget': SelectWidget}
 }
 

@@ -281,7 +281,7 @@ class UserDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      { user.screenName }
+                      { user.name }
                     </p>
                   </header>
                   <div className='card-content'>

@@ -11,12 +11,12 @@ const jwt = require('lib/jwt')
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR)
 
 const userSchema = new Schema({
-  name: { type: String },
+  name: { type: String, required: true },
   password: { type: String },
   email: { type: String, required: true, unique: true, trim: true },
   validEmail: {type: Boolean, default: false},
 
-  screenName: { type: String, unique: true, required: true },
+  screenName: { type: String, unique: true },
   displayName: { type: String },
   isAdmin: {type: Boolean, default: false},
   organizations: [{
@@ -123,13 +123,10 @@ userSchema.statics.auth = async function (email, password) {
 }
 
 userSchema.statics.register = async function (options) {
-  const {screenName, email} = options
+  const {email} = options
 
   const emailTaken = await this.findOne({ email })
   assert(!emailTaken, 401, 'Email already in use')
-
-  const screenTaken = await this.findOne({ screenName })
-  assert(!screenTaken, 401, 'Username already taken')
 
   // create in mongoose
   const createdUser = await this.create(options)
@@ -180,7 +177,7 @@ userSchema.methods.sendInviteEmail = async function () {
   await email.send({
     recipient: {
       email: this.email,
-      name: this.displayName
+      name: this.name
     },
     title: 'Invite to Marble Seeds'
   })
@@ -202,7 +199,7 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
   await email.send({
     recipient: {
       email: this.email,
-      name: this.displayName
+      name: this.name
     },
     title: 'Reset passsword for Marble Seeds'
   })
