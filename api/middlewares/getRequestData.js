@@ -1,4 +1,4 @@
-const { User } = require('models')
+const { User, Organization } = require('models')
 const { server } = require('config')
 const jwt = require('lib/jwt')
 
@@ -24,6 +24,19 @@ module.exports = async function (ctx, next) {
       }
 
       ctx.state.user = user
+    }
+  }
+
+  var subdomains = ctx.request.subdomains
+
+  if (subdomains && subdomains.length >= 1) {
+    if (subdomains[0] !== 'www') {
+      var sub = subdomains[0]
+
+      const org = await Organization.findOne({slug: sub})
+      console.log(org)
+
+      ctx.state.organization = org
     }
   }
 
