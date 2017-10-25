@@ -16,7 +16,7 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true, trim: true },
   validEmail: {type: Boolean, default: false},
 
-  screenName: { type: String, unique: true },
+  screenName: { type: String },
   displayName: { type: String },
   isAdmin: {type: Boolean, default: false},
   organizations: [{
