@@ -22,7 +22,7 @@ class Sidebar extends Component {
       to: '/'
     },
     {
-      title: 'Manage Your Team',
+      title: 'Manage Users',
       icon: 'users',
       to: '/manage',
       dropdown: [

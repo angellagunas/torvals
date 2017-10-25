@@ -89,7 +89,6 @@ class LogIn extends Component {
     await tree.commit()
 
     if (user.organizations && user.organizations.length > 1) {
-      console.log('Mas de una!')
       tree.set('shouldSelectOrg', true)
       await tree.commit()
       this.props.history.push('/select_org', {})
