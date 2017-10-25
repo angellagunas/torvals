@@ -179,7 +179,7 @@ userSchema.methods.sendInviteEmail = async function () {
       email: this.email,
       name: this.name
     },
-    title: 'Invite to Marble Seeds'
+    title: 'Invite to Pythia'
   })
 }
 
@@ -201,7 +201,7 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
       email: this.email,
       name: this.name
     },
-    title: 'Reset passsword for Marble Seeds'
+    title: 'Reset passsword for Pythia'
   })
 }
 
