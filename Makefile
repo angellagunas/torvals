@@ -23,7 +23,7 @@ admin-dist:
 
 dist: export NODE_ENV = production
 dist:
-	@$(BIN_DIR)/webpack --config ./admin/webpack/prod.config.js --progress && @$(BIN_DIR)/webpack --config ./app/webpack/prod.config.js --progress
+	@$(BIN_DIR)/webpack --config ./admin/webpack/prod.config.js --progress && $(BIN_DIR)/webpack --config ./app/webpack/prod.config.js --progress
 
 run-test:
 	@$(BIN_DIR)/mocha

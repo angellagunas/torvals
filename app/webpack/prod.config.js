@@ -48,13 +48,14 @@ module.exports = {
     new webpack.DefinePlugin({
       'ENV': JSON.stringify(config.env),
       'PREFIX': JSON.stringify(''),
-      'API_HOST': JSON.stringify(config.server.apiHost)
+      'API_HOST': JSON.stringify(config.server.apiHost),
+      'EMAIL_SEND': JSON.stringify(config.mailer.active)
     }),
     new webpack.DefinePlugin({
       'process.env': {
         'NODE_ENV': JSON.stringify('production')
       }
-    }),    
+    }),
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: true,
       compress: {
