@@ -1,5 +1,6 @@
+const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
-const {User} = require('models')
+const {User, Organization} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -13,6 +14,14 @@ module.exports = new Route({
       .populate('groups')
 
     ctx.assert(user, 404, 'User not found')
+
+    for (var group of user.groups) {
+      group.organization = await Organization.findOne({'_id': ObjectId(group.organization)})
+    }
+
+    user.role = user.organizations.find(e => {
+      return e.organization.uuid === ctx.state.organization.uuid
+    }).role._id
 
     ctx.body = {
       data: user.toAdmin()

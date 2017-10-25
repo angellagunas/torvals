@@ -18,6 +18,13 @@ module.exports = new Route({
     ctx.assert(user, 404, 'User not found')
 
     user.set(data)
+
+    var org = user.organizations.find(e => {
+      return String(e.organization) === String(ctx.state.organization._id)
+    })
+
+    org.role = data.role
+
     user.save()
 
     ctx.body = {

@@ -6,7 +6,8 @@ import api from '~base/api'
 import {
   BaseForm,
   TextWidget,
-  EmailWidget
+  EmailWidget,
+  SelectWidget
 } from '~base/components/base-form'
 
 var schema = {
@@ -17,13 +18,20 @@ var schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
-    email: {type: 'string', title: 'Email'}
+    email: {type: 'string', title: 'Email'},
+    role: {
+      type: 'string',
+      title: 'Role',
+      enum: [],
+      enumNames: []
+    }
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  email: {'ui:widget': EmailWidget}
+  email: {'ui:widget': EmailWidget},
+  role: {'ui:widget': SelectWidget}
 }
 
 class UserForm extends Component {
@@ -79,9 +87,16 @@ class UserForm extends Component {
       </div>
     }
 
+    if (this.props.roles.length === 0) {
+      return <Loader />
+    }
+
     if (this.state.formData.email) {
       uiSchema.email['ui:disabled'] = true
     }
+
+    schema.properties.role.enum = this.props.roles.map(item => { return item._id })
+    schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
 
     return (
       <div>
