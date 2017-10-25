@@ -13,15 +13,13 @@ const schema = {
   required: [],
   properties: {
     name: {type: 'text', title: 'Por nombre'},
-    email: {type: 'text', title: 'Por email'},
-    organization: {type: 'text', title: 'Por organización'}
+    email: {type: 'text', title: 'Por email'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': 'SearchFilter'},
-  email: {'ui:widget': 'SearchFilter'},
-  organization: {'ui:widget': 'SelectSearchFilter'}
+  email: {'ui:widget': 'SearchFilter'}
 }
 
 class Users extends Component {
