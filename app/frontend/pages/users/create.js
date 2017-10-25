@@ -31,7 +31,7 @@ class CreateUser extends Component {
 
   async load () {
     const body = await api.get(
-      '/admin/users',
+      '/app/users',
       {
         start: 0,
         limit: this.cursor.get('pageLength') || 10
@@ -48,7 +48,7 @@ class CreateUser extends Component {
   }
 
   async loadRoles () {
-    var url = '/admin/roles/'
+    var url = '/app/roles/'
     const body = await api.get(
       url,
       {
@@ -66,7 +66,7 @@ class CreateUser extends Component {
   getPasswordForm () {
     return (
       <PasswordUserForm
-        baseUrl='/admin/users'
+        baseUrl='/app/users'
         url={this.props.url}
         initialState={initialState}
         finishUp={this.props.finishUp}
@@ -88,7 +88,7 @@ class CreateUser extends Component {
   getSendInviteForm () {
     return (
       <InviteUserForm
-        baseUrl='/admin/users'
+        baseUrl='/app/users'
         url={this.props.url}
         initialState={initialState}
         finishUp={this.props.finishUp}
