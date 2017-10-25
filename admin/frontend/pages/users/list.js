@@ -13,14 +13,14 @@ const schema = {
   type: 'object',
   required: [],
   properties: {
-    screenName: {type: 'text', title: 'Por nombre'},
+    name: {type: 'text', title: 'Por nombre'},
     email: {type: 'text', title: 'Por email'},
     organization: {type: 'text', title: 'Por organización'}
   }
 }
 
 const uiSchema = {
-  screenName: {'ui:widget': 'SearchFilter'},
+  name: {'ui:widget': 'SearchFilter'},
   email: {'ui:widget': 'SearchFilter'},
   organization: {'ui:widget': 'SelectSearchFilter'}
 }
@@ -68,11 +68,6 @@ class Users extends Component {
 
   getColumns () {
     return [
-      {
-        'title': 'Screen name',
-        'property': 'screenName',
-        'default': 'N/A'
-      },
       {
         'title': 'Name',
         'property': 'name',

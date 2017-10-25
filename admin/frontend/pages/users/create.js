@@ -12,8 +12,7 @@ var initialState = {
   name: '',
   email: '',
   password_1: '',
-  password_2: '',
-  screenName: ''
+  password_2: ''
 }
 
 class CreateUser extends Component {

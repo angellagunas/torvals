@@ -1,4 +1,4 @@
-// node tasks/create-admin --email admin@app.com --password foobar --screenName admin
+// node tasks/create-admin --email admin@app.com --password foobar --name admin
 require('../config')
 require('lib/databases/mongo')
 const _ = require('lodash')
@@ -7,8 +7,8 @@ const { User } = require('models')
 const Task = require('lib/task')
 
 const task = new Task(async function (argv) {
-  if (!argv.password || !argv.email || !argv.screenName) {
-    throw new Error('screenName, email and password are required')
+  if (!argv.password || !argv.email || !argv.name) {
+    throw new Error('name, email and password are required')
   }
 
   argv.password = _.toString(argv.password)
@@ -16,7 +16,7 @@ const task = new Task(async function (argv) {
   const admin = new User({
     email: argv.email,
     password: argv.password,
-    screenName: argv.screenName,
+    name: argv.name,
     isAdmin: true,
     validEmail: true
   })
