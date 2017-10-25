@@ -153,7 +153,6 @@ class EmailInviteLanding extends Component {
     } else {
       const baseUrl = env.APP_HOST.split('://')
       const organization = user.organizations[0].organization
-      debugger
 
       tree.commit()
       window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1]
