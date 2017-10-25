@@ -145,7 +145,7 @@ class EmailInviteLanding extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Hi {this.state.user.screenName}!
+              Hi {this.state.user.name}!
             </p>
             <a className='card-header-icon'>
               <span className='icon'>

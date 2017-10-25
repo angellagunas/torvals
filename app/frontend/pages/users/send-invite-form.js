@@ -7,21 +7,18 @@ import {
   BaseForm,
   TextWidget,
   EmailWidget,
-  SelectWidget,
-  CheckboxWidget
+  SelectWidget
 } from '~base/components/base-form'
 
 var schema = {
   type: 'object',
   title: '',
   required: [
-    'email', 'screenName'
+    'email', 'name'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
     email: {type: 'string', title: 'Email'},
-    screenName: {type: 'string', title: 'Screen Name'},
-    isAdmin: {type: 'boolean', title: 'Is Admin?', default: false},
     role: {
       type: 'string',
       title: 'Role',
@@ -34,8 +31,6 @@ var schema = {
 const uiSchema = {
   name: {'ui:widget': TextWidget},
   email: {'ui:widget': EmailWidget},
-  screenName: {'ui:widget': TextWidget},
-  isAdmin: {'ui:widget': CheckboxWidget},
   role: {'ui:widget': SelectWidget}
 }
 

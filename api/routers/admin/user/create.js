@@ -9,7 +9,7 @@ module.exports = new Route({
   path: '/',
   validator: lov.object().keys({
     email: lov.string().email().required(),
-    screenName: lov.string().required()
+    name: lov.string().required()
   }),
   handler: async function (ctx) {
     const userData = ctx.request.body

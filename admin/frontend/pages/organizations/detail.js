@@ -43,8 +43,8 @@ class OrganizationDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Screen name',
-        'property': 'screenName',
+        'title': 'Name',
+        'property': 'name',
         'default': 'N/A'
       },
       {

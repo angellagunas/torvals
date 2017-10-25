@@ -8,7 +8,7 @@ const { User } = require('models')
 
 const task = new Task(async function (argv) {
   if (!argv.email) {
-    throw new Error('screenName, email and password are required')
+    throw new Error('Email is required')
   }
 
   const user = await User.findOne({email: argv.email})
