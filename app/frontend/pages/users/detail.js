@@ -46,6 +46,7 @@ class UserDetail extends Component {
       url,
       {
         user_orgs: this.props.match.params.uuid,
+        user: this.props.match.params.uuid,
         start: 0,
         limit: 0
       }

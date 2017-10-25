@@ -7,7 +7,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     const userId = ctx.params.uuid
 
-    const user = await User.findOne({'uuid': userId})
+    const user = await User.findOne({'uuid': userId}).populate('groups')
     ctx.assert(user, 404, 'User not found')
 
     var orgData = ctx.request.body
@@ -25,6 +25,16 @@ module.exports = new Route({
       )
     })
     user.organizations.splice(pos, 1)
+
+    var groupsAux = []
+
+    for (var group of user.groups) {
+      if (String(group.organization) !== String(org._id)) {
+        groupsAux.push(group)
+      }
+    }
+
+    user.groups = groupsAux
     user.save()
 
     ctx.body = {

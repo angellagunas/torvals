@@ -66,6 +66,7 @@ class UserDetail extends Component {
       url,
       {
         user_orgs: this.props.match.params.uuid,
+        user: this.props.match.params.uuid,
         start: 0,
         limit: 0
       }
@@ -97,6 +98,7 @@ class UserDetail extends Component {
     )
 
     this.load()
+    this.loadGroups()
   }
 
   async availableGroupOnClick (uuid) {
@@ -320,7 +322,7 @@ class UserDetail extends Component {
                             className={this.state.className}
                             hideModal={this.hideModal.bind(this)}
                             finishUp={this.finishUp.bind(this)}
-                            load={this.load.bind(this)}
+                            load={() => { this.load(); this.loadGroups() }}
                             baseUrl='/admin/users'
                             url={'/admin/users/' + this.props.match.params.uuid + '/add/organization'}
                           />
