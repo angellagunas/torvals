@@ -4,6 +4,7 @@ import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
 import moment from 'moment'
 import env from '~base/env-variables'
+import tree from '~core/tree'
 
 import Loader from '~base/components/spinner'
 import UserForm from './form'
@@ -27,6 +28,7 @@ class UserDetail extends Component {
   componentWillMount () {
     this.load()
     this.loadGroups()
+    this.loadRoles()
   }
 
   async load () {
@@ -55,6 +57,22 @@ class UserDetail extends Component {
     this.setState({
       ...this.state,
       groups: body.data
+    })
+  }
+
+  async loadRoles () {
+    var url = '/app/roles/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      roles: body.data
     })
   }
 
@@ -177,6 +195,7 @@ class UserDetail extends Component {
                           url={'/app/users/' + this.props.match.params.uuid}
                           initialState={this.state.user}
                           load={this.load.bind(this)}
+                          roles={this.state.roles || []}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>

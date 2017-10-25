@@ -19,6 +19,10 @@ module.exports = new Route({
       group.organization = await Organization.findOne({'_id': ObjectId(group.organization)})
     }
 
+    user.role = user.organizations.find(e => {
+      return e.organization.uuid === ctx.state.organization.uuid
+    }).role._id
+
     ctx.body = {
       data: user.toAdmin()
     }
