@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 
-import tree from '~core/tree'
 import api from '~base/api'
+import cookies from '~base/cookies'
 import Loader from '~base/components/spinner'
 import Link from '~base/router/link'
 import env from '~base/env-variables'
+
+import tree from '~core/tree'
 
 import {BaseForm, PasswordWidget, EmailWidget} from '~components/base-form'
 
@@ -80,7 +82,7 @@ class LogIn extends Component {
       })
     }
 
-    window.localStorage.setItem('jwt', data.jwt)
+    cookies.set('jwt', data.jwt)
     tree.set('jwt', data.jwt)
     tree.set('user', data.user)
     tree.set('loggedIn', true)
@@ -90,13 +92,13 @@ class LogIn extends Component {
       console.log('Mas de una!')
       tree.set('shouldSelectOrg', true)
       await tree.commit()
-      return this.props.history.push('/select_org', {})
+      this.props.history.push('/select_org', {})
+    } else {
+      const baseUrl = env.APP_HOST.split('://')
+      const organization = user.organizations[0]
+
+      window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1]
     }
-
-    alert(data[0] + '://' + formData.organization + '.' + data[1])
-    window.location = data[0] + '://' + formData.organization + '.' + data[1]
-
-    this.props.history.push('/app', {})
   }
 
   render () {

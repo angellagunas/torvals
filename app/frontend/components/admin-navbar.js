@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
 
+import cookies from '~base/cookies'
 import Image from '~base/components/image'
 import Link from '~base/router/link'
 import tree from '~core/tree'
@@ -41,7 +42,7 @@ class NavBar extends Component {
   async handleLogout () {
     const {history} = this.props
 
-    window.localStorage.removeItem('jwt')
+    cookies.remove('jwt')
     tree.set('jwt', null)
     tree.set('user', null)
     tree.set('loggedIn', false)
