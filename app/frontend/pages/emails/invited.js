@@ -3,6 +3,8 @@ import React, { Component } from 'react'
 import tree from '~core/tree'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
+import cookies from '~base/cookies'
+import env from '~base/env-variables'
 
 import {BaseForm, PasswordWidget} from '~base/components/base-form'
 
@@ -48,7 +50,8 @@ class EmailInviteLanding extends Component {
   }
 
   async clearStorage () {
-    window.localStorage.removeItem('jwt')
+    cookies.remove('jwt')
+    cookies.remove('organization')
     tree.set('jwt', null)
     tree.set('user', null)
     tree.set('loggedIn', false)
@@ -112,8 +115,9 @@ class EmailInviteLanding extends Component {
     formData.uuid = this.state.user.uuid
     formData.password = formData.password_1
 
+    var data
     try {
-      await api.post('/user/set-password', formData)
+      data = await api.post('/user/set-password', formData)
     } catch (e) {
       return this.setState({
         error: e.message,
@@ -121,11 +125,39 @@ class EmailInviteLanding extends Component {
       })
     }
 
-    this.setState({...this.state, apiCallMessage: 'message is-success'})
+    let user = data.user
 
-    setTimeout(() => {
-      this.props.history.push('/log-in', {})
-    }, 4000)
+    if (!user.organizations || user.organizations.length === 0) {
+      return this.setState({
+        error: 'El usuario no tiene una organización asignada, No se puede iniciar sesión automáticamente!',
+        loading: false,
+        apiCallErrorMessage: 'message is-danger',
+        formData: {
+          email: '',
+          password: ''
+        }
+      })
+    }
+
+    this.setState({...this.state, apiCallMessage: 'message is-success'})
+    cookies.set('jwt', data.jwt)
+    tree.set('jwt', data.jwt)
+    tree.set('user', data.user)
+    tree.set('loggedIn', true)
+    // tree.commit()
+
+    if (user.organizations && user.organizations.length > 1) {
+      tree.set('shouldSelectOrg', true)
+      tree.commit()
+      return this.props.history.push('/select_org', {})
+    } else {
+      const baseUrl = env.APP_HOST.split('://')
+      const organization = user.organizations[0].organization
+      debugger
+
+      tree.commit()
+      window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1]
+    }
   }
 
   render () {
