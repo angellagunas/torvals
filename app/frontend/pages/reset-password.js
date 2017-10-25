@@ -40,6 +40,8 @@ class ResetPassword extends Component {
     tree.set('jwt', null)
     tree.set('user', null)
     tree.set('loggedIn', false)
+    tree.set('organization', null)
+    tree.set('role', null)
     await tree.commit()
   }
 

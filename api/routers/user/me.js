@@ -15,9 +15,7 @@ module.exports = new Route({
 
       if (ctx.state.organization) {
         const currentOrganization = user.organizations.find(orgRel => {
-          console.log('=>', ctx.state.organization._id.equals(orgRel.organization), orgRel.organization, ctx.state.organization.id)
-
-          return ctx.state.organization._id.equals(orgRel.organization)
+          return ctx.state.organization._id.equals(orgRel.organization._id)
         })
 
         if (currentOrganization) {

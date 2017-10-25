@@ -22,7 +22,7 @@ module.exports = async function (ctx, next) {
       let user = await User.findOne({
         uuid: data.uuid,
         apiToken: data.apiToken
-      }).populate('role').populate('organizations')
+      }).populate('organizations.role').populate('organizations.organization')
 
       if (!user) {
         ctx.throw(401, 'Invalid User')
