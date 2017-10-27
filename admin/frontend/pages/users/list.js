@@ -5,7 +5,6 @@ import api from '~base/api'
 
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares/'
-
 import CreateUser from './create'
 
 export default ListPage({
