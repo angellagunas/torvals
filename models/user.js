@@ -4,6 +4,8 @@ const { v4 } = require('uuid')
 const bcrypt = require('bcrypt')
 const dataTables = require('mongoose-datatables')
 const assert = require('http-assert')
+const { aws } = require('../config')
+const awsService = require('aws-sdk')
 
 const Mailer = require('lib/mailer')
 const jwt = require('lib/jwt')
@@ -24,6 +26,11 @@ const userSchema = new Schema({
     role: { type: Schema.Types.ObjectId, ref: 'Role' }
   }],
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
+
+  profilePicture: {
+    url: { type: String },
+    bucket: { type: String }
+  },
 
   resetPasswordToken: { type: String, default: v4 },
   inviteToken: { type: String, default: v4 },
@@ -86,7 +93,8 @@ userSchema.methods.toPublic = function () {
     email: this.email,
     role: this.role,
     organizations: this.organizations,
-    validEmail: this.validEmail
+    validEmail: this.validEmail,
+    profileUrl: this.profileUrl
   }
 }
 
@@ -101,7 +109,8 @@ userSchema.methods.toAdmin = function () {
     validEmail: this.validEmail,
     role: this.role,
     organizations: this.organizations,
-    groups: this.groups
+    groups: this.groups,
+    profileUrl: this.profileUrl
   }
 }
 
@@ -149,6 +158,44 @@ userSchema.statics.validateResetPassword = async function (email, token) {
 
   return user
 }
+
+userSchema.methods.uploadProfilePicture = async function (file) {
+  if (!file) return false
+
+  let fileName = 'avatars/' + this.uuid + '/profile.jpg'
+  let bucket = 'pythia-kore-dev'
+  let contentType = file.split(';')[0]
+
+  var s3File = {
+    Key: fileName,
+    Body: new Buffer(file.split(',')[1], 'base64'),
+    ContentType: contentType,
+    Bucket: bucket
+  }
+
+  var s3 = new awsService.S3({
+    credentials: {
+      accessKeyId: aws.s3AccessKey,
+      secretAccessKey: aws.s3Secret
+    },
+    region: 'us-west-2'
+  })
+
+  await s3.putObject(s3File).promise()
+
+  this.profilePicture = {
+    url: fileName,
+    bucket: bucket
+  }
+
+  this.save()
+
+  return true
+}
+
+userSchema.virtual('profileUrl').get(function () {
+  return this.profilePicture.bucket + '/' + this.profilePicture.url
+})
 
 userSchema.methods.validatePassword = async function (password) {
   const isValid = await new Promise((resolve, reject) => {

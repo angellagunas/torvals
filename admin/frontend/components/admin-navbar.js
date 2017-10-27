@@ -72,11 +72,13 @@ class NavBar extends Component {
     var navButtons
     let avatar
     let username
+    let user = tree.get('user')
     if (this.props.loggedIn) {
       avatar = '/public/img/avt-default.jpg'
 
-      if (tree.get('user')) {
-        username = tree.get('user').name
+      if (user) {
+        avatar = user.profileUrl
+        username = user.name
       }
 
       navButtons = (<div className='dropdown-content'>

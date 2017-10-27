@@ -1,8 +1,8 @@
 // node tasks/send-user-invite.js --email admin@app.comx
-require('../config')
+const { aws } = require('../config')
 require('lib/databases/mongo')
 const fs = require('fs')
-const aws = require('aws-sdk')
+const awsService = require('aws-sdk')
 
 const Task = require('lib/task')
 
@@ -10,10 +10,6 @@ const task = new Task(async function (argv) {
   let s3path
   let bucket = 'pythia-kore-dev'
   let file
-  const {
-    S3_ACCESS_KEY,
-    S3_SECRET
-  } = process.env
 
   if (!argv.s3path || !argv.file) {
     throw new Error('s3path, bucket and file to upload are required')
@@ -24,10 +20,10 @@ const task = new Task(async function (argv) {
   if (argv.bucket) bucket = argv.bucket
 
   // Create an S3 client
-  var s3 = new aws.S3({
+  var s3 = new awsService.S3({
     credentials: {
-      accessKeyId: S3_ACCESS_KEY,
-      secretAccessKey: S3_SECRET
+      accessKeyId: aws.s3AccessKey,
+      secretAccessKey: aws.s3Secret
     },
     region: 'us-west-2'
   })
