@@ -170,7 +170,8 @@ userSchema.methods.uploadProfilePicture = async function (file) {
     Key: fileName,
     Body: new Buffer(file.split(',')[1], 'base64'),
     ContentType: contentType,
-    Bucket: bucket
+    Bucket: bucket,
+    ACL: 'public-read'
   }
 
   var s3 = new awsService.S3({
