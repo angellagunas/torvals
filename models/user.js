@@ -197,7 +197,11 @@ userSchema.methods.uploadProfilePicture = async function (file) {
 }
 
 userSchema.virtual('profileUrl').get(function () {
-  return 'https://s3-' + this.profilePicture.region + '.amazonaws.com/' + this.profilePicture.bucket + '/' + this.profilePicture.url
+  if (this.profilePicture && this.profilePicture.url) {
+    return 'https://s3-' + this.profilePicture.region + '.amazonaws.com/' + this.profilePicture.bucket + '/' + this.profilePicture.url
+  }
+
+  return 'https://s3-us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
 })
 
 userSchema.methods.validatePassword = async function (password) {

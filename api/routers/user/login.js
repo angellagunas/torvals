@@ -9,8 +9,18 @@ module.exports = new Route({
     const { email, password } = ctx.request.body
     const user = await User.auth(email, password)
 
+    var orgsAux = user.organizations.map(item => {
+      return {
+        organization: item.organization.toPublic(),
+        role: item.role
+      }
+    })
+
+    var userPublic = user.toPublic()
+    userPublic.organizations = orgsAux
+
     ctx.body = {
-      user: user.toPublic(),
+      user: userPublic,
       isAdmin: user.isAdmin,
       jwt: jwt.sign({
         uuid: user.uuid,

@@ -27,6 +27,13 @@ module.exports = new Route({
         }
       }
 
+      user.organizations = user.organizations.map(item => {
+        return {
+          organization: item.organization.toPublic(),
+          role: item.role.toPublic()
+        }
+      })
+
       ctx.body = data
     } else {
       ctx.body = {

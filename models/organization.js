@@ -30,7 +30,8 @@ organizationSchema.methods.toPublic = function () {
     name: this.name,
     description: this.description,
     slug: this.slug,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    profileUrl: this.profileUrl
   }
 }
 
@@ -39,7 +40,8 @@ organizationSchema.methods.format = function () {
     uuid: this.uuid,
     name: this.name,
     description: this.description,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    profileUrl: this.profileUrl
   }
 }
 
@@ -80,7 +82,11 @@ organizationSchema.methods.uploadOrganizationPicture = async function (file) {
 }
 
 organizationSchema.virtual('profileUrl').get(function () {
-  return 'https://s3-' + this.organizationPicture.region + '.amazonaws.com/' + this.organizationPicture.bucket + '/' + this.organizationPicture.url
+  if (this.organizationPicture && this.organizationPicture.url) {
+    return 'https://s3-' + this.organizationPicture.region + '.amazonaws.com/' + this.organizationPicture.bucket + '/' + this.organizationPicture.url
+  }
+
+  return 'https://s3-us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
 })
 
 module.exports = mongoose.model('Organization', organizationSchema)

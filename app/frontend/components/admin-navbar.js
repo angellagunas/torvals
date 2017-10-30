@@ -6,6 +6,7 @@ import cookies from '~base/cookies'
 import Image from '~base/components/image'
 import Link from '~base/router/link'
 import tree from '~core/tree'
+import SelectOrganizationForm from '~base/components/select-organization'
 
 class NavBar extends Component {
   constructor (props) {
@@ -101,10 +102,8 @@ class NavBar extends Component {
       <div className='c-topbar__main'>
         <div className='navbar-menu'>
           <div className='navbar-start'>
-            <div className='navbar-burger burger-desktop'>
-              <span />
-              <span />
-              <span />
+            <div className='navbar-select'>
+              <SelectOrganizationForm />
             </div>
           </div>
           <div className='navbar-end'>
