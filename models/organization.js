@@ -5,7 +5,6 @@ const dataTables = require('mongoose-datatables')
 const moment = require('moment')
 const { aws } = require('../config')
 const awsService = require('aws-sdk')
-const _ = require('lodash')
 
 const organizationSchema = new Schema({
   name: { type: String },
