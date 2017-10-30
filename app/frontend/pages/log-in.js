@@ -86,7 +86,6 @@ class LogIn extends Component {
     tree.set('jwt', data.jwt)
     tree.set('user', data.user)
     tree.set('loggedIn', true)
-    await tree.commit()
 
     if (user.organizations && user.organizations.length > 1) {
       tree.set('shouldSelectOrg', true)
@@ -96,6 +95,7 @@ class LogIn extends Component {
       const baseUrl = env.APP_HOST.split('://')
       const organization = user.organizations[0].organization
       cookies.set('organization', organization.slug)
+      await tree.commit()
 
       window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1]
     }
