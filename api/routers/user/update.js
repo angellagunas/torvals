@@ -15,7 +15,7 @@ module.exports = new Route({
     var file = ctx.request.body.profile
 
     if (file) {
-      const result = await user.uploadProfilePicture(file)
+      await user.uploadProfilePicture(file)
     }
 
     if (!user) {

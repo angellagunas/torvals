@@ -164,7 +164,7 @@ userSchema.methods.uploadProfilePicture = async function (file) {
   if (!file) return false
 
   let fileName = 'avatars/' + this.uuid + '/profile.jpg'
-  let bucket = 'pythia-kore-dev'
+  let bucket = aws.s3Bucket
   let contentType = file.split(';')[0]
 
   var s3File = {
