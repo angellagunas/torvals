@@ -75,11 +75,13 @@ class NavBar extends Component {
     var navButtons
     let avatar
     let username
+    let user = tree.get('user')
     if (this.props.loggedIn) {
       avatar = '/public/img/avt-default.jpg'
 
-      if (tree.get('user')) {
-        username = tree.get('user').name
+      if (user) {
+        avatar = user.profileUrl
+        username = user.name
       }
 
       navButtons = (<div className='dropdown-content'>
@@ -110,7 +112,7 @@ class NavBar extends Component {
               Bienvenido { username }
             </div>
             <div className='is-flex is-align-center'>
-              <Image className='is-rounded' src={avatar} width='40' height='45' alt='Avatar' />
+              <img className='is-rounded' src={avatar} width='40' height='45' alt='Avatar' />
             </div>
             <div className='dropdown is-active is-right' ref={this.setWrapperRef}>
               <div className='dropdown-trigger is-flex'>
