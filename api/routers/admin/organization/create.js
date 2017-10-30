@@ -12,6 +12,7 @@ module.exports = new Route({
   }),
   handler: async function (ctx) {
     var data = ctx.request.body
+    var file = data.profile
 
     data.slug = slugify(data.name)
     const auxOrg = await Organization.findOne({slug: data.slug})
@@ -32,6 +33,10 @@ module.exports = new Route({
     }
 
     const org = await Organization.create(data)
+
+    if (file) {
+      await org.uploadOrganizationPicture(file)
+    }
 
     ctx.body = {
       data: org.format()

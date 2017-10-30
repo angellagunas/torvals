@@ -19,7 +19,11 @@ if (env !== 'test') {
 }
 
 app.use(convert(cors()))
-app.use(convert(bodyParser({strict: false})))
+app.use(convert(bodyParser({
+  strict: false,
+  formLimit: '1mb',
+  jsonLimit: '1mb'
+})))
 
 app.use(sanitizeBody)
 app.use(errorHandler)
