@@ -29,7 +29,8 @@ const userSchema = new Schema({
 
   profilePicture: {
     url: { type: String },
-    bucket: { type: String }
+    bucket: { type: String },
+    region: { type: String }
   },
 
   resetPasswordToken: { type: String, default: v4 },
@@ -179,14 +180,15 @@ userSchema.methods.uploadProfilePicture = async function (file) {
       accessKeyId: aws.s3AccessKey,
       secretAccessKey: aws.s3Secret
     },
-    region: 'us-west-2'
+    region: aws.s3Region
   })
 
   await s3.putObject(s3File).promise()
 
   this.profilePicture = {
     url: fileName,
-    bucket: bucket
+    bucket: bucket,
+    region: aws.s3Region
   }
 
   this.save()
@@ -195,7 +197,7 @@ userSchema.methods.uploadProfilePicture = async function (file) {
 }
 
 userSchema.virtual('profileUrl').get(function () {
-  return this.profilePicture.bucket + '/' + this.profilePicture.url
+  return 'https://s3-' + this.profilePicture.region + '.amazonaws.com/' + this.profilePicture.bucket + '/' + this.profilePicture.url
 })
 
 userSchema.methods.validatePassword = async function (password) {
