@@ -45,7 +45,7 @@ class EmailResetLanding extends Component {
   }
 
   componentWillMount () {
-    this.clearStorage()
+    // this.clearStorage()
     this.verifyToken()
   }
 
