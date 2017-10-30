@@ -14,12 +14,18 @@ module.exports = new Route({
     var organizationId = ctx.params.uuid
     var data = ctx.request.body
 
+    var file = data.profile
+
     const org = await Organization.findOne({'uuid': organizationId})
     ctx.assert(org, 404, 'Organization not found')
 
     data.slug = slugify(data.name)
     org.set(data)
     org.save()
+
+    if (file) {
+      await org.uploadOrganizationPicture(file)
+    }
 
     ctx.body = {
       data: org.format()

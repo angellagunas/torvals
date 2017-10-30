@@ -5,7 +5,8 @@ import api from '~base/api'
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget
+  TextareaWidget,
+  FileWidget
 } from '~base/components/base-form'
 
 const schema = {
@@ -16,13 +17,15 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
-    description: {type: 'string', title: 'Description'}
+    description: {type: 'string', title: 'Description'},
+    profile: {type: 'string', title: 'Profile picture', format: 'data-url'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
+  description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
+  profile: {'ui:widget': FileWidget}
 }
 
 class OrganizationForm extends Component {

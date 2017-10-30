@@ -12,6 +12,12 @@ module.exports = new Route({
   handler: async function (ctx) {
     const user = ctx.state.user
 
+    var file = ctx.request.body.profile
+
+    if (file) {
+      await user.uploadProfilePicture(file)
+    }
+
     if (!user) {
       return ctx.throw(403)
     }
