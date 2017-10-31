@@ -71,10 +71,10 @@ userSchema.pre('save', function (next) {
 userSchema.methods.format = function () {
   return {
     uuid: this.uuid,
-    screenName: this.screenName,
-    displayName: this.displayName,
+    name: this.name,
     email: this.email,
-    validEmail: this.validEmail
+    validEmail: this.validEmail,
+    profileUrl: this.profileUrl
   }
 }
 
@@ -163,7 +163,7 @@ userSchema.statics.validateResetPassword = async function (email, token) {
 userSchema.methods.uploadProfilePicture = async function (file) {
   if (!file) return false
 
-  let fileName = 'avatars/' + this.uuid + '/profile.jpg'
+  let fileName = `avatars/${v4()}.jpg`
   let bucket = aws.s3Bucket
   let contentType = file.split(';')[0]
 

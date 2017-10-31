@@ -76,7 +76,9 @@ class NavBar extends Component {
     var navButtons
     let avatar
     let username
-    let user = tree.get('user')
+    let user = this.props.user
+
+    // debugger
     if (this.props.loggedIn) {
       avatar = '/public/img/avt-default.jpg'
 
@@ -133,5 +135,6 @@ class NavBar extends Component {
 }
 
 export default withRouter(branch({
-  loggedIn: 'loggedIn'
+  loggedIn: 'loggedIn',
+  'user': 'user'
 }, NavBar))
