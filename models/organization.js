@@ -39,6 +39,7 @@ organizationSchema.methods.format = function () {
   return {
     uuid: this.uuid,
     name: this.name,
+    slug: this.slug,
     description: this.description,
     dateCreated: this.dateCreated,
     profileUrl: this.profileUrl
