@@ -3,33 +3,8 @@ import tree from '~core/tree'
 
 import UpdatePasswordForm from '~base/components/update-password'
 import UpdateProfileForm from '~base/components/update-profile'
-import SelectOrganizationForm from '~base/components/select-organization'
 
 class Profile extends Component {
-  getSelectOrganization () {
-    let user = tree.get('user')
-    if (user) {
-      if (user.organizations.length > 1) {
-        return (
-          <div className='column is-one-third'>
-            <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                  Cambiar organización
-                </p>
-              </header>
-              <div className='card-content'>
-                <div className='content'>
-                  <SelectOrganizationForm />
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }
-    }
-  }
-
   render () {
     return (
       <section className='section'>
@@ -48,7 +23,6 @@ class Profile extends Component {
               </div>
             </div>
           </div>
-          {this.getSelectOrganization()}
           <div className='column is-one-third'>
             <div className='card'>
               <header className='card-header'>

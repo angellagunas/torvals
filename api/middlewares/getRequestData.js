@@ -44,7 +44,7 @@ module.exports = async function (ctx, next) {
         const organization = await Organization.findOne({slug: ctx.state.orgSlug})
 
         if (!organization || organization.isDeleted) {
-          ctx.throw(404, 'Organization not found')
+          ctx.throw(401, 'Organization not found')
         }
 
         ctx.state.organization = organization

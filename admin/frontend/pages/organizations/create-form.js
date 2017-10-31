@@ -13,11 +13,10 @@ const schema = {
   type: 'object',
   title: '',
   required: [
-    'name', 'slug'
+    'name'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
-    slug: {type: 'string', title: 'Slug'},
     description: {type: 'string', title: 'Description'},
     profile: {type: 'string', title: 'Profile picture', format: 'data-url'}
   }
@@ -25,16 +24,14 @@ const schema = {
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  slug: {'ui:widget': TextWidget, 'ui:disabled': true},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
   profile: {'ui:widget': FileWidget}
 }
 
-class OrganizationForm extends Component {
+class CreateOrganizationForm extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      initialState: this.props.initialState,
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
@@ -60,15 +57,6 @@ class OrganizationForm extends Component {
   }
 
   async submitHandler ({formData}) {
-    if (formData.slug !== this.state.initialState.slug && !this.state.confirmed) {
-      return this.setState({
-        ...this.state,
-        error: 'If you modify the slug, all logged in users from this organization will be logged out. If you REALLY want to continue, click save again',
-        apiCallErrorMessage: 'message is-danger',
-        confirmed: true
-      })
-    }
-
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
@@ -120,4 +108,4 @@ class OrganizationForm extends Component {
   }
 }
 
-export default OrganizationForm
+export default CreateOrganizationForm

@@ -16,6 +16,7 @@ import UserDetail from './pages/users/detail'
 import Profile from './pages/profile'
 import Groups from './pages/groups/list'
 import GroupDetail from './pages/groups/detail'
+import OrganizationDetail from './pages/organizations/detail'
 import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
 import ResetPassword from './pages/reset-password'
@@ -53,6 +54,12 @@ const AppRouter = () => {
           exact
           path='/manage/groups/:uuid'
           component={GroupDetail}
+          roles='admin-organizacion, admin'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/manage/organizations/:uuid'
+          component={OrganizationDetail}
           roles='admin-organizacion, admin'
         />
       </div>

@@ -17,16 +17,16 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
-    slug: {type: 'string', title: 'Slug'},
     description: {type: 'string', title: 'Description'},
+    slug: {type: 'string', title: 'Slug'},
     profile: {type: 'string', title: 'Profile picture', format: 'data-url'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  slug: {'ui:widget': TextWidget, 'ui:disabled': true},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
+  slug: {'ui:widget': TextWidget, 'ui:disabled': true},
   profile: {'ui:widget': FileWidget}
 }
 
