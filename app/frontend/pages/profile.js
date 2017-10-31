@@ -3,7 +3,6 @@ import tree from '~core/tree'
 
 import UpdatePasswordForm from '~base/components/update-password'
 import UpdateProfileForm from '~base/components/update-profile'
-import SelectOrganizationForm from '~base/components/select-organization'
 
 class Profile extends Component {
   render () {
