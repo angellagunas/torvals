@@ -48,9 +48,7 @@ class Dashboard extends Component {
 
     return (<div className='section'>
       <div className='Dashboard'>
-        <div className='Dashboard-header'>
-          <h2></h2>
-        </div>
+
         <div className="tile is-ancestor">
           <div className="tile is-vertical is-3">
             <div className="tile">
