@@ -36,7 +36,7 @@ class Dashboard extends Component {
 
   render () {
     const {loading, orgsCount, usersCount, rolesCount, groupsCount} = this.state
-    console.log(this.state)
+    
     if (loading) {
       return <Loader />
     }
