@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import tree from '~core/tree'
 
 import UpdatePasswordForm from '~base/components/update-password'
 import UpdateProfileForm from '~base/components/update-profile'
@@ -9,7 +8,7 @@ class Profile extends Component {
     return (
       <section className='section'>
         <div className='columns is-multiline'>
-          <div className='column is-one-third'>
+          <div className='column is-half'>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
@@ -23,7 +22,7 @@ class Profile extends Component {
               </div>
             </div>
           </div>
-          <div className='column is-one-third'>
+          <div className='column is-half'>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
@@ -34,20 +33,6 @@ class Profile extends Component {
                 <div className='content'>
                   <UpdatePasswordForm />
                 </div>
-              </div>
-            </div>
-          </div>
-          <div className='column'>
-            <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                    Data
-                  </p>
-              </header>
-              <div className='card-content'>
-                <div className='content'>
-                    Hola mundo
-                  </div>
               </div>
             </div>
           </div>
