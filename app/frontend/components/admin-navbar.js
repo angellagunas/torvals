@@ -78,7 +78,6 @@ class NavBar extends Component {
     let username
     let user = this.props.user
 
-    // debugger
     if (this.props.loggedIn) {
       avatar = '/public/img/avt-default.jpg'
 
