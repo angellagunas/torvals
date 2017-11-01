@@ -144,7 +144,6 @@ class EmailInviteLanding extends Component {
     tree.set('jwt', data.jwt)
     tree.set('user', data.user)
     tree.set('loggedIn', true)
-    // tree.commit()
 
     if (user.organizations && user.organizations.length > 1) {
       tree.set('shouldSelectOrg', true)

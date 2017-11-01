@@ -89,10 +89,10 @@ class LogIn extends Component {
         shouldSelectOrg: true
       })
     } else {
-      cookies.set('jwt', data.jwt)
-
       const baseUrl = env.APP_HOST.split('://')
       const organization = user.organizations[0].organization
+
+      cookies.set('jwt', data.jwt)
       cookies.set('organization', organization.slug)
 
       window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1]

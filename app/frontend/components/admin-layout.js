@@ -2,9 +2,11 @@ import {isEmpty} from 'lodash'
 import React, { Component } from 'react'
 import { root } from 'baobab-react/higher-order'
 
+import tree from '~core/tree'
+
 import cookies from '~base/cookies'
 import api from '~base/api'
-import tree from '~core/tree'
+import Loader from '~base/components/spinner'
 
 import Sidebar from '~components/sidebar'
 import Footer from '~components/footer'
@@ -66,7 +68,7 @@ class AdminLayout extends Component {
 
   render () {
     if (!this.state.loaded) {
-      return <div>Loading...</div>
+      return <div className='is-flex is-flex-1'><Loader /></div>
     }
 
     let shouldSelectOrg = tree.get('shouldSelectOrg')
