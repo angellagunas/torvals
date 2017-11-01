@@ -6,8 +6,6 @@ import Loader from '~base/components/spinner'
 import Link from '~base/router/link'
 import env from '~base/env-variables'
 
-import tree from '~core/tree'
-
 import {BaseForm, PasswordWidget, EmailWidget} from '~components/base-form'
 
 const schema = {

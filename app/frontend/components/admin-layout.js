@@ -71,9 +71,7 @@ class AdminLayout extends Component {
       return <div className='is-flex is-flex-1'><Loader /></div>
     }
 
-    let shouldSelectOrg = tree.get('shouldSelectOrg')
-
-    if (!isEmpty(this.state.user) && !shouldSelectOrg) {
+    if (!isEmpty(this.state.user)) {
       return (<div className='is-wrapper'>
         <AdminNavBar />
         <div className='is-flex c-flex-1 columns is-gapless'>
