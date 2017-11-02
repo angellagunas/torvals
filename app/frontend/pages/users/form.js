@@ -7,8 +7,7 @@ import {
   BaseForm,
   TextWidget,
   EmailWidget,
-  SelectWidget,
-  CheckboxWidget
+  SelectWidget
 } from '~base/components/base-form'
 
 var schema = {
@@ -20,9 +19,6 @@ var schema = {
   properties: {
     name: {type: 'string', title: 'Name'},
     email: {type: 'string', title: 'Email'},
-    screenName: {type: 'string', title: 'Screen Name'},
-    displayName: {type: 'string', title: 'Display Name'},
-    isAdmin: {type: 'boolean', title: 'Is Admin?', default: false},
     role: {
       type: 'string',
       title: 'Role',
@@ -35,9 +31,6 @@ var schema = {
 const uiSchema = {
   name: {'ui:widget': TextWidget},
   email: {'ui:widget': EmailWidget},
-  screenName: {'ui:widget': TextWidget},
-  displayName: {'ui:widget': TextWidget},
-  isAdmin: {'ui:widget': CheckboxWidget},
   role: {'ui:widget': SelectWidget}
 }
 
@@ -98,12 +91,12 @@ class UserForm extends Component {
       return <Loader />
     }
 
-    schema.properties.role.enum = this.props.roles.map(item => { return item._id })
-    schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
-
     if (this.state.formData.email) {
       uiSchema.email['ui:disabled'] = true
     }
+
+    schema.properties.role.enum = this.props.roles.map(item => { return item._id })
+    schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
 
     return (
       <div>

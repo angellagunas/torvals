@@ -7,13 +7,6 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import RoleForm from './form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
-import {
-  SimpleTable,
-  TableBody,
-  BodyRow,
-  TableData,
-  TableHeader
-} from '~base/components/base-table'
 
 class RoleDetail extends Component {
   constructor (props) {
@@ -43,8 +36,8 @@ class RoleDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Screen name',
-        'property': 'screenName',
+        'title': 'Name',
+        'property': 'name',
         'default': 'N/A'
       },
       {
@@ -66,7 +59,7 @@ class RoleDetail extends Component {
   async deleteOnClick () {
     var url = '/admin/roles/' + this.props.match.params.uuid
     const body = await api.del(url)
-    this.props.history.push('/admin/roles')
+    this.props.history.push('/admin/manage/roles')
   }
 
   async defaultOnClick () {

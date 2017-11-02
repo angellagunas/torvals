@@ -7,19 +7,20 @@ import api from '~base/api'
 import BaseFilterPanel from '~base/components/base-filters'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import FontAwesome from 'react-fontawesome'
+import CreateUser from './create'
 
 const schema = {
   type: 'object',
   required: [],
   properties: {
-    screenName: {type: 'text', title: 'Por nombre'},
+    name: {type: 'text', title: 'Por nombre'},
     email: {type: 'text', title: 'Por email'},
     organization: {type: 'text', title: 'Por organización'}
   }
 }
 
 const uiSchema = {
-  screenName: {'ui:widget': 'SearchFilter'},
+  name: {'ui:widget': 'SearchFilter'},
   email: {'ui:widget': 'SearchFilter'},
   organization: {'ui:widget': 'SelectSearchFilter'}
 }
@@ -68,11 +69,6 @@ class Users extends Component {
   getColumns () {
     return [
       {
-        'title': 'Screen name',
-        'property': 'screenName',
-        'default': 'N/A'
-      },
-      {
         'title': 'Name',
         'property': 'name',
         'default': 'N/A'
@@ -106,6 +102,27 @@ class Users extends Component {
       }
     }
     this.setState({filters})
+  }
+
+  showModal () {
+    this.setState({
+      className: ' is-active'
+    })
+  }
+
+  hideModal () {
+    this.setState({
+      className: ''
+    })
+  }
+
+  finishUp (object) {
+    window.setTimeout(() => {
+      this.setState({
+        className: ''
+      })
+      this.props.history.push('/admin/manage/users/' + object.uuid)
+    }, 2000)
   }
 
   render () {
@@ -154,6 +171,19 @@ class Users extends Component {
                     this.context.tree.get('users', 'totalItems') || ''
                   }
                 </p>
+                <div className='card-header-select'>
+                  <button className='button is-primary' onClick={() => this.showModal()}>
+                    New User
+                  </button>
+                  <CreateUser
+                    className={this.state.className}
+                    hideModal={this.hideModal.bind(this)}
+                    finishUp={this.finishUp.bind(this)}
+                    branchName='users'
+                    baseUrl='/admin/users'
+                    url='/admin/users'
+                  />
+                </div>
               </header>
               <div className='card-content'>
                 <div className='columns'>

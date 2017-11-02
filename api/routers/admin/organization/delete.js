@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const {Organization} = require('models')
+const {Organization, User} = require('models')
 
 module.exports = new Route({
   method: 'delete',
@@ -13,6 +13,19 @@ module.exports = new Route({
 
     org.set({isDeleted: true})
     org.save()
+
+    var users = await User.find({'organizations.organization': { $in: [org._id] }})
+
+    for (var user of users) {
+      var pos = user.organizations.findIndex(e => {
+        return (
+          String(e.organization) === String(org._id)
+        )
+      })
+
+      user.organizations.splice(pos, 1)
+      await user.save()
+    }
 
     ctx.body = {
       data: org.format()

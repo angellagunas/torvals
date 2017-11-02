@@ -251,3 +251,22 @@ footer.footer {
 select.placeholder {  
   color: gray;
 }
+
+.navbar-select {
+  height: 3.25rem;
+}
+
+
+.navbar-select-name {
+  padding: .2em
+}
+
+.dropdown-select > .navbar-item img {
+  max-height: 30px;
+  max-width: 30px;
+}
+
+
+.navbar-item-height img {
+  max-height: 45px;
+}

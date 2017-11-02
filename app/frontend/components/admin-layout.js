@@ -2,8 +2,11 @@ import {isEmpty} from 'lodash'
 import React, { Component } from 'react'
 import { root } from 'baobab-react/higher-order'
 
-import api from '~base/api'
 import tree from '~core/tree'
+
+import cookies from '~base/cookies'
+import api from '~base/api'
+import Loader from '~base/components/spinner'
 
 import Sidebar from '~components/sidebar'
 import Footer from '~components/footer'
@@ -32,18 +35,32 @@ class AdminLayout extends Component {
         me = await api.get('/user/me')
       } catch (err) {
         if (err.status === 401) {
-          window.localStorage.removeItem('jwt')
+          cookies.remove('jwt')
           tree.set('jwt', null)
+          tree.set('user', null)
+          tree.set('organization', null)
+          tree.set('role', null)
           tree.commit()
         }
 
-        this.setState({loaded: true})
-        return
+        return this.setState({loaded: true})
       }
 
       tree.set('user', me.user)
+      tree.set('organization', me.user.currentOrganization)
+      tree.set('role', me.user.currentRole)
       tree.set('loggedIn', me.loggedIn)
       tree.commit()
+
+      if (!me.user.currentOrganization) {
+        cookies.remove('jwt')
+        tree.set('jwt', null)
+        tree.set('user', null)
+        tree.set('organization', null)
+        tree.set('role', null)
+        tree.set('loggedIn', false)
+        await tree.commit()
+      }
     }
 
     this.setState({loaded: true})
@@ -51,10 +68,12 @@ class AdminLayout extends Component {
 
   render () {
     if (!this.state.loaded) {
-      return <div>Loading...</div>
+      return <div className='is-flex is-flex-1'><Loader /></div>
     }
 
-    if (!isEmpty(this.state.user)) {
+    let shouldSelectOrg = tree.get('shouldSelectOrg')
+
+    if (!isEmpty(this.state.user) && !shouldSelectOrg) {
       return (<div className='is-wrapper'>
         <AdminNavBar />
         <div className='is-flex c-flex-1 columns is-gapless'>

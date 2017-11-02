@@ -30,7 +30,7 @@ class GroupDetail extends Component {
   }
 
   async load () {
-    var url = '/admin/groups/' + this.props.match.params.uuid
+    var url = '/app/groups/' + this.props.match.params.uuid
     const body = await api.get(url)
 
     this.setState({
@@ -43,8 +43,8 @@ class GroupDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Screen name',
-        'property': 'screenName',
+        'title': 'Name',
+        'property': 'name',
         'default': 'N/A'
       },
       {
@@ -64,9 +64,9 @@ class GroupDetail extends Component {
   }
 
   async deleteOnClick () {
-    var url = '/admin/groups/' + this.props.match.params.uuid
+    var url = '/app/groups/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/admin/groups')
+    this.props.history.push('/manage/groups')
   }
 
   render () {
@@ -107,8 +107,8 @@ class GroupDetail extends Component {
                     <div className='columns'>
                       <div className='column'>
                         <GroupForm
-                          baseUrl='/admin/groups'
-                          url={'/admin/groups/' + this.props.match.params.uuid}
+                          baseUrl='/app/groups'
+                          url={'/app/groups/' + this.props.match.params.uuid}
                           initialState={this.state.group}
                           load={this.load.bind(this)}
                         >
@@ -135,7 +135,7 @@ class GroupDetail extends Component {
                       <div className='column'>
                         <BranchedPaginatedTable
                           branchName='users'
-                          baseUrl='/admin/users'
+                          baseUrl='/app/users'
                           columns={this.getColumns()}
                           filters={{group: this.props.match.params.uuid}}
                          />

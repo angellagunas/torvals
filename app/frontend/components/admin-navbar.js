@@ -2,9 +2,11 @@ import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
 
+import cookies from '~base/cookies'
 import Image from '~base/components/image'
 import Link from '~base/router/link'
 import tree from '~core/tree'
+import SelectOrganizationForm from '~base/components/select-organization'
 
 class NavBar extends Component {
   constructor (props) {
@@ -38,14 +40,16 @@ class NavBar extends Component {
     }
   }
 
-  handleLogout () {
+  async handleLogout () {
     const {history} = this.props
 
-    window.localStorage.removeItem('jwt')
+    cookies.remove('jwt')
     tree.set('jwt', null)
     tree.set('user', null)
+    tree.set('role', null)
+    tree.set('organization', null)
     tree.set('loggedIn', false)
-    tree.commit()
+    await tree.commit()
 
     history.push('/')
   }
@@ -72,11 +76,14 @@ class NavBar extends Component {
     var navButtons
     let avatar
     let username
+    let user = this.props.user
+
     if (this.props.loggedIn) {
       avatar = '/public/img/avt-default.jpg'
 
-      if (tree.get('user')) {
-        username = tree.get('user').screenName
+      if (user) {
+        avatar = user.profileUrl
+        username = user.name
       }
 
       navButtons = (<div className='dropdown-content'>
@@ -96,10 +103,8 @@ class NavBar extends Component {
       <div className='c-topbar__main'>
         <div className='navbar-menu'>
           <div className='navbar-start'>
-            <div className='navbar-burger burger-desktop'>
-              <span />
-              <span />
-              <span />
+            <div className='navbar-select'>
+              <SelectOrganizationForm />
             </div>
           </div>
           <div className='navbar-end'>
@@ -107,7 +112,7 @@ class NavBar extends Component {
               Bienvenido { username }
             </div>
             <div className='is-flex is-align-center'>
-              <Image className='is-rounded' src={avatar} width='40' height='45' alt='Avatar' />
+              <img className='is-rounded' src={avatar} width='40' height='45' alt='Avatar' />
             </div>
             <div className='dropdown is-active is-right' ref={this.setWrapperRef}>
               <div className='dropdown-trigger is-flex'>
@@ -129,5 +134,6 @@ class NavBar extends Component {
 }
 
 export default withRouter(branch({
-  loggedIn: 'loggedIn'
+  loggedIn: 'loggedIn',
+  'user': 'user'
 }, NavBar))

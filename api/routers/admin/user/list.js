@@ -1,4 +1,4 @@
-var ObjectId = require('mongodb').ObjectID
+const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 const {User, Organization, Role, Group} = require('models')
 
@@ -18,7 +18,7 @@ module.exports = new Route({
         )
 
         if (role) {
-          filters['role'] = ObjectId(role._id)
+          filters['organizations.role'] = { $in: [ObjectId(role._id)] }
         }
 
         continue
@@ -30,7 +30,7 @@ module.exports = new Route({
         )
 
         if (organization) {
-          filters['organizations'] = { $in: [ObjectId(organization._id)] }
+          filters['organizations.organization'] = { $in: [ObjectId(organization._id)] }
         }
 
         continue

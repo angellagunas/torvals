@@ -128,7 +128,7 @@ describe('Group CRUD', () => {
           password: '4321',
           email: email,
           displayName: 'App User',
-          screenName: 'au'
+          name: 'au'
         })
         .set('Accept', 'application/json')
         .expect(200)

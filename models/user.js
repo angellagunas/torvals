@@ -4,25 +4,37 @@ const { v4 } = require('uuid')
 const bcrypt = require('bcrypt')
 const dataTables = require('mongoose-datatables')
 const assert = require('http-assert')
+const { aws } = require('../config')
+const awsService = require('aws-sdk')
 
+const Mailer = require('lib/mailer')
 const jwt = require('lib/jwt')
 
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR)
 
 const userSchema = new Schema({
-  name: { type: String },
+  name: { type: String, required: true },
   password: { type: String },
   email: { type: String, required: true, unique: true, trim: true },
   validEmail: {type: Boolean, default: false},
 
-  screenName: { type: String, unique: true, required: true },
+  screenName: { type: String },
   displayName: { type: String },
   isAdmin: {type: Boolean, default: false},
-  organizations: [{ type: Schema.Types.ObjectId, ref: 'Organization' }],
-  role: { type: Schema.Types.ObjectId, ref: 'Role' },
+  organizations: [{
+    organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
+    role: { type: Schema.Types.ObjectId, ref: 'Role' }
+  }],
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
 
+  profilePicture: {
+    url: { type: String },
+    bucket: { type: String },
+    region: { type: String }
+  },
+
   resetPasswordToken: { type: String, default: v4 },
+  inviteToken: { type: String, default: v4 },
 
   uuid: { type: String, default: v4 },
   apiToken: { type: String, default: v4 }
@@ -59,10 +71,10 @@ userSchema.pre('save', function (next) {
 userSchema.methods.format = function () {
   return {
     uuid: this.uuid,
-    screenName: this.screenName,
-    displayName: this.displayName,
+    name: this.name,
     email: this.email,
-    validEmail: this.validEmail
+    validEmail: this.validEmail,
+    profileUrl: this.profileUrl
   }
 }
 
@@ -81,7 +93,9 @@ userSchema.methods.toPublic = function () {
     name: this.name,
     email: this.email,
     role: this.role,
-    validEmail: this.validEmail
+    organizations: this.organizations,
+    validEmail: this.validEmail,
+    profileUrl: this.profileUrl
   }
 }
 
@@ -96,14 +110,15 @@ userSchema.methods.toAdmin = function () {
     validEmail: this.validEmail,
     role: this.role,
     organizations: this.organizations,
-    groups: this.groups
+    groups: this.groups,
+    profileUrl: this.profileUrl
   }
 }
 
 // Statics
 userSchema.statics.auth = async function (email, password) {
   const userEmail = email.toLowerCase()
-  const user = await this.findOne({email: userEmail})
+  const user = await this.findOne({email: userEmail}).populate('organizations.organization')
   assert(user, 401, 'Invalid email/password')
 
   const isValid = await new Promise((resolve, reject) => {
@@ -118,19 +133,76 @@ userSchema.statics.auth = async function (email, password) {
 }
 
 userSchema.statics.register = async function (options) {
-  const {screenName, displayName, email, password} = options
+  const {email} = options
 
   const emailTaken = await this.findOne({ email })
   assert(!emailTaken, 401, 'Email already in use')
 
-  const screenTaken = await this.findOne({ screenName })
-  assert(!screenTaken, 401, 'Username already taken')
-
   // create in mongoose
-  const createdUser = await this.create({ screenName: screenName, displayName: displayName, email: email, password: password })
+  const createdUser = await this.create(options)
 
   return createdUser
 }
+
+userSchema.statics.validateInvite = async function (email, token) {
+  const userEmail = email.toLowerCase()
+  const user = await this.findOne({email: userEmail, inviteToken: token})
+  assert(user, 401, 'Invalid token! You should contact the administrator of this page.')
+
+  return user
+}
+
+userSchema.statics.validateResetPassword = async function (email, token) {
+  const userEmail = email.toLowerCase()
+  const user = await this.findOne({email: userEmail, resetPasswordToken: token})
+  assert(user, 401, 'Invalid token! You should contact the administrator of this page.')
+
+  return user
+}
+
+userSchema.methods.uploadProfilePicture = async function (file) {
+  if (!file) return false
+
+  let fileName = `avatars/${v4()}.jpg`
+  let bucket = aws.s3Bucket
+  let contentType = file.split(';')[0]
+
+  var s3File = {
+    Key: fileName,
+    Body: new Buffer(file.split(',')[1], 'base64'),
+    ContentType: contentType,
+    Bucket: bucket,
+    ACL: 'public-read'
+  }
+
+  var s3 = new awsService.S3({
+    credentials: {
+      accessKeyId: aws.s3AccessKey,
+      secretAccessKey: aws.s3Secret
+    },
+    region: aws.s3Region
+  })
+
+  await s3.putObject(s3File).promise()
+
+  this.profilePicture = {
+    url: fileName,
+    bucket: bucket,
+    region: aws.s3Region
+  }
+
+  this.save()
+
+  return true
+}
+
+userSchema.virtual('profileUrl').get(function () {
+  if (this.profilePicture && this.profilePicture.url) {
+    return 'https://s3-' + this.profilePicture.region + '.amazonaws.com/' + this.profilePicture.bucket + '/' + this.profilePicture.url
+  }
+
+  return 'https://s3-us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
+})
 
 userSchema.methods.validatePassword = async function (password) {
   const isValid = await new Promise((resolve, reject) => {
@@ -144,6 +216,47 @@ userSchema.methods.validatePassword = async function (password) {
 
 userSchema.methods.setPassword = async function (password) {
 
+}
+
+userSchema.methods.sendInviteEmail = async function () {
+  this.inviteToken = v4()
+  await this.save()
+
+  const email = new Mailer('invite')
+
+  const data = this.toJSON()
+  data.url = process.env.APP_HOST + '/emails/invite?token=' + this.inviteToken + '&email=' + encodeURIComponent(this.email)
+
+  await email.format(data)
+  await email.send({
+    recipient: {
+      email: this.email,
+      name: this.name
+    },
+    title: 'Invite to Pythia'
+  })
+}
+
+userSchema.methods.sendResetPasswordEmail = async function (admin) {
+  this.inviteToken = v4()
+  await this.save()
+  let url = process.env.APP_HOST
+
+  if (admin) url = process.env.ADMIN_HOST + process.env.ADMIN_PREFIX
+
+  const email = new Mailer('reset-password')
+
+  const data = this.toJSON()
+  data.url = url + '/emails/reset?token=' + this.resetPasswordToken + '&email=' + encodeURIComponent(this.email)
+
+  await email.format(data)
+  await email.send({
+    recipient: {
+      email: this.email,
+      name: this.name
+    },
+    title: 'Reset passsword for Pythia'
+  })
 }
 
 userSchema.plugin(dataTables)

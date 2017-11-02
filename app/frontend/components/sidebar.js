@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import SidebarItem from '~components/sidebar-item'
+import tree from '~core/tree'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -16,6 +17,37 @@ class Sidebar extends Component {
   }
 
   getMenuItems () {
+    if (tree.get('organization')) {
+      return [{
+        title: 'Dashboard',
+        icon: 'github',
+        to: '/'
+      },
+      {
+        title: 'Manage Your Team',
+        icon: 'users',
+        to: '/manage',
+        roles: 'admin-organizacion, admin',
+        dropdown: [
+          {
+            title: 'Groups',
+            icon: 'users',
+            to: '/manage/groups'
+          },
+          {
+            title: 'Users',
+            icon: 'user',
+            to: '/manage/users'
+          },
+          {
+            title: 'My Organization',
+            icon: 'user',
+            to: '/manage/organizations/' + tree.get('organization').uuid
+          }
+        ]
+      }]
+    }
+
     return [{
       title: 'Dashboard',
       icon: 'github',
@@ -25,6 +57,7 @@ class Sidebar extends Component {
       title: 'Manage Your Team',
       icon: 'users',
       to: '/manage',
+      roles: 'admin-organizacion, admin',
       dropdown: [
         {
           title: 'Groups',
@@ -37,16 +70,6 @@ class Sidebar extends Component {
           to: '/manage/users'
         }
       ]
-    },
-    {
-      title: 'Team Settings',
-      icon: 'id-card-o',
-      to: '/team'
-    },
-    {
-      title: 'Invitations',
-      icon: 'snowflake-o',
-      to: '/invitations'
     }]
   }
 
@@ -64,6 +87,7 @@ class Sidebar extends Component {
               icon={e.icon}
               to={e.to}
               dropdown={e.dropdown}
+              roles={e.roles}
               onClick={this.handleActiveLink}
               activeItem={this.state.active}
               key={e.title.toLowerCase().replace(/\s/g, '')} />

@@ -6,11 +6,17 @@ module.exports = new Route({
   path: '/me/update',
   validator: lov.object().keys({
     email: lov.string().email().required(),
-    screenName: lov.string().required(),
+    name: lov.string().required(),
     uuid: lov.string()
   }),
   handler: async function (ctx) {
     const user = ctx.state.user
+
+    var file = ctx.request.body.profile
+
+    if (file) {
+      await user.uploadProfilePicture(file)
+    }
 
     if (!user) {
       return ctx.throw(403)

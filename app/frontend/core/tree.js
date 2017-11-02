@@ -1,7 +1,9 @@
 import Baobab from 'baobab'
 
+import cookies from '~base/cookies'
+
 const initialState = {
-  jwt: window.localStorage.getItem('jwt')
+  jwt: cookies.get('jwt')
 }
 
 const tree = new Baobab(initialState, {

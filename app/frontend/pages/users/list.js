@@ -2,26 +2,24 @@ import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
-import api from '~base/api'
 
 import BaseFilterPanel from '~base/components/base-filters'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import FontAwesome from 'react-fontawesome'
+import CreateUser from './create'
 
 const schema = {
   type: 'object',
   required: [],
   properties: {
-    screenName: {type: 'text', title: 'Por nombre'},
-    email: {type: 'text', title: 'Por email'},
-    organization: {type: 'text', title: 'Por organización'}
+    name: {type: 'text', title: 'Por nombre'},
+    email: {type: 'text', title: 'Por email'}
   }
 }
 
 const uiSchema = {
-  screenName: {'ui:widget': 'SearchFilter'},
-  email: {'ui:widget': 'SearchFilter'},
-  organization: {'ui:widget': 'SelectSearchFilter'}
+  name: {'ui:widget': 'SearchFilter'},
+  email: {'ui:widget': 'SearchFilter'}
 }
 
 class Users extends Component {
@@ -44,34 +42,10 @@ class Users extends Component {
       pageLength: 10
     })
     this.context.tree.commit()
-    this.loadOrgs()
-  }
-
-  async loadOrgs () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      orgs: body.data
-    })
-
-    schema.properties.organization['values'] = body.data
   }
 
   getColumns () {
     return [
-      {
-        'title': 'Screen name',
-        'property': 'screenName',
-        'default': 'N/A'
-      },
       {
         'title': 'Name',
         'property': 'name',
@@ -106,6 +80,27 @@ class Users extends Component {
       }
     }
     this.setState({filters})
+  }
+
+  showModal () {
+    this.setState({
+      className: ' is-active'
+    })
+  }
+
+  hideModal () {
+    this.setState({
+      className: ''
+    })
+  }
+
+  finishUp (object) {
+    window.setTimeout(() => {
+      this.setState({
+        className: ''
+      })
+      this.props.history.push('/manage/users/' + object.uuid)
+    }, 2000)
   }
 
   render () {
@@ -154,13 +149,26 @@ class Users extends Component {
                     this.context.tree.get('users', 'totalItems') || ''
                   }
                 </p>
+                <div className='card-header-select'>
+                  <button className='button is-primary' onClick={() => this.showModal()}>
+                    New User
+                  </button>
+                  <CreateUser
+                    className={this.state.className}
+                    hideModal={this.hideModal.bind(this)}
+                    finishUp={this.finishUp.bind(this)}
+                    branchName='users'
+                    baseUrl='/app/users'
+                    url='/app/users'
+                  />
+                </div>
               </header>
               <div className='card-content'>
                 <div className='columns'>
                   <div className='column'>
                     <BranchedPaginatedTable
                       branchName='users'
-                      baseUrl='/admin/users'
+                      baseUrl='/app/users'
                       columns={this.getColumns()}
                       filters={filters}
                      />

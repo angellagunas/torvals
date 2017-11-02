@@ -13,10 +13,20 @@ module.exports = new Route({
 
     if (!role.isDefault) {
       var defaultRole = await Role.findOne({isDefault: true})
-      var users = await User.find({role: role._id})
+      var users = await User.find({'organizations.role': { $in: [role._id] }})
 
       for (var user of users) {
-        user.set({role: defaultRole._id})
+        var pos = user.organizations.findIndex(e => {
+          return (
+            String(e.role) === String(role._id)
+          )
+        })
+
+        var orgs = user.organizations[pos]
+        orgs.role = defaultRole
+
+        user.organizations.splice(pos, 1)
+        user.organizations.push(orgs)
         await user.save()
       }
 

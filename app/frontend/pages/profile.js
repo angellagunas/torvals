@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+
 import UpdatePasswordForm from '~base/components/update-password'
 import UpdateProfileForm from '~base/components/update-profile'
 
@@ -7,34 +8,30 @@ class Profile extends Component {
     return (
       <section className='section'>
         <div className='columns is-multiline'>
-          <div className='column is-one-third'>
-            <div className='panel is-bg-white'>
-              <p className='panel-heading'>
-                Perfil
-              </p>
-              <div className='panel-block panel-body'>
-                <UpdateProfileForm />
-              </div>
-            </div>
-            <div className='panel is-bg-white'>
-              <p className='panel-heading'>
-                Perfil
-              </p>
-              <div className='panel-block panel-body'>
-                <UpdatePasswordForm />
-              </div>
-            </div>
-          </div>
-          <div className='column is-two-thirds'>
+          <div className='column is-half'>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Data
+                  Perfil
                 </p>
               </header>
               <div className='card-content'>
                 <div className='content'>
-                  Hola mundo
+                  <UpdateProfileForm />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className='column is-half'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  Contraseña
+                </p>
+              </header>
+              <div className='card-content'>
+                <div className='content'>
+                  <UpdatePasswordForm />
                 </div>
               </div>
             </div>

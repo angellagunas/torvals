@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import Loader from '~base/components/spinner'
 
 import api from '~base/api'
 
@@ -7,7 +6,6 @@ import {
   BaseForm,
   TextWidget,
   EmailWidget,
-  SelectWidget,
   CheckboxWidget
 } from '~base/components/base-form'
 
@@ -20,25 +18,14 @@ var schema = {
   properties: {
     name: {type: 'string', title: 'Name'},
     email: {type: 'string', title: 'Email'},
-    screenName: {type: 'string', title: 'Screen Name'},
-    displayName: {type: 'string', title: 'Display Name'},
-    isAdmin: {type: 'boolean', title: 'Is Admin?', default: false},
-    role: {
-      type: 'string',
-      title: 'Role',
-      enum: [],
-      enumNames: []
-    }
+    isAdmin: {type: 'boolean', title: 'Is Admin?', default: false}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
   email: {'ui:widget': EmailWidget},
-  screenName: {'ui:widget': TextWidget},
-  displayName: {'ui:widget': TextWidget},
-  isAdmin: {'ui:widget': CheckboxWidget},
-  role: {'ui:widget': SelectWidget}
+  isAdmin: {'ui:widget': CheckboxWidget}
 }
 
 class UserForm extends Component {
@@ -93,13 +80,6 @@ class UserForm extends Component {
         Error: {this.state.error}
       </div>
     }
-
-    if (this.props.roles.length === 0) {
-      return <Loader />
-    }
-
-    schema.properties.role.enum = this.props.roles.map(item => { return item._id })
-    schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
 
     if (this.state.formData.email) {
       uiSchema.email['ui:disabled'] = true

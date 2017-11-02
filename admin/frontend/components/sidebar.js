@@ -22,7 +22,7 @@ class Sidebar extends Component {
       to: '/'
     },
     {
-      title: 'Manage Your Team',
+      title: 'Manage Users',
       icon: 'users',
       to: '/manage',
       dropdown: [
@@ -47,16 +47,6 @@ class Sidebar extends Component {
           to: '/manage/users'
         }
       ]
-    },
-    {
-      title: 'Team Settings',
-      icon: 'id-card-o',
-      to: '/team'
-    },
-    {
-      title: 'Invitations',
-      icon: 'snowflake-o',
-      to: '/invitations'
     }]
   }
 

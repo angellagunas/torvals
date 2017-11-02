@@ -4,7 +4,7 @@ import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
 
 import BaseModal from '~base/components/base-modal'
-import OrganizationForm from './form'
+import CreateOrganizationForm from './create-form'
 
 var initialState = {
   name: '',
@@ -46,7 +46,7 @@ class CreateOrganization extends Component {
         className={this.props.className}
         hideModal={this.hideModal}
       >
-        <OrganizationForm
+        <CreateOrganizationForm
           baseUrl='/admin/organizations'
           url={this.props.url}
           finishUp={this.props.finishUp}
@@ -61,7 +61,7 @@ class CreateOrganization extends Component {
               <button className='button' onClick={this.hideModal}>Cancel</button>
             </div>
           </div>
-        </OrganizationForm>
+        </CreateOrganizationForm>
       </BaseModal>
     )
   }

@@ -23,7 +23,7 @@ class CreateGroup extends Component {
 
   async load () {
     const body = await api.get(
-      '/admin/groups',
+      '/app/groups',
       {
         start: 0,
         limit: this.cursor.get('pageLength') || 10
@@ -47,7 +47,7 @@ class CreateGroup extends Component {
         hideModal={this.hideModal}
       >
         <GroupForm
-          baseUrl='/admin/groups'
+          baseUrl='/app/groups'
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}

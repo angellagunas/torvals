@@ -23,6 +23,16 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'user_orgs') {
+        const user = await User.findOne({'uuid': ctx.request.query[filter]})
+
+        if (user) {
+          filters['organization'] = { $in: user.organizations.map(item => { return item.organization }) }
+        }
+
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
@@ -34,7 +44,8 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
-      sort: '-dateCreated'
+      sort: '-dateCreated',
+      populate: 'organization'
     })
 
     ctx.body = groups
