@@ -2,12 +2,16 @@ import React, { Component } from 'react'
 import request from '~base/request'
 import { Redirect } from 'react-router-dom'
 import Loader from '~base/components/spinner'
+import api from '~base/api'
 
 class Dashboard extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      posts: [],
+      orgsCount: 0,
+      usersCount: 0,
+      rolesCount: 0,
+      groupsCount: 0,
       loading: true
     }
   }
@@ -17,17 +21,22 @@ class Dashboard extends Component {
   }
 
   async load () {
-    const body = await request('get', null, 'https://www.reddit.com/r/all.json')
+    var url = '/admin/dashboard/'
+    const body = await api.get(url)
 
     this.setState({
-      loading: false,
-      posts: body.data.children.map(item => item.data)
+      ...this.state,
+      orgsCount: body.orgsCount,
+      usersCount: body.usersCount,
+      rolesCount: body.rolesCount,
+      groupsCount: body.groupsCount,
+      loading: false
     })
   }
 
   render () {
-    const {loading, posts} = this.state
-
+    const {loading, orgsCount, usersCount, rolesCount, groupsCount} = this.state
+    
     if (loading) {
       return <Loader />
     }
@@ -36,19 +45,58 @@ class Dashboard extends Component {
       return <Redirect to='/log-in' />
     }
 
-    const postsList = posts.map(post => {
-      return <div key={post.id}>
-        <h4>{post.title}</h4>
-        <a href={'http://reddit.com' + post.permalink} target='_blank'>{post.domain}</a>
-      </div>
-    })
 
     return (<div className='section'>
       <div className='Dashboard'>
-        <div className='Dashboard-header'>
-          <h2>Post list</h2>
+
+        <div className="tile is-ancestor">
+          <div className="tile is-vertical is-3">
+            <div className="tile">
+              <div className="tile is-parent">
+                <article className="tile is-child notification is-primary has-text-centered">
+                  <p className="title">{orgsCount}</p>
+                  <p className="subtitle">Organizaciones</p>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <div className="tile is-vertical is-3">
+            <div className="tile">
+              <div className="tile is-parent">
+                <article className="tile is-child notification is-primary has-text-centered">
+                  <p className="title">{usersCount}</p>
+                  <p className="subtitle">Usuarios</p>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <div className="tile is-vertical is-3">
+            <div className="tile">
+              <div className="tile is-parent">
+                <article className="tile is-child notification is-primary has-text-centered">
+                  <p className="title">{rolesCount}</p>
+                  <p className="subtitle">Roles</p>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <div className="tile is-vertical is-3">
+            <div className="tile">
+              <div className="tile is-parent">
+                <article className="tile is-child notification is-primary has-text-centered">
+                  <p className="title">{groupsCount}</p>
+                  <p className="subtitle">Grupos</p>
+                </article>
+              </div>
+            </div>
+          </div>
+
         </div>
-        {postsList}
+
+       
       </div>
     </div>)
   }

@@ -4,6 +4,7 @@ const Organization = require('./organization')
 const Role = require('./role')
 const Group = require('./group')
 const FileChunk = require('./fileChunk')
+const DataSet = require('./dataSet')
 
 module.exports = {
   User,
@@ -11,5 +12,6 @@ module.exports = {
   Organization,
   Role,
   Group,
-  FileChunk
+  FileChunk,
+  DataSet
 }

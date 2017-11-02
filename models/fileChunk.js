@@ -16,6 +16,7 @@ const fileChunkSchema = new Schema({
 
 fileChunkSchema.methods.toPublic = function () {
   return {
+    totalChunks: this.totalChunks,
     lastChunk: this.lastChunk,
     fileType: this.fileType,
     fileId: this.fileId,
