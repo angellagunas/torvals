@@ -7,7 +7,7 @@ module.exports = new Route({
   method: 'get',
   path: '/',
   handler: async function (ctx) {
-var organizationId = ctx.params.uuid
+    var organizationId = ctx.params.uuid
 
     const orgsCount = await Organization.count()
     const usersCount = await User.count()
