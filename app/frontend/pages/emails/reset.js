@@ -138,25 +138,84 @@ class EmailResetLanding extends Component {
       })
     }
 
-    this.setState({...this.state, apiCallMessage: 'message is-success'})
-    cookies.set('jwt', data.jwt)
-    tree.set('jwt', data.jwt)
-    tree.set('user', data.user)
-    tree.set('loggedIn', true)
-    // tree.commit()
-
     if (user.organizations && user.organizations.length > 1) {
-      tree.set('shouldSelectOrg', true)
-      tree.commit()
-      return this.props.history.push('/select_org', {})
+      this.setState({
+        organizations: user.organizations,
+        jwt: data.jwt,
+        shouldSelectOrg: true
+      })
     } else {
       const baseUrl = env.APP_HOST.split('://')
       const organization = user.organizations[0].organization
+
+      cookies.set('jwt', data.jwt)
       cookies.set('organization', organization.slug)
 
-      tree.commit()
       window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1]
     }
+  }
+
+  selectOrgHandler (slug) {
+    const baseUrl = env.APP_HOST.split('://')
+
+    cookies.set('jwt', this.state.jwt)
+    window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1]
+  }
+
+  getDropdown () {
+    let listData = this.state.organizations.map(item => {
+      return {
+        id: item.organization.slug,
+        key: item.organization.uuid,
+        data: (
+          <div className='columns'>
+            <div className='column is-one-third'>
+              <img className='is-rounded' src={item.organization.profileUrl} width='45' height='45' alt='Avatar' />
+            </div>
+            <div className='column'>
+              <p>
+                <strong>{item.organization.name}</strong>
+                <br />
+                <small>{item.organization.description}</small>
+              </p>
+            </div>
+          </div>
+        )
+      }
+    })
+
+    return (
+      <div className='navbar-item-height'>
+        {listData.map((d, index) => {
+          if (index < listData.length - 1) {
+            return (
+              <div key={d.key}>
+                <a
+                  className='navbar-item '
+                  href='#'
+                  onClick={e => { this.selectOrgHandler(d.id) }}
+                  >
+                  {d.data}
+                </a>
+                <hr className='navbar-divider' />
+              </div>
+            )
+          } else {
+            return (
+              <div key={d.key}>
+                <a
+                  className='navbar-item '
+                  href='#'
+                  onClick={e => { this.selectOrgHandler(d.id) }}
+                  >
+                  {d.data}
+                </a>
+              </div>
+            )
+          }
+        })}
+      </div>
+    )
   }
 
   render () {
@@ -170,6 +229,29 @@ class EmailResetLanding extends Component {
     if (this.state.error) {
       error = <div>
         Error: {this.state.error}
+      </div>
+    }
+
+    if (this.state.shouldSelectOrg) {
+      return <div className={'LogIn single-form ' + this.props.className}>
+        <div className='card'>
+          <header className='card-header'>
+            <p className='card-header-title'>
+              Select Organization to log in
+            </p>
+            <a className='card-header-icon'>
+              <span className='icon'>
+                <i className='fa fa-angle-down' />
+              </span>
+            </a>
+          </header>
+          <div className='card-content'>
+            <div className='content'>
+              { spinner }
+              {this.getDropdown()}
+            </div>
+          </div>
+        </div>
       </div>
     }
 
