@@ -10,12 +10,12 @@ module.exports = new Route({
   validator: lov.object().keys({
     name: lov.string().required(),
     description: lov.string(),
-    organization: lov.string().required(),
+    organization: lov.string().required()
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
 
-    const org = await Organization.find({uuid: body.organization})
+    const org = await Organization.find({uuid: body.organization.uuid})
 
     if(!org){
       ctx.throw(404, 'Organization not found')
@@ -24,7 +24,7 @@ module.exports = new Route({
     const dataset = await DataSet.create({
       name: body.name,
       description: body.description,
-      organization: org
+      organization: body.organization
     })
 
     ctx.body = {
