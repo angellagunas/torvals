@@ -9,6 +9,7 @@ const fileChunkSchema = new Schema({
   fileType: { type: String },
   fileId: { type: String },
   filename: { type: String },
+  path: { type: String },
   recreated: { type: Boolean, default: false }
 })
 

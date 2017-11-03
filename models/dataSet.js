@@ -7,18 +7,32 @@ const moment = require('moment')
 const dataSetSchema = new Schema({
   name: { type: String, required: true },
   description: { type: String },
-  path: { type: String },
+  path: {
+    url: { type: String },
+    bucket: { type: String },
+    region: { type: String }
+  },
+  fileChunk: { type: Schema.Types.ObjectId, ref: 'FileChunk' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
   uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   type: {
     type: String,
-    enum : ['univariable-time-series'],
+    enum: ['univariable-time-series'],
     default: 'univariable-time-series'
   },
 
   status: {
     type: String,
-    enum : ['new','uploading','preprocessing','configuring','processing','reviewing','ready'],
+    enum: [
+      'new',
+      'uploading',
+      'preprocessing',
+      'configuring',
+      'processing',
+      'reviewing',
+      'ready'
+    ],
     default: 'new'
   },
 

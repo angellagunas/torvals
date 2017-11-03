@@ -35,17 +35,18 @@ module.exports = new Route({
     }
 
     var chunk = await FileChunk.findOne({fileId: identifier})
-    const tmpdir = path.join('.', identifier)
+    const tmpdir = path.join('.', 'media', 'uploads', identifier)
 
     if (!chunk && chunkNumber === 1) {
       chunk = await FileChunk.create({
         lastChunk: 0,
         fileType: chunkData.resumableType,
         fileId: identifier,
-        filename: filename
+        filename: filename,
+        path: tmpdir
       })
 
-      await fs.mkdirSync(tmpdir)
+      await fs.mkdir(tmpdir)
     }
 
     if (!chunk) {
@@ -74,14 +75,13 @@ module.exports = new Route({
       for (let key in files) {
         const file = files[key]
         const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
-        // await fs.closeSync(await fs.openSync(filePath, 'a'))
         const reader = fs.createReadStream(file.path)
         const writer = fs.createWriteStream(filePath)
         reader.pipe(writer)
         filePaths.push(filePath)
       }
     } catch (e) {
-      console.log('error! ' + e)
+      ctx.throw(500, e.message)
     }
 
     chunk.lastChunk = chunkNumber

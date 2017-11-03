@@ -47,6 +47,7 @@
     "mongoose": "^4.11.5",
     "mongoose-datatables": "^3.0.0",
     "node-sass": "^4.5.3",
+    "numeraljs": "^1.5.6",
     "nunjucks": "^3.0.1",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
