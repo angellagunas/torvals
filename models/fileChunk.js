@@ -1,0 +1,38 @@
+const mongoose = require('mongoose')
+const { Schema } = require('mongoose')
+const { v4 } = require('uuid')
+const moment = require('moment')
+
+const fileChunkSchema = new Schema({
+  totalChunks: { type: Number },
+  lastChunk: { type: Number },
+  fileType: { type: String },
+  fileId: { type: String },
+  filename: { type: String },
+  path: { type: String },
+  recreated: { type: Boolean, default: false },
+
+  dateCreated: { type: Date, default: moment.utc },
+  uuid: { type: String, default: v4 }
+})
+
+fileChunkSchema.methods.toPublic = function () {
+  return {
+    totalChunks: this.totalChunks,
+    lastChunk: this.lastChunk,
+    fileType: this.fileType,
+    fileId: this.fileId,
+    filename: this.filename
+  }
+}
+
+fileChunkSchema.methods.format = function () {
+  return {
+    uuid: this.uuid,
+    fileType: this.fileType,
+    fileId: this.fileId,
+    filename: this.filename
+  }
+}
+
+module.exports = mongoose.model('FileChunk', fileChunkSchema)

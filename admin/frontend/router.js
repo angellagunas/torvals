@@ -20,6 +20,7 @@ import Roles from './pages/roles/list'
 import RoleDetail from './pages/roles/detail'
 import Groups from './pages/groups/list'
 import GroupDetail from './pages/groups/detail'
+import Resume from './pages/resume'
 import DataSets from './pages/datasets/list'
 
 const AppRouter = () => {
@@ -39,6 +40,7 @@ const AppRouter = () => {
         <PrivateRoute exact path='/manage/roles/:uuid' component={RoleDetail} />
         <PrivateRoute exact path='/manage/groups' component={Groups} />
         <PrivateRoute exact path='/manage/groups/:uuid' component={GroupDetail} />
+        <PrivateRoute exact path='/resume' component={Resume} />
         <PrivateRoute exact path='/datasets' component={DataSets} />
       </div>
     </AdminLayout>
