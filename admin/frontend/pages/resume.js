@@ -67,8 +67,6 @@ class Resume extends Component {
     })
 
     ResumableField.on('fileSuccess', (file, fileServer) => {
-      // let currentFiles = this.state.fileList
-      // currentFiles.push(file)
       file.isDone = true
 
       this.setState({
@@ -108,18 +106,6 @@ class Resume extends Component {
         message: 'Encountered an error uploading file ' + file.file.name + '!. Upload cancelled'
       })
     })
-
-    // ResumableField.on('fileRetry', (file, errorCount) => {
-    //   this.errorHandler({
-    //     message: 'Encountered an error uploading file ' + file.file.name + '!. Retrying ...'
-    //   })
-
-    //   setTimeout(() => {
-    //     this.setState({
-    //       apiCallErrorMessage: 'is-hidden'
-    //     })
-    //   }, 1000)
-    // })
 
     this.resumable = ResumableField
   };

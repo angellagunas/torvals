@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
-// const { v4 } = require('uuid')
-// const dataTables = require('mongoose-datatables')
+const { v4 } = require('uuid')
+const moment = require('moment')
 
 const fileChunkSchema = new Schema({
   totalChunks: { type: Number },
@@ -10,10 +10,11 @@ const fileChunkSchema = new Schema({
   fileId: { type: String },
   filename: { type: String },
   path: { type: String },
-  recreated: { type: Boolean, default: false }
-})
+  recreated: { type: Boolean, default: false },
 
-// fileChunkSchema.plugin(dataTables)
+  dateCreated: { type: Date, default: moment.utc },
+  uuid: { type: String, default: v4 }
+})
 
 fileChunkSchema.methods.toPublic = function () {
   return {
