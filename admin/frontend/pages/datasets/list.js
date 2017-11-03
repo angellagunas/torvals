@@ -71,7 +71,7 @@ class DataSets extends Component {
     this.setState({
       className: ''
     })
-    this.props.history.push('/admin/manage/organizations/' + object.uuid)
+    this.props.history.push('/admin/datasets/' + object.uuid)
   }
 
   render (){
@@ -89,15 +89,6 @@ class DataSets extends Component {
                   <button className='button is-primary' onClick={() => this.showModal()}>
                     New DataSet
                   </button>
-                  {/* <CreateDataSet
-                    className={this.state.className}
-                    hideModal={this.hideModal.bind(this)}
-                    finishUp={this.finishUp.bind(this)}
-                    branchName='datasets'
-                    baseUrl='/admin/datasets'
-                    url='/admin/datasets'
-                  />*/}
-
                   <CreateDataSet
                     className={this.state.className}
                     hideModal={this.hideModal.bind(this)}

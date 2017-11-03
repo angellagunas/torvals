@@ -87,6 +87,9 @@ class CreateDatsetForm extends Component {
       </div>
     }
 
+    schema.properties.organization.enum = tree.get('organizations').map(item => { return item.uuid })
+    schema.properties.organization.enumNames = tree.get('organizations').map(item => { return item.name })
+
     return (
       <div>
         <BaseForm schema={schema}

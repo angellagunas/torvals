@@ -15,7 +15,9 @@ module.exports = new Route({
   handler: async function (ctx) {
     const body = ctx.request.body
 
-    const org = await Organization.find({uuid: body.organization.uuid})
+    console.log('=>', body.organization)
+    const org = await Organization.findOne({uuid: body.organization})
+    console.log('=>', org)
 
     if(!org){
       ctx.throw(404, 'Organization not found')
@@ -24,7 +26,7 @@ module.exports = new Route({
     const dataset = await DataSet.create({
       name: body.name,
       description: body.description,
-      organization: body.organization
+      organization: org._id
     })
 
     ctx.body = {

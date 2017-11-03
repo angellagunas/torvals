@@ -34,7 +34,7 @@ describe('/datasets', () => {
         .send({
           name: 'Un dataset',
           description: 'Una descripción',
-          organization: org._id
+          organization: org.uuid
 
         })
         .set('Accept', 'application/json')
