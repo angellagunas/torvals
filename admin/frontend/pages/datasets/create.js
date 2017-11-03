@@ -50,14 +50,11 @@ class CreateDataSet extends Component {
         limit: 0
       }
     )
-    //console.log(body.data)
+    
     this.setState({
       ...this.state,
       organization: body.data
     })
-    //initialState.orgs = body.data
-    //console.log(initialState.orgs)
-    
   }
 
 	render (){

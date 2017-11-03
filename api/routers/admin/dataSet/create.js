@@ -14,10 +14,7 @@ module.exports = new Route({
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
-
-    console.log('=>', body.organization)
     const org = await Organization.findOne({uuid: body.organization})
-    console.log('=>', org)
 
     if(!org){
       ctx.throw(404, 'Organization not found')
