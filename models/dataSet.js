@@ -14,7 +14,7 @@ const dataSetSchema = new Schema({
   },
   fileChunk: { type: Schema.Types.ObjectId, ref: 'FileChunk' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   type: {
     type: String,
@@ -56,5 +56,33 @@ const dataSetSchema = new Schema({
 })
 
 dataSetSchema.plugin(dataTables)
+
+dataSetSchema.methods.toPublic = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    description: this.description,
+    dateCreated: this.dateCreated,
+    createdBy: this.createdBy,
+    uploadedBy: this.uploadedBy,
+    organization: this.organization,
+    status: this.status,
+    fileChunk: this.fileChunk
+  }
+}
+
+dataSetSchema.methods.format = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    description: this.description,
+    dateCreated: this.dateCreated,
+    createdBy: this.createdBy,
+    uploadedBy: this.uploadedBy,
+    organization: this.organization,
+    status: this.status,
+    fileChunk: this.fileChunk
+  }
+}
 
 module.exports = mongoose.model('DataSet', dataSetSchema)

@@ -46,10 +46,6 @@ class AdminLayout extends Component {
       tree.commit()
     }
 
-    const orgs = await api.get('/admin/organizations')
-    console.log('orgs', orgs)
-    tree.set('organizations', orgs.data)
-
     this.setState({loaded: true})
   }
 

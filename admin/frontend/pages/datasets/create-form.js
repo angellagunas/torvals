@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import api from '~base/api'
+import Loader from '~base/components/spinner'
 
 import {
   BaseForm,
@@ -35,7 +36,7 @@ const uiSchema = {
 }
 
 class CreateDatsetForm extends Component {
-  constructor (props){
+  constructor (props) {
     super(props)
     this.state = {
       formData: this.props.initialState,
@@ -44,9 +45,9 @@ class CreateDatsetForm extends Component {
     }
   }
 
-  errorHandler(e){}
+  errorHandler (e) {}
 
-  changeHandler({formData}){
+  changeHandler ({formData}) {
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
@@ -54,7 +55,7 @@ class CreateDatsetForm extends Component {
     })
   }
 
-  clearState(){
+  clearState () {
     this.setState({
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
@@ -87,8 +88,14 @@ class CreateDatsetForm extends Component {
       </div>
     }
 
-    schema.properties.organization.enum = tree.get('organizations').map(item => { return item.uuid })
-    schema.properties.organization.enumNames = tree.get('organizations').map(item => { return item.name })
+    if (this.props.organizations.length === 0) {
+      return <Loader />
+    }
+
+    let org = schema.properties.organization
+
+    org.enum = this.props.organizations.map(item => { return item.uuid })
+    org.enumNames = this.props.organizations.map(item => { return item.name })
 
     return (
       <div>
@@ -115,7 +122,6 @@ class CreateDatsetForm extends Component {
       </div>
     )
   }
-
 }
 
 export default CreateDatsetForm

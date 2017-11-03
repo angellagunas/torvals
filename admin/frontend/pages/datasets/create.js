@@ -9,16 +9,19 @@ import CreateDatasetForm from './create-form'
 var initialState = {
   name: '',
   description: '',
-  organization: []
+  organization: ''
 }
 
 class CreateDataSet extends Component {
-	constructor (props) {
-		super(props)
-		this.hideModal = this.props.hideModal.bind(this)
-	}
+  constructor (props) {
+    super(props)
+    this.hideModal = this.props.hideModal.bind(this)
+    this.state = {
+      organizations: []
+    }
+  }
 
-	componentWillMount () {
+  componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
     this.loadOrgs()
   }
@@ -50,26 +53,27 @@ class CreateDataSet extends Component {
         limit: 0
       }
     )
-    
+
     this.setState({
       ...this.state,
-      organization: body.data
+      organizations: body.data
     })
   }
 
-	render (){
-		return (
+  render () {
+    return (
       <BaseModal
         title='Create DataSet'
         className={this.props.className}
         hideModal={this.hideModal}
       >
         <CreateDatasetForm
-          baseUrl='/admin/organizations'
+          baseUrl='/admin/datasets'
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
           load={this.load.bind(this)}
+          organizations={this.state.organizations || []}
         >
           <div className='field is-grouped'>
             <div className='control'>
@@ -82,7 +86,7 @@ class CreateDataSet extends Component {
         </CreateDatasetForm>
       </BaseModal>
     )
-	}
+  }
 }
 
 CreateDataSet.contextTypes = {

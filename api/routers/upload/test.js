@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const { FileChunk } = require('models')
+const { DataSet } = require('models')
 const { cleanFileIdentifier, validateResumableRequest } = require('lib/tools')
 
 module.exports = new Route({
@@ -18,15 +18,22 @@ module.exports = new Route({
     var totalSize = parseInt(chunkData.resumableTotalSize)
     var identifier = chunkData.resumableIdentifier
     var filename = chunkData.resumableFilename
+    var datasetId = chunkData.dataset
+    const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
+    ctx.assert(dataset, 404, 'Dataset not found')
 
     identifier = cleanFileIdentifier(identifier)
     validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
 
-    var chunk = await FileChunk.findOne({fileId: identifier})
+    var chunk = dataset.fileChunk
 
     if (!chunk) {
       ctx.status = 203
       return
+    }
+
+    if (chunk.fileId !== identifier) {
+      ctx.throw(404, "Chunk identifier doesn't match")
     }
 
     if (chunk.lastChunk >= chunkNumber) {

@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const path = require('path')
 const fs = require('fs')
 
-const { FileChunk } = require('models')
+const { FileChunk, DataSet } = require('models')
 const {
   cleanFileIdentifier,
   validateResumableRequest,
@@ -25,8 +25,12 @@ module.exports = new Route({
     var totalChunks = parseInt(chunkData.fields.resumableTotalChunks)
     var identifier = chunkData.fields.resumableIdentifier
     var filename = chunkData.fields.resumableFilename
-
+    var datasetId = chunkData.fields.dataset
     identifier = cleanFileIdentifier(identifier)
+
+    var chunk = await FileChunk.findOne({fileId: identifier})
+    const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
+    ctx.assert(dataset, 404, 'Dataset not found')
 
     try {
       validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
@@ -34,7 +38,15 @@ module.exports = new Route({
       ctx.throw(400, e.message)
     }
 
-    var chunk = await FileChunk.findOne({fileId: identifier})
+    if (chunk && !dataset.fileChunk) {
+      dataset.set({
+        fileChunk: chunk,
+        status: chunk.recreated ? 'preprocessing' : 'uploading'
+      })
+      await dataset.save()
+    }
+
+    chunk = dataset.fileChunk
     const tmpdir = path.join('.', 'media', 'uploads', identifier)
 
     if (!chunk && chunkNumber === 1) {
@@ -47,11 +59,21 @@ module.exports = new Route({
       })
 
       await fs.mkdir(tmpdir)
+      dataset.set({
+        fileChunk: chunk,
+        status: 'uploading',
+        uploadedBy: ctx.state.user
+      })
+      await dataset.save()
     }
 
     if (!chunk) {
       ctx.status = 203
       return
+    }
+
+    if (chunk.fileId !== identifier) {
+      ctx.throw(404, "Chunk identifier doesn't match")
     }
 
     if (chunk.lastChunk >= chunkNumber) {
@@ -89,6 +111,10 @@ module.exports = new Route({
     if (chunkNumber === totalChunks) {
       recreateFile(path.join(tmpdir, filename), totalChunks)
       chunk.recreated = true
+      dataset.set({
+        status: 'preprocessing'
+      })
+      await dataset.save()
     }
 
     chunk.save()
