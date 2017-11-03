@@ -46,8 +46,15 @@ class Sidebar extends Component {
           icon: 'user',
           to: '/manage/users'
         }
+
       ]
-    }]
+    },
+    {
+    title: 'DataSets',
+      icon: 'file',
+      to: '/datasets'
+    }
+      ]
   }
 
   handleActiveLink (item) {
