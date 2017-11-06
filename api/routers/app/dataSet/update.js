@@ -11,6 +11,20 @@ module.exports = new Route({
     description: lov.string()
   }),
   handler: async function (ctx) {
+    const body = ctx.request.body
+    var datasetId = ctx.params.uuid
 
+    const dataset = await DataSet.findOne({'uuid': datasetId})
+      .populate('fileChunk')
+      .populate('organization')
+
+    ctx.assert(dataset, 404, 'DataSet not found')
+
+    dataset.set(body)
+    await dataset.save()
+
+    ctx.body = {
+      data: dataset
+    }
   }
 })

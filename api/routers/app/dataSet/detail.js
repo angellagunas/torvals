@@ -1,11 +1,20 @@
-const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
-const {User, Organization} = require('models')
+const {DataSet} = require('models')
 
 module.exports = new Route({
   method: 'get',
   path: '/:uuid',
   handler: async function (ctx) {
-    
+    var datasetId = ctx.params.uuid
+
+    const dataset = await DataSet.findOne({'uuid': datasetId})
+      .populate('fileChunk')
+      .populate('organization')
+
+    ctx.assert(dataset, 404, 'DataSet not found')
+
+    ctx.body = {
+      data: dataset.toPublic()
+    }
   }
 })

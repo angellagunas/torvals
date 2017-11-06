@@ -118,7 +118,10 @@ class UploadDataset extends Component {
 
     ResumableField.on('fileError', (file, errorCount) => {
       this.errorHandler({
-        message: 'Encountered an error uploading file ' + file.file.name + '!. Upload cancelled'
+        message: (
+          'Encountered an error uploading file ' + file.file.name +
+          '!. Upload cancelled. You should reload the page and try again.'
+        )
       })
     })
 

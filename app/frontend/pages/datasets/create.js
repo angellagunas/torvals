@@ -20,7 +20,6 @@ class CreateDataSet extends Component {
 
   componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
-    this.loadOrgs()
   }
 
   async load () {
@@ -39,22 +38,6 @@ class CreateDataSet extends Component {
       pageLength: this.cursor.get('pageLength') || 10
     })
     this.context.tree.commit()
-  }
-
-  async loadOrgs () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      organization: body.data
-    })
   }
 
   render () {

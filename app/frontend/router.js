@@ -20,6 +20,7 @@ import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
 import ResetPassword from './pages/reset-password'
 import DataSets from './pages/datasets/list'
+import DataSetDetail from './pages/datasets/detail'
 
 const AppRouter = () => {
   return (<Router>
@@ -65,6 +66,12 @@ const AppRouter = () => {
           exact
           path='/datasets'
           component={DataSets}
+          roles='supervisor, analista, admin-organizacion, admin'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/datasets/:uuid'
+          component={DataSetDetail}
           roles='supervisor, analista, admin-organizacion, admin'
         />
       </div>
