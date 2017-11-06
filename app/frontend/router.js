@@ -19,6 +19,7 @@ import OrganizationDetail from './pages/organizations/detail'
 import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
 import ResetPassword from './pages/reset-password'
+import DataSets from './pages/datasets/list'
 
 const AppRouter = () => {
   return (<Router>
@@ -59,6 +60,12 @@ const AppRouter = () => {
           path='/manage/organizations/:uuid'
           component={OrganizationDetail}
           roles='admin-organizacion, admin'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/datasets'
+          component={DataSets}
+          roles='supervisor, analista, admin-organizacion, admin'
         />
       </div>
     </AdminLayout>

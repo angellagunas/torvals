@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import request from '~base/request'
 import { Redirect } from 'react-router-dom'
 import Loader from '~base/components/spinner'
 import api from '~base/api'
@@ -36,7 +35,7 @@ class Dashboard extends Component {
 
   render () {
     const {loading, orgsCount, usersCount, rolesCount, groupsCount} = this.state
-    
+
     if (loading) {
       return <Loader />
     }
@@ -45,50 +44,49 @@ class Dashboard extends Component {
       return <Redirect to='/log-in' />
     }
 
-
     return (<div className='section'>
       <div className='Dashboard'>
 
-        <div className="tile is-ancestor">
-          <div className="tile is-vertical is-3">
-            <div className="tile">
-              <div className="tile is-parent">
-                <article className="tile is-child notification is-primary has-text-centered">
-                  <p className="title">{orgsCount}</p>
-                  <p className="subtitle">Organizaciones</p>
+        <div className='tile is-ancestor'>
+          <div className='tile is-vertical is-3'>
+            <div className='tile'>
+              <div className='tile is-parent'>
+                <article className='tile is-child notification is-primary has-text-centered'>
+                  <p className='title'>{orgsCount}</p>
+                  <p className='subtitle'>Organizaciones</p>
                 </article>
               </div>
             </div>
           </div>
 
-          <div className="tile is-vertical is-3">
-            <div className="tile">
-              <div className="tile is-parent">
-                <article className="tile is-child notification is-primary has-text-centered">
-                  <p className="title">{usersCount}</p>
-                  <p className="subtitle">Usuarios</p>
+          <div className='tile is-vertical is-3'>
+            <div className='tile'>
+              <div className='tile is-parent'>
+                <article className='tile is-child notification is-primary has-text-centered'>
+                  <p className='title'>{usersCount}</p>
+                  <p className='subtitle'>Usuarios</p>
                 </article>
               </div>
             </div>
           </div>
 
-          <div className="tile is-vertical is-3">
-            <div className="tile">
-              <div className="tile is-parent">
-                <article className="tile is-child notification is-primary has-text-centered">
-                  <p className="title">{rolesCount}</p>
-                  <p className="subtitle">Roles</p>
+          <div className='tile is-vertical is-3'>
+            <div className='tile'>
+              <div className='tile is-parent'>
+                <article className='tile is-child notification is-primary has-text-centered'>
+                  <p className='title'>{rolesCount}</p>
+                  <p className='subtitle'>Roles</p>
                 </article>
               </div>
             </div>
           </div>
 
-          <div className="tile is-vertical is-3">
-            <div className="tile">
-              <div className="tile is-parent">
-                <article className="tile is-child notification is-primary has-text-centered">
-                  <p className="title">{groupsCount}</p>
-                  <p className="subtitle">Grupos</p>
+          <div className='tile is-vertical is-3'>
+            <div className='tile'>
+              <div className='tile is-parent'>
+                <article className='tile is-child notification is-primary has-text-centered'>
+                  <p className='title'>{groupsCount}</p>
+                  <p className='subtitle'>Grupos</p>
                 </article>
               </div>
             </div>
@@ -96,7 +94,6 @@ class Dashboard extends Component {
 
         </div>
 
-       
       </div>
     </div>)
   }
