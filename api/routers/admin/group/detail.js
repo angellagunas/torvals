@@ -8,7 +8,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     var groupId = ctx.params.uuid
 
-    const group = await Group.findOne({'uuid': groupId})
+    const group = await Group.findOne({'uuid': groupId, 'isDeleted': false})
     ctx.assert(group, 404, 'Group not found')
 
     ctx.body = {
