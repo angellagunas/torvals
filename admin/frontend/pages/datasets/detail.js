@@ -4,9 +4,10 @@ import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
+import FontAwesome from 'react-fontawesome'
 
 import CreateDatasetForm from './create-form'
-import ResumeUpload from '../resume'
+import UploadDataset from './upload'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -92,7 +93,7 @@ class DataSetDetail extends Component {
     if (!dataset.fileChunk || (dataset.fileChunk && !dataset.fileChunk.recreated)) {
       return (
         <div className='column'>
-          <ResumeUpload
+          <UploadDataset
             query={{dataset: this.state.dataset.uuid}}
             load={() => { this.load() }}
           />
@@ -110,7 +111,22 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              File: {dataset.fileChunk.filename} is being preprocessed
+              <div className='message is-success'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon has-text-success is-large'>
+                        <FontAwesome className='fa-3x' name='check-square-o' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      File {dataset.fileChunk.filename} is being preprocessed
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
