@@ -43,7 +43,6 @@ class AdminLayout extends Component {
 
       tree.set('user', me.user)
       tree.set('loggedIn', me.loggedIn)
-      tree.commit()
     }
 
     this.setState({loaded: true})

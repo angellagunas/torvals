@@ -45,6 +45,11 @@ class Sidebar extends Component {
             to: '/manage/organizations/' + tree.get('organization').uuid
           }
         ]
+      },
+      {
+        title: 'DataSets',
+        icon: 'file',
+        to: '/datasets'
       }]
     }
 

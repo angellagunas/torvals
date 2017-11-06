@@ -44,21 +44,6 @@ class DataSets extends Component {
         'default': 'new'
       },
       {
-        'title': 'Organization',
-        'property': 'organization',
-        'default': '',
-        formatter: (row) => {
-          if (!row.organization) { return }
-
-          return (
-            <Link to={'/manage/organizations/' + row.organization.uuid}>
-              {row.organization.name}
-            </Link>
-
-          )
-        }
-      },
-      {
         'title': 'Actions',
         formatter: (row) => {
           return <Link className='button' to={'/datasets/' + row.uuid}>
@@ -85,7 +70,7 @@ class DataSets extends Component {
     this.setState({
       className: ''
     })
-    this.props.history.push('/admin/datasets/' + object.uuid)
+    this.props.history.push('/datasets/' + object.uuid)
   }
 
   render () {
@@ -108,8 +93,8 @@ class DataSets extends Component {
                     hideModal={this.hideModal.bind(this)}
                     finishUp={this.finishUp.bind(this)}
                     branchName='datasets'
-                    baseUrl='/admin/datasets'
-                    url='/admin/datasets'
+                    baseUrl='/app/datasets'
+                    url='/app/datasets'
                   />
 
                 </div>
@@ -119,7 +104,7 @@ class DataSets extends Component {
                   <div className='column'>
                     <BranchedPaginatedTable
                       branchName='datasets'
-                      baseUrl='/admin/datasets'
+                      baseUrl='/app/datasets'
                       columns={this.getColumns()}
                        />
                   </div>

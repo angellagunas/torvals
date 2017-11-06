@@ -1,5 +1,6 @@
+const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
-const { DataSet } = require('models')
+const {DataSet} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -8,9 +9,8 @@ module.exports = new Route({
     var datasets = await DataSet.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false},
-      sort: '-dateCreated',
-      populate: 'organization'
+      find: {isDeleted: false, organization: ctx.state.organization._id},
+      sort: '-dateCreated'
     })
 
     ctx.body = datasets
