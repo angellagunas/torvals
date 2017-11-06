@@ -219,7 +219,7 @@ class UploadDataset extends Component {
     return (
       <p className='control'>
         <button
-          className='button is-warning'
+          className='button is-outlined'
           onClick={e => this.removeFile(e, fileList[0], 0)}
         >
           Change file
@@ -255,9 +255,9 @@ class UploadDataset extends Component {
           id='upload_file_dropzone'
         >
           <div className='columns'>
-            <div className='column'>
+            <div className='column has-text-centered'>
               <div
-                className={fileList.length === 1 ? 'file has_name is-hidden' : 'file has_name'}
+                className={fileList.length === 1 ? 'file is-boxed is-centered is-medium is-hidden' : 'file is-boxed is-centered is-medium'}
               >
                 <label className='file-label'>
                   <input
