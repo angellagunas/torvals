@@ -9,7 +9,7 @@ import CreateDatasetForm from './create-form'
 var initialState = {
   name: '',
   description: '',
-  organization: ''
+  organization: []
 }
 
 class CreateDataSet extends Component {

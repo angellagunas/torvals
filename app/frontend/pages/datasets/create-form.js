@@ -5,33 +5,24 @@ import api from '~base/api'
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget,
-  SelectWidget
+  TextareaWidget
 } from '~base/components/base-form'
 
 const schema = {
   type: 'object',
   title: '',
   required: [
-    'name',
-    'organization'
+    'name'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
-    description: {type: 'string', title: 'Description'},
-    organization: {
-      type: 'string',
-      title: 'Organization',
-      enum: [],
-      enumNames: []
-    }
+    description: {type: 'string', title: 'Description'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
-  organization: {'ui:widget': SelectWidget}
+  description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
 
 class CreateDatsetForm extends Component {
@@ -87,8 +78,8 @@ class CreateDatsetForm extends Component {
       </div>
     }
 
-    schema.properties.organization.enum = tree.get('organizations').map(item => { return item.uuid })
-    schema.properties.organization.enumNames = tree.get('organizations').map(item => { return item.name })
+    // schema.properties.organization.enum = tree.get('organizations').map(item => { return item.uuid })
+    // schema.properties.organization.enumNames = tree.get('organizations').map(item => { return item.name })
 
     return (
       <div>
