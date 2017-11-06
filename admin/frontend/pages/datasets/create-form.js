@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import api from '~base/api'
+import Loader from '~base/components/spinner'
 
 import {
   BaseForm,
@@ -87,8 +88,14 @@ class CreateDatsetForm extends Component {
       </div>
     }
 
-    schema.properties.organization.enum = tree.get('organizations').map(item => { return item.uuid })
-    schema.properties.organization.enumNames = tree.get('organizations').map(item => { return item.name })
+    if (this.props.organizations.length === 0) {
+      return <Loader />
+    }
+
+    let org = schema.properties.organization
+
+    org.enum = this.props.organizations.map(item => { return item.uuid })
+    org.enumNames = this.props.organizations.map(item => { return item.name })
 
     return (
       <div>

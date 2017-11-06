@@ -16,6 +16,9 @@ class CreateDataSet extends Component {
   constructor (props) {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
+    this.state = {
+      organizations: []
+    }
   }
 
   componentWillMount () {
@@ -53,7 +56,7 @@ class CreateDataSet extends Component {
 
     this.setState({
       ...this.state,
-      organization: body.data
+      organizations: body.data
     })
   }
 
@@ -65,11 +68,12 @@ class CreateDataSet extends Component {
         hideModal={this.hideModal}
       >
         <CreateDatasetForm
-          baseUrl='/admin/organizations'
+          baseUrl='/admin/datasets'
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
           load={this.load.bind(this)}
+          organizations={this.state.organizations || []}
         >
           <div className='field is-grouped'>
             <div className='control'>

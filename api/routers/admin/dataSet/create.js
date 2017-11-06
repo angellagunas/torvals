@@ -1,8 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
-const crypto = require('crypto')
 
-const {User, Role, DataSet, Organization} = require('models')
+const { DataSet, Organization } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -16,14 +15,15 @@ module.exports = new Route({
     const body = ctx.request.body
     const org = await Organization.findOne({uuid: body.organization})
 
-    if(!org){
+    if (!org) {
       ctx.throw(404, 'Organization not found')
     }
 
     const dataset = await DataSet.create({
       name: body.name,
       description: body.description,
-      organization: org._id
+      organization: org._id,
+      createdBy: ctx.state.user
     })
 
     ctx.body = {

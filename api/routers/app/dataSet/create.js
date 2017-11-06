@@ -16,7 +16,8 @@ module.exports = new Route({
     const dataset = await DataSet.create({
       name: body.name,
       description: body.description,
-      organization: ctx.state.organization._id
+      organization: ctx.state.organization._id,
+      createdBy: ctx.state.user
     })
 
     ctx.body = {
