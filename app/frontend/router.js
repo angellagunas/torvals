@@ -65,6 +65,7 @@ const AppRouter = () => {
           exact
           path='/datasets'
           component={DataSets}
+          roles='supervisor, analista, admin-organizacion, admin'
         />
       </div>
     </AdminLayout>
