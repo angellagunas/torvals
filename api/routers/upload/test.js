@@ -33,7 +33,8 @@ module.exports = new Route({
     }
 
     if (chunk.fileId !== identifier) {
-      ctx.throw(404, "Chunk identifier doesn't match")
+      ctx.status = 203
+      return
     }
 
     if (chunk.lastChunk >= chunkNumber) {

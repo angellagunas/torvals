@@ -189,7 +189,8 @@ class UploadDataset extends Component {
   getUploadButton () {
     let {
       hasFinished,
-      isUploading
+      isUploading,
+      fileList
     } = this.state
 
     if (isUploading || hasFinished) {
@@ -201,6 +202,7 @@ class UploadDataset extends Component {
         <button
           className='button is-primary'
           onClick={e => this.startUpload()}
+          disabled={fileList.length === 0}
         >
           Start Upload
         </button>
