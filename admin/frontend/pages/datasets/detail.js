@@ -122,7 +122,7 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      File {dataset.fileChunk.filename} has been uploaded,
+                      File {dataset.fileChunk.filename} has been uploaded
                       and will be sent for preprocessing. Please come back in
                       a couple of minutes.
                     </div>
