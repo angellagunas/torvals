@@ -1,18 +1,16 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Organization, User, Role, Group} = require('models')
+const {Organization, User, Role, Group, DataSet} = require('models')
 
 module.exports = new Route({
   method: 'get',
   path: '/',
   handler: async function (ctx) {
-    var organizationId = ctx.params.uuid
-
-    const orgsCount = await Organization.count()
+    const orgsCount = await Organization.find({'isDeleted': false}).count()
     const usersCount = await User.count()
-    const rolesCount = await Role.count()
-    const groupsCount = await Group.count()
+    const rolesCount = await Role.find({'isDeleted': false}).count()
+    const groupsCount = await Group.find({'isDeleted': false}).count()
 
     ctx.body = {
       orgsCount: orgsCount,

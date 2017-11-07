@@ -14,7 +14,7 @@ module.exports = new Route({
     const body = ctx.request.body
     var datasetId = ctx.params.uuid
 
-    const dataset = await DataSet.findOne({'uuid': datasetId})
+    const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
       .populate('fileChunk')
       .populate('organization')
 
