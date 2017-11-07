@@ -6,8 +6,8 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
 
-import CreateDatasetForm from './create-form'
-import UploadDataset from './upload'
+import DatasetDetailForm from './detail-form'
+import { UploadDataset } from '~base/components/base-uploads'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -205,13 +205,14 @@ class DataSetDetail extends Component {
                   <div className='card-content'>
                     <div className='columns'>
                       <div className='column'>
-                        <CreateDatasetForm
+                        <DatasetDetailForm
                           baseUrl='/admin/datasets'
                           url={'/admin/datasets/' + this.props.match.params.uuid}
                           initialState={{
                             name: this.state.dataset.name,
                             description: this.state.dataset.description,
-                            organization: this.state.dataset.organization.uuid
+                            organization: this.state.dataset.organization.uuid,
+                            status: dataset.status
                           }}
                           load={this.load.bind(this)}
                           organizations={this.state.organizations || []}
@@ -221,7 +222,7 @@ class DataSetDetail extends Component {
                               <button className='button is-primary'>Save</button>
                             </div>
                           </div>
-                        </CreateDatasetForm>
+                        </DatasetDetailForm>
                       </div>
                     </div>
                   </div>

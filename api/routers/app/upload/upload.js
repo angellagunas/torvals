@@ -32,6 +32,10 @@ module.exports = new Route({
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
     ctx.assert(dataset, 404, 'Dataset not found')
 
+    if (String(dataset.organization) !== String(ctx.state.organization._id)) {
+      ctx.throw(404, 'Dataset not found')
+    }
+
     try {
       validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
     } catch (e) {
@@ -41,7 +45,8 @@ module.exports = new Route({
     if (chunk && !dataset.fileChunk) {
       dataset.set({
         fileChunk: chunk,
-        status: chunk.recreated ? 'preprocessing' : 'uploading'
+        status: chunk.recreated ? 'preprocessing' : 'uploading',
+        uploadedBy: ctx.state.user
       })
       await dataset.save()
     }

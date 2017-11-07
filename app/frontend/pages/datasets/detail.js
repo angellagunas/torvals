@@ -5,9 +5,10 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
+import env from '~base/env-variables'
 
-import CreateDatasetForm from './create-form'
-import UploadDataset from './upload'
+import DatasetDetailForm from './detail-form'
+import { UploadDataset } from '~base/components/base-uploads'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -29,6 +30,7 @@ class DataSetDetail extends Component {
     })
     this.context.tree.commit()
     this.load()
+    this.loadOrgs()
   }
 
   async load () {
@@ -39,6 +41,22 @@ class DataSetDetail extends Component {
       loading: false,
       loaded: true,
       dataset: body.data
+    })
+  }
+
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      organizations: body.data
     })
   }
 
@@ -77,9 +95,44 @@ class DataSetDetail extends Component {
       return (
         <div className='column'>
           <UploadDataset
-            query={{dataset: this.state.dataset.uuid}}
+            query={{dataset: dataset.uuid}}
             load={() => { this.load() }}
+            url={env.API_HOST + '/api/app/upload/'}
           />
+        </div>
+      )
+    }
+
+    if (dataset.status === 'uploaded') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                File uploaded
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='message is-success'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon is-large'>
+                        <FontAwesome className='fa-3x fa-spin' name='cog' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      File {dataset.fileChunk.filename} has been uploaded,
+                      and will be sent for preprocessing. Please come back in
+                      a couple of minutes.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )
     }
@@ -90,7 +143,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                File uploaded
+                File sent for preprocessing
               </p>
             </header>
             <div className='card-content'>
@@ -154,22 +207,24 @@ class DataSetDetail extends Component {
                   <div className='card-content'>
                     <div className='columns'>
                       <div className='column'>
-                        <CreateDatasetForm
+                        <DatasetDetailForm
                           baseUrl='/admin/datasets'
                           url={'/admin/datasets/' + this.props.match.params.uuid}
                           initialState={{
                             name: this.state.dataset.name,
                             description: this.state.dataset.description,
-                            organization: this.state.dataset.organization.uuid
+                            organization: this.state.dataset.organization.uuid,
+                            status: dataset.status
                           }}
                           load={this.load.bind(this)}
+                          organizations={this.state.organizations || []}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
                               <button className='button is-primary'>Save</button>
                             </div>
                           </div>
-                        </CreateDatasetForm>
+                        </DatasetDetailForm>
                       </div>
                     </div>
                   </div>
