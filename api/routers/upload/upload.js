@@ -5,8 +5,7 @@ const fs = require('fs')
 const { FileChunk, DataSet } = require('models')
 const {
   cleanFileIdentifier,
-  validateResumableRequest,
-  recreateFile
+  validateResumableRequest
 } = require('lib/tools')
 
 module.exports = new Route({
@@ -25,6 +24,7 @@ module.exports = new Route({
     var totalChunks = parseInt(chunkData.fields.resumableTotalChunks)
     var identifier = chunkData.fields.resumableIdentifier
     var filename = chunkData.fields.resumableFilename
+    var fileType = chunkData.fields.resumableType
     var datasetId = chunkData.fields.dataset
     identifier = cleanFileIdentifier(identifier)
 
@@ -46,19 +46,24 @@ module.exports = new Route({
       await dataset.save()
     }
 
-    chunk = dataset.fileChunk
     const tmpdir = path.join('.', 'media', 'uploads', identifier)
 
     if (!chunk && chunkNumber === 1) {
       chunk = await FileChunk.create({
         lastChunk: 0,
-        fileType: chunkData.resumableType,
+        fileType: fileType,
         fileId: identifier,
         filename: filename,
-        path: tmpdir
+        path: tmpdir,
+        totalChunks: totalChunks
       })
 
-      await fs.mkdir(tmpdir)
+      try {
+        await fs.mkdir(tmpdir)
+      } catch (e) {
+        console.log('File already exists!')
+      }
+
       dataset.set({
         fileChunk: chunk,
         status: 'uploading',
@@ -66,6 +71,8 @@ module.exports = new Route({
       })
       await dataset.save()
     }
+
+    chunk = dataset.fileChunk
 
     if (!chunk) {
       ctx.status = 203
@@ -109,12 +116,9 @@ module.exports = new Route({
     chunk.lastChunk = chunkNumber
 
     if (chunkNumber === totalChunks) {
-      recreateFile(path.join(tmpdir, filename), totalChunks)
-      chunk.recreated = true
-      dataset.set({
-        status: 'preprocessing'
-      })
-      await dataset.save()
+      dataset.set({ status: 'uploaded' })
+      dataset.save()
+    //   await dataset.recreateAndUploadFile()
     }
 
     chunk.save()

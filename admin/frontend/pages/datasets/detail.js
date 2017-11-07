@@ -90,7 +90,7 @@ class DataSetDetail extends Component {
 
   getUpload () {
     let dataset = this.state.dataset
-    if (!dataset.fileChunk || (dataset.fileChunk && !dataset.fileChunk.recreated)) {
+    if (!dataset.fileChunk || (dataset.fileChunk && dataset.status === 'uploading')) {
       return (
         <div className='column'>
           <UploadDataset
@@ -101,13 +101,47 @@ class DataSetDetail extends Component {
       )
     }
 
-    if (dataset.status === 'preprocessing') {
+    if (dataset.status === 'uploaded') {
       return (
         <div className='column'>
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
                 File uploaded
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='message is-success'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon is-large'>
+                        <FontAwesome className='fa-3x fa-spin' name='cog' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      File {dataset.fileChunk.filename} has been uploaded,
+                      and will be sent for preprocessing. Please come back in
+                      a couple of minutes.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (dataset.status === 'preprocessing') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                File sent for preprocessing
               </p>
             </header>
             <div className='card-content'>
