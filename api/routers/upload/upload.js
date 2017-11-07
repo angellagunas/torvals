@@ -72,12 +72,21 @@ module.exports = new Route({
       await dataset.save()
     }
 
-    chunk = dataset.fileChunk
+    if (chunk && chunkNumber === 1 && chunk.fileId !== dataset.fileChunk.fileId) {
+      dataset.set({
+        fileChunk: chunk,
+        status: 'uploading',
+        uploadedBy: ctx.state.user
+      })
+      await dataset.save()
+    }
 
     if (!chunk) {
       ctx.status = 203
       return
     }
+
+    chunk = dataset.fileChunk
 
     if (chunk.fileId !== identifier) {
       ctx.throw(404, "Chunk identifier doesn't match")
