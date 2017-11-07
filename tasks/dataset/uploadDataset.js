@@ -10,7 +10,7 @@ const task = new Task(async function (argv) {
 
   // const files = await FileChunk.find({uploaded: false})
 
-  const datasets = await DataSet.find({'uploaded': false})
+  const datasets = await DataSet.find({uploaded: false})
     .populate('fileChunk')
 
   if (datasets.length === 0) {

@@ -10,7 +10,7 @@ const task = new Task(async function (argv) {
 
   const files = await FileChunk.find({recreated: false})
 
-  const datasets = await DataSet.find({'fileChunk': {$in: files.map(i => { return i._id })}})
+  const datasets = await DataSet.find({fileChunk: {$in: files.map(i => { return i._id })}})
     .populate('fileChunk')
 
   if (datasets.length === 0) {
