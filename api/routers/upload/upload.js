@@ -72,7 +72,7 @@ module.exports = new Route({
       await dataset.save()
     }
 
-    if (chunk && chunkNumber === 1 && chunk.fileId !== dataset.fileChunk.fileId) {
+    if (chunk && chunk.fileId !== dataset.fileChunk.fileId) {
       dataset.set({
         fileChunk: chunk,
         status: 'uploading',
