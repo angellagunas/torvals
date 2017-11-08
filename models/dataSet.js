@@ -134,7 +134,7 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
     ACL: 'public-read'
   }
 
-  await this.fileChunk.uploadChunks(s3File, chunkKey)
+  // await this.fileChunk.uploadChunks(s3File, chunkKey)
   s3File['Body'] = await fs.readFile(path.join(this.fileChunk.path, this.fileChunk.filename))
   s3File['Key'] = fileName
 
@@ -146,20 +146,48 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
     region: aws.s3Region
   })
 
-  await s3.putObject(s3File).promise()
+  try {
+    await s3.putObject(s3File).promise()
+    this.set({
+      path: {
+        url: fileName,
+        bucket: bucket,
+        region: aws.s3Region,
+        savedToDisk: false
+      },
+      uploaded: true,
+      status: 'preprocessing'
+    })
 
-  this.set({
-    path: {
-      url: fileName,
-      bucket: bucket,
-      region: aws.s3Region,
-      savedToDisk: false
-    },
-    uploaded: true,
-    status: 'preprocessing'
-  })
+    this.set({
+      status: 'configuring',
+      columns: [
+        {
+          name: 'Column A',
+          values: ['a', 'b', 'c', 'd']
+        },
+        {
+          name: 'Column B',
+          values: ['a', 'b', 'c', 'd']
+        },
+        {
+          name: 'Column C',
+          values: ['a', 'b', 'c', 'd']
+        }
+      ]
+    })
 
-  await this.save()
+    await this.save()
+  } catch (e) {
+    console.log(e)
+    this.set({
+      path: {},
+      uploaded: false,
+      status: 'uploading'
+    })
+
+    await this.save()
+  }
 
   return true
 }

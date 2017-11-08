@@ -104,7 +104,7 @@ fileChunkSchema.methods.uploadChunks = async function (s3File, chunkKey) {
 }
 
 fileChunkSchema.methods.deleteChunks = async function () {
-  if (this.lastChunk < this.totalChunks) return false
+  if (this.lastChunk < this.totalChunks || !this.recreated) return false
 
   if (this.deletedChunks) return true
 
