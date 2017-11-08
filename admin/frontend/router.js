@@ -43,7 +43,6 @@ const AppRouter = () => {
         <PrivateRoute exact path='/manage/groups/:uuid' component={GroupDetail} />
         <PrivateRoute exact path='/datasets' component={DataSets} />
         <PrivateRoute exact path='/datasets/:uuid' component={DataSetDetail} />
-        <PrivateRoute exact path='/datasets/configure/:uuid' component={ConfigureDataSet} />
       </div>
     </AdminLayout>
   </Router>)
