@@ -98,13 +98,13 @@ class DataSetDetail extends Component {
   async configureOnClick () {
     var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/configure'
     await api.post(url)
-    this.load()
+    await this.load()
   }
 
   async readyOnClick () {
     var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/ready'
     await api.post(url)
-    this.load()
+    await this.load()
   }
 
   getUpload () {
@@ -228,6 +228,7 @@ class DataSetDetail extends Component {
                     columns={dataset.columns || []}
                     url={'/admin/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
+                    load={this.load.bind(this)}
                   >
                     <div className='field is-grouped'>
                       <div className='control'>
@@ -312,6 +313,7 @@ class DataSetDetail extends Component {
 
   render () {
     const { dataset } = this.state
+    console.log(dataset)
 
     if (!dataset.uuid) {
       return <Loader />

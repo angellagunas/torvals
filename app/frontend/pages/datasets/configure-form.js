@@ -58,6 +58,7 @@ class ConfigureDatasetForm extends Component {
   async submitHandler ({formData}) {
     try {
       var response = await api.post(this.props.url, formData)
+      await this.props.load()
       this.clearState()
       this.setState({...this.state, apiCallMessage: 'message is-success'})
       this.props.changeHandler(response.data)

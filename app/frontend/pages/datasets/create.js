@@ -24,7 +24,7 @@ class CreateDataSet extends Component {
 
   async load () {
     const body = await api.get(
-      '/admin/datasets',
+      '/app/datasets',
       {
         start: 0,
         limit: this.cursor.get('pageLength') || 10
@@ -48,7 +48,7 @@ class CreateDataSet extends Component {
         hideModal={this.hideModal}
       >
         <CreateDatasetForm
-          baseUrl='/admin/organizations'
+          baseUrl='/app/datasets'
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
