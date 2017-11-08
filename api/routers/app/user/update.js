@@ -14,7 +14,7 @@ module.exports = new Route({
     var userId = ctx.params.uuid
     var data = ctx.request.body
 
-    const user = await User.findOne({'uuid': userId, 'isDeleted': false})
+    const user = await User.findOne({'uuid': userId})
     ctx.assert(user, 404, 'User not found')
 
     user.set(data)
