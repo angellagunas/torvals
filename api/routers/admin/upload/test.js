@@ -41,7 +41,6 @@ module.exports = new Route({
       if (chunk.totalChunks === chunkNumber) {
         dataset.set({ status: 'uploaded' })
         dataset.save()
-      //   await dataset.recreateAndUploadFile()
       }
 
       ctx.body = 'OK'
