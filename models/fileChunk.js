@@ -66,7 +66,7 @@ fileChunkSchema.methods.recreateFile = async function () {
 fileChunkSchema.methods.uploadChunks = async function (s3File, chunkKey) {
   if (this.lastChunk < this.totalChunks) return false
 
-  if (this.uploaded) return true
+  if (this.uploaded || this.deleteChunks) return true
 
   let filename = path.join(this.path, this.filename)
 
