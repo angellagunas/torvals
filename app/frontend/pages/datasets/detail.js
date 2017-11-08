@@ -84,6 +84,12 @@ class DataSetDetail extends Component {
     ]
   }
 
+  changeHandler (data) {
+    this.setState({
+      dataset: data
+    })
+  }
+
   async deleteOnClick () {
     var url = '/admin/datasets/' + this.props.match.params.uuid
     await api.del(url)
