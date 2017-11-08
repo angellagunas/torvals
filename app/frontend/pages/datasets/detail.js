@@ -228,7 +228,7 @@ class DataSetDetail extends Component {
                 <div className='column'>
                   <ConfigureDatasetForm
                     columns={dataset.columns || []}
-                    url={'/datasets/' + dataset.uuid + '/configure'}
+                    url={'/app/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
                   >
                     <div className='field is-grouped'>

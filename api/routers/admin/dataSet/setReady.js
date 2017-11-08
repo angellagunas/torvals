@@ -6,10 +6,6 @@ const { DataSet } = require('models')
 module.exports = new Route({
   method: 'post',
   path: '/:uuid/set/ready',
-  validator: lov.object().keys({
-    isDate: lov.string().required(),
-    analyze: lov.string().required()
-  }),
   handler: async function (ctx) {
     var datasetId = ctx.params.uuid
 
