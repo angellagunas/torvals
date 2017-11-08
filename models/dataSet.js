@@ -43,11 +43,12 @@ const dataSetSchema = new Schema({
   },
 
   columns: [{
+    name: { type: String },
     isDate: { type: Boolean, default: false },
     analyze: { type: Boolean },
     isOperationFilter: { type: Boolean, default: false },
     isAnalysisFilter: { type: Boolean, default: false },
-    distinctValues: [{ type: String }]
+    values: [{ type: String }]
   }],
 
   groupings: [{
@@ -76,7 +77,9 @@ dataSetSchema.methods.toPublic = function () {
     status: this.status,
     url: this.url,
     uploaded: this.uploaded,
-    fileChunk: this.fileChunk
+    fileChunk: this.fileChunk,
+    columns: this.columns,
+    groupings: this.groupings
   }
 }
 
@@ -92,7 +95,8 @@ dataSetSchema.methods.format = function () {
     status: this.status,
     url: this.url,
     uploaded: this.uploaded,
-    fileChunk: this.fileChunk
+    columns: this.columns,
+    groupings: this.groupings
   }
 }
 

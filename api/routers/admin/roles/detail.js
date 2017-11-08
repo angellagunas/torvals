@@ -8,7 +8,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     var roleId = ctx.params.uuid
 
-    const role = await Role.findOne({'uuid': roleId})
+    const role = await Role.findOne({'uuid': roleId, 'isDeleted': false})
     ctx.assert(role, 404, 'Role not found')
 
     ctx.body = {

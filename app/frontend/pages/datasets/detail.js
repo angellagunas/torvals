@@ -9,6 +9,7 @@ import env from '~base/env-variables'
 
 import DatasetDetailForm from './detail-form'
 import { UploadDataset } from '~base/components/base-uploads'
+import ConfigureDatasetForm from './configure-form'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -135,9 +136,7 @@ class DataSetDetail extends Component {
           </div>
         </div>
       )
-    }
-
-    if (dataset.status === 'preprocessing') {
+    } else if (dataset.status === 'preprocessing') {
       return (
         <div className='column'>
           <div className='card'>
@@ -161,6 +160,65 @@ class DataSetDetail extends Component {
                       File {dataset.fileChunk.filename} is being preprocessed
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'processing') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                Processing file
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='message is-success'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon has-text-success is-large'>
+                        <FontAwesome className='fa-3x fa-spin' name='cog' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      Dataset is being processed
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'configuring') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                Configuring Dataset
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='columns'>
+                <div className='column'>
+                  <ConfigureDatasetForm
+                    columns={dataset.columns || []}
+                    url={'/admin/datasets/' + dataset.uuid + '/configure'}
+                    changeHandler={(data) => this.changeHandler(data)}
+                  >
+                    <div className='field is-grouped'>
+                      <div className='control'>
+                        <button className='button is-primary'>Configure</button>
+                      </div>
+                    </div>
+                  </ConfigureDatasetForm>
                 </div>
               </div>
             </div>
