@@ -17,6 +17,7 @@ const dataSetSchema = new Schema({
     region: { type: String },
     savedToDisk: { type: Boolean, default: false }
   },
+  externalId: { type: String },
   fileChunk: { type: Schema.Types.ObjectId, ref: 'FileChunk' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
