@@ -6,9 +6,9 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
 
-import CreateDatasetForm from './create-form'
+import DatasetDetailForm from './detail-form'
+import { UploadDataset } from '~base/components/base-uploads'
 import ConfigureDatasetForm from './configure-form'
-import UploadDataset from './upload'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -97,8 +97,7 @@ class DataSetDetail extends Component {
 
   getUpload () {
     let dataset = this.state.dataset
-
-    if (!dataset.fileChunk || (dataset.fileChunk && !dataset.fileChunk.recreated)) {
+    if (!dataset.fileChunk || (dataset.fileChunk && dataset.status === 'uploading')) {
       return (
         <div className='column'>
           <UploadDataset
@@ -109,13 +108,45 @@ class DataSetDetail extends Component {
       )
     }
 
-    if (dataset.status === 'preprocessing') {
+    if (dataset.status === 'uploaded') {
       return (
         <div className='column'>
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
                 File uploaded
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='message is-success'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon is-large'>
+                        <FontAwesome className='fa-3x fa-spin' name='cog' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      File {dataset.fileChunk.filename} has been uploaded
+                      and will be sent for preprocessing. Please come back in
+                      a couple of minutes.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'preprocessing') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                File sent for preprocessing
               </p>
             </header>
             <div className='card-content'>
@@ -145,7 +176,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                File uploaded
+                Processing file
               </p>
             </header>
             <div className='card-content'>
@@ -160,7 +191,7 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      Dataset is been processed
+                      Dataset is being processed
                     </div>
                   </div>
                 </div>
@@ -175,8 +206,8 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                      Configuring Dataset
-                    </p>
+                Configuring Dataset
+              </p>
             </header>
             <div className='card-content'>
               <div className='columns'>
@@ -185,7 +216,7 @@ class DataSetDetail extends Component {
                     columns={dataset.columns || []}
                     url={'/admin/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
-                        >
+                  >
                     <div className='field is-grouped'>
                       <div className='control'>
                         <button className='button is-primary'>Configure</button>
@@ -238,13 +269,14 @@ class DataSetDetail extends Component {
                   <div className='card-content'>
                     <div className='columns'>
                       <div className='column'>
-                        <CreateDatasetForm
+                        <DatasetDetailForm
                           baseUrl='/admin/datasets'
                           url={'/admin/datasets/' + this.props.match.params.uuid}
                           initialState={{
                             name: this.state.dataset.name,
                             description: this.state.dataset.description,
-                            organization: this.state.dataset.organization.uuid
+                            organization: this.state.dataset.organization.uuid,
+                            status: dataset.status
                           }}
                           load={this.load.bind(this)}
                           organizations={this.state.organizations || []}
@@ -254,7 +286,7 @@ class DataSetDetail extends Component {
                               <button className='button is-primary'>Save</button>
                             </div>
                           </div>
-                        </CreateDatasetForm>
+                        </DatasetDetailForm>
                       </div>
                     </div>
                   </div>

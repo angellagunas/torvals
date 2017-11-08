@@ -22,6 +22,10 @@ module.exports = new Route({
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
     ctx.assert(dataset, 404, 'Dataset not found')
 
+    if (String(dataset.organization) !== String(ctx.state.organization._id)) {
+      ctx.throw(404, 'Dataset not found')
+    }
+
     identifier = cleanFileIdentifier(identifier)
     validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
 
@@ -33,10 +37,16 @@ module.exports = new Route({
     }
 
     if (chunk.fileId !== identifier) {
-      ctx.throw(404, "Chunk identifier doesn't match")
+      ctx.status = 203
+      return
     }
 
     if (chunk.lastChunk >= chunkNumber) {
+      if (chunk.totalChunks === chunkNumber) {
+        dataset.set({ status: 'uploaded' })
+        dataset.save()
+      }
+
       ctx.body = 'OK'
       return
     }

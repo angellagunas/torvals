@@ -5,8 +5,7 @@ const fs = require('fs')
 const { FileChunk, DataSet } = require('models')
 const {
   cleanFileIdentifier,
-  validateResumableRequest,
-  recreateFile
+  validateResumableRequest
 } = require('lib/tools')
 
 module.exports = new Route({
@@ -25,12 +24,17 @@ module.exports = new Route({
     var totalChunks = parseInt(chunkData.fields.resumableTotalChunks)
     var identifier = chunkData.fields.resumableIdentifier
     var filename = chunkData.fields.resumableFilename
+    var fileType = chunkData.fields.resumableType
     var datasetId = chunkData.fields.dataset
     identifier = cleanFileIdentifier(identifier)
 
     var chunk = await FileChunk.findOne({fileId: identifier})
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
     ctx.assert(dataset, 404, 'Dataset not found')
+
+    if (String(dataset.organization) !== String(ctx.state.organization._id)) {
+      ctx.throw(404, 'Dataset not found')
+    }
 
     try {
       validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
@@ -41,24 +45,39 @@ module.exports = new Route({
     if (chunk && !dataset.fileChunk) {
       dataset.set({
         fileChunk: chunk,
-        status: chunk.recreated ? 'preprocessing' : 'uploading'
+        status: chunk.recreated ? 'uploaded' : 'uploading',
+        uploadedBy: ctx.state.user
       })
       await dataset.save()
     }
 
-    chunk = dataset.fileChunk
     const tmpdir = path.join('.', 'media', 'uploads', identifier)
 
     if (!chunk && chunkNumber === 1) {
       chunk = await FileChunk.create({
         lastChunk: 0,
-        fileType: chunkData.resumableType,
+        fileType: fileType,
         fileId: identifier,
         filename: filename,
-        path: tmpdir
+        path: tmpdir,
+        totalChunks: totalChunks
       })
 
-      await fs.mkdir(tmpdir)
+      try {
+        await fs.mkdir(tmpdir)
+      } catch (e) {
+        console.log('File already exists!')
+      }
+
+      dataset.set({
+        fileChunk: chunk,
+        status: 'uploading',
+        uploadedBy: ctx.state.user
+      })
+      await dataset.save()
+    }
+
+    if (chunk && chunk.fileId !== dataset.fileChunk.fileId) {
       dataset.set({
         fileChunk: chunk,
         status: 'uploading',
@@ -71,6 +90,8 @@ module.exports = new Route({
       ctx.status = 203
       return
     }
+
+    chunk = dataset.fileChunk
 
     if (chunk.fileId !== identifier) {
       ctx.throw(404, "Chunk identifier doesn't match")
@@ -109,12 +130,8 @@ module.exports = new Route({
     chunk.lastChunk = chunkNumber
 
     if (chunkNumber === totalChunks) {
-      recreateFile(path.join(tmpdir, filename), totalChunks)
-      chunk.recreated = true
-      dataset.set({
-        status: 'preprocessing'
-      })
-      await dataset.save()
+      dataset.set({ status: 'uploaded' })
+      dataset.save()
     }
 
     chunk.save()

@@ -20,7 +20,10 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet not found')
 
-    dataset.set(body)
+    dataset.set({
+      name: body.name,
+      description: body.description
+    })
     await dataset.save()
 
     ctx.body = {

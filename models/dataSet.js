@@ -3,6 +3,10 @@ const { Schema } = require('mongoose')
 const { v4 } = require('uuid')
 const dataTables = require('mongoose-datatables')
 const moment = require('moment')
+const { aws } = require('../config')
+const awsService = require('aws-sdk')
+const fs = require('fs-extra')
+const path = require('path')
 
 const dataSetSchema = new Schema({
   name: { type: String, required: true },
@@ -10,7 +14,8 @@ const dataSetSchema = new Schema({
   path: {
     url: { type: String },
     bucket: { type: String },
-    region: { type: String }
+    region: { type: String },
+    savedToDisk: { type: Boolean, default: false }
   },
   fileChunk: { type: Schema.Types.ObjectId, ref: 'FileChunk' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
@@ -27,6 +32,7 @@ const dataSetSchema = new Schema({
     enum: [
       'new',
       'uploading',
+      'uploaded',
       'preprocessing',
       'configuring',
       'processing',
@@ -53,7 +59,8 @@ const dataSetSchema = new Schema({
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  uploaded: { type: Boolean, default: false }
 })
 
 dataSetSchema.plugin(dataTables)
@@ -68,10 +75,11 @@ dataSetSchema.methods.toPublic = function () {
     uploadedBy: this.uploadedBy,
     organization: this.organization,
     status: this.status,
+    url: this.url,
+    uploaded: this.uploaded,
     fileChunk: this.fileChunk,
     columns: this.columns,
     groupings: this.groupings
-
   }
 }
 
@@ -85,10 +93,87 @@ dataSetSchema.methods.format = function () {
     uploadedBy: this.uploadedBy,
     organization: this.organization,
     status: this.status,
-    fileChunk: this.fileChunk,
+    url: this.url,
+    uploaded: this.uploaded,
     columns: this.columns,
     groupings: this.groupings
   }
 }
+
+dataSetSchema.methods.recreateAndSaveFileToDisk = async function () {
+  await this.fileChunk.recreateFile()
+
+  if (!this.fileChunk.recreated) return false
+
+  this.set({
+    path: {
+      savedToDisk: true,
+      url: path.join(this.fileChunk.path, this.fileChunk.filename)
+    }
+  })
+
+  return true
+}
+
+dataSetSchema.methods.recreateAndUploadFile = async function () {
+  await this.fileChunk.recreateFile()
+
+  if (!this.fileChunk.recreated) return false
+
+  if (this.uploaded) return true
+
+  let fileExtension = path.extname(this.fileChunk.filename)
+  let fileName = `datasets/${this.uuid}/${v4()}${fileExtension}`
+  let bucket = aws.s3Bucket
+  let contentType = this.fileChunk.fileType
+  let chunkKey = `datasets/${this.uuid}/`
+
+  var s3File = {
+    ContentType: contentType,
+    Bucket: bucket,
+    ACL: 'public-read'
+  }
+
+  await this.fileChunk.uploadChunks(s3File, chunkKey)
+  s3File['Body'] = await fs.readFile(path.join(this.fileChunk.path, this.fileChunk.filename))
+  s3File['Key'] = fileName
+
+  var s3 = new awsService.S3({
+    credentials: {
+      accessKeyId: aws.s3AccessKey,
+      secretAccessKey: aws.s3Secret
+    },
+    region: aws.s3Region
+  })
+
+  await s3.putObject(s3File).promise()
+
+  this.set({
+    path: {
+      url: fileName,
+      bucket: bucket,
+      region: aws.s3Region,
+      savedToDisk: false
+    },
+    uploaded: true,
+    status: 'preprocessing'
+  })
+
+  await this.save()
+
+  return true
+}
+
+dataSetSchema.virtual('url').get(function () {
+  if (this.path && this.path.savedToDisk) {
+    return this.path.url
+  }
+
+  if (this.path && this.path.url) {
+    return 'https://s3-' + this.path.region + '.amazonaws.com/' + this.path.bucket + '/' + this.path.url
+  }
+
+  return 'https://s3-us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
+})
 
 module.exports = mongoose.model('DataSet', dataSetSchema)
