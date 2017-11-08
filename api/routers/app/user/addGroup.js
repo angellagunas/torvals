@@ -20,7 +20,7 @@ module.exports = new Route({
     group.save()
 
     ctx.body = {
-      data: user.toAdmin()
+      data: user.toPublic()
     }
   }
 })

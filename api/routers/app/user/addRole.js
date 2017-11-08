@@ -33,7 +33,7 @@ module.exports = new Route({
     user.save()
 
     ctx.body = {
-      data: user.toAdmin()
+      data: user.toPublic()
     }
   }
 })

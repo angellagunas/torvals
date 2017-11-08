@@ -15,11 +15,11 @@ module.exports = new Route({
 
     ctx.assert(user, 404, 'User not found')
 
+    user = user.toPublic()
     user.role = user.organizations.find(e => {
       return e.organization.uuid === ctx.state.organization.uuid
     }).role._id
 
-    user = user.toPublic()
     let auxGroups = []
     let groups = user.groups
 
