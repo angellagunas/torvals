@@ -17,8 +17,7 @@ class DataSetDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      dataset: {},
-      organizations: []
+      dataset: {}
     }
   }
 
@@ -31,33 +30,16 @@ class DataSetDetail extends Component {
     })
     this.context.tree.commit()
     this.load()
-    this.loadOrgs()
   }
 
   async load () {
-    var url = '/admin/datasets/' + this.props.match.params.uuid
+    var url = '/app/datasets/' + this.props.match.params.uuid
     const body = await api.get(url)
 
     this.setState({
       loading: false,
       loaded: true,
       dataset: body.data
-    })
-  }
-
-  async loadOrgs () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      organizations: body.data
     })
   }
 
@@ -91,21 +73,21 @@ class DataSetDetail extends Component {
   }
 
   async deleteOnClick () {
-    var url = '/admin/datasets/' + this.props.match.params.uuid
+    var url = '/app/datasets/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/admin/datasets')
+    this.props.history.push('/datasets')
   }
 
   async configureOnClick () {
-    var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/configure'
+    var url = '/app/datasets/' + this.props.match.params.uuid + '/set/configure'
     await api.post(url)
-    this.load()
+    await this.load()
   }
 
   async readyOnClick () {
-    var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/ready'
+    var url = '/app/datasets/' + this.props.match.params.uuid + '/set/ready'
     await api.post(url)
-    this.load()
+    await this.load()
   }
 
   getUpload () {
@@ -230,6 +212,7 @@ class DataSetDetail extends Component {
                     columns={dataset.columns || []}
                     url={'/app/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
+                    load={this.load.bind(this)}
                   >
                     <div className='field is-grouped'>
                       <div className='control'>
@@ -350,8 +333,8 @@ class DataSetDetail extends Component {
                     <div className='columns'>
                       <div className='column'>
                         <DatasetDetailForm
-                          baseUrl='/admin/datasets'
-                          url={'/admin/datasets/' + this.props.match.params.uuid}
+                          baseUrl='/app/datasets'
+                          url={'/app/datasets/' + this.props.match.params.uuid}
                           initialState={{
                             name: this.state.dataset.name,
                             description: this.state.dataset.description,
@@ -359,7 +342,6 @@ class DataSetDetail extends Component {
                             status: dataset.status
                           }}
                           load={this.load.bind(this)}
-                          organizations={this.state.organizations || []}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>

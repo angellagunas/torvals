@@ -38,6 +38,12 @@ class DatasetDetailForm extends Component {
     }
   }
 
+  componentWillReceiveProps (nextProps) {
+    this.setState({
+      formData: nextProps.initialState
+    })
+  }
+
   errorHandler (e) {}
 
   changeHandler ({formData}) {
