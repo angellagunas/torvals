@@ -161,8 +161,6 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
 
   await this.save()
 
-  await this.fileChunk.deleteChunks()
-
   return true
 }
 

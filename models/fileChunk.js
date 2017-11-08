@@ -66,7 +66,7 @@ fileChunkSchema.methods.recreateFile = async function () {
 fileChunkSchema.methods.uploadChunks = async function (s3File, chunkKey) {
   if (this.lastChunk < this.totalChunks) return false
 
-  if (this.uploaded || this.deleteChunks) return true
+  if (this.uploaded || this.deletedChunks) return true
 
   let filename = path.join(this.path, this.filename)
 
@@ -81,8 +81,6 @@ fileChunkSchema.methods.uploadChunks = async function (s3File, chunkKey) {
         },
         region: aws.s3Region
       })
-
-      console.log(s3File)
 
       await s3.putObject(s3File).promise()
     }
