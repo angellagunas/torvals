@@ -45,7 +45,7 @@ module.exports = new Route({
     if (chunk && !dataset.fileChunk) {
       dataset.set({
         fileChunk: chunk,
-        status: chunk.recreated ? 'preprocessing' : 'uploading',
+        status: chunk.recreated ? 'uploaded' : 'uploading',
         uploadedBy: ctx.state.user
       })
       await dataset.save()
