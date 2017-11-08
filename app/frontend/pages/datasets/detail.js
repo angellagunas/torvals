@@ -96,6 +96,18 @@ class DataSetDetail extends Component {
     this.props.history.push('/admin/datasets')
   }
 
+  async configureOnClick () {
+    var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/configure'
+    await api.post(url)
+    this.load()
+  }
+
+  async readyOnClick () {
+    var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/ready'
+    await api.post(url)
+    this.load()
+  }
+
   getUpload () {
     let dataset = this.state.dataset
     if (!dataset.fileChunk || (dataset.fileChunk && dataset.status === 'uploading')) {
@@ -216,7 +228,7 @@ class DataSetDetail extends Component {
                 <div className='column'>
                   <ConfigureDatasetForm
                     columns={dataset.columns || []}
-                    url={'/admin/datasets/' + dataset.uuid + '/configure'}
+                    url={'/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
                   >
                     <div className='field is-grouped'>
@@ -225,6 +237,83 @@ class DataSetDetail extends Component {
                       </div>
                     </div>
                   </ConfigureDatasetForm>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'reviewing') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                Review dataset
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='message is-success'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon has-text-success is-large'>
+                        <FontAwesome className='fa-3x' name='check' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      <div className='field is-grouped'>
+                        <div className='control'>
+                          <button
+                            className='button is-primary'
+                            onClick={e => this.configureOnClick()}
+                          >
+                            Configure
+                          </button>
+                        </div>
+                        <div className='control'>
+                          <button
+                            className='button is-primary'
+                            onClick={e => this.readyOnClick()}
+                          >
+                            Ready
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'ready') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                Dataset ready
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='message is-success'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon has-text-success is-large'>
+                        <FontAwesome className='fa-3x' name='thumbs-up' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      Dataset ready
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

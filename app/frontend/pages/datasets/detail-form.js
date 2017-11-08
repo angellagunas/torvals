@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 
 import api from '~base/api'
-import Loader from '~base/components/spinner'
 
 import {
   BaseForm,
