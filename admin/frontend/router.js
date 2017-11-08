@@ -22,7 +22,6 @@ import Groups from './pages/groups/list'
 import GroupDetail from './pages/groups/detail'
 import DataSets from './pages/datasets/list'
 import DataSetDetail from './pages/datasets/detail'
-import ConfigureDataSet from './pages/datasets/configure'
 
 const AppRouter = () => {
   return (<Router>
