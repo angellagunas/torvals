@@ -92,9 +92,9 @@ userSchema.methods.toPublic = function () {
     displayName: this.displayName,
     name: this.name,
     email: this.email,
-    role: this.role,
     organizations: this.organizations,
     validEmail: this.validEmail,
+    groups: this.groups,
     profileUrl: this.profileUrl
   }
 }
@@ -108,7 +108,6 @@ userSchema.methods.toAdmin = function () {
     email: this.email,
     isAdmin: this.isAdmin,
     validEmail: this.validEmail,
-    role: this.role,
     organizations: this.organizations,
     groups: this.groups,
     profileUrl: this.profileUrl

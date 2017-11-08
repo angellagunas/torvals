@@ -45,8 +45,8 @@ module.exports = new Route({
       skip: ctx.request.query.start,
       find: {
         isDeleted: false,
-        organization: ctx.state.organization,
-        ...filters
+        ...filters,
+        organization: ctx.state.organization
       },
       sort: '-dateCreated',
       populate: 'organization'
