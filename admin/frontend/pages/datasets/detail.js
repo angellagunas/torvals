@@ -7,6 +7,7 @@ import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
 
 import CreateDatasetForm from './create-form'
+import ConfigureDatasetForm from './configure-form'
 import UploadDataset from './upload'
 
 class DataSetDetail extends Component {
@@ -82,6 +83,12 @@ class DataSetDetail extends Component {
     ]
   }
 
+  changeHandler (data) {
+    this.setState({
+      dataset: data
+    })
+  }
+
   async deleteOnClick () {
     var url = '/admin/datasets/' + this.props.match.params.uuid
     await api.del(url)
@@ -90,6 +97,7 @@ class DataSetDetail extends Component {
 
   getUpload () {
     let dataset = this.state.dataset
+
     if (!dataset.fileChunk || (dataset.fileChunk && !dataset.fileChunk.recreated)) {
       return (
         <div className='column'>
@@ -125,6 +133,65 @@ class DataSetDetail extends Component {
                       File {dataset.fileChunk.filename} is being preprocessed
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'processing') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                File uploaded
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='message is-success'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon has-text-success is-large'>
+                        <FontAwesome className='fa-3x fa-spin' name='cog' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      Dataset is been processed
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'configuring') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                      Configuring Dataset
+                    </p>
+            </header>
+            <div className='card-content'>
+              <div className='columns'>
+                <div className='column'>
+                  <ConfigureDatasetForm
+                    columns={dataset.columns || []}
+                    url={'/admin/datasets/' + dataset.uuid + '/configure'}
+                    changeHandler={(data) => this.changeHandler(data)}
+                        >
+                    <div className='field is-grouped'>
+                      <div className='control'>
+                        <button className='button is-primary'>Configure</button>
+                      </div>
+                    </div>
+                  </ConfigureDatasetForm>
                 </div>
               </div>
             </div>
