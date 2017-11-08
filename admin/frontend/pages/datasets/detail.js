@@ -313,7 +313,6 @@ class DataSetDetail extends Component {
 
   render () {
     const { dataset } = this.state
-    console.log(dataset)
 
     if (!dataset.uuid) {
       return <Loader />
