@@ -22,6 +22,7 @@ import Groups from './pages/groups/list'
 import GroupDetail from './pages/groups/detail'
 import DataSets from './pages/datasets/list'
 import DataSetDetail from './pages/datasets/detail'
+import ConfigureDataSet from './pages/datasets/configure'
 
 const AppRouter = () => {
   return (<Router>
@@ -42,6 +43,7 @@ const AppRouter = () => {
         <PrivateRoute exact path='/manage/groups/:uuid' component={GroupDetail} />
         <PrivateRoute exact path='/datasets' component={DataSets} />
         <PrivateRoute exact path='/datasets/:uuid' component={DataSetDetail} />
+        <PrivateRoute exact path='/datasets/configure/:uuid' component={ConfigureDataSet} />
       </div>
     </AdminLayout>
   </Router>)

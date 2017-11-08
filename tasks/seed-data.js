@@ -189,8 +189,6 @@ var seedData = async function () {
 
       delete existingOrg
     }
-
-    
   } catch (e) {
     console.log('ERROR!!!!')
     console.log(e)
