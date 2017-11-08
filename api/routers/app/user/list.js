@@ -62,11 +62,11 @@ module.exports = new Route({
     var users = await User.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {'isDeleted': false, ...filters},
+      find: filters,
       sort: '-email'
     })
 
-    users.data = users.data.map((user) => { return user.toAdmin() })
+    users.data = users.data.map((user) => { return user.toPublic() })
 
     ctx.body = users
   }
