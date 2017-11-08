@@ -253,35 +253,24 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x' name='check' />
-                      </span>
+              <div className='columns'>
+                <div className='column'>
+                  <div className='field is-grouped'>
+                    <div className='control'>
+                      <button
+                        className='button is-black'
+                        onClick={e => this.configureOnClick()}
+                      >
+                        Configure
+                      </button>
                     </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      <div className='field is-grouped'>
-                        <div className='control'>
-                          <button
-                            className='button is-primary'
-                            onClick={e => this.configureOnClick()}
-                          >
-                            Configure
-                          </button>
-                        </div>
-                        <div className='control'>
-                          <button
-                            className='button is-primary'
-                            onClick={e => this.readyOnClick()}
-                          >
-                            Ready
-                          </button>
-                        </div>
-                      </div>
+                    <div className='control'>
+                      <button
+                        className='button is-primary'
+                        onClick={e => this.readyOnClick()}
+                      >
+                        Ready
+                      </button>
                     </div>
                   </div>
                 </div>
