@@ -33,7 +33,7 @@ const task = new Task(async function (argv) {
   console.log('Sending Datasets for preprocessing ...')
   for (var dataset of datasets) {
     var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/upload/file/organization`,
+      url: `${apiData.hostname}${apiData.baseUrl}/upload/file/projects`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ const task = new Task(async function (argv) {
         'Authorization': `Bearer ${apiData.token}`
       },
       body: {
-        organization: dataset.organization.uuid,
+        // organization: dataset.organization.uuid,
         path: dataset.url
       },
       json: true
@@ -49,16 +49,16 @@ const task = new Task(async function (argv) {
 
     console.log(options)
 
-    // var res = await request(options)
-    // console.log(res)
-    // dataset.set({
-    //   externalId: res.uuid,
-    //   status: 'preprocessing'
-    // })
-    // await dataset.save()
+    var res = await request(options)
+    console.log(res)
+    dataset.set({
+      // externalId: res.uuid || res._id,
+      status: 'preprocessing'
+    })
+    await dataset.save()
   }
 
-  console.log('Successfully recreated and uploaded ' + datasets.length + ' datasets')
+  console.log('Successfully sent for preprocessing ' + datasets.length + ' datasets')
   return true
 })
 
