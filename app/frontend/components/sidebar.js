@@ -49,7 +49,8 @@ class Sidebar extends Component {
       {
         title: 'DataSets',
         icon: 'file',
-        to: '/datasets'
+        to: '/datasets',
+        roles: 'supervisor, analista, admin-organizacion, admin'
       }]
     }
 
