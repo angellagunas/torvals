@@ -5,7 +5,6 @@ const Role = require('./role')
 const Group = require('./group')
 const FileChunk = require('./fileChunk')
 const DataSet = require('./dataSet')
-const Api = require('./api')
 
 module.exports = {
   User,
@@ -14,6 +13,5 @@ module.exports = {
   Role,
   Group,
   FileChunk,
-  DataSet,
-  Api
+  DataSet
 }

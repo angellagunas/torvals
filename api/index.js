@@ -7,7 +7,7 @@ const convert = require('koa-convert')
 const cors = require('koa-cors')
 
 const routers = require('./routers')
-const { errorHandler, getRequestData, getApiToken } = require('./middlewares')
+const { errorHandler, getRequestData } = require('./middlewares')
 const { sanitizeBody } = require('lib/middlewares')
 
 const { env } = config
@@ -28,7 +28,6 @@ app.use(convert(bodyParser({
 app.use(sanitizeBody)
 app.use(errorHandler)
 app.use(getRequestData)
-app.use(getApiToken)
 
 // api routers
 routers(app)
