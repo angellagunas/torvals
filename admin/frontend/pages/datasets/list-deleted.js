@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
+import api from '~base/api'
 
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
-import CreateDataSet from './create'
 
-class DataSets extends Component {
+class DeletedDataSets extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -15,7 +15,7 @@ class DataSets extends Component {
   }
 
   componentWillMount () {
-    this.context.tree.set('datasets', {
+    this.context.tree.set('deletedDatasets', {
       page: 1,
       totalItems: 0,
       items: [],
@@ -24,19 +24,18 @@ class DataSets extends Component {
     this.context.tree.commit()
   }
 
+  async restoreOnClick (uuid) {
+    var url = '/admin/datasets/deleted/' + uuid
+    await api.post(url)
+    this.props.history.push('/admin/datasets/detail/' + uuid)
+  }
+
   getColumns () {
     return [
       {
         'title': 'Name',
         'property': 'name',
-        'default': 'N/A',
-        formatter: (row) => {
-          return (
-            <Link to={'/datasets/' + row.uuid}>
-              {row.name}
-            </Link>
-          )
-        }
+        'default': 'N/A'
       },
       {
         'title': 'Status',
@@ -61,31 +60,14 @@ class DataSets extends Component {
       {
         'title': 'Actions',
         formatter: (row) => {
-          return <Link className='button' to={'/datasets/detail/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
+              Restore
+            </button>
+          )
         }
       }
     ]
-  }
-
-  showModal () {
-    this.setState({
-      className: ' is-active'
-    })
-  }
-
-  hideModal () {
-    this.setState({
-      className: ''
-    })
-  }
-
-  finishUp (object) {
-    this.setState({
-      className: ''
-    })
-    this.props.history.push('/admin/datasets/detail/' + object.uuid)
   }
 
   render () {
@@ -93,33 +75,19 @@ class DataSets extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>DataSets</h1>
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Deleted datasets</h1>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                    DataSets
+                  Deleted datasets
                 </p>
-                <div className='card-header-select'>
-                  <button className='button is-primary' onClick={() => this.showModal()}>
-                    New DataSet
-                  </button>
-                  <CreateDataSet
-                    className={this.state.className}
-                    hideModal={this.hideModal.bind(this)}
-                    finishUp={this.finishUp.bind(this)}
-                    branchName='datasets'
-                    baseUrl='/admin/datasets'
-                    url='/admin/datasets'
-                  />
-
-                </div>
               </header>
               <div className='card-content'>
                 <div className='columns'>
                   <div className='column'>
                     <BranchedPaginatedTable
-                      branchName='datasets'
-                      baseUrl='/admin/datasets'
+                      branchName='deletedDatasets'
+                      baseUrl='/admin/datasets/deleted'
                       columns={this.getColumns()}
                        />
                   </div>
@@ -133,10 +101,10 @@ class DataSets extends Component {
   }
 }
 
-DataSets.contextTypes = {
+DeletedDataSets.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({datasets: 'datasets'}, DataSets)
+export default branch({deletedDatasets: 'deletedDatasets'}, DeletedDataSets)
 
 // export default DataSets;
