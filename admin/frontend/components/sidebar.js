@@ -50,11 +50,23 @@ class Sidebar extends Component {
       ]
     },
     {
-    title: 'DataSets',
+      title: 'Datasets',
       icon: 'file',
-      to: '/datasets'
-    }
+      to: '/datasets',
+      dropdown: [
+        {
+          title: 'Active',
+          icon: 'check',
+          to: '/datasets'
+        },
+        {
+          title: 'Deleted',
+          icon: 'trash',
+          to: '/datasets/deleted'
+        }
       ]
+    }
+    ]
   }
 
   handleActiveLink (item) {
