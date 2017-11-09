@@ -10,7 +10,7 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, organization: ctx.state.organization._id},
-      sort: '-dateCreated'
+      sort: ctx.request.query.sort || '-dateCreated'
     })
 
     ctx.body = datasets

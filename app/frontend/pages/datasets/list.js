@@ -30,6 +30,7 @@ class DataSets extends Component {
         'title': 'Name',
         'property': 'name',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           return (
             <Link to={'/datasets/' + row.uuid}>
@@ -41,7 +42,8 @@ class DataSets extends Component {
       {
         'title': 'Status',
         'property': 'status',
-        'default': 'new'
+        'default': 'new',
+        'sortable': true
       },
       {
         'title': 'Actions',
