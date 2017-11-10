@@ -2,6 +2,7 @@ const Route = require('lib/router/route')
 const path = require('path')
 const fs = require('fs')
 
+const finishUpload = require('queues/finish-upload')
 const { FileChunk, DataSet } = require('models')
 const {
   cleanFileIdentifier,
@@ -66,7 +67,7 @@ module.exports = new Route({
       try {
         await fs.mkdir(tmpdir)
       } catch (e) {
-        console.log('File already exists!')
+        console.log('Folder already exists!')
       }
 
       dataset.set({
@@ -132,7 +133,7 @@ module.exports = new Route({
     if (chunkNumber === totalChunks) {
       dataset.set({ status: 'uploaded' })
       await dataset.save()
-      await dataset.recreateAndUploadFile()
+      finishUpload.add({uuid: dataset.uuid})
     }
 
     chunk.save()

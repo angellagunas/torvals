@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
 
+const finishUpload = require('queues/finish-upload')
 const { DataSet } = require('models')
 const { cleanFileIdentifier, validateResumableRequest } = require('lib/tools')
 
@@ -41,7 +42,7 @@ module.exports = new Route({
       if (chunk.totalChunks === chunkNumber) {
         dataset.set({ status: 'uploaded' })
         await dataset.save()
-        await dataset.recreateAndUploadFile()
+        finishUpload.add({uuid: dataset.uuid})
       }
 
       ctx.body = 'OK'

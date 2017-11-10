@@ -8,17 +8,16 @@ const { DataSet } = require('models')
 const request = require('request-promise-native')
 
 const task = new Task(async function (argv) {
-  console.log('Fetching non preprocessed Datasets...')
+  if (!argv.uuid) {
+    throw new Error('You need to provide an uuid!')
+  }
 
-  const datasets = await DataSet.find({
-    status: 'uploaded',
-    uploaded: true
-  }).populate('fileChunk').populate('organization')
+  console.log('Fetching specified Dataset...')
 
-  if (datasets.length === 0) {
-    console.log('No Datasets to preprocess. All done!')
+  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk')
 
-    return true
+  if (!dataset) {
+    throw new Error('Invalid uuid!')
   }
 
   console.log('Obtaining Abraxas API token ...')
@@ -26,39 +25,36 @@ const task = new Task(async function (argv) {
   const apiData = Api.get()
 
   if (!apiData.token) {
-    console.log('Error! There is no API endpoint configured!')
-    return false
+    throw new Error('There is no API endpoint configured!')
   }
 
-  console.log('Sending Datasets for preprocessing ...')
-  for (var dataset of datasets) {
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/upload/file/projects`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      body: {
-        // organization: dataset.organization.uuid,
-        path: dataset.url
-      },
-      json: true
-    }
-
-    console.log(options)
-
-    var res = await request(options)
-    console.log(res)
-    dataset.set({
-      // externalId: res.uuid || res._id,
-      status: 'preprocessing'
-    })
-    await dataset.save()
+  console.log(`Sending ${dataset.name} dataset for preprocessing ...`)
+  var options = {
+    url: `${apiData.hostname}${apiData.baseUrl}/upload/file/projects`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${apiData.token}`
+    },
+    body: {
+      // organization: dataset.organization.uuid,
+      path: dataset.url
+    },
+    json: true
   }
 
-  console.log('Successfully sent for preprocessing ' + datasets.length + ' datasets')
+  console.log(options)
+
+  var res = await request(options)
+  console.log(res)
+  dataset.set({
+    // externalId: res.uuid || res._id,
+    status: 'preprocessing'
+  })
+  await dataset.save()
+
+  console.log(`Successfully sent for preprocessing dataset ${dataset.name}`)
   return true
 })
 
