@@ -42,13 +42,13 @@ const task = new Task(async function (argv) {
     // var res = await request(options)
     // console.log(res)
 
-    if (res.status === 'ready') {
-      dataset.set({
-        status: 'reviewing'
-      })
+    // if (res.status === 'ready') {
+    //   dataset.set({
+    //     status: 'reviewing'
+    //   })
 
-      await dataset.save()
-    }
+    //   await dataset.save()
+    // }
   }
 
   console.log(`Successfully verified ${datasets.length} datasets with status {processing}`)

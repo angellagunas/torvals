@@ -9,8 +9,11 @@ const sendForPreprocessing = require('tasks/dataset/send-for-preprocessing')
 const queue = new Queue({
   name: 'finish-upload',
   task: async function (argv) {
-    await recreateAndUpload.run(argv)
-    await sendForPreprocessing.run(argv)
+    var a, b
+    a = await recreateAndUpload.run(argv)
+    b = await sendForPreprocessing.run(argv)
+
+    return a && b
   }
 })
 
