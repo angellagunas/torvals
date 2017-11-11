@@ -37,7 +37,12 @@ module.exports = new Route({
     dataset.columns[pos2].analyze = true
     await dataset.save()
 
-    const apiData = Api.get()
+    var apiData = Api.get()
+    if (!apiData.token) {
+      await Api.fetch()
+      apiData = Api.get()
+    }
+
     var options = {
       url: `${apiData.hostname}${apiData.baseUrl}/process/datasets/${dataset.externalId}`,
       method: 'POST',

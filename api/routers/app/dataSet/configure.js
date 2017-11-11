@@ -2,6 +2,8 @@ const Route = require('lib/router/route')
 const lov = require('lov')
 
 const { DataSet } = require('models')
+const Api = require('lib/abraxas/api')
+const request = require('request-promise-native')
 
 module.exports = new Route({
   method: 'post',
@@ -33,6 +35,40 @@ module.exports = new Route({
     })
 
     dataset.columns[pos2].analyze = true
+
+    var apiData = Api.get()
+    if (!apiData.token) {
+      await Api.fetch()
+      apiData = Api.get()
+    }
+
+    var options = {
+      url: `${apiData.hostname}${apiData.baseUrl}/process/datasets/${dataset.externalId}`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${apiData.token}`
+      },
+      body: {
+        idDate: body.isDate,
+        isAnalysis: body.analyze,
+        filterAnalysis: [],
+        filterOperations: []
+      },
+      json: true
+    }
+
+    console.log(options)
+    // try
+      // var res = await request(options)
+    dataset.set({
+      status: 'processing'
+    })
+    await dataset.save()
+    // } catch (e) {
+    //   ctx.throw(401, 'Failed to send Dataset for processing')
+    // }
 
     dataset.set({
       status: 'processing'
