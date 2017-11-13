@@ -8,34 +8,35 @@ const request = require('request-promise-native')
 module.exports = new Route({
   method: 'post',
   path: '/:uuid/configure',
-  validator: lov.object().keys({
-    isDate: lov.string().required(),
-    analyze: lov.string().required()
-  }),
   handler: async function (ctx) {
     const body = ctx.request.body
     var datasetId = ctx.params.uuid
-
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
-
     ctx.assert(dataset, 404, 'DataSet not found')
 
-    var pos = dataset.columns.findIndex(e => {
-      return (
-        String(e.name) === String(body.isDate)
-      )
-    })
+    var isDate = body.columns.find((item) => {
+      return item.isDate
+    }).name
+    var isAnalysis = body.columns.find((item) => {
+      return item.analyze
+    }).name
 
-    dataset.columns[pos].isDate = true
+    var filterAnalysis = []
+    var filterOperations = []
+    var groupings = []
 
-    var pos2 = dataset.columns.findIndex(e => {
-      return (
-        String(e.name) === String(body.analyze)
-      )
-    })
+    for (var col of body.columns) {
+      if (col.isAnalysisFilter) filterAnalysis.push(col.name)
+      if (col.isOperationFilter) filterOperations.push(col.name)
+    }
 
-    dataset.columns[pos2].analyze = true
-    await dataset.save()
+    for (var group of body.groupings) {
+      groupings.push({
+        column: group.column,
+        input: group.inputValue,
+        output: group.outputValue
+      })
+    }
 
     var apiData = Api.get()
     if (!apiData.token) {
@@ -52,18 +53,20 @@ module.exports = new Route({
         'Authorization': `Bearer ${apiData.token}`
       },
       body: {
-        idDate: body.isDate,
-        isAnalysis: body.analyze,
-        filterAnalysis: [],
-        filterOperations: []
+        idDate: isDate,
+        isAnalysis: isAnalysis,
+        filterAnalysis: filterAnalysis,
+        filterOperations: filterOperations,
+        groupings: groupings
       },
       json: true
     }
 
-    console.log(options)
-    // try
+    // try {
       // var res = await request(options)
     dataset.set({
+      columns: body.columns,
+      groupings: body.groupings,
       status: 'processing'
     })
     await dataset.save()

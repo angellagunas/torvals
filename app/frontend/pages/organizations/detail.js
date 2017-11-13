@@ -45,12 +45,14 @@ class OrganizationDetail extends Component {
       {
         'title': 'Name',
         'property': 'name',
-        'default': 'N/A'
+        'default': 'N/A',
+        'sortable': true
       },
       {
         'title': 'Email',
         'property': 'email',
-        'default': 'N/A'
+        'default': 'N/A',
+        'sortable': true,
       },
       {
         'title': 'Actions',
