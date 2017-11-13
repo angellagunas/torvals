@@ -55,7 +55,7 @@ module.exports = new Route({
         'Authorization': `Bearer ${apiData.token}`
       },
       body: {
-        idDate: isDate,
+        isDate: isDate,
         isAnalysis: isAnalysis,
         filterAnalysis: filterAnalysis,
         filterOperations: filterOperations,

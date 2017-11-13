@@ -28,7 +28,12 @@ module.exports = new Route({
     }
 
     identifier = cleanFileIdentifier(identifier)
-    validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
+
+    try {
+      validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
+    } catch (e) {
+      ctx.throw(400, e.message)
+    }
 
     var chunk = dataset.fileChunk
 

@@ -24,7 +24,12 @@ module.exports = new Route({
     ctx.assert(dataset, 404, 'Dataset not found')
 
     identifier = cleanFileIdentifier(identifier)
-    validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
+
+    try {
+      validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
+    } catch (e) {
+      ctx.throw(400, e.message)
+    }
 
     var chunk = dataset.fileChunk
 
