@@ -20,6 +20,8 @@ module.exports = new Route({
     data.slug = slugify(data.name)
     role.set(data)
 
+    if (!data.description) role.set({description: ''})
+
     role.save()
 
     ctx.body = {

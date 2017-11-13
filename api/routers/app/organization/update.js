@@ -26,6 +26,9 @@ module.exports = new Route({
 
     data.slug = slugify(data.slug)
     org.set(data)
+
+    if (!data.description) org.set({description: ''})
+
     org.save()
 
     if (file) {
