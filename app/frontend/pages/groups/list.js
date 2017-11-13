@@ -31,6 +31,7 @@ class Groups extends Component {
         'title': 'Name',
         'property': 'name',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           return (
             <Link to={'/manage/groups/' + row.uuid}>
@@ -43,6 +44,7 @@ class Groups extends Component {
         'title': 'Created',
         'property': 'dateCreated',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           return (
             moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')

@@ -251,3 +251,49 @@ footer.footer {
 select.placeholder {  
   color: gray;
 }
+
+.is-pulled-right-by-margin {
+  margin-left: auto
+}
+
+pre.json {
+  display: block;
+  padding: 1em;
+  margin: 0;
+}
+.request-log {
+  margin-bottom: 0.5rem !important;
+
+  .message-header {
+    cursor: pointer;
+  }
+}
+.show-log { display: block; }
+.hide-log { display: none; }
+.is-clickable { cursor: pointer }
+
+.is-not-shown { visibility: hidden }
+.is-white { background-color: white }
+.is-transparent { background-color: transparent }
+.is-absolute { position: absolute }
+
+.Sticky {
+  &.sticky {
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    left: 0;
+    border-radius: 0;
+    margin: 0;
+    padding: 0px 24px
+  }
+}
+
+
+@media only screen and (min-width: 1024px) {
+  .Sticky {
+    &.sticky {
+      padding-left: 274px
+    }
+  }
+}

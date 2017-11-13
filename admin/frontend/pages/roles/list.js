@@ -31,6 +31,7 @@ class Roles extends Component {
         'title': 'Name',
         'property': 'name',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           return (
             <Link to={'/manage/roles/' + row.uuid}>
@@ -43,6 +44,7 @@ class Roles extends Component {
         'title': 'Created',
         'property': 'dateCreated',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           return (
             moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
@@ -52,6 +54,7 @@ class Roles extends Component {
       {
         'title': 'Default',
         'property': 'isDefault',
+        'sortable': true,
         formatter: (row) => {
           if (row.isDefault) {
             return (
