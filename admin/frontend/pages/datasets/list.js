@@ -33,7 +33,7 @@ class DataSets extends Component {
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/datasets/' + row.uuid}>
+            <Link to={'/datasets/detail/' + row.uuid}>
               {row.name}
             </Link>
           )

@@ -17,6 +17,7 @@ const dataSetSchema = new Schema({
     region: { type: String },
     savedToDisk: { type: Boolean, default: false }
   },
+  externalId: { type: String },
   fileChunk: { type: Schema.Types.ObjectId, ref: 'FileChunk' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -134,7 +135,7 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
     ACL: 'public-read'
   }
 
-  // await this.fileChunk.uploadChunks(s3File, chunkKey)
+  await this.fileChunk.uploadChunks(s3File, chunkKey)
   s3File['Body'] = await fs.readFile(path.join(this.fileChunk.path, this.fileChunk.filename))
   s3File['Key'] = fileName
 
@@ -146,48 +147,37 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
     region: aws.s3Region
   })
 
-  try {
-    await s3.putObject(s3File).promise()
-    this.set({
-      path: {
-        url: fileName,
-        bucket: bucket,
-        region: aws.s3Region,
-        savedToDisk: false
+  await s3.putObject(s3File).promise()
+  this.set({
+    path: {
+      url: fileName,
+      bucket: bucket,
+      region: aws.s3Region,
+      savedToDisk: false
+    },
+    uploaded: true,
+    status: 'preprocessing'
+  })
+
+  this.set({
+    status: 'configuring',
+    columns: [
+      {
+        name: 'Column A',
+        values: ['a', 'b', 'c', 'd']
       },
-      uploaded: true,
-      status: 'preprocessing'
-    })
+      {
+        name: 'Column B',
+        values: ['a', 'b', 'c', 'd']
+      },
+      {
+        name: 'Column C',
+        values: ['a', 'b', 'c', 'd']
+      }
+    ]
+  })
 
-    this.set({
-      status: 'configuring',
-      columns: [
-        {
-          name: 'Column A',
-          values: ['a', 'b', 'c', 'd']
-        },
-        {
-          name: 'Column B',
-          values: ['a', 'b', 'c', 'd']
-        },
-        {
-          name: 'Column C',
-          values: ['a', 'b', 'c', 'd']
-        }
-      ]
-    })
-
-    await this.save()
-  } catch (e) {
-    console.log(e)
-    this.set({
-      path: {},
-      uploaded: false,
-      status: 'uploading'
-    })
-
-    await this.save()
-  }
+  await this.save()
 
   return true
 }

@@ -43,9 +43,7 @@ class ConfigureDatasetForm extends Component {
     })
 
     this.setState({
-
       ...this.state.formData.columns[posColumn][column[1]] = valueColumn
-
     })
   }
 
@@ -69,7 +67,6 @@ class ConfigureDatasetForm extends Component {
 
     } else {
       this.setState({
-
         ...this.state.formData.groupings.push({
           column: this.state.groupingColumn,
           inputValue: this.state.groupingInput,
@@ -78,7 +75,6 @@ class ConfigureDatasetForm extends Component {
         ...this.state.groupingColumn = '',
         ...this.state.groupingInput = '',
         ...this.state.groupingOutput = ''
-
       })
     }
     event.preventDefault()
@@ -93,9 +89,7 @@ class ConfigureDatasetForm extends Component {
     })
 
     this.setState({
-
       ...this.state.formData.columns[posColumn][type] = true
-
     })
   }
 
@@ -229,7 +223,7 @@ class ConfigureDatasetForm extends Component {
               </div>
               <div className='field'>
                 <p className='control is-expanded'>
-                  <input className='input is-success' type='text' value={this.state.groupingOutput} onChange={(e) => { this.handleChange('groupingOutput', e) }} />
+                  <input className='input' type='text' value={this.state.groupingOutput} onChange={(e) => { this.handleChange('groupingOutput', e) }} />
                 </p>
               </div>
               <div className='field'>

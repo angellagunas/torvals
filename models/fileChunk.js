@@ -70,33 +70,28 @@ fileChunkSchema.methods.uploadChunks = async function (s3File, chunkKey) {
 
   let filename = path.join(this.path, this.filename)
 
-  try {
-    for (var i = 1; i <= this.totalChunks; i++) {
-      s3File['Body'] = await fs.readFile(filename + '.' + i)
-      s3File['Key'] = chunkKey + filename + '.' + i
-      var s3 = new awsService.S3({
-        credentials: {
-          accessKeyId: aws.s3AccessKey,
-          secretAccessKey: aws.s3Secret
-        },
-        region: aws.s3Region
-      })
-
-      await s3.putObject(s3File).promise()
-    }
-
-    this.set({
-      uploadPath: {
-        url: filename,
-        bucket: s3File['Bucket'],
-        region: aws.s3Region
+  for (var i = 1; i <= this.totalChunks; i++) {
+    s3File['Body'] = await fs.readFile(filename + '.' + i)
+    s3File['Key'] = chunkKey + filename + '.' + i
+    var s3 = new awsService.S3({
+      credentials: {
+        accessKeyId: aws.s3AccessKey,
+        secretAccessKey: aws.s3Secret
       },
-      uploaded: true
+      region: aws.s3Region
     })
-  } catch (e) {
-    this.uploaded = false
-    return false
+
+    await s3.putObject(s3File).promise()
   }
+
+  this.set({
+    uploadPath: {
+      url: filename,
+      bucket: s3File['Bucket'],
+      region: aws.s3Region
+    },
+    uploaded: true
+  })
 
   await this.save()
 

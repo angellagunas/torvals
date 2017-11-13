@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
 
+const finishUpload = require('queues/finish-upload')
 const { DataSet } = require('models')
 const { cleanFileIdentifier, validateResumableRequest } = require('lib/tools')
 
@@ -23,7 +24,12 @@ module.exports = new Route({
     ctx.assert(dataset, 404, 'Dataset not found')
 
     identifier = cleanFileIdentifier(identifier)
-    validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
+
+    try {
+      validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
+    } catch (e) {
+      ctx.throw(400, e.message)
+    }
 
     var chunk = dataset.fileChunk
 
@@ -41,7 +47,7 @@ module.exports = new Route({
       if (chunk.totalChunks === chunkNumber) {
         dataset.set({ status: 'uploaded' })
         await dataset.save()
-        await dataset.recreateAndUploadFile()
+        finishUpload.add({uuid: dataset.uuid})
       }
 
       ctx.body = 'OK'

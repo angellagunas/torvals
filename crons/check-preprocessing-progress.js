@@ -3,11 +3,17 @@ require('../config')
 require('lib/databases/mongo')
 
 const Cron = require('lib/cron')
+const { DataSet } = require('models')
+const verifyPreprocessingDatasets = require('tasks/dataset/verify-preprocessing-datasets')
+const verifyProcessingDatasets = require('tasks/dataset/verify-processing-datasets')
 
 const cron = new Cron({
   tick: '* * * * *',
   task: async function () {
-    return {success: true}
+    var a, b
+    a = await verifyPreprocessingDatasets.run()
+    b = await verifyProcessingDatasets.run()
+    return a && b
   }
 })
 
