@@ -169,11 +169,11 @@ class EmailInviteLanding extends Component {
         id: item.organization.slug,
         key: item.organization.uuid,
         data: (
-          <div className='columns'>
+          <div className='columns is-fullwidth'>
             <div className='column is-one-third'>
               <img className='is-rounded' src={item.organization.profileUrl} width='45' height='45' alt='Avatar' />
             </div>
-            <div className='column'>
+            <div className='column is-two-thirds'>
               <p>
                 <strong>{item.organization.name}</strong>
                 <br />
