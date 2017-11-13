@@ -8,6 +8,10 @@ const request = require('request-promise-native')
 module.exports = new Route({
   method: 'post',
   path: '/:uuid/configure',
+  validator: lov.object().keys({
+    isDate: lov.string().required(),
+    analyze: lov.string().required()
+  }),
   handler: async function (ctx) {
     const body = ctx.request.body
     var datasetId = ctx.params.uuid
@@ -75,13 +79,6 @@ module.exports = new Route({
     // } catch (e) {
     //   ctx.throw(401, 'Failed to send Dataset for processing')
     // }
-
-    setTimeout(() => {
-      dataset.set({
-        status: 'reviewing'
-      })
-      dataset.save()
-    }, 60000)
 
     ctx.body = {
       data: dataset
