@@ -19,6 +19,9 @@ module.exports = new Route({
 
     data.slug = slugify(data.name)
     group.set(data)
+
+    if (!data.description) group.set({description: ''})
+
     group.save()
 
     ctx.body = {
