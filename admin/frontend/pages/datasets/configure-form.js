@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-
 import api from '~base/api'
 import Loader from '~base/components/spinner'
+import lov from 'lov'
 
 class ConfigureDatasetForm extends Component {
   constructor (props) {
@@ -11,6 +11,8 @@ class ConfigureDatasetForm extends Component {
         columns: this.props.columns,
         groupings: []
       },
+      isDate: '',
+      analyze: '',
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
@@ -49,14 +51,39 @@ class ConfigureDatasetForm extends Component {
 
   async submitHandler (event) {
     event.preventDefault()
-    const formData = this.state.formData
-    try {
-      var response = await api.post(this.props.url, formData)
-      this.props.changeHandler(response.data)
-    } catch (e) {
+    const formData = {
+      ...this.state.formData,
+      isDate: this.state.isDate,
+      analyze: this.state.analyze
+    }
+
+    const schema = {
+      isDate: lov.string().trim().required(),
+      analyze: lov.string().trim().required()
+    }
+
+    let values = {
+      isDate: this.state.isDate,
+      analyze: this.state.analyze
+    }
+
+    let result = lov.validate(values, schema)
+
+    if (result.error === null) {
+      try {
+        var response = await api.post(this.props.url, formData)
+        this.props.changeHandler(response.data)
+      } catch (e) {
+        return this.setState({
+          ...this.state,
+          error: e.message,
+          apiCallErrorMessage: 'message is-danger'
+        })
+      }
+    } else {
       return this.setState({
         ...this.state,
-        error: e.message,
+        error: result.error.message,
         apiCallErrorMessage: 'message is-danger'
       })
     }
@@ -89,7 +116,8 @@ class ConfigureDatasetForm extends Component {
     })
 
     this.setState({
-      ...this.state.formData.columns[posColumn][type] = true
+      ...this.state.formData.columns[posColumn][type] = true,
+      ...this.state[type] = true
     })
   }
 
@@ -116,10 +144,10 @@ class ConfigureDatasetForm extends Component {
       <div>
         <form onSubmit={(e) => { this.submitHandler(e) }}>
           <div className='field'>
-            <label className='label'>Is Date</label>
+            <label className='label'>Is Date*</label>
             <div className='control'>
               <div className='select'>
-                <select type='text' onChange={(e) => { this.handleChangeDateAnalyze('isDate', e) }}>
+                <select type='text' name='isDate' onChange={(e) => { this.handleChangeDateAnalyze('isDate', e) }}>
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -133,10 +161,10 @@ class ConfigureDatasetForm extends Component {
           </div>
 
           <div className='field'>
-            <label className='label'>Is Analyze</label>
+            <label className='label'>Is Analyze*</label>
             <div className='control'>
               <div className='select'>
-                <select type='text' onChange={(e) => { this.handleChangeDateAnalyze('analyze', e) }}>
+                <select type='text' name='analyze' onChange={(e) => { this.handleChangeDateAnalyze('analyze', e) }}>
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -262,6 +290,17 @@ class ConfigureDatasetForm extends Component {
             </tbody>
           </table>
 
+          <div className={this.state.apiCallMessage}>
+            <div className='message-body is-size-7 has-text-centered'>
+            The dataSet has been configured successfuly
+          </div>
+          </div>
+          <div className={this.state.apiCallErrorMessage}>
+            <div className='message-body is-size-7 has-text-centered'>
+              {this.state.error}
+            </div>
+          </div>
+
           <div className='field is-grouped'>
             <div className='control'>
               <button className='button is-primary'>Configure</button>
@@ -269,11 +308,6 @@ class ConfigureDatasetForm extends Component {
           </div>
         </form>
 
-        <div className={this.state.apiCallMessage}>
-          <div className='message-body is-size-7 has-text-centered'>
-            The dataSet has been configured successfuly
-          </div>
-        </div>
       </div>
 
     )
