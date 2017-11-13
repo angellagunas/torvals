@@ -1,45 +1,16 @@
 import React, { Component } from 'react'
+
 import api from '~base/api'
 import Loader from '~base/components/spinner'
-
-import {
-  BaseForm,
-  SelectWidget
-} from '~base/components/base-form'
-
-const schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'isDate',
-    'analyze'
-  ],
-  properties: {
-    'isDate': {
-      type: 'string',
-      title: 'is Date',
-      enum: [],
-      enumNames: []
-    },
-    'analyze': {
-      type: 'string',
-      title: 'is Analize',
-      enum: [],
-      enumNames: []
-    }
-  }
-}
-
-const uiSchema = {
-  'isDate': {'ui:widget': SelectWidget},
-  'analyze': {'ui:widget': SelectWidget}
-}
 
 class ConfigureDatasetForm extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      formData: this.props.formData,
+      formData: {
+        columns: this.props.columns,
+        groupings: []
+      },
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
@@ -55,12 +26,34 @@ class ConfigureDatasetForm extends Component {
     })
   }
 
-  async submitHandler ({formData}) {
+  handleChange (type, event) {
+    const data = {}
+    data[type] = event.currentTarget.value
+
+    this.setState(data)
+  }
+
+  handleChangeCheckbox (type, event) {
+    const column = type.split('|')
+    const valueColumn = event.currentTarget.checked
+    var posColumn = this.state.formData.columns.findIndex(e => {
+      return (
+        String(e.name) === String(column[0])
+      )
+    })
+
+    this.setState({
+
+      ...this.state.formData.columns[posColumn][column[1]] = valueColumn
+
+    })
+  }
+
+  async submitHandler (event) {
+    event.preventDefault()
+    const formData = this.state.formData
     try {
       var response = await api.post(this.props.url, formData)
-      await this.props.load()
-      this.clearState()
-      this.setState({...this.state, apiCallMessage: 'message is-success'})
       this.props.changeHandler(response.data)
     } catch (e) {
       return this.setState({
@@ -69,6 +62,41 @@ class ConfigureDatasetForm extends Component {
         apiCallErrorMessage: 'message is-danger'
       })
     }
+  }
+
+  handleColumnsValues (event) {
+    if (!this.state.groupingColumn) {
+
+    } else {
+      this.setState({
+
+        ...this.state.formData.groupings.push({
+          column: this.state.groupingColumn,
+          inputValue: this.state.groupingInput,
+          outputValue: this.state.groupingOutput
+        }),
+        ...this.state.groupingColumn = '',
+        ...this.state.groupingInput = '',
+        ...this.state.groupingOutput = ''
+
+      })
+    }
+    event.preventDefault()
+  }
+
+  handleChangeDateAnalyze (type, event) {
+    const column = event.currentTarget.value
+    var posColumn = this.state.formData.columns.findIndex(e => {
+      return (
+        String(e.name) === String(column)
+      )
+    })
+
+    this.setState({
+
+      ...this.state.formData.columns[posColumn][type] = true
+
+    })
   }
 
   clearState () {
@@ -90,32 +118,168 @@ class ConfigureDatasetForm extends Component {
       return <Loader />
     }
 
-    schema.properties.isDate.enum = this.props.columns.map(item => { return item.name })
-    schema.properties.isDate.enumNames = this.props.columns.map(item => { return item.name })
-    schema.properties.analyze.enum = this.props.columns.map(item => { return item.name })
-    schema.properties.analyze.enumNames = this.props.columns.map(item => { return item.name })
-
     return (
       <div>
-        <BaseForm schema={schema}
-          uiSchema={uiSchema}
-          formData={this.state.inititalState}
-          onSubmit={(e) => { this.submitHandler(e) }}
-          onError={(e) => { this.errorHandler(e) }}
-        >
-          <div className={this.state.apiCallMessage}>
-            <div className='message-body is-size-7 has-text-centered'>
-                The dataSet has been configured successfuly
+        <form onSubmit={(e) => { this.submitHandler(e) }}>
+          <div className='field'>
+            <label className='label'>Is Date</label>
+            <div className='control'>
+              <div className='select'>
+                <select type='text' onChange={(e) => { this.handleChangeDateAnalyze('isDate', e) }}>
+                  <option value=''>Select a option</option>
+                  {
+                    this.state.formData.columns.map(function (item, key) {
+                      return <option key={key}
+                        value={item.name}>{item.name}</option>
+                    })
+                  }
+                </select>
               </div>
-          </div>
-
-          <div className={this.state.apiCallErrorMessage}>
-            <div className='message-body is-size-7 has-text-centered'>
-              {error}
             </div>
           </div>
-          {this.props.children}
-        </BaseForm>
+
+          <div className='field'>
+            <label className='label'>Is Analyze</label>
+            <div className='control'>
+              <div className='select'>
+                <select type='text' onChange={(e) => { this.handleChangeDateAnalyze('analyze', e) }}>
+                  <option value=''>Select a option</option>
+                  {
+                    this.state.formData.columns.map(function (item, key) {
+                      return <option key={key}
+                        value={item.name}>{item.name}</option>
+                    })
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className='field is-horizontal'>
+            <div className='field-label is-normal'>
+              <label className='label' />
+            </div>
+            <div className='field-body'>
+              <div className='field'>
+                <div className='field-label has-text-centered'>
+                  <label className=''>
+                    Operation Filter
+                  </label>
+                </div>
+              </div>
+              <div className='field'>
+                <div className='field-label has-text-centered'>
+                  <label className=''>
+                    Analysis Filter
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {
+          this.state.formData.columns.map((item, key) => {
+            return (
+              <div className='field is-horizontal'>
+                <div className='field-label is-normal'>
+                  <label className='label'>{item.name}</label>
+                </div>
+                <div className='field-body'>
+                  <div className='field'>
+                    <div className='control box has-text-centered'>
+                      <label className='checkbox'>
+                        <input type='checkbox' onChange={(e) => { this.handleChangeCheckbox(item.name + '|isOperationFilter', e) }} />
+                      </label>
+                    </div>
+                  </div>
+                  <div className='field'>
+                    <div className='control box has-text-centered'>
+                      <label className='checkbox'>
+                        <input onChange={(e) => { this.handleChangeCheckbox(item.name + '|isAnalysisFilter', e) }} type='checkbox' />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })
+          }
+
+          <div className='field is-horizontal'>
+            <div className='field-body'>
+              <div className='field is-narrow'>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select onChange={(e) => { this.handleChange('groupingColumn', e) }}>
+                      <option value='' >Select a option</option>
+                      {
+                    this.state.formData.columns.map(function (item, key) {
+                      return <option key={key}
+                        value={item.name}>{item.name}</option>
+                    })
+                  }
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className='field'>
+                <p className='control is-expanded'>
+                  <input className='input' type='text' value={this.state.groupingInput} onChange={(e) => { this.handleChange('groupingInput', e) }} />
+                </p>
+              </div>
+              <div className='field'>
+                <p className='control is-expanded'>
+                  <input className='input is-success' type='text' value={this.state.groupingOutput} onChange={(e) => { this.handleChange('groupingOutput', e) }} />
+                </p>
+              </div>
+              <div className='field'>
+                <p className='control is-expanded'>
+                  <button className='button is-primary' onClick={(e) => this.handleColumnsValues(e)} type='button'>Add</button>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <table className='table is-fullwidth'>
+            <thead>
+              <tr>
+                <th>Column</th>
+                <th>Value 1</th>
+                <th>Value 2</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.formData.groupings.length === 0 ? (
+                <tr>
+                  <td colSpan='3'>No rows to show</td>
+                </tr>
+                ) : (
+                  this.state.formData.groupings.map(function (item, key) {
+                    return (
+                      <tr key={key}>
+                        <td>{item.column}</td>
+                        <td>{item.inputValue}</td>
+                        <td>{item.outputValue}</td>
+                      </tr>
+                    )
+                  })
+
+                )}
+            </tbody>
+          </table>
+
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button className='button is-primary'>Configure</button>
+            </div>
+          </div>
+        </form>
+
+        <div className={this.state.apiCallMessage}>
+          <div className='message-body is-size-7 has-text-centered'>
+            The dataSet has been configured successfuly
+          </div>
+        </div>
       </div>
 
     )
