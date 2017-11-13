@@ -30,13 +30,14 @@ module.exports = new Route({
     var userPublic = user.toPublic()
     userPublic.organizations = orgsAux
 
+    const token = await user.createToken({
+      type: 'session'
+    })
+
     ctx.body = {
       user: userPublic,
       isAdmin: user.isAdmin,
-      jwt: jwt.sign({
-        uuid: user.uuid,
-        apiToken: user.apiToken
-      })
+      jwt: token.getJwt()
     }
   }
 })

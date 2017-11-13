@@ -1,4 +1,5 @@
 const User = require('./user')
+const UserToken = require('./user-token')
 const RequestLog = require('./requestLog')
 const Organization = require('./organization')
 const Role = require('./role')
@@ -12,6 +13,7 @@ const Forecast = require('./forecast')
 
 module.exports = {
   User,
+  UserToken,
   RequestLog,
   Organization,
   Role,
