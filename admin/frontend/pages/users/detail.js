@@ -178,7 +178,6 @@ class UserDetail extends Component {
         'title': 'Organization',
         'property': 'organization',
         'default': 'N/A',
-        'sortable': true,
         formatter: (row) => {
           return (
             <Link to={'/manage/organizations/' + row.organization.uuid}>
@@ -191,7 +190,6 @@ class UserDetail extends Component {
         'title': 'Role',
         'property': 'role',
         'default': 'N/A',
-        'sortable': true,
         formatter: (row) => {
           return (
             <div className='select'>

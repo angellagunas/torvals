@@ -109,7 +109,7 @@ class NavBar extends Component {
               Bienvenido { username }
             </div>
             <div className='is-flex is-align-center'>
-              <img className='is-rounded' src={avatar} width='40' height='45' alt='Avatar' />
+              <img className='is-rounded avatar' src={avatar} width='40' height='40' alt='Avatar' />
             </div>
             <div className='dropdown is-active is-right' ref={this.setWrapperRef}>
               <div className='dropdown-trigger is-flex'>
