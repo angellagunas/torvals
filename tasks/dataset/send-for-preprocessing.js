@@ -32,7 +32,7 @@ const task = new Task(async function (argv) {
 
   console.log(`Sending ${dataset.name} dataset for preprocessing ...`)
   var options = {
-    url: `${apiData.hostname}${apiData.baseUrl}/upload/file/organization`,
+    url: `${apiData.hostname}${apiData.baseUrl}/upload/file/organizations`,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
