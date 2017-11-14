@@ -28,7 +28,7 @@ const task = new Task(async function (argv) {
     console.log(`Verifying if ${dataset.name} dataset has finished preprocessing ...`)
     var options = {
       url: `${apiData.hostname}${apiData.baseUrl}/datasets/${dataset.externalId}`,
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -39,8 +39,8 @@ const task = new Task(async function (argv) {
 
     console.log(options)
 
-    // var res = await request(options)
-    // console.log(res)
+    var res = await request(options)
+    console.log(res)
 
     // if (res.status === 'done') {
     //   dataset.set({

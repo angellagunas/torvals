@@ -48,13 +48,13 @@ const task = new Task(async function (argv) {
 
   console.log(options)
 
-  // var res = await request(options)
-  // console.log(res)
+  var res = await request(options)
+  console.log(res)
   dataset.set({
-    // externalId: res.uuid || res._id,
+    externalId: res._id,
     status: 'preprocessing'
   })
-  // await dataset.save()
+  await dataset.save()
 
   console.log(`Successfully sent for preprocessing dataset ${dataset.name}`)
   return true
