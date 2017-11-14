@@ -14,7 +14,9 @@ const task = new Task(async function (argv) {
 
   console.log('Fetching specified Dataset...')
 
-  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk')
+  const dataset = await DataSet.findOne({uuid: argv.uuid})
+    .populate('fileChunk')
+    .populate('organization')
 
   if (!dataset) {
     throw new Error('Invalid uuid!')
