@@ -10,10 +10,17 @@ const verifyProcessingDatasets = require('tasks/dataset/verify-processing-datase
 const cron = new Cron({
   tick: '* * * * *',
   task: async function () {
-    var a, b
-    a = await verifyPreprocessingDatasets.run()
-    b = await verifyProcessingDatasets.run()
-    return a && b
+    // var a, b
+    // a = await verifyPreprocessingDatasets.run()
+    // b = await verifyProcessingDatasets.run()
+    // return a && b
+    const datasets = await DataSet.find({status: 'processing'})
+
+    for (const dataset of datasets) {
+      dataset.status = 'reviewing'
+      await dataset.save()
+      console.log(`Dataset ${dataset.uuid} set as reviewing`)
+    }
   }
 })
 
