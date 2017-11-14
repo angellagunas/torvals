@@ -10,9 +10,6 @@ import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 class DeletedProjects extends Component {
   constructor (props) {
     super(props)
-    this.state = {
-      className: ''
-    }
   }
 
   componentWillMount () {
@@ -55,25 +52,6 @@ class DeletedProjects extends Component {
         }
       }
     ]
-  }
-
-  showModal () {
-    this.setState({
-      className: ' is-active'
-    })
-  }
-
-  hideModal () {
-    this.setState({
-      className: ''
-    })
-  }
-
-  finishUp (object) {
-    this.setState({
-      className: ''
-    })
-    this.props.history.push('/admin/projects/' + object.uuid)
   }
 
   async restoreOnClick (uuid) {

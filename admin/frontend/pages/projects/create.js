@@ -15,9 +15,6 @@ class CreateProject extends Component {
   constructor (props) {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
-    this.state = {
-
-    }
   }
 
   componentWillMount () {
