@@ -61,7 +61,6 @@ class ProjectDetail extends Component {
 
   render () {
     const { project } = this.state.project
-    console.log(this.state)
 
     if (!this.state.loaded) {
       return <Loader />
