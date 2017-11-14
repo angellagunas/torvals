@@ -57,7 +57,9 @@ class ProjectForm extends Component {
     formData.isDefault = undefined
     try {
       var data = await api.post(this.props.url, formData)
-      // await this.props.load()
+      if (this.props.load) {
+        await this.props.load()
+      }
       this.clearState()
       this.setState({...this.state, apiCallMessage: 'message is-success'})
       if (this.props.finishUp) this.props.finishUp(data.data)
