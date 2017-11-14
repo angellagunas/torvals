@@ -19,7 +19,7 @@ describe('/datasets', () => {
     // await clearDatabase()
   })
 
-  describe.only('[post] / Create dataSets', () => {
+  describe('[post] / Create dataSets', () => {
     it('should return a 200 then the dataset created', async function () {
       await clearDatabase()
       const user = await createUser({ password })

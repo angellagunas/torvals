@@ -1,0 +1,21 @@
+const Route = require('lib/router/route')
+const lov = require('lov')
+
+const {Project} = require('models')
+
+module.exports = new Route({
+  method: 'post',
+  path: '/',
+  validator: lov.object().keys({
+    name: lov.string().required()
+  }),
+  handler: async function (ctx) {
+    var data = ctx.request.body
+
+    const project = await Project.create(data)
+
+    ctx.body = {
+      data: project
+    }
+  }
+})
