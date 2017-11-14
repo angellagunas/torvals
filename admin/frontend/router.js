@@ -23,6 +23,9 @@ import GroupDetail from './pages/groups/detail'
 import DataSets from './pages/datasets/list'
 import DeletedDataSets from './pages/datasets/list-deleted'
 import DataSetDetail from './pages/datasets/detail'
+import Projects from './pages/projects/list'
+import ProjectDetail from './pages/projects/detail'
+import DeletedProjects from './pages/projects/deleted-list'
 
 const AppRouter = () => {
   return (<Router>
@@ -44,6 +47,9 @@ const AppRouter = () => {
         <PrivateRoute exact path='/datasets' component={DataSets} />
         <PrivateRoute exact path='/datasets/detail/:uuid' component={DataSetDetail} />
         <PrivateRoute exact path='/datasets/deleted' component={DeletedDataSets} />
+        <PrivateRoute exact path='/projects' component={Projects} />
+        <PrivateRoute exact path='/projects/detail/:uuid' component={ProjectDetail} />
+        <PrivateRoute exact path='/projects/deleted' component={DeletedProjects} />
       </div>
     </AdminLayout>
   </Router>)

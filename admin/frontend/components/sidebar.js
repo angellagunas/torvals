@@ -65,6 +65,23 @@ class Sidebar extends Component {
           to: '/datasets/deleted'
         }
       ]
+    },
+    {
+      title: 'Projects',
+      icon: 'file',
+      to: '/projects',
+      dropdown: [
+        {
+          title: 'Active',
+          icon: 'check',
+          to: '/projects'
+        },
+        {
+          title: 'Deleted',
+          icon: 'trash',
+          to: '/projects/deleted'
+        }
+      ]
     }
     ]
   }
