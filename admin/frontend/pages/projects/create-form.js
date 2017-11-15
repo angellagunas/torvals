@@ -1,27 +1,36 @@
 import React, { Component } from 'react'
-
+import Loader from '~base/components/spinner'
 import api from '~base/api'
 
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget
+  TextareaWidget,
+  SelectWidget
 } from '~base/components/base-form'
 
 const schema = {
   type: 'object',
   title: '',
   required: [
-    'name'
+    'name',
+    'organization'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
+    organization: {
+      type: 'string',
+      title: 'Organization',
+      enum: [],
+      enumNames: []
+    },
     description: {type: 'string', title: 'Description'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
+  organization: {'ui:widget': SelectWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
 
@@ -31,8 +40,29 @@ class ProjectForm extends Component {
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+      apiCallErrorMessage: 'is-hidden',
+      organizations: []
     }
+  }
+
+  componentWillMount () {
+    this.loadOrgs()
+  }
+
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      organizations: body.data
+    })
   }
 
   errorHandler (e) {}
@@ -80,6 +110,15 @@ class ProjectForm extends Component {
         Error: {this.state.error}
       </div>
     }
+
+    if (this.state.organizations.length === 0) {
+      return <Loader />
+    }
+
+    let org = schema.properties.organization
+
+    org.enum = this.state.organizations.map(item => { return item.uuid })
+    org.enumNames = this.state.organizations.map(item => { return item.name })
 
     return (
       <div>
