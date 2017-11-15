@@ -31,6 +31,17 @@ class DeletedProjects extends Component {
         'sortable': true
       },
       {
+        'title': 'Organization',
+        'property': 'organization',
+        'default': '',
+        'sortable': true,
+        formatter: (row) => {
+          if (!row.organization) { return }
+
+          return row.organization.name
+        }
+      },
+      {
         'title': 'Created',
         'property': 'dateCreated',
         'default': 'N/A',

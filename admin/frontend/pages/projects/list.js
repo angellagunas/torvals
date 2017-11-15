@@ -41,6 +41,22 @@ class Projects extends Component {
         }
       },
       {
+        'title': 'Organization',
+        'property': 'organization',
+        'default': '',
+        'sortable': true,
+        formatter: (row) => {
+          if (!row.organization) { return }
+
+          return (
+            <Link to={'/manage/organizations/' + row.organization.uuid}>
+              {row.organization.name}
+            </Link>
+
+          )
+        }
+      },
+      {
         'title': 'Created',
         'property': 'dateCreated',
         'default': 'N/A',
