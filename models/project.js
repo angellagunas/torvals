@@ -5,8 +5,10 @@ const dataTables = require('mongoose-datatables')
 const moment = require('moment')
 
 const projectSchema = new Schema({
-  name: { type: String },
+  name: { type: String, required: true },
+  organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   description: { type: String },
+  businessRules: Schema.Types.Mixed,
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
