@@ -10,7 +10,7 @@ module.exports = new Route({
   path: '/:uuid/configure',
   validator: lov.object().keys({
     isDate: lov.string().required(),
-    analyze: lov.string().required()
+    isAnalysis: lov.string().required()
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
@@ -22,7 +22,7 @@ module.exports = new Route({
       return item.isDate
     }).name
     var isAnalysis = body.columns.find((item) => {
-      return item.analyze
+      return item.isAnalysis
     }).name
 
     var filterAnalysis = []

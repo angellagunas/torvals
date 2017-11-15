@@ -12,7 +12,7 @@ class ConfigureDatasetForm extends Component {
         groupings: []
       },
       isDate: '',
-      analyze: '',
+      isAnalysis: '',
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
@@ -54,17 +54,17 @@ class ConfigureDatasetForm extends Component {
     const formData = {
       ...this.state.formData,
       isDate: this.state.isDate,
-      analyze: this.state.analyze
+      isAnalysis: this.state.isAnalysis
     }
 
     const schema = {
       isDate: lov.string().trim().required(),
-      analyze: lov.string().trim().required()
+      isAnalysis: lov.string().trim().required()
     }
 
     let values = {
       isDate: this.state.isDate,
-      analyze: this.state.analyze
+      isAnalysis: this.state.isAnalysis
     }
 
     let result = lov.validate(values, schema)
@@ -164,7 +164,7 @@ class ConfigureDatasetForm extends Component {
             <label className='label'>Is Analyze*</label>
             <div className='control'>
               <div className='select'>
-                <select type='text' name='analyze' onChange={(e) => { this.handleChangeDateAnalyze('analyze', e) }}>
+                <select type='text' name='isAnalysis' onChange={(e) => { this.handleChangeDateAnalyze('isAnalysis', e) }}>
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
