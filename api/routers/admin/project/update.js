@@ -13,7 +13,6 @@ module.exports = new Route({
   handler: async function (ctx) {
     var projectId = ctx.params.uuid
     var data = ctx.request.body
-    console.log(data)
 
     const project = await Project.findOne({'uuid': projectId, 'isDeleted': false}).populate('organization')
     ctx.assert(project, 404, 'Project not found')
