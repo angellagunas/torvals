@@ -28,7 +28,7 @@ const task = new Task(async function (argv) {
     console.log(`Verifying if ${dataset.name} dataset has finished processing ...`)
     var options = {
       url: `${apiData.hostname}${apiData.baseUrl}/datasets/${dataset.externalId}`,
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -39,16 +39,16 @@ const task = new Task(async function (argv) {
 
     console.log(options)
 
-    // var res = await request(options)
-    // console.log(res)
+    var res = await request(options)
+    console.log(res)
 
-    // if (res.status === 'ready') {
-    //   dataset.set({
-    //     status: 'reviewing'
-    //   })
+    if (res.status === 'ready') {
+      dataset.set({
+        status: 'reviewing'
+      })
 
-    //   await dataset.save()
-    // }
+      await dataset.save()
+    }
   }
 
   console.log(`Successfully verified ${datasets.length} datasets with status {processing}`)
