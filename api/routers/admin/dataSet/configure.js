@@ -66,17 +66,17 @@ module.exports = new Route({
       json: true
     }
 
-    // try {
-      // var res = await request(options)
-    dataset.set({
-      columns: body.columns,
-      groupings: body.groupings,
-      status: 'processing'
-    })
-    await dataset.save()
-    // } catch (e) {
-    //   ctx.throw(401, 'Failed to send Dataset for processing')
-    // }
+    try {
+      await request(options)
+      dataset.set({
+        columns: body.columns,
+        groupings: body.groupings,
+        status: 'processing'
+      })
+      await dataset.save()
+    } catch (e) {
+      ctx.throw(401, 'Failed to send Dataset for processing')
+    }
 
     ctx.body = {
       data: dataset

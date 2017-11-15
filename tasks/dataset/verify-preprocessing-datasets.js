@@ -37,10 +37,7 @@ const task = new Task(async function (argv) {
       json: true
     }
 
-    console.log(options)
-
     var res = await request(options)
-    console.log(res)
 
     if (res.status === 'done' && res.columns.length > 1) {
       dataset.set({
