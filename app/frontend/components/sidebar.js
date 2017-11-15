@@ -51,6 +51,13 @@ class Sidebar extends Component {
         icon: 'file',
         to: '/datasets',
         roles: 'supervisor, analista, admin-organizacion, admin'
+      },
+      {
+
+        title: 'Projects',
+        icon: 'cog',
+        to: '/projects',
+        roles: 'supervisor, analista, admin-organizacion, admin'
       }]
     }
 
