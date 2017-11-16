@@ -3,14 +3,14 @@ const lov = require('lov')
 
 const { DataSet } = require('models')
 const Api = require('lib/abraxas/api')
-const request = require('request-promise-native')
+const request = require('lib/request')
 
 module.exports = new Route({
   method: 'post',
   path: '/:uuid/configure',
   validator: lov.object().keys({
     isDate: lov.string().required(),
-    analyze: lov.string().required()
+    isAnalysis: lov.string().required()
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
@@ -22,7 +22,7 @@ module.exports = new Route({
       return item.isDate
     }).name
     var isAnalysis = body.columns.find((item) => {
-      return item.analyze
+      return item.isAnalysis
     }).name
 
     var filterAnalysis = []
@@ -66,17 +66,18 @@ module.exports = new Route({
       json: true
     }
 
-    // try {
-      // var res = await request(options)
-    dataset.set({
-      columns: body.columns,
-      groupings: body.groupings,
-      status: 'processing'
-    })
-    await dataset.save()
-    // } catch (e) {
-    //   ctx.throw(401, 'Failed to send Dataset for processing')
-    // }
+    try {
+      var res = await request(options)
+      console.log(res)
+      dataset.set({
+        columns: body.columns,
+        groupings: body.groupings,
+        status: 'processing'
+      })
+      await dataset.save()
+    } catch (e) {
+      ctx.throw(401, 'Failed to send Dataset for processing')
+    }
 
     ctx.body = {
       data: dataset

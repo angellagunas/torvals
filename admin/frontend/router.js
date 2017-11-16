@@ -26,6 +26,7 @@ import DataSetDetail from './pages/datasets/detail'
 import Projects from './pages/projects/list'
 import ProjectDetail from './pages/projects/detail'
 import DeletedProjects from './pages/projects/deleted-list'
+import RequestLogs from './pages/request-logs/list'
 
 const AppRouter = () => {
   return (<Router>
@@ -50,6 +51,7 @@ const AppRouter = () => {
         <PrivateRoute exact path='/projects' component={Projects} />
         <PrivateRoute exact path='/projects/detail/:uuid' component={ProjectDetail} />
         <PrivateRoute exact path='/projects/deleted' component={DeletedProjects} />
+        <PrivateRoute exact path='/devtools/request-logs' component={RequestLogs} />
       </div>
     </AdminLayout>
   </Router>)

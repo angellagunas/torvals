@@ -5,7 +5,7 @@ require('lib/databases/mongo')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSet } = require('models')
-const request = require('request-promise-native')
+const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   if (!argv.uuid) {
@@ -32,7 +32,7 @@ const task = new Task(async function (argv) {
 
   console.log(`Sending ${dataset.name} dataset for preprocessing ...`)
   var options = {
-    url: `${apiData.hostname}${apiData.baseUrl}/upload/file/organization`,
+    url: `${apiData.hostname}${apiData.baseUrl}/upload/file/organizations`,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -46,15 +46,12 @@ const task = new Task(async function (argv) {
     json: true
   }
 
-  console.log(options)
-
-  // var res = await request(options)
-  // console.log(res)
+  var res = await request(options)
   dataset.set({
-    // externalId: res.uuid || res._id,
+    externalId: res._id,
     status: 'preprocessing'
   })
-  // await dataset.save()
+  await dataset.save()
 
   console.log(`Successfully sent for preprocessing dataset ${dataset.name}`)
   return true
