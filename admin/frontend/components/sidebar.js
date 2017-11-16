@@ -82,6 +82,23 @@ class Sidebar extends Component {
           to: '/projects/deleted'
         }
       ]
+    },
+    {
+      title: 'Sales Centers',
+      icon: 'file',
+      to: '/salesCenters',
+      dropdown: [
+        {
+          title: 'Active',
+          icon: 'check',
+          to: '/salesCenters'
+        },
+        {
+          title: 'Deleted',
+          icon: 'trash',
+          to: '/salesCenters/deleted'
+        }
+      ]
     }
     ]
   }
