@@ -12,14 +12,7 @@ module.exports = new Route({
     ctx.assert(salesCenter, 404, 'SalesCenter not found')
 
     ctx.body = {
-      data: {
-        name: salesCenter.name,
-        organization: salesCenter.organization.uuid,
-        description: salesCenter.description,
-        groups: salesCenter.groups,
-        address: salesCenter.address,
-        externalId: salesCenter.externalId
-      }
+      data: salesCenter.format()
     }
   }
 })

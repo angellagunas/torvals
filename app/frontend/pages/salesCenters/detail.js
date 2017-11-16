@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import Link from '~base/router/link'
 import api from '~base/api'
 
 import Loader from '~base/components/spinner'
@@ -82,26 +81,6 @@ class SalesCenterDetail extends Component {
     this.props.history.push('/app/salesCenters')
   }
 
-  getDeleteButton () {
-    return (
-      <div className='column has-text-right'>
-        <div className='field is-grouped is-grouped-right'>
-          <div className='control'>
-            <button
-              className='button is-danger'
-              type='button'
-              onClick={() => this.deleteOnClick()}
-                >
-                  Delete
-                </button>
-          </div>
-        </div>
-      </div>
-    )
-
-    return null
-  }
-
   compareArrays (first, second) {
     var third = first.filter(function (o1) {
       return !second.some(function (o2) {
@@ -113,8 +92,6 @@ class SalesCenterDetail extends Component {
   }
 
   render () {
-    const { salesCenter } = this.state.salesCenter
-
     if (!this.state.loaded) {
       return <Loader />
     }
@@ -125,7 +102,19 @@ class SalesCenterDetail extends Component {
         <div className='column is-paddingless'>
           <div className='section'>
             <div className='columns'>
-              {this.getDeleteButton()}
+              <div className='column has-text-right'>
+                <div className='field is-grouped is-grouped-right'>
+                  <div className='control'>
+                    <button
+                      className='button is-danger'
+                      type='button'
+                      onClick={() => this.deleteOnClick()}
+                >
+                  Delete
+                </button>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className='columns'>
               <div className='column'>

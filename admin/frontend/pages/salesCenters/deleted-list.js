@@ -1,17 +1,12 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import Link from '~base/router/link'
 import moment from 'moment'
 import api from '~base/api'
 
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 class DeletedSalesCenters extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   componentWillMount () {
     this.context.tree.set('deletedSalesCenters', {
       page: 1,

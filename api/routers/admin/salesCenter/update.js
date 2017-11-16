@@ -14,7 +14,10 @@ module.exports = new Route({
     var salesCenterId = ctx.params.uuid
     var data = ctx.request.body
 
-    const salesCenter = await SalesCenter.findOne({'uuid': salesCenterId, 'isDeleted': false}).populate('organization')
+    const salesCenter = await SalesCenter.findOne({
+      'uuid': salesCenterId,
+      'isDeleted': false
+    }).populate('organization')
     ctx.assert(salesCenter, 404, 'SalesCenter not found')
 
     const org = await Organization.findOne({uuid: data.organization})

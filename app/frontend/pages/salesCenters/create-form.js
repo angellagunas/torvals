@@ -59,7 +59,6 @@ class SalesCenterForm extends Component {
   }
 
   async submitHandler ({formData}) {
-    formData.isDefault = undefined
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {

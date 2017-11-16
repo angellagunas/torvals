@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import api from '~base/api'
 
 import BaseModal from '~base/components/base-modal'
 import SalesCenterForm from './create-form'
@@ -36,7 +35,6 @@ class CreateSalesCenter extends Component {
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
-
         >
           <div className='field is-grouped'>
             <div className='control'>

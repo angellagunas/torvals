@@ -19,4 +19,17 @@ const salesCenterSchema = new Schema({
 
 salesCenterSchema.plugin(dataTables)
 
+salesCenterSchema.methods.format = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    organization: this.organization.uuid,
+    description: this.description,
+    groups: this.groups,
+    address: this.address,
+    externalId: this.externalId,
+    dateCreated: this.dateCreated
+  }
+}
+
 module.exports = mongoose.model('SalesCenter', salesCenterSchema)
