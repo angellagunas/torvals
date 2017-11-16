@@ -58,6 +58,13 @@ class Sidebar extends Component {
         icon: 'cog',
         to: '/projects',
         roles: 'supervisor, analista, admin-organizacion, admin'
+      },
+      {
+
+        title: 'Sales Centers',
+        icon: 'cog',
+        to: '/salesCenters',
+        roles: 'supervisor, analista, admin-organizacion, admin'
       }]
     }
 

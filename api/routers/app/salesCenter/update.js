@@ -18,7 +18,9 @@ module.exports = new Route({
 
     salesCenter.set({
       name: data.name,
-      description: data.description
+      description: data.description,
+      address: data.address,
+      externalId: data.externalId
     })
 
     salesCenter.save()

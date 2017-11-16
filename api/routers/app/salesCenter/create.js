@@ -15,7 +15,9 @@ module.exports = new Route({
     const salesCenter = await SalesCenter.create({
       name: data.name,
       description: data.description,
-      organization: ctx.state.organization._id
+      organization: ctx.state.organization._id,
+      address: data.address,
+      externalId: data.externalId
     })
 
     ctx.body = {
