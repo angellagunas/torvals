@@ -5,7 +5,7 @@ require('lib/databases/mongo')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSet } = require('models')
-const request = require('request-promise-native')
+const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   console.log('Fetching procesing Datasets...')

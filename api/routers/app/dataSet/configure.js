@@ -3,7 +3,7 @@ const lov = require('lov')
 
 const { DataSet } = require('models')
 const Api = require('lib/abraxas/api')
-const request = require('request-promise-native')
+const request = require('lib/request')
 
 module.exports = new Route({
   method: 'post',
