@@ -99,8 +99,18 @@ class Sidebar extends Component {
           to: '/salesCenters/deleted'
         }
       ]
-    }
-    ]
+    }, {
+      title: 'Developer Tools',
+      icon: 'github-alt',
+      to: '/devtools',
+      dropdown: [
+        {
+          title: 'Request Logs',
+          icon: 'history',
+          to: '/devtools/request-logs'
+        }
+      ]
+    }]
   }
 
   handleActiveLink (item) {

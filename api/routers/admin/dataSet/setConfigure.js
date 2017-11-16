@@ -1,5 +1,4 @@
 const Route = require('lib/router/route')
-const lov = require('lov')
 
 const { DataSet } = require('models')
 
@@ -16,7 +15,7 @@ module.exports = new Route({
     // Clearing past configs
     for (var col of dataset.columns) {
       col.isDate = false
-      col.analyze = false
+      col.isAnalysis = false
       col.isAnalysisFilter = false
       col.isOperationFilter = false
     }

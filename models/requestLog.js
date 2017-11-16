@@ -16,7 +16,8 @@ const requestLogSchema = new Schema({
   error: {
     message: { type: String },
     stack: { type: String }
-  }
+  },
+  response: { type: Schema.Types.Mixed }
 }, {
   timestamps: true
 })
