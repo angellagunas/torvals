@@ -12,11 +12,7 @@ module.exports = new Route({
     ctx.assert(project, 404, 'Project not found')
 
     ctx.body = {
-      data: {
-        name: project.name,
-        organization: project.organization.uuid,
-        description: project.description
-      }
+      data: project.toPublic()
     }
   }
 })

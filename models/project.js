@@ -17,4 +17,14 @@ const projectSchema = new Schema({
 
 projectSchema.plugin(dataTables)
 
+projectSchema.methods.toPublic = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    description: this.description,
+    organization: this.organization,
+    dateCreated: this.dateCreated
+  }
+}
+
 module.exports = mongoose.model('Project', projectSchema)
