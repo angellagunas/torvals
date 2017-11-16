@@ -46,10 +46,7 @@ const task = new Task(async function (argv) {
     json: true
   }
 
-  console.log(options)
-
   var res = await request(options)
-  console.log(res)
   dataset.set({
     externalId: res._id,
     status: 'preprocessing'
