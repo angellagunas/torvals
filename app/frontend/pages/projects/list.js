@@ -3,17 +3,20 @@ import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 import moment from 'moment'
-import api from '~base/api'
 
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import CreateProject from './create'
 
-class DeletedProjects extends Component {
+class Projects extends Component {
   constructor (props) {
     super(props)
+    this.state = {
+      className: ''
+    }
   }
 
   componentWillMount () {
-    this.context.tree.set('deletedProjects', {
+    this.context.tree.set('projects', {
       page: 1,
       totalItems: 0,
       items: [],
@@ -28,17 +31,13 @@ class DeletedProjects extends Component {
         'title': 'Name',
         'property': 'name',
         'default': 'N/A',
-        'sortable': true
-      },
-      {
-        'title': 'Organization',
-        'property': 'organization',
-        'default': '',
         'sortable': true,
         formatter: (row) => {
-          if (!row.organization) { return }
-
-          return row.organization.name
+          return (
+            <Link to={'/projects/' + row.uuid}>
+              {row.name}
+            </Link>
+          )
         }
       },
       {
@@ -55,21 +54,31 @@ class DeletedProjects extends Component {
       {
         'title': 'Actions',
         formatter: (row) => {
-          return (
-            <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
-              Restore
-            </button>
-          )
+          return <Link className='button' to={'/projects/' + row.uuid}>
+            Detalle
+          </Link>
         }
       }
     ]
   }
 
-  async restoreOnClick (uuid) {
-    var url = '/admin/projects/restore/' + uuid
-    const project = await api.post(url)
+  showModal () {
+    this.setState({
+      className: ' is-active'
+    })
+  }
 
-    this.props.history.push('/admin/projects/detail/' + uuid)
+  hideModal () {
+    this.setState({
+      className: ''
+    })
+  }
+
+  finishUp (object) {
+    this.setState({
+      className: ''
+    })
+    this.props.history.push('/projects/' + object.uuid)
   }
 
   render () {
@@ -79,12 +88,31 @@ class DeletedProjects extends Component {
           <div className='section is-paddingless-top'>
             <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Projects</h1>
             <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                    Projects
+                </p>
+                <div className='card-header-select'>
+                  <button className='button is-primary' onClick={() => this.showModal()}>
+                    New Project
+                  </button>
+                  <CreateProject
+                    className={this.state.className}
+                    hideModal={this.hideModal.bind(this)}
+                    finishUp={this.finishUp.bind(this)}
+                    branchName='projects'
+                    baseUrl='/app/projects'
+                    url='/app/projects'
+                  />
+
+                </div>
+              </header>
               <div className='card-content'>
                 <div className='columns'>
                   <div className='column'>
                     <BranchedPaginatedTable
-                      branchName='deletedprojects'
-                      baseUrl='/admin/projects/deleted'
+                      branchName='projects'
+                      baseUrl='/app/projects'
                       columns={this.getColumns()}
                     />
                   </div>
@@ -98,8 +126,8 @@ class DeletedProjects extends Component {
   }
 }
 
-DeletedProjects.contextTypes = {
+Projects.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({deletedprojects: 'deletedprojects'}, DeletedProjects)
+export default branch({projects: 'projects'}, Projects)

@@ -6,7 +6,7 @@ const http = require('http')
 const { clearDatabase, createUser } = require('../utils')
 const api = require('api/')
 const request = require('supertest')
-const {Project} = require('models')
+const {Project, Organization} = require('models')
 
 function test () {
   return request(http.createServer(api.callback()))
@@ -16,11 +16,16 @@ describe.only('/projects', () => {
   describe('[post] / Create Project', () => {
     it('should return a 200 then the project created', async function () {
       await clearDatabase()
+      const org = await Organization.create({
+        name: 'Una org',
+        description: 'Una descripción'
+      })
 
       const res = await test()
         .post('/api/admin/projects')
         .send({
           name: 'Un proyecto',
+          organization: org.uuid,
           description: 'Una descripción de proyecto'
 
         })

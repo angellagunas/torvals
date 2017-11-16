@@ -13,24 +13,16 @@ const schema = {
   type: 'object',
   title: '',
   required: [
-    'name',
-    'organization'
+    'name'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
-    organization: {
-      type: 'string',
-      title: 'Organization',
-      enum: [],
-      enumNames: []
-    },
     description: {type: 'string', title: 'Description'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  organization: {'ui:widget': SelectWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
 
@@ -43,26 +35,6 @@ class ProjectForm extends Component {
       apiCallErrorMessage: 'is-hidden',
       organizations: []
     }
-  }
-
-  componentWillMount () {
-    this.loadOrgs()
-  }
-
-  async loadOrgs () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      organizations: body.data
-    })
   }
 
   errorHandler (e) {}
@@ -110,15 +82,6 @@ class ProjectForm extends Component {
         Error: {this.state.error}
       </div>
     }
-
-    if (this.state.organizations.length === 0) {
-      return <Loader />
-    }
-
-    let org = schema.properties.organization
-
-    org.enum = this.state.organizations.map(item => { return item.uuid })
-    org.enumNames = this.state.organizations.map(item => { return item.name })
 
     return (
       <div>
