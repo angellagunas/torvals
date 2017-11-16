@@ -6,6 +6,7 @@ const Group = require('./group')
 const FileChunk = require('./fileChunk')
 const DataSet = require('./dataSet')
 const Project = require('./project')
+const SalesCenter = require('./salesCenter')
 
 module.exports = {
   User,
@@ -15,5 +16,6 @@ module.exports = {
   Group,
   FileChunk,
   DataSet,
-  Project
+  Project,
+  SalesCenter
 }

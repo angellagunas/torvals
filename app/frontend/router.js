@@ -23,6 +23,8 @@ import DataSets from './pages/datasets/list'
 import DataSetDetail from './pages/datasets/detail'
 import Projects from './pages/projects/list'
 import ProjectDetail from './pages/projects/detail'
+import SalesCenters from './pages/salesCenters/list'
+import SalesCenterDetail from './pages/salesCenters/detail'
 
 const AppRouter = () => {
   return (<Router>
@@ -86,6 +88,18 @@ const AppRouter = () => {
           exact
           path='/projects/:uuid'
           component={ProjectDetail}
+          roles='supervisor, analista, admin-organizacion, admin'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/salesCenters'
+          component={SalesCenters}
+          roles='supervisor, analista, admin-organizacion, admin'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/salesCenters/:uuid'
+          component={SalesCenterDetail}
           roles='supervisor, analista, admin-organizacion, admin'
         />
       </div>
