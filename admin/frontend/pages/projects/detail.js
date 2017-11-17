@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import api from '~base/api'
+import Link from '~base/router/link'
 
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
@@ -38,13 +39,46 @@ class ProjectDetail extends Component {
     this.props.history.push('/admin/projects')
   }
 
+  getColumns () {
+    return [
+      {
+        'title': 'Name',
+        'property': 'name',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/datasets/detail/' + row.uuid}>
+              {row.name}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'Status',
+        'property': 'status',
+        'default': 'new',
+        'sortable': true
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          return <Link className='button' to={'/datasets/detail/' + row.uuid}>
+            Detalle
+          </Link>
+        }
+      }
+    ]
+  }
+
   showModal () {
     this.setState({
       className: ' is-active'
     })
   }
 
-  hideModal () {
+  hideModal (e) {
+    // e.preventDefault()
     this.setState({
       className: ''
     })
@@ -54,7 +88,6 @@ class ProjectDetail extends Component {
     this.setState({
       className: ''
     })
-    this.props.history.push('/admin/manage/roles/' + object.uuid)
   }
 
   render () {
@@ -126,15 +159,21 @@ class ProjectDetail extends Component {
                         hideModal={this.hideModal.bind(this)}
                         finishUp={this.finishUp.bind(this)}
                         branchName='roles'
-                        baseUrl='/admin/roles'
-                        url='/admin/roles'
+                        url={`/admin/projects/${project.uuid}/add/dataset`}
                         project={project}
                       />
                     </div>
                   </header>
                   <div className='card-content'>
                     <div className='columns'>
-                      <div className='column' />
+                      <div className='column'>
+                        <BranchedPaginatedTable
+                          branchName='datasets'
+                          baseUrl='/admin/datasets/'
+                          columns={this.getColumns()}
+                          filters={{project: project.uuid}}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

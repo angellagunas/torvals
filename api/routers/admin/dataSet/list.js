@@ -26,13 +26,21 @@ module.exports = new Route({
         const project = await Project.findOne({'uuid': ctx.request.query[filter]})
 
         if (project) {
-          filters['projects'] = { $nin: [ObjectId(project._id)] }
+          filters['_id'] = { $in: project.datasets }
         }
 
         continue
       }
 
-      console.log(filters)
+      if (filter === 'project__nin') {
+        const project = await Project.findOne({'uuid': ctx.request.query[filter]})
+
+        if (project) {
+          filters['_id'] = { $nin: project.datasets }
+        }
+
+        continue
+      }
 
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
@@ -40,11 +48,12 @@ module.exports = new Route({
         filters[filter] = ctx.request.query[filter]
       }
     }
+    console.log(filters)
 
     var datasets = await DataSet.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false},
+      find: {...filters, isDeleted: false},
       sort: ctx.request.query.sort || '-dateCreated',
       populate: 'organization'
     })

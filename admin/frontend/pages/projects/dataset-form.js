@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import Loader from '~base/components/spinner'
 import api from '~base/api'
 
 import {
@@ -16,7 +15,7 @@ const schema = {
   properties: {
     dataset: {
       type: 'string',
-      title: '',
+      title: 'Select dataset to add',
       enum: [],
       enumNames: []
     }
@@ -24,7 +23,7 @@ const schema = {
 }
 
 const uiSchema = {
-  organization: {'ui:widget': SelectWidget}
+  dataset: {'ui:widget': SelectWidget}
 }
 
 class DatasetForm extends Component {

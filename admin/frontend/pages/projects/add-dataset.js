@@ -32,7 +32,7 @@ class AddDataset extends Component {
         start: 0,
         limit: 0,
         organization: project.organization.uuid,
-        project: project.uuid
+        project__nin: project.uuid
       }
     )
 
@@ -56,7 +56,6 @@ class AddDataset extends Component {
         hideModal={this.hideModal}
       >
         <DatasetForm
-          baseUrl={`/admin/projects/${this.props.project.uuid}/add/dataset`}
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
@@ -64,10 +63,10 @@ class AddDataset extends Component {
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary'>Add</button>
+              <button className='button is-primary' type='submit'>Add</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal}>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
             </div>
           </div>
         </DatasetForm>
