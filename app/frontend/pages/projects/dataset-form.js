@@ -1,68 +1,20 @@
 import React, { Component } from 'react'
-import Loader from '~base/components/spinner'
 import api from '~base/api'
 
 import {
   BaseForm,
-  TextWidget,
-  TextareaWidget,
   SelectWidget
 } from '~base/components/base-form'
 
-const schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'name',
-    'organization'
-  ],
-  properties: {
-    name: {type: 'string', title: 'Name'},
-    organization: {
-      type: 'string',
-      title: 'Organization',
-      enum: [],
-      enumNames: []
-    },
-    description: {type: 'string', title: 'Description'}
-  }
-}
-
-const uiSchema = {
-  name: {'ui:widget': TextWidget},
-  organization: {'ui:widget': SelectWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
-}
-
-class ProjectForm extends Component {
+class DatasetForm extends Component {
   constructor (props) {
     super(props)
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      organizations: []
+      datasets: []
     }
-  }
-
-  componentWillMount () {
-    this.loadOrgs()
-  }
-
-  async loadOrgs () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      organizations: body.data
-    })
   }
 
   errorHandler (e) {}
@@ -90,12 +42,16 @@ class ProjectForm extends Component {
         await this.props.load()
       }
       this.clearState()
-      this.setState({...this.state, apiCallMessage: 'message is-success'})
+      this.setState({apiCallMessage: 'message is-success'})
       if (this.props.finishUp) this.props.finishUp(data.data)
+
+      setTimeout(() => {
+        this.setState({apiCallMessage: 'is-hidden'})
+      }, 2000)
+
       return
     } catch (e) {
       return this.setState({
-        ...this.state,
         error: e.message,
         apiCallErrorMessage: 'message is-danger'
       })
@@ -110,14 +66,38 @@ class ProjectForm extends Component {
       </div>
     }
 
-    if (this.state.organizations.length === 0) {
-      return <Loader />
+    if (this.props.datasets.length === 0) {
+      return (
+        <div>
+          <h4>There are no processed datasets to select from!</h4>
+        </div>
+      )
     }
 
-    let org = schema.properties.organization
+    const schema = {
+      type: 'object',
+      title: '',
+      required: [
+        'dataset'
+      ],
+      properties: {
+        dataset: {
+          type: 'string',
+          title: 'Select dataset to add',
+          enum: [],
+          enumNames: []
+        }
+      }
+    }
 
-    org.enum = this.state.organizations.map(item => { return item.uuid })
-    org.enumNames = this.state.organizations.map(item => { return item.name })
+    const uiSchema = {
+      dataset: {'ui:widget': SelectWidget}
+    }
+
+    let datasets = schema.properties.dataset
+
+    datasets.enum = this.props.datasets.map(item => { return item.uuid })
+    datasets.enumNames = this.props.datasets.map(item => { return item.name })
 
     return (
       <div>
@@ -146,4 +126,4 @@ class ProjectForm extends Component {
   }
 }
 
-export default ProjectForm
+export default DatasetForm

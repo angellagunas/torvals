@@ -7,6 +7,7 @@ const moment = require('moment')
 const projectSchema = new Schema({
   name: { type: String, required: true },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  datasets: [{ type: Schema.Types.ObjectId, ref: 'DataSet' }],
   description: { type: String },
   businessRules: Schema.Types.Mixed,
 
@@ -16,5 +17,27 @@ const projectSchema = new Schema({
 })
 
 projectSchema.plugin(dataTables)
+
+projectSchema.methods.toPublic = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    description: this.description,
+    organization: this.organization,
+    datasets: this.datasets,
+    dateCreated: this.dateCreated
+  }
+}
+
+projectSchema.methods.toAdmin = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    description: this.description,
+    organization: this.organization,
+    datasets: this.datasets,
+    dateCreated: this.dateCreated
+  }
+}
 
 module.exports = mongoose.model('Project', projectSchema)
