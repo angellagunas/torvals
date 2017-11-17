@@ -68,7 +68,7 @@ class Sidebar extends Component {
     },
     {
       title: 'Projects',
-      icon: 'file',
+      icon: 'cog',
       to: '/projects',
       dropdown: [
         {
@@ -85,7 +85,7 @@ class Sidebar extends Component {
     },
     {
       title: 'Sales Centers',
-      icon: 'file',
+      icon: 'credit-card-alt',
       to: '/salesCenters',
       dropdown: [
         {
@@ -102,7 +102,7 @@ class Sidebar extends Component {
     },
     {
       title: 'Products',
-      icon: 'file',
+      icon: 'dropbox',
       to: '/products',
       dropdown: [
         {
