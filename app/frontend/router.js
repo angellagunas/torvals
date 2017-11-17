@@ -25,6 +25,8 @@ import Projects from './pages/projects/list'
 import ProjectDetail from './pages/projects/detail'
 import SalesCenters from './pages/salesCenters/list'
 import SalesCenterDetail from './pages/salesCenters/detail'
+import Products from './pages/products/list'
+import ProductsDetail from './pages/products/detail'
 
 const AppRouter = () => {
   return (<Router>
@@ -100,6 +102,18 @@ const AppRouter = () => {
           exact
           path='/salesCenters/:uuid'
           component={SalesCenterDetail}
+          roles='supervisor, analista, admin-organizacion, admin'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/products'
+          component={Products}
+          roles='supervisor, analista, admin-organizacion, admin'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/products/:uuid'
+          component={ProductsDetail}
           roles='supervisor, analista, admin-organizacion, admin'
         />
       </div>

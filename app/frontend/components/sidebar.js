@@ -62,8 +62,15 @@ class Sidebar extends Component {
       {
 
         title: 'Sales Centers',
-        icon: 'cog',
+        icon: 'credit-card-alt',
         to: '/salesCenters',
+        roles: 'supervisor, analista, admin-organizacion, admin'
+      },
+      {
+
+        title: 'Products',
+        icon: 'dropbox',
+        to: '/products',
         roles: 'supervisor, analista, admin-organizacion, admin'
       }]
     }
