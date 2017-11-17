@@ -99,7 +99,25 @@ class Sidebar extends Component {
           to: '/salesCenters/deleted'
         }
       ]
-    }, {
+    },
+    {
+      title: 'Products',
+      icon: 'file',
+      to: '/products',
+      dropdown: [
+        {
+          title: 'Active',
+          icon: 'check',
+          to: '/products'
+        },
+        {
+          title: 'Deleted',
+          icon: 'trash',
+          to: '/products/deleted'
+        }
+      ]
+    },
+    {
       title: 'Developer Tools',
       icon: 'github-alt',
       to: '/devtools',

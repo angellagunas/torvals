@@ -12,7 +12,7 @@ function test () {
   return request(http.createServer(api.callback()))
 }
 
-describe.only('/salesCenters', () => {
+describe('/salesCenters', () => {
   describe('[post] / Create SalesCenter', () => {
     it('should return a 200 then the salesCenter created', async function () {
       await clearDatabase()
