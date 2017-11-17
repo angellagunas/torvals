@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import api from '~base/api'
 import Link from '~base/router/link'
+import { branch } from 'baobab-react/higher-order'
+import PropTypes from 'baobab-react/prop-types'
 
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
@@ -14,12 +16,13 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      className: ''
+      className: '',
+      datasets: []
     }
   }
 
   componentWillMount () {
-    this.load()
+    this.load().then(this.loadDatasetsAdd.bind(this))
   }
 
   async load () {
@@ -33,10 +36,55 @@ class ProjectDetail extends Component {
     })
   }
 
+  async loadDatasetsList () {
+    var url = '/admin/datasets/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 10,
+      project: this.state.project.uuid
+    })
+
+    var cursor = this.context.tree.select('datasets')
+
+    cursor.set({
+      page: 1,
+      totalItems: body.total,
+      items: body.data,
+      pageLength: 10
+    })
+    this.context.tree.commit()
+  }
+
+  async loadDatasetsAdd () {
+    let { project } = this.state
+    const body = await api.get(
+      '/admin/datasets',
+      {
+        start: 0,
+        limit: 10,
+        organization: project.organization.uuid,
+        project__nin: project.uuid,
+        status: 'ready'
+      }
+    )
+
+    this.setState({
+      datasets: body.data,
+      loaded: true
+    })
+  }
+
   async deleteOnClick () {
     var url = '/admin/projects/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/admin/projects')
+  }
+
+  async removeDatasetOnClick (uuid) {
+    var url = `/admin/projects/${this.state.project.uuid}/remove/dataset`
+    await api.post(url, {dataset: uuid})
+    await this.loadDatasetsList()
+    await this.loadDatasetsAdd()
   }
 
   getColumns () {
@@ -63,9 +111,24 @@ class ProjectDetail extends Component {
       {
         'title': 'Actions',
         formatter: (row) => {
-          return <Link className='button' to={'/datasets/detail/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <div className='field is-grouped'>
+              <div className='control'>
+                <Link className='button' to={'/datasets/detail/' + row.uuid}>
+                  Detalle
+                </Link>
+              </div>
+              <div className='control'>
+                <button
+                  className='button is-danger'
+                  type='button'
+                  onClick={() => this.removeDatasetOnClick(row.uuid)}
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          )
         }
       }
     ]
@@ -78,7 +141,6 @@ class ProjectDetail extends Component {
   }
 
   hideModal (e) {
-    // e.preventDefault()
     this.setState({
       className: ''
     })
@@ -118,15 +180,15 @@ class ProjectDetail extends Component {
             </div>
             <div className='columns'>
               <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Project
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
+                <div className='columns'>
+                  <div className='column'>
+                    <div className='card'>
+                      <header className='card-header'>
+                        <p className='card-header-title'>
+                          Project
+                        </p>
+                      </header>
+                      <div className='card-content'>
                         <ProjectForm
                           baseUrl='/admin/projects'
                           url={'/admin/projects/' + this.props.match.params.uuid}
@@ -143,36 +205,40 @@ class ProjectDetail extends Component {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Datasets
-                    </p>
-                    <div className='card-header-select'>
-                      <button className='button is-primary' onClick={() => this.showModal()}>
-                        Add Dataset
-                      </button>
-                      <AddDataset
-                        className={this.state.className}
-                        hideModal={this.hideModal.bind(this)}
-                        finishUp={this.finishUp.bind(this)}
-                        branchName='roles'
-                        url={`/admin/projects/${project.uuid}/add/dataset`}
-                        project={project}
-                      />
-                    </div>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <BranchedPaginatedTable
-                          branchName='datasets'
-                          baseUrl='/admin/datasets/'
-                          columns={this.getColumns()}
-                          filters={{project: project.uuid}}
-                        />
+                <div className='columns'>
+                  <div className='column'>
+                    <div className='card'>
+                      <header className='card-header'>
+                        <p className='card-header-title'>
+                          Datasets
+                        </p>
+                        <div className='card-header-select'>
+                          <button className='button is-primary' onClick={() => this.showModal()}>
+                            Add Dataset
+                          </button>
+                          <AddDataset
+                            className={this.state.className}
+                            hideModal={this.hideModal.bind(this)}
+                            finishUp={this.finishUp.bind(this)}
+                            url={`/admin/projects/${project.uuid}/add/dataset`}
+                            project={project}
+                            datasets={this.state.datasets}
+                            load={this.loadDatasetsAdd.bind(this)}
+                            loadDatasets={this.loadDatasetsList.bind(this)}
+                          />
+                        </div>
+                      </header>
+                      <div className='card-content'>
+                        <div className='columns'>
+                          <div className='column'>
+                            <BranchedPaginatedTable
+                              branchName='datasets'
+                              baseUrl='/admin/datasets/'
+                              columns={this.getColumns()}
+                              filters={{project: project.uuid}}
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -186,4 +252,14 @@ class ProjectDetail extends Component {
   }
 }
 
-export default ProjectDetail
+ProjectDetail.contextTypes = {
+  tree: PropTypes.baobab
+}
+
+const BranchedProjectDetail = branch((props, context) => {
+  return {
+    data: 'datasets'
+  }
+}, ProjectDetail)
+
+export default BranchedProjectDetail

@@ -3,7 +3,7 @@ const {Project, DataSet} = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/:uuid/remove/dataset',
+  path: '/:uuid/add/dataset',
   handler: async function (ctx) {
     const projectId = ctx.params.uuid
     const datasetId = ctx.request.body.dataset
@@ -14,8 +14,7 @@ module.exports = new Route({
     const dataset = await DataSet.findOne({'uuid': datasetId})
     ctx.assert(dataset, 404, 'Dataset not found')
 
-    var pos = project.datasets.indexOf(dataset._id)
-    project.datasets.splice(pos, 1)
+    project.datasets.push(dataset)
     project.save()
 
     // dataset.projects.push(project)

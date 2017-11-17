@@ -48,7 +48,6 @@ module.exports = new Route({
         filters[filter] = ctx.request.query[filter]
       }
     }
-    console.log(filters)
 
     var datasets = await DataSet.dataTables({
       limit: ctx.request.query.limit || 20,
