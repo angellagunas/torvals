@@ -30,6 +30,9 @@ import SalesCenters from './pages/salesCenters/list'
 import SalesCenterDetail from './pages/salesCenters/detail'
 import DeletedSalesCenters from './pages/salesCenters/deleted-list'
 import RequestLogs from './pages/request-logs/list'
+import Products from './pages/products/list'
+import ProductDetail from './pages/products/detail'
+import DeletedProducts from './pages/products/deleted-list'
 
 const AppRouter = () => {
   return (<Router>
@@ -58,6 +61,9 @@ const AppRouter = () => {
         <PrivateRoute exact path='/salesCenters/detail/:uuid' component={SalesCenterDetail} />
         <PrivateRoute exact path='/salesCenters/deleted' component={DeletedSalesCenters} />
         <PrivateRoute exact path='/devtools/request-logs' component={RequestLogs} />
+        <PrivateRoute exact path='/products' component={Products} />
+        <PrivateRoute exact path='/products/detail/:uuid' component={ProductDetail} />
+        <PrivateRoute exact path='/products/deleted' component={DeletedProducts} />
       </div>
     </AdminLayout>
   </Router>)
