@@ -24,7 +24,7 @@ const schema = {
       enum: [],
       enumNames: []
     },
-    cost: {type: 'string', title: 'Cost'},
+    cost: {type: 'number', title: 'Cost'},
     description: {type: 'string', title: 'Description'}
 
   }
