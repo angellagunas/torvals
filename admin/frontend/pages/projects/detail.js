@@ -6,6 +6,7 @@ import PropTypes from 'baobab-react/prop-types'
 
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
+import CreateForecast from '../forecasts/create'
 import AddDataset from './add-dataset'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
@@ -16,7 +17,8 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      className: '',
+      datasetClassName: '',
+      forecastClassName: '',
       datasets: []
     }
   }
@@ -134,21 +136,39 @@ class ProjectDetail extends Component {
     ]
   }
 
-  showModal () {
+  showModalDataset () {
     this.setState({
-      className: ' is-active'
+      datasetClassName: ' is-active'
     })
   }
 
-  hideModal (e) {
+  hideModalDataset (e) {
     this.setState({
-      className: ''
+      datasetClassName: ''
     })
   }
 
-  finishUp (object) {
+  finishUpDataset (object) {
     this.setState({
-      className: ''
+      datasetClassName: ''
+    })
+  }
+
+  showModalForecast () {
+    this.setState({
+      forecastClassName: ' is-active'
+    })
+  }
+
+  hideModalForecast (e) {
+    this.setState({
+      forecastClassName: ''
+    })
+  }
+
+  finishUpForecast (object) {
+    this.setState({
+      forecastClassName: ''
     })
   }
 
@@ -213,18 +233,55 @@ class ProjectDetail extends Component {
                           Datasets
                         </p>
                         <div className='card-header-select'>
-                          <button className='button is-primary' onClick={() => this.showModal()}>
+                          <button className='button is-primary' onClick={() => this.showModalDataset()}>
                             Add Dataset
                           </button>
                           <AddDataset
-                            className={this.state.className}
-                            hideModal={this.hideModal.bind(this)}
-                            finishUp={this.finishUp.bind(this)}
+                            className={this.state.datasetClassName}
+                            hideModal={this.hideModalDataset.bind(this)}
+                            finishUp={this.finishUpDataset.bind(this)}
                             url={`/admin/projects/${project.uuid}/add/dataset`}
                             project={project}
                             datasets={this.state.datasets}
                             load={this.loadDatasetsAdd.bind(this)}
                             loadDatasets={this.loadDatasetsList.bind(this)}
+                          />
+                        </div>
+                      </header>
+                      <div className='card-content'>
+                        <div className='columns'>
+                          <div className='column'>
+                            <BranchedPaginatedTable
+                              branchName='datasets'
+                              baseUrl='/admin/datasets/'
+                              columns={this.getColumns()}
+                              filters={{project: project.uuid}}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='column'>
+                <div className='columns'>
+                  <div className='column'>
+                    <div className='card'>
+                      <header className='card-header'>
+                        <p className='card-header-title'>
+                          Forecasts
+                        </p>
+                        <div className='card-header-select'>
+                          <button className='button is-primary' onClick={() => this.showModalForecast()}>
+                            Create Forecast
+                          </button>
+                          <CreateForecast
+                            className={this.state.forecastClassName}
+                            hideModal={this.hideModalForecast.bind(this)}
+                            finishUp={this.finishUpForecast.bind(this)}
+                            url={`/admin/projects/${project.uuid}/add/forecast`}
+                            project={project}
                           />
                         </div>
                       </header>
