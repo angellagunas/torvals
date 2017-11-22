@@ -39,10 +39,10 @@ const task = new Task(async function (argv) {
 
     var res = await request(options)
 
-    if (res.status === 'done' && res.columns.length > 1) {
+    if (res.status === 'done' && res.headers.length > 1) {
       dataset.set({
         status: 'configuring',
-        columns: res.columns.map(item => {
+        columns: res.headers.map(item => {
           return {
             name: item,
             isDate: false,
