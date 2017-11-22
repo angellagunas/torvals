@@ -36,7 +36,7 @@ module.exports = new Route({
     }
 
     var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/config_pr/`,
+      url: `${apiData.hostname}${apiData.baseUrl}/configs_pr/`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,18 +66,15 @@ module.exports = new Route({
       json: true
     }
 
-    console.log(options)
     let forecast
 
     try {
-      // var res = await request(options)
-      // console.log(res)
       forecast = await Forecast.create({
         ...forecastData,
+        externalId: '',
         status: 'processing'
       })
     } catch (e) {
-      console.log(e)
       ctx.throw(401, 'Failed to create Forecast, check your internet connection')
     }
 
