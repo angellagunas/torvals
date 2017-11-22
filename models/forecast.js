@@ -58,4 +58,44 @@ forecastSchema.methods.format = function () {
   }
 }
 
+forecastSchema.methods.addProducts = async function (products) {
+  const {Product} = require('models')
+  for (var product of products) {
+    const productVerify = await Product.findOne({_id: product._id})
+    const posProduct = this.products.indexOf(product._id)
+
+    if (productVerify.name && posProduct < 0) {
+      this.products.push(productVerify._id)
+    } else if (!productVerify) {
+      const newProduct = await Product.create(product)
+      this.newProducts.push(newProduct._id)
+    } else {
+      return false
+    }
+  }
+  this.save()
+
+  return true
+}
+
+forecastSchema.methods.addSalesCenters = async function (salesCenters) {
+  const {SalesCenter} = require('models')
+  for (var salesCenter of salesCenters) {
+    const salesCenterVerify = await SalesCenter.findOne({_id: salesCenter._id})
+    const posSalesCenter = this.salesCenters.indexOf(salesCenter._id)
+
+    if (salesCenterVerify.name && posSalesCenter < 0) {
+      this.salesCenters.push(salesCenterVerify._id)
+    } else if (!salesCenterVerify) {
+      const newSalesCenter = await SalesCenter.create(salesCenter)
+      this.newSalesCenters.push(newSalesCenter._id)
+    } else {
+      return false
+    }
+  }
+  this.save()
+
+  return true
+}
+
 module.exports = mongoose.model('Forecast', forecastSchema)
