@@ -3,7 +3,8 @@ import api from '~base/api'
 
 import {
   BaseForm,
-  DateWidget
+  DateWidget,
+  SelectWidget
 } from '~base/components/base-form'
 
 const schema = {
@@ -11,17 +12,58 @@ const schema = {
   title: '',
   required: [
     'dateStart',
-    'dateEnd'
+    'dateEnd',
+    'frequency'
   ],
   properties: {
     dateStart: {type: 'string', title: 'Start date', format: 'date'},
-    dateEnd: {type: 'string', title: 'End date', format: 'date'}
+    dateEnd: {type: 'string', title: 'End date', format: 'date'},
+    frequency: {
+      type: 'string',
+      title: 'Frequency',
+      enum: ['B', 'D', 'W', 'M'],
+      enumNames: [
+        'Business day frequency',
+        'Calendar day frequency',
+        'Weekly frequency',
+        'Month end frequency'
+      ]
+    }
+    // holidays: {
+    //   type: 'array',
+    //   title: 'Holidays',
+    //   items: {
+    //     type: 'object',
+    //     properties: {
+    //       date: {
+    //         title: 'Date',
+    //         type: 'string',
+    //         format: 'date'
+    //       },
+    //       name: {
+    //         title: 'Name',
+    //         type: 'string'
+    //       }
+    //     }
+    //   }
+    // }
   }
 }
 
 const uiSchema = {
   dateStart: {'ui:widget': DateWidget},
-  dateEnd: {'ui:widget': DateWidget}
+  dateEnd: {'ui:widget': DateWidget},
+  frequency: {'ui:widget': SelectWidget}
+  // 'holidays': {
+  //   'additionalItems': {
+  //     date: {
+  //       'ui:widget': DateWidget
+  //     },
+  //     name: {
+  //       'ui:widget': TextWidget
+  //     }
+  //   }
+  // }
 }
 
 class ForecastForm extends Component {

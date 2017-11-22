@@ -22,9 +22,9 @@ class CreateForecast extends Component {
         hideModal={this.hideModal}
       >
         <ForecastForm
-          baseUrl={`/admin/projects/${this.props.project.uuid}/add/forecast`}
           url={this.props.url}
           finishUp={this.props.finishUp}
+          load={this.props.load}
           initialState={initialState}
 
         >

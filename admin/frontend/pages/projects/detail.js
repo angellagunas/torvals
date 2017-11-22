@@ -3,6 +3,7 @@ import api from '~base/api'
 import Link from '~base/router/link'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
+import moment from 'moment'
 
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
@@ -47,6 +48,25 @@ class ProjectDetail extends Component {
     })
 
     var cursor = this.context.tree.select('datasets')
+
+    cursor.set({
+      page: 1,
+      totalItems: body.total,
+      items: body.data,
+      pageLength: 10
+    })
+    this.context.tree.commit()
+  }
+
+  async loadForecasts () {
+    var url = '/admin/forecasts/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 10,
+      project: this.state.project.uuid
+    })
+
+    var cursor = this.context.tree.select('forecasts')
 
     cursor.set({
       page: 1,
@@ -130,6 +150,54 @@ class ProjectDetail extends Component {
                 </button>
               </div>
             </div>
+          )
+        }
+      }
+    ]
+  }
+
+  getColumnsForecasts () {
+    return [
+      {
+        'title': 'Date Created',
+        'property': 'dateCreated',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
+          )
+        }
+      },
+      {
+        'title': 'Start date',
+        'property': 'dateStart',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateStart).local().format('DD/MM/YYYY')
+          )
+        }
+      },
+      {
+        'title': 'End date',
+        'property': 'dateEnd',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateEnd).local().format('DD/MM/YYYY')
+          )
+        }
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          return (
+            <Link className='button' to={'/forecasts/detail/' + row.uuid}>
+              Detalle
+            </Link>
           )
         }
       }
@@ -281,7 +349,7 @@ class ProjectDetail extends Component {
                             hideModal={this.hideModalForecast.bind(this)}
                             finishUp={this.finishUpForecast.bind(this)}
                             url={`/admin/projects/${project.uuid}/add/forecast`}
-                            project={project}
+                            load={this.loadForecasts.bind(this)}
                           />
                         </div>
                       </header>
@@ -289,9 +357,9 @@ class ProjectDetail extends Component {
                         <div className='columns'>
                           <div className='column'>
                             <BranchedPaginatedTable
-                              branchName='datasets'
-                              baseUrl='/admin/datasets/'
-                              columns={this.getColumns()}
+                              branchName='forecasts'
+                              baseUrl='/admin/forecasts/'
+                              columns={this.getColumnsForecasts()}
                               filters={{project: project.uuid}}
                             />
                           </div>
