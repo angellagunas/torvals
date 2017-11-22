@@ -18,7 +18,7 @@ const forecastSchema = new Schema({
     name: { type: String },
     date: { type: Date }
   }],
-  frecuency: { type: String, enum: ['B', 'D', 'W', 'M'] },
+  frequency: { type: String, enum: ['B', 'D', 'W', 'M'] },
   status: {
     type: String,
     enum: ['created', 'processing', 'ready'],
