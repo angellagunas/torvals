@@ -3,9 +3,11 @@ import api from '~base/api'
 import Link from '~base/router/link'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
+import moment from 'moment'
 
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
+import CreateForecast from '../forecasts/create'
 import AddDataset from './add-dataset'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
@@ -16,7 +18,8 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      className: '',
+      datasetClassName: '',
+      forecastClassName: '',
       datasets: []
     }
   }
@@ -45,6 +48,25 @@ class ProjectDetail extends Component {
     })
 
     var cursor = this.context.tree.select('datasets')
+
+    cursor.set({
+      page: 1,
+      totalItems: body.total,
+      items: body.data,
+      pageLength: 10
+    })
+    this.context.tree.commit()
+  }
+
+  async loadForecasts () {
+    var url = '/admin/forecasts/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 10,
+      project: this.state.project.uuid
+    })
+
+    var cursor = this.context.tree.select('forecasts')
 
     cursor.set({
       page: 1,
@@ -134,21 +156,87 @@ class ProjectDetail extends Component {
     ]
   }
 
-  showModal () {
+  getColumnsForecasts () {
+    return [
+      {
+        'title': 'Date Created',
+        'property': 'dateCreated',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
+          )
+        }
+      },
+      {
+        'title': 'Start date',
+        'property': 'dateStart',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateStart).local().format('DD/MM/YYYY')
+          )
+        }
+      },
+      {
+        'title': 'End date',
+        'property': 'dateEnd',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateEnd).local().format('DD/MM/YYYY')
+          )
+        }
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          return (
+            <Link className='button' to={'/forecasts/detail/' + row.uuid}>
+              Detalle
+            </Link>
+          )
+        }
+      }
+    ]
+  }
+
+  showModalDataset () {
     this.setState({
-      className: ' is-active'
+      datasetClassName: ' is-active'
     })
   }
 
-  hideModal (e) {
+  hideModalDataset (e) {
     this.setState({
-      className: ''
+      datasetClassName: ''
     })
   }
 
-  finishUp (object) {
+  finishUpDataset (object) {
     this.setState({
-      className: ''
+      datasetClassName: ''
+    })
+  }
+
+  showModalForecast () {
+    this.setState({
+      forecastClassName: ' is-active'
+    })
+  }
+
+  hideModalForecast (e) {
+    this.setState({
+      forecastClassName: ''
+    })
+  }
+
+  finishUpForecast (object) {
+    this.setState({
+      forecastClassName: ''
     })
   }
 
@@ -213,13 +301,13 @@ class ProjectDetail extends Component {
                           Datasets
                         </p>
                         <div className='card-header-select'>
-                          <button className='button is-primary' onClick={() => this.showModal()}>
+                          <button className='button is-primary' onClick={() => this.showModalDataset()}>
                             Add Dataset
                           </button>
                           <AddDataset
-                            className={this.state.className}
-                            hideModal={this.hideModal.bind(this)}
-                            finishUp={this.finishUp.bind(this)}
+                            className={this.state.datasetClassName}
+                            hideModal={this.hideModalDataset.bind(this)}
+                            finishUp={this.finishUpDataset.bind(this)}
                             url={`/admin/projects/${project.uuid}/add/dataset`}
                             project={project}
                             datasets={this.state.datasets}
@@ -235,6 +323,43 @@ class ProjectDetail extends Component {
                               branchName='datasets'
                               baseUrl='/admin/datasets/'
                               columns={this.getColumns()}
+                              filters={{project: project.uuid}}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='column'>
+                <div className='columns'>
+                  <div className='column'>
+                    <div className='card'>
+                      <header className='card-header'>
+                        <p className='card-header-title'>
+                          Forecasts
+                        </p>
+                        <div className='card-header-select'>
+                          <button className='button is-primary' onClick={() => this.showModalForecast()}>
+                            Create Forecast
+                          </button>
+                          <CreateForecast
+                            className={this.state.forecastClassName}
+                            hideModal={this.hideModalForecast.bind(this)}
+                            finishUp={this.finishUpForecast.bind(this)}
+                            url={`/admin/projects/${project.uuid}/add/forecast`}
+                            load={this.loadForecasts.bind(this)}
+                          />
+                        </div>
+                      </header>
+                      <div className='card-content'>
+                        <div className='columns'>
+                          <div className='column'>
+                            <BranchedPaginatedTable
+                              branchName='forecasts'
+                              baseUrl='/admin/forecasts/'
+                              columns={this.getColumnsForecasts()}
                               filters={{project: project.uuid}}
                             />
                           </div>

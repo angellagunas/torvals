@@ -33,8 +33,7 @@ const forecastSchema = new Schema({
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false },
-  uploaded: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false }
 })
 
 forecastSchema.plugin(dataTables)
