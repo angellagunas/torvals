@@ -11,7 +11,7 @@ var initialState = {
 class CreateForecast extends Component {
   constructor (props) {
     super(props)
-    this.hideModal = this.props.hideModal.bind(this)
+    // this.hideModal = this.props.hideModal.bind(this)
   }
 
   render () {
