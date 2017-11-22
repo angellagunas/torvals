@@ -27,10 +27,6 @@ class ForecastForm extends Component {
     }
   }
 
-  componentWillMount () {
-
-  }
-
   errorHandler (e) {}
 
   handleChange (type, event) {
@@ -51,7 +47,7 @@ class ForecastForm extends Component {
   handleHolidaysValues (event) {
     event.preventDefault()
     if (!this.state.holidaysName && !this.state.holidaysDate) {
-
+      return false
     } else {
       this.setState({
         ...this.state.formData.holidays.push({
