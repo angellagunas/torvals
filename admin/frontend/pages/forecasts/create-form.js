@@ -58,8 +58,8 @@ class ForecastForm extends Component {
           name: this.state.holidaysName,
           date: this.state.holidaysDate
         }),
-        ...this.state.holidaysName = '',
-        ...this.state.holidaysDate = ''
+        holidaysName: '',
+        holidaysDate: ''
       })
     }
   }
@@ -71,22 +71,18 @@ class ForecastForm extends Component {
     } else {
       this.setState({
         ...this.state.formData.changePoints.push(this.state.changePointsDate),
-        ...this.state.changePointsDate = ''
+        changePointsDate: ''
       })
     }
   }
 
   async submitHandler (event) {
     event.preventDefault()
-    const formData = {
-      ...this.state.formData
-    }
+    const formData = this.state.formData
 
     formData.dateStart = this.state.dateStart
     formData.dateEnd = this.state.dateEnd
     formData.frequency = this.state.frequencyData.enum[this.state.frequency]
-
-    console.log(formData)
 
     const schema = {
       dateStart: lov.string().trim().required(),
@@ -104,8 +100,7 @@ class ForecastForm extends Component {
 
     if (result.error === null) {
       try {
-        // var response = await api.post(this.props.url, formData)
-        var response = await api.post('/admin/forecasts', formData)
+        var response = await api.post(this.props.url, formData)
         this.props.changeHandler(response.data)
       } catch (e) {
         return this.setState({
@@ -137,7 +132,7 @@ class ForecastForm extends Component {
         Error: {this.state.error}
       </div>
     }
-    // console.log(this.state)
+
     return (
       <div>
         <form onSubmit={(e) => { this.submitHandler(e) }}>
