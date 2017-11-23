@@ -7,6 +7,7 @@ module.exports = new Route({
   path: '/',
   handler: async function (ctx) {
     var filters = {}
+
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
@@ -24,9 +25,8 @@ module.exports = new Route({
 
       if (filter === 'project') {
         const project = await Project.findOne({'uuid': ctx.request.query[filter]})
-
         if (project) {
-          filters['_id'] = { $in: project.datasets }
+          filters['_id'] = { $in: project.datasets.map(item => { return item.dataset }) }
         }
 
         continue
@@ -36,7 +36,7 @@ module.exports = new Route({
         const project = await Project.findOne({'uuid': ctx.request.query[filter]})
 
         if (project) {
-          filters['_id'] = { $nin: project.datasets }
+          filters['_id'] = { $nin: project.datasets.map(item => { return item.dataset }) }
         }
 
         continue
