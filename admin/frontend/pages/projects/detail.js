@@ -159,15 +159,10 @@ class ProjectDetail extends Component {
   getColumnsForecasts () {
     return [
       {
-        'title': 'Date Created',
-        'property': 'dateCreated',
+        'title': 'Status',
+        'property': 'status',
         'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
-          )
-        }
+        'sortable': true
       },
       {
         'title': 'Start date',
@@ -194,11 +189,13 @@ class ProjectDetail extends Component {
       {
         'title': 'Actions',
         formatter: (row) => {
+          // if (row.status === 'done') {
           return (
             <Link className='button' to={'/forecasts/detail/' + row.uuid}>
               Detalle
             </Link>
           )
+          // }
         }
       }
     ]

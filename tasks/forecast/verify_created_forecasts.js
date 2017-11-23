@@ -4,16 +4,16 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { DataSet } = require('models')
+const { Forecast } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
-  console.log('Fetching procesing Datasets...')
+  console.log('Fetching created Forecasts...')
 
-  const datasets = await DataSet.find({status: 'processing'})
+  const forecasts = await Forecast.find({status: 'created'})
 
-  if (datasets.length === 0) {
-    console.log('No processing datasets to verify ...')
+  if (forecasts.length === 0) {
+    console.log('No created forecasts to verify ...')
 
     return true
   }
@@ -26,11 +26,11 @@ const task = new Task(async function (argv) {
     throw new Error('There is no API endpoint configured!')
   }
 
-  for (var dataset of datasets) {
-    console.log(`Verifying if ${dataset.name} dataset has finished processing ...`)
+  for (var forecast of forecasts) {
+    console.log(`Sending ${forecast.externalId} forecast for processing ...`)
     var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/datasets/${dataset.externalId}`,
-      method: 'GET',
+      url: `${apiData.hostname}${apiData.baseUrl}/run/forecasts/${forecast.externalId}`,
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -39,19 +39,20 @@ const task = new Task(async function (argv) {
       json: true
     }
 
+    console.log(options)
     var res = await request(options)
+    console.log(res)
 
-    if (res.status === 'ready') {
-      console.log(`${dataset.name} dataset has finished processing`)
-      dataset.set({
-        status: 'reviewing'
+    if (res.status === 'working') {
+      forecast.set({
+        status: 'processing'
       })
 
-      await dataset.save()
+      await forecast.save()
     }
   }
 
-  console.log(`Successfully verified ${datasets.length} datasets with status {processing}`)
+  console.log(`Successfully verified ${forecasts.length} forecasts with status {created}`)
   return true
 })
 

@@ -21,7 +21,7 @@ const forecastSchema = new Schema({
   frecuency: { type: String, enum: ['B', 'D', 'W', 'M'] },
   status: {
     type: String,
-    enum: ['created', 'processing', 'ready'],
+    enum: ['created', 'processing', 'done'],
     default: 'created'
   },
   changePoints: [{ type: Date }],
@@ -44,6 +44,8 @@ forecastSchema.methods.toPublic = function () {
     dateCreated: this.dateCreated,
     createdBy: this.createdBy,
     organization: this.organization,
+    dateStart: this.dateStart,
+    dateEnd: this.dateEnd,
     status: this.status
   }
 }
@@ -54,6 +56,8 @@ forecastSchema.methods.format = function () {
     dateCreated: this.dateCreated,
     createdBy: this.createdBy,
     organization: this.organization,
+    dateStart: this.dateStart,
+    dateEnd: this.dateEnd,
     status: this.status
   }
 }

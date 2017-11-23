@@ -4,16 +4,16 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { DataSet } = require('models')
+const { Forecast } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
-  console.log('Fetching procesing Datasets...')
+  console.log('Fetching processing Forecasts...')
 
-  const datasets = await DataSet.find({status: 'processing'})
+  const forecasts = await Forecast.find({status: 'processing'})
 
-  if (datasets.length === 0) {
-    console.log('No processing datasets to verify ...')
+  if (forecasts.length === 0) {
+    console.log('No processing forecasts to verify ...')
 
     return true
   }
@@ -26,10 +26,10 @@ const task = new Task(async function (argv) {
     throw new Error('There is no API endpoint configured!')
   }
 
-  for (var dataset of datasets) {
-    console.log(`Verifying if ${dataset.name} dataset has finished processing ...`)
+  for (var forecast of forecasts) {
+    console.log(`Verifying if ${forecast.externalId} forecast has finished processing ...`)
     var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/datasets/${dataset.externalId}`,
+      url: `${apiData.hostname}${apiData.baseUrl}/forecast?where={"config_pr":${forecast.externalId}}`,
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -39,19 +39,21 @@ const task = new Task(async function (argv) {
       json: true
     }
 
+    console.log(options)
     var res = await request(options)
+    console.log(res)
 
-    if (res.status === 'ready') {
-      console.log(`${dataset.name} dataset has finished processing`)
-      dataset.set({
-        status: 'reviewing'
+    if (res.status !== 'working') {
+      console.log(`${forecast.externalId} forecast has finished processing`)
+      forecast.set({
+        status: 'done'
       })
 
-      await dataset.save()
+      await forecast.save()
     }
   }
 
-  console.log(`Successfully verified ${datasets.length} datasets with status {processing}`)
+  console.log(`Successfully verified ${forecasts.length} forecasts with status {processing}`)
   return true
 })
 

@@ -69,10 +69,12 @@ module.exports = new Route({
     let forecast
 
     try {
+      var res = await request(options)
+      console.log(res)
       forecast = await Forecast.create({
         ...forecastData,
-        externalId: '',
-        status: 'processing'
+        externalId: res._id,
+        status: 'created'
       })
     } catch (e) {
       ctx.throw(401, 'Failed to create Forecast, check your internet connection')

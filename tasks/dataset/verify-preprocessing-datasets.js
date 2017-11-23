@@ -14,6 +14,8 @@ const task = new Task(async function (argv) {
 
   if (datasets.length === 0) {
     console.log('No preprocessing datasets to verify ...')
+
+    return true
   }
 
   console.log('Obtaining Abraxas API token ...')
@@ -40,6 +42,7 @@ const task = new Task(async function (argv) {
     var res = await request(options)
 
     if (res.status === 'done' && res.headers.length > 1) {
+      console.log(`${dataset.name} dataset has finished preprocessing`)
       dataset.set({
         status: 'configuring',
         columns: res.headers.map(item => {
