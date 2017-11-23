@@ -1,11 +1,17 @@
 import React, { Component } from 'react'
-import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import moment from 'moment'
+import FontAwesome from 'react-fontawesome'
 
-import { BaseTable } from '~base/components/base-table'
-// import GroupForm from './form'
+import {
+  BaseTable,
+  SimpleTable,
+  TableBody,
+  TableHeader,
+  TableData,
+  BodyRow
+} from '~base/components/base-table'
 
 class ForecastDetail extends Component {
   constructor (props) {
@@ -117,6 +123,78 @@ class ForecastDetail extends Component {
     ]
   }
 
+  getTable () {
+    let forecast = this.state.forecast
+    if (forecast.status === 'ready') {
+      return (
+        <div className='card'>
+          <header className='card-header'>
+            <p className='card-header-title'>
+              Forecast
+            </p>
+          </header>
+          <div className='card-content'>
+            <div className='columns'>
+              <div className='column'>
+                <BaseTable
+                  branchName='users'
+                  baseUrl='/admin/users'
+                  columns={this.getColumns()}
+                  data={
+                  [
+                    {
+                      columna: 'column a',
+                      columnb: 'column b',
+                      columnc: 'column c',
+                      columnd: 'column d',
+                      columne: 'column e',
+                      columnf: 'column f',
+                      columng: 'column g',
+                      columnh: 'column h',
+                      columni: 'column i',
+                      columnj: 'column j'
+                    }
+                  ]
+                  }
+                  filters={{group: this.props.match.params.uuid}}
+                 />
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className='card'>
+        <header className='card-header'>
+          <p className='card-header-title'>
+            Forecast created
+          </p>
+        </header>
+        <div className='card-content'>
+          <div className='message is-success'>
+            <div className='message-body is-large has-text-centered'>
+              <div className='columns'>
+                <div className='column'>
+                  <span className='icon is-large'>
+                    <FontAwesome className='fa-3x fa-spin' name='cog' />
+                  </span>
+                </div>
+              </div>
+              <div className='columns'>
+                <div className='column'>
+                  The predictions will appear shortly...
+                  They are being generated as we speak
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   render () {
     const { forecast } = this.state
 
@@ -130,37 +208,70 @@ class ForecastDetail extends Component {
           <div className='section'>
             <div className='columns'>
               <div className='column'>
+                {this.getTable()}
+              </div>
+              <div className='column'>
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Forecast | {moment.utc(forecast.dateStart).local().format('DD/MM/YYYY')} - {moment.utc(forecast.dateEnd).local().format('DD/MM/YYYY')}
+                      Forecast
                     </p>
                   </header>
                   <div className='card-content'>
                     <div className='columns'>
                       <div className='column'>
-                        <BaseTable
-                          branchName='users'
-                          baseUrl='/admin/users'
-                          columns={this.getColumns()}
-                          data={
-                          [
-                            {
-                              columna: 'column a',
-                              columnb: 'column b',
-                              columnc: 'column c',
-                              columnd: 'column d',
-                              columne: 'column e',
-                              columnf: 'column f',
-                              columng: 'column g',
-                              columnh: 'column h',
-                              columni: 'column i',
-                              columnj: 'column j'
-                            }
-                          ]
-                          }
-                          filters={{group: this.props.match.params.uuid}}
-                         />
+                        <SimpleTable>
+                          <TableBody>
+                            <BodyRow>
+                              <TableHeader>
+                                Status
+                              </TableHeader>
+                              <TableData>
+                                {forecast.status}
+                              </TableData>
+                            </BodyRow>
+                            <BodyRow>
+                              <TableHeader>
+                                Start Date
+                              </TableHeader>
+                              <TableData>
+                                {moment.utc(forecast.dateStart).local().format('DD/MM/YYYY')}
+                              </TableData>
+                            </BodyRow>
+                            <BodyRow>
+                              <TableHeader>
+                                End Date
+                              </TableHeader>
+                              <TableData>
+                                {moment.utc(forecast.dateStart).local().format('DD/MM/YYYY')}
+                              </TableData>
+                            </BodyRow>
+                            <BodyRow>
+                              <TableHeader>
+                                Created By
+                              </TableHeader>
+                              <TableData>
+                                {`${forecast.createdBy.name}`}
+                              </TableData>
+                            </BodyRow>
+                            <BodyRow>
+                              <TableHeader>
+                                External ID
+                              </TableHeader>
+                              <TableData>
+                                {forecast.externalId}
+                              </TableData>
+                            </BodyRow>
+                            <BodyRow>
+                              <TableHeader>
+                                Date Created
+                              </TableHeader>
+                              <TableData>
+                                {moment.utc(forecast.dateCreated).local().format('DD/MM/YYYY')}
+                              </TableData>
+                            </BodyRow>
+                          </TableBody>
+                        </SimpleTable>
                       </div>
                     </div>
                   </div>
