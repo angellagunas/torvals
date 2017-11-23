@@ -87,7 +87,7 @@ class ProjectDetail extends Component {
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/datasets/detail/' + row.uuid}>
+            <Link to={'/datasets/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -102,7 +102,7 @@ class ProjectDetail extends Component {
       {
         'title': 'Actions',
         formatter: (row) => {
-          return <Link className='button' to={'/datasets/detail/' + row.uuid}>
+          return <Link className='button' to={'/datasets/' + row.uuid}>
             Detalle
           </Link>
         }
