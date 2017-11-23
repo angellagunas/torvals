@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import Multiselect from '~base/components/base-multiselect'
 
 class SalesCenterDetail extends Component {
@@ -77,7 +76,7 @@ class SalesCenterDetail extends Component {
 
   async deleteOnClick () {
     var url = '/app/salesCenters/' + this.props.match.params.uuid
-    const body = await api.del(url)
+    await api.del(url)
     this.props.history.push('/salesCenters')
   }
 
@@ -171,4 +170,10 @@ class SalesCenterDetail extends Component {
   }
 }
 
-export default SalesCenterDetail
+export default Page({
+  path: '/salesCenter/detail/:uuid',
+  title: 'Sales center detail',
+  exact: true,
+  validate: loggedIn,
+  component: SalesCenterDetail
+})

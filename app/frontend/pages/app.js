@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import request from '~core/request'
 import { Redirect } from 'react-router-dom'
 import Loader from '~base/components/spinner'
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 
 class App extends Component {
   constructor (props) {
@@ -11,12 +12,8 @@ class App extends Component {
     }
   }
 
-  componentWillMount () {
-    
-  }
-
   render () {
-    const {loading, posts} = this.state
+    const {loading} = this.state
 
     if (loading) {
       return <div className='is-flex is-flex-1'><Loader /></div>
@@ -26,17 +23,22 @@ class App extends Component {
       return <Redirect to='/log-in' />
     }
 
-    
-
     return (
       <div className='App'>
         <div className='App-header'>
-          <h2></h2>
+          <h2 />
         </div>
-        
+
       </div>
     )
   }
 }
 
-export default App
+export default Page({
+  path: '/',
+  title: 'Dashboard',
+  icon: 'github',
+  exact: true,
+  validate: loggedIn,
+  component: App
+})

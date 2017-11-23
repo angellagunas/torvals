@@ -3,6 +3,8 @@ import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 class ReadyDataSets extends Component {
@@ -90,6 +92,13 @@ ReadyDataSets.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({readydatasets: 'readydatasets'}, ReadyDataSets)
+const branchedReadyDataSets = branch({readydatasets: 'readydatasets'}, ReadyDataSets)
 
-// export default DataSets;
+export default Page({
+  path: '/datasets/ready',
+  title: 'Ready',
+  icon: 'thumbs-up',
+  exact: true,
+  validate: loggedIn,
+  component: branchedReadyDataSets
+})

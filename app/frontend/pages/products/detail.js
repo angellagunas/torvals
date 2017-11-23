@@ -1,12 +1,10 @@
 import React, { Component } from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
-import Link from '~base/router/link'
 import api from '~base/api'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProductForm from './create-form'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 class ProductDetail extends Component {
   constructor (props) {
@@ -99,4 +97,10 @@ class ProductDetail extends Component {
   }
 }
 
-export default ProductDetail
+export default Page({
+  path: '/products/detail/:uuid',
+  title: 'Product detail',
+  exact: true,
+  validate: loggedIn,
+  component: ProductDetail
+})

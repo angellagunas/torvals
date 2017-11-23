@@ -3,6 +3,8 @@ import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateDataSet from './create'
 import BaseFilterPanel from '~base/components/base-filters'
@@ -227,6 +229,13 @@ DataSets.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({datasets: 'datasets'}, DataSets)
+const branchedDataSets = branch({datasets: 'datasets'}, DataSets)
 
-// export default DataSets;
+export default Page({
+  path: '/datasets',
+  title: 'Datasets',
+  icon: 'check',
+  exact: true,
+  validate: loggedIn,
+  component: branchedDataSets
+})
