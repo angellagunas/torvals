@@ -4,6 +4,7 @@ const lov = require('lov')
 const {Project, Forecast} = require('models')
 const Api = require('lib/abraxas/api')
 const request = require('lib/request')
+const moment = require('moment')
 
 module.exports = new Route({
   method: 'post',
@@ -20,8 +21,8 @@ module.exports = new Route({
     ctx.assert(project, 404, 'Project not found')
 
     const forecastData = {
-      dateStart: data.dateStart,
-      dateEnd: data.dateEnd,
+      dateStart: moment.utc(data.dateStart),
+      dateEnd: moment.utc(data.dateEnd),
       frequency: data.frequency,
       holidays: data.holidays,
       changePoints: data.changePoints,
@@ -57,8 +58,8 @@ module.exports = new Route({
           }
         }),
         columns_for_forecast: ['date', 'analysis'],
-        forecast_start: forecastData.dateStart,
-        forecast_end: forecastData.dateEnd,
+        forecast_start: forecastData.dateStart.format('YYYY-MM-DD'),
+        forecast_end: forecastData.dateEnd.format('YYYY-MM-DD'),
         frequency: forecastData.frequency,
         holidays: forecastData.holidays,
         change_points: forecastData.changePoints

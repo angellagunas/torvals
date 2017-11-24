@@ -52,18 +52,18 @@ class ForecastForm extends Component {
 
   handleHolidaysValues (event) {
     event.preventDefault()
-    if (!this.state.holidaysName && !this.state.holidaysDate) {
+    if (!this.state.holidaysName || !this.state.holidaysDate) {
       return false
-    } else {
-      this.setState({
-        ...this.state.formData.holidays.push({
-          name: this.state.holidaysName,
-          date: this.state.holidaysDate
-        }),
-        holidaysName: '',
-        holidaysDate: ''
-      })
     }
+
+    this.setState({
+      ...this.state.formData.holidays.push({
+        name: this.state.holidaysName,
+        date: this.state.holidaysDate
+      }),
+      holidaysName: '',
+      holidaysDate: ''
+    })
   }
 
   handleChangePointsValues (event) {
@@ -158,7 +158,7 @@ class ForecastForm extends Component {
           </div>
 
           <div className='field'>
-            <label className='label'>Frequency</label>
+            <label className='label'>Frequency*</label>
             <div className='control'>
               <div className='select'>
                 <select type='text' name='frequency' onChange={(e) => { this.handleChange('frequency', e) }}>

@@ -7,8 +7,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     const projectId = ctx.params.uuid
     const datasetId = ctx.request.body.dataset
-    const column = ctx.request.body.column
-    const name = ctx.request.body.name
+    const columns = ctx.request.body.columns
 
     const project = await Project.findOne({'uuid': projectId})
     ctx.assert(project, 404, 'Project not found')
@@ -18,8 +17,7 @@ module.exports = new Route({
 
     project.datasets.push({
       dataset: dataset,
-      name_dataset: column,
-      name_project: name
+      columns: columns
     })
 
     project.save()
