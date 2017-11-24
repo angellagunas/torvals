@@ -26,7 +26,7 @@ module.exports = new Route({
         const project = await Project.findOne({'uuid': ctx.request.query[filter]})
 
         if (project) {
-          filters['_id'] = { $in: project.datasets }
+          filters['_id'] = { $in: project.datasets.map(item => { return item.dataset }) }
         }
 
         continue
@@ -36,7 +36,7 @@ module.exports = new Route({
         const project = await Project.findOne({'uuid': ctx.request.query[filter]})
 
         if (project) {
-          filters['_id'] = { $nin: project.datasets }
+          filters['_id'] = { $nin: project.datasets.map(item => { return item.dataset }) }
         }
 
         continue
