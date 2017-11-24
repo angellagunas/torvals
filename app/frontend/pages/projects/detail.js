@@ -111,7 +111,7 @@ class ProjectDetail extends Component {
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/datasets/detail/' + row.uuid}>
+            <Link to={'/datasets/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -127,7 +127,7 @@ class ProjectDetail extends Component {
         'title': 'Actions',
         formatter: (row) => {
           return (
-            <Link className='button' to={'/datasets/detail/' + row.uuid}>
+            <Link className='button' to={'/datasets/' + row.uuid}>
                   Detalle
                 </Link>
           )
@@ -170,7 +170,7 @@ class ProjectDetail extends Component {
         'title': 'Actions',
         formatter: (row) => {
           return (
-            <Link className='button' to={'/forecasts/detail/' + row.uuid}>
+            <Link className='button' to={'/forecasts/' + row.uuid}>
               Detalle
             </Link>
           )
@@ -213,7 +213,7 @@ class ProjectDetail extends Component {
     this.setState({
       forecastClassName: ''
     })
-    this.props.history.push('/forecasts/detail/' + object.uuid)
+    this.props.history.push('/forecasts/' + object.uuid)
   }
 
   render () {

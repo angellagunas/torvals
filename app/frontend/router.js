@@ -119,7 +119,7 @@ const AppRouter = () => {
         />
         <PrivateRoleRoute
           exact
-          path='/forecasts/detail/:uuid'
+          path='/forecasts/:uuid'
           component={ForecastDetail}
           roles='supervisor, analista, admin-organizacion, admin'
         />

@@ -3,7 +3,8 @@ import api from '~base/api'
 
 import {
   BaseForm,
-  SelectWidget
+  SelectWidget,
+  TextWidget
 } from '~base/components/base-form'
 
 class DatasetForm extends Component {
@@ -13,13 +14,33 @@ class DatasetForm extends Component {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      datasets: []
+      datasets: [],
+      columns: [],
+      disabledControls: true
     }
   }
 
   errorHandler (e) {}
 
   changeHandler ({formData}) {
+    if (formData.dataset) {
+      var posDataset = this.props.datasets.findIndex(e => {
+        return (
+        String(e.uuid) === String(formData.dataset)
+        )
+      })
+
+      this.setState({
+        columns: this.props.datasets[posDataset].columns,
+        disabledControls: false
+      })
+    } else {
+      this.setState({
+        columns: [ ],
+        disabledControls: true
+      })
+    }
+
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
@@ -86,18 +107,35 @@ class DatasetForm extends Component {
           title: 'Select dataset to add',
           enum: [],
           enumNames: []
+        },
+        column: {
+          type: 'string',
+          title: 'Select a column',
+          enum: [],
+          enumNames: []
+        },
+        name: {
+          type: 'string',
+          title: 'Name'
         }
       }
     }
 
     const uiSchema = {
-      dataset: {'ui:widget': SelectWidget}
+      dataset: {'ui:widget': SelectWidget},
+      column: {'ui:widget': SelectWidget, 'ui:disabled': this.state.disabledControls},
+      name: {'ui:widget': TextWidget, 'ui:disabled': this.state.disabledControls}
     }
 
     let datasets = schema.properties.dataset
 
     datasets.enum = this.props.datasets.map(item => { return item.uuid })
     datasets.enumNames = this.props.datasets.map(item => { return item.name })
+
+    let columns = schema.properties.column
+
+    columns.enum = this.state.columns.map(item => { return item.name })
+    columns.enumNames = this.state.columns.map(item => { return item.name })
 
     return (
       <div>

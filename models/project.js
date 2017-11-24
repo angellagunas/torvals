@@ -7,7 +7,11 @@ const moment = require('moment')
 const projectSchema = new Schema({
   name: { type: String, required: true },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
-  datasets: [{ type: Schema.Types.ObjectId, ref: 'DataSet' }],
+  datasets: [{
+    dataset: { type: Schema.Types.ObjectId, ref: 'DataSet' },
+    name_dataset: { type: String },
+    name_project: { type: String }
+  }],
   description: { type: String },
   businessRules: Schema.Types.Mixed,
 
