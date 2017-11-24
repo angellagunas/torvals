@@ -202,7 +202,7 @@ class ConfigureDatasetForm extends Component {
           {
           this.state.formData.columns.map((item, key) => {
             return (
-              <div className='field is-horizontal'>
+              <div className='field is-horizontal' key={key}>
                 <div className='field-label is-normal'>
                   <label className='label'>{item.name}</label>
                 </div>

@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
-import Link from '~base/router/link'
 import api from '~base/api'
+import Link from '~base/router/link'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
+import moment from 'moment'
 
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
+import CreateForecast from '../forecasts/create'
 import AddDataset from './add-dataset'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
@@ -15,7 +17,10 @@ class ProjectDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      project: {}
+      project: {},
+      datasetClassName: '',
+      forecastClassName: '',
+      datasets: []
     }
   }
 
@@ -53,6 +58,25 @@ class ProjectDetail extends Component {
     this.context.tree.commit()
   }
 
+  async loadForecasts () {
+    var url = '/app/forecasts/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 10,
+      project: this.state.project.uuid
+    })
+
+    var cursor = this.context.tree.select('forecasts')
+
+    cursor.set({
+      page: 1,
+      totalItems: body.total,
+      items: body.data,
+      pageLength: 10
+    })
+    this.context.tree.commit()
+  }
+
   async loadDatasetsAdd () {
     let { project } = this.state
     const body = await api.get(
@@ -75,7 +99,7 @@ class ProjectDetail extends Component {
   async deleteOnClick () {
     var url = '/app/projects/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/app/projects')
+    this.props.history.push('/projects')
   }
 
   getColumns () {
@@ -102,30 +126,94 @@ class ProjectDetail extends Component {
       {
         'title': 'Actions',
         formatter: (row) => {
-          return <Link className='button' to={'/datasets/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button' to={'/datasets/' + row.uuid}>
+                  Detalle
+                </Link>
+          )
         }
       }
     ]
   }
 
-  showModal () {
+  getColumnsForecasts () {
+    return [
+      {
+        'title': 'Status',
+        'property': 'status',
+        'default': 'N/A',
+        'sortable': true
+      },
+      {
+        'title': 'Start date',
+        'property': 'dateStart',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateStart).local().format('DD/MM/YYYY')
+          )
+        }
+      },
+      {
+        'title': 'End date',
+        'property': 'dateEnd',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateEnd).local().format('DD/MM/YYYY')
+          )
+        }
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          return (
+            <Link className='button' to={'/forecasts/' + row.uuid}>
+              Detalle
+            </Link>
+          )
+        }
+      }
+    ]
+  }
+
+  showModalDataset () {
     this.setState({
-      className: ' is-active'
+      datasetClassName: ' is-active'
     })
   }
 
-  hideModal (e) {
+  hideModalDataset (e) {
     this.setState({
-      className: ''
+      datasetClassName: ''
     })
   }
 
-  finishUp (object) {
+  finishUpDataset (object) {
     this.setState({
-      className: ''
+      datasetClassName: ''
     })
+  }
+
+  showModalForecast () {
+    this.setState({
+      forecastClassName: ' is-active'
+    })
+  }
+
+  hideModalForecast (e) {
+    this.setState({
+      forecastClassName: ''
+    })
+  }
+
+  finishUpForecast (object) {
+    this.setState({
+      forecastClassName: ''
+    })
+    this.props.history.push('/forecasts/' + object.uuid)
   }
 
   render () {
@@ -147,9 +235,9 @@ class ProjectDetail extends Component {
                       className='button is-danger'
                       type='button'
                       onClick={() => this.deleteOnClick()}
-                        >
-                          Delete
-                        </button>
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </div>
@@ -168,7 +256,7 @@ class ProjectDetail extends Component {
                         <ProjectForm
                           baseUrl='/app/projects'
                           url={'/app/projects/' + this.props.match.params.uuid}
-                          initialState={project}
+                          initialState={{...project, organization: project.organization.uuid}}
                           load={this.load.bind(this)}
                         >
                           <div className='field is-grouped'>
@@ -189,13 +277,13 @@ class ProjectDetail extends Component {
                           Datasets
                         </p>
                         <div className='card-header-select'>
-                          <button className='button is-primary' onClick={() => this.showModal()}>
+                          <button className='button is-primary' onClick={() => this.showModalDataset()}>
                             Add Dataset
                           </button>
                           <AddDataset
-                            className={this.state.className}
-                            hideModal={this.hideModal.bind(this)}
-                            finishUp={this.finishUp.bind(this)}
+                            className={this.state.datasetClassName}
+                            hideModal={this.hideModalDataset.bind(this)}
+                            finishUp={this.finishUpDataset.bind(this)}
                             url={`/app/projects/${project.uuid}/add/dataset`}
                             project={project}
                             datasets={this.state.datasets}
@@ -209,8 +297,45 @@ class ProjectDetail extends Component {
                           <div className='column'>
                             <BranchedPaginatedTable
                               branchName='datasets'
-                              baseUrl='/app/datasets'
+                              baseUrl='/app/datasets/'
                               columns={this.getColumns()}
+                              filters={{project: project.uuid}}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='column'>
+                <div className='columns'>
+                  <div className='column'>
+                    <div className='card'>
+                      <header className='card-header'>
+                        <p className='card-header-title'>
+                          Forecasts
+                        </p>
+                        <div className='card-header-select'>
+                          <button className='button is-primary' onClick={() => this.showModalForecast()}>
+                            Create Forecast
+                          </button>
+                          <CreateForecast
+                            className={this.state.forecastClassName}
+                            hideModal={this.hideModalForecast.bind(this)}
+                            finishUp={this.finishUpForecast.bind(this)}
+                            url={`/app/projects/${project.uuid}/add/forecast`}
+                            load={this.loadForecasts.bind(this)}
+                          />
+                        </div>
+                      </header>
+                      <div className='card-content'>
+                        <div className='columns'>
+                          <div className='column'>
+                            <BranchedPaginatedTable
+                              branchName='forecasts'
+                              baseUrl='/app/forecasts/'
+                              columns={this.getColumnsForecasts()}
                               filters={{project: project.uuid}}
                             />
                           </div>
