@@ -260,7 +260,7 @@ class ForecastDetail extends Component {
                                 Start Date
                               </TableHeader>
                               <TableData>
-                                {moment.utc(forecast.dateStart).local().format('DD/MM/YYYY')}
+                                {moment.utc(forecast.dateStart).format('DD/MM/YYYY')}
                               </TableData>
                             </BodyRow>
                             <BodyRow>
@@ -268,7 +268,7 @@ class ForecastDetail extends Component {
                                 End Date
                               </TableHeader>
                               <TableData>
-                                {moment.utc(forecast.dateStart).local().format('DD/MM/YYYY')}
+                                {moment.utc(forecast.dateEnd).format('DD/MM/YYYY')}
                               </TableData>
                             </BodyRow>
                             <BodyRow>
@@ -293,7 +293,7 @@ class ForecastDetail extends Component {
                               </TableHeader>
                               <TableData>
                                 {forecast.holidays.map((item) => {
-                                  return `${item.name} (${moment.utc(item.date).local().format('DD/MM/YYYY')})`
+                                  return `${item.name} (${moment.utc(item.date).format('DD/MM/YYYY')})`
                                 }).join(', ')}
                               </TableData>
                             </BodyRow>
@@ -303,7 +303,7 @@ class ForecastDetail extends Component {
                               </TableHeader>
                               <TableData>
                                 {forecast.changePoints.map((item) => {
-                                  return `${moment.utc(item).local().format('DD/MM/YYYY')}`
+                                  return `${moment.utc(item).format('DD/MM/YYYY')}`
                                 }).join(', ')}
                               </TableData>
                             </BodyRow>
@@ -328,7 +328,7 @@ class ForecastDetail extends Component {
                                 Date Created
                               </TableHeader>
                               <TableData>
-                                {moment.utc(forecast.dateCreated).local().format('DD/MM/YYYY')}
+                                {moment.utc(forecast.dateCreated).format('DD/MM/YYYY')}
                               </TableData>
                             </BodyRow>
                           </TableBody>

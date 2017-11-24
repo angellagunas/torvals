@@ -1,49 +1,69 @@
 import React, { Component } from 'react'
 import api from '~base/api'
-
-import {
-  BaseForm,
-  SelectWidget,
-  TextWidget
-} from '~base/components/base-form'
+import shortid from 'shortid'
 
 class DatasetForm extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      formData: this.props.initialState,
+      formData: {
+        dataset: {},
+        columns: []
+      },
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
       datasets: [],
-      columns: [],
-      disabledControls: true
+      disabledControls: true,
+      newName: '',
+      oldName: '',
+      dataset: {
+        columns: []
+      }
     }
   }
 
   errorHandler (e) {}
 
-  changeHandler ({formData}) {
-    if (formData.dataset) {
+  handleChange (type, event) {
+    const data = {
+      apiCallMessage: 'is-hidden',
+      apiCallErrorMessage: 'is-hidden'
+    }
+
+    data[type] = event.currentTarget.value
+
+    if (type === 'dataset') {
       var posDataset = this.props.datasets.findIndex(e => {
         return (
-        String(e.uuid) === String(formData.dataset)
+        String(e.uuid) === String(data[type])
         )
       })
 
-      this.setState({
-        columns: this.props.datasets[posDataset].columns,
-        disabledControls: false
-      })
-    } else {
-      this.setState({
-        columns: [ ],
-        disabledControls: true
-      })
+      data[type] = this.props.datasets[posDataset]
+      data['disabledControls'] = false
     }
+
+    this.setState(data)
+  }
+
+  handleColumnNames (event) {
+    event.preventDefault()
+    if (!this.state.newName || !this.state.oldName) {
+      return false
+    }
+
+    var auxColumns = this.state.formData.columns
+    auxColumns.push({
+      name_dataset: this.state.oldName,
+      name_project: this.state.newName
+    })
+
     this.setState({
-      formData,
-      apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+      formData: {
+        columns: auxColumns
+      },
+      oldName: '',
+      newName: ''
     })
   }
 
@@ -51,11 +71,19 @@ class DatasetForm extends Component {
     this.setState({
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      formData: this.props.initialState
+      formData: {
+        dataset: {},
+        columns: []
+      }
     })
   }
 
-  async submitHandler ({formData}) {
+  async submitHandler (event) {
+    event.preventDefault()
+    let {dataset, formData} = this.state
+
+    formData.dataset = dataset.uuid
+
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {
@@ -79,13 +107,6 @@ class DatasetForm extends Component {
   }
 
   render () {
-    var error
-    if (this.state.error) {
-      error = <div>
-        Error: {this.state.error}
-      </div>
-    }
-
     if (this.props.datasets.length === 0) {
       return (
         <div>
@@ -94,70 +115,126 @@ class DatasetForm extends Component {
       )
     }
 
-    const schema = {
-      type: 'object',
-      title: '',
-      required: [
-        'dataset'
-      ],
-      properties: {
-        dataset: {
-          type: 'string',
-          title: 'Select dataset to add',
-          enum: [],
-          enumNames: []
-        },
-        column: {
-          type: 'string',
-          title: 'Select a column',
-          enum: [],
-          enumNames: []
-        },
-        name: {
-          type: 'string',
-          title: 'Name'
-        }
-      }
-    }
-
-    const uiSchema = {
-      dataset: {'ui:widget': SelectWidget},
-      column: {'ui:widget': SelectWidget, 'ui:disabled': this.state.disabledControls},
-      name: {'ui:widget': TextWidget, 'ui:disabled': this.state.disabledControls}
-    }
-
-    let datasets = schema.properties.dataset
-
-    datasets.enum = this.props.datasets.map(item => { return item.uuid })
-    datasets.enumNames = this.props.datasets.map(item => { return item.name })
-
-    let columns = schema.properties.column
-
-    columns.enum = this.state.columns.map(item => { return item.name })
-    columns.enumNames = this.state.columns.map(item => { return item.name })
-
     return (
       <div>
-        <BaseForm schema={schema}
-          uiSchema={uiSchema}
-          formData={this.state.formData}
-          onChange={(e) => { this.changeHandler(e) }}
-          onSubmit={(e) => { this.submitHandler(e) }}
-          onError={(e) => { this.errorHandler(e) }}
-        >
-          <div className={this.state.apiCallMessage}>
-            <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+        <form onSubmit={(e) => { this.submitHandler(e) }}>
+          <div className='field'>
+            <label className='label'>Select dataset to add*</label>
+            <div className='control'>
+              <div className='select'>
+                <select
+                  type='text'
+                  name='dataset'
+                  onChange={(e) => { this.handleChange('dataset', e) }}
+                >
+                  <option value=''>Select an option</option>
+                  {
+                    this.props.datasets.map(function (item) {
+                      return <option key={item.uuid}
+                        value={item.uuid}>{item.name}</option>
+                    })
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className='field'>
+            <label className='label'>Columns</label>
+          </div>
+          <div className='field is-horizontal'>
+            <div className='field-body'>
+              <div className='field'>
+                <div className='control'>
+                  <div className='select'>
+                    <select
+                      type='text'
+                      name='oldName'
+                      value={this.state.oldName}
+                      onChange={(e) => { this.handleChange('oldName', e) }}
+                      readOnly={this.state.disabledControls}
+                      disabled={this.state.disabledControls}
+                    >
+                      <option value=''>Select an option</option>
+                      {
+                        this.state.dataset.columns.map(function (item) {
+                          return <option key={shortid.generate()}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className='field'>
+                <p className='control is-expanded'>
+                  <input
+                    className='input'
+                    type='text'
+                    value={this.state.newName}
+                    onChange={(e) => { this.handleChange('newName', e) }}
+                    readOnly={this.state.disabledControls}
+                    disabled={this.state.disabledControls}
+                  />
+                </p>
+              </div>
+              <div className='field'>
+                <p className='control is-expanded'>
+                  <button
+                    className='button is-primary'
+                    onClick={(e) => this.handleColumnNames(e)}
+                    type='button'
+                    disabled={this.state.disabledControls}
+                  >
+                    Add
+                  </button>
+                </p>
+              </div>
             </div>
           </div>
 
+          <table className='table is-fullwidth'>
+            <thead>
+              <tr>
+                <th>Dataset Name</th>
+                <th>Project Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.formData.columns.length === 0 ? (
+                <tr>
+                  <td colSpan='3'>No rows to show</td>
+                </tr>
+                ) : (
+                  this.state.formData.columns.map(function (item) {
+                    return (
+                      <tr key={shortid.generate()}>
+                        <td>{item.name_dataset}</td>
+                        <td>{item.name_project}</td>
+                      </tr>
+                    )
+                  })
+
+                )}
+            </tbody>
+          </table>
+
+          <div className={this.state.apiCallMessage}>
+            <div className='message-body is-size-7 has-text-centered'>
+            The dataSet has been added successfuly
+          </div>
+          </div>
           <div className={this.state.apiCallErrorMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              {error}
+              {this.state.error}
             </div>
           </div>
-          {this.props.children}
-        </BaseForm>
+
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button className='button is-primary' type='submit'>Save</button>
+            </div>
+          </div>
+        </form>
       </div>
     )
   }
