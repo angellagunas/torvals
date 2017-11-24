@@ -189,13 +189,11 @@ class ProjectDetail extends Component {
       {
         'title': 'Actions',
         formatter: (row) => {
-          // if (row.status === 'done') {
           return (
             <Link className='button' to={'/forecasts/detail/' + row.uuid}>
               Detalle
             </Link>
           )
-          // }
         }
       }
     ]
