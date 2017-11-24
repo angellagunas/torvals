@@ -16,7 +16,7 @@ module.exports = new Route({
     const projectId = ctx.params.uuid
     var data = ctx.request.body
 
-    const project = await Project.findOne({'uuid': projectId}).populate('datasets')
+    const project = await Project.findOne({'uuid': projectId}).populate('datasets.dataset')
     ctx.assert(project, 404, 'Project not found')
 
     const forecastData = {
@@ -49,10 +49,10 @@ module.exports = new Route({
         project_id: project.uuid,
         datasets: forecastData.datasets.map(item => {
           return {
-            _id: item.externalId,
+            _id: item.dataset.externalId,
             columns: {
-              name_dataset: 'Holi',
-              name_project: 'Holi'
+              'name dataset': item.name_dataset,
+              'name project': item.name_project
             }
           }
         }),
@@ -60,10 +60,8 @@ module.exports = new Route({
         forecast_start: forecastData.dateStart,
         forecast_end: forecastData.dateEnd,
         frequency: forecastData.frequency,
-        holidays: [
-          {date: '2017-12-02', name: 'Test holiday'}
-        ],
-        change_points: []
+        holidays: forecastData.holidays,
+        change_points: forecastData.changePoints
       },
       json: true
     }
