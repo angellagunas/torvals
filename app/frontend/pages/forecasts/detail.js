@@ -29,7 +29,7 @@ class ForecastDetail extends Component {
   }
 
   async load () {
-    var url = '/admin/forecasts/' + this.props.match.params.uuid
+    var url = '/app/forecasts/' + this.props.match.params.uuid
     const body = await api.get(url)
 
     this.setState({
@@ -40,7 +40,7 @@ class ForecastDetail extends Component {
   }
 
   async loadPredictions () {
-    var url = '/admin/predictions/' + this.props.match.params.uuid
+    var url = '/app/predictions/' + this.props.match.params.uuid
     const body = await api.get(url)
 
     this.setState({
@@ -48,12 +48,6 @@ class ForecastDetail extends Component {
       loaded: true,
       predictions: body.data
     })
-  }
-
-  async deleteOnClick () {
-    var url = '/admin/forecasts/' + this.props.match.params.uuid
-    await api.del(url)
-    this.props.history.push(`/admin/projects/detail/${this.state.forecast.project.uuid}`)
   }
 
   getColumns () {
@@ -148,7 +142,7 @@ class ForecastDetail extends Component {
               <div className='column'>
                 <BaseTable
                   branchName='predictions'
-                  baseUrl='/admin/predictions'
+                  baseUrl='/app/predictions'
                   columns={this.getColumns()}
                   data={
                   [
@@ -216,21 +210,6 @@ class ForecastDetail extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section'>
-            <div className='columns'>
-              <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
             <div className='columns'>
               <div className='column'>
                 {this.getTable()}

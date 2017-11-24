@@ -46,6 +46,10 @@ forecastSchema.methods.toPublic = function () {
     organization: this.organization,
     dateStart: this.dateStart,
     dateEnd: this.dateEnd,
+    holidays: this.holidays,
+    changePoints: this.changePoints,
+    frequency: this.frequency,
+    project: this.project,
     status: this.status
   }
 }
@@ -58,6 +62,10 @@ forecastSchema.methods.format = function () {
     organization: this.organization,
     dateStart: this.dateStart,
     dateEnd: this.dateEnd,
+    holidays: this.holidays,
+    changePoints: this.changePoints,
+    frequency: this.frequency,
+    project: this.project,
     status: this.status
   }
 }

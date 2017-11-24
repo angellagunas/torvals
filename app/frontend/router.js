@@ -27,6 +27,7 @@ import SalesCenters from './pages/salesCenters/list'
 import SalesCenterDetail from './pages/salesCenters/detail'
 import Products from './pages/products/list'
 import ProductsDetail from './pages/products/detail'
+import ForecastDetail from './pages/forecasts/detail'
 
 const AppRouter = () => {
   return (<Router>
@@ -114,6 +115,12 @@ const AppRouter = () => {
           exact
           path='/products/:uuid'
           component={ProductsDetail}
+          roles='supervisor, analista, admin-organizacion, admin'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/forecasts/detail/:uuid'
+          component={ForecastDetail}
           roles='supervisor, analista, admin-organizacion, admin'
         />
       </div>

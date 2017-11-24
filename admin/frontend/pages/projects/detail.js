@@ -235,6 +235,7 @@ class ProjectDetail extends Component {
     this.setState({
       forecastClassName: ''
     })
+    this.props.history.push('/admin/forecasts/detail/' + object.uuid)
   }
 
   render () {
