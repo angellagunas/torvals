@@ -88,7 +88,9 @@ userSchema.methods.toPublic = function () {
     organizations: this.organizations,
     validEmail: this.validEmail,
     groups: this.groups,
-    profileUrl: this.profileUrl
+    profileUrl: this.profileUrl,
+    validEmail: this.validEmail,
+    isAdmin: this.isAdmin
   }
 }
 
