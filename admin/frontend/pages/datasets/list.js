@@ -2,16 +2,77 @@ import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
+import api from '~base/api'
 
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateDataSet from './create'
+import BaseFilterPanel from '~base/components/base-filters'
+import FontAwesome from 'react-fontawesome'
+
+const schema = {
+  type: 'object',
+  required: [],
+  properties: {
+    name: {type: 'text', title: 'Por nombre'},
+    organization: {type: 'text', title: 'Por organización'},
+    status: {
+      type: 'text',
+      title: 'Por status',
+      values: [
+        {
+          name: 'new',
+          uuid: 'new'
+        },
+        {
+          name: 'uploading',
+          uuid: 'uploading'
+        },
+        {
+          name: 'uploaded',
+          uuid: 'uploaded'
+        },
+        {
+          name: 'preprocessing',
+          uuid: 'preprocessing'
+        },
+        {
+          name: 'configuring',
+          uuid: 'configuring'
+        },
+        {
+          name: 'processing',
+          uuid: 'processing'
+        },
+        {
+          name: 'reviewing',
+          uuid: 'reviewing'
+        },
+        {
+          name: 'ready',
+          uuid: 'ready'
+        }
+      ]
+    }
+  }
+}
+
+const uiSchema = {
+  name: {'ui:widget': 'SearchFilter'},
+  organization: {'ui:widget': 'SelectSearchFilter'},
+  status: {'ui:widget': 'SelectSearchFilter'}
+}
 
 class DataSets extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      className: ''
+      className: '',
+      orgs: [],
+      filters: {}
     }
+
+    this.toggleFilterPanel = this.toggleFilterPanel.bind(this)
+    this.handleOnFilter = this.handleOnFilter.bind(this)
   }
 
   componentWillMount () {
@@ -22,6 +83,25 @@ class DataSets extends Component {
       pageLength: 10
     })
     this.context.tree.commit()
+    this.loadOrgs()
+  }
+
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      orgs: body.data
+    })
+
+    schema.properties.organization['values'] = body.data
   }
 
   getColumns () {
@@ -72,6 +152,21 @@ class DataSets extends Component {
     ]
   }
 
+  toggleFilterPanel (isFilterOpen) {
+    this.setState({isFilterOpen: !isFilterOpen})
+  }
+
+  handleOnFilter (formData) {
+    let filters = {}
+
+    for (var field in formData) {
+      if (formData[field]) {
+        filters[field] = formData[field]
+      }
+    }
+    this.setState({filters})
+  }
+
   showModal () {
     this.setState({
       className: ' is-active'
@@ -92,6 +187,35 @@ class DataSets extends Component {
   }
 
   render () {
+    let { isFilterOpen, filters } = this.state
+    let filterPanel
+
+    if (isFilterOpen) {
+      filterPanel = (
+        <div className='column is-narrow side-filters is-paddingless'>
+          <BaseFilterPanel
+            schema={schema}
+            uiSchema={uiSchema}
+            filters={filters}
+            onFilter={this.handleOnFilter}
+            onToggle={() => this.toggleFilterPanel(isFilterOpen)} />
+        </div>
+      )
+    }
+
+    if (!isFilterOpen) {
+      filterPanel = (<div className='searchbox'>
+        <a
+          href='javascript:void(0)'
+          className='card-header-icon has-text-white'
+          aria-label='more options'
+          onClick={() => this.toggleFilterPanel(isFilterOpen)}
+        >
+          <FontAwesome name='search' />
+        </a>
+      </div>)
+    }
+
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
@@ -123,14 +247,16 @@ class DataSets extends Component {
                     <BranchedPaginatedTable
                       branchName='datasets'
                       baseUrl='/admin/datasets'
+                      filters={this.state.filters}
                       columns={this.getColumns()}
-                       />
+                    />
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        { filterPanel }
       </div>
     )
   }
