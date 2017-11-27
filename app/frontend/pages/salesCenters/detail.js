@@ -78,7 +78,7 @@ class SalesCenterDetail extends Component {
   async deleteOnClick () {
     var url = '/app/salesCenters/' + this.props.match.params.uuid
     const body = await api.del(url)
-    this.props.history.push('/app/salesCenters')
+    this.props.history.push('/salesCenters')
   }
 
   compareArrays (first, second) {
