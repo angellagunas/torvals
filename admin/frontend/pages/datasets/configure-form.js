@@ -129,7 +129,6 @@ class ConfigureDatasetForm extends Component {
   }
 
   removeColumn (index) {
-    console.log(index)
     this.setState({
       ...this.state.formData.groupings.splice(index, 1)
     })
