@@ -128,6 +128,13 @@ class ConfigureDatasetForm extends Component {
     })
   }
 
+  removeColumn (index) {
+    console.log(index)
+    this.setState({
+      ...this.state.formData.groupings.splice(index, 1)
+    })
+  }
+
   render () {
     var error
     if (this.state.error) {
@@ -268,20 +275,30 @@ class ConfigureDatasetForm extends Component {
                 <th>Column</th>
                 <th>Value 1</th>
                 <th>Value 2</th>
+                <th />
               </tr>
             </thead>
             <tbody>
               {this.state.formData.groupings.length === 0 ? (
                 <tr>
-                  <td colSpan='3'>No rows to show</td>
+                  <td colSpan='3'>No groupings to show</td>
                 </tr>
                 ) : (
-                  this.state.formData.groupings.map(function (item, key) {
+                  this.state.formData.groupings.map((item, key) => {
                     return (
                       <tr key={key}>
                         <td>{item.column}</td>
                         <td>{item.inputValue}</td>
                         <td>{item.outputValue}</td>
+                        <td>
+                          <button
+                            className='button is-danger'
+                            type='button'
+                            onClick={() => this.removeColumn(key)}
+                          >
+                            <i className='fa fa-times' aria-hidden='true' />
+                          </button>
+                        </td>
                       </tr>
                     )
                   })

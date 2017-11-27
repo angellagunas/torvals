@@ -15,7 +15,7 @@ module.exports = new Route({
       .populate('fileChunk')
       .populate('organization')
 
-    ctx.assert(dataset, 404, 'DataSet not found')
+    ctx.assert(dataset, 404, 'DataSet not found ')
 
     ctx.body = {
       data: dataset.toPublic()
