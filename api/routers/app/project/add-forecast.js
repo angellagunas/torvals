@@ -51,10 +51,12 @@ module.exports = new Route({
         datasets: forecastData.datasets.map(item => {
           return {
             _id: item.dataset.externalId,
-            columns: {
-              'name dataset': item.name_dataset,
-              'name project': item.name_project
-            }
+            columns: item.columns.map(col => {
+              return {
+                'name_dataset': col.name_dataset,
+                'name_project': col.name_project
+              }
+            })
           }
         }),
         columns_for_forecast: ['date', 'analysis'],
