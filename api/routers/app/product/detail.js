@@ -10,7 +10,8 @@ module.exports = new Route({
 
     const product = await Product.findOne({
       'uuid': productId,
-      'isDeleted': false
+      'isDeleted': false,
+      'organization': ctx.state.organization._id
     }).populate('organization')
     ctx.assert(product, 404, 'Product not found')
 

@@ -52,7 +52,7 @@ module.exports = new Route({
     var datasets = await DataSet.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {...filters, isDeleted: false},
+      find: {...filters, isDeleted: false, organization: ctx.state.organization._id},
       sort: ctx.request.query.sort || '-dateCreated'
     })
 

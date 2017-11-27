@@ -7,7 +7,11 @@ module.exports = new Route({
   handler: async function (ctx) {
     var datasetId = ctx.params.uuid
 
-    const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
+    const dataset = await DataSet.findOne({
+      'uuid': datasetId,
+      'isDeleted': false,
+      'organization': ctx.state.organization._id
+    })
       .populate('fileChunk')
       .populate('organization')
 

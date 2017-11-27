@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const {Project, User} = require('models')
+const {Project} = require('models')
 
 module.exports = new Route({
   method: 'delete',

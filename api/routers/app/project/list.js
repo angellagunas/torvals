@@ -8,7 +8,7 @@ module.exports = new Route({
     var projects = await Project.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false},
+      find: {isDeleted: false, organization: ctx.state.organization._id},
       sort: ctx.request.query.sort || '-dateCreated',
       populate: 'organization'
     })

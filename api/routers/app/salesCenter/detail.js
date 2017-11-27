@@ -10,7 +10,9 @@ module.exports = new Route({
 
     const salesCenter = await SalesCenter.findOne({
       'uuid': salesCenterId,
-      'isDeleted': false})
+      'isDeleted': false,
+      'organization': ctx.state.organization._id
+    })
     .populate('organization')
     .populate('groups')
     ctx.assert(salesCenter, 404, 'SalesCenter not found')

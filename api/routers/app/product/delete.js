@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const {Product, User} = require('models')
+const {Product} = require('models')
 
 module.exports = new Route({
   method: 'delete',
