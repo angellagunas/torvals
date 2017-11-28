@@ -106,6 +106,13 @@ class DatasetForm extends Component {
     }
   }
 
+  removeColumn (index) {
+    console.log(index)
+    this.setState({
+      ...this.state.formData.columns.splice(index, 1)
+    })
+  }
+
   render () {
     if (this.props.datasets.length === 0) {
       return (
@@ -210,6 +217,15 @@ class DatasetForm extends Component {
                       <tr key={shortid.generate()}>
                         <td>{item.name_dataset}</td>
                         <td>{item.name_project}</td>
+                        <td>
+                          <button
+                            className='button is-danger'
+                            type='button'
+                            onClick={() => this.removeColumn(key)}
+                          >
+                            <i className='fa fa-times' aria-hidden='true' />
+                          </button>
+                        </td>
                       </tr>
                     )
                   })

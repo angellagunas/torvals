@@ -50,7 +50,19 @@ class Sidebar extends Component {
         title: 'DataSets',
         icon: 'file',
         to: '/datasets',
-        roles: 'supervisor, analista, admin-organizacion, admin'
+        roles: 'supervisor, analista, admin-organizacion, admin',
+        dropdown: [
+          {
+            title: 'Active',
+            icon: 'check',
+            to: '/datasets'
+          },
+          {
+            title: 'Ready',
+            icon: 'thumbs-up',
+            to: '/datasets/ready'
+          }
+        ]
       },
       {
 

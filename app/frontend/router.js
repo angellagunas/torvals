@@ -21,6 +21,7 @@ import EmailResetLanding from './pages/emails/reset'
 import ResetPassword from './pages/reset-password'
 import DataSets from './pages/datasets/list'
 import DataSetDetail from './pages/datasets/detail'
+import ReadyDataSets from './pages/datasets/list-ready'
 import Projects from './pages/projects/list'
 import ProjectDetail from './pages/projects/detail'
 import SalesCenters from './pages/salesCenters/list'
@@ -79,6 +80,12 @@ const AppRouter = () => {
           exact
           path='/datasets/:uuid'
           component={DataSetDetail}
+          roles='supervisor, analista, admin-organizacion, admin'
+        />
+        <PrivateRoleRoute
+          exact
+          path='/datasets/ready'
+          component={ReadyDataSets}
           roles='supervisor, analista, admin-organizacion, admin'
         />
         <PrivateRoleRoute
