@@ -51,7 +51,7 @@ module.exports = new Route({
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
-        filters[filter] = ctx.request.query[filter]
+        filters[filter] = { '$regex': ctx.request.query[filter], '$options': 'i' }
       }
     }
 

@@ -31,6 +31,12 @@ class DataSetDetail extends Component {
     this.context.tree.commit()
     this.load()
     this.loadOrgs()
+
+    this.interval = setInterval(() => this.load(), 30000)
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.interval)
   }
 
   async load () {

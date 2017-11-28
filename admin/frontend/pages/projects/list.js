@@ -3,16 +3,38 @@ import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 import moment from 'moment'
+import api from '~base/api'
 
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateProject from './create'
+import BaseFilterPanel from '~base/components/base-filters'
+import FontAwesome from 'react-fontawesome'
+
+const schema = {
+  type: 'object',
+  required: [],
+  properties: {
+    name: {type: 'text', title: 'Por nombre'},
+    organization: {type: 'text', title: 'Por organización'}
+  }
+}
+
+const uiSchema = {
+  name: {'ui:widget': 'SearchFilter'},
+  organization: {'ui:widget': 'SelectSearchFilter'}
+}
 
 class Projects extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      className: ''
+      className: '',
+      orgs: [],
+      filters: {}
     }
+
+    this.toggleFilterPanel = this.toggleFilterPanel.bind(this)
+    this.handleOnFilter = this.handleOnFilter.bind(this)
   }
 
   componentWillMount () {
@@ -23,6 +45,25 @@ class Projects extends Component {
       pageLength: 10
     })
     this.context.tree.commit()
+    this.loadOrgs()
+  }
+
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      orgs: body.data
+    })
+
+    schema.properties.organization['values'] = body.data
   }
 
   getColumns () {
@@ -78,6 +119,21 @@ class Projects extends Component {
     ]
   }
 
+  toggleFilterPanel (isFilterOpen) {
+    this.setState({isFilterOpen: !isFilterOpen})
+  }
+
+  handleOnFilter (formData) {
+    let filters = {}
+
+    for (var field in formData) {
+      if (formData[field]) {
+        filters[field] = formData[field]
+      }
+    }
+    this.setState({filters})
+  }
+
   showModal () {
     this.setState({
       className: ' is-active'
@@ -98,6 +154,35 @@ class Projects extends Component {
   }
 
   render () {
+    let { isFilterOpen, filters } = this.state
+    let filterPanel
+
+    if (isFilterOpen) {
+      filterPanel = (
+        <div className='column is-narrow side-filters is-paddingless'>
+          <BaseFilterPanel
+            schema={schema}
+            uiSchema={uiSchema}
+            filters={filters}
+            onFilter={this.handleOnFilter}
+            onToggle={() => this.toggleFilterPanel(isFilterOpen)} />
+        </div>
+      )
+    }
+
+    if (!isFilterOpen) {
+      filterPanel = (<div className='searchbox'>
+        <a
+          href='javascript:void(0)'
+          className='card-header-icon has-text-white'
+          aria-label='more options'
+          onClick={() => this.toggleFilterPanel(isFilterOpen)}
+        >
+          <FontAwesome name='search' />
+        </a>
+      </div>)
+    }
+
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
@@ -130,6 +215,7 @@ class Projects extends Component {
                       branchName='projects'
                       baseUrl='/admin/projects'
                       columns={this.getColumns()}
+                      filters={this.state.filters}
                     />
                   </div>
                 </div>
@@ -137,6 +223,7 @@ class Projects extends Component {
             </div>
           </div>
         </div>
+        { filterPanel }
       </div>
     )
   }

@@ -140,7 +140,7 @@ class ForecastDetail extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Forecast
+              Predictions
             </p>
           </header>
           <div className='card-content'>
@@ -179,7 +179,7 @@ class ForecastDetail extends Component {
       <div className='card'>
         <header className='card-header'>
           <p className='card-header-title'>
-            Forecast created
+            Predictions
           </p>
         </header>
         <div className='card-content'>
@@ -232,9 +232,6 @@ class ForecastDetail extends Component {
               </div>
             </div>
             <div className='columns'>
-              <div className='column'>
-                {this.getTable()}
-              </div>
               <div className='column'>
                 <div className='card'>
                   <header className='card-header'>
@@ -337,6 +334,9 @@ class ForecastDetail extends Component {
                     </div>
                   </div>
                 </div>
+              </div>
+              <div className='column'>
+                {this.getTable()}
               </div>
             </div>
           </div>
