@@ -129,6 +129,20 @@ class ForecastForm extends Component {
     })
   }
 
+  removeChangePoint (index) {
+    console.log(index)
+    this.setState({
+      ...this.state.formData.changePoints.splice(index, 1)
+    })
+  }
+
+  removeHoliday (index) {
+    console.log(index)
+    this.setState({
+      ...this.state.formData.holidays.splice(index, 1)
+    })
+  }
+
   render () {
     return (
       <div>
@@ -220,19 +234,29 @@ class ForecastForm extends Component {
               <tr>
                 <th>Name</th>
                 <th>Date</th>
+                <th />
               </tr>
             </thead>
             <tbody>
               {this.state.formData.holidays.length === 0 ? (
                 <tr>
-                  <td colSpan='3'>No rows to show</td>
+                  <td colSpan='3'>No holidays to show</td>
                 </tr>
                 ) : (
-                  this.state.formData.holidays.map(function (item, key) {
+                  this.state.formData.holidays.map((item, key) => {
                     return (
                       <tr key={key}>
                         <td>{item.name}</td>
                         <td>{item.date}</td>
+                        <td>
+                          <button
+                            className='button is-danger'
+                            type='button'
+                            onClick={() => this.removeHoliday(key)}
+                          >
+                            <i className='fa fa-times' aria-hidden='true' />
+                          </button>
+                        </td>
                       </tr>
                     )
                   })
@@ -274,22 +298,31 @@ class ForecastForm extends Component {
             <thead>
               <tr>
                 <th>Date</th>
+                <th />
               </tr>
             </thead>
             <tbody>
               {this.state.formData.changePoints.length === 0 ? (
                 <tr>
-                  <td colSpan='3'>No rows to show</td>
+                  <td colSpan='3'>No change points to show</td>
                 </tr>
                 ) : (
-                  this.state.formData.changePoints.map(function (item, key) {
+                  this.state.formData.changePoints.map((item, key) => {
                     return (
                       <tr key={key}>
                         <td>{item}</td>
+                        <td>
+                          <button
+                            className='button is-danger'
+                            type='button'
+                            onClick={() => this.removeChangePoint(key)}
+                          >
+                            <i className='fa fa-times' aria-hidden='true' />
+                          </button>
+                        </td>
                       </tr>
                     )
                   })
-
                 )}
             </tbody>
           </table>

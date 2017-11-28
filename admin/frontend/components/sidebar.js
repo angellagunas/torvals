@@ -60,6 +60,11 @@ class Sidebar extends Component {
           to: '/datasets'
         },
         {
+          title: 'Ready',
+          icon: 'thumbs-up',
+          to: '/datasets/ready'
+        },
+        {
           title: 'Deleted',
           icon: 'trash',
           to: '/datasets/deleted'
