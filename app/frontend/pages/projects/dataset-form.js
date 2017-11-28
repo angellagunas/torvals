@@ -107,7 +107,6 @@ class DatasetForm extends Component {
   }
 
   removeColumn (index) {
-    console.log(index)
     this.setState({
       ...this.state.formData.columns.splice(index, 1)
     })
@@ -212,7 +211,7 @@ class DatasetForm extends Component {
                   <td colSpan='3'>No rows to show</td>
                 </tr>
                 ) : (
-                  this.state.formData.columns.map((item, key) => {
+                  this.state.formData.columns.map((item, index) => {
                     return (
                       <tr key={shortid.generate()}>
                         <td>{item.name_dataset}</td>
@@ -221,7 +220,7 @@ class DatasetForm extends Component {
                           <button
                             className='button is-danger'
                             type='button'
-                            onClick={() => this.removeColumn(key)}
+                            onClick={() => this.removeColumn(index)}
                           >
                             <i className='fa fa-times' aria-hidden='true' />
                           </button>

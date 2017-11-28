@@ -130,14 +130,12 @@ class ForecastForm extends Component {
   }
 
   removeChangePoint (index) {
-    console.log(index)
     this.setState({
       ...this.state.formData.changePoints.splice(index, 1)
     })
   }
 
   removeHoliday (index) {
-    console.log(index)
     this.setState({
       ...this.state.formData.holidays.splice(index, 1)
     })
