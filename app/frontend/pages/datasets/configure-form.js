@@ -128,6 +128,12 @@ class ConfigureDatasetForm extends Component {
     })
   }
 
+  removeColumn (index) {
+    this.setState({
+      ...this.state.formData.groupings.splice(index, 1)
+    })
+  }
+
   render () {
     var error
     if (this.state.error) {
@@ -235,7 +241,7 @@ class ConfigureDatasetForm extends Component {
                     <select onChange={(e) => { this.handleChange('groupingColumn', e) }}>
                       <option value='' >Select a option</option>
                       {
-                    this.state.formData.columns.map(function (item, key) {
+                    this.state.formData.columns.map((item, key) => {
                       return <option key={key}
                         value={item.name}>{item.name}</option>
                     })
@@ -273,15 +279,24 @@ class ConfigureDatasetForm extends Component {
             <tbody>
               {this.state.formData.groupings.length === 0 ? (
                 <tr>
-                  <td colSpan='3'>No rows to show</td>
+                  <td colSpan='3'>No groupings to show</td>
                 </tr>
                 ) : (
-                  this.state.formData.groupings.map(function (item, key) {
+                  this.state.formData.groupings.map((item, key) => {
                     return (
                       <tr key={key}>
                         <td>{item.column}</td>
                         <td>{item.inputValue}</td>
                         <td>{item.outputValue}</td>
+                        <td>
+                          <button
+                            className='button is-danger'
+                            type='button'
+                            onClick={() => this.removeColumn(key)}
+                          >
+                            <i className='fa fa-times' aria-hidden='true' />
+                          </button>
+                        </td>
                       </tr>
                     )
                   })
