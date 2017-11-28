@@ -68,7 +68,6 @@ module.exports = new Route({
 
     try {
       var res = await request(options)
-      console.log(res)
       dataset.set({
         columns: body.columns,
         groupings: body.groupings,
