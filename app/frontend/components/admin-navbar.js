@@ -43,6 +43,12 @@ class NavBar extends Component {
   async handleLogout () {
     const {history} = this.props
 
+    try {
+      await api.del('/user')
+    } catch (err) {
+      console.log('Error removing token, logging out anyway ...')
+    }
+
     cookies.remove('jwt')
     tree.set('jwt', null)
     tree.set('user', null)
