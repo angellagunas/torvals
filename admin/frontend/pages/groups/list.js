@@ -41,6 +41,19 @@ class Groups extends Component {
         }
       },
       {
+        'title': 'Organzation',
+        'property': 'organization',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/manage/organizations/' + row.organization.uuid}>
+              {row.organization.name}
+            </Link>
+          )
+        }
+      },
+      {
         'title': 'Created',
         'property': 'dateCreated',
         'default': 'N/A',
