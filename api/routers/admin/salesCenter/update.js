@@ -35,7 +35,6 @@ module.exports = new Route({
       }
     }
 
-    console.log(newSalesCenterGroups)
     salesCenter.groups = newSalesCenterGroups
 
     salesCenter.set({

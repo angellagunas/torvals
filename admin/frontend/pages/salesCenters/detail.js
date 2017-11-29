@@ -21,7 +21,6 @@ class SalesCenterDetail extends Component {
 
   componentWillMount () {
     this.load()
-    // this.loadGroups()
   }
 
   async load () {
