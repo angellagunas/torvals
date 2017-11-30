@@ -29,7 +29,10 @@ module.exports = new Route({
       project: project,
       datasets: project.datasets,
       organization: project.organization,
-      createdBy: ctx.state.user
+      createdBy: ctx.state.user,
+      columns_for_forecast: project.datasets[0].dataset.columns.filter(
+        (item) => { return item.isDate || item.isAnalysis }
+      ).map(item => { return item.name })
     }
 
     var apiData = Api.get()
@@ -59,7 +62,7 @@ module.exports = new Route({
             })
           }
         }),
-        columns_for_forecast: ['date', 'analysis'],
+        columns_for_forecast: forecastData.columns_for_forecast,
         forecast_start: forecastData.dateStart.format('YYYY-MM-DD'),
         forecast_end: forecastData.dateEnd.format('YYYY-MM-DD'),
         frequency: forecastData.frequency,
@@ -70,6 +73,7 @@ module.exports = new Route({
     }
 
     let forecast
+    console.log(options)
 
     try {
       var res = await request(options)

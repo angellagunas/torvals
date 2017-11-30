@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { Forecast } = require('models')
+const { Forecast, Prediction } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
@@ -43,7 +43,14 @@ const task = new Task(async function (argv) {
     var res = await request(options)
     console.log(res)
 
-    if (res.status === 'working') {
+    if (res.status === 'OK') {
+      await Prediction.create({
+        organization: forecast.organization,
+        project: forecast.project,
+        forecast: forecast,
+        externalId: res.forecast_id
+      })
+
       forecast.set({
         status: 'processing'
       })

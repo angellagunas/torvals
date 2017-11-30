@@ -9,6 +9,7 @@ const Project = require('./project')
 const SalesCenter = require('./salesCenter')
 const Product = require('./product')
 const Forecast = require('./forecast')
+const Prediction = require('./prediction')
 
 module.exports = {
   User,
@@ -21,5 +22,6 @@ module.exports = {
   Project,
   SalesCenter,
   Product,
-  Forecast
+  Forecast,
+  Prediction
 }
