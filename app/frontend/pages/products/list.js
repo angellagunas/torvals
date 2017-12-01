@@ -5,7 +5,7 @@ import Link from '~base/router/link'
 import moment from 'moment'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateProduct from './create'
 
@@ -140,6 +140,6 @@ export default Page({
   icon: 'dropbox',
   exact: true,
   roles: 'supervisor, analista, admin-organizacion, admin',
-  validate: loggedIn,
+  validate: [loggedIn, verifyRole],
   component: branchedProducts
 })

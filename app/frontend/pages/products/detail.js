@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import api from '~base/api'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProductForm from './create-form'
 
@@ -101,6 +101,7 @@ export default Page({
   path: '/products/detail/:uuid',
   title: 'Product detail',
   exact: true,
-  validate: loggedIn,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
   component: ProductDetail
 })

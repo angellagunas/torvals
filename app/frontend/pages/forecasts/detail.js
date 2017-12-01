@@ -5,7 +5,7 @@ import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import {
   BaseTable,
   SimpleTable,
@@ -332,6 +332,7 @@ export default Page({
   title: 'Forecast detail',
   icon: 'check',
   exact: true,
-  validate: loggedIn,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
   component: ForecastDetail
 })

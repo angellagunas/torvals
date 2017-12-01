@@ -5,7 +5,7 @@ import Link from '~base/router/link'
 import moment from 'moment'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateProject from './create'
 import BaseFilterPanel from '~base/components/base-filters'
@@ -203,8 +203,8 @@ export default Page({
   path: '/projects',
   title: 'Projects',
   icon: 'cog',
-  roles: 'supervisor, analista, admin-organizacion, admin',
   exact: true,
-  validate: loggedIn,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
   component: branchedProjects
 })

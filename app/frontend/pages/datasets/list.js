@@ -4,7 +4,7 @@ import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateDataSet from './create'
 import BaseFilterPanel from '~base/components/base-filters'
@@ -236,6 +236,7 @@ export default Page({
   title: 'Datasets',
   icon: 'check',
   exact: true,
-  validate: loggedIn,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
   component: branchedDataSets
 })

@@ -8,7 +8,7 @@ import FontAwesome from 'react-fontawesome'
 import env from '~base/env-variables'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import DatasetDetailForm from './detail-form'
 import { UploadDataset } from '~base/components/base-uploads'
 import ConfigureDatasetForm from './configure-form'
@@ -384,6 +384,7 @@ export default Page({
   title: 'Dataset detail',
   icon: 'check',
   exact: true,
-  validate: loggedIn,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
   component: branchedDataSetDetail
 })

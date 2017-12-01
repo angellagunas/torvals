@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import api from '~base/api'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
@@ -174,6 +174,7 @@ export default Page({
   path: '/salesCenter/detail/:uuid',
   title: 'Sales center detail',
   exact: true,
-  validate: loggedIn,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
   component: SalesCenterDetail
 })

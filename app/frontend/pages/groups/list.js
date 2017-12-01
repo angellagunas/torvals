@@ -5,7 +5,7 @@ import Link from '~base/router/link'
 import moment from 'moment'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateGroup from './create'
 
@@ -139,6 +139,7 @@ export default Page({
   title: 'Groups',
   icon: 'users',
   exact: true,
-  validate: loggedIn,
+  roles: 'admin, admin-organizacion',
+  validate: [loggedIn, verifyRole],
   component: branchedGroups
 })

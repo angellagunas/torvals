@@ -6,7 +6,7 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import OrganizationForm from './form'
 
@@ -145,7 +145,8 @@ export default Page({
   path: '/manage/organizations/:uuid',
   title: 'User details',
   exact: true,
-  validate: loggedIn,
+  roles: 'admin, admin-organizacion',
+  validate: [loggedIn, verifyRole],
   component: branchedOrganizationDetail
 })
   

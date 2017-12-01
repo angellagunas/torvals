@@ -5,7 +5,7 @@ import Link from '~base/router/link'
 import moment from 'moment'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateSalesCenter from './create'
 
@@ -140,6 +140,6 @@ export default Page({
   icon: 'credit-card-alt',
   exact: true,
   roles: 'supervisor, analista, admin-organizacion, admin',
-  validate: loggedIn,
+  validate: [loggedIn, verifyRole],
   component: branchedSalesCenters
 })

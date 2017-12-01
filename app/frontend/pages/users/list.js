@@ -4,7 +4,7 @@ import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import BaseFilterPanel from '~base/components/base-filters'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import FontAwesome from 'react-fontawesome'
@@ -199,6 +199,7 @@ export default Page({
   title: 'User',
   icon: 'user',
   exact: true,
-  validate: loggedIn,
+  roles: 'admin, admin-organizacion',
+  validate: [loggedIn, verifyRole],
   component: branchedUsers
 })

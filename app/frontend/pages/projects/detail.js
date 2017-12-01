@@ -6,7 +6,7 @@ import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
 import CreateForecast from '../forecasts/create'
@@ -369,6 +369,7 @@ export default Page({
   path: '/projects/detail/:uuid',
   title: 'Project detail',
   exact: true,
-  validate: loggedIn,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

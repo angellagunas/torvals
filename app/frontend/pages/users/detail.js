@@ -6,7 +6,7 @@ import moment from 'moment'
 import env from '~base/env-variables'
 
 import Page from '~base/page'
-import {loggedIn} from '~base/middlewares/'
+import {loggedIn, verifyRole } from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import UserForm from './form'
 import Multiselect from '~base/components/base-multiselect'
@@ -248,7 +248,8 @@ const branchedUserDetail = branch({}, UserDetail)
 export default Page({
   path: '/manage/users/:uuid',
   title: 'User details',
+  roles: 'admin, admin-organizacion',
   exact: true,
-  validate: loggedIn,
+  validate: [loggedIn, verifyRole],
   component: branchedUserDetail
 })
