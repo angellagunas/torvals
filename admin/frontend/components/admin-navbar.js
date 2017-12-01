@@ -3,7 +3,6 @@ import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
 
 import api from '~base/api'
-import Image from '~base/components/image'
 import Link from '~base/router/link'
 import tree from '~core/tree'
 
