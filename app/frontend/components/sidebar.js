@@ -84,6 +84,13 @@ class Sidebar extends Component {
         icon: 'dropbox',
         to: '/products',
         roles: 'supervisor, analista, admin-organizacion, admin'
+      },
+      {
+
+        title: 'Forecasts',
+        icon: 'snowflake-o',
+        to: '/forecasts',
+        roles: 'supervisor, analista, admin-organizacion, admin'
       }]
     }
 
