@@ -1,7 +1,7 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Group, User} = require('models')
+const {Group, User, SalesCenter} = require('models')
 
 module.exports = new Route({
   method: 'get',
