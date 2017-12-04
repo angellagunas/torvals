@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { Forecast, Prediction } = require('models')
+const { Forecast } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
@@ -27,13 +27,10 @@ const task = new Task(async function (argv) {
   }
 
   for (var forecast of forecasts) {
-    console.log(`Verifying if ${forecast.externalId} forecast has finished processing ...`)
-
-    const prediction = await Prediction.findOne({forecast: forecast._id})
-    console.log(prediction)
+    console.log(`Verifying if ${forecast.configPrId} forecast has finished processing ...`)
 
     var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/forecasts/${prediction.externalId}`,
+      url: `${apiData.hostname}${apiData.baseUrl}/forecasts/${forecast.forecastId}`,
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -43,18 +40,17 @@ const task = new Task(async function (argv) {
       json: true
     }
 
-    console.log(options)
     var res = await request(options)
-    console.log(res)
 
-    // if (res.status !== 'working') {
-    //   console.log(`${forecast.externalId} forecast has finished processing`)
-    //   forecast.set({
-    //     status: 'done'
-    //   })
+    if (res.status === 'ready') {
+      console.log(`${forecast.configPrId} forecast has finished processing`)
+      forecast.set({
+        status: 'done',
+        graphData: res.data
+      })
 
-    //   await forecast.save()
-    // }
+      await forecast.save()
+    }
   }
 
   console.log(`Successfully verified ${forecasts.length} forecasts with status {processing}`)

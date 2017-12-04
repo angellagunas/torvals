@@ -20,6 +20,10 @@ module.exports = new Route({
     const project = await Project.findOne({'uuid': projectId}).populate('datasets.dataset')
     ctx.assert(project, 404, 'Project not found')
 
+    if (project.datasets.length === 0) {
+      ctx.throw(401, 'You need to add Datasets to the project first!')
+    }
+
     const forecastData = {
       dateStart: moment.utc(data.dateStart),
       dateEnd: moment.utc(data.dateEnd),
@@ -73,14 +77,13 @@ module.exports = new Route({
     }
 
     let forecast
-    console.log(options)
 
     try {
       var res = await request(options)
 
       forecast = await Forecast.create({
         ...forecastData,
-        externalId: res._id,
+        configPrId: res._id,
         status: 'created'
       })
     } catch (e) {

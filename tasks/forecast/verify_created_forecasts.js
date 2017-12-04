@@ -27,9 +27,9 @@ const task = new Task(async function (argv) {
   }
 
   for (var forecast of forecasts) {
-    console.log(`Sending ${forecast.externalId} forecast for processing ...`)
+    console.log(`Sending ${forecast.configPrId} forecast for processing ...`)
     var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/run/forecasts/${forecast.externalId}`,
+      url: `${apiData.hostname}${apiData.baseUrl}/run/forecasts/${forecast.configPrId}`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -39,20 +39,19 @@ const task = new Task(async function (argv) {
       json: true
     }
 
-    console.log(options)
     var res = await request(options)
-    console.log(res)
 
     if (res.status === 'OK') {
-      await Prediction.create({
-        organization: forecast.organization,
-        project: forecast.project,
-        forecast: forecast,
-        externalId: res.forecast_id
-      })
+      // await Prediction.create({
+      //   organization: forecast.organization,
+      //   project: forecast.project,
+      //   forecast: forecast,
+      //   externalId: res.forecast_id
+      // })
 
       forecast.set({
-        status: 'processing'
+        status: 'processing',
+        forecastId: res.forecast_id
       })
 
       await forecast.save()
