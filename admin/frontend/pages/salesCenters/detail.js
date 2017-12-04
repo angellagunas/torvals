@@ -62,7 +62,6 @@ class SalesCenterDetail extends Component {
     )
 
     this.load()
-    this.loadGroups()
   }
 
   async assignedGroupOnClick (uuid) {
@@ -74,7 +73,6 @@ class SalesCenterDetail extends Component {
     )
 
     this.load()
-    this.loadGroups()
   }
 
   async deleteOnClick () {
