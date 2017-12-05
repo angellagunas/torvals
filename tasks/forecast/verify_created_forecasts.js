@@ -42,13 +42,6 @@ const task = new Task(async function (argv) {
     var res = await request(options)
 
     if (res.status === 'OK') {
-      // await Prediction.create({
-      //   organization: forecast.organization,
-      //   project: forecast.project,
-      //   forecast: forecast,
-      //   externalId: res.forecast_id
-      // })
-
       forecast.set({
         status: 'processing',
         forecastId: res.forecast_id

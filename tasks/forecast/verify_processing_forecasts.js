@@ -49,7 +49,7 @@ const task = new Task(async function (argv) {
         graphData: res.data
       })
 
-      // await forecast.save()
+      await forecast.save()
 
       options = {
         url: `${apiData.hostname}${apiData.baseUrl}/conciliation/forecasts/${forecast.forecastId}`,
@@ -79,6 +79,17 @@ const task = new Task(async function (argv) {
 
           forecast.newProducts.push(product)
         } else {
+          var pos = forecast.products.findIndex(item => {
+            return String(item._id) === String(product._id)
+          })
+
+          if (pos >= 0) continue
+
+          pos = forecast.newProducts.findIndex(item => {
+            return String(item._id) === String(product._id)
+          })
+
+          if (pos >= 0) continue
           forecast.products.push(product)
         }
 
@@ -91,7 +102,17 @@ const task = new Task(async function (argv) {
 
           forecast.newSalesCenters.push(salesCenter)
         } else {
-          console.log(forecast.salesCenters.find(item => { item === salesCenter }))
+          pos = forecast.salesCenters.findIndex(item => {
+            return String(item._id) === String(salesCenter._id)
+          })
+
+          if (pos >= 0) continue
+
+          pos = forecast.newSalesCenters.findIndex(item => {
+            return String(item._id) === String(salesCenter._id)
+          })
+
+          if (pos >= 0) continue
           forecast.salesCenters.push(salesCenter)
         }
 
@@ -106,7 +127,7 @@ const task = new Task(async function (argv) {
         })
       }
 
-      // await forecast.save()
+      await forecast.save()
     }
   }
 
