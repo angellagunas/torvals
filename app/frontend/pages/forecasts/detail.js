@@ -3,6 +3,7 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
+import tree from '~core/tree'
 
 import {
   BaseTable,
@@ -48,6 +49,12 @@ class ForecastDetail extends Component {
       loaded: true,
       predictions: body.data
     })
+  }
+
+  async changeStatusOnClick (status) {
+    var url = '/app/forecasts/change/' + this.props.match.params.uuid
+    await api.post(url, {status: status})
+    this.load()
   }
 
   getColumns () {
@@ -128,6 +135,7 @@ class ForecastDetail extends Component {
   }
 
   getTable () {
+    let currentRole = tree.get('user').currentRole.slug
     let forecast = this.state.forecast
     if (forecast.status === 'done') {
       return (
@@ -165,38 +173,138 @@ class ForecastDetail extends Component {
               </div>
             </div>
           </div>
+          <footer className='card-footer'>
+            <button
+              className='button is-primary'
+              type='button'
+              onClick={() => this.changeStatusOnClick('analistReview')}
+                      >
+                        Analist Review
+            </button>
+          </footer>
         </div>
       )
-    }
-
-    return (
-      <div className='card'>
-        <header className='card-header'>
-          <p className='card-header-title'>
+    } else if (forecast.status === 'analistReview') {
+      return (
+        <div className='card'>
+          <header className='card-header'>
+            <p className='card-header-title'>
             Predictions
           </p>
-        </header>
-        <div className='card-content'>
-          <div className='message is-success'>
-            <div className='message-body is-large has-text-centered'>
-              <div className='columns'>
-                <div className='column'>
-                  <span className='icon is-large'>
-                    <FontAwesome className='fa-3x fa-spin' name='cog' />
-                  </span>
+          </header>
+          <div className='card-content'>
+            <div className='message is-success'>
+              <div className='message-body is-large has-text-centered'>
+                <div className='columns'>
+                  <div className='column'>
+                    <span className='icon is-large'>
+                      <FontAwesome className='fa-3x fa-spin' name='cog' />
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className='columns'>
-                <div className='column'>
+                <div className='columns'>
+                  <div className='column'>
                   The predictions will appear shortly...
                   They are being generated as we speak
+                </div>
                 </div>
               </div>
             </div>
           </div>
+          <footer className='card-footer'>
+            <button
+              className='button is-primary'
+              type='button'
+              onClick={() => this.changeStatusOnClick('opsReview')}
+                    >
+                      Ops Review
+                    </button>
+          </footer>
         </div>
-      </div>
-    )
+
+      )
+    } else if (forecast.status === 'opsReview') {
+      return (
+        <div className='card'>
+          <header className='card-header'>
+            <p className='card-header-title'>
+            Predictions
+          </p>
+          </header>
+          <div className='card-content'>
+            <div className='message is-success'>
+              <div className='message-body is-large has-text-centered'>
+                <div className='columns'>
+                  <div className='column'>
+                    <span className='icon is-large'>
+                      <FontAwesome className='fa-3x fa-spin' name='cog' />
+                    </span>
+                  </div>
+                </div>
+                <div className='columns'>
+                  <div className='column'>
+                  The predictions will appear shortly...
+                  They are being generated as we speak
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <footer className='card-footer'>
+            <button
+              className='button is-primary'
+              type='button'
+              onClick={() => this.changeStatusOnClick('supervisorReview')}
+                    >
+                      Supervisor Review
+                    </button>
+          </footer>
+        </div>
+
+      )
+    } else if (forecast.status === 'supervisorReview') {
+      return (
+        <div className='card'>
+          <header className='card-header'>
+            <p className='card-header-title'>
+            Predictions
+          </p>
+          </header>
+          <div className='card-content'>
+            <div className='message is-success'>
+              <div className='message-body is-large has-text-centered'>
+                <div className='columns'>
+                  <div className='column'>
+                    <span className='icon is-large'>
+                      <FontAwesome className='fa-3x fa-spin' name='cog' />
+                    </span>
+                  </div>
+                </div>
+                <div className='columns'>
+                  <div className='column'>
+                  The predictions will appear shortly...
+                  They are being generated as we speak
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          { (currentRole === 'admin-organizacion')
+          ? <footer className='card-footer'>
+            <button
+              className='button is-primary'
+              type='button'
+              onClick={() => this.changeStatusOnClick('readyToOrder')}
+                    >
+                      Ready to Order
+                    </button>
+          </footer>
+          : <div />
+        }
+        </div>
+
+      )
+    }
   }
 
   render () {
