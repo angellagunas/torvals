@@ -1,7 +1,7 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Group, User} = require('models')
+const {Group, User, SalesCenter} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -28,6 +28,16 @@ module.exports = new Route({
 
         if (user) {
           filters['organization'] = { $in: user.organizations.map(item => { return item.organization }) }
+        }
+
+        continue
+      }
+
+      if (filter === 'salesCenter') {
+        const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]}).populate('organization')
+
+        if (salesCenter) {
+          filters['organization'] = salesCenter.organization._id
         }
 
         continue

@@ -1,13 +1,28 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Forecast, Project} = require('models')
+const {Forecast, Project, Role} = require('models')
 
 module.exports = new Route({
   method: 'get',
   path: '/',
   handler: async function (ctx) {
+    const user = await ctx.state.user.toPublic()
+    var currentRole
+    if (ctx.state.organization) {
+      const currentOrganization = user.organizations.find(orgRel => {
+        return ctx.state.organization._id.equals(orgRel.organization._id)
+      })
+
+      if (currentOrganization) {
+        const role = await Role.findOne({_id: currentOrganization.role})
+
+        currentRole = role.toPublic()
+      }
+    }
+
     var filters = {}
+
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
@@ -29,6 +44,23 @@ module.exports = new Route({
         filters[filter] = ctx.request.query[filter]
       }
     }
+
+    switch (currentRole.slug) {
+      case 'analista':
+        filters['status'] = 'analistReview'
+        break
+      case 'ops':
+        filters['status'] = 'opsReview'
+        break
+      case 'supervisor':
+        filters['status'] = 'supervisorReview'
+        break
+      case 'supervisor-ops':
+        filters['status'] = 'supervisorReview'
+        break
+    }
+
+    console.log(filters)
 
     var forecasts = await Forecast.dataTables({
       limit: ctx.request.query.limit || 20,
