@@ -90,7 +90,7 @@ class Sidebar extends Component {
         title: 'Forecasts',
         icon: 'snowflake-o',
         to: '/forecasts',
-        roles: 'supervisor, analista, admin-organizacion, admin'
+        roles: 'supervisor, ops, supervisor-ops, analista, admin-organizacion, admin'
       }]
     }
 

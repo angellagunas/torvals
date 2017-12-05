@@ -60,8 +60,6 @@ module.exports = new Route({
         break
     }
 
-    console.log(filters)
-
     var forecasts = await Forecast.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,

@@ -54,7 +54,7 @@ class ForecastDetail extends Component {
   async changeStatusOnClick (status) {
     var url = '/app/forecasts/change/' + this.props.match.params.uuid
     await api.post(url, {status: status})
-    this.load()
+    this.props.history.push('/forecasts')
   }
 
   getColumns () {
@@ -211,15 +211,17 @@ class ForecastDetail extends Component {
               </div>
             </div>
           </div>
-          <footer className='card-footer'>
-            <button
-              className='button is-primary'
-              type='button'
-              onClick={() => this.changeStatusOnClick('opsReview')}
-                    >
-                      Ops Review
-                    </button>
-          </footer>
+          { currentRole === 'analista' &&
+            <footer className='card-footer'>
+              <button
+                className='button is-primary'
+                type='button'
+                onClick={() => this.changeStatusOnClick('opsReview')}
+                      >
+                        Ops Review
+                      </button>
+            </footer>
+            }
         </div>
 
       )
@@ -250,6 +252,7 @@ class ForecastDetail extends Component {
               </div>
             </div>
           </div>
+          { currentRole === 'ops' &&
           <footer className='card-footer'>
             <button
               className='button is-primary'
@@ -259,6 +262,7 @@ class ForecastDetail extends Component {
                       Supervisor Review
                     </button>
           </footer>
+        }
         </div>
 
       )
@@ -289,8 +293,8 @@ class ForecastDetail extends Component {
               </div>
             </div>
           </div>
-          { (currentRole === 'admin-organizacion')
-          ? <footer className='card-footer'>
+          { (currentRole === 'admin-organizacion' || currentRole === 'supervisor' || currentRole === 'supervisor-ops') &&
+          <footer className='card-footer'>
             <button
               className='button is-primary'
               type='button'
@@ -299,7 +303,6 @@ class ForecastDetail extends Component {
                       Ready to Order
                     </button>
           </footer>
-          : <div />
         }
         </div>
 
