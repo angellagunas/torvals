@@ -9,12 +9,15 @@ const predictionSchema = new Schema({
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   forecast: { type: Schema.Types.ObjectId, ref: 'Forecast', required: true },
+  salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
+  product: { type: Schema.Types.ObjectId, ref: 'Product' },
   externalId: { type: String },
   status: {
     type: String,
     enum: ['created', 'processing', 'done'],
     default: 'created'
   },
+  data: { type: Schema.Types.Mixed },
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },

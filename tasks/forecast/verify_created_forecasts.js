@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { Forecast, Prediction } = require('models')
+const { Forecast } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {

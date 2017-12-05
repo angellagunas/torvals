@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { Forecast } = require('models')
+const { Forecast, Prediction, SalesCenter, Product } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
@@ -49,7 +49,64 @@ const task = new Task(async function (argv) {
         graphData: res.data
       })
 
-      await forecast.save()
+      // await forecast.save()
+
+      options = {
+        url: `${apiData.hostname}${apiData.baseUrl}/conciliation/forecasts/${forecast.forecastId}`,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${apiData.token}`
+        },
+        json: true
+      }
+
+      console.log(`Obtaining predictions ...`)
+
+      res = await request(options)
+
+      for (var d of res._items) {
+        var salesCenter = await SalesCenter.findOne({externalId: d.agency_id})
+        var product = await Product.findOne({externalId: d.product_id})
+
+        if (!product) {
+          product = await Product.create({
+            name: 'Not identified',
+            externalId: d.product_id,
+            organization: forecast.organization
+          })
+
+          forecast.newProducts.push(product)
+        } else {
+          forecast.products.push(product)
+        }
+
+        if (!salesCenter) {
+          salesCenter = await SalesCenter.create({
+            name: 'Not identified',
+            externalId: d.agency_id,
+            organization: forecast.organization
+          })
+
+          forecast.newSalesCenters.push(salesCenter)
+        } else {
+          console.log(forecast.salesCenters.find(item => { item === salesCenter }))
+          forecast.salesCenters.push(salesCenter)
+        }
+
+        await Prediction.create({
+          organization: forecast.organization,
+          project: forecast.project,
+          forecast: forecast,
+          externalId: res.forecast_id,
+          data: d,
+          salesCenter: salesCenter,
+          product: product
+        })
+      }
+
+      // await forecast.save()
     }
   }
 
