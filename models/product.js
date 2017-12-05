@@ -8,7 +8,11 @@ const productSchema = new Schema({
   name: { type: String, required: true },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   description: { type: String },
+  type: { type: String },
+  category: { type: String },
+  subcategory: { type: String },
   cost: { type: Number },
+  externalId: { type: String },
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },

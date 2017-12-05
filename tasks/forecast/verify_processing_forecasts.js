@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { Forecast } = require('models')
+const { Forecast, Prediction, SalesCenter, Product } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
@@ -27,9 +27,10 @@ const task = new Task(async function (argv) {
   }
 
   for (var forecast of forecasts) {
-    console.log(`Verifying if ${forecast.externalId} forecast has finished processing ...`)
+    console.log(`Verifying if ${forecast.configPrId} forecast has finished processing ...`)
+
     var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/forecast?where={"config_pr":${forecast.externalId}}`,
+      url: `${apiData.hostname}${apiData.baseUrl}/forecasts/${forecast.forecastId}`,
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -39,15 +40,92 @@ const task = new Task(async function (argv) {
       json: true
     }
 
-    console.log(options)
     var res = await request(options)
-    console.log(res)
 
-    if (res.status !== 'working') {
-      console.log(`${forecast.externalId} forecast has finished processing`)
+    if (res.status === 'ready') {
+      console.log(`${forecast.configPrId} forecast has finished processing`)
       forecast.set({
-        status: 'done'
+        status: 'done',
+        graphData: res.data
       })
+
+      await forecast.save()
+
+      options = {
+        url: `${apiData.hostname}${apiData.baseUrl}/conciliation/forecasts/${forecast.forecastId}`,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${apiData.token}`
+        },
+        json: true
+      }
+
+      console.log(`Obtaining predictions ...`)
+
+      res = await request(options)
+
+      for (var d of res._items) {
+        var salesCenter = await SalesCenter.findOne({externalId: d.agency_id})
+        var product = await Product.findOne({externalId: d.product_id})
+
+        if (!product) {
+          product = await Product.create({
+            name: 'Not identified',
+            externalId: d.product_id,
+            organization: forecast.organization
+          })
+
+          forecast.newProducts.push(product)
+        } else {
+          var pos = forecast.products.findIndex(item => {
+            return String(item._id) === String(product._id)
+          })
+
+          if (pos >= 0) continue
+
+          pos = forecast.newProducts.findIndex(item => {
+            return String(item._id) === String(product._id)
+          })
+
+          if (pos >= 0) continue
+          forecast.products.push(product)
+        }
+
+        if (!salesCenter) {
+          salesCenter = await SalesCenter.create({
+            name: 'Not identified',
+            externalId: d.agency_id,
+            organization: forecast.organization
+          })
+
+          forecast.newSalesCenters.push(salesCenter)
+        } else {
+          pos = forecast.salesCenters.findIndex(item => {
+            return String(item._id) === String(salesCenter._id)
+          })
+
+          if (pos >= 0) continue
+
+          pos = forecast.newSalesCenters.findIndex(item => {
+            return String(item._id) === String(salesCenter._id)
+          })
+
+          if (pos >= 0) continue
+          forecast.salesCenters.push(salesCenter)
+        }
+
+        await Prediction.create({
+          organization: forecast.organization,
+          project: forecast.project,
+          forecast: forecast,
+          externalId: res.forecast_id,
+          data: d,
+          salesCenter: salesCenter,
+          product: product
+        })
+      }
 
       await forecast.save()
     }
