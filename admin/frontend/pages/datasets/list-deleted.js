@@ -4,6 +4,8 @@ import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 import api from '~base/api'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 class DeletedDataSets extends Component {
@@ -108,6 +110,13 @@ DeletedDataSets.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({deletedDatasets: 'deletedDatasets'}, DeletedDataSets)
+const branchedDeletedDataSets = branch({deletedDatasets: 'deletedDatasets'}, DeletedDataSets)
 
-// export default DataSets;
+export default Page({
+  path: '/datasets/deleted',
+  title: 'Deleted datasets',
+  icon: 'trash',
+  exact: true,
+  validate: loggedIn,
+  component: branchedDeletedDataSets
+})

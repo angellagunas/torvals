@@ -1,4 +1,3 @@
-const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
 const {Organization, User, Role, Group, DataSet, Project} = require('models')

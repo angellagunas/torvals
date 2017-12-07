@@ -4,6 +4,8 @@ import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 import api from '~base/api'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import RoleForm from './form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
@@ -192,4 +194,12 @@ RoleDetail.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({roles: 'roles'}, RoleDetail)
+const branchedRoleDetails = branch({roles: 'roles'}, RoleDetail)
+
+export default Page({
+  path: '/manage/roles/:uuid',
+  title: 'Roles details',
+  exact: true,
+  validate: loggedIn,
+  component: branchedRoleDetails
+})

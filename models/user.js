@@ -78,13 +78,6 @@ userSchema.methods.format = function () {
   }
 }
 
-userSchema.methods.getJwt = function () {
-  return jwt.sign({
-    uuid: this.uuid,
-    apiToken: this.apiToken
-  })
-}
-
 userSchema.methods.toPublic = function () {
   return {
     uuid: this.uuid,
@@ -95,7 +88,9 @@ userSchema.methods.toPublic = function () {
     organizations: this.organizations,
     validEmail: this.validEmail,
     groups: this.groups,
-    profileUrl: this.profileUrl
+    profileUrl: this.profileUrl,
+    validEmail: this.validEmail,
+    isAdmin: this.isAdmin
   }
 }
 
@@ -112,6 +107,27 @@ userSchema.methods.toAdmin = function () {
     groups: this.groups,
     profileUrl: this.profileUrl
   }
+}
+
+userSchema.methods.validatePassword = async function (password) {
+  const isValid = await new Promise((resolve, reject) => {
+    bcrypt.compare(password, this.password, (err, compared) =>
+      (err ? reject(err) : resolve(compared))
+    )
+  })
+
+  return isValid
+}
+
+userSchema.methods.createToken = async function (options = {}) {
+  const UserToken = mongoose.model('UserToken')
+
+  const token = await UserToken.create({
+    user: this._id,
+    type: options.type || ''
+  })
+
+  return token
 }
 
 // Statics
@@ -211,10 +227,6 @@ userSchema.methods.validatePassword = async function (password) {
   })
 
   return isValid
-}
-
-userSchema.methods.setPassword = async function (password) {
-
 }
 
 userSchema.methods.sendInviteEmail = async function () {

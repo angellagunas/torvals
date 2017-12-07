@@ -5,6 +5,8 @@ import Link from '~base/router/link'
 import moment from 'moment'
 import api from '~base/api'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateProject from './create'
 import BaseFilterPanel from '~base/components/base-filters'
@@ -233,4 +235,13 @@ Projects.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({projects: 'projects'}, Projects)
+const branchedProjects = branch({projects: 'projects'}, Projects)
+
+export default Page({
+  path: '/projects',
+  title: 'Projects',
+  icon: 'check',
+  exact: true,
+  validate: loggedIn,
+  component: branchedProjects
+})

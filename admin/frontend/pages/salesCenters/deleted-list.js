@@ -4,6 +4,8 @@ import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 import api from '~base/api'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 class DeletedSalesCenters extends Component {
@@ -62,7 +64,7 @@ class DeletedSalesCenters extends Component {
 
   async restoreOnClick (uuid) {
     var url = '/admin/salesCenters/restore/' + uuid
-    const project = await api.post(url)
+    await api.post(url)
 
     this.props.history.push('/admin/salesCenters/detail/' + uuid)
   }
@@ -97,4 +99,16 @@ DeletedSalesCenters.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({deletedSalesCenters: 'deletedSalesCenters'}, DeletedSalesCenters)
+const branchedDeletedSalesCenters = branch(
+  {deletedSalesCenters: 'deletedSalesCenters'},
+  DeletedSalesCenters
+)
+
+export default Page({
+  path: '/salesCenters/deleted',
+  title: 'Deleted',
+  icon: 'trash',
+  exact: true,
+  validate: loggedIn,
+  component: branchedDeletedSalesCenters
+})

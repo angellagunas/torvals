@@ -6,6 +6,8 @@ import FontAwesome from 'react-fontawesome'
 import CreateBarGraph from './create-bargraph'
 import graphData from './Graph_data'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import {
   BaseTable,
   SimpleTable,
@@ -368,4 +370,11 @@ class ForecastDetail extends Component {
   }
 }
 
-export default ForecastDetail
+export default Page({
+  path: '/forecasts/detail/:uuid',
+  title: 'Forecast detail',
+  icon: 'check',
+  exact: true,
+  validate: loggedIn,
+  component: ForecastDetail
+})

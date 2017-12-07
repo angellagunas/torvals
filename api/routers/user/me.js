@@ -6,7 +6,7 @@ module.exports = new Route({
   path: '/me',
   handler: async function (ctx) {
     if (ctx.state.user) {
-      const user = await ctx.state.user.toPublic()
+      const user = ctx.state.user.toPublic()
 
       const data = {
         loggedIn: true,

@@ -6,6 +6,8 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import DatasetDetailForm from './detail-form'
 import { UploadDataset } from '~base/components/base-uploads'
 import ConfigureDatasetForm from './configure-form'
@@ -392,4 +394,13 @@ DataSetDetail.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({datasets: 'datasets'}, DataSetDetail)
+const branchedDataSetDetail = branch({datasets: 'datasets'}, DataSetDetail)
+
+export default Page({
+  path: '/datasets/detail/:uuid',
+  title: 'Dataset detail',
+  icon: 'check',
+  exact: true,
+  validate: loggedIn,
+  component: branchedDataSetDetail
+})

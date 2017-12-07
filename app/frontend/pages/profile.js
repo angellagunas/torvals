@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 
 import UpdatePasswordForm from '~base/components/update-password'
 import UpdateProfileForm from '~base/components/update-profile'
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 
 class Profile extends Component {
   render () {
@@ -42,4 +44,10 @@ class Profile extends Component {
   }
 }
 
-export default Profile
+export default Page({
+  path: '/profile',
+  title: 'Profile',
+  exact: true,
+  validate: loggedIn,
+  component: Profile
+})

@@ -5,6 +5,8 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 
+import Page from '~base/page'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import GroupForm from './form'
 
@@ -158,4 +160,13 @@ GroupDetail.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({groups: 'groups'}, GroupDetail)
+const branchedGroupDetail = branch({groups: 'groups'}, GroupDetail)
+
+export default Page({
+  path: '/manage/groups/:uuid',
+  title: 'Group details',
+  exact: true,
+  roles: 'admin, admin-organizacion',
+  validate: [loggedIn, verifyRole],
+  component: branchedGroupDetail
+})
