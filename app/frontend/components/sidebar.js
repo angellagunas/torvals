@@ -10,6 +10,7 @@ import ReadyDataSets from '../pages/datasets/list-ready'
 import Projects from '../pages/projects/list'
 import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
+import Forecasts from '../pages/forecasts/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -56,33 +57,23 @@ class Sidebar extends Component {
         },
         Projects.asSidebarItem(),
         SalesCenters.asSidebarItem(),
-        Products.asSidebarItem()
+        Products.asSidebarItem(),
+        Forecasts.asSidebarItem()
       ]
     }
 
-    return [{
-      title: 'Dashboard',
-      icon: 'github',
-      to: '/'
-    },
-    {
-      title: 'Manage Your Team',
-      icon: 'users',
-      to: '/manage',
-      roles: 'admin-organizacion, admin',
-      dropdown: [
-        {
-          title: 'Groups',
-          icon: 'users',
-          to: '/manage/groups'
-        },
-        {
-          title: 'Users',
-          icon: 'user',
-          to: '/manage/users'
-        }
-      ]
-    }]
+    return [
+      Dashboard.asSidebarItem(),
+      {
+        title: 'Manage Your Team',
+        icon: 'users',
+        to: '/manage',
+        roles: 'admin-organizacion, admin',
+        dropdown: [
+          Users.asSidebarItem(),
+          Groups.asSidebarItem()
+        ]
+      }]
   }
 
   handleActiveLink (item) {

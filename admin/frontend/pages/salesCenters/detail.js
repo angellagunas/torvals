@@ -20,7 +20,6 @@ class SalesCenterDetail extends Component {
 
   componentWillMount () {
     this.load()
-    this.loadGroups()
   }
 
   async load () {
@@ -32,15 +31,16 @@ class SalesCenterDetail extends Component {
       loaded: true,
       salesCenter: body.data
     })
+
+    this.loadGroups(body.data)
   }
 
-  async loadGroups () {
+  async loadGroups (salesCenter) {
     var url = '/admin/groups/'
     const body = await api.get(
       url,
       {
-        user_orgs: this.props.match.params.uuid,
-        user: this.props.match.params.uuid,
+        salesCenter: salesCenter.uuid,
         start: 0,
         limit: 0
       }
@@ -61,7 +61,6 @@ class SalesCenterDetail extends Component {
     )
 
     this.load()
-    this.loadGroups()
   }
 
   async assignedGroupOnClick (uuid) {
@@ -73,7 +72,6 @@ class SalesCenterDetail extends Component {
     )
 
     this.load()
-    this.loadGroups()
   }
 
   async deleteOnClick () {
@@ -83,11 +81,18 @@ class SalesCenterDetail extends Component {
   }
 
   compareArrays (first, second) {
-    var third = first.filter(function (o1) {
-      return !second.some(function (o2) {
-        return o1.id === o2.id
-      })
-    })
+    var third = []
+    for (var i = 0; i < first.length; i++) {
+      var available = true
+      for (var j = 0; j < second.length; j++) {
+        if (first[i]._id === second[j]._id) {
+          available = false
+        }
+      }
+      if (available) {
+        third.push(first[i])
+      }
+    }
 
     return third
   }
@@ -96,7 +101,6 @@ class SalesCenterDetail extends Component {
     if (!this.state.loaded) {
       return <Loader />
     }
-    this.compareArrays(this.state.salesCenter.groups, [])
 
     return (
       <div className='columns c-flex-1 is-marginless'>

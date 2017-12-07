@@ -58,6 +58,12 @@ class ForecastDetail extends Component {
     this.props.history.push(`/admin/projects/detail/${this.state.forecast.project.uuid}`)
   }
 
+  async changeStatusOnClick (status) {
+    var url = '/admin/forecasts/change/' + this.props.match.params.uuid
+    await api.post(url, {status: status})
+    this.load()
+  }
+
   getColumns () {
     return [
       {
@@ -173,6 +179,15 @@ class ForecastDetail extends Component {
               </div>
             </div>
           </div>
+          <footer className='card-footer'>
+            <button
+              className='button is-primary'
+              type='button'
+              onClick={() => this.changeStatusOnClick('analistReview')}
+                      >
+                        Analist Review
+            </button>
+          </footer>
         </div>
       )
     }

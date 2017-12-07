@@ -10,6 +10,7 @@ const Project = require('./project')
 const SalesCenter = require('./salesCenter')
 const Product = require('./product')
 const Forecast = require('./forecast')
+const Prediction = require('./prediction')
 // #Import
 
 module.exports = {
@@ -24,5 +25,6 @@ module.exports = {
   Project,
   SalesCenter,
   Product,
+  Prediction,
   Forecast// #Exports
 }

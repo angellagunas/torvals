@@ -11,7 +11,8 @@ const forecastSchema = new Schema({
   project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   confirmedBy: { type: Schema.Types.ObjectId, ref: 'User' },
-  externalId: { type: String },
+  configPrId: { type: String },
+  forecastId: { type: String },
   dateStart: { type: Date },
   dateEnd: { type: Date },
   holidays: [{
@@ -21,7 +22,7 @@ const forecastSchema = new Schema({
   frequency: { type: String, enum: ['B', 'D', 'W', 'M'] },
   status: {
     type: String,
-    enum: ['created', 'processing', 'done'],
+    enum: ['created', 'processing', 'done', 'analistReview', 'opsReview', 'supervisorReview', 'readyToOrder'],
     default: 'created'
   },
   changePoints: [{ type: Date }],
@@ -30,6 +31,7 @@ const forecastSchema = new Schema({
   newSalesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   newProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+  graphData: { type: Schema.Types.Mixed },
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
