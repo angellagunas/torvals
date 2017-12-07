@@ -35,6 +35,7 @@ import Products from './pages/products/list'
 import ProductDetail from './pages/products/detail'
 import DeletedProducts from './pages/products/deleted-list'
 import ForecastDetail from './pages/forecasts/detail'
+import PredictionDetail from './pages/forecasts/predictions'
 
 const AppRouter = () => {
   return (<Router>
@@ -68,6 +69,7 @@ const AppRouter = () => {
         <PrivateRoute exact path='/products/deleted' component={DeletedProducts} />
         <PrivateRoute exact path='/products/detail/:uuid' component={ProductDetail} />
         <PrivateRoute exact path='/forecasts/detail/:uuid' component={ForecastDetail} />
+        <PrivateRoute exact path='/forecasts/detail/:uuid/prediction' component={PredictionDetail} />
       </div>
     </AdminLayout>
   </Router>)

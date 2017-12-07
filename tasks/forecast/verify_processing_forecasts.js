@@ -83,14 +83,11 @@ const task = new Task(async function (argv) {
             return String(item._id) === String(product._id)
           })
 
-          if (pos >= 0) continue
-
-          pos = forecast.newProducts.findIndex(item => {
+          var posNew = forecast.newProducts.findIndex(item => {
             return String(item._id) === String(product._id)
           })
 
-          if (pos >= 0) continue
-          forecast.products.push(product)
+          if (pos < 0 && posNew < 0) forecast.products.push(product)
         }
 
         if (!salesCenter) {
@@ -106,22 +103,20 @@ const task = new Task(async function (argv) {
             return String(item._id) === String(salesCenter._id)
           })
 
-          if (pos >= 0) continue
-
-          pos = forecast.newSalesCenters.findIndex(item => {
+          posNew = forecast.newSalesCenters.findIndex(item => {
             return String(item._id) === String(salesCenter._id)
           })
 
-          if (pos >= 0) continue
-          forecast.salesCenters.push(salesCenter)
+          if (pos < 0 && posNew < 0) forecast.salesCenters.push(salesCenter)
         }
 
         await Prediction.create({
           organization: forecast.organization,
           project: forecast.project,
           forecast: forecast,
-          externalId: res.forecast_id,
-          data: d,
+          externalId: forecast.forecastId,
+          data: {...d, forecastDate: d.forecast_date},
+          apiData: d,
           salesCenter: salesCenter,
           product: product
         })

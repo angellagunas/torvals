@@ -15,6 +15,7 @@ const projectSchema = new Schema({
     }]
   }],
   description: { type: String },
+  adjustment: { type: Number },
   businessRules: Schema.Types.Mixed,
 
   dateCreated: { type: Date, default: moment.utc },
@@ -31,6 +32,7 @@ projectSchema.methods.toPublic = function () {
     description: this.description,
     organization: this.organization,
     datasets: this.datasets,
+    adjustment: this.adjustment,
     dateCreated: this.dateCreated
   }
 }
@@ -42,6 +44,7 @@ projectSchema.methods.toAdmin = function () {
     description: this.description,
     organization: this.organization,
     datasets: this.datasets,
+    adjustment: this.adjustment,
     dateCreated: this.dateCreated
   }
 }

@@ -17,7 +17,15 @@ const predictionSchema = new Schema({
     enum: ['created', 'processing', 'done'],
     default: 'created'
   },
-  data: { type: Schema.Types.Mixed },
+  data: {
+    existence: { type: Number },
+    prediction: { type: Number },
+    adjustment: { type: Number },
+    month: { type: String },
+    year: { type: String },
+    forecastDate: { type: String }
+  },
+  apiData: { type: Schema.Types.Mixed },
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
