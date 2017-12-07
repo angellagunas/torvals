@@ -3,6 +3,8 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
+import CreateBarGraph from './create-bargraph'
+import graphData from './Graph_data'
 
 import {
   BaseTable,
@@ -174,6 +176,11 @@ class ForecastDetail extends Component {
                   }
                   filters={{group: this.props.match.params.uuid}}
                  />
+
+                <CreateBarGraph
+                  data={graphData.data}
+                  size={[250, 250]}
+                />
               </div>
             </div>
           </div>
