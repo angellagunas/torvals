@@ -1,12 +1,11 @@
 import React from 'react'
 import {
   BrowserRouter as Router,
+  Switch,
   Route
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
-
-import {AppPrivateRoute, LoginRoute, PrivateRoleRoute} from '~base/router'
 
 import LogIn from './pages/log-in'
 import Dashboard from './pages/app'
@@ -27,116 +26,51 @@ import ProjectDetail from './pages/projects/detail'
 import SalesCenters from './pages/salesCenters/list'
 import SalesCenterDetail from './pages/salesCenters/detail'
 import Products from './pages/products/list'
-import ProductsDetail from './pages/products/detail'
+import ProductDetail from './pages/products/detail'
 import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
+
+const NoMatch = () => {
+  return <div>Not Found</div>
+}
 
 const AppRouter = () => {
   return (<Router>
     <AdminLayout>
       <div className='c-flex-1 is-flex is-flex-column is-relative'>
-        <Route exact path='/emails/invite' component={EmailInviteLanding} />
-        <Route exact path='/emails/reset' component={EmailResetLanding} />
-        <Route exact path='/password/forgotten' component={ResetPassword} />
-        <LoginRoute exact path='/log-in' component={LogIn} />
-        <AppPrivateRoute exact path='/profile' component={Profile} />
-        <AppPrivateRoute exact path='/' component={Dashboard} />
-        <PrivateRoleRoute
-          exact
-          path='/manage/users'
-          component={Users}
-          roles='admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/manage/users/:uuid'
-          component={UserDetail}
-          roles='admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/manage/groups'
-          component={Groups}
-          roles='admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/manage/groups/:uuid'
-          component={GroupDetail}
-          roles='admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/manage/organizations/:uuid'
-          component={OrganizationDetail}
-          roles='admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/datasets'
-          component={DataSets}
-          roles='supervisor, analista, admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/datasets/:uuid'
-          component={DataSetDetail}
-          roles='supervisor, analista, admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/datasets/ready'
-          component={ReadyDataSets}
-          roles='supervisor, analista, admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/projects'
-          component={Projects}
-          roles='supervisor, analista, admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/projects/:uuid'
-          component={ProjectDetail}
-          roles='supervisor, analista, admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/salesCenters'
-          component={SalesCenters}
-          roles='supervisor, analista, admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/salesCenters/:uuid'
-          component={SalesCenterDetail}
-          roles='supervisor, analista, admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/products'
-          component={Products}
-          roles='supervisor, analista, admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/products/:uuid'
-          component={ProductsDetail}
-          roles='supervisor, analista, admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/forecasts/:uuid'
-          component={ForecastDetail}
-          roles='supervisor, ops, supervisor-ops, analista, admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/forecasts'
-          component={Forecasts}
-          roles='supervisor, ops, supervisor-ops, analista, admin-organizacion, admin'
-        />
+        <Switch>
+          {LogIn.asRouterItem()}
+          {ResetPassword.asRouterItem()}
+          {EmailResetLanding.asRouterItem()}
+          {EmailInviteLanding.asRouterItem()}
+          {Dashboard.asRouterItem()}
+          {Profile.asRouterItem()}
+
+          {Users.asRouterItem()}
+          {UserDetail.asRouterItem()}
+
+          {OrganizationDetail.asRouterItem()}
+
+          {Groups.asRouterItem()}
+          {GroupDetail.asRouterItem()}
+
+          {DataSets.asRouterItem()}
+          {ReadyDataSets.asRouterItem()}
+          {DataSetDetail.asRouterItem()}
+
+          {Projects.asRouterItem()}
+          {ProjectDetail.asRouterItem()}
+
+          {SalesCenters.asRouterItem()}
+          {SalesCenterDetail.asRouterItem()}
+
+          {Products.asRouterItem()}
+          {ProductDetail.asRouterItem()}
+
+          {Forecasts.asRouterItem()}
+          {ForecastDetail.asRouterItem()}
+          <Route component={NoMatch} />
+        </Switch>
       </div>
     </AdminLayout>
   </Router>)

@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
 const {User} = require('models')
-const jwt = require('lib/jwt')
 
 module.exports = new Route({
   method: 'post',
@@ -19,13 +18,14 @@ module.exports = new Route({
     var userPublic = user.toPublic()
     userPublic.organizations = orgsAux
 
+    const token = await user.createToken({
+      type: 'session'
+    })
+
     ctx.body = {
       user: userPublic,
       isAdmin: user.isAdmin,
-      jwt: jwt.sign({
-        uuid: user.uuid,
-        apiToken: user.apiToken
-      })
+      jwt: token.getJwt()
     }
   }
 })

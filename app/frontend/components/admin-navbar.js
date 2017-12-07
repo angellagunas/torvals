@@ -3,7 +3,7 @@ import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
 
 import cookies from '~base/cookies'
-import Image from '~base/components/image'
+import api from '~base/api'
 import Link from '~base/router/link'
 import tree from '~core/tree'
 import SelectOrganizationForm from '~base/components/select-organization'
@@ -42,6 +42,12 @@ class NavBar extends Component {
 
   async handleLogout () {
     const {history} = this.props
+
+    try {
+      await api.del('/user')
+    } catch (err) {
+      console.log('Error removing token, logging out anyway ...')
+    }
 
     cookies.remove('jwt')
     tree.set('jwt', null)

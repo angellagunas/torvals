@@ -4,6 +4,8 @@ import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 import moment from 'moment'
 
+import Page from '~base/page'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 class Forecasts extends Component {
@@ -130,4 +132,14 @@ Forecasts.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({forecasts: 'forecasts'}, Forecasts)
+const branchedForecasts = branch({forecasts: 'forecasts'}, Forecasts)
+
+export default Page({
+  path: '/forecasts',
+  title: 'Forecast',
+  icon: 'snowflake-o',
+  exact: true,
+  roles: 'supervisor, analista, admin-organizacion, admin, ops, supervisor-ops',
+  validate: [loggedIn, verifyRole],
+  component: branchedForecasts
+})
