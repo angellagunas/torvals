@@ -5,6 +5,8 @@ import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 
+import Page from '~base/page'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
 import CreateForecast from '../forecasts/create'
@@ -363,4 +365,11 @@ const BranchedProjectDetail = branch((props, context) => {
   }
 }, ProjectDetail)
 
-export default BranchedProjectDetail
+export default Page({
+  path: '/projects/detail/:uuid',
+  title: 'Project detail',
+  exact: true,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
+  component: BranchedProjectDetail
+})

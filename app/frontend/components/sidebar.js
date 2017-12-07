@@ -2,6 +2,16 @@ import React, { Component } from 'react'
 import SidebarItem from '~components/sidebar-item'
 import tree from '~core/tree'
 
+import Dashboard from '../pages/app'
+import Users from '../pages/users/list'
+import Groups from '../pages/groups/list'
+import DataSets from '../pages/datasets/list'
+import ReadyDataSets from '../pages/datasets/list-ready'
+import Projects from '../pages/projects/list'
+import SalesCenters from '../pages/salesCenters/list'
+import Products from '../pages/products/list'
+import Forecasts from '../pages/forecasts/list'
+
 class Sidebar extends Component {
   constructor (props) {
     super(props)
@@ -18,105 +28,52 @@ class Sidebar extends Component {
 
   getMenuItems () {
     if (tree.get('organization')) {
-      return [{
-        title: 'Dashboard',
-        icon: 'github',
-        to: '/'
-      },
+      return [
+        Dashboard.asSidebarItem(),
+        {
+          title: 'Manage Your Team',
+          icon: 'users',
+          to: '/manage',
+          roles: 'admin-organizacion, admin',
+          dropdown: [
+            Users.asSidebarItem(),
+            Groups.asSidebarItem(),
+            {
+              title: 'My Organization',
+              icon: 'user',
+              to: '/manage/organizations/' + tree.get('organization').uuid
+            }
+          ]
+        },
+        {
+          title: 'Datasets',
+          icon: 'file',
+          to: '/datasets',
+          roles: 'supervisor, analista, admin-organizacion, admin',
+          dropdown: [
+            DataSets.asSidebarItem(),
+            ReadyDataSets.asSidebarItem()
+          ]
+        },
+        Projects.asSidebarItem(),
+        SalesCenters.asSidebarItem(),
+        Products.asSidebarItem(),
+        Forecasts.asSidebarItem()
+      ]
+    }
+
+    return [
+      Dashboard.asSidebarItem(),
       {
         title: 'Manage Your Team',
         icon: 'users',
         to: '/manage',
         roles: 'admin-organizacion, admin',
         dropdown: [
-          {
-            title: 'Groups',
-            icon: 'users',
-            to: '/manage/groups'
-          },
-          {
-            title: 'Users',
-            icon: 'user',
-            to: '/manage/users'
-          },
-          {
-            title: 'My Organization',
-            icon: 'user',
-            to: '/manage/organizations/' + tree.get('organization').uuid
-          }
+          Users.asSidebarItem(),
+          Groups.asSidebarItem()
         ]
-      },
-      {
-        title: 'DataSets',
-        icon: 'file',
-        to: '/datasets',
-        roles: 'supervisor, analista, admin-organizacion, admin',
-        dropdown: [
-          {
-            title: 'Active',
-            icon: 'check',
-            to: '/datasets'
-          },
-          {
-            title: 'Ready',
-            icon: 'thumbs-up',
-            to: '/datasets/ready'
-          }
-        ]
-      },
-      {
-
-        title: 'Projects',
-        icon: 'cog',
-        to: '/projects',
-        roles: 'supervisor, analista, admin-organizacion, admin'
-      },
-      {
-
-        title: 'Sales Centers',
-        icon: 'credit-card-alt',
-        to: '/salesCenters',
-        roles: 'supervisor, analista, admin-organizacion, admin'
-      },
-      {
-
-        title: 'Products',
-        icon: 'dropbox',
-        to: '/products',
-        roles: 'supervisor, analista, admin-organizacion, admin'
-      },
-      {
-
-        title: 'Forecasts',
-        icon: 'snowflake-o',
-        to: '/forecasts',
-        roles: 'supervisor, ops, supervisor-ops, analista, admin-organizacion, admin'
       }]
-    }
-
-    return [{
-      title: 'Dashboard',
-      icon: 'github',
-      to: '/'
-    },
-    {
-      title: 'Manage Your Team',
-      icon: 'users',
-      to: '/manage',
-      roles: 'admin-organizacion, admin',
-      dropdown: [
-        {
-          title: 'Groups',
-          icon: 'users',
-          to: '/manage/groups'
-        },
-        {
-          title: 'Users',
-          icon: 'user',
-          to: '/manage/users'
-        }
-      ]
-    }]
   }
 
   handleActiveLink (item) {

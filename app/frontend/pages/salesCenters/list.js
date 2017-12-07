@@ -4,6 +4,8 @@ import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 import moment from 'moment'
 
+import Page from '~base/page'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateSalesCenter from './create'
 
@@ -130,4 +132,14 @@ SalesCenters.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({salesCenters: 'salesCenters'}, SalesCenters)
+const branchedSalesCenters = branch({salesCenters: 'salesCenters'}, SalesCenters)
+
+export default Page({
+  path: '/salesCenters',
+  title: 'Active',
+  icon: 'credit-card-alt',
+  exact: true,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
+  component: branchedSalesCenters
+})

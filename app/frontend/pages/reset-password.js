@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Page from '~base/page'
 
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -155,4 +156,9 @@ class ResetPassword extends Component {
   }
 }
 
-export default ResetPassword
+export default Page({
+  path: '/password/forgotten',
+  title: 'Reset Password',
+  exact: true,
+  component: ResetPassword
+})

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Page from '~base/page'
 
 import tree from '~core/tree'
 import api from '~base/api'
@@ -310,4 +311,9 @@ class EmailResetLanding extends Component {
   }
 }
 
-export default EmailResetLanding
+export default Page({
+  path: '/emails/reset',
+  title: 'Email reset',
+  exact: true,
+  component: EmailResetLanding
+})

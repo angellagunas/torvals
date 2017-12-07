@@ -4,6 +4,8 @@ import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 import api from '~base/api'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 class DeletedProjects extends Component {
@@ -97,4 +99,13 @@ DeletedProjects.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({deletedprojects: 'deletedprojects'}, DeletedProjects)
+const branchedDeletedProjects = branch({deletedprojects: 'deletedprojects'}, DeletedProjects)
+
+export default Page({
+  path: '/projects/deleted',
+  title: 'Deleted',
+  icon: 'trash',
+  exact: true,
+  validate: loggedIn,
+  component: branchedDeletedProjects
+})

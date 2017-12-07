@@ -5,6 +5,8 @@ import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
 import tree from '~core/tree'
 
+import Page from '~base/page'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import {
   SimpleTable,
   TableBody,
@@ -480,4 +482,12 @@ class ForecastDetail extends Component {
   }
 }
 
-export default ForecastDetail
+export default Page({
+  path: '/forecasts/detail/:uuid',
+  title: 'Forecast detail',
+  icon: 'check',
+  exact: true,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
+  component: ForecastDetail
+})

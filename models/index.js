@@ -1,4 +1,5 @@
 const User = require('./user')
+const UserToken = require('./user-token')
 const RequestLog = require('./requestLog')
 const Organization = require('./organization')
 const Role = require('./role')
@@ -10,9 +11,11 @@ const SalesCenter = require('./salesCenter')
 const Product = require('./product')
 const Forecast = require('./forecast')
 const Prediction = require('./prediction')
+// #Import
 
 module.exports = {
   User,
+  UserToken,
   RequestLog,
   Organization,
   Role,
@@ -22,6 +25,6 @@ module.exports = {
   Project,
   SalesCenter,
   Product,
-  Forecast,
-  Prediction
+  Prediction,
+  Forecast// #Exports
 }

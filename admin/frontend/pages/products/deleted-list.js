@@ -1,17 +1,14 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import Link from '~base/router/link'
 import moment from 'moment'
 import api from '~base/api'
 
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 class DeletedProducts extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   componentWillMount () {
     this.context.tree.set('deletedProducts', {
       page: 1,
@@ -102,4 +99,13 @@ DeletedProducts.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({deletedproducts: 'deletedproducts'}, DeletedProducts)
+const branchedDeletedProducts = branch({deletedproducts: 'deletedproducts'}, DeletedProducts)
+
+export default Page({
+  path: '/products/deleted',
+  title: 'Deleted products',
+  icon: 'trash',
+  exact: true,
+  validate: loggedIn,
+  component: branchedDeletedProducts
+})
