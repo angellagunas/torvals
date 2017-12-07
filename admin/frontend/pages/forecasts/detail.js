@@ -5,7 +5,6 @@ import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
 
 import {
-  BaseTable,
   SimpleTable,
   TableBody,
   TableHeader,
@@ -50,10 +49,10 @@ class ForecastDetail extends Component {
       forecast: body.data
     })
 
-    this.loadPrediction()
+    this.loadPredictions()
   }
 
-  async loadPrediction () {
+  async loadPredictions () {
     var url = '/admin/predictions'
     const body = await api.get(url, {forecast: this.state.forecast.uuid})
 
