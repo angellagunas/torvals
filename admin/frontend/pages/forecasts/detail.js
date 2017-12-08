@@ -156,29 +156,6 @@ class ForecastDetail extends Component {
           <div className='card-content'>
             <div className='columns'>
               <div className='column'>
-                <BaseTable
-                  branchName='predictions'
-                  baseUrl='/admin/predictions'
-                  columns={this.getColumns()}
-                  data={
-                  [
-                    {
-                      columna: 'column a',
-                      columnb: 'column b',
-                      columnc: 'column c',
-                      columnd: 'column d',
-                      columne: 'column e',
-                      columnf: 'column f',
-                      columng: 'column g',
-                      columnh: 'column h',
-                      columni: 'column i',
-                      columnj: 'column j'
-                    }
-                  ]
-                  }
-                  filters={{group: this.props.match.params.uuid}}
-                 />
-
                 <CreateBarGraph
                   data={graphData.data}
                   size={[250, 250]}
