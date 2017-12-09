@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import moment from 'moment'
-import FontAwesome from 'react-fontawesome'
 import tree from '~core/tree'
+import Link from '~base/router/link'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -369,6 +369,16 @@ class ForecastDetail extends Component {
           <div className='section'>
             <div className='columns'>
               <div className='column'>
+                <Link
+                  className='button'
+                  to={'/projects/' + forecast.project.uuid}
+                >
+                  Return to project
+                </Link>
+              </div>
+            </div>
+            <div className='columns'>
+              <div className='column'>
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
@@ -453,7 +463,7 @@ class ForecastDetail extends Component {
                                 External ID
                               </TableHeader>
                               <TableData>
-                                {forecast.externalId}
+                                {forecast.configPrId}
                               </TableData>
                             </BodyRow>
                             <BodyRow>
@@ -483,7 +493,7 @@ class ForecastDetail extends Component {
 }
 
 export default Page({
-  path: '/forecasts/detail/:uuid',
+  path: '/forecasts/:uuid',
   title: 'Forecast detail',
   icon: 'check',
   exact: true,

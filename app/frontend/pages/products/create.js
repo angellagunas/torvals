@@ -7,8 +7,7 @@ import ProductForm from './create-form'
 
 var initialState = {
   name: '',
-  description: '',
-  cost: ''
+  description: ''
 }
 
 class CreateProduct extends Component {

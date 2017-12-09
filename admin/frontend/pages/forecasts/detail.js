@@ -3,6 +3,7 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
+import Link from '~base/router/link'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -324,6 +325,14 @@ class ForecastDetail extends Component {
           <div className='section'>
             {notif}
             <div className='columns'>
+              <div className='column'>
+                <Link
+                  className='button'
+                  to={'/projects/detail/' + forecast.project.uuid}
+                >
+                  Return to project
+                </Link>
+              </div>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
@@ -424,7 +433,7 @@ class ForecastDetail extends Component {
                                 External ID
                               </TableHeader>
                               <TableData>
-                                {forecast.externalId}
+                                {forecast.configPrId}
                               </TableData>
                             </BodyRow>
                             <BodyRow>

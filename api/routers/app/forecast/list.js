@@ -1,7 +1,7 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Forecast, Project, Role} = require('models')
+const {Forecast, Project, Role, Product, Prediction, SalesCenter} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -38,6 +38,32 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'product') {
+        const product = await Product.findOne({'uuid': ctx.request.query[filter]})
+
+        const predictions = await Prediction.find({product: product})
+        const forecastIds = predictions.map(item => { return item.forecast })
+
+        if (product) {
+          filters['_id'] = {$in: forecastIds}
+        }
+
+        continue
+      }
+
+      if (filter === 'salesCenter') {
+        const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]})
+
+        const predictions = await Prediction.find({salesCenter: salesCenter})
+        const forecastIds = predictions.map(item => { return item.forecast })
+
+        if (salesCenter) {
+          filters['_id'] = {$in: forecastIds}
+        }
+
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
@@ -63,7 +89,7 @@ module.exports = new Route({
     var forecasts = await Forecast.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters},
+      find: {...filters, isDeleted: false, organization: ctx.state.organization},
       // populate: 'organization',
       sort: ctx.request.query.sort || '-dateCreated'
     })

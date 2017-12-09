@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import Loader from '~base/components/spinner'
 import api from '~base/api'
 
 import {
@@ -16,7 +15,9 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
-    cost: {type: 'number', title: 'Cost'},
+    category: {type: 'string', title: 'Category'},
+    subcategory: {type: 'string', title: 'Subcategory'},
+    externalId: {type: 'string', title: 'External Id'},
     description: {type: 'string', title: 'Description'}
 
   }
@@ -24,7 +25,9 @@ const schema = {
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  cost: {'ui:widget': TextWidget},
+  category: {'ui:widget': TextWidget},
+  subcategory: {'ui:widget': TextWidget},
+  externalId: {'ui:widget': TextWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
 

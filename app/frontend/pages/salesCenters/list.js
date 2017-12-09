@@ -1,33 +1,36 @@
-import React, { Component } from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
+import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
 
-import Page from '~base/page'
+import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateSalesCenter from './create'
 
-class SalesCenters extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      className: ''
+export default ListPage({
+  path: '/salesCenters',
+  title: 'Sales Centers',
+  icon: 'credit-card-alt',
+  exact: true,
+  roles: 'supervisor, analista, admin-organizacion, admin',
+  validate: [loggedIn, verifyRole],
+  titleSingular: 'Sales center',
+  create: true,
+  createComponent: CreateSalesCenter,
+  baseUrl: '/app/salesCenters',
+  branchName: 'salesCenters',
+  detailUrl: '/app/salesCenters/',
+  filters: true,
+  schema: {
+    type: 'object',
+    required: [],
+    properties: {
+      name: {type: 'text', title: 'Por nombre'}
     }
-  }
-
-  componentWillMount () {
-    this.context.tree.set('salesCenters', {
-      page: 1,
-      totalItems: 0,
-      items: [],
-      pageLength: 10
-    })
-    this.context.tree.commit()
-  }
-
-  getColumns () {
+  },
+  uiSchema: {
+    name: {'ui:widget': 'SearchFilter'}
+  },
+  getColumns: () => {
     return [
       {
         'title': 'Name',
@@ -63,83 +66,4 @@ class SalesCenters extends Component {
       }
     ]
   }
-
-  showModal () {
-    this.setState({
-      className: ' is-active'
-    })
-  }
-
-  hideModal () {
-    this.setState({
-      className: ''
-    })
-  }
-
-  finishUp (object) {
-    this.setState({
-      className: ''
-    })
-    this.props.history.push('/salesCenters/' + object.uuid)
-  }
-
-  render () {
-    return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Sales Centers</h1>
-            <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                    Sales Centers
-                </p>
-                <div className='card-header-select'>
-                  <button className='button is-primary' onClick={() => this.showModal()}>
-                    New Sales Center
-                  </button>
-                  <CreateSalesCenter
-                    className={this.state.className}
-                    hideModal={this.hideModal.bind(this)}
-                    finishUp={this.finishUp.bind(this)}
-                    branchName='salesCenters'
-                    baseUrl='/app/salesCenters'
-                    url='/app/salesCenters'
-                  />
-
-                </div>
-              </header>
-              <div className='card-content'>
-                <div className='columns'>
-                  <div className='column'>
-                    <BranchedPaginatedTable
-                      branchName='salesCenters'
-                      baseUrl='/app/salesCenters'
-                      columns={this.getColumns()}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-}
-
-SalesCenters.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedSalesCenters = branch({salesCenters: 'salesCenters'}, SalesCenters)
-
-export default Page({
-  path: '/salesCenters',
-  title: 'Active',
-  icon: 'credit-card-alt',
-  exact: true,
-  roles: 'supervisor, analista, admin-organizacion, admin',
-  validate: [loggedIn, verifyRole],
-  component: branchedSalesCenters
 })
