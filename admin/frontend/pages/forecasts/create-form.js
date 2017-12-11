@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
 import api from '~base/api'
 import lov from 'lov'
+import DatePicker from 'react-datepicker'
+import moment from 'moment'
+
+import 'react-datepicker/dist/react-datepicker.css'
 
 class ForecastForm extends Component {
   constructor (props) {
@@ -23,8 +27,8 @@ class ForecastForm extends Component {
         ]
       },
       holidaysName: '',
-      holidaysDate: '',
-      changePointsDate: '',
+      holidaysDate: undefined,
+      changePointsDate: undefined,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
@@ -32,12 +36,17 @@ class ForecastForm extends Component {
 
   errorHandler (e) {}
 
-  handleChange (type, event) {
+  handleChange (type, value) {
     const data = {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
-    data[type] = event.currentTarget.value
+
+    data[type] = value
+
+    if (type === 'dateStart' && !this.state.dateEnd) {
+      data['dateEnd'] = moment(value).add(1, 'months').subtract(1, 'days')
+    }
 
     this.setState(data)
   }
@@ -62,7 +71,7 @@ class ForecastForm extends Component {
         date: this.state.holidaysDate
       }),
       holidaysName: '',
-      holidaysDate: ''
+      holidaysDate: undefined
     })
   }
 
@@ -73,7 +82,7 @@ class ForecastForm extends Component {
     } else {
       this.setState({
         ...this.state.formData.changePoints.push(this.state.changePointsDate),
-        changePointsDate: ''
+        changePointsDate: undefined
       })
     }
   }
@@ -82,8 +91,8 @@ class ForecastForm extends Component {
     event.preventDefault()
     const formData = this.state.formData
 
-    formData.dateStart = this.state.dateStart
-    formData.dateEnd = this.state.dateEnd
+    formData.dateStart = this.state.dateStart.format('YYYY-MM-DD')
+    formData.dateEnd = this.state.dateEnd.format('YYYY-MM-DD')
     formData.frequency = this.state.frequencyData.enum[this.state.frequency]
 
     const schema = {
@@ -141,6 +150,14 @@ class ForecastForm extends Component {
     })
   }
 
+  getDateEnd () {
+    if (this.state.dateStart && !this.state.dateEnd) {
+      return moment(this.state.dateStart).add(1, 'months').subtract(1, 'days')
+    }
+
+    return this.state.dateEnd
+  }
+
   render () {
     return (
       <div>
@@ -148,32 +165,40 @@ class ForecastForm extends Component {
           <div className='field'>
             <label className='label'>Date Start*</label>
             <div className='control'>
-              <input
-                type='date'
+              <DatePicker
                 className='input'
                 name='dateStart'
+                dateFormat='YYYY-MM-DD'
+                placeholderText='Click to select a date'
+                selected={this.state.dateStart}
                 onChange={(e) => { this.handleChange('dateStart', e) }}
               />
             </div>
           </div>
-
           <div className='field'>
             <label className='label'>Date End*</label>
             <div className='control'>
-              <input
-                type='date'
+              <DatePicker
                 className='input'
                 name='dateEnd'
+                dateFormat='YYYY-MM-DD'
+                placeholderText='Click to select a date'
+                selected={this.getDateEnd()}
                 onChange={(e) => { this.handleChange('dateEnd', e) }}
               />
             </div>
           </div>
-
           <div className='field'>
             <label className='label'>Frequency*</label>
             <div className='control'>
               <div className='select'>
-                <select type='text' name='frequency' onChange={(e) => { this.handleChange('frequency', e) }}>
+                <select
+                  type='text'
+                  name='frequency'
+                  onChange={(e) => {
+                    this.handleChange('frequency', e.currentTarget.value)
+                  }}
+                >
                   <option value=''>Select a option</option>
                   {
                     this.state.frequencyData.enumNames.map(function (item, key) {
@@ -191,7 +216,6 @@ class ForecastForm extends Component {
           </div>
           <div className='field is-horizontal'>
             <div className='field-body'>
-
               <div className='field'>
                 <p className='control is-expanded'>
                   <input
@@ -199,19 +223,18 @@ class ForecastForm extends Component {
                     type='text'
                     placeholder='Name'
                     value={this.state.holidaysName}
-                    onChange={(e) => { this.handleChange('holidaysName', e) }}
+                    onChange={(e) => { this.handleChange('holidaysName', e.currentTarget.value) }}
                   />
                 </p>
               </div>
               <div className='field'>
-                <p className='control is-expanded'>
-                  <input
-                    className='input'
-                    type='date'
-                    value={this.state.holidaysDate}
-                    onChange={(e) => { this.handleChange('holidaysDate', e) }}
-                  />
-                </p>
+                <DatePicker
+                  className='input'
+                  dateFormat='YYYY-MM-DD'
+                  placeholderText='Click to select a date'
+                  selected={this.state.holidaysDate}
+                  onChange={(e) => { this.handleChange('holidaysDate', e) }}
+                />
               </div>
               <div className='field'>
                 <p className='control is-expanded'>
@@ -245,7 +268,7 @@ class ForecastForm extends Component {
                     return (
                       <tr key={key}>
                         <td>{item.name}</td>
-                        <td>{item.date}</td>
+                        <td>{item.date.format('YYYY-MM-DD')}</td>
                         <td>
                           <button
                             className='button is-danger'
@@ -262,21 +285,21 @@ class ForecastForm extends Component {
                 )}
             </tbody>
           </table>
-
           <div className='field'>
             <label className='label'>Change Points</label>
           </div>
           <div className='field is-horizontal'>
             <div className='field-body'>
               <div className='field'>
-                <p className='control is-expanded'>
-                  <input
-                    className='input'
-                    type='date'
-                    value={this.state.changePointsDate}
-                    onChange={(e) => { this.handleChange('changePointsDate', e) }}
-                  />
-                </p>
+                <DatePicker
+                  className='input'
+                  dateFormat='YYYY-MM-DD'
+                  placeholderText='Click to select a date'
+                  selected={this.state.changePointsDate}
+                  onChange={(e) => {
+                    this.handleChange('changePointsDate', e)
+                  }}
+                />
               </div>
               <div className='field'>
                 <p className='control is-expanded'>
@@ -291,7 +314,6 @@ class ForecastForm extends Component {
               </div>
             </div>
           </div>
-
           <table className='table is-fullwidth'>
             <thead>
               <tr>
@@ -308,7 +330,7 @@ class ForecastForm extends Component {
                   this.state.formData.changePoints.map((item, key) => {
                     return (
                       <tr key={key}>
-                        <td>{item}</td>
+                        <td>{item.format('YYYY-MM-DD')}</td>
                         <td>
                           <button
                             className='button is-danger'
@@ -342,9 +364,7 @@ class ForecastForm extends Component {
             </div>
           </div>
         </form>
-
       </div>
-
     )
   }
 }
