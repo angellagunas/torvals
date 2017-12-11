@@ -37,6 +37,11 @@ class ForecastDetail extends Component {
 
   componentWillMount () {
     this.load()
+    this.interval = setInterval(() => this.load(), 30000)
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.interval)
   }
 
   async load () {
