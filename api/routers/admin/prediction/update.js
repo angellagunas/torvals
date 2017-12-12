@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const {Prediction} = require('models')
+const {Prediction, PredictionHistoric} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -20,6 +20,15 @@ module.exports = new Route({
     prediction.data.adjustment = data.adjustment
     prediction.markModified('data')
     prediction.save()
+
+    await PredictionHistoric.create({
+      updatedBy: ctx.state.user,
+      lastAdjustment: prediction.data.lastAdjustment,
+      newAdjustment: prediction.data.adjustment,
+      prediction: prediction.data.prediction,
+      predictionObj: prediction,
+      organization: prediction.organization
+    })
 
     ctx.body = {
       data: prediction.format()

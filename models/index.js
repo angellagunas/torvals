@@ -11,6 +11,7 @@ const SalesCenter = require('./salesCenter')
 const Product = require('./product')
 const Forecast = require('./forecast')
 const Prediction = require('./prediction')
+const PredictionHistoric = require('./predictionHistoric')
 // #Import
 
 module.exports = {
@@ -26,5 +27,6 @@ module.exports = {
   SalesCenter,
   Product,
   Prediction,
+  PredictionHistoric,
   Forecast// #Exports
 }
