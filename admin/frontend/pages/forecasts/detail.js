@@ -4,8 +4,9 @@ import Loader from '~base/components/spinner'
 import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
 import Link from '~base/router/link'
-import CreateBarGraph from './create-bargraph'
 
+import DeleteButton from '~base/components/base-deleteButton'
+import CreateBarGraph from './create-bargraph'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import {
@@ -88,7 +89,7 @@ class ForecastDetail extends Component {
     })
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/admin/forecasts/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push(`/admin/projects/detail/${this.state.forecast.project.uuid}`)
@@ -448,13 +449,11 @@ class ForecastDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      objectName='Forecast'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={'Estas seguro de querer eliminar este Forecast?'}
+                    />
                   </div>
                 </div>
               </div>

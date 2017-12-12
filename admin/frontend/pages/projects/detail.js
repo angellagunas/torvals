@@ -5,6 +5,7 @@ import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 
+import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
@@ -98,7 +99,7 @@ class ProjectDetail extends Component {
     })
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/admin/projects/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/admin/projects')
@@ -253,13 +254,11 @@ class ProjectDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      objectName='Project'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={'Estas seguro de querer eliminar este Project?'}
+                    />
                   </div>
                 </div>
               </div>
