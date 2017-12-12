@@ -4,7 +4,6 @@ import Loader from '~base/components/spinner'
 import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
 import CreateBarGraph from './create-bargraph'
-import graphData from './Graph_data'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
