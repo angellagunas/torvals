@@ -4,6 +4,7 @@ import Loader from '~base/components/spinner'
 import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
 import Link from '~base/router/link'
+import CreateBarGraph from './create-bargraph'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -269,28 +270,64 @@ class ForecastDetail extends Component {
     let forecast = this.state.forecast
     if (forecast.status === 'done') {
       return (
-        <div className='card'>
-          <header className='card-header'>
-            <p className='card-header-title'>
-              Predictions
-            </p>
-          </header>
-          <div className='card-content'>
-            <div className='columns'>
-              <div className='column'>
-                Aquí va gráfica
+        <div>
+          <div className='columns'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                    Predictions Graph
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <CreateBarGraph
+                        data={forecast.graphData}
+                        size={[250, 250]}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <footer className='card-footer'>
+                  <button
+                    className='button is-primary'
+                    type='button'
+                    onClick={() => this.changeStatusOnClick('opsReview')}
+                  >
+                    Approve
+                  </button>
+                </footer>
               </div>
             </div>
           </div>
-          <footer className='card-footer'>
-            <button
-              className='button is-primary'
-              type='button'
-              onClick={() => this.changeStatusOnClick('analistReview')}
-            >
-              Analist Review
-            </button>
-          </footer>
+          <div className='columns'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                    Predictions Table
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <EditableTable
+                        columns={this.getColumns()}
+                        handleSort={(e) => this.handleSort(e)}
+                        data={this.state.predictionsFormatted}
+                        sortAscending={this.state.sortAscending}
+                        handleChange={this.handleChange.bind(this)}
+                        sortBy={this.state.sort}
+                        setRowsToEdit={this.setRowsToEdit.bind(this)}
+                        selectable
+                       />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )
     }
@@ -329,25 +366,52 @@ class ForecastDetail extends Component {
     clearInterval(this.interval)
 
     return (
-      <div className='card'>
-        <header className='card-header'>
-          <p className='card-header-title'>
-            Predictions
-          </p>
-        </header>
-        <div className='card-content'>
-          <div className='columns'>
-            <div className='column'>
-              <EditableTable
-                columns={this.getColumns()}
-                handleSort={(e) => this.handleSort(e)}
-                data={this.state.predictionsFormatted}
-                sortAscending={this.state.sortAscending}
-                handleChange={this.handleChange.bind(this)}
-                sortBy={this.state.sort}
-                setRowsToEdit={this.setRowsToEdit.bind(this)}
-                selectable
-               />
+      <div>
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  Predictions Graph
+                </p>
+              </header>
+              <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <CreateBarGraph
+                      data={forecast.graphData}
+                      size={[250, 250]}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  Predictions Table
+                </p>
+              </header>
+              <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <EditableTable
+                      columns={this.getColumns()}
+                      handleSort={(e) => this.handleSort(e)}
+                      data={this.state.predictionsFormatted}
+                      sortAscending={this.state.sortAscending}
+                      handleChange={this.handleChange.bind(this)}
+                      sortBy={this.state.sort}
+                      setRowsToEdit={this.setRowsToEdit.bind(this)}
+                      selectable
+                     />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -499,10 +563,8 @@ class ForecastDetail extends Component {
                   </div>
                 </div>
               </div>
-              <div className='column'>
-                {this.getTable()}
-              </div>
             </div>
+            {this.getTable()}
           </div>
         </div>
       </div>
