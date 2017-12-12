@@ -157,7 +157,7 @@ class ForecastDetail extends Component {
             <div className='columns'>
               <div className='column'>
                 <CreateBarGraph
-                  data={graphData.data}
+                  data={forecast.graphData}
                   size={[250, 250]}
                 />
               </div>
