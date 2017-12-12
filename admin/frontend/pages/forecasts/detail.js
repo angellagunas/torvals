@@ -69,8 +69,16 @@ class ForecastDetail extends Component {
       loaded: true,
       predictions: body.data,
       predictionsFormatted: body.data.map(item => {
+        let data = item.data
+        var percentage
+
+        if (data.prediction !== data.adjustment) {
+          percentage = (data.adjustment - data.prediction) * 100 / data.prediction
+        }
+
         return {
-          ...item.data,
+          ...data,
+          percentage: percentage,
           product: item.product,
           salesCenter: item.salesCenter,
           uuid: item.uuid
@@ -94,20 +102,19 @@ class ForecastDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Date',
-        'property': 'forecastDate',
-        'default': 'N/A'
-      },
-      {
-        'title': 'Agency',
-        'property': 'agency_id',
+        'title': 'Product Id',
+        'abbreviate': true,
+        'abbr': 'P. Id',
+        'property': 'product_id',
         'default': 'N/A',
         formatter: (row) => {
-          return String(row.salesCenter.name)
+          return String(row.product.externalId)
         }
       },
       {
-        'title': 'Product',
+        'title': 'Product Name',
+        'abbreviate': true,
+        'abbr': 'P. Name',
         'property': 'product_id',
         'default': 'N/A',
         formatter: (row) => {
@@ -115,21 +122,49 @@ class ForecastDetail extends Component {
         }
       },
       {
-        'title': 'Existence',
-        'property': 'existence',
-        'default': 0
+        'title': 'Centro de venta',
+        'abbreviate': true,
+        'abbr': 'C. Venta',
+        'property': 'agency_id',
+        'default': 'N/A',
+        formatter: (row) => {
+          return String(row.salesCenter.name)
+        }
       },
       {
-        'title': 'Prediction',
+        'title': 'Semana Bimbo',
+        'property': 'semana_bimbo',
+        'default': 'N/A'
+      },
+      {
+        'title': 'Predicción',
         'property': 'prediction',
         'default': 0
       },
       {
-        'title': 'Adjust',
+        'title': 'Ajuste anterior',
+        'property': 'lastAdjustment',
+        'default': 'N/A'
+      },
+      {
+        'title': 'Ajuste',
         'property': 'adjustment',
         'default': 0,
         'editable': true,
         'type': 'number'
+      },
+      {
+        'title': 'Porcentaje',
+        'property': 'percentage',
+        'default': 0,
+        'type': 'number',
+        formatter: (row) => {
+          if (row.percentage) {
+            return `${row.percentage} %`
+          }
+
+          return '0 %'
+        }
       }
     ]
   }
@@ -149,8 +184,10 @@ class ForecastDetail extends Component {
   async handleChange (data) {
     const project = this.state.forecast.project
     const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
+    var maxAdjustment = (prediction.data.prediction * (1 + project.adjustment))
+    var minAdjustment = (prediction.data.prediction * (1 - project.adjustment))
 
-    if (Math.abs(data.adjustment) > prediction.data.prediction * (project.adjustment)) {
+    if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
       this.setState({notification: {
         has: true,
         type: 'error',
@@ -159,12 +196,16 @@ class ForecastDetail extends Component {
       return false
     }
 
+    data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
+
+    var url = '/admin/predictions/' + data.uuid
+    const res = await api.post(url, {...data})
+
+    data.lastAdjustment = res.data.data.lastAdjustment
     const predictionsFormatted = this.state.predictionsFormatted.map(
       (item) => data.uuid === item.uuid ? data : item
     )
 
-    var url = '/admin/predictions/' + data.uuid
-    await api.post(url, {...data})
     this.setState({
       predictionsFormatted,
       success: true,
@@ -284,6 +325,8 @@ class ForecastDetail extends Component {
         </div>
       )
     }
+
+    clearInterval(this.interval)
 
     return (
       <div className='card'>

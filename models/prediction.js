@@ -21,6 +21,7 @@ const predictionSchema = new Schema({
     existence: { type: Number },
     prediction: { type: Number },
     adjustment: { type: Number },
+    lastAdjustment: { type: Number },
     month: { type: String },
     year: { type: String },
     forecastDate: { type: String }
@@ -50,7 +51,8 @@ predictionSchema.methods.format = function () {
     dateCreated: this.dateCreated,
     organization: this.organization,
     project: this.project,
-    status: this.status
+    status: this.status,
+    data: this.data
   }
 }
 

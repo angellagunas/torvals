@@ -7,7 +7,7 @@ module.exports = new Route({
   method: 'post',
   path: '/:uuid',
   validator: lov.object().keys({
-    adjustment: lov.string().required()
+    adjustment: lov.number()
   }),
   handler: async function (ctx) {
     var predictionId = ctx.params.uuid
@@ -16,6 +16,7 @@ module.exports = new Route({
     const prediction = await Prediction.findOne({'uuid': predictionId, 'isDeleted': false})
     ctx.assert(prediction, 404, 'Prediction not found')
 
+    prediction.data.lastAdjustment = prediction.data.adjustment
     prediction.data.adjustment = data.adjustment
     prediction.markModified('data')
     prediction.save()

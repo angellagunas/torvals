@@ -16,6 +16,7 @@ module.exports = new Route({
     const prediction = await Prediction.findOne({'uuid': predictionId, 'isDeleted': false})
     ctx.assert(prediction, 404, 'Prediction not found')
 
+    prediction.data.lastAdjustment = prediction.data.adjustment
     prediction.data.adjustment = data.adjustment
     prediction.markModified('data')
     prediction.save()

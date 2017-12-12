@@ -115,7 +115,7 @@ const task = new Task(async function (argv) {
           project: forecast.project,
           forecast: forecast,
           externalId: forecast.forecastId,
-          data: {...d, forecastDate: d.forecast_date},
+          data: {...d, forecastDate: d.forecast_date, adjustment: d.prediction},
           apiData: d,
           salesCenter: salesCenter,
           product: product
