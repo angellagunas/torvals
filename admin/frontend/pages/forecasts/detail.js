@@ -3,6 +3,7 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
+import CreateBarGraph from './create-bargraph'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -154,28 +155,10 @@ class ForecastDetail extends Component {
           <div className='card-content'>
             <div className='columns'>
               <div className='column'>
-                <BaseTable
-                  branchName='predictions'
-                  baseUrl='/admin/predictions'
-                  columns={this.getColumns()}
-                  data={
-                  [
-                    {
-                      columna: 'column a',
-                      columnb: 'column b',
-                      columnc: 'column c',
-                      columnd: 'column d',
-                      columne: 'column e',
-                      columnf: 'column f',
-                      columng: 'column g',
-                      columnh: 'column h',
-                      columni: 'column i',
-                      columnj: 'column j'
-                    }
-                  ]
-                  }
-                  filters={{group: this.props.match.params.uuid}}
-                 />
+                <CreateBarGraph
+                  data={forecast.graphData}
+                  size={[250, 250]}
+                />
               </div>
             </div>
           </div>
