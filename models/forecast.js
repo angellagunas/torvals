@@ -52,6 +52,7 @@ forecastSchema.methods.toPublic = function () {
     changePoints: this.changePoints,
     frequency: this.frequency,
     project: this.project,
+    graphData: this.graphData,
     status: this.status
   }
 }
@@ -68,6 +69,7 @@ forecastSchema.methods.format = function () {
     changePoints: this.changePoints,
     frequency: this.frequency,
     project: this.project,
+    graphData: this.graphData,
     status: this.status
   }
 }

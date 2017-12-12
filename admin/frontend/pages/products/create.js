@@ -8,7 +8,6 @@ import ProductForm from './create-form'
 var initialState = {
   name: '',
   description: '',
-  cost: '',
   organizations: []
 }
 

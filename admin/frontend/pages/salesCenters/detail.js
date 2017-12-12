@@ -1,11 +1,14 @@
 import React, { Component } from 'react'
 import api from '~base/api'
+import moment from 'moment'
+import Link from '~base/router/link'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
+import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 class SalesCenterDetail extends Component {
   constructor (props) {
@@ -97,6 +100,49 @@ class SalesCenterDetail extends Component {
     return third
   }
 
+  getColumns () {
+    return [
+      {
+        'title': 'Status',
+        'property': 'status',
+        'default': 'N/A',
+        'sortable': true
+      },
+      {
+        'title': 'Start date',
+        'property': 'dateStart',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateStart).local().format('DD/MM/YYYY')
+          )
+        }
+      },
+      {
+        'title': 'End date',
+        'property': 'dateEnd',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateEnd).local().format('DD/MM/YYYY')
+          )
+        }
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          return (
+            <Link className='button' to={'/forecasts/detail/' + row.uuid}>
+              Detalle
+            </Link>
+          )
+        }
+      }
+    ]
+  }
+
   render () {
     if (!this.state.loaded) {
       return <Loader />
@@ -114,9 +160,9 @@ class SalesCenterDetail extends Component {
                       className='button is-danger'
                       type='button'
                       onClick={() => this.deleteOnClick()}
-                >
-                  Delete
-                </button>
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </div>
@@ -169,6 +215,33 @@ class SalesCenterDetail extends Component {
                 </div>
               </div>
             </div>
+            <div className='columns'>
+              <div className='column'>
+                <div className='columns'>
+                  <div className='column'>
+                    <div className='card'>
+                      <header className='card-header'>
+                        <p className='card-header-title'>
+                          Forecasts
+                        </p>
+                      </header>
+                      <div className='card-content'>
+                        <div className='columns'>
+                          <div className='column'>
+                            <BranchedPaginatedTable
+                              branchName='forecasts'
+                              baseUrl='/admin/forecasts/'
+                              columns={this.getColumns()}
+                              filters={{salesCenter: this.state.salesCenter.uuid}}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -177,7 +250,7 @@ class SalesCenterDetail extends Component {
 }
 
 export default Page({
-  path: '/salesCenter/detail/:uuid',
+  path: '/salesCenters/detail/:uuid',
   title: 'Sales center detail',
   exact: true,
   validate: loggedIn,

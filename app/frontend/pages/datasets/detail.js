@@ -380,7 +380,7 @@ DataSetDetail.contextTypes = {
 const branchedDataSetDetail = branch({datasets: 'datasets'}, DataSetDetail)
 
 export default Page({
-  path: '/datasets/detail/:uuid',
+  path: '/datasets/:uuid',
   title: 'Dataset detail',
   icon: 'check',
   exact: true,

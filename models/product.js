@@ -11,7 +11,6 @@ const productSchema = new Schema({
   type: { type: String },
   category: { type: String },
   subcategory: { type: String },
-  cost: { type: Number },
   externalId: { type: String },
 
   dateCreated: { type: Date, default: moment.utc },
@@ -27,7 +26,9 @@ productSchema.methods.format = function () {
     name: this.name,
     organization: this.organization.uuid,
     description: this.description,
-    cost: this.cost,
+    category: this.category,
+    subcategory: this.subcategory,
+    externalId: this.externalId,
     dateCreated: this.dateCreated
   }
 }

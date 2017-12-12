@@ -30,6 +30,9 @@ salesCenterSchema.methods.format = function () {
     description: this.description,
     groups: this.groups,
     address: this.address,
+    brand: this.brand,
+    region: this.region,
+    type: this.type,
     externalId: this.externalId,
     dateCreated: this.dateCreated
   }

@@ -366,7 +366,7 @@ const BranchedProjectDetail = branch((props, context) => {
 }, ProjectDetail)
 
 export default Page({
-  path: '/projects/detail/:uuid',
+  path: '/projects/:uuid',
   title: 'Project detail',
   exact: true,
   roles: 'supervisor, analista, admin-organizacion, admin',

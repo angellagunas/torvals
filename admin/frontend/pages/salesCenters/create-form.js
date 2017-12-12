@@ -26,6 +26,9 @@ const schema = {
     },
     description: {type: 'string', title: 'Description'},
     address: {type: 'string', title: 'Address'},
+    brand: {type: 'string', title: 'Brand'},
+    region: {type: 'string', title: 'Region'},
+    type: {type: 'string', title: 'Type'},
     externalId: {type: 'string', title: 'External Id'}
   }
 }
@@ -35,6 +38,9 @@ const uiSchema = {
   organization: {'ui:widget': SelectWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
   address: {'ui:widget': TextWidget},
+  brand: {'ui:widget': TextWidget},
+  region: {'ui:widget': TextWidget},
+  type: {'ui:widget': TextWidget},
   externalId: {'ui:widget': TextWidget}
 }
 
