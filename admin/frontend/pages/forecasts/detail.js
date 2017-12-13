@@ -1,20 +1,14 @@
 import React, { Component } from 'react'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
-import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
 import Link from '~base/router/link'
 import CreateBarGraph from './create-bargraph'
+import moment from 'moment'
+import classNames from 'classnames'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
-import {
-  SimpleTable,
-  TableBody,
-  TableHeader,
-  TableData,
-  BodyRow
-} from '~base/components/base-table'
 
 import {
   EditableTable
@@ -24,6 +18,8 @@ class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      isHeaderOpen: false,
+      bodyHeight: 0,
       loading: true,
       loaded: false,
       predictions: [],
@@ -419,9 +415,39 @@ class ForecastDetail extends Component {
     )
   }
 
+  setHeights (elements) {
+    const scrollBody = elements || document.querySelectorAll('[data-content]')
+
+    scrollBody.forEach((sticky) => {
+      let bottom = sticky.getBoundingClientRect().bottom
+      const footerHeight = 96
+      const viewporHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      this.setState({bodyHeight: viewporHeight - (bottom + footerHeight)})
+    })
+  }
+
+  toggleHeader () {
+    this.setState({isHeaderOpen: !this.state.isHeaderOpen}, function () {
+      this.setHeights()
+    })
+  }
+
+  getHeight (element) {
+    if (this.state.bodyHeight === 0) {
+      if (element) this.setHeights([element])
+    }
+  }
+
   render () {
     const { forecast, notification } = this.state
     var notif
+    const headerBodyClass = classNames('card-content', {
+      'is-hidden': this.state.isHeaderOpen === false
+    })
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-plus': this.state.isHeaderOpen === false,
+      'fa-minus': this.state.isHeaderOpen !== false
+    })
 
     if (notification.has) {
       notif = this.getNotification(notification.type, notification.message)
@@ -431,144 +457,72 @@ class ForecastDetail extends Component {
       return <Loader />
     }
 
-    return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
+    return (<div>
+      <div data-content className='card' id='test' ref={(element) => this.getHeight(element)}>
+        <header className='card-header'>
+          <p className='card-header-title'>
+            Forecast
+          </p>
+
+          <div className='field is-grouped is-grouped-right card-header-select'>
+            <div className='control'>
+              <Link
+                className='button is-light'
+                to={'/projects/detail/' + forecast.project.uuid}
+              >
+                Return to project
+              </Link>
+            </div>
+            <div className='control'>
+              <button
+                className='button is-primary'
+                type='button'
+                onClick={() => this.changeStatusOnClick('opsReview')}
+              >
+                Approve
+              </button>
+            </div>
+            <div className='control'>
+              <button
+                className='button is-danger'
+                type='button'
+                onClick={() => this.deleteOnClick()}
+              >
+                Delete
+              </button>
+            </div>
+            <div className='control'>
+              <a
+                className='button is-rounded is-inverted'
+                onClick={() => this.toggleHeader()}>
+                <span className='icon is-small'>
+                  <i className={toggleBtnIconClass} />
+                </span>
+              </a>
+            </div>
+          </div>
+        </header>
+        <div className={headerBodyClass}>
+          <div className='columns is-multiline'>
+            <div className='column is-6'><strong>Status:</strong> {forecast.status}</div>
+            <div className='column is-6'><strong>Organization:</strong> {forecast.organization.name}</div>
+            <div className='column is-6'><strong>Start Date:</strong> {moment.utc(forecast.dateStart).format('DD/MM/YYYY')}</div>
+            <div className='column is-6'><strong>End Date:</strong> {moment.utc(forecast.dateEnd).format('DD/MM/YYYY')}</div>
+            <div className='column is-6'><strong>Frequency:</strong> {this.getFrequency()}</div>
+            <div className='column is-6'><strong>Created By:</strong> {`${forecast.createdBy.name}`}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className='columns c-flex-1 is-marginless' style={{overflowY: 'scroll', height: this.state.bodyHeight}}>
+        <div className='column is-12 is-paddingless'>
           <div className='section'>
             {notif}
-            <div className='columns'>
-              <div className='column'>
-                <Link
-                  className='button'
-                  to={'/projects/detail/' + forecast.project.uuid}
-                >
-                  Return to project
-                </Link>
-              </div>
-              <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='columns'>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Forecast
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <SimpleTable>
-                          <TableBody>
-                            <BodyRow>
-                              <TableHeader>
-                                Status
-                              </TableHeader>
-                              <TableData>
-                                {forecast.status}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Start Date
-                              </TableHeader>
-                              <TableData>
-                                {moment.utc(forecast.dateStart).format('DD/MM/YYYY')}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                End Date
-                              </TableHeader>
-                              <TableData>
-                                {moment.utc(forecast.dateEnd).format('DD/MM/YYYY')}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Organization
-                              </TableHeader>
-                              <TableData>
-                                {forecast.organization.name}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Frequency
-                              </TableHeader>
-                              <TableData>
-                                {this.getFrequency()}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Holidays
-                              </TableHeader>
-                              <TableData>
-                                {forecast.holidays.map((item) => {
-                                  return `${item.name} (${moment.utc(item.date).format('DD/MM/YYYY')})`
-                                }).join(', ')}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Change points
-                              </TableHeader>
-                              <TableData>
-                                {forecast.changePoints.map((item) => {
-                                  return `${moment.utc(item).format('DD/MM/YYYY')}`
-                                }).join(', ')}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Created By
-                              </TableHeader>
-                              <TableData>
-                                {`${forecast.createdBy.name}`}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                External ID
-                              </TableHeader>
-                              <TableData>
-                                {forecast.configPrId}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Date Created
-                              </TableHeader>
-                              <TableData>
-                                {moment.utc(forecast.dateCreated).format('DD/MM/YYYY')}
-                              </TableData>
-                            </BodyRow>
-                          </TableBody>
-                        </SimpleTable>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
             {this.getTable()}
           </div>
         </div>
       </div>
-    )
+    </div>)
   }
 }
 
