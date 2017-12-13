@@ -198,6 +198,7 @@ class ForecastForm extends Component {
                 dateFormat='YYYY-MM-DD'
                 placeholderText='Click to select a date'
                 selected={this.getDateEnd()}
+                minDate={this.state.dateStart}
                 onChange={(e) => { this.handleChange('dateEnd', e) }}
               />
             </div>
@@ -247,6 +248,8 @@ class ForecastForm extends Component {
                   dateFormat='YYYY-MM-DD'
                   placeholderText='Click to select a date'
                   selected={this.state.holidaysDate}
+                  minDate={this.state.dateStart}
+                  maxDate={this.state.dateEnd}
                   onChange={(e) => { this.handleChange('holidaysDate', e) }}
                 />
               </div>
@@ -310,6 +313,8 @@ class ForecastForm extends Component {
                   dateFormat='YYYY-MM-DD'
                   placeholderText='Click to select a date'
                   selected={this.state.changePointsDate}
+                  minDate={this.state.dateStart}
+                  maxDate={this.state.dateEnd}
                   onChange={(e) => {
                     this.handleChange('changePointsDate', e)
                   }}
