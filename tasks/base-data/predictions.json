@@ -13,7 +13,7 @@
         "_id" : "59fa1de5b336bd000a45052a",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 40,
@@ -29,7 +29,7 @@
         "_id" : "59fa1de5b336bd000a45052b",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -45,7 +45,7 @@
         "_id" : "59fa1de5b336bd000a45052c",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -61,7 +61,7 @@
         "_id" : "59fa1de5b336bd000a45052d",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -77,7 +77,7 @@
         "_id" : "59fa1de5b336bd000a45052e",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -93,7 +93,7 @@
         "_id" : "59fa1de5b336bd000a45052f",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -109,7 +109,7 @@
         "_id" : "59fa1de5b336bd000a450530",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -125,7 +125,7 @@
         "_id" : "59fa1de5b336bd000a450531",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -141,7 +141,7 @@
         "_id" : "59fa1de5b336bd000a450532",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 42,
@@ -157,7 +157,7 @@
         "_id" : "59fa1de5b336bd000a450533",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 42,
@@ -173,7 +173,7 @@
         "_id" : "59fa1de5b336bd000a450534",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 42,
@@ -189,7 +189,7 @@
         "_id" : "59fa1de5b336bd000a450535",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 42,
@@ -205,7 +205,7 @@
         "_id" : "59fa1de5b336bd000a450536",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 42,
@@ -221,7 +221,7 @@
         "_id" : "59fa1de5b336bd000a450537",
         "product_id" : "7598",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 40,
@@ -237,7 +237,7 @@
         "_id" : "59fa1de5b336bd000a450538",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 40,
@@ -253,7 +253,7 @@
         "_id" : "59fa1de5b336bd000a450539",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -269,7 +269,7 @@
         "_id" : "59fa1de5b336bd000a45053a",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -285,7 +285,7 @@
         "_id" : "59fa1de5b336bd000a45053b",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -301,7 +301,7 @@
         "_id" : "59fa1de5b336bd000a45053c",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -317,7 +317,7 @@
         "_id" : "59fa1de5b336bd000a45053d",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -333,7 +333,7 @@
         "_id" : "59fa1de5b336bd000a45053e",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -349,7 +349,7 @@
         "_id" : "59fa1de5b336bd000a45053f",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 41,
@@ -365,7 +365,7 @@
         "_id" : "59fa1de5b336bd000a450540",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 42,
@@ -381,7 +381,7 @@
         "_id" : "59fa1de5b336bd000a450541",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }, 
     {
         "semana_bimbo" : 42,
@@ -397,6 +397,6 @@
         "_id" : "59fa1de5b336bd000a450542",
         "product_id" : "7601",
         "existence" : 0,
-        "prediction" : 0
+        "prediction" : 100
     }
 ]

@@ -19,8 +19,7 @@ const schema = lov.array().required().items(
     prediction: lov.number().required(),
     forecast_date: lov.string().required(),
     agency_id: lov.string().required(),
-    product_id: lov.string().required(),
-    name: lov.string().required()
+    product_id: lov.string().required()
   })
 )
 
@@ -64,19 +63,19 @@ const task = new Task(async function (argv) {
     return false
   }
 
-  console.log('Validating data ....')
-  let result = lov.validate(data, schema)
+  // console.log('Validating data ....')
+  // let result = lov.validate(data, schema)
 
-  if (result.error) {
-    error.write('Data validation error: ' + result.error + '\n')
-    console.log('---------------------------------------------------------')
-    console.log('Data validation error: ' + result.error)
-    console.log('=========================================================')
+  // if (result.error) {
+  //   error.write('Data validation error: ' + result.error + '\n')
+  //   console.log('---------------------------------------------------------')
+  //   console.log('Data validation error: ' + result.error)
+  //   console.log('=========================================================')
 
-    return false
-  }
+  //   return false
+  // }
 
-  console.log('Validation PASSED!')
+  // console.log('Validation PASSED!')
 
   try {
     console.log('Saving predictions ....')
