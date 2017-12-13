@@ -135,7 +135,7 @@ class ForecastDetail extends Component {
       },
       {
         'title': 'Semana Bimbo',
-        'property': 'semana_bimbo',
+        'property': 'semanaBimbo',
         'default': 'N/A'
       },
       {
