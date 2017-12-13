@@ -36,6 +36,12 @@ class ForecastForm extends Component {
 
   errorHandler (e) {}
 
+  componentWillReceiveProps (next) {
+    if (next.submit) {
+      this.submitHandler()
+    }
+  }
+
   handleChange (type, value) {
     const data = {
       apiCallMessage: 'is-hidden',
@@ -88,8 +94,16 @@ class ForecastForm extends Component {
   }
 
   async submitHandler (event) {
-    event.preventDefault()
+    if (event) event.preventDefault()
     const formData = this.state.formData
+
+    if (!this.state.dateStart || !this.state.dateEnd || !this.state.frequency) {
+      return this.setState({
+        ...this.state,
+        error: 'Date start, Date end and Frequency are all required!',
+        apiCallErrorMessage: 'message is-danger'
+      })
+    }
 
     formData.dateStart = this.state.dateStart.format('YYYY-MM-DD')
     formData.dateEnd = this.state.dateEnd.format('YYYY-MM-DD')
@@ -358,11 +372,7 @@ class ForecastForm extends Component {
             </div>
           </div>
 
-          <div className='field is-grouped'>
-            <div className='control'>
-              <button className='button is-primary'>Save</button>
-            </div>
-          </div>
+          {this.props.children}
         </form>
       </div>
     )
