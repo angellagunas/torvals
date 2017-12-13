@@ -32,6 +32,7 @@ class ForecastDetail extends Component {
       selectedRows: {},
       selectValue: '',
       predictionsFormatted: [],
+      disableButtons: true,
       notification: {
         has: false,
         type: '',
@@ -204,6 +205,7 @@ class ForecastDetail extends Component {
     const res = await api.post(url, {...data})
 
     data.lastAdjustment = res.data.data.lastAdjustment
+    data.edited = true
     const predictionsFormatted = this.state.predictionsFormatted.map(
       (item) => data.uuid === item.uuid ? data : item
     )
@@ -221,6 +223,44 @@ class ForecastDetail extends Component {
     return true
   }
 
+  calculateNewValue (current, percentage) {}
+
+  async onClickButtonPlus (rangeValue) {
+    let rows = {...this.state.selectedRows}
+
+    for (var item in rows) {
+      rows[item].edited = true
+      var adjustment = rows[item].adjustment
+      var newAdjustment = rows[item].adjustment + (rows[item].prediction * 0.01)
+      rows[item].adjustment = newAdjustment
+      const res = await this.handleChange(rows[item])
+      if (!res) rows[item].adjustment = adjustment
+    }
+  }
+
+  async onClickButtonMinus (rangeValue) {
+    let rows = {...this.state.selectedRows}
+
+    for (var item in rows) {
+      rows[item].edited = true
+      var adjustment = rows[item].adjustment
+      var newAdjustment = rows[item].adjustment - (rows[item].prediction * 0.01)
+      rows[item].adjustment = newAdjustment
+      const res = await this.handleChange(rows[item])
+      if (!res) rows[item].adjustment = adjustment
+    }
+  }
+
+  toggleButtons () {
+    let disable = true
+    let rows = {...this.state.selectedRows}
+    if (Object.keys(rows).length) disable = false
+
+    this.setState({
+      disableButtons: disable
+    })
+  }
+
   setRowsToEdit (row, index) {
     let rows = {...this.state.selectedRows}
 
@@ -232,19 +272,23 @@ class ForecastDetail extends Component {
       rows[row.uuid] = row
     }
 
-    this.setState({selectedRows: rows})
+    this.setState({selectedRows: rows}, function () {
+      this.toggleButtons()
+    })
   }
 
   selectRows (selectAll) {
     let selectedRows = {}
-    let reports = this.state.reports.map((item) => {
+    let predictionsFormatted = this.state.predictionsFormatted.map((item) => {
       if (selectAll) selectedRows[item.uuid] = item
 
       item.selected = selectAll
       return item
     })
 
-    this.setState({reports, selectedRows})
+    this.setState({predictionsFormatted, selectedRows}, function () {
+      this.toggleButtons()
+    })
   }
 
   getNotification (type, message) {
@@ -268,7 +312,13 @@ class ForecastDetail extends Component {
   }
 
   getTable () {
-    let forecast = this.state.forecast
+    const { forecast, notification } = this.state
+    var notif
+
+    if (notification.has) {
+      notif = this.getNotification(notification.type, notification.message)
+    }
+
     if (forecast.status === 'done') {
       return (
         <div>
@@ -391,6 +441,7 @@ class ForecastDetail extends Component {
         </div>
         <div className='columns'>
           <div className='column'>
+            {notif}
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
@@ -398,6 +449,49 @@ class ForecastDetail extends Component {
                 </p>
               </header>
               <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <button
+                      style={{marginRight: 10}}
+                      onClick={(e) => this.selectRows(true)}
+                      className='button is-light'
+                    >
+                      Seleccionar todos
+                    </button>
+                    <button
+                      onClick={(e) => this.selectRows(false)}
+                      className='button is-light'
+                    >
+                      Deseleccionar todos
+                    </button>
+                  </div>
+                  <div className='column'>
+                    <div className='field is-grouped is-grouped-right'>
+                      <div className='control'>
+                        <p style={{paddingTop: 5}}>Modificar porcentaje</p>
+                      </div>
+                      <div className='control'>
+                        <button
+                          className='button'
+                          onClick={() => this.onClickButtonPlus()}
+                          disabled={this.state.disableButtons}
+                        >
+                         +
+                        </button>
+                      </div>
+                      <div className='control'>
+                        <button
+                          className='button'
+                          style={{paddingLeft: 14, paddingRight: 14}}
+                          onClick={() => this.onClickButtonMinus()}
+                          disabled={this.state.disableButtons}
+                        >
+                         -
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div className='columns'>
                   <div className='column'>
                     <EditableTable
@@ -421,12 +515,7 @@ class ForecastDetail extends Component {
   }
 
   render () {
-    const { forecast, notification } = this.state
-    var notif
-
-    if (notification.has) {
-      notif = this.getNotification(notification.type, notification.message)
-    }
+    const { forecast } = this.state
 
     if (!forecast.uuid) {
       return <Loader />
@@ -436,7 +525,6 @@ class ForecastDetail extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section'>
-            {notif}
             <div className='columns'>
               <div className='column'>
                 <Link
