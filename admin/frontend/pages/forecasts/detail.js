@@ -3,9 +3,10 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
 import Link from '~base/router/link'
-import CreateBarGraph from './create-bargraph'
 import moment from 'moment'
 import classNames from 'classnames'
+
+import CreateBarGraph from './create-bargraph'
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -218,8 +219,6 @@ class ForecastDetail extends Component {
     return true
   }
 
-  calculateNewValue (current, percentage) {}
-
   async onClickButtonPlus (rangeValue) {
     let rows = {...this.state.selectedRows}
 
@@ -312,70 +311,6 @@ class ForecastDetail extends Component {
 
     if (notification.has) {
       notif = this.getNotification(notification.type, notification.message)
-    }
-
-    if (forecast.status === 'done') {
-      return (
-        <div>
-          <div className='columns'>
-            <div className='column'>
-              <div className='card'>
-                <header className='card-header'>
-                  <p className='card-header-title'>
-                    Predictions Graph
-                  </p>
-                </header>
-                <div className='card-content'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <CreateBarGraph
-                        data={forecast.graphData}
-                        size={[250, 250]}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <footer className='card-footer'>
-                  <button
-                    className='button is-primary'
-                    type='button'
-                    onClick={() => this.changeStatusOnClick('opsReview')}
-                  >
-                    Approve
-                  </button>
-                </footer>
-              </div>
-            </div>
-          </div>
-          <div className='columns'>
-            <div className='column'>
-              <div className='card'>
-                <header className='card-header'>
-                  <p className='card-header-title'>
-                    Predictions Table
-                  </p>
-                </header>
-                <div className='card-content'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <EditableTable
-                        columns={this.getColumns()}
-                        handleSort={(e) => this.handleSort(e)}
-                        data={this.state.predictionsFormatted}
-                        sortAscending={this.state.sortAscending}
-                        handleChange={this.handleChange.bind(this)}
-                        sortBy={this.state.sort}
-                        setRowsToEdit={this.setRowsToEdit.bind(this)}
-                        selectable
-                       />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
     }
 
     if (forecast.status === 'created' || forecast.status === 'processing') {
@@ -497,7 +432,7 @@ class ForecastDetail extends Component {
                       handleChange={this.handleChange.bind(this)}
                       sortBy={this.state.sort}
                       setRowsToEdit={this.setRowsToEdit.bind(this)}
-                      selectable
+                      selectable={forecast.status !== 'analistReview'}
                      />
                   </div>
                 </div>
@@ -532,6 +467,34 @@ class ForecastDetail extends Component {
     }
   }
 
+  getButtons () {
+    const { forecast } = this.state
+
+    if (forecast.status === 'analistReview') {
+      return (
+        <button
+          className='button is-primary'
+          type='button'
+          onClick={() => this.changeStatusOnClick('opsReview')}
+        >
+          Aprobar
+        </button>
+      )
+    }
+
+    if (forecast.status === 'opsReview') {
+      return (
+        <button
+          className='button is-primary'
+          type='button'
+          onClick={() => this.changeStatusOnClick('supervisorReview')}
+        >
+          Consolidar
+        </button>
+      )
+    }
+  }
+
   render () {
     const { forecast } = this.state
     const headerBodyClass = classNames('card-content', {
@@ -563,22 +526,14 @@ class ForecastDetail extends Component {
               </Link>
             </div>
             <div className='control'>
-              <button
-                className='button is-primary'
-                type='button'
-                onClick={() => this.changeStatusOnClick('opsReview')}
-              >
-                Approve
-              </button>
+              {this.getButtons()}
             </div>
             <div className='control'>
-              <button
-                className='button is-danger'
-                type='button'
-                onClick={() => this.deleteOnClick()}
-              >
-                Delete
-              </button>
+              <DeleteButton
+                objectName='Forecast'
+                objectDelete={this.deleteObject.bind(this)}
+                message={`Estas seguro de querer eliminar el objeto`}
+              />
             </div>
             <div className='control'>
               <a

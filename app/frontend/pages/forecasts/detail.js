@@ -2,24 +2,23 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import moment from 'moment'
+import FontAwesome from 'react-fontawesome'
 import tree from '~core/tree'
 import Link from '~base/router/link'
+import classNames from 'classnames'
 
+import CreateBarGraph from './create-bargraph'
+import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
-import {
-  SimpleTable,
-  TableBody,
-  TableHeader,
-  TableData,
-  BodyRow
-} from '~base/components/base-table'
 import { EditableTable } from '~base/components/base-editableTable'
 
 class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      isHeaderOpen: false,
+      bodyHeight: 0,
       loading: true,
       loaded: false,
       predictions: [],
@@ -27,6 +26,7 @@ class ForecastDetail extends Component {
       selectedRows: {},
       selectValue: '',
       predictionsFormatted: [],
+      disableButtons: true,
       notification: {
         has: false,
         type: '',
@@ -58,7 +58,7 @@ class ForecastDetail extends Component {
   }
 
   async loadPredictions () {
-    var url = '/admin/predictions'
+    var url = '/app/predictions'
     const body = await api.get(url, {forecast: this.state.forecast.uuid})
 
     this.setState({
@@ -82,6 +82,12 @@ class ForecastDetail extends Component {
         }
       })
     })
+  }
+
+  async deleteObject () {
+    var url = '/app/forecasts/' + this.props.match.params.uuid
+    await api.del(url)
+    this.props.history.push(`/app/projects/${this.state.forecast.project.uuid}`)
   }
 
   async changeStatusOnClick (status) {
@@ -124,7 +130,7 @@ class ForecastDetail extends Component {
       },
       {
         'title': 'Semana Bimbo',
-        'property': 'semana_bimbo',
+        'property': 'semanaBimbo',
         'default': 'N/A'
       },
       {
@@ -210,6 +216,42 @@ class ForecastDetail extends Component {
     return true
   }
 
+  async onClickButtonPlus (rangeValue) {
+    let rows = {...this.state.selectedRows}
+
+    for (var item in rows) {
+      rows[item].edited = true
+      var adjustment = rows[item].adjustment
+      var newAdjustment = rows[item].adjustment + (rows[item].prediction * 0.01)
+      rows[item].adjustment = newAdjustment
+      const res = await this.handleChange(rows[item])
+      if (!res) rows[item].adjustment = adjustment
+    }
+  }
+
+  async onClickButtonMinus (rangeValue) {
+    let rows = {...this.state.selectedRows}
+
+    for (var item in rows) {
+      rows[item].edited = true
+      var adjustment = rows[item].adjustment
+      var newAdjustment = rows[item].adjustment - (rows[item].prediction * 0.01)
+      rows[item].adjustment = newAdjustment
+      const res = await this.handleChange(rows[item])
+      if (!res) rows[item].adjustment = adjustment
+    }
+  }
+
+  toggleButtons () {
+    let disable = true
+    let rows = {...this.state.selectedRows}
+    if (Object.keys(rows).length) disable = false
+
+    this.setState({
+      disableButtons: disable
+    })
+  }
+
   setRowsToEdit (row, index) {
     let rows = {...this.state.selectedRows}
 
@@ -221,19 +263,23 @@ class ForecastDetail extends Component {
       rows[row.uuid] = row
     }
 
-    this.setState({selectedRows: rows})
+    this.setState({selectedRows: rows}, function () {
+      this.toggleButtons()
+    })
   }
 
   selectRows (selectAll) {
     let selectedRows = {}
-    let reports = this.state.reports.map((item) => {
+    let predictionsFormatted = this.state.predictionsFormatted.map((item) => {
       if (selectAll) selectedRows[item.uuid] = item
 
       item.selected = selectAll
       return item
     })
 
-    this.setState({reports, selectedRows})
+    this.setState({predictionsFormatted, selectedRows}, function () {
+      this.toggleButtons()
+    })
   }
 
   getNotification (type, message) {
@@ -258,8 +304,14 @@ class ForecastDetail extends Component {
 
   getTable () {
     let currentRole = tree.get('user').currentRole.slug
-    let forecast = this.state.forecast
-    if (forecast.status === 'done') {
+    const { forecast, notification } = this.state
+    var notif
+
+    if (notification.has) {
+      notif = this.getNotification(notification.type, notification.message)
+    }
+
+    if (forecast.status === 'created' || forecast.status === 'processing') {
       return (
         <div className='card'>
           <header className='card-header'>
@@ -268,277 +320,252 @@ class ForecastDetail extends Component {
             </p>
           </header>
           <div className='card-content'>
-            <div className='columns'>
-              <div className='column'>
-                Aquí va la gráfica
+            <div className='message is-success'>
+              <div className='message-body is-large has-text-centered'>
+                <div className='columns'>
+                  <div className='column'>
+                    <span className='icon is-large'>
+                      <FontAwesome className='fa-3x fa-spin' name='cog' />
+                    </span>
+                  </div>
+                </div>
+                <div className='columns'>
+                  <div className='column'>
+                    The predictions will appear shortly...
+                    They are being generated as we speak
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <footer className='card-footer'>
-            <button
-              className='button is-primary'
-              type='button'
-              onClick={() => this.changeStatusOnClick('analistReview')}
-            >
-              Analist Review
-            </button>
-          </footer>
         </div>
-      )
-    } else if (forecast.status === 'analistReview') {
-      return (
-        <div className='card'>
-          <header className='card-header'>
-            <p className='card-header-title'>
-            Predictions
-          </p>
-          </header>
-          <div className='card-content'>
-            <div className='columns'>
-              <div className='column'>
-                <EditableTable
-                  columns={this.getColumns()}
-                  handleSort={(e) => this.handleSort(e)}
-                  data={this.state.predictionsFormatted}
-                  sortAscending={this.state.sortAscending}
-                  handleChange={this.handleChange.bind(this)}
-                  sortBy={this.state.sort}
-                  setRowsToEdit={this.setRowsToEdit.bind(this)}
-                  selectable
-                 />
-              </div>
-            </div>
-          </div>
-          { currentRole === 'analista' &&
-            <footer className='card-footer'>
-              <button
-                className='button is-primary'
-                type='button'
-                onClick={() => this.changeStatusOnClick('opsReview')}
-                      >
-                        Ops Review
-                      </button>
-            </footer>
-            }
-        </div>
-
-      )
-    } else if (forecast.status === 'opsReview') {
-      clearInterval(this.interval)
-
-      return (
-        <div className='card'>
-          <header className='card-header'>
-            <p className='card-header-title'>
-            Predictions
-          </p>
-          </header>
-          <div className='card-content'>
-            <div className='columns'>
-              <div className='column'>
-                <EditableTable
-                  columns={this.getColumns()}
-                  handleSort={(e) => this.handleSort(e)}
-                  data={this.state.predictionsFormatted}
-                  sortAscending={this.state.sortAscending}
-                  handleChange={this.handleChange.bind(this)}
-                  sortBy={this.state.sort}
-                  setRowsToEdit={this.setRowsToEdit.bind(this)}
-                  selectable
-                 />
-              </div>
-            </div>
-          </div>
-          { currentRole === 'ops' &&
-          <footer className='card-footer'>
-            <button
-              className='button is-primary'
-              type='button'
-              onClick={() => this.changeStatusOnClick('supervisorReview')}
-                    >
-                      Supervisor Review
-                    </button>
-          </footer>
-        }
-        </div>
-
-      )
-    } else if (forecast.status === 'supervisorReview') {
-      clearInterval(this.interval)
-
-      return (
-        <div className='card'>
-          <header className='card-header'>
-            <p className='card-header-title'>
-            Predictions
-          </p>
-          </header>
-          <div className='card-content'>
-            <div className='columns'>
-              <div className='column'>
-                <EditableTable
-                  columns={this.getColumns()}
-                  handleSort={(e) => this.handleSort(e)}
-                  data={this.state.predictionsFormatted}
-                  sortAscending={this.state.sortAscending}
-                  handleChange={this.handleChange.bind(this)}
-                  sortBy={this.state.sort}
-                  setRowsToEdit={this.setRowsToEdit.bind(this)}
-                  selectable
-                 />
-              </div>
-            </div>
-          </div>
-          { (currentRole === 'admin-organizacion' || currentRole === 'supervisor' || currentRole === 'supervisor-ops') &&
-          <footer className='card-footer'>
-            <button
-              className='button is-primary'
-              type='button'
-              onClick={() => this.changeStatusOnClick('readyToOrder')}
-                    >
-                      Ready to Order
-                    </button>
-          </footer>
-        }
-        </div>
-
       )
     }
-  }
 
-  render () {
-    const { forecast } = this.state
-
-    if (!forecast.uuid) {
-      return <Loader />
-    }
+    clearInterval(this.interval)
 
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section'>
-            <div className='columns'>
-              <div className='column'>
-                <Link
-                  className='button'
-                  to={'/projects/' + forecast.project.uuid}
-                >
-                  Return to project
-                </Link>
+      <div>
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  Predictions Graph
+                </p>
+              </header>
+              <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <CreateBarGraph
+                      data={forecast.graphData}
+                      size={[250, 250]}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-            <div className='columns'>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Forecast
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <SimpleTable>
-                          <TableBody>
-                            <BodyRow>
-                              <TableHeader>
-                                Status
-                              </TableHeader>
-                              <TableData>
-                                {forecast.status}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Start Date
-                              </TableHeader>
-                              <TableData>
-                                {moment.utc(forecast.dateStart).format('DD/MM/YYYY')}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                End Date
-                              </TableHeader>
-                              <TableData>
-                                {moment.utc(forecast.dateEnd).format('DD/MM/YYYY')}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Organization
-                              </TableHeader>
-                              <TableData>
-                                {forecast.organization.name}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Frequency
-                              </TableHeader>
-                              <TableData>
-                                {this.getFrequency()}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Holidays
-                              </TableHeader>
-                              <TableData>
-                                {forecast.holidays.map((item) => {
-                                  return `${item.name} (${moment.utc(item.date).format('DD/MM/YYYY')})`
-                                }).join(', ')}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Change points
-                              </TableHeader>
-                              <TableData>
-                                {forecast.changePoints.map((item) => {
-                                  return `${moment.utc(item).format('DD/MM/YYYY')}`
-                                }).join(', ')}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Created By
-                              </TableHeader>
-                              <TableData>
-                                {`${forecast.createdBy.name}`}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                External ID
-                              </TableHeader>
-                              <TableData>
-                                {forecast.configPrId}
-                              </TableData>
-                            </BodyRow>
-                            <BodyRow>
-                              <TableHeader>
-                                Date Created
-                              </TableHeader>
-                              <TableData>
-                                {moment.utc(forecast.dateCreated).format('DD/MM/YYYY')}
-                              </TableData>
-                            </BodyRow>
-                          </TableBody>
-                        </SimpleTable>
+          </div>
+        </div>
+        <div className='columns'>
+          <div className='column'>
+            {notif}
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  Predictions Table
+                </p>
+              </header>
+              <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <button
+                      style={{marginRight: 10}}
+                      onClick={(e) => this.selectRows(true)}
+                      className='button is-light'
+                    >
+                      Seleccionar todos
+                    </button>
+                    <button
+                      onClick={(e) => this.selectRows(false)}
+                      className='button is-light'
+                    >
+                      Deseleccionar todos
+                    </button>
+                  </div>
+                  <div className='column'>
+                    <div className='field is-grouped is-grouped-right'>
+                      <div className='control'>
+                        <p style={{paddingTop: 5}}>Modificar porcentaje</p>
+                      </div>
+                      <div className='control'>
+                        <button
+                          className='button'
+                          onClick={() => this.onClickButtonPlus()}
+                          disabled={this.state.disableButtons}
+                        >
+                         +
+                        </button>
+                      </div>
+                      <div className='control'>
+                        <button
+                          className='button'
+                          style={{paddingLeft: 14, paddingRight: 14}}
+                          onClick={() => this.onClickButtonMinus()}
+                          disabled={this.state.disableButtons}
+                        >
+                         -
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className='column'>
-                {this.getTable()}
+                <div className='columns'>
+                  <div className='column'>
+                    <EditableTable
+                      columns={this.getColumns()}
+                      handleSort={(e) => this.handleSort(e)}
+                      data={this.state.predictionsFormatted}
+                      sortAscending={this.state.sortAscending}
+                      handleChange={this.handleChange.bind(this)}
+                      sortBy={this.state.sort}
+                      setRowsToEdit={this.setRowsToEdit.bind(this)}
+                      selectable={forecast.status !== 'analistReview'}
+                     />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     )
+  }
+
+  getButtons () {
+    let currentRole = tree.get('user').currentRole.slug
+    const { forecast } = this.state
+
+    if (forecast.status === 'analistReview' && currentRole === 'analista') {
+      return (
+        <button
+          className='button is-primary'
+          type='button'
+          onClick={() => this.changeStatusOnClick('opsReview')}
+        >
+          Aprobar
+        </button>
+      )
+    }
+
+    if (forecast.status === 'opsReview' && (currentRole === 'ops' || currentRole === 'supervisor-ops')) {
+      return (
+        <button
+          className='button is-primary'
+          type='button'
+          onClick={() => this.changeStatusOnClick('supervisorReview')}
+        >
+          Consolidar
+        </button>
+      )
+    }
+  }
+
+  setHeights (elements) {
+    const scrollBody = elements || document.querySelectorAll('[data-content]')
+
+    scrollBody.forEach((sticky) => {
+      let bottom = sticky.getBoundingClientRect().bottom
+      const footerHeight = 96
+      const viewporHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      this.setState({bodyHeight: viewporHeight - (bottom + footerHeight)})
+    })
+  }
+
+  toggleHeader () {
+    this.setState({isHeaderOpen: !this.state.isHeaderOpen}, function () {
+      this.setHeights()
+    })
+  }
+
+  getHeight (element) {
+    if (this.state.bodyHeight === 0) {
+      if (element) this.setHeights([element])
+    }
+  }
+
+  render () {
+    const { forecast } = this.state
+    const headerBodyClass = classNames('card-content', {
+      'is-hidden': this.state.isHeaderOpen === false
+    })
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-plus': this.state.isHeaderOpen === false,
+      'fa-minus': this.state.isHeaderOpen !== false
+    })
+
+    if (!forecast.uuid) {
+      return <Loader />
+    }
+
+    return (<div>
+      <div data-content className='card' id='test' ref={(element) => this.getHeight(element)}>
+        <header className='card-header'>
+          <p className='card-header-title'>
+            Forecast
+          </p>
+
+          <div className='field is-grouped is-grouped-right card-header-select'>
+            <div className='control'>
+              <Link
+                className='button is-light'
+                to={'/projects/detail/' + forecast.project.uuid}
+              >
+                Return to project
+              </Link>
+            </div>
+            <div className='control'>
+              {this.getButtons()}
+
+            </div>
+            <div className='control'>
+              <DeleteButton
+                objectName='Forecast'
+                objectDelete={this.deleteObject.bind(this)}
+                message={`Estas seguro de querer eliminar el objeto`}
+              />
+            </div>
+            <div className='control'>
+              <a
+                className='button is-rounded is-inverted'
+                onClick={() => this.toggleHeader()}>
+                <span className='icon is-small'>
+                  <i className={toggleBtnIconClass} />
+                </span>
+              </a>
+            </div>
+          </div>
+        </header>
+        <div className={headerBodyClass}>
+          <div className='columns is-multiline'>
+            <div className='column is-6'><strong>Status:</strong> {forecast.status}</div>
+            <div className='column is-6'><strong>Organization:</strong> {forecast.organization.name}</div>
+            <div className='column is-6'><strong>Start Date:</strong> {moment.utc(forecast.dateStart).format('DD/MM/YYYY')}</div>
+            <div className='column is-6'><strong>End Date:</strong> {moment.utc(forecast.dateEnd).format('DD/MM/YYYY')}</div>
+            <div className='column is-6'><strong>Frequency:</strong> {this.getFrequency()}</div>
+            <div className='column is-6'><strong>Created By:</strong> {`${forecast.createdBy.name}`}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className='columns c-flex-1 is-marginless' style={{overflowY: 'scroll', height: this.state.bodyHeight}}>
+        <div className='column is-12 is-paddingless'>
+          <div className='section'>
+            {this.getTable()}
+          </div>
+        </div>
+      </div>
+    </div>)
   }
 }
 
@@ -547,7 +574,7 @@ export default Page({
   title: 'Forecast detail',
   icon: 'check',
   exact: true,
-  roles: 'supervisor, analista, admin-organizacion, admin',
+  roles: 'supervisor, analista, admin-organizacion, admin, ops, supervisor-ops',
   validate: [loggedIn, verifyRole],
   component: ForecastDetail
 })

@@ -253,7 +253,7 @@ export default Page({
   path: '/salesCenters/:uuid',
   title: 'Sales center detail',
   exact: true,
-  roles: 'supervisor, analista, admin-organizacion, admin',
+  roles: 'supervisor, analista, admin-organizacion, admin, ops, supervisor-ops',
   validate: [loggedIn, verifyRole],
   component: SalesCenterDetail
 })

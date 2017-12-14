@@ -85,15 +85,17 @@ class Sidebar extends Component {
       <aside className='menu'>
         <ul className='menu-list'>
           {this.getMenuItems().map(e => {
-            return <SidebarItem
-              title={e.title}
-              icon={e.icon}
-              to={e.to}
-              dropdown={e.dropdown}
-              roles={e.roles}
-              onClick={this.handleActiveLink}
-              activeItem={this.state.active}
-              key={e.title.toLowerCase().replace(/\s/g, '')} />
+            if (e) {
+              return <SidebarItem
+                title={e.title}
+                icon={e.icon}
+                to={e.to}
+                dropdown={e.dropdown}
+                roles={e.roles}
+                onClick={this.handleActiveLink}
+                activeItem={this.state.active}
+                key={e.title.toLowerCase().replace(/\s/g, '')} />
+            }
           })}
         </ul>
       </aside>

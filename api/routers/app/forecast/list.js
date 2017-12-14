@@ -82,7 +82,7 @@ module.exports = new Route({
         filters['status'] = 'supervisorReview'
         break
       case 'supervisor-ops':
-        filters['status'] = 'supervisorReview'
+        filters['status'] = 'opsReview'
         break
     }
 
