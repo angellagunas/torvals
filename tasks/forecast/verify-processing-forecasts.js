@@ -45,7 +45,7 @@ const task = new Task(async function (argv) {
     if (res.status === 'ready') {
       console.log(`${forecast.configPrId} forecast has finished processing`)
       forecast.set({
-        status: 'done',
+        status: 'analistReview',
         graphData: res.data
       })
 
@@ -115,7 +115,12 @@ const task = new Task(async function (argv) {
           project: forecast.project,
           forecast: forecast,
           externalId: forecast.forecastId,
-          data: {...d, forecastDate: d.forecast_date, adjustment: d.prediction},
+          data: {
+            ...d,
+            semanaBimbo: d.semana_bimbo,
+            forecastDate: d.forecast_date,
+            adjustment: d.prediction
+          },
           apiData: d,
           salesCenter: salesCenter,
           product: product

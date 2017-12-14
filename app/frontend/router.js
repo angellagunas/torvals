@@ -8,7 +8,7 @@ import {
 import AdminLayout from '~components/admin-layout'
 
 import LogIn from './pages/log-in'
-import Dashboard from './pages/app'
+import Dashboard from './pages/dashboard'
 import Users from './pages/users/list'
 import UserDetail from './pages/users/detail'
 import Profile from './pages/profile'

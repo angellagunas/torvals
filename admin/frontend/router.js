@@ -35,6 +35,7 @@ import Products from './pages/products/list'
 import ProductDetail from './pages/products/detail'
 import DeletedProducts from './pages/products/deleted-list'
 import ForecastDetail from './pages/forecasts/detail'
+import PredictionHistoric from './pages/prediction-historic/list'
 
 const NoMatch = () => {
   return <div>Not Found</div>
@@ -83,6 +84,7 @@ const AppRouter = () => {
           {ForecastDetail.asRouterItem()}
 
           {RequestLogs.asRouterItem()}
+          {PredictionHistoric.asRouterItem()}
           <Route component={NoMatch} />
         </Switch>
       </div>

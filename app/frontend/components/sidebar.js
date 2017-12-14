@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import SidebarItem from '~components/sidebar-item'
 import tree from '~core/tree'
 
-import Dashboard from '../pages/app'
+import Dashboard from '../pages/dashboard'
 import Users from '../pages/users/list'
 import Groups from '../pages/groups/list'
 import DataSets from '../pages/datasets/list'
@@ -85,15 +85,17 @@ class Sidebar extends Component {
       <aside className='menu'>
         <ul className='menu-list'>
           {this.getMenuItems().map(e => {
-            return <SidebarItem
-              title={e.title}
-              icon={e.icon}
-              to={e.to}
-              dropdown={e.dropdown}
-              roles={e.roles}
-              onClick={this.handleActiveLink}
-              activeItem={this.state.active}
-              key={e.title.toLowerCase().replace(/\s/g, '')} />
+            if (e) {
+              return <SidebarItem
+                title={e.title}
+                icon={e.icon}
+                to={e.to}
+                dropdown={e.dropdown}
+                roles={e.roles}
+                onClick={this.handleActiveLink}
+                activeItem={this.state.active}
+                key={e.title.toLowerCase().replace(/\s/g, '')} />
+            }
           })}
         </ul>
       </aside>

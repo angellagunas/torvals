@@ -22,6 +22,7 @@ const predictionSchema = new Schema({
     prediction: { type: Number },
     adjustment: { type: Number },
     lastAdjustment: { type: Number },
+    semanaBimbo: { type: Number },
     month: { type: String },
     year: { type: String },
     forecastDate: { type: String }

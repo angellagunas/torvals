@@ -71,19 +71,21 @@ module.exports = new Route({
       }
     }
 
-    switch (currentRole.slug) {
-      case 'analista':
-        filters['status'] = 'analistReview'
-        break
-      case 'ops':
-        filters['status'] = 'opsReview'
-        break
-      case 'supervisor':
-        filters['status'] = 'supervisorReview'
-        break
-      case 'supervisor-ops':
-        filters['status'] = 'supervisorReview'
-        break
+    if (!filters.status) {
+      switch (currentRole.slug) {
+        case 'analista':
+          filters['status'] = 'analistReview'
+          break
+        case 'ops':
+          filters['status'] = 'opsReview'
+          break
+        case 'supervisor':
+          filters['status'] = 'supervisorReview'
+          break
+        case 'supervisor-ops':
+          filters['status'] = 'opsReview'
+          break
+      }
     }
 
     var forecasts = await Forecast.dataTables({

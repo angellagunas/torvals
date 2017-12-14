@@ -5,6 +5,7 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 
+import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
@@ -67,9 +68,9 @@ class OrganizationDetail extends Component {
     ]
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/admin/organizations/' + this.props.match.params.uuid
-    const body = await api.del(url)
+    await api.del(url)
     this.props.history.push('/admin/manage/organizations')
   }
 
@@ -88,13 +89,11 @@ class OrganizationDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      objectName='Organization'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Estas seguro de querer eliminar la organización ${organization.name}?`}
+                    />
                   </div>
                 </div>
               </div>
