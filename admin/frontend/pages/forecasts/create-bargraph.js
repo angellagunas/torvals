@@ -45,7 +45,7 @@ class CreateBarGraph extends Component {
       .append('text')
         .attr('y', (chartHeight + 60) / 2)
         .style('text-anchor', 'end')
-        .text('Time (s)')
+        .text('Unidades')
   }
 
   drawPaths (svg, data, x, y) {

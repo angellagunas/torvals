@@ -1,6 +1,7 @@
 // node tasks/verify-datasets.js
 require('../../config')
 require('lib/databases/mongo')
+const moment = require('moment')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
@@ -44,6 +45,14 @@ const task = new Task(async function (argv) {
 
     if (res.status === 'ready') {
       console.log(`${forecast.configPrId} forecast has finished processing`)
+
+      res.data.sort((a, b) => {
+        var dateA = moment(a.ds)
+        var dateB = moment(b.ds)
+
+        return dateA - dateB
+      })
+
       forecast.set({
         status: 'analistReview',
         graphData: res.data
