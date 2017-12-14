@@ -1,4 +1,5 @@
 const Route = require('lib/router/route')
+const moment = require('moment')
 
 const {Forecast} = require('models')
 
@@ -15,12 +16,14 @@ module.exports = new Route({
 
     ctx.assert(forecast, 404, 'Forecast not found')
 
-    forecast.graphData.sort((a, b) => {
-      var dateA = moment(a.ds)
-      var dateB = moment(b.ds)
+    if (forecast.graphData) {
+      forecast.graphData.sort((a, b) => {
+        var dateA = moment(a.ds)
+        var dateB = moment(b.ds)
 
-      return dateA - dateB
-    })
+        return dateA - dateB
+      })
+    }
 
     ctx.body = {
       data: forecast.format()
