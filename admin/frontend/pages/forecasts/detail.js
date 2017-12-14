@@ -7,13 +7,7 @@ import CreateBarGraph from './create-bargraph'
 import moment from 'moment'
 import classNames from 'classnames'
 
-import Form from 'react-jsonschema-form'
-import {
-  BaseForm,
-  TextWidget,
-  TextareaWidget,
-  SelectWidget
-} from '~base/components/base-form'
+import { SelectWidget } from '~base/components/base-form'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -22,24 +16,25 @@ import {
   EditableTable
 } from '~base/components/base-editableTable'
 
-const schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'name'
-  ],
-  properties: {
-    organization: {
-      type: 'string',
-      title: 'Organization',
-      enum: [],
-      enumNames: []
-    }
+let schema = {
+  weeks: {
+    type: 'string',
+    title: 'Semanas',
+    enum: [],
+    enumNames: []
+  },
+  salesCenters: {
+    type: 'string',
+    title: 'Semanas',
+    enum: [],
+    enumNames: []
+  },
+  products: {
+    type: 'string',
+    title: 'Semanas',
+    enum: [],
+    enumNames: []
   }
-}
-
-const uiSchema = {
-  organization: {'ui:widget': SelectWidget}
 }
 
 class ForecastDetail extends Component {
@@ -55,6 +50,21 @@ class ForecastDetail extends Component {
       selectedRows: {},
       selectValue: '',
       predictionsFormatted: [],
+      predictionsFiltered: [],
+      schema: {},
+      weekSelected: 0,
+      weeksOptions: {
+        enumOptions: []
+      },
+      salesCentersSelected: '',
+      salesCentersOptions: {
+        enumOptions: []
+      },
+      productsSelected: '',
+      productsOptions: {
+        enumOptions: []
+      },
+      days: [],
       notification: {
         has: false,
         type: '',
@@ -65,12 +75,15 @@ class ForecastDetail extends Component {
 
   componentWillMount () {
     this.load()
-    this.interval = setInterval(() => this.load(), 30000)
   }
 
   componentWillUnmount () {
     clearInterval(this.interval)
   }
+
+  /*
+   * Endpoints Call
+   */
 
   async load () {
     var url = '/admin/forecasts/' + this.props.match.params.uuid
@@ -82,7 +95,37 @@ class ForecastDetail extends Component {
       forecast: body.data
     })
 
+    this.loadSalesCenters()
     this.loadPredictions()
+    this.loadProducts()
+  }
+
+  async loadSalesCenters () {
+    let url = '/admin/salesCenters'
+    let body = await api.get(url, {limit: 0, organization: this.state.forecast.uuid})
+    if (body.data) {
+      body.data = body.data.sort(this.sortByName)
+    }
+    this.setState({
+      loading: false,
+      loaded: true,
+      salesCentersOptions: {
+        enumOptions: body.data
+      }
+    })
+  }
+
+  async loadProducts () {
+    let url = '/admin/products/categories'
+    let body = await api.get(url, {limit: 0})
+
+    this.setState({
+      loading: false,
+      loaded: true,
+      productsOptions: {
+        enumOptions: body
+      }
+    })
   }
 
   async loadPredictions () {
@@ -95,7 +138,7 @@ class ForecastDetail extends Component {
       predictions: body.data,
       predictionsFormatted: body.data.map(item => {
         let data = item.data
-        var percentage
+        let percentage
 
         if (data.prediction !== data.adjustment) {
           percentage = (data.adjustment - data.prediction) * 100 / data.prediction
@@ -109,6 +152,36 @@ class ForecastDetail extends Component {
           uuid: item.uuid
         }
       })
+    }, function () {
+      let cache = {}
+      this.state.predictionsFormatted
+        .sort((a, b) => new Date(a.forecastDate) - new Date(b.forecastDate))
+        .map(item => {
+          if (!cache[item.semanaBimbo]) {
+            cache[item.semanaBimbo] = []
+          }
+          if (cache[item.semanaBimbo].indexOf(item.forecastDate) === -1) {
+            cache[item.semanaBimbo].push(item.forecastDate)
+          }
+          return {forecastDate: item.forecastDate, semanaBimbo: item.semanaBimbo}
+        })
+
+      schema.weeks.groupedByWeeks = cache
+      schema.weeks.enum = Object.keys(cache).map(item => item)
+      schema.weeks.enumNames = Object.keys(cache).map(item => 'Semana ' + item)
+
+      this.setState({
+        schema,
+        predictionsFiltered: this.state.predictionsFormatted.map(item => item),
+        weekSelected: schema.weeks.enum[0],
+        days: schema.weeks.groupedByWeeks[schema.weeks.enum[0]],
+        daySelected: schema.weeks.groupedByWeeks[Math.min(...Object.keys(schema.weeks.groupedByWeeks))][0],
+        weeksOptions: {
+          enumOptions: Object.keys(cache).map(item => {
+            return {label: 'Semana ' + item, value: item}
+          })
+        }
+      }, this.filterData)
     })
   }
 
@@ -122,88 +195,6 @@ class ForecastDetail extends Component {
     var url = '/admin/forecasts/change/' + this.props.match.params.uuid
     await api.post(url, {status: status})
     this.load()
-  }
-
-  getColumns () {
-    return [
-      {
-        'title': 'Product Id',
-        'abbreviate': true,
-        'abbr': 'P. Id',
-        'property': 'product_id',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.product.externalId)
-        }
-      },
-      {
-        'title': 'Product Name',
-        'abbreviate': true,
-        'abbr': 'P. Name',
-        'property': 'product_id',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.product.name)
-        }
-      },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'agency_id',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.salesCenter.name)
-        }
-      },
-      {
-        'title': 'Semana Bimbo',
-        'property': 'semana_bimbo',
-        'default': 'N/A'
-      },
-      {
-        'title': 'Predicción',
-        'property': 'prediction',
-        'default': 0
-      },
-      {
-        'title': 'Ajuste anterior',
-        'property': 'lastAdjustment',
-        'default': 'N/A'
-      },
-      {
-        'title': 'Ajuste',
-        'property': 'adjustment',
-        'default': 0,
-        'editable': true,
-        'type': 'number'
-      },
-      {
-        'title': 'Porcentaje',
-        'property': 'percentage',
-        'default': 0,
-        'type': 'number',
-        formatter: (row) => {
-          if (row.percentage) {
-            return `${row.percentage} %`
-          }
-
-          return '0 %'
-        }
-      }
-    ]
-  }
-
-  getFrequency () {
-    let forecast = this.state.forecast
-    let freqDict = {
-      B: 'Business day frequency',
-      D: 'Calendar day frequency',
-      W: 'Weekly frequency',
-      M: 'Month end frequency'
-    }
-
-    return freqDict[forecast.frequency]
   }
 
   async handleChange (data) {
@@ -244,55 +235,198 @@ class ForecastDetail extends Component {
     return true
   }
 
-  setRowsToEdit (row, index) {
-    let rows = {...this.state.selectedRows}
+  /*
+   * Common Methods
+   */
 
-    if (rows.hasOwnProperty(row.uuid)) {
-      row.selected = !row.selected
-      delete rows[row.uuid]
+  sortByName (a, b) {
+    if (a.name < b.name) return -1
+    if (a.name > b.name) return 1
+    return 0
+  }
+
+  /*
+   * Chart Methods
+   */
+
+  getFrequency () {
+    let forecast = this.state.forecast
+    let freqDict = {
+      B: 'Business day frequency',
+      D: 'Calendar day frequency',
+      W: 'Weekly frequency',
+      M: 'Month end frequency'
+    }
+
+    return freqDict[forecast.frequency]
+  }
+
+  /*
+   * Filters methods
+   */
+
+  filterData () {
+    const state = this.state
+    let predictionsFiltered = state.predictionsFormatted
+
+    if (state.daySelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.forecastDate === state.daySelected
+      })
+    }
+
+    if (state.salesCentersSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.salesCenter.uuid === state.salesCentersSelected
+      })
+    }
+
+    if (state.productsSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.product.category === state.productsSelected
+      })
+    }
+
+    this.setState({predictionsFiltered})
+  }
+
+  handleFilters (e, name) {
+    let obj = {}
+    obj[name] = e.target.value
+    this.setState(obj, this.filterData)
+  }
+
+  selectWeek (e) {
+    if (e) {
+      this.setState({
+        days: this.state.schema.weeks.groupedByWeeks[e],
+        weekSelected: e,
+        daySelected: this.state.schema.weeks.groupedByWeeks[e][0] || ''
+      }, this.filterData)
     } else {
-      row.selected = true
-      rows[row.uuid] = row
-    }
-
-    this.setState({selectedRows: rows})
-  }
-
-  selectRows (selectAll) {
-    let selectedRows = {}
-    let reports = this.state.reports.map((item) => {
-      if (selectAll) selectedRows[item.uuid] = item
-
-      item.selected = selectAll
-      return item
-    })
-
-    this.setState({reports, selectedRows})
-  }
-
-  getNotification (type, message) {
-    setTimeout(() => this.setState({notification: {has: false}}), 3000)
-    if (type === 'error') {
-      return (
-        <div className='notification is-danger'>
-          <button className='delete' />
-          <strong>Error!</strong> {message}
-        </div>
-      )
-    }
-    if (type === 'success') {
-      return (
-        <div className='notification is-success'>
-          <button className='delete' />
-          <strong>Success!</strong> {message}
-        </div>
-      )
+      this.setState({
+        days: '',
+        weekSelected: '',
+        daySelected: ''
+      }, this.filterData)
     }
   }
+
+  selectDay (e) {
+    this.setState({daySelected: e.target.innerText.replace(/\s/g, '')}, this.filterData)
+  }
+
+  getDays () {
+    if (!this.state.days) {
+      return <div />
+    }
+    return (<ul>
+      {this.state.days.map((item, index) => {
+        const tabClass = classNames('', {
+          'is-active': this.state.daySelected === item
+        })
+        return (<li onClick={(e) => this.selectDay(e)} className={tabClass} key={index}>
+          <a onClick={(e) => { e.preventDefault() }} >
+            <span className='is-size-7'>{item}</span>
+          </a>
+        </li>)
+      })}
+    </ul>)
+  }
+
+  getFilters () {
+    return (<header className='card-header'>
+      <div className='card-header-title'>
+        <form className='is-fullwidth'>
+          <div className='columns is-multiline'>
+            <div className='column is-4'>
+              <div className='field is-horizontal'>
+                <div className='field-label'>
+                  <label className='label'>Semanas</label>
+                </div>
+                <div className='field-body'>
+                  <div className='field'>
+                    <div className='control'>
+                      <div className='select'>
+                        <SelectWidget
+                          id='root_weeks'
+                          schema={schema.weeks}
+                          options={this.state.weeksOptions}
+                          required
+                          value={this.state.weekSelected}
+                          disabled={false}
+                          readonly={false}
+                          onChange={(e) => this.selectWeek(e)}
+                          autofocus='false' />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className='column is-8'>
+              <div className='field is-horizontal'>
+                <div className='field-label'>
+                  <label className='label'>Centro de Ventas</label>
+                </div>
+                <div className='field-body'>
+                  <div className='field'>
+                    <div className='control'>
+                      <div className='select is-fullwidth'>
+                        <select className='is-fullwidth' value={this.state.salesCentersSelected} onChange={(e) => this.handleFilters(e, 'salesCentersSelected')}>
+                          <option value='' />
+                          {
+                            this.state.salesCentersOptions.enumOptions.map((item, index) => {
+                              return (<option key={index} value={item.uuid}>{item.name}</option>)
+                            })
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='field is-horizontal'>
+                <div className='field-label is-normal'>
+                  <label className='label'>Producto</label>
+                </div>
+                <div className='field-body'>
+                  <div className='field'>
+                    <div className='control'>
+                      <div className='select is-fullwidth'>
+                        <select className='is-fullwidth' value={this.state.productsSelected} onChange={(e) => this.handleFilters(e, 'productsSelected')}>
+                          <option value='' />
+                          {
+                            this.state.productsOptions.enumOptions.map((item, index) => {
+                              return (<option key={index} value={item}>{item}</option>)
+                            })
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className='column is-12'>
+
+              <div className='tabs is-boxed'>
+                {this.getDays()}
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </header>)
+  }
+
+  /*
+   * Editable table methods
+   */
 
   getTable () {
     let forecast = this.state.forecast
-    if (forecast.status !== 'done') {
+    if (forecast.status === 'done') {
       return (
         <div>
           <div className='columns'>
@@ -333,104 +467,9 @@ class ForecastDetail extends Component {
                     Predictions Table
                   </p>
                 </header>
-                <header className='card-header'>
-                  <div className='card-header-title'>
-                    <form className='is-fullwidth'>
-                      <div className='columns is-multiline'>
-                        <div className='column is-6'>
-                          <div className='field is-horizontal'>
-                            <div className='field-label is-normal'>
-                              <label className='label'>Semana</label>
-                            </div>
-                            <div className='field-body'>
-                              <div className='field'>
-                                <div className='control'>
-                                  <div className='select is-fullwidth'>
-                                    <select />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className='column is-6'>
-                          <div className='field is-horizontal'>
-                            <div className='field-label'>
-                              <label className='label'>Control ventas</label>
-                            </div>
-                            <div className='field-body'>
-                              <div className='field'>
-                                <div className='control'>
-                                  <div className='select is-fullwidth'>
-                                    <select />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className='field is-horizontal'>
-                            <div className='field-label is-normal'>
-                              <label className='label'>Prediccion</label>
-                            </div>
-                            <div className='field-body'>
-                              <div className='field'>
-                                <div className='control'>
-                                  <div className='select is-fullwidth'>
-                                    <select />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className='column is-12'>
-
-                          <div className='tabs is-boxed'>
-                            <ul>
-                              <li className='is-active'>
-                                <a>
-                                  <span>01</span>
-                                </a>
-                              </li>
-                              <li>
-                                <a>
-                                  <span>02</span>
-                                </a>
-                              </li>
-                              <li>
-                                <a>
-                                  <span>03</span>
-                                </a>
-                              </li>
-                              <li>
-                                <a>
-                                  <span>04</span>
-                                </a>
-                              </li>
-                              <li>
-                                <a>
-                                  <span>05</span>
-                                </a>
-                              </li>
-                              <li>
-                                <a>
-                                  <span>06</span>
-                                </a>
-                              </li>
-                              <li>
-                                <a>
-                                  <span>07</span>
-                                </a>
-                              </li>
-                            </ul>
-                          </div>
-
-
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </header>
+                {
+                  this.getFilters()
+                }
                 <div className='card-content'>
                   <div className='columns'>
 
@@ -438,7 +477,7 @@ class ForecastDetail extends Component {
                       <EditableTable
                         columns={this.getColumns()}
                         handleSort={(e) => this.handleSort(e)}
-                        data={this.state.predictionsFormatted}
+                        data={this.state.predictionsFiltered}
                         sortAscending={this.state.sortAscending}
                         handleChange={this.handleChange.bind(this)}
                         sortBy={this.state.sort}
@@ -519,13 +558,16 @@ class ForecastDetail extends Component {
                   Predictions Table
                 </p>
               </header>
+              {
+                this.getFilters()
+              }
               <div className='card-content'>
                 <div className='columns'>
                   <div className='column'>
                     <EditableTable
                       columns={this.getColumns()}
                       handleSort={(e) => this.handleSort(e)}
-                      data={this.state.predictionsFormatted}
+                      data={this.state.predictionsFiltered}
                       sortAscending={this.state.sortAscending}
                       handleChange={this.handleChange.bind(this)}
                       sortBy={this.state.sort}
@@ -541,6 +583,126 @@ class ForecastDetail extends Component {
       </div>
     )
   }
+
+  getColumns () {
+    return [
+      {
+        'title': 'Product Id',
+        'abbreviate': true,
+        'abbr': 'P. Id',
+        'property': 'product_id',
+        'default': 'N/A',
+        formatter: (row) => {
+          return String(row.product.externalId)
+        }
+      },
+      {
+        'title': 'Product Name',
+        'abbreviate': true,
+        'abbr': 'P. Name',
+        'property': 'product_id',
+        'default': 'N/A',
+        formatter: (row) => {
+          return String(row.product.name)
+        }
+      },
+      {
+        'title': 'Centro de venta',
+        'abbreviate': true,
+        'abbr': 'C. Venta',
+        'property': 'agency_id',
+        'default': 'N/A',
+        formatter: (row) => {
+          return String(row.salesCenter.name)
+        }
+      },
+      {
+        'title': 'Semana Bimbo',
+        'property': 'semana_bimbo',
+        'default': 'N/A'
+      },
+      {
+        'title': 'Predicción',
+        'property': 'prediction',
+        'default': 0
+      },
+      {
+        'title': 'Ajuste anterior',
+        'property': 'lastAdjustment',
+        'default': 'N/A'
+      },
+      {
+        'title': 'Ajuste',
+        'property': 'adjustment',
+        'default': 0,
+        'editable': true,
+        'type': 'number'
+      },
+      {
+        'title': 'Porcentaje',
+        'property': 'percentage',
+        'default': 0,
+        'type': 'number',
+        formatter: (row) => {
+          if (row.percentage) {
+            return `${row.percentage} %`
+          }
+
+          return '0 %'
+        }
+      }
+    ]
+  }
+
+  setRowsToEdit (row, index) {
+    let rows = {...this.state.selectedRows}
+
+    if (rows.hasOwnProperty(row.uuid)) {
+      row.selected = !row.selected
+      delete rows[row.uuid]
+    } else {
+      row.selected = true
+      rows[row.uuid] = row
+    }
+
+    this.setState({selectedRows: rows})
+  }
+
+  selectRows (selectAll) {
+    let selectedRows = {}
+    let reports = this.state.reports.map((item) => {
+      if (selectAll) selectedRows[item.uuid] = item
+
+      item.selected = selectAll
+      return item
+    })
+
+    this.setState({reports, selectedRows})
+  }
+
+  getNotification (type, message) {
+    setTimeout(() => this.setState({notification: {has: false}}), 3000)
+    if (type === 'error') {
+      return (
+        <div className='notification is-danger'>
+          <button className='delete' />
+          <strong>Error!</strong> {message}
+        </div>
+      )
+    }
+    if (type === 'success') {
+      return (
+        <div className='notification is-success'>
+          <button className='delete' />
+          <strong>Success!</strong> {message}
+        </div>
+      )
+    }
+  }
+
+  /*
+   * Sticky header methods
+   */
 
   setHeights (elements) {
     const scrollBody = elements || document.querySelectorAll('[data-content]')
