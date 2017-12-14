@@ -86,6 +86,13 @@ class ForecastDetail extends Component {
     })
   }
 
+  async loadCategories () {
+    var url = '/admin/products/categories'
+    const body = await api.get(url, {organization: this.state.forecast.organization.uuid})
+
+    console.log(body)
+  }
+
   async deleteObject () {
     var url = '/admin/forecasts/' + this.props.match.params.uuid
     await api.del(url)
@@ -487,7 +494,7 @@ class ForecastDetail extends Component {
         <button
           className='button is-primary'
           type='button'
-          onClick={() => this.changeStatusOnClick('supervisorReview')}
+          onClick={() => this.changeStatusOnClick('readyToOrder')}
         >
           Consolidar
         </button>

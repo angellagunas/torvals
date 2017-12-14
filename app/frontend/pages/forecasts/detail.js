@@ -463,7 +463,7 @@ class ForecastDetail extends Component {
         <button
           className='button is-primary'
           type='button'
-          onClick={() => this.changeStatusOnClick('supervisorReview')}
+          onClick={() => this.changeStatusOnClick('readyToOrder')}
         >
           Consolidar
         </button>

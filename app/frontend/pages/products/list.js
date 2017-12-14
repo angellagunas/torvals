@@ -18,7 +18,7 @@ export default ListPage({
   createComponent: CreateProduct,
   baseUrl: '/app/products',
   branchName: 'products',
-  detailUrl: '/app/products/',
+  detailUrl: '/products/',
   filters: true,
   schema: {
     type: 'object',
