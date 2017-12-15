@@ -252,6 +252,8 @@ class ForecastDetail extends Component {
           if (row.lastAdjustment) {
             return row.lastAdjustment.toFixed(2)
           }
+
+          return 'N/A'
         }
       },
       {
