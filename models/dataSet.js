@@ -159,24 +159,6 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
     status: 'preprocessing'
   })
 
-  this.set({
-    status: 'configuring',
-    columns: [
-      {
-        name: 'Column A',
-        values: ['a', 'b', 'c', 'd']
-      },
-      {
-        name: 'Column B',
-        values: ['a', 'b', 'c', 'd']
-      },
-      {
-        name: 'Column C',
-        values: ['a', 'b', 'c', 'd']
-      }
-    ]
-  })
-
   await this.save()
 
   return true
