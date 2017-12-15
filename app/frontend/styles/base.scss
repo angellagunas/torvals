@@ -280,3 +280,13 @@ select.placeholder {
   min-height: 40px;
   min-width: 40px;
 }
+
+.is-edited {
+  background-color: #C3ECEF !important;
+  color: #363636;
+}
+
+.was-edited {
+  background-color: #9cbcbf !important;
+  color: #363636;
+}

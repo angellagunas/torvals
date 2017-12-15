@@ -71,23 +71,6 @@ module.exports = new Route({
       }
     }
 
-    if (!filters.status) {
-      switch (currentRole.slug) {
-        case 'analista':
-          filters['status'] = 'analistReview'
-          break
-        case 'ops':
-          filters['status'] = 'opsReview'
-          break
-        case 'supervisor':
-          filters['status'] = 'supervisorReview'
-          break
-        case 'supervisor-ops':
-          filters['status'] = 'opsReview'
-          break
-      }
-    }
-
     var forecasts = await Forecast.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
