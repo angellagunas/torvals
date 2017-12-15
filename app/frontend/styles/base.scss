@@ -290,3 +290,29 @@ select.placeholder {
   background-color: #9cbcbf !important;
   color: #363636;
 }
+
+a.navbar-item:hover {
+  background-color: #272727;
+}
+
+.Sticky {
+  &.sticky {
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    left: 0;
+    border-radius: 0;
+    margin: 0;
+    padding: 0px 24px;
+    z-index: 99;
+  }
+}
+
+
+@media only screen and (min-width: 1024px) {
+  .Sticky {
+    &.sticky {
+      padding-left: 274px
+    }
+  }
+}
