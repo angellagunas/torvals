@@ -6,7 +6,6 @@ import api from '~base/api'
 import tree from '~core/tree'
 
 import Sidebar from '~components/sidebar'
-import Footer from '~components/footer'
 import AdminNavBar from '~components/admin-navbar'
 
 class AdminLayout extends Component {
@@ -75,7 +74,6 @@ class AdminLayout extends Component {
             <section className='c-flex-1 is-flex'>
               {this.props.children}
             </section>
-            <Footer />
           </div>
         </div>
       </div>)
