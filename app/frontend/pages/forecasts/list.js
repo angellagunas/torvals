@@ -136,7 +136,7 @@ const branchedForecasts = branch({forecasts: 'forecasts'}, Forecasts)
 
 export default Page({
   path: '/forecasts',
-  title: 'Forecast',
+  title: 'Forecasts',
   icon: 'snowflake-o',
   exact: true,
   roles: 'supervisor, analista, admin-organizacion, admin, ops, supervisor-ops',

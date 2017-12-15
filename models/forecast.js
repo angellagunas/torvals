@@ -23,7 +23,16 @@ const forecastSchema = new Schema({
   frequency: { type: String, enum: ['B', 'D', 'W', 'M'] },
   status: {
     type: String,
-    enum: ['created', 'processing', 'done', 'analistReview', 'opsReview', 'supervisorReview', 'readyToOrder'],
+    enum: [
+      'created',
+      'processing',
+      'done',
+      'analistReview',
+      'opsReview',
+      'supervisorReview',
+      'readyToOrder',
+      'error'
+    ],
     default: 'created'
   },
   changePoints: [{ type: Date }],
