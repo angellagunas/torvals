@@ -686,7 +686,7 @@ class ForecastDetail extends Component {
                 </div>
                 <div className='columns'>
                   <div className='column'>
-                    There was an error when processing forecast:
+                    There was an error when processing the forecast:
                     <br />
                     {forecast.error}
                   </div>
