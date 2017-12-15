@@ -111,7 +111,7 @@ export default Page({
               </div>
             </div>
             <div className='tile is-ancestor'>
-              <div className='tile is-vertical is-3'>
+              <div className='tile is-vertical is-4'>
                 <div className='tile'>
                   <div className='tile is-parent'>
                     <article className='tile is-child notification is-primary has-text-centered'>
@@ -121,7 +121,7 @@ export default Page({
                   </div>
                 </div>
               </div>
-              <div className='tile is-vertical is-3'>
+              <div className='tile is-vertical is-4'>
                 <div className='tile'>
                   <div className='tile is-parent'>
                     <article className='tile is-child notification is-primary has-text-centered'>
@@ -131,7 +131,7 @@ export default Page({
                   </div>
                 </div>
               </div>
-              <div className='tile is-vertical is-3'>
+              <div className='tile is-vertical is-4'>
                 <div className='tile'>
                   <div className='tile is-parent'>
                     <article className='tile is-child notification is-primary has-text-centered'>
