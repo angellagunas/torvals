@@ -156,35 +156,37 @@ class ForecastDetail extends Component {
         }
       })
     }, function () {
-      let cache = {}
-      this.state.predictionsFormatted
-        .sort((a, b) => new Date(a.forecastDate) - new Date(b.forecastDate))
-        .map(item => {
-          if (!cache[item.semanaBimbo]) {
-            cache[item.semanaBimbo] = []
-          }
-          if (cache[item.semanaBimbo].indexOf(item.forecastDate) === -1) {
-            cache[item.semanaBimbo].push(item.forecastDate)
-          }
-          return {forecastDate: item.forecastDate, semanaBimbo: item.semanaBimbo}
-        })
-
-      schema.weeks.groupedByWeeks = cache
-      schema.weeks.enum = Object.keys(cache).map(item => item)
-      schema.weeks.enumNames = Object.keys(cache).map(item => 'Semana ' + item)
-
-      this.setState({
-        schema,
-        predictionsFiltered: this.state.predictionsFormatted.map(item => item),
-        weekSelected: schema.weeks.enum[0],
-        days: schema.weeks.groupedByWeeks[schema.weeks.enum[0]],
-        daySelected: schema.weeks.groupedByWeeks[Math.min(...Object.keys(schema.weeks.groupedByWeeks))][0],
-        weeksOptions: {
-          enumOptions: Object.keys(cache).map(item => {
-            return {label: 'Semana ' + item, value: item}
+      if (this.state.predictionsFormatted) {
+        let cache = {}
+        this.state.predictionsFormatted
+          .sort((a, b) => new Date(a.forecastDate) - new Date(b.forecastDate))
+          .map(item => {
+            if (!cache[item.semanaBimbo]) {
+              cache[item.semanaBimbo] = []
+            }
+            if (cache[item.semanaBimbo].indexOf(item.forecastDate) === -1) {
+              cache[item.semanaBimbo].push(item.forecastDate)
+            }
+            return {forecastDate: item.forecastDate, semanaBimbo: item.semanaBimbo}
           })
-        }
-      }, this.filterData)
+
+        schema.weeks.groupedByWeeks = cache
+        schema.weeks.enum = Object.keys(cache).map(item => item)
+        schema.weeks.enumNames = Object.keys(cache).map(item => 'Semana ' + item)
+
+        this.setState({
+          schema,
+          predictionsFiltered: this.state.predictionsFormatted.map(item => item),
+          weekSelected: schema.weeks.enum[0],
+          days: schema.weeks.groupedByWeeks[schema.weeks.enum[0]],
+          daySelected: schema.weeks.groupedByWeeks[Math.min(...Object.keys(schema.weeks.groupedByWeeks))][0],
+          weeksOptions: {
+            enumOptions: Object.keys(cache).map(item => {
+              return {label: 'Semana ' + item, value: item}
+            })
+          }
+        }, this.filterData)
+      }
     })
   }
 
@@ -247,7 +249,9 @@ class ForecastDetail extends Component {
         'property': 'lastAdjustment',
         'default': 'N/A',
         formatter: (row) => {
-          return row.lastAdjustment.toFixed(2)
+          if (row.lastAdjustment) {
+            return row.lastAdjustment.toFixed(2)
+          }
         }
       },
       {
@@ -623,6 +627,8 @@ class ForecastDetail extends Component {
                     <CreateBarGraph
                       data={forecast.graphData}
                       size={[250, 250]}
+                      width='960'
+                      height='500'
                     />
                   </div>
                 </div>

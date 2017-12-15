@@ -132,8 +132,9 @@ class CreateBarGraph extends Component {
   }
 
   render () {
+    const viewBox = '0 0 ' + this.props.width + ' ' + this.props.height
     return (
-      <svg ref={(node) => this.node = node}
+      <svg style={{width: '100%'}} viewBox={viewBox} ref={(node) => this.node = node}
          />
 
     )
