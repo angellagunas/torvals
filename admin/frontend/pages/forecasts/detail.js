@@ -156,7 +156,7 @@ class ForecastDetail extends Component {
         }
       })
     }, function () {
-      if (this.state.predictionsFormatted) {
+      if (this.state.predictionsFormatted.length > 0) {
         let cache = {}
         this.state.predictionsFormatted
           .sort((a, b) => new Date(a.forecastDate) - new Date(b.forecastDate))

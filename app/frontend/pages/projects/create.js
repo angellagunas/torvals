@@ -1,14 +1,14 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import api from '~base/api'
 
 import BaseModal from '~base/components/base-modal'
 import ProjectForm from './create-form'
 
 var initialState = {
   name: '',
-  description: ''
+  description: '',
+  adjustment: ''
 }
 
 class CreateProject extends Component {
