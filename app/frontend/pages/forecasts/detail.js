@@ -150,6 +150,7 @@ class ForecastDetail extends Component {
           percentage: percentage,
           product: item.product,
           salesCenter: item.salesCenter,
+          wasEdited: data.adjustment !== data.prediction,
           uuid: item.uuid
         }
       })
@@ -373,6 +374,7 @@ class ForecastDetail extends Component {
 
   setRowsToEdit (row, index) {
     let rows = {...this.state.selectedRows}
+    console.log('setRowsToEdit')
 
     if (rows.hasOwnProperty(row.uuid)) {
       row.selected = !row.selected
@@ -394,6 +396,7 @@ class ForecastDetail extends Component {
   }
 
   selectRows (selectAll) {
+    console.log('selectRows')
     let selectedRows = {}
     let predictionsFormatted = this.state.predictionsFormatted.map((item) => {
       if (selectAll) selectedRows[item.uuid] = item
@@ -590,8 +593,67 @@ class ForecastDetail extends Component {
     }
   }
 
+  getModifyButtons () {
+    let forecast = this.state.forecast
+    let currentRole = tree.get('user').currentRole.slug
+
+    if (
+        forecast.status !== 'analistReview' &&
+        forecast.status !== 'readyToOrder' &&
+        currentRole !== 'analista' &&
+        currentRole !== 'supervisor'
+    ) {
+      return (
+        <div className='columns'>
+          <div className='column'>
+            <button
+              style={{marginRight: 10}}
+              onClick={(e) => this.selectRows(true)}
+              className='button is-light'
+            >
+              Seleccionar todos
+            </button>
+            <button
+              onClick={(e) => this.selectRows(false)}
+              className='button is-light'
+            >
+              Deseleccionar todos
+            </button>
+          </div>
+          <div className='column'>
+            <div className='field is-grouped is-grouped-right'>
+              <div className='control'>
+                <p style={{paddingTop: 5}}>Modificar porcentaje</p>
+              </div>
+              <div className='control'>
+                <button
+                  className='button'
+                  onClick={() => this.onClickButtonPlus()}
+                  disabled={this.state.disableButtons}
+                >
+                 +
+                </button>
+              </div>
+              <div className='control'>
+                <button
+                  className='button'
+                  style={{paddingLeft: 14, paddingRight: 14}}
+                  onClick={() => this.onClickButtonMinus()}
+                  disabled={this.state.disableButtons}
+                >
+                 -
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+  }
+
   getTable () {
     const { forecast, notification } = this.state
+    let currentRole = tree.get('user').currentRole.slug
     var notif
 
     if (notification.has) {
@@ -669,61 +731,21 @@ class ForecastDetail extends Component {
                 this.getFilters()
               }
               <div className='card-content'>
-                <div className='columns'>
-                  <div className='column'>
-                    <button
-                      style={{marginRight: 10}}
-                      onClick={(e) => this.selectRows(true)}
-                      className='button is-light'
-                    >
-                      Seleccionar todos
-                    </button>
-                    <button
-                      onClick={(e) => this.selectRows(false)}
-                      className='button is-light'
-                    >
-                      Deseleccionar todos
-                    </button>
-                  </div>
-                  <div className='column'>
-                    <div className='field is-grouped is-grouped-right'>
-                      <div className='control'>
-                        <p style={{paddingTop: 5}}>Modificar porcentaje</p>
-                      </div>
-                      <div className='control'>
-                        <button
-                          className='button'
-                          onClick={() => this.onClickButtonPlus()}
-                          disabled={this.state.disableButtons}
-                        >
-                         +
-                        </button>
-                      </div>
-                      <div className='control'>
-                        <button
-                          className='button'
-                          style={{paddingLeft: 14, paddingRight: 14}}
-                          onClick={() => this.onClickButtonMinus()}
-                          disabled={this.state.disableButtons}
-                        >
-                         -
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                {this.getModifyButtons()}
                 <div className='columns'>
                   <div className='column'>
                     <EditableTable
                       columns={this.getColumns()}
-                      handleSort={(e) => this.handleSort(e)}
                       data={this.state.predictionsFiltered}
+                      handleSort={(e) => this.handleSort(e)}
                       sortAscending={this.state.sortAscending}
-                      handleChange={this.handleChange.bind(this)}
                       sortBy={this.state.sort}
+                      handleChange={this.handleChange.bind(this)}
                       setRowsToEdit={this.setRowsToEdit.bind(this)}
                       selectable={
-                        forecast.status !== 'analistReview' && forecast.status !== 'readyToOrder'
+                        (forecast.status !== 'analistReview' &&
+                        forecast.status !== 'readyToOrder') ||
+                        (currentRole !== 'analista' && currentRole !== 'supervisor')
                       }
                      />
                   </div>
@@ -740,7 +762,7 @@ class ForecastDetail extends Component {
     let currentRole = tree.get('user').currentRole.slug
     const { forecast } = this.state
 
-    if (forecast.status === 'analistReview' && currentRole === 'analista') {
+    if (forecast.status === 'analistReview') {
       return (
         <button
           className='button is-primary'
@@ -793,6 +815,7 @@ class ForecastDetail extends Component {
   }
 
   render () {
+    let currentRole = tree.get('user').currentRole.slug
     const { forecast } = this.state
     const headerBodyClass = classNames('card-content', {
       'is-hidden': this.state.isHeaderOpen === false
@@ -827,11 +850,13 @@ class ForecastDetail extends Component {
 
             </div>
             <div className='control'>
-              <DeleteButton
-                objectName='Forecast'
-                objectDelete={this.deleteObject.bind(this)}
-                message={`Estas seguro de querer eliminar el objeto`}
-              />
+              { currentRole !== 'ops' &&
+                <DeleteButton
+                  objectName='Forecast'
+                  objectDelete={this.deleteObject.bind(this)}
+                  message={`Estas seguro de querer eliminar el objeto`}
+                />
+              }
             </div>
             <div className='control'>
               <a
