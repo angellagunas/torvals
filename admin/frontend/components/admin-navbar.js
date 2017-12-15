@@ -99,6 +99,7 @@ class NavBar extends Component {
       <div className='c-topbar__aside navbar-brand'>
         <Link to='/' className='navbar-item'>
           <img className='is-flex' src='/admin/public/img/pythia-logo.png' />
+          <h3 className='is-size-4 has-text-white is-capitalized has-text-weight-semibold'>Pythia</h3>
         </Link>
       </div>
       <div className='c-topbar__main'>

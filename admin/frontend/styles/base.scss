@@ -277,6 +277,10 @@ pre.json {
 .is-transparent { background-color: transparent }
 .is-absolute { position: absolute }
 
+a.navbar-item:hover {
+  background-color: #272727;
+}
+
 .Sticky {
   &.sticky {
     position: fixed !important;

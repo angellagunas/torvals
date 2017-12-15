@@ -796,7 +796,7 @@ class ForecastDetail extends Component {
 
     scrollBody.forEach((sticky) => {
       let bottom = sticky.getBoundingClientRect().bottom
-      const footerHeight = 96
+      const footerHeight = 0
       const viewporHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
       this.setState({bodyHeight: viewporHeight - (bottom + footerHeight)})
     })
@@ -850,15 +850,6 @@ class ForecastDetail extends Component {
 
             </div>
             <div className='control'>
-              { currentRole !== 'ops' &&
-                <DeleteButton
-                  objectName='Forecast'
-                  objectDelete={this.deleteObject.bind(this)}
-                  message={`Estas seguro de querer eliminar el objeto`}
-                />
-              }
-            </div>
-            <div className='control'>
               <a
                 className='button is-rounded is-inverted'
                 onClick={() => this.toggleHeader()}>
@@ -871,12 +862,35 @@ class ForecastDetail extends Component {
         </header>
         <div className={headerBodyClass}>
           <div className='columns is-multiline'>
-            <div className='column is-6'><strong>Status:</strong> {forecast.status}</div>
-            <div className='column is-6'><strong>Organization:</strong> {forecast.organization.name}</div>
-            <div className='column is-6'><strong>Start Date:</strong> {moment.utc(forecast.dateStart).format('DD/MM/YYYY')}</div>
-            <div className='column is-6'><strong>End Date:</strong> {moment.utc(forecast.dateEnd).format('DD/MM/YYYY')}</div>
-            <div className='column is-6'><strong>Frequency:</strong> {this.getFrequency()}</div>
-            <div className='column is-6'><strong>Created By:</strong> {`${forecast.createdBy.name}`}</div>
+            <div className='column is-6'>
+              <strong>Status:</strong> {forecast.status}
+            </div>
+            <div className='column is-6'>
+              <strong>Organization:</strong> {forecast.organization.name}
+            </div>
+            <div className='column is-6'>
+              <strong>Start Date:</strong> {moment.utc(forecast.dateStart).format('DD/MM/YYYY')}
+            </div>
+            <div className='column is-6'>
+              <strong>End Date:</strong> {moment.utc(forecast.dateEnd).format('DD/MM/YYYY')}
+            </div>
+            <div className='column is-6'>
+              <strong>Frequency:</strong> {this.getFrequency()}
+            </div>
+            <div className='column is-6'>
+              <strong>Created By:</strong> {`${forecast.createdBy.name}`}
+            </div>
+            <div className='column is-6 is-offset-6'>
+              <div className='control'>
+                { currentRole !== 'ops' &&
+                  <DeleteButton
+                    objectName='Forecast'
+                    objectDelete={this.deleteObject.bind(this)}
+                    message={`Estas seguro de querer eliminar el objeto`}
+                  />
+                }
+              </div>
+            </div>
           </div>
         </div>
       </div>

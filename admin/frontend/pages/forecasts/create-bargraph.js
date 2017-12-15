@@ -42,10 +42,6 @@ class CreateBarGraph extends Component {
       .attr('className', 'y axis')
       .style('fill', '#000')
       .call(yAxis)
-      .append('text')
-        .attr('y', (chartHeight + 60) / 2)
-        .style('text-anchor', 'end')
-        .text('Unidades')
   }
 
   drawPaths (svg, data, x, y) {
