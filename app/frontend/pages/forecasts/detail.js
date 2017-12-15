@@ -374,7 +374,6 @@ class ForecastDetail extends Component {
 
   setRowsToEdit (row, index) {
     let rows = {...this.state.selectedRows}
-    console.log('setRowsToEdit')
 
     if (rows.hasOwnProperty(row.uuid)) {
       row.selected = !row.selected
@@ -396,7 +395,6 @@ class ForecastDetail extends Component {
   }
 
   selectRows (selectAll) {
-    console.log('selectRows')
     let selectedRows = {}
     let predictionsFormatted = this.state.predictionsFormatted.map((item) => {
       if (selectAll) selectedRows[item.uuid] = item
