@@ -63,7 +63,8 @@ forecastSchema.methods.toPublic = function () {
     frequency: this.frequency,
     project: this.project,
     graphData: this.graphData,
-    status: this.status
+    status: this.status,
+    error: this.error
   }
 }
 
@@ -80,7 +81,8 @@ forecastSchema.methods.format = function () {
     frequency: this.frequency,
     project: this.project,
     graphData: this.graphData,
-    status: this.status
+    status: this.status,
+    error: this.error
   }
 }
 
