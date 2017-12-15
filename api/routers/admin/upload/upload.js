@@ -46,6 +46,14 @@ module.exports = new Route({
         uploadedBy: ctx.state.user
       })
       await dataset.save()
+
+      if (chunk.recreated) {
+        // The File has been already uploaded to Kore
+        finishUpload.add({uuid: dataset.uuid})
+
+        ctx.body = 'OK'
+        return
+      }
     }
 
     const tmpdir = path.join('.', 'media', 'uploads', identifier)
