@@ -43,6 +43,15 @@ const task = new Task(async function (argv) {
 
     var res = await request(options)
 
+    if (res.status === 'error') {
+      console.log(`${forecast.configPrId} forecast had an error!`)
+
+      forecast.set({error: res.message, status: 'error'})
+      await forecast.save()
+
+      continue
+    }
+
     if (res.status === 'ready') {
       console.log(`${forecast.configPrId} forecast has finished processing`)
 

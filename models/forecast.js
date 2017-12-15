@@ -11,6 +11,7 @@ const forecastSchema = new Schema({
   project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   confirmedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  error: { type: String },
   configPrId: { type: String },
   forecastId: { type: String },
   dateStart: { type: Date },
