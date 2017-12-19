@@ -15,8 +15,10 @@ class ForecastForm extends Component {
         dateEnd: '',
         frequency: '',
         holidays: [],
-        changePoints: []
+        changePoints: [],
+        columnsForForecast: []
       },
+      columnsForecast: [],
       frequencyData: {
         enum: ['B', 'D', 'W', 'M'],
         enumNames: [
@@ -29,14 +31,32 @@ class ForecastForm extends Component {
       holidaysName: '',
       holidaysDate: undefined,
       changePointsDate: undefined,
+      columnForForecast: undefined,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
   }
 
+  componentWillMount () {
+    this.load()
+  }
+
+  async load () {
+    var url = `/admin/projects/${this.props.project.uuid}/columns`
+    const body = await api.get(url)
+
+    this.setState({
+      loading: false,
+      loaded: true,
+      columnsForecast: body.data
+    })
+  }
+
   errorHandler (e) {}
 
   componentWillReceiveProps (next) {
+    this.load()
+
     if (next.submit) {
       this.submitHandler()
     }
@@ -89,6 +109,18 @@ class ForecastForm extends Component {
       this.setState({
         ...this.state.formData.changePoints.push(this.state.changePointsDate),
         changePointsDate: undefined
+      })
+    }
+  }
+
+  handleColumnsForForecastValues (event) {
+    event.preventDefault()
+    if (!this.state.columnForForecast) {
+
+    } else {
+      this.setState({
+        ...this.state.formData.columnsForForecast.push(this.state.columnForForecast),
+        columnForForecast: undefined
       })
     }
   }
@@ -155,6 +187,12 @@ class ForecastForm extends Component {
   removeChangePoint (index) {
     this.setState({
       ...this.state.formData.changePoints.splice(index, 1)
+    })
+  }
+
+  removeColumnForForecast (index) {
+    this.setState({
+      ...this.state.formData.columnsForForecast.splice(index, 1)
     })
   }
 
@@ -225,6 +263,76 @@ class ForecastForm extends Component {
               </div>
             </div>
           </div>
+          <div className='field'>
+            <label className='label'>Columns for Forecast*</label>
+            <div className='control' />
+          </div>
+          <div className='field is-horizontal'>
+            <div className='field-body'>
+              <div className='field'>
+                <div className='select'>
+                  <select
+                    name='columnForForecast'
+                    value={this.state.columnForForecast}
+                    onChange={(e) => {
+                      this.handleChange('columnForForecast', e.currentTarget.value)
+                    }}
+                  >
+                    <option value=''>Select a option</option>
+                    {
+                      this.state.columnsForecast.map(function (item) {
+                        return <option key={item}
+                          value={item}>{item}</option>
+                      })
+                    }
+                  </select>
+                </div>
+              </div>
+              <div className='field'>
+                <p className='control is-expanded'>
+                  <button
+                    className='button is-primary'
+                    onClick={(e) => this.handleColumnsForForecastValues(e)}
+                    type='button'
+                  >
+                    Add
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+          <table className='table is-fullwidth'>
+            <thead>
+              <tr>
+                <th>Column</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.formData.columnsForForecast.length === 0 ? (
+                <tr>
+                  <td colSpan='3'>No columns to show</td>
+                </tr>
+                ) : (
+                  this.state.formData.columnsForForecast.map((item, key) => {
+                    return (
+                      <tr key={key}>
+                        <td>{item}</td>
+                        <td>
+                          <button
+                            className='button is-danger'
+                            type='button'
+                            onClick={() => this.removeColumnForForecast(key)}
+                          >
+                            <i className='fa fa-times' aria-hidden='true' />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+            </tbody>
+          </table>
 
           <div className='field'>
             <label className='label'>Holidays</label>

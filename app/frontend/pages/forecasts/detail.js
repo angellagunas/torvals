@@ -870,7 +870,7 @@ class ForecastDetail extends Component {
             <div className='control'>
               <Link
                 className='button is-light'
-                to={'/projects/detail/' + forecast.project.uuid}
+                to={'/projects/' + forecast.project.uuid}
               >
                 Return to project
               </Link>
