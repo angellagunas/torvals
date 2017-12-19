@@ -36,6 +36,7 @@ const forecastSchema = new Schema({
     default: 'created'
   },
   changePoints: [{ type: Date }],
+  columnsForForecast: [{ type: String }],
 
   salesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
   newSalesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],

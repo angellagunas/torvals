@@ -34,7 +34,7 @@ module.exports = new Route({
       datasets: project.datasets,
       organization: project.organization,
       createdBy: ctx.state.user,
-      columns_for_forecast: ['producto_id']
+      columnsForForecast: data.columnsForForecast
       // columns_for_forecast: project.datasets[0].dataset.columns.filter(
       //   (item) => { return item.isDate || item.isAnalysis }
       // ).map(item => { return item.name })
@@ -67,7 +67,7 @@ module.exports = new Route({
             })
           }
         }),
-        columns_for_forecast: forecastData.columns_for_forecast,
+        columns_for_forecast: forecastData.columnsForForecast,
         forecast_start: forecastData.dateStart.format('YYYY-MM-DD'),
         forecast_end: forecastData.dateEnd.format('YYYY-MM-DD'),
         frequency: forecastData.frequency,

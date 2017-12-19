@@ -347,6 +347,7 @@ class ProjectDetail extends Component {
                             finishUp={this.finishUpForecast.bind(this)}
                             url={`/admin/projects/${project.uuid}/add/forecast`}
                             load={this.loadForecasts.bind(this)}
+                            project={project}
                           />
                         </div>
                       </header>

@@ -46,6 +46,7 @@ class CreateForecast extends Component {
           load={this.props.load}
           initialState={initialState}
           submit={this.state.submit}
+          project={this.props.project}
         />
       </BaseModal>
     )
