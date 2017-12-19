@@ -18,6 +18,7 @@ module.exports = new Route({
 
     prediction.data.lastAdjustment = prediction.data.adjustment
     prediction.data.adjustment = data.adjustment
+    prediction.data.updatedBy = ctx.state.user
     prediction.markModified('data')
     prediction.save()
 
