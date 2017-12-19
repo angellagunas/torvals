@@ -10,7 +10,9 @@ module.exports = new Route({
   path: '/:uuid/configure',
   validator: lov.object().keys({
     isDate: lov.string().required(),
-    isAnalysis: lov.string().required()
+    isAnalysis: lov.string().required(),
+    isProduct: lov.string().required(),
+    isSalesCenter: lov.string().required()
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
@@ -25,6 +27,14 @@ module.exports = new Route({
     }).name
     var isAnalysis = body.columns.find((item) => {
       return item.isAnalysis
+    }).name
+
+    var isProduct = body.columns.find((item) => {
+      return item.isProduct
+    }).name
+
+    var isSalesCenter = body.columns.find((item) => {
+      return item.isSalesCenter
     }).name
 
     var filterAnalysis = []
