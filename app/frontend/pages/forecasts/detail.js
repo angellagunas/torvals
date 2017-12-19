@@ -14,6 +14,7 @@ import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { EditableTable } from '~base/components/base-editableTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 let schema = {
   weeks: {
@@ -189,6 +190,25 @@ class ForecastDetail extends Component {
     })
   }
 
+  async loadDatasetsList () {
+    var url = '/admin/datasets/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 10,
+      project: this.state.project.uuid
+    })
+
+    var cursor = this.context.tree.select('datasets')
+
+    cursor.set({
+      page: 1,
+      totalItems: body.total,
+      items: body.data,
+      pageLength: 10
+    })
+    this.context.tree.commit()
+  }
+
   async deleteObject () {
     var url = '/app/forecasts/' + this.props.match.params.uuid
     await api.del(url)
@@ -276,6 +296,44 @@ class ForecastDetail extends Component {
           }
 
           return '0 %'
+        }
+      }
+    ]
+  }
+
+  getColumnsDatasets () {
+    return [
+      {
+        'title': 'Name',
+        'property': 'name',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/datasets/detail/' + row.uuid}>
+              {row.name}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'Status',
+        'property': 'status',
+        'default': 'new',
+        'sortable': true
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          return (
+            <div className='field is-grouped'>
+              <div className='control'>
+                <Link className='button' to={'/datasets/detail/' + row.uuid}>
+                  Detalle
+                </Link>
+              </div>
+            </div>
+          )
         }
       }
     ]
@@ -784,6 +842,7 @@ class ForecastDetail extends Component {
             </div>
           </div>
         </div>
+        {this.getDatasetsList()}
       </div>
     )
   }
@@ -815,6 +874,35 @@ class ForecastDetail extends Component {
         </button>
       )
     }
+  }
+
+  getDatasetsList () {
+    const { forecast } = this.state
+    return (
+      <div className='columns'>
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                          Datasets
+                        </p>
+            </header>
+            <div className='card-content'>
+              <div className='columns'>
+                <div className='column'>
+                  <BranchedPaginatedTable
+                    branchName='datasets'
+                    baseUrl='/admin/datasets/'
+                    columns={this.getColumnsDatasets()}
+                    filters={{project: forecast.project.uuid}}
+                            />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   /*
@@ -863,7 +951,7 @@ class ForecastDetail extends Component {
       <div data-content className='card' id='test' ref={(element) => this.getHeight(element)}>
         <header className='card-header'>
           <p className='card-header-title'>
-            Forecast
+            Forecast from {moment.utc(forecast.dateStart).format('DD/MM/YYYY')} to {moment.utc(forecast.dateEnd).format('DD/MM/YYYY')}
           </p>
 
           <div className='field is-grouped is-grouped-right card-header-select'>
