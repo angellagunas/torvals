@@ -1,7 +1,8 @@
+const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const {Forecast} = require('models')
+const {Forecast, PredictionHistoric, Prediction} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -20,7 +21,27 @@ module.exports = new Route({
       status: data.status
     })
 
-    forecast.save()
+    await forecast.save()
+
+    if (forecast.status === 'readyToOrder') {
+      const predictions = await Prediction.find({
+        'forecast': ObjectId(forecast._id),
+        'isDeleted': false
+      })
+
+      for (var prediction of predictions) {
+        if (prediction.data.adjustment !== prediction.data.prediction) {
+          await PredictionHistoric.create({
+            updatedBy: prediction.data.updatedBy,
+            lastAdjustment: prediction.data.lastAdjustment,
+            newAdjustment: prediction.data.adjustment,
+            prediction: prediction.data.prediction,
+            predictionObj: prediction,
+            organization: prediction.organization
+          })
+        }
+      }
+    }
 
     ctx.body = {
       data: forecast.format()

@@ -13,7 +13,7 @@ const userTokenSchema = new Schema({
   validUntil: { type: Date },
   lastUse: { type: Date },
   dateCreated: { type: Date, default: moment.utc }
-})
+}, { usePushEach: true })
 
 userTokenSchema.methods.getJwt = function () {
   return jwt.sign({

@@ -29,7 +29,7 @@ const fileChunkSchema = new Schema({
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 }
-})
+}, { usePushEach: true })
 
 fileChunkSchema.methods.toPublic = function () {
   return {

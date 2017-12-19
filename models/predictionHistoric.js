@@ -13,7 +13,8 @@ const predictionHistoricSchema = new Schema({
 
   uuid: { type: String, default: v4 }
 }, {
-  timestamps: true
+  timestamps: true,
+  usePushEach: true
 })
 
 predictionHistoricSchema.plugin(dataTables)
