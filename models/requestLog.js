@@ -19,7 +19,8 @@ const requestLogSchema = new Schema({
   },
   response: { type: Schema.Types.Mixed }
 }, {
-  timestamps: true
+  timestamps: true,
+  usePushEach: true
 })
 
 requestLogSchema.plugin(dataTables)

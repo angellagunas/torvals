@@ -64,7 +64,7 @@ const dataSetSchema = new Schema({
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
   uploaded: { type: Boolean, default: false }
-})
+}, { usePushEach: true })
 
 dataSetSchema.plugin(dataTables)
 

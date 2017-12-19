@@ -25,14 +25,15 @@ const predictionSchema = new Schema({
     semanaBimbo: { type: Number },
     month: { type: String },
     year: { type: String },
-    forecastDate: { type: String }
+    forecastDate: { type: String },
+    updatedBy: { type: Schema.Types.ObjectId, ref: 'User' }
   },
   apiData: { type: Schema.Types.Mixed },
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false }
-})
+}, { usePushEach: true })
 
 predictionSchema.plugin(dataTables)
 

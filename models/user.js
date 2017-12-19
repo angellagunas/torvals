@@ -38,7 +38,7 @@ const userSchema = new Schema({
 
   uuid: { type: String, default: v4 },
   apiToken: { type: String, default: v4 }
-})
+}, { usePushEach: true })
 
 userSchema.pre('save', function (next) {
   if (this.isNew) {
