@@ -774,7 +774,7 @@ class ForecastDetail extends Component {
                       setRowsToEdit={this.setRowsToEdit.bind(this)}
                       selectable={
                         (forecast.status !== 'analistReview' &&
-                        forecast.status !== 'readyToOrder') ||
+                        forecast.status !== 'readyToOrder') &&
                         (currentRole !== 'analista' && currentRole !== 'supervisor')
                       }
                      />
