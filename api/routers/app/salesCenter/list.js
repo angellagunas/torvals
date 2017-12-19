@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {SalesCenter} = require('models')
+const {SalesCenter, Role} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -9,6 +9,27 @@ module.exports = new Route({
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
+      }
+
+      const user = ctx.state.user
+      var currentRole
+      const currentOrganization = user.organizations.find(orgRel => {
+        return ctx.state.organization._id.equals(orgRel.organization._id)
+      })
+
+      if (currentOrganization) {
+        const role = await Role.findOne({_id: currentOrganization.role})
+
+        currentRole = role.toPublic()
+      }
+
+      if (currentRole.slug === 'ops' || currentRole.slug === 'supervisor-ops') {
+        var groups = user.groups
+        var salesCentersList = []
+
+        salesCentersList = await SalesCenter.find({groups: {$in: groups}})
+
+        filters['salesCenters'] = {$in: salesCentersList}
       }
 
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
