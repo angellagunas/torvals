@@ -855,7 +855,7 @@ class ForecastDetail extends Component {
       <div data-content className='card' id='test' ref={(element) => this.getHeight(element)}>
         <header className='card-header'>
           <p className='card-header-title'>
-            Forecast
+            Forecast from {moment.utc(forecast.dateStart).format('DD/MM/YYYY')} to {moment.utc(forecast.dateEnd).format('DD/MM/YYYY')}
           </p>
 
           <div className='field is-grouped is-grouped-right card-header-select'>
