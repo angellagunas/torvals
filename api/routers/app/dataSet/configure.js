@@ -71,6 +71,8 @@ module.exports = new Route({
       body: {
         isDate: isDate,
         isAnalysis: isAnalysis,
+        isProduct: isProduct,
+        isSalesCenter: isSalesCenter,
         filterAnalysis: filterAnalysis,
         filterOperations: filterOperations,
         groupings: groupings
