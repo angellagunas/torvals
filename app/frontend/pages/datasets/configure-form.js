@@ -209,7 +209,7 @@ class ConfigureDatasetForm extends Component {
           </div>
 
           <div className='field'>
-            <label className='label'>Is Analyze*</label>
+            <label className='label'>Is Sales Center*</label>
             <div className='control'>
               <div className='select'>
                 <select type='text' name='isSalesCenter' onChange={(e) => { this.handleChangeDateAnalyze('isSalesCenter', e) }}>
