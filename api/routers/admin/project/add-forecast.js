@@ -35,9 +35,6 @@ module.exports = new Route({
       organization: project.organization,
       createdBy: ctx.state.user,
       columnsForForecast: data.columnsForForecast
-      // columns_for_forecast: project.datasets[0].dataset.columns.filter(
-      //   (item) => { return item.isDate || item.isAnalysis }
-      // ).map(item => { return item.name })
     }
 
     var apiData = Api.get()
