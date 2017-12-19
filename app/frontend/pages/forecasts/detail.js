@@ -723,29 +723,31 @@ class ForecastDetail extends Component {
 
     return (
       <div>
-        <div className='columns'>
-          <div className='column'>
-            <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
+        {forecast.status === 'analistReview' && (
+          <div className='columns'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
                   Predictions Graph
                 </p>
-              </header>
-              <div className='card-content'>
-                <div className='columns'>
-                  <div className='column'>
-                    <CreateBarGraph
-                      data={forecast.graphData}
-                      size={[250, 250]}
-                      width='960'
-                      height='500'
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <CreateBarGraph
+                        data={forecast.graphData}
+                        size={[250, 250]}
+                        width='960'
+                        height='500'
                     />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
         <div className='columns'>
           <div className='column'>
             {notif}
