@@ -357,8 +357,8 @@ class ForecastDetail extends Component {
   async handleChange (data) {
     const project = this.state.forecast.project
     const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
-    var maxAdjustment = (prediction.data.prediction * (1 + project.adjustment))
-    var minAdjustment = (prediction.data.prediction * (1 - project.adjustment))
+    var maxAdjustment = Math.round(prediction.data.prediction * (1 + project.adjustment))
+    var minAdjustment = Math.round(prediction.data.prediction * (1 - project.adjustment))
 
     if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
       this.setState({notification: {
@@ -369,6 +369,7 @@ class ForecastDetail extends Component {
       return false
     }
 
+    data.adjustment = Math.round(data.adjustment)
     data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
 
     var url = '/admin/predictions/' + data.uuid
@@ -397,26 +398,30 @@ class ForecastDetail extends Component {
    * Common Methods
    */
 
-  async onClickButtonPlus (rangeValue) {
+  async onClickButtonPlus () {
     let rows = {...this.state.selectedRows}
 
     for (var item in rows) {
+      let toAdd = (rows[item].prediction * 0.01)
+      if (Math.round(toAdd) === 0) toAdd = 1
       rows[item].edited = true
       var adjustment = rows[item].adjustment
-      var newAdjustment = rows[item].adjustment + (rows[item].prediction * 0.01)
+      var newAdjustment = rows[item].adjustment + toAdd
       rows[item].adjustment = newAdjustment
       const res = await this.handleChange(rows[item])
       if (!res) rows[item].adjustment = adjustment
     }
   }
 
-  async onClickButtonMinus (rangeValue) {
+  async onClickButtonMinus () {
     let rows = {...this.state.selectedRows}
 
     for (var item in rows) {
+      let toAdd = (rows[item].prediction * 0.01)
+      if (Math.round(toAdd) === 0) toAdd = 1
       rows[item].edited = true
       var adjustment = rows[item].adjustment
-      var newAdjustment = rows[item].adjustment - (rows[item].prediction * 0.01)
+      var newAdjustment = rows[item].adjustment - toAdd
       rows[item].adjustment = newAdjustment
       const res = await this.handleChange(rows[item])
       if (!res) rows[item].adjustment = adjustment
