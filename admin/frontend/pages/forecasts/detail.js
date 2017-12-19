@@ -360,6 +360,8 @@ class ForecastDetail extends Component {
     var maxAdjustment = Math.round(prediction.data.prediction * (1 + project.adjustment))
     var minAdjustment = Math.round(prediction.data.prediction * (1 - project.adjustment))
 
+    console.log(maxAdjustment, minAdjustment)
+
     if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
       this.setState({notification: {
         has: true,
