@@ -306,7 +306,7 @@ class ForecastDetail extends Component {
         formatter: (row) => {
           if (row.isLimit) {
             return (
-              <span className='icon'>
+              <span className='icon' title='You have reached the limit of adjustment'>
                 <FontAwesome name='warning' />
               </span>
             )
