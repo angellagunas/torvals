@@ -155,6 +155,7 @@ class ForecastDetail extends Component {
           product: item.product,
           salesCenter: item.salesCenter,
           wasEdited: data.adjustment !== data.prediction,
+          isLimit: (Math.abs(percentage) >= (this.state.forecast.project.adjustment * 100)),
           uuid: item.uuid
         }
       })
@@ -300,6 +301,22 @@ class ForecastDetail extends Component {
 
           return '0 %'
         }
+      },
+      {
+        'title': '',
+        'property': 'isLimit',
+        'default': '',
+        formatter: (row) => {
+          if (row.isLimit) {
+            return (
+              <span className='icon'>
+                <FontAwesome name='warning' />
+              </span>
+            )
+          }
+
+          return ''
+        }
       }
     ]
   }
@@ -357,8 +374,11 @@ class ForecastDetail extends Component {
   async handleChange (data) {
     const project = this.state.forecast.project
     const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
-    var maxAdjustment = Math.round(prediction.data.prediction * (1 + project.adjustment))
-    var minAdjustment = Math.round(prediction.data.prediction * (1 - project.adjustment))
+    var maxAdjustment = Math.ceil(prediction.data.prediction * (1 + project.adjustment))
+    var minAdjustment = Math.floor(prediction.data.prediction * (1 - project.adjustment))
+    data.adjustment = Math.round(data.adjustment)
+
+    data.isLimit = (data.adjustment >= maxAdjustment || data.adjustment <= minAdjustment)
 
     if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
       this.setState({notification: {
@@ -369,7 +389,6 @@ class ForecastDetail extends Component {
       return false
     }
 
-    data.adjustment = Math.round(data.adjustment)
     data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
 
     var url = '/admin/predictions/' + data.uuid
