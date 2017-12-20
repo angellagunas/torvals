@@ -65,7 +65,9 @@ forecastSchema.methods.toPublic = function () {
     project: this.project,
     graphData: this.graphData,
     status: this.status,
-    error: this.error
+    error: this.error,
+    newProducts: this.newProducts,
+    newSalesCenters: this.newSalesCenters
   }
 }
 
@@ -83,7 +85,9 @@ forecastSchema.methods.format = function () {
     project: this.project,
     graphData: this.graphData,
     status: this.status,
-    error: this.error
+    error: this.error,
+    newProducts: this.newProducts,
+    newSalesCenters: this.newSalesCenters
   }
 }
 

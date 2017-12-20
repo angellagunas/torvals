@@ -13,6 +13,8 @@ module.exports = new Route({
       .populate('createdBy')
       .populate('organization')
       .populate('project')
+      .populate('newProducts')
+      .populate('newSalesCenters')
 
     ctx.assert(forecast, 404, 'Forecast not found')
 

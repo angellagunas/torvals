@@ -41,6 +41,7 @@ class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      isProductsOpen: false,
       isHeaderOpen: false,
       bodyHeight: 0,
       loading: true,
@@ -826,6 +827,9 @@ class ForecastDetail extends Component {
           </div>
         )}
         <div className='columns'>
+          {this.getUnidentifyProducts()}
+        </div>
+        <div className='columns'>
           <div className='column'>
             <div className='card'>
               <header className='card-header'>
@@ -915,6 +919,104 @@ class ForecastDetail extends Component {
                     filters={{project: forecast.project.uuid}}
                   />
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  toggleUnidentifyProducts () {
+    this.setState({isProductsOpen: !this.state.isProductsOpen}, function () {
+      this.setHeights()
+    })
+  }
+
+  getUnidentifyProducts () {
+    const { forecast } = this.state
+    const headerProductsClass = classNames('card-content', {
+      'is-hidden': this.state.isProductsOpen === false
+    })
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-plus': this.state.isProductsOpen === false,
+      'fa-minus': this.state.isProductsOpen !== false
+    })
+
+    if (!forecast.uuid) {
+      return <Loader />
+    }
+
+    return (
+      <div className='column'>
+        <div className='card'>
+          <header className='card-header'>
+            <p className='card-header-title'>
+                Unidentify Products: {forecast.newProducts.length} and Sales Centers: {forecast.newSalesCenters.length}
+            </p>
+            <div className='field is-grouped is-grouped-right card-header-select'>
+              <div className='control'>
+                <a
+                  className='button is-rounded is-inverted'
+                  onClick={() => this.toggleUnidentifyProducts()}>
+                  <span className='icon is-small'>
+                    <i className={toggleBtnIconClass} />
+                  </span>
+                </a>
+              </div>
+            </div>
+          </header>
+          <div className={headerProductsClass}>
+            <div className='columns'>
+              <div className='column'>
+                <table className='table is-fullwidth'>
+                  <thead>
+                    <tr>
+                      <th>Product External Id</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {forecast.newProducts.length === 0 ? (
+                      <tr>
+                        <td colSpan='3'>No new products to show</td>
+                      </tr>
+                    ) : (
+                      forecast.newProducts.map((item, key) => {
+                        return (
+                          <tr key={key}>
+                            <td>{item.externalId}</td>
+                          </tr>
+                        )
+                      })
+
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className='column'>
+                <table className='table is-fullwidth'>
+                  <thead>
+                    <tr>
+                      <th>Sales Center  External Id</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {forecast.newSalesCenters.length === 0 ? (
+                      <tr>
+                        <td colSpan='3'>No new sales centers to show</td>
+                      </tr>
+                    ) : (
+                      forecast.newSalesCenters.map((item, key) => {
+                        return (
+                          <tr key={key}>
+                            <td>{item.externalId}</td>
+                          </tr>
+                        )
+                      })
+
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
