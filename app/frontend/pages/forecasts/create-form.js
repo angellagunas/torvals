@@ -263,7 +263,7 @@ class ForecastForm extends Component {
             </div>
           </div>
           <div className='field'>
-            <label className='label'>Columns for Forecast*</label>
+            <label className='label'>Columns for Forecast</label>
             <div className='control' />
           </div>
           <div className='field is-horizontal'>

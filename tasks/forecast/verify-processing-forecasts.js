@@ -85,8 +85,14 @@ const task = new Task(async function (argv) {
       res = await request(options)
 
       for (var d of res._items) {
-        var salesCenter = await SalesCenter.findOne({externalId: d.agency_id})
-        var product = await Product.findOne({externalId: d.product_id})
+        var salesCenter = await SalesCenter.findOne({
+          externalId: d.agency_id,
+          organization: forecast.organization
+        })
+        var product = await Product.findOne({
+          externalId: d.product_id,
+          organization: forecast.organization
+        })
 
         if (!product) {
           product = await Product.create({
