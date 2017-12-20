@@ -223,6 +223,10 @@ class ForecastDetail extends Component {
     this.props.history.push('/forecasts')
   }
 
+  /*
+   * Columns for tables
+   */
+
   getColumns () {
     return [
       {
@@ -355,60 +359,6 @@ class ForecastDetail extends Component {
         }
       }
     ]
-  }
-
-  getFrequency () {
-    let forecast = this.state.forecast
-    let freqDict = {
-      B: 'Business day frequency',
-      D: 'Calendar day frequency',
-      W: 'Weekly frequency',
-      M: 'Month end frequency'
-    }
-
-    return freqDict[forecast.frequency]
-  }
-
-  async handleChange (data) {
-    const project = this.state.forecast.project
-    const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
-    var maxAdjustment = Math.ceil(prediction.data.prediction * (1 + project.adjustment))
-    var minAdjustment = Math.floor(prediction.data.prediction * (1 - project.adjustment))
-    data.adjustment = Math.round(data.adjustment)
-
-    data.isLimit = (data.adjustment >= maxAdjustment || data.adjustment <= minAdjustment)
-
-    if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
-      this.setState({notification: {
-        has: true,
-        type: 'error',
-        'message': ' No te puedes pasar de los límites establecidos!'
-      }})
-      return false
-    }
-
-    data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
-
-    var url = '/app/predictions/' + data.uuid
-    const res = await api.post(url, {...data})
-
-    data.lastAdjustment = res.data.data.lastAdjustment
-    data.edited = true
-    const predictionsFormatted = this.state.predictionsFormatted.map(
-      (item) => data.uuid === item.uuid ? data : item
-    )
-
-    this.setState({
-      predictionsFormatted,
-      success: true,
-      notification: {
-        has: true,
-        type: 'success',
-        'message': 'Ajuste guardado!'
-      }
-    })
-
-    return true
   }
 
   /*
@@ -654,24 +604,46 @@ class ForecastDetail extends Component {
    * Editable table methods
    */
 
-  getNotification (type, message) {
-    setTimeout(() => this.setState({notification: {has: false}}), 3000)
-    if (type === 'error') {
-      return (
-        <div className='notification is-danger' style={{position: 'relative'}}>
-          <button className='delete' />
-          <strong>Error!</strong> {message}
-        </div>
-      )
+  async handleChange (data) {
+    const project = this.state.forecast.project
+    const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
+    var maxAdjustment = Math.ceil(prediction.data.prediction * (1 + project.adjustment))
+    var minAdjustment = Math.floor(prediction.data.prediction * (1 - project.adjustment))
+    data.adjustment = Math.round(data.adjustment)
+
+    data.isLimit = (data.adjustment >= maxAdjustment || data.adjustment <= minAdjustment)
+
+    if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
+      this.setState({notification: {
+        has: true,
+        type: 'error',
+        'message': ' No te puedes pasar de los límites establecidos!'
+      }})
+      return false
     }
-    if (type === 'success') {
-      return (
-        <div className='notification is-success' style={{position: 'relative'}}>
-          <button className='delete' />
-          <strong>Success!</strong> {message}
-        </div>
-      )
-    }
+
+    data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
+
+    var url = '/app/predictions/' + data.uuid
+    const res = await api.post(url, {...data})
+
+    data.lastAdjustment = res.data.data.lastAdjustment
+    data.edited = true
+    const predictionsFormatted = this.state.predictionsFormatted.map(
+      (item) => data.uuid === item.uuid ? data : item
+    )
+
+    this.setState({
+      predictionsFormatted,
+      success: true,
+      notification: {
+        has: true,
+        type: 'success',
+        'message': 'Ajuste guardado!'
+      }
+    })
+
+    return true
   }
 
   getModifyButtons () {
@@ -826,9 +798,11 @@ class ForecastDetail extends Component {
             </div>
           </div>
         )}
-        <div className='columns'>
-          {this.getUnidentifyProducts()}
-        </div>
+        {
+          forecast.newProducts.length > 0 &&
+          forecast.newSalesCenters.length > 0 &&
+          this.getUnidentifiedProducts()
+        }
         <div className='columns'>
           <div className='column'>
             <div className='card'>
@@ -867,6 +841,42 @@ class ForecastDetail extends Component {
         {this.getDatasetsList()}
       </div>
     )
+  }
+
+  /*
+   * Rendering methods
+   */
+
+  getFrequency () {
+    let forecast = this.state.forecast
+    let freqDict = {
+      B: 'Business day frequency',
+      D: 'Calendar day frequency',
+      W: 'Weekly frequency',
+      M: 'Month end frequency'
+    }
+
+    return freqDict[forecast.frequency]
+  }
+
+  getNotification (type, message) {
+    setTimeout(() => this.setState({notification: {has: false}}), 3000)
+    if (type === 'error') {
+      return (
+        <div className='notification is-danger' style={{position: 'relative'}}>
+          <button className='delete' />
+          <strong>Error!</strong> {message}
+        </div>
+      )
+    }
+    if (type === 'success') {
+      return (
+        <div className='notification is-success' style={{position: 'relative'}}>
+          <button className='delete' />
+          <strong>Success!</strong> {message}
+        </div>
+      )
+    }
   }
 
   getButtons () {
@@ -927,13 +937,17 @@ class ForecastDetail extends Component {
     )
   }
 
-  toggleUnidentifyProducts () {
+  /*
+   * Unidentified products/sales center methods
+   */
+
+  toggleUnidentifiedProducts () {
     this.setState({isProductsOpen: !this.state.isProductsOpen}, function () {
       this.setHeights()
     })
   }
 
-  getUnidentifyProducts () {
+  getUnidentifiedProducts () {
     const { forecast } = this.state
     const headerProductsClass = classNames('card-content', {
       'is-hidden': this.state.isProductsOpen === false
@@ -948,75 +962,77 @@ class ForecastDetail extends Component {
     }
 
     return (
-      <div className='column'>
-        <div className='card'>
-          <header className='card-header'>
-            <p className='card-header-title'>
-                Unidentify Products: {forecast.newProducts.length} and Sales Centers: {forecast.newSalesCenters.length}
-            </p>
-            <div className='field is-grouped is-grouped-right card-header-select'>
-              <div className='control'>
-                <a
-                  className='button is-rounded is-inverted'
-                  onClick={() => this.toggleUnidentifyProducts()}>
-                  <span className='icon is-small'>
-                    <i className={toggleBtnIconClass} />
-                  </span>
-                </a>
+      <div className='columns'>
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                  Unidentified Products: {forecast.newProducts.length} and Sales Centers: {forecast.newSalesCenters.length}
+              </p>
+              <div className='field is-grouped is-grouped-right card-header-select'>
+                <div className='control'>
+                  <a
+                    className='button is-rounded is-inverted'
+                    onClick={() => this.toggleUnidentifiedProducts()}>
+                    <span className='icon is-small'>
+                      <i className={toggleBtnIconClass} />
+                    </span>
+                  </a>
+                </div>
               </div>
-            </div>
-          </header>
-          <div className={headerProductsClass}>
-            <div className='columns'>
-              <div className='column'>
-                <table className='table is-fullwidth'>
-                  <thead>
-                    <tr>
-                      <th>Product External Id</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {forecast.newProducts.length === 0 ? (
+            </header>
+            <div className={headerProductsClass}>
+              <div className='columns'>
+                <div className='column'>
+                  <table className='table is-fullwidth'>
+                    <thead>
                       <tr>
-                        <td colSpan='3'>No new products to show</td>
+                        <th>Product External Id</th>
                       </tr>
-                    ) : (
-                      forecast.newProducts.map((item, key) => {
-                        return (
-                          <tr key={key}>
-                            <td>{item.externalId}</td>
-                          </tr>
-                        )
-                      })
+                    </thead>
+                    <tbody>
+                      {forecast.newProducts.length === 0 ? (
+                        <tr>
+                          <td colSpan='3'>No new products to show</td>
+                        </tr>
+                      ) : (
+                        forecast.newProducts.map((item, key) => {
+                          return (
+                            <tr key={key}>
+                              <td>{item.externalId}</td>
+                            </tr>
+                          )
+                        })
 
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              <div className='column'>
-                <table className='table is-fullwidth'>
-                  <thead>
-                    <tr>
-                      <th>Sales Center  External Id</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {forecast.newSalesCenters.length === 0 ? (
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                <div className='column'>
+                  <table className='table is-fullwidth'>
+                    <thead>
                       <tr>
-                        <td colSpan='3'>No new sales centers to show</td>
+                        <th>Sales Center  External Id</th>
                       </tr>
-                    ) : (
-                      forecast.newSalesCenters.map((item, key) => {
-                        return (
-                          <tr key={key}>
-                            <td>{item.externalId}</td>
-                          </tr>
-                        )
-                      })
+                    </thead>
+                    <tbody>
+                      {forecast.newSalesCenters.length === 0 ? (
+                        <tr>
+                          <td colSpan='3'>No new sales centers to show</td>
+                        </tr>
+                      ) : (
+                        forecast.newSalesCenters.map((item, key) => {
+                          return (
+                            <tr key={key}>
+                              <td>{item.externalId}</td>
+                            </tr>
+                          )
+                        })
 
-                    )}
-                  </tbody>
-                </table>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
