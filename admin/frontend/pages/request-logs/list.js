@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import api from '~base/api'
+import Loader from '~base/components/spinner'
 import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 import classNames from 'classnames'
@@ -12,12 +13,30 @@ class RequestLog extends Component {
     super(props)
 
     this.state = {
-      toggled: true
+      toggled: true,
+      log: undefined
     }
   }
 
-  showLog () {
+  async loadLog (uuid) {
+    if (this.state.log) return
+
+    const body = await api.get('/admin/request-logs/' + uuid)
+
+    this.setState({log: body.data})
+  }
+
+  async showLog () {
     this.setState({ toggled: !this.state.toggled })
+    await this.loadLog(this.props.log.uuid)
+  }
+
+  getBody () {
+    if (this.state.log) {
+      return (<pre className='json'>{JSON.stringify(this.state.log, null, 2)}</pre>)
+    }
+
+    return (<Loader />)
   }
 
   render () {
@@ -46,7 +65,7 @@ class RequestLog extends Component {
           </p>
         </div>
         <div className={classNameBody}>
-          <pre className='json'>{JSON.stringify(log, null, 2)}</pre>
+          {this.getBody()}
         </div>
       </article>
     )
@@ -157,6 +176,8 @@ class RequestLogs extends Component {
               <a className='button is-warning is-small' onClick={() => this.setStatusFilter('warning')}>400</a>
               <a className='button is-danger is-small' onClick={() => this.setStatusFilter('error')}>500</a>
             </div>
+
+            {loading && <Loader />}
 
             {this.list()}
 
