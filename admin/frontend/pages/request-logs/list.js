@@ -14,7 +14,8 @@ class RequestLog extends Component {
 
     this.state = {
       toggled: true,
-      log: undefined
+      log: undefined,
+      jsonString: undefined
     }
   }
 
@@ -23,7 +24,8 @@ class RequestLog extends Component {
 
     const body = await api.get('/admin/request-logs/' + uuid)
 
-    this.setState({log: body.data})
+    var jsonString = JSON.stringify(body.data, null, 2)
+    this.setState({log: body.data, jsonString: jsonString})
   }
 
   async showLog () {
@@ -32,8 +34,8 @@ class RequestLog extends Component {
   }
 
   getBody () {
-    if (this.state.log) {
-      return (<pre className='json'>{JSON.stringify(this.state.log, null, 2)}</pre>)
+    if (this.state.log && this.state.jsonString) {
+      return (<pre className='json'>{this.state.jsonString}</pre>)
     }
 
     return (<Loader />)
