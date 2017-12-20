@@ -8,9 +8,10 @@ module.exports = new Route({
     const { status } = ctx.query
 
     const query = {
-      limit: ctx.request.query.limit || 20,
+      limit: ctx.request.query.limit || 10,
       skip: ctx.request.query.start,
       find: {},
+      select: { method: 1, status: 1, uuid: 1, path: 1, createdAt: 1 },
       sort: '-createdAt'
     }
 
