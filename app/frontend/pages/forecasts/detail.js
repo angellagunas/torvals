@@ -354,8 +354,8 @@ class ForecastDetail extends Component {
   async handleChange (data) {
     const project = this.state.forecast.project
     const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
-    var maxAdjustment = (prediction.data.prediction * (1 + project.adjustment))
-    var minAdjustment = (prediction.data.prediction * (1 - project.adjustment))
+    var maxAdjustment = Math.round(prediction.data.prediction * (1 + project.adjustment))
+    var minAdjustment = Math.round(prediction.data.prediction * (1 - project.adjustment))
 
     if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
       this.setState({notification: {
@@ -366,6 +366,7 @@ class ForecastDetail extends Component {
       return false
     }
 
+    data.adjustment = Math.round(data.adjustment)
     data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
 
     var url = '/app/predictions/' + data.uuid
@@ -394,26 +395,30 @@ class ForecastDetail extends Component {
    * Common Methods
    */
 
-  async onClickButtonPlus (rangeValue) {
+  async onClickButtonPlus () {
     let rows = {...this.state.selectedRows}
 
     for (var item in rows) {
+      let toAdd = (rows[item].prediction * 0.01)
+      if (Math.round(toAdd) === 0) toAdd = 1
       rows[item].edited = true
       var adjustment = rows[item].adjustment
-      var newAdjustment = rows[item].adjustment + (rows[item].prediction * 0.01)
+      var newAdjustment = rows[item].adjustment + toAdd
       rows[item].adjustment = newAdjustment
       const res = await this.handleChange(rows[item])
       if (!res) rows[item].adjustment = adjustment
     }
   }
 
-  async onClickButtonMinus (rangeValue) {
+  async onClickButtonMinus () {
     let rows = {...this.state.selectedRows}
 
     for (var item in rows) {
+      let toAdd = (rows[item].prediction * 0.01)
+      if (Math.round(toAdd) === 0) toAdd = 1
       rows[item].edited = true
       var adjustment = rows[item].adjustment
-      var newAdjustment = rows[item].adjustment - (rows[item].prediction * 0.01)
+      var newAdjustment = rows[item].adjustment - toAdd
       rows[item].adjustment = newAdjustment
       const res = await this.handleChange(rows[item])
       if (!res) rows[item].adjustment = adjustment
@@ -633,7 +638,7 @@ class ForecastDetail extends Component {
     setTimeout(() => this.setState({notification: {has: false}}), 3000)
     if (type === 'error') {
       return (
-        <div className='notification is-danger'>
+        <div className='notification is-danger' style={{position: 'relative'}}>
           <button className='delete' />
           <strong>Error!</strong> {message}
         </div>
@@ -641,7 +646,7 @@ class ForecastDetail extends Component {
     }
     if (type === 'success') {
       return (
-        <div className='notification is-success'>
+        <div className='notification is-success' style={{position: 'relative'}}>
           <button className='delete' />
           <strong>Success!</strong> {message}
         </div>
@@ -708,13 +713,8 @@ class ForecastDetail extends Component {
   }
 
   getTable () {
-    const { forecast, notification } = this.state
+    const { forecast } = this.state
     let currentRole = tree.get('user').currentRole.slug
-    var notif
-
-    if (notification.has) {
-      notif = this.getNotification(notification.type, notification.message)
-    }
 
     if (forecast.status === 'created' || forecast.status === 'processing') {
       return (
@@ -808,7 +808,6 @@ class ForecastDetail extends Component {
         )}
         <div className='columns'>
           <div className='column'>
-            {notif}
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
@@ -884,8 +883,8 @@ class ForecastDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                          Datasets
-                        </p>
+                Datasets
+              </p>
             </header>
             <div className='card-content'>
               <div className='columns'>
@@ -895,7 +894,7 @@ class ForecastDetail extends Component {
                     baseUrl='/admin/datasets/'
                     columns={this.getColumnsDatasets()}
                     filters={{project: forecast.project.uuid}}
-                            />
+                  />
                 </div>
               </div>
             </div>
@@ -934,7 +933,7 @@ class ForecastDetail extends Component {
 
   render () {
     let currentRole = tree.get('user').currentRole.slug
-    const { forecast } = this.state
+    const { forecast, notification } = this.state
     const headerBodyClass = classNames('card-content', {
       'is-hidden': this.state.isHeaderOpen === false
     })
@@ -942,6 +941,12 @@ class ForecastDetail extends Component {
       'fa-plus': this.state.isHeaderOpen === false,
       'fa-minus': this.state.isHeaderOpen !== false
     })
+
+    var notif
+
+    if (notification.has) {
+      notif = this.getNotification(notification.type, notification.message)
+    }
 
     if (!forecast.uuid) {
       return <Loader />
@@ -1011,6 +1016,10 @@ class ForecastDetail extends Component {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className='notification-container'>
+        {notif}
       </div>
 
       <div className='columns c-flex-1 is-marginless' style={{overflowY: 'scroll', height: this.state.bodyHeight}}>
