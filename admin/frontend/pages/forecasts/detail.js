@@ -47,7 +47,6 @@ class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      product: false,
       className: '',
       classNameSC: '',
       isProductsOpen: false,
