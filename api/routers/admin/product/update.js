@@ -30,7 +30,8 @@ module.exports = new Route({
       description: data.description,
       category: data.category,
       subcategory: data.subcategory,
-      organization: data.organization
+      organization: data.organization,
+      externalId: data.externalId
     })
 
     product.save()
