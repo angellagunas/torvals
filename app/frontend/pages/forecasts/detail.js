@@ -15,6 +15,9 @@ import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { EditableTable } from '~base/components/base-editableTable'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import BaseModal from '~base/components/base-modal'
+import ProductForm from './edit-product'
+import SalesCenterForm from './edit-salescenter'
 
 let schema = {
   weeks: {
@@ -41,6 +44,8 @@ class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      className: '',
+      classNameSC: '',
       isProductsOpen: false,
       isHeaderOpen: false,
       bodyHeight: 0,
@@ -947,6 +952,44 @@ class ForecastDetail extends Component {
     })
   }
 
+  showModal () {
+    this.setState({
+      className: ' is-active'
+    })
+  }
+
+  hideModal () {
+    this.setState({
+      className: ''
+    })
+  }
+
+  showModalSalesCenters () {
+    this.setState({
+      classNameSC: ' is-active'
+    })
+  }
+
+  hideModalSalesCenters () {
+    this.setState({
+      classNameSC: ''
+    })
+  }
+
+  async deleteNewProduct () {
+    this.load()
+    setTimeout(() => {
+      this.hideModal()
+    }, 1000)
+  }
+
+  async deleteNewSalesCenter () {
+    this.load()
+    setTimeout(() => {
+      this.hideModalSalesCenters()
+    }, 1000)
+  }
+
   getUnidentifiedProducts () {
     const { forecast } = this.state
     const headerProductsClass = classNames('card-content', {
@@ -955,6 +998,20 @@ class ForecastDetail extends Component {
     const toggleBtnIconClass = classNames('fa', {
       'fa-plus': this.state.isProductsOpen === false,
       'fa-minus': this.state.isProductsOpen !== false
+    })
+
+    var newProducts = []
+    forecast.newProducts.map((item, key) => {
+      if (item.name === 'Not identified') {
+        newProducts.push(item)
+      }
+    })
+
+    var newSalesCenters = []
+    forecast.newSalesCenters.map((item, key) => {
+      if (item.name === 'Not identified') {
+        newSalesCenters.push(item)
+      }
     })
 
     if (!forecast.uuid) {
@@ -991,19 +1048,44 @@ class ForecastDetail extends Component {
                       </tr>
                     </thead>
                     <tbody>
-                      {forecast.newProducts.length === 0 ? (
+                      {newProducts.length === 0 ? (
                         <tr>
-                          <td colSpan='3'>No new products to show</td>
+                          <td colSpan='2'>No new products to show</td>
                         </tr>
                       ) : (
-                        forecast.newProducts.map((item, key) => {
+                        newProducts.map((item, key) => {
                           return (
                             <tr key={key}>
                               <td>{item.externalId}</td>
+                              <td>
+                                <button className='button is-primary' onClick={() => this.showModal()}>
+                                    Edit
+                                  </button>
+                                <BaseModal
+                                  title='Edit Product'
+                                  className={this.state.className}
+                                  hideModal={() => this.hideModal()}
+                                  >
+                                  <ProductForm
+                                    baseUrl='/app/products'
+                                    url={'/app/products/' + item.uuid}
+                                    initialState={item}
+                                    load={this.deleteNewProduct.bind(this)}
+                                    >
+                                    <div className='field is-grouped'>
+                                      <div className='control'>
+                                        <button className='button is-primary'>Save</button>
+                                      </div>
+                                      <div className='control'>
+                                        <button className='button' onClick={() => this.hideModal()}>Cancel</button>
+                                      </div>
+                                    </div>
+                                  </ProductForm>
+                                </BaseModal>
+                              </td>
                             </tr>
                           )
                         })
-
                       )}
                     </tbody>
                   </table>
@@ -1016,17 +1098,45 @@ class ForecastDetail extends Component {
                       </tr>
                     </thead>
                     <tbody>
-                      {forecast.newSalesCenters.length === 0 ? (
+                      {newSalesCenters.length === 0 ? (
                         <tr>
-                          <td colSpan='3'>No new sales centers to show</td>
+                          <td colSpan='2'>No new sales centers to show</td>
                         </tr>
                       ) : (
-                        forecast.newSalesCenters.map((item, key) => {
-                          return (
-                            <tr key={key}>
-                              <td>{item.externalId}</td>
-                            </tr>
-                          )
+                        newSalesCenters.map((item, key) => {
+                          if (item.name === 'Not identified') {
+                            return (
+                              <tr key={key}>
+                                <td >{item.externalId}</td>
+                                <td>
+                                  <button className='button is-primary' onClick={() => this.showModalSalesCenters()}>
+                                  Edit
+                                </button>
+                                  <BaseModal
+                                    title='Edit Product'
+                                    className={this.state.classNameSC}
+                                    hideModal={() => this.hideModalSalesCenters()}
+                                >
+                                    <SalesCenterForm
+                                      baseUrl='/admin/salesCenters'
+                                      url={'/admin/salesCenters/' + item.uuid}
+                                      initialState={item}
+                                      load={this.deleteNewSalesCenter.bind(this)}
+                                  >
+                                      <div className='field is-grouped'>
+                                        <div className='control'>
+                                          <button className='button is-primary'>Save</button>
+                                        </div>
+                                        <div className='control'>
+                                          <button className='button' onClick={() => this.hideModalSalesCenters()}>Cancel</button>
+                                        </div>
+                                      </div>
+                                    </SalesCenterForm>
+                                  </BaseModal>
+                                </td>
+                              </tr>
+                            )
+                          }
                         })
 
                       )}

@@ -22,7 +22,10 @@ module.exports = new Route({
     product.set({
       name: data.name,
       description: data.description,
-      cost: data.cost
+      cost: data.cost,
+      category: data.category,
+      subcategory: data.subcategory,
+      externalId: data.externalId
     })
 
     product.save()
