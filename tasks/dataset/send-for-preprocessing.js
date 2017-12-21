@@ -43,7 +43,8 @@ const task = new Task(async function (argv) {
       organization: dataset.organization.uuid,
       path: dataset.url
     },
-    json: true
+    json: true,
+    persist: true
   }
 
   var res = await request(options)

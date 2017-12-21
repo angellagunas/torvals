@@ -77,7 +77,8 @@ module.exports = new Route({
         filterOperations: filterOperations,
         groupings: groupings
       },
-      json: true
+      json: true,
+      persist: true
     }
 
     try {

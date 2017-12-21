@@ -71,7 +71,8 @@ module.exports = new Route({
         holidays: forecastData.holidays,
         change_points: forecastData.changePoints
       },
-      json: true
+      json: true,
+      persist: true
     }
 
     let forecast

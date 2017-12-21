@@ -38,7 +38,8 @@ const task = new Task(async function (argv) {
         'Accept': 'application/json',
         'Authorization': `Bearer ${apiData.token}`
       },
-      json: true
+      json: true,
+      persist: true
     }
 
     var res = await request(options)
@@ -77,7 +78,8 @@ const task = new Task(async function (argv) {
           'Accept': 'application/json',
           'Authorization': `Bearer ${apiData.token}`
         },
-        json: true
+        json: true,
+        persist: true
       }
 
       console.log(`Obtaining predictions ...`)
