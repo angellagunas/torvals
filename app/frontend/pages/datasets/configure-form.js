@@ -175,7 +175,7 @@ class ConfigureDatasetForm extends Component {
           </div>
 
           <div className='field'>
-            <label className='label'>Is Analyze*</label>
+            <label className='label'>Is Analysis*</label>
             <div className='control'>
               <div className='select'>
                 <select type='text' name='isAnalysis' onChange={(e) => { this.handleChangeDateAnalyze('isAnalysis', e) }}>
