@@ -1,13 +1,14 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const {Project, Organization} = require('models')
+const {Project} = require('models')
 
 module.exports = new Route({
   method: 'post',
   path: '/:uuid',
   validator: lov.object().keys({
-    name: lov.string().required()
+    name: lov.string().required(),
+    adjustment: lov.string().required()
   }),
   handler: async function (ctx) {
     var projectId = ctx.params.uuid
@@ -18,7 +19,8 @@ module.exports = new Route({
 
     project.set({
       name: data.name,
-      description: data.description
+      description: data.description,
+      adjustment: data.adjustment
     })
 
     project.save()

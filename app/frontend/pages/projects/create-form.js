@@ -1,28 +1,29 @@
 import React, { Component } from 'react'
-import Loader from '~base/components/spinner'
 import api from '~base/api'
 
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget,
-  SelectWidget
+  TextareaWidget
 } from '~base/components/base-form'
 
 const schema = {
   type: 'object',
   title: '',
   required: [
-    'name'
+    'name',
+    'adjustment'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
+    adjustment: {type: 'string', title: 'Adjustment'},
     description: {type: 'string', title: 'Description'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
+  adjustment: {'ui:widget': TextWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
 
@@ -56,7 +57,16 @@ class ProjectForm extends Component {
   }
 
   async submitHandler ({formData}) {
-    formData.isDefault = undefined
+    formData.adjustment = Number(formData.adjustment.replace(/[^(\-|\+)?][^0-9.]/g, ''))
+
+    if (formData.adjustment > 1 || formData.adjustment < 0) {
+      return this.setState({
+        ...this.state,
+        error: 'El ajuste debe estar entre 0 y 1!',
+        apiCallErrorMessage: 'message is-danger'
+      })
+    }
+
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {

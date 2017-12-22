@@ -7,7 +7,8 @@ module.exports = new Route({
   method: 'post',
   path: '/',
   validator: lov.object().keys({
-    name: lov.string().required()
+    name: lov.string().required(),
+    adjustment: lov.string().required()
   }),
   handler: async function (ctx) {
     var data = ctx.request.body
@@ -15,7 +16,8 @@ module.exports = new Route({
     const project = await Project.create({
       name: data.name,
       description: data.description,
-      organization: ctx.state.organization._id
+      organization: ctx.state.organization._id,
+      adjustment: data.adjustment
     })
 
     ctx.body = {
