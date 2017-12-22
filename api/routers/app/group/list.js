@@ -1,7 +1,7 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Group, User} = require('models')
+const {Group, User, SalesCenter} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -9,7 +9,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     var filters = {}
     for (var filter in ctx.request.query) {
-      if (filter === 'limit' || filter === 'start') {
+      if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
       }
 
@@ -45,10 +45,10 @@ module.exports = new Route({
       skip: ctx.request.query.start,
       find: {
         isDeleted: false,
-        organization: ctx.state.organization,
-        ...filters
+        ...filters,
+        organization: ctx.state.organization
       },
-      sort: '-dateCreated',
+      sort: ctx.request.query.sort || '-dateCreated',
       populate: 'organization'
     })
 

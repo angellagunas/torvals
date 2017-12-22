@@ -5,6 +5,9 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 
+import DeleteButton from '~base/components/base-deleteButton'
+import Page from '~base/page'
+import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import OrganizationForm from './form'
 
@@ -45,12 +48,14 @@ class OrganizationDetail extends Component {
       {
         'title': 'Name',
         'property': 'name',
-        'default': 'N/A'
+        'default': 'N/A',
+        'sortable': true
       },
       {
         'title': 'Email',
         'property': 'email',
-        'default': 'N/A'
+        'default': 'N/A',
+        'sortable': true
       },
       {
         'title': 'Actions',
@@ -63,9 +68,9 @@ class OrganizationDetail extends Component {
     ]
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/admin/organizations/' + this.props.match.params.uuid
-    const body = await api.del(url)
+    await api.del(url)
     this.props.history.push('/admin/manage/organizations')
   }
 
@@ -84,13 +89,11 @@ class OrganizationDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      objectName='Organization'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Estas seguro de querer eliminar la organización ${organization.name}?`}
+                    />
                   </div>
                 </div>
               </div>
@@ -156,4 +159,12 @@ OrganizationDetail.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({organizations: 'organizations'}, OrganizationDetail)
+const branchedOrganizationDetail = branch({organizations: 'organizations'}, OrganizationDetail)
+
+export default Page({
+  path: '/manage/organizations/:uuid',
+  title: 'User details',
+  exact: true,
+  validate: loggedIn,
+  component: branchedOrganizationDetail
+})

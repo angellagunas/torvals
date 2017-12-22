@@ -14,11 +14,14 @@ module.exports = new Route({
     var groupId = ctx.params.uuid
     var data = ctx.request.body
 
-    const group = await Group.findOne({'uuid': groupId})
+    const group = await Group.findOne({'uuid': groupId, 'isDeleted': false})
     ctx.assert(group, 404, 'Group not found')
 
     data.slug = slugify(data.name)
     group.set(data)
+
+    if (!data.description) group.set({description: ''})
+
     group.save()
 
     ctx.body = {

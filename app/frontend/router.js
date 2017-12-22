@@ -1,16 +1,14 @@
 import React from 'react'
 import {
   BrowserRouter as Router,
+  Switch,
   Route
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
 
-import {AppPrivateRoute, LoginRoute, PrivateRoleRoute} from '~base/router'
-
 import LogIn from './pages/log-in'
-import SelectOrg from './pages/select-org'
-import Dashboard from './pages/app'
+import Dashboard from './pages/dashboard'
 import Users from './pages/users/list'
 import UserDetail from './pages/users/detail'
 import Profile from './pages/profile'
@@ -20,48 +18,59 @@ import OrganizationDetail from './pages/organizations/detail'
 import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
 import ResetPassword from './pages/reset-password'
+import DataSets from './pages/datasets/list'
+import DataSetDetail from './pages/datasets/detail'
+import ReadyDataSets from './pages/datasets/list-ready'
+import Projects from './pages/projects/list'
+import ProjectDetail from './pages/projects/detail'
+import SalesCenters from './pages/salesCenters/list'
+import SalesCenterDetail from './pages/salesCenters/detail'
+import Products from './pages/products/list'
+import ProductDetail from './pages/products/detail'
+import Forecasts from './pages/forecasts/list'
+import ForecastDetail from './pages/forecasts/detail'
+
+const NoMatch = () => {
+  return <div>Not Found</div>
+}
 
 const AppRouter = () => {
   return (<Router>
     <AdminLayout>
       <div className='c-flex-1 is-flex is-flex-column is-relative'>
-        <Route exact path='/emails/invite' component={EmailInviteLanding} />
-        <Route exact path='/emails/reset' component={EmailResetLanding} />
-        <Route exact path='/password/forgotten' component={ResetPassword} />
-        <LoginRoute exact path='/log-in' component={LogIn} />
-        <AppPrivateRoute exact path='/profile' component={Profile} />
-        <AppPrivateRoute exact path='/select_org' component={SelectOrg} />
-        <AppPrivateRoute exact path='/' component={Dashboard} />
-        <PrivateRoleRoute
-          exact
-          path='/manage/users'
-          component={Users}
-          roles='admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/manage/users/:uuid'
-          component={UserDetail}
-          roles='admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/manage/groups'
-          component={Groups}
-          roles='admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/manage/groups/:uuid'
-          component={GroupDetail}
-          roles='admin-organizacion, admin'
-        />
-        <PrivateRoleRoute
-          exact
-          path='/manage/organizations/:uuid'
-          component={OrganizationDetail}
-          roles='admin-organizacion, admin'
-        />
+        <Switch>
+          {LogIn.asRouterItem()}
+          {ResetPassword.asRouterItem()}
+          {EmailResetLanding.asRouterItem()}
+          {EmailInviteLanding.asRouterItem()}
+          {Dashboard.asRouterItem()}
+          {Profile.asRouterItem()}
+
+          {Users.asRouterItem()}
+          {UserDetail.asRouterItem()}
+
+          {OrganizationDetail.asRouterItem()}
+
+          {Groups.asRouterItem()}
+          {GroupDetail.asRouterItem()}
+
+          {DataSets.asRouterItem()}
+          {ReadyDataSets.asRouterItem()}
+          {DataSetDetail.asRouterItem()}
+
+          {Projects.asRouterItem()}
+          {ProjectDetail.asRouterItem()}
+
+          {SalesCenters.asRouterItem()}
+          {SalesCenterDetail.asRouterItem()}
+
+          {Products.asRouterItem()}
+          {ProductDetail.asRouterItem()}
+
+          {Forecasts.asRouterItem()}
+          {ForecastDetail.asRouterItem()}
+          <Route component={NoMatch} />
+        </Switch>
       </div>
     </AdminLayout>
   </Router>)

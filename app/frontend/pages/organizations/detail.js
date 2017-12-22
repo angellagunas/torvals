@@ -5,6 +5,8 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 
+import Page from '~base/page'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import OrganizationForm from './form'
 
@@ -45,12 +47,14 @@ class OrganizationDetail extends Component {
       {
         'title': 'Name',
         'property': 'name',
-        'default': 'N/A'
+        'default': 'N/A',
+        'sortable': true
       },
       {
         'title': 'Email',
         'property': 'email',
-        'default': 'N/A'
+        'default': 'N/A',
+        'sortable': true,
       },
       {
         'title': 'Actions',
@@ -135,5 +139,14 @@ OrganizationDetail.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({organizations: 'organizations'}, OrganizationDetail)
+const branchedOrganizationDetail = branch({organizations: 'organizations'}, OrganizationDetail)
+
+export default Page({
+  path: '/manage/organizations/:uuid',
+  title: 'User details',
+  exact: true,
+  roles: 'admin, admin-organizacion',
+  validate: [loggedIn, verifyRole],
+  component: branchedOrganizationDetail
+})
   

@@ -1,4 +1,5 @@
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MinifyPlugin = require('babel-minify-webpack-plugin')
 
 const config = require('../../config')
 
@@ -57,12 +58,7 @@ module.exports = {
         'NODE_ENV': JSON.stringify('production')
       }
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      sourceMap: true,
-      compress: {
-        warnings: false
-      }
-    })
+    new MinifyPlugin({}, {})
   ],
   resolve: {
     modules: ['node_modules'],

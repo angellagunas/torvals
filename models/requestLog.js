@@ -8,6 +8,7 @@ const requestLogSchema = new Schema({
   query: { type: String },
   host: { type: String },
   path: { type: String },
+  type: { type: String },
   body: { type: Object },
   ip: { type: String },
   method: { type: String },
@@ -16,10 +17,14 @@ const requestLogSchema = new Schema({
   error: {
     message: { type: String },
     stack: { type: String }
-  }
+  },
+  response: { type: Schema.Types.Mixed }
 }, {
-  timestamps: true
+  timestamps: true,
+  usePushEach: true
 })
+
+requestLogSchema.index({createdAt: 1, uuid: 1, status: 1})
 
 requestLogSchema.plugin(dataTables)
 

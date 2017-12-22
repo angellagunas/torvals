@@ -1,0 +1,1827 @@
+[{
+	"agency_id": "3001",
+	"name": "ROMA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3002",
+	"name": "HOLBEIN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3003",
+	"name": "MONTEVIDEO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3005",
+	"name": "TAXQUEÑA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3007",
+	"name": "ETIOPIA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3008",
+	"name": "BALBUENA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3009",
+	"name": "PERISUR",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3010",
+	"name": "VILLA COAPA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3011",
+	"name": "FAST FOOD ANGELOPOLIS",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "CAFETERIA"
+},
+{
+	"agency_id": "3012",
+	"name": "ALTILLO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3013",
+	"name": "VALLE DORADO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3014",
+	"name": "SEVILLA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3015",
+	"name": "PRADO SUR",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3016",
+	"name": "REVOLUCION",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3017",
+	"name": "ECHEGARAY",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3018",
+	"name": "IZTAPALAPA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3019",
+	"name": "PEDREGAL",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3020",
+	"name": "TLATELOLCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3021",
+	"name": "INTERLOMAS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3022",
+	"name": "ARAGON",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3023",
+	"name": "IZCALLI",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3024",
+	"name": "COYOACAN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3025",
+	"name": "NUEVA SANTA MARIA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3027",
+	"name": "PARROQUIA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3028",
+	"name": "TECAMACHALCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3300",
+	"name": "RAMON CORONA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3030",
+	"name": "AZCAPOTZALCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3032",
+	"name": "SAN JERONIMO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3033",
+	"name": "CENTRO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3034",
+	"name": "SAN MATEO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3035",
+	"name": "SINATEL",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3036",
+	"name": "SAN JERONIMO II",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3037",
+	"name": "TOLUCA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3038",
+	"name": "WORLD TRADE CENTER",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3039",
+	"name": "PUEBLA 5 DE MAYO",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3040",
+	"name": "CORUÑA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3041",
+	"name": "TLALPAN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3042",
+	"name": "CONDESA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3043",
+	"name": "PUEBLA LA PAZ",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3044",
+	"name": "CUERNAVACA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3045",
+	"name": "PERIFERICO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3046",
+	"name": "TICOMAN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3047",
+	"name": "TLACOPAC",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3048",
+	"name": "BAJA CALIFORNIA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3049",
+	"name": "HIDALGO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3050",
+	"name": "LAS AGUILAS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3051",
+	"name": "UNIVERSIDAD",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3052",
+	"name": "METEPEC",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3053",
+	"name": "ANGELOPOLIS",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3054",
+	"name": "DESIERTO DE LOS LEONES",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3055",
+	"name": "COACALCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3056",
+	"name": "CAFETALES",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3057",
+	"name": "MUNDO E",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3058",
+	"name": "CUERNAVACA ZAPATA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3059",
+	"name": "QUERETARO JARDINES",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3060",
+	"name": "QUERETARO CORREGIDORA",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3061",
+	"name": "NEZAHUALCOYOTL",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3063",
+	"name": "ACOXPA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3064",
+	"name": "PLAZA CUICUILCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3065",
+	"name": "ARAGON II",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3066",
+	"name": "PLAZA SATELITE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3067",
+	"name": "ISLA POLANCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3068",
+	"name": "ISLA LORETO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3069",
+	"name": "ISLA CUICUILCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3070",
+	"name": "PLAZA CUERNAVACA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3071",
+	"name": "PLUTARCO ELIAS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3072",
+	"name": "POLANCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3073",
+	"name": "ISLA LINDAVISTA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3074",
+	"name": "ISLA CENTRO INSURGENTES",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3075",
+	"name": "PLAZA GALERIAS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3076",
+	"name": "ISLA GRAN SUR",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3077",
+	"name": "TLAHUAC",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3080",
+	"name": "TACUBAYA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3081",
+	"name": "ISLA PLAZA BOSQUES",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3082",
+	"name": "LOMAS DE SOTELO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3083",
+	"name": "CUAUHTEMOC",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3084",
+	"name": "FLORIDA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3085",
+	"name": "CANAL DE GARAY",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3086",
+	"name": "ISLA PLAZA UNIVERSIDAD",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3490",
+	"name": "MOLINO 16 DE SEPTIEMBRE",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3088",
+	"name": "ISLA GALERIAS METEPEC",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3089",
+	"name": "AVENIDA THE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3091",
+	"name": "ISLA TAPO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3092",
+	"name": "5 DE FEBRERO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3093",
+	"name": "BUENAVISTA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3094",
+	"name": "ARAGON III",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3029",
+	"name": "TORRES LINDAVISTA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3096",
+	"name": "CUAJIMALPA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3097",
+	"name": "BOSQUES DE LAS LOMAS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3098",
+	"name": "ISLA PLAZA ROSA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3099",
+	"name": "TEXCOCO CENTRO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3100",
+	"name": "PERIVIA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3102",
+	"name": "MARINA NACIONAL",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3103",
+	"name": "PICACHO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3104",
+	"name": "ISLA COACALCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3105",
+	"name": "ISLA PLAZA LILAS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3087",
+	"name": "ISLA SANTA FE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3108",
+	"name": "PUEBLA ESTADIO",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3109",
+	"name": "XOTEPINGO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3113",
+	"name": "SAN MIGUEL",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3114",
+	"name": "AEROPUERTO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3115",
+	"name": "PROGRESO NACIONAL",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3116",
+	"name": "ISLA CENTRAL DEL NORTE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3117",
+	"name": "ISLA CENTRAL DEL SUR",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3118",
+	"name": "NEZA II",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3120",
+	"name": "ISLA CAPU PUEBLA",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3121",
+	"name": "ZARAGOZA II",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3122",
+	"name": "ISLA MEXICO MART",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3123",
+	"name": "ISLA ACATLAN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3125",
+	"name": "PLAZA AEROPUERTO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3126",
+	"name": "ATIZAPAN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3127",
+	"name": "ISLA PABELLON CUAUHTEMOC",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3128",
+	"name": "TOREO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3129",
+	"name": "DIVISION DEL NORTE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3095",
+	"name": "ZARAGOZA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3133",
+	"name": "MULTIPLAZA SANTIN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3134",
+	"name": "TLALNEPANTLA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3135",
+	"name": "ISLA OUTLET LERMA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3136",
+	"name": "OBSERVATORIO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3137",
+	"name": "ECATEPEC",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3139",
+	"name": "ARENAL",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3140",
+	"name": "CALZADA DE GUADALUPE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3141",
+	"name": "TULTITLAN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3142",
+	"name": "ISLA PERINORTE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3143",
+	"name": "RIO CONSULADO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3144",
+	"name": "SAN MARCOS IZCALLI",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3145",
+	"name": "ISLA PLAZA DEL PARQUE",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3146",
+	"name": "CRUZ DEL SUR",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3147",
+	"name": "JARDINES DE MORELOS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3148",
+	"name": "AV. R-1",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3151",
+	"name": "NAUCALPAN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3152",
+	"name": "ISLA TECNOPARQUE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3153",
+	"name": "VIA MORELOS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3154",
+	"name": "VIRREYES",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3155",
+	"name": "IXTAPALUCA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3156",
+	"name": "VALLE",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3158",
+	"name": "LOMAS",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3159",
+	"name": "CHIMALISTAC",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3160",
+	"name": "COZUMEL",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3170",
+	"name": "ISLA BALANCE PARROQUIA",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3172",
+	"name": "GALERIAS CUERNAVACA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3175",
+	"name": "ISLA PARQUE DELTA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3285",
+	"name": "LEON PLAZA MAYOR",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3177",
+	"name": "PLAZA ESMERALDA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3178",
+	"name": "ISLA PLAZA BOSQUES DE LAS LOMAS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3179",
+	"name": "ISLA CSC AZCAPOTZALCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3181",
+	"name": "ISLA TOWN CENTER EL ROSARIO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3182",
+	"name": "AEROPUERTO ULTIMA ESPERA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3188",
+	"name": "PARQUE LINDAVISTA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3199",
+	"name": "ISLA PACHUCA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3191",
+	"name": "LA CUSPIDE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3192",
+	"name": "SANTA FE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3193",
+	"name": "HEGEL",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3195",
+	"name": "TORRES DE SATELITE",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3196",
+	"name": "ISLA PLAZA SAN PEDRO",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3197",
+	"name": "ISLA PLAZA DORADA",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3198",
+	"name": "PACHUCA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3205",
+	"name": "LINDAVISTA",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3200",
+	"name": "EXPENDIO PAC",
+	"brand": "EXPENDIO",
+	"region": "METROPOLITANA",
+	"format": "EXPENDIO"
+},
+{
+	"agency_id": "3201",
+	"name": "COUNTRY",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3202",
+	"name": "VALLE",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3203",
+	"name": "OBELISCO",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3204",
+	"name": "UNIVERSIDAD",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3418",
+	"name": "CARRO REMOLQUE No.1",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3206",
+	"name": "SATELITE",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3207",
+	"name": "SALTILLO I",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3218",
+	"name": "REYNOSA",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3219",
+	"name": "ISLA CUMBRES",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3263",
+	"name": "ISLA ALTARIA",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3224",
+	"name": "EL PRADO",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3176",
+	"name": "ISLA CSC AZCAPOTZALCO (REMOLQUE)",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3251",
+	"name": "LA CALMA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3253",
+	"name": "RUBEN DARIO",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3254",
+	"name": "NACIONES UNIDAS",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3255",
+	"name": "PLAZA PATRIA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3256",
+	"name": "PLAZA DEL SOL",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3258",
+	"name": "ISLA RIO NILO",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3260",
+	"name": "LA GRAN PLAZA GUADALAJARA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3261",
+	"name": "GALERIAS GUADALAJARA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3262",
+	"name": "PLAZA CIBELES",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3278",
+	"name": "PLAZA EL DORADO",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3265",
+	"name": "COLIMA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3267",
+	"name": "TEPIC",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3269",
+	"name": "PLAZA REVOLUCION",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3272",
+	"name": "MORELIA",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3273",
+	"name": "ISLA PLAZA MORELIA",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3275",
+	"name": "ISLA PLAZA LAS AMERICAS",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3277",
+	"name": "SAN LUIS",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3286",
+	"name": "ISLA PLAZA MAYOR",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3280",
+	"name": "ISLA CENTRO SUR",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3281",
+	"name": "AGUASCALIENTES",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3466",
+	"name": "TSU TULTITLAN_MOLINO",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3393",
+	"name": "ISLA GALERIAS COAPA",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3287",
+	"name": "LEON II",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3288",
+	"name": "ISLA CENTRO MAX",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3106",
+	"name": "ISLA TELMEX",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3293",
+	"name": "ISLA PLAZA 8 DE JULIO",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3305",
+	"name": "PASEO ALTOZANO MORELIA",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3302",
+	"name": "PLAZA INDEPENDENCIA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3304",
+	"name": "PLAZA LA LOMA",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3292",
+	"name": "ISLA GALERIAS LAS TORRES",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3308",
+	"name": "PATISSERIES LOS SAUCES",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3310",
+	"name": "LUIS GONZAGA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3311",
+	"name": "GRAN PATIO PATRIA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3320",
+	"name": "CHAPALITA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3321",
+	"name": "PLAZA TOLUQUILLA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3322",
+	"name": "PALOMAR",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3323",
+	"name": "ALEIRA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3325",
+	"name": "PLAZA SAN LUIS",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3326",
+	"name": "PLAZA TONALA",
+	"brand": "GLOBO",
+	"region": "CENTRO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3328",
+	"name": "CORNER SANTANDER",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3131",
+	"name": "CHALCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3350",
+	"name": "ISLA BALANCE AGRÍCOLA",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3355",
+	"name": "ISLA PUERTA TEXCOCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3357",
+	"name": "PARQUE TEZONTLE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3371",
+	"name": "BALANCE ZONA AZUL",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3372",
+	"name": "ISLA VIA SAN ANGEL",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3373",
+	"name": "CORNER SANTA FE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3374",
+	"name": "POWER CENTER TECAMAC",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3377",
+	"name": "JARDIN BICENTENARIO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3390",
+	"name": "ISLA GALERIAS ATIZAPAN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3391",
+	"name": "ISLA GRAN PATIO TEXCOCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3401",
+	"name": "PLAZA ZAFIRO NORTE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3394",
+	"name": "ECONOMISTAS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3395",
+	"name": "ZUMPANGO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3396",
+	"name": "LOS ATRIOS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3399",
+	"name": "ISLA PARQUES POLANCO",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3400",
+	"name": "PABELLON ALTAVISTA",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3414",
+	"name": "PATIO CUAUTITLAN",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3403",
+	"name": "PLAZA JARRITOS PUEBLA",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3404",
+	"name": "ISLA GRAN PATIO TLAXCALA",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3405",
+	"name": "CORAZON DE CAFÉ PEDREGAL",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3408",
+	"name": "SUCURSAL MUSEO DEL PAPALOTE",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3410",
+	"name": "GRAN TERRAZA",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3412",
+	"name": "SAMARA",
+	"brand": "BALANCE",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3413",
+	"name": "JURIQUILLA",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3472",
+	"name": "MOLINO PATRIOTISMO",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3415",
+	"name": "AEROPUERTO TERMINAL 2",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3417",
+	"name": "TEC PUEBLA",
+	"brand": "GLOBO",
+	"region": "SURESTE",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3475",
+	"name": "JUANACATLAN",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3463",
+	"name": "SOR JUANA",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3465",
+	"name": "EXPENDIO ZUMPANGO",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3467",
+	"name": "TSU TLANEPANTLA MOLINO",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3329",
+	"name": "CORNER UVM ZAPOPAN",
+	"brand": "GLOBO",
+	"region": "BAJIO",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3468",
+	"name": "SUBURBANO CUAUTITLAN MOLINO",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3469",
+	"name": "TSU LECHERIA MOLINO",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3470",
+	"name": "PANTITLAN",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3488",
+	"name": "MOLINO BOSQUES ARAGON",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3473",
+	"name": "MOLINO BENJAMIN FRANKLIN",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3189",
+	"name": "ISLA PLAZA LAS AMERICAS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3477",
+	"name": "OJO DE AGUA",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3480",
+	"name": "TSU MOLINO LECHERIA",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3226",
+	"name": "ISLA PLAZA FIESTA ANAHUAC",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3489",
+	"name": "MOLINO INSURGENTES",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3491",
+	"name": "MOLINO SAN ANGEL",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3221",
+	"name": "ISLA CITADEL",
+	"brand": "GLOBO",
+	"region": "NORTE",
+	"format": "ISLA"
+},
+{
+	"agency_id": "3494",
+	"name": "MOLINO SAN COSME",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3495",
+	"name": "MOLINO MARTIN CARRERA",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3497",
+	"name": "MOLINO QUERETARO",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3464",
+	"name": "LAS PLAZAS ZUMPANGO",
+	"brand": "MOLINO",
+	"region": "METROPOLITANA",
+	"format": "SUCURSAL"
+},
+{
+	"agency_id": "3421",
+	"name": "ISLA PLAZA LAS ANIMAS",
+	"brand": "GLOBO",
+	"region": "METROPOLITANA",
+	"format": "ISLA"
+}]

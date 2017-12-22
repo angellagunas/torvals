@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
 
-import Image from '~base/components/image'
+import api from '~base/api'
 import Link from '~base/router/link'
 import tree from '~core/tree'
 
@@ -38,8 +38,14 @@ class NavBar extends Component {
     }
   }
 
-  handleLogout () {
+  async handleLogout () {
     const {history} = this.props
+
+    try {
+      await api.del('/user')
+    } catch (err) {
+      console.log('Error removing token, logging out anyway ...')
+    }
 
     window.localStorage.removeItem('jwt')
     tree.set('jwt', null)
@@ -93,6 +99,7 @@ class NavBar extends Component {
       <div className='c-topbar__aside navbar-brand'>
         <Link to='/' className='navbar-item'>
           <img className='is-flex' src='/admin/public/img/pythia-logo.png' />
+          <h3 className='is-size-4 has-text-white is-capitalized has-text-weight-semibold'>Pythia</h3>
         </Link>
       </div>
       <div className='c-topbar__main'>
@@ -109,7 +116,7 @@ class NavBar extends Component {
               Bienvenido { username }
             </div>
             <div className='is-flex is-align-center'>
-              <img className='is-rounded' src={avatar} width='40' height='45' alt='Avatar' />
+              <img className='is-rounded avatar' src={avatar} width='40' height='40' alt='Avatar' />
             </div>
             <div className='dropdown is-active is-right' ref={this.setWrapperRef}>
               <div className='dropdown-trigger is-flex'>

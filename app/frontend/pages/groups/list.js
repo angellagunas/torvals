@@ -4,6 +4,8 @@ import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 import moment from 'moment'
 
+import Page from '~base/page'
+import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateGroup from './create'
 
@@ -31,6 +33,7 @@ class Groups extends Component {
         'title': 'Name',
         'property': 'name',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           return (
             <Link to={'/manage/groups/' + row.uuid}>
@@ -43,6 +46,7 @@ class Groups extends Component {
         'title': 'Created',
         'property': 'dateCreated',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           return (
             moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
@@ -128,4 +132,14 @@ Groups.contextTypes = {
   tree: PropTypes.baobab
 }
 
-export default branch({groups: 'groups'}, Groups)
+const branchedGroups = branch({groups: 'groups'}, Groups)
+
+export default Page({
+  path: '/manage/groups',
+  title: 'Groups',
+  icon: 'users',
+  exact: true,
+  roles: 'admin, admin-organizacion',
+  validate: [loggedIn, verifyRole],
+  component: branchedGroups
+})

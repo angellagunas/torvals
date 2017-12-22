@@ -6,7 +6,6 @@ import api from '~base/api'
 import tree from '~core/tree'
 
 import Sidebar from '~components/sidebar'
-import Footer from '~components/footer'
 import AdminNavBar from '~components/admin-navbar'
 
 class AdminLayout extends Component {
@@ -41,6 +40,18 @@ class AdminLayout extends Component {
         return
       }
 
+      if (!me.user.isAdmin) {
+        const {history} = this.props
+
+        window.localStorage.removeItem('jwt')
+        tree.set('jwt', null)
+        tree.set('user', null)
+        tree.set('loggedIn', false)
+        tree.commit()
+
+        history.push('/')
+      }
+
       tree.set('user', me.user)
       tree.set('loggedIn', me.loggedIn)
       tree.commit()
@@ -63,7 +74,6 @@ class AdminLayout extends Component {
             <section className='c-flex-1 is-flex'>
               {this.props.children}
             </section>
-            <Footer />
           </div>
         </div>
       </div>)

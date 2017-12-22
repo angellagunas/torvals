@@ -269,4 +269,63 @@ select.placeholder {
 
 .navbar-item-height img {
   max-height: 45px;
+  max-width: 45px;
+  min-height: 45px;
+  min-width: 45px;
+}
+
+.avatar {
+  max-height: 40px;
+  max-width: 40px;
+  min-height: 40px;
+  min-width: 40px;
+}
+
+.is-edited {
+  background-color: #C3ECEF !important;
+  color: #363636;
+}
+
+.was-edited {
+  background-color: #9cbcbf !important;
+  color: #363636;
+}
+
+a.navbar-item:hover {
+  background-color: #272727;
+}
+
+.Sticky {
+  &.sticky {
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    left: 0;
+    border-radius: 0;
+    margin: 0;
+    padding: 0px 24px;
+    z-index: 99;
+  }
+}
+
+
+@media only screen and (min-width: 1024px) {
+  .Sticky {
+    &.sticky {
+      padding-left: 274px
+    }
+  }
+}
+
+.notification-container {
+  box-sizing: border-box;
+  position: fixed;
+  top: 10;
+  right: 1%;
+  z-index: 100;
+  width: 500px;
+  padding: 10px 10px;
+  max-height: 500px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }

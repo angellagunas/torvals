@@ -9,7 +9,6 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 
 import Sidebar from '~components/sidebar'
-import Footer from '~components/footer'
 import AdminNavBar from '~components/admin-navbar'
 
 class AdminLayout extends Component {
@@ -71,9 +70,7 @@ class AdminLayout extends Component {
       return <div className='is-flex is-flex-1'><Loader /></div>
     }
 
-    let shouldSelectOrg = tree.get('shouldSelectOrg')
-
-    if (!isEmpty(this.state.user) && !shouldSelectOrg) {
+    if (!isEmpty(this.state.user)) {
       return (<div className='is-wrapper'>
         <AdminNavBar />
         <div className='is-flex c-flex-1 columns is-gapless'>
@@ -82,7 +79,6 @@ class AdminLayout extends Component {
             <section className='c-flex-1 is-flex'>
               {this.props.children}
             </section>
-            <Footer />
           </div>
         </div>
       </div>)

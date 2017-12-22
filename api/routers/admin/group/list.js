@@ -1,7 +1,7 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Group, User} = require('models')
+const {Group, User, SalesCenter} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -9,7 +9,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     var filters = {}
     for (var filter in ctx.request.query) {
-      if (filter === 'limit' || filter === 'start') {
+      if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
       }
 
@@ -33,6 +33,16 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'salesCenter') {
+        const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]}).populate('organization')
+
+        if (salesCenter) {
+          filters['organization'] = salesCenter.organization._id
+        }
+
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
@@ -44,8 +54,8 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
-      sort: '-dateCreated',
-      populate: 'organization'
+      populate: 'organization',
+      sort: ctx.request.query.sort || '-dateCreated'
     })
 
     ctx.body = groups
