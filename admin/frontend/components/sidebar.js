@@ -16,6 +16,7 @@ import DeletedSalesCenters from '../pages/salesCenters/deleted-list'
 import RequestLogs from '../pages/request-logs/list'
 import Products from '../pages/products/list'
 import DeletedProducts from '../pages/products/deleted-list'
+import Forecasts from '../pages/forecasts/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -81,7 +82,9 @@ class Sidebar extends Component {
           Products.asSidebarItem(),
           DeletedProducts.asSidebarItem()
         ]
-      }, {
+      },
+      Forecasts.asSidebarItem(),
+      {
         title: 'Developer Tools',
         icon: 'github-alt',
         to: '/devtools',

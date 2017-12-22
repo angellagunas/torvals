@@ -60,7 +60,7 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
-      // populate: 'organization',
+      populate: 'organization',
       sort: ctx.request.query.sort || '-dateCreated'
     })
 

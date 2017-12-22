@@ -34,6 +34,7 @@ import RequestLogs from './pages/request-logs/list'
 import Products from './pages/products/list'
 import ProductDetail from './pages/products/detail'
 import DeletedProducts from './pages/products/deleted-list'
+import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
 import PredictionHistoric from './pages/prediction-historic/list'
 
@@ -81,6 +82,7 @@ const AppRouter = () => {
           {DeletedProducts.asRouterItem()}
           {ProductDetail.asRouterItem()}
 
+          {Forecasts.asRouterItem()}
           {ForecastDetail.asRouterItem()}
 
           {RequestLogs.asRouterItem()}
