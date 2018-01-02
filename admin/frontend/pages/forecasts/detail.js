@@ -1108,7 +1108,7 @@ class ForecastDetail extends Component {
                                   Edit
                                 </button>
                                   <BaseModal
-                                    title='Edit Product'
+                                    title='Edit Sales Center'
                                     className={this.state.classNameSC}
                                     hideModal={() => this.hideModalSalesCenters()}
                                 >
