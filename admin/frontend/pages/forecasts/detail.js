@@ -576,7 +576,7 @@ class ForecastDetail extends Component {
               </div>
               <div className='field is-horizontal'>
                 <div className='field-label is-normal'>
-                  <label className='label'>Producto</label>
+                  <label className='label'>Categoría</label>
                 </div>
                 <div className='field-body'>
                   <div className='field'>
