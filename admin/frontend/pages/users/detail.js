@@ -4,6 +4,7 @@ import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
 import moment from 'moment'
 import env from '~base/env-variables'
+import FontAwesome from 'react-fontawesome'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -26,7 +27,9 @@ class UserDetail extends Component {
       user: {},
       roles: [],
       groups: [],
-      selectedGroups: []
+      selectedGroups: [],
+      saving: false,
+      saved: false
     }
   }
 
@@ -106,6 +109,10 @@ class UserDetail extends Component {
   }
 
   async availableGroupOnClick (uuid) {
+    this.setState({
+      saving: true
+    })
+
     var selected = this.state.selectedGroups
     var group = this.state.groups.find(item => { return item.uuid === uuid })
 
@@ -127,9 +134,20 @@ class UserDetail extends Component {
         group: uuid
       }
     )
+
+    setTimeout(() => {
+      this.setState({
+        saving: false,
+        saved: true
+      })
+    }, 300)
   }
 
   async assignedGroupOnClick (uuid) {
+    this.setState({
+      saving: true
+    })
+
     var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
 
     var selected = this.state.selectedGroups
@@ -152,6 +170,13 @@ class UserDetail extends Component {
         group: uuid
       }
     )
+
+    setTimeout(() => {
+      this.setState({
+        saving: false,
+        saved: true
+      })
+    }, 300)
   }
 
   async resetOnClick () {
@@ -273,6 +298,36 @@ class UserDetail extends Component {
     }, 2000)
   }
 
+  getSavingMessage () {
+    let {saving, saved} = this.state
+
+    if (saving) {
+      return (
+        <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
+          Saving <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
+        </p>
+      )
+    }
+
+    if (saved) {
+      if (this.savedTimeout) {
+        clearTimeout(this.savedTimeout)
+      }
+
+      this.savedTimeout = setTimeout(() => {
+        this.setState({
+          saved: false
+        })
+      }, 500)
+
+      return (
+        <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
+          Saved
+        </p>
+      )
+    }
+  }
+
   render () {
     const { user } = this.state
 
@@ -379,6 +434,9 @@ class UserDetail extends Component {
                         <p className='card-header-title'>
                           Groups
                         </p>
+                        <div>
+                          {this.getSavingMessage()}
+                        </div>
                       </header>
                       <div className='card-content'>
                         <Multiselect
