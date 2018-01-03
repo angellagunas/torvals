@@ -77,6 +77,7 @@ class ForecastDetail extends Component {
       days: [],
       disableButtons: true,
       graphProductSelected: '',
+      graphIsPristine: true,
       notification: {
         has: false,
         type: '',
@@ -728,12 +729,13 @@ class ForecastDetail extends Component {
 
   handleGraphFilters (e) {
     let graphDataFiltered = this.state.forecast.graphData
-    if (e) {
+    if (e.target.value) {
       graphDataFiltered = this.state.forecast.graphData.filter(item => item.producto_id === e.target.value)
     }
 
     this.setState({
       graphProductSelected: e.target.value,
+      graphIsPristine: false,
       graphDataFiltered
     })
   }
@@ -854,6 +856,7 @@ class ForecastDetail extends Component {
                         size={[250, 250]}
                         width='960'
                         height='500'
+                        pristine={this.state.graphIsPristine}
                     />
                     </div>
                   </div>
