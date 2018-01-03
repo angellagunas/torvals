@@ -73,7 +73,6 @@ class UserDetail extends Component {
       url,
       {
         user_orgs: this.props.match.params.uuid,
-        // user: this.props.match.params.uuid,
         start: 0,
         limit: 0
       }
@@ -117,8 +116,6 @@ class UserDetail extends Component {
     var group = this.state.groups.find(item => { return item.uuid === uuid })
 
     if (selected.findIndex(item => { return item.uuid === uuid }) !== -1) {
-      alert('Grupo ya seleccionado!')
-
       return
     }
 
@@ -149,12 +146,9 @@ class UserDetail extends Component {
     })
 
     var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
-
     var selected = this.state.selectedGroups
 
     if (index === -1) {
-      alert('Grupo ya removido!')
-
       return
     }
 
