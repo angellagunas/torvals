@@ -6,6 +6,7 @@ import api from '~base/api'
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares/'
 import CreateUser from './create'
+import DeleteButton from '~base/components/base-deleteButton'
 
 export default ListPage({
   path: '/manage/users',
@@ -65,9 +66,23 @@ export default ListPage({
       {
         'title': 'Actions',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/users/' + row.uuid}>
+          const deleteObject = async function (user) {
+            var url = '/admin/projects/' + user
+            await api.del(url)
+            this.props.history.push('/admin/projects')
+          }
+          return (
+            <div>
+              <Link className='button' to={'/manage/users/' + row.uuid}>
             Detalle
-          </Link>
+            </Link>
+              <DeleteButton
+                objectName='Project'
+                objectDelete={deleteObject(row.uuid)}
+                message={'Are you sure to delete this user?'}
+            />
+            </div>
+          )
         }
       }
     ]
