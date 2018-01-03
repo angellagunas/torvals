@@ -44,7 +44,7 @@ class UserDetail extends Component {
       loading: false,
       loaded: true,
       user: body.data,
-      selectedGroups: body.data.groups
+      selectedGroups: [...body.data.groups]
     })
   }
 
@@ -109,22 +109,49 @@ class UserDetail extends Component {
     var selected = this.state.selectedGroups
     var group = this.state.groups.find(item => { return item.uuid === uuid })
 
+    if (selected.findIndex(item => { return item.uuid === uuid }) !== -1) {
+      alert('Grupo ya seleccionado!')
+
+      return
+    }
+
     selected.push(group)
 
     this.setState({
       selectedGroups: selected
     })
+
+    var url = '/admin/users/' + this.props.match.params.uuid + '/add/group'
+    await api.post(url,
+      {
+        group: uuid
+      }
+    )
   }
 
   async assignedGroupOnClick (uuid) {
     var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
 
     var selected = this.state.selectedGroups
+
+    if (index === -1) {
+      alert('Grupo ya removido!')
+
+      return
+    }
+
     selected.splice(index, 1)
 
     this.setState({
       selectedGroups: selected
     })
+
+    var url = '/admin/users/' + this.props.match.params.uuid + '/remove/group'
+    await api.post(url,
+      {
+        group: uuid
+      }
+    )
   }
 
   async resetOnClick () {
@@ -253,6 +280,12 @@ class UserDetail extends Component {
       return <Loader />
     }
 
+    const availableList = this.state.groups.filter(item => {
+      return (this.state.selectedGroups.findIndex(group => {
+        return group.uuid === item.uuid
+      }) === -1)
+    })
+
     var resetButton
     if (env.EMAIL_SEND) {
       resetButton = (
@@ -349,8 +382,8 @@ class UserDetail extends Component {
                       </header>
                       <div className='card-content'>
                         <Multiselect
-                          assignedList={user.groups}
-                          availableList={this.state.groups}
+                          assignedList={this.state.selectedGroups}
+                          availableList={availableList}
                           dataFormatter={(item) => { return item.name + ' de ' + item.organization.name || 'N/A' }}
                           availableClickHandler={this.availableGroupOnClick.bind(this)}
                           assignedClickHandler={this.assignedGroupOnClick.bind(this)}
