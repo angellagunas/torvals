@@ -12,9 +12,25 @@ class CreateBarGraph extends Component {
     }
   }
 
+  componentWillReceiveProps (nextProps, other) {
+    if (nextProps.data.length !== this.state.data.length) {
+      let data = this.getformattedValues(this.props.data)
+      this.setState({ data }, function () {
+        this.createChart(this.state.data)
+      })
+    }
+  }
+
   componentDidMount () {
+    let data = this.getformattedValues(this.props.data)
+    this.setState({ data }, function () {
+      this.createChart(this.state.data)
+    })
+  }
+
+  getformattedValues (props) {
     let parseTime = d3.timeParse('%Y-%m-%d')
-    let data = _.map(this.props.data, (item) => {
+    let data = _.map(props, (item) => {
       return {
         ds: parseTime(item.ds),
         yhat_upper: parseInt(item.yhat_upper),
@@ -22,10 +38,7 @@ class CreateBarGraph extends Component {
         yhat_lower: parseInt(item.yhat_lower)
       }
     })
-
-    this.setState({ data }, function () {
-      this.createChart(this.state.data)
-    })
+    return data
   }
 
   addAxes (svg, xAxis, yAxis, margin, chartWidth, chartHeight) {
