@@ -25,7 +25,8 @@ class UserDetail extends Component {
       resetClass: 'button is-danger',
       user: {},
       roles: [],
-      groups: []
+      groups: [],
+      selectedGroups: []
     }
   }
 
@@ -42,7 +43,8 @@ class UserDetail extends Component {
     await this.setState({
       loading: false,
       loaded: true,
-      user: body.data
+      user: body.data,
+      selectedGroups: body.data.groups
     })
   }
 
@@ -68,7 +70,7 @@ class UserDetail extends Component {
       url,
       {
         user_orgs: this.props.match.params.uuid,
-        user: this.props.match.params.uuid,
+        // user: this.props.match.params.uuid,
         start: 0,
         limit: 0
       }
@@ -104,27 +106,25 @@ class UserDetail extends Component {
   }
 
   async availableGroupOnClick (uuid) {
-    var url = '/admin/users/' + this.props.match.params.uuid + '/add/group'
-    await api.post(url,
-      {
-        group: uuid
-      }
-    )
+    var selected = this.state.selectedGroups
+    var group = this.state.groups.find(item => { return item.uuid === uuid })
 
-    this.load()
-    this.loadGroups()
+    selected.push(group)
+
+    this.setState({
+      selectedGroups: selected
+    })
   }
 
   async assignedGroupOnClick (uuid) {
-    var url = '/admin/users/' + this.props.match.params.uuid + '/remove/group'
-    await api.post(url,
-      {
-        group: uuid
-      }
-    )
+    var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
 
-    this.load()
-    this.loadGroups()
+    var selected = this.state.selectedGroups
+    selected.splice(index, 1)
+
+    this.setState({
+      selectedGroups: selected
+    })
   }
 
   async resetOnClick () {
