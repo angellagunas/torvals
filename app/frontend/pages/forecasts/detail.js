@@ -657,7 +657,6 @@ class ForecastDetail extends Component {
 
     if (
         forecast.status !== 'analistReview' &&
-        forecast.status !== 'readyToOrder' &&
         currentRole !== 'analista' &&
         currentRole !== 'supervisor'
     ) {
@@ -832,8 +831,7 @@ class ForecastDetail extends Component {
                       handleChange={this.handleChange.bind(this)}
                       setRowsToEdit={this.setRowsToEdit.bind(this)}
                       selectable={
-                        (forecast.status !== 'analistReview' &&
-                        forecast.status !== 'readyToOrder') &&
+                        (forecast.status !== 'analistReview') &&
                         (currentRole !== 'analista' && currentRole !== 'supervisor')
                       }
                      />

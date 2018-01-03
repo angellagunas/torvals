@@ -657,7 +657,7 @@ class ForecastDetail extends Component {
   getModifyButtons () {
     let forecast = this.state.forecast
 
-    if (forecast.status !== 'analistReview' && forecast.status !== 'readyToOrder') {
+    if (forecast.status !== 'analistReview') {
       return (
         <div className='columns'>
           <div className='column'>
@@ -762,7 +762,7 @@ class ForecastDetail extends Component {
                 </div>
                 <div className='columns'>
                   <div className='column'>
-                    There was an error when processing the forecast:
+                    There was an error while processing the forecast:
                     <br />
                     {forecast.error}
                   </div>
@@ -829,7 +829,7 @@ class ForecastDetail extends Component {
                       sortBy={this.state.sort}
                       setRowsToEdit={this.setRowsToEdit.bind(this)}
                       selectable={
-                        forecast.status !== 'analistReview' && forecast.status !== 'readyToOrder'
+                        forecast.status !== 'analistReview'
                       }
                      />
                   </div>
