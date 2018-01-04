@@ -4,9 +4,10 @@ import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
 import moment from 'moment'
 import env from '~base/env-variables'
+import FontAwesome from 'react-fontawesome'
 
 import Page from '~base/page'
-import {loggedIn, verifyRole } from '~base/middlewares/'
+import { loggedIn, verifyRole } from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import UserForm from './form'
 import Multiselect from '~base/components/base-multiselect'
@@ -22,7 +23,10 @@ class UserDetail extends Component {
       resetClass: 'button is-danger',
       user: {},
       roles: [],
-      groups: []
+      groups: [],
+      selectedGroups: [],
+      saving: false,
+      saved: false
     }
   }
 
@@ -39,7 +43,8 @@ class UserDetail extends Component {
     await this.setState({
       loading: false,
       loaded: true,
-      user: body.data
+      user: body.data,
+      selectedGroups: [...body.data.groups]
     })
   }
 
@@ -49,7 +54,6 @@ class UserDetail extends Component {
       url,
       {
         user_orgs: this.props.match.params.uuid,
-        user: this.props.match.params.uuid,
         start: 0,
         limit: 0
       }
@@ -88,6 +92,19 @@ class UserDetail extends Component {
   }
 
   async availableGroupOnClick (uuid) {
+    this.setState({
+      saving: true
+    })
+
+    var selected = this.state.selectedGroups
+    var group = this.state.groups.find(item => { return item.uuid === uuid })
+
+    if (selected.findIndex(item => { return item.uuid === uuid }) !== -1) {
+      return
+    }
+
+    selected.push(group)
+
     var url = '/app/users/' + this.props.match.params.uuid + '/add/group'
     await api.post(url,
       {
@@ -95,11 +112,32 @@ class UserDetail extends Component {
       }
     )
 
-    this.load()
-    this.loadGroups()
+    setTimeout(() => {
+      this.setState({
+        saving: false,
+        saved: true
+      })
+    }, 300)
   }
 
   async assignedGroupOnClick (uuid) {
+    this.setState({
+      saving: true
+    })
+
+    var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
+    var selected = this.state.selectedGroups
+
+    if (index === -1) {
+      return
+    }
+
+    selected.splice(index, 1)
+
+    this.setState({
+      selectedGroups: selected
+    })
+
     var url = '/app/users/' + this.props.match.params.uuid + '/remove/group'
     await api.post(url,
       {
@@ -107,8 +145,12 @@ class UserDetail extends Component {
       }
     )
 
-    this.load()
-    this.loadGroups()
+    setTimeout(() => {
+      this.setState({
+        saving: false,
+        saved: true
+      })
+    }, 300)
   }
 
   async resetOnClick () {
@@ -146,12 +188,48 @@ class UserDetail extends Component {
     }, 10000)
   }
 
+  getSavingMessage () {
+    let {saving, saved} = this.state
+
+    if (saving) {
+      return (
+        <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
+          Saving <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
+        </p>
+      )
+    }
+
+    if (saved) {
+      if (this.savedTimeout) {
+        clearTimeout(this.savedTimeout)
+      }
+
+      this.savedTimeout = setTimeout(() => {
+        this.setState({
+          saved: false
+        })
+      }, 500)
+
+      return (
+        <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
+          Saved
+        </p>
+      )
+    }
+  }
+
   render () {
     const { user } = this.state
 
     if (!user.uuid) {
       return <Loader />
     }
+
+    const availableList = this.state.groups.filter(item => {
+      return (this.state.selectedGroups.findIndex(group => {
+        return group.uuid === item.uuid
+      }) === -1)
+    })
 
     var resetButton
     if (env.EMAIL_SEND) {
@@ -217,11 +295,14 @@ class UserDetail extends Component {
                         <p className='card-header-title'>
                           Groups
                         </p>
+                        <div>
+                          {this.getSavingMessage()}
+                        </div>
                       </header>
                       <div className='card-content'>
                         <Multiselect
-                          assignedList={user.groups}
-                          availableList={this.state.groups}
+                          assignedList={this.state.selectedGroups}
+                          availableList={availableList}
                           dataFormatter={(item) => { return item.name || 'N/A' }}
                           availableClickHandler={this.availableGroupOnClick.bind(this)}
                           assignedClickHandler={this.assignedGroupOnClick.bind(this)}
