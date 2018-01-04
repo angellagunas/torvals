@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
+import api from '~base/api'
+import tree from '~core/tree'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -9,6 +11,7 @@ import BaseFilterPanel from '~base/components/base-filters'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import FontAwesome from 'react-fontawesome'
 import CreateUser from './create'
+import DeleteButton from '~base/components/base-deleteButton'
 
 const schema = {
   type: 'object',
@@ -63,9 +66,43 @@ class Users extends Component {
       {
         'title': 'Actions',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/users/' + row.uuid}>
-            Detalle
-          </Link>
+          const deleteObject = async function () {
+            var url = '/app/users/' + row.uuid
+            await api.del(url)
+
+            const cursor = tree.get('users')
+            const users = await api.get('/app/users/')
+
+            tree.set('users', {
+              page: cursor.page,
+              totalItems: users.total,
+              items: users.data,
+              pageLength: cursor.pageLength
+            })
+            tree.commit()
+          }
+
+          const currentUser = tree.get('user')
+
+          return (
+            <div className='columns'>
+              <div className='column'>
+                <Link className='button' to={'/manage/users/' + row.uuid}>
+                  Detalle
+                </Link>
+              </div>
+              <div className='column'>
+                {currentUser.uuid !== row.uuid && (
+                  <DeleteButton
+                    titleButton={'Deactivate'}
+                    objectName='User'
+                    objectDelete={deleteObject}
+                    message={'Are you sure you want to deactivate this user?'}
+                  />
+                )}
+              </div>
+            </div>
+          )
         }
       }
     ]
