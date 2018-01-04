@@ -40,8 +40,8 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/manage/organizations/' + row.uuid}>
-              {row.name}
+            <Link to={'/manage/organizations/' + row.organization.uuid}>
+              {row.organization.name}
             </Link>
           )
         }
