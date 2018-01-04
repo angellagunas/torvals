@@ -8,10 +8,6 @@ module.exports = new Route({
     const { email, password } = ctx.request.body
     const user = await User.auth(email, password)
 
-    if (user.isDeleted) {
-      ctx.throw(404, 'User not found')
-    }
-
     var orgsAux = user.organizations.map(item => {
       return {
         organization: item.organization.toPublic(),

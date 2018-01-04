@@ -92,12 +92,12 @@ class Users extends Component {
                 </Link>
               </div>
               <div className='column'>
-                {currentUser.uuid === row.uuid && (
+                {currentUser.uuid !== row.uuid && (
                   <DeleteButton
                     titleButton={'Deactivate'}
                     objectName='User'
                     objectDelete={deleteObject}
-                    message={'Are you sure to deactivate this user?'}
+                    message={'Are you sure you want to deactivate this user?'}
                   />
                 )}
               </div>
