@@ -14,7 +14,7 @@ module.exports = new Route({
     ctx.assert(group, 404, 'Group not found')
 
     if (user.groups.find(item => { return String(item) === String(group._id) })) {
-      ctx.throw(group, 400, 'You can only add the user to a group once!')
+      ctx.throw(400, 'You can only add the user to a group once!')
     }
 
     user.groups.push(group)
