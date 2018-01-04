@@ -95,9 +95,9 @@ class Users extends Component {
                 {currentUser.uuid === row.uuid && (
                   <DeleteButton
                     titleButton={'Deactivate'}
-                    objectName='Users'
+                    objectName='User'
                     objectDelete={deleteObject}
-                    message={'Are you sure to delete this user?'}
+                    message={'Are you sure to deactivate this user?'}
                   />
                 )}
               </div>
