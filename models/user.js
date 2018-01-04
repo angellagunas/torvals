@@ -33,6 +33,8 @@ const userSchema = new Schema({
     region: { type: String }
   },
 
+  isDeleted: { type: Boolean, default: false },
+
   resetPasswordToken: { type: String, default: v4 },
   inviteToken: { type: String, default: v4 },
 
