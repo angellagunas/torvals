@@ -657,7 +657,7 @@ class ForecastDetail extends Component {
   getModifyButtons () {
     let forecast = this.state.forecast
 
-    if (forecast.status !== 'analistReview') {
+    if (forecast.status !== 'analistReview' && forecast.status !== 'readyToOrder') {
       return (
         <div className='columns'>
           <div className='column'>
@@ -829,7 +829,7 @@ class ForecastDetail extends Component {
                       sortBy={this.state.sort}
                       setRowsToEdit={this.setRowsToEdit.bind(this)}
                       selectable={
-                        forecast.status !== 'analistReview'
+                        forecast.status !== 'analistReview' && forecast.status !== 'readyToOrder'
                       }
                      />
                   </div>
@@ -899,7 +899,7 @@ class ForecastDetail extends Component {
         <button
           className='button is-primary'
           type='button'
-          onClick={() => this.changeStatusOnClick('readyToOrder')}
+          onClick={() => this.changeStatusOnClick('consolidate')}
         >
           Consolidar
         </button>

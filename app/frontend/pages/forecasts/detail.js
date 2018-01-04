@@ -657,6 +657,7 @@ class ForecastDetail extends Component {
 
     if (
         forecast.status !== 'analistReview' &&
+        forecast.status !== 'readyToOrder' &&
         currentRole !== 'analista' &&
         currentRole !== 'supervisor'
     ) {
@@ -765,7 +766,7 @@ class ForecastDetail extends Component {
                 </div>
                 <div className='columns'>
                   <div className='column'>
-                    There was an error when processing the forecast, please contact an administrator
+                    There was an error while processing the forecast, please contact an administrator
                   </div>
                 </div>
               </div>
@@ -831,7 +832,8 @@ class ForecastDetail extends Component {
                       handleChange={this.handleChange.bind(this)}
                       setRowsToEdit={this.setRowsToEdit.bind(this)}
                       selectable={
-                        (forecast.status !== 'analistReview') &&
+                        (forecast.status !== 'analistReview' &&
+                        forecast.status !== 'readyToOrder') &&
                         (currentRole !== 'analista' && currentRole !== 'supervisor')
                       }
                      />
@@ -903,7 +905,7 @@ class ForecastDetail extends Component {
         <button
           className='button is-primary'
           type='button'
-          onClick={() => this.changeStatusOnClick('readyToOrder')}
+          onClick={() => this.changeStatusOnClick('consolidate')}
         >
           Consolidar
         </button>
