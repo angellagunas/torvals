@@ -56,8 +56,10 @@ class ForecastDetail extends Component {
       loaded: false,
       predictions: [],
       forecast: {},
+      graphDataFiltered: [],
       selectedRows: {},
       selectValue: '',
+      selectedAll: false,
       predictionsFormatted: [],
       predictionsFiltered: [],
       schema: {},
@@ -75,6 +77,8 @@ class ForecastDetail extends Component {
       },
       days: [],
       disableButtons: true,
+      graphProductSelected: '',
+      graphIsPristine: true,
       notification: {
         has: false,
         type: '',
@@ -103,7 +107,8 @@ class ForecastDetail extends Component {
     this.setState({
       loading: false,
       loaded: true,
-      forecast: body.data
+      forecast: body.data,
+      graphDataFiltered: body.data.graphData
     })
 
     this.loadSalesCenters()
@@ -237,6 +242,35 @@ class ForecastDetail extends Component {
 
   getColumns () {
     return [
+      {
+        'title': 'checker',
+        'abbreviate': true,
+        'abbr': (() => {
+          return (<div className='field'>
+            <div className='control has-text-centered'>
+              <label className='checkbox'>
+                <input
+                  type='checkbox'
+                  checked={this.state.selectedAll}
+                  onChange={(e) => this.selectRows(!this.state.selectedAll)} />
+              </label>
+            </div>
+          </div>)
+        })(),
+        'property': 'checkbox',
+        'default': 'N/A',
+        formatter: (row, state) => {
+          return (<div className='field'>
+            <div className='control has-text-centered'>
+              <label className='checkbox'>
+                <input
+                  type='checkbox'
+                  checked={state.isRowSelected} />
+              </label>
+            </div>
+          </div>)
+        }
+      },
       {
         'title': 'Product Id',
         'abbreviate': true,
@@ -415,6 +449,7 @@ class ForecastDetail extends Component {
 
   setRowsToEdit (row, index) {
     let rows = {...this.state.selectedRows}
+    let selectedAll = false
 
     if (rows.hasOwnProperty(row.uuid)) {
       row.selected = !row.selected
@@ -424,7 +459,11 @@ class ForecastDetail extends Component {
       rows[row.uuid] = row
     }
 
-    this.setState({selectedRows: rows}, function () {
+    if (Object.keys(rows).length === this.state.predictionsFiltered.length) {
+      selectedAll = !selectedAll
+    }
+
+    this.setState({selectedRows: rows, selectedAll}, function () {
       this.toggleButtons()
     })
   }
@@ -444,7 +483,7 @@ class ForecastDetail extends Component {
       return item
     })
 
-    this.setState({predictionsFormatted, selectedRows}, function () {
+    this.setState({predictionsFormatted, selectedRows, selectedAll: !this.state.selectedAll}, function () {
       this.toggleButtons()
     })
   }
@@ -661,21 +700,6 @@ class ForecastDetail extends Component {
       return (
         <div className='columns'>
           <div className='column'>
-            <button
-              style={{marginRight: 10}}
-              onClick={(e) => this.selectRows(true)}
-              className='button is-light'
-            >
-              Seleccionar todos
-            </button>
-            <button
-              onClick={(e) => this.selectRows(false)}
-              className='button is-light'
-            >
-              Deseleccionar todos
-            </button>
-          </div>
-          <div className='column'>
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
                 <p style={{paddingTop: 5}}>Modificar porcentaje</p>
@@ -706,8 +730,38 @@ class ForecastDetail extends Component {
     }
   }
 
+  getElementsById (array, property) {
+    let seen = {}
+    let out = []
+    let len = array.length
+    let j = 0
+    let i = 0
+
+    for (i; i < len; i++) {
+      let item = array[i][property]
+      if (seen[item] !== 1) {
+        seen[item] = 1
+        out[j++] = item
+      }
+    }
+    return out
+  }
+
+  handleGraphFilters (e) {
+    let graphDataFiltered = this.state.forecast.graphData
+    if (e.target.value) {
+      graphDataFiltered = this.state.forecast.graphData.filter(item => item.producto_id === e.target.value)
+    }
+
+    this.setState({
+      graphProductSelected: e.target.value,
+      graphIsPristine: false,
+      graphDataFiltered
+    })
+  }
+
   getTable () {
-    const { forecast } = this.state
+    const { forecast, graphDataFiltered } = this.state
 
     if (forecast.status === 'created' || forecast.status === 'processing') {
       return (
@@ -785,13 +839,44 @@ class ForecastDetail extends Component {
                 </p>
                 </header>
                 <div className='card-content'>
-                  <div className='columns'>
+                  <div className='columns is-multiline'>
+                    <div className='column is-5 is-offset-7'>
+                      <div className='field is-horizontal is-grouped is-grouped-right'>
+                        <div className='field-label'>
+                          <label className='label'>Productos</label>
+                        </div>
+                        <div className='field-body'>
+                          <div className='field'>
+                            <div className='control'>
+                              <div className='select is-fullwidth'>
+                                <select
+                                  className='is-fullwidth'
+                                  value={this.state.graphProductSelected}
+                                  onChange={(e) => this.handleGraphFilters(e)}>
+
+                                  <option value='' />
+                                  {
+                                    Object.values(this.getElementsById(forecast.graphData, 'producto_id'))
+                                      .sort((a, b) => Number(a) - Number(b))
+                                      .map((value, index) => {
+                                        return (<option key={index} value={value}>{value}</option>)
+                                      })
+                                  }
+
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <div className='column'>
                       <CreateBarGraph
-                        data={forecast.graphData}
+                        data={graphDataFiltered}
                         size={[250, 250]}
                         width='960'
                         height='500'
+                        pristine={this.state.graphIsPristine}
                     />
                     </div>
                   </div>
