@@ -59,6 +59,7 @@ class ForecastDetail extends Component {
       graphDataFiltered: [],
       selectedRows: {},
       selectValue: '',
+      selectedAll: false,
       predictionsFormatted: [],
       predictionsFiltered: [],
       schema: {},
@@ -242,6 +243,35 @@ class ForecastDetail extends Component {
   getColumns () {
     return [
       {
+        'title': 'checker',
+        'abbreviate': true,
+        'abbr': (() => {
+          return (<div className='field'>
+            <div className='control has-text-centered'>
+              <label className='checkbox'>
+                <input
+                  type='checkbox'
+                  checked={this.state.selectedAll}
+                  onChange={(e) => this.selectRows(!this.state.selectedAll)} />
+              </label>
+            </div>
+          </div>)
+        })(),
+        'property': 'checkbox',
+        'default': 'N/A',
+        formatter: (row, state) => {
+          return (<div className='field'>
+            <div className='control has-text-centered'>
+              <label className='checkbox'>
+                <input
+                  type='checkbox'
+                  checked={state.isRowSelected} />
+              </label>
+            </div>
+          </div>)
+        }
+      },
+      {
         'title': 'Product Id',
         'abbreviate': true,
         'abbr': 'P. Id',
@@ -419,6 +449,7 @@ class ForecastDetail extends Component {
 
   setRowsToEdit (row, index) {
     let rows = {...this.state.selectedRows}
+    let selectedAll = false
 
     if (rows.hasOwnProperty(row.uuid)) {
       row.selected = !row.selected
@@ -428,7 +459,11 @@ class ForecastDetail extends Component {
       rows[row.uuid] = row
     }
 
-    this.setState({selectedRows: rows}, function () {
+    if (Object.keys(rows).length === this.state.predictionsFiltered.length) {
+      selectedAll = !selectedAll
+    }
+
+    this.setState({selectedRows: rows, selectedAll}, function () {
       this.toggleButtons()
     })
   }
@@ -448,7 +483,7 @@ class ForecastDetail extends Component {
       return item
     })
 
-    this.setState({predictionsFormatted, selectedRows}, function () {
+    this.setState({predictionsFormatted, selectedRows, selectedAll: !this.state.selectedAll}, function () {
       this.toggleButtons()
     })
   }
@@ -664,21 +699,6 @@ class ForecastDetail extends Component {
     if (forecast.status !== 'analistReview' && forecast.status !== 'readyToOrder') {
       return (
         <div className='columns'>
-          <div className='column'>
-            <button
-              style={{marginRight: 10}}
-              onClick={(e) => this.selectRows(true)}
-              className='button is-light'
-            >
-              Seleccionar todos
-            </button>
-            <button
-              onClick={(e) => this.selectRows(false)}
-              className='button is-light'
-            >
-              Deseleccionar todos
-            </button>
-          </div>
           <div className='column'>
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
