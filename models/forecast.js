@@ -30,6 +30,7 @@ const forecastSchema = new Schema({
       'analistReview',
       'opsReview',
       'supervisorReview',
+      'consolidate',
       'readyToOrder',
       'error'
     ],

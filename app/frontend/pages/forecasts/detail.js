@@ -766,7 +766,7 @@ class ForecastDetail extends Component {
                 </div>
                 <div className='columns'>
                   <div className='column'>
-                    There was an error when processing the forecast, please contact an administrator
+                    There was an error while processing the forecast, please contact an administrator
                   </div>
                 </div>
               </div>
@@ -905,7 +905,7 @@ class ForecastDetail extends Component {
         <button
           className='button is-primary'
           type='button'
-          onClick={() => this.changeStatusOnClick('readyToOrder')}
+          onClick={() => this.changeStatusOnClick('consolidate')}
         >
           Consolidar
         </button>
