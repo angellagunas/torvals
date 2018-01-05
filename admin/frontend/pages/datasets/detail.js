@@ -265,6 +265,12 @@ class DataSetDetail extends Component {
               <div className='columns'>
                 <div className='column'>
                   <div className='field is-grouped'>
+                    <b>Min date:</b> {dataset.dateMin}
+                  </div>
+                  <div className='field is-grouped'>
+                    <b>Max date:</b> {dataset.dateMax}
+                  </div>
+                  <div className='field is-grouped'>
                     <div className='control'>
                       <button
                         className='button is-black'

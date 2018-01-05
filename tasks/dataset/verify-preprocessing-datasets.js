@@ -10,7 +10,10 @@ const request = require('lib/request')
 const task = new Task(async function (argv) {
   console.log('Fetching preprocessing Datasets...')
 
-  const datasets = await DataSet.find({status: 'preprocessing'})
+  const datasets = await DataSet.find({
+    status: 'preprocessing',
+    isDeleted: false
+  })
 
   if (datasets.length === 0) {
     console.log('No preprocessing datasets to verify ...')
