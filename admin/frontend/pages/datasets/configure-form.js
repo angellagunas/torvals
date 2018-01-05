@@ -6,17 +6,33 @@ import lov from 'lov'
 class ConfigureDatasetForm extends Component {
   constructor (props) {
     super(props)
-    this.state = {
-      formData: {
-        columns: this.props.columns,
-        groupings: []
-      },
-      isDate: '',
-      isAnalysis: '',
-      isProduct: '',
-      isSalesCenter: '',
-      apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+
+    if (this.props.initialState) {
+      this.state = {
+        formData: {
+          columns: this.props.initialState.columns,
+          groupings: this.props.initialState.groupings
+        },
+        isDate: 'defined',
+        isAnalysis: 'defined',
+        isProduct: 'defined',
+        isSalesCenter: 'defined',
+        apiCallMessage: 'is-hidden',
+        apiCallErrorMessage: 'is-hidden'
+      }
+    } else {
+      this.state = {
+        formData: {
+          columns: this.props.columns,
+          groupings: []
+        },
+        isDate: '',
+        isAnalysis: '',
+        isProduct: '',
+        isSalesCenter: '',
+        apiCallMessage: 'is-hidden',
+        apiCallErrorMessage: 'is-hidden'
+      }
     }
   }
 
@@ -142,6 +158,31 @@ class ConfigureDatasetForm extends Component {
     })
   }
 
+  getColumnForValue (type) {
+    var posColumn = this.state.formData.columns.findIndex(e => {
+      return (
+        e[type] === true
+      )
+    })
+
+    /* this.setState({
+      ...this.state[type] = this.state.formData.columns[posColumn][type]
+    }) */
+
+    return this.state.formData.columns[posColumn].name
+  }
+
+  getValueForColumn (type) {
+    const column = type.split('|')
+    var posColumn = this.state.formData.columns.findIndex(e => {
+      return (
+        String(e.name) === String(column[0])
+      )
+    })
+
+    return this.state.formData.columns[posColumn][column[1]]
+  }
+
   render () {
     var error
     if (this.state.error) {
@@ -161,7 +202,7 @@ class ConfigureDatasetForm extends Component {
             <label className='label'>Is Date*</label>
             <div className='control'>
               <div className='select'>
-                <select type='text' name='isDate' onChange={(e) => { this.handleChangeDateAnalyze('isDate', e) }}>
+                <select type='text' name='isDate' value={this.getColumnForValue('isDate')} onChange={(e) => { this.handleChangeDateAnalyze('isDate', e) }}>
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -178,7 +219,7 @@ class ConfigureDatasetForm extends Component {
             <label className='label'>Is Analysis*</label>
             <div className='control'>
               <div className='select'>
-                <select type='text' name='isAnalysis' onChange={(e) => { this.handleChangeDateAnalyze('isAnalysis', e) }}>
+                <select type='text' name='isAnalysis' value={this.getColumnForValue('isAnalysis')} onChange={(e) => { this.handleChangeDateAnalyze('isAnalysis', e) }}>
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -195,7 +236,7 @@ class ConfigureDatasetForm extends Component {
             <label className='label'>Is Product*</label>
             <div className='control'>
               <div className='select'>
-                <select type='text' name='isProduct' onChange={(e) => { this.handleChangeDateAnalyze('isProduct', e) }}>
+                <select type='text' name='isProduct' value={this.getColumnForValue('isProduct')} onChange={(e) => { this.handleChangeDateAnalyze('isProduct', e) }}>
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -212,7 +253,7 @@ class ConfigureDatasetForm extends Component {
             <label className='label'>Is Sales Center*</label>
             <div className='control'>
               <div className='select'>
-                <select type='text' name='isSalesCenter' onChange={(e) => { this.handleChangeDateAnalyze('isSalesCenter', e) }}>
+                <select type='text' name='isSalesCenter' value={this.getColumnForValue('isSalesCenter')} onChange={(e) => { this.handleChangeDateAnalyze('isSalesCenter', e) }}>
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -258,14 +299,14 @@ class ConfigureDatasetForm extends Component {
                   <div className='field'>
                     <div className='control box has-text-centered'>
                       <label className='checkbox'>
-                        <input type='checkbox' onChange={(e) => { this.handleChangeCheckbox(item.name + '|isOperationFilter', e) }} />
+                        <input type='checkbox' checked={this.getValueForColumn(item.name + '|isOperationFilter')} onChange={(e) => { this.handleChangeCheckbox(item.name + '|isOperationFilter', e) }} />
                       </label>
                     </div>
                   </div>
                   <div className='field'>
                     <div className='control box has-text-centered'>
                       <label className='checkbox'>
-                        <input onChange={(e) => { this.handleChangeCheckbox(item.name + '|isAnalysisFilter', e) }} type='checkbox' />
+                        <input checked={this.getValueForColumn(item.name + '|isAnalysisFilter')} onChange={(e) => { this.handleChangeCheckbox(item.name + '|isAnalysisFilter', e) }} type='checkbox' />
                       </label>
                     </div>
                   </div>
