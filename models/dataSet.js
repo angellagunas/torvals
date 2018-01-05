@@ -28,6 +28,9 @@ const dataSetSchema = new Schema({
     default: 'univariable-time-series'
   },
 
+  dateMax: String,
+  dateMin: String,
+
   status: {
     type: String,
     enum: [
@@ -82,7 +85,9 @@ dataSetSchema.methods.toPublic = function () {
     uploaded: this.uploaded,
     fileChunk: this.fileChunk,
     columns: this.columns,
-    groupings: this.groupings
+    groupings: this.groupings,
+    dateMax: this.dateMax,
+    dateMin: this.dateMin
   }
 }
 
@@ -99,7 +104,9 @@ dataSetSchema.methods.format = function () {
     url: this.url,
     uploaded: this.uploaded,
     columns: this.columns,
-    groupings: this.groupings
+    groupings: this.groupings,
+    dateMax: this.dateMax,
+    dateMin: this.dateMin
   }
 }
 

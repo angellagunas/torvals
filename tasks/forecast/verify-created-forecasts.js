@@ -10,7 +10,10 @@ const request = require('lib/request')
 const task = new Task(async function (argv) {
   console.log('Fetching created Forecasts...')
 
-  const forecasts = await Forecast.find({status: 'created'})
+  const forecasts = await Forecast.find({
+    status: 'created',
+    isDeleted: false
+  })
 
   if (forecasts.length === 0) {
     console.log('No created forecasts to verify ...')
