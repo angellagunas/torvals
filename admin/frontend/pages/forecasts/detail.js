@@ -20,6 +20,7 @@ import {
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import BaseModal from '~base/components/base-modal'
 import ProductForm from './edit-product'
+import CreateAdjustmentRequest from './create-adjustmentRequest'
 import SalesCenterForm from './edit-salescenter'
 
 let schema = {
@@ -49,6 +50,7 @@ class ForecastDetail extends Component {
     this.state = {
       className: '',
       classNameSC: '',
+      classNameAR: '',
       isProductsOpen: false,
       isHeaderOpen: false,
       bodyHeight: 0,
@@ -353,7 +355,11 @@ class ForecastDetail extends Component {
         formatter: (row) => {
           if (row.isLimit) {
             return (
-              <span className='icon' title='You have reached the limit of adjustment'>
+              <span
+                className='icon'
+                title='You have reached the limit of adjustment'
+                onClick={() => this.showModalAdjustmentRequest(row)}
+              >
                 <FontAwesome name='warning' />
               </span>
             )
@@ -395,6 +401,55 @@ class ForecastDetail extends Component {
                 <Link className='button' to={'/datasets/detail/' + row.uuid}>
                   Detalle
                 </Link>
+              </div>
+            </div>
+          )
+        }
+      }
+    ]
+  }
+
+  getColumnsAdjustmentRequests () {
+    return [
+      {
+        'title': 'Requested By',
+        'property': 'requestedBy',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/manage/users/detail/' + row.requestedBy.uuid}>
+              {row.requestedBy.name}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'Status',
+        'property': 'status',
+        'default': 'created',
+        'sortable': true
+      },
+      {
+        'title': 'Adjustment',
+        'property': 'newAdjustment',
+        'default': 'N/A',
+        'sortable': true
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          return (
+            <div className='field is-grouped'>
+              <div className='control'>
+                <button className='button is-success'>
+                  Aprobar
+                </button>
+              </div>
+              <div className='control'>
+                <button className='button is-danger'>
+                  Rechazar
+                </button>
               </div>
             </div>
           )
@@ -923,6 +978,7 @@ class ForecastDetail extends Component {
             </div>
           </div>
         </div>
+        {this.getAdjustmentRequestList()}
         {this.getDatasetsList()}
       </div>
     )
@@ -1019,6 +1075,37 @@ class ForecastDetail extends Component {
         </div>
       </div>
     )
+  }
+
+  getAdjustmentRequestList () {
+    const { forecast } = this.state
+    if (forecast.status === 'consolidate') {
+      return (
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                Adjustment Requests
+              </p>
+              </header>
+              <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <BranchedPaginatedTable
+                      branchName='adjustmentRequests'
+                      baseUrl='/admin/adjustmentRequests/'
+                      columns={this.getColumnsAdjustmentRequests()}
+                      filters={{forecast: forecast.uuid}}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
   }
 
   /*
@@ -1232,6 +1319,29 @@ class ForecastDetail extends Component {
   }
 
   /*
+   * AdjustmentRequest methods
+   */
+
+  showModalAdjustmentRequest (obj) {
+    this.setState({
+      classNameAR: ' is-active',
+      selectedAR: obj
+    })
+  }
+
+  hideModalAdjustmentRequest () {
+    this.setState({
+      classNameAR: ''
+    })
+  }
+
+  finishUpAdjustmentRequest (obj) {
+    this.setState({
+      selectedAR: undefined
+    })
+  }
+
+  /*
    * Sticky header methods
    */
 
@@ -1279,6 +1389,13 @@ class ForecastDetail extends Component {
     }
 
     return (<div>
+      <CreateAdjustmentRequest
+        className={this.state.classNameAR}
+        hideModal={this.hideModalAdjustmentRequest.bind(this)}
+        finishUp={this.finishUpAdjustmentRequest.bind(this)}
+        prediction={this.state.selectedAR}
+        baseUrl={''}
+      />
       <div data-content className='card' id='test' ref={(element) => this.getHeight(element)}>
         <header className='card-header'>
           <p className='card-header-title'>
