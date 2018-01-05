@@ -6,7 +6,6 @@ import lov from 'lov'
 class ConfigureDatasetForm extends Component {
   constructor (props) {
     super(props)
-
     if (this.props.initialState) {
       this.state = {
         formData: {
@@ -164,12 +163,13 @@ class ConfigureDatasetForm extends Component {
         e[type] === true
       )
     })
-
-    /* this.setState({
-      ...this.state[type] = this.state.formData.columns[posColumn][type]
-    }) */
-
-    return this.state.formData.columns[posColumn].name
+    console.log('posColumn: ', posColumn)
+    console.log('type: ', type)
+    if (posColumn < 0) {
+      return ''
+    } else {
+      return this.state.formData.columns[posColumn].name
+    }
   }
 
   getValueForColumn (type) {

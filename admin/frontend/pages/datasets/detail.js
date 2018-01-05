@@ -223,6 +223,11 @@ class DataSetDetail extends Component {
         </div>
       )
     } else if (dataset.status === 'configuring') {
+      const posColumn = dataset.columns.findIndex(e => {
+        return (
+        e['isDate'] === true
+        )
+      })
       return (
         <div className='column'>
           <div className='card'>
@@ -234,18 +239,35 @@ class DataSetDetail extends Component {
             <div className='card-content'>
               <div className='columns'>
                 <div className='column'>
-                  <ConfigureDatasetForm
-                    columns={dataset.columns || []}
-                    url={'/admin/datasets/' + dataset.uuid + '/configure'}
-                    changeHandler={(data) => this.changeHandler(data)}
-                    load={this.load.bind(this)}
+                  {posColumn < 0 ? (
+                    <ConfigureDatasetForm
+                      columns={dataset.columns || []}
+                      url={'/admin/datasets/' + dataset.uuid + '/configure'}
+                      changeHandler={(data) => this.changeHandler(data)}
+                      load={this.load.bind(this)}
                   >
-                    <div className='field is-grouped'>
-                      <div className='control'>
-                        <button className='button is-primary'>Configure</button>
+                      <div className='field is-grouped'>
+                        <div className='control'>
+                          <button className='button is-primary'>Configure</button>
+                        </div>
                       </div>
-                    </div>
-                  </ConfigureDatasetForm>
+                    </ConfigureDatasetForm>
+                  ) : (
+                    <ConfigureDatasetForm
+                      initialState={dataset}
+                      columns={dataset.columns || []}
+                      url={'/admin/datasets/' + dataset.uuid + '/configure'}
+                      changeHandler={(data) => this.changeHandler(data)}
+                      load={this.load.bind(this)}
+                  >
+                      <div className='field is-grouped'>
+                        <div className='control'>
+                          <button className='button is-primary'>Configure</button>
+                        </div>
+                      </div>
+                    </ConfigureDatasetForm>
+
+                  )}
                 </div>
               </div>
             </div>
@@ -264,20 +286,20 @@ class DataSetDetail extends Component {
             <div className='card-content'>
               <div className='columns'>
                 <div className='column'>
-                  <ConfigureDatasetForm
-                    initialState={dataset}
-                    columns={dataset.columns || []}
-                    url={'/admin/datasets/' + dataset.uuid + '/configure'}
-                    changeHandler={(data) => this.changeHandler(data)}
-                    load={this.load.bind(this)}
-                   />
-                  <br />
                   <div className='field is-grouped'>
+                    <div className='control'>
+                      <button
+                        className='button is-black'
+                        onClick={e => this.configureOnClick()}
+                      >
+                        Configure
+                      </button>
+                    </div>
                     <div className='control'>
                       <button
                         className='button is-primary'
                         onClick={e => this.readyOnClick()}
-                        >
+                      >
                         Ready
                       </button>
                     </div>
