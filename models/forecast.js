@@ -44,6 +44,7 @@ const forecastSchema = new Schema({
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   newProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   graphData: { type: Schema.Types.Mixed },
+  aggregated: { type: Schema.Types.Mixed },
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
