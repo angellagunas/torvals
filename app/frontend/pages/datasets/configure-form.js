@@ -171,7 +171,11 @@ class ConfigureDatasetForm extends Component {
       )
     })
 
-    return this.state.formData.columns[posColumn].name
+    if (posColumn < 0) {
+      return ''
+    } else {
+      return this.state.formData.columns[posColumn].name
+    }
   }
 
   getValueForColumn (type) {
@@ -182,7 +186,11 @@ class ConfigureDatasetForm extends Component {
       )
     })
 
-    return this.state.formData.columns[posColumn][column[1]]
+    if (posColumn < 0) {
+      return false
+    } else {
+      return this.state.formData.columns[posColumn][column[1]]
+    }
   }
 
   render () {
