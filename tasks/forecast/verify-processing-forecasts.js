@@ -65,7 +65,8 @@ const task = new Task(async function (argv) {
 
       forecast.set({
         status: 'analistReview',
-        graphData: res.data
+        graphData: res.data,
+        aggregated: res.aggregated
       })
 
       await forecast.save()
