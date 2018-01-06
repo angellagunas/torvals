@@ -5,6 +5,7 @@ import FontAwesome from 'react-fontawesome'
 import Link from '~base/router/link'
 import moment from 'moment'
 import classNames from 'classnames'
+import tree from '~core/tree'
 
 import { SelectWidget } from '~base/components/base-form'
 
@@ -439,20 +440,54 @@ class ForecastDetail extends Component {
       {
         'title': 'Actions',
         formatter: (row) => {
-          return (
-            <div className='field is-grouped'>
-              <div className='control'>
-                <button className='button is-success'>
-                  Aprobar
-                </button>
+          if (row.status === 'created') {
+            return (
+              <div className='field is-grouped'>
+                <div className='control'>
+                  <button
+                    className='button is-success'
+                    onClick={() => { this.approveRequestOnClick(row.uuid) }}
+                  >
+                    Aprobar
+                  </button>
+                </div>
+                <div className='control'>
+                  <button
+                    className='button is-danger'
+                    onClick={() => { this.rejectRequestOnClick(row.uuid) }}
+                  >
+                    Rechazar
+                  </button>
+                </div>
               </div>
-              <div className='control'>
-                <button className='button is-danger'>
-                  Rechazar
-                </button>
-              </div>
-            </div>
-          )
+            )
+          }
+
+          if (row.status === 'approved') {
+            return (
+              <span>
+                <span style={{paddingRight: '5px'}}>
+                  Approved by:
+                </span>
+                <Link to={'/manage/users/detail/' + row.approvedBy.uuid}>
+                  {row.approvedBy.name}
+                </Link>
+              </span>
+            )
+          }
+
+          if (row.status === 'rejected') {
+            return (
+              <span>
+                <span style={{paddingRight: '5px'}}>
+                  Rejected by:
+                </span>
+                <Link to={'/manage/users/detail/' + row.rejectedBy.uuid}>
+                  {row.rejectedBy.name}
+                </Link>
+              </span>
+            )
+          }
         }
       }
     ]
@@ -1077,37 +1112,6 @@ class ForecastDetail extends Component {
     )
   }
 
-  getAdjustmentRequestList () {
-    const { forecast } = this.state
-    if (forecast.status === 'consolidate') {
-      return (
-        <div className='columns'>
-          <div className='column'>
-            <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                Adjustment Requests
-              </p>
-              </header>
-              <div className='card-content'>
-                <div className='columns'>
-                  <div className='column'>
-                    <BranchedPaginatedTable
-                      branchName='adjustmentRequests'
-                      baseUrl='/admin/adjustmentRequests/'
-                      columns={this.getColumnsAdjustmentRequests()}
-                      filters={{forecast: forecast.uuid}}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    }
-  }
-
   /*
    * Unidentified products/sales center methods
    */
@@ -1335,10 +1339,86 @@ class ForecastDetail extends Component {
     })
   }
 
-  finishUpAdjustmentRequest (obj) {
+  async finishUpAdjustmentRequest (obj) {
     this.setState({
       selectedAR: undefined
     })
+
+    const cursor = tree.get('adjustmentRequests')
+    const adjustmentRequests = await api.get('/admin/adjustmentRequests/')
+
+    tree.set('adjustmentRequests', {
+      page: cursor.page,
+      totalItems: adjustmentRequests.total,
+      items: adjustmentRequests.data,
+      pageLength: cursor.pageLength
+    })
+    tree.commit()
+  }
+
+  async approveRequestOnClick (uuid) {
+    var url = '/admin/adjustmentRequests/approve/' + uuid
+    await api.post(url)
+
+    const cursor = tree.get('adjustmentRequests')
+    const adjustmentRequests = await api.get('/admin/adjustmentRequests/')
+
+    await this.loadPredictions()
+
+    tree.set('adjustmentRequests', {
+      page: cursor.page,
+      totalItems: adjustmentRequests.total,
+      items: adjustmentRequests.data,
+      pageLength: cursor.pageLength
+    })
+    tree.commit()
+  }
+
+  async rejectRequestOnClick (uuid) {
+    var url = '/admin/adjustmentRequests/reject/' + uuid
+    await api.post(url)
+
+    const cursor = tree.get('adjustmentRequests')
+    const adjustmentRequests = await api.get('/admin/adjustmentRequests/')
+
+    tree.set('adjustmentRequests', {
+      page: cursor.page,
+      totalItems: adjustmentRequests.total,
+      items: adjustmentRequests.data,
+      pageLength: cursor.pageLength
+    })
+    tree.commit()
+  }
+
+  getAdjustmentRequestList () {
+    const { forecast } = this.state
+    if (forecast.status === 'consolidate') {
+      return (
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                Adjustment Requests
+              </p>
+              </header>
+              <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <BranchedPaginatedTable
+                      branchName='adjustmentRequests'
+                      baseUrl='/admin/adjustmentRequests/'
+                      columns={this.getColumnsAdjustmentRequests()}
+                      filters={{forecast: forecast.uuid}}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
   }
 
   /*

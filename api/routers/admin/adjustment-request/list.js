@@ -44,9 +44,17 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
-      populate: ['organization', 'prediction', 'requestedBy'],
+      populate: [
+        'organization',
+        'prediction',
+        'requestedBy',
+        'approvedBy',
+        'rejectedBy'
+      ],
       sort: ctx.request.query.sort || '-dateCreated'
     })
+
+    console.log(adjustmentRequests)
 
     ctx.body = adjustmentRequests
   }
