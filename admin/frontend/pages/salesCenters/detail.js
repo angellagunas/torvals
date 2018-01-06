@@ -9,6 +9,7 @@ import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import DeleteButton from '~base/components/base-deleteButton'
 
 class SalesCenterDetail extends Component {
   constructor (props) {
@@ -77,7 +78,7 @@ class SalesCenterDetail extends Component {
     this.load()
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/admin/salesCenters/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/admin/salesCenters')
@@ -156,13 +157,12 @@ class SalesCenterDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      titleButton={'Delete'}
+                      objectName='Sales Centers'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Are you sure you want to delete the sales center ${this.state.salesCenter.name}?`}
+                    />
                   </div>
                 </div>
               </div>

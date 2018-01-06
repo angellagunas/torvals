@@ -9,6 +9,7 @@ import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import GroupForm from './form'
+import DeleteButton from '~base/components/base-deleteButton'
 
 class GroupDetail extends Component {
   constructor (props) {
@@ -67,7 +68,7 @@ class GroupDetail extends Component {
     ]
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/app/groups/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/manage/groups')
@@ -88,13 +89,12 @@ class GroupDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      titleButton={'Delete'}
+                      objectName='Group'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Are you sure you want to delete the group ${group.name}?`}
+                    />
                   </div>
                 </div>
               </div>

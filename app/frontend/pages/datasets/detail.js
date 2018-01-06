@@ -12,6 +12,7 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import DatasetDetailForm from './detail-form'
 import { UploadDataset } from '~base/components/base-uploads'
 import ConfigureDatasetForm from './configure-form'
+import DeleteButton from '~base/components/base-deleteButton'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -82,7 +83,7 @@ class DataSetDetail extends Component {
     })
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/app/datasets/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/datasets')
@@ -320,13 +321,12 @@ class DataSetDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      titleButton={'Delete'}
+                      objectName='Dataset'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Are you sure you want to delete the dataset ${dataset.name}?`}
+                    />
                   </div>
                 </div>
               </div>
