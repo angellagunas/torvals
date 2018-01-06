@@ -117,6 +117,10 @@ class DataSetDetail extends Component {
     await this.load()
   }
 
+  async cancelOnClick () {
+    await this.configureOnClick()
+  }
+
   getUpload () {
     let dataset = this.state.dataset
     if (!dataset.fileChunk || (dataset.fileChunk && dataset.status === 'uploading')) {
@@ -218,6 +222,20 @@ class DataSetDetail extends Component {
                   </div>
                 </div>
               </div>
+              <div className='columns'>
+                <div className='column'>
+                  <div className='field is-grouped'>
+                    <div className='control'>
+                      <button
+                        className='button is-black'
+                        onClick={e => this.cancelOnClick()}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -264,6 +282,12 @@ class DataSetDetail extends Component {
             <div className='card-content'>
               <div className='columns'>
                 <div className='column'>
+                  <div className='field is-grouped'>
+                    <b>Min date:</b> {dataset.dateMin}
+                  </div>
+                  <div className='field is-grouped'>
+                    <b>Max date:</b> {dataset.dateMax}
+                  </div>
                   <div className='field is-grouped'>
                     <div className='control'>
                       <button

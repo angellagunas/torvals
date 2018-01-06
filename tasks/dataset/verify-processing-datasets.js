@@ -10,7 +10,10 @@ const request = require('lib/request')
 const task = new Task(async function (argv) {
   console.log('Fetching procesing Datasets...')
 
-  const datasets = await DataSet.find({status: 'processing'})
+  const datasets = await DataSet.find({
+    status: 'processing',
+    isDeleted: false
+  })
 
   if (datasets.length === 0) {
     console.log('No processing datasets to verify ...')
@@ -45,7 +48,9 @@ const task = new Task(async function (argv) {
     if (res.status === 'ready') {
       console.log(`${dataset.name} dataset has finished processing`)
       dataset.set({
-        status: 'reviewing'
+        status: 'reviewing',
+        dateMax: res.date_max,
+        dateMin: res.date_min
       })
 
       await dataset.save()

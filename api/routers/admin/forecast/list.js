@@ -64,6 +64,9 @@ module.exports = new Route({
       sort: ctx.request.query.sort || '-dateCreated'
     })
 
-    ctx.body = forecasts
+    ctx.body = {
+      data: forecasts.data.map(forecast => { return forecast.toPublic() }),
+      total: forecasts.total
+    }
   }
 })

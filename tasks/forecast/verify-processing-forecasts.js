@@ -11,7 +11,10 @@ const request = require('lib/request')
 const task = new Task(async function (argv) {
   console.log('Fetching processing Forecasts...')
 
-  const forecasts = await Forecast.find({status: 'processing'})
+  const forecasts = await Forecast.find({
+    status: 'processing',
+    isDeleted: false
+  })
 
   if (forecasts.length === 0) {
     console.log('No processing forecasts to verify ...')
