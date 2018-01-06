@@ -12,7 +12,6 @@ class ConfigureDatasetForm extends Component {
       )
     })
     if (posColumn >= 0) {
-      console.log('1')
       this.state = {
         formData: {
           columns: this.props.initialState.columns,
@@ -26,7 +25,6 @@ class ConfigureDatasetForm extends Component {
         apiCallErrorMessage: 'is-hidden'
       }
     } else {
-      console.log('2')
       this.state = {
         formData: {
           columns: this.props.columns,
