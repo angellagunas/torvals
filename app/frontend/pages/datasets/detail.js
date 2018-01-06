@@ -238,17 +238,12 @@ class DataSetDetail extends Component {
               <div className='columns'>
                 <div className='column'>
                   <ConfigureDatasetForm
+                    initialState={dataset}
                     columns={dataset.columns || []}
-                    url={'/app/datasets/' + dataset.uuid + '/configure'}
+                    url={'/admin/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
                     load={this.load.bind(this)}
-                  >
-                    <div className='field is-grouped'>
-                      <div className='control'>
-                        <button className='button is-primary'>Configure</button>
-                      </div>
-                    </div>
-                  </ConfigureDatasetForm>
+                  />
                 </div>
               </div>
             </div>
