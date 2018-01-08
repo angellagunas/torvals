@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const lov = require('lov')
 const crypto = require('crypto')
 
-const {User, Role} = require('models')
+const {User, Role, Group} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -42,6 +42,18 @@ module.exports = new Route({
     }]
 
     const user = await User.register(userData)
+
+    if (userData.group) {
+      const group = await Group.findOne({'uuid': userData.group})
+      ctx.assert(group, 404, 'Group not found')
+
+      if (user.groups.find(item => { return String(item) === String(group._id) })) {
+        ctx.throw(400, 'You can only add the user to a group once!')
+      }
+
+      user.groups.push(group)
+    }
+
     user.save()
 
     if (userData.sendInvite) {
