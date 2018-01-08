@@ -15,6 +15,7 @@ module.exports = new Route({
       .populate('project')
       .populate('newProducts')
       .populate('newSalesCenters')
+      // .select({graphData: 0, aggregated: 0})
 
     ctx.assert(forecast, 404, 'Forecast not found')
 

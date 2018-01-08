@@ -75,7 +75,8 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {...filters, isDeleted: false, organization: ctx.state.organization},
-      sort: ctx.request.query.sort || '-dateCreated'
+      sort: ctx.request.query.sort || '-dateCreated',
+      select: { graphData: 0, aggregated: 0 }
     })
 
     ctx.body = {
