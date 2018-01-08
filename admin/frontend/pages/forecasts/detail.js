@@ -576,7 +576,7 @@ class ForecastDetail extends Component {
               </div>
               <div className='field is-horizontal'>
                 <div className='field-label is-normal'>
-                  <label className='label'>Categoría</label>
+                  <label className='label'>Producto</label>
                 </div>
                 <div className='field-body'>
                   <div className='field'>
@@ -1108,7 +1108,7 @@ class ForecastDetail extends Component {
                                   Edit
                                 </button>
                                   <BaseModal
-                                    title='Edit Sales Center'
+                                    title='Edit Product'
                                     className={this.state.classNameSC}
                                     hideModal={() => this.hideModalSalesCenters()}
                                 >
