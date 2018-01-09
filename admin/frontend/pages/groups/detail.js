@@ -10,6 +10,7 @@ import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import GroupForm from './form'
 import DeleteButton from '~base/components/base-deleteButton'
+import CreateUser from '../users/create'
 
 class GroupDetail extends Component {
   constructor (props) {
@@ -17,6 +18,7 @@ class GroupDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
+      className: '',
       orgs: [],
       group: {}
     }
@@ -86,6 +88,24 @@ class GroupDetail extends Component {
     ]
   }
 
+  showModal () {
+    this.setState({
+      className: ' is-active'
+    })
+  }
+
+  hideModal () {
+    this.setState({
+      className: ''
+    })
+  }
+
+  finishUp (object) {
+    this.setState({
+      className: ''
+    })
+  }
+
   async deleteObject () {
     var url = '/admin/groups/' + this.props.match.params.uuid
     await api.del(url)
@@ -152,6 +172,21 @@ class GroupDetail extends Component {
                     <p className='card-header-title'>
                       Users
                     </p>
+                    <div className='card-header-select'>
+                      <button className='button is-primary' onClick={() => this.showModal()}>
+                        New User
+                      </button>
+                      <CreateUser
+                        className={this.state.className}
+                        finishUp={this.finishUp.bind(this)}
+                        hideModal={this.hideModal.bind(this)}
+                        branchName='users'
+                        baseUrl='/admin/users'
+                        url='/admin/users/'
+                        filters={{group: this.props.match.params.uuid}}
+                        organization={group.organization}
+                      />
+                    </div>
                   </header>
                   <div className='card-content'>
                     <div className='columns'>

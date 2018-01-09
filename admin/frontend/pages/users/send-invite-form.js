@@ -41,7 +41,7 @@ const uiSchema = {
   email: {'ui:widget': EmailWidget},
   isAdmin: {'ui:widget': CheckboxWidget},
   role: {'ui:widget': SelectWidget},
-  organization: {'ui:widget': SelectWidget}
+  organization: {'ui:widget': SelectWidget }
 }
 
 class InviteUserForm extends Component {
@@ -51,6 +51,10 @@ class InviteUserForm extends Component {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
+    }
+
+    if (this.props.initialState.organization) {
+      uiSchema['organization']['ui:disabled'] = true
     }
   }
 
@@ -76,6 +80,11 @@ class InviteUserForm extends Component {
     formData.sendInvite = true
 
     try {
+      if (this.props.filters) {
+        formData = {...formData,
+          ...this.props.filters}
+      }
+
       var data = await api.post(this.props.url, formData)
       await this.props.load()
       this.clearState()

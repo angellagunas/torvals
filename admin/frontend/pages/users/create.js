@@ -23,6 +23,7 @@ class CreateUser extends Component {
       roles: [],
       orgs: []
     }
+    initialState['organization'] = this.props.organization || ''
   }
 
   componentWillMount () {
@@ -36,7 +37,8 @@ class CreateUser extends Component {
       '/admin/users',
       {
         start: 0,
-        limit: this.cursor.get('pageLength') || 10
+        limit: this.cursor.get('pageLength') || 10,
+        ...this.props.filters || ''
       }
     )
 
@@ -111,9 +113,11 @@ class CreateUser extends Component {
         url={this.props.url}
         initialState={initialState}
         finishUp={this.props.finishUp}
-        load={this.load.bind(this)}
+        load={this.props.load || this.load.bind(this)}
         roles={this.state.roles || []}
         orgs={this.state.orgs || []}
+        filters={this.props.filters}
+
       >
         <div className='field is-grouped'>
           <div className='control'>
