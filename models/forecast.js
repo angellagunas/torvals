@@ -39,10 +39,13 @@ const forecastSchema = new Schema({
   changePoints: [{ type: Date }],
   columnsForForecast: [{ type: String }],
 
+  // TODO: remove in next sprint --------------------------------------
   salesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
   newSalesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   newProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+  // TODO: remove in next sprint --------------------------------------
+
   graphData: { type: Schema.Types.Mixed },
   aggregated: { type: Schema.Types.Mixed },
 
