@@ -17,10 +17,10 @@ class ConfigureDatasetForm extends Component {
           columns: this.props.initialState.columns,
           groupings: this.props.initialState.groupings
         },
-        isDate: 'defined',
-        isAnalysis: 'defined',
-        isProduct: 'defined',
-        isSalesCenter: 'defined',
+        isDate: this.props.initialState.columns.find((item) => { return item.isDate }).name,
+        isAnalysis: this.props.initialState.columns.find((item) => { return item.isAnalysis }).name,
+        isProduct: this.props.initialState.columns.find((item) => { return item.isProduct }).name,
+        isSalesCenter: this.props.initialState.columns.find((item) => { return item.isSalesCenter }).name,
         apiCallMessage: 'is-hidden',
         apiCallErrorMessage: 'is-hidden'
       }
@@ -48,13 +48,6 @@ class ConfigureDatasetForm extends Component {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     })
-  }
-
-  handleChange (type, event) {
-    const data = {}
-    data[type] = event.currentTarget.value
-
-    this.setState(data)
   }
 
   handleChangeCheckbox (type, event) {
@@ -143,10 +136,24 @@ class ConfigureDatasetForm extends Component {
       )
     })
 
-    this.setState({
-      ...this.state.formData.columns[posColumn][type] = true,
-      ...this.state[type] = true
-    })
+    if (posColumn >= 0) {
+      this.setState({
+        ...this.state.formData.columns[posColumn][type] = true,
+        ...this.state[type] = this.state.formData.columns[posColumn].name
+      })
+    } else {
+      const nameColumn = this.props.initialState.columns.find((item) => { return item[type] }).name
+
+      var posNameColumn = this.state.formData.columns.findIndex(e => {
+        return (
+        String(e.name) === String(nameColumn)
+        )
+      })
+      this.setState({
+        ...this.state.formData.columns[posNameColumn][type] = false,
+        ...this.state[type] = ''
+      })
+    }
   }
 
   clearState () {
