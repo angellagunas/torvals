@@ -1,6 +1,6 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
-const {SalesCenter, Organization} = require('models')
+const {SalesCenter, Organization, Forecast, Prediction} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -19,6 +19,18 @@ module.exports = new Route({
 
         if (organization) {
           filters['organization'] = ObjectId(organization._id)
+        }
+
+        continue
+      }
+
+      if (filter === 'predictions') {
+        const forecast = await Forecast.findOne({'uuid': ctx.request.query[filter]})
+
+        if (forecast) {
+          const predictions = await Prediction.find({'forecast': ObjectId(forecast._id)}).populate('salesCenter')
+
+          filters['_id'] = { $in: predictions.map(item => { return item.salesCenter._id }) }
         }
 
         continue

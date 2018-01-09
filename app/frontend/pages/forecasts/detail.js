@@ -110,7 +110,7 @@ class ForecastDetail extends Component {
 
   async loadSalesCenters () {
     let url = '/app/salesCenters'
-    let body = await api.get(url, {limit: 0, organization: this.state.forecast.uuid})
+    let body = await api.get(url, {limit: 0, organization: this.state.forecast.uuid, predictions: this.state.forecast.uuid})
     if (body.data) {
       body.data = body.data.sort(this.sortByName)
     }
@@ -125,7 +125,7 @@ class ForecastDetail extends Component {
 
   async loadProducts () {
     let url = '/app/products/categories'
-    let body = await api.get(url, {limit: 0})
+    let body = await api.get(url, {limit: 0, predictions: this.state.forecast.uuid})
 
     this.setState({
       loading: false,
