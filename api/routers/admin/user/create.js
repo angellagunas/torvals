@@ -54,7 +54,7 @@ module.exports = new Route({
       user.groups.push(group)
     }
 
-    user.save()
+    await user.save()
 
     if (userData.sendInvite) {
       user.sendInviteEmail()
