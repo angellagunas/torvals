@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
-import api from '~base/api'
 import Loader from '~base/components/spinner'
-import lov from 'lov'
 
 class ConfigureViewDataset extends Component {
   constructor (props) {
@@ -11,13 +9,7 @@ class ConfigureViewDataset extends Component {
       formData: {
         columns: this.props.initialState.columns,
         groupings: this.props.initialState.groupings
-      },
-      isDate: 'defined',
-      isAnalysis: 'defined',
-      isProduct: 'defined',
-      isSalesCenter: 'defined',
-      apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+      }
     }
   }
 
@@ -35,29 +27,7 @@ class ConfigureViewDataset extends Component {
     }
   }
 
-  getValueForColumn (type) {
-    const column = type.split('|')
-    var posColumn = this.state.formData.columns.findIndex(e => {
-      return (
-        String(e.name) === String(column[0])
-      )
-    })
-
-    if (posColumn < 0) {
-      return false
-    } else {
-      return this.state.formData.columns[posColumn][column[1]]
-    }
-  }
-
   render () {
-    var error
-    if (this.state.error) {
-      error = <div>
-        Error: {this.state.error}
-      </div>
-    }
-
     if (this.state.formData.columns.length === 0) {
       return <Loader />
     }
@@ -161,20 +131,7 @@ class ConfigureViewDataset extends Component {
                 )}
           </tbody>
         </table>
-
-        <div className={this.state.apiCallMessage}>
-          <div className='message-body is-size-7 has-text-centered'>
-            The dataSet has been configured successfuly
-          </div>
-        </div>
-        <div className={this.state.apiCallErrorMessage}>
-          <div className='message-body is-size-7 has-text-centered'>
-            {this.state.error}
-          </div>
-        </div>
-
       </div>
-
     )
   }
 }
