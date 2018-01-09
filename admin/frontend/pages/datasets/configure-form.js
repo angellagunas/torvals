@@ -209,7 +209,7 @@ class ConfigureDatasetForm extends Component {
     if (this.props.columns.length === 0) {
       return <Loader />
     }
-    console.log(this.state)
+
     return (
       <div>
         <form onSubmit={(e) => { this.submitHandler(e) }}>
