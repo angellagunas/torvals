@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { DataSet } = require('models')
+const { DataSet, Product, SalesCenter } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
@@ -47,6 +47,117 @@ const task = new Task(async function (argv) {
 
     if (res.status === 'ready') {
       console.log(`${dataset.name} dataset has finished processing`)
+
+      for (var a of res.data.agencia_id) {
+        var salesCenter = await SalesCenter.findOne({
+          externalId: a,
+          organization: dataset.organization
+        })
+
+        if (!salesCenter) {
+          salesCenter = await SalesCenter.create({
+            name: 'Not identified',
+            externalId: a,
+            organization: dataset.organization
+          })
+
+          dataset.newSalesCenters.push(salesCenter)
+        } else {
+          var pos = dataset.salesCenters.findIndex(item => {
+            return String(item._id) === String(salesCenter._id)
+          })
+
+          var posNew = dataset.newSalesCenters.findIndex(item => {
+            return String(item._id) === String(salesCenter._id)
+          })
+
+          if (pos < 0 && posNew < 0) dataset.salesCenters.push(salesCenter)
+        }
+      }
+
+      for (var p of res.data.producto_id) {
+        var product = await Product.findOne({
+          externalId: p,
+          organization: dataset.organization
+        })
+
+        if (!product) {
+          product = await Product.create({
+            name: 'Not identified',
+            externalId: p,
+            organization: dataset.organization
+          })
+
+          dataset.newProducts.push(product)
+        } else {
+          pos = dataset.products.findIndex(item => {
+            return String(item._id) === String(product._id)
+          })
+
+          posNew = dataset.newProducts.findIndex(item => {
+            return String(item._id) === String(product._id)
+          })
+
+          if (pos < 0 && posNew < 0) dataset.products.push(product)
+        }
+      }
+
+      if (res.data.agency_id && res.data.product_id) {
+        for (a of res.data.agency_id) {
+          salesCenter = await SalesCenter.findOne({
+            externalId: a,
+            organization: dataset.organization
+          })
+
+          if (!salesCenter) {
+            salesCenter = await SalesCenter.create({
+              name: 'Not identified',
+              externalId: a,
+              organization: dataset.organization
+            })
+
+            dataset.newSalesCenters.push(salesCenter)
+          } else {
+            pos = dataset.salesCenters.findIndex(item => {
+              return String(item._id) === String(salesCenter._id)
+            })
+
+            posNew = dataset.newSalesCenters.findIndex(item => {
+              return String(item._id) === String(salesCenter._id)
+            })
+
+            if (pos < 0 && posNew < 0) dataset.salesCenters.push(salesCenter)
+          }
+        }
+
+        for (p of res.data.product_id) {
+          product = await Product.findOne({
+            externalId: p,
+            organization: dataset.organization
+          })
+
+          if (!product) {
+            product = await Product.create({
+              name: 'Not identified',
+              externalId: p,
+              organization: dataset.organization
+            })
+
+            dataset.newProducts.push(product)
+          } else {
+            pos = dataset.products.findIndex(item => {
+              return String(item._id) === String(product._id)
+            })
+
+            posNew = dataset.newProducts.findIndex(item => {
+              return String(item._id) === String(product._id)
+            })
+
+            if (pos < 0 && posNew < 0) dataset.products.push(product)
+          }
+        }
+      }
+
       dataset.set({
         status: 'reviewing',
         dateMax: res.date_max,
