@@ -203,8 +203,6 @@ class ForecastDetail extends Component {
         }, this.filterData)
       }
     })
-
-    console.log('predictions=> ', this.state.predictions)
   }
 
   async loadDatasetsList () {
