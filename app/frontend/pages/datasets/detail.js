@@ -351,7 +351,7 @@ class DataSetDetail extends Component {
               </div>
             </div>
             <div className='columns'>
-              <div className='column'>
+              <div className='column is-5-tablet'>
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
