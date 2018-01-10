@@ -92,7 +92,9 @@ dataSetSchema.methods.toPublic = function () {
     columns: this.columns,
     groupings: this.groupings,
     dateMax: this.dateMax,
-    dateMin: this.dateMin
+    dateMin: this.dateMin,
+    newSalesCenters: this.newSalesCenters,
+    newProducts: this.newProducts
   }
 }
 
@@ -111,7 +113,9 @@ dataSetSchema.methods.format = function () {
     columns: this.columns,
     groupings: this.groupings,
     dateMax: this.dateMax,
-    dateMin: this.dateMin
+    dateMin: this.dateMin,
+    newSalesCenters: this.newSalesCenters,
+    newProducts: this.newProducts
   }
 }
 
