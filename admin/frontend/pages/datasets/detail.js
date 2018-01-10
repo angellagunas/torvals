@@ -12,6 +12,7 @@ import DatasetDetailForm from './detail-form'
 import { UploadDataset } from '~base/components/base-uploads'
 import ConfigureDatasetForm from './configure-form'
 import DeleteButton from '~base/components/base-deleteButton'
+import ConfigureViewDataset from './configure-view'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -334,6 +335,9 @@ class DataSetDetail extends Component {
                   </div>
                 </div>
               </div>
+              <ConfigureViewDataset
+                initialState={dataset}
+                  />
             </div>
           </div>
         </div>

@@ -63,6 +63,11 @@ const dataSetSchema = new Schema({
     outputValue: { type: String }
   }],
 
+  salesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
+  newSalesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
+  products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+  newProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
