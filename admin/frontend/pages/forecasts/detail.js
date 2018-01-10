@@ -8,8 +8,6 @@ import classNames from 'classnames'
 import tree from '~core/tree'
 
 import { SelectWidget } from '~base/components/base-form'
-
-import CreateBarGraph from './create-bargraph'
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -20,6 +18,7 @@ import {
 
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateAdjustmentRequest from './create-adjustmentRequest'
+import PredictionsGraph from './predictions-graph'
 
 let schema = {
   weeks: {
@@ -52,7 +51,6 @@ class ForecastDetail extends Component {
       loaded: false,
       predictions: [],
       forecast: {},
-      graphDataFiltered: [],
       selectedRows: {},
       selectValue: '',
       selectedAll: false,
@@ -73,8 +71,6 @@ class ForecastDetail extends Component {
       },
       days: [],
       disableButtons: true,
-      graphProductSelected: '',
-      graphIsPristine: true,
       notification: {
         has: false,
         type: '',
@@ -834,38 +830,8 @@ class ForecastDetail extends Component {
     }
   }
 
-  getElementsById (array, property) {
-    let seen = {}
-    let out = []
-    let len = array.length
-    let j = 0
-    let i = 0
-
-    for (i; i < len; i++) {
-      let item = array[i][property]
-      if (seen[item] !== 1) {
-        seen[item] = 1
-        out[j++] = item
-      }
-    }
-    return out
-  }
-
-  handleGraphFilters (e) {
-    let graphDataFiltered = this.state.forecast.graphData
-    if (e.target.value) {
-      graphDataFiltered = this.state.forecast.graphData.filter(item => item.producto_id === e.target.value)
-    }
-
-    this.setState({
-      graphProductSelected: e.target.value,
-      graphIsPristine: false,
-      graphDataFiltered
-    })
-  }
-
   getTable () {
-    const { forecast, graphDataFiltered } = this.state
+    const { forecast } = this.state
 
     if (forecast.status === 'created' || forecast.status === 'processing') {
       return (
@@ -936,56 +902,7 @@ class ForecastDetail extends Component {
         {forecast.status === 'analistReview' && (
           <div className='columns'>
             <div className='column'>
-              <div className='card'>
-                <header className='card-header'>
-                  <p className='card-header-title'>
-                  Predictions Graph
-                </p>
-                </header>
-                <div className='card-content'>
-                  <div className='columns is-multiline'>
-                    <div className='column is-5 is-offset-7'>
-                      <div className='field is-horizontal is-grouped is-grouped-right'>
-                        <div className='field-label'>
-                          <label className='label'>Productos</label>
-                        </div>
-                        <div className='field-body'>
-                          <div className='field'>
-                            <div className='control'>
-                              <div className='select is-fullwidth'>
-                                <select
-                                  className='is-fullwidth'
-                                  value={this.state.graphProductSelected}
-                                  onChange={(e) => this.handleGraphFilters(e)}>
-
-                                  <option value='' />
-                                  {
-                                    Object.values(this.getElementsById(forecast.graphData, 'producto_id'))
-                                      .sort((a, b) => Number(a) - Number(b))
-                                      .map((value, index) => {
-                                        return (<option key={index} value={value}>{value}</option>)
-                                      })
-                                  }
-
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className='column'>
-                      <CreateBarGraph
-                        data={graphDataFiltered}
-                        size={[250, 250]}
-                        width='960'
-                        height='500'
-                        pristine={this.state.graphIsPristine}
-                    />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <PredictionsGraph match={this.props.match} />
             </div>
           </div>
         )}

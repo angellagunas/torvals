@@ -9,13 +9,13 @@ import classNames from 'classnames'
 
 import { SelectWidget } from '~base/components/base-form'
 
-import CreateBarGraph from './create-bargraph'
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { EditableTable } from '~base/components/base-editableTable'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateAdjustmentRequest from './create-adjustmentRequest'
+import PredictionsGraph from './predictions-graph'
 
 let schema = {
   weeks: {
@@ -899,25 +899,7 @@ class ForecastDetail extends Component {
         {forecast.status === 'analistReview' && (
           <div className='columns'>
             <div className='column'>
-              <div className='card'>
-                <header className='card-header'>
-                  <p className='card-header-title'>
-                  Predictions Graph
-                </p>
-                </header>
-                <div className='card-content'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <CreateBarGraph
-                        data={forecast.graphData}
-                        size={[250, 250]}
-                        width='960'
-                        height='500'
-                    />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <PredictionsGraph match={this.props.match} />
             </div>
           </div>
         )}
