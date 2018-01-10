@@ -15,6 +15,7 @@ import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { EditableTable } from '~base/components/base-editableTable'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import CreateAdjustmentRequest from './create-adjustmentRequest'
 
 let schema = {
   weeks: {
@@ -41,9 +42,7 @@ class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      className: '',
-      classNameSC: '',
-      isProductsOpen: false,
+      classNameAR: '',
       isHeaderOpen: false,
       bodyHeight: 0,
       loading: true,
@@ -154,6 +153,7 @@ class ForecastDetail extends Component {
           percentage: percentage,
           product: item.product,
           salesCenter: item.salesCenter,
+          adjustmentRequest: item.adjustmentRequest,
           wasEdited: data.adjustment !== data.prediction,
           isLimit: (Math.abs(percentage) >= (this.state.forecast.project.adjustment * 100)),
           uuid: item.uuid
@@ -195,7 +195,7 @@ class ForecastDetail extends Component {
   }
 
   async loadDatasetsList () {
-    var url = '/admin/datasets/'
+    var url = '/app/datasets/'
     const body = await api.get(url, {
       start: 0,
       limit: 10,
@@ -230,6 +230,9 @@ class ForecastDetail extends Component {
    */
 
   getColumns () {
+    let forecast = this.state.forecast
+    let currentRole = tree.get('user').currentRole.slug
+
     return [
       {
         'title': 'Product Id',
@@ -311,12 +314,41 @@ class ForecastDetail extends Component {
         'property': 'isLimit',
         'default': '',
         formatter: (row) => {
-          if (row.isLimit) {
-            return (
-              <span className='icon' title='You have reached the limit of adjustment'>
-                <FontAwesome name='warning' />
-              </span>
-            )
+          if (
+              currentRole !== 'analista' &&
+              currentRole !== 'supervisor'
+          ) {
+            if (row.isLimit && !row.adjustmentRequest) {
+              return (
+                <span
+                  className='icon'
+                  title='No es posible pedir un ajuste más allá al límite!'
+                  onClick={() => {
+                    if (this.state.forecast.status === 'opsReview') {
+                      this.showModalAdjustmentRequest(row)
+                    }
+                  }}
+                >
+                  <FontAwesome name='warning' />
+                </span>
+              )
+            }
+
+            if (row.isLimit && row.adjustmentRequest) {
+              return (
+                <span
+                  className='icon has-text-warning'
+                  title='Ya se ha pedido un cambio a esta predicción!'
+                  onClick={() => {
+                    if (forecast.status === 'opsReview') {
+                      this.showModalAdjustmentRequest(row)
+                    }
+                  }}
+                >
+                  <FontAwesome name='warning' />
+                </span>
+              )
+            }
           }
 
           return ''
@@ -358,6 +390,95 @@ class ForecastDetail extends Component {
               </div>
             </div>
           )
+        }
+      }
+    ]
+  }
+
+  getColumnsAdjustmentRequests () {
+    let currentRole = tree.get('user').currentRole.slug
+
+    return [
+      {
+        'title': 'Requested By',
+        'property': 'requestedBy',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/manage/users/detail/' + row.requestedBy.uuid}>
+              {row.requestedBy.name}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'Status',
+        'property': 'status',
+        'default': 'created',
+        'sortable': true
+      },
+      {
+        'title': 'Adjustment',
+        'property': 'newAdjustment',
+        'default': 'N/A',
+        'sortable': true
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          if (
+              row.status === 'created' &&
+              currentRole !== 'analista' &&
+              currentRole !== 'supervisor'
+          ) {
+            return (
+              <div className='field is-grouped'>
+                <div className='control'>
+                  <button
+                    className='button is-success'
+                    onClick={() => { this.approveRequestOnClick(row.uuid) }}
+                  >
+                    Aprobar
+                  </button>
+                </div>
+                <div className='control'>
+                  <button
+                    className='button is-danger'
+                    onClick={() => { this.rejectRequestOnClick(row.uuid) }}
+                  >
+                    Rechazar
+                  </button>
+                </div>
+              </div>
+            )
+          }
+
+          if (row.status === 'approved') {
+            return (
+              <span>
+                <span style={{paddingRight: '5px'}}>
+                  Approved by:
+                </span>
+                <Link to={'/manage/users/detail/' + row.approvedBy.uuid}>
+                  {row.approvedBy.name}
+                </Link>
+              </span>
+            )
+          }
+
+          if (row.status === 'rejected') {
+            return (
+              <span>
+                <span style={{paddingRight: '5px'}}>
+                  Rejected by:
+                </span>
+                <Link to={'/manage/users/detail/' + row.rejectedBy.uuid}>
+                  {row.rejectedBy.name}
+                </Link>
+              </span>
+            )
+          }
         }
       }
     ]
@@ -800,6 +921,7 @@ class ForecastDetail extends Component {
             </div>
           </div>
         )}
+        {this.getAdjustmentRequestList()}
         <div className='columns'>
           <div className='column'>
             <div className='card'>
@@ -903,6 +1025,18 @@ class ForecastDetail extends Component {
         </button>
       )
     }
+
+    if (forecast.status === 'consolidate' && (currentRole === 'ops' || currentRole === 'supervisor-ops')) {
+      return (
+        <button
+          className='button is-primary'
+          type='button'
+          onClick={() => this.changeStatusOnClick('consolidate')}
+        >
+          Listo para pedido
+        </button>
+      )
+    }
   }
 
   getDatasetsList () {
@@ -921,7 +1055,7 @@ class ForecastDetail extends Component {
                 <div className='column'>
                   <BranchedPaginatedTable
                     branchName='datasets'
-                    baseUrl='/admin/datasets/'
+                    baseUrl='/app/datasets/'
                     columns={this.getColumnsDatasets()}
                     filters={{project: forecast.project.uuid}}
                   />
@@ -932,6 +1066,96 @@ class ForecastDetail extends Component {
         </div>
       </div>
     )
+  }
+
+  /*
+   * AdjustmentRequest methods
+   */
+
+  showModalAdjustmentRequest (obj) {
+    this.setState({
+      classNameAR: ' is-active',
+      selectedAR: obj
+    })
+  }
+
+  hideModalAdjustmentRequest () {
+    this.setState({
+      classNameAR: ''
+    })
+  }
+
+  async finishUpAdjustmentRequest (obj) {
+    this.setState({
+      selectedAR: undefined
+    })
+
+    await this.loadPredictions()
+  }
+
+  async approveRequestOnClick (uuid) {
+    var url = '/app/adjustmentRequests/approve/' + uuid
+    await api.post(url)
+
+    const cursor = tree.get('adjustmentRequests')
+    const adjustmentRequests = await api.get('/app/adjustmentRequests/')
+
+    await this.loadPredictions()
+
+    tree.set('adjustmentRequests', {
+      page: cursor.page,
+      totalItems: adjustmentRequests.total,
+      items: adjustmentRequests.data,
+      pageLength: cursor.pageLength
+    })
+    tree.commit()
+  }
+
+  async rejectRequestOnClick (uuid) {
+    var url = '/app/adjustmentRequests/reject/' + uuid
+    await api.post(url)
+
+    const cursor = tree.get('adjustmentRequests')
+    const adjustmentRequests = await api.get('/app/adjustmentRequests/')
+
+    tree.set('adjustmentRequests', {
+      page: cursor.page,
+      totalItems: adjustmentRequests.total,
+      items: adjustmentRequests.data,
+      pageLength: cursor.pageLength
+    })
+    tree.commit()
+  }
+
+  getAdjustmentRequestList () {
+    const { forecast } = this.state
+    if (forecast.status === 'consolidate') {
+      return (
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                Adjustment Requests
+              </p>
+              </header>
+              <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <BranchedPaginatedTable
+                      branchName='adjustmentRequests'
+                      baseUrl='/app/adjustmentRequests/'
+                      columns={this.getColumnsAdjustmentRequests()}
+                      filters={{forecast: forecast.uuid}}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
   }
 
   /*
@@ -983,6 +1207,13 @@ class ForecastDetail extends Component {
     }
 
     return (<div>
+      <CreateAdjustmentRequest
+        className={this.state.classNameAR}
+        hideModal={this.hideModalAdjustmentRequest.bind(this)}
+        finishUp={this.finishUpAdjustmentRequest.bind(this)}
+        prediction={this.state.selectedAR}
+        baseUrl={''}
+      />
       <div data-content className='card' id='test' ref={(element) => this.getHeight(element)}>
         <header className='card-header'>
           <p className='card-header-title'>

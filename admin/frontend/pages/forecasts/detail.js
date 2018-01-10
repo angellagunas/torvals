@@ -46,10 +46,6 @@ class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      className: '',
-      classNameSC: '',
-      classNameAR: '',
-      isProductsOpen: false,
       isHeaderOpen: false,
       bodyHeight: 0,
       loading: true,
@@ -356,7 +352,7 @@ class ForecastDetail extends Component {
             return (
               <span
                 className='icon'
-                title='You have reached the limit of adjustment'
+                title='No es posible pedir un ajuste más allá al límite!'
                 onClick={() => {
                   if (this.state.forecast.status === 'opsReview') {
                     this.showModalAdjustmentRequest(row)
@@ -372,7 +368,7 @@ class ForecastDetail extends Component {
             return (
               <span
                 className='icon has-text-warning'
-                title='You have already requested a change!'
+                title='Ya se ha pedido un cambio a esta predicción!'
                 onClick={() => {
                   if (this.state.forecast.status === 'opsReview') {
                     this.showModalAdjustmentRequest(row)

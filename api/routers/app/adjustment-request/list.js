@@ -43,7 +43,7 @@ module.exports = new Route({
     var adjustmentRequests = await AdjustmentRequest.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters},
+      find: {isDeleted: false, ...filters, organization: ctx.state.organization},
       populate: [
         'organization',
         'prediction',
