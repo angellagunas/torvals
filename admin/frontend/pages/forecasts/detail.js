@@ -1050,6 +1050,48 @@ class ForecastDetail extends Component {
     )
   }
 
+  async handleChangeStatus (event) {
+    const { forecast } = this.state
+    const value = event.currentTarget.value
+
+    await api.post('/admin/forecasts/change/' + forecast.uuid, {status: value})
+    await this.load()
+  }
+
+  getSelectStatus () {
+    const { forecast } = this.state
+
+    const statusValues = [
+      'created',
+      'processing',
+      'done',
+      'analistReview',
+      'opsReview',
+      'consolidate',
+      'readyToOrder',
+      'error'
+    ]
+
+    return (
+
+      <div className='select'>
+        <select type='text'
+          name='status'
+          value={forecast.status}
+          onChange={(e) => { this.handleChangeStatus(e) }}
+                    >
+          {
+                        statusValues.map(function (item, key) {
+                          return <option key={key}
+                            value={item}>{item}</option>
+                        })
+                      }
+        </select>
+      </div>
+
+    )
+  }
+
   /*
    * AdjustmentRequest methods
    */
@@ -1226,7 +1268,8 @@ class ForecastDetail extends Component {
         </header>
         <div className={headerBodyClass}>
           <div className='columns is-multiline'>
-            <div className='column is-6'><strong>Status:</strong> {forecast.status}</div>
+            <div className='column is-6'><strong>Status:</strong> {this.getSelectStatus()}</div>
+
             <div className='column is-6'><strong>Organization:</strong> {forecast.organization.name}</div>
             <div className='column is-6'><strong>Start Date:</strong> {moment.utc(forecast.dateStart).format('DD/MM/YYYY')}</div>
             <div className='column is-6'><strong>End Date:</strong> {moment.utc(forecast.dateEnd).format('DD/MM/YYYY')}</div>
