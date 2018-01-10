@@ -5,6 +5,7 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
+import classNames from 'classnames'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -13,11 +14,17 @@ import { UploadDataset } from '~base/components/base-uploads'
 import ConfigureDatasetForm from './configure-form'
 import DeleteButton from '~base/components/base-deleteButton'
 import ConfigureViewDataset from './configure-view'
+import BaseModal from '~base/components/base-modal'
+import ProductForm from './edit-product'
+import SalesCenterForm from './edit-salescenter'
 
 class DataSetDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      className: '',
+      classNameSC: '',
+      isProductsOpen: false,
       loading: true,
       loaded: false,
       dataset: {},
@@ -345,6 +352,241 @@ class DataSetDetail extends Component {
     }
   }
 
+  /*
+   * Unidentified products/sales center methods
+   */
+  setHeights (elements) {
+    const scrollBody = elements || document.querySelectorAll('[data-content]')
+
+    scrollBody.forEach((sticky) => {
+      let bottom = sticky.getBoundingClientRect().bottom
+      const footerHeight = 0
+      const viewporHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      this.setState({bodyHeight: viewporHeight - (bottom + footerHeight)})
+    })
+  }
+
+  toggleHeader () {
+    this.setState({isHeaderOpen: !this.state.isHeaderOpen}, function () {
+      this.setHeights()
+    })
+  }
+
+  getHeight (element) {
+    if (this.state.bodyHeight === 0) {
+      if (element) this.setHeights([element])
+    }
+  }
+
+  toggleUnidentifiedProducts () {
+    this.setState({isProductsOpen: !this.state.isProductsOpen}, function () {
+      this.setHeights()
+    })
+  }
+
+  showModal () {
+    this.setState({
+      className: ' is-active'
+    })
+  }
+
+  hideModal () {
+    this.setState({
+      className: ''
+    })
+  }
+
+  showModalSalesCenters () {
+    this.setState({
+      classNameSC: ' is-active'
+    })
+  }
+
+  hideModalSalesCenters () {
+    this.setState({
+      classNameSC: ''
+    })
+  }
+
+  async deleteNewProduct () {
+    this.load()
+    setTimeout(() => {
+      this.hideModal()
+    }, 1000)
+  }
+
+  async deleteNewSalesCenter () {
+    this.load()
+    setTimeout(() => {
+      this.hideModalSalesCenters()
+    }, 1000)
+  }
+
+  getUnidentifiedProducts () {
+    const { dataset } = this.state
+
+    if (!dataset.uuid) {
+      return <Loader />
+    }
+
+    console.log('dataset=>', dataset)
+
+    const headerProductsClass = classNames('card-content', {
+      'is-hidden': this.state.isProductsOpen === false
+    })
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-plus': this.state.isProductsOpen === false,
+      'fa-minus': this.state.isProductsOpen !== false
+    })
+
+    var newProducts = []
+    dataset.newProducts.map((item, key) => {
+      if (item.name === 'Not identified') {
+        newProducts.push(item)
+      }
+    })
+
+    var newSalesCenters = []
+    dataset.newSalesCenters.map((item, key) => {
+      if (item.name === 'Not identified') {
+        newSalesCenters.push(item)
+      }
+    })
+
+    return (
+      <div className='columns'>
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                  Unidentified Products: {newProducts.length} and Sales Centers: {newSalesCenters.length}
+              </p>
+              <div className='field is-grouped is-grouped-right card-header-select'>
+                <div className='control'>
+                  <a
+                    className='button is-rounded is-inverted'
+                    onClick={() => this.toggleUnidentifiedProducts()}>
+                    <span className='icon is-small'>
+                      <i className={toggleBtnIconClass} />
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </header>
+            <div className={headerProductsClass}>
+              <div className='columns'>
+                <div className='column'>
+                  <table className='table is-fullwidth'>
+                    <thead>
+                      <tr>
+                        <th colSpan='2'>Product External Id</th>
+
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {newProducts.length === 0 ? (
+                        <tr>
+                          <td colSpan='2'>No new products to show</td>
+                        </tr>
+                      ) : (
+                        newProducts.map((item, key) => {
+                          return (
+                            <tr key={key}>
+                              <td>{item.externalId}</td>
+                              <td>
+                                <button className='button is-primary' onClick={() => this.showModal()}>
+                                    Edit
+                                  </button>
+                                <BaseModal
+                                  title='Edit Product'
+                                  className={this.state.className}
+                                  hideModal={() => this.hideModal()}
+                                  >
+                                  <ProductForm
+                                    baseUrl='/admin/products'
+                                    url={'/admin/products/' + item.uuid}
+                                    initialState={item}
+                                    load={this.deleteNewProduct.bind(this)}
+                                    >
+                                    <div className='field is-grouped'>
+                                      <div className='control'>
+                                        <button className='button is-primary'>Save</button>
+                                      </div>
+                                      <div className='control'>
+                                        <button className='button' onClick={() => this.hideModal()}>Cancel</button>
+                                      </div>
+                                    </div>
+                                  </ProductForm>
+                                </BaseModal>
+                              </td>
+                            </tr>
+                          )
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                <div className='column'>
+                  <table className='table is-fullwidth'>
+                    <thead>
+                      <tr>
+                        <th>Sales Center  External Id</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {newSalesCenters.length === 0 ? (
+                        <tr>
+                          <td colSpan='2'>No new sales centers to show</td>
+                        </tr>
+                      ) : (
+                        newSalesCenters.map((item, key) => {
+                          if (item.name === 'Not identified') {
+                            return (
+                              <tr key={key}>
+                                <td >{item.externalId}</td>
+                                <td>
+                                  <button className='button is-primary' onClick={() => this.showModalSalesCenters()}>
+                                  Edit
+                                </button>
+                                  <BaseModal
+                                    title='Edit Sales Center'
+                                    className={this.state.classNameSC}
+                                    hideModal={() => this.hideModalSalesCenters()}
+                                >
+                                    <SalesCenterForm
+                                      baseUrl='/admin/salesCenters'
+                                      url={'/admin/salesCenters/' + item.uuid}
+                                      initialState={item}
+                                      load={this.deleteNewSalesCenter.bind(this)}
+                                  >
+                                      <div className='field is-grouped'>
+                                        <div className='control'>
+                                          <button className='button is-primary'>Save</button>
+                                        </div>
+                                        <div className='control'>
+                                          <button className='button' onClick={() => this.hideModalSalesCenters()}>Cancel</button>
+                                        </div>
+                                      </div>
+                                    </SalesCenterForm>
+                                  </BaseModal>
+                                </td>
+                              </tr>
+                            )
+                          }
+                        })
+
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   render () {
     const { dataset } = this.state
 
@@ -370,6 +612,12 @@ class DataSetDetail extends Component {
                 </div>
               </div>
             </div>
+            {dataset.status === 'reviewing' &&
+              this.getUnidentifiedProducts()
+            }
+            {dataset.status === 'ready' &&
+                this.getUnidentifiedProducts()
+            }
             <div className='columns'>
               <div className='column'>
                 <div className='card'>

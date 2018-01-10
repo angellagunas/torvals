@@ -14,6 +14,8 @@ module.exports = new Route({
     })
       .populate('fileChunk')
       .populate('organization')
+      .populate('newProducts')
+      .populate('newSalesCenters')
 
     ctx.assert(dataset, 404, 'DataSet not found ')
 
