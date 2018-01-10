@@ -168,6 +168,7 @@ class ForecastDetail extends Component {
           percentage: percentage,
           product: item.product,
           salesCenter: item.salesCenter,
+          adjustmentRequest: item.adjustmentRequest,
           wasEdited: data.adjustment !== data.prediction,
           isLimit: (Math.abs(percentage) >= (this.state.forecast.project.adjustment * 100)),
           uuid: item.uuid
@@ -354,12 +355,32 @@ class ForecastDetail extends Component {
         'property': 'isLimit',
         'default': '',
         formatter: (row) => {
-          if (row.isLimit) {
+          if (row.isLimit && !row.adjustmentRequest) {
             return (
               <span
                 className='icon'
                 title='You have reached the limit of adjustment'
-                onClick={() => this.showModalAdjustmentRequest(row)}
+                onClick={() => {
+                  if (this.state.forecast.status === 'opsReview') {
+                    this.showModalAdjustmentRequest(row)
+                  }
+                }}
+              >
+                <FontAwesome name='warning' />
+              </span>
+            )
+          }
+
+          if (row.isLimit && row.adjustmentRequest) {
+            return (
+              <span
+                className='icon has-text-warning'
+                title='You have already requested a change!'
+                onClick={() => {
+                  if (this.state.forecast.status === 'opsReview') {
+                    this.showModalAdjustmentRequest(row)
+                  }
+                }}
               >
                 <FontAwesome name='warning' />
               </span>
@@ -980,6 +1001,7 @@ class ForecastDetail extends Component {
           forecast.newSalesCenters.length > 0 &&
           this.getUnidentifiedProducts()
         }
+        {this.getAdjustmentRequestList()}
         <div className='columns'>
           <div className='column'>
             <div className='card'>
@@ -1013,7 +1035,6 @@ class ForecastDetail extends Component {
             </div>
           </div>
         </div>
-        {this.getAdjustmentRequestList()}
         {this.getDatasetsList()}
       </div>
     )
@@ -1078,6 +1099,18 @@ class ForecastDetail extends Component {
           onClick={() => this.changeStatusOnClick('consolidate')}
         >
           Consolidar
+        </button>
+      )
+    }
+
+    if (forecast.status === 'consolidate') {
+      return (
+        <button
+          className='button is-primary'
+          type='button'
+          onClick={() => this.changeStatusOnClick('readyToOrder')}
+        >
+          Listo para pedido
         </button>
       )
     }
@@ -1344,16 +1377,7 @@ class ForecastDetail extends Component {
       selectedAR: undefined
     })
 
-    const cursor = tree.get('adjustmentRequests')
-    const adjustmentRequests = await api.get('/admin/adjustmentRequests/')
-
-    tree.set('adjustmentRequests', {
-      page: cursor.page,
-      totalItems: adjustmentRequests.total,
-      items: adjustmentRequests.data,
-      pageLength: cursor.pageLength
-    })
-    tree.commit()
+    await this.loadPredictions()
   }
 
   async approveRequestOnClick (uuid) {

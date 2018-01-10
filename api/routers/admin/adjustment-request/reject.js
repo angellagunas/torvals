@@ -19,7 +19,7 @@ module.exports = new Route({
     adjustmentRequest.status = 'rejected'
     adjustmentRequest.rejectedBy = ctx.state.user
     adjustmentRequest.dateRejected = moment.utc()
-    adjustmentRequest.save()
+    await adjustmentRequest.save()
 
     ctx.body = {
       data: adjustmentRequest.format()

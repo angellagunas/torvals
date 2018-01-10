@@ -22,12 +22,12 @@ module.exports = new Route({
     prediction.data.adjustment = adjustmentRequest.newAdjustment
     prediction.data.updatedBy = ctx.state.user
     prediction.markModified('data')
-    prediction.save()
+    await prediction.save()
 
     adjustmentRequest.status = 'approved'
     adjustmentRequest.approvedBy = ctx.state.user
     adjustmentRequest.dateApproved = moment.utc()
-    adjustmentRequest.save()
+    await adjustmentRequest.save()
 
     ctx.body = {
       data: adjustmentRequest.format()

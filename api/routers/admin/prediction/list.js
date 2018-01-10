@@ -34,7 +34,7 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
-      populate: ['organization', 'salesCenter', 'product'],
+      populate: ['organization', 'salesCenter', 'product', 'adjustmentRequest'],
       sort: ctx.request.query.sort || '-dateCreated'
     })
 
