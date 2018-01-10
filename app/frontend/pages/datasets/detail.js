@@ -413,8 +413,6 @@ class DataSetDetail extends Component {
       return <Loader />
     }
 
-    // console.log('dataset=>', dataset)
-
     const headerProductsClass = classNames('card-content', {
       'is-hidden': this.state.isProductsOpen === false
     })
