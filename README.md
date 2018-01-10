@@ -19,13 +19,15 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-Frok, Clone the repo, switch to the dev branch and install
+* Fork and clone
+* Change to branch dev
+* Install dependencies
 
 ```bash
 npm install
 ```
 
-Before running the app remember set the env variables, this are a few of them, to see  all the variables look [.env.default](.env.default)
+Before running the app remember set the env variables, these are a few of them, to see  all the variables look [.env.default](.env.default)
 
 ```bash
 API_PORT=3000
