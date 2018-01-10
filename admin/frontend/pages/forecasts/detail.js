@@ -1013,6 +1013,60 @@ class ForecastDetail extends Component {
     )
   }
 
+  async handleChangeStatus (event) {
+    const { forecast } = this.state
+    const value = event.currentTarget.value
+
+    var response = await api.post('/admin/forecasts/change/' + forecast.uuid, {status: value})
+    this.setState({
+      forecast: response.data
+    })
+  }
+
+  getSelectStatus () {
+    const { forecast } = this.state
+
+    const statusValues = [
+      'created',
+      'processing',
+      'done',
+      'analistReview',
+      'opsReview',
+      'supervisorReview',
+      'consolidate',
+      'readyToOrder',
+      'error'
+    ]
+
+    return (
+      <div className='columns'>
+        <div className='column is-6 is-offset-6'>
+          <div className='field is-grouped is-grouped-right'>
+            <label className='label'>Status: </label>
+            <div className='control'>
+              <div className='select is-fullwidth'>
+                <select type='text'
+                  className='is-fullwidth'
+                  name='isAnalysis'
+                  value={forecast.status}
+                  onChange={(e) => { this.handleChangeStatus(e) }}
+                >
+                  <option value=''>Select a option</option>
+                  {
+                    statusValues.map(function (item, key) {
+                      return <option key={key}
+                        value={item}>{item}</option>
+                    })
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   /*
    * Sticky header methods
    */
@@ -1118,6 +1172,7 @@ class ForecastDetail extends Component {
       <div className='columns c-flex-1 is-marginless' style={{overflowY: 'scroll', height: this.state.bodyHeight}}>
         <div className='column is-12 is-paddingless'>
           <div className='section'>
+            {this.getSelectStatus()}
             {this.getTable()}
           </div>
         </div>
