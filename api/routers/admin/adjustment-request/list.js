@@ -1,7 +1,7 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Forecast, Prediction} = require('models')
+const {Forecast, AdjustmentRequest, Organization} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -23,6 +23,16 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'organization') {
+        const organization = await Organization.findOne({'uuid': ctx.request.query[filter]})
+
+        if (organization) {
+          filters['organization'] = ObjectId(organization._id)
+        }
+
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
@@ -30,14 +40,20 @@ module.exports = new Route({
       }
     }
 
-    var predictions = await Prediction.dataTables({
+    var adjustmentRequests = await AdjustmentRequest.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
-      populate: ['organization', 'salesCenter', 'product', 'adjustmentRequest'],
+      populate: [
+        'organization',
+        'prediction',
+        'requestedBy',
+        'approvedBy',
+        'rejectedBy'
+      ],
       sort: ctx.request.query.sort || '-dateCreated'
     })
 
-    ctx.body = predictions
+    ctx.body = adjustmentRequests
   }
 })
