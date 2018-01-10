@@ -37,12 +37,6 @@ APP_PORT=4000
 APP_HOST=http://pythia.dev:4000
 ```
 
-Run the whole APP with
-
-```bash
-node runner.js
-```
-
 Run API with
 
 ```bash
@@ -59,6 +53,12 @@ Run APP with
 
 ```bash
 make app-server
+```
+
+As alternative for run APP
+
+```bash
+node runner.js
 ```
 
 Create your USER
