@@ -34,7 +34,8 @@ class CreateUser extends Component {
       '/app/users',
       {
         start: 0,
-        limit: this.cursor.get('pageLength') || 10
+        limit: this.cursor.get('pageLength') || 10,
+        ...this.props.filters || ''
       }
     )
 
@@ -94,6 +95,7 @@ class CreateUser extends Component {
         finishUp={this.props.finishUp}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
+        filters={this.props.filters}
       >
         <div className='field is-grouped'>
           <div className='control'>

@@ -12,14 +12,6 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet not found')
 
-    // Clearing past configs
-    for (var col of dataset.columns) {
-      col.isDate = false
-      col.isAnalysis = false
-      col.isAnalysisFilter = false
-      col.isOperationFilter = false
-    }
-
     dataset.set({
       status: 'configuring'
     })

@@ -12,6 +12,8 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import DatasetDetailForm from './detail-form'
 import { UploadDataset } from '~base/components/base-uploads'
 import ConfigureDatasetForm from './configure-form'
+import DeleteButton from '~base/components/base-deleteButton'
+import ConfigureViewDataset from './configure-view'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -82,7 +84,7 @@ class DataSetDetail extends Component {
     })
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/app/datasets/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/datasets')
@@ -237,17 +239,12 @@ class DataSetDetail extends Component {
               <div className='columns'>
                 <div className='column'>
                   <ConfigureDatasetForm
+                    initialState={dataset}
                     columns={dataset.columns || []}
-                    url={'/app/datasets/' + dataset.uuid + '/configure'}
+                    url={'/admin/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
                     load={this.load.bind(this)}
-                  >
-                    <div className='field is-grouped'>
-                      <div className='control'>
-                        <button className='button is-primary'>Configure</button>
-                      </div>
-                    </div>
-                  </ConfigureDatasetForm>
+                  />
                 </div>
               </div>
             </div>
@@ -322,6 +319,9 @@ class DataSetDetail extends Component {
                   </div>
                 </div>
               </div>
+              <ConfigureViewDataset
+                initialState={dataset}
+                  />
             </div>
           </div>
         </div>
@@ -344,13 +344,12 @@ class DataSetDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      titleButton={'Delete'}
+                      objectName='Dataset'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Are you sure you want to delete the dataset ${dataset.name}?`}
+                    />
                   </div>
                 </div>
               </div>
