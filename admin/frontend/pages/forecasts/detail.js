@@ -1017,10 +1017,8 @@ class ForecastDetail extends Component {
     const { forecast } = this.state
     const value = event.currentTarget.value
 
-    var response = await api.post('/admin/forecasts/change/' + forecast.uuid, {status: value})
-    this.setState({
-      forecast: response.data
-    })
+    await api.post('/admin/forecasts/change/' + forecast.uuid, {status: value})
+    await this.load()
   }
 
   getSelectStatus () {
@@ -1032,7 +1030,6 @@ class ForecastDetail extends Component {
       'done',
       'analistReview',
       'opsReview',
-      'supervisorReview',
       'consolidate',
       'readyToOrder',
       'error'
