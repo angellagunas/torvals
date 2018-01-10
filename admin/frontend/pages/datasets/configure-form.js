@@ -129,33 +129,32 @@ class ConfigureDatasetForm extends Component {
   }
 
   handleChangeDateAnalyze (type, event) {
+    const state = this.state
     const column = event.currentTarget.value
-    var posColumn = this.state.formData.columns.findIndex(e => {
+    var posColumn = state.formData.columns.findIndex(e => {
       return (
         String(e.name) === String(column)
       )
     })
 
-    const nameColumn = this.props.initialState.columns.find((item) => { return item[type] }).name
+    const nameColumn = state.formData.columns.find((item) => { return item[type] }).name
 
-    var posNameColumn = this.state.formData.columns.findIndex(e => {
+    var posNameColumn = state.formData.columns.findIndex(e => {
       return (
         String(e.name) === String(nameColumn)
       )
     })
 
     if (posColumn >= 0) {
-      this.setState({
-        ...this.state.formData.columns[posNameColumn][type] = false,
-        ...this.state.formData.columns[posColumn][type] = true,
-        ...this.state[type] = this.state.formData.columns[posColumn].name
-      })
+      state.formData.columns[posNameColumn][type] = false
+      state.formData.columns[posColumn][type] = true
+      state[type] = state.formData.columns[posColumn].name
     } else {
-      this.setState({
-        ...this.state.formData.columns[posNameColumn][type] = false,
-        ...this.state[type] = ''
-      })
+      state.formData.columns[posNameColumn][type] = false
+      state[type] = ''
     }
+
+    this.setState(state)
   }
 
   clearState () {
