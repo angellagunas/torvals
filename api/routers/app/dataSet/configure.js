@@ -46,6 +46,10 @@ module.exports = new Route({
       if (col.isOperationFilter) filterOperations.push(col.name)
     }
 
+    filterAnalysis.push(isProduct)
+    filterAnalysis.push(isSalesCenter)
+    filterAnalysis = Array.from(new Set(filterAnalysis))
+
     for (var group of body.groupings) {
       groupings.push({
         column: group.column,

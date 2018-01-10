@@ -44,6 +44,10 @@ module.exports = new Route({
       if (col.isOperationFilter) filterOperations.push(col.name)
     }
 
+    filterAnalysis.push(isProduct)
+    filterAnalysis.push(isSalesCenter)
+    filterAnalysis = Array.from(new Set(filterAnalysis))
+
     for (var group of body.groupings) {
       groupings.push({
         column: group.column,
@@ -80,7 +84,7 @@ module.exports = new Route({
     }
 
     try {
-      var res = await request(options)
+      await request(options)
       dataset.set({
         columns: body.columns,
         groupings: body.groupings,

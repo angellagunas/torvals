@@ -199,6 +199,7 @@ class ConfigureDatasetForm extends Component {
   }
 
   render () {
+    let checkboxLabelwidth = { flexGrow: 4 }
     var error
     if (this.state.error) {
       error = <div>
@@ -216,8 +217,13 @@ class ConfigureDatasetForm extends Component {
           <div className='field'>
             <label className='label'>Is Date*</label>
             <div className='control'>
-              <div className='select'>
-                <select type='text' name='isDate' value={this.state.isDate} onChange={(e) => { this.handleChangeDateAnalyze('isDate', e) }}>
+              <div className='select is-fullwidth'>
+                <select type='text'
+                  className='is-fullwidth'
+                  name='isDate'
+                  value={this.state.isDate}
+                  onChange={(e) => { this.handleChangeDateAnalyze('isDate', e) }}
+                >
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -233,8 +239,13 @@ class ConfigureDatasetForm extends Component {
           <div className='field'>
             <label className='label'>Is Analysis*</label>
             <div className='control'>
-              <div className='select'>
-                <select type='text' name='isAnalysis' value={this.state.isAnalysis} onChange={(e) => { this.handleChangeDateAnalyze('isAnalysis', e) }}>
+              <div className='select is-fullwidth'>
+                <select type='text'
+                  className='is-fullwidth'
+                  name='isAnalysis'
+                  value={this.state.isAnalysis}
+                  onChange={(e) => { this.handleChangeDateAnalyze('isAnalysis', e) }}
+                >
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -250,8 +261,13 @@ class ConfigureDatasetForm extends Component {
           <div className='field'>
             <label className='label'>Is Product*</label>
             <div className='control'>
-              <div className='select'>
-                <select type='text' name='isProduct' value={this.state.isProduct} onChange={(e) => { this.handleChangeDateAnalyze('isProduct', e) }}>
+              <div className='select is-fullwidth'>
+                <select type='text'
+                  className='is-fullwidth'
+                  name='isProduct'
+                  value={this.state.isProduct}
+                  onChange={(e) => { this.handleChangeDateAnalyze('isProduct', e) }}
+                >
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -267,8 +283,13 @@ class ConfigureDatasetForm extends Component {
           <div className='field'>
             <label className='label'>Is Sales Center*</label>
             <div className='control'>
-              <div className='select'>
-                <select type='text' name='isSalesCenter' value={this.state.isSalesCenter} onChange={(e) => { this.handleChangeDateAnalyze('isSalesCenter', e) }}>
+              <div className='select is-fullwidth'>
+                <select type='text'
+                  className='is-fullwidth'
+                  name='isSalesCenter'
+                  value={this.state.isSalesCenter}
+                  onChange={(e) => { this.handleChangeDateAnalyze('isSalesCenter', e) }}
+                >
                   <option value=''>Select a option</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -282,7 +303,7 @@ class ConfigureDatasetForm extends Component {
           </div>
 
           <div className='field is-horizontal'>
-            <div className='field-label is-normal'>
+            <div className='field-label is-normal' style={checkboxLabelwidth}>
               <label className='label' />
             </div>
             <div className='field-body'>
@@ -307,21 +328,26 @@ class ConfigureDatasetForm extends Component {
           this.state.formData.columns.map((item, key) => {
             return (
               <div className='field is-horizontal' key={key}>
-                <div className='field-label is-normal'>
+                <div className='field-label is-normal has-text-left' style={checkboxLabelwidth}>
                   <label className='label'>{item.name}</label>
                 </div>
                 <div className='field-body'>
                   <div className='field'>
                     <div className='control box has-text-centered'>
                       <label className='checkbox'>
-                        <input type='checkbox' checked={this.getValueForColumn(item.name + '|isOperationFilter')} onChange={(e) => { this.handleChangeCheckbox(item.name + '|isOperationFilter', e) }} />
+                        <input type='checkbox'
+                          checked={this.getValueForColumn(item.name + '|isOperationFilter')}
+                          onChange={(e) => { this.handleChangeCheckbox(item.name + '|isOperationFilter', e) }} />
                       </label>
                     </div>
                   </div>
                   <div className='field'>
                     <div className='control box has-text-centered'>
                       <label className='checkbox'>
-                        <input checked={this.getValueForColumn(item.name + '|isAnalysisFilter')} onChange={(e) => { this.handleChangeCheckbox(item.name + '|isAnalysisFilter', e) }} type='checkbox' />
+                        <input
+                          checked={this.getValueForColumn(item.name + '|isAnalysisFilter')}
+                          onChange={(e) => { this.handleChangeCheckbox(item.name + '|isAnalysisFilter', e) }}
+                          type='checkbox' />
                       </label>
                     </div>
                   </div>
