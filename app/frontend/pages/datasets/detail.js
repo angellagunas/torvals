@@ -23,6 +23,9 @@ class DataSetDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      className: '',
+      classNameSC: '',
+      isProductsOpen: false,
       loading: true,
       loaded: false,
       dataset: {}
@@ -410,7 +413,7 @@ class DataSetDetail extends Component {
       return <Loader />
     }
 
-    console.log('dataset=>', dataset)
+    // console.log('dataset=>', dataset)
 
     const headerProductsClass = classNames('card-content', {
       'is-hidden': this.state.isProductsOpen === false
@@ -484,8 +487,8 @@ class DataSetDetail extends Component {
                                   hideModal={() => this.hideModal()}
                                   >
                                   <ProductForm
-                                    baseUrl='/admin/products'
-                                    url={'/admin/products/' + item.uuid}
+                                    baseUrl='/app/products'
+                                    url={'/app/products/' + item.uuid}
                                     initialState={item}
                                     load={this.deleteNewProduct.bind(this)}
                                     >
@@ -535,8 +538,8 @@ class DataSetDetail extends Component {
                                     hideModal={() => this.hideModalSalesCenters()}
                                 >
                                     <SalesCenterForm
-                                      baseUrl='/admin/salesCenters'
-                                      url={'/admin/salesCenters/' + item.uuid}
+                                      baseUrl='/app/salesCenters'
+                                      url={'/app/salesCenters/' + item.uuid}
                                       initialState={item}
                                       load={this.deleteNewSalesCenter.bind(this)}
                                   >
