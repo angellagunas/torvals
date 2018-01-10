@@ -11,6 +11,8 @@ module.exports = new Route({
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
       .populate('fileChunk')
       .populate('organization')
+      .populate('newProducts')
+      .populate('newSalesCenters')
 
     ctx.assert(dataset, 404, 'DataSet not found')
 
