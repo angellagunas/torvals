@@ -1040,24 +1040,30 @@ class ForecastDetail extends Component {
 
     return (
       <div className='columns'>
-        <div className='column is-6 is-offset-6'>
+        <div className='column is-3 is-offset-9'>
           <div className='field is-grouped is-grouped-right'>
-            <label className='label'>Status: </label>
-            <div className='control'>
-              <div className='select is-fullwidth'>
-                <select type='text'
-                  className='is-fullwidth'
-                  name='status'
-                  value={forecast.status}
-                  onChange={(e) => { this.handleChangeStatus(e) }}
-                >
-                  {
-                    statusValues.map(function (item, key) {
-                      return <option key={key}
-                        value={item}>{item}</option>
-                    })
-                  }
-                </select>
+            <div className='field-label'>
+              <label className='label'>Status: </label>
+            </div>
+            <div className='field-body'>
+              <div className='field'>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='status'
+                      value={forecast.status}
+                      onChange={(e) => { this.handleChangeStatus(e) }}
+                    >
+                      {
+                        statusValues.map(function (item, key) {
+                          return <option key={key}
+                            value={item}>{item}</option>
+                        })
+                      }
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
