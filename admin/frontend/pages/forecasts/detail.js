@@ -1047,11 +1047,10 @@ class ForecastDetail extends Component {
               <div className='select is-fullwidth'>
                 <select type='text'
                   className='is-fullwidth'
-                  name='isAnalysis'
+                  name='status'
                   value={forecast.status}
                   onChange={(e) => { this.handleChangeStatus(e) }}
                 >
-                  <option value=''>Select a option</option>
                   {
                     statusValues.map(function (item, key) {
                       return <option key={key}
