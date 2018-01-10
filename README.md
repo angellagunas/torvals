@@ -69,6 +69,10 @@ node tasks/create-admin --email admin@app.com --password mypassword --name admin
 
 APP and ADMIN requires the admin to be running to work. On dev this servers run webpack live server.
 
+Now you can access the [admin app](http://barcel.pythia.dev:4000/) and associate an organization with your user, with this you can access the [app](http://barcel.pythia.dev:3000/)
+
+If you can't access the app from the Chrome browser, we recommend you try it with Firefox
+
 ## Running the tests
 
 ```bash
