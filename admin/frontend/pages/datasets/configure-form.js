@@ -136,19 +136,21 @@ class ConfigureDatasetForm extends Component {
       )
     })
 
+    const nameColumn = this.props.initialState.columns.find((item) => { return item[type] }).name
+
+    var posNameColumn = this.state.formData.columns.findIndex(e => {
+      return (
+        String(e.name) === String(nameColumn)
+      )
+    })
+
     if (posColumn >= 0) {
       this.setState({
+        ...this.state.formData.columns[posNameColumn][type] = false,
         ...this.state.formData.columns[posColumn][type] = true,
         ...this.state[type] = this.state.formData.columns[posColumn].name
       })
     } else {
-      const nameColumn = this.props.initialState.columns.find((item) => { return item[type] }).name
-
-      var posNameColumn = this.state.formData.columns.findIndex(e => {
-        return (
-        String(e.name) === String(nameColumn)
-        )
-      })
       this.setState({
         ...this.state.formData.columns[posNameColumn][type] = false,
         ...this.state[type] = ''
