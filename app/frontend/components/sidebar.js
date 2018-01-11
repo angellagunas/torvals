@@ -19,6 +19,7 @@ class Sidebar extends Component {
     this.state = {
       dropdown: true,
       active: '',
+      activePath: '',
       collapsed: false,
       menuItems: []
     }
@@ -47,6 +48,12 @@ class Sidebar extends Component {
       this.setState({
         collapsed: !this.state.collapsed,
         menuItems: JSON.parse(JSON.stringify(this.state.menuItems)).filter(Boolean).map(this.resetDoropdownItem)
+      })
+    }
+    if (nextProps.activePath !== this.state.activePath) {
+      this.setState({
+        activePath: nextProps.activePath,
+        active: nextProps.activePath.split('/').filter(String).join('')
       })
     }
   }
