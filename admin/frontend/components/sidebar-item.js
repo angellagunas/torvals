@@ -37,12 +37,10 @@ class SidebarItem extends Component {
   }
 
   getItemLink (to, icon, title, onClick) {
-    let activeLink = to.replace(/\//g, '')
     return (<NavLink
       to={to}
       activeClassName='is-active'
-      exact
-      onClick={() => onClick(activeLink)}>
+      exact>
       <span className='icon has-text-white'>
         <FontAwesome name={icon} />
       </span>

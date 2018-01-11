@@ -14,7 +14,8 @@ class AdminLayout extends Component {
     this.state = {
       user: {},
       loaded: false,
-      sidebarCollapsed: false
+      sidebarCollapsed: false,
+      activePath: ''
     }
   }
 
@@ -65,6 +66,10 @@ class AdminLayout extends Component {
     this.setState({sidebarCollapsed: !this.state.sidebarCollapsed})
   }
 
+  handlePathChange (activePath) {
+    this.setState({activePath})
+  }
+
   render () {
     if (!this.state.loaded) {
       return <div>Loading...</div>
@@ -72,10 +77,13 @@ class AdminLayout extends Component {
     if (!isEmpty(this.state.user)) {
       return (<div className='is-wrapper'>
         <AdminNavBar
+          handlePathChange={(p) => this.handlePathChange(p)}
           collapsed={this.state.sidebarCollapsed}
           handleBurgerEvent={() => this.handleBurgerEvent()} />
         <div className='is-flex c-flex-1 columns is-gapless'>
-          <Sidebar collapsed={this.state.sidebarCollapsed} />
+          <Sidebar
+            collapsed={this.state.sidebarCollapsed}
+            activePath={this.state.activePath} />
           <div className='column is-flex is-flex-column main-wrapper'>
             <section className='c-flex-1 is-flex'>
               {this.props.children}
