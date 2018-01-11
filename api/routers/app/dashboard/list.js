@@ -25,16 +25,16 @@ module.exports = new Route({
     var filters = {}
 
     switch (currentRole.slug) {
-      case 'analista':
+      case 'analyst':
         filters['status'] = 'analistReview'
         break
-      case 'ops':
+      case 'localmanager':
         filters['status'] = 'opsReview'
         break
-      case 'supervisor':
+      case 'enterprisemanager':
         filters['status'] = 'supervisorReview'
         break
-      case 'supervisor-ops':
+      case 'opsmanager':
         filters['status'] = 'opsReview'
         break
     }

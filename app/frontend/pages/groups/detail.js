@@ -200,7 +200,7 @@ export default Page({
   path: '/manage/groups/:uuid',
   title: 'Group details',
   exact: true,
-  roles: 'admin, admin-organizacion',
+  roles: 'admin, orgadmin',
   validate: [loggedIn, verifyRole],
   component: branchedGroupDetail
 })

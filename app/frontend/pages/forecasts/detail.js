@@ -655,8 +655,8 @@ class ForecastDetail extends Component {
     if (
         forecast.status !== 'analistReview' &&
         forecast.status !== 'readyToOrder' &&
-        currentRole !== 'analista' &&
-        currentRole !== 'supervisor'
+        currentRole !== 'analyst' &&
+        currentRole !== 'enterprisemanager'
     ) {
       return (
         <div className='columns'>
@@ -826,7 +826,7 @@ class ForecastDetail extends Component {
                       selectable={
                         (forecast.status !== 'analistReview' &&
                         forecast.status !== 'readyToOrder') &&
-                        (currentRole !== 'analista' && currentRole !== 'supervisor')
+                        (currentRole !== 'analyst' && currentRole !== 'enterprisemanager')
                       }
                      />
                   </div>
@@ -892,7 +892,7 @@ class ForecastDetail extends Component {
       )
     }
 
-    if (forecast.status === 'opsReview' && (currentRole === 'ops' || currentRole === 'supervisor-ops')) {
+    if (forecast.status === 'opsReview' && (currentRole === 'localmanager' || currentRole === 'opsmanager')) {
       return (
         <button
           className='button is-primary'
@@ -1035,7 +1035,7 @@ class ForecastDetail extends Component {
             </div>
             <div className='column is-6 is-offset-6'>
               <div className='control'>
-                { currentRole !== 'ops' &&
+                { currentRole !== 'localmanager' &&
                   <DeleteButton
                     objectName='Forecast'
                     objectDelete={this.deleteObject.bind(this)}
@@ -1068,7 +1068,7 @@ export default Page({
   title: 'Forecast detail',
   icon: 'check',
   exact: true,
-  roles: 'supervisor, analista, admin-organizacion, admin, ops, supervisor-ops',
+  roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
   validate: [loggedIn, verifyRole],
   component: ForecastDetail
 })

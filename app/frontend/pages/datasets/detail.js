@@ -653,7 +653,7 @@ export default Page({
   title: 'Dataset detail',
   icon: 'check',
   exact: true,
-  roles: 'supervisor, analista, admin-organizacion, admin',
+  roles: 'enterprisemanager, analyst, orgadmin, admin',
   validate: [loggedIn, verifyRole],
   component: branchedDataSetDetail
 })

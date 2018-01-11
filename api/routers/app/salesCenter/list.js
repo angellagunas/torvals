@@ -24,7 +24,7 @@ module.exports = new Route({
         currentRole = role.toPublic()
       }
 
-      if (currentRole.slug === 'ops' || currentRole.slug === 'supervisor-ops') {
+      if (currentRole.slug === 'localmanager' || currentRole.slug === 'opsmanager') {
         var groups = user.groups
         var salesCentersList = []
 
