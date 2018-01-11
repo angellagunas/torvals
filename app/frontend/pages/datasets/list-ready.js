@@ -99,7 +99,7 @@ export default Page({
   title: 'Ready',
   icon: 'thumbs-up',
   exact: true,
-  roles: 'supervisor, analista, admin-organizacion, admin',
+  roles: 'enterprisemanager, analyst, orgadmin, admin',
   validate: [loggedIn, verifyRole],
   component: branchedReadyDataSets
 })

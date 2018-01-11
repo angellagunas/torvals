@@ -236,7 +236,7 @@ export default Page({
   title: 'User',
   icon: 'user',
   exact: true,
-  roles: 'admin, admin-organizacion',
+  roles: 'admin, orgadmin',
   validate: [loggedIn, verifyRole],
   component: branchedUsers
 })

@@ -204,7 +204,7 @@ export default Page({
   title: 'Projects',
   icon: 'cog',
   exact: true,
-  roles: 'supervisor, analista, admin-organizacion, admin',
+  roles: 'enterprisemanager, analyst, orgadmin, admin',
   validate: [loggedIn, verifyRole],
   component: branchedProjects
 })

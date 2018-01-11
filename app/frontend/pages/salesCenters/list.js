@@ -11,7 +11,7 @@ export default ListPage({
   title: 'Sales Centers',
   icon: 'credit-card-alt',
   exact: true,
-  roles: 'supervisor, analista, admin-organizacion, admin, ops, supervisor-ops',
+  roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Sales center',
   create: true,

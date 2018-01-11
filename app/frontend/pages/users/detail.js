@@ -329,7 +329,7 @@ const branchedUserDetail = branch({}, UserDetail)
 export default Page({
   path: '/manage/users/:uuid',
   title: 'User details',
-  roles: 'admin, admin-organizacion',
+  roles: 'admin, orgadmin',
   exact: true,
   validate: [loggedIn, verifyRole],
   component: branchedUserDetail

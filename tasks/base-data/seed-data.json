@@ -24,23 +24,23 @@
     ],
     "roles": [
         {
-            "name": "Admin Organización",
+            "name": "OrgAdmin",
             "isDefault": false
         },
         {
-            "name": "Ops",
+            "name": "LocalManager",
             "isDefault": true
         },
         {
-            "name": "Supervisor",
+            "name": "EnterpriseManager",
             "isDefault": false
         },
         {
-            "name": "Analista",
+            "name": "Analyst",
             "isDefault": false
         },
         {
-            "name": "Supervisor Ops",
+            "name": "OpsManager",
             "isDefault": false
         }
     ]

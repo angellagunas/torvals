@@ -34,7 +34,7 @@ class Sidebar extends Component {
           title: 'Manage Your Team',
           icon: 'users',
           to: '/manage',
-          roles: 'admin-organizacion, admin',
+          roles: 'orgadmin, admin',
           dropdown: [
             Users.asSidebarItem(),
             Groups.asSidebarItem(),
@@ -49,7 +49,7 @@ class Sidebar extends Component {
           title: 'Datasets',
           icon: 'file',
           to: '/datasets',
-          roles: 'supervisor, analista, admin-organizacion, admin',
+          roles: 'enterprisemanager, analyst, orgadmin, admin',
           dropdown: [
             DataSets.asSidebarItem(),
             ReadyDataSets.asSidebarItem()
@@ -68,7 +68,7 @@ class Sidebar extends Component {
         title: 'Manage Your Team',
         icon: 'users',
         to: '/manage',
-        roles: 'admin-organizacion, admin',
+        roles: 'orgadmin, admin',
         dropdown: [
           Users.asSidebarItem(),
           Groups.asSidebarItem()
