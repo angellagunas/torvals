@@ -30,6 +30,9 @@ class OrganizationDetail extends Component {
     })
     this.context.tree.commit()
     this.load()
+    if (this.props.hasOwnProperty('test')) {
+      this.props.test()
+    }
   }
 
   async load () {

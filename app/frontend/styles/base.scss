@@ -36,10 +36,6 @@ html, body {
   position: fixed;
 }
 
-.navbar-menu {
-    background-color: whitesmoke;
-}
-
 .c-topbar {
     position: relative;
     width: 100%;
@@ -59,19 +55,6 @@ html, body {
 .c-topbar__main {
   flex: 1 1 0%;
   max-width: 100%;
-}
-
-.offcanvas {
-  background-color: #5d5d5d;
-}
-
-.burger-desktop {
-    cursor: pointer;
-    display: block;
-    height: 3.25rem;
-    position: relative;
-    width: 3.25rem;
-    margin-left: auto;
 }
 
 .main {
@@ -159,34 +142,6 @@ html, body {
   align-items: center;
 }
 
-a .navbar-item:hover {
-  background-color: transparent;
-}
-
-.menu {
-  width: 250px;
-  height: 100%;
-}
-
-.menu li {
-  background-color: #f1f1f1;
-}
-
-.menu ul li > ul {
-  margin: 0px;
-  padding: 0px;
-  li {
-    background-color: #f7f7f7;
-    a {
-      padding-left: 1.8em;
-      &.is-active {
-        background: #f7f7f7;
-        color: $primary;
-      }
-    }
-  }
-}
-
 footer {
   padding: 20px;
   width: 100%;
@@ -252,14 +207,7 @@ select.placeholder {
   color: gray;
 }
 
-.navbar-select {
-  height: 3.25rem;
-}
 
-
-.navbar-select-name {
-  padding: .2em
-}
 
 .dropdown-select > .navbar-item img {
   max-height: 30px;
@@ -267,19 +215,9 @@ select.placeholder {
 }
 
 
-.navbar-item-height img {
-  max-height: 45px;
-  max-width: 45px;
-  min-height: 45px;
-  min-width: 45px;
-}
 
-.avatar {
-  max-height: 40px;
-  max-width: 40px;
-  min-height: 40px;
-  min-width: 40px;
-}
+
+
 
 .is-edited {
   background-color: #C3ECEF !important;
