@@ -64,7 +64,6 @@ class AdminLayout extends Component {
     if (!this.state.loaded) {
       return <div>Loading...</div>
     }
-
     if (!isEmpty(this.state.user)) {
       return (<div className='is-wrapper'>
         <AdminNavBar />

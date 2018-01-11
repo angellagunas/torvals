@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import Link from '~base/router/link'
+import NavLink from '~base/router/navlink'
 import FontAwesome from 'react-fontawesome'
 
 class SidebarItem extends Component {
@@ -17,17 +17,23 @@ class SidebarItem extends Component {
 
   getItemLink (to, icon, title, onClick) {
     let activeLink = to.replace(/\//g, '')
-    return (<Link className={this.props.activeItem === activeLink ? 'is-active' : ''} to={to} onClick={() => onClick(activeLink)}>
+    return (<NavLink
+      activeClassName='is-active'
+      exact
+      to={to}
+      onClick={() => onClick(activeLink)}>
       <span className='icon'>
         <FontAwesome name={icon} />
       </span>
       <span>{title}</span>
-    </Link>)
+    </NavLink>)
   }
 
   getDropdownButton (to, icon, title, toggle) {
     var mainPath = new RegExp(to)
-    return (<a href='javascript:void(0)' className={mainPath.test(this.props.activeItem) ? 'is-active' : ''} onClick={() => toggle()}>
+    return (<a href='javascript:void(0)'
+      className={mainPath.test(this.props.activeItem) ? 'is-active' : ''}
+      onClick={() => toggle()}>
       <span className='icon'>
         <FontAwesome name={icon} />
       </span>
