@@ -315,8 +315,8 @@ class ForecastDetail extends Component {
         'default': '',
         formatter: (row) => {
           if (
-              currentRole !== 'analista' &&
-              currentRole !== 'supervisor'
+              currentRole !== 'analyst' &&
+              currentRole !== 'enterprisemanager'
           ) {
             if (row.isLimit && !row.adjustmentRequest) {
               return (
@@ -429,8 +429,8 @@ class ForecastDetail extends Component {
         formatter: (row) => {
           if (
               row.status === 'created' &&
-              currentRole !== 'analista' &&
-              currentRole !== 'supervisor'
+              currentRole !== 'analyst' &&
+              currentRole !== 'enterprisemanager'
           ) {
             return (
               <div className='field is-grouped'>
@@ -1008,7 +1008,7 @@ class ForecastDetail extends Component {
       )
     }
 
-    if (forecast.status === 'consolidate' && (currentRole === 'ops' || currentRole === 'supervisor-ops')) {
+    if (forecast.status === 'consolidate' && (currentRole === 'localmanager' || currentRole === 'opsmanager')) {
       return (
         <button
           className='button is-primary'
