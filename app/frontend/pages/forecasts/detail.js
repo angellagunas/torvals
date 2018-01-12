@@ -1134,11 +1134,15 @@ class ForecastDetail extends Component {
   }
 
   async approveRequestOnClick (uuid) {
+    const { forecast } = this.state
     var url = '/app/adjustmentRequests/approve/' + uuid
     await api.post(url)
 
     const cursor = tree.get('adjustmentRequests')
-    const adjustmentRequests = await api.get('/app/adjustmentRequests/')
+    const adjustmentRequests = await api.get(
+      '/app/adjustmentRequests/',
+      {forecast: forecast.uuid}
+    )
 
     await this.loadPredictions()
 
@@ -1152,11 +1156,15 @@ class ForecastDetail extends Component {
   }
 
   async rejectRequestOnClick (uuid) {
+    const { forecast } = this.state
     var url = '/app/adjustmentRequests/reject/' + uuid
     await api.post(url)
 
     const cursor = tree.get('adjustmentRequests')
-    const adjustmentRequests = await api.get('/app/adjustmentRequests/')
+    const adjustmentRequests = await api.get(
+      '/app/adjustmentRequests/',
+      {forecast: forecast.uuid}
+    )
 
     tree.set('adjustmentRequests', {
       page: cursor.page,
