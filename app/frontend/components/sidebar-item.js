@@ -40,7 +40,7 @@ class SidebarItem extends Component {
     return (<NavLink
       activeClassName='is-active'
       to={to}
-      exact>
+    >
       <span className='icon has-text-white'>
         <FontAwesome name={icon} />
       </span>

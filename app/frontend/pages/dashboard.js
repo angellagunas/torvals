@@ -206,7 +206,7 @@ Dashboard.contextTypes = {
 const branchedDashboard = branch({forecasts: 'forecasts'}, Dashboard)
 
 export default Page({
-  path: '/',
+  path: '/dashboard',
   title: 'Dashboard',
   icon: 'github',
   exact: true,
