@@ -103,7 +103,7 @@ class LogIn extends Component {
     const baseUrl = env.APP_HOST.split('://')
 
     cookies.set('jwt', this.state.jwt)
-    window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1]
+    window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard'
   }
 
   getDropdown () {
