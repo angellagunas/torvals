@@ -30,14 +30,12 @@ module.exports = new Route({
       }
     }
 
-    var predictions = await Prediction.dataTables({
-      limit: ctx.request.query.limit || 20,
-      skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters},
-      populate: ['organization', 'salesCenter', 'product', 'adjustmentRequest'],
-      sort: ctx.request.query.sort || '-dateCreated'
-    })
+    var predictions = await Prediction.find({isDeleted: false, ...filters})
+      .populate(['organization', 'salesCenter', 'product', 'adjustmentRequest'])
+      .sort(ctx.request.query.sort || '-dateCreated')
 
-    ctx.body = predictions
+    ctx.body = {
+      data: predictions
+    }
   }
 })
