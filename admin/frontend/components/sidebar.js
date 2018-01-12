@@ -3,6 +3,7 @@ import SidebarItem from '~components/sidebar-item'
 
 import Dashboard from '../pages/dashboard'
 import Users from '../pages/users/list'
+import DeletedUsers from '../pages/users/list-deleted'
 import Organizations from '../pages/organizations/list'
 import Roles from '../pages/roles/list'
 import Groups from '../pages/groups/list'
@@ -41,6 +42,7 @@ class Sidebar extends Component {
         to: '/manage',
         dropdown: [
           Users.asSidebarItem(),
+          DeletedUsers.asSidebarItem(),
           Organizations.asSidebarItem(),
           Roles.asSidebarItem(),
           Groups.asSidebarItem()
