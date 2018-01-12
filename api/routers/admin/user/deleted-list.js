@@ -9,8 +9,7 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: true},
-      sort: '-dateCreated',
-      populate: 'organization'
+      sort: '-dateCreated'
     })
 
     ctx.body = users
