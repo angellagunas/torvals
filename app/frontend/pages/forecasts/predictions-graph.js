@@ -68,6 +68,10 @@ class PredictionsGraph extends Component {
       </div>
     }
 
+    if (!loading && Object.keys(graphData).length === 0) {
+      barGraph = <div className='notification has-text-centered'>No hay datos Generales de esta predicción</div>
+    }
+
     if (Object.keys(graphData).length > 0) {
       barGraph = <CreateBarGraph
         data={graphData}
@@ -77,9 +81,9 @@ class PredictionsGraph extends Component {
         pristine={this.state.graphIsPristine}
       />
       products = productsList
-        .sort((a, b) => Number(a) - Number(b))
-        .map((value, index) => {
-          return (<option key={index} value={value}>{value}</option>)
+        .sort((a, b) => Number(a.itemId) - Number(b.itemId))
+        .map((item, index) => {
+          return (<option key={index} value={item.itemId}>{item.itemId} - {item.name}</option>)
         })
     }
 
