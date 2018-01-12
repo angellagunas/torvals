@@ -276,6 +276,9 @@ class DataSetDetail extends Component {
                   <div className='field is-grouped'>
                     <b>Max date:</b> {dataset.dateMax}
                   </div>
+                  <ConfigureViewDataset
+                    initialState={dataset}
+                  />
                   <div className='field is-grouped'>
                     <div className='control'>
                       <button
