@@ -221,7 +221,7 @@ class ForecastDetail extends Component {
   async deleteObject () {
     var url = '/app/forecasts/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push(`/app/projects/${this.state.forecast.project.uuid}`)
+    this.props.history.push(`/projects/${this.state.forecast.project.uuid}`)
   }
 
   async changeStatusOnClick (status) {
