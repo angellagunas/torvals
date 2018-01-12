@@ -98,7 +98,7 @@ export default ListPage({
                     titleButton={'Deactivate'}
                     objectName='Users'
                     objectDelete={deleteObject}
-                    message={'Are you sure you want to deactivate this user?'}
+                    message={`Are you sure you want to deactivate ${row.name}?`}
                   />
                 )}
               </div>

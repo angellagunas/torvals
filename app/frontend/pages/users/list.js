@@ -97,7 +97,7 @@ class Users extends Component {
                     titleButton={'Deactivate'}
                     objectName='User'
                     objectDelete={deleteObject}
-                    message={'Are you sure you want to deactivate this user?'}
+                    message={`Are you sure you want to deactivate ${row.name}?`}
                   />
                 )}
               </div>
@@ -233,7 +233,7 @@ const branchedUsers = branch({users: 'users'}, Users)
 
 export default Page({
   path: '/manage/users',
-  title: 'User',
+  title: 'Users',
   icon: 'user',
   exact: true,
   roles: 'admin, orgadmin',
