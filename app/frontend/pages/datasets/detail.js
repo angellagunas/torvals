@@ -248,7 +248,7 @@ class DataSetDetail extends Component {
                   <ConfigureDatasetForm
                     initialState={dataset}
                     columns={dataset.columns || []}
-                    url={'/admin/datasets/' + dataset.uuid + '/configure'}
+                    url={'/app/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
                     load={this.load.bind(this)}
                   />
