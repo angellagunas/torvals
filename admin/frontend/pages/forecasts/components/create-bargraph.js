@@ -43,20 +43,34 @@ class CreateBarGraph extends Component {
     return data
   }
 
-  addAxes (svg, xAxis, yAxis, margin, chartWidth, chartHeight) {
+  addAxes (svg, xAxis, yAxis, margin, chartWidth, chartHeight, node, x, y) {
+    const xDate = x(new Date())
+    const markerWidth = chartWidth - xDate
     let axes = svg.append('g')
       .attr('clip-path', 'url(#axes-clip)')
 
     axes.append('g')
       .attr('className', 'x axis')
-      .style('fill', '#000')
+      .style('fill', '#c3c3c3')
       .attr('transform', 'translate(0,' + chartHeight + ')')
       .call(xAxis)
 
     axes.append('g')
       .attr('className', 'y axis')
-      .style('fill', '#000')
+      .style('fill', '#c3c3c3')
       .call(yAxis)
+
+    const marker = svg.append('g')
+      .attr('className', 'maker')
+      .style('fill', '#000')
+      .attr('transform', 'translate(' + (xDate - chartWidth) + ', 0)')
+
+    marker.append('rect')
+      .style('fill', 'rgba(0, 209, 178, 0.5)')
+      .style('stroke', 'rgba(0, 209, 178, 0.5)')
+      .attr('width', markerWidth)
+      .attr('height', chartHeight)
+      .attr('x', (xDate + markerWidth))
   }
 
   updateAxes (svg, data) {
@@ -146,7 +160,7 @@ class CreateBarGraph extends Component {
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
     this.setState({ svg, data, xAxis, yAxis, margin, chartWidth, chartHeight, node, x, y }, function () {
-      this.addAxes(svg, xAxis, yAxis, margin, chartWidth, chartHeight, node)
+      this.addAxes(svg, xAxis, yAxis, margin, chartWidth, chartHeight, node, x, y)
       this.drawPaths(svg, data, x, y)
     })
   }
