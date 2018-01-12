@@ -19,6 +19,7 @@ class Sidebar extends Component {
     this.state = {
       dropdown: true,
       active: '',
+      activePath: '',
       collapsed: false,
       menuItems: []
     }
@@ -27,16 +28,7 @@ class Sidebar extends Component {
 
   componentWillMount () {
     const activeItem = window.location.pathname.split('/').filter(String).join('')
-    let menuItems = this.getMenuItems()
-
-    let IndexOfActive = menuItems.filter(Boolean).findIndex(function (item) {
-      const mainPath = new RegExp(item.to.replace(/\//g, ''))
-      if (!item.hasOwnProperty('dropdown')) return false
-      return mainPath.test(activeItem)
-    })
-    if (IndexOfActive >= 0) {
-      menuItems[IndexOfActive].opened = true
-    }
+    const menuItems = this.handleOpenDropdown(this.getMenuItems(), activeItem)
     this.setState({ menuItems }, function () {
       this.handleActiveLink(activeItem)
     })
@@ -49,6 +41,29 @@ class Sidebar extends Component {
         menuItems: JSON.parse(JSON.stringify(this.state.menuItems)).filter(Boolean).map(this.resetDoropdownItem)
       })
     }
+    if (nextProps.activePath !== this.state.activePath) {
+      const active = nextProps.activePath.split('/').filter(String).join('')
+      const menuItems = this.handleOpenDropdown(this.state.menuItems, active)
+      this.setState({
+        activePath: nextProps.activePath,
+        menuItems,
+        active
+      })
+    }
+  }
+
+  handleOpenDropdown (menuItems, activeItem) {
+    if (!this.state.collapsed) {
+      const IndexOfActive = menuItems.filter(Boolean).findIndex(item => {
+        const mainPath = new RegExp(item.to.replace(/\//g, ''))
+        if (!item.hasOwnProperty('dropdown')) return false
+        return mainPath.test(activeItem)
+      })
+      if (IndexOfActive >= 0) {
+        menuItems[IndexOfActive].opened = true
+      }
+    }
+    return menuItems
   }
 
   resetDoropdownItem (item) {

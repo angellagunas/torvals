@@ -17,7 +17,8 @@ class NavBar extends Component {
       profileDropdown: 'is-hidden',
       dropCaret: 'fa fa-caret-down',
       redirect: false,
-      navbarBrandCollapsed: false
+      navbarBrandCollapsed: false,
+      path: ''
     }
 
     this.setWrapperRef = this.setWrapperRef.bind(this)
@@ -27,6 +28,10 @@ class NavBar extends Component {
   componentWillReceiveProps (nextProps) {
     if (this.state.navbarBrandCollapsed !== nextProps.collapsed) {
       this.setState({navbarBrandCollapsed: !this.state.navbarBrandCollapsed})
+    }
+    if (nextProps.location.pathname !== this.state.path) {
+      this.setState({path: nextProps.location.pathname})
+      this.props.handlePathChange(nextProps.location.pathname)
     }
   }
 
