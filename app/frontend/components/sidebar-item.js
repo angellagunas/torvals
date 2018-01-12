@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import Link from '~base/router/link'
+import NavLink from '~base/router/navlink'
 import FontAwesome from 'react-fontawesome'
+import classNames from 'classnames'
 import tree from '~core/tree'
 
 class SidebarItem extends Component {
@@ -8,35 +9,83 @@ class SidebarItem extends Component {
     super(props)
     this.state = {
       open: false,
-      active: false
+      menuIsCollapsed: true
     }
 
     this.getDropdownButton = this.getDropdownButton.bind(this)
-    this.onToggle = this.onToggle.bind(this)
     this.getItemLink = this.getItemLink.bind(this)
+  }
+  componentDidMount () {
+    this.setState({open: this.props.opened})
+  }
+
+  componentWillReceiveProps (nextProp) {
+    const { to, activeItem, dropdownOnClick, index } = this.props
+    const mainPath = new RegExp(to.replace(/\//g, ''))
+
+    if (nextProp.collapsed !== this.state.menuIsCollapsed) {
+      this.setState({menuIsCollapsed: nextProp.collapsed}, function () {
+        if (mainPath.test(activeItem) && !nextProp.collapsed) {
+          dropdownOnClick(index)
+        }
+      })
+    }
+
+    if (nextProp.status !== this.state.open) {
+      this.setState({open: nextProp.status})
+    }
   }
 
   getItemLink (to, icon, title, onClick) {
     let activeLink = to.replace(/\//g, '')
-    return (<Link className={this.props.activeItem === activeLink ? 'is-active' : ''} to={to} onClick={() => onClick(activeLink)}>
-      <span className='icon'>
+    return (<NavLink
+      className={this.props.activeItem === activeLink ? 'is-active' : ''}
+      to={to}
+      onClick={() => onClick(activeLink)}>
+      <span className='icon has-text-white'>
         <FontAwesome name={icon} />
       </span>
-      <span>{title}</span>
-    </Link>)
+      <span className='item-link-title'> {title}</span>
+    </NavLink>)
   }
 
-  getDropdownButton (to, icon, title, toggle) {
-    var mainPath = new RegExp(to)
-    return (<a href='javascript:void(0)' className={mainPath.test(this.props.activeItem) ? 'is-active' : ''} onClick={() => toggle()}>
-      <span className='icon'>
-        <FontAwesome name={icon} />
-      </span>
-      <span>{title}</span>
-      <span className='icon is-pulled-right'>
-        <FontAwesome name={this.state.open ? 'angle-down' : 'angle-right'} />
-      </span>
-    </a>)
+  getDropdownButton (to, icon, title, toggle, dropdownItems) {
+    const mainPath = new RegExp(to.replace(/\//g, ''))
+    const isActive = mainPath.test(this.props.activeItem)
+    const arrowColorClass = classNames('icon is-pulled-right', {
+      'has-text-primary': !isActive,
+      'has-text-white': isActive
+    })
+    const dropdownClass = classNames('', {
+      'dropdown': this.state.menuIsCollapsed,
+      'is-active': isActive
+    })
+    if (this.state.menuIsCollapsed) {
+      return (<div
+        className={dropdownClass}
+        onMouseEnter={() => toggle(this.props.index)}
+        onMouseLeave={() => toggle(this.props.index)}
+        href='javascript:void(0)' >
+        <span className='icon has-text-white'>
+          <FontAwesome name={icon} />
+        </span>
+        {dropdownItems}
+      </div>)
+    }
+    return (<div>
+      <a href='javascript:void(0)'
+        className={isActive ? 'is-active' : ''}
+        onClick={() => toggle(this.props.index)}>
+        <span className='icon'>
+          <FontAwesome className='has-text-white' name={icon} />
+        </span>
+        <span className='item-link-title'> {title}</span>
+        <span className={arrowColorClass}>
+          <FontAwesome name={this.state.open ? 'angle-down' : 'angle-right'} />
+        </span>
+      </a>
+      {dropdownItems}
+    </div>)
   }
 
   onToggle () {
@@ -60,30 +109,27 @@ class SidebarItem extends Component {
   }
 
   render () {
-    let {title, icon, to, dropdown, onClick, roles} = this.props
+    let {title, icon, to, dropdown, onClick, dropdownOnClick, roles} = this.props
     let mainLink = this.getItemLink(to, icon, title, onClick)
-    let ulDropdown
+    let dropdownItems
 
     if (!this.testRoles(roles)) return null
 
     if (dropdown) {
-      mainLink = this.getDropdownButton(to, icon, title, this.onToggle)
-      ulDropdown = (<ul className={this.state.open ? '' : 'is-hidden'}>
+      dropdownItems = (<ul className={this.state.open ? '' : 'is-hidden'}>
         {dropdown.map((e, i) => {
           if (!this.testRoles(e.roles)) return null
 
-          return (
-            <li key={e.title.toLowerCase().replace(/\s/g, '')}>
-              {this.getItemLink(e.to, e.icon, e.title, onClick)}
-            </li>
-          )
+          return (<li key={e.title.toLowerCase().replace(/\s/g, '')}>
+            {this.getItemLink(e.to, e.icon, e.title, onClick)}
+          </li>)
         })}
       </ul>)
+      mainLink = this.getDropdownButton(to, icon, title, dropdownOnClick, dropdownItems)
     }
 
     return (<li>
       {mainLink}
-      {ulDropdown}
     </li>)
   }
 }

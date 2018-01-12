@@ -16,8 +16,13 @@ class AdminLayout extends Component {
     super(props)
     this.state = {
       user: {},
-      loaded: false
+      loaded: false,
+      sidebarCollapsed: false
     }
+  }
+
+  handleBurgerEvent () {
+    this.setState({sidebarCollapsed: !this.state.sidebarCollapsed})
   }
 
   async componentWillMount () {
@@ -72,9 +77,10 @@ class AdminLayout extends Component {
 
     if (!isEmpty(this.state.user)) {
       return (<div className='is-wrapper'>
-        <AdminNavBar />
+        <AdminNavBar collapsed={this.state.sidebarCollapsed}
+          handleBurgerEvent={() => this.handleBurgerEvent()} />
         <div className='is-flex c-flex-1 columns is-gapless'>
-          <Sidebar />
+          <Sidebar collapsed={this.state.sidebarCollapsed} />
           <div className='column is-flex is-flex-column main-wrapper'>
             <section className='c-flex-1 is-flex'>
               {this.props.children}

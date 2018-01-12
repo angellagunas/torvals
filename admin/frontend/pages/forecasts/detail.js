@@ -234,8 +234,9 @@ class ForecastDetail extends Component {
    */
 
   getColumns () {
-    return [
-      {
+    let checkboxColumn = []
+    if (this.state.forecast.status === 'opsReview') {
+      checkboxColumn.push({
         'title': 'checker',
         'abbreviate': true,
         'abbr': (() => {
@@ -263,7 +264,11 @@ class ForecastDetail extends Component {
             </div>
           </div>)
         }
-      },
+      })
+    }
+
+    return [
+      ...checkboxColumn,
       {
         'title': 'Product Id',
         'abbreviate': true,
