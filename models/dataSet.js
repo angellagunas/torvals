@@ -68,6 +68,7 @@ const dataSetSchema = new Schema({
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   newProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
 
+  apiData: { type: Schema.Types.Mixed },
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
@@ -180,6 +181,78 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
   await this.save()
 
   return true
+}
+
+dataSetSchema.methods.processData = async function () {
+  const { Product, SalesCenter } = require('models')
+
+  if (!this.apiData) return
+
+  this.products = []
+  this.newProducts = []
+  this.salesCenters = []
+  this.newSalesCenters = []
+
+  if (this.apiData.products) {
+    for (var p of this.apiData.products) {
+      var product = await Product.findOne({
+        externalId: p,
+        organization: this.organization
+      })
+
+      if (!product) {
+        product = await Product.create({
+          name: 'Not identified',
+          externalId: p,
+          organization: this.organization
+        })
+
+        this.newProducts.push(product)
+      } else {
+        var pos = this.products.findIndex(item => {
+          return String(item) === String(product._id)
+        })
+
+        var posNew = this.newProducts.findIndex(item => {
+          return String(item) === String(product._id)
+        })
+
+        if (pos < 0 && posNew < 0) this.products.push(product)
+      }
+    }
+  }
+
+  if (this.apiData.salesCenters) {
+    for (var a of this.apiData.salesCenters) {
+      var salesCenter = await SalesCenter.findOne({
+        externalId: a,
+        organization: this.organization
+      })
+
+      if (!salesCenter) {
+        salesCenter = await SalesCenter.create({
+          name: 'Not identified',
+          externalId: a,
+          organization: this.organization
+        })
+
+        this.newSalesCenters.push(salesCenter)
+      } else {
+        pos = this.salesCenters.findIndex(item => {
+          return String(item) === String(salesCenter._id)
+        })
+
+        posNew = this.newSalesCenters.findIndex(item => {
+          return String(item) === String(salesCenter._id)
+        })
+
+        if (pos < 0 && posNew < 0) this.salesCenters.push(salesCenter)
+      }
+    }
+  }
+
+  this.markModified('products', 'newProducts', 'salesCenters', 'newSalesCenters')
+  await this.save()
 }
 
 dataSetSchema.virtual('url').get(function () {
