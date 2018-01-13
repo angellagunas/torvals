@@ -8,6 +8,13 @@ body {
   height: 100%;
 }
 
+.tick {
+  line {
+    stroke: rgba(0, 0, 0, 0.3);
+  }
+}
+
+
 .label {
   color: #363636;
   display: block;
