@@ -146,7 +146,7 @@ class ForecastDetail extends Component {
     this.setState({
       loading: false,
       loaded: true,
-      channelsOptions: body.data.map(item => { return item.data.channel_name }),
+      channelsOptions: body.data.map(item => { return item.data.channelName }),
       predictions: body.data,
       predictionsFormatted: body.data.map(item => {
         let data = item.data
@@ -309,10 +309,10 @@ class ForecastDetail extends Component {
         'title': 'Canal',
         'abbreviate': true,
         'abbr': 'Canal',
-        'property': 'channel_id',
+        'property': 'channelId',
         'default': 'N/A',
         formatter: (row) => {
-          return String(row.channel_name)
+          return String(row.channelName)
         }
       },
       {
