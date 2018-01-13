@@ -32,6 +32,10 @@ module.exports = async function (ctx, next) {
         return ctx.throw(401, 'Invalid User')
       }
 
+      if (userToken.user.isDeleted) {
+        return ctx.throw(401, 'Invalid User')
+      }
+
       var user = userToken.user
       user = await User.populate(
         user,
