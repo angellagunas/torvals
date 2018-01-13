@@ -48,6 +48,18 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'groupAsign') {
+        const group = await Group.findOne(
+          {'uuid': ctx.request.query[filter]}
+        )
+
+        if (group) {
+          filters['groups'] = { $nin: [ObjectId(group._id)] }
+        }
+
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
