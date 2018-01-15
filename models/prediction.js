@@ -27,7 +27,9 @@ const predictionSchema = new Schema({
     month: { type: String },
     year: { type: String },
     forecastDate: { type: String },
-    updatedBy: { type: Schema.Types.ObjectId, ref: 'User' }
+    updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    channelId: { type: Number },
+    channelName: { type: String }
   },
   apiData: { type: Schema.Types.Mixed },
 

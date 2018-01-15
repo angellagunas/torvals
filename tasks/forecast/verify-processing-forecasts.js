@@ -149,7 +149,9 @@ const task = new Task(async function (argv) {
             ...d,
             semanaBimbo: d.semana_bimbo,
             forecastDate: d.forecast_date,
-            adjustment: d.prediction
+            adjustment: d.prediction,
+            channelId: d.canal_id,
+            channelName: d.canal_nombre
           },
           apiData: d,
           salesCenter: salesCenter,

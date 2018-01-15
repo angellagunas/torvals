@@ -69,6 +69,8 @@ class ForecastDetail extends Component {
       productsOptions: {
         enumOptions: []
       },
+      channelSelected: '',
+      channelsOptions: [],
       days: [],
       graphProductSelected: '',
       graphIsPristine: true,
@@ -144,6 +146,7 @@ class ForecastDetail extends Component {
     this.setState({
       loading: false,
       loaded: true,
+      channelsOptions: body.data.map(item => { return item.data.channelName }),
       predictions: body.data,
       predictionsFormatted: body.data.map(item => {
         let data = item.data
@@ -300,6 +303,16 @@ class ForecastDetail extends Component {
         'default': 'N/A',
         formatter: (row) => {
           return String(row.salesCenter.name)
+        }
+      },
+      {
+        'title': 'Canal',
+        'abbreviate': true,
+        'abbr': 'Canal',
+        'property': 'channelId',
+        'default': 'N/A',
+        formatter: (row) => {
+          return String(row.channelName)
         }
       },
       {
@@ -752,6 +765,27 @@ class ForecastDetail extends Component {
                           <option value='' />
                           {
                             this.state.productsOptions.enumOptions.map((item, index) => {
+                              return (<option key={index} value={item}>{item}</option>)
+                            })
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='field is-horizontal'>
+                <div className='field-label is-normal'>
+                  <label className='label'>Canal</label>
+                </div>
+                <div className='field-body'>
+                  <div className='field'>
+                    <div className='control'>
+                      <div className='select is-fullwidth'>
+                        <select className='is-fullwidth' value={this.state.channelSelected} onChange={(e) => this.handleFilters(e, 'channelSelected')}>
+                          <option value='' />
+                          {
+                            this.state.channelsOptions.map((item, index) => {
                               return (<option key={index} value={item}>{item}</option>)
                             })
                           }
