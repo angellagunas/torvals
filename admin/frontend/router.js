@@ -2,7 +2,8 @@ import React from 'react'
 import {
   BrowserRouter as Router,
   Switch,
-  Route
+  Route,
+  Redirect
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
@@ -38,8 +39,14 @@ import DeletedProducts from './pages/products/deleted-list'
 import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
 import PredictionHistoric from './pages/prediction-historic/list'
+import env from '~base/env-variables'
 
 const NoMatch = () => {
+  console.log('window.location', window.location.pathname.replace('/', ''))
+
+  if (window.location.pathname.replace(/\//g, '') === 'admin') {
+    return <Redirect to={{pathname: env.PREFIX + '/dashboard'}} />
+  }
   return <div>Not Found</div>
 }
 
