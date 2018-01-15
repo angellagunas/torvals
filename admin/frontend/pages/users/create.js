@@ -93,6 +93,7 @@ class CreateUser extends Component {
         load={this.load.bind(this)}
         roles={this.state.roles || []}
         orgs={this.state.orgs || []}
+        filters={this.props.filters}
       >
         <div className='field is-grouped'>
           <div className='control'>
@@ -117,7 +118,6 @@ class CreateUser extends Component {
         roles={this.state.roles || []}
         orgs={this.state.orgs || []}
         filters={this.props.filters}
-
       >
         <div className='field is-grouped'>
           <div className='control'>
