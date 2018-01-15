@@ -187,7 +187,7 @@ class ForecastDetail extends Component {
           schema,
           predictionsFiltered: this.state.predictionsFormatted.map(item => item),
           weekSelected: schema.weeks.enum[0],
-          days: schema.weeks.groupedByWeeks[schema.weeks.enum[0]],
+          days: this.handleDaysPerWeek(schema.weeks.groupedByWeeks[schema.weeks.enum[0]]),
           daySelected: schema.weeks.groupedByWeeks[Math.min(...Object.keys(schema.weeks.groupedByWeeks))][0],
           weeksOptions: {
             enumOptions: Object.keys(cache).map(item => {
@@ -642,10 +642,18 @@ class ForecastDetail extends Component {
     this.setState(obj, this.filterData)
   }
 
+  handleDaysPerWeek (days) {
+    const daysPerWeek = 7
+    if (days.length > daysPerWeek) {
+      return days.slice(0, daysPerWeek)
+    }
+    return days
+  }
+
   selectWeek (e) {
     if (e) {
       this.setState({
-        days: this.state.schema.weeks.groupedByWeeks[e],
+        days: this.handleDaysPerWeek(this.state.schema.weeks.groupedByWeeks[e]),
         weekSelected: e,
         daySelected: this.state.schema.weeks.groupedByWeeks[e][0] || ''
       }, this.filterData)
