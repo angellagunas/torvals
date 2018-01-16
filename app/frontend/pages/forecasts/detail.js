@@ -885,7 +885,6 @@ class ForecastDetail extends Component {
     let currentRole = tree.get('user').currentRole.slug
 
     if (
-
         forecast.status !== 'readyToOrder' &&
         currentRole !== 'enterprisemanager'
     ) {
