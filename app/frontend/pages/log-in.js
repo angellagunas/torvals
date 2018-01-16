@@ -135,7 +135,7 @@ class LogIn extends Component {
             return (
               <div key={d.key}>
                 <a
-                  className='navbar-item '
+                  className='navbar-item whitesmoke-hover'
                   href='#'
                   onClick={e => { this.selectOrgHandler(d.id) }}
                   >
@@ -148,7 +148,7 @@ class LogIn extends Component {
             return (
               <div key={d.key}>
                 <a
-                  className='navbar-item '
+                  className='navbar-item whitesmoke-hover'
                   href='#'
                   onClick={e => { this.selectOrgHandler(d.id) }}
                   >
