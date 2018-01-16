@@ -169,6 +169,14 @@ footer.footer {
 .is-rounded {
   border-radius: 50%;
 }
+.bg-whitesmoke{
+  background-color: whitesmoke;
+}
+.avatar-org-dropdown{
+  width: 30px !important;
+  height: 50px !important;
+  margin-right: 10px;
+}
 
 .is-align-center {
   align-items: center;
@@ -189,12 +197,12 @@ footer.footer {
   padding-bottom: 0.5em;
 }
 
-.card-header-select {    
-  padding: .30em   
-}    
-   
-.card-header-select.select:not(.is-multiple)::after {    
-  margin-top: -.130em    
+.card-header-select {
+  padding: .30em
+}
+
+.card-header-select.select:not(.is-multiple)::after {
+  margin-top: -.130em
 }
 
 .multiselect-column {
@@ -210,7 +218,7 @@ footer.footer {
   padding-top: 7.8em;
 }
 
-select.placeholder {  
+select.placeholder {
   color: gray;
 }
 
