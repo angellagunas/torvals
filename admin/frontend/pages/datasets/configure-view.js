@@ -36,7 +36,7 @@ class ConfigureViewDataset extends Component {
       return item.isOperationFilter
     }).map(item => {
       return (
-        <tr>
+        <tr key={item.name}>
           <td>{item.name}</td>
         </tr>
       )
@@ -46,7 +46,7 @@ class ConfigureViewDataset extends Component {
       return item.isAnalysisFilter
     }).map(item => {
       return (
-        <tr>
+        <tr key={item.name}>
           <td>{item.name}</td>
         </tr>
       )
