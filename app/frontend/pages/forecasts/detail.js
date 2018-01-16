@@ -140,11 +140,14 @@ class ForecastDetail extends Component {
   async loadPredictions () {
     var url = '/app/predictions'
     const body = await api.get(url, {forecast: this.state.forecast.uuid})
+    var channels = new Set(body.data.map(item => {
+      return item.data.channelName
+    }).filter(item => { return !!item }))
 
     this.setState({
       loading: false,
       loaded: true,
-      channelsOptions: body.data.map(item => { return item.data.channelName }),
+      channelsOptions: Array.from(channels),
       predictions: body.data,
       predictionsFormatted: body.data.map(item => {
         let data = item.data
@@ -324,7 +327,9 @@ class ForecastDetail extends Component {
         'default': 0
       },
       {
-        'title': 'Ajuste anterior',
+        'title': 'Pedido en firme realizado en 15/01/2018',
+        'abbreviate': true,
+        'abbr': 'Pedido',
         'property': 'lastAdjustment',
         'default': 'N/A',
         formatter: (row) => {
@@ -659,6 +664,12 @@ class ForecastDetail extends Component {
     if (state.productsSelected) {
       predictionsFiltered = predictionsFiltered.filter((item) => {
         return item.product.category === state.productsSelected
+      })
+    }
+
+    if (state.channelSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.channelName === state.channelSelected
       })
     }
 

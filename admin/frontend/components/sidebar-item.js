@@ -36,8 +36,8 @@ class SidebarItem extends Component {
     }
   }
 
-  getItemLink (to, icon, title, onClick) {
-    return (<NavLink
+  getItemLink (to, icon, title, onClick, exact) {
+    return (<NavLink exact={exact}
       to={to}
       activeClassName='is-active'>
       <span className='icon has-text-white'>
@@ -82,20 +82,20 @@ class SidebarItem extends Component {
           <FontAwesome name={this.state.open ? 'angle-down' : 'angle-right'} />
         </span>
       </a>
-      {dropdownItems}
+      {dropdownItems} 
     </div>)
   }
 
   render () {
-    let {title, icon, to, dropdown, onClick, dropdownOnClick} = this.props
-    let mainLink = this.getItemLink(to, icon, title, onClick)
+    let {title, icon, to, dropdown, onClick, dropdownOnClick, exact} = this.props
+    let mainLink = this.getItemLink(to, icon, title, onClick, exact)
     let dropdownItems
 
     if (dropdown) {
       dropdownItems = (<ul className={this.state.open ? '' : 'is-hidden'}>
         {dropdown.map((e, i) => {
           return (<li key={e.title.toLowerCase().replace(/\s/g, '')}>
-            {this.getItemLink(e.to, e.icon, e.title, onClick)}
+            {this.getItemLink(e.to, e.icon, e.title, onClick, e.exact)}
           </li>)
         })}
       </ul>)

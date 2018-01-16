@@ -2,7 +2,8 @@ import React from 'react'
 import {
   BrowserRouter as Router,
   Switch,
-  Route
+  Route,
+  Redirect
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
@@ -29,9 +30,13 @@ import Products from './pages/products/list'
 import ProductDetail from './pages/products/detail'
 import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
+import env from '~base/env-variables'
 
 const NoMatch = () => {
-  return <div>Not Found</div>
+  if (window.location.pathname === '/') {
+    return <Redirect to={{pathname: env.PREFIX + 'dashboard'}} />
+  }
+  return (<div>Not Found</div>)
 }
 
 const AppRouter = () => {
@@ -69,6 +74,8 @@ const AppRouter = () => {
 
           {Forecasts.asRouterItem()}
           {ForecastDetail.asRouterItem()}
+
+          <Redirect from='/' to='/dashboard' />
           <Route component={NoMatch} />
         </Switch>
       </div>

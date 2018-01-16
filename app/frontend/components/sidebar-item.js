@@ -36,8 +36,8 @@ class SidebarItem extends Component {
     }
   }
 
-  getItemLink (to, icon, title, onClick) {
-    return (<NavLink
+  getItemLink (to, icon, title, onClick, exact) {
+    return (<NavLink exact={exact}
       activeClassName='is-active'
       to={to}
     >
@@ -51,6 +51,7 @@ class SidebarItem extends Component {
   getDropdownButton (to, icon, title, toggle, dropdownItems) {
     const mainPath = new RegExp(to.replace(/\//g, ''))
     const isActive = mainPath.test(this.props.activeItem)
+    
     const arrowColorClass = classNames('icon is-pulled-right', {
       'has-text-primary': !isActive,
       'has-text-white': isActive
@@ -108,8 +109,8 @@ class SidebarItem extends Component {
   }
 
   render () {
-    let {title, icon, to, dropdown, onClick, dropdownOnClick, roles} = this.props
-    let mainLink = this.getItemLink(to, icon, title, onClick)
+    let {title, icon, to, dropdown, onClick, dropdownOnClick, roles, exact} = this.props
+    let mainLink = this.getItemLink(to, icon, title, onClick, exact)
     let dropdownItems
 
     if (!this.testRoles(roles)) return null
@@ -120,7 +121,7 @@ class SidebarItem extends Component {
           if (!this.testRoles(e.roles)) return null
 
           return (<li key={e.title.toLowerCase().replace(/\s/g, '')}>
-            {this.getItemLink(e.to, e.icon, e.title, onClick)}
+            {this.getItemLink(e.to, e.icon, e.title, onClick, e.exact)}
           </li>)
         })}
       </ul>)
