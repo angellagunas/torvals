@@ -147,7 +147,7 @@ class NavBar extends Component {
             </div>
             <div className='dropdown is-active is-right' ref={this.setWrapperRef}>
               <div className='dropdown-trigger is-flex'>
-                <a href='javascript:undefined' className='navbar-item' onClick={() => this.toggleBtnClass()}>
+                <a href='javascript:undefined' className='navbar-item grey-hover' onClick={() => this.toggleBtnClass()}>
                   <span className='icon'>
                     <i className={this.state.dropCaret} />
                   </span>
