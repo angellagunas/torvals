@@ -28,7 +28,9 @@ class DataSetDetail extends Component {
       isProductsOpen: false,
       loading: true,
       loaded: false,
-      dataset: {}
+      dataset: {},
+      currentProduct: null,
+      currentSalesCenter: null
     }
   }
 
@@ -371,27 +373,81 @@ class DataSetDetail extends Component {
     })
   }
 
-  showModal () {
+  showModal (item) {
     this.setState({
-      className: ' is-active'
+      className: ' is-active',
+      currentProduct: item
     })
+  }
+  getModalCurrentProduct() {
+    if (this.state.currentProduct) {
+      return (<BaseModal
+        title='Edit Product'
+        className={this.state.className}
+        hideModal={() => this.hideModal()}
+        >
+        <ProductForm
+          baseUrl='/app/products'
+          url={'/app/products/' + this.state.currentProduct.uuid}
+          initialState={this.state.currentProduct}
+          load={this.deleteNewProduct.bind(this)}
+          >
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button className='button is-primary'>Save</button>
+            </div>
+            <div className='control'>
+              <button className='button' onClick={() => this.hideModal()}>Cancel</button>
+            </div>
+          </div>
+        </ProductForm>
+      </BaseModal>)
+    }
   }
 
   hideModal () {
     this.setState({
-      className: ''
+      className: '',
+      currentProduct: null
     })
   }
 
-  showModalSalesCenters () {
+  showModalSalesCenters (item) {
     this.setState({
-      classNameSC: ' is-active'
+      classNameSC: ' is-active',
+      currentSalesCenter: item
     })
+  }
+  getModalSalesCenters () {
+    if (this.state.currentSalesCenter) {
+      return (<BaseModal
+        title='Edit Sales Center'
+        className={this.state.classNameSC}
+        hideModal={() => this.hideModalSalesCenters()}
+      >
+        <SalesCenterForm
+          baseUrl='/app/salesCenters'
+          url={'/app/salesCenters/' + this.state.currentSalesCenter.uuid}
+          initialState={this.state.currentSalesCenter}
+          load={this.deleteNewSalesCenter.bind(this)}
+      >
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button className='button is-primary'>Save</button>
+            </div>
+            <div className='control'>
+              <button className='button' onClick={() => this.hideModalSalesCenters()}>Cancel</button>
+            </div>
+          </div>
+        </SalesCenterForm>
+      </BaseModal>)
+    }
   }
 
   hideModalSalesCenters () {
     this.setState({
-      classNameSC: ''
+      classNameSC: '',
+      currentSalesCenter: null
     })
   }
 
@@ -479,30 +535,9 @@ class DataSetDetail extends Component {
                             <tr key={key}>
                               <td>{item.externalId}</td>
                               <td>
-                                <button className='button is-primary' onClick={() => this.showModal()}>
+                                <button className='button is-primary' onClick={() => this.showModal(item)}>
                                     Edit
                                   </button>
-                                <BaseModal
-                                  title='Edit Product'
-                                  className={this.state.className}
-                                  hideModal={() => this.hideModal()}
-                                  >
-                                  <ProductForm
-                                    baseUrl='/app/products'
-                                    url={'/app/products/' + item.uuid}
-                                    initialState={item}
-                                    load={this.deleteNewProduct.bind(this)}
-                                    >
-                                    <div className='field is-grouped'>
-                                      <div className='control'>
-                                        <button className='button is-primary'>Save</button>
-                                      </div>
-                                      <div className='control'>
-                                        <button className='button' onClick={() => this.hideModal()}>Cancel</button>
-                                      </div>
-                                    </div>
-                                  </ProductForm>
-                                </BaseModal>
                               </td>
                             </tr>
                           )
@@ -530,30 +565,9 @@ class DataSetDetail extends Component {
                               <tr key={key}>
                                 <td >{item.externalId}</td>
                                 <td>
-                                  <button className='button is-primary' onClick={() => this.showModalSalesCenters()}>
+                                  <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
                                   Edit
                                 </button>
-                                  <BaseModal
-                                    title='Edit Sales Center'
-                                    className={this.state.classNameSC}
-                                    hideModal={() => this.hideModalSalesCenters()}
-                                >
-                                    <SalesCenterForm
-                                      baseUrl='/app/salesCenters'
-                                      url={'/app/salesCenters/' + item.uuid}
-                                      initialState={item}
-                                      load={this.deleteNewSalesCenter.bind(this)}
-                                  >
-                                      <div className='field is-grouped'>
-                                        <div className='control'>
-                                          <button className='button is-primary'>Save</button>
-                                        </div>
-                                        <div className='control'>
-                                          <button className='button' onClick={() => this.hideModalSalesCenters()}>Cancel</button>
-                                        </div>
-                                      </div>
-                                    </SalesCenterForm>
-                                  </BaseModal>
                                 </td>
                               </tr>
                             )
@@ -640,6 +654,8 @@ class DataSetDetail extends Component {
             </div>
           </div>
         </div>
+        {this.getModalCurrentProduct()}
+        {this.getModalSalesCenters()}
       </div>
     )
   }
