@@ -59,7 +59,7 @@ module.exports = new Route({
     }
 
     ctx.body = {
-      data,
+      data: data || [],
       products: Array.from(products)
     }
   }
