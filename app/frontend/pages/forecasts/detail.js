@@ -16,6 +16,7 @@ import { EditableTable } from '~base/components/base-editableTable'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateAdjustmentRequest from './create-adjustmentRequest'
 import PredictionsGraph from './predictions-graph'
+import { ToastContainer, toast } from 'react-toastify'
 
 let schema = {
   weeks: {
@@ -73,13 +74,10 @@ class ForecastDetail extends Component {
       channelsOptions: [],
       days: [],
       graphProductSelected: '',
-      graphIsPristine: true,
-      notification: {
-        has: false,
-        type: '',
-        message: ''
-      }
+      graphIsPristine: true
     }
+
+    this.toastId = null
   }
 
   componentWillMount () {
@@ -142,11 +140,14 @@ class ForecastDetail extends Component {
   async loadPredictions () {
     var url = '/app/predictions'
     const body = await api.get(url, {forecast: this.state.forecast.uuid})
+    var channels = new Set(body.data.map(item => {
+      return item.data.channelName
+    }).filter(item => { return !!item }))
 
     this.setState({
       loading: false,
       loaded: true,
-      channelsOptions: body.data.map(item => { return item.data.channelName }),
+      channelsOptions: Array.from(channels),
       predictions: body.data,
       predictionsFormatted: body.data.map(item => {
         let data = item.data
@@ -377,9 +378,7 @@ class ForecastDetail extends Component {
                   className='icon'
                   title='No es posible pedir un ajuste más allá al límite!'
                   onClick={() => {
-                    if (this.state.forecast.status === 'opsReview') {
-                      this.showModalAdjustmentRequest(row)
-                    }
+                    this.showModalAdjustmentRequest(row)
                   }}
                 >
                   <FontAwesome name='warning' />
@@ -393,9 +392,7 @@ class ForecastDetail extends Component {
                   className='icon has-text-warning'
                   title='Ya se ha pedido un cambio a esta predicción!'
                   onClick={() => {
-                    if (forecast.status === 'opsReview') {
-                      this.showModalAdjustmentRequest(row)
-                    }
+                    this.showModalAdjustmentRequest(row)
                   }}
                 >
                   <FontAwesome name='warning' />
@@ -541,6 +538,28 @@ class ForecastDetail extends Component {
    * Common Methods
    */
 
+  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
+  }
+
+  dismissAll () {
+    toast.dismiss()
+  }
+
   async onClickButtonPlus () {
     let rows = {...this.state.selectedRows}
 
@@ -645,6 +664,12 @@ class ForecastDetail extends Component {
     if (state.productsSelected) {
       predictionsFiltered = predictionsFiltered.filter((item) => {
         return item.product.category === state.productsSelected
+      })
+    }
+
+    if (state.channelSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.channelName === state.channelSelected
       })
     }
 
@@ -815,6 +840,8 @@ class ForecastDetail extends Component {
    */
 
   async handleChange (data) {
+    let currentRole = tree.get('user').currentRole.slug
+    const forecast = this.state.forecast
     const project = this.state.forecast.project
     const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
     var maxAdjustment = Math.ceil(prediction.data.prediction * (1 + project.adjustment))
@@ -823,13 +850,13 @@ class ForecastDetail extends Component {
 
     data.isLimit = (data.adjustment >= maxAdjustment || data.adjustment <= minAdjustment)
 
-    if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
-      this.setState({notification: {
-        has: true,
-        type: 'error',
-        'message': ' No te puedes pasar de los límites establecidos!'
-      }})
-      return false
+    if ((currentRole !== 'analyst' && currentRole !== 'orgadmin')) {
+      if ((currentRole === 'opsmanager' || currentRole === 'localmanager')) {
+        if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
+          this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
+          return false
+        }
+      }
     }
 
     data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
@@ -843,14 +870,11 @@ class ForecastDetail extends Component {
       (item) => data.uuid === item.uuid ? data : item
     )
 
+    this.notify('Ajuste guardado!', 3000, toast.TYPE.SUCCESS)
+
     this.setState({
       predictionsFormatted,
-      success: true,
-      notification: {
-        has: true,
-        type: 'success',
-        'message': 'Ajuste guardado!'
-      }
+      success: true
     })
 
     return true
@@ -861,9 +885,7 @@ class ForecastDetail extends Component {
     let currentRole = tree.get('user').currentRole.slug
 
     if (
-        forecast.status !== 'analistReview' &&
         forecast.status !== 'readyToOrder' &&
-        currentRole !== 'analyst' &&
         currentRole !== 'enterprisemanager'
     ) {
       return (
@@ -1030,9 +1052,8 @@ class ForecastDetail extends Component {
                       handleChange={this.handleChange.bind(this)}
                       setRowsToEdit={this.setRowsToEdit.bind(this)}
                       selectable={
-                        (forecast.status !== 'analistReview' &&
-                        forecast.status !== 'readyToOrder') &&
-                        (currentRole !== 'analyst' && currentRole !== 'enterprisemanager')
+                        (forecast.status !== 'readyToOrder') &&
+                        (currentRole !== 'enterprisemanager')
                       }
                      />
                   </div>
@@ -1060,26 +1081,6 @@ class ForecastDetail extends Component {
     }
 
     return freqDict[forecast.frequency]
-  }
-
-  getNotification (type, message) {
-    setTimeout(() => this.setState({notification: {has: false}}), 3000)
-    if (type === 'error') {
-      return (
-        <div className='notification is-danger' style={{position: 'relative'}}>
-          <button className='delete' />
-          <strong>Error!</strong> {message}
-        </div>
-      )
-    }
-    if (type === 'success') {
-      return (
-        <div className='notification is-success' style={{position: 'relative'}}>
-          <button className='delete' />
-          <strong>Success!</strong> {message}
-        </div>
-      )
-    }
   }
 
   getButtons () {
@@ -1288,12 +1289,6 @@ class ForecastDetail extends Component {
       'fa-minus': this.state.isHeaderOpen !== false
     })
 
-    var notif
-
-    if (notification.has) {
-      notif = this.getNotification(notification.type, notification.message)
-    }
-
     if (!forecast.uuid) {
       return <Loader />
     }
@@ -1371,9 +1366,7 @@ class ForecastDetail extends Component {
         </div>
       </div>
 
-      <div className='notification-container'>
-        {notif}
-      </div>
+      <ToastContainer />
 
       <div className='columns c-flex-1 is-marginless' style={{overflowY: 'scroll', height: this.state.bodyHeight}}>
         <div className='column is-12 is-paddingless'>
