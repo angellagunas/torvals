@@ -76,7 +76,7 @@ class ForecastDetail extends Component {
       disableButtons: true
     }
 
-    var toastId = null
+    this.toastId = null
   }
 
   componentWillMount () {
@@ -979,7 +979,7 @@ class ForecastDetail extends Component {
                       sortBy={this.state.sort}
                       setRowsToEdit={this.setRowsToEdit.bind(this)}
                       selectable={
-                        forecast.status !== 'analistReview' && forecast.status !== 'readyToOrder'
+                        forecast.status !== 'readyToOrder'
                       }
                      />
                   </div>

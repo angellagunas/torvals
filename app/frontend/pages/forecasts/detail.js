@@ -76,6 +76,8 @@ class ForecastDetail extends Component {
       graphProductSelected: '',
       graphIsPristine: true
     }
+
+    this.toastId = null
   }
 
   componentWillMount () {
