@@ -74,6 +74,8 @@ const AppRouter = () => {
 
           {Forecasts.asRouterItem()}
           {ForecastDetail.asRouterItem()}
+
+          <Redirect from='/' to='/dashboard' />
           <Route component={NoMatch} />
         </Switch>
       </div>

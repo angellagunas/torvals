@@ -96,6 +96,8 @@ const AppRouter = () => {
 
           {RequestLogs.asRouterItem()}
           {PredictionHistoric.asRouterItem()}
+
+          <Redirect from='/' to='/admin/dashboard' />
           <Route component={NoMatch} />
         </Switch>
       </div>
