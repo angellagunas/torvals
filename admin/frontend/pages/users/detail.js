@@ -381,7 +381,7 @@ class UserDetail extends Component {
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save **</button>
+                              <button className='button is-primary'>Save</button>
                             </div>
                           </div>
                         </UserForm>
