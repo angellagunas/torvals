@@ -42,8 +42,6 @@ import PredictionHistoric from './pages/prediction-historic/list'
 import env from '~base/env-variables'
 
 const NoMatch = () => {
-  console.log('window.location', window.location.pathname.replace('/', ''))
-
   if (window.location.pathname.replace(/\//g, '') === 'admin') {
     return <Redirect to={{pathname: env.PREFIX + '/dashboard'}} />
   }
@@ -97,7 +95,6 @@ const AppRouter = () => {
           {RequestLogs.asRouterItem()}
           {PredictionHistoric.asRouterItem()}
 
-          <Redirect from='/' to='/admin/dashboard' />
           <Route component={NoMatch} />
         </Switch>
       </div>
