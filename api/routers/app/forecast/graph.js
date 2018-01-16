@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
 
-const {Forecast} = require('models')
+const {Forecast, Product} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -20,6 +20,14 @@ module.exports = new Route({
 
     var objects = new Set(forecast.graphData.map(item => {
       return item.producto_id
+    }))
+
+    var products = await Product.find({'externalId': { '$in': Array.from(objects) }, 'isDeleted': false})
+    products = new Set(products.map(item => {
+      return {
+        itemId: item.externalId,
+        name: item.name
+      }
     }))
 
     if (forecast.graphData) {
@@ -52,7 +60,7 @@ module.exports = new Route({
 
     ctx.body = {
       data,
-      products: Array.from(objects)
+      products: Array.from(products)
     }
   }
 })
