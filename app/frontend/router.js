@@ -2,7 +2,8 @@ import React from 'react'
 import {
   BrowserRouter as Router,
   Switch,
-  Route
+  Route,
+  Redirect
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
@@ -69,6 +70,8 @@ const AppRouter = () => {
 
           {Forecasts.asRouterItem()}
           {ForecastDetail.asRouterItem()}
+
+          <Redirect from='/' to='/dashboard' />
           <Route component={NoMatch} />
         </Switch>
       </div>
