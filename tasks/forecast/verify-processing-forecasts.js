@@ -90,6 +90,11 @@ const task = new Task(async function (argv) {
 
       res = await request(options)
 
+      var products = []
+      var newProducts = []
+      var salesCenters = []
+      var newSalesCenters = []
+
       for (var d of res._items) {
         var salesCenter = await SalesCenter.findOne({
           externalId: d.agency_id,
@@ -107,17 +112,17 @@ const task = new Task(async function (argv) {
             organization: forecast.organization
           })
 
-          forecast.newProducts.push(product)
+          newProducts.push(product)
         } else {
-          var pos = forecast.products.findIndex(item => {
+          var pos = products.findIndex(item => {
             return String(item._id) === String(product._id)
           })
 
-          var posNew = forecast.newProducts.findIndex(item => {
+          var posNew = newProducts.findIndex(item => {
             return String(item._id) === String(product._id)
           })
 
-          if (pos < 0 && posNew < 0) forecast.products.push(product)
+          if (pos < 0 && posNew < 0) products.push(product)
         }
 
         if (!salesCenter) {
@@ -127,17 +132,17 @@ const task = new Task(async function (argv) {
             organization: forecast.organization
           })
 
-          forecast.newSalesCenters.push(salesCenter)
+          newSalesCenters.push(salesCenter)
         } else {
-          pos = forecast.salesCenters.findIndex(item => {
+          pos = salesCenters.findIndex(item => {
             return String(item._id) === String(salesCenter._id)
           })
 
-          posNew = forecast.newSalesCenters.findIndex(item => {
+          posNew = newSalesCenters.findIndex(item => {
             return String(item._id) === String(salesCenter._id)
           })
 
-          if (pos < 0 && posNew < 0) forecast.salesCenters.push(salesCenter)
+          if (pos < 0 && posNew < 0) salesCenters.push(salesCenter)
         }
 
         await Prediction.create({
@@ -150,14 +155,21 @@ const task = new Task(async function (argv) {
             semanaBimbo: d.semana_bimbo,
             forecastDate: d.forecast_date,
             adjustment: d.prediction,
-            channelId: d.canal_id,
-            channelName: d.canal_nombre
+            channelId: d.channel_id,
+            channelName: d.channel_name
           },
           apiData: d,
           salesCenter: salesCenter,
           product: product
         })
       }
+
+      forecast.set({
+        products,
+        newProducts,
+        salesCenters,
+        newSalesCenters
+      })
 
       await forecast.save()
     }
