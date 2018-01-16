@@ -17,7 +17,7 @@ module.exports = new Route({
     const user = await User.findOne({'uuid': userId})
     ctx.assert(user, 404, 'User not found')
 
-    user.set(data)
+    user.set({name: data.name, isAdmin: data.isAdmin})
     user.save()
 
     ctx.body = {
