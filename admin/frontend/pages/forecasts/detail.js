@@ -324,7 +324,7 @@ class ForecastDetail extends Component {
         'default': 0
       },
       {
-        'title': 'Pedido en firme realizado en 15/01/2018',
+        'title': 'Pedido en firme realizado en ...',
         'abbreviate': true,
         'abbr': 'Pedido',
         'property': 'lastAdjustment',
