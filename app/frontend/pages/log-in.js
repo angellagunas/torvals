@@ -90,12 +90,12 @@ class LogIn extends Component {
       })
     } else {
       const baseUrl = env.APP_HOST.split('://')
-      const organization = user.organizations[0].organization
 
+      const organization = user.organizations[0].organization
       cookies.set('jwt', data.jwt)
       cookies.set('organization', organization.slug)
 
-      window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1]
+      window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1] + '/dashboard'
     }
   }
 
@@ -103,7 +103,7 @@ class LogIn extends Component {
     const baseUrl = env.APP_HOST.split('://')
 
     cookies.set('jwt', this.state.jwt)
-    window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1]
+    window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard'
   }
 
   getDropdown () {
@@ -135,7 +135,7 @@ class LogIn extends Component {
             return (
               <div key={d.key}>
                 <a
-                  className='navbar-item '
+                  className='navbar-item whitesmoke-hover'
                   href='#'
                   onClick={e => { this.selectOrgHandler(d.id) }}
                   >
@@ -148,7 +148,7 @@ class LogIn extends Component {
             return (
               <div key={d.key}>
                 <a
-                  className='navbar-item '
+                  className='navbar-item whitesmoke-hover'
                   href='#'
                   onClick={e => { this.selectOrgHandler(d.id) }}
                   >

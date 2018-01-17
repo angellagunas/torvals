@@ -2,7 +2,8 @@ import React from 'react'
 import {
   BrowserRouter as Router,
   Switch,
-  Route
+  Route,
+  Redirect
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
@@ -13,6 +14,7 @@ import ResetPassword from './pages/reset-password'
 import EmailResetLanding from './pages/emails/reset'
 import Users from './pages/users/list'
 import UserDetail from './pages/users/detail'
+import DeletedUsers from './pages/users/list-deleted'
 import Profile from './pages/profile'
 import Organizations from './pages/organizations/list'
 import OrganizationDetail from './pages/organizations/detail'
@@ -37,8 +39,12 @@ import DeletedProducts from './pages/products/deleted-list'
 import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
 import PredictionHistoric from './pages/prediction-historic/list'
+import env from '~base/env-variables'
 
 const NoMatch = () => {
+  if (window.location.pathname.replace(/\//g, '') === 'admin') {
+    return <Redirect to={{pathname: env.PREFIX + '/dashboard'}} />
+  }
   return <div>Not Found</div>
 }
 
@@ -54,6 +60,7 @@ const AppRouter = () => {
           {Profile.asRouterItem()}
 
           {Users.asRouterItem()}
+          {DeletedUsers.asRouterItem()}
           {UserDetail.asRouterItem()}
 
           {Organizations.asRouterItem()}
@@ -87,6 +94,7 @@ const AppRouter = () => {
 
           {RequestLogs.asRouterItem()}
           {PredictionHistoric.asRouterItem()}
+
           <Route component={NoMatch} />
         </Switch>
       </div>

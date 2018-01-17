@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
-const {SalesCenter, Role} = require('models')
+const ObjectId = require('mongodb').ObjectID
+const {SalesCenter, Role, Forecast, Prediction} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -23,13 +24,25 @@ module.exports = new Route({
         currentRole = role.toPublic()
       }
 
-      if (currentRole.slug === 'ops' || currentRole.slug === 'supervisor-ops') {
+      if (currentRole.slug === 'localmanager' || currentRole.slug === 'opsmanager') {
         var groups = user.groups
         var salesCentersList = []
 
         salesCentersList = await SalesCenter.find({groups: {$in: groups}})
 
         filters['salesCenters'] = {$in: salesCentersList}
+      }
+
+      if (filter === 'predictions') {
+        const forecast = await Forecast.findOne({'uuid': ctx.request.query[filter]})
+
+        if (forecast) {
+          const predictions = await Prediction.find({'forecast': ObjectId(forecast._id)}).populate('salesCenter')
+
+          filters['_id'] = { $in: predictions.map(item => { return item.salesCenter._id }) }
+        }
+
+        continue
       }
 
       if (!isNaN(parseInt(ctx.request.query[filter]))) {

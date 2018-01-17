@@ -17,10 +17,6 @@ module.exports = new Route({
     data.slug = slugify(data.name)
     const auxOrg = await Organization.findOne({slug: data.slug})
 
-    if (auxOrg && !auxOrg.isDeleted) {
-      ctx.throw(400, "You can't have two organizations with the same name")
-    }
-
     if (auxOrg && auxOrg.isDeleted) {
       auxOrg.isDeleted = false
       auxOrg.save()
@@ -30,6 +26,9 @@ module.exports = new Route({
       }
 
       return
+    }
+    if (auxOrg && !auxOrg.isDeleted) {
+      ctx.throw(400, "You can't have two organizations with the same name")
     }
 
     const org = await Organization.create(data)

@@ -9,6 +9,7 @@ import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import RoleForm from './form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import DeleteButton from '~base/components/base-deleteButton'
 
 class RoleDetail extends Component {
   constructor (props) {
@@ -60,7 +61,7 @@ class RoleDetail extends Component {
     ]
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/admin/roles/' + this.props.match.params.uuid
     const body = await api.del(url)
     this.props.history.push('/admin/manage/roles')
@@ -78,13 +79,12 @@ class RoleDetail extends Component {
         <div className='column has-text-right'>
           <div className='field is-grouped is-grouped-right'>
             <div className='control'>
-              <button
-                className='button is-danger'
-                type='button'
-                onClick={() => this.deleteOnClick()}
-                >
-                  Delete
-                </button>
+              <DeleteButton
+                titleButton={'Delete'}
+                objectName='Roles'
+                objectDelete={this.deleteObject.bind(this)}
+                message={`Are you sure you want to delete the role ${this.state.role.name}?`}
+                    />
             </div>
           </div>
         </div>

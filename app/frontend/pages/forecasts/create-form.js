@@ -214,37 +214,45 @@ class ForecastForm extends Component {
     return (
       <div>
         <form onSubmit={(e) => { this.submitHandler(e) }}>
-          <div className='field'>
-            <label className='label'>Date Start*</label>
-            <div className='control'>
-              <DatePicker
-                className='input'
-                name='dateStart'
-                dateFormat='YYYY-MM-DD'
-                placeholderText='Click to select a date'
-                selected={this.state.dateStart}
-                onChange={(e) => { this.handleChange('dateStart', e) }}
-              />
+          <div className='columns'>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Date Start*</label>
+                <div className='control is-datepicker-fullwidth'>
+                  <DatePicker
+                    className='input'
+                    name='dateStart'
+                    dateFormat='YYYY-MM-DD'
+                    placeholderText='Click to select a date'
+                    selected={this.state.dateStart}
+                    onChange={(e) => { this.handleChange('dateStart', e) }}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Date End*</label>
+                <div className='control is-datepicker-fullwidth'>
+                  <DatePicker
+                    className='input'
+                    name='dateEnd'
+                    dateFormat='YYYY-MM-DD'
+                    placeholderText='Click to select a date'
+                    selected={this.getDateEnd()}
+                    onChange={(e) => { this.handleChange('dateEnd', e) }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <div className='field'>
-            <label className='label'>Date End*</label>
-            <div className='control'>
-              <DatePicker
-                className='input'
-                name='dateEnd'
-                dateFormat='YYYY-MM-DD'
-                placeholderText='Click to select a date'
-                selected={this.getDateEnd()}
-                onChange={(e) => { this.handleChange('dateEnd', e) }}
-              />
-            </div>
-          </div>
+
           <div className='field'>
             <label className='label'>Frequency*</label>
             <div className='control'>
-              <div className='select'>
+              <div className='select is-fullwidth'>
                 <select
+                  className='is-fullwidth'
                   type='text'
                   name='frequency'
                   onChange={(e) => {
@@ -262,44 +270,45 @@ class ForecastForm extends Component {
               </div>
             </div>
           </div>
+
           <div className='field'>
             <label className='label'>Columns for Forecast</label>
             <div className='control' />
           </div>
-          <div className='field is-horizontal'>
-            <div className='field-body'>
-              <div className='field'>
-                <div className='select'>
-                  <select
-                    name='columnForForecast'
-                    value={this.state.columnForForecast}
-                    onChange={(e) => {
-                      this.handleChange('columnForForecast', e.currentTarget.value)
-                    }}
-                  >
-                    <option value=''>Select a option</option>
-                    {
-                      this.state.columnsForecast.map(function (item) {
-                        return <option key={item}
-                          value={item}>{item}</option>
-                      })
-                    }
-                  </select>
-                </div>
-              </div>
-              <div className='field'>
-                <p className='control is-expanded'>
-                  <button
-                    className='button is-primary'
-                    onClick={(e) => this.handleColumnsForForecastValues(e)}
-                    type='button'
-                  >
-                    Add
-                  </button>
-                </p>
+
+          <div className='field has-addons'>
+            <div className='control is-expanded'>
+              <div className='select is-fullwidth'>
+
+                <select
+                  name='columnForForecast'
+                  value={this.state.columnForForecast}
+                  onChange={(e) => {
+                    this.handleChange('columnForForecast', e.currentTarget.value)
+                  }}
+                >
+                  <option value=''>Select a option</option>
+                  {
+                    this.state.columnsForecast.map(function (item) {
+                      return <option key={item}
+                        value={item}>{item}</option>
+                    })
+                  }
+                </select>
+
               </div>
             </div>
+            <div className='control'>
+              <button
+                className='button is-primary'
+                onClick={(e) => this.handleColumnsForForecastValues(e)}
+                type='button'
+              >
+                Add
+              </button>
+            </div>
           </div>
+
           <table className='table is-fullwidth'>
             <thead>
               <tr>
@@ -336,6 +345,7 @@ class ForecastForm extends Component {
           <div className='field'>
             <label className='label'>Holidays</label>
           </div>
+
           <div className='field is-horizontal'>
             <div className='field-body'>
               <div className='field'>
@@ -349,17 +359,17 @@ class ForecastForm extends Component {
                   />
                 </p>
               </div>
-              <div className='field'>
-                <DatePicker
-                  className='input'
-                  dateFormat='YYYY-MM-DD'
-                  placeholderText='Click to select a date'
-                  selected={this.state.holidaysDate}
-                  onChange={(e) => { this.handleChange('holidaysDate', e) }}
-                />
-              </div>
-              <div className='field'>
-                <p className='control is-expanded'>
+              <div className='field has-addons'>
+                <div className='control is-expanded is-datepicker-fullwidth'>
+                  <DatePicker
+                    className='input'
+                    dateFormat='YYYY-MM-DD'
+                    placeholderText='Click to select a date'
+                    selected={this.state.holidaysDate}
+                    onChange={(e) => { this.handleChange('holidaysDate', e) }}
+                  />
+                </div>
+                <div className='control'>
                   <button
                     className='button is-primary'
                     onClick={(e) => this.handleHolidaysValues(e)}
@@ -367,7 +377,7 @@ class ForecastForm extends Component {
                   >
                     Add
                   </button>
-                </p>
+                </div>
               </div>
             </div>
           </div>
@@ -409,31 +419,28 @@ class ForecastForm extends Component {
           <div className='field'>
             <label className='label'>Change Points</label>
           </div>
-          <div className='field is-horizontal'>
-            <div className='field-body'>
-              <div className='field'>
-                <DatePicker
-                  className='input'
-                  dateFormat='YYYY-MM-DD'
-                  placeholderText='Click to select a date'
-                  selected={this.state.changePointsDate}
-                  onChange={(e) => {
-                    this.handleChange('changePointsDate', e)
-                  }}
-                />
-              </div>
-              <div className='field'>
-                <p className='control is-expanded'>
-                  <button
-                    className='button is-primary'
-                    onClick={(e) => this.handleChangePointsValues(e)}
-                    type='button'
-                  >
-                    Add
-                  </button>
-                </p>
-              </div>
+
+          <div className='field has-addons'>
+            <div className='control is-expanded is-datepicker-fullwidth '>
+              <DatePicker
+                className='input'
+                dateFormat='YYYY-MM-DD'
+                placeholderText='Click to select a date'
+                selected={this.state.changePointsDate}
+                onChange={(e) => {
+                  this.handleChange('changePointsDate', e)
+                }}
+              />
             </div>
+            <p className='control'>
+              <button
+                className='button is-primary'
+                onClick={(e) => this.handleChangePointsValues(e)}
+                type='button'
+              >
+                Add
+              </button>
+            </p>
           </div>
           <table className='table is-fullwidth'>
             <thead>

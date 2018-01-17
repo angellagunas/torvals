@@ -8,7 +8,10 @@ import Loader from '~base/components/spinner'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import BaseModal from '~base/components/base-modal'
 import GroupForm from './form'
+import DeleteButton from '~base/components/base-deleteButton'
+import CreateUser from '../users/create'
 
 class GroupDetail extends Component {
   constructor (props) {
@@ -16,6 +19,8 @@ class GroupDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
+      className: '',
+      classNameList: '',
       orgs: [],
       group: {}
     }
@@ -34,6 +39,11 @@ class GroupDetail extends Component {
   }
 
   async load () {
+    await this.setState({
+      loading: true,
+      loaded: false
+    })
+
     var url = '/admin/groups/' + this.props.match.params.uuid
     const body = await api.get(url)
 
@@ -85,10 +95,106 @@ class GroupDetail extends Component {
     ]
   }
 
-  async deleteOnClick () {
+  showModal () {
+    this.setState({
+      className: ' is-active'
+    })
+  }
+
+  hideModal () {
+    this.setState({
+      className: ''
+    })
+  }
+
+  finishUp (object) {
+    this.setState({
+      className: ''
+    })
+  }
+
+  async loadGroupUsers () {
+    const body = await api.get(
+      '/admin/users',
+      {
+        start: 0,
+        limit: 0,
+        group: this.props.match.params.uuid
+      }
+    )
+
+    this.cursor = this.context.tree.select('users')
+
+    this.cursor.set({
+      page: 1,
+      totalItems: body.total,
+      items: body.data,
+      pageLength: this.cursor.get('pageLength') || 10
+    })
+    this.context.tree.commit()
+  }
+
+  async deleteObject () {
     var url = '/admin/groups/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/admin/manage/groups')
+  }
+
+  async addToGroup (user) {
+    var url = '/admin/users/' + user + '/add/group'
+    await api.post(url,
+      {
+        group: this.props.match.params.uuid
+      }
+    )
+
+    this.loadGroupUsers()
+    this.hideModalList()
+  }
+
+  getColumnsUsersToAsign () {
+    return [
+      {
+        'title': 'Name',
+        'property': 'name',
+        'default': 'N/A',
+        'sortable': true
+      },
+      {
+        'title': 'Email',
+        'property': 'email',
+        'default': 'N/A',
+        'sortable': true
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          return (
+            <button className='button' onClick={e => { this.addToGroup(row.uuid) }}>
+              Add to group
+            </button>
+          )
+        }
+      }
+    ]
+  }
+
+  showModalList () {
+    this.setState({
+      classNameList: ' is-active'
+    })
+  }
+
+  hideModalList () {
+    this.setState({
+      classNameList: ''
+    })
+  }
+
+  finishUpList (object) {
+    this.setState({
+      classNameList: ''
+    })
   }
 
   render () {
@@ -106,13 +212,12 @@ class GroupDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      titleButton={'Delete'}
+                      objectName='Group'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Are you sure you want to delete the group ${group.name}?`}
+                    />
                   </div>
                 </div>
               </div>
@@ -152,6 +257,40 @@ class GroupDetail extends Component {
                     <p className='card-header-title'>
                       Users
                     </p>
+                    <div className='card-header-select'>
+                      <button className='button is-primary' onClick={() => this.showModalList()}>
+                        Add existing user
+                      </button>
+                      <BaseModal
+                        title='Users to asign'
+                        className={this.state.classNameList}
+                        finishUp={this.finishUpList.bind(this)}
+                        hideModal={this.hideModalList.bind(this)}
+                         >
+                        <BranchedPaginatedTable
+                          branchName='usersAsign'
+                          baseUrl='/admin/users'
+                          columns={this.getColumnsUsersToAsign()}
+                          filters={{groupAsign: this.props.match.params.uuid}}
+                         />
+                      </BaseModal>
+
+                    </div>
+                    <div className='card-header-select'>
+                      <button className='button is-primary' onClick={() => this.showModal()}>
+                        New User
+                      </button>
+                      <CreateUser
+                        className={this.state.className}
+                        finishUp={this.finishUp.bind(this)}
+                        hideModal={this.hideModal.bind(this)}
+                        branchName='users'
+                        baseUrl='/admin/users'
+                        url='/admin/users/'
+                        filters={{group: this.props.match.params.uuid}}
+                        organization={group.organization}
+                      />
+                    </div>
                   </header>
                   <div className='card-content'>
                     <div className='columns'>

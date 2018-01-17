@@ -2,10 +2,12 @@ import React from 'react'
 
 import Link from '~base/router/link'
 import api from '~base/api'
-
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares/'
+
+import tree from '~core/tree'
 import CreateUser from './create'
+import DeleteButton from '~base/components/base-deleteButton'
 
 export default ListPage({
   path: '/manage/users',
@@ -65,9 +67,43 @@ export default ListPage({
       {
         'title': 'Actions',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/users/' + row.uuid}>
-            Detalle
-          </Link>
+          const deleteObject = async function () {
+            var url = '/admin/users/' + row.uuid
+            await api.del(url)
+
+            const cursor = tree.get('users')
+            const users = await api.get('/admin/users/')
+
+            tree.set('users', {
+              page: cursor.page,
+              totalItems: users.total,
+              items: users.data,
+              pageLength: cursor.pageLength
+            })
+            tree.commit()
+          }
+
+          const currentUser = tree.get('user')
+
+          return (
+            <div className='columns'>
+              <div className='column'>
+                <Link className='button' to={'/manage/users/' + row.uuid}>
+                  Detalle
+                </Link>
+              </div>
+              <div className='column'>
+                {currentUser.uuid !== row.uuid && (
+                  <DeleteButton
+                    titleButton={'Deactivate'}
+                    objectName='Users'
+                    objectDelete={deleteObject}
+                    message={`Are you sure you want to deactivate ${row.name}?`}
+                  />
+                )}
+              </div>
+            </div>
+          )
         }
       }
     ]

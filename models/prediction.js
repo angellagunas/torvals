@@ -11,6 +11,7 @@ const predictionSchema = new Schema({
   forecast: { type: Schema.Types.ObjectId, ref: 'Forecast', required: true },
   salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
+  adjustmentRequest: { type: Schema.Types.ObjectId, ref: 'AdjustmentRequest' },
   externalId: { type: String },
   status: {
     type: String,
@@ -26,7 +27,9 @@ const predictionSchema = new Schema({
     month: { type: String },
     year: { type: String },
     forecastDate: { type: String },
-    updatedBy: { type: Schema.Types.ObjectId, ref: 'User' }
+    updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    channelId: { type: Number },
+    channelName: { type: String }
   },
   apiData: { type: Schema.Types.Mixed },
 

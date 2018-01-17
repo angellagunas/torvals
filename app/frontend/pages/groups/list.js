@@ -139,7 +139,7 @@ export default Page({
   title: 'Groups',
   icon: 'users',
   exact: true,
-  roles: 'admin, admin-organizacion',
+  roles: 'admin, orgadmin',
   validate: [loggedIn, verifyRole],
   component: branchedGroups
 })

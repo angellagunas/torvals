@@ -5,21 +5,32 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
+import classNames from 'classnames'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import DatasetDetailForm from './detail-form'
 import { UploadDataset } from '~base/components/base-uploads'
 import ConfigureDatasetForm from './configure-form'
+import DeleteButton from '~base/components/base-deleteButton'
+import ConfigureViewDataset from './configure-view'
+import BaseModal from '~base/components/base-modal'
+import ProductForm from './edit-product'
+import SalesCenterForm from './edit-salescenter'
 
 class DataSetDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      className: '',
+      classNameSC: '',
+      isProductsOpen: false,
       loading: true,
       loaded: false,
       dataset: {},
-      organizations: []
+      organizations: [],
+      currentProduct: null,
+      currentSalesCenter: null
     }
   }
 
@@ -99,7 +110,7 @@ class DataSetDetail extends Component {
     })
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/admin/datasets/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/admin/datasets')
@@ -115,6 +126,10 @@ class DataSetDetail extends Component {
     var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/ready'
     await api.post(url)
     await this.load()
+  }
+
+  async cancelOnClick () {
+    await this.configureOnClick()
   }
 
   getUpload () {
@@ -218,6 +233,20 @@ class DataSetDetail extends Component {
                   </div>
                 </div>
               </div>
+              <div className='columns'>
+                <div className='column'>
+                  <div className='field is-grouped'>
+                    <div className='control'>
+                      <button
+                        className='button is-black'
+                        onClick={e => this.cancelOnClick()}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -235,17 +264,12 @@ class DataSetDetail extends Component {
               <div className='columns'>
                 <div className='column'>
                   <ConfigureDatasetForm
+                    initialState={dataset}
                     columns={dataset.columns || []}
                     url={'/admin/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
                     load={this.load.bind(this)}
-                  >
-                    <div className='field is-grouped'>
-                      <div className='control'>
-                        <button className='button is-primary'>Configure</button>
-                      </div>
-                    </div>
-                  </ConfigureDatasetForm>
+                  />
                 </div>
               </div>
             </div>
@@ -264,6 +288,15 @@ class DataSetDetail extends Component {
             <div className='card-content'>
               <div className='columns'>
                 <div className='column'>
+                  <div className='field is-grouped'>
+                    <b>Min date:</b> {dataset.dateMin}
+                  </div>
+                  <div className='field is-grouped'>
+                    <b>Max date:</b> {dataset.dateMax}
+                  </div>
+                  <ConfigureViewDataset
+                    initialState={dataset}
+                  />
                   <div className='field is-grouped'>
                     <div className='control'>
                       <button
@@ -314,11 +347,267 @@ class DataSetDetail extends Component {
                   </div>
                 </div>
               </div>
+              <ConfigureViewDataset
+                initialState={dataset}
+                  />
             </div>
           </div>
         </div>
       )
     }
+  }
+
+  /*
+   * Unidentified products/sales center methods
+   */
+  setHeights (elements) {
+    const scrollBody = elements || document.querySelectorAll('[data-content]')
+
+    scrollBody.forEach((sticky) => {
+      let bottom = sticky.getBoundingClientRect().bottom
+      const footerHeight = 0
+      const viewporHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      this.setState({bodyHeight: viewporHeight - (bottom + footerHeight)})
+    })
+  }
+
+  toggleHeader () {
+    this.setState({isHeaderOpen: !this.state.isHeaderOpen}, function () {
+      this.setHeights()
+    })
+  }
+
+  getHeight (element) {
+    if (this.state.bodyHeight === 0) {
+      if (element) this.setHeights([element])
+    }
+  }
+
+  toggleUnidentifiedProducts () {
+    this.setState({isProductsOpen: !this.state.isProductsOpen}, function () {
+      this.setHeights()
+    })
+  }
+
+  showModal (item) {
+    if (!item.category) {
+      item.category = ''
+    }
+    if (!item.subcategory) {
+      item.subcategory = ''
+    }
+    this.setState({
+      currentProduct: item,
+      className: ' is-active'
+    })
+  }
+
+  getModalCurrentProduct () {
+    if (this.state.currentProduct) {
+      return (<BaseModal
+        title='Edit Product'
+        className={this.state.className}
+        hideModal={() => this.hideModal()}
+        >
+        <ProductForm
+          baseUrl='/admin/products'
+          url={'/admin/products/' + this.state.currentProduct.uuid}
+          initialState={this.state.currentProduct}
+          load={this.deleteNewProduct.bind(this)}
+          >
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button className='button is-primary'>Save</button>
+            </div>
+            <div className='control'>
+              <button className='button' onClick={() => this.hideModal()}>Cancel</button>
+            </div>
+          </div>
+        </ProductForm>
+      </BaseModal>)
+    }
+  }
+
+  hideModal () {
+    this.setState({
+      className: '',
+      currentProduct: null
+    })
+  }
+
+  showModalSalesCenters (item) {
+    this.setState({
+      currentSalesCenter: item,
+      classNameSC: ' is-active'
+    })
+  }
+
+  getModalSalesCenters () {
+    if (this.state.currentSalesCenter) {
+      return (<BaseModal
+        title='Edit Sales Center'
+        className={this.state.classNameSC}
+        hideModal={() => this.hideModalSalesCenters()}
+    >
+        <SalesCenterForm
+          baseUrl='/admin/salesCenters'
+          url={'/admin/salesCenters/' + this.state.currentSalesCenter.uuid}
+          initialState={this.state.currentSalesCenter}
+          load={this.deleteNewSalesCenter.bind(this)}
+      >
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button className='button is-primary'>Save</button>
+            </div>
+            <div className='control'>
+              <button className='button' onClick={() => this.hideModalSalesCenters()}>Cancel</button>
+            </div>
+          </div>
+        </SalesCenterForm>
+      </BaseModal>)
+    }
+  }
+
+  hideModalSalesCenters () {
+    this.setState({
+      classNameSC: '',
+      currentSalesCenter: null
+    })
+  }
+
+  async deleteNewProduct () {
+    this.load()
+    setTimeout(() => {
+      this.hideModal()
+    }, 1000)
+  }
+
+  async deleteNewSalesCenter () {
+    this.load()
+    setTimeout(() => {
+      this.hideModalSalesCenters()
+    }, 1000)
+  }
+
+  getUnidentifiedProducts () {
+    const { dataset } = this.state
+
+    if (!dataset.uuid) {
+      return <Loader />
+    }
+
+    const headerProductsClass = classNames('card-content', {
+      'is-hidden': this.state.isProductsOpen === false
+    })
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-plus': this.state.isProductsOpen === false,
+      'fa-minus': this.state.isProductsOpen !== false
+    })
+
+    var newProducts = []
+    dataset.newProducts.map((item, key) => {
+      if (item.name === 'Not identified') {
+        newProducts.push(item)
+      }
+    })
+
+    var newSalesCenters = []
+    dataset.newSalesCenters.map((item, key) => {
+      if (item.name === 'Not identified') {
+        newSalesCenters.push(item)
+      }
+    })
+
+    return (
+      <div className='columns'>
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                  Unidentified Products: {newProducts.length} and Sales Centers: {newSalesCenters.length}
+              </p>
+              <div className='field is-grouped is-grouped-right card-header-select'>
+                <div className='control'>
+                  <a
+                    className='button is-rounded is-inverted'
+                    onClick={() => this.toggleUnidentifiedProducts()}>
+                    <span className='icon is-small'>
+                      <i className={toggleBtnIconClass} />
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </header>
+            <div className={headerProductsClass}>
+              <div className='columns'>
+                <div className='column'>
+                  <table className='table is-fullwidth'>
+                    <thead>
+                      <tr>
+                        <th colSpan='2'>Product External Id</th>
+
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {newProducts.length === 0 ? (
+                        <tr>
+                          <td colSpan='2'>No new products to show</td>
+                        </tr>
+                      ) : (
+                        newProducts.map((item, key) => {
+                          return (
+                            <tr key={key}>
+                              <td>{item.externalId}</td>
+                              <td>
+                                <button className='button is-primary' onClick={() => this.showModal(item)}>
+                                    Edit
+                                  </button>
+                              </td>
+                            </tr>
+                          )
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                <div className='column'>
+                  <table className='table is-fullwidth'>
+                    <thead>
+                      <tr>
+                        <th>Sales Center  External Id</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {newSalesCenters.length === 0 ? (
+                        <tr>
+                          <td colSpan='2'>No new sales centers to show</td>
+                        </tr>
+                      ) : (
+                        newSalesCenters.map((item, key) => {
+                          if (item.name === 'Not identified') {
+                            return (
+                              <tr key={key}>
+                                <td >{item.externalId}</td>
+                                <td>
+                                  <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
+                                  Edit
+                                </button>
+                                </td>
+                              </tr>
+                            )
+                          }
+                        })
+
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   render () {
@@ -336,19 +625,24 @@ class DataSetDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      titleButton={'Delete'}
+                      objectName='Dataset'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Are you sure you want to delete the dataset ${dataset.name}?`}
+                    />
                   </div>
                 </div>
               </div>
             </div>
+            {dataset.status === 'reviewing' &&
+              this.getUnidentifiedProducts()
+            }
+            {dataset.status === 'ready' &&
+                this.getUnidentifiedProducts()
+            }
             <div className='columns'>
-              <div className='column'>
+              <div className='column is-5-tablet'>
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
@@ -385,6 +679,8 @@ class DataSetDetail extends Component {
             </div>
           </div>
         </div>
+        {this.getModalCurrentProduct()}
+        {this.getModalSalesCenters()}
       </div>
     )
   }

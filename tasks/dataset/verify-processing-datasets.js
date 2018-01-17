@@ -4,13 +4,16 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { DataSet } = require('models')
+const { DataSet, Product, SalesCenter } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   console.log('Fetching procesing Datasets...')
 
-  const datasets = await DataSet.find({status: 'processing'})
+  const datasets = await DataSet.find({
+    status: 'processing',
+    isDeleted: false
+  })
 
   if (datasets.length === 0) {
     console.log('No processing datasets to verify ...')
@@ -44,11 +47,33 @@ const task = new Task(async function (argv) {
 
     if (res.status === 'ready') {
       console.log(`${dataset.name} dataset has finished processing`)
+
+      var productCol = dataset.columns.find(item => { return item.isProduct })
+      var salesCenterCol = dataset.columns.find(item => { return item.isSalesCenter })
+      let apiData = {
+        products: [],
+        salesCenters: []
+      }
+
+      if (productCol) {
+        productCol = productCol.name
+        apiData['products'] = res.data[productCol]
+      }
+
+      if (salesCenterCol) {
+        salesCenterCol = salesCenterCol.name
+        apiData['salesCenters'] = res.data[salesCenterCol]
+      }
+
       dataset.set({
-        status: 'reviewing'
+        status: 'reviewing',
+        dateMax: res.date_max,
+        dateMin: res.date_min,
+        apiData: apiData
       })
 
       await dataset.save()
+      await dataset.processData()
     }
   }
 

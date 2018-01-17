@@ -32,6 +32,10 @@ module.exports = async function (ctx, next) {
         return ctx.throw(401, 'Invalid User')
       }
 
+      if (userToken.user.isDeleted) {
+        return ctx.throw(401, 'Invalid User')
+      }
+
       var user = userToken.user
       user = await User.populate(
         user,
@@ -55,9 +59,9 @@ module.exports = async function (ctx, next) {
       ctx.state.orgSlug = host[0]
 
       if (ctx.state.orgSlug) {
-        const organization = await Organization.findOne({slug: ctx.state.orgSlug})
+        const organization = await Organization.findOne({slug: ctx.state.orgSlug, isDeleted: false})
 
-        if (!organization || organization.isDeleted) {
+        if (!organization) {
           ctx.throw(401, 'Organization not found')
         }
 

@@ -11,39 +11,6 @@ import {
   CheckboxWidget
 } from '~base/components/base-form'
 
-var schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'email', 'organization'
-  ],
-  properties: {
-    name: {type: 'string', title: 'Name'},
-    email: {type: 'string', title: 'Email'},
-    isAdmin: {type: 'boolean', title: 'Is Admin?', default: false},
-    role: {
-      type: 'string',
-      title: 'Role',
-      enum: [],
-      enumNames: []
-    },
-    organization: {
-      type: 'string',
-      title: 'Organization',
-      enum: [],
-      enumNames: []
-    }
-  }
-}
-
-const uiSchema = {
-  name: {'ui:widget': TextWidget},
-  email: {'ui:widget': EmailWidget},
-  isAdmin: {'ui:widget': CheckboxWidget},
-  role: {'ui:widget': SelectWidget},
-  organization: {'ui:widget': SelectWidget}
-}
-
 class InviteUserForm extends Component {
   constructor (props) {
     super(props)
@@ -76,6 +43,11 @@ class InviteUserForm extends Component {
     formData.sendInvite = true
 
     try {
+      if (this.props.filters) {
+        formData = {...formData,
+          ...this.props.filters}
+      }
+
       var data = await api.post(this.props.url, formData)
       await this.props.load()
       this.clearState()
@@ -92,6 +64,43 @@ class InviteUserForm extends Component {
   }
 
   render () {
+    var schema = {
+      type: 'object',
+      title: '',
+      required: [
+        'email', 'organization'
+      ],
+      properties: {
+        name: {type: 'string', title: 'Name'},
+        email: {type: 'string', title: 'Email'},
+        isAdmin: {type: 'boolean', title: 'Is Admin?', default: false},
+        role: {
+          type: 'string',
+          title: 'Role',
+          enum: [],
+          enumNames: []
+        },
+        organization: {
+          type: 'string',
+          title: 'Organization',
+          enum: [],
+          enumNames: []
+        }
+      }
+    }
+
+    const uiSchema = {
+      name: {'ui:widget': TextWidget},
+      email: {'ui:widget': EmailWidget},
+      isAdmin: {'ui:widget': CheckboxWidget},
+      role: {'ui:widget': SelectWidget},
+      organization: { 'ui:widget': SelectWidget }
+    }
+
+    if (this.props.initialState.organization) {
+      uiSchema['organization']['ui:disabled'] = true
+    }
+
     var error
     if (this.state.error) {
       error = <div>

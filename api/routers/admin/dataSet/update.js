@@ -27,6 +27,7 @@ module.exports = new Route({
       .populate('organization')
 
     ctx.assert(dataset, 404, 'DataSet not found')
+    const lastOrg = dataset.organization
 
     dataset.set({
       name: body.name,
@@ -34,6 +35,10 @@ module.exports = new Route({
       organization: body.organization
     })
     await dataset.save()
+
+    if (String(org._id) !== String(lastOrg._id)) {
+      await dataset.processData()
+    }
 
     ctx.body = {
       data: dataset

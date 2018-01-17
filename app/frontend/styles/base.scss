@@ -8,6 +8,13 @@ body {
   height: 100%;
 }
 
+.tick {
+  line {
+    stroke: rgba(0, 0, 0, 0.3);
+  }
+}
+
+
 .label {
   color: #363636;
   display: block;
@@ -36,10 +43,6 @@ html, body {
   position: fixed;
 }
 
-.navbar-menu {
-    background-color: whitesmoke;
-}
-
 .c-topbar {
     position: relative;
     width: 100%;
@@ -59,19 +62,6 @@ html, body {
 .c-topbar__main {
   flex: 1 1 0%;
   max-width: 100%;
-}
-
-.offcanvas {
-  background-color: #5d5d5d;
-}
-
-.burger-desktop {
-    cursor: pointer;
-    display: block;
-    height: 3.25rem;
-    position: relative;
-    width: 3.25rem;
-    margin-left: auto;
 }
 
 .main {
@@ -159,34 +149,6 @@ html, body {
   align-items: center;
 }
 
-a .navbar-item:hover {
-  background-color: transparent;
-}
-
-.menu {
-  width: 250px;
-  height: 100%;
-}
-
-.menu li {
-  background-color: #f1f1f1;
-}
-
-.menu ul li > ul {
-  margin: 0px;
-  padding: 0px;
-  li {
-    background-color: #f7f7f7;
-    a {
-      padding-left: 1.8em;
-      &.is-active {
-        background: #f7f7f7;
-        color: $primary;
-      }
-    }
-  }
-}
-
 footer {
   padding: 20px;
   width: 100%;
@@ -206,6 +168,14 @@ footer.footer {
 
 .is-rounded {
   border-radius: 50%;
+}
+.bg-whitesmoke{
+  background-color: whitesmoke;
+}
+.avatar-org-dropdown{
+  width: 30px !important;
+  height: 50px !important;
+  margin-right: 10px;
 }
 
 .is-align-center {
@@ -227,12 +197,12 @@ footer.footer {
   padding-bottom: 0.5em;
 }
 
-.card-header-select {    
-  padding: .30em   
-}    
-   
-.card-header-select.select:not(.is-multiple)::after {    
-  margin-top: -.130em    
+.card-header-select {
+  padding: .30em
+}
+
+.card-header-select.select:not(.is-multiple)::after {
+  margin-top: -.130em
 }
 
 .multiselect-column {
@@ -248,18 +218,11 @@ footer.footer {
   padding-top: 7.8em;
 }
 
-select.placeholder {  
+select.placeholder {
   color: gray;
 }
 
-.navbar-select {
-  height: 3.25rem;
-}
 
-
-.navbar-select-name {
-  padding: .2em
-}
 
 .dropdown-select > .navbar-item img {
   max-height: 30px;
@@ -267,19 +230,9 @@ select.placeholder {
 }
 
 
-.navbar-item-height img {
-  max-height: 45px;
-  max-width: 45px;
-  min-height: 45px;
-  min-width: 45px;
-}
 
-.avatar {
-  max-height: 40px;
-  max-width: 40px;
-  min-height: 40px;
-  min-width: 40px;
-}
+
+
 
 .is-edited {
   background-color: #C3ECEF !important;
@@ -290,6 +243,8 @@ select.placeholder {
   background-color: #9cbcbf !important;
   color: #363636;
 }
+
+.is-absolute { position: absolute }
 
 a.navbar-item:hover {
   background-color: #272727;
@@ -308,6 +263,20 @@ a.navbar-item:hover {
   }
 }
 
+.is-datepicker-fullwidth {
+   > div {
+    width: 100%;
+    .react-datepicker-wrapper {
+      width: 100%;
+      > div {
+        width: 100%;
+      }
+    }
+  }
+}
+.react-datepicker-popper {
+  z-index: 4;
+}
 
 @media only screen and (min-width: 1024px) {
   .Sticky {
@@ -329,3 +298,12 @@ a.navbar-item:hover {
   overflow-x: hidden;
   overflow-y: auto;
 }
+
+.whitesmoke-hover:hover{
+  background-color: whitesmoke !important;
+}
+
+.grey-hover:hover{
+  background-color: rgba(237, 237, 237, 0.849) !important;
+}
+

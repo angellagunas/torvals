@@ -8,13 +8,31 @@ class CreateBarGraph extends Component {
     this.createChart = this.createChart.bind(this)
 
     this.state = {
-      data: []
+      data: [],
+      pristine: true
+    }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.pristine === false) {
+      let data = this.getformattedValues(nextProps.data)
+      this.setState({ data }, function () {
+        this.updateAxes(this.state.svg, this.state.data)
+      })
     }
   }
 
   componentDidMount () {
+    let { pristine, data } = this.props
+    data = this.getformattedValues(data)
+    this.setState({ data, pristine }, function () {
+      this.createChart(this.state.data, [], this.addAxes, this.drawPaths)
+    })
+  }
+
+  getformattedValues (props) {
     let parseTime = d3.timeParse('%Y-%m-%d')
-    let data = _.map(this.props.data, (item) => {
+    let data = _.map(props, (item) => {
       return {
         ds: parseTime(item.ds),
         yhat_upper: parseInt(item.yhat_upper),
@@ -22,26 +40,44 @@ class CreateBarGraph extends Component {
         yhat_lower: parseInt(item.yhat_lower)
       }
     })
-
-    this.setState({ data }, function () {
-      this.createChart(this.state.data)
-    })
+    return data
   }
 
-  addAxes (svg, xAxis, yAxis, margin, chartWidth, chartHeight) {
+  addAxes (svg, xAxis, yAxis, margin, chartWidth, chartHeight, node, x, y) {
+    const xDate = x(new Date())
+    const markerWidth = chartWidth - xDate
     let axes = svg.append('g')
       .attr('clip-path', 'url(#axes-clip)')
 
     axes.append('g')
       .attr('className', 'x axis')
-      .style('fill', '#000')
+      .style('fill', '#c3c3c3')
       .attr('transform', 'translate(0,' + chartHeight + ')')
       .call(xAxis)
 
     axes.append('g')
       .attr('className', 'y axis')
-      .style('fill', '#000')
+      .style('fill', '#c3c3c3')
       .call(yAxis)
+
+    const marker = svg.append('g')
+      .attr('className', 'maker')
+      .style('fill', '#000')
+      .attr('transform', 'translate(' + (xDate - chartWidth) + ', 0)')
+
+    marker.append('rect')
+      .style('fill', 'rgba(0, 209, 178, 0.5)')
+      .style('stroke', 'rgba(0, 209, 178, 0.5)')
+      .attr('width', markerWidth)
+      .attr('height', chartHeight)
+      .attr('x', (xDate + markerWidth))
+  }
+
+  updateAxes (svg, data) {
+    if (svg) {
+      svg.selectAll('*').remove()
+      this.createChart(data)
+    }
   }
 
   drawPaths (svg, data, x, y) {
@@ -123,16 +159,16 @@ class CreateBarGraph extends Component {
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
-    this.addAxes(svg, xAxis, yAxis, margin, chartWidth, chartHeight)
-    this.drawPaths(svg, data, x, y)
+    this.setState({ svg, data, xAxis, yAxis, margin, chartWidth, chartHeight, node, x, y }, function () {
+      this.addAxes(svg, xAxis, yAxis, margin, chartWidth, chartHeight, node, x, y)
+      this.drawPaths(svg, data, x, y)
+    })
   }
 
   render () {
     const viewBox = '0 0 ' + this.props.width + ' ' + this.props.height
     return (
-      <svg style={{width: '100%'}} viewBox={viewBox} ref={(node) => this.node = node}
-         />
-
+      <svg style={{width: '100%'}} viewBox={viewBox} ref={(node) => this.node = node} />
     )
   }
 }

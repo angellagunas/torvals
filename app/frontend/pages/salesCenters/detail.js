@@ -9,6 +9,7 @@ import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import DeleteButton from '~base/components/base-deleteButton'
 
 class SalesCenterDetail extends Component {
   constructor (props) {
@@ -77,7 +78,7 @@ class SalesCenterDetail extends Component {
     this.loadGroups()
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/app/salesCenters/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/salesCenters')
@@ -156,13 +157,12 @@ class SalesCenterDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                    >
-                      Delete
-                    </button>
+                    <DeleteButton
+                      titleButton={'Delete'}
+                      objectName='Sales Center'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Are you sure you want to delete the sales center ${this.state.salesCenter.name}?`}
+                    />
                   </div>
                 </div>
               </div>
@@ -253,7 +253,7 @@ export default Page({
   path: '/salesCenters/:uuid',
   title: 'Sales center detail',
   exact: true,
-  roles: 'supervisor, analista, admin-organizacion, admin, ops, supervisor-ops',
+  roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
   validate: [loggedIn, verifyRole],
   component: SalesCenterDetail
 })

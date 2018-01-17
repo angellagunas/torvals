@@ -66,6 +66,11 @@ class InviteUserForm extends Component {
     formData.sendInvite = true
 
     try {
+      if (this.props.filters) {
+        formData = {...formData,
+          ...this.props.filters}
+      }
+
       var data = await api.post(this.props.url, formData)
       await this.props.load()
       this.clearState()

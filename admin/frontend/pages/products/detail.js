@@ -8,6 +8,7 @@ import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProductForm from './create-form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import DeleteButton from '~base/components/base-deleteButton'
 
 class ProductDetail extends Component {
   constructor (props) {
@@ -34,7 +35,7 @@ class ProductDetail extends Component {
     })
   }
 
-  async deleteOnClick () {
+  async deleteObject () {
     var url = '/admin/products/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/admin/products')
@@ -98,13 +99,12 @@ class ProductDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                        >
-                          Delete
-                        </button>
+                    <DeleteButton
+                      titleButton={'Delete'}
+                      objectName='Product'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Are you sure you want to delete the product ${product.name}?`}
+                    />
                   </div>
                 </div>
               </div>

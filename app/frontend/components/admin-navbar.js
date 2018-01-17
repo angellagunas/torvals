@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
+import classNames from 'classnames'
 
 import cookies from '~base/cookies'
 import api from '~base/api'
@@ -15,11 +16,23 @@ class NavBar extends Component {
       mobileMenu: 'close',
       profileDropdown: 'is-hidden',
       dropCaret: 'fa fa-caret-down',
-      redirect: false
+      redirect: false,
+      navbarBrandCollapsed: false,
+      path: ''
     }
 
     this.setWrapperRef = this.setWrapperRef.bind(this)
     this.handleClickOutside = this.handleClickOutside.bind(this)
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (this.state.navbarBrandCollapsed !== nextProps.collapsed) {
+      this.setState({navbarBrandCollapsed: !this.state.navbarBrandCollapsed})
+    }
+    if (nextProps.location.pathname !== this.state.path) {
+      this.setState({path: nextProps.location.pathname})
+      this.props.handlePathChange(nextProps.location.pathname)
+    }
   }
 
   componentDidMount () {
@@ -57,7 +70,7 @@ class NavBar extends Component {
     tree.set('loggedIn', false)
     await tree.commit()
 
-    history.push('/')
+    history.push('/log-in')
   }
 
   toggleBtnClass () {
@@ -100,16 +113,27 @@ class NavBar extends Component {
       </div>)
     }
 
+    const navbarBrand = classNames('c-topbar__aside navbar-brand', {
+      'collapsed': this.state.navbarBrandCollapsed
+    })
+
     return (<nav className='c-topbar navbar c-fixed'>
-      <div className='c-topbar__aside navbar-brand'>
+      <div className={navbarBrand}>
         <Link to='/' className='navbar-item'>
           <img className='is-flex' src='/app/public/img/pythia-logo.png' />
           <h3 className='is-size-4 has-text-white is-capitalized has-text-weight-semibold'>Pythia</h3>
         </Link>
       </div>
       <div className='c-topbar__main'>
-        <div className='navbar-menu'>
+        <div className='navbar-menu-container'>
           <div className='navbar-start'>
+            <div className='navbar-start'>
+              <div className='navbar-burger burger-desktop' onClick={this.props.handleBurgerEvent}>
+                <span />
+                <span />
+                <span />
+              </div>
+            </div>
             <div className='navbar-select'>
               <SelectOrganizationForm />
             </div>
@@ -123,7 +147,7 @@ class NavBar extends Component {
             </div>
             <div className='dropdown is-active is-right' ref={this.setWrapperRef}>
               <div className='dropdown-trigger is-flex'>
-                <a href='javascript:undefined' className='navbar-item' onClick={() => this.toggleBtnClass()}>
+                <a href='javascript:undefined' className='navbar-item grey-hover' onClick={() => this.toggleBtnClass()}>
                   <span className='icon'>
                     <i className={this.state.dropCaret} />
                   </span>

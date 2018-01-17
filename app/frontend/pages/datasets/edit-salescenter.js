@@ -1,29 +1,20 @@
 import React, { Component } from 'react'
-import Loader from '~base/components/spinner'
 import api from '~base/api'
 
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget,
-  SelectWidget
+  TextareaWidget
 } from '~base/components/base-form'
 
 const schema = {
   type: 'object',
   title: '',
   required: [
-    'name',
-    'organization'
+    'name'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
-    organization: {
-      type: 'string',
-      title: 'Organization',
-      enum: [],
-      enumNames: []
-    },
     description: {type: 'string', title: 'Description'},
     address: {type: 'string', title: 'Address'},
     brand: {type: 'string', title: 'Brand'},
@@ -35,7 +26,6 @@ const schema = {
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  organization: {'ui:widget': SelectWidget, 'ui:disabled': true},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
   address: {'ui:widget': TextWidget},
   brand: {'ui:widget': TextWidget},
@@ -53,40 +43,6 @@ class EditSalesCenter extends Component {
       apiCallErrorMessage: 'is-hidden',
       organizations: []
     }
-  }
-
-  componentWillMount () {
-    this.loadOrgs()
-  }
-
-  async loadOrgs () {
-    var url = '/app/organizations/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      organizations: body.data
-    })
-
-    this.setOrg()
-  }
-
-  setOrg () {
-    var pos = this.state.organizations.findIndex(e => {
-      return (
-        String(e._id) === String(this.state.formData.organization)
-      )
-    })
-
-    this.setState({
-      ...this.state.formData.organization = this.state.organizations[pos].uuid
-    })
   }
 
   errorHandler (e) {}
@@ -133,15 +89,6 @@ class EditSalesCenter extends Component {
         Error: {this.state.error}
       </div>
     }
-
-    if (this.state.organizations.length === 0) {
-      return <Loader />
-    }
-
-    let org = schema.properties.organization
-
-    org.enum = this.state.organizations.map(item => { return item.uuid })
-    org.enumNames = this.state.organizations.map(item => { return item.name })
 
     return (
       <div>

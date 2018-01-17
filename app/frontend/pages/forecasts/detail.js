@@ -9,15 +9,14 @@ import classNames from 'classnames'
 
 import { SelectWidget } from '~base/components/base-form'
 
-import CreateBarGraph from './create-bargraph'
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { EditableTable } from '~base/components/base-editableTable'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
-import BaseModal from '~base/components/base-modal'
-import ProductForm from './edit-product'
-import SalesCenterForm from './edit-salescenter'
+import CreateAdjustmentRequest from './create-adjustmentRequest'
+import PredictionsGraph from './predictions-graph'
+import { ToastContainer, toast } from 'react-toastify'
 
 let schema = {
   weeks: {
@@ -44,17 +43,17 @@ class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      className: '',
-      classNameSC: '',
-      isProductsOpen: false,
+      classNameAR: '',
       isHeaderOpen: false,
       bodyHeight: 0,
       loading: true,
       loaded: false,
       predictions: [],
       forecast: {},
+      graphDataFiltered: [],
       selectedRows: {},
       selectValue: '',
+      selectedAll: false,
       predictionsFormatted: [],
       disableButtons: true,
       predictionsFiltered: [],
@@ -71,13 +70,14 @@ class ForecastDetail extends Component {
       productsOptions: {
         enumOptions: []
       },
+      channelSelected: '',
+      channelsOptions: [],
       days: [],
-      notification: {
-        has: false,
-        type: '',
-        message: ''
-      }
+      graphProductSelected: '',
+      graphIsPristine: true
     }
+
+    this.toastId = null
   }
 
   componentWillMount () {
@@ -100,7 +100,8 @@ class ForecastDetail extends Component {
     this.setState({
       loading: false,
       loaded: true,
-      forecast: body.data
+      forecast: body.data,
+      graphDataFiltered: body.data.graphData
     })
 
     this.loadSalesCenters()
@@ -110,7 +111,7 @@ class ForecastDetail extends Component {
 
   async loadSalesCenters () {
     let url = '/app/salesCenters'
-    let body = await api.get(url, {limit: 0, organization: this.state.forecast.uuid})
+    let body = await api.get(url, {limit: 0, organization: this.state.forecast.uuid, predictions: this.state.forecast.uuid})
     if (body.data) {
       body.data = body.data.sort(this.sortByName)
     }
@@ -125,7 +126,7 @@ class ForecastDetail extends Component {
 
   async loadProducts () {
     let url = '/app/products/categories'
-    let body = await api.get(url, {limit: 0})
+    let body = await api.get(url, {limit: 0, predictions: this.state.forecast.uuid})
 
     this.setState({
       loading: false,
@@ -139,10 +140,14 @@ class ForecastDetail extends Component {
   async loadPredictions () {
     var url = '/app/predictions'
     const body = await api.get(url, {forecast: this.state.forecast.uuid})
+    var channels = new Set(body.data.map(item => {
+      return item.data.channelName
+    }).filter(item => { return !!item }))
 
     this.setState({
       loading: false,
       loaded: true,
+      channelsOptions: Array.from(channels),
       predictions: body.data,
       predictionsFormatted: body.data.map(item => {
         let data = item.data
@@ -157,6 +162,7 @@ class ForecastDetail extends Component {
           percentage: percentage,
           product: item.product,
           salesCenter: item.salesCenter,
+          adjustmentRequest: item.adjustmentRequest,
           wasEdited: data.adjustment !== data.prediction,
           isLimit: (Math.abs(percentage) >= (this.state.forecast.project.adjustment * 100)),
           uuid: item.uuid
@@ -185,7 +191,7 @@ class ForecastDetail extends Component {
           schema,
           predictionsFiltered: this.state.predictionsFormatted.map(item => item),
           weekSelected: schema.weeks.enum[0],
-          days: schema.weeks.groupedByWeeks[schema.weeks.enum[0]],
+          days: this.handleDaysPerWeek(schema.weeks.groupedByWeeks[schema.weeks.enum[0]]),
           daySelected: schema.weeks.groupedByWeeks[Math.min(...Object.keys(schema.weeks.groupedByWeeks))][0],
           weeksOptions: {
             enumOptions: Object.keys(cache).map(item => {
@@ -198,7 +204,7 @@ class ForecastDetail extends Component {
   }
 
   async loadDatasetsList () {
-    var url = '/admin/datasets/'
+    var url = '/app/datasets/'
     const body = await api.get(url, {
       start: 0,
       limit: 10,
@@ -219,7 +225,7 @@ class ForecastDetail extends Component {
   async deleteObject () {
     var url = '/app/forecasts/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push(`/app/projects/${this.state.forecast.project.uuid}`)
+    this.props.history.push(`/projects/${this.state.forecast.project.uuid}`)
   }
 
   async changeStatusOnClick (status) {
@@ -233,7 +239,43 @@ class ForecastDetail extends Component {
    */
 
   getColumns () {
+    let forecast = this.state.forecast
+    let currentRole = tree.get('user').currentRole.slug
+    let checkboxColumn = []
+    if (this.state.forecast.status === 'opsReview') {
+      checkboxColumn.push({
+        'title': 'checker',
+        'abbreviate': true,
+        'abbr': (() => {
+          return (<div className='field'>
+            <div className='control has-text-centered'>
+              <label className='checkbox'>
+                <input
+                  type='checkbox'
+                  checked={this.state.selectedAll}
+                  onChange={(e) => this.selectRows(!this.state.selectedAll)} />
+              </label>
+            </div>
+          </div>)
+        })(),
+        'property': 'checkbox',
+        'default': 'N/A',
+        formatter: (row, state) => {
+          return (<div className='field'>
+            <div className='control has-text-centered'>
+              <label className='checkbox'>
+                <input
+                  type='checkbox'
+                  checked={state.isRowSelected} />
+              </label>
+            </div>
+          </div>)
+        }
+      })
+    }
+
     return [
+      ...checkboxColumn,
       {
         'title': 'Product Id',
         'abbreviate': true,
@@ -265,6 +307,16 @@ class ForecastDetail extends Component {
         }
       },
       {
+        'title': 'Canal',
+        'abbreviate': true,
+        'abbr': 'Canal',
+        'property': 'channelId',
+        'default': 'N/A',
+        formatter: (row) => {
+          return String(row.channelName)
+        }
+      },
+      {
         'title': 'Semana Bimbo',
         'property': 'semanaBimbo',
         'default': 'N/A'
@@ -275,7 +327,9 @@ class ForecastDetail extends Component {
         'default': 0
       },
       {
-        'title': 'Ajuste anterior',
+        'title': 'Pedido en firme realizado en ...',
+        'abbreviate': true,
+        'abbr': 'Pedido',
         'property': 'lastAdjustment',
         'default': 'N/A',
         formatter: (row) => {
@@ -314,12 +368,37 @@ class ForecastDetail extends Component {
         'property': 'isLimit',
         'default': '',
         formatter: (row) => {
-          if (row.isLimit) {
-            return (
-              <span className='icon' title='You have reached the limit of adjustment'>
-                <FontAwesome name='warning' />
-              </span>
-            )
+          if (
+              currentRole !== 'analyst' &&
+              currentRole !== 'enterprisemanager'
+          ) {
+            if (row.isLimit && !row.adjustmentRequest) {
+              return (
+                <span
+                  className='icon'
+                  title='No es posible pedir un ajuste más allá al límite!'
+                  onClick={() => {
+                    this.showModalAdjustmentRequest(row)
+                  }}
+                >
+                  <FontAwesome name='warning' />
+                </span>
+              )
+            }
+
+            if (row.isLimit && row.adjustmentRequest) {
+              return (
+                <span
+                  className='icon has-text-warning'
+                  title='Ya se ha pedido un cambio a esta predicción!'
+                  onClick={() => {
+                    this.showModalAdjustmentRequest(row)
+                  }}
+                >
+                  <FontAwesome name='warning' />
+                </span>
+              )
+            }
           }
 
           return ''
@@ -366,9 +445,120 @@ class ForecastDetail extends Component {
     ]
   }
 
+  getColumnsAdjustmentRequests () {
+    let currentRole = tree.get('user').currentRole.slug
+
+    return [
+      {
+        'title': 'Requested By',
+        'property': 'requestedBy',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/manage/users/detail/' + row.requestedBy.uuid}>
+              {row.requestedBy.name}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'Status',
+        'property': 'status',
+        'default': 'created',
+        'sortable': true
+      },
+      {
+        'title': 'Adjustment',
+        'property': 'newAdjustment',
+        'default': 'N/A',
+        'sortable': true
+      },
+      {
+        'title': 'Actions',
+        formatter: (row) => {
+          if (
+              row.status === 'created' &&
+              currentRole !== 'analyst' &&
+              currentRole !== 'enterprisemanager'
+          ) {
+            return (
+              <div className='field is-grouped'>
+                <div className='control'>
+                  <button
+                    className='button is-success'
+                    onClick={() => { this.approveRequestOnClick(row.uuid) }}
+                  >
+                    Aprobar
+                  </button>
+                </div>
+                <div className='control'>
+                  <button
+                    className='button is-danger'
+                    onClick={() => { this.rejectRequestOnClick(row.uuid) }}
+                  >
+                    Rechazar
+                  </button>
+                </div>
+              </div>
+            )
+          }
+
+          if (row.status === 'approved') {
+            return (
+              <span>
+                <span style={{paddingRight: '5px'}}>
+                  Approved by:
+                </span>
+                <Link to={'/manage/users/detail/' + row.approvedBy.uuid}>
+                  {row.approvedBy.name}
+                </Link>
+              </span>
+            )
+          }
+
+          if (row.status === 'rejected') {
+            return (
+              <span>
+                <span style={{paddingRight: '5px'}}>
+                  Rejected by:
+                </span>
+                <Link to={'/manage/users/detail/' + row.rejectedBy.uuid}>
+                  {row.rejectedBy.name}
+                </Link>
+              </span>
+            )
+          }
+        }
+      }
+    ]
+  }
+
   /*
    * Common Methods
    */
+
+  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
+  }
+
+  dismissAll () {
+    toast.dismiss()
+  }
 
   async onClickButtonPlus () {
     let rows = {...this.state.selectedRows}
@@ -412,6 +602,7 @@ class ForecastDetail extends Component {
 
   setRowsToEdit (row, index) {
     let rows = {...this.state.selectedRows}
+    let selectedAll = false
 
     if (rows.hasOwnProperty(row.uuid)) {
       row.selected = !row.selected
@@ -421,7 +612,11 @@ class ForecastDetail extends Component {
       rows[row.uuid] = row
     }
 
-    this.setState({selectedRows: rows}, function () {
+    if (Object.keys(rows).length === this.state.predictionsFiltered.length) {
+      selectedAll = !selectedAll
+    }
+
+    this.setState({selectedRows: rows, selectedAll}, function () {
       this.toggleButtons()
     })
   }
@@ -441,7 +636,7 @@ class ForecastDetail extends Component {
       return item
     })
 
-    this.setState({predictionsFormatted, selectedRows}, function () {
+    this.setState({predictionsFormatted, selectedRows, selectedAll: !this.state.selectedAll}, function () {
       this.toggleButtons()
     })
   }
@@ -472,6 +667,12 @@ class ForecastDetail extends Component {
       })
     }
 
+    if (state.channelSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.channelName === state.channelSelected
+      })
+    }
+
     this.setState({predictionsFiltered})
   }
 
@@ -481,10 +682,18 @@ class ForecastDetail extends Component {
     this.setState(obj, this.filterData)
   }
 
+  handleDaysPerWeek (days) {
+    const daysPerWeek = 7
+    if (days.length > daysPerWeek) {
+      return days.slice(0, daysPerWeek)
+    }
+    return days
+  }
+
   selectWeek (e) {
     if (e) {
       this.setState({
-        days: this.state.schema.weeks.groupedByWeeks[e],
+        days: this.handleDaysPerWeek(this.state.schema.weeks.groupedByWeeks[e]),
         weekSelected: e,
         daySelected: this.state.schema.weeks.groupedByWeeks[e][0] || ''
       }, this.filterData)
@@ -573,7 +782,7 @@ class ForecastDetail extends Component {
               </div>
               <div className='field is-horizontal'>
                 <div className='field-label is-normal'>
-                  <label className='label'>Producto</label>
+                  <label className='label'>Categoría</label>
                 </div>
                 <div className='field-body'>
                   <div className='field'>
@@ -583,6 +792,27 @@ class ForecastDetail extends Component {
                           <option value='' />
                           {
                             this.state.productsOptions.enumOptions.map((item, index) => {
+                              return (<option key={index} value={item}>{item}</option>)
+                            })
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='field is-horizontal'>
+                <div className='field-label is-normal'>
+                  <label className='label'>Canal</label>
+                </div>
+                <div className='field-body'>
+                  <div className='field'>
+                    <div className='control'>
+                      <div className='select is-fullwidth'>
+                        <select className='is-fullwidth' value={this.state.channelSelected} onChange={(e) => this.handleFilters(e, 'channelSelected')}>
+                          <option value='' />
+                          {
+                            this.state.channelsOptions.map((item, index) => {
                               return (<option key={index} value={item}>{item}</option>)
                             })
                           }
@@ -610,6 +840,8 @@ class ForecastDetail extends Component {
    */
 
   async handleChange (data) {
+    let currentRole = tree.get('user').currentRole.slug
+    const forecast = this.state.forecast
     const project = this.state.forecast.project
     const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
     var maxAdjustment = Math.ceil(prediction.data.prediction * (1 + project.adjustment))
@@ -618,13 +850,13 @@ class ForecastDetail extends Component {
 
     data.isLimit = (data.adjustment >= maxAdjustment || data.adjustment <= minAdjustment)
 
-    if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
-      this.setState({notification: {
-        has: true,
-        type: 'error',
-        'message': ' No te puedes pasar de los límites establecidos!'
-      }})
-      return false
+    if ((currentRole !== 'analyst' && currentRole !== 'orgadmin')) {
+      if ((currentRole === 'opsmanager' || currentRole === 'localmanager')) {
+        if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
+          this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
+          return false
+        }
+      }
     }
 
     data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
@@ -638,14 +870,11 @@ class ForecastDetail extends Component {
       (item) => data.uuid === item.uuid ? data : item
     )
 
+    this.notify('Ajuste guardado!', 3000, toast.TYPE.SUCCESS)
+
     this.setState({
       predictionsFormatted,
-      success: true,
-      notification: {
-        has: true,
-        type: 'success',
-        'message': 'Ajuste guardado!'
-      }
+      success: true
     })
 
     return true
@@ -656,28 +885,11 @@ class ForecastDetail extends Component {
     let currentRole = tree.get('user').currentRole.slug
 
     if (
-        forecast.status !== 'analistReview' &&
         forecast.status !== 'readyToOrder' &&
-        currentRole !== 'analista' &&
-        currentRole !== 'supervisor'
+        currentRole !== 'enterprisemanager'
     ) {
       return (
         <div className='columns'>
-          <div className='column'>
-            <button
-              style={{marginRight: 10}}
-              onClick={(e) => this.selectRows(true)}
-              className='button is-light'
-            >
-              Seleccionar todos
-            </button>
-            <button
-              onClick={(e) => this.selectRows(false)}
-              className='button is-light'
-            >
-              Deseleccionar todos
-            </button>
-          </div>
           <div className='column'>
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
@@ -709,8 +921,38 @@ class ForecastDetail extends Component {
     }
   }
 
+  getElementsById (array, property) {
+    let seen = {}
+    let out = []
+    let len = array.length
+    let j = 0
+    let i = 0
+
+    for (i; i < len; i++) {
+      let item = array[i][property]
+      if (seen[item] !== 1) {
+        seen[item] = 1
+        out[j++] = item
+      }
+    }
+    return out
+  }
+
+  handleGraphFilters (e) {
+    let graphDataFiltered = this.state.forecast.graphData
+    if (e.target.value) {
+      graphDataFiltered = this.state.forecast.graphData.filter(item => item.producto_id === e.target.value)
+    }
+
+    this.setState({
+      graphProductSelected: e.target.value,
+      graphIsPristine: false,
+      graphDataFiltered
+    })
+  }
+
   getTable () {
-    const { forecast } = this.state
+    const { forecast, graphDataFiltered, graphIsPristine } = this.state
     let currentRole = tree.get('user').currentRole.slug
 
     if (forecast.status === 'created' || forecast.status === 'processing') {
@@ -766,7 +1008,7 @@ class ForecastDetail extends Component {
                 </div>
                 <div className='columns'>
                   <div className='column'>
-                    There was an error when processing the forecast, please contact an administrator
+                    There was an error while processing the forecast, please contact an administrator
                   </div>
                 </div>
               </div>
@@ -781,33 +1023,11 @@ class ForecastDetail extends Component {
         {forecast.status === 'analistReview' && (
           <div className='columns'>
             <div className='column'>
-              <div className='card'>
-                <header className='card-header'>
-                  <p className='card-header-title'>
-                  Predictions Graph
-                </p>
-                </header>
-                <div className='card-content'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <CreateBarGraph
-                        data={forecast.graphData}
-                        size={[250, 250]}
-                        width='960'
-                        height='500'
-                    />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <PredictionsGraph match={this.props.match} />
             </div>
           </div>
         )}
-        {
-          forecast.newProducts.length > 0 &&
-          forecast.newSalesCenters.length > 0 &&
-          this.getUnidentifiedProducts()
-        }
+        {this.getAdjustmentRequestList()}
         <div className='columns'>
           <div className='column'>
             <div className='card'>
@@ -832,9 +1052,8 @@ class ForecastDetail extends Component {
                       handleChange={this.handleChange.bind(this)}
                       setRowsToEdit={this.setRowsToEdit.bind(this)}
                       selectable={
-                        (forecast.status !== 'analistReview' &&
-                        forecast.status !== 'readyToOrder') &&
-                        (currentRole !== 'analista' && currentRole !== 'supervisor')
+                        (forecast.status !== 'readyToOrder') &&
+                        (currentRole !== 'enterprisemanager')
                       }
                      />
                   </div>
@@ -864,26 +1083,6 @@ class ForecastDetail extends Component {
     return freqDict[forecast.frequency]
   }
 
-  getNotification (type, message) {
-    setTimeout(() => this.setState({notification: {has: false}}), 3000)
-    if (type === 'error') {
-      return (
-        <div className='notification is-danger' style={{position: 'relative'}}>
-          <button className='delete' />
-          <strong>Error!</strong> {message}
-        </div>
-      )
-    }
-    if (type === 'success') {
-      return (
-        <div className='notification is-success' style={{position: 'relative'}}>
-          <button className='delete' />
-          <strong>Success!</strong> {message}
-        </div>
-      )
-    }
-  }
-
   getButtons () {
     let currentRole = tree.get('user').currentRole.slug
     const { forecast } = this.state
@@ -900,14 +1099,26 @@ class ForecastDetail extends Component {
       )
     }
 
-    if (forecast.status === 'opsReview' && (currentRole === 'ops' || currentRole === 'supervisor-ops')) {
+    if (forecast.status === 'opsReview' && (currentRole === 'localmanager' || currentRole === 'opsmanager')) {
       return (
         <button
           className='button is-primary'
           type='button'
-          onClick={() => this.changeStatusOnClick('readyToOrder')}
+          onClick={() => this.changeStatusOnClick('consolidate')}
         >
           Consolidar
+        </button>
+      )
+    }
+
+    if (forecast.status === 'consolidate' && (currentRole === 'localmanager' || currentRole === 'opsmanager')) {
+      return (
+        <button
+          className='button is-primary'
+          type='button'
+          onClick={() => this.changeStatusOnClick('consolidate')}
+        >
+          Listo para pedido
         </button>
       )
     }
@@ -929,7 +1140,7 @@ class ForecastDetail extends Component {
                 <div className='column'>
                   <BranchedPaginatedTable
                     branchName='datasets'
-                    baseUrl='/admin/datasets/'
+                    baseUrl='/app/datasets/'
                     columns={this.getColumnsDatasets()}
                     filters={{project: forecast.project.uuid}}
                   />
@@ -943,212 +1154,101 @@ class ForecastDetail extends Component {
   }
 
   /*
-   * Unidentified products/sales center methods
+   * AdjustmentRequest methods
    */
 
-  toggleUnidentifiedProducts () {
-    this.setState({isProductsOpen: !this.state.isProductsOpen}, function () {
-      this.setHeights()
-    })
-  }
-
-  showModal () {
+  showModalAdjustmentRequest (obj) {
     this.setState({
-      className: ' is-active'
+      classNameAR: ' is-active',
+      selectedAR: obj
     })
   }
 
-  hideModal () {
+  hideModalAdjustmentRequest () {
     this.setState({
-      className: ''
+      classNameAR: ''
     })
   }
 
-  showModalSalesCenters () {
+  async finishUpAdjustmentRequest (obj) {
     this.setState({
-      classNameSC: ' is-active'
+      selectedAR: undefined
     })
+
+    await this.loadPredictions()
   }
 
-  hideModalSalesCenters () {
-    this.setState({
-      classNameSC: ''
-    })
-  }
-
-  async deleteNewProduct () {
-    this.load()
-    setTimeout(() => {
-      this.hideModal()
-    }, 1000)
-  }
-
-  async deleteNewSalesCenter () {
-    this.load()
-    setTimeout(() => {
-      this.hideModalSalesCenters()
-    }, 1000)
-  }
-
-  getUnidentifiedProducts () {
+  async approveRequestOnClick (uuid) {
     const { forecast } = this.state
-    const headerProductsClass = classNames('card-content', {
-      'is-hidden': this.state.isProductsOpen === false
-    })
-    const toggleBtnIconClass = classNames('fa', {
-      'fa-plus': this.state.isProductsOpen === false,
-      'fa-minus': this.state.isProductsOpen !== false
-    })
+    var url = '/app/adjustmentRequests/approve/' + uuid
+    await api.post(url)
 
-    var newProducts = []
-    forecast.newProducts.map((item, key) => {
-      if (item.name === 'Not identified') {
-        newProducts.push(item)
-      }
+    const cursor = tree.get('adjustmentRequests')
+    const adjustmentRequests = await api.get(
+      '/app/adjustmentRequests/',
+      {forecast: forecast.uuid}
+    )
+
+    await this.loadPredictions()
+
+    tree.set('adjustmentRequests', {
+      page: cursor.page,
+      totalItems: adjustmentRequests.total,
+      items: adjustmentRequests.data,
+      pageLength: cursor.pageLength
     })
+    tree.commit()
+  }
 
-    var newSalesCenters = []
-    forecast.newSalesCenters.map((item, key) => {
-      if (item.name === 'Not identified') {
-        newSalesCenters.push(item)
-      }
+  async rejectRequestOnClick (uuid) {
+    const { forecast } = this.state
+    var url = '/app/adjustmentRequests/reject/' + uuid
+    await api.post(url)
+
+    const cursor = tree.get('adjustmentRequests')
+    const adjustmentRequests = await api.get(
+      '/app/adjustmentRequests/',
+      {forecast: forecast.uuid}
+    )
+
+    tree.set('adjustmentRequests', {
+      page: cursor.page,
+      totalItems: adjustmentRequests.total,
+      items: adjustmentRequests.data,
+      pageLength: cursor.pageLength
     })
+    tree.commit()
+  }
 
-    if (!forecast.uuid) {
-      return <Loader />
-    }
-
-    return (
-      <div className='columns'>
-        <div className='column'>
-          <div className='card'>
-            <header className='card-header'>
-              <p className='card-header-title'>
-                  Unidentified Products: {forecast.newProducts.length} and Sales Centers: {forecast.newSalesCenters.length}
+  getAdjustmentRequestList () {
+    const { forecast } = this.state
+    if (forecast.status === 'consolidate') {
+      return (
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                Adjustment Requests
               </p>
-              <div className='field is-grouped is-grouped-right card-header-select'>
-                <div className='control'>
-                  <a
-                    className='button is-rounded is-inverted'
-                    onClick={() => this.toggleUnidentifiedProducts()}>
-                    <span className='icon is-small'>
-                      <i className={toggleBtnIconClass} />
-                    </span>
-                  </a>
-                </div>
-              </div>
-            </header>
-            <div className={headerProductsClass}>
-              <div className='columns'>
-                <div className='column'>
-                  <table className='table is-fullwidth'>
-                    <thead>
-                      <tr>
-                        <th>Product External Id</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {newProducts.length === 0 ? (
-                        <tr>
-                          <td colSpan='2'>No new products to show</td>
-                        </tr>
-                      ) : (
-                        newProducts.map((item, key) => {
-                          return (
-                            <tr key={key}>
-                              <td>{item.externalId}</td>
-                              <td>
-                                <button className='button is-primary' onClick={() => this.showModal()}>
-                                    Edit
-                                  </button>
-                                <BaseModal
-                                  title='Edit Product'
-                                  className={this.state.className}
-                                  hideModal={() => this.hideModal()}
-                                  >
-                                  <ProductForm
-                                    baseUrl='/app/products'
-                                    url={'/app/products/' + item.uuid}
-                                    initialState={item}
-                                    load={this.deleteNewProduct.bind(this)}
-                                    >
-                                    <div className='field is-grouped'>
-                                      <div className='control'>
-                                        <button className='button is-primary'>Save</button>
-                                      </div>
-                                      <div className='control'>
-                                        <button className='button' onClick={() => this.hideModal()}>Cancel</button>
-                                      </div>
-                                    </div>
-                                  </ProductForm>
-                                </BaseModal>
-                              </td>
-                            </tr>
-                          )
-                        })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                <div className='column'>
-                  <table className='table is-fullwidth'>
-                    <thead>
-                      <tr>
-                        <th>Sales Center  External Id</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {newSalesCenters.length === 0 ? (
-                        <tr>
-                          <td colSpan='2'>No new sales centers to show</td>
-                        </tr>
-                      ) : (
-                        newSalesCenters.map((item, key) => {
-                          if (item.name === 'Not identified') {
-                            return (
-                              <tr key={key}>
-                                <td >{item.externalId}</td>
-                                <td>
-                                  <button className='button is-primary' onClick={() => this.showModalSalesCenters()}>
-                                  Edit
-                                </button>
-                                  <BaseModal
-                                    title='Edit Product'
-                                    className={this.state.classNameSC}
-                                    hideModal={() => this.hideModalSalesCenters()}
-                                >
-                                    <SalesCenterForm
-                                      baseUrl='/admin/salesCenters'
-                                      url={'/admin/salesCenters/' + item.uuid}
-                                      initialState={item}
-                                      load={this.deleteNewSalesCenter.bind(this)}
-                                  >
-                                      <div className='field is-grouped'>
-                                        <div className='control'>
-                                          <button className='button is-primary'>Save</button>
-                                        </div>
-                                        <div className='control'>
-                                          <button className='button' onClick={() => this.hideModalSalesCenters()}>Cancel</button>
-                                        </div>
-                                      </div>
-                                    </SalesCenterForm>
-                                  </BaseModal>
-                                </td>
-                              </tr>
-                            )
-                          }
-                        })
-
-                      )}
-                    </tbody>
-                  </table>
+              </header>
+              <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <BranchedPaginatedTable
+                      branchName='adjustmentRequests'
+                      baseUrl='/app/adjustmentRequests/'
+                      columns={this.getColumnsAdjustmentRequests()}
+                      filters={{forecast: forecast.uuid}}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    )
+      )
+    }
   }
 
   /*
@@ -1189,17 +1289,18 @@ class ForecastDetail extends Component {
       'fa-minus': this.state.isHeaderOpen !== false
     })
 
-    var notif
-
-    if (notification.has) {
-      notif = this.getNotification(notification.type, notification.message)
-    }
-
     if (!forecast.uuid) {
       return <Loader />
     }
 
     return (<div>
+      <CreateAdjustmentRequest
+        className={this.state.classNameAR}
+        hideModal={this.hideModalAdjustmentRequest.bind(this)}
+        finishUp={this.finishUpAdjustmentRequest.bind(this)}
+        prediction={this.state.selectedAR}
+        baseUrl={''}
+      />
       <div data-content className='card' id='test' ref={(element) => this.getHeight(element)}>
         <header className='card-header'>
           <p className='card-header-title'>
@@ -1252,7 +1353,7 @@ class ForecastDetail extends Component {
             </div>
             <div className='column is-6 is-offset-6'>
               <div className='control'>
-                { currentRole !== 'ops' &&
+                { currentRole !== 'localmanager' &&
                   <DeleteButton
                     objectName='Forecast'
                     objectDelete={this.deleteObject.bind(this)}
@@ -1265,9 +1366,7 @@ class ForecastDetail extends Component {
         </div>
       </div>
 
-      <div className='notification-container'>
-        {notif}
-      </div>
+      <ToastContainer />
 
       <div className='columns c-flex-1 is-marginless' style={{overflowY: 'scroll', height: this.state.bodyHeight}}>
         <div className='column is-12 is-paddingless'>
@@ -1285,7 +1384,7 @@ export default Page({
   title: 'Forecast detail',
   icon: 'check',
   exact: true,
-  roles: 'supervisor, analista, admin-organizacion, admin, ops, supervisor-ops',
+  roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
   validate: [loggedIn, verifyRole],
   component: ForecastDetail
 })

@@ -11,7 +11,10 @@ const request = require('lib/request')
 const task = new Task(async function (argv) {
   console.log('Fetching processing Forecasts...')
 
-  const forecasts = await Forecast.find({status: 'processing'})
+  const forecasts = await Forecast.find({
+    status: 'processing',
+    isDeleted: false
+  })
 
   if (forecasts.length === 0) {
     console.log('No processing forecasts to verify ...')
@@ -65,7 +68,8 @@ const task = new Task(async function (argv) {
 
       forecast.set({
         status: 'analistReview',
-        graphData: res.data
+        graphData: res.data,
+        aggregated: res.aggregated
       })
 
       await forecast.save()
@@ -86,6 +90,11 @@ const task = new Task(async function (argv) {
 
       res = await request(options)
 
+      var products = []
+      var newProducts = []
+      var salesCenters = []
+      var newSalesCenters = []
+
       for (var d of res._items) {
         var salesCenter = await SalesCenter.findOne({
           externalId: d.agency_id,
@@ -103,17 +112,17 @@ const task = new Task(async function (argv) {
             organization: forecast.organization
           })
 
-          forecast.newProducts.push(product)
+          newProducts.push(product)
         } else {
-          var pos = forecast.products.findIndex(item => {
+          var pos = products.findIndex(item => {
             return String(item._id) === String(product._id)
           })
 
-          var posNew = forecast.newProducts.findIndex(item => {
+          var posNew = newProducts.findIndex(item => {
             return String(item._id) === String(product._id)
           })
 
-          if (pos < 0 && posNew < 0) forecast.products.push(product)
+          if (pos < 0 && posNew < 0) products.push(product)
         }
 
         if (!salesCenter) {
@@ -123,17 +132,17 @@ const task = new Task(async function (argv) {
             organization: forecast.organization
           })
 
-          forecast.newSalesCenters.push(salesCenter)
+          newSalesCenters.push(salesCenter)
         } else {
-          pos = forecast.salesCenters.findIndex(item => {
+          pos = salesCenters.findIndex(item => {
             return String(item._id) === String(salesCenter._id)
           })
 
-          posNew = forecast.newSalesCenters.findIndex(item => {
+          posNew = newSalesCenters.findIndex(item => {
             return String(item._id) === String(salesCenter._id)
           })
 
-          if (pos < 0 && posNew < 0) forecast.salesCenters.push(salesCenter)
+          if (pos < 0 && posNew < 0) salesCenters.push(salesCenter)
         }
 
         await Prediction.create({
@@ -145,13 +154,22 @@ const task = new Task(async function (argv) {
             ...d,
             semanaBimbo: d.semana_bimbo,
             forecastDate: d.forecast_date,
-            adjustment: d.prediction
+            adjustment: d.prediction,
+            channelId: d.channel_id,
+            channelName: d.channel_name
           },
           apiData: d,
           salesCenter: salesCenter,
           product: product
         })
       }
+
+      forecast.set({
+        products,
+        newProducts,
+        salesCenters,
+        newSalesCenters
+      })
 
       await forecast.save()
     }

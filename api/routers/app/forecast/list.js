@@ -75,10 +75,13 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {...filters, isDeleted: false, organization: ctx.state.organization},
-      // populate: 'organization',
-      sort: ctx.request.query.sort || '-dateCreated'
+      sort: ctx.request.query.sort || '-dateCreated',
+      select: { graphData: 0, aggregated: 0 }
     })
 
-    ctx.body = forecasts
+    ctx.body = {
+      data: forecasts.data.map(forecast => { return forecast.toPublic() }),
+      total: forecasts.total
+    }
   }
 })

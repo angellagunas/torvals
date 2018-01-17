@@ -7,7 +7,7 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 
 export default Page({
-  path: '/',
+  path: '/dashboard',
   exact: true,
   title: 'Dashboard',
   icon: 'github',
