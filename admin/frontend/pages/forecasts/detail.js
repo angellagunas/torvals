@@ -19,6 +19,7 @@ import {
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateAdjustmentRequest from './create-adjustmentRequest'
 import PredictionsGraph from './predictions-graph'
+import FiltersForecast from './components/filters-forecast'
 import { ToastContainer, toast } from 'react-toastify'
 
 let schema = {
@@ -696,131 +697,38 @@ class ForecastDetail extends Component {
     return days
   }
 
-  getDays () {
-    if (!this.state.days) {
-      return <div />
-    }
-    return (<ul>
-      {this.state.days.map((item, index) => {
-        const tabClass = classNames('', {
-          'is-active': this.state.daySelected === item
-        })
-        return (<li onClick={(e) => this.selectDay(e)} className={tabClass} key={index}>
-          <a onClick={(e) => { e.preventDefault() }} >
-            <span className='is-size-7'>{item}</span>
-          </a>
-        </li>)
-      })}
-    </ul>)
-  }
-
   getFilters () {
-    return (<header className='card-header'>
-      <div className='card-header-title'>
-        <form className='is-fullwidth'>
-          <div className='columns is-multiline'>
-            <div className='column is-4'>
-              <div className='field is-horizontal'>
-                <div className='field-label'>
-                  <label className='label'>Semanas</label>
-                </div>
-                <div className='field-body'>
-                  <div className='field'>
-                    <div className='control'>
-                      <div className='select'>
-                        <SelectWidget
-                          id='root_weeks'
-                          schema={schema.weeks}
-                          options={this.state.weeksOptions}
-                          required
-                          value={this.state.weekSelected}
-                          disabled={false}
-                          readonly={false}
-                          onChange={(e) => this.selectWeek(e)}
-                          autofocus='false' />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='column is-8'>
-              <div className='field is-horizontal'>
-                <div className='field-label'>
-                  <label className='label'>Centro de Ventas</label>
-                </div>
-                <div className='field-body'>
-                  <div className='field'>
-                    <div className='control'>
-                      <div className='select is-fullwidth'>
-                        <select className='is-fullwidth' value={this.state.salesCentersSelected} onChange={(e) => this.handleFilters(e, 'salesCentersSelected')}>
-                          <option value='' />
-                          {
-                            this.state.salesCentersOptions.enumOptions.map((item, index) => {
-                              return (<option key={index} value={item.uuid}>{item.name}</option>)
-                            })
-                          }
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='field is-horizontal'>
-                <div className='field-label is-normal'>
-                  <label className='label'>Categoría</label>
-                </div>
-                <div className='field-body'>
-                  <div className='field'>
-                    <div className='control'>
-                      <div className='select is-fullwidth'>
-                        <select className='is-fullwidth' value={this.state.productsSelected} onChange={(e) => this.handleFilters(e, 'productsSelected')}>
-                          <option value='' />
-                          {
-                            this.state.productsOptions.enumOptions.map((item, index) => {
-                              return (<option key={index} value={item}>{item}</option>)
-                            })
-                          }
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='field is-horizontal'>
-                <div className='field-label is-normal'>
-                  <label className='label'>Canal</label>
-                </div>
-                <div className='field-body'>
-                  <div className='field'>
-                    <div className='control'>
-                      <div className='select is-fullwidth'>
-                        <select className='is-fullwidth' value={this.state.channelSelected} onChange={(e) => this.handleFilters(e, 'channelSelected')}>
-                          <option value='' />
-                          {
-                            this.state.channelsOptions.map((item, index) => {
-                              return (<option key={index} value={item}>{item}</option>)
-                            })
-                          }
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='column is-12'>
+    let configWeeks = {
+      id: 'root_weeks',
+      schema: schema.weeks,
+      options: this.state.weeksOptions,
+      required: true,
+      value: this.state.weekSelected,
+      disabled: false,
+      readonly: false,
+      autofocus: false
+    }
+    let configSalesCenter = {
+      class: 'is-fullwidth',
+      value: this.state.salesCentersSelected,
+      options: this.state.salesCentersOptions.enumOptions
+    }
 
-              <div className='tabs is-boxed'>
-                {this.getDays()}
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-    </header>)
+    let configCategory = {
+      value: this.state.productsSelected,
+      options: this.state.productsOptions.enumOptions
+    }
+    let configChannel = {
+      value: this.state.channelSelected,
+      options: this.state.channelsOptions
+    }
+    let configDays = {
+      daySelected: this.state.daySelected,
+      options: this.state.days
+    }
+
+    return (<FiltersForecast handleWeek={(e) => this.selectWeek()} handleFilters={(e, name) => this.handleFilters(e, name)} handleDays={(e) => this.selectDay(e)} weeks={configWeeks} salesCenters={configSalesCenter} category={configCategory} channel={configChannel} days={configDays} />)
   }
-
   /*
    * Editable table methods
    */
@@ -1262,8 +1170,8 @@ class ForecastDetail extends Component {
       'is-hidden': this.state.isHeaderOpen === false
     })
     const toggleBtnIconClass = classNames('fa', {
-      'fa-plus': this.state.isHeaderOpen === false,
-      'fa-minus': this.state.isHeaderOpen !== false
+      'fa-angle-down': this.state.isHeaderOpen === false,
+      'fa-angle-up': this.state.isHeaderOpen !== false
     })
 
     if (!forecast.uuid) {
