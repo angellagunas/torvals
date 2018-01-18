@@ -40,6 +40,7 @@ import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
 import PredictionHistoric from './pages/prediction-historic/list'
 import env from '~base/env-variables'
+// #Import
 
 const NoMatch = () => {
   if (window.location.pathname.replace(/\//g, '') === 'admin') {
@@ -95,6 +96,7 @@ const AppRouter = () => {
           {RequestLogs.asRouterItem()}
           {PredictionHistoric.asRouterItem()}
 
+          <div id='route' />
           <Route component={NoMatch} />
         </Switch>
       </div>
