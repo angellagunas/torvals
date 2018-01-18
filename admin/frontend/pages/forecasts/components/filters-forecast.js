@@ -1,31 +1,85 @@
 import React, { Component } from 'react'
 import { SelectWidget } from '~base/components/base-form'
 import classNames from 'classnames'
+import api from '~base/api'
 
 class FiltersForecast extends Component {
   constructor (props) {
     super(props)
-    console.log(props)
-  }
-  selectWeek (e) {
-    console.log(e)
-    let handleWeek = this.props.handleWeek
-    if (handleWeek) {
-      handleWeek({e: e})
+    this.state = {
+      productsSelected: '',
+      productsOptions: {
+        enumOptions: []
+      },
+      salesCentersSelected: '',
+      salesCentersOptions: {
+        enumOptions: []
+      }
     }
   }
+
+  componentWillMount () {
+    this.load()
+  }
+  async load () {
+    this.loadSalesCenters()
+    this.loadProducts()
+  }
+  async loadSalesCenters () {
+    let url = '/admin/salesCenters'
+    let body = await api.get(url, {limit: 0,
+      organization: this.props.forecast.organization.uuid,
+      predictions: this.props.forecast.uuid})
+
+    if (body.data) {
+      body.data = body.data.sort(this.sortByName)
+    }
+    this.setState({
+      loading: false,
+      loaded: true,
+      salesCentersOptions: {
+        enumOptions: body.data
+      }
+    })
+  }
+
+  async loadProducts () {
+    let url = '/admin/products/categories'
+    let body = await api.get(url, {limit: 0, predictions: this.props.forecast.uuid})
+
+    this.setState({
+      loading: false,
+      loaded: true,
+      productsOptions: {
+        enumOptions: body
+      }
+    })
+  }
+  handleWeek (e) {
+    let handleWeek = this.props.handleWeek
+    if (handleWeek) {
+      handleWeek(e)
+    }
+  }
+
   handleFilters (e, name) {
+    let obj = {}
+    obj[name] = e.target.value
+    this.setState(obj)
+
     let handleFilters = this.props.handleFilters
     if (handleFilters) {
       handleFilters(e, name)
     }
   }
-  selectDay (e) {
+
+  handleDays (e) {
     let handleDays = this.props.handleDays
     if (handleDays) {
       handleDays(e)
     }
   }
+
   getDays () {
     if (!this.props.days.options) {
       return <div />
@@ -35,7 +89,7 @@ class FiltersForecast extends Component {
         const tabClass = classNames('', {
           'is-active': this.props.days.daySelected === item
         })
-        return (<li onClick={(e) => this.selectDay(e)} className={tabClass} key={index}>
+        return (<li onClick={(e) => this.handleDays(e)} className={tabClass} key={index}>
           <a onClick={(e) => { e.preventDefault() }} >
             <span className='is-size-7'>{item}</span>
           </a>
@@ -66,7 +120,7 @@ class FiltersForecast extends Component {
                           value={this.props.weeks.value}
                           disabled={false}
                           readonly={false}
-                          onChange={(e) => this.selectWeek(e)}
+                          onChange={(e) => this.handleWeek(e)}
                           autofocus='false' />
                       </div>
                     </div>
@@ -83,10 +137,11 @@ class FiltersForecast extends Component {
                   <div className='field'>
                     <div className='control'>
                       <div className='select is-fullwidth'>
-                        <select className='is-fullwidth' value={this.props.salesCenters.value} onChange={(e) => this.handleFilters(e, 'salesCentersSelected')}>
+                        <select className='is-fullwidth' value={this.state.salesCentersSelected}
+                          onChange={(e) => this.handleFilters(e, 'salesCentersSelected')}>
                           <option value='' />
                           {
-                            this.props.salesCenters.options.map((item, index) => {
+                            this.state.salesCentersOptions.enumOptions.map((item, index) => {
                               return (<option key={index} value={item.uuid}>{item.name}</option>)
                             })
                           }
@@ -104,10 +159,11 @@ class FiltersForecast extends Component {
                   <div className='field'>
                     <div className='control'>
                       <div className='select is-fullwidth'>
-                        <select className='is-fullwidth' value={this.props.category.value} onChange={(e) => this.handleFilters(e, 'productsSelected')}>
+                        <select className='is-fullwidth' value={this.state.productsSelected}
+                          onChange={(e) => this.handleFilters(e, 'productsSelected')}>
                           <option value='' />
                           {
-                            this.props.category.options.map((item, index) => {
+                            this.state.productsOptions.enumOptions.map((item, index) => {
                               return (<option key={index} value={item}>{item}</option>)
                             })
                           }
@@ -125,7 +181,8 @@ class FiltersForecast extends Component {
                   <div className='field'>
                     <div className='control'>
                       <div className='select is-fullwidth'>
-                        <select className='is-fullwidth' value={this.props.channel.value} onChange={(e) => this.handleFilters(e, 'channelSelected')}>
+                        <select className='is-fullwidth' value={this.props.channel.value}
+                          onChange={(e) => this.handleFilters(e, 'channelSelected')}>
                           <option value='' />
                           {
                             this.props.channel.options.map((item, index) => {

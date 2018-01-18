@@ -7,19 +7,14 @@ import moment from 'moment'
 import classNames from 'classnames'
 import tree from '~core/tree'
 
-import { SelectWidget } from '~base/components/base-form'
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 
-import {
-  EditableTable
-} from '~base/components/base-editableTable'
-
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
-import CreateAdjustmentRequest from './create-adjustmentRequest'
 import PredictionsGraph from './predictions-graph'
 import FiltersForecast from './components/filters-forecast'
+import ContainerTable from './components/container-table'
 import { ToastContainer, toast } from 'react-toastify'
 
 let schema = {
@@ -110,8 +105,12 @@ class ForecastDetail extends Component {
   }
 
   async loadSalesCenters () {
+    console.log('this.state.forecast', this.state.forecast.organization.uuid)
     let url = '/admin/salesCenters'
-    let body = await api.get(url, {limit: 0, organization: this.state.forecast.uuid, predictions: this.state.forecast.uuid})
+    let body = await api.get(url, {limit: 0,
+      organization: this.state.forecast.organization.uuid,
+      predictions: this.state.forecast.uuid})
+
     if (body.data) {
       body.data = body.data.sort(this.sortByName)
     }
@@ -238,168 +237,6 @@ class ForecastDetail extends Component {
    * Columns for tables
    */
 
-  getColumns () {
-    let checkboxColumn = []
-    if (this.state.forecast.status === 'opsReview') {
-      checkboxColumn.push({
-        'title': 'checker',
-        'abbreviate': true,
-        'abbr': (() => {
-          return (<div className='field'>
-            <div className='control has-text-centered'>
-              <label className='checkbox'>
-                <input
-                  type='checkbox'
-                  checked={this.state.selectedAll}
-                  onChange={(e) => this.selectRows(!this.state.selectedAll)} />
-              </label>
-            </div>
-          </div>)
-        })(),
-        'property': 'checkbox',
-        'default': 'N/A',
-        formatter: (row, state) => {
-          return (<div className='field'>
-            <div className='control has-text-centered'>
-              <label className='checkbox'>
-                <input
-                  type='checkbox'
-                  checked={state.isRowSelected} />
-              </label>
-            </div>
-          </div>)
-        }
-      })
-    }
-
-    return [
-      ...checkboxColumn,
-      {
-        'title': 'Product Id',
-        'abbreviate': true,
-        'abbr': 'P. Id',
-        'property': 'product_id',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.product.externalId)
-        }
-      },
-      {
-        'title': 'Product Name',
-        'abbreviate': true,
-        'abbr': 'P. Name',
-        'property': 'product_id',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.product.name)
-        }
-      },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'agency_id',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.salesCenter.name)
-        }
-      },
-      {
-        'title': 'Canal',
-        'abbreviate': true,
-        'abbr': 'Canal',
-        'property': 'channelId',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.channelName)
-        }
-      },
-      {
-        'title': 'Semana Bimbo',
-        'property': 'semanaBimbo',
-        'default': 'N/A'
-      },
-      {
-        'title': 'Predicción',
-        'property': 'prediction',
-        'default': 0
-      },
-      {
-        'title': 'Pedido en firme realizado en 15/01/2018',
-        'abbreviate': true,
-        'abbr': 'Pedido',
-        'property': 'lastAdjustment',
-        'default': 'N/A',
-        formatter: (row) => {
-          if (row.lastAdjustment) {
-            return row.lastAdjustment.toFixed(2)
-          }
-
-          return 'N/A'
-        }
-      },
-      {
-        'title': 'Ajuste',
-        'property': 'adjustment',
-        'default': 0,
-        'editable': true,
-        'type': 'number',
-        formatter: (row) => {
-          return row.adjustment.toFixed(2)
-        }
-      },
-      {
-        'title': 'Porcentaje',
-        'property': 'percentage',
-        'default': 0,
-        'type': 'number',
-        formatter: (row) => {
-          if (row.percentage) {
-            return `${row.percentage.toFixed(2)} %`
-          }
-
-          return '0 %'
-        }
-      },
-      {
-        'title': '',
-        'property': 'isLimit',
-        'default': '',
-        formatter: (row) => {
-          if (row.isLimit && !row.adjustmentRequest) {
-            return (
-              <span
-                className='icon'
-                title='No es posible pedir un ajuste más allá al límite!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning' />
-              </span>
-            )
-          }
-
-          if (row.isLimit && row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-warning'
-                title='Ya se ha pedido un cambio a esta predicción!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning' />
-              </span>
-            )
-          }
-
-          return ''
-        }
-      }
-    ]
-  }
-
   getColumnsDatasets () {
     return [
       {
@@ -525,89 +362,9 @@ class ForecastDetail extends Component {
    * Common Methods
    */
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
-    if (!toast.isActive(this.toastId)) {
-      this.toastId = toast(message, {
-        autoClose: timeout,
-        type: type,
-        hideProgressBar: true,
-        closeButton: false
-      })
-    } else {
-      toast.update(this.toastId, {
-        render: message,
-        type: type,
-        autoClose: timeout,
-        closeButton: false
-      })
-    }
-  }
-
   dismissAll () {
     toast.dismiss()
   }
-
-  async onClickButtonPlus () {
-    let rows = {...this.state.selectedRows}
-
-    for (var item in rows) {
-      let toAdd = (rows[item].prediction * 0.01)
-      if (Math.round(toAdd) === 0) toAdd = 1
-      rows[item].edited = true
-      var adjustment = rows[item].adjustment
-      var newAdjustment = rows[item].adjustment + toAdd
-      rows[item].adjustment = newAdjustment
-      const res = await this.handleChange(rows[item])
-      if (!res) rows[item].adjustment = adjustment
-    }
-  }
-
-  async onClickButtonMinus () {
-    let rows = {...this.state.selectedRows}
-
-    for (var item in rows) {
-      let toAdd = (rows[item].prediction * 0.01)
-      if (Math.round(toAdd) === 0) toAdd = 1
-      rows[item].edited = true
-      var adjustment = rows[item].adjustment
-      var newAdjustment = rows[item].adjustment - toAdd
-      rows[item].adjustment = newAdjustment
-      const res = await this.handleChange(rows[item])
-      if (!res) rows[item].adjustment = adjustment
-    }
-  }
-
-  toggleButtons () {
-    let disable = true
-    let rows = {...this.state.selectedRows}
-    if (Object.keys(rows).length) disable = false
-
-    this.setState({
-      disableButtons: disable
-    })
-  }
-
-  setRowsToEdit (row, index) {
-    let rows = {...this.state.selectedRows}
-    let selectedAll = false
-
-    if (rows.hasOwnProperty(row.uuid)) {
-      row.selected = !row.selected
-      delete rows[row.uuid]
-    } else {
-      row.selected = true
-      rows[row.uuid] = row
-    }
-
-    if (Object.keys(rows).length === this.state.predictionsFiltered.length) {
-      selectedAll = !selectedAll
-    }
-
-    this.setState({selectedRows: rows, selectedAll}, function () {
-      this.toggleButtons()
-    })
-  }
-
   sortByName (a, b) {
     if (a.name < b.name) return -1
     if (a.name > b.name) return 1
@@ -624,7 +381,7 @@ class ForecastDetail extends Component {
     })
 
     this.setState({predictionsFormatted, selectedRows, selectedAll: !this.state.selectedAll}, function () {
-      this.toggleButtons()
+      // this.toggleButtons()
     })
   }
 
@@ -727,75 +484,19 @@ class ForecastDetail extends Component {
       options: this.state.days
     }
 
-    return (<FiltersForecast handleWeek={(e) => this.selectWeek()} handleFilters={(e, name) => this.handleFilters(e, name)} handleDays={(e) => this.selectDay(e)} weeks={configWeeks} salesCenters={configSalesCenter} category={configCategory} channel={configChannel} days={configDays} />)
+    return (<FiltersForecast
+      forecast={this.state.forecast}
+      handleWeek={(e) => this.selectWeek()}
+      handleFilters={(e, name) => this.handleFilters(e, name)}
+      handleDays={(e) => this.selectDay(e)}
+      weeks={configWeeks} salesCenters={configSalesCenter}
+      category={configCategory}
+      channel={configChannel}
+      days={configDays} />)
   }
   /*
    * Editable table methods
    */
-
-  async handleChange (data) {
-    const project = this.state.forecast.project
-    const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
-    var maxAdjustment = Math.ceil(prediction.data.prediction * (1 + project.adjustment))
-    var minAdjustment = Math.floor(prediction.data.prediction * (1 - project.adjustment))
-    data.adjustment = Math.round(data.adjustment)
-
-    data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
-
-    var url = '/admin/predictions/' + data.uuid
-    const res = await api.post(url, {...data})
-
-    data.lastAdjustment = res.data.data.lastAdjustment
-    data.edited = true
-    const predictionsFormatted = this.state.predictionsFormatted.map(
-      (item) => data.uuid === item.uuid ? data : item
-    )
-    this.notify('Ajuste guardado!', 3000, toast.TYPE.SUCCESS)
-
-    this.setState({
-      predictionsFormatted,
-      success: true
-    }, this.filterData())
-
-    return true
-  }
-
-  getModifyButtons () {
-    let forecast = this.state.forecast
-
-    if (forecast.status !== 'analistReview' && forecast.status !== 'readyToOrder') {
-      return (
-        <div className='columns'>
-          <div className='column'>
-            <div className='field is-grouped is-grouped-right'>
-              <div className='control'>
-                <p style={{paddingTop: 5}}>Modificar porcentaje</p>
-              </div>
-              <div className='control'>
-                <button
-                  className='button'
-                  onClick={() => this.onClickButtonPlus()}
-                  disabled={this.state.disableButtons}
-                >
-                 +
-                </button>
-              </div>
-              <div className='control'>
-                <button
-                  className='button'
-                  style={{paddingLeft: 14, paddingRight: 14}}
-                  onClick={() => this.onClickButtonMinus()}
-                  disabled={this.state.disableButtons}
-                >
-                 -
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    }
-  }
 
   getTable () {
     const { forecast } = this.state
@@ -886,23 +587,17 @@ class ForecastDetail extends Component {
                 this.getFilters()
               }
               <div className='card-content'>
-                {this.getModifyButtons()}
-                <div className='columns'>
-                  <div className='column'>
-                    <EditableTable
-                      columns={this.getColumns()}
-                      data={this.state.predictionsFiltered}
-                      handleSort={(e) => this.handleSort(e)}
-                      sortAscending={this.state.sortAscending}
-                      handleChange={this.handleChange.bind(this)}
-                      sortBy={this.state.sort}
-                      setRowsToEdit={this.setRowsToEdit.bind(this)}
-                      selectable={
-                        forecast.status !== 'readyToOrder'
-                      }
-                     />
-                  </div>
-                </div>
+
+                <ContainerTable forecast={this.state.forecast}
+                  data={this.state.predictionsFiltered}
+                  sortAscending={this.state.sortAscending}
+                  sortBy={this.state.sort}
+                  predictions={this.state.predictions}
+                  predictionsFormatted={this.state.predictionsFormatted}
+                  filterData={(e) => this.filterData(e)}
+                  loadPredictions={(e) => this.loadPredictions(e)}
+                  selectRows={(e) => this.selectRows(e)} />
+
               </div>
             </div>
           </div>
@@ -1165,7 +860,7 @@ class ForecastDetail extends Component {
   }
 
   render () {
-    const { forecast, notification } = this.state
+    const { forecast } = this.state
     const headerBodyClass = classNames('card-content', {
       'is-hidden': this.state.isHeaderOpen === false
     })
@@ -1179,13 +874,6 @@ class ForecastDetail extends Component {
     }
 
     return (<div>
-      <CreateAdjustmentRequest
-        className={this.state.classNameAR}
-        hideModal={this.hideModalAdjustmentRequest.bind(this)}
-        finishUp={this.finishUpAdjustmentRequest.bind(this)}
-        prediction={this.state.selectedAR}
-        baseUrl={''}
-      />
       <div data-content className='card' id='test' ref={(element) => this.getHeight(element)}>
         <header className='card-header'>
           <p className='card-header-title'>
@@ -1238,7 +926,6 @@ class ForecastDetail extends Component {
       </div>
 
       <ToastContainer />
-
       <div className='columns c-flex-1 is-marginless' style={{overflowY: 'scroll', height: this.state.bodyHeight}}>
         <div className='column is-12 is-paddingless'>
           <div className='section'>
