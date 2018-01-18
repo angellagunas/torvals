@@ -43,7 +43,7 @@ class CreateProduct extends Component {
               <button className='button is-primary'>Create</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal}>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
             </div>
           </div>
         </ProductForm>

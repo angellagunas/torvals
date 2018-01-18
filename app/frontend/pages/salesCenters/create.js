@@ -7,7 +7,12 @@ import SalesCenterForm from './create-form'
 
 var initialState = {
   name: '',
-  description: ''
+  description: '',
+  address: '',
+  brand: '',
+  region: '',
+  type: '',
+  externalId: ''
 }
 
 class CreateSalesCenter extends Component {
@@ -41,7 +46,7 @@ class CreateSalesCenter extends Component {
               <button className='button is-primary'>Create</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal}>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
             </div>
           </div>
         </SalesCenterForm>
