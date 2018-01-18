@@ -10,33 +10,10 @@ import tree from '~core/tree'
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
-
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import PredictionsGraph from './predictions-graph'
-import FiltersForecast from './components/filters-forecast'
 import ContainerTable from './components/container-table'
 import { ToastContainer, toast } from 'react-toastify'
-
-let schema = {
-  weeks: {
-    type: 'string',
-    title: 'Semanas',
-    enum: [],
-    enumNames: []
-  },
-  salesCenters: {
-    type: 'string',
-    title: 'Semanas',
-    enum: [],
-    enumNames: []
-  },
-  products: {
-    type: 'string',
-    title: 'Semanas',
-    enum: [],
-    enumNames: []
-  }
-}
 
 class ForecastDetail extends Component {
   constructor (props) {
@@ -46,32 +23,9 @@ class ForecastDetail extends Component {
       bodyHeight: 0,
       loading: true,
       loaded: false,
-      predictions: [],
       forecast: {},
-      selectedRows: {},
-      selectValue: '',
-      selectedAll: false,
-      predictionsFormatted: [],
-      predictionsFiltered: [],
-      schema: {},
-      weekSelected: 0,
-      weeksOptions: {
-        enumOptions: []
-      },
-      salesCentersSelected: '',
-      salesCentersOptions: {
-        enumOptions: []
-      },
-      productsSelected: '',
-      productsOptions: {
-        enumOptions: []
-      },
-      channelSelected: '',
-      channelsOptions: [],
-      days: [],
-      disableButtons: true
+      reloadPredictions: false
     }
-
     this.toastId = null
   }
 
@@ -97,108 +51,6 @@ class ForecastDetail extends Component {
       loaded: true,
       forecast: body.data,
       graphDataFiltered: body.data.graphData
-    })
-
-    this.loadSalesCenters()
-    this.loadPredictions()
-    this.loadProducts()
-  }
-
-  async loadSalesCenters () {
-    console.log('this.state.forecast', this.state.forecast.organization.uuid)
-    let url = '/admin/salesCenters'
-    let body = await api.get(url, {limit: 0,
-      organization: this.state.forecast.organization.uuid,
-      predictions: this.state.forecast.uuid})
-
-    if (body.data) {
-      body.data = body.data.sort(this.sortByName)
-    }
-    this.setState({
-      loading: false,
-      loaded: true,
-      salesCentersOptions: {
-        enumOptions: body.data
-      }
-    })
-  }
-
-  async loadProducts () {
-    let url = '/admin/products/categories'
-    let body = await api.get(url, {limit: 0, predictions: this.state.forecast.uuid})
-
-    this.setState({
-      loading: false,
-      loaded: true,
-      productsOptions: {
-        enumOptions: body
-      }
-    })
-  }
-
-  async loadPredictions () {
-    var url = '/admin/predictions'
-    const body = await api.get(url, {forecast: this.state.forecast.uuid})
-    var channels = new Set(body.data.map(item => {
-      return item.data.channelName
-    }).filter(item => { return !!item }))
-
-    this.setState({
-      loading: false,
-      loaded: true,
-      channelsOptions: Array.from(channels),
-      predictions: body.data,
-      predictionsFormatted: body.data.map(item => {
-        let data = item.data
-        let percentage
-
-        if (data.prediction !== data.adjustment) {
-          percentage = (data.adjustment - data.prediction) * 100 / data.prediction
-        }
-
-        return {
-          ...data,
-          percentage: percentage,
-          product: item.product,
-          salesCenter: item.salesCenter,
-          adjustmentRequest: item.adjustmentRequest,
-          wasEdited: data.adjustment !== data.prediction,
-          isLimit: (Math.abs(percentage) >= (this.state.forecast.project.adjustment * 100)),
-          uuid: item.uuid
-        }
-      })
-    }, function () {
-      if (this.state.predictionsFormatted.length > 0) {
-        let cache = {}
-        this.state.predictionsFormatted
-          .sort((a, b) => new Date(a.forecastDate) - new Date(b.forecastDate))
-          .map(item => {
-            if (!cache[item.semanaBimbo]) {
-              cache[item.semanaBimbo] = []
-            }
-            if (cache[item.semanaBimbo].indexOf(item.forecastDate) === -1) {
-              cache[item.semanaBimbo].push(item.forecastDate)
-            }
-            return {forecastDate: item.forecastDate, semanaBimbo: item.semanaBimbo}
-          })
-
-        schema.weeks.groupedByWeeks = cache
-        schema.weeks.enum = Object.keys(cache).map(item => item)
-        schema.weeks.enumNames = Object.keys(cache).map(item => 'Semana ' + item)
-
-        this.setState({
-          schema,
-          predictionsFiltered: this.state.predictionsFormatted.map(item => item),
-          weekSelected: schema.weeks.enum[0],
-          days: this.handleDaysPerWeek(schema.weeks.groupedByWeeks[schema.weeks.enum[0]]),
-          daySelected: schema.weeks.groupedByWeeks[Math.min(...Object.keys(schema.weeks.groupedByWeeks))][0],
-          weeksOptions: {
-            enumOptions: Object.keys(cache).map(item => {
-              return {label: 'Semana ' + item, value: item}
-            })
-          }
-        }, this.filterData)
-      }
     })
   }
 
@@ -371,129 +223,6 @@ class ForecastDetail extends Component {
     return 0
   }
 
-  selectRows (selectAll) {
-    let selectedRows = {}
-    let predictionsFormatted = this.state.predictionsFormatted.map((item) => {
-      if (selectAll) selectedRows[item.uuid] = item
-
-      item.selected = selectAll
-      return item
-    })
-
-    this.setState({predictionsFormatted, selectedRows, selectedAll: !this.state.selectedAll}, function () {
-      // this.toggleButtons()
-    })
-  }
-
-  /*
-   * Filters methods
-   */
-
-  filterData () {
-    const state = this.state
-    let predictionsFiltered = state.predictionsFormatted
-
-    if (state.daySelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.forecastDate === state.daySelected
-      })
-    }
-
-    if (state.salesCentersSelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.salesCenter.uuid === state.salesCentersSelected
-      })
-    }
-
-    if (state.productsSelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.product.category === state.productsSelected
-      })
-    }
-
-    if (state.channelSelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.channelName === state.channelSelected
-      })
-    }
-
-    this.setState({predictionsFiltered})
-  }
-
-  handleFilters (e, name) {
-    let obj = {}
-    obj[name] = e.target.value
-    this.setState(obj, this.filterData)
-  }
-
-  selectWeek (e) {
-    if (e) {
-      this.setState({
-        days: this.handleDaysPerWeek(this.state.schema.weeks.groupedByWeeks[e]),
-        weekSelected: e,
-        daySelected: this.state.schema.weeks.groupedByWeeks[e][0] || ''
-      }, this.filterData)
-    } else {
-      this.setState({
-        days: '',
-        weekSelected: '',
-        daySelected: ''
-      }, this.filterData)
-    }
-  }
-
-  selectDay (e) {
-    this.setState({daySelected: e.target.innerText.replace(/\s/g, '')}, this.filterData)
-  }
-
-  handleDaysPerWeek (days) {
-    const daysPerWeek = 7
-    if (days.length > daysPerWeek) {
-      return days.slice(0, daysPerWeek)
-    }
-    return days
-  }
-
-  getFilters () {
-    let configWeeks = {
-      id: 'root_weeks',
-      schema: schema.weeks,
-      options: this.state.weeksOptions,
-      required: true,
-      value: this.state.weekSelected,
-      disabled: false,
-      readonly: false,
-      autofocus: false
-    }
-    let configSalesCenter = {
-      class: 'is-fullwidth',
-      value: this.state.salesCentersSelected,
-      options: this.state.salesCentersOptions.enumOptions
-    }
-
-    let configCategory = {
-      value: this.state.productsSelected,
-      options: this.state.productsOptions.enumOptions
-    }
-    let configChannel = {
-      value: this.state.channelSelected,
-      options: this.state.channelsOptions
-    }
-    let configDays = {
-      daySelected: this.state.daySelected,
-      options: this.state.days
-    }
-
-    return (<FiltersForecast
-      forecast={this.state.forecast}
-      handleWeek={(e) => this.selectWeek()}
-      handleFilters={(e, name) => this.handleFilters(e, name)}
-      handleDays={(e) => this.selectDay(e)}
-      weeks={configWeeks} salesCenters={configSalesCenter}
-      category={configCategory}
-      channel={configChannel}
-      days={configDays} />)
-  }
   /*
    * Editable table methods
    */
@@ -565,6 +294,7 @@ class ForecastDetail extends Component {
         </div>
       )
     }
+
     return (
       <div>
         {forecast.status === 'analistReview' && (
@@ -583,22 +313,9 @@ class ForecastDetail extends Component {
                   Predictions Table
                 </p>
               </header>
-              {
-                this.getFilters()
-              }
-              <div className='card-content'>
-
-                <ContainerTable forecast={this.state.forecast}
-                  data={this.state.predictionsFiltered}
-                  sortAscending={this.state.sortAscending}
-                  sortBy={this.state.sort}
-                  predictions={this.state.predictions}
-                  predictionsFormatted={this.state.predictionsFormatted}
-                  filterData={(e) => this.filterData(e)}
-                  loadPredictions={(e) => this.loadPredictions(e)}
-                  selectRows={(e) => this.selectRows(e)} />
-
-              </div>
+              <ContainerTable
+                forecast={this.state.forecast}
+                reload={this.state.reloadPredictions} />
             </div>
           </div>
         </div>
@@ -720,14 +437,13 @@ class ForecastDetail extends Component {
         <select type='text'
           name='status'
           value={forecast.status}
-          onChange={(e) => { this.handleChangeStatus(e) }}
-                    >
+          onChange={(e) => { this.handleChangeStatus(e) }}>
           {
-                        statusValues.map(function (item, key) {
-                          return <option key={key}
-                            value={item}>{item}</option>
-                        })
-                      }
+            statusValues.map(function (item, key) {
+              return <option key={key}
+                value={item}>{item}</option>
+            })
+          }
         </select>
       </div>
 
@@ -745,20 +461,6 @@ class ForecastDetail extends Component {
     })
   }
 
-  hideModalAdjustmentRequest () {
-    this.setState({
-      classNameAR: ''
-    })
-  }
-
-  async finishUpAdjustmentRequest (obj) {
-    this.setState({
-      selectedAR: undefined
-    })
-
-    await this.loadPredictions()
-  }
-
   async approveRequestOnClick (uuid) {
     const { forecast } = this.state
     var url = '/admin/adjustmentRequests/approve/' + uuid
@@ -770,7 +472,7 @@ class ForecastDetail extends Component {
       {forecast: forecast.uuid}
     )
 
-    await this.loadPredictions()
+    this.loadPredictions()
 
     tree.set('adjustmentRequests', {
       page: cursor.page,
@@ -779,6 +481,11 @@ class ForecastDetail extends Component {
       pageLength: cursor.pageLength
     })
     tree.commit()
+  }
+
+  loadPredictions () {
+    this.setState({reloadPredictions: true})
+    setTimeout(() => { this.setState({reloadPredictions: false}) }, 100)
   }
 
   async rejectRequestOnClick (uuid) {

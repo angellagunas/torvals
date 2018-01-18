@@ -3,18 +3,130 @@ import api from '~base/api'
 import { ToastContainer, toast } from 'react-toastify'
 import FontAwesome from 'react-fontawesome'
 import CreateAdjustmentRequest from '../create-adjustmentRequest'
+import FiltersForecast from './filters-forecast'
 
 import {
   EditableTable
 } from '~base/components/base-editableTable'
-
+let schema = {
+  weeks: {
+    type: 'string',
+    title: 'Semanas',
+    enum: [],
+    enumNames: []
+  },
+  salesCenters: {
+    type: 'string',
+    title: 'Semanas',
+    enum: [],
+    enumNames: []
+  },
+  products: {
+    type: 'string',
+    title: 'Semanas',
+    enum: [],
+    enumNames: []
+  },
+  weeksOptions: {
+    enumOptions: []
+  }
+}
 class ContainerTable extends Component {
   constructor (props) {
     super(props)
     this.state = {
       selectedRows: {},
-      selectedAll: false
+      selectedAll: false,
+      channelsOptions: []
     }
+  }
+
+  componentWillMount () {
+    this.load()
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.reload) {
+      this.load()
+    }
+  }
+
+  async load () {
+    this.loadPredictions()
+  }
+
+  async loadPredictions () {
+    var url = '/admin/predictions'
+    const body = await api.get(url, {forecast: this.props.forecast.uuid})
+    var channels = new Set(body.data.map(item => {
+      return item.data.channelName
+    }).filter(item => { return !!item }))
+
+    this.setState({
+      loading: false,
+      loaded: true,
+      channelsOptions: Array.from(channels),
+      predictions: body.data,
+      predictionsFormatted: body.data.map(item => {
+        let data = item.data
+        let percentage
+
+        if (data.prediction !== data.adjustment) {
+          percentage = (data.adjustment - data.prediction) * 100 / data.prediction
+        }
+
+        return {
+          ...data,
+          percentage: percentage,
+          product: item.product,
+          salesCenter: item.salesCenter,
+          adjustmentRequest: item.adjustmentRequest,
+          wasEdited: data.adjustment !== data.prediction,
+          isLimit: (Math.abs(percentage) >= (this.props.forecast.project.adjustment * 100)),
+          uuid: item.uuid
+        }
+      })
+    }, function () {
+      if (this.state.predictionsFormatted.length > 0) {
+        let cache = {}
+        this.state.predictionsFormatted
+          .sort((a, b) => new Date(a.forecastDate) - new Date(b.forecastDate))
+          .map(item => {
+            if (!cache[item.semanaBimbo]) {
+              cache[item.semanaBimbo] = []
+            }
+            if (cache[item.semanaBimbo].indexOf(item.forecastDate) === -1) {
+              cache[item.semanaBimbo].push(item.forecastDate)
+            }
+            return {forecastDate: item.forecastDate, semanaBimbo: item.semanaBimbo}
+          })
+
+        schema.weeks.groupedByWeeks = cache
+        schema.weeks.enum = Object.keys(cache).map(item => item)
+        schema.weeks.enumNames = Object.keys(cache).map(item => 'Semana ' + item)
+
+        this.setState({
+          schema,
+          predictionsFiltered: this.state.predictionsFormatted.map(item => item),
+          weekSelected: schema.weeks.enum[0],
+          days: this.handleDaysPerWeek(schema.weeks.groupedByWeeks[schema.weeks.enum[0]]),
+          daySelected: schema.weeks.groupedByWeeks[Math.min(...Object.keys(schema.weeks.groupedByWeeks))][0],
+          weeksOptions: {
+            enumOptions: Object.keys(cache).map(item => {
+              return {label: 'Semana ' + item, value: item}
+            })
+          }
+        }, this.filterData)
+      }
+    })
+  }
+
+  handleDaysPerWeek (days) {
+    const daysPerWeek = 7
+    if (days.length > daysPerWeek) {
+      return days.slice(0, daysPerWeek)
+    }
+    return days
   }
 
   getModifyButtons () {
@@ -53,6 +165,7 @@ class ContainerTable extends Component {
       )
     }
   }
+
   setRowsToEdit (row, index) {
     let rows = {...this.state.selectedRows}
     let selectedAll = false
@@ -65,7 +178,7 @@ class ContainerTable extends Component {
       rows[row.uuid] = row
     }
 
-    if (Object.keys(rows).length === this.props.data.length) {
+    if (Object.keys(rows).length === this.state.predictionsFiltered.length) {
       selectedAll = !selectedAll
     }
 
@@ -73,6 +186,7 @@ class ContainerTable extends Component {
       this.toggleButtons()
     })
   }
+
   async onClickButtonPlus () {
     let rows = {...this.state.selectedRows}
 
@@ -87,6 +201,7 @@ class ContainerTable extends Component {
       if (!res) rows[item].adjustment = adjustment
     }
   }
+
   async onClickButtonMinus () {
     let rows = {...this.state.selectedRows}
 
@@ -101,6 +216,7 @@ class ContainerTable extends Component {
       if (!res) rows[item].adjustment = adjustment
     }
   }
+
   toggleButtons () {
     let disable = true
     let rows = {...this.state.selectedRows}
@@ -120,7 +236,7 @@ class ContainerTable extends Component {
 
     data.lastAdjustment = res.data.data.lastAdjustment
     data.edited = true
-    const predictionsFormatted = this.props.predictionsFormatted.map(
+    const predictionsFormatted = this.state.predictionsFormatted.map(
       (item) => data.uuid === item.uuid ? data : item
     )
     this.notify('Ajuste guardado!', 3000, toast.TYPE.SUCCESS)
@@ -134,10 +250,34 @@ class ContainerTable extends Component {
   }
 
   filterData () {
-    let filterData = this.props.filterData
-    if (filterData) {
-      filterData()
+    const state = this.state
+    let predictionsFiltered = state.predictionsFormatted
+
+    if (state.daySelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.forecastDate === state.daySelected
+      })
     }
+
+    if (state.salesCentersSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.salesCenter.uuid === state.salesCentersSelected
+      })
+    }
+
+    if (state.productsSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.product.category === state.productsSelected
+      })
+    }
+
+    if (state.channelSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.channelName === state.channelSelected
+      })
+    }
+
+    this.setState({predictionsFiltered})
   }
 
   notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
@@ -160,7 +300,7 @@ class ContainerTable extends Component {
 
   selectRows (selectAll) {
     let selectedRows = {}
-    let predictionsFormatted = this.props.data.map((item) => {
+    let predictionsFormatted = this.state.predictionsFiltered.map((item) => {
       if (selectAll) selectedRows[item.uuid] = item
 
       item.selected = selectAll
@@ -330,29 +470,85 @@ class ContainerTable extends Component {
       }
     ]
   }
+
   showModalAdjustmentRequest (obj) {
     this.setState({
       classNameAR: ' is-active',
       selectedAR: obj
     })
   }
+
   hideModalAdjustmentRequest () {
     this.setState({
       classNameAR: ''
     })
   }
+
   async finishUpAdjustmentRequest (obj) {
     this.setState({
       selectedAR: undefined
     })
-    let loadPredictions = this.props.loadPredictions
-    if (loadPredictions) {
-      await loadPredictions()
+    await this.loadPredictions()
+  }
+
+  getFilters () {
+    let configWeeks = {
+      id: 'root_weeks',
+      schema: schema.weeks,
+      options: this.state.weeksOptions || {enumOptions: []},
+      required: true,
+      value: this.state.weekSelected,
+      disabled: false,
+      readonly: false,
+      autofocus: false
     }
+    let configChannel = {
+      value: this.state.channelSelected,
+      options: this.state.channelsOptions
+    }
+    let configDays = {
+      daySelected: this.state.daySelected,
+      options: this.state.days
+    }
+    return (<FiltersForecast
+      forecast={this.props.forecast}
+      handleWeek={(e) => this.selectWeek()}
+      handleFilters={(e, name) => this.handleFilters(e, name)}
+      handleDays={(e) => this.selectDay(e)}
+      weeks={configWeeks}
+      channel={configChannel}
+      days={configDays} />)
+  }
+
+  selectWeek (e) {
+    if (e) {
+      this.setState({
+        days: this.handleDaysPerWeek(this.state.schema.weeks.groupedByWeeks[e]),
+        weekSelected: e,
+        daySelected: this.state.schema.weeks.groupedByWeeks[e][0] || ''
+      }, this.filterData)
+    } else {
+      this.setState({
+        days: '',
+        weekSelected: '',
+        daySelected: ''
+      }, this.filterData)
+    }
+  }
+
+  selectDay (e) {
+    this.setState({daySelected: e.target.innerText.replace(/\s/g, '')}, this.filterData)
+  }
+
+  handleFilters (e, name) {
+    let obj = {}
+    obj[name] = e.target.value
+    this.setState(obj, this.filterData)
   }
 
   render () {
     return (<div>
+      <ToastContainer />
       <CreateAdjustmentRequest
         className={this.state.classNameAR}
         hideModal={(e) => this.hideModalAdjustmentRequest(e)}
@@ -360,21 +556,22 @@ class ContainerTable extends Component {
         prediction={this.state.selectedAR}
         baseUrl={''}
       />
-      <ToastContainer />
-      {this.getModifyButtons()}
-      <div className='columns'>
-        <div className='column'>
-          <EditableTable
-            columns={this.getColumns()}
-            data={this.props.data}
-            sortAscending={this.props.sortAscending}
-            handleChange={(e) => this.handleChange(e)}
-            sortBy={this.props.sortBy}
-            setRowsToEdit={(e) => this.setRowsToEdit(e)}
-            selectable={
-              this.props.forecast.status !== 'readyToOrder'
-            }
-           />
+      {this.getFilters()}
+
+      <div className='card-content'>
+        {this.getModifyButtons()}
+        <div className='columns'>
+          <div className='column'>
+            <EditableTable
+              columns={this.getColumns()}
+              data={this.state.predictionsFiltered}
+              handleChange={(e) => this.handleChange(e)}
+              setRowsToEdit={(e) => this.setRowsToEdit(e)}
+              selectable={
+                this.props.forecast.status !== 'readyToOrder'
+              }
+             />
+          </div>
         </div>
       </div>
     </div>)
