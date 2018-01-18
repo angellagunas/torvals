@@ -40,6 +40,9 @@ import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
 import PredictionHistoric from './pages/prediction-historic/list'
 import env from '~base/env-variables'
+import Projectsv2 from './pages/projectsv2/list'
+import ProjectDetailv2 from './pages/projectsv2/detail'
+import DeletedProjectsv2 from './pages/projectsv2/deleted-list'
 
 const NoMatch = () => {
   if (window.location.pathname.replace(/\//g, '') === 'admin') {
@@ -80,6 +83,10 @@ const AppRouter = () => {
           {Projects.asRouterItem()}
           {DeletedProjects.asRouterItem()}
           {ProjectDetail.asRouterItem()}
+
+          {Projectsv2.asRouterItem()}
+          {DeletedProjectsv2.asRouterItem()}
+          {ProjectDetailv2.asRouterItem()}
 
           {SalesCenters.asRouterItem()}
           {DeletedSalesCenters.asRouterItem()}

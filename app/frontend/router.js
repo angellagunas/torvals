@@ -31,6 +31,8 @@ import ProductDetail from './pages/products/detail'
 import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
 import env from '~base/env-variables'
+import Projectsv2 from './pages/projectsv2/list'
+import ProjectDetailv2 from './pages/projectsv2/detail'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -65,6 +67,9 @@ const AppRouter = () => {
 
           {Projects.asRouterItem()}
           {ProjectDetail.asRouterItem()}
+
+          {Projectsv2.asRouterItem()}
+          {ProjectDetailv2.asRouterItem()}
 
           {SalesCenters.asRouterItem()}
           {SalesCenterDetail.asRouterItem()}

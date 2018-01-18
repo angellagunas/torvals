@@ -19,6 +19,8 @@ import RequestLogs from '../pages/request-logs/list'
 import Products from '../pages/products/list'
 import DeletedProducts from '../pages/products/deleted-list'
 import Forecasts from '../pages/forecasts/list'
+import Projectsv2 from '../pages/projectsv2/list'
+import DeletedProjectsv2 from '../pages/projectsv2/deleted-list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -113,6 +115,16 @@ class Sidebar extends Component {
         dropdown: [
           Projects.asSidebarItem(),
           DeletedProjects.asSidebarItem()
+        ]
+      },
+      {
+        title: 'Projects V2',
+        icon: 'cog',
+        to: '/projectsv2',
+        opened: false,
+        dropdown: [
+          Projectsv2.asSidebarItem(),
+          DeletedProjectsv2.asSidebarItem()
         ]
       },
       {
