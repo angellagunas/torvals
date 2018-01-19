@@ -4,10 +4,8 @@ import { ToastContainer, toast } from 'react-toastify'
 import FontAwesome from 'react-fontawesome'
 import CreateAdjustmentRequest from '../create-adjustmentRequest'
 import FiltersForecast from './filters-forecast'
+import { EditableTable } from '~base/components/base-editableTable'
 
-import {
-  EditableTable
-} from '~base/components/base-editableTable'
 let schema = {
   weeks: {
     type: 'string',
@@ -31,6 +29,7 @@ let schema = {
     enumOptions: []
   }
 }
+
 class ContainerTable extends Component {
   constructor (props) {
     super(props)
@@ -402,7 +401,7 @@ class ContainerTable extends Component {
         'default': 0
       },
       {
-        'title': 'Pedido en firme realizado en 15/01/2018',
+        'title': 'Pedido en firme realizado en ...',
         'abbreviate': true,
         'abbr': 'Pedido',
         'property': 'lastAdjustment',

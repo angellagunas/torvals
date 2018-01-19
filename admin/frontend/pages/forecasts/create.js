@@ -28,7 +28,7 @@ class CreateForecast extends Component {
           <button className='button is-primary' type='submit' onClick={() => this.submitOnClick()}>Create</button>
         </div>
         <div className='control'>
-          <button className='button' onClick={this.props.hideModal}>Cancel</button>
+          <button className='button' onClick={this.props.hideModal} type='button'>Cancel</button>
         </div>
       </div>
     )

@@ -79,7 +79,6 @@ class AdminLayout extends Component {
     if (!this.state.loaded) {
       return <div className='is-flex is-flex-1'><Loader /></div>
     }
-
     if (!isEmpty(this.state.user)) {
       return (<div className='is-wrapper'>
         <AdminNavBar
@@ -87,9 +86,10 @@ class AdminLayout extends Component {
           collapsed={this.state.sidebarCollapsed}
           handleBurgerEvent={() => this.handleBurgerEvent()} />
         <div className='is-flex c-flex-1 columns is-gapless'>
-          <Sidebar
+          { this.state.user.currentRole.slug !== 'localmanager' && <Sidebar
             collapsed={this.state.sidebarCollapsed}
             activePath={this.state.activePath} />
+          }
           <div className='column is-flex is-flex-column main-wrapper'>
             <section className='c-flex-1 is-flex'>
               {this.props.children}
