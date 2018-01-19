@@ -7,6 +7,8 @@ const moment = require('moment')
 const projectSchema = new Schema({
   name: { type: String, required: true },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+
+  // TODO: Remove
   datasets: [{
     dataset: { type: Schema.Types.ObjectId, ref: 'DataSet' },
     columns: [{
@@ -14,6 +16,17 @@ const projectSchema = new Schema({
       name_project: { type: String }
     }]
   }],
+
+  status: {
+    type: String,
+    enum: [
+      'empty',
+      'processing',
+      'ready'
+    ],
+    default: 'empty'
+  },
+
   description: { type: String },
   adjustment: { type: Number },
   businessRules: Schema.Types.Mixed,

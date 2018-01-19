@@ -20,6 +20,7 @@ const dataSetSchema = new Schema({
   externalId: { type: String },
   fileChunk: { type: Schema.Types.ObjectId, ref: 'FileChunk' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  project: { type: Schema.Types.ObjectId, ref: 'Project', required: false },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   type: {
@@ -41,7 +42,8 @@ const dataSetSchema = new Schema({
       'configuring',
       'processing',
       'reviewing',
-      'ready'
+      'ready',
+      'conciliated'
     ],
     default: 'new'
   },
