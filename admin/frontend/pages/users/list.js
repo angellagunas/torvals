@@ -26,13 +26,13 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      screenName: {type: 'text', title: 'Por nombre'},
+      name: {type: 'text', title: 'Por nombre'},
       email: {type: 'text', title: 'Por email'},
       organization: {type: 'text', title: 'Por organización', values: []}
     }
   },
   uiSchema: {
-    screenName: {'ui:widget': 'SearchFilter'},
+    name: {'ui:widget': 'SearchFilter'},
     email: {'ui:widget': 'SearchFilter'},
     organization: {'ui:widget': 'SelectSearchFilter'}
   },
