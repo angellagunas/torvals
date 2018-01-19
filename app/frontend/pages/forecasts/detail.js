@@ -1,80 +1,33 @@
 import React, { Component } from 'react'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
-import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
-import tree from '~core/tree'
 import Link from '~base/router/link'
+import moment from 'moment'
 import classNames from 'classnames'
-
-import { SelectWidget } from '~base/components/base-form'
+import tree from '~core/tree'
 
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
-import { EditableTable } from '~base/components/base-editableTable'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
-import CreateAdjustmentRequest from './create-adjustmentRequest'
 import PredictionsGraph from './predictions-graph'
+import ContainerTable from './components/container-table'
 import { ToastContainer, toast } from 'react-toastify'
-
-let schema = {
-  weeks: {
-    type: 'string',
-    title: 'Semanas',
-    enum: [],
-    enumNames: []
-  },
-  salesCenters: {
-    type: 'string',
-    title: 'Semanas',
-    enum: [],
-    enumNames: []
-  },
-  products: {
-    type: 'string',
-    title: 'Semanas',
-    enum: [],
-    enumNames: []
-  }
-}
 
 class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      classNameAR: '',
       isHeaderOpen: false,
       bodyHeight: 0,
       loading: true,
       loaded: false,
-      predictions: [],
       forecast: {},
       graphDataFiltered: [],
-      selectedRows: {},
-      selectValue: '',
-      selectedAll: false,
-      predictionsFormatted: [],
-      disableButtons: true,
-      predictionsFiltered: [],
-      schema: {},
-      weekSelected: 0,
-      weeksOptions: {
-        enumOptions: []
-      },
-      salesCentersSelected: '',
-      salesCentersOptions: {
-        enumOptions: []
-      },
-      productsSelected: '',
-      productsOptions: {
-        enumOptions: []
-      },
-      channelSelected: '',
-      channelsOptions: [],
-      days: [],
       graphProductSelected: '',
-      graphIsPristine: true
+      graphIsPristine: true,
+      reloadPredictions: false
     }
 
     this.toastId = null
@@ -89,6 +42,10 @@ class ForecastDetail extends Component {
     clearInterval(this.interval)
   }
 
+  async loadPredictions () {
+    this.setState({reloadPredictions: true})
+    setTimeout(() => { this.setState({reloadPredictions: false}) }, 100)
+  }
   /*
    * Endpoints Call
    */
@@ -102,104 +59,6 @@ class ForecastDetail extends Component {
       loaded: true,
       forecast: body.data,
       graphDataFiltered: body.data.graphData
-    })
-
-    this.loadSalesCenters()
-    this.loadPredictions()
-    this.loadProducts()
-  }
-
-  async loadSalesCenters () {
-    let url = '/app/salesCenters'
-    let body = await api.get(url, {limit: 0, organization: this.state.forecast.uuid, predictions: this.state.forecast.uuid})
-    if (body.data) {
-      body.data = body.data.sort(this.sortByName)
-    }
-    this.setState({
-      loading: false,
-      loaded: true,
-      salesCentersOptions: {
-        enumOptions: body.data
-      }
-    })
-  }
-
-  async loadProducts () {
-    let url = '/app/products/categories'
-    let body = await api.get(url, {limit: 0, predictions: this.state.forecast.uuid})
-
-    this.setState({
-      loading: false,
-      loaded: true,
-      productsOptions: {
-        enumOptions: body
-      }
-    })
-  }
-
-  async loadPredictions () {
-    var url = '/app/predictions'
-    const body = await api.get(url, {forecast: this.state.forecast.uuid})
-    var channels = new Set(body.data.map(item => {
-      return item.data.channelName
-    }).filter(item => { return !!item }))
-
-    this.setState({
-      loading: false,
-      loaded: true,
-      channelsOptions: Array.from(channels),
-      predictions: body.data,
-      predictionsFormatted: body.data.map(item => {
-        let data = item.data
-        let percentage
-
-        if (data.prediction !== data.adjustment) {
-          percentage = (data.adjustment - data.prediction) * 100 / data.prediction
-        }
-
-        return {
-          ...data,
-          percentage: percentage,
-          product: item.product,
-          salesCenter: item.salesCenter,
-          adjustmentRequest: item.adjustmentRequest,
-          wasEdited: data.adjustment !== data.prediction,
-          isLimit: (Math.abs(percentage) >= (this.state.forecast.project.adjustment * 100)),
-          uuid: item.uuid
-        }
-      })
-    }, function () {
-      if (this.state.predictionsFormatted.length > 0) {
-        let cache = {}
-        this.state.predictionsFormatted
-          .sort((a, b) => new Date(a.forecastDate) - new Date(b.forecastDate))
-          .map(item => {
-            if (!cache[item.semanaBimbo]) {
-              cache[item.semanaBimbo] = []
-            }
-            if (cache[item.semanaBimbo].indexOf(item.forecastDate) === -1) {
-              cache[item.semanaBimbo].push(item.forecastDate)
-            }
-            return {forecastDate: item.forecastDate, semanaBimbo: item.semanaBimbo}
-          })
-
-        schema.weeks.groupedByWeeks = cache
-        schema.weeks.enum = Object.keys(cache).map(item => item)
-        schema.weeks.enumNames = Object.keys(cache).map(item => 'Semana ' + item)
-
-        this.setState({
-          schema,
-          predictionsFiltered: this.state.predictionsFormatted.map(item => item),
-          weekSelected: schema.weeks.enum[0],
-          days: this.handleDaysPerWeek(schema.weeks.groupedByWeeks[schema.weeks.enum[0]]),
-          daySelected: schema.weeks.groupedByWeeks[Math.min(...Object.keys(schema.weeks.groupedByWeeks))][0],
-          weeksOptions: {
-            enumOptions: Object.keys(cache).map(item => {
-              return {label: 'Semana ' + item, value: item}
-            })
-          }
-        }, this.filterData)
-      }
     })
   }
 
@@ -237,175 +96,6 @@ class ForecastDetail extends Component {
   /*
    * Columns for tables
    */
-
-  getColumns () {
-    let forecast = this.state.forecast
-    let currentRole = tree.get('user').currentRole.slug
-    let checkboxColumn = []
-    if (this.state.forecast.status === 'opsReview') {
-      checkboxColumn.push({
-        'title': 'checker',
-        'abbreviate': true,
-        'abbr': (() => {
-          return (<div className='field'>
-            <div className='control has-text-centered'>
-              <label className='checkbox'>
-                <input
-                  type='checkbox'
-                  checked={this.state.selectedAll}
-                  onChange={(e) => this.selectRows(!this.state.selectedAll)} />
-              </label>
-            </div>
-          </div>)
-        })(),
-        'property': 'checkbox',
-        'default': 'N/A',
-        formatter: (row, state) => {
-          return (<div className='field'>
-            <div className='control has-text-centered'>
-              <label className='checkbox'>
-                <input
-                  type='checkbox'
-                  checked={state.isRowSelected} />
-              </label>
-            </div>
-          </div>)
-        }
-      })
-    }
-
-    return [
-      ...checkboxColumn,
-      {
-        'title': 'Product Id',
-        'abbreviate': true,
-        'abbr': 'P. Id',
-        'property': 'product_id',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.product.externalId)
-        }
-      },
-      {
-        'title': 'Product Name',
-        'abbreviate': true,
-        'abbr': 'P. Name',
-        'property': 'product_id',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.product.name)
-        }
-      },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'agency_id',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.salesCenter.name)
-        }
-      },
-      {
-        'title': 'Canal',
-        'abbreviate': true,
-        'abbr': 'Canal',
-        'property': 'channelId',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.channelName)
-        }
-      },
-      {
-        'title': 'Semana Bimbo',
-        'property': 'semanaBimbo',
-        'default': 'N/A'
-      },
-      {
-        'title': 'Predicción',
-        'property': 'prediction',
-        'default': 0
-      },
-      {
-        'title': 'Pedido en firme realizado en 15/01/2018',
-        'abbreviate': true,
-        'abbr': 'Pedido',
-        'property': 'lastAdjustment',
-        'default': 'N/A',
-        formatter: (row) => {
-          if (row.lastAdjustment) {
-            return row.lastAdjustment.toFixed(2)
-          }
-
-          return 'N/A'
-        }
-      },
-      {
-        'title': 'Ajuste',
-        'property': 'adjustment',
-        'default': 0,
-        'editable': true,
-        'type': 'number',
-        formatter: (row) => {
-          return row.adjustment.toFixed(2)
-        }
-      },
-      {
-        'title': 'Porcentaje',
-        'property': 'percentage',
-        'default': 0,
-        'type': 'number',
-        formatter: (row) => {
-          if (row.percentage) {
-            return `${row.percentage.toFixed(2)} %`
-          }
-
-          return '0 %'
-        }
-      },
-      {
-        'title': '',
-        'property': 'isLimit',
-        'default': '',
-        formatter: (row) => {
-          if (
-              currentRole !== 'analyst' &&
-              currentRole !== 'enterprisemanager'
-          ) {
-            if (row.isLimit && !row.adjustmentRequest) {
-              return (
-                <span
-                  className='icon'
-                  title='No es posible pedir un ajuste más allá al límite!'
-                  onClick={() => {
-                    this.showModalAdjustmentRequest(row)
-                  }}
-                >
-                  <FontAwesome name='warning' />
-                </span>
-              )
-            }
-
-            if (row.isLimit && row.adjustmentRequest) {
-              return (
-                <span
-                  className='icon has-text-warning'
-                  title='Ya se ha pedido un cambio a esta predicción!'
-                  onClick={() => {
-                    this.showModalAdjustmentRequest(row)
-                  }}
-                >
-                  <FontAwesome name='warning' />
-                </span>
-              )
-            }
-          }
-
-          return ''
-        }
-      }
-    ]
-  }
 
   getColumnsDatasets () {
     return [
@@ -538,87 +228,8 @@ class ForecastDetail extends Component {
    * Common Methods
    */
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
-    if (!toast.isActive(this.toastId)) {
-      this.toastId = toast(message, {
-        autoClose: timeout,
-        type: type,
-        hideProgressBar: true,
-        closeButton: false
-      })
-    } else {
-      toast.update(this.toastId, {
-        render: message,
-        type: type,
-        autoClose: timeout,
-        closeButton: false
-      })
-    }
-  }
-
   dismissAll () {
     toast.dismiss()
-  }
-
-  async onClickButtonPlus () {
-    let rows = {...this.state.selectedRows}
-
-    for (var item in rows) {
-      let toAdd = (rows[item].prediction * 0.01)
-      if (Math.round(toAdd) === 0) toAdd = 1
-      rows[item].edited = true
-      var adjustment = rows[item].adjustment
-      var newAdjustment = rows[item].adjustment + toAdd
-      rows[item].adjustment = newAdjustment
-      const res = await this.handleChange(rows[item])
-      if (!res) rows[item].adjustment = adjustment
-    }
-  }
-
-  async onClickButtonMinus () {
-    let rows = {...this.state.selectedRows}
-
-    for (var item in rows) {
-      let toAdd = (rows[item].prediction * 0.01)
-      if (Math.round(toAdd) === 0) toAdd = 1
-      rows[item].edited = true
-      var adjustment = rows[item].adjustment
-      var newAdjustment = rows[item].adjustment - toAdd
-      rows[item].adjustment = newAdjustment
-      const res = await this.handleChange(rows[item])
-      if (!res) rows[item].adjustment = adjustment
-    }
-  }
-
-  toggleButtons () {
-    let disable = true
-    let rows = {...this.state.selectedRows}
-    if (Object.keys(rows).length) disable = false
-
-    this.setState({
-      disableButtons: disable
-    })
-  }
-
-  setRowsToEdit (row, index) {
-    let rows = {...this.state.selectedRows}
-    let selectedAll = false
-
-    if (rows.hasOwnProperty(row.uuid)) {
-      row.selected = !row.selected
-      delete rows[row.uuid]
-    } else {
-      row.selected = true
-      rows[row.uuid] = row
-    }
-
-    if (Object.keys(rows).length === this.state.predictionsFiltered.length) {
-      selectedAll = !selectedAll
-    }
-
-    this.setState({selectedRows: rows, selectedAll}, function () {
-      this.toggleButtons()
-    })
   }
 
   sortByName (a, b) {
@@ -627,299 +238,9 @@ class ForecastDetail extends Component {
     return 0
   }
 
-  selectRows (selectAll) {
-    let selectedRows = {}
-    let predictionsFormatted = this.state.predictionsFormatted.map((item) => {
-      if (selectAll) selectedRows[item.uuid] = item
-
-      item.selected = selectAll
-      return item
-    })
-
-    this.setState({predictionsFormatted, selectedRows, selectedAll: !this.state.selectedAll}, function () {
-      this.toggleButtons()
-    })
-  }
-
-  /*
-   * Filters methods
-   */
-
-  filterData () {
-    const state = this.state
-    let predictionsFiltered = state.predictionsFormatted
-
-    if (state.daySelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.forecastDate === state.daySelected
-      })
-    }
-
-    if (state.salesCentersSelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.salesCenter.uuid === state.salesCentersSelected
-      })
-    }
-
-    if (state.productsSelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.product.category === state.productsSelected
-      })
-    }
-
-    if (state.channelSelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.channelName === state.channelSelected
-      })
-    }
-
-    this.setState({predictionsFiltered})
-  }
-
-  handleFilters (e, name) {
-    let obj = {}
-    obj[name] = e.target.value
-    this.setState(obj, this.filterData)
-  }
-
-  handleDaysPerWeek (days) {
-    const daysPerWeek = 7
-    if (days.length > daysPerWeek) {
-      return days.slice(0, daysPerWeek)
-    }
-    return days
-  }
-
-  selectWeek (e) {
-    if (e) {
-      this.setState({
-        days: this.handleDaysPerWeek(this.state.schema.weeks.groupedByWeeks[e]),
-        weekSelected: e,
-        daySelected: this.state.schema.weeks.groupedByWeeks[e][0] || ''
-      }, this.filterData)
-    } else {
-      this.setState({
-        days: '',
-        weekSelected: '',
-        daySelected: ''
-      }, this.filterData)
-    }
-  }
-
-  selectDay (e) {
-    this.setState({daySelected: e.target.innerText.replace(/\s/g, '')}, this.filterData)
-  }
-
-  getDays () {
-    if (!this.state.days) {
-      return <div />
-    }
-    return (<ul>
-      {this.state.days.map((item, index) => {
-        const tabClass = classNames('', {
-          'is-active': this.state.daySelected === item
-        })
-        return (<li onClick={(e) => this.selectDay(e)} className={tabClass} key={index}>
-          <a onClick={(e) => { e.preventDefault() }} >
-            <span className='is-size-7'>{item}</span>
-          </a>
-        </li>)
-      })}
-    </ul>)
-  }
-
-  getFilters () {
-    return (<header className='card-header'>
-      <div className='card-header-title'>
-        <form className='is-fullwidth'>
-          <div className='columns is-multiline'>
-            <div className='column is-4'>
-              <div className='field is-horizontal'>
-                <div className='field-label'>
-                  <label className='label'>Semanas</label>
-                </div>
-                <div className='field-body'>
-                  <div className='field'>
-                    <div className='control'>
-                      <div className='select'>
-                        <SelectWidget
-                          id='root_weeks'
-                          schema={schema.weeks}
-                          options={this.state.weeksOptions}
-                          required
-                          value={this.state.weekSelected}
-                          disabled={false}
-                          readonly={false}
-                          onChange={(e) => this.selectWeek(e)}
-                          autofocus='false' />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='column is-8'>
-              <div className='field is-horizontal'>
-                <div className='field-label'>
-                  <label className='label'>Centro de Ventas</label>
-                </div>
-                <div className='field-body'>
-                  <div className='field'>
-                    <div className='control'>
-                      <div className='select is-fullwidth'>
-                        <select className='is-fullwidth' value={this.state.salesCentersSelected} onChange={(e) => this.handleFilters(e, 'salesCentersSelected')}>
-                          <option value='' />
-                          {
-                            this.state.salesCentersOptions.enumOptions.map((item, index) => {
-                              return (<option key={index} value={item.uuid}>{item.name}</option>)
-                            })
-                          }
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='field is-horizontal'>
-                <div className='field-label is-normal'>
-                  <label className='label'>Categoría</label>
-                </div>
-                <div className='field-body'>
-                  <div className='field'>
-                    <div className='control'>
-                      <div className='select is-fullwidth'>
-                        <select className='is-fullwidth' value={this.state.productsSelected} onChange={(e) => this.handleFilters(e, 'productsSelected')}>
-                          <option value='' />
-                          {
-                            this.state.productsOptions.enumOptions.map((item, index) => {
-                              return (<option key={index} value={item}>{item}</option>)
-                            })
-                          }
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='field is-horizontal'>
-                <div className='field-label is-normal'>
-                  <label className='label'>Canal</label>
-                </div>
-                <div className='field-body'>
-                  <div className='field'>
-                    <div className='control'>
-                      <div className='select is-fullwidth'>
-                        <select className='is-fullwidth' value={this.state.channelSelected} onChange={(e) => this.handleFilters(e, 'channelSelected')}>
-                          <option value='' />
-                          {
-                            this.state.channelsOptions.map((item, index) => {
-                              return (<option key={index} value={item}>{item}</option>)
-                            })
-                          }
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='column is-12'>
-
-              <div className='tabs is-boxed'>
-                {this.getDays()}
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-    </header>)
-  }
-
   /*
    * Editable table methods
    */
-
-  async handleChange (data) {
-    let currentRole = tree.get('user').currentRole.slug
-    const forecast = this.state.forecast
-    const project = this.state.forecast.project
-    const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
-    var maxAdjustment = Math.ceil(prediction.data.prediction * (1 + project.adjustment))
-    var minAdjustment = Math.floor(prediction.data.prediction * (1 - project.adjustment))
-    data.adjustment = Math.round(data.adjustment)
-
-    data.isLimit = (data.adjustment >= maxAdjustment || data.adjustment <= minAdjustment)
-
-    if ((currentRole !== 'analyst' && currentRole !== 'orgadmin')) {
-      if ((currentRole === 'opsmanager' || currentRole === 'localmanager')) {
-        if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
-          this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
-          return false
-        }
-      }
-    }
-
-    data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
-
-    var url = '/app/predictions/' + data.uuid
-    const res = await api.post(url, {...data})
-
-    data.lastAdjustment = res.data.data.lastAdjustment
-    data.edited = true
-    const predictionsFormatted = this.state.predictionsFormatted.map(
-      (item) => data.uuid === item.uuid ? data : item
-    )
-
-    this.notify('Ajuste guardado!', 3000, toast.TYPE.SUCCESS)
-
-    this.setState({
-      predictionsFormatted,
-      success: true
-    })
-
-    return true
-  }
-
-  getModifyButtons () {
-    let forecast = this.state.forecast
-    let currentRole = tree.get('user').currentRole.slug
-
-    if (
-        forecast.status !== 'readyToOrder' &&
-        currentRole !== 'enterprisemanager'
-    ) {
-      return (
-        <div className='columns'>
-          <div className='column'>
-            <div className='field is-grouped is-grouped-right'>
-              <div className='control'>
-                <p style={{paddingTop: 5}}>Modificar porcentaje</p>
-              </div>
-              <div className='control'>
-                <button
-                  className='button'
-                  onClick={() => this.onClickButtonPlus()}
-                  disabled={this.state.disableButtons}
-                >
-                 +
-                </button>
-              </div>
-              <div className='control'>
-                <button
-                  className='button'
-                  style={{paddingLeft: 14, paddingRight: 14}}
-                  onClick={() => this.onClickButtonMinus()}
-                  disabled={this.state.disableButtons}
-                >
-                 -
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    }
-  }
 
   getElementsById (array, property) {
     let seen = {}
@@ -952,8 +273,7 @@ class ForecastDetail extends Component {
   }
 
   getTable () {
-    const { forecast, graphDataFiltered, graphIsPristine } = this.state
-    let currentRole = tree.get('user').currentRole.slug
+    const { forecast } = this.state
 
     if (forecast.status === 'created' || forecast.status === 'processing') {
       return (
@@ -1017,8 +337,10 @@ class ForecastDetail extends Component {
         </div>
       )
     }
+    console.log('this.props.match', this.props.match)
 
     return (
+
       <div>
         {forecast.status === 'analistReview' && (
           <div className='columns'>
@@ -1036,29 +358,8 @@ class ForecastDetail extends Component {
                   Predictions Table
                 </p>
               </header>
-              {
-                this.getFilters()
-              }
-              <div className='card-content'>
-                {this.getModifyButtons()}
-                <div className='columns'>
-                  <div className='column'>
-                    <EditableTable
-                      columns={this.getColumns()}
-                      data={this.state.predictionsFiltered}
-                      handleSort={(e) => this.handleSort(e)}
-                      sortAscending={this.state.sortAscending}
-                      sortBy={this.state.sort}
-                      handleChange={this.handleChange.bind(this)}
-                      setRowsToEdit={this.setRowsToEdit.bind(this)}
-                      selectable={
-                        (forecast.status !== 'readyToOrder') &&
-                        (currentRole !== 'enterprisemanager')
-                      }
-                     />
-                  </div>
-                </div>
-              </div>
+
+              <ContainerTable forecast={this.state.forecast} reload={this.state.reloadPredictions} />
             </div>
           </div>
         </div>
@@ -1156,19 +457,6 @@ class ForecastDetail extends Component {
   /*
    * AdjustmentRequest methods
    */
-
-  showModalAdjustmentRequest (obj) {
-    this.setState({
-      classNameAR: ' is-active',
-      selectedAR: obj
-    })
-  }
-
-  hideModalAdjustmentRequest () {
-    this.setState({
-      classNameAR: ''
-    })
-  }
 
   async finishUpAdjustmentRequest (obj) {
     this.setState({
@@ -1280,7 +568,7 @@ class ForecastDetail extends Component {
 
   render () {
     let currentRole = tree.get('user').currentRole.slug
-    const { forecast, notification } = this.state
+    const { forecast } = this.state
     const headerBodyClass = classNames('card-content', {
       'is-hidden': this.state.isHeaderOpen === false
     })
@@ -1294,13 +582,6 @@ class ForecastDetail extends Component {
     }
 
     return (<div>
-      <CreateAdjustmentRequest
-        className={this.state.classNameAR}
-        hideModal={this.hideModalAdjustmentRequest.bind(this)}
-        finishUp={this.finishUpAdjustmentRequest.bind(this)}
-        prediction={this.state.selectedAR}
-        baseUrl={''}
-      />
       <div data-content className='card' id='test' ref={(element) => this.getHeight(element)}>
         <header className='card-header'>
           <p className='card-header-title'>
@@ -1367,7 +648,6 @@ class ForecastDetail extends Component {
       </div>
 
       <ToastContainer />
-
       <div className='columns c-flex-1 is-marginless' style={{overflowY: 'scroll', height: this.state.bodyHeight}}>
         <div className='column is-12 is-paddingless'>
           <div className='section'>
