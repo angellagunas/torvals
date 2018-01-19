@@ -126,8 +126,8 @@ class NavBar extends Component {
     return (<nav className='c-topbar navbar c-fixed'>
       <div className={navbarBrand}>
         <Link to='/' className={'navbar-item ' + navItemWhite}>
-          <img className='is-flex' src='/app/public/img/pythia-logo.png' />
-          <h3 className='is-size-4  is-capitalized has-text-weight-semibold'>&nbsp;Pythia</h3>
+          <img className='is-flex r-pad' src='/app/public/img/pythia-logo.png' />
+          <h3 className='is-size-4  is-capitalized has-text-weight-semibold'>Pythia</h3>
         </Link>
       </div>
       <div className='c-topbar__main'>
