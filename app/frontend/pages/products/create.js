@@ -42,7 +42,7 @@ class CreateProduct extends Component {
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary'>Create</button>
+              <button className='button is-primary' type='submit'>Create</button>
             </div>
             <div className='control'>
               <button className='button' onClick={this.hideModal} type='button'>Cancel</button>

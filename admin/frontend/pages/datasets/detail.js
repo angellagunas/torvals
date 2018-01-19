@@ -417,10 +417,10 @@ class DataSetDetail extends Component {
           >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary'>Save</button>
+              <button className='button is-primary' type='submit'>Save</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModal()}>Cancel</button>
+              <button className='button' onClick={() => this.hideModal()} type='button'>Cancel</button>
             </div>
           </div>
         </ProductForm>
@@ -457,10 +457,10 @@ class DataSetDetail extends Component {
       >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary'>Save</button>
+              <button className='button is-primary' type='submit'>Save</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModalSalesCenters()}>Cancel</button>
+              <button className='button' onClick={() => this.hideModalSalesCenters()} type='button'>Cancel</button>
             </div>
           </div>
         </SalesCenterForm>
