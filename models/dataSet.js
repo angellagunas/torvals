@@ -48,6 +48,16 @@ const dataSetSchema = new Schema({
     default: 'new'
   },
 
+  source: {
+    type: String,
+    enum: [
+      'uploaded',
+      'forecast',
+      'adjustment'
+    ],
+    default: 'uploaded'
+  },
+
   columns: [{
     name: { type: String },
     isDate: { type: Boolean, default: false },
