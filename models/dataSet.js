@@ -31,6 +31,7 @@ const dataSetSchema = new Schema({
 
   dateMax: String,
   dateMin: String,
+  error: String,
 
   status: {
     type: String,
@@ -43,7 +44,8 @@ const dataSetSchema = new Schema({
       'processing',
       'reviewing',
       'ready',
-      'conciliated'
+      'conciliated',
+      'error'
     ],
     default: 'new'
   },
@@ -53,7 +55,8 @@ const dataSetSchema = new Schema({
     enum: [
       'uploaded',
       'forecast',
-      'adjustment'
+      'adjustment',
+      'external'
     ],
     default: 'uploaded'
   },

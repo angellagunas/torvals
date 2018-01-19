@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { DataSet, Product, SalesCenter } = require('models')
+const { DataSet } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
@@ -74,6 +74,17 @@ const task = new Task(async function (argv) {
 
       await dataset.save()
       await dataset.processData()
+    }
+
+    if (res.status === 'error') {
+      dataset.set({
+        error: res.message,
+        status: 'error'
+      })
+
+      await dataset.save()
+
+      console.log(`Error while processing dataset: ${dataset.error}`)
     }
   }
 

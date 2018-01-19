@@ -17,6 +17,7 @@ const task = new Task(async function (argv) {
   const dataset = await DataSet.findOne({uuid: argv.uuid})
     .populate('fileChunk')
     .populate('organization')
+    .populate('project')
 
   if (!dataset) {
     throw new Error('Invalid uuid!')
@@ -32,7 +33,7 @@ const task = new Task(async function (argv) {
 
   console.log(`Sending ${dataset.name} dataset for preprocessing ...`)
   var options = {
-    url: `${apiData.hostname}${apiData.baseUrl}/upload/file/organizations`,
+    url: `${apiData.hostname}${apiData.baseUrl}/upload/file/datasets`,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -40,7 +41,7 @@ const task = new Task(async function (argv) {
       'Authorization': `Bearer ${apiData.token}`
     },
     body: {
-      organization: dataset.organization.uuid,
+      project: dataset.project.uuid,
       path: dataset.url
     },
     json: true,
@@ -48,6 +49,19 @@ const task = new Task(async function (argv) {
   }
 
   var res = await request(options)
+
+  if (res.status === 'error') {
+    dataset.set({
+      error: res.message,
+      status: 'error'
+    })
+
+    await dataset.save()
+
+    console.log(`Error while sending dataset for preprocessing: ${dataset.error}`)
+    return false
+  }
+
   dataset.set({
     externalId: res._id,
     status: 'preprocessing'
