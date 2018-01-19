@@ -8,14 +8,17 @@ module.exports = new Route({
   path: '/',
   validator: lov.object().keys({
     name: lov.string().required(),
-    description: lov.string()
+    description: lov.string(),
+    project: lov.string().required()
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
     let project
 
-    if (body.project) {
-      project = await Project.findOne({uuid: body.project})
+    project = await Project.findOne({uuid: body.project})
+
+    if (!project) {
+      ctx.throw(404, 'Project not found')
     }
 
     const dataset = await DataSet.create({
@@ -23,7 +26,7 @@ module.exports = new Route({
       description: body.description,
       organization: ctx.state.organization._id,
       createdBy: ctx.state.user,
-      project: project
+      project: project._id
     })
 
     if (project) {

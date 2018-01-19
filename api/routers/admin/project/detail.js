@@ -10,7 +10,6 @@ module.exports = new Route({
 
     const project = await Project.findOne({'uuid': projectId, 'isDeleted': false})
       .populate('organization')
-      .populate('datasets.dataset')
 
     ctx.assert(project, 404, 'Project not found')
 

@@ -12,7 +12,7 @@ module.exports = new Route({
       'uuid': projectId,
       'isDeleted': false,
       'organization': ctx.state.organization._id
-    }).populate('organization').populate('datasets.dataset')
+    }).populate('organization')
 
     ctx.assert(project, 404, 'Project not found')
 
