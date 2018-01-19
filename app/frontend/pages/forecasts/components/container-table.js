@@ -282,12 +282,10 @@ class ContainerTable extends Component {
 
     data.isLimit = (data.adjustment >= maxAdjustment || data.adjustment <= minAdjustment)
 
-    if ((currentRole !== 'analyst' && currentRole !== 'orgadmin')) {
-      if ((currentRole === 'opsmanager' || currentRole === 'localmanager')) {
-        if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
-          this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
-          return false
-        }
+    if ((currentRole === 'opsmanager' || currentRole === 'localmanager')) {
+      if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
+        this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
+        return false
       }
     }
 

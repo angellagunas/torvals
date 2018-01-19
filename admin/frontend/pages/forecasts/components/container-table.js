@@ -230,8 +230,15 @@ class ContainerTable extends Component {
   }
 
   async handleChange (data) {
+    const project = this.props.forecast.project
+    const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
+
+    var maxAdjustment = Math.ceil(prediction.data.prediction * (1 + project.adjustment))
+    var minAdjustment = Math.floor(prediction.data.prediction * (1 - project.adjustment))
     data.adjustment = Math.round(data.adjustment)
     data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
+
+    data.isLimit = (data.adjustment >= maxAdjustment || data.adjustment <= minAdjustment)
 
     var url = '/admin/predictions/' + data.uuid
     const res = await api.post(url, {...data})
@@ -241,6 +248,7 @@ class ContainerTable extends Component {
     const predictionsFormatted = this.state.predictionsFormatted.map(
       (item) => data.uuid === item.uuid ? data : item
     )
+
     this.notify('Ajuste guardado!', 3000, toast.TYPE.SUCCESS)
 
     this.setState({
