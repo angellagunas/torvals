@@ -55,6 +55,13 @@ class FiltersForecast extends Component {
       }
     })
   }
+
+  sortByName (a, b) {
+    if (a.name < b.name) return -1
+    if (a.name > b.name) return 1
+    return 0
+  }
+
   handleWeek (e) {
     let handleWeek = this.props.handleWeek
     if (handleWeek) {

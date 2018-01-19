@@ -9,7 +9,7 @@ module.exports = new Route({
   validator: lov.object().keys({
     name: lov.string().required(),
     organization: lov.string().required(),
-    adjustment: lov.string().required()
+    adjustment: lov.string()
   }),
   handler: async function (ctx) {
     var data = ctx.request.body
