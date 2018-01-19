@@ -37,7 +37,10 @@ class ContainerTable extends Component {
     this.state = {
       selectedRows: {},
       selectedAll: false,
-      channelsOptions: []
+      channelsOptions: [],
+      weeksOptions: {
+        enumOptions: []
+      }
     }
   }
 
@@ -495,7 +498,7 @@ class ContainerTable extends Component {
     let configWeeks = {
       id: 'root_weeks',
       schema: schema.weeks,
-      options: this.state.weeksOptions || {enumOptions: []},
+      options: this.state.weeksOptions,
       required: true,
       value: this.state.weekSelected,
       disabled: false,
