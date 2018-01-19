@@ -13,7 +13,7 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import PredictionsGraph from './predictions-graph'
 import ContainerTable from './components/container-table'
-import { ToastContainer, toast } from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 
 class ForecastDetail extends Component {
   constructor (props) {
@@ -222,20 +222,6 @@ class ForecastDetail extends Component {
         }
       }
     ]
-  }
-
-  /*
-   * Common Methods
-   */
-
-  dismissAll () {
-    toast.dismiss()
-  }
-
-  sortByName (a, b) {
-    if (a.name < b.name) return -1
-    if (a.name > b.name) return 1
-    return 0
   }
 
   /*

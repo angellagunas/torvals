@@ -3,9 +3,7 @@ import api from '~base/api'
 import FiltersForecast from './filters-forecast'
 import tree from '~core/tree'
 import { ToastContainer, toast } from 'react-toastify'
-import {
-  EditableTable
-} from '~base/components/base-editableTable'
+import { EditableTable } from '~base/components/base-editableTable'
 import FontAwesome from 'react-fontawesome'
 import CreateAdjustmentRequest from '../create-adjustmentRequest'
 
@@ -433,7 +431,7 @@ class ContainerTable extends Component {
         'default': 0
       },
       {
-        'title': 'Pedido en firme realizado en 15/01/2018',
+        'title': 'Pedido en firme realizado en ...',
         'abbreviate': true,
         'abbr': 'Pedido',
         'property': 'lastAdjustment',
