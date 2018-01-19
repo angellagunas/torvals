@@ -46,6 +46,7 @@ projectSchema.methods.toPublic = function () {
     organization: this.organization,
     datasets: this.datasets,
     adjustment: this.adjustment,
+    status: this.status,
     dateCreated: this.dateCreated
   }
 }
@@ -58,6 +59,7 @@ projectSchema.methods.toAdmin = function () {
     organization: this.organization,
     datasets: this.datasets,
     adjustment: this.adjustment,
+    status: this.status,
     dateCreated: this.dateCreated
   }
 }
