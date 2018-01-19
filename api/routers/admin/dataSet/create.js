@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const { DataSet, Organization, Project } = require('models')
+const { DataSet, Project } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -9,29 +9,25 @@ module.exports = new Route({
   validator: lov.object().keys({
     name: lov.string().required(),
     description: lov.string(),
-    organization: lov.string()
+    project: lov.string().required()
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
     let project, org
 
-    if (body.project) {
-      project = await Project.findOne({uuid: body.project}).populate('organization')
-      org = project.organization
-    } else {
-      org = await Organization.findOne({uuid: body.organization})
+    project = await Project.findOne({uuid: body.project}).populate('organization')
+    org = project.organization
 
-      if (!org) {
-        ctx.throw(404, 'Organization not found')
-      }
+    if (!project) {
+      ctx.throw(404, 'Project not found')
     }
 
     const dataset = await DataSet.create({
       name: body.name,
       description: body.description,
-      organization: org,
+      organization: org._id,
       createdBy: ctx.state.user,
-      project: project
+      project: project._id
     })
 
     if (project) {
