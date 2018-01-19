@@ -48,6 +48,16 @@ const dataSetSchema = new Schema({
     default: 'new'
   },
 
+  source: {
+    type: String,
+    enum: [
+      'uploaded',
+      'forecast',
+      'adjustment'
+    ],
+    default: 'uploaded'
+  },
+
   columns: [{
     name: { type: String },
     isDate: { type: Boolean, default: false },
@@ -91,6 +101,7 @@ dataSetSchema.methods.toPublic = function () {
     status: this.status,
     url: this.url,
     uploaded: this.uploaded,
+    source: this.source,
     fileChunk: this.fileChunk,
     columns: this.columns,
     groupings: this.groupings,
@@ -113,6 +124,7 @@ dataSetSchema.methods.format = function () {
     status: this.status,
     url: this.url,
     uploaded: this.uploaded,
+    source: this.source,
     columns: this.columns,
     groupings: this.groupings,
     dateMax: this.dateMax,
