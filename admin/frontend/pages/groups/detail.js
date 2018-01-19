@@ -12,6 +12,7 @@ import BaseModal from '~base/components/base-modal'
 import GroupForm from './form'
 import DeleteButton from '~base/components/base-deleteButton'
 import CreateUser from '../users/create'
+import tree from '~core/tree'
 
 class GroupDetail extends Component {
   constructor (props) {
@@ -148,8 +149,25 @@ class GroupDetail extends Component {
       }
     )
 
+    this.updateUsersToAsign()
     this.loadGroupUsers()
     this.hideModalList()
+  }
+
+  async updateUsersToAsign () {
+    const cursor = tree.get('usersAsign')
+    const updateUsers = await api.get(
+      '/admin/users',
+      {groupAsign: this.props.match.params.uuid}
+    )
+
+    tree.set('usersAsign', {
+      page: cursor.page,
+      totalItems: updateUsers.total,
+      items: updateUsers.data,
+      pageLength: cursor.pageLength
+    })
+    tree.commit()
   }
 
   getColumnsUsersToAsign () {
