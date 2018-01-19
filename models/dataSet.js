@@ -20,6 +20,7 @@ const dataSetSchema = new Schema({
   externalId: { type: String },
   fileChunk: { type: Schema.Types.ObjectId, ref: 'FileChunk' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  project: { type: Schema.Types.ObjectId, ref: 'Project', required: false },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   type: {
@@ -41,9 +42,20 @@ const dataSetSchema = new Schema({
       'configuring',
       'processing',
       'reviewing',
-      'ready'
+      'ready',
+      'conciliated'
     ],
     default: 'new'
+  },
+
+  source: {
+    type: String,
+    enum: [
+      'uploaded',
+      'forecast',
+      'adjustment'
+    ],
+    default: 'uploaded'
   },
 
   columns: [{
@@ -89,6 +101,7 @@ dataSetSchema.methods.toPublic = function () {
     status: this.status,
     url: this.url,
     uploaded: this.uploaded,
+    source: this.source,
     fileChunk: this.fileChunk,
     columns: this.columns,
     groupings: this.groupings,
@@ -111,6 +124,7 @@ dataSetSchema.methods.format = function () {
     status: this.status,
     url: this.url,
     uploaded: this.uploaded,
+    source: this.source,
     columns: this.columns,
     groupings: this.groupings,
     dateMax: this.dateMax,

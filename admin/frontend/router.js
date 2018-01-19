@@ -43,6 +43,7 @@ import env from '~base/env-variables'
 import Projectsv2 from './pages/projectsv2/list'
 import ProjectDetailv2 from './pages/projectsv2/detail'
 import DeletedProjectsv2 from './pages/projectsv2/deleted-list'
+// #Import
 
 const NoMatch = () => {
   if (window.location.pathname.replace(/\//g, '') === 'admin') {
@@ -102,6 +103,7 @@ const AppRouter = () => {
           {RequestLogs.asRouterItem()}
           {PredictionHistoric.asRouterItem()}
 
+          <div id='route' />
           <Route component={NoMatch} />
         </Switch>
       </div>
