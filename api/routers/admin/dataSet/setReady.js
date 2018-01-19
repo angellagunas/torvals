@@ -1,5 +1,4 @@
 const Route = require('lib/router/route')
-const lov = require('lov')
 
 const { DataSet } = require('models')
 
@@ -10,6 +9,7 @@ module.exports = new Route({
     var datasetId = ctx.params.uuid
 
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
+      .populate('project')
 
     ctx.assert(dataset, 404, 'DataSet not found')
 
@@ -17,6 +17,18 @@ module.exports = new Route({
       status: 'ready'
     })
     await dataset.save()
+
+    // TODO: consolidate dataset (API call)
+
+    if (dataset.project) {
+      let project = dataset.project
+
+      if (project.status === 'empty') {
+        project.status = 'ready'
+
+        await project.save()
+      }
+    }
 
     ctx.body = {
       data: dataset
