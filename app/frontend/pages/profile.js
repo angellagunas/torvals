@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 
-import UpdatePasswordForm from '~base/components/update-password'
-import UpdateProfileForm from '~base/components/update-profile'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import tree from '~core/tree'
+
+import UpdatePasswordForm from '~base/components/update-password'
+import UpdateProfileForm from '~base/components/update-profile'
+import TokensList from '~base/components/token-list'
 
 class Profile extends Component {
   render () {
