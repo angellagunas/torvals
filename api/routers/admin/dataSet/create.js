@@ -16,11 +16,12 @@ module.exports = new Route({
     let project, org
 
     project = await Project.findOne({uuid: body.project}).populate('organization')
-    org = project.organization
 
     if (!project) {
       ctx.throw(404, 'Project not found')
     }
+
+    org = project.organization
 
     const dataset = await DataSet.create({
       name: body.name,
