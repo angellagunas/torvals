@@ -20,7 +20,7 @@ const dataSetSchema = new Schema({
   externalId: { type: String },
   fileChunk: { type: Schema.Types.ObjectId, ref: 'FileChunk' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
-  project: { type: Schema.Types.ObjectId, ref: 'Project', required: false },
+  project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   type: {
@@ -31,6 +31,7 @@ const dataSetSchema = new Schema({
 
   dateMax: String,
   dateMin: String,
+  error: String,
 
   status: {
     type: String,
@@ -43,7 +44,8 @@ const dataSetSchema = new Schema({
       'processing',
       'reviewing',
       'ready',
-      'conciliated'
+      'consolidated',
+      'error'
     ],
     default: 'new'
   },
@@ -53,7 +55,8 @@ const dataSetSchema = new Schema({
     enum: [
       'uploaded',
       'forecast',
-      'adjustment'
+      'adjustment',
+      'external'
     ],
     default: 'uploaded'
   },
@@ -267,6 +270,87 @@ dataSetSchema.methods.processData = async function () {
 
   this.markModified('products', 'newProducts', 'salesCenters', 'newSalesCenters')
   await this.save()
+}
+
+dataSetSchema.methods.process = async function (res) {
+  if (res.status === 'error') {
+    this.set({
+      error: res.message,
+      status: 'error'
+    })
+
+    await this.save()
+  }
+
+  if (res.status === 'uploading') {
+    this.set({
+      status: 'preprocessing'
+    })
+
+    await this.save()
+  }
+
+  if (res.status === 'processing') {
+    this.set({
+      status: 'processing'
+    })
+
+    await this.save()
+  }
+
+  if (res.status === 'done' && res.headers.length > 1) {
+    this.set({
+      status: 'configuring',
+      columns: res.headers.map(item => {
+        return {
+          name: item,
+          isDate: false,
+          isAnalysis: false,
+          isOperationFilter: false,
+          isAnalysisFilter: false
+        }
+      })
+    })
+
+    await this.save()
+  }
+
+  if (res.status === 'ready') {
+    var productCol = this.columns.find(item => { return item.isProduct })
+    var salesCenterCol = this.columns.find(item => { return item.isSalesCenter })
+    let apiData = {
+      products: [],
+      salesCenters: []
+    }
+
+    if (productCol) {
+      productCol = productCol.name
+      apiData['products'] = res.data[productCol]
+    }
+
+    if (salesCenterCol) {
+      salesCenterCol = salesCenterCol.name
+      apiData['salesCenters'] = res.data[salesCenterCol]
+    }
+
+    this.set({
+      status: 'reviewing',
+      dateMax: res.date_max,
+      dateMin: res.date_min,
+      apiData: apiData
+    })
+
+    await this.save()
+    await this.processData()
+  }
+
+  if (res.status === 'consolidated') {
+    this.set({
+      status: 'consolidated'
+    })
+
+    await this.save()
+  }
 }
 
 dataSetSchema.virtual('url').get(function () {

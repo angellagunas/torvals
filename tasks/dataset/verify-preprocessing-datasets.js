@@ -62,6 +62,17 @@ const task = new Task(async function (argv) {
 
       await dataset.save()
     }
+
+    if (res.status === 'error') {
+      dataset.set({
+        error: res.message,
+        status: 'error'
+      })
+
+      await dataset.save()
+
+      console.log(`Error while preprocessing dataset: ${dataset.error}`)
+    }
   }
 
   console.log(`Successfully verified ${datasets.length} datasets with status {preprocessing}`)
