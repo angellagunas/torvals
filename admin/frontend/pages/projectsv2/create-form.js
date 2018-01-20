@@ -17,14 +17,14 @@ const schema = {
     'organization'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     organization: {
       type: 'string',
-      title: 'Organization',
+      title: 'Organización',
       enum: [],
       enumNames: []
     },
-    description: {type: 'string', title: 'Description'}
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 

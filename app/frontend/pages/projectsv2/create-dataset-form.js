@@ -1,13 +1,11 @@
 import React, { Component } from 'react'
 
 import api from '~base/api'
-import Loader from '~base/components/spinner'
 
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget,
-  SelectWidget
+  TextareaWidget
 } from '~base/components/base-form'
 
 const schema = {
@@ -18,18 +16,16 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
-    description: {type: 'string', title: 'Description'},
-    status: {type: 'string', title: 'Status'}
+    description: {type: 'string', title: 'Description'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
-  status: {'ui:widget': TextWidget, 'ui:disabled': true},
+  description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
 
-class DatasetDetailForm extends Component {
+class CreateDatsetForm extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -109,4 +105,4 @@ class DatasetDetailForm extends Component {
   }
 }
 
-export default DatasetDetailForm
+export default CreateDatsetForm

@@ -10,9 +10,9 @@ import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
-import CreateForecast from '../forecasts/create'
-import AddDataset from './add-dataset'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import Tabs from '~base/components/base-tabs'
+import CreateDataSet from './create-dataset'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -51,25 +51,6 @@ class ProjectDetail extends Component {
     })
 
     var cursor = this.context.tree.select('datasets')
-
-    cursor.set({
-      page: 1,
-      totalItems: body.total,
-      items: body.data,
-      pageLength: 10
-    })
-    this.context.tree.commit()
-  }
-
-  async loadForecasts () {
-    var url = '/app/forecasts/'
-    const body = await api.get(url, {
-      start: 0,
-      limit: 10,
-      project: this.state.project.uuid
-    })
-
-    var cursor = this.context.tree.select('forecasts')
 
     cursor.set({
       page: 1,
@@ -139,49 +120,6 @@ class ProjectDetail extends Component {
     ]
   }
 
-  getColumnsForecasts () {
-    return [
-      {
-        'title': 'Status',
-        'property': 'status',
-        'default': 'N/A',
-        'sortable': true
-      },
-      {
-        'title': 'Start date',
-        'property': 'dateStart',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            moment.utc(row.dateStart).local().format('DD/MM/YYYY')
-          )
-        }
-      },
-      {
-        'title': 'End date',
-        'property': 'dateEnd',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            moment.utc(row.dateEnd).local().format('DD/MM/YYYY')
-          )
-        }
-      },
-      {
-        'title': 'Actions',
-        formatter: (row) => {
-          return (
-            <Link className='button' to={'/forecasts/' + row.uuid}>
-              Detalle
-            </Link>
-          )
-        }
-      }
-    ]
-  }
-
   showModalDataset () {
     this.setState({
       datasetClassName: ' is-active'
@@ -198,25 +136,7 @@ class ProjectDetail extends Component {
     this.setState({
       datasetClassName: ''
     })
-  }
-
-  showModalForecast () {
-    this.setState({
-      forecastClassName: ' is-active'
-    })
-  }
-
-  hideModalForecast (e) {
-    this.setState({
-      forecastClassName: ''
-    })
-  }
-
-  finishUpForecast (object) {
-    this.setState({
-      forecastClassName: ''
-    })
-    this.props.history.push('/forecasts/' + object.uuid)
+    this.props.history.push('/datasets/' + object.uuid)
   }
 
   render () {
@@ -226,11 +146,100 @@ class ProjectDetail extends Component {
       return <Loader />
     }
 
+    const tabs = [
+      {
+        name: 'General',
+        title: 'Información',
+        icon: 'fa-tasks',
+        headButton: '',
+        content:
+          <ProjectForm
+            baseUrl='/app/projects'
+            url={'/app/projects/' + this.props.match.params.uuid}
+            initialState={{ ...project, organization: project.organization.uuid }}
+            load={this.load.bind(this)}
+          >
+            <div className='field is-grouped'>
+              <div className='control'>
+                <button className='button is-primary'>Guardar</button>
+              </div>
+            </div>
+          </ProjectForm>
+      },
+      {
+        name: 'Datasets',
+        title: 'Datasets',
+        icon: 'fa-signal',
+        headButton:
+          <div className={project.status !== 'empty' ? 'card-header-select no-hidden' : 'is-hidden'}>
+            <button className='button is-primary' onClick={() => this.showModalDataset()}>
+              <span className='icon'>
+                <i className='fa fa-plus-circle' />
+              </span>
+              <span>
+                Agregar Dataset
+              </span>
+            </button>
+          </div>,
+        content: 
+        <div>
+          <div className={project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
+            <div className='column'>
+              <article className='message is-warning'>
+                <div className='message-header'>
+                  <p>Atención</p>
+                </div>
+                <div className='message-body has-text-centered is-size-5'>
+                  Necesitas subir y configurar al menos un <strong> dataset </strong> para tener información disponible
+                              <br />
+                  <br />
+                  <a className='button is-large is-primary' onClick={() => this.showModalDataset()}>
+                    <span className='icon is-medium'>
+                      <i className='fa fa-plus-circle' />
+                    </span>
+                    <span>Agregar Dataset</span>
+                  </a>
+                </div>
+              </article>
+            </div>
+          </div>
+          <div className='columns'>
+            <div className='column'>
+              <BranchedPaginatedTable
+                branchName='datasets'
+                baseUrl='/app/datasets/'
+                columns={this.getColumns()}
+                filters={{ project: project.uuid }}
+              />
+            </div>
+          </div>
+        </div>  
+      },
+      {
+        name: 'Ajustes',
+        title: 'Ajustes',
+        icon: 'fa-cogs',
+        headButton: '',
+        content: <div>Ajustes</div>
+      },
+      {
+        name: 'Historial',
+        title: 'Historial',
+        icon: 'fa-history',
+        headButton: '',
+        content: <div>Historial</div>
+      }
+
+    ]
+
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
-            <div className='columns'>
+          <div className='section is-paddingless-top'>
+            <div className='columns is-padding-top-small is-padding-bottom-small'>
+              <div className='column'>
+                <h1 className='is-size-3'>{project.name}</h1>
+              </div>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
@@ -243,113 +252,23 @@ class ProjectDetail extends Component {
                 </div>
               </div>
             </div>
-            <div className='columns'>
-              <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Project
-                        </p>
-                      </header>
-                      <div className='card-content'>
-                        <ProjectForm
-                          baseUrl='/app/projectsv2'
-                          url={'/app/projects/' + this.props.match.params.uuid}
-                          initialState={{...project, organization: project.organization.uuid}}
-                          load={this.load.bind(this)}
-                        >
-                          <div className='field is-grouped'>
-                            <div className='control'>
-                              <button className='button is-primary'>Save</button>
-                            </div>
-                          </div>
-                        </ProjectForm>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Datasets
-                        </p>
-                        <div className='card-header-select'>
-                          <button className='button is-primary' onClick={() => this.showModalDataset()}>
-                            Add Dataset
-                          </button>
-                          <AddDataset
-                            className={this.state.datasetClassName}
-                            hideModal={this.hideModalDataset.bind(this)}
-                            finishUp={this.finishUpDataset.bind(this)}
-                            url={`/app/projects/${project.uuid}/add/dataset`}
-                            project={project}
-                            datasets={this.state.datasets}
-                            load={this.loadDatasetsAdd.bind(this)}
-                            loadDatasets={this.loadDatasetsList.bind(this)}
-                          />
-                        </div>
-                      </header>
-                      <div className='card-content'>
-                        <div className='columns'>
-                          <div className='column'>
-                            <BranchedPaginatedTable
-                              branchName='datasets'
-                              baseUrl='/app/datasets/'
-                              columns={this.getColumns()}
-                              filters={{project: project.uuid}}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Forecasts
-                        </p>
-                        <div className='card-header-select'>
-                          <button className='button is-primary' onClick={() => this.showModalForecast()}>
-                            Create Forecast
-                          </button>
-                          <CreateForecast
-                            className={this.state.forecastClassName}
-                            hideModal={this.hideModalForecast.bind(this)}
-                            finishUp={this.finishUpForecast.bind(this)}
-                            url={`/app/projects/${project.uuid}/add/forecast`}
-                            load={this.loadForecasts.bind(this)}
-                            project={project}
-                          />
-                        </div>
-                      </header>
-                      <div className='card-content'>
-                        <div className='columns'>
-                          <div className='column'>
-                            <BranchedPaginatedTable
-                              branchName='forecasts'
-                              baseUrl='/app/forecasts/'
-                              columns={this.getColumnsForecasts()}
-                              filters={{project: project.uuid}}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+            <Tabs
+              tabs={tabs}
+              selectedTab={this.state.selectedTab}
+            />
+
           </div>
         </div>
+        <CreateDataSet
+          branchName='datasets'
+          url='/app/datasets'
+          organization={project.organization.uuid}
+          project={project.uuid}
+          className={this.state.datasetClassName}
+          hideModal={this.hideModalDataset.bind(this)}
+          finishUp={this.finishUpDataset.bind(this)}
+        />
       </div>
     )
   }
