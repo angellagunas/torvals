@@ -64,7 +64,7 @@ module.exports = new Route({
     try {
       var res = await request(options)
 
-      dataset.process(res)
+      await dataset.process(res)
     } catch (e) {
       ctx.throw(401, 'Failed to send Dataset for conciliation')
     }
