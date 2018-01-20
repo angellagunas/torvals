@@ -30,7 +30,8 @@ module.exports = new Route({
       organization: org._id,
       createdBy: ctx.state.user,
       project: project._id,
-      externalId: body.uuid
+      externalId: body.uuid,
+      source: 'external'
     })
 
     if (project) {
