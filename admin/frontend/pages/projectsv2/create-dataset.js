@@ -30,7 +30,8 @@ class CreateDataSet extends Component {
       '/admin/datasets',
       {
         start: 0,
-        limit: this.cursor.get('pageLength') || 10
+        limit: this.cursor.get('pageLength') || 10,
+        project: this.props.project
       }
     )
 
