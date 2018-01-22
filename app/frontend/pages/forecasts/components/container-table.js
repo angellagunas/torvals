@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import api from '~base/api'
+import FiltersForecast from './filters-forecast'
+import tree from '~core/tree'
 import { ToastContainer, toast } from 'react-toastify'
+import { EditableTable } from '~base/components/base-editableTable'
 import FontAwesome from 'react-fontawesome'
 import CreateAdjustmentRequest from '../create-adjustmentRequest'
-import FiltersForecast from './filters-forecast'
-import { EditableTable } from '~base/components/base-editableTable'
 
 let schema = {
   weeks: {
@@ -34,12 +35,15 @@ class ContainerTable extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      selectedRows: {},
-      selectedAll: false,
-      channelsOptions: [],
+      weekSelected: '',
       weeksOptions: {
         enumOptions: []
-      }
+      },
+      channelSelected: '',
+      channelsOptions: [],
+      daySelected: '',
+      days: [],
+      classNameAR: ''
     }
   }
 
@@ -53,12 +57,20 @@ class ContainerTable extends Component {
     }
   }
 
+  componentWillUnmount () {
+    clearInterval(this.interval)
+  }
+
+  /*
+   * Endpoints Call
+   */
+
   async load () {
     this.loadPredictions()
   }
 
   async loadPredictions () {
-    var url = '/admin/predictions'
+    var url = '/app/predictions'
     const body = await api.get(url, {forecast: this.props.forecast.uuid})
     var channels = new Set(body.data.map(item => {
       return item.data.channelName
@@ -131,10 +143,72 @@ class ContainerTable extends Component {
     return days
   }
 
+  getFilters () {
+    let configWeeks = {
+      id: 'root_weeks',
+      schema: schema.weeks,
+      options: this.state.weeksOptions,
+      required: true,
+      value: this.state.weekSelected,
+      disabled: false,
+      readonly: false,
+      autofocus: false
+    }
+    let configChannel = {
+      value: this.state.channelSelected,
+      options: this.state.channelsOptions
+    }
+    let configDays = {
+      daySelected: this.state.daySelected,
+      options: this.state.days
+    }
+
+    return (<FiltersForecast
+      forecast={this.props.forecast}
+      handleWeek={(e) => this.selectWeek()}
+      handleFilters={(e, name) => this.handleFilters(e, name)}
+      handleDays={(e) => this.selectDay(e)}
+      weeks={configWeeks}
+      channel={configChannel}
+      days={configDays} />)
+  }
+
+  selectDay (e) {
+    this.setState({daySelected: e.target.innerText.replace(/\s/g, '')}, this.filterData)
+  }
+
+  handleFilters (e, name) {
+    let obj = {}
+    obj[name] = e.target.value
+    console.log('handleFilters container', obj)
+
+    this.setState(obj, this.filterData)
+  }
+
+  selectWeek (e) {
+    if (e) {
+      this.setState({
+        days: this.handleDaysPerWeek(this.state.schema.weeks.groupedByWeeks[e]),
+        weekSelected: e,
+        daySelected: this.state.schema.weeks.groupedByWeeks[e][0] || ''
+      }, this.filterData)
+    } else {
+      this.setState({
+        days: '',
+        weekSelected: '',
+        daySelected: ''
+      }, this.filterData)
+    }
+  }
+
   getModifyButtons () {
     let forecast = this.props.forecast
+    let currentRole = tree.get('user').currentRole.slug
 
-    if (forecast.status !== 'analistReview' && forecast.status !== 'readyToOrder') {
+    if (
+        forecast.status !== 'readyToOrder' &&
+        currentRole !== 'enterprisemanager'
+    ) {
       return (
         <div className='columns'>
           <div className='column'>
@@ -168,27 +242,6 @@ class ContainerTable extends Component {
     }
   }
 
-  setRowsToEdit (row, index) {
-    let rows = {...this.state.selectedRows}
-    let selectedAll = false
-
-    if (rows.hasOwnProperty(row.uuid)) {
-      row.selected = !row.selected
-      delete rows[row.uuid]
-    } else {
-      row.selected = true
-      rows[row.uuid] = row
-    }
-
-    if (Object.keys(rows).length === this.state.predictionsFiltered.length) {
-      selectedAll = !selectedAll
-    }
-
-    this.setState({selectedRows: rows, selectedAll}, function () {
-      this.toggleButtons()
-    })
-  }
-
   async onClickButtonPlus () {
     let rows = {...this.state.selectedRows}
 
@@ -219,28 +272,26 @@ class ContainerTable extends Component {
     }
   }
 
-  toggleButtons () {
-    let disable = true
-    let rows = {...this.state.selectedRows}
-    if (Object.keys(rows).length) disable = false
-
-    this.setState({
-      disableButtons: disable
-    })
-  }
-
   async handleChange (data) {
+    let currentRole = tree.get('user').currentRole.slug
     const project = this.props.forecast.project
     const prediction = this.state.predictions.find((item) => { return data.uuid === item.uuid })
-
     var maxAdjustment = Math.ceil(prediction.data.prediction * (1 + project.adjustment))
     var minAdjustment = Math.floor(prediction.data.prediction * (1 - project.adjustment))
     data.adjustment = Math.round(data.adjustment)
-    data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
 
     data.isLimit = (data.adjustment >= maxAdjustment || data.adjustment <= minAdjustment)
 
-    var url = '/admin/predictions/' + data.uuid
+    if ((currentRole === 'opsmanager' || currentRole === 'localmanager')) {
+      if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
+        this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
+        return false
+      }
+    }
+
+    data.percentage = (data.adjustment - data.prediction) * 100 / data.prediction
+
+    var url = '/app/predictions/' + data.uuid
     const res = await api.post(url, {...data})
 
     data.lastAdjustment = res.data.data.lastAdjustment
@@ -254,63 +305,14 @@ class ContainerTable extends Component {
     this.setState({
       predictionsFormatted,
       success: true
-    }, this.filterData())
+    })
 
     return true
   }
 
-  filterData () {
-    const state = this.state
-    let predictionsFiltered = state.predictionsFormatted
-
-    if (state.daySelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.forecastDate === state.daySelected
-      })
-    }
-
-    if (state.salesCentersSelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.salesCenter.uuid === state.salesCentersSelected
-      })
-    }
-
-    if (state.productsSelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.product.category === state.productsSelected
-      })
-    }
-
-    if (state.channelSelected) {
-      predictionsFiltered = predictionsFiltered.filter((item) => {
-        return item.channelName === state.channelSelected
-      })
-    }
-
-    this.setState({predictionsFiltered})
-  }
-
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
-    if (!toast.isActive(this.toastId)) {
-      this.toastId = toast(message, {
-        autoClose: timeout,
-        type: type,
-        hideProgressBar: true,
-        closeButton: false
-      })
-    } else {
-      toast.update(this.toastId, {
-        render: message,
-        type: type,
-        autoClose: timeout,
-        closeButton: false
-      })
-    }
-  }
-
   selectRows (selectAll) {
     let selectedRows = {}
-    let predictionsFormatted = this.state.predictionsFiltered.map((item) => {
+    let predictionsFormatted = this.state.predictionsFormatted.map((item) => {
       if (selectAll) selectedRows[item.uuid] = item
 
       item.selected = selectAll
@@ -322,7 +324,25 @@ class ContainerTable extends Component {
     })
   }
 
+  toggleButtons () {
+    let disable = true
+    let rows = {...this.state.selectedRows}
+    if (Object.keys(rows).length) disable = false
+
+    this.setState({
+      disableButtons: disable
+    })
+  }
+
+  showModalAdjustmentRequest (obj) {
+    this.setState({
+      classNameAR: ' is-active',
+      selectedAR: obj
+    })
+  }
+
   getColumns () {
+    let currentRole = tree.get('user').currentRole.slug
     let checkboxColumn = []
     if (this.props.forecast.status === 'opsReview') {
       checkboxColumn.push({
@@ -334,7 +354,7 @@ class ContainerTable extends Component {
               <label className='checkbox'>
                 <input
                   type='checkbox'
-                  checked={this.state.selectedAll}
+                  checked={this.state.selectedAll || false}
                   onChange={(e) => this.selectRows(!this.state.selectedAll)} />
               </label>
             </div>
@@ -348,7 +368,7 @@ class ContainerTable extends Component {
               <label className='checkbox'>
                 <input
                   type='checkbox'
-                  checked={state.isRowSelected} />
+                  checked={state.isRowSelected || false} />
               </label>
             </div>
           </div>)
@@ -418,6 +438,7 @@ class ContainerTable extends Component {
           if (row.lastAdjustment) {
             return row.lastAdjustment.toFixed(2)
           }
+
           return 'N/A'
         }
       },
@@ -440,6 +461,7 @@ class ContainerTable extends Component {
           if (row.percentage) {
             return `${row.percentage.toFixed(2)} %`
           }
+
           return '0 %'
         }
       },
@@ -448,117 +470,128 @@ class ContainerTable extends Component {
         'property': 'isLimit',
         'default': '',
         formatter: (row) => {
-          if (row.isLimit && !row.adjustmentRequest) {
-            return (
-              <span
-                className='icon'
-                title='No es posible pedir un ajuste más allá al límite!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning' />
-              </span>
-            )
+          if (
+              currentRole !== 'analyst' &&
+              currentRole !== 'enterprisemanager'
+          ) {
+            if (row.isLimit && !row.adjustmentRequest) {
+              return (
+                <span
+                  className='icon'
+                  title='No es posible pedir un ajuste más allá al límite!'
+                  onClick={() => {
+                    this.showModalAdjustmentRequest(row)
+                  }}
+                >
+                  <FontAwesome name='warning' />
+                </span>
+              )
+            }
+
+            if (row.isLimit && row.adjustmentRequest) {
+              return (
+                <span
+                  className='icon has-text-warning'
+                  title='Ya se ha pedido un cambio a esta predicción!'
+                  onClick={() => {
+                    this.showModalAdjustmentRequest(row)
+                  }}
+                >
+                  <FontAwesome name='warning' />
+                </span>
+              )
+            }
           }
 
-          if (row.isLimit && row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-warning'
-                title='Ya se ha pedido un cambio a esta predicción!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning' />
-              </span>
-            )
-          }
           return ''
         }
       }
     ]
   }
 
-  showModalAdjustmentRequest (obj) {
-    this.setState({
-      classNameAR: ' is-active',
-      selectedAR: obj
+  setRowsToEdit (row, index) {
+    let rows = {...this.state.selectedRows}
+    let selectedAll = false
+
+    if (rows.hasOwnProperty(row.uuid)) {
+      row.selected = !row.selected
+      delete rows[row.uuid]
+    } else {
+      row.selected = true
+      rows[row.uuid] = row
+    }
+
+    if (Object.keys(rows).length === this.state.predictionsFiltered.length) {
+      selectedAll = !selectedAll
+    }
+
+    this.setState({selectedRows: rows, selectedAll}, function () {
+      this.toggleButtons()
     })
   }
 
-  hideModalAdjustmentRequest () {
-    this.setState({
-      classNameAR: ''
-    })
+  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
   }
 
   async finishUpAdjustmentRequest (obj) {
     this.setState({
       selectedAR: undefined
     })
+
     await this.loadPredictions()
   }
 
-  getFilters () {
-    let configWeeks = {
-      id: 'root_weeks',
-      schema: schema.weeks,
-      options: this.state.weeksOptions,
-      required: true,
-      value: this.state.weekSelected,
-      disabled: false,
-      readonly: false,
-      autofocus: false
-    }
-    let configChannel = {
-      value: this.state.channelSelected,
-      options: this.state.channelsOptions
-    }
-    let configDays = {
-      daySelected: this.state.daySelected,
-      options: this.state.days
-    }
-    return (<FiltersForecast
-      forecast={this.props.forecast}
-      handleWeek={(e) => this.selectWeek()}
-      handleFilters={(e, name) => this.handleFilters(e, name)}
-      handleDays={(e) => this.selectDay(e)}
-      weeks={configWeeks}
-      channel={configChannel}
-      days={configDays} />)
-  }
+  filterData () {
+    const state = this.state
+    let predictionsFiltered = state.predictionsFormatted
 
-  selectWeek (e) {
-    if (e) {
-      this.setState({
-        days: this.handleDaysPerWeek(this.state.schema.weeks.groupedByWeeks[e]),
-        weekSelected: e,
-        daySelected: this.state.schema.weeks.groupedByWeeks[e][0] || ''
-      }, this.filterData)
-    } else {
-      this.setState({
-        days: '',
-        weekSelected: '',
-        daySelected: ''
-      }, this.filterData)
+    if (state.daySelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.forecastDate === state.daySelected
+      })
     }
-  }
 
-  selectDay (e) {
-    this.setState({daySelected: e.target.innerText.replace(/\s/g, '')}, this.filterData)
-  }
+    if (state.salesCentersSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.salesCenter.uuid === state.salesCentersSelected
+      })
+    }
 
-  handleFilters (e, name) {
-    let obj = {}
-    obj[name] = e.target.value
-    this.setState(obj, this.filterData)
+    if (state.productsSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.product.category === state.productsSelected
+      })
+    }
+
+    if (state.channelSelected) {
+      predictionsFiltered = predictionsFiltered.filter((item) => {
+        return item.channelName === state.channelSelected
+      })
+    }
+
+    this.setState({predictionsFiltered})
   }
 
   render () {
+    let forecast = this.props.forecast
+    let currentRole = tree.get('user').currentRole.slug
+
     return (<div>
-      <ToastContainer />
       <CreateAdjustmentRequest
         className={this.state.classNameAR}
         hideModal={(e) => this.hideModalAdjustmentRequest(e)}
@@ -566,8 +599,9 @@ class ContainerTable extends Component {
         prediction={this.state.selectedAR}
         baseUrl={''}
       />
-      {this.getFilters()}
 
+      <ToastContainer />
+      {this.getFilters()}
       <div className='card-content'>
         {this.getModifyButtons()}
         <div className='columns'>
@@ -578,7 +612,8 @@ class ContainerTable extends Component {
               handleChange={(e) => this.handleChange(e)}
               setRowsToEdit={(e) => this.setRowsToEdit(e)}
               selectable={
-                this.props.forecast.status !== 'readyToOrder'
+                (forecast.status !== 'readyToOrder') &&
+                (currentRole !== 'enterprisemanager')
               }
              />
           </div>
@@ -587,5 +622,4 @@ class ContainerTable extends Component {
     </div>)
   }
 }
-
 export default ContainerTable
