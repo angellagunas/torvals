@@ -96,7 +96,7 @@ class ProjectDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -115,7 +115,7 @@ class ProjectDetail extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <div className='field is-grouped'>
@@ -130,7 +130,7 @@ class ProjectDetail extends Component {
                   type='button'
                   onClick={() => this.removeDatasetOnClick(row.uuid)}
                 >
-                  Remove
+                  Eliminar
                 </button>
               </div>
             </div>
@@ -171,69 +171,70 @@ class ProjectDetail extends Component {
         title: 'Información',
         icon: 'fa-tasks',
         headButton: '',
-        content:
-  <ProjectForm
-    baseUrl='/admin/projects'
-    url={'/admin/projects/' + this.props.match.params.uuid}
-    initialState={{ ...project, organization: project.organization.uuid }}
-    load={this.load.bind(this)}
-          >
-    <div className='field is-grouped'>
-      <div className='control'>
-        <button className='button is-primary'>Guardar</button>
-      </div>
-    </div>
-  </ProjectForm>
-      },
+        content: (
+          <ProjectForm
+            baseUrl='/admin/projects'
+            url={'/admin/projects/' + this.props.match.params.uuid}
+            initialState={{ ...project, organization: project.organization.uuid }}
+            load={this.load.bind(this)}
+                >
+            <div className='field is-grouped'>
+              <div className='control'>
+                <button className='button is-primary'>Guardar</button>
+              </div>
+            </div>
+          </ProjectForm>
+      )},
       {
         name: 'Datasets',
         title: 'Datasets',
         icon: 'fa-signal',
-        headButton:
-  <div className={project.status !== 'empty' ? 'card-header-select no-hidden' : 'is-hidden'}>
-    <button className='button is-primary' onClick={() => this.showModalDataset()}>
-      <span className='icon'>
-        <i className='fa fa-plus-circle' />
-      </span>
-      <span>
-                Agregar Dataset
-              </span>
-    </button>
-  </div>,
-        content:
-  <div>
-    <div className={project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
-      <div className='column'>
-        <article className='message is-warning'>
-          <div className='message-header'>
-            <p>Atención</p>
-          </div>
-          <div className='message-body has-text-centered is-size-5'>
-                  Necesitas subir y configurar al menos un <strong> dataset </strong> para tener información disponible
-                              <br />
-            <br />
-            <a className='button is-large is-primary' onClick={() => this.showModalDataset()}>
-              <span className='icon is-medium'>
+        headButton: (
+          <div className={project.status !== 'empty' ? 'card-header-select no-hidden' : 'is-hidden'}>
+            <button className='button is-primary' onClick={() => this.showModalDataset()}>
+              <span className='icon'>
                 <i className='fa fa-plus-circle' />
               </span>
-              <span>Agregar Dataset</span>
-            </a>
+              <span>
+                Agregar Dataset
+              </span>
+            </button>
           </div>
-        </article>
-      </div>
-    </div>
-    <div className='columns'>
-      <div className='column'>
-        <BranchedPaginatedTable
-          branchName='datasets'
-          baseUrl='/admin/datasets/'
-          columns={this.getColumns()}
-          filters={{ project: project.uuid }}
+        ),
+        content: (
+          <div>
+            <div className={project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
+              <div className='column'>
+                <article className='message is-warning'>
+                  <div className='message-header'>
+                    <p>Atención</p>
+                  </div>
+                  <div className='message-body has-text-centered is-size-5'>
+                    Necesitas subir y configurar al menos un <strong> dataset </strong> para tener información disponible
+                    <br />
+                    <br />
+                    <a className='button is-large is-primary' onClick={() => this.showModalDataset()}>
+                      <span className='icon is-medium'>
+                        <i className='fa fa-plus-circle' />
+                      </span>
+                      <span>Agregar Dataset</span>
+                    </a>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <div className='columns'>
+              <div className='column'>
+                <BranchedPaginatedTable
+                  branchName='datasets'
+                  baseUrl='/admin/datasets/'
+                  columns={this.getColumns()}
+                  filters={{ project: project.uuid }}
               />
-      </div>
-    </div>
-  </div>
-      },
+              </div>
+            </div>
+          </div>
+      )},
       {
         name: 'Ajustes',
         title: 'Ajustes',

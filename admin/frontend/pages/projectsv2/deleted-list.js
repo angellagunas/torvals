@@ -74,7 +74,7 @@ class DeletedProjects extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Proyectos</h1>
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Proyectos Eliminados</h1>
             <div className='card'>
               <div className='card-content'>
                 <div className='columns'>
