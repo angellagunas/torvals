@@ -49,7 +49,7 @@ class Projects extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -62,7 +62,7 @@ class Projects extends Component {
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado en',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -73,7 +73,7 @@ class Projects extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/projectsv2/' + row.uuid}>
             Detalle

@@ -3,7 +3,6 @@ import api from '~base/api'
 import Link from '~base/router/link'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import moment from 'moment'
 
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
@@ -11,7 +10,6 @@ import { loggedIn } from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
-import BaseModal from '~base/components/base-modal'
 import CreateDataSet from './create-dataset'
 import Tabs from '~base/components/base-tabs'
 
@@ -174,67 +172,67 @@ class ProjectDetail extends Component {
         icon: 'fa-tasks',
         headButton: '',
         content:
-          <ProjectForm
-            baseUrl='/admin/projects'
-            url={'/admin/projects/' + this.props.match.params.uuid}
-            initialState={{ ...project, organization: project.organization.uuid }}
-            load={this.load.bind(this)}
+  <ProjectForm
+    baseUrl='/admin/projects'
+    url={'/admin/projects/' + this.props.match.params.uuid}
+    initialState={{ ...project, organization: project.organization.uuid }}
+    load={this.load.bind(this)}
           >
-            <div className='field is-grouped'>
-              <div className='control'>
-                <button className='button is-primary'>Guardar</button>
-              </div>
-            </div>
-          </ProjectForm>
+    <div className='field is-grouped'>
+      <div className='control'>
+        <button className='button is-primary'>Guardar</button>
+      </div>
+    </div>
+  </ProjectForm>
       },
       {
         name: 'Datasets',
         title: 'Datasets',
         icon: 'fa-signal',
         headButton:
-          <div className={project.status !== 'empty' ? 'card-header-select no-hidden' : 'is-hidden'}>
-            <button className='button is-primary' onClick={() => this.showModalDataset()}>
-              <span className='icon'>
-                <i className='fa fa-plus-circle' />
-              </span>
-              <span>
+  <div className={project.status !== 'empty' ? 'card-header-select no-hidden' : 'is-hidden'}>
+    <button className='button is-primary' onClick={() => this.showModalDataset()}>
+      <span className='icon'>
+        <i className='fa fa-plus-circle' />
+      </span>
+      <span>
                 Agregar Dataset
               </span>
-            </button>
-          </div>,
-        content: 
-        <div>
-          <div className={project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
-            <div className='column'>
-              <article className='message is-warning'>
-                <div className='message-header'>
-                  <p>Atención</p>
-                </div>
-                <div className='message-body has-text-centered is-size-5'>
+    </button>
+  </div>,
+        content:
+  <div>
+    <div className={project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
+      <div className='column'>
+        <article className='message is-warning'>
+          <div className='message-header'>
+            <p>Atención</p>
+          </div>
+          <div className='message-body has-text-centered is-size-5'>
                   Necesitas subir y configurar al menos un <strong> dataset </strong> para tener información disponible
                               <br />
-                  <br />
-                  <a className='button is-large is-primary' onClick={() => this.showModalDataset()}>
-                    <span className='icon is-medium'>
-                      <i className='fa fa-plus-circle' />
-                    </span>
-                    <span>Agregar Dataset</span>
-                  </a>
-                </div>
-              </article>
-            </div>
+            <br />
+            <a className='button is-large is-primary' onClick={() => this.showModalDataset()}>
+              <span className='icon is-medium'>
+                <i className='fa fa-plus-circle' />
+              </span>
+              <span>Agregar Dataset</span>
+            </a>
           </div>
-          <div className='columns'>
-            <div className='column'>
-              <BranchedPaginatedTable
-                branchName='datasets'
-                baseUrl='/admin/datasets/'
-                columns={this.getColumns()}
-                filters={{ project: project.uuid }}
+        </article>
+      </div>
+    </div>
+    <div className='columns'>
+      <div className='column'>
+        <BranchedPaginatedTable
+          branchName='datasets'
+          baseUrl='/admin/datasets/'
+          columns={this.getColumns()}
+          filters={{ project: project.uuid }}
               />
-            </div>
-          </div>
-        </div>  
+      </div>
+    </div>
+  </div>
       },
       {
         name: 'Ajustes',
@@ -264,9 +262,9 @@ class ProjectDetail extends Component {
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <DeleteButton
-                      objectName='Project'
+                      objectName='Proyecto'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={'Estas seguro de querer eliminar este Project?'}
+                      message={'Estas seguro de querer eliminar este Proyecto?'}
                     />
                   </div>
                 </div>

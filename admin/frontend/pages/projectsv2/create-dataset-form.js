@@ -15,8 +15,8 @@ const schema = {
     'name'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    description: {type: 'string', title: 'Description'}
+    name: {type: 'string', title: 'Nombre'},
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 

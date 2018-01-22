@@ -22,13 +22,13 @@ class DeletedProjects extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -39,7 +39,7 @@ class DeletedProjects extends Component {
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado en',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -50,11 +50,11 @@ class DeletedProjects extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
-              Restore
+              Restaurar
             </button>
           )
         }
@@ -74,7 +74,7 @@ class DeletedProjects extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Projects</h1>
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Proyectos</h1>
             <div className='card'>
               <div className='card-content'>
                 <div className='columns'>
