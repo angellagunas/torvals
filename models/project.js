@@ -28,6 +28,7 @@ const projectSchema = new Schema({
   },
 
   description: { type: String },
+  externalId: { type: String },
   adjustment: { type: Number },
   businessRules: Schema.Types.Mixed,
 
@@ -47,6 +48,7 @@ projectSchema.methods.toPublic = function () {
     datasets: this.datasets,
     adjustment: this.adjustment,
     status: this.status,
+    externalId: this.externalId,
     dateCreated: this.dateCreated
   }
 }
@@ -60,6 +62,7 @@ projectSchema.methods.toAdmin = function () {
     datasets: this.datasets,
     adjustment: this.adjustment,
     status: this.status,
+    externalId: this.externalId,
     dateCreated: this.dateCreated
   }
 }
