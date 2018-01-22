@@ -6,7 +6,6 @@ import Link from '~base/router/link'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
-import CreateDataSet from './create'
 import BaseFilterPanel from '~base/components/base-filters'
 import FontAwesome from 'react-fontawesome'
 
@@ -189,20 +188,7 @@ class DataSets extends Component {
                 <p className='card-header-title'>
                     DataSets
                 </p>
-                <div className='card-header-select'>
-                  <button className='button is-primary' onClick={() => this.showModal()}>
-                    New DataSet
-                  </button>
-                  <CreateDataSet
-                    className={this.state.className}
-                    hideModal={this.hideModal.bind(this)}
-                    finishUp={this.finishUp.bind(this)}
-                    branchName='datasets'
-                    baseUrl='/app/datasets'
-                    url='/app/datasets'
-                  />
-
-                </div>
+                
               </header>
               <div className='card-content'>
                 <div className='columns'>

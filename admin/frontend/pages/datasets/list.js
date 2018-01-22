@@ -13,7 +13,7 @@ export default ListPage({
   exact: true,
   validate: loggedIn,
   titleSingular: 'Dataset',
-  create: true,
+  create: false,
   createComponent: CreateDataSet,
   baseUrl: '/admin/datasets',
   branchName: 'datasets',
