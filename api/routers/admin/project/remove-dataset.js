@@ -16,10 +16,15 @@ module.exports = new Route({
 
     var pos = project.datasets.indexOf(dataset._id)
     project.datasets.splice(pos, 1)
+
+    if (project.datasets.length === 0) {
+      project.status = 'empty'
+    }
+
     project.save()
 
-    // dataset.projects.push(project)
-    // dataset.save()
+    dataset.isDeleted = true
+    dataset.save()
 
     ctx.body = {
       data: project.toAdmin()
