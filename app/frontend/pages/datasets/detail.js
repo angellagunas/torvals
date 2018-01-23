@@ -65,7 +65,7 @@ class DataSetDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -77,7 +77,7 @@ class DataSetDetail extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/manage/users/' + row.uuid}>
             Detalle

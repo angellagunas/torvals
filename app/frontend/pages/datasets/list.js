@@ -85,7 +85,7 @@ class DataSets extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -104,7 +104,7 @@ class DataSets extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/datasets/' + row.uuid}>
             Detalle
@@ -188,7 +188,6 @@ class DataSets extends Component {
                 <p className='card-header-title'>
                     DataSets
                 </p>
-                
               </header>
               <div className='card-content'>
                 <div className='columns'>

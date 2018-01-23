@@ -14,13 +14,13 @@ const schema = {
     'name'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    description: {type: 'string', title: 'Description'},
-    address: {type: 'string', title: 'Address'},
-    brand: {type: 'string', title: 'Brand'},
-    region: {type: 'string', title: 'Region'},
-    type: {type: 'string', title: 'Type'},
-    externalId: {type: 'string', title: 'External Id'}
+    name: {type: 'string', title: 'Nombre'},
+    description: {type: 'string', title: 'Descripción'},
+    address: {type: 'string', title: 'Dirección'},
+    brand: {type: 'string', title: 'Marca'},
+    region: {type: 'string', title: 'Región'},
+    type: {type: 'string', title: 'Tipo'},
+    externalId: {type: 'string', title: 'Id Externo'}
   }
 }
 

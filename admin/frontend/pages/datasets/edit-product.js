@@ -17,17 +17,17 @@ const schema = {
     'organization'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     organization: {
       type: 'string',
-      title: 'Organization',
+      title: 'Organización',
       enum: [],
       enumNames: []
     },
-    category: {type: 'string', title: 'Category'},
-    subcategory: {type: 'string', title: 'Subcategory'},
-    externalId: {type: 'string', title: 'External Id'},
-    description: {type: 'string', title: 'Description'}
+    category: {type: 'string', title: 'Categoría'},
+    subcategory: {type: 'string', title: 'Subcategoría'},
+    externalId: {type: 'string', title: 'Id externo'},
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 

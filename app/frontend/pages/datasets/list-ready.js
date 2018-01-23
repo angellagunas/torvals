@@ -28,7 +28,7 @@ class ReadyDataSets extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -47,7 +47,7 @@ class ReadyDataSets extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/datasets/' + row.uuid}>
             Detalle
@@ -66,7 +66,7 @@ class ReadyDataSets extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                    DataSets Ready
+                    DataSets Listos
                 </p>
               </header>
               <div className='card-content'>

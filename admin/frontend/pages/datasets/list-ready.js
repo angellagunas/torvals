@@ -28,7 +28,7 @@ class ReadyDataSets extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -47,7 +47,7 @@ class ReadyDataSets extends Component {
         'sortable': true
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -63,7 +63,7 @@ class ReadyDataSets extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/datasets/detail/' + row.uuid}>
             Detalle

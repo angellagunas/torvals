@@ -1,13 +1,11 @@
 import React, { Component } from 'react'
 
 import api from '~base/api'
-import Loader from '~base/components/spinner'
 
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget,
-  SelectWidget
+  TextareaWidget
 } from '~base/components/base-form'
 
 const schema = {
@@ -26,7 +24,7 @@ const schema = {
 const uiSchema = {
   name: {'ui:widget': TextWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
-  status: {'ui:widget': TextWidget, 'ui:disabled': true},
+  status: {'ui:widget': TextWidget, 'ui:disabled': true}
 }
 
 class DatasetDetailForm extends Component {
