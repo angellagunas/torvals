@@ -12,6 +12,7 @@ import BaseModal from '~base/components/base-modal'
 import GroupForm from './form'
 import DeleteButton from '~base/components/base-deleteButton'
 import CreateUser from '../users/create'
+import tree from '~core/tree'
 
 class GroupDetail extends Component {
   constructor (props) {
@@ -148,8 +149,25 @@ class GroupDetail extends Component {
       }
     )
 
+    this.updateUsersToAsign()
     this.loadGroupUsers()
     this.hideModalList()
+  }
+
+  async updateUsersToAsign () {
+    const cursor = tree.get('usersAsign')
+    const updateUsers = await api.get(
+      '/admin/users',
+      {groupAsign: this.props.match.params.uuid, organization: this.state.group.organization.uuid}
+    )
+
+    tree.set('usersAsign', {
+      page: cursor.page,
+      totalItems: updateUsers.total,
+      items: updateUsers.data,
+      pageLength: cursor.pageLength
+    })
+    tree.commit()
   }
 
   getColumnsUsersToAsign () {
@@ -203,7 +221,6 @@ class GroupDetail extends Component {
     if (!group.uuid) {
       return <Loader />
     }
-
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
@@ -236,7 +253,7 @@ class GroupDetail extends Component {
                         <GroupForm
                           baseUrl='/admin/groups'
                           url={'/admin/groups/' + this.props.match.params.uuid}
-                          initialState={this.state.group}
+                          initialState={{...this.state.group, organization: this.state.group.organization._id}}
                           load={this.load.bind(this)}
                           organizations={this.state.orgs || []}
                         >
@@ -271,7 +288,7 @@ class GroupDetail extends Component {
                           branchName='usersAsign'
                           baseUrl='/admin/users'
                           columns={this.getColumnsUsersToAsign()}
-                          filters={{groupAsign: this.props.match.params.uuid}}
+                          filters={{groupAsign: this.props.match.params.uuid, organization: group.organization.uuid}}
                          />
                       </BaseModal>
 
@@ -288,7 +305,7 @@ class GroupDetail extends Component {
                         baseUrl='/admin/users'
                         url='/admin/users/'
                         filters={{group: this.props.match.params.uuid}}
-                        organization={group.organization}
+                        organization={group.organization._id}
                       />
                     </div>
                   </header>
