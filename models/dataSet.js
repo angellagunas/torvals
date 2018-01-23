@@ -69,6 +69,7 @@ const dataSetSchema = new Schema({
     isAnalysisFilter: { type: Boolean, default: false },
     isProduct: { type: Boolean, default: false },
     isSalesCenter: { type: Boolean, default: false },
+    isChannel: { type: Boolean, default: false },
     values: [{ type: String }]
   }],
 

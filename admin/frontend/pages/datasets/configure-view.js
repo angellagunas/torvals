@@ -72,6 +72,10 @@ class ConfigureViewDataset extends Component {
               <td><label className='label'>Centro de Venta</label></td>
               <td>{this.getColumnForValue('isSalesCenter')}</td>
             </tr>
+            <tr>
+              <td><label className='label'>Canal</label></td>
+              <td>{this.getColumnForValue('isChannel')}</td>
+            </tr>
           </tbody>
         </table>
 

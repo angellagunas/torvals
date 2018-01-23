@@ -21,8 +21,7 @@ class ConfigureDatasetForm extends Component {
         isAnalysis: this.props.initialState.columns.find((item) => { return item.isAnalysis }).name,
         isProduct: this.props.initialState.columns.find((item) => { return item.isProduct }).name,
         isSalesCenter: this.props.initialState.columns.find((item) => { return item.isSalesCenter }).name,
-        isChannel: '',
-        // isChannel: this.props.initialState.columns.find((item) => { return item.isChannel }).name || '',
+        isChannel: this.props.initialState.columns.find((item) => { return item.isChannel }).name || '',
         apiCallMessage: 'is-hidden',
         apiCallErrorMessage: 'is-hidden'
       }
