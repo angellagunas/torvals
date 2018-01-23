@@ -151,15 +151,6 @@ class Sidebar extends Component {
       },
       Forecasts.asSidebarItem(),
       {
-        title: 'Developer Tools',
-        icon: 'github-alt',
-        to: '/devtools',
-        opened: false,
-        dropdown: [
-          RequestLogs.asSidebarItem()
-        ]
-      },
-      {
         title: 'Channels',
         icon: 'filter',
         to: '/channels',
@@ -167,6 +158,15 @@ class Sidebar extends Component {
         dropdown: [
           Channels.asSidebarItem(),
           DeletedChannels.asSidebarItem()
+        ]
+      },
+      {
+        title: 'Developer Tools',
+        icon: 'github-alt',
+        to: '/devtools',
+        opened: false,
+        dropdown: [
+          RequestLogs.asSidebarItem()
         ]
       }
     ]

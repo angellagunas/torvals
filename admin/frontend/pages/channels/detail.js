@@ -50,9 +50,6 @@ class ChannelDetail extends Component {
   }
 
   render () {
-    // const { channel } = this.state
-
-
     if (!this.state.loaded) {
       return <Loader />
     }
@@ -64,8 +61,6 @@ class ChannelDetail extends Component {
 
     }
 
-    console.log(this.state)
-
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
@@ -74,10 +69,10 @@ class ChannelDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <DeleteButton titleButton={'Delete'}
-                      objectName='Product'
+                    <DeleteButton titleButton={'Borrar'}
+                      objectName='Producto'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={`Are you sure you want to delete the product ${channel.name}?`}
+                      message={`Estas seguro de quieres borrar el canal ${channel.name}?`}
                       />
                   </div>
                 </div>
@@ -88,7 +83,7 @@ class ChannelDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Channel
+                      Canal
                     </p>
                   </header>
                   <div className='card-content'>

@@ -17,14 +17,14 @@ const schema = {
     'externalId'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     organization: {
       type: 'string',
-      title: 'Organization',
+      title: 'Organización',
       enum: [],
       enumNames: []
     },
-    externalId: {type: 'string', title: 'External Id'}
+    externalId: {type: 'string', title: 'Id Externo'}
   }
 }
 

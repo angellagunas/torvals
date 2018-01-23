@@ -20,17 +20,30 @@ class DeletedChannels extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Organización',
+        'property': 'organization',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <div>
+              {row.organization.name}
+            </div>
+          )
+        }
+      },
+      {
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
-              Restore
+              Restaurar
             </button>
           )
         }
@@ -50,7 +63,7 @@ class DeletedChannels extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Channels</h1>
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Canales</h1>
             <div className='card'>
               <div className='card-content'>
                 <div className='columns'>
@@ -78,7 +91,7 @@ const branchedDeletedChannels = branch({deletedchannels: 'deletedchannels'}, Del
 
 export default Page({
   path: '/channels/deleted',
-  title: 'Channels products',
+  title: 'Deleted channels',
   icon: 'trash',
   exact: true,
   validate: loggedIn,

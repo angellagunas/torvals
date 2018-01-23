@@ -1,12 +1,10 @@
 import React, {Component} from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
-
 import BaseModal from '~base/components/base-modal'
 import ChannelForm from './create-form'
 
 var initialState = {
   name: '',
+  externalId: '',
   organizations: []
 }
 
@@ -19,13 +17,10 @@ class CreateChannel extends Component {
     }
   }
 
-  componentWillMount () {
-    //this.cursor = this.context.tree.select(this.props.branchName)
-  }
   render () {
     return (
       <BaseModal
-        title='CreateProduct'
+        title='Crear Canal'
         className={this.props.className}
         hideModal={this.hideModal}>
         <ChannelForm
@@ -36,12 +31,12 @@ class CreateChannel extends Component {
           <div className='field is-grouped'>
             <div className='control'>
               <button className='button is-primary' type='submit'>
-                Create
+                Crear
               </button>
             </div>
             <div className='control'>
               <button className='button' type='button' onClick={this.hideModal}>
-                Cancel
+                Cancelar
               </button>
             </div>
           </div>

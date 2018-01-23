@@ -8,7 +8,7 @@ import CreateChannel from './create'
 
 export default ListPage({
   path: '/channels',
-  title: 'Active',
+  title: 'Activos',
   icon: 'check',
   exact: true,
   validate: loggedIn,
@@ -48,7 +48,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -61,7 +61,20 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Organización',
+        'property': 'organization',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/manage/organizations/' + row.organization.uuid}>
+              {row.organization.name}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <Link className='button' to={'/channels/detail/' + row.uuid}>
