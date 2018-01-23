@@ -158,7 +158,7 @@ class GroupDetail extends Component {
     const cursor = tree.get('usersAsign')
     const updateUsers = await api.get(
       '/admin/users',
-      {groupAsign: this.props.match.params.uuid}
+      {groupAsign: this.props.match.params.uuid, organization: this.state.group.organization.uuid}
     )
 
     tree.set('usersAsign', {
@@ -221,7 +221,6 @@ class GroupDetail extends Component {
     if (!group.uuid) {
       return <Loader />
     }
-
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
@@ -254,7 +253,7 @@ class GroupDetail extends Component {
                         <GroupForm
                           baseUrl='/admin/groups'
                           url={'/admin/groups/' + this.props.match.params.uuid}
-                          initialState={this.state.group}
+                          initialState={{...this.state.group, organization: this.state.group.organization._id}}
                           load={this.load.bind(this)}
                           organizations={this.state.orgs || []}
                         >
@@ -289,7 +288,7 @@ class GroupDetail extends Component {
                           branchName='usersAsign'
                           baseUrl='/admin/users'
                           columns={this.getColumnsUsersToAsign()}
-                          filters={{groupAsign: this.props.match.params.uuid}}
+                          filters={{groupAsign: this.props.match.params.uuid, organization: group.organization.uuid}}
                          />
                       </BaseModal>
 
@@ -306,7 +305,7 @@ class GroupDetail extends Component {
                         baseUrl='/admin/users'
                         url='/admin/users/'
                         filters={{group: this.props.match.params.uuid}}
-                        organization={group.organization}
+                        organization={group.organization._id}
                       />
                     </div>
                   </header>
