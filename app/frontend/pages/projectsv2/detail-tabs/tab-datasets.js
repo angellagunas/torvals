@@ -6,7 +6,6 @@ import api from '~base/api'
 import PropTypes from 'baobab-react/prop-types'
 import DeleteButton from '~base/components/base-deleteButton'
 import moment from 'moment'
-import AddExternalDataset from '../add-external'
 
 class TabDatasets extends Component {
   constructor (props) {
@@ -24,7 +23,7 @@ class TabDatasets extends Component {
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/datasets/detail/' + row.uuid}>
+            <Link to={'/datasets/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -64,10 +63,10 @@ class TabDatasets extends Component {
           return (
             <div className='field is-grouped'>
               <div className='control'>
-                <Link className={row.status === 'consolidated' ? 'button' : 'is-hidden'} to={'/datasets/detail/' + row.uuid}>
+                <Link className={row.status === 'consolidated' ? 'button' : 'is-hidden'} to={'/datasets/' + row.uuid}>
                   Detalle
                 </Link>
-                <Link className={row.status !== 'consolidated' ? 'button is-primary' : 'is-hidden'} to={'/datasets/detail/' + row.uuid}>
+                <Link className={row.status !== 'consolidated' ? 'button is-primary' : 'is-hidden'} to={'/datasets/' + row.uuid}>
                   Fin. Configuración
                 </Link>
               </div>
@@ -86,13 +85,13 @@ class TabDatasets extends Component {
   }
 
   async removeDatasetOnClick (uuid) {
-    var url = `/admin/projects/${this.props.project.uuid}/remove/dataset`
+    var url = `/app/projects/${this.props.project.uuid}/remove/dataset`
     await api.post(url, { dataset: uuid })
     await this.loadDatasetsList()
   }
 
   async loadDatasetsList () {
-    var url = '/admin/datasets/'
+    var url = '/app/datasets/'
     const body = await api.get(url, {
       start: 0,
       limit: 10,
@@ -126,7 +125,7 @@ class TabDatasets extends Component {
     this.setState({
       datasetClassName: ''
     })
-    this.props.history.push('/admin/datasets/detail/' + object.uuid)
+    this.props.history.push('/datasets/' + object.uuid)
   }
 
   render () {
@@ -145,7 +144,6 @@ class TabDatasets extends Component {
                 Agregar Dataset
               </span>
             </button>
-            <AddExternalDataset project={this.props.project} />
           </div>
         </header>
         <div className='card-content'>
@@ -174,7 +172,7 @@ class TabDatasets extends Component {
             <div className='column'>
               <BranchedPaginatedTable
                 branchName='datasets'
-                baseUrl='/admin/datasets/'
+                baseUrl='/app/datasets/'
                 columns={this.getColumns()}
                 filters={{ project: this.props.project.uuid }}
               />
@@ -182,7 +180,7 @@ class TabDatasets extends Component {
           </div>
           <CreateDataSet
             branchName='datasets'
-            url='/admin/datasets'
+            url='/app/datasets'
             organization={this.props.project.organization.uuid}
             project={this.props.project.uuid}
             className={this.state.datasetClassName}
