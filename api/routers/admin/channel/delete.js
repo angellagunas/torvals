@@ -15,7 +15,7 @@ module.exports = new Route({
     channel.save()
 
     ctx.body = {
-      data: channel.format()
+      data: channel.toPublic()
     }
   }
 })

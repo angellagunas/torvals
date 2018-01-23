@@ -1,0 +1,127 @@
+import React, { Component } from 'react'
+import api from '~base/api'
+
+import Page from '~base/page'
+import { loggedIn } from '~base/middlewares/'
+import Loader from '~base/components/spinner'
+import ChannelForm from './create-form'
+import DeleteButton from '~base/components/base-deleteButton'
+
+class ChannelDetail extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      loading: true,
+      loaded: false,
+      channel: {}
+    }
+  }
+
+  componentWillMount () {
+    this.load()
+  }
+
+  async load () {
+    var url = '/admin/channels/' + this.props.match.params.uuid
+    const body = await api.get(url)
+
+    this.setState({
+      loading: false,
+      loaded: true,
+      channel: body.data
+    })
+  }
+
+  async deleteObject () {
+    var url = '/admin/channels/' + this.props.match.params.uuid
+    await api.del(url)
+    this.props.history.push('/admin/channels')
+  }
+
+  getColumns () {
+    return [
+      {
+        'title': 'Name',
+        'property': 'name',
+        'default': 'N/A',
+        'sortable': true
+      }
+    ]
+  }
+
+  render () {
+    // const { channel } = this.state
+
+
+    if (!this.state.loaded) {
+      return <Loader />
+    }
+
+    let channel = {
+      name: this.state.channel.name,
+      organization: this.state.channel.organization.uuid,
+      externalId: this.state.channel.externalId
+
+    }
+
+    console.log(this.state)
+
+    return (
+      <div className='columns c-flex-1 is-marginless'>
+        <div className='column is-paddingless'>
+          <div className='section'>
+            <div className='columns'>
+              <div className='column has-text-right'>
+                <div className='field is-grouped is-grouped-right'>
+                  <div className='control'>
+                    <DeleteButton titleButton={'Delete'}
+                      objectName='Product'
+                      objectDelete={this.deleteObject.bind(this)}
+                      message={`Are you sure you want to delete the product ${channel.name}?`}
+                      />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className='columns'>
+              <div className='column'>
+                <div className='card'>
+                  <header className='card-header'>
+                    <p className='card-header-title'>
+                      Channel
+                    </p>
+                  </header>
+                  <div className='card-content'>
+                    <div className='columns'>
+                      <div className='column'>
+                        <ChannelForm
+                          baseUrl='/admin/channels'
+                          url={'/admin/channels/' + this.props.match.params.uuid}
+                          initialState={channel}
+                          load={this.load.bind(this)}>
+                          <div className='field is-grouped'>
+                            <div className='control'>
+                              <button className='button is-primary'>Save</button>
+                            </div>
+                          </div>
+                        </ChannelForm>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+export default Page({
+  path: '/channels/detail/:uuid',
+  title: 'Channel Detail',
+  exact: true,
+  validate: loggedIn,
+  component: ChannelDetail
+})

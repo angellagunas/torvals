@@ -43,6 +43,9 @@ import env from '~base/env-variables'
 import Projectsv2 from './pages/projectsv2/list'
 import ProjectDetailv2 from './pages/projectsv2/detail'
 import DeletedProjectsv2 from './pages/projectsv2/deleted-list'
+import Channels from './pages/channels/list'
+import DeletedChannels from './pages/channels/deleted-list'
+import ChannelDetail from './pages/channels/detail'
 // #Import
 
 const NoMatch = () => {
@@ -102,6 +105,9 @@ const AppRouter = () => {
 
           {RequestLogs.asRouterItem()}
           {PredictionHistoric.asRouterItem()}
+          {Channels.asRouterItem()}
+          {DeletedChannels.asRouterItem()}
+          {ChannelDetail.asRouterItem()}
 
           <div id='route' />
           <Route component={NoMatch} />

@@ -1,24 +1,23 @@
 import React from 'react'
 import Link from '~base/router/link'
-import moment from 'moment'
 import api from '~base/api'
 
 import ListPage from '~base/list-page'
-import {loggedIn} from '~base/middlewares/'
-import CreateProduct from './create'
+import {loggedIn} from '~base/middlewares'
+import CreateChannel from './create'
 
 export default ListPage({
-  path: '/products',
+  path: '/channels',
   title: 'Active',
   icon: 'check',
   exact: true,
   validate: loggedIn,
-  titleSingular: 'Product',
+  titleSingular: 'Channel',
   create: true,
-  createComponent: CreateProduct,
-  baseUrl: '/admin/products',
-  branchName: 'products',
-  detailUrl: '/admin/products/detail/',
+  createComponent: CreateChannel,
+  baseUrl: '/admin/channels',
+  branchName: 'channels',
+  detailUrl: '/admin/channels/detail/',
   filters: true,
   schema: {
     type: 'object',
@@ -55,45 +54,20 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/products/detail/' + row.uuid}>
+            <Link to={'/channels/detail/' + row.uuid}>
               {row.name}
             </Link>
           )
         }
       },
       {
-        'title': 'Organization',
-        'property': 'organization',
-        'default': '',
-        'sortable': true,
-        formatter: (row) => {
-          if (!row.organization) { return }
-
-          return (
-            <Link to={'/manage/organizations/' + row.organization.uuid}>
-              {row.organization.name}
-            </Link>
-
-          )
-        }
-      },
-      {
-        'title': 'Created',
-        'property': 'dateCreated',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
-          )
-        }
-      },
-      {
         'title': 'Actions',
         formatter: (row) => {
-          return <Link className='button' to={'/products/detail/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button' to={'/channels/detail/' + row.uuid}>
+              Detalle
+            </Link>
+          )
         }
       }
     ]

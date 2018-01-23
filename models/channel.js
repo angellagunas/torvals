@@ -6,10 +6,11 @@ const moment = require('moment')
 
 const channelSchema = new Schema({
   name: { type: String },
-  externalId: { type: Number },
+  externalId: { type: String },
   uuid: { type: String, default: v4 },
   dateCreated: { type: Date, default: moment.utc },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true }
 })
 
 channelSchema.plugin(dataTables)
@@ -19,7 +20,8 @@ channelSchema.methods.toPublic = function () {
     uuid: this.uuid,
     name: this.name,
     externalId: this.externalId,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    organization: this.organization
   }
 }
 
