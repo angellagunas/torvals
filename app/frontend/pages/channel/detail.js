@@ -38,17 +38,6 @@ class ChannelDetail extends Component {
     this.props.history.push('/channels')
   }
 
-  getColumns () {
-    return [
-      {
-        'title': 'Name',
-        'property': 'name',
-        'default': 'N/A',
-        'sortable': true
-      }
-    ]
-  }
-
   render () {
     if (!this.state.loaded) {
       return <Loader />

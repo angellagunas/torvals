@@ -7,7 +7,9 @@ module.exports = new Route({
   method: 'post',
   path: '/:uuid',
   validator: lov.object().keys({
-    name: lov.string().required()
+    name: lov.string().required(),
+    organization: lov.string().required(),
+    externalId: lov.string().required()
   }),
   handler: async function (ctx) {
     var channelId = ctx.params.uuid
@@ -15,13 +17,16 @@ module.exports = new Route({
 
     const channel = await Channel.findOne({'uuid': channelId, 'isDeleted': false})
     .populate('organization')
-
-    const org = await Organization.findOne({uuid: data.organization})
-
     ctx.assert(channel, 404, 'Channel  not found')
 
-    channel.set({name: data.name, organization: org.id, externalId: data.externalId})
+    const org = await Organization.findOne({uuid: data.organization})
+    ctx.assert(org, 404, 'Organization not found')
 
+    channel.set({
+      name: data.name,
+      organization: org._id,
+      externalId: data.externalId
+    })
     channel.save()
 
     ctx.body = {

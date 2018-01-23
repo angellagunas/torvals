@@ -32,5 +32,5 @@ module.exports = {
   PredictionHistoric,
   AdjustmentRequest,
   Forecast, // #Exports
-  Channel
+  Channel // #Exports
 }

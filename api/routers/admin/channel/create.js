@@ -22,7 +22,7 @@ module.exports = new Route({
 
     const channel = await Channel.create({
       name: data.name,
-      organization: org.id,
+      organization: org._id,
       externalId: data.externalId
     })
 

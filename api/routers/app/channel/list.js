@@ -14,6 +14,7 @@ module.exports = new Route({
       }
       filters[filter] = { '$regex': ctx.request.query[filter], '$options': 'i' }
     }
+
     var channels = await Channel.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
