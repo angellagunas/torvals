@@ -22,7 +22,7 @@ class ChannelDetail extends Component {
   }
 
   async load () {
-    var url = '/admin/channels/' + this.props.match.params.uuid
+    var url = '/app/channels/' + this.props.match.params.uuid
     const body = await api.get(url)
 
     this.setState({
@@ -33,9 +33,9 @@ class ChannelDetail extends Component {
   }
 
   async deleteObject () {
-    var url = '/admin/channels/' + this.props.match.params.uuid
+    var url = '/app/channels/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/admin/channels')
+    this.props.history.push('/channels')
   }
 
   getColumns () {
@@ -58,6 +58,7 @@ class ChannelDetail extends Component {
       name: this.state.channel.name,
       organization: this.state.channel.organization.uuid,
       externalId: this.state.channel.externalId
+
     }
 
     return (
@@ -69,7 +70,7 @@ class ChannelDetail extends Component {
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <DeleteButton titleButton={'Borrar'}
-                      objectName='Producto'
+                      objectName='Canal'
                       objectDelete={this.deleteObject.bind(this)}
                       message={`Estas seguro de quieres borrar el canal ${channel.name}?`}
                       />
@@ -89,8 +90,8 @@ class ChannelDetail extends Component {
                     <div className='columns'>
                       <div className='column'>
                         <ChannelForm
-                          baseUrl='/admin/channels'
-                          url={'/admin/channels/' + this.props.match.params.uuid}
+                          baseUrl='/app/channels'
+                          url={'/app/channels/' + this.props.match.params.uuid}
                           initialState={channel}
                           load={this.load.bind(this)}>
                           <div className='field is-grouped'>
@@ -113,7 +114,7 @@ class ChannelDetail extends Component {
 }
 
 export default Page({
-  path: '/channels/detail/:uuid',
+  path: '/channels/:uuid',
   title: 'Channel Detail',
   exact: true,
   validate: loggedIn,

@@ -4,8 +4,7 @@ import ChannelForm from './create-form'
 
 var initialState = {
   name: '',
-  externalId: '',
-  organizations: []
+  externalId: ''
 }
 
 class CreateChannel extends Component {
@@ -13,7 +12,6 @@ class CreateChannel extends Component {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
-      organizations: []
     }
   }
 
@@ -24,7 +22,7 @@ class CreateChannel extends Component {
         className={this.props.className}
         hideModal={this.hideModal}>
         <ChannelForm
-          baseUrl='/admin/channels'
+          baseUrl='/app/channels'
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}>

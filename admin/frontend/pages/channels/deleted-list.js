@@ -1,22 +1,10 @@
 import React, { Component } from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 
 class DeletedChannels extends Component {
-  componentWillMount () {
-    this.context.tree.set('deletedChannels', {
-      page: 1,
-      totalItems: 0,
-      items: [],
-      pageLength: 10
-    })
-    this.context.tree.commit()
-  }
-
   getColumns () {
     return [
       {
@@ -83,17 +71,11 @@ class DeletedChannels extends Component {
   }
 }
 
-DeletedChannels.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedDeletedChannels = branch({deletedchannels: 'deletedchannels'}, DeletedChannels)
-
 export default Page({
   path: '/channels/deleted',
   title: 'Deleted channels',
   icon: 'trash',
   exact: true,
   validate: loggedIn,
-  component: branchedDeletedChannels
+  component: DeletedChannels
 })

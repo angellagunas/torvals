@@ -33,6 +33,8 @@ import ForecastDetail from './pages/forecasts/detail'
 import env from '~base/env-variables'
 import Projectsv2 from './pages/projectsv2/list'
 import ProjectDetailv2 from './pages/projectsv2/detail'
+import Channels from './pages/channel/list'
+import ChannelsDetail from './pages/channel/detail'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -79,6 +81,8 @@ const AppRouter = () => {
 
           {Forecasts.asRouterItem()}
           {ForecastDetail.asRouterItem()}
+          {Channels.asRouterItem()}
+          {ChannelsDetail.asRouterItem()}
 
           <Redirect from='/' to='/dashboard' />
           <Route component={NoMatch} />

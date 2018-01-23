@@ -1,7 +1,6 @@
 import React from 'react'
 import Link from '~base/router/link'
 import api from '~base/api'
-
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares'
 import CreateChannel from './create'
@@ -12,7 +11,7 @@ export default ListPage({
   icon: 'check',
   exact: true,
   validate: loggedIn,
-  titleSingular: 'Channel',
+  titleSingular: 'Canal',
   create: true,
   createComponent: CreateChannel,
   baseUrl: '/admin/channels',
