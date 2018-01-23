@@ -30,7 +30,7 @@ module.exports = new Route({
         'Authorization': `Bearer ${apiData.token}`
       },
       body: {
-        dataset: dataset.externalId
+        dataset_id: dataset.externalId
       },
       json: true,
       persist: true

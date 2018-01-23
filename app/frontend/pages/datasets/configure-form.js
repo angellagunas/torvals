@@ -217,7 +217,7 @@ class ConfigureDatasetForm extends Component {
       <div>
         <form onSubmit={(e) => { this.submitHandler(e) }}>
           <div className='field'>
-            <label className='label'>Is Date*</label>
+            <label className='label'>Fecha*</label>
             <div className='control'>
               <div className='select is-fullwidth'>
                 <select type='text'
@@ -225,7 +225,7 @@ class ConfigureDatasetForm extends Component {
                   value={this.state.isDate}
                   onChange={(e) => { this.handleChangeDateAnalyze('isDate', e) }}
                 >
-                  <option value=''>Select a option</option>
+                  <option value=''>Selecciona una opción</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
@@ -238,7 +238,7 @@ class ConfigureDatasetForm extends Component {
           </div>
 
           <div className='field'>
-            <label className='label'>Is Analysis*</label>
+            <label className='label'>Análisis*</label>
             <div className='control'>
               <div className='select is-fullwidth'>
                 <select type='text'
@@ -246,7 +246,7 @@ class ConfigureDatasetForm extends Component {
                   value={this.state.isAnalysis}
                   onChange={(e) => { this.handleChangeDateAnalyze('isAnalysis', e) }}
                 >
-                  <option value=''>Select a option</option>
+                  <option value=''>Selecciona una opción</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
@@ -259,7 +259,7 @@ class ConfigureDatasetForm extends Component {
           </div>
 
           <div className='field'>
-            <label className='label'>Is Product*</label>
+            <label className='label'>Producto*</label>
             <div className='control'>
               <div className='select is-fullwidth'>
                 <select type='text'
@@ -267,7 +267,7 @@ class ConfigureDatasetForm extends Component {
                   value={this.state.isProduct}
                   onChange={(e) => { this.handleChangeDateAnalyze('isProduct', e) }}
                 >
-                  <option value=''>Select a option</option>
+                  <option value=''>Selecciona una opción</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
@@ -280,14 +280,14 @@ class ConfigureDatasetForm extends Component {
           </div>
 
           <div className='field'>
-            <label className='label'>Is Sales Center*</label>
+            <label className='label'>Centro de Venta*</label>
             <div className='control'>
               <div className='select is-fullwidth'>
                 <select type='text'
                   value={this.state.isSalesCenter}
                   onChange={(e) => { this.handleChangeDateAnalyze('isSalesCenter', e) }}
                 >
-                  <option value=''>Select a option</option>
+                  <option value=''>Selecciona una opción</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
@@ -307,14 +307,14 @@ class ConfigureDatasetForm extends Component {
               <div className='field'>
                 <div className='field-label has-text-centered'>
                   <label className=''>
-                    Operation Filter
+                    Filtro de Operación
                   </label>
                 </div>
               </div>
               <div className='field'>
                 <div className='field-label has-text-centered'>
                   <label className=''>
-                    Analysis Filter
+                    Filtro de Análisis
                   </label>
                 </div>
               </div>
@@ -355,7 +355,7 @@ class ConfigureDatasetForm extends Component {
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select onChange={(e) => { this.handleChange('groupingColumn', e) }}>
-                      <option value='' >Select a option</option>
+                      <option value='' >Selecciona una opción</option>
                       {
                     this.state.formData.columns.map((item, key) => {
                       return <option key={key}
@@ -387,15 +387,15 @@ class ConfigureDatasetForm extends Component {
           <table className='table is-fullwidth'>
             <thead>
               <tr>
-                <th>Column</th>
-                <th>Value 1</th>
-                <th>Value 2</th>
+                <th>Columna</th>
+                <th>Valor 1</th>
+                <th>Valor 2</th>
               </tr>
             </thead>
             <tbody>
               {this.state.formData.groupings.length === 0 ? (
                 <tr>
-                  <td colSpan='3'>No groupings to show</td>
+                  <td colSpan='3'>No hay agrupaciones que mostrar</td>
                 </tr>
                 ) : (
                   this.state.formData.groupings.map((item, key) => {
@@ -423,8 +423,8 @@ class ConfigureDatasetForm extends Component {
 
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-            The dataSet has been configured successfuly
-          </div>
+              Se ha configurado al Dataset correctamente
+            </div>
           </div>
           <div className={this.state.apiCallErrorMessage}>
             <div className='message-body is-size-7 has-text-centered'>
@@ -434,7 +434,7 @@ class ConfigureDatasetForm extends Component {
 
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary'>Configure</button>
+              <button className='button is-primary'>Configurar</button>
             </div>
           </div>
         </form>

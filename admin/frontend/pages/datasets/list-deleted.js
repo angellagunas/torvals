@@ -35,7 +35,7 @@ class DeletedDataSets extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -47,7 +47,7 @@ class DeletedDataSets extends Component {
         'sortable': true
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -63,11 +63,11 @@ class DeletedDataSets extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
-              Restore
+              Restaurar
             </button>
           )
         }
@@ -80,11 +80,11 @@ class DeletedDataSets extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Deleted datasets</h1>
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Datasets eliminados</h1>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Deleted datasets
+                  Datasets eliminados
                 </p>
               </header>
               <div className='card-content'>
@@ -114,7 +114,7 @@ const branchedDeletedDataSets = branch({deletedDatasets: 'deletedDatasets'}, Del
 
 export default Page({
   path: '/datasets/deleted',
-  title: 'Deleted datasets',
+  title: 'Datasets eliminados',
   icon: 'trash',
   exact: true,
   validate: loggedIn,

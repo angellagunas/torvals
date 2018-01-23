@@ -14,11 +14,11 @@ const schema = {
     'name'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    category: {type: 'string', title: 'Category'},
-    subcategory: {type: 'string', title: 'Subcategory'},
-    externalId: {type: 'string', title: 'External Id'},
-    description: {type: 'string', title: 'Description'}
+    name: {type: 'string', title: 'Nombre'},
+    category: {type: 'string', title: 'Categoría'},
+    subcategory: {type: 'string', title: 'Subcategoría'},
+    externalId: {type: 'string', title: 'Id Externo'},
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 

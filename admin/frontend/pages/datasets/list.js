@@ -4,7 +4,6 @@ import api from '~base/api'
 
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares/'
-import CreateDataSet from './create'
 
 export default ListPage({
   path: '/datasets',
@@ -14,14 +13,13 @@ export default ListPage({
   validate: loggedIn,
   titleSingular: 'Dataset',
   create: false,
-  createComponent: CreateDataSet,
   baseUrl: '/admin/datasets',
   branchName: 'datasets',
   detailUrl: '/admin/datasets/detail/',
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -40,7 +38,7 @@ export default ListPage({
         'sortable': true
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -56,7 +54,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/datasets/detail/' + row.uuid}>
             Detalle

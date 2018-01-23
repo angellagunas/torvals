@@ -82,7 +82,7 @@ class DataSetDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -94,7 +94,7 @@ class DataSetDetail extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/manage/users/' + row.uuid}>
             Detalle
@@ -151,7 +151,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                File uploaded
+                Archivo cargado
               </p>
             </header>
             <div className='card-content'>
@@ -166,9 +166,9 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      File {dataset.fileChunk.filename} has been uploaded
-                      and will be sent for preprocessing. Please come back in
-                      a couple of minutes.
+                      El archivo {dataset.fileChunk.filename} ha sido cargado a
+                      nuestros servidores y se enviará para preprocesamiento.
+                      Favor de regresar en un par de minutos.
                     </div>
                   </div>
                 </div>
@@ -183,7 +183,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                File sent for preprocessing
+                Archivo enviado a preprocesamiento
               </p>
             </header>
             <div className='card-content'>
@@ -198,7 +198,7 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      File {dataset.fileChunk.filename} is being preprocessed
+                      El archivo {dataset.fileChunk.filename} se está preprocesando
                     </div>
                   </div>
                 </div>
@@ -213,7 +213,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Processing file
+                Procesando archivo
               </p>
             </header>
             <div className='card-content'>
@@ -228,7 +228,7 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      Dataset is being processed
+                      El Dataset se está procesando
                     </div>
                   </div>
                 </div>
@@ -241,7 +241,7 @@ class DataSetDetail extends Component {
                         className='button is-black'
                         onClick={e => this.cancelOnClick()}
                       >
-                        Cancel
+                        Cancelar
                       </button>
                     </div>
                   </div>
@@ -257,7 +257,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Configuring Dataset
+                Configurando el Dataset
               </p>
             </header>
             <div className='card-content'>
@@ -282,17 +282,17 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Review dataset
+                Revisando el dataset
               </p>
             </header>
             <div className='card-content'>
               <div className='columns'>
                 <div className='column'>
                   <div className='field is-grouped'>
-                    <b>Min date:</b> {dataset.dateMin}
+                    <b>Fecha mínima:</b> {dataset.dateMin}
                   </div>
                   <div className='field is-grouped'>
-                    <b>Max date:</b> {dataset.dateMax}
+                    <b>Fecha máxima:</b> {dataset.dateMax}
                   </div>
                   <ConfigureViewDataset
                     initialState={dataset}
@@ -303,7 +303,7 @@ class DataSetDetail extends Component {
                         className='button is-black'
                         onClick={e => this.configureOnClick()}
                       >
-                        Configure
+                        Configurar
                       </button>
                     </div>
                     <div className='control'>
@@ -417,10 +417,10 @@ class DataSetDetail extends Component {
           >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Save</button>
+              <button className='button is-primary' type='submit'>Guardar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModal()} type='button'>Cancel</button>
+              <button className='button' onClick={() => this.hideModal()} type='button'>Cancelar</button>
             </div>
           </div>
         </ProductForm>
@@ -457,10 +457,16 @@ class DataSetDetail extends Component {
       >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Save</button>
+              <button className='button is-primary' type='submit'>Guardar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModalSalesCenters()} type='button'>Cancel</button>
+              <button
+                className='button'
+                onClick={() => this.hideModalSalesCenters()}
+                type='button'
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </SalesCenterForm>
@@ -524,7 +530,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                  Unidentified Products: {newProducts.length} and Sales Centers: {newSalesCenters.length}
+                Productos no identificados: {newProducts.length} y Centros de venta: {newSalesCenters.length}
               </p>
               <div className='field is-grouped is-grouped-right card-header-select'>
                 <div className='control'>
@@ -544,14 +550,14 @@ class DataSetDetail extends Component {
                   <table className='table is-fullwidth'>
                     <thead>
                       <tr>
-                        <th colSpan='2'>Product External Id</th>
+                        <th colSpan='2'>Id externo de Producto</th>
 
                       </tr>
                     </thead>
                     <tbody>
                       {newProducts.length === 0 ? (
                         <tr>
-                          <td colSpan='2'>No new products to show</td>
+                          <td colSpan='2'>No hay productos que mostrar</td>
                         </tr>
                       ) : (
                         newProducts.map((item, key) => {
@@ -559,9 +565,12 @@ class DataSetDetail extends Component {
                             <tr key={key}>
                               <td>{item.externalId}</td>
                               <td>
-                                <button className='button is-primary' onClick={() => this.showModal(item)}>
-                                    Edit
-                                  </button>
+                                <button
+                                  className='button is-primary'
+                                  onClick={() => this.showModal(item)}
+                                >
+                                  Editar
+                                </button>
                               </td>
                             </tr>
                           )
@@ -574,13 +583,13 @@ class DataSetDetail extends Component {
                   <table className='table is-fullwidth'>
                     <thead>
                       <tr>
-                        <th>Sales Center  External Id</th>
+                        <th>Id externo de Centro de Venta</th>
                       </tr>
                     </thead>
                     <tbody>
                       {newSalesCenters.length === 0 ? (
                         <tr>
-                          <td colSpan='2'>No new sales centers to show</td>
+                          <td colSpan='2'>No hay centros de venta que mostrar</td>
                         </tr>
                       ) : (
                         newSalesCenters.map((item, key) => {
@@ -589,8 +598,11 @@ class DataSetDetail extends Component {
                               <tr key={key}>
                                 <td >{item.externalId}</td>
                                 <td>
-                                  <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
-                                  Edit
+                                  <button
+                                    className='button is-primary'
+                                    onClick={() => this.showModalSalesCenters(item)}
+                                  >
+                                  Editar
                                 </button>
                                 </td>
                               </tr>
@@ -626,10 +638,10 @@ class DataSetDetail extends Component {
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <DeleteButton
-                      titleButton={'Delete'}
+                      titleButton={'Eliminar'}
                       objectName='Dataset'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={`Are you sure you want to delete the dataset ${dataset.name}?`}
+                      message={`Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
                     />
                   </div>
                 </div>
@@ -666,7 +678,7 @@ class DataSetDetail extends Component {
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button className='button is-primary'>Guardar</button>
                             </div>
                           </div>
                         </DatasetDetailForm>
