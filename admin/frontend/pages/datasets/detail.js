@@ -122,8 +122,8 @@ class DataSetDetail extends Component {
     await this.load()
   }
 
-  async readyOnClick () {
-    var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/ready'
+  async consolidateOnClick () {
+    var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/consolidate'
     await api.post(url)
     await this.load()
   }
@@ -309,9 +309,9 @@ class DataSetDetail extends Component {
                     <div className='control'>
                       <button
                         className='button is-primary'
-                        onClick={e => this.readyOnClick()}
+                        onClick={e => this.consolidateOnClick()}
                       >
-                        Ready
+                        Conciliar
                       </button>
                     </div>
                   </div>
@@ -321,13 +321,13 @@ class DataSetDetail extends Component {
           </div>
         </div>
       )
-    } else if (dataset.status === 'ready') {
+    } else if (dataset.status === 'consolidated') {
       return (
         <div className='column'>
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Dataset ready
+                Dataset conciliado
               </p>
             </header>
             <div className='card-content'>
@@ -342,14 +342,14 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      Dataset ready
+                      Dataset conciliado
                     </div>
                   </div>
                 </div>
               </div>
               <ConfigureViewDataset
                 initialState={dataset}
-                  />
+              />
             </div>
           </div>
         </div>
@@ -638,7 +638,7 @@ class DataSetDetail extends Component {
             {dataset.status === 'reviewing' &&
               this.getUnidentifiedProducts()
             }
-            {dataset.status === 'ready' &&
+            {dataset.status === 'consolidated' &&
                 this.getUnidentifiedProducts()
             }
             <div className='columns'>

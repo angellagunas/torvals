@@ -13,7 +13,7 @@ const task = new Task(async function (argv) {
   const datasets = await DataSet.find({
     status: 'processing',
     isDeleted: false
-  })
+  }).populate('project')
 
   if (datasets.length === 0) {
     console.log('No processing datasets to verify ...')
@@ -71,6 +71,10 @@ const task = new Task(async function (argv) {
         dateMin: res.date_min,
         apiData: apiData
       })
+
+      // TODO: Remove this when the endpoint to create projects is done
+      dataset.project.externalId = res.project_id
+      await dataset.project.save()
 
       await dataset.save()
       await dataset.processData()

@@ -22,7 +22,7 @@ module.exports = new Route({
     }
 
     var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/conciliation/projects/${dataset.project.uuid}`,
+      url: `${apiData.hostname}${apiData.baseUrl}/conciliation/projects/${dataset.project.externalId}`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
