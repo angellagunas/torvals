@@ -301,6 +301,7 @@ class ConfigureDatasetForm extends Component {
             <div className='control'>
               <div className='select is-fullwidth'>
                 <select type='text'
+                  name='isChannel'
                   value={this.state.isSalesCenter}
                   onChange={(e) => { this.handleChangeDateAnalyze('isChannel', e) }}
                 >
