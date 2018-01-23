@@ -14,34 +14,16 @@ module.exports = new Route({
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
-    let project, org
+    let project, org, dataset
 
-    project = await Project.findOne({uuid: body.project}).populate('organization')
+    project = await Project.findOne({uuid: body.project})
+      .populate('organization')
 
     if (!project) {
       ctx.throw(404, 'Project not found')
     }
 
     org = project.organization
-
-    const dataset = await DataSet.create({
-      name: body.name || 'New External',
-      description: body.description,
-      organization: org._id,
-      createdBy: ctx.state.user,
-      project: project._id,
-      externalId: body.uuid,
-      source: 'external'
-    })
-
-    if (project) {
-      project.datasets.push({
-        dataset: dataset,
-        columns: []
-      })
-
-      await project.save()
-    }
 
     var apiData = Api.get()
     if (!apiData.token) {
@@ -50,7 +32,7 @@ module.exports = new Route({
     }
 
     var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/datasets/${dataset.externalId}`,
+      url: `${apiData.hostname}${apiData.baseUrl}/datasets/${body.uuid}`,
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -63,6 +45,25 @@ module.exports = new Route({
 
     try {
       var res = await request(options)
+
+      dataset = await DataSet.create({
+        name: body.name || 'New External',
+        description: body.description,
+        organization: org._id,
+        createdBy: ctx.state.user,
+        project: project._id,
+        externalId: body.uuid,
+        source: 'external'
+      })
+
+      if (project) {
+        project.datasets.push({
+          dataset: dataset,
+          columns: []
+        })
+
+        await project.save()
+      }
 
       await dataset.process(res)
     } catch (e) {
