@@ -26,9 +26,6 @@ import DataSets from './pages/datasets/list'
 import DeletedDataSets from './pages/datasets/list-deleted'
 import ReadyDataSets from './pages/datasets/list-ready'
 import DataSetDetail from './pages/datasets/detail'
-import Projects from './pages/projects/list'
-import ProjectDetail from './pages/projects/detail'
-import DeletedProjects from './pages/projects/deleted-list'
 import SalesCenters from './pages/salesCenters/list'
 import SalesCenterDetail from './pages/salesCenters/detail'
 import DeletedSalesCenters from './pages/salesCenters/deleted-list'
@@ -40,9 +37,9 @@ import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
 import PredictionHistoric from './pages/prediction-historic/list'
 import env from '~base/env-variables'
-import Projectsv2 from './pages/projectsv2/list'
-import ProjectDetailv2 from './pages/projectsv2/detail'
-import DeletedProjectsv2 from './pages/projectsv2/deleted-list'
+import Projects from './pages/projects/list'
+import ProjectDetail from './pages/projects/detail'
+import DeletedProjects from './pages/projects/deleted-list'
 import Channels from './pages/channels/list'
 import DeletedChannels from './pages/channels/deleted-list'
 import ChannelDetail from './pages/channels/detail'
@@ -87,10 +84,6 @@ const AppRouter = () => {
           {Projects.asRouterItem()}
           {DeletedProjects.asRouterItem()}
           {ProjectDetail.asRouterItem()}
-
-          {Projectsv2.asRouterItem()}
-          {DeletedProjectsv2.asRouterItem()}
-          {ProjectDetailv2.asRouterItem()}
 
           {SalesCenters.asRouterItem()}
           {DeletedSalesCenters.asRouterItem()}

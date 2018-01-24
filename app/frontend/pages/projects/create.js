@@ -7,8 +7,7 @@ import ProjectForm from './create-form'
 
 var initialState = {
   name: '',
-  description: '',
-  adjustment: ''
+  description: ''
 }
 
 class CreateProject extends Component {

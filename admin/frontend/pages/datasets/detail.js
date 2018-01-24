@@ -126,7 +126,7 @@ class DataSetDetail extends Component {
     var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/consolidate'
     await api.post(url)
     await this.load()
-    this.props.history.push(`/admin/projectsv2/detail/${this.state.dataset.project.uuid}`)
+    this.props.history.push(`/admin/projects/detail/${this.state.dataset.project.uuid}`)
   }
 
   async cancelOnClick () {
