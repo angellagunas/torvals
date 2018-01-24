@@ -21,6 +21,8 @@ import DeletedProducts from '../pages/products/deleted-list'
 import Forecasts from '../pages/forecasts/list'
 import Projectsv2 from '../pages/projectsv2/list'
 import DeletedProjectsv2 from '../pages/projectsv2/deleted-list'
+import Channels from '../pages/channels/list'
+import DeletedChannels from '../pages/channels/deleted-list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -148,6 +150,16 @@ class Sidebar extends Component {
         ]
       },
       Forecasts.asSidebarItem(),
+      {
+        title: 'Channels',
+        icon: 'filter',
+        to: '/channels',
+        opened: false,
+        dropdown: [
+          Channels.asSidebarItem(),
+          DeletedChannels.asSidebarItem()
+        ]
+      },
       {
         title: 'Developer Tools',
         icon: 'github-alt',

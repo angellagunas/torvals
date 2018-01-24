@@ -2,23 +2,22 @@ import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
 import api from '~base/api'
-
 import ListPage from '~base/list-page'
-import {loggedIn} from '~base/middlewares/'
-import CreateProduct from './create'
+import {loggedIn} from '~base/middlewares'
+import CreateChannel from './create'
 
 export default ListPage({
-  path: '/products',
-  title: 'Active',
+  path: '/channels',
+  title: 'Activos',
   icon: 'check',
   exact: true,
   validate: loggedIn,
-  titleSingular: 'Product',
+  titleSingular: 'Canal',
   create: true,
-  createComponent: CreateProduct,
-  baseUrl: '/admin/products',
-  branchName: 'products',
-  detailUrl: '/admin/products/detail/',
+  createComponent: CreateChannel,
+  baseUrl: '/admin/channels',
+  branchName: 'channels',
+  detailUrl: '/admin/channels/detail/',
   filters: true,
   schema: {
     type: 'object',
@@ -49,36 +48,33 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/products/detail/' + row.uuid}>
+            <Link to={'/channels/detail/' + row.uuid}>
               {row.name}
             </Link>
           )
         }
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
-        'default': '',
+        'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          if (!row.organization) { return }
-
           return (
             <Link to={'/manage/organizations/' + row.organization.uuid}>
               {row.organization.name}
             </Link>
-
           )
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -89,11 +85,13 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/products/detail/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button' to={'/channels/detail/' + row.uuid}>
+              Detalle
+            </Link>
+          )
         }
       }
     ]
