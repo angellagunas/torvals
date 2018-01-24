@@ -1,150 +1,114 @@
 import React, { Component } from 'react'
-
 import Page from '~base/page'
-import api from '~base/api'
-import env from '~base/env-variables'
-import tree from '~core/tree'
 import Link from '~base/router/link'
-import {forcePublic} from '~base/middlewares/'
-
-import {BaseForm, PasswordWidget, EmailWidget} from '~components/base-form'
-
-const schema = {
-  type: 'object',
-  required: ['email', 'password'],
-  properties: {
-    email: {type: 'string', title: 'Email'},
-    password: {type: 'string', title: 'Password'}
-  }
-}
-
-const uiSchema = {
-  password: {'ui:widget': PasswordWidget},
-  email: {'ui:widget': EmailWidget}
-}
+import { forcePublic } from '~base/middlewares/'
+import AbraxasLogo from './abraxas-logo.svg'
+import LogInButton from './log-in-form'
 
 class LogIn extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      formData: {
-        email: '',
-        password: ''
-      },
-      apiCallErrorMessage: 'is-hidden'
-    }
-  }
-
-  errorHandler (e) {}
-
-  changeHandler ({formData}) {
-    this.setState({
-      formData,
-      apiCallErrorMessage: 'is-hidden',
-      error: ''
-    })
-  }
-
-  clearState () {
-    this.setState({
-      apiCallErrorMessage: 'is-hidden',
-      formData: this.props.initialState
-    })
-  }
-
-  async submitHandler ({formData}) {
-    var data
-    try {
-      data = await api.post('/user/login', formData)
-    } catch (e) {
-      return this.setState({
-        error: e.message,
-        apiCallErrorMessage: 'message is-danger'
-      })
-    }
-
-    if (data.isAdmin) {
-      window.localStorage.setItem('jwt', data.jwt)
-      tree.set('jwt', data.jwt)
-      tree.set('user', data.user)
-      tree.set('loggedIn', true)
-      tree.commit()
-
-      this.props.history.push(env.PREFIX + '/dashboard', {})
-    } else {
-      this.setState({
-        error: 'Invalid user',
-        apiCallErrorMessage: 'message is-danger',
-        formData: {
-          email: '',
-          password: ''
-        }
-      })
-    }
-  }
-
   render () {
-    var error
-    if (this.state.error) {
-      error = <div>
-        Error: {this.state.error}
-      </div>
-    }
-
-    var resetLink
-    if (env.EMAIL_SEND) {
-      resetLink = (
-        <p>
-          <Link to='/password/forgotten/'>
-            Forgot password?
-          </Link>
-        </p>
-      )
-    }
-
     return (
-      <div className='LogIn single-form'>
-        <div className='card'>
-          <header className='card-header'>
-            <p className='card-header-title'>
-              Log in
-            </p>
-            <a className='card-header-icon'>
-              <span className='icon'>
-                <i className='fa fa-angle-down' />
-              </span>
-            </a>
-          </header>
-          <div className='card-content'>
-            <div className='content'>
-              <div className='columns'>
-                <div className='column'>
-                  <BaseForm schema={schema}
-                    uiSchema={uiSchema}
-                    formData={this.state.formData}
-                    onChange={(e) => { this.changeHandler(e) }}
-                    onSubmit={(e) => { this.submitHandler(e) }}
-                    onError={(e) => { this.errorHandler(e) }}
-                  >
-                    <div className={this.state.apiCallErrorMessage}>
-                      <div className='message-body is-size-7 has-text-centered'>
-                        {error}
+      <div className='is-wrapper'>
+        <div className='is-flex c-flex-1 columns is-gapless'>
+          <div className='column is-3 land-side has-text-centered'>
+            <div className='down'>
+              <figure className='image'>
+                <img src={AbraxasLogo} alt='abraxas logo' />
+              </figure>
+              <br />
+              <h2 className='has-text-white is-size-4'>Nuestra misión es dar cognición sistemática a las organizaciones</h2>
+            </div>
+          </div>
+          <div className='column is-flex is-flex-column main-wrapper'>
+
+            <section className='hero is-medium c-flex-1 is-flex is-bg-whitesmoke'>
+              <div className='hero-head is-bg-white'>
+                <nav className='navbar is-bg-white'>
+                  <div className='navbar-brand'>
+                    <Link to='/log-in' className='navbar-item grey-hover'>
+                      <img className='is-flex r-pad' src='/admin/public/img/pythia-logo.png' />
+                      <h3 className='is-size-4 is-capitalized has-text-weight-semibold'>Pythia</h3>
+                    </Link>
+
+                    <div className='navbar-burger burger'>
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                  </div>
+                  <div className='navbar-menu is-active'>
+                    <div className='navbar-start' />
+                    <div className='navbar-end'>
+                      <div className='navbar-item'>
+                        <LogInButton history={this.props.history} />
                       </div>
                     </div>
-                    <div>
-                      <button
-                        className='button is-primary is-fullwidth'
-                        type='submit'
-                        disabled={!!error}
-                      >
-                        Log in
-                      </button>
+                  </div>
+                </nav>
+              </div>
+
+              <div className='hero-body'>
+                <div className='container has-text-centered'>
+                  <h1 className='title has-text-color is-size-2 pad-bottom'>
+                    Toma de decisiones de operación <br />
+                    a partir de predicción de comportamiento de venta
+                    </h1>
+                  <div className='land-content'>
+                    <div className='columns'>
+
+                      <div className='column'>
+                        <div className='card card-land'>
+                          <div className='card-image'>
+                            <span className='icon icon-land has-text-white'>
+                              <i className='fa fa-2x fa-line-chart' />
+                            </span>
+                          </div>
+                          <div className='card-content'>
+                            <div className='content'>
+                              <p className='has-text-danger is-size-5 has-text-weight-semibold is-padding-bottom-small'>Predicción</p>
+                              Predice el futuro de ventas o producción.
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='column'>
+                        <div className='card card-land'>
+                          <div className='card-image'>
+                            <span className='icon icon-land has-text-white'>
+                              <i className='fa fa-2x fa-adjust' />
+                            </span>
+                          </div>
+                          <div className='card-content'>
+                            <div className='content'>
+                              <p className='has-text-danger is-size-5 has-text-weight-semibold is-padding-bottom-small'>Ajuste</p>
+                              Ajusta la orden de acuerdo a la predicción y existencias.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='column'>
+                        <div className='card card-land'>
+                          <div className='card-image'>
+                            <span className='icon icon-land has-text-white'>
+                              <i className='fa fa-2x fa-lock' />
+                            </span>
+                          </div>
+                          <div className='card-content'>
+                            <div className='content'>
+                              <p className='has-text-danger is-size-5 has-text-weight-semibold is-padding-bottom-small'>Confirmación</p>
+                              Confirma con seguridad tus órdenes o pedidos.
+                              </div>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
-                  </BaseForm>
+                  </div>
                 </div>
               </div>
-              {resetLink}
-            </div>
+            </section>
           </div>
         </div>
       </div>
