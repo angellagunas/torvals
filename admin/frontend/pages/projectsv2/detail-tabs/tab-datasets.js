@@ -64,10 +64,16 @@ class TabDatasets extends Component {
           return (
             <div className='field is-grouped'>
               <div className='control'>
-                <Link className={row.status === 'consolidated' ? 'button' : 'is-hidden'} to={'/datasets/detail/' + row.uuid}>
+                <Link
+                  className={row.status === 'consolidated' ? 'button' : 'is-hidden'}
+                  to={'/datasets/detail/' + row.uuid}
+                >
                   Detalle
                 </Link>
-                <Link className={row.status !== 'consolidated' ? 'button is-primary' : 'is-hidden'} to={'/datasets/detail/' + row.uuid}>
+                <Link
+                  className={row.status !== 'consolidated' ? 'button is-primary' : 'is-hidden'}
+                  to={'/datasets/detail/' + row.uuid}
+                >
                   Fin. Configuración
                 </Link>
               </div>
@@ -137,23 +143,26 @@ class TabDatasets extends Component {
             Datasets
                   </p>
           <div className='card-header-select'>
-          <div className='field is-grouped'>
-          <div className='control'>
-            <button className={this.props.project.status !== 'empty' ? 'button is-primary no-hidden' : 'is-hidden'} onClick={() => this.showModalDataset()}>
-              <span className='icon'>
-                <i className='fa fa-plus-circle' />
-              </span>
-              <span>
-                Agregar Dataset
-              </span>
-            </button>
+            <div className='field is-grouped'>
+              <div className='control'>
+                <button
+                  className={this.props.project.status !== 'empty' ? 'button is-primary no-hidden' : 'is-hidden'}
+                  onClick={() => this.showModalDataset()}
+                >
+                  <span className='icon'>
+                    <i className='fa fa-plus-circle' />
+                  </span>
+                  <span>
+                  Agregar Dataset
+                </span>
+                </button>
+              </div>
+              <div className='control'>
+                <AddExternalDataset project={this.props.project} />
+              </div>
             </div>
-            <div className='control'>
-            <AddExternalDataset project={this.props.project} />
           </div>
-          </div>
-          </div>
-          
+
         </header>
         <div className='card-content'>
 
@@ -164,10 +173,14 @@ class TabDatasets extends Component {
                   <p>Atención</p>
                 </div>
                 <div className='message-body has-text-centered is-size-5'>
-                  Necesitas subir y configurar al menos un <strong> dataset </strong> para tener información disponible
+                  Necesitas subir y configurar al menos un
+                  <strong> dataset </strong> para tener información disponible
                 <br />
                   <br />
-                  <a className='button is-large is-primary' onClick={() => this.showModalDataset()}>
+                  <a
+                    className='button is-large is-primary'
+                    onClick={() => this.showModalDataset()}
+                  >
                     <span className='icon is-medium'>
                       <i className='fa fa-plus-circle' />
                     </span>
