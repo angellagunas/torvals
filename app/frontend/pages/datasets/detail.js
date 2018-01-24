@@ -109,6 +109,7 @@ class DataSetDetail extends Component {
     var url = '/app/datasets/' + this.props.match.params.uuid + '/set/consolidate'
     await api.post(url)
     await this.load()
+    this.props.history.push(`/projectsv2/${this.state.dataset.project.uuid}`)
   }
 
   async cancelOnClick () {
