@@ -41,7 +41,7 @@ const task = new Task(async function (argv) {
       'Authorization': `Bearer ${apiData.token}`
     },
     body: {
-      project: dataset.project.uuid,
+      project_id: dataset.project.uuid,
       path: dataset.url
     },
     json: true,
