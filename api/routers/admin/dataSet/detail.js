@@ -10,6 +10,7 @@ module.exports = new Route({
 
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
       .populate('fileChunk')
+      .populate('project')
       .populate('organization')
       .populate('newProducts')
       .populate('newSalesCenters')
