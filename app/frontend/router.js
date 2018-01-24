@@ -8,7 +8,7 @@ import {
 
 import AdminLayout from '~components/admin-layout'
 
-import LogIn from './pages/log-in'
+import LandPage from './pages/land-page'
 import Dashboard from './pages/dashboard'
 import Users from './pages/users/list'
 import UserDetail from './pages/users/detail'
@@ -46,7 +46,7 @@ const AppRouter = () => {
     <AdminLayout>
       <div className='c-flex-1 is-flex is-flex-column is-relative'>
         <Switch>
-          {LogIn.asRouterItem()}
+          {LandPage.asRouterItem()}
           {ResetPassword.asRouterItem()}
           {EmailResetLanding.asRouterItem()}
           {EmailInviteLanding.asRouterItem()}
@@ -79,7 +79,6 @@ const AppRouter = () => {
           {Channels.asRouterItem()}
           {ChannelsDetail.asRouterItem()}
 
-          <Redirect from='/' to='/dashboard' />
           <Route component={NoMatch} />
         </Switch>
       </div>
