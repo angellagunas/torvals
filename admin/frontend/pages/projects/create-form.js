@@ -14,25 +14,22 @@ const schema = {
   title: '',
   required: [
     'name',
-    'organization',
-    'adjustment'
+    'organization'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    adjustment: {type: 'string', title: 'Adjustment'},
+    name: {type: 'string', title: 'Nombre'},
     organization: {
       type: 'string',
-      title: 'Organization',
+      title: 'Organización',
       enum: [],
       enumNames: []
     },
-    description: {type: 'string', title: 'Description'}
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  adjustment: {'ui:widget': TextWidget},
   organization: {'ui:widget': SelectWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
@@ -87,16 +84,6 @@ class ProjectForm extends Component {
   }
 
   async submitHandler ({formData}) {
-    formData.adjustment = Number(formData.adjustment.replace(/[^(\-|\+)?][^0-9.]/g, ''))
-
-    if (formData.adjustment > 1 || formData.adjustment < 0) {
-      return this.setState({
-        ...this.state,
-        error: 'El ajuste debe estar entre 0 y 1!',
-        apiCallErrorMessage: 'message is-danger'
-      })
-    }
-
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {

@@ -71,7 +71,7 @@ class Projects extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -84,7 +84,7 @@ class Projects extends Component {
         }
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -100,7 +100,7 @@ class Projects extends Component {
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado en',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -111,7 +111,7 @@ class Projects extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/projects/detail/' + row.uuid}>
             Detalle
@@ -189,15 +189,15 @@ class Projects extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Projects</h1>
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Proyectos</h1>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                    Projects
+                    Proyectos
                 </p>
                 <div className='card-header-select'>
                   <button className='button is-primary' onClick={() => this.showModal()}>
-                    New Project
+                    Nuevo Proyecto
                   </button>
                   <CreateProject
                     className={this.state.className}

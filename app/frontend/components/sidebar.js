@@ -12,7 +12,6 @@ import Projects from '../pages/projects/list'
 import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
 import Forecasts from '../pages/forecasts/list'
-import Projectsv2 from '../pages/projectsv2/list'
 import Channels from '../pages/channel/list'
 
 class Sidebar extends Component {
@@ -105,7 +104,6 @@ class Sidebar extends Component {
           ]
         },
         Projects.asSidebarItem(),
-        Projectsv2.asSidebarItem(),
         SalesCenters.asSidebarItem(),
         Products.asSidebarItem(),
         Forecasts.asSidebarItem(),
