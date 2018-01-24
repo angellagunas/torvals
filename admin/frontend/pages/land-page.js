@@ -2,10 +2,10 @@ import React, { Component } from 'react'
 import Page from '~base/page'
 import Link from '~base/router/link'
 import { forcePublic } from '~base/middlewares/'
-import AbraxasLogo from './abraxas-logo.svg'
+import AbraxasLogo from '../../public/img/abraxas-logo.svg'
 import LogInButton from './log-in-form'
 
-class LogIn extends Component {
+class LandPage extends Component {
   render () {
     return (
       <div className='is-wrapper'>
@@ -25,7 +25,7 @@ class LogIn extends Component {
               <div className='hero-head is-bg-white'>
                 <nav className='navbar is-bg-white'>
                   <div className='navbar-brand'>
-                    <Link to='/log-in' className='navbar-item grey-hover'>
+                    <Link to='/landing' className='navbar-item grey-hover'>
                       <img className='is-flex r-pad' src='/admin/public/img/pythia-logo.png' />
                       <h3 className='is-size-4 is-capitalized has-text-weight-semibold'>Pythia</h3>
                     </Link>
@@ -117,8 +117,8 @@ class LogIn extends Component {
 }
 
 export default Page({
-  path: '/log-in',
+  path: '/landing',
   exact: true,
   validate: forcePublic,
-  component: LogIn
+  component: LandPage
 })

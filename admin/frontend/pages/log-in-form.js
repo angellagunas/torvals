@@ -122,7 +122,7 @@ class LogInButton extends Component {
             <section>
               <div className='card-container'>
                 <h1 className='is-size-4 has-text-white pad-bottom'>
-                  Bienvenido
+                  Bienvenido, Administrador
                 </h1>
                 <div className='content'>
                   <div className='columns'>
