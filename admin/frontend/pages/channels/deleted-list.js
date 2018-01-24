@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import moment from 'moment'
 import api from '~base/api'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
@@ -23,6 +24,17 @@ class DeletedChannels extends Component {
             <div>
               {row.organization.name}
             </div>
+          )
+        }
+      },
+      {
+        'title': 'Creado',
+        'property': 'dateCreated',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
           )
         }
       },

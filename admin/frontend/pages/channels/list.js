@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from '~base/router/link'
+import moment from 'moment'
 import api from '~base/api'
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares'
@@ -69,6 +70,17 @@ export default ListPage({
             <Link to={'/manage/organizations/' + row.organization.uuid}>
               {row.organization.name}
             </Link>
+          )
+        }
+      },
+      {
+        'title': 'Creado',
+        'property': 'dateCreated',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
           )
         }
       },

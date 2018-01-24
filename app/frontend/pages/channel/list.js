@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from '~base/router/link'
-// import moment from 'moment'
+import moment from 'moment'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -42,6 +42,17 @@ export default ListPage({
             <Link to={'/channels/' + row.uuid}>
               {row.name}
             </Link>
+          )
+        }
+      },
+      {
+        'title': 'Creado',
+        'property': 'dateCreated',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
           )
         }
       },
