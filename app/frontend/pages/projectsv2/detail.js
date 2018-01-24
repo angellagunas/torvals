@@ -45,58 +45,60 @@ class ProjectDetail extends Component {
 
   render () {
     const { project } = this.state
-    
-        if (!this.state.loaded) {
-          return <Loader />
-        }
-        const tabs = [
-          {
-            name: 'General',
-            title: 'Información',
-            icon: 'fa-tasks',
-            content: (
-              <div className='card'>
-                <header className='card-header'><p className='card-header-title'> Informaciòn </p></header>
-                <div className='card-content'>
-                  <ProjectForm
-                    baseUrl='/app/projects'
-                    url={'/app/projects/' + this.props.match.params.uuid}
-                    initialState={{ ...project, organization: project.organization.uuid }}
-                    load={this.load.bind(this)}
-                  >
-                    <div className='field is-grouped'>
-                      <div className='control'>
-                        <button className='button is-primary'>Guardar</button>
-                      </div>
-                    </div>
-                  </ProjectForm>
+
+    if (!this.state.loaded) {
+      return <Loader />
+    }
+    const tabs = [
+      {
+        name: 'General',
+        title: 'Información',
+        icon: 'fa-tasks',
+        content: (
+          <div className='card'>
+            <header className='card-header'><p className='card-header-title'> Información </p></header>
+            <div className='card-content'>
+              <ProjectForm
+                baseUrl='/app/projects'
+                url={'/app/projects/' + this.props.match.params.uuid}
+                initialState={{ ...project, organization: project.organization.uuid }}
+                load={this.load.bind(this)}
+              >
+                <div className='field is-grouped'>
+                  <div className='control'>
+                    <button className='button is-primary'>Guardar</button>
+                  </div>
                 </div>
-              </div>
-          )},
-          {
-            name: 'Datasets',
-            title: 'Datasets',
-            icon: 'fa-signal',
-            content: (
-              <TabDatasets
-                project={project}
-                history={this.props.history}
-              />
-          )},
-          {
-            name: 'Ajustes',
-            title: 'Ajustes',
-            icon: 'fa-cogs',
-            content: <div className='card'>Ajustes</div>
-          },
-          {
-            name: 'Historial',
-            title: 'Historial',
-            icon: 'fa-history',
-            content: <div className='card'>Historial</div>
-          }
-    
-        ]
+              </ProjectForm>
+            </div>
+          </div>
+        )
+      },
+      {
+        name: 'Datasets',
+        title: 'Datasets',
+        icon: 'fa-signal',
+        content: (
+          <TabDatasets
+            project={project}
+            history={this.props.history}
+          />
+        )
+      },
+      {
+        name: 'Ajustes',
+        title: 'Ajustes',
+        icon: 'fa-cogs',
+        content: <div className='card'>Ajustes</div>
+      },
+      {
+        name: 'Historial',
+        title: 'Historial',
+        icon: 'fa-history',
+        content: <div className='card'>Historial</div>
+      }
+
+    ]
 
     return (
       <div className='columns c-flex-1 is-marginless'>

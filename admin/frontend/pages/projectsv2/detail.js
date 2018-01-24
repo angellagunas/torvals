@@ -56,7 +56,7 @@ class ProjectDetail extends Component {
         icon: 'fa-tasks',
         content: (
           <div className='card'>
-            <header className='card-header'><p className='card-header-title'> Informaciòn </p></header>
+            <header className='card-header'><p className='card-header-title'> Información </p></header>
             <div className='card-content'>
               <ProjectForm
                 baseUrl='/admin/projects'
