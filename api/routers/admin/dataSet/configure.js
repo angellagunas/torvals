@@ -12,7 +12,8 @@ module.exports = new Route({
     isDate: lov.string().required(),
     isAnalysis: lov.string().required(),
     isProduct: lov.string().required(),
-    isSalesCenter: lov.string().required()
+    isSalesCenter: lov.string().required(),
+    isChannel: lov.string().required()
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
@@ -35,6 +36,10 @@ module.exports = new Route({
       return item.isSalesCenter
     }).name
 
+    var isChannel = body.columns.find((item) => {
+      return item.isChannel
+    }).name
+
     var filterAnalysis = []
     var filterOperations = []
     var groupings = []
@@ -46,6 +51,7 @@ module.exports = new Route({
 
     filterAnalysis.push(isProduct)
     filterAnalysis.push(isSalesCenter)
+    filterAnalysis.push(isChannel)
     filterAnalysis = Array.from(new Set(filterAnalysis))
 
     for (var group of body.groupings) {
@@ -75,6 +81,7 @@ module.exports = new Route({
         is_analysis: isAnalysis,
         is_product: isProduct,
         is_sales_center: isSalesCenter,
+        is_channel: isChannel,
         is_prediction: '',
         is_adjustment: '',
         filter_analysis: filterAnalysis,

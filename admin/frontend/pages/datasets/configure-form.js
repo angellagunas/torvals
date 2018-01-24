@@ -21,6 +21,7 @@ class ConfigureDatasetForm extends Component {
         isAnalysis: this.props.initialState.columns.find((item) => { return item.isAnalysis }).name,
         isProduct: this.props.initialState.columns.find((item) => { return item.isProduct }).name,
         isSalesCenter: this.props.initialState.columns.find((item) => { return item.isSalesCenter }).name,
+        isChannel: this.props.initialState.columns.find((item) => { return item.isChannel }).name || '',
         apiCallMessage: 'is-hidden',
         apiCallErrorMessage: 'is-hidden'
       }
@@ -34,6 +35,7 @@ class ConfigureDatasetForm extends Component {
         isAnalysis: '',
         isProduct: '',
         isSalesCenter: '',
+        isChannel: '',
         apiCallMessage: 'is-hidden',
         apiCallErrorMessage: 'is-hidden'
       }
@@ -71,21 +73,24 @@ class ConfigureDatasetForm extends Component {
       isDate: this.state.isDate,
       isAnalysis: this.state.isAnalysis,
       isProduct: this.state.isProduct,
-      isSalesCenter: this.state.isSalesCenter
+      isSalesCenter: this.state.isSalesCenter,
+      isChannel: this.state.isChannel
     }
 
     const schema = {
       isDate: lov.string().trim().required(),
       isAnalysis: lov.string().trim().required(),
       isProduct: lov.string().trim().required(),
-      isSalesCenter: lov.string().trim().required()
+      isSalesCenter: lov.string().trim().required(),
+      isChannel: lov.string().trim().required()
     }
 
     let values = {
       isDate: this.state.isDate,
       isAnalysis: this.state.isAnalysis,
       isProduct: this.state.isProduct,
-      isSalesCenter: this.state.isSalesCenter
+      isSalesCenter: this.state.isSalesCenter,
+      isChannel: this.state.isChannel
     }
 
     let result = lov.validate(values, schema)
@@ -202,12 +207,6 @@ class ConfigureDatasetForm extends Component {
 
   render () {
     let checkboxLabelwidth = { flexGrow: 4 }
-    var error
-    if (this.state.error) {
-      error = <div>
-        Error: {this.state.error}
-      </div>
-    }
 
     if (this.props.columns.length === 0) {
       return <Loader />
@@ -291,6 +290,28 @@ class ConfigureDatasetForm extends Component {
                   name='isSalesCenter'
                   value={this.state.isSalesCenter}
                   onChange={(e) => { this.handleChangeDateAnalyze('isSalesCenter', e) }}
+                >
+                  <option value=''>Selecciona una opción</option>
+                  {
+                    this.state.formData.columns.map(function (item, key) {
+                      return <option key={key}
+                        value={item.name}>{item.name}</option>
+                    })
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className='field'>
+            <label className='label'>Canal*</label>
+            <div className='control'>
+              <div className='select is-fullwidth'>
+                <select type='text'
+                  className='is-fullwidth'
+                  name='isChannel'
+                  value={this.state.isChannel}
+                  onChange={(e) => { this.handleChangeDateAnalyze('isChannel', e) }}
                 >
                   <option value=''>Selecciona una opción</option>
                   {
