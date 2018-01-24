@@ -52,8 +52,8 @@ module.exports = new Route({
 
       await project.save()
     } catch (e) {
-      project.remove()
-      ctx.throw(401, 'Failed to send Dataset for conciliation')
+      await project.remove()
+      ctx.throw(401, 'Failed to create Project (Abraxas)')
     }
 
     ctx.body = {
