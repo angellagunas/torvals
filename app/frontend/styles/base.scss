@@ -325,8 +325,28 @@ a.navbar-item:hover {
   display: block !important;
 }
 
+.no-flex{
+  display: block !important;
+}
 
 $abraxas-color : rgba(92,138,169,1) !default;
+
+
+.dash-card{
+  cursor: pointer;
+  background-color: $abraxas-color !important;
+  color: white !important;
+  border-radius: 5px !important;
+  i{
+    padding: 5px 10px 5px 0px !important;
+    box-sizing: border-box !important;
+  }
+  .content p:not(:last-child){
+    margin-bottom: 0.3em !important;
+  }
+}
+
+
 
 .land-side{
   position: relative !important;
@@ -403,4 +423,10 @@ $abraxas-color : rgba(92,138,169,1) !default;
   .navbar-divider{
     background: $abraxas-color !important;
   }
+}
+
+@media screen and (max-width: 1023px){
+.navbar-menu{
+  box-shadow: none !important;
+}
 }

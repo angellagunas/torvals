@@ -306,6 +306,7 @@ dataSetSchema.methods.processData = async function () {
     'products', 'newProducts',
     'salesCenters', 'newSalesCenters',
     'channels', 'newChannels')
+
   await this.save()
 }
 

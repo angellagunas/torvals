@@ -1,32 +1,21 @@
-import React, { Component } from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
+import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
 
-import Page from '~base/page'
-import {loggedIn, verifyRole} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { loggedIn } from '~base/middlewares/'
+import ListPage from '~base/list-page'
 
-class Forecasts extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      className: ''
-    }
-  }
-
-  componentWillMount () {
-    this.context.tree.set('forecasts', {
-      page: 1,
-      totalItems: 0,
-      items: [],
-      pageLength: 10
-    })
-    this.context.tree.commit()
-  }
-
-  getColumns () {
+export default ListPage({
+  path: '/forecasts',
+  title: 'Predicciones',
+  icon: 'snowflake-o',
+  exact: true,
+  validate: loggedIn,
+  titleSingular: 'Predicción',
+  baseUrl: '/admin/forecasts',
+  branchName: 'forecasts',
+  detailUrl: '/admin/forecasts/detail/',
+  getColumns: () => {
     return [
       {
         'title': 'Status',
@@ -35,7 +24,7 @@ class Forecasts extends Component {
         'sortable': true
       },
       {
-        'title': 'Start date',
+        'title': 'Fecha Inicio',
         'property': 'dateStart',
         'default': 'N/A',
         'sortable': true,
@@ -46,7 +35,7 @@ class Forecasts extends Component {
         }
       },
       {
-        'title': 'End date',
+        'title': 'Fecha Fin',
         'property': 'dateEnd',
         'default': 'N/A',
         'sortable': true,
@@ -57,7 +46,7 @@ class Forecasts extends Component {
         }
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': 'N/A',
         'sortable': true,
@@ -68,7 +57,7 @@ class Forecasts extends Component {
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -79,7 +68,7 @@ class Forecasts extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/forecasts/detail/' + row.uuid}>
             Detalle
@@ -88,49 +77,4 @@ class Forecasts extends Component {
       }
     ]
   }
-
-  render () {
-    return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Forecasts</h1>
-            <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                    Forecasts
-                </p>
-              </header>
-              <div className='card-content'>
-                <div className='columns'>
-                  <div className='column'>
-                    <BranchedPaginatedTable
-                      branchName='forecasts'
-                      baseUrl='/admin/forecasts'
-                      columns={this.getColumns()}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-}
-
-Forecasts.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedForecasts = branch({forecasts: 'forecasts'}, Forecasts)
-
-export default Page({
-  path: '/forecasts',
-  title: 'Forecasts',
-  icon: 'snowflake-o',
-  exact: true,
-  validate: loggedIn,
-  component: branchedForecasts
 })

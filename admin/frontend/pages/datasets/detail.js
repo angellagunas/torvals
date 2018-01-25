@@ -139,7 +139,10 @@ class DataSetDetail extends Component {
 
   getUpload () {
     let dataset = this.state.dataset
-    if (!dataset.fileChunk || (dataset.fileChunk && dataset.status === 'uploading')) {
+    if (
+      (!dataset.fileChunk && dataset.source === 'uploaded') ||
+      (dataset.fileChunk && dataset.status === 'uploading')
+    ) {
       return (
         <div className='column'>
           <UploadDataset
