@@ -1,34 +1,32 @@
 import React, { Component } from 'react'
 
 import api from '~base/api'
+import env from '~base/env-variables'
+import Link from '~base/router/link'
 import cookies from '~base/cookies'
 import Loader from '~base/components/spinner'
-import Link from '~base/router/link'
-import env from '~base/env-variables'
-import Page from '~base/page'
-import {forcePublic} from '~base/middlewares/'
 
-import {BaseForm, PasswordWidget, EmailWidget} from '~components/base-form'
+import { BaseForm, PasswordWidget, EmailWidget } from '~components/base-form'
 
 const schema = {
   type: 'object',
   required: ['email', 'password'],
   properties: {
-    email: {type: 'string', title: 'Email'},
-    password: {type: 'string', title: 'Password'}
+    email: { type: 'string', title: 'Email' },
+    password: { type: 'string', title: 'Contraseña' }
   }
 }
 
 const uiSchema = {
-  password: {'ui:widget': PasswordWidget},
-  email: {'ui:widget': EmailWidget}
+  password: { 'ui:widget': PasswordWidget },
+  email: { 'ui:widget': EmailWidget }
 }
 
-class LogIn extends Component {
+class LogInButton extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      loading: false,
+      className: '',
       formData: {
         email: '',
         password: ''
@@ -37,9 +35,9 @@ class LogIn extends Component {
     }
   }
 
-  errorHandler (e) {}
+  errorHandler (e) { }
 
-  changeHandler ({formData}) {
+  changeHandler ({ formData }) {
     this.setState({
       formData,
       apiCallErrorMessage: 'is-hidden',
@@ -135,7 +133,7 @@ class LogIn extends Component {
             return (
               <div key={d.key}>
                 <a
-                  className='navbar-item whitesmoke-hover'
+                  className='navbar-item has-text-white'
                   href='#'
                   onClick={e => { this.selectOrgHandler(d.id) }}
                   >
@@ -148,7 +146,7 @@ class LogIn extends Component {
             return (
               <div key={d.key}>
                 <a
-                  className='navbar-item whitesmoke-hover'
+                  className='navbar-item has-text-white'
                   href='#'
                   onClick={e => { this.selectOrgHandler(d.id) }}
                   >
@@ -160,6 +158,18 @@ class LogIn extends Component {
         })}
       </div>
     )
+  }
+
+  showModal () {
+    this.setState({
+      className: ' is-active'
+    })
+  }
+
+  hideModal () {
+    this.setState({
+      className: ''
+    })
   }
 
   render () {
@@ -180,86 +190,85 @@ class LogIn extends Component {
     if (env.EMAIL_SEND) {
       resetLink = (
         <p>
-          <Link to='/password/forgotten/'>
-            Forgot password?
+          <Link to='/password/forgotten/' className='has-text-white'>
+            Olvidó su contraseña?
           </Link>
         </p>
       )
     }
 
     if (this.state.shouldSelectOrg) {
-      return <div className={'LogIn single-form ' + this.props.className}>
-        <div className='card'>
-          <header className='card-header'>
-            <p className='card-header-title'>
-              Select Organization to log in
-            </p>
-            <a className='card-header-icon'>
-              <span className='icon'>
-                <i className='fa fa-angle-down' />
-              </span>
-            </a>
-          </header>
-          <div className='card-content'>
-            <div className='content'>
-              { spinner }
-              {this.getDropdown()}
+      return (
+        <div className='modal is-active'>
+          <div className='modal-background'></div>
+          <div className='modal-content'>
+            <div className={'LogIn single-form ' + this.props.className}>
+              <div className='card land-card'>
+                <header className='card-header'>
+                  <p className='card-header-title has-text-white'>
+                    Seleccione una organización
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='content'>
+                    {spinner}
+                    {this.getDropdown()}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )
     }
 
     return (
-      <div className='LogIn single-form'>
-        <div className='card'>
-          <header className='card-header'>
-            <p className='card-header-title'>
-                Log in
-              </p>
-          </header>
-          <div className='card-content'>
-            <div className='content'>
-              <div className='columns'>
-                <div className='column'>
-                  <BaseForm schema={schema}
-                    uiSchema={uiSchema}
-                    formData={this.state.formData}
-                    onSubmit={(e) => { this.submitHandler(e) }}
-                    onError={(e) => { this.errorHandler(e) }}
-                    onChange={(e) => { this.changeHandler(e) }}
-                  >
-                    { spinner }
-                    <div className={this.state.apiCallErrorMessage}>
-                      <div className='message-body is-size-7 has-text-centered'>
-                        {error}
-                      </div>
-                    </div>
-                    <div>
-                      <button
-                        className='button is-primary is-fullwidth'
-                        type='submit'
-                        disabled={!!error}
+      <div>
+        <a className='button is-info is-outlined' onClick={(e) => { this.showModal(e) }}>Log In</a>
+        <div className={'modal' + this.state.className}>
+          <div className='modal-background' onClick={(e) => { this.hideModal(e) }}></div>
+          <div className='modal-content land-login'>
+            <section>
+              <div className='card-container'>
+                <h1 className='is-size-4 has-text-white pad-bottom'>
+                  Bienvenido
+                </h1>
+                <div className='content'>
+                  <div className='columns'>
+                    <div className='column is-offset-4 is-4'>
+                      <BaseForm schema={schema}
+                        uiSchema={uiSchema}
+                        formData={this.state.formData}
+                        onChange={(e) => { this.changeHandler(e) }}
+                        onSubmit={(e) => { this.submitHandler(e) }}
+                        onError={(e) => { this.errorHandler(e) }}
                       >
-                        Log in
+                        <div className={this.state.apiCallErrorMessage}>
+                          <div className='message-body is-size-7 has-text-centered'>
+                            {error}
+                          </div>
+                        </div>
+                        <div>
+                          <button
+                            className='button is-danger is-fullwidth'
+                            type='submit'
+                            disabled={!!error}
+                          >
+                            Log in
                       </button>
+                        </div>
+                      </BaseForm>
                     </div>
-                  </BaseForm>
+                  </div>
+                  {resetLink}
                 </div>
               </div>
-              {resetLink}
-            </div>
+            </section>
           </div>
+          <button className='modal-close is-large' aria-label='close' onClick={(e) => { this.hideModal(e) }}></button>
         </div>
       </div>
     )
   }
 }
-
-export default Page({
-  path: '/log-in',
-  title: 'Log in',
-  exact: true,
-  validate: forcePublic,
-  component: LogIn
-})
+export default LogInButton

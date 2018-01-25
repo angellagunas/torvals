@@ -9,16 +9,24 @@ module.exports = new Route({
     const datasetId = ctx.request.body.dataset
 
     const project = await Project.findOne({'uuid': projectId})
+      .populate('datasets.dataset')
     ctx.assert(project, 404, 'Project not found')
 
     const dataset = await DataSet.findOne({'uuid': datasetId})
     ctx.assert(dataset, 404, 'Dataset not found')
 
-    var pos = project.datasets.indexOf(dataset._id)
+    var auxDatasets = project.datasets.map(item => { return item.dataset.uuid })
+
+    var pos = auxDatasets.indexOf(dataset.uuid)
     project.datasets.splice(pos, 1)
 
-    if (project.datasets.length === 0) {
-      project.status = 'empty'
+    project.status = 'empty'
+
+    for (var d of project.datasets) {
+      if (d.dataset.status === 'consolidated') {
+        project.status = 'ready'
+        break
+      }
     }
 
     project.save()

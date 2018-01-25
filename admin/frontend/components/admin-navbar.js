@@ -66,7 +66,7 @@ class NavBar extends Component {
     tree.set('loggedIn', false)
     tree.commit()
 
-    history.push('/admin/log-in')
+    history.push('/admin/')
   }
 
   toggleBtnClass () {

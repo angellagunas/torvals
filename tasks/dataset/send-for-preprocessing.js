@@ -41,35 +41,42 @@ const task = new Task(async function (argv) {
       'Authorization': `Bearer ${apiData.token}`
     },
     body: {
-      project: dataset.project.uuid,
+      project_id: dataset.project.externalId,
       path: dataset.url
     },
     json: true,
     persist: true
   }
 
-  var res = await request(options)
+  try {
+    var res = await request(options)
 
-  if (res.status === 'error') {
+    if (res.status === 'error') {
+      dataset.set({
+        error: res.message,
+        status: 'error'
+      })
+
+      await dataset.save()
+
+      console.log(`Error while sending dataset for preprocessing: ${dataset.error}`)
+      return false
+    }
+
+    console.log(res)
+
     dataset.set({
-      error: res.message,
-      status: 'error'
+      externalId: res._id,
+      status: 'preprocessing'
     })
-
     await dataset.save()
 
-    console.log(`Error while sending dataset for preprocessing: ${dataset.error}`)
+    console.log(`Successfully sent for preprocessing dataset ${dataset.name}`)
+    return true
+  } catch (e) {
+    console.log(`Error while sending dataset for preprocessing: ${e}`)
     return false
   }
-
-  dataset.set({
-    externalId: res._id,
-    status: 'preprocessing'
-  })
-  await dataset.save()
-
-  console.log(`Successfully sent for preprocessing dataset ${dataset.name}`)
-  return true
 })
 
 if (require.main === module) {

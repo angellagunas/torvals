@@ -1,7 +1,9 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const {Project, Organization} = require('models')
+const { Project, Organization } = require('models')
+const Api = require('lib/abraxas/api')
+const request = require('lib/request')
 
 module.exports = new Route({
   method: 'post',
@@ -25,6 +27,40 @@ module.exports = new Route({
       organization: org._id,
       adjustment: data.adjustment
     })
+
+    var apiData = Api.get()
+    if (!apiData.token) {
+      await Api.fetch()
+      apiData = Api.get()
+    }
+
+    var options = {
+      url: `${apiData.hostname}${apiData.baseUrl}/projects`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${apiData.token}`
+      },
+      body: {
+        uuid: project.uuid
+      },
+      json: true,
+      persist: true
+    }
+
+    try {
+      var res = await request(options)
+
+      project.set({
+        externalId: res._id
+      })
+
+      await project.save()
+    } catch (e) {
+      await project.remove()
+      ctx.throw(401, 'Failed to create Project (Abraxas)')
+    }
 
     ctx.body = {
       data: project

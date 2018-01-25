@@ -141,7 +141,7 @@ class TabDatasets extends Component {
         <header className='card-header'>
           <p className='card-header-title'>
             Datasets
-                  </p>
+          </p>
           <div className='card-header-select'>
             <div className='field is-grouped'>
               <div className='control'>
@@ -158,14 +158,16 @@ class TabDatasets extends Component {
                 </button>
               </div>
               <div className='control'>
-                <AddExternalDataset project={this.props.project} />
+                <AddExternalDataset
+                  project={this.props.project}
+                  load={async () => { await this.loadDatasetsList() }}
+                />
               </div>
             </div>
           </div>
 
         </header>
         <div className='card-content'>
-
           <div className={this.props.project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
             <div className='column'>
               <article className='message is-warning'>

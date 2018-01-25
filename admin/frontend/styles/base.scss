@@ -313,3 +313,70 @@ pre.json {
 .r-pad{
   margin-right: 10px !important;
 }
+
+$abraxas-color : rgba(92,138,169,1) !default;
+
+.land-side{
+  position: relative !important;
+  background-color: rgba(92,138,169,1) !important;
+  .down{
+    position: absolute !important;
+    bottom: 120px !important;
+  }
+  img{
+    padding: 0px 40px !important;
+    margin-bottom: -10px !important; 
+  }
+}
+.land-content{
+  margin: auto !important;
+  max-width: 800px !important;
+}
+.is-bg-whitesmoke{
+  background-color: whitesmoke !important;
+}
+
+.has-text-color{
+  color: $abraxas-color !important;
+}
+
+.icon-land{
+  height: 7rem !important;
+  width: 7rem !important;
+  background: #28d2eb !important;
+  border-radius: 100px !important;
+  margin: 30px 20px 0px !important;
+}
+.card-land{
+  height: 295px !important;
+}
+.pad-bottom{
+  padding-bottom: 20px !important;
+}
+
+.land-login{
+  width: 800px !important;
+  background-color: rgba(48, 90, 122, 0.7);
+  overflow: hidden !important;
+  text-align: center !important;
+  padding: 40px !important;
+
+  .input{
+    color: white !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+    border: 0px !important;
+    border-bottom: 1px solid whitesmoke !important;
+  }
+  .input:focus{
+    border: 0px !important;
+    border-bottom: 2px solid white !important;
+    box-shadow: none !important;
+  }
+
+  .label{
+    text-align: left !important;
+    color: white !important;
+  }
+
+  
+}

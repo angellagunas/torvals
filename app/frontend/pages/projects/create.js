@@ -7,8 +7,7 @@ import ProjectForm from './create-form'
 
 var initialState = {
   name: '',
-  description: '',
-  adjustment: ''
+  description: ''
 }
 
 class CreateProject extends Component {
@@ -36,7 +35,6 @@ class CreateProject extends Component {
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
-
         >
           <div className='field is-grouped'>
             <div className='control'>

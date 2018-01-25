@@ -72,6 +72,7 @@ class AddExternalDataset extends Component {
       data = await api.post('/admin/datasets/addExternal', item)
       this.clearState()
       this.setState({...this.state, apiMessage: 'message is-success'})
+      await this.props.load()
       setTimeout(() => {
         this.clearState()
         this.hideModal()

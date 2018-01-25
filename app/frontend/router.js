@@ -8,7 +8,7 @@ import {
 
 import AdminLayout from '~components/admin-layout'
 
-import LogIn from './pages/log-in'
+import LandPage from './pages/land-page'
 import Dashboard from './pages/dashboard'
 import Users from './pages/users/list'
 import UserDetail from './pages/users/detail'
@@ -31,8 +31,6 @@ import ProductDetail from './pages/products/detail'
 import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
 import env from '~base/env-variables'
-import Projectsv2 from './pages/projectsv2/list'
-import ProjectDetailv2 from './pages/projectsv2/detail'
 import Channels from './pages/channel/list'
 import ChannelsDetail from './pages/channel/detail'
 
@@ -48,7 +46,7 @@ const AppRouter = () => {
     <AdminLayout>
       <div className='c-flex-1 is-flex is-flex-column is-relative'>
         <Switch>
-          {LogIn.asRouterItem()}
+          {LandPage.asRouterItem()}
           {ResetPassword.asRouterItem()}
           {EmailResetLanding.asRouterItem()}
           {EmailInviteLanding.asRouterItem()}
@@ -70,9 +68,6 @@ const AppRouter = () => {
           {Projects.asRouterItem()}
           {ProjectDetail.asRouterItem()}
 
-          {Projectsv2.asRouterItem()}
-          {ProjectDetailv2.asRouterItem()}
-
           {SalesCenters.asRouterItem()}
           {SalesCenterDetail.asRouterItem()}
 
@@ -84,7 +79,6 @@ const AppRouter = () => {
           {Channels.asRouterItem()}
           {ChannelsDetail.asRouterItem()}
 
-          <Redirect from='/' to='/dashboard' />
           <Route component={NoMatch} />
         </Switch>
       </div>
