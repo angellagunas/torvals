@@ -325,6 +325,25 @@ a.navbar-item:hover {
   display: block !important;
 }
 
+.no-flex{
+  display: block !important;
+}
+
+
+.dash-card{
+  cursor: pointer;
+  background-color: $abraxas-color !important;
+  color: white !important;
+  border-radius: 5px !important;
+  i{
+    padding: 5px 10px 5px 0px !important;
+    box-sizing: border-box !important;
+  }
+  .content p:not(:last-child){
+    margin-bottom: 0.3em !important;
+  }
+}
+
 
 $abraxas-color : rgba(92,138,169,1) !default;
 

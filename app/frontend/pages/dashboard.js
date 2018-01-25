@@ -5,29 +5,25 @@ import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
 import Link from '~base/router/link'
-
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import DashOrgAdmin from './dashboards/dash-org-admin'
+import DashAnalyst from './dashboards/dash-analyst'
+import DashEntManager from './dashboards/dash-ent-manager'
 
 class Dashboard extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      predictions: [],
-      forecasts: [],
-      usersCount: 0,
-      rolesCount: 0,
-      groupsCount: 0,
       loading: true
     }
   }
 
   componentWillMount () {
     this.load()
-
     this.context.tree.set('forecasts', {
       page: 1,
       totalItems: 0,
@@ -42,9 +38,9 @@ class Dashboard extends Component {
     const body = await api.get(url)
 
     this.setState({
-      forecastsCount: body.forecastsCount,
+      dashboard: body,
       forecasts: body.forecasts,
-      predictions: body.predictions,
+      forecastsCount: body.forecasts.length,
       loading: false
     })
   }
@@ -152,6 +148,8 @@ class Dashboard extends Component {
   }
 
   render () {
+    const user = this.context.tree.get('user')
+
     const {
       loading
     } = this.state
@@ -161,11 +159,24 @@ class Dashboard extends Component {
     }
 
     if (this.state.redirect) {
-      return <Redirect to='/log-in' />
+      return <Redirect to='/landing' />
     }
 
+    if (user.currentRole.slug === 'orgadmin') {
+      return <DashOrgAdmin dashboard={this.state.dashboard} history={this.props.history} />
+    }
+
+    if (user.currentRole.slug === 'analyst') {
+      return <DashAnalyst dashboard={this.state.dashboard} history={this.props.history} />
+    }
+
+    if (user.currentRole.slug === 'enterprisemanager') {
+      return <DashEntManager dashboard={this.state.dashboard} history={this.props.history} />
+    }
+    
     return (
       <div className='section'>
+      
         <div className='columns'>
           <div className='column'>
             {this.getForecastList()}
