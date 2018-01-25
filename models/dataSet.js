@@ -20,7 +20,7 @@ const dataSetSchema = new Schema({
   externalId: { type: String },
   fileChunk: { type: Schema.Types.ObjectId, ref: 'FileChunk' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
-  project: { type: Schema.Types.ObjectId, ref: 'Project', required: false },
+  project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   type: {
@@ -31,6 +31,7 @@ const dataSetSchema = new Schema({
 
   dateMax: String,
   dateMin: String,
+  error: String,
 
   status: {
     type: String,
@@ -43,7 +44,8 @@ const dataSetSchema = new Schema({
       'processing',
       'reviewing',
       'ready',
-      'conciliated'
+      'conciliated',
+      'error'
     ],
     default: 'new'
   },
@@ -53,7 +55,8 @@ const dataSetSchema = new Schema({
     enum: [
       'uploaded',
       'forecast',
-      'adjustment'
+      'adjustment',
+      'external'
     ],
     default: 'uploaded'
   },
@@ -106,6 +109,7 @@ dataSetSchema.methods.toPublic = function () {
     uploaded: this.uploaded,
     source: this.source,
     fileChunk: this.fileChunk,
+    project: this.project,
     columns: this.columns,
     groupings: this.groupings,
     dateMax: this.dateMax,
@@ -129,6 +133,7 @@ dataSetSchema.methods.format = function () {
     url: this.url,
     uploaded: this.uploaded,
     source: this.source,
+    project: this.project,
     columns: this.columns,
     groupings: this.groupings,
     dateMax: this.dateMax,
@@ -225,7 +230,8 @@ dataSetSchema.methods.processData = async function () {
         product = await Product.create({
           name: 'Not identified',
           externalId: p,
-          organization: this.organization
+          organization: this.organization,
+          isNewExternal: true
         })
 
         this.newProducts.push(product)
@@ -254,7 +260,9 @@ dataSetSchema.methods.processData = async function () {
         salesCenter = await SalesCenter.create({
           name: 'Not identified',
           externalId: a,
-          organization: this.organization
+          organization: this.organization,
+          isNewExternal: true
+
         })
 
         this.newSalesCenters.push(salesCenter)
@@ -306,6 +314,33 @@ dataSetSchema.methods.processData = async function () {
     'products', 'newProducts',
     'salesCenters', 'newSalesCenters',
     'channels', 'newChannels')
+
+  await this.save()
+}
+
+dataSetSchema.methods.process = async function (res) {
+  if (res.status === 'error') {
+    this.set({
+      error: res.message,
+      status: 'error'
+    })
+
+    await this.save()
+  }
+
+  this.set({
+    status: 'configuring',
+    uploaded: true,
+    columns: res.headers.map(item => {
+      return {
+        name: item,
+        isDate: false,
+        isAnalysis: false,
+        isOperationFilter: false,
+        isAnalysisFilter: false
+      }
+    })
+  })
 
   await this.save()
 }
