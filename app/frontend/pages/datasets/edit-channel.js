@@ -34,8 +34,6 @@ class EditChannel extends Component {
     }
   }
 
-  errorHandler (e) {}
-
   changeHandler ({formData}) {
     this.setState({
       formData,
@@ -84,8 +82,7 @@ class EditChannel extends Component {
         uiSchema={uiSchema}
         formData={this.state.formData}
         onChange={(e) => { this.changeHandler(e) }}
-        onSubmit={(e) => { this.submitHandler(e) }}
-        onError={(e) => { this.errorHandler(e) }}>
+        onSubmit={(e) => { this.submitHandler(e) }}>
         <div className={this.state.apiCallMessage}>
           <div className='message-body is-size-7 has-text-centered'>
             Los datos se han guardado correctamente
