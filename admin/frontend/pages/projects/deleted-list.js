@@ -39,7 +39,7 @@ class DeletedProjects extends Component {
         }
       },
       {
-        'title': 'Creado en',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
