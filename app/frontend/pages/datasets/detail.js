@@ -18,6 +18,7 @@ import ConfigureViewDataset from './configure-view'
 import BaseModal from '~base/components/base-modal'
 import ProductForm from './edit-product'
 import SalesCenterForm from './edit-salescenter'
+import ChannelForm from './edit-channel'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -25,12 +26,16 @@ class DataSetDetail extends Component {
     this.state = {
       className: '',
       classNameSC: '',
+      classNameCh: '',
       isProductsOpen: false,
+      isChannelsOpen: false,
+      isSalesCenterOpen: false,
       loading: true,
       loaded: false,
       dataset: {},
       currentProduct: null,
-      currentSalesCenter: null
+      currentSalesCenter: null,
+      columns: []
     }
   }
 
@@ -43,7 +48,6 @@ class DataSetDetail extends Component {
     })
     this.context.tree.commit()
     this.load()
-
     this.interval = setInterval(() => this.load(), 30000)
   }
 
@@ -171,7 +175,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                File sent for preprocessing
+                Archivo enviado a preprocesamiento
               </p>
             </header>
             <div className='card-content'>
@@ -186,7 +190,7 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      File {dataset.fileChunk.filename} is being preprocessed
+                      El archivo {dataset.fileChunk.filename} se está preprocesando
                     </div>
                   </div>
                 </div>
@@ -201,7 +205,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Processing file
+                Procesando archivo
               </p>
             </header>
             <div className='card-content'>
@@ -216,7 +220,7 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      Dataset is being processed
+                      El Dataset se está procesando
                     </div>
                   </div>
                 </div>
@@ -245,7 +249,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Configuring Dataset
+                Configurando el Dataset
               </p>
             </header>
             <div className='card-content'>
@@ -253,7 +257,7 @@ class DataSetDetail extends Component {
                 <div className='column'>
                   <ConfigureDatasetForm
                     initialState={dataset}
-                    columns={dataset.columns || []}
+                    columns={dataset.columns}
                     url={'/app/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
                     load={this.load.bind(this)}
@@ -270,7 +274,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Review dataset
+                Revisando dataset
               </p>
             </header>
             <div className='card-content'>
@@ -365,16 +369,28 @@ class DataSetDetail extends Component {
     })
   }
 
-  getHeight (element) {
-    if (this.state.bodyHeight === 0) {
-      if (element) this.setHeights([element])
-    }
-  }
-
   toggleUnidentifiedProducts () {
     this.setState({isProductsOpen: !this.state.isProductsOpen}, function () {
       this.setHeights()
     })
+  }
+
+  toggleUnidentifiedSalesCenters () {
+    this.setState({isSalesCenterOpen: !this.state.isSalesCenterOpen}, function () {
+      this.setHeights()
+    })
+  }
+
+  toggleUnidentifiedChannels () {
+    this.setState({isChannelsOpen: !this.state.isChannelsOpen}, function () {
+      this.setHeights()
+    })
+  }
+
+  getHeight (element) {
+    if (this.state.bodyHeight === 0) {
+      if (element) this.setHeights([element])
+    }
   }
 
   showModal (item) {
@@ -383,6 +399,42 @@ class DataSetDetail extends Component {
       currentProduct: item
     })
   }
+
+  hideModal () {
+    this.setState({
+      className: '',
+      currentProduct: null
+    })
+  }
+
+  showModalSalesCenters (item) {
+    this.setState({
+      classNameSC: ' is-active',
+      currentSalesCenter: item
+    })
+  }
+
+  hideModalSalesCenters () {
+    this.setState({
+      classNameSC: '',
+      currentSalesCenter: null
+    })
+  }
+
+  showModalChannels (item) {
+    this.setState({
+      classNameCh: ' is-active',
+      currentChannel: item
+    })
+  }
+
+  hideModalChannels () {
+    this.setState({
+      classNameCh: '',
+      currentChannel: null
+    })
+  }
+
   getModalCurrentProduct () {
     if (this.state.currentProduct) {
       return (<BaseModal
@@ -409,19 +461,30 @@ class DataSetDetail extends Component {
     }
   }
 
-  hideModal () {
-    this.setState({
-      className: '',
-      currentProduct: null
-    })
+  getModalChannels () {
+    if (this.state.currentChannel) {
+      return (<BaseModal
+        title='Editar Canal'
+        className={this.state.classNameCh}
+        hideModal={() => this.hideModalChannels()} >
+        <ChannelForm
+          baseUrl='/app/channels'
+          url={'/app/channels/' + this.state.currentChannel.uuid}
+          initialState={this.state.currentChannel}
+          load={this.deleteNewChannel.bind(this)}>
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button className='button is-primary' type='submit'>Save</button>
+            </div>
+            <div className='control'>
+              <button className='button' onClick={() => this.hideModalChannels()} type='button'>Cancel</button>
+            </div>
+          </div>
+        </ChannelForm>
+      </BaseModal>)
+    }
   }
 
-  showModalSalesCenters (item) {
-    this.setState({
-      classNameSC: ' is-active',
-      currentSalesCenter: item
-    })
-  }
   getModalSalesCenters () {
     if (this.state.currentSalesCenter) {
       return (<BaseModal
@@ -448,13 +511,6 @@ class DataSetDetail extends Component {
     }
   }
 
-  hideModalSalesCenters () {
-    this.setState({
-      classNameSC: '',
-      currentSalesCenter: null
-    })
-  }
-
   async deleteNewProduct () {
     this.load()
     setTimeout(() => {
@@ -468,27 +524,109 @@ class DataSetDetail extends Component {
       this.hideModalSalesCenters()
     }, 1000)
   }
+  async deleteNewChannel () {
+    this.load()
+    setTimeout(() => {
+      this.hideModalChannels()
+    }, 1000)
+  }
 
-  getUnidentifiedProducts () {
+  getUnidentifiedChannels () {
     const { dataset } = this.state
-
     if (!dataset.uuid) {
       return <Loader />
     }
 
-    const headerProductsClass = classNames('card-content', {
-      'is-hidden': this.state.isProductsOpen === false
-    })
-    const toggleBtnIconClass = classNames('fa', {
-      'fa-plus': this.state.isProductsOpen === false,
-      'fa-minus': this.state.isProductsOpen !== false
+    const headerChannelsClass = classNames('card-content', {
+      'is-hidden': this.state.isChannelsOpen === false
     })
 
-    var newProducts = []
-    dataset.newProducts.map((item, key) => {
-      if (item.name === 'Not identified') {
-        newProducts.push(item)
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-angle-down': this.state.isChannelsOpen === false,
+      'fa-angle-up': this.state.isChannelsOpen !== false
+    })
+
+    var newChannels = []
+    dataset.newChannels.map((item, key) => {
+      if (item.isNewExternal) {
+        newChannels.push(item)
       }
+    })
+
+    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || newChannels.length === 0) {
+      return ''
+    }
+
+    return (<div className='columns'>
+      <div className='column'>
+        <div className='card'>
+          <header className='card-header'>
+            <p className='card-header-title'>
+                Canales no identificados: {newChannels.length}
+            </p>
+            <div className='field is-grouped is-grouped-right card-header-select'>
+              <div className='control'>
+                <a
+                  className='button is-inverted'
+                  onClick={() => this.toggleUnidentifiedChannels()}>
+                  <span className='icon is-small'>
+                    <i className={toggleBtnIconClass} />
+                  </span>
+                </a>
+              </div>
+            </div>
+          </header>
+          <div className={headerChannelsClass}>
+            <div className='columns'>
+              <div className='column'>
+                <table className='table is-fullwidth'>
+                  <thead>
+                    <tr>
+                      <th colSpan='2'>Id Externo</th>
+                      <th colSpan='2'>Nombre</th>
+                      <th colSpan='2'>Acciones</th>
+
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      newChannels.map((item, key) => {
+                        return (
+                          <tr key={key}>
+                            <td colSpan='2'>{item.externalId}</td>
+                            <td colSpan='2'>{item.name}</td>
+                            <td colSpan='2'>
+                              <button className='button is-primary' onClick={() => this.showModalChannels(item)}>
+                                  Edit
+                                </button>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>)
+  }
+
+  getUnidentifiedSalesCenters () {
+    const { dataset } = this.state
+    if (!dataset.uuid) {
+      return <Loader />
+    }
+
+    const headerSalesCenterClass = classNames('card-content', {
+      'is-hidden': this.state.isSalesCenterOpen === false
+    })
+
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-angle-down': this.state.isSalesCenterOpen === false,
+      'fa-angle-up': this.state.isSalesCenterOpen !== false
     })
 
     var newSalesCenters = []
@@ -498,18 +636,105 @@ class DataSetDetail extends Component {
       }
     })
 
+    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || newSalesCenters.length === 0) {
+      return ''
+    }
+
+    return (<div className='columns'>
+      <div className='column'>
+        <div className='card'>
+          <header className='card-header'>
+            <p className='card-header-title'>
+                Centros de Venta no identificados: {newSalesCenters.length}
+            </p>
+            <div className='field is-grouped is-grouped-right card-header-select'>
+              <div className='control'>
+                <a
+                  className='button is-inverted'
+                  onClick={() => this.toggleUnidentifiedSalesCenters()}>
+                  <span className='icon is-small'>
+                    <i className={toggleBtnIconClass} />
+                  </span>
+                </a>
+              </div>
+            </div>
+          </header>
+          <div className={headerSalesCenterClass}>
+            <div className='columns'>
+              <div className='column'>
+                <table className='table is-fullwidth'>
+                  <thead>
+                    <tr>
+                      <th colSpan='2'>Id Externo</th>
+                      <th colSpan='2'>Nombre</th>
+                      <th colSpan='2'>Acciones</th>
+
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      newSalesCenters.map((item, key) => {
+                        return (
+                          <tr key={key}>
+                            <td colSpan='2'>{item.externalId}</td>
+                            <td colSpan='2'>{item.name}</td>
+                            <td colSpan='2'>
+                              <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
+                                  Edit
+                                </button>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>)
+  }
+
+  getUnidentifiedProducts () {
+    const { dataset } = this.state
+
+    if (!dataset.uuid) {
+      return <Loader />
+    }
+
+    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || dataset.newProducts.length === 0) {
+      return ''
+    }
+
+    const headerProductsClass = classNames('card-content', {
+      'is-hidden': this.state.isProductsOpen === false
+    })
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-angle-down': this.state.isProductsOpen === false,
+      'fa-angle-up': this.state.isProductsOpen !== false
+    })
+
+    var newProducts = []
+    dataset.newProducts.map((item, key) => {
+      if (item.name === 'Not identified') {
+        newProducts.push(item)
+      }
+    })
+
     return (
       <div className='columns'>
         <div className='column'>
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                  Unidentified Products: {newProducts.length} and Sales Centers: {newSalesCenters.length}
+                  Productos no identificados: {newProducts.length}
               </p>
               <div className='field is-grouped is-grouped-right card-header-select'>
                 <div className='control'>
                   <a
-                    className='button is-rounded is-inverted'
+                    className='button is-inverted'
                     onClick={() => this.toggleUnidentifiedProducts()}>
                     <span className='icon is-small'>
                       <i className={toggleBtnIconClass} />
@@ -524,21 +749,19 @@ class DataSetDetail extends Component {
                   <table className='table is-fullwidth'>
                     <thead>
                       <tr>
-                        <th colSpan='2'>Product External Id</th>
-
+                        <th colSpan='2'>Id Externo</th>
+                        <th colSpan='2'>Nombre</th>
+                        <th colSpan='2'>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {newProducts.length === 0 ? (
-                        <tr>
-                          <td colSpan='2'>No new products to show</td>
-                        </tr>
-                      ) : (
+                      {
                         newProducts.map((item, key) => {
                           return (
                             <tr key={key}>
-                              <td>{item.externalId}</td>
-                              <td>
+                              <td colSpan='2'>{item.externalId}</td>
+                              <td colSpan='2'>{item.name}</td>
+                              <td colSpan='2'>
                                 <button className='button is-primary' onClick={() => this.showModal(item)}>
                                     Edit
                                   </button>
@@ -546,39 +769,7 @@ class DataSetDetail extends Component {
                             </tr>
                           )
                         })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                <div className='column'>
-                  <table className='table is-fullwidth'>
-                    <thead>
-                      <tr>
-                        <th>Sales Center  External Id</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {newSalesCenters.length === 0 ? (
-                        <tr>
-                          <td colSpan='2'>No new sales centers to show</td>
-                        </tr>
-                      ) : (
-                        newSalesCenters.map((item, key) => {
-                          if (item.name === 'Not identified') {
-                            return (
-                              <tr key={key}>
-                                <td >{item.externalId}</td>
-                                <td>
-                                  <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
-                                  Edit
-                                </button>
-                                </td>
-                              </tr>
-                            )
-                          }
-                        })
-
-                      )}
+                      }
                     </tbody>
                   </table>
                 </div>
@@ -615,12 +806,9 @@ class DataSetDetail extends Component {
                 </div>
               </div>
             </div>
-            {dataset.status === 'reviewing' &&
-              this.getUnidentifiedProducts()
-            }
-            {dataset.status === 'consolidated' &&
-                this.getUnidentifiedProducts()
-            }
+            {this.getUnidentifiedChannels()}
+            {this.getUnidentifiedSalesCenters()}
+            {this.getUnidentifiedProducts()}
             <div className='columns'>
               <div className='column is-5-tablet'>
                 <div className='card'>
@@ -660,6 +848,7 @@ class DataSetDetail extends Component {
         </div>
         {this.getModalCurrentProduct()}
         {this.getModalSalesCenters()}
+        {this.getModalChannels()}
       </div>
     )
   }

@@ -17,6 +17,7 @@ module.exports = new Route({
       .populate('organization')
       .populate('newProducts')
       .populate('newSalesCenters')
+      .populate('newChannels')
 
     ctx.assert(dataset, 404, 'DataSet not found ')
 

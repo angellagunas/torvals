@@ -24,7 +24,7 @@ const uiSchema = {
   externalId: {'ui:widget': TextWidget}
 }
 
-class ChannelForm extends Component {
+class EditChannel extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -33,8 +33,6 @@ class ChannelForm extends Component {
       apiCallErrorMessage: 'is-hidden'
     }
   }
-
-  errorHandler (e) {}
 
   changeHandler ({formData}) {
     this.setState({
@@ -84,8 +82,7 @@ class ChannelForm extends Component {
         uiSchema={uiSchema}
         formData={this.state.formData}
         onChange={(e) => { this.changeHandler(e) }}
-        onSubmit={(e) => { this.submitHandler(e) }}
-        onError={(e) => { this.errorHandler(e) }}>
+        onSubmit={(e) => { this.submitHandler(e) }}>
         <div className={this.state.apiCallMessage}>
           <div className='message-body is-size-7 has-text-centered'>
             Los datos se han guardado correctamente
@@ -102,4 +99,4 @@ class ChannelForm extends Component {
   }
 }
 
-export default ChannelForm
+export default EditChannel
