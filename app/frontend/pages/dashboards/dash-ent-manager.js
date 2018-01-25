@@ -31,10 +31,7 @@ class DashEntManager extends Component {
                 </div>
               </div>
             )
-          }
-          )
-          }
-
+          })}
         </div>
       </div>
 
