@@ -52,7 +52,6 @@ const task = new Task(async function (argv) {
       var salesCenterCol = dataset.columns.find(item => { return item.isSalesCenter })
       var channelCol = dataset.columns.find(item => { return item.isChannel })
 
-      console.log('channelCol =================>', channelCol)
       let apiData = {
         products: [],
         salesCenters: [],
@@ -83,6 +82,17 @@ const task = new Task(async function (argv) {
 
       await dataset.save()
       await dataset.processData()
+    }
+
+    if (res.status === 'error') {
+      dataset.set({
+        error: res.message,
+        status: 'error'
+      })
+
+      await dataset.save()
+
+      console.log(`Error while processing dataset: ${dataset.error}`)
     }
   }
 

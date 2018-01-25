@@ -5,7 +5,6 @@ import lov from 'lov'
 
 class ConfigureDatasetForm extends Component {
   constructor (props) {
-    console.log('initialState', props.initialState)
     super(props)
     const posColumn = this.props.initialState.columns.findIndex(e => {
       return (
