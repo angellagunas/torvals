@@ -285,75 +285,21 @@ dataSetSchema.methods.process = async function (res) {
     await this.save()
   }
 
-  if (res.status === 'uploading') {
-    this.set({
-      status: 'preprocessing'
+  this.set({
+    status: 'configuring',
+    uploaded: true,
+    columns: res.headers.map(item => {
+      return {
+        name: item,
+        isDate: false,
+        isAnalysis: false,
+        isOperationFilter: false,
+        isAnalysisFilter: false
+      }
     })
+  })
 
-    await this.save()
-  }
-
-  if (res.status === 'processing') {
-    this.set({
-      status: 'processing'
-    })
-
-    await this.save()
-  }
-
-  if (res.status === 'done' && res.headers.length > 1) {
-    this.set({
-      status: 'configuring',
-      columns: res.headers.map(item => {
-        return {
-          name: item,
-          isDate: false,
-          isAnalysis: false,
-          isOperationFilter: false,
-          isAnalysisFilter: false
-        }
-      })
-    })
-
-    await this.save()
-  }
-
-  if (res.status === 'ready') {
-    var productCol = this.columns.find(item => { return item.isProduct })
-    var salesCenterCol = this.columns.find(item => { return item.isSalesCenter })
-    let apiData = {
-      products: [],
-      salesCenters: []
-    }
-
-    if (productCol) {
-      productCol = productCol.name
-      apiData['products'] = res.data[productCol]
-    }
-
-    if (salesCenterCol) {
-      salesCenterCol = salesCenterCol.name
-      apiData['salesCenters'] = res.data[salesCenterCol]
-    }
-
-    this.set({
-      status: 'reviewing',
-      dateMax: res.date_max,
-      dateMin: res.date_min,
-      apiData: apiData
-    })
-
-    await this.save()
-    await this.processData()
-  }
-
-  if (res.status === 'consolidated') {
-    this.set({
-      status: 'consolidated'
-    })
-
-    await this.save()
-  }
+  await this.save()
 }
 
 dataSetSchema.virtual('url').get(function () {
