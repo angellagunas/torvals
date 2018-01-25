@@ -329,6 +329,8 @@ a.navbar-item:hover {
   display: block !important;
 }
 
+$abraxas-color : rgba(92,138,169,1) !default;
+
 
 .dash-card{
   cursor: pointer;
@@ -345,7 +347,6 @@ a.navbar-item:hover {
 }
 
 
-$abraxas-color : rgba(92,138,169,1) !default;
 
 .land-side{
   position: relative !important;
