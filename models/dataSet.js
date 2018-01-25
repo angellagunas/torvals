@@ -284,7 +284,7 @@ dataSetSchema.methods.processData = async function () {
           name: 'Not identified',
           externalId: c,
           organization: this.organization,
-          isExternalChannel: true
+          isNewExternal: true
         })
 
         this.newChannels.push(channel)

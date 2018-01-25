@@ -545,7 +545,7 @@ class DataSetDetail extends Component {
 
     var newChannels = []
     dataset.newChannels.map((item, key) => {
-      if (item.isExternalChannel) {
+      if (item.isNewExternal) {
         newChannels.push(item)
       }
     })

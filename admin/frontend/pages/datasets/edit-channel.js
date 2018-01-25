@@ -98,8 +98,6 @@ class EditChannel extends Component {
 
   async submitHandler ({formData}) {
     formData.isDefault = undefined
-    formData['isExternalChannel'] = false
-
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {

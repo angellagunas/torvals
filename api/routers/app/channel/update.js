@@ -21,7 +21,7 @@ module.exports = new Route({
     channel.set({
       name: data.name,
       externalId: data.externalId,
-      isExternalChannel: data.isExternalChannel || false
+      isNewExternal: false
     })
 
     channel.save()
