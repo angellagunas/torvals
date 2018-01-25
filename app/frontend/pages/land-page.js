@@ -16,7 +16,7 @@ class LandPage extends Component {
                 <img src={AbraxasLogo} alt='abraxas logo' />
               </figure>
               <br />
-              <h2 className='has-text-white is-size-4'>Nuestra misión es dar cognición sistemática a las organizaciones</h2>
+              <h2 className='has-text-white is-size-4-desktop is-size-5-touch'>Nuestra misión es dar cognición sistemática a las organizaciones</h2>
             </div>
           </div>
           <div className='column is-flex is-flex-column main-wrapper'>
@@ -29,12 +29,6 @@ class LandPage extends Component {
                       <img className='is-flex r-pad' src='/app/public/img/pythia-logo.png' />
                       <h3 className='is-size-4 is-capitalized has-text-weight-semibold'>Pythia</h3>
                     </Link>
-
-                    <div className='navbar-burger burger'>
-                      <span />
-                      <span />
-                      <span />
-                    </div>
                   </div>
                   <div className='navbar-menu is-active'>
                     <div className='navbar-start' />
@@ -48,8 +42,8 @@ class LandPage extends Component {
               </div>
 
               <div className='hero-body'>
-                <div className='container has-text-centered'>
-                  <h1 className='title has-text-color is-size-2 pad-bottom'>
+                <div className='has-text-centered'>
+                  <h1 className='title has-text-color is-size-2-desktop is-size-3-touch pad-bottom'>
                     Toma de decisiones de operación <br />
                     a partir de predicción de comportamiento de venta
                     </h1>

@@ -404,3 +404,9 @@ $abraxas-color : rgba(92,138,169,1) !default;
     background: $abraxas-color !important;
   }
 }
+
+@media screen and (max-width: 1023px){
+.navbar-menu{
+  box-shadow: none !important;
+}
+}
