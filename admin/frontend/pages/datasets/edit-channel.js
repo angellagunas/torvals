@@ -3,7 +3,8 @@ import api from '~base/api'
 
 import {
   BaseForm,
-  TextWidget
+  TextWidget,
+  SelectWidget
 } from '~base/components/base-form'
 
 const schema = {
@@ -11,16 +12,24 @@ const schema = {
   title: '',
   required: [
     'name',
-    'externalId'
+    'externalId',
+    'organization'
   ],
   properties: {
     name: {type: 'string', title: 'Nombre'},
-    externalId: {type: 'string', title: 'Id Externo'}
+    externalId: {type: 'string', title: 'Id Externo'},
+    organization: {
+      type: 'string',
+      title: 'Organización',
+      enum: [],
+      enumNames: []
+    }
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
+  organization: {'ui:widget': SelectWidget, 'ui:disabled': true},
   externalId: {'ui:widget': TextWidget}
 }
 
@@ -30,8 +39,43 @@ class EditChannel extends Component {
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+      apiCallErrorMessage: 'is-hidden',
+      organizations: []
     }
+  }
+
+  componentWillMount () {
+    this.loadOrgs()
+  }
+
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      organizations: body.data
+    })
+
+    this.setOrg()
+  }
+
+  setOrg () {
+    var pos = this.state.organizations.findIndex(e => {
+      return (
+        String(e._id) === String(this.state.formData.organization)
+      )
+    })
+
+    this.setState({
+      ...this.state.formData.organization = this.state.organizations[pos].uuid
+    })
   }
 
   errorHandler (e) {}
@@ -53,8 +97,9 @@ class EditChannel extends Component {
   }
 
   async submitHandler ({formData}) {
-    formData['isExternalChannel'] = false
     formData.isDefault = undefined
+    formData['isExternalChannel'] = false
+
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {
@@ -79,6 +124,11 @@ class EditChannel extends Component {
         Error: {this.state.error}
       </div>
     }
+
+    let org = schema.properties.organization
+
+    org.enum = this.state.organizations.map(item => { return item.uuid })
+    org.enumNames = this.state.organizations.map(item => { return item.name })
 
     return (<div>
       <BaseForm schema={schema}

@@ -17,6 +17,7 @@ import ConfigureViewDataset from './configure-view'
 import BaseModal from '~base/components/base-modal'
 import ProductForm from './edit-product'
 import SalesCenterForm from './edit-salescenter'
+import ChannelForm from './edit-channel'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -25,12 +26,15 @@ class DataSetDetail extends Component {
       className: '',
       classNameSC: '',
       isProductsOpen: false,
+      isSalesCenterOpen: false,
+      isChannelsOpen: false,
       loading: true,
       loaded: false,
       dataset: {},
       organizations: [],
       currentProduct: null,
-      currentSalesCenter: null
+      currentSalesCenter: null,
+      currentChannel: null
     }
   }
 
@@ -390,6 +394,18 @@ class DataSetDetail extends Component {
     })
   }
 
+  toggleUnidentifiedSalesCenters () {
+    this.setState({isSalesCenterOpen: !this.state.isSalesCenterOpen}, function () {
+      this.setHeights()
+    })
+  }
+
+  toggleUnidentifiedChannels () {
+    this.setState({isChannelsOpen: !this.state.isChannelsOpen}, function () {
+      this.setHeights()
+    })
+  }
+
   showModal (item) {
     if (!item.category) {
       item.category = ''
@@ -400,6 +416,41 @@ class DataSetDetail extends Component {
     this.setState({
       currentProduct: item,
       className: ' is-active'
+    })
+  }
+
+  hideModal () {
+    this.setState({
+      className: '',
+      currentProduct: null
+    })
+  }
+
+  showModalSalesCenters (item) {
+    this.setState({
+      currentSalesCenter: item,
+      classNameSC: ' is-active'
+    })
+  }
+
+  hideModalSalesCenters () {
+    this.setState({
+      classNameSC: '',
+      currentSalesCenter: null
+    })
+  }
+
+  showModalChannels (item) {
+    this.setState({
+      classNameCh: ' is-active',
+      currentChannel: item
+    })
+  }
+
+  hideModalChannels () {
+    this.setState({
+      classNameCh: '',
+      currentChannel: null
     })
   }
 
@@ -427,20 +478,6 @@ class DataSetDetail extends Component {
         </ProductForm>
       </BaseModal>)
     }
-  }
-
-  hideModal () {
-    this.setState({
-      className: '',
-      currentProduct: null
-    })
-  }
-
-  showModalSalesCenters (item) {
-    this.setState({
-      currentSalesCenter: item,
-      classNameSC: ' is-active'
-    })
   }
 
   getModalSalesCenters () {
@@ -475,11 +512,28 @@ class DataSetDetail extends Component {
     }
   }
 
-  hideModalSalesCenters () {
-    this.setState({
-      classNameSC: '',
-      currentSalesCenter: null
-    })
+  getModalChannels () {
+    if (this.state.currentChannel) {
+      return (<BaseModal
+        title='Editar Canal'
+        className={this.state.classNameCh}
+        hideModal={() => this.hideModalChannels()} >
+        <ChannelForm
+          baseUrl='/admin/channels'
+          url={'/admin/channels/' + this.state.currentChannel.uuid}
+          initialState={this.state.currentChannel}
+          load={this.deleteNewChannel.bind(this)}>
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button className='button is-primary' type='submit'>Save</button>
+            </div>
+            <div className='control'>
+              <button className='button' onClick={() => this.hideModalChannels()} type='button'>Cancel</button>
+            </div>
+          </div>
+        </ChannelForm>
+      </BaseModal>)
+    }
   }
 
   async deleteNewProduct () {
@@ -496,26 +550,108 @@ class DataSetDetail extends Component {
     }, 1000)
   }
 
-  getUnidentifiedProducts () {
-    const { dataset } = this.state
+  async deleteNewChannel () {
+    this.load()
+    setTimeout(() => {
+      this.hideModalChannels()
+    }, 1000)
+  }
 
+  getUnidentifiedChannels () {
+    const { dataset } = this.state
     if (!dataset.uuid) {
       return <Loader />
     }
 
-    const headerProductsClass = classNames('card-content', {
-      'is-hidden': this.state.isProductsOpen === false
-    })
-    const toggleBtnIconClass = classNames('fa', {
-      'fa-plus': this.state.isProductsOpen === false,
-      'fa-minus': this.state.isProductsOpen !== false
+    const headerChannelsClass = classNames('card-content', {
+      'is-hidden': this.state.isChannelsOpen === false
     })
 
-    var newProducts = []
-    dataset.newProducts.map((item, key) => {
-      if (item.name === 'Not identified') {
-        newProducts.push(item)
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-angle-down': this.state.isChannelsOpen === false,
+      'fa-angle-up': this.state.isChannelsOpen !== false
+    })
+
+    var newChannels = []
+    dataset.newChannels.map((item, key) => {
+      if (item.isExternalChannel) {
+        newChannels.push(item)
       }
+    })
+
+    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || newChannels.length === 0) {
+      return ''
+    }
+
+    return (<div className='columns'>
+      <div className='column'>
+        <div className='card'>
+          <header className='card-header'>
+            <p className='card-header-title'>
+                Canales no identificados: {newChannels.length}
+            </p>
+            <div className='field is-grouped is-grouped-right card-header-select'>
+              <div className='control'>
+                <a
+                  className='button is-inverted'
+                  onClick={() => this.toggleUnidentifiedChannels()}>
+                  <span className='icon is-small'>
+                    <i className={toggleBtnIconClass} />
+                  </span>
+                </a>
+              </div>
+            </div>
+          </header>
+          <div className={headerChannelsClass}>
+            <div className='columns'>
+              <div className='column'>
+                <table className='table is-fullwidth'>
+                  <thead>
+                    <tr>
+                      <th colSpan='2'>Id Externo</th>
+                      <th colSpan='2'>Nombre</th>
+                      <th colSpan='2'>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      newChannels.map((item, key) => {
+                        return (
+                          <tr key={key}>
+                            <td colSpan='2'>{item.externalId}</td>
+                            <td colSpan='2'>{item.name}</td>
+                            <td colSpan='2'>
+                              <button className='button is-primary' onClick={() => this.showModalChannels(item)}>
+                                  Edit
+                                </button>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>)
+  }
+
+  getUnidentifiedSalesCenters () {
+    const { dataset } = this.state
+    if (!dataset.uuid) {
+      return <Loader />
+    }
+
+    const headerSalesCenterClass = classNames('card-content', {
+      'is-hidden': this.state.isSalesCenterOpen === false
+    })
+
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-angle-down': this.state.isSalesCenterOpen === false,
+      'fa-angle-up': this.state.isSalesCenterOpen !== false
     })
 
     var newSalesCenters = []
@@ -525,18 +661,104 @@ class DataSetDetail extends Component {
       }
     })
 
+    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || newSalesCenters.length === 0) {
+      return ''
+    }
+
+    return (<div className='columns'>
+      <div className='column'>
+        <div className='card'>
+          <header className='card-header'>
+            <p className='card-header-title'>
+                Centros de Venta no identificados: {newSalesCenters.length}
+            </p>
+            <div className='field is-grouped is-grouped-right card-header-select'>
+              <div className='control'>
+                <a
+                  className='button is-inverted'
+                  onClick={() => this.toggleUnidentifiedSalesCenters()}>
+                  <span className='icon is-small'>
+                    <i className={toggleBtnIconClass} />
+                  </span>
+                </a>
+              </div>
+            </div>
+          </header>
+          <div className={headerSalesCenterClass}>
+            <div className='columns'>
+              <div className='column'>
+                <table className='table is-fullwidth'>
+                  <thead>
+                    <tr>
+                      <th colSpan='2'>Id Externo</th>
+                      <th colSpan='2'>Nombre</th>
+                      <th colSpan='2'>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      newSalesCenters.map((item, key) => {
+                        return (
+                          <tr key={key}>
+                            <td colSpan='2'>{item.externalId}</td>
+                            <td colSpan='2'>{item.name}</td>
+                            <td colSpan='2'>
+                              <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
+                                  Edit
+                                </button>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>)
+  }
+
+  getUnidentifiedProducts () {
+    const { dataset } = this.state
+
+    if (!dataset.uuid) {
+      return <Loader />
+    }
+
+    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || dataset.newProducts.length === 0) {
+      return ''
+    }
+
+    const headerProductsClass = classNames('card-content', {
+      'is-hidden': this.state.isProductsOpen === false
+    })
+    const toggleBtnIconClass = classNames('fa', {
+      'fa-angle-down': this.state.isProductsOpen === false,
+      'fa-angle-up': this.state.isProductsOpen !== false
+    })
+
+    var newProducts = []
+    dataset.newProducts.map((item, key) => {
+      if (item.name === 'Not identified') {
+        newProducts.push(item)
+      }
+    })
+
     return (
       <div className='columns'>
         <div className='column'>
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Productos no identificados: {newProducts.length} y Centros de venta: {newSalesCenters.length}
+                  Productos no identificados: {newProducts.length}
               </p>
               <div className='field is-grouped is-grouped-right card-header-select'>
                 <div className='control'>
                   <a
-                    className='button is-rounded is-inverted'
+                    className='button is-inverted'
                     onClick={() => this.toggleUnidentifiedProducts()}>
                     <span className='icon is-small'>
                       <i className={toggleBtnIconClass} />
@@ -551,67 +773,27 @@ class DataSetDetail extends Component {
                   <table className='table is-fullwidth'>
                     <thead>
                       <tr>
-                        <th colSpan='2'>Id externo de Producto</th>
-
+                        <th colSpan='2'>Id Externo</th>
+                        <th colSpan='2'>Nombre</th>
+                        <th colSpan='2'>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {newProducts.length === 0 ? (
-                        <tr>
-                          <td colSpan='2'>No hay productos que mostrar</td>
-                        </tr>
-                      ) : (
+                      {
                         newProducts.map((item, key) => {
                           return (
                             <tr key={key}>
-                              <td>{item.externalId}</td>
-                              <td>
-                                <button
-                                  className='button is-primary'
-                                  onClick={() => this.showModal(item)}
-                                >
-                                  Editar
-                                </button>
+                              <td colSpan='2'>{item.externalId}</td>
+                              <td colSpan='2'>{item.name}</td>
+                              <td colSpan='2'>
+                                <button className='button is-primary' onClick={() => this.showModal(item)}>
+                                    Edit
+                                  </button>
                               </td>
                             </tr>
                           )
                         })
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                <div className='column'>
-                  <table className='table is-fullwidth'>
-                    <thead>
-                      <tr>
-                        <th>Id externo de Centro de Venta</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {newSalesCenters.length === 0 ? (
-                        <tr>
-                          <td colSpan='2'>No hay centros de venta que mostrar</td>
-                        </tr>
-                      ) : (
-                        newSalesCenters.map((item, key) => {
-                          if (item.name === 'Not identified') {
-                            return (
-                              <tr key={key}>
-                                <td >{item.externalId}</td>
-                                <td>
-                                  <button
-                                    className='button is-primary'
-                                    onClick={() => this.showModalSalesCenters(item)}
-                                  >
-                                  Editar
-                                </button>
-                                </td>
-                              </tr>
-                            )
-                          }
-                        })
-
-                      )}
+                      }
                     </tbody>
                   </table>
                 </div>
@@ -622,7 +804,6 @@ class DataSetDetail extends Component {
       </div>
     )
   }
-
   render () {
     const { dataset } = this.state
 
@@ -648,12 +829,9 @@ class DataSetDetail extends Component {
                 </div>
               </div>
             </div>
-            {dataset.status === 'reviewing' &&
-              this.getUnidentifiedProducts()
-            }
-            {dataset.status === 'consolidated' &&
-                this.getUnidentifiedProducts()
-            }
+            {this.getUnidentifiedProducts()}
+            {this.getUnidentifiedSalesCenters()}
+            {this.getUnidentifiedChannels()}
             <div className='columns'>
               <div className='column is-5-tablet'>
                 <div className='card'>
@@ -675,7 +853,7 @@ class DataSetDetail extends Component {
                             status: dataset.status
                           }}
                           load={this.load.bind(this)}
-                          organizations={this.state.organizations || []}
+                          organizations={this.state.organizations}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
@@ -694,6 +872,7 @@ class DataSetDetail extends Component {
         </div>
         {this.getModalCurrentProduct()}
         {this.getModalSalesCenters()}
+        {this.getModalChannels()}
       </div>
     )
   }

@@ -25,8 +25,10 @@ module.exports = new Route({
     channel.set({
       name: data.name,
       organization: org._id,
-      externalId: data.externalId
+      externalId: data.externalId,
+      isExternalChannel: data.isExternalChannel || false
     })
+
     channel.save()
 
     ctx.body = {

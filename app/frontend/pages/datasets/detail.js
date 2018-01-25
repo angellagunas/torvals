@@ -34,7 +34,8 @@ class DataSetDetail extends Component {
       loaded: false,
       dataset: {},
       currentProduct: null,
-      currentSalesCenter: null
+      currentSalesCenter: null,
+      columns: []
     }
   }
 
@@ -171,7 +172,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                File sent for preprocessing
+                Archivo enviado a preprocesamiento
               </p>
             </header>
             <div className='card-content'>
@@ -186,7 +187,7 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      File {dataset.fileChunk.filename} is being preprocessed
+                      El archivo {dataset.fileChunk.filename} se está preprocesando
                     </div>
                   </div>
                 </div>
@@ -201,7 +202,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Processing file
+                Procesando archivo
               </p>
             </header>
             <div className='card-content'>
@@ -216,7 +217,7 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      Dataset is being processed
+                      El Dataset se está procesando
                     </div>
                   </div>
                 </div>
@@ -245,7 +246,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Configuring Dataset
+                Configurando el Dataset
               </p>
             </header>
             <div className='card-content'>
@@ -253,7 +254,7 @@ class DataSetDetail extends Component {
                 <div className='column'>
                   <ConfigureDatasetForm
                     initialState={dataset}
-                    columns={dataset.columns || []}
+                    columns={dataset.columns}
                     url={'/app/datasets/' + dataset.uuid + '/configure'}
                     changeHandler={(data) => this.changeHandler(data)}
                     load={this.load.bind(this)}
@@ -270,7 +271,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Review dataset
+                Revisando dataset
               </p>
             </header>
             <div className='card-content'>
@@ -459,7 +460,6 @@ class DataSetDetail extends Component {
 
   getModalChannels () {
     if (this.state.currentChannel) {
-      this.state.currentChannel['isExternalChannel'] = false
       return (<BaseModal
         title='Editar Canal'
         className={this.state.classNameCh}

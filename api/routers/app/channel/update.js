@@ -18,7 +18,12 @@ module.exports = new Route({
 
     ctx.assert(channel, 404, 'Channel  not found')
 
-    channel.set({name: data.name, externalId: data.externalId, isExternalChannel: data.isExternalChannel})
+    channel.set({
+      name: data.name,
+      externalId: data.externalId,
+      isExternalChannel: data.isExternalChannel || false
+    })
+
     channel.save()
 
     ctx.body = {
