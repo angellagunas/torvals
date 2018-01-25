@@ -24,7 +24,7 @@ const uiSchema = {
   externalId: {'ui:widget': TextWidget}
 }
 
-class ChannelForm extends Component {
+class EditChannel extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -102,4 +102,4 @@ class ChannelForm extends Component {
   }
 }
 
-export default ChannelForm
+export default EditChannel

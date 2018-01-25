@@ -5,6 +5,7 @@ import lov from 'lov'
 
 class ConfigureDatasetForm extends Component {
   constructor (props) {
+    console.log('initialState', props.initialState)
     super(props)
     const posColumn = this.props.initialState.columns.findIndex(e => {
       return (
@@ -302,7 +303,7 @@ class ConfigureDatasetForm extends Component {
               <div className='select is-fullwidth'>
                 <select type='text'
                   name='isChannel'
-                  value={this.state.isSalesCenter}
+                  value={this.state.isChannel}
                   onChange={(e) => { this.handleChangeDateAnalyze('isChannel', e) }}
                 >
                   <option value=''>Selecciona una opción</option>

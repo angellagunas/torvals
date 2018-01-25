@@ -50,9 +50,13 @@ const task = new Task(async function (argv) {
 
       var productCol = dataset.columns.find(item => { return item.isProduct })
       var salesCenterCol = dataset.columns.find(item => { return item.isSalesCenter })
+      var channelCol = dataset.columns.find(item => { return item.isChannel })
+
+      console.log('channelCol =================>', channelCol)
       let apiData = {
         products: [],
-        salesCenters: []
+        salesCenters: [],
+        channels: []
       }
 
       if (productCol) {
@@ -65,6 +69,11 @@ const task = new Task(async function (argv) {
         apiData['salesCenters'] = res.data[salesCenterCol]
       }
 
+      if (channelCol) {
+        channelCol = channelCol.name
+        apiData['channels'] = res.data[channelCol]
+      }
+
       dataset.set({
         status: 'reviewing',
         dateMax: res.date_max,
@@ -74,17 +83,6 @@ const task = new Task(async function (argv) {
 
       await dataset.save()
       await dataset.processData()
-    }
-
-    if (res.status === 'error') {
-      dataset.set({
-        error: res.message,
-        status: 'error'
-      })
-
-      await dataset.save()
-
-      console.log(`Error while processing dataset: ${dataset.error}`)
     }
   }
 

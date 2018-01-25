@@ -10,7 +10,8 @@ const channelSchema = new Schema({
   uuid: { type: String, default: v4 },
   dateCreated: { type: Date, default: moment.utc },
   isDeleted: { type: Boolean, default: false },
-  organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true }
+  organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  isExternalChannel: { type: Boolean, default: false }
 })
 
 channelSchema.plugin(dataTables)
