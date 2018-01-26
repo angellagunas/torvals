@@ -50,9 +50,12 @@ const task = new Task(async function (argv) {
 
       var productCol = dataset.columns.find(item => { return item.isProduct })
       var salesCenterCol = dataset.columns.find(item => { return item.isSalesCenter })
+      var channelCol = dataset.columns.find(item => { return item.isChannel })
+
       let apiData = {
         products: [],
-        salesCenters: []
+        salesCenters: [],
+        channels: []
       }
 
       if (productCol) {
@@ -63,6 +66,11 @@ const task = new Task(async function (argv) {
       if (salesCenterCol) {
         salesCenterCol = salesCenterCol.name
         apiData['salesCenters'] = res.data[salesCenterCol]
+      }
+
+      if (channelCol) {
+        channelCol = channelCol.name
+        apiData['channels'] = res.data[channelCol]
       }
 
       dataset.set({
