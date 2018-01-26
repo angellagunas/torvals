@@ -5,6 +5,7 @@ import moment from 'moment'
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares/'
 import CreateGroup from './create'
+import CreateGroupNoModal from './create-no-modal'
 
 export default ListPage({
   path: '/manage/groups',
@@ -12,9 +13,12 @@ export default ListPage({
   icon: 'users',
   exact: true,
   validate: loggedIn,
-  titleSingular: 'Group',
-  create: true,
+  titleSingular: 'Grupo',
+  create: false,
   createComponent: CreateGroup,
+  sidePanel: true,
+  sidePanelIcon: 'plus',
+  sidePanelComponent: CreateGroupNoModal,
   baseUrl: '/admin/groups',
   branchName: 'groups',
   detailUrl: '/admin/manage/groups/',

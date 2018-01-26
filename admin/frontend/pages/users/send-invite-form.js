@@ -17,7 +17,8 @@ class InviteUserForm extends Component {
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+      apiCallErrorMessage: 'is-hidden',
+      groups: []      
     }
   }
 
@@ -28,6 +29,24 @@ class InviteUserForm extends Component {
       formData,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
+    })
+    this.changeGroups(formData.organization)
+  }
+
+  async changeGroups (organization) {
+    var url = '/admin/groups/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0,
+        organization: organization
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      groups: body.data
     })
   }
 
@@ -71,18 +90,24 @@ class InviteUserForm extends Component {
         'email', 'organization'
       ],
       properties: {
-        name: {type: 'string', title: 'Name'},
+        name: {type: 'string', title: 'Nombre'},
         email: {type: 'string', title: 'Email'},
-        isAdmin: {type: 'boolean', title: 'Is Admin?', default: false},
+        isAdmin: {type: 'boolean', title: 'Es Admin?', default: false},
         role: {
           type: 'string',
-          title: 'Role',
+          title: 'Rol',
           enum: [],
           enumNames: []
         },
         organization: {
           type: 'string',
-          title: 'Organization',
+          title: 'Organización',
+          enum: [],
+          enumNames: []
+        },
+        groups: {
+          type: 'string',
+          title: 'Grupo',
           enum: [],
           enumNames: []
         }
@@ -94,11 +119,16 @@ class InviteUserForm extends Component {
       email: {'ui:widget': EmailWidget},
       isAdmin: {'ui:widget': CheckboxWidget},
       role: {'ui:widget': SelectWidget},
-      organization: { 'ui:widget': SelectWidget }
+      organization: { 'ui:widget': SelectWidget },
+      groups: {'ui:widget': SelectWidget}
     }
 
     if (this.props.initialState.organization) {
       uiSchema['organization']['ui:disabled'] = true
+    }
+    
+    if (this.props.initialState.groups) {
+      uiSchema['groups']['ui:disabled'] = true
     }
 
     var error
@@ -120,6 +150,8 @@ class InviteUserForm extends Component {
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
     schema.properties.organization.enum = this.props.orgs.map(item => { return item._id })
     schema.properties.organization.enumNames = this.props.orgs.map(item => { return item.name })
+    schema.properties.groups.enum = this.state.groups.map(item => { return item._id })
+    schema.properties.groups.enumNames = this.state.groups.map(item => { return item.name })
 
     return (
       <div>
