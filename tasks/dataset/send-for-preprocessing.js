@@ -63,8 +63,6 @@ const task = new Task(async function (argv) {
       return false
     }
 
-    console.log(res)
-
     dataset.set({
       externalId: res._id,
       status: 'preprocessing'
