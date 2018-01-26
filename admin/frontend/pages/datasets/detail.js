@@ -659,7 +659,7 @@ class DataSetDetail extends Component {
 
     var newSalesCenters = []
     dataset.newSalesCenters.map((item, key) => {
-      if (item.name === 'Not identified') {
+      if (item.isNewExternal) {
         newSalesCenters.push(item)
       }
     })
@@ -731,10 +731,6 @@ class DataSetDetail extends Component {
       return <Loader />
     }
 
-    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || dataset.newProducts.length === 0) {
-      return ''
-    }
-
     const headerProductsClass = classNames('card-content', {
       'is-hidden': this.state.isProductsOpen === false
     })
@@ -745,10 +741,14 @@ class DataSetDetail extends Component {
 
     var newProducts = []
     dataset.newProducts.map((item, key) => {
-      if (item.name === 'Not identified') {
+      if (item.isNewExternal) {
         newProducts.push(item)
       }
     })
+
+    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || newProducts.length === 0) {
+      return ''
+    }
 
     return (
       <div className='columns'>
