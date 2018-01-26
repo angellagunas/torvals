@@ -29,14 +29,12 @@ module.exports = new Route({
       project: project._id
     })
 
-    if (project) {
-      project.datasets.push({
-        dataset: dataset,
-        columns: []
-      })
+    project.datasets.push({
+      dataset: dataset,
+      columns: []
+    })
 
-      await project.save()
-    }
+    await project.save()
 
     ctx.body = {
       data: dataset
