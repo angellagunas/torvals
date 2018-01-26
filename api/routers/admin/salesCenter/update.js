@@ -42,7 +42,8 @@ module.exports = new Route({
       description: data.description,
       organization: data.organization,
       address: data.address,
-      externalId: data.externalId
+      externalId: data.externalId,
+      isNewExternal: false
     })
 
     salesCenter.save()
