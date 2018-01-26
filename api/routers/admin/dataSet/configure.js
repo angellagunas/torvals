@@ -36,7 +36,7 @@ module.exports = new Route({
       return item.isProductName
     })
 
-    var isProductName = checkProductName ? checkProductName.name : ''
+    var isProductName = checkProductName ? checkProductName.name : undefined
 
     var isSalesCenter = body.columns.find((item) => {
       return item.isSalesCenter
@@ -46,7 +46,7 @@ module.exports = new Route({
       return item.isSalesCenterName
     })
 
-    var isSalesCenterName = checkSalesCenterName ? checkSalesCenterName.name : ''
+    var isSalesCenterName = checkSalesCenterName ? checkSalesCenterName.name : undefined
 
     var isChannel = body.columns.find((item) => {
       return item.isChannel
@@ -56,7 +56,7 @@ module.exports = new Route({
       return item.isChannelName
     })
 
-    var isChannelName = checkChannelName ? checkChannelName.name : ''
+    var isChannelName = checkChannelName ? checkChannelName.name : undefined
 
     var filterAnalysis = []
     var filterOperations = []

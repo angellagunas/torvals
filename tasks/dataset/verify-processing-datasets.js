@@ -47,10 +47,6 @@ const task = new Task(async function (argv) {
 
     if (res.status === 'ready') {
       console.log(`${dataset.name} dataset has finished processing`)
-      console.log('res', res.data)
-      // var productCol = dataset.columns.find(item => { return item.isProduct })
-      // var salesCenterCol = dataset.columns.find(item => { return item.isSalesCenter })
-      // var channelCol = dataset.columns.find(item => { return item.isChannel })
 
       let apiData = {
         products: [],
@@ -58,9 +54,9 @@ const task = new Task(async function (argv) {
         channels: []
       }
 
-      apiData['products'] = res.data['products']
-      apiData['salesCenters'] = res.data['sales_centers']
-      apiData['channels'] = res.data['channels']
+      apiData['products'] = res.data['product']
+      apiData['salesCenters'] = res.data['sales_center']
+      apiData['channels'] = res.data['channel']
 
       dataset.set({
         status: 'reviewing',
