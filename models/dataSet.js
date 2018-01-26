@@ -68,8 +68,11 @@ const dataSetSchema = new Schema({
     isOperationFilter: { type: Boolean, default: false },
     isAnalysisFilter: { type: Boolean, default: false },
     isProduct: { type: Boolean, default: false },
+    isProductName: { type: Boolean, default: false },
     isSalesCenter: { type: Boolean, default: false },
+    isSalesCenterName: { type: Boolean, default: false },
     isChannel: { type: Boolean, default: false },
+    isChannelName: { type: Boolean, default: false },
     values: [{ type: String }]
   }],
 
@@ -221,6 +224,7 @@ dataSetSchema.methods.processData = async function () {
 
   if (this.apiData.products) {
     for (var p of this.apiData.products) {
+      console.log('Product', p)
       var product = await Product.findOne({
         externalId: p,
         organization: this.organization

@@ -12,6 +12,10 @@ class ConfigureDatasetForm extends Component {
       )
     })
     if (posColumn >= 0) {
+      var checkProductName = this.props.initialState.columns.find((item) => { return item.isProductName })
+      var checkSalesCenterName = this.props.initialState.columns.find((item) => { return item.isSalesCenterName })
+      var checkChannelName = this.props.initialState.columns.find((item) => { return item.isChannelName })
+
       this.state = {
         formData: {
           columns: this.props.initialState.columns,
@@ -20,8 +24,11 @@ class ConfigureDatasetForm extends Component {
         isDate: this.props.initialState.columns.find((item) => { return item.isDate }).name,
         isAnalysis: this.props.initialState.columns.find((item) => { return item.isAnalysis }).name,
         isProduct: this.props.initialState.columns.find((item) => { return item.isProduct }).name,
+        isProductName: checkProductName ? checkProductName.name : '',
         isSalesCenter: this.props.initialState.columns.find((item) => { return item.isSalesCenter }).name,
-        isChannel: this.props.initialState.columns.find((item) => { return item.isChannel }).name || '',
+        isSalesCenterName: checkSalesCenterName ? checkSalesCenterName.name : '',
+        isChannel: this.props.initialState.columns.find((item) => { return item.isChannel }).name,
+        isChannelName: checkChannelName ? checkChannelName.name : '',
         apiCallMessage: 'is-hidden',
         apiCallErrorMessage: 'is-hidden'
       }
@@ -34,8 +41,11 @@ class ConfigureDatasetForm extends Component {
         isDate: '',
         isAnalysis: '',
         isProduct: '',
+        isProductName: '',
         isSalesCenter: '',
+        isSalesCenterName: '',
         isChannel: '',
+        isChannelName: '',
         apiCallMessage: 'is-hidden',
         apiCallErrorMessage: 'is-hidden'
       }
@@ -73,24 +83,33 @@ class ConfigureDatasetForm extends Component {
       isDate: this.state.isDate,
       isAnalysis: this.state.isAnalysis,
       isProduct: this.state.isProduct,
+      isProductName: this.state.isProductName,
       isSalesCenter: this.state.isSalesCenter,
-      isChannel: this.state.isChannel
+      isSalesCenterName: this.state.isSalesCenterName,
+      isChannel: this.state.isChannel,
+      isChannelName: this.state.isChannelName
     }
 
     const schema = {
       isDate: lov.string().trim().required(),
       isAnalysis: lov.string().trim().required(),
       isProduct: lov.string().trim().required(),
+      isProductName: lov.string(),
       isSalesCenter: lov.string().trim().required(),
-      isChannel: lov.string().trim().required()
+      isSalesCenterName: lov.string(),
+      isChannel: lov.string().trim().required(),
+      isChannelName: lov.string()
     }
 
     let values = {
       isDate: this.state.isDate,
       isAnalysis: this.state.isAnalysis,
       isProduct: this.state.isProduct,
+      isProductName: this.state.isProductName,
       isSalesCenter: this.state.isSalesCenter,
-      isChannel: this.state.isChannel
+      isSalesCenterName: this.state.isSalesCenterName,
+      isChannel: this.state.isChannel,
+      isChannelName: this.state.isChannelName
     }
 
     let result = lov.validate(values, schema)
@@ -223,8 +242,7 @@ class ConfigureDatasetForm extends Component {
                   className='is-fullwidth'
                   name='isDate'
                   value={this.state.isDate}
-                  onChange={(e) => { this.handleChangeDateAnalyze('isDate', e) }}
-                >
+                  onChange={(e) => { this.handleChangeDateAnalyze('isDate', e) }}>
                   <option value=''>Selecciona una opción</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -245,8 +263,7 @@ class ConfigureDatasetForm extends Component {
                   className='is-fullwidth'
                   name='isAnalysis'
                   value={this.state.isAnalysis}
-                  onChange={(e) => { this.handleChangeDateAnalyze('isAnalysis', e) }}
-                >
+                  onChange={(e) => { this.handleChangeDateAnalyze('isAnalysis', e) }}>
                   <option value=''>Selecciona una opción</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -259,68 +276,143 @@ class ConfigureDatasetForm extends Component {
             </div>
           </div>
 
-          <div className='field'>
-            <label className='label'>Producto*</label>
-            <div className='control'>
-              <div className='select is-fullwidth'>
-                <select type='text'
-                  className='is-fullwidth'
-                  name='isProduct'
-                  value={this.state.isProduct}
-                  onChange={(e) => { this.handleChangeDateAnalyze('isProduct', e) }}
-                >
-                  <option value=''>Selecciona una opción</option>
-                  {
-                    this.state.formData.columns.map(function (item, key) {
-                      return <option key={key}
-                        value={item.name}>{item.name}</option>
-                    })
-                  }
-                </select>
+          <div className='columns'>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Producto*</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='isProduct'
+                      value={this.state.isProduct}
+                      onChange={(e) => { this.handleChangeDateAnalyze('isProduct', e) }}>
+                      <option value=''>Selecciona una opción</option>
+                      {
+                        this.state.formData.columns.map(function (item, key) {
+                          return <option key={key}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Producto Nombre*</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='isProductName'
+                      value={this.state.isProductName}
+                      onChange={(e) => { this.handleChangeDateAnalyze('isProductName', e) }}>
+                      <option value=''>Selecciona una opción</option>
+                      {
+                        this.state.formData.columns.map(function (item, key) {
+                          return <option key={key}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className='field'>
-            <label className='label'>Centro de venta*</label>
-            <div className='control'>
-              <div className='select is-fullwidth'>
-                <select type='text'
-                  className='is-fullwidth'
-                  name='isSalesCenter'
-                  value={this.state.isSalesCenter}
-                  onChange={(e) => { this.handleChangeDateAnalyze('isSalesCenter', e) }}
-                >
-                  <option value=''>Selecciona una opción</option>
-                  {
-                    this.state.formData.columns.map(function (item, key) {
-                      return <option key={key}
-                        value={item.name}>{item.name}</option>
-                    })
-                  }
-                </select>
+          <div className='columns'>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Centro de venta*</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='isSalesCenter'
+                      value={this.state.isSalesCenter}
+                      onChange={(e) => { this.handleChangeDateAnalyze('isSalesCenter', e) }}>
+                      <option value=''>Selecciona una opción</option>
+                      {
+                        this.state.formData.columns.map(function (item, key) {
+                          return <option key={key}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Centro de venta Nombre*</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='isSalesCenterName'
+                      value={this.state.isSalesCenterName}
+                      onChange={(e) => { this.handleChangeDateAnalyze('isSalesCenterName', e) }}>
+                      <option value=''>Selecciona una opción</option>
+                      {
+                        this.state.formData.columns.map(function (item, key) {
+                          return <option key={key}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className='field'>
-            <label className='label'>Canal*</label>
-            <div className='control'>
-              <div className='select is-fullwidth'>
-                <select type='text'
-                  className='is-fullwidth'
-                  name='isChannel'
-                  value={this.state.isChannel}
-                  onChange={(e) => { this.handleChangeDateAnalyze('isChannel', e) }}
-                >
-                  <option value=''>Selecciona una opción</option>
-                  {
-                    this.state.formData.columns.map(function (item, key) {
-                      return <option key={key}
-                        value={item.name}>{item.name}</option>
-                    })
-                  }
-                </select>
+          <div className='columns'>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Canal*</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='isChannel'
+                      value={this.state.isChannel}
+                      onChange={(e) => { this.handleChangeDateAnalyze('isChannel', e) }}>
+                      <option value=''>Selecciona una opción</option>
+                      {
+                        this.state.formData.columns.map(function (item, key) {
+                          return <option key={key}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Canal Nombre*</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='isChannelName'
+                      value={this.state.isChannelName}
+                      onChange={(e) => { this.handleChangeDateAnalyze('isChannelName', e) }}>
+                      <option value=''>Selecciona una opción</option>
+                      {
+                        this.state.formData.columns.map(function (item, key) {
+                          return <option key={key}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
