@@ -40,7 +40,7 @@ class ProjectDetail extends Component {
   async deleteObject () {
     var url = '/app/projects/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/app/projects')
+    this.props.history.push('/projects')
   }
 
   render () {
