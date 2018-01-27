@@ -17,11 +17,17 @@ var schema = {
     'email', 'name'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     email: {type: 'string', title: 'Email'},
     role: {
       type: 'string',
-      title: 'Role',
+      title: 'Rol',
+      enum: [],
+      enumNames: []
+    },
+    group: {
+      type: 'string',
+      title: 'Grupo',
       enum: [],
       enumNames: []
     }
@@ -31,7 +37,8 @@ var schema = {
 const uiSchema = {
   name: {'ui:widget': TextWidget},
   email: {'ui:widget': EmailWidget},
-  role: {'ui:widget': SelectWidget}
+  role: {'ui:widget': SelectWidget},
+  group: {'ui:widget': SelectWidget}
 }
 
 class InviteUserForm extends Component {
@@ -98,9 +105,16 @@ class InviteUserForm extends Component {
       return <Loader />
     }
 
+    if (this.props.groups && this.props.groups.length === 0) {
+      return <Loader />
+    }
+
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
-
+    if (this.props.groups) {
+      schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
+      schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
+    }
     return (
       <div>
         <BaseForm schema={schema}

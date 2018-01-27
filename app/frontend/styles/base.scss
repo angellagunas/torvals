@@ -309,7 +309,7 @@ a.navbar-item:hover {
 
 .c-topbar__aside__white{
   width: 130px !important;
-  background-color: whitesmoke !important;
+  background-color: $primary !important;
   color: #000000 !important
 }
 
@@ -510,5 +510,35 @@ a.navbar-item:hover {
       border: 0px !important;
       border-bottom: 1px solid whitesmoke !important;
     }
+  }
+}
+
+
+
+
+
+.navstrong {
+  .navbar-item.has-dropdown:hover .navbar-link, .navbar-item .has-dropdown .is-active .navbar-link {
+    background-color: darken($primary,2%) !important;
+    :hover{
+      background-color: rgba(0, 0, 0, 0.1) !important;
+    }
+  }
+  .navbar-dropdown{
+    background-color: $primary !important;
+    color: white !important;
+    :hover{
+      background-color: rgba(0, 0, 0, 0.1) !important;
+      color: white !important;
+    }
+  }
+  .navbar-item{
+    :hover{
+      background-color: darken($primary,2%) !important;
+      color: white !important;
+    }
+  }
+  strong{
+  color:white !important;
   }
 }

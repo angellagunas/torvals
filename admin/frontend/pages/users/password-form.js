@@ -50,20 +50,22 @@ class PasswordUserForm extends Component {
   }
 
   async changeGroups (organization) {
-    var url = '/admin/groups/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0,
-        organization: organization
-      }
-    )
+    if (organization) {
+      var url = '/admin/groups/'
+      const body = await api.get(
+        url,
+        {
+          start: 0,
+          limit: 0,
+          organization: organization
+        }
+      )
 
-    this.setState({
-      ...this.state,
-      groups: body.data
-    })
+      this.setState({
+        ...this.state,
+        groups: body.data
+      })
+    }
   }
 
   async submitHandler ({formData}) {

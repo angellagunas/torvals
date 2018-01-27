@@ -6,6 +6,7 @@ import tree from '~core/tree'
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateUser from './create'
+import CreateUserNoModal from './create-no-modal'
 import DeleteButton from '~base/components/base-deleteButton'
 
 export default ListPage({
@@ -16,8 +17,11 @@ export default ListPage({
   roles: 'admin, orgadmin',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Usuario',
-  create: true,
+  create: false,
   createComponent: CreateUser,
+  sidePanel: true,
+  sidePanelIcon: 'user-plus',
+  sidePanelComponent: CreateUserNoModal,
   baseUrl: '/app/users',
   branchName: 'users',
   detailUrl: '/manage/users/',
@@ -49,6 +53,41 @@ export default ListPage({
         'sortable': true
       },
       {
+        'title': 'Grupos',
+        'property': 'groups',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          if (row.groups.length > 2) {
+            return (
+              <div>
+                {row.groups[0].name}
+                <br />
+                {row.groups[1].name}
+                <br />
+                {row.groups.length - 2} más
+              </div>
+            )
+          }
+          else if (row.groups.length > 1) {
+            return (
+              <div>
+                {row.groups[0].name}
+                <br />
+                {row.groups[1].name}
+              </div>
+            )
+          }
+          else if (row.groups.length > 0) {
+            return (
+              <div>
+                {row.groups[0].name}
+              </div>
+            )
+          }
+        }
+      },
+      {
         'title': 'Acciones',
         formatter: (row) => {
           const deleteObject = async function () {
@@ -70,19 +109,22 @@ export default ListPage({
           const currentUser = tree.get('user')
 
           return (
-            <div className='columns'>
-              <div className='column'>
-                <Link className='button' to={'/manage/users/' + row.uuid}>
-                  Detalle
+            <div className='field is-grouped'>
+              <div className='control'>
+                <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+                  <span className='icon is-small'>
+                    <i className='fa fa-pencil' />
+                  </span>
                 </Link>
               </div>
-              <div className='column'>
+              <div className='control'>
                 {currentUser.uuid !== row.uuid && (
                   <DeleteButton
-                    titleButton={'Desactivar'}
+                    iconOnly
+                    icon='fa fa-trash'
                     objectName='Usuario'
                     objectDelete={deleteObject}
-                    message={`Estas seguro de querer desactivar a ${row.name}?`}
+                    message={`Está seguro de querer desactivar a ${row.name} ?`}
                   />
                 )}
               </div>

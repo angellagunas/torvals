@@ -19,20 +19,19 @@ class CreateUserNoModal extends Component {
     super(props)
     this.state = {
       roles: [],
-      orgs: []
+      groups: []
     }
-    initialState['organization'] = this.props.organization || ''
   }
 
   componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
     this.loadRoles()
-    this.loadOrgs()
+    this.loadGroups()
   }
 
   async load () {
     const body = await api.get(
-      '/admin/users',
+      '/app/users',
       {
         start: 0,
         limit: this.cursor.get('pageLength') || 10,
@@ -50,7 +49,7 @@ class CreateUserNoModal extends Component {
   }
 
   async loadRoles () {
-    var url = '/admin/roles/'
+    var url = '/app/roles/'
     const body = await api.get(
       url,
       {
@@ -65,8 +64,8 @@ class CreateUserNoModal extends Component {
     })
   }
 
-  async loadOrgs () {
-    var url = '/admin/organizations/'
+  async loadGroups () {
+    var url = '/app/groups/'
     const body = await api.get(
       url,
       {
@@ -77,25 +76,27 @@ class CreateUserNoModal extends Component {
 
     this.setState({
       ...this.state,
-      orgs: body.data
+      groups: body.data
     })
   }
 
   getPasswordForm () {
     return (
       <PasswordUserForm
-        baseUrl='/admin/users'
+        baseUrl='/app/users'
         url={this.props.url}
         initialState={initialState}
         finishUp={this.props.finishUp}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
-        orgs={this.state.orgs || []}
-        filters={this.props.filters}
+        groups={this.state.groups || []}
       >
         <div className='field is-grouped is-padding-top-small'>
           <div className='control'>
             <button className='button is-primary' type='submit'>Crear</button>
+          </div>
+          <div className='control'>
+            <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
           </div>
         </div>
       </PasswordUserForm>
@@ -105,14 +106,14 @@ class CreateUserNoModal extends Component {
   getSendInviteForm () {
     return (
       <InviteUserForm
-        baseUrl='/admin/users'
+        baseUrl='/app/users'
         url={this.props.url}
         initialState={initialState}
         finishUp={this.props.finishUp}
-        load={this.props.load || this.load.bind(this)}
+        load={this.load.bind(this)}
         roles={this.state.roles || []}
-        orgs={this.state.orgs || []}
         filters={this.props.filters}
+        groups={this.state.groups || []}
       >
         <div className='field is-grouped is-padding-top-small'>
           <div className='control'>
@@ -132,7 +133,7 @@ class CreateUserNoModal extends Component {
     }
 
     return (
-        content
+      content
     )
   }
 }

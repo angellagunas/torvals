@@ -25,13 +25,19 @@ var schema = {
     'email', 'name', 'password_1', 'password_2'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     email: {type: 'string', title: 'Email'},
-    password_1: {type: 'string', title: 'Password'},
-    password_2: {type: 'string', title: 'Confirm Password'},
+    password_1: {type: 'string', title: 'Contraseña'},
+    password_2: {type: 'string', title: 'Confirmar Contraseña'},
     role: {
       type: 'string',
-      title: 'Role',
+      title: 'Rol',
+      enum: [],
+      enumNames: []
+    },
+    group: {
+      type: 'string',
+      title: 'Grupo',
       enum: [],
       enumNames: []
     }
@@ -43,7 +49,8 @@ const uiSchema = {
   email: {'ui:widget': EmailWidget},
   password_1: {'ui:widget': PasswordWidget},
   password_2: {'ui:widget': PasswordWidget},
-  role: {'ui:widget': SelectWidget}
+  role: {'ui:widget': SelectWidget},
+  group: {'ui:widget': SelectWidget}
 }
 
 class PasswordUserForm extends Component {
@@ -107,9 +114,17 @@ class PasswordUserForm extends Component {
       return <Loader />
     }
 
+    if (this.props.groups && this.props.groups.length === 0) {
+      return <Loader />
+    }
+
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
-
+    if (this.props.groups) {
+      schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
+      schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
+    }
+       
     return (
       <div>
         <BaseForm schema={schema}

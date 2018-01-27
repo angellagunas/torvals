@@ -14,7 +14,7 @@ const schema = {
   type: 'object',
   title: '',
   required: [
-    'name'
+    'name', 'organization'
   ],
   properties: {
     name: {type: 'string', title: 'Nombre'},

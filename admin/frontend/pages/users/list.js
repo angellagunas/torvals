@@ -104,7 +104,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           const deleteObject = async function () {
             var url = '/admin/users/' + row.uuid
@@ -140,7 +140,7 @@ export default ListPage({
                     icon='fa fa-trash'
                     objectName='Usuario'
                     objectDelete={deleteObject}
-                    message={`Está seguro que desea desactivar a ${row.name} ?`}
+                    message={`Está seguro de querer desactivar a ${row.name} ?`}
                   />
                 )}
               </div>
