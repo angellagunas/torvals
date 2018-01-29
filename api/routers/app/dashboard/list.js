@@ -7,11 +7,8 @@ const {
   PredictionHistoric,
   User,
   Group,
-  DataSet,
-  Project,
   Product,
-  SalesCenter,
-  AdjustmentRequest
+  SalesCenter
 } = require('models')
 
 module.exports = new Route({
@@ -40,10 +37,6 @@ module.exports = new Route({
       case 'analyst':
         filters['status'] = 'analistReview'
         response = {
-          datasetsCount: await DataSet.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
-
-          adjustmentCount: await AdjustmentRequest.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
-
           productCount: await Product.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
           
           salesCenterCount: await SalesCenter.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count()
@@ -56,9 +49,6 @@ module.exports = new Route({
 
       case 'enterprisemanager':
         filters['status'] = 'supervisorReview'
-        response = {
-          projects: await Project.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false})
-        }
         break
 
       case 'opsmanager':
@@ -70,10 +60,6 @@ module.exports = new Route({
           usersCount: await User.find({'organizations.organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
 
           groupsCount: await Group.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
-
-          datasetsCount: await DataSet.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
-
-          adjustmentCount: await AdjustmentRequest.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count()
         }
         break
     }
