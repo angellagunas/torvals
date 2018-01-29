@@ -222,8 +222,6 @@ dataSetSchema.methods.processData = async function () {
   this.newSalesCenters = []
   this.newChannels = []
 
-  console.log('apiData', this.apiData)
-
   if (this.apiData.products) {
     for (var p of this.apiData.products) {
       var product = await Product.findOne({
