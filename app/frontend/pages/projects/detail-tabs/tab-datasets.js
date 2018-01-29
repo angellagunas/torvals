@@ -63,10 +63,10 @@ class TabDatasets extends Component {
           return (
             <div className='field is-grouped'>
               <div className='control'>
-                <Link className={row.status === 'consolidated' ? 'button' : 'is-hidden'} to={'/datasets/' + row.uuid}>
+                <Link className={row.status === 'conciliated' ? 'button' : 'is-hidden'} to={'/datasets/' + row.uuid}>
                   Detalle
                 </Link>
-                <Link className={row.status !== 'consolidated' ? 'button is-primary' : 'is-hidden'} to={'/datasets/' + row.uuid}>
+                <Link className={row.status !== 'conciliated' ? 'button is-primary' : 'is-hidden'} to={'/datasets/' + row.uuid}>
                   Fin. Configuración
                 </Link>
               </div>

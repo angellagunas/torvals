@@ -55,7 +55,7 @@ module.exports = new Route({
       }
 
       dataset.set({
-        status: 'consolidate'
+        status: 'conciliated'
       })
 
       await dataset.save()
