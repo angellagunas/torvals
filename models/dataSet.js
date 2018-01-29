@@ -68,8 +68,11 @@ const dataSetSchema = new Schema({
     isOperationFilter: { type: Boolean, default: false },
     isAnalysisFilter: { type: Boolean, default: false },
     isProduct: { type: Boolean, default: false },
+    isProductName: { type: Boolean, default: false },
     isSalesCenter: { type: Boolean, default: false },
+    isSalesCenterName: { type: Boolean, default: false },
     isChannel: { type: Boolean, default: false },
+    isChannelName: { type: Boolean, default: false },
     values: [{ type: String }]
   }],
 
@@ -222,26 +225,36 @@ dataSetSchema.methods.processData = async function () {
   if (this.apiData.products) {
     for (var p of this.apiData.products) {
       var product = await Product.findOne({
-        externalId: p,
+        externalId: p._id,
         organization: this.organization
       })
 
       if (!product) {
         product = await Product.create({
-          name: 'Not identified',
-          externalId: p,
+          name: p['name'] ? p['name'] : 'Not identified',
+          externalId: p._id,
           organization: this.organization,
           isNewExternal: true
         })
 
         this.newProducts.push(product)
-      } else {
-        var pos = this.products.findIndex(item => {
-          return String(item) === String(product._id)
-        })
+      } else if (product.isNewExternal) {
+        product.set({name: p['name'] ? p['name'] : 'Not identified'})
+        product.save()
 
         var posNew = this.newProducts.findIndex(item => {
-          return String(item) === String(product._id)
+          return String(item.externalId) === String(product.externalId)
+        })
+        if (posNew < 0) {
+          this.newProducts.push(product)
+        }
+      } else {
+        var pos = this.products.findIndex(item => {
+          return String(item.externalId) === String(product.externalId)
+        })
+
+        posNew = this.newProducts.findIndex(item => {
+          return String(item.externalId) === String(product.externalId)
         })
 
         if (pos < 0 && posNew < 0) this.products.push(product)
@@ -252,27 +265,35 @@ dataSetSchema.methods.processData = async function () {
   if (this.apiData.salesCenters) {
     for (var a of this.apiData.salesCenters) {
       var salesCenter = await SalesCenter.findOne({
-        externalId: a,
+        externalId: a._id,
         organization: this.organization
       })
 
       if (!salesCenter) {
         salesCenter = await SalesCenter.create({
-          name: 'Not identified',
-          externalId: a,
+          name: a['name'] ? a['name'] : 'Not identified',
+          externalId: a._id,
           organization: this.organization,
           isNewExternal: true
-
         })
 
         this.newSalesCenters.push(salesCenter)
+      } else if (salesCenter.isNewExternal) {
+        salesCenter.set({name: a['name'] ? a['name'] : 'Not identified'})
+        salesCenter.save()
+        posNew = this.newSalesCenters.findIndex(item => {
+          return String(item.externalId) === String(salesCenter.externalId)
+        })
+        if (posNew < 0) {
+          this.newSalesCenters.push(salesCenter)
+        }
       } else {
         pos = this.salesCenters.findIndex(item => {
-          return String(item) === String(salesCenter._id)
+          return String(item.externalId) === String(salesCenter.externalId)
         })
 
         posNew = this.newSalesCenters.findIndex(item => {
-          return String(item) === String(salesCenter._id)
+          return String(item.externalId) === String(salesCenter.externalId)
         })
 
         if (pos < 0 && posNew < 0) this.salesCenters.push(salesCenter)
@@ -283,26 +304,36 @@ dataSetSchema.methods.processData = async function () {
   if (this.apiData.channels) {
     for (var c of this.apiData.channels) {
       var channel = await Channel.findOne({
-        externalId: c,
+        externalId: c._id,
         organization: this.organization
       })
 
       if (!channel) {
         channel = await Channel.create({
-          name: 'Not identified',
-          externalId: c,
+          name: c['name'] ? c['name'] : 'Not identified',
+          externalId: c._id,
           organization: this.organization,
           isNewExternal: true
         })
 
+        posNew = this.newChannels.findIndex(item => {
+          return String(item.externalId) === String(channel.externalId)
+        })
+
+        if (posNew < 0) {
+          this.newChannels.push(channel)
+        }
+      } else if (channel.isNewExternal) {
+        channel.set({name: c['name'] ? c['name'] : 'Not identified'})
+        channel.save()
         this.newChannels.push(channel)
       } else {
         pos = this.channels.findIndex(item => {
-          return String(item) === String(channel._id)
+          return String(item.externalId) === String(channel.externalId)
         })
 
         posNew = this.newChannels.findIndex(item => {
-          return String(item) === String(channel._id)
+          return String(item.externalId) === String(channel.externalId)
         })
 
         if (pos < 0 && posNew < 0) this.channels.push(channel)
