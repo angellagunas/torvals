@@ -71,7 +71,8 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
-      sort: ctx.request.query.sort || '-email'
+      sort: ctx.request.query.sort || '-email',
+      populate: 'groups'
     })
 
     users.data = users.data.map((user) => { return user.toAdmin() })

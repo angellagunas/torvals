@@ -309,7 +309,7 @@ a.navbar-item:hover {
 
 .c-topbar__aside__white{
   width: 130px !important;
-  background-color: whitesmoke !important;
+  background-color: $primary !important;
   color: #000000 !important
 }
 
@@ -328,8 +328,6 @@ a.navbar-item:hover {
 .no-flex{
   display: block !important;
 }
-
-$abraxas-color : rgba(92,138,169,1) !default;
 
 
 .dash-card{
@@ -429,4 +427,118 @@ $abraxas-color : rgba(92,138,169,1) !default;
 .navbar-menu{
   box-shadow: none !important;
 }
+}
+
+
+.has-bg-color{
+  background-color: $abraxas-color !important;
+  color: white !important;
+}
+
+.has-bg-hover:hover{
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.sidepanel{
+  position: absolute;
+  top: 65px;
+  right: 0px;
+  padding: 0px;
+  background-color: #5d5d5d;
+  color: white;
+  border-radius: 5px 0px 0px 5px;
+  cursor: pointer;
+  text-align: center;
+  width: 40px;
+}
+
+.z100{
+  z-index: 100 !important;
+}
+
+.pad-sides{
+  padding: 0 3em !important;
+}
+
+
+.dark-card{
+  background-color: #3d495a !important ;
+  color: white !important;
+  .card-header{
+    color: white !important;
+  }
+  .card-header-title{
+    color: white !important;
+  }
+  .panel-block{
+    color: white !important;
+    border-bottom: 0px !important;
+    border-left: 0px !important;
+    border-right: 0px !important;
+    .input{
+      color: white !important;
+      background-color: rgba(0, 0, 0, 0.15) !important;
+      border: 0px !important;
+      border-bottom: 1px solid whitesmoke !important;
+    }
+    .input:focus{
+      border: 0px !important;
+      border-bottom: 2px solid white !important;
+      box-shadow: none !important;
+    }
+  
+    .label{
+      text-align: left !important;
+      color: #b4becc !important;
+    } 
+
+    .select select {
+      background-color: rgba(0, 0, 0, 0.15) !important;
+      border-color: rgba(0, 0, 0, 0.15) !important;
+      color: white !important;        
+    }
+
+    .select option{
+      background-color: rgb(55, 65, 80) !important;
+      border-color: rgb(55, 65, 80) !important;
+      color: white !important;
+    }
+
+    .textarea{
+      color: white !important;
+      background-color: rgba(0, 0, 0, 0.15) !important;
+      border: 0px !important;
+      border-bottom: 1px solid whitesmoke !important;
+    }
+  }
+}
+
+
+
+
+
+.navstrong {
+  .navbar-item.has-dropdown:hover .navbar-link, .navbar-item .has-dropdown .is-active .navbar-link {
+    background-color: darken($primary,2%) !important;
+    :hover{
+      background-color: rgba(0, 0, 0, 0.1) !important;
+    }
+  }
+  .navbar-dropdown{
+    background-color: $primary !important;
+    color: white !important;
+    :hover{
+      background-color: rgba(0, 0, 0, 0.1) !important;
+      color: white !important;
+    }
+  }
+  .navbar-item{
+    :hover{
+      background-color: darken($primary,2%) !important;
+      color: white !important;
+    }
+  }
+  strong{
+  color:white !important;
+  }
 }

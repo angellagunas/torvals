@@ -1,10 +1,13 @@
 import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
-
+import api from '~base/api'
+import tree from '~core/tree'
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares/'
 import CreateGroup from './create'
+import CreateGroupNoModal from './create-no-modal'
+import DeleteButton from '~base/components/base-deleteButton'
 
 export default ListPage({
   path: '/manage/groups',
@@ -12,16 +15,19 @@ export default ListPage({
   icon: 'users',
   exact: true,
   validate: loggedIn,
-  titleSingular: 'Group',
-  create: true,
+  titleSingular: 'Grupo',
+  create: false,
   createComponent: CreateGroup,
+  sidePanel: true,
+  sidePanelIcon: 'plus',
+  sidePanelComponent: CreateGroupNoModal,
   baseUrl: '/admin/groups',
   branchName: 'groups',
   detailUrl: '/admin/manage/groups/',
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -34,7 +40,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Organzation',
+        'title': 'Organzación',
         'property': 'organization',
         'default': 'N/A',
         'sortable': true,
@@ -47,7 +53,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -58,12 +64,56 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Miembros',
+        'property': 'users',
+        'default': '0',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            row.users.length
+          )
+        }
+      },
+      {
+        'title': 'Acciones',
         'sortable': false,
         formatter: (row) => {
-          return <Link className='button' to={'/manage/groups/' + row.uuid}>
-            Detalle
-          </Link>
+          const deleteObject = async function () {
+            var url = '/admin/groups/' + row.uuid
+            await api.del(url)
+
+            const cursor = tree.get('groups')
+            const users = await api.get('/admin/groups/')
+
+            tree.set('groups', {
+              page: cursor.page,
+              totalItems: users.total,
+              items: users.data,
+              pageLength: cursor.pageLength
+            })
+            tree.commit()
+          }
+
+          return (
+            <div className='field is-grouped'>
+              <div className='control'>
+                <Link className='button is-primary' to={'/manage/groups/' + row.uuid}>
+                  <span className='icon is-small'>
+                    <i className='fa fa-pencil' />
+                  </span>
+                </Link>
+              </div>
+              <div className='control'>
+                  <DeleteButton
+                    iconOnly
+                    icon='fa fa-trash'
+                    objectName='Grupo'
+                    objectDelete={deleteObject}
+                    message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
+                  />
+              </div>
+            </div>
+          )
         }
       }
     ]
