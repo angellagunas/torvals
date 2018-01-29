@@ -8,8 +8,7 @@ module.exports = new Route({
   path: '/:uuid',
   validator: lov.object().keys({
     name: lov.string().required(),
-    organization: lov.string().required(),
-    adjustment: lov.string().required()
+    organization: lov.string().required()
   }),
   handler: async function (ctx) {
     var projectId = ctx.params.uuid
@@ -26,8 +25,7 @@ module.exports = new Route({
     project.set({
       name: data.name,
       description: data.description,
-      organization: data.organization,
-      adjustment: data.adjustment
+      organization: data.organization
     })
 
     project.save()
