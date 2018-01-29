@@ -74,7 +74,7 @@ module.exports = new Route({
       name: isProductName
     }})
 
-    filterAnalysis.push({sales_center: {
+    filterAnalysis.push({agency: {
       _id: isSalesCenter,
       name: isSalesCenterName
     }})
