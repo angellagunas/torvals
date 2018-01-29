@@ -16,9 +16,9 @@ var schema = {
     'email'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     email: {type: 'string', title: 'Email'},
-    isAdmin: {type: 'boolean', title: 'Is Admin?', default: false}
+    isAdmin: {type: 'boolean', title: 'Es Admin?', default: false}
   }
 }
 

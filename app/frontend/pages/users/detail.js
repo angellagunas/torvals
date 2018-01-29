@@ -19,7 +19,7 @@ class UserDetail extends Component {
       loaded: false,
       loading: true,
       resetLoading: false,
-      resetText: 'Reset password',
+      resetText: 'Restablecer Contraseña',
       resetClass: 'button is-danger',
       user: {},
       roles: [],
@@ -156,7 +156,7 @@ class UserDetail extends Component {
   async resetOnClick () {
     await this.setState({
       resetLoading: true,
-      resetText: 'Sending email...',
+      resetText: 'Enviando email...',
       resetClass: 'button is-info'
     })
 
@@ -167,7 +167,7 @@ class UserDetail extends Component {
       setTimeout(() => {
         this.setState({
           resetLoading: true,
-          resetText: 'Sucess!',
+          resetText: 'Éxito!',
           resetClass: 'button is-success'
         })
       }, 3000)
@@ -182,7 +182,7 @@ class UserDetail extends Component {
     setTimeout(() => {
       this.setState({
         resetLoading: false,
-        resetText: 'Reset Password',
+        resetText: 'Restablecer Contraseña',
         resetClass: 'button is-danger'
       })
     }, 10000)
@@ -278,7 +278,7 @@ class UserDetail extends Component {
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button className='button is-primary'>Guardar</button>
                             </div>
                           </div>
                         </UserForm>
@@ -293,7 +293,7 @@ class UserDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Groups
+                          Grupos
                         </p>
                         <div>
                           {this.getSavingMessage()}
@@ -301,6 +301,8 @@ class UserDetail extends Component {
                       </header>
                       <div className='card-content'>
                         <Multiselect
+                          availableTitle='Disponible'
+                          assignedTitle='Asignado'
                           assignedList={this.state.selectedGroups}
                           availableList={availableList}
                           dataFormatter={(item) => { return item.name || 'N/A' }}

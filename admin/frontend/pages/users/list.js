@@ -12,7 +12,7 @@ import DeleteButton from '~base/components/base-deleteButton'
 
 export default ListPage({
   path: '/manage/users',
-  title: 'Users',
+  title: 'Usuarios',
   icon: 'user',
   exact: true,
   validate: loggedIn,
