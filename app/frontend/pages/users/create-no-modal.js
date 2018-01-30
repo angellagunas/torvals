@@ -4,7 +4,6 @@ import PropTypes from 'baobab-react/prop-types'
 
 import env from '~base/env-variables'
 import api from '~base/api'
-import BaseModal from '~base/components/base-modal'
 import PasswordUserForm from './password-form'
 import InviteUserForm from './send-invite-form'
 
@@ -15,18 +14,19 @@ var initialState = {
   password_2: ''
 }
 
-class CreateUser extends Component {
+class CreateUserNoModal extends Component {
   constructor (props) {
     super(props)
-    this.hideModal = this.props.hideModal.bind(this)
     this.state = {
-      roles: []
+      roles: [],
+      groups: []
     }
   }
 
   componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
     this.loadRoles()
+    this.loadGroups()
   }
 
   async load () {
@@ -64,6 +64,22 @@ class CreateUser extends Component {
     })
   }
 
+  async loadGroups () {
+    var url = '/app/groups/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      groups: body.data
+    })
+  }
+
   getPasswordForm () {
     return (
       <PasswordUserForm
@@ -73,8 +89,9 @@ class CreateUser extends Component {
         finishUp={this.props.finishUp}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
+        groups={this.state.groups || []}
       >
-        <div className='field is-grouped'>
+        <div className='field is-grouped is-padding-top-small'>
           <div className='control'>
             <button className='button is-primary' type='submit'>Crear</button>
           </div>
@@ -96,13 +113,11 @@ class CreateUser extends Component {
         load={this.load.bind(this)}
         roles={this.state.roles || []}
         filters={this.props.filters}
+        groups={this.state.groups || []}
       >
-        <div className='field is-grouped'>
+        <div className='field is-grouped is-padding-top-small'>
           <div className='control'>
             <button className='button is-primary' type='submit'>Invitar</button>
-          </div>
-          <div className='control'>
-            <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
           </div>
         </div>
       </InviteUserForm>
@@ -110,28 +125,20 @@ class CreateUser extends Component {
   }
 
   render () {
-    var modalContent
-    var title = 'Crear usuario'
+    var content
     if (env.EMAIL_SEND) {
-      modalContent = this.getSendInviteForm()
-      title = 'Invitar usuario'
+      content = this.getSendInviteForm()
     } else {
-      modalContent = this.getPasswordForm()
+      content = this.getPasswordForm()
     }
 
     return (
-      <BaseModal
-        title={title}
-        className={this.props.className}
-        hideModal={this.hideModal}
-      >
-        {modalContent}
-      </BaseModal>
+      content
     )
   }
 }
 
-CreateUser.contextTypes = {
+CreateUserNoModal.contextTypes = {
   tree: PropTypes.baobab
 }
 
@@ -139,6 +146,6 @@ const BranchedCreateUser = branch((props, context) => {
   return {
     data: props.branchName
   }
-}, CreateUser)
+}, CreateUserNoModal)
 
 export default BranchedCreateUser

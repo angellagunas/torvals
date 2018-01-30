@@ -57,7 +57,7 @@ class AddOrganization extends Component {
   render () {
     return (
       <BaseModal
-        title='Add Organization'
+        title='Agregar Organización'
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -72,10 +72,10 @@ class AddOrganization extends Component {
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Add</button>
+              <button className='button is-primary' type='submit'>Agregar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>
           </div>
         </OrganizationRoleForm>

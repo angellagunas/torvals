@@ -4,7 +4,6 @@ import PropTypes from 'baobab-react/prop-types'
 
 import env from '~base/env-variables'
 import api from '~base/api'
-import BaseModal from '~base/components/base-modal'
 import PasswordUserForm from './password-form'
 import InviteUserForm from './send-invite-form'
 
@@ -15,23 +14,25 @@ var initialState = {
   password_2: ''
 }
 
-class CreateUser extends Component {
+class CreateUserNoModal extends Component {
   constructor (props) {
     super(props)
-    this.hideModal = this.props.hideModal.bind(this)
     this.state = {
-      roles: []
+      roles: [],
+      orgs: []
     }
+    initialState['organization'] = this.props.organization || ''
   }
 
   componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
     this.loadRoles()
+    this.loadOrgs()
   }
 
   async load () {
     const body = await api.get(
-      '/app/users',
+      '/admin/users',
       {
         start: 0,
         limit: this.cursor.get('pageLength') || 10,
@@ -49,7 +50,7 @@ class CreateUser extends Component {
   }
 
   async loadRoles () {
-    var url = '/app/roles/'
+    var url = '/admin/roles/'
     const body = await api.get(
       url,
       {
@@ -64,22 +65,37 @@ class CreateUser extends Component {
     })
   }
 
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      orgs: body.data
+    })
+  }
+
   getPasswordForm () {
     return (
       <PasswordUserForm
-        baseUrl='/app/users'
+        baseUrl='/admin/users'
         url={this.props.url}
         initialState={initialState}
         finishUp={this.props.finishUp}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
+        orgs={this.state.orgs || []}
+        filters={this.props.filters}
       >
-        <div className='field is-grouped'>
+        <div className='field is-grouped is-padding-top-small'>
           <div className='control'>
             <button className='button is-primary' type='submit'>Crear</button>
-          </div>
-          <div className='control'>
-            <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
           </div>
         </div>
       </PasswordUserForm>
@@ -89,20 +105,18 @@ class CreateUser extends Component {
   getSendInviteForm () {
     return (
       <InviteUserForm
-        baseUrl='/app/users'
+        baseUrl='/admin/users'
         url={this.props.url}
         initialState={initialState}
         finishUp={this.props.finishUp}
-        load={this.load.bind(this)}
+        load={this.props.load || this.load.bind(this)}
         roles={this.state.roles || []}
+        orgs={this.state.orgs || []}
         filters={this.props.filters}
       >
-        <div className='field is-grouped'>
+        <div className='field is-grouped is-padding-top-small'>
           <div className='control'>
             <button className='button is-primary' type='submit'>Invitar</button>
-          </div>
-          <div className='control'>
-            <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
           </div>
         </div>
       </InviteUserForm>
@@ -110,28 +124,20 @@ class CreateUser extends Component {
   }
 
   render () {
-    var modalContent
-    var title = 'Crear usuario'
+    var content
     if (env.EMAIL_SEND) {
-      modalContent = this.getSendInviteForm()
-      title = 'Invitar usuario'
+      content = this.getSendInviteForm()
     } else {
-      modalContent = this.getPasswordForm()
+      content = this.getPasswordForm()
     }
 
     return (
-      <BaseModal
-        title={title}
-        className={this.props.className}
-        hideModal={this.hideModal}
-      >
-        {modalContent}
-      </BaseModal>
+        content
     )
   }
 }
 
-CreateUser.contextTypes = {
+CreateUserNoModal.contextTypes = {
   tree: PropTypes.baobab
 }
 
@@ -139,6 +145,6 @@ const BranchedCreateUser = branch((props, context) => {
   return {
     data: props.branchName
   }
-}, CreateUser)
+}, CreateUserNoModal)
 
 export default BranchedCreateUser

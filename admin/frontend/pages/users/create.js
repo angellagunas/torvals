@@ -97,10 +97,10 @@ class CreateUser extends Component {
       >
         <div className='field is-grouped'>
           <div className='control'>
-            <button className='button is-primary' type='submit'>Create</button>
+            <button className='button is-primary' type='submit'>Crear</button>
           </div>
           <div className='control'>
-            <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
+            <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
           </div>
         </div>
       </PasswordUserForm>
@@ -121,10 +121,10 @@ class CreateUser extends Component {
       >
         <div className='field is-grouped'>
           <div className='control'>
-            <button className='button is-primary' type='submit'>Invite</button>
+            <button className='button is-primary' type='submit'>Invitar</button>
           </div>
           <div className='control'>
-            <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
+            <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
           </div>
         </div>
       </InviteUserForm>
@@ -133,10 +133,10 @@ class CreateUser extends Component {
 
   render () {
     var modalContent
-    var title = 'Create user'
+    var title = 'Crear usuario'
     if (env.EMAIL_SEND) {
       modalContent = this.getSendInviteForm()
-      title = 'Invite user'
+      title = 'Invitar usuario'
     } else {
       modalContent = this.getPasswordForm()
     }

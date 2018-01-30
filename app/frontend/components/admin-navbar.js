@@ -115,23 +115,23 @@ class NavBar extends Component {
 
     const navbarBrand = classNames('c-topbar__aside navbar-brand', {
       'collapsed': this.state.navbarBrandCollapsed,
-      'c-topbar__aside__white grey-hover': this.props.user.currentRole.slug === 'localmanager'
+      'c-topbar__aside__white has-bg-hover': this.props.user.currentRole.slug === 'localmanager'
     })
 
     const navItemWhite = classNames({
-      'grey-hover': this.props.user.currentRole.slug === 'localmanager',
-      'has-text-white': this.props.user.currentRole.slug !== 'localmanager'
+      'has-bg-hover has-bg-color': this.props.user.currentRole.slug === 'localmanager',
+      'has-text-black': this.props.user.currentRole.slug !== 'localmanager'
     })
 
     return (<nav className='c-topbar navbar c-fixed'>
       <div className={navbarBrand}>
         <Link to='/' className={'navbar-item ' + navItemWhite}>
           <img className='is-flex r-pad' src='/app/public/img/pythia-logo.png' />
-          <h3 className='is-size-4  is-capitalized has-text-weight-semibold'>Pythia</h3>
+          <h3 className='is-size-4 has-text-white is-capitalized has-text-weight-semibold'>Pythia</h3>
         </Link>
       </div>
       <div className='c-topbar__main'>
-        <div className='navbar-menu-container'>
+        <div className='navbar-menu-container has-bg-color has-text-white'>
           <div className='navbar-start'>
             { this.props.user.currentRole.slug !== 'localmanager' &&
               <div className='navbar-start'>
@@ -143,11 +143,11 @@ class NavBar extends Component {
               </div>
             }
             <div className='navbar-select'>
-              <SelectOrganizationForm />
+              <SelectOrganizationForm className='has-bg-color navstrong' />
             </div>
           </div>
           <div className='navbar-end'>
-            <div className='navbar-item is-size-7 has-text-grey is-capitalized'>
+            <div className='navbar-item is-size-7 has-text-white is-capitalized'>
               Bienvenido { username }
             </div>
             <div className='is-flex is-align-center'>
@@ -155,7 +155,7 @@ class NavBar extends Component {
             </div>
             <div className='dropdown is-active is-right' ref={this.setWrapperRef}>
               <div className='dropdown-trigger is-flex'>
-                <a href='javascript:undefined' className='navbar-item grey-hover' onClick={() => this.toggleBtnClass()}>
+                <a href='javascript:undefined' className='navbar-item has-bg-hover has-text-white' onClick={() => this.toggleBtnClass()}>
                   <span className='icon'>
                     <i className={this.state.dropCaret} />
                   </span>

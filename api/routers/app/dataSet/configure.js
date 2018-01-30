@@ -34,13 +34,31 @@ module.exports = new Route({
       return item.isProduct
     }).name
 
+    var checkProductName = body.columns.find((item) => {
+      return item.isProductName
+    })
+
+    var isProductName = checkProductName ? checkProductName.name : undefined
+
     var isSalesCenter = body.columns.find((item) => {
       return item.isSalesCenter
     }).name
 
+    var checkSalesCenterName = body.columns.find((item) => {
+      return item.isSalesCenterName
+    })
+
+    var isSalesCenterName = checkSalesCenterName ? checkSalesCenterName.name : undefined
+
     var isChannel = body.columns.find((item) => {
       return item.isChannel
     }).name
+
+    var checkChannelName = body.columns.find((item) => {
+      return item.isChannelName
+    })
+
+    var isChannelName = checkChannelName ? checkChannelName.name : undefined
 
     var filterAnalysis = []
     var filterOperations = []
@@ -51,10 +69,20 @@ module.exports = new Route({
       if (col.isOperationFilter) filterOperations.push(col.name)
     }
 
-    filterAnalysis.push(isProduct)
-    filterAnalysis.push(isSalesCenter)
-    filterAnalysis.push(isChannel)
-    filterAnalysis = Array.from(new Set(filterAnalysis))
+    filterAnalysis.push({product: {
+      _id: isProduct,
+      name: isProductName
+    }})
+
+    filterAnalysis.push({agency: {
+      _id: isSalesCenter,
+      name: isSalesCenterName
+    }})
+
+    filterAnalysis.push({channel: {
+      _id: isChannel,
+      name: isChannelName
+    }})
 
     for (var group of body.groupings) {
       groupings.push({
@@ -81,9 +109,6 @@ module.exports = new Route({
       body: {
         is_date: isDate,
         is_analysis: isAnalysis,
-        is_product: isProduct,
-        is_sales_center: isSalesCenter,
-        is_channel: isChannel,
         is_prediction: '',
         is_adjustment: '',
         filter_analysis: filterAnalysis,

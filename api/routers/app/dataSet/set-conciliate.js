@@ -6,7 +6,7 @@ const request = require('lib/request')
 
 module.exports = new Route({
   method: 'post',
-  path: '/:uuid/set/consolidate',
+  path: '/:uuid/set/conciliate',
   handler: async function (ctx) {
     var datasetId = ctx.params.uuid
 
@@ -55,7 +55,7 @@ module.exports = new Route({
       }
 
       dataset.set({
-        status: 'consolidated'
+        status: 'conciliated'
       })
 
       await dataset.save()

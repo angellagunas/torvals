@@ -68,8 +68,11 @@ const dataSetSchema = new Schema({
     isOperationFilter: { type: Boolean, default: false },
     isAnalysisFilter: { type: Boolean, default: false },
     isProduct: { type: Boolean, default: false },
+    isProductName: { type: Boolean, default: false },
     isSalesCenter: { type: Boolean, default: false },
+    isSalesCenterName: { type: Boolean, default: false },
     isChannel: { type: Boolean, default: false },
+    isChannelName: { type: Boolean, default: false },
     values: [{ type: String }]
   }],
 
@@ -222,26 +225,36 @@ dataSetSchema.methods.processData = async function () {
   if (this.apiData.products) {
     for (var p of this.apiData.products) {
       var product = await Product.findOne({
-        externalId: p,
+        externalId: p._id,
         organization: this.organization
       })
 
       if (!product) {
         product = await Product.create({
-          name: 'Not identified',
-          externalId: p,
+          name: p['name'] ? p['name'] : 'Not identified',
+          externalId: p._id,
           organization: this.organization,
           isNewExternal: true
         })
 
         this.newProducts.push(product)
-      } else {
-        var pos = this.products.findIndex(item => {
-          return String(item) === String(product._id)
-        })
+      } else if (product.isNewExternal) {
+        product.set({name: p['name'] ? p['name'] : 'Not identified'})
+        product.save()
 
         var posNew = this.newProducts.findIndex(item => {
-          return String(item) === String(product._id)
+          return String(item.externalId) === String(product.externalId)
+        })
+        if (posNew < 0) {
+          this.newProducts.push(product)
+        }
+      } else {
+        var pos = this.products.findIndex(item => {
+          return String(item.externalId) === String(product.externalId)
+        })
+
+        posNew = this.newProducts.findIndex(item => {
+          return String(item.externalId) === String(product.externalId)
         })
 
         if (pos < 0 && posNew < 0) this.products.push(product)
@@ -252,27 +265,35 @@ dataSetSchema.methods.processData = async function () {
   if (this.apiData.salesCenters) {
     for (var a of this.apiData.salesCenters) {
       var salesCenter = await SalesCenter.findOne({
-        externalId: a,
+        externalId: a._id,
         organization: this.organization
       })
 
       if (!salesCenter) {
         salesCenter = await SalesCenter.create({
-          name: 'Not identified',
-          externalId: a,
+          name: a['name'] ? a['name'] : 'Not identified',
+          externalId: a._id,
           organization: this.organization,
           isNewExternal: true
-
         })
 
         this.newSalesCenters.push(salesCenter)
+      } else if (salesCenter.isNewExternal) {
+        salesCenter.set({name: a['name'] ? a['name'] : 'Not identified'})
+        salesCenter.save()
+        posNew = this.newSalesCenters.findIndex(item => {
+          return String(item.externalId) === String(salesCenter.externalId)
+        })
+        if (posNew < 0) {
+          this.newSalesCenters.push(salesCenter)
+        }
       } else {
         pos = this.salesCenters.findIndex(item => {
-          return String(item) === String(salesCenter._id)
+          return String(item.externalId) === String(salesCenter.externalId)
         })
 
         posNew = this.newSalesCenters.findIndex(item => {
-          return String(item) === String(salesCenter._id)
+          return String(item.externalId) === String(salesCenter.externalId)
         })
 
         if (pos < 0 && posNew < 0) this.salesCenters.push(salesCenter)
@@ -283,26 +304,36 @@ dataSetSchema.methods.processData = async function () {
   if (this.apiData.channels) {
     for (var c of this.apiData.channels) {
       var channel = await Channel.findOne({
-        externalId: c,
+        externalId: c._id,
         organization: this.organization
       })
 
       if (!channel) {
         channel = await Channel.create({
-          name: 'Not identified',
-          externalId: c,
+          name: c['name'] ? c['name'] : 'Not identified',
+          externalId: c._id,
           organization: this.organization,
           isNewExternal: true
         })
 
+        posNew = this.newChannels.findIndex(item => {
+          return String(item.externalId) === String(channel.externalId)
+        })
+
+        if (posNew < 0) {
+          this.newChannels.push(channel)
+        }
+      } else if (channel.isNewExternal) {
+        channel.set({name: c['name'] ? c['name'] : 'Not identified'})
+        channel.save()
         this.newChannels.push(channel)
       } else {
         pos = this.channels.findIndex(item => {
-          return String(item) === String(channel._id)
+          return String(item.externalId) === String(channel.externalId)
         })
 
         posNew = this.newChannels.findIndex(item => {
-          return String(item) === String(channel._id)
+          return String(item.externalId) === String(channel.externalId)
         })
 
         if (pos < 0 && posNew < 0) this.channels.push(channel)
@@ -326,11 +357,20 @@ dataSetSchema.methods.process = async function (res) {
     })
 
     await this.save()
+    return
+  }
+
+  this.set({
+    status: 'preprocessing'
+  })
+
+  if (res.status === 'uploading' || !res.headers) {
+    await this.save()
+    return
   }
 
   this.set({
     status: 'configuring',
-    uploaded: true,
     columns: res.headers.map(item => {
       return {
         name: item,
@@ -342,7 +382,133 @@ dataSetSchema.methods.process = async function (res) {
     })
   })
 
+  if (res.status === 'done') {
+    await this.save()
+    return
+  }
+
+  this.set({
+    status: 'processing'
+  })
+
+  if (res.status === 'processing') {
+    await this.save()
+    return
+  }
+
+  let apiData = {
+    products: [],
+    salesCenters: [],
+    channels: []
+  }
+
+  apiData['products'] = res.data['product']
+  apiData['salesCenters'] = res.data['agency']
+  apiData['channels'] = res.data['channel']
+
+  this.set({
+    status: 'reviewing',
+    columns: res.headers.map(item => {
+      var isDate = false
+      var isAnalysis = false
+      var isOperationFilter = false
+      var isAnalysisFilter = false
+      var isProductName = false
+      var isProduct = false
+      var isSalesCenterName = false
+      var isSalesCenter = false
+      var isChannel = false
+      var isChannelName = false
+
+      if (res.columns['is_date'] === item) {
+        isDate = true
+      }
+
+      if (res.columns['is_analysis'] === item) {
+        isAnalysis = true
+      }
+
+      if (res.columns['filter_operations'].find(col => { return col === item })) {
+        isOperationFilter = true
+      }
+
+      var product = res.columns.filter_analysis.find(col => {
+        return col.product || false
+      })
+
+      if (product) {
+        product = product.product
+        if (product._id === item) {
+          isProduct = true
+        }
+
+        if (product.name && product.name === item) {
+          isProductName = true
+        }
+      }
+
+      var salesCenter = res.columns.filter_analysis.find(col => {
+        return col.agency || false
+      })
+
+      if (salesCenter) {
+        salesCenter = salesCenter.agency
+        if (salesCenter._id === item) {
+          isSalesCenter = true
+        }
+
+        if (salesCenter.name && salesCenter.name === item) {
+          isSalesCenterName = true
+        }
+      }
+
+      var channel = res.columns.filter_analysis.find(col => {
+        return col.channel || false
+      })
+
+      if (channel) {
+        channel = channel.channel
+        if (channel._id === item) {
+          isChannel = true
+        }
+
+        if (channel.name && channel.name === item) {
+          isChannelName = true
+        }
+      }
+
+      return {
+        name: item,
+        isDate: isDate,
+        isAnalysis: isAnalysis,
+        isOperationFilter: isOperationFilter,
+        isAnalysisFilter: isAnalysisFilter,
+        isProduct: isProduct,
+        isProductName: isProductName,
+        isSalesCenter: isSalesCenter,
+        isSalesCenterName: isSalesCenterName,
+        isChannel: isChannel,
+        isChannelName: isChannelName
+      }
+    }),
+    dateMax: res.date_max,
+    dateMin: res.date_min,
+    apiData: apiData,
+    groupings: res.columns.groupings
+  })
+
+  if (res.status === 'ready') {
+    await this.save()
+    await this.processData()
+    return
+  }
+
+  this.set({
+    status: 'conciliated'
+  })
+
   await this.save()
+  await this.processData()
 }
 
 dataSetSchema.virtual('url').get(function () {
