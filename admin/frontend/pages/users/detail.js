@@ -22,7 +22,7 @@ class UserDetail extends Component {
       loaded: false,
       loading: true,
       resetLoading: false,
-      resetText: 'Reset password',
+      resetText: 'Restablecer Contraseña',
       resetClass: 'button is-danger',
       user: {},
       roles: [],
@@ -176,7 +176,7 @@ class UserDetail extends Component {
   async resetOnClick () {
     await this.setState({
       resetLoading: true,
-      resetText: 'Sending email...',
+      resetText: 'Enviando email...',
       resetClass: 'button is-info'
     })
 
@@ -187,7 +187,7 @@ class UserDetail extends Component {
       setTimeout(() => {
         this.setState({
           resetLoading: true,
-          resetText: 'Sucess!',
+          resetText: 'Éxito!',
           resetClass: 'button is-success'
         })
       }, 3000)
@@ -202,7 +202,7 @@ class UserDetail extends Component {
     setTimeout(() => {
       this.setState({
         resetLoading: false,
-        resetText: 'Reset Password',
+        resetText: 'Restablecer Contraseña',
         resetClass: 'button is-danger'
       })
     }, 10000)
@@ -223,7 +223,7 @@ class UserDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': 'N/A',
         formatter: (row) => {
@@ -235,7 +235,7 @@ class UserDetail extends Component {
         }
       },
       {
-        'title': 'Role',
+        'title': 'Rol',
         'property': 'role',
         'default': 'N/A',
         formatter: (row) => {
@@ -259,13 +259,13 @@ class UserDetail extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <button
             className='button'
             onClick={() => { this.removeOrgOnClick(row.organization.uuid, row.role.uuid) }}
           >
-            Remove
+            Eliminar
           </button>
         }
       }
@@ -381,7 +381,7 @@ class UserDetail extends Component {
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button className='button is-primary'>Guardar</button>
                             </div>
                           </div>
                         </UserForm>
@@ -396,11 +396,11 @@ class UserDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Organizations
+                          Organizaciones
                         </p>
                         <div className='card-header-select'>
                           <button className='button is-primary' onClick={() => this.showModal()}>
-                            Add Organization
+                            Agregar Organización
                           </button>
                           <AddOrganization
                             className={this.state.className}
@@ -426,7 +426,7 @@ class UserDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Groups
+                          Grupos
                         </p>
                         <div>
                           {this.getSavingMessage()}
@@ -434,6 +434,8 @@ class UserDetail extends Component {
                       </header>
                       <div className='card-content'>
                         <Multiselect
+                          availableTitle='Disponible'
+                          assignedTitle='Asignado'
                           assignedList={this.state.selectedGroups}
                           availableList={availableList}
                           dataFormatter={(item) => { return item.name + ' de ' + item.organization.name || 'N/A' }}
@@ -461,7 +463,7 @@ const branchedUserDetail = branch({}, UserDetail)
 
 export default Page({
   path: '/manage/users/:uuid',
-  title: 'User details',
+  title: 'Detalle de usuario',
   exact: true,
   validate: loggedIn,
   component: branchedUserDetail

@@ -8,6 +8,7 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateGroup from './create'
 import CreateGroupNoModal from './create-no-modal'
 import DeleteButton from '~base/components/base-deleteButton'
+import GroupUsers from './group-users'
 
 export default ListPage({
   path: '/manage/groups',
@@ -69,7 +70,10 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            row.users.length
+            <div>
+              {row.users.length}
+              {row.users.length > 0 && <GroupUsers group={row} /> }
+            </div>
           )
         }
       },
