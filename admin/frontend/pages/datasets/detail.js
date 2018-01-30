@@ -127,7 +127,7 @@ class DataSetDetail extends Component {
   }
 
   async consolidateOnClick () {
-    var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/consolidate'
+    var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/conciliate'
     await api.post(url)
     await this.load()
     this.props.history.push(`/admin/projects/detail/${this.state.dataset.project.uuid}`)
