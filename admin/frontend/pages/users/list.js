@@ -84,8 +84,7 @@ export default ListPage({
                 {row.groups.length - 2} más
               </div>
             )
-          }
-          else if (row.groups.length > 1) {
+          } else if (row.groups.length > 1) {
             return (
               <div>
                 {row.groups[0].name}
@@ -93,8 +92,7 @@ export default ListPage({
                 {row.groups[1].name}
               </div>
             )
-          }
-          else if (row.groups.length > 0) {
+          } else if (row.groups.length > 0) {
             return (
               <div>
                 {row.groups[0].name}
@@ -111,7 +109,12 @@ export default ListPage({
             await api.del(url)
 
             const cursor = tree.get('users')
-            const users = await api.get('/admin/users/')
+
+            const users = await api.get('/admin/users/',
+              { start: 0,
+                limit: 10,
+                sort: cursor.sort || ''
+              })
 
             tree.set('users', {
               page: cursor.page,

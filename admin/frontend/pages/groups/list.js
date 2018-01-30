@@ -88,7 +88,13 @@ export default ListPage({
             await api.del(url)
 
             const cursor = tree.get('groups')
-            const users = await api.get('/admin/groups/')
+
+            const users = await api.get('/admin/groups/',
+              {
+                start: 0,
+                limit: 10,
+                sort: cursor.sort || ''
+              })
 
             tree.set('groups', {
               page: cursor.page,
@@ -109,13 +115,13 @@ export default ListPage({
                 </Link>
               </div>
               <div className='control'>
-                  <DeleteButton
-                    iconOnly
-                    icon='fa fa-trash'
-                    objectName='Grupo'
-                    objectDelete={deleteObject}
-                    message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
-                  />
+                <DeleteButton
+                  iconOnly
+                  icon='fa fa-trash'
+                  objectName='Grupo'
+                  objectDelete={deleteObject}
+                  message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
+                />
               </div>
             </div>
           )
