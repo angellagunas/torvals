@@ -58,8 +58,8 @@ export default ListPage({
             uuid: 'ready'
           },
           {
-            name: 'consolidated',
-            uuid: 'consolidated'
+            name: 'conciliated',
+            uuid: 'conciliated'
           }
         ]
       }
