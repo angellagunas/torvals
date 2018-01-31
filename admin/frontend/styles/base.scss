@@ -190,12 +190,12 @@ footer.footer {
   padding-bottom: 0.5em;
 }
 
-.card-header-select {    
-  padding: .30em   
-}    
-   
-.card-header-select.select:not(.is-multiple)::after {    
-  margin-top: -.130em    
+.card-header-select {
+  padding: .30em
+}
+
+.card-header-select.select:not(.is-multiple)::after {
+  margin-top: -.130em
 }
 
 .multiselect-column {
@@ -211,7 +211,7 @@ footer.footer {
   padding-top: 7.8em;
 }
 
-select.placeholder {  
+select.placeholder {
   color: gray;
 }
 
@@ -325,7 +325,7 @@ pre.json {
   }
   img{
     padding: 0px 40px !important;
-    margin-bottom: -10px !important; 
+    margin-bottom: -10px !important;
   }
 }
 .land-content{
@@ -376,7 +376,7 @@ pre.json {
   .label{
     text-align: left !important;
     color: white !important;
-  } 
+  }
 }
 
 @media screen and (max-width: 1023px){
@@ -441,16 +441,16 @@ pre.json {
       border-bottom: 2px solid white !important;
       box-shadow: none !important;
     }
-  
+
     .label{
       text-align: left !important;
       color: #b4becc !important;
-    } 
+    }
 
     .select select {
       background-color: rgba(0, 0, 0, 0.15) !important;
       border-color: rgba(0, 0, 0, 0.15) !important;
-      color: white !important;        
+      color: white !important;
     }
 
     .select option{
@@ -466,4 +466,22 @@ pre.json {
       border-bottom: 1px solid whitesmoke !important;
     }
   }
+}
+
+.historical-container{
+  display: flex;
+  justify-content: center;
+}
+.historical tbody{
+  font-size: 12px
+}
+
+.font-blue{
+  color: #01579B;
+}
+.font-orange{
+  color: #FF9800;
+}
+.font-green{
+  color: #8BC34A;
 }

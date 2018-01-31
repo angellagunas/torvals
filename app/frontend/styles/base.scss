@@ -355,7 +355,7 @@ a.navbar-item:hover {
   }
   img{
     padding: 0px 40px !important;
-    margin-bottom: -10px !important; 
+    margin-bottom: -10px !important;
   }
 }
 .land-content{
@@ -407,7 +407,7 @@ a.navbar-item:hover {
     text-align: left !important;
     color: white !important;
   }
-  
+
 }
 
 .land-card{
@@ -486,16 +486,16 @@ a.navbar-item:hover {
       border-bottom: 2px solid white !important;
       box-shadow: none !important;
     }
-  
+
     .label{
       text-align: left !important;
       color: #b4becc !important;
-    } 
+    }
 
     .select select {
       background-color: rgba(0, 0, 0, 0.15) !important;
       border-color: rgba(0, 0, 0, 0.15) !important;
-      color: white !important;        
+      color: white !important;
     }
 
     .select option{
@@ -541,4 +541,21 @@ a.navbar-item:hover {
   strong{
   color:white !important;
   }
+}
+.historical-container{
+  display: flex;
+  justify-content: center;
+}
+.historical tbody{
+  font-size: 12px
+}
+
+.font-blue{
+  color: #01579B;
+}
+.font-orange{
+  color: #FF9800;
+}
+.font-green{
+  color: #8BC34A;
 }
