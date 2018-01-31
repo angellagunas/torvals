@@ -250,8 +250,8 @@ class ProjectDetail extends Component {
         content: <div className='card'>Ajustes</div>
       },
       {
-        name: 'Historial',
-        title: 'Historial',
+        name: 'Historico',
+        title: 'Historico',
         icon: 'fa-history',
         content: historical
       }
