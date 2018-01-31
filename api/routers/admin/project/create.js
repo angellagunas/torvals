@@ -25,7 +25,8 @@ module.exports = new Route({
       name: data.name,
       description: data.description,
       organization: org._id,
-      adjustment: data.adjustment
+      adjustment: data.adjustment,
+      createdBy: ctx.state.user
     })
 
     var apiData = Api.get()

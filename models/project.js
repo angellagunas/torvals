@@ -22,7 +22,9 @@ const projectSchema = new Schema({
     enum: [
       'empty',
       'processing',
-      'ready'
+      'ready',
+      'adjustment',
+      'reviewing'
     ],
     default: 'empty'
   },
@@ -33,6 +35,7 @@ const projectSchema = new Schema({
   businessRules: Schema.Types.Mixed,
 
   dateCreated: { type: Date, default: moment.utc },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true })
