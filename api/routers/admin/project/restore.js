@@ -1,5 +1,4 @@
 const Route = require('lib/router/route')
-const lov = require('lov')
 
 const {Project} = require('models')
 
@@ -8,16 +7,22 @@ module.exports = new Route({
   path: '/restore/:uuid',
   handler: async function (ctx) {
     var projectId = ctx.params.uuid
-    var data = ctx.request.body
 
     const project = await Project.findOne({'uuid': projectId, 'isDeleted': true})
+    .populate('datasets.dataset')
+
     ctx.assert(project, 404, 'Project not found')
+
+    for (var d of project.datasets) {
+      d.dataset.isDeleted = false
+      await d.dataset.save()
+    }
 
     project.set({
       isDeleted: false
     })
 
-    project.save()
+    await project.save()
 
     ctx.body = {
       data: project
