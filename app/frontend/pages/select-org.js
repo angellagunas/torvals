@@ -46,10 +46,13 @@ class SelectOrg extends Component {
               </figure>
               <div className='media-content'>
                 <span className='item-link-title'>{organization.name}</span>
-                {user.organizations.length > 1 ? <span className='icon is-pulled-right has-text-primary'>
-                  <span aria-hidden='true' className={this.state.toggled ? 'fa fa-angle-right' : 'fa fa-angle-down'}>
-                  </span>
-                </span> : null}
+                {
+                  user.organizations.length > 1
+                  ? <span className='icon is-pulled-right has-text-primary'>
+                    <span aria-hidden='true' className={this.state.toggled ? 'fa fa-angle-right' : 'fa fa-angle-down'} />
+                    </span>
+                  : null
+                }
               </div>
             </div>
           </a>
@@ -76,8 +79,12 @@ class SelectOrg extends Component {
     let list = user.organizations.map(item => {
       if (organization.slug !== item.organization.slug) {
         return (
-          <li key={item.organization.slug} onClick={e => { this.changeHandler(item.organization.slug) }}>
-            <a aria-current='false' href='javascript:void(0)'>
+          <li
+            key={item.organization.slug}
+            onClick={e => { this.changeHandler(item.organization.slug) }}>
+            <a
+              aria-current='false'
+              href='javascript:void(0)'>
               <div className='media'>
                 <figure className='media-left image is-24x24'>
                   <img src={item.organization.profileUrl} alt='Avatar' />
@@ -98,8 +105,12 @@ class SelectOrg extends Component {
   getDropdown () {
     if (organization) {
       return (
-        <div className='dropdown' onMouseLeave={this.hideDrop.bind(this)} onMouseOver={this.showDrop.bind(this)}>
-          <a className='is-paddingless' aria-current='false' href='javascript:void(0)'>
+        <div className='dropdown'
+          onMouseLeave={this.hideDrop.bind(this)}
+          onMouseOver={this.showDrop.bind(this)}>
+          <a className='is-paddingless'
+            aria-current='false'
+            href='javascript:void(0)'>
             <figure className='image is-24x24'>
               <img src={organization.profileUrl} alt='Avatar' />
             </figure>
@@ -118,7 +129,7 @@ class SelectOrg extends Component {
   render () {
     return (
 
-      <li>  
+      <li>
         {this.props.collapsed ? this.getDropdown() : this.getDefaultObject()}
       </li>
 
