@@ -582,7 +582,9 @@ class DataSetDetail extends Component {
       }
     })
 
-    if ((dataset.status !== 'reviewing' && dataset.status !== 'conciliated') || newChannels.length === 0) {
+    if ((dataset.status !== 'reviewing' &&
+      dataset.status !== 'conciliated') ||
+      newChannels.length === 0) {
       return ''
     }
 
@@ -664,7 +666,9 @@ class DataSetDetail extends Component {
       }
     })
 
-    if ((dataset.status !== 'reviewing' && dataset.status !== 'conciliated') || newSalesCenters.length === 0) {
+    if ((dataset.status !== 'reviewing' &&
+      dataset.status !== 'conciliated') ||
+      newSalesCenters.length === 0) {
       return ''
     }
 
@@ -746,7 +750,9 @@ class DataSetDetail extends Component {
       }
     })
 
-    if ((dataset.status !== 'reviewing' && dataset.status !== 'conciliated') || newProducts.length === 0) {
+    if ((dataset.status !== 'reviewing' &&
+      dataset.status !== 'conciliated') ||
+      newProducts.length === 0) {
       return ''
     }
 
