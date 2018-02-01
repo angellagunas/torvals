@@ -43,12 +43,6 @@ class ProjectDetail extends Component {
     this.props.history.push('/admin/projects')
   }
 
-  async filterOnClick () {
-    var url = '/admin/projects/filter/' + this.props.match.params.uuid
-    await api.post(url)
-    // this.props.history.push('/admin/projects')
-  }
-
   render () {
     const { project } = this.state
 
@@ -97,9 +91,7 @@ class ProjectDetail extends Component {
           <div className='card'>
             <header className='card-header'><p className='card-header-title'> Ajustes </p></header>
             <div className='card-content'>
-              <button type='button' className='button' onClick={() => { this.filterOnClick() }}>
-                Filtrar
-              </button>
+              Ajustes
             </div>
           </div>
         )
