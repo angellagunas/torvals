@@ -24,7 +24,10 @@ const projectSchema = new Schema({
       'processing',
       'ready',
       'adjustment',
-      'reviewing'
+      'reviewing',
+      'pendingRows',
+      'adjustment',
+      'conciliating'
     ],
     default: 'empty'
   },
