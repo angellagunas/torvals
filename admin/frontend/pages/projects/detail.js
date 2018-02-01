@@ -88,7 +88,14 @@ class ProjectDetail extends Component {
         name: 'Ajustes',
         title: 'Ajustes',
         icon: 'fa-cogs',
-        content: <div className='card'>Ajustes</div>
+        content: (
+          <div className='card'>
+            <header className='card-header'><p className='card-header-title'> Ajustes </p></header>
+            <div className='card-content'>
+              Ajustes
+            </div>
+          </div>
+        )
       },
       {
         name: 'Historico',

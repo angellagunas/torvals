@@ -14,6 +14,7 @@ const Prediction = require('./prediction')
 const PredictionHistoric = require('./predictionHistoric')
 const AdjustmentRequest = require('./adjustmentRequest')
 const Channel = require('./channel')
+const DataSetRow = require('./datasetRow')
 // #Import
 
 module.exports = {
@@ -31,6 +32,7 @@ module.exports = {
   Prediction,
   PredictionHistoric,
   AdjustmentRequest,
-  Forecast, // #Exports
+  Forecast,
+  DataSetRow,
   Channel // #Exports
 }

@@ -22,7 +22,9 @@ const projectSchema = new Schema({
     enum: [
       'empty',
       'processing',
-      'ready'
+      'ready',
+      'adjustment',
+      'reviewing'
     ],
     default: 'empty'
   },
@@ -30,9 +32,11 @@ const projectSchema = new Schema({
   description: { type: String },
   externalId: { type: String },
   adjustment: { type: Number },
+  activeDataset: { type: Schema.Types.ObjectId, ref: 'DataSet' },
   businessRules: Schema.Types.Mixed,
 
   dateCreated: { type: Date, default: moment.utc },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true })
@@ -48,6 +52,7 @@ projectSchema.methods.toPublic = function () {
     datasets: this.datasets,
     adjustment: this.adjustment,
     status: this.status,
+    activeDataset: this.activeDataset,
     externalId: this.externalId,
     dateCreated: this.dateCreated
   }
@@ -62,6 +67,7 @@ projectSchema.methods.toAdmin = function () {
     datasets: this.datasets,
     adjustment: this.adjustment,
     status: this.status,
+    activeDataset: this.activeDataset,
     externalId: this.externalId,
     dateCreated: this.dateCreated
   }

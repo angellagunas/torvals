@@ -107,8 +107,6 @@ module.exports = new Route({
       body: {
         is_date: isDate,
         is_analysis: isAnalysis,
-        is_prediction: '',
-        is_adjustment: '',
         filter_analysis: filterAnalysis,
         filter_operations: filterOperations,
         groupings: groupings
