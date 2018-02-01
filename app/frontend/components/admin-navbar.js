@@ -142,9 +142,10 @@ class NavBar extends Component {
                 </div>
               </div>
             }
-            <div className='navbar-select'>
+            { this.props.user.currentRole.slug === 'localmanager' && <div className='navbar-select'>
               <SelectOrganizationForm className='has-bg-color navstrong' />
             </div>
+            }
           </div>
           <div className='navbar-end'>
             <div className='navbar-item is-size-7 has-text-white is-capitalized'>

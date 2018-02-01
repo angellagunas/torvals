@@ -13,6 +13,7 @@ import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
 import Forecasts from '../pages/forecasts/list'
 import Channels from '../pages/channel/list'
+import SelectOrg from '../pages/select-org'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -75,6 +76,7 @@ class Sidebar extends Component {
   getMenuItems () {
     if (tree.get('organization')) {
       return [
+      
         Dashboard.asSidebarItem(),
         {
           title: 'Manage Your Team',
@@ -155,6 +157,7 @@ class Sidebar extends Component {
     return (<div className='offcanvas column is-narrow is-paddingless'>
       <aside className={menuClass}>
         <ul className='menu-list'>
+          <SelectOrg collapsed={this.state.collapsed}/>
           {this.state.menuItems.map((item, index) => {
             if (item) {
               return <SidebarItem

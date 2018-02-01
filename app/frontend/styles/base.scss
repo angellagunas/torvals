@@ -436,7 +436,7 @@ a.navbar-item:hover {
 }
 
 .has-bg-hover:hover{
-  background-color: rgba(0, 0, 0, 0.1) !important;
+  background-color: darken($primary, 3%) !important;
 }
 
 .sidepanel{
@@ -519,28 +519,45 @@ a.navbar-item:hover {
 
 .navstrong {
   .navbar-item.has-dropdown:hover .navbar-link, .navbar-item .has-dropdown .is-active .navbar-link {
-    background-color: darken($primary,2%) !important;
+    background-color: darken($primary, 3%) !important;
     :hover{
-      background-color: rgba(0, 0, 0, 0.1) !important;
+      background-color: darken($primary, 3%) !important;
     }
   }
   .navbar-dropdown{
     background-color: $primary !important;
     color: white !important;
     :hover{
-      background-color: rgba(0, 0, 0, 0.1) !important;
+      background-color: darken($primary, 3%) !important;
       color: white !important;
     }
   }
   .navbar-item{
     :hover{
-      background-color: darken($primary,2%) !important;
+      background-color: darken($primary, 3%) !important;
       color: white !important;
     }
   }
   strong{
   color:white !important;
   }
+  .navbar-link::after{
+    border: 2px solid white;
+    border-right: 0;
+    border-top: 0;
+    content: " ";
+    display: block;
+    height: 0.5em;
+    pointer-events: none;
+    position: absolute;
+    transform: rotate(-45deg);
+    width: 0.5em;
+    margin-top: -0.375em;
+    right: 1.125em;
+    top: 50%;
+  }
+}
+
 }
 .historical-container{
   display: flex;
@@ -559,3 +576,4 @@ a.navbar-item:hover {
 .font-green{
   color: #8BC34A;
 }
+
