@@ -127,7 +127,7 @@ class DataSetDetail extends Component {
   }
 
   async consolidateOnClick () {
-    var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/consolidate'
+    var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/conciliate'
     await api.post(url)
     await this.load()
     this.props.history.push(`/admin/projects/detail/${this.state.dataset.project.uuid}`)
@@ -329,7 +329,7 @@ class DataSetDetail extends Component {
           </div>
         </div>
       )
-    } else if (dataset.status === 'consolidated') {
+    } else if (dataset.status === 'conciliated') {
       return (
         <div className='column'>
           <div className='card'>
@@ -582,7 +582,9 @@ class DataSetDetail extends Component {
       }
     })
 
-    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || newChannels.length === 0) {
+    if ((dataset.status !== 'reviewing' &&
+      dataset.status !== 'conciliated') ||
+      newChannels.length === 0) {
       return ''
     }
 
@@ -664,7 +666,9 @@ class DataSetDetail extends Component {
       }
     })
 
-    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || newSalesCenters.length === 0) {
+    if ((dataset.status !== 'reviewing' &&
+      dataset.status !== 'conciliated') ||
+      newSalesCenters.length === 0) {
       return ''
     }
 
@@ -746,7 +750,9 @@ class DataSetDetail extends Component {
       }
     })
 
-    if ((dataset.status !== 'reviewing' && dataset.status !== 'consolidated') || newProducts.length === 0) {
+    if ((dataset.status !== 'reviewing' &&
+      dataset.status !== 'conciliated') ||
+      newProducts.length === 0) {
       return ''
     }
 

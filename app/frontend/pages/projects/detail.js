@@ -10,6 +10,7 @@ import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
+import TabHistorical from './detail-tabs/tab-historical'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -92,10 +93,10 @@ class ProjectDetail extends Component {
         content: <div className='card'>Ajustes</div>
       },
       {
-        name: 'Historial',
-        title: 'Historial',
+        name: 'Historico',
+        title: 'Historico',
         icon: 'fa-history',
-        content: <div className='card'>Historial</div>
+        content: <TabHistorical />
       }
 
     ]

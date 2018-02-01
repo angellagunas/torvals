@@ -1,12 +1,57 @@
 import React, { Component } from 'react'
+import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import Link from '~base/router/link'
+import moment from 'moment'
 
 class DashOrgAdmin extends Component {
 
-  moveTo (route) {
+  moveTo(route) {
     this.props.history.push(route)
   }
 
-  render () {
+  getColumns = () => {
+    return [
+      {
+        'title': 'ID',
+        'property': 'uuid',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/projects/' + row.uuid}>
+              {row.uuid}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'Nombre',
+        'property': 'name',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/projects/' + row.uuid}>
+              {row.name}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'Fecha de Creación',
+        'property': 'dateCreated',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
+          )
+        }
+      }
+    ]
+  }
+
+  render() {
     return (
       <div className='section container'>
         <h2 className='is-size-4 is-padding-bottom-small has-text-color'>Organización</h2>
@@ -46,56 +91,15 @@ class DashOrgAdmin extends Component {
 
         </div>
 
-        <h2 className='is-size-4 is-padding-bottom-small has-text-color'>Proyecto</h2>
-        <div className='columns'>
+        <h2 className='is-size-4 is-padding-bottom-small has-text-color'>Proyectos</h2>
 
-          <div className='column is-3' onClick={() => this.moveTo('/datasets')}>
-            <div className='card has-text-centered dash-card'>
-              <header className='card-header'>
-                <p className='card-header-title no-flex is-size-5-touch is-size-4-desktop has-text-white'>
-                  <i className='fa fa-file' />
-                  Datasets
-                </p>
-              </header>
-              <div className='card-content'>
-                <div className='content'>
-                  <p className='is-size-3-touch is-size-1-desktop'>{this.props.dashboard.datasetsCount || 0}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className='column is-3' onClick={() => this.moveTo('/forecasts')}>
-            <div className='card has-text-centered dash-card'>
-              <header className='card-header'>
-                <p className='card-header-title no-flex is-size-5-touch is-size-4-desktop has-text-white'>
-                  <i className='fa fa-snowflake-o' />
-                  Forecasts
-                </p>
-              </header>
-              <div className='card-content'>
-                <div className='content'>
-                  <p className='is-size-3-touch is-size-1-desktop'>{this.props.dashboard.forecasts.length || 0}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className='column is-3' onClick={() => this.moveTo('/projectsv2')}>
-            <div className='card has-text-centered dash-card'>
-              <header className='card-header'>
-                <p className='card-header-title no-flex is-size-4 has-text-white'>
-                  <i className='fa fa-adjust' />
-                  Ajustes
-                </p>
-              </header>
-              <div className='card-content'>
-                <div className='content'>
-                  <p className='is-size-3-touch is-size-1-desktop'>{this.props.dashboard.adjustCount || 0}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className='card'>
+              <BranchedPaginatedTable
+                branchName='projects'
+                baseUrl='/app/projects'
+                columns={this.getColumns()}
+                sortedBy={'name'}
+              />
 
         </div>
       </div>

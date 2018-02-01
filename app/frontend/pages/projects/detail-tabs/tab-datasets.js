@@ -63,10 +63,10 @@ class TabDatasets extends Component {
           return (
             <div className='field is-grouped'>
               <div className='control'>
-                <Link className={row.status === 'consolidated' ? 'button' : 'is-hidden'} to={'/datasets/' + row.uuid}>
+                <Link className={row.status === 'conciliated' ? 'button' : 'is-hidden'} to={'/datasets/' + row.uuid}>
                   Detalle
                 </Link>
-                <Link className={row.status !== 'consolidated' ? 'button is-primary' : 'is-hidden'} to={'/datasets/' + row.uuid}>
+                <Link className={row.status !== 'conciliated' ? 'button is-primary' : 'is-hidden'} to={'/datasets/' + row.uuid}>
                   Fin. Configuración
                 </Link>
               </div>
@@ -91,14 +91,15 @@ class TabDatasets extends Component {
   }
 
   async loadDatasetsList () {
+    var cursor = this.context.tree.select('datasets')
+
     var url = '/app/datasets/'
     const body = await api.get(url, {
       start: 0,
       limit: 10,
+      sort: cursor.get('sort') || '',
       project: this.props.project.uuid
     })
-
-    var cursor = this.context.tree.select('datasets')
 
     cursor.set({
       page: 1,

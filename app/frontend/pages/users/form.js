@@ -17,11 +17,11 @@ var schema = {
     'email'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     email: {type: 'string', title: 'Email'},
     role: {
       type: 'string',
-      title: 'Role',
+      title: 'Rol',
       enum: [],
       enumNames: []
     }

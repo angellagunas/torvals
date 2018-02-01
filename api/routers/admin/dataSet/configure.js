@@ -72,7 +72,7 @@ module.exports = new Route({
       name: isProductName
     }})
 
-    filterAnalysis.push({sales_center: {
+    filterAnalysis.push({agency: {
       _id: isSalesCenter,
       name: isSalesCenterName
     }})
@@ -107,8 +107,6 @@ module.exports = new Route({
       body: {
         is_date: isDate,
         is_analysis: isAnalysis,
-        is_prediction: '',
-        is_adjustment: '',
         filter_analysis: filterAnalysis,
         filter_operations: filterOperations,
         groupings: groupings

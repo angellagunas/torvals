@@ -7,6 +7,7 @@ import api from '~base/api'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { ToastContainer, toast } from 'react-toastify'
 
 class DeletedDataSets extends Component {
   constructor (props) {
@@ -28,8 +29,16 @@ class DeletedDataSets extends Component {
 
   async restoreOnClick (uuid) {
     var url = '/admin/datasets/deleted/' + uuid
-    await api.post(url)
-    this.props.history.push('/admin/datasets/detail/' + uuid)
+    try {
+      await api.post(url)
+      this.props.history.push('/admin/datasets/detail/' + uuid)
+    } catch (e) {
+      this.notify(
+        'El proyecto de este dataset esta eliminado, primero restaure el proyecto', 
+        3000,
+        toast.TYPE.ERROR
+      )
+    }
   }
 
   getColumns () {
@@ -75,9 +84,28 @@ class DeletedDataSets extends Component {
     ]
   }
 
+  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
+  }
+
   render () {
     return (
       <div className='columns c-flex-1 is-marginless'>
+        <ToastContainer />
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top'>
             <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Datasets eliminados</h1>

@@ -52,6 +52,7 @@ module.exports = new Route({
         organization: org._id,
         createdBy: ctx.state.user,
         uploadedBy: ctx.state.user,
+        uploaded: true,
         project: project._id,
         externalId: body.uuid,
         source: 'external'

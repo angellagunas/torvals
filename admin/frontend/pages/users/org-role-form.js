@@ -17,13 +17,13 @@ var schema = {
   properties: {
     role: {
       type: 'string',
-      title: 'Role',
+      title: 'Rol',
       enum: [],
       enumNames: []
     },
     organization: {
       type: 'string',
-      title: 'Organization',
+      title: 'Organización',
       enum: [],
       enumNames: []
     }

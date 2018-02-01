@@ -55,7 +55,7 @@ const task = new Task(async function (argv) {
       }
 
       apiData['products'] = res.data['product']
-      apiData['salesCenters'] = res.data['sales_center']
+      apiData['salesCenters'] = res.data['agency']
       apiData['channels'] = res.data['channel']
 
       dataset.set({

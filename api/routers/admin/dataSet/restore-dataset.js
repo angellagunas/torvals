@@ -8,11 +8,18 @@ module.exports = new Route({
   handler: async function (ctx) {
     var dataSetId = ctx.params.uuid
 
-    var dataset = await DataSet.findOne({'uuid': dataSetId})
+    var dataset = await DataSet.findOne({'uuid': dataSetId}).populate('project')
     ctx.assert(dataset, 404, 'DataSet not found')
-
-    dataset.set({isDeleted: false})
-    dataset.save()
+    
+    if (dataset.project.isDeleted === false) {
+      dataset.project.datasets.push({dataset: dataset._id, columns: []})
+      await dataset.project.save()
+      dataset.set({isDeleted: false})
+      await dataset.save()
+    }
+    else {
+      ctx.throw(400, 'DataSet project is deleted')
+    }
 
     ctx.body = {
       data: dataset

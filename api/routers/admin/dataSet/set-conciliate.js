@@ -6,7 +6,7 @@ const request = require('lib/request')
 
 module.exports = new Route({
   method: 'post',
-  path: '/:uuid/set/consolidate',
+  path: '/:uuid/set/conciliate',
   handler: async function (ctx) {
     var datasetId = ctx.params.uuid
 
@@ -55,7 +55,7 @@ module.exports = new Route({
       }
 
       dataset.set({
-        status: 'consolidated'
+        status: 'conciliated'
       })
 
       await dataset.save()
@@ -63,15 +63,10 @@ module.exports = new Route({
       ctx.throw(401, 'Failed to send Dataset for conciliation')
     }
 
-    if (dataset.project) {
-      let project = dataset.project
+    let project = dataset.project
 
-      if (project.status === 'empty') {
-        project.status = 'ready'
-
-        await project.save()
-      }
-    }
+    project.status = 'adjustment'
+    await project.save()
 
     ctx.body = {
       data: dataset
