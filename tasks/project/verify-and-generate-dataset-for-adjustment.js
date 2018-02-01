@@ -30,7 +30,7 @@ const task = new Task(async function (argv) {
   }
 
   for (var project of projects) {
-    console.log(`Creating dataset for adjustment of project ${project.externalId} ...`)
+    console.log(`Creating dataset for adjustment of project ${project.name} ...`)
     var options = {
       url: `${apiData.hostname}${apiData.baseUrl}/projects/${project.externalId}`,
       method: 'GET',
@@ -89,9 +89,9 @@ const task = new Task(async function (argv) {
           uploadedBy: project.createdBy,
           uploaded: true,
           project: project._id,
-          externalId: res._id,
+          externalId: resFilter._id,
           source: 'adjustment',
-          status: 'processing'
+          status: 'adjustment'
         })
 
         project.datasets.push({
@@ -99,31 +99,16 @@ const task = new Task(async function (argv) {
           columns: []
         })
 
+        project.activeDataset = dataset
+
         await project.save()
-
-        await dataset.process(resDataset)
-
-        options = {
-          url: `${apiData.hostname}${apiData.baseUrl}/rows/datasets/${dataset.externalId}`,
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${apiData.token}`
-          },
-          json: true,
-          persist: true
-        }
-
-        resDataset = await request(options)
-        console.log(resDataset)
       }
 
       project.set({
         status: 'reviewing'
       })
 
-      // await project.save()
+      await project.save()
     }
   }
 

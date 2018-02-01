@@ -63,15 +63,13 @@ module.exports = new Route({
       ctx.throw(401, 'Failed to send Dataset for conciliation')
     }
 
-    if (dataset.project) {
-      let project = dataset.project
+    let project = dataset.project
 
-      if (project.status === 'empty') {
-        project.status = 'ready'
+    // if (project.status === 'empty') {
+    project.status = 'adjustment'
 
-        await project.save()
-      }
-    }
+    await project.save()
+    // }
 
     ctx.body = {
       data: dataset

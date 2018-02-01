@@ -11,6 +11,7 @@ const datasetRowSchema = new Schema({
   dataset: { type: Schema.Types.ObjectId, ref: 'DataSet', required: true },
   salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
+  channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
   adjustmentRequest: { type: Schema.Types.ObjectId, ref: 'AdjustmentRequest' },
   externalId: { type: String },
   status: {
