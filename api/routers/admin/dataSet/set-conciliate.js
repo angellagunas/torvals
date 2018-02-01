@@ -65,11 +65,8 @@ module.exports = new Route({
 
     let project = dataset.project
 
-    // if (project.status === 'empty') {
     project.status = 'adjustment'
-
     await project.save()
-    // }
 
     ctx.body = {
       data: dataset
