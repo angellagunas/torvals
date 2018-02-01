@@ -28,10 +28,10 @@ module.exports = new Route({
       }
     }
 
-    project.save()
+    await project.save()
 
     dataset.isDeleted = true
-    dataset.save()
+    await dataset.save()
 
     ctx.body = {
       data: project.toAdmin()
