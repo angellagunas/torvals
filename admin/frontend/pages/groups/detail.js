@@ -88,11 +88,12 @@ class GroupDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-                  <span className='icon is-small'>
-                    <i className='fa fa-pencil' />
-                  </span>
-                </Link>
+          return <Link className='button is-primary'
+            to={'/manage/users/' + row.uuid}>
+            <span className='icon is-small'>
+              <i className='fa fa-pencil' />
+            </span>
+          </Link>
         }
       }
     ]

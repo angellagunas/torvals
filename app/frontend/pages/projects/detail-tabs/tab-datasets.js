@@ -91,14 +91,15 @@ class TabDatasets extends Component {
   }
 
   async loadDatasetsList () {
+    var cursor = this.context.tree.select('datasets')
+
     var url = '/app/datasets/'
     const body = await api.get(url, {
       start: 0,
       limit: 10,
+      sort: cursor.get('sort') || '',
       project: this.props.project.uuid
     })
-
-    var cursor = this.context.tree.select('datasets')
 
     cursor.set({
       page: 1,

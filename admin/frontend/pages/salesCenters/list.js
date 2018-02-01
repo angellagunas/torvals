@@ -18,7 +18,7 @@ export default ListPage({
   createComponent: CreateSalesCenter,
   baseUrl: '/admin/salesCenters',
   branchName: 'salesCenters',
-  detailUrl: '/admin/salesCenters/',
+  detailUrl: '/admin/salesCenters/detail/',
   filters: true,
   schema: {
     type: 'object',
