@@ -16,7 +16,14 @@ const datasetRowSchema = new Schema({
   externalId: { type: String },
   status: {
     type: String,
-    enum: ['created', 'processing', 'done'],
+    enum: [
+      'created',
+      'processing',
+      'done',
+      'unmodified',
+      'sendingChanges',
+      'error'
+    ],
     default: 'created'
   },
   data: {
