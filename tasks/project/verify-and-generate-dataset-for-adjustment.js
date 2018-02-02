@@ -11,7 +11,7 @@ const task = new Task(async function (argv) {
   console.log('Fetching existing Projects...')
 
   const projects = await Project.find({
-    status: 'adjustment',
+    status: 'pendingRows',
     isDeleted: false
   })
 
@@ -100,12 +100,11 @@ const task = new Task(async function (argv) {
         })
 
         project.activeDataset = dataset
-
         await project.save()
       }
 
       project.set({
-        status: 'reviewing'
+        status: 'adjustment'
       })
 
       await project.save()
