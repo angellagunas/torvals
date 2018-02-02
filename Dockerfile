@@ -15,5 +15,7 @@ WORKDIR /app
 RUN make app-dist
 RUN make admin-dist
 
+ENV NODE_ENV="production"
+
 # Run tracker
 CMD npm run start
