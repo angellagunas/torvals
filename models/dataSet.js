@@ -45,6 +45,7 @@ const dataSetSchema = new Schema({
       'reviewing',
       'ready',
       'conciliated',
+      'pendingRows',
       'adjustment',
       'error'
     ],
