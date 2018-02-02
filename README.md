@@ -80,3 +80,46 @@ make run-test
 ```
 
 ## Deployment
+
+Before building the docker image we need to add a `.env.production` with:
+```
+MONGO_DB=pythia-db
+MONGO_HOST=mongodb
+REDIS_HOST=redisdb
+
+API_HOST=<API BASE URL>
+APP_HOST=<APP BASE URL>
+ADMIN_HOST=<ADMIN BASE URL>
+
+# To send invites
+EMAIL_SEND=false
+EMAIL_PROVIDER=mandrill
+EMAIL_KEY=<MANDRIL TOKEN>
+```
+
+To use docker compose do:
+```bash
+docker-compose build
+docker-compose up-d
+```
+
+This starts 3 containers, one with nodejs, one with mongodb and one with redis. Do:
+```bash
+docker-compose ps
+```
+To verify that the 3 containers are running.
+
+Node container exposes with 3 ports open:
+```
+[API PORT]  3000
+[APP PORT] 4000 
+[ADMIN PORT] 5000 
+```
+They will need to be wired Mesos DNS. 
+
+The first time the DB is started, the seed data needs to be added with:
+
+```
+docker exec pythia_web_1 node tasks/seed-data.js --file tasks/base-data/seed-data.json
+```
+
