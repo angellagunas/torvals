@@ -100,7 +100,7 @@ EMAIL_KEY=<MANDRIL TOKEN>
 To use docker compose do:
 ```bash
 docker-compose build
-docker-compose up-d
+docker-compose up -d
 ```
 
 This starts 3 containers, one with nodejs, one with mongodb and one with redis. Do:
