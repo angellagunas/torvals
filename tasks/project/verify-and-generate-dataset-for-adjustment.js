@@ -91,7 +91,7 @@ const task = new Task(async function (argv) {
           project: project._id,
           externalId: resFilter._id,
           source: 'adjustment',
-          status: 'adjustment'
+          status: 'pendingRows'
         })
 
         project.datasets.push({
@@ -104,7 +104,7 @@ const task = new Task(async function (argv) {
       }
 
       project.set({
-        status: 'adjustment'
+        status: 'processing'
       })
 
       await project.save()
