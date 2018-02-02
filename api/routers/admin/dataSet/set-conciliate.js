@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const { DataSet, Project } = require('models')
+const { DataSet } = require('models')
 
 const Api = require('lib/abraxas/api')
 const request = require('lib/request')
@@ -54,24 +54,19 @@ module.exports = new Route({
 
         return
       }
-      const project = await Project.findOne({'uuid': dataset.project.uuid, 'isDeleted': false})
 
       dataset.set({
         status: 'conciliated'
       })
-      project.set({
-        status: 'pendingRows'
-      })
 
       await dataset.save()
-      await project.save()
     } catch (e) {
       ctx.throw(401, 'Failed to send Dataset for conciliation')
     }
 
     let project = dataset.project
 
-    project.status = 'adjustment'
+    project.status = 'pendingRows'
     await project.save()
 
     ctx.body = {
