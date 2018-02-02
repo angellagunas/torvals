@@ -22,6 +22,7 @@ const datasetRowSchema = new Schema({
       'done',
       'unmodified',
       'sendingChanges',
+      'adjusted',
       'error'
     ],
     default: 'created'
