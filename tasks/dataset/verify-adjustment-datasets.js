@@ -4,14 +4,14 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { DataSet, DataSetRow, Channel, Product, SalesCenter } = require('models')
+const { DataSet, DataSetRow, Channel, Product, SalesCenter, Project } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   console.log('Fetching adjustment Datasets...')
 
   const datasets = await DataSet.find({
-    status: 'adjustment',
+    status: 'pendingRows',
     isDeleted: false
   })
 
@@ -100,7 +100,12 @@ const task = new Task(async function (argv) {
       }
 
       dataset.set({
-        status: 'ready'
+        status: 'adjustment'
+      })
+
+      const project = await Project.findOne({'uuid': dataset.project.uuid, 'isDeleted': false})
+      project.set({
+        status: 'adjustment'
       })
 
       await dataset.save()
