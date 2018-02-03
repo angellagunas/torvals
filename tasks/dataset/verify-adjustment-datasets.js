@@ -86,11 +86,11 @@ const task = new Task(async function (argv) {
           dataset: dataset,
           externalId: dataset.externalId,
           data: {
-            ...d,
+            existence: d.existencia,
+            prediction: d.prediccion,
+            forecastDate: d.fecha,
             semanaBimbo: d.semana_bimbo,
-            adjustment: d.prediccion,
-            channelId: d.canal_id,
-            channelName: d.canal_nombre
+            adjustment: d.prediccion
           },
           apiData: d,
           salesCenter: salesCenter,

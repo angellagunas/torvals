@@ -33,15 +33,11 @@ const datasetRowSchema = new Schema({
     adjustment: { type: Number },
     lastAdjustment: { type: Number },
     semanaBimbo: { type: Number },
-    month: { type: String },
-    year: { type: String },
-    forecastDate: { type: String },
-    updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
-    channelId: { type: Number },
-    channelName: { type: String }
+    forecastDate: { type: String }
   },
   apiData: { type: Schema.Types.Mixed },
 
+  updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false }
