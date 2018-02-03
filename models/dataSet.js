@@ -67,6 +67,8 @@ const dataSetSchema = new Schema({
     name: { type: String },
     isDate: { type: Boolean, default: false },
     isAnalysis: { type: Boolean },
+    isAdjustment: { type: Boolean },
+    isPrediction: { type: Boolean },
     isOperationFilter: { type: Boolean, default: false },
     isAnalysisFilter: { type: Boolean, default: false },
     isProduct: { type: Boolean, default: false },
