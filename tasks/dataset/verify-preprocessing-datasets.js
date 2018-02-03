@@ -49,6 +49,7 @@ const task = new Task(async function (argv) {
       console.log(`${dataset.name} dataset has finished preprocessing`)
       dataset.set({
         status: 'configuring',
+        etag: res._etag,
         columns: res.headers.map(item => {
           return {
             name: item,

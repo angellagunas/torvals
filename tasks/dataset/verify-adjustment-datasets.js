@@ -84,7 +84,7 @@ const task = new Task(async function (argv) {
           organization: dataset.organization,
           project: dataset.project,
           dataset: dataset,
-          externalId: dataset.externalId,
+          externalId: d._id,
           data: {
             ...d,
             semanaBimbo: d.semana_bimbo,
@@ -100,15 +100,17 @@ const task = new Task(async function (argv) {
       }
 
       dataset.set({
-        status: 'adjustment'
+        status: 'adjustment',
+        etag: res._etag
       })
 
-      const project = await Project.findOne({'uuid': dataset.project.uuid, 'isDeleted': false})
+      const project = await Project.findOne({'_id': dataset.project, 'isDeleted': false})
       project.set({
         status: 'adjustment'
       })
 
       await dataset.save()
+      await project.save()
     }
 
     if (res.status === 'error') {
