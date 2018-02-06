@@ -25,7 +25,7 @@ const datasetRowSchema = new Schema({
       'adjusted',
       'error'
     ],
-    default: 'created'
+    default: 'unmodified'
   },
   data: {
     existence: { type: Number },
