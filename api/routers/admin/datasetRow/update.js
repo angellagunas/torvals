@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
+const verifyDatasetrows = require('queues/update-datasetrows')
 
 const {DataSetRow} = require('models')
 
@@ -16,12 +17,15 @@ module.exports = new Route({
     const datasetRow = await DataSetRow.findOne({'uuid': datasetRowId, 'isDeleted': false})
     ctx.assert(datasetRow, 404, 'DataSetRow not found')
 
-    datasetRow.data.lastAdjustment = datasetRow.data.adjustment
-    datasetRow.data.adjustment = data.adjustment
-    datasetRow.data.updatedBy = ctx.state.user
-    datasetRow.markModified('data')
-    datasetRow.save()
-
+    if (parseFloat(datasetRow.data.adjustment) !== parseFloat(data.adjustment)) {
+      datasetRow.data.lastAdjustment = datasetRow.data.adjustment
+      datasetRow.data.adjustment = data.adjustment
+      datasetRow.data.updatedBy = ctx.state.user
+      datasetRow.status = 'sendingChanges'
+      datasetRow.markModified('data')
+      datasetRow.save()
+      verifyDatasetrows.add({uuid: datasetRowId})
+    }
     ctx.body = {
       data: datasetRow.format()
     }
