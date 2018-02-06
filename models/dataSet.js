@@ -245,7 +245,7 @@ dataSetSchema.methods.processData = async function () {
         this.newProducts.push(product)
       } else if (product.isNewExternal) {
         product.set({name: p['name'] ? p['name'] : 'Not identified'})
-        product.save()
+        await product.save()
 
         var posNew = this.newProducts.findIndex(item => {
           return String(item.externalId) === String(product.externalId)
@@ -255,7 +255,7 @@ dataSetSchema.methods.processData = async function () {
         }
       } else {
         product.set({isDeleted: false})
-        product.save()
+        await product.save()
         var pos = this.products.findIndex(item => {
           return String(item.externalId) === String(product.externalId)
         })
@@ -287,7 +287,7 @@ dataSetSchema.methods.processData = async function () {
         this.newSalesCenters.push(salesCenter)
       } else if (salesCenter.isNewExternal) {
         salesCenter.set({name: a['name'] ? a['name'] : 'Not identified'})
-        salesCenter.save()
+        await salesCenter.save()
         posNew = this.newSalesCenters.findIndex(item => {
           return String(item.externalId) === String(salesCenter.externalId)
         })
@@ -296,7 +296,7 @@ dataSetSchema.methods.processData = async function () {
         }
       } else {
         salesCenter.set({isDeleted: false})
-        salesCenter.save()
+        await salesCenter.save()
         pos = this.salesCenters.findIndex(item => {
           return String(item.externalId) === String(salesCenter.externalId)
         })
@@ -334,11 +334,11 @@ dataSetSchema.methods.processData = async function () {
         }
       } else if (channel.isNewExternal) {
         channel.set({name: c['name'] ? c['name'] : 'Not identified'})
-        channel.save()
+        await channel.save()
         this.newChannels.push(channel)
       } else {
         channel.set({isDeleted: false})
-        channel.save()
+        await channel.save()
 
         pos = this.channels.findIndex(item => {
           return String(item.externalId) === String(channel.externalId)
