@@ -73,6 +73,7 @@ module.exports = new Route({
 
     rows = rows.map(item => {
       return {
+        uuid: item.uuid,
         salesCenter: item.salesCenter.name,
         productId: item.product.externalId,
         productName: item.product.name,
@@ -80,6 +81,7 @@ module.exports = new Route({
         semanaBimbo: item.data.semanaBimbo,
         prediction: item.data.prediction,
         adjustment: item.data.adjustment,
+        lastAdjustment: item.data.lastAdjustment,
         adjustmentRequest: item.adjustmentRequest
       }
     })

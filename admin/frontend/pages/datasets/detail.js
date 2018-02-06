@@ -297,10 +297,10 @@ class DataSetDetail extends Component {
               <div className='columns'>
                 <div className='column'>
                   <div className='field is-grouped'>
-                    <b>Fecha mínima:</b> {dataset.dateMin}
+                    <b>Fecha mínima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMin}</span>
                   </div>
                   <div className='field is-grouped'>
-                    <b>Fecha máxima:</b> {dataset.dateMax}
+                    <b>Fecha máxima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMax}</span>
                   </div>
                   <ConfigureViewDataset
                     initialState={dataset}
@@ -354,6 +354,12 @@ class DataSetDetail extends Component {
                     </div>
                   </div>
                 </div>
+              </div>
+              <div className='field is-grouped'>
+                <b>Fecha mínima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMin}</span>
+              </div>
+              <div className='field is-grouped'>
+                <b>Fecha máxima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMax}</span>
               </div>
               <ConfigureViewDataset
                 initialState={dataset}
