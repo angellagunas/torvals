@@ -1,4 +1,4 @@
-// node tasks//DatasetsRows/send-adjustment-datasetrows.js
+// node tasks/datasetsRows/send-adjustment-datasetrows.js
 require('../../config')
 require('lib/databases/mongo')
 
@@ -10,7 +10,7 @@ const request = require('lib/request')
 const task = new Task(async function (argv) {
   console.log('Fetching DatasetsRows...')
 
-  const datasetRow = await DataSetRow.find({
+  const datasetRow = await DataSetRow.findOne({
     uuid: argv.uuid
   }).populate('dataset')
 
