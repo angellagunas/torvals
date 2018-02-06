@@ -413,7 +413,7 @@ class DataSetDetail extends Component {
                   <div className='columns'>
                     <div className='column'>
                       <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x fa-spin' name='cog' />
+                        <FontAwesome className='fa-3x' name='pencil' />
                       </span>
                     </div>
                   </div>
@@ -424,6 +424,9 @@ class DataSetDetail extends Component {
                   </div>
                 </div>
               </div>
+              <ConfigureViewDataset
+                initialState={dataset}
+              />
             </div>
           </div>
         </div>
