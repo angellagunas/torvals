@@ -82,6 +82,7 @@ module.exports = new Route({
         semanaBimbo: item.data.semanaBimbo,
         prediction: item.data.prediction,
         adjustment: item.data.adjustment,
+        lastAdjustment: item.data.lastAdjustment,
         adjustmentRequest: item.adjustmentRequest
       }
     })
