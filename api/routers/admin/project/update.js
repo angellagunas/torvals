@@ -26,7 +26,7 @@ module.exports = new Route({
       for (var ds of project.datasets) {
         let dataset = ds.dataset
         dataset.organization = data.organization._id
-        dataset.save()
+        await dataset.save()
         await dataset.processData()
       }
     }
