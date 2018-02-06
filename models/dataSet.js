@@ -32,7 +32,6 @@ const dataSetSchema = new Schema({
   dateMax: String,
   dateMin: String,
   error: String,
-  etag: String,
 
   status: {
     type: String,
@@ -252,6 +251,8 @@ dataSetSchema.methods.processData = async function () {
           this.newProducts.push(product)
         }
       } else {
+        product.set({isDeleted: false})
+        product.save()
         var pos = this.products.findIndex(item => {
           return String(item.externalId) === String(product.externalId)
         })
@@ -291,6 +292,8 @@ dataSetSchema.methods.processData = async function () {
           this.newSalesCenters.push(salesCenter)
         }
       } else {
+        salesCenter.set({isDeleted: false})
+        salesCenter.save()
         pos = this.salesCenters.findIndex(item => {
           return String(item.externalId) === String(salesCenter.externalId)
         })
@@ -331,6 +334,9 @@ dataSetSchema.methods.processData = async function () {
         channel.save()
         this.newChannels.push(channel)
       } else {
+        channel.set({isDeleted: false})
+        channel.save()
+
         pos = this.channels.findIndex(item => {
           return String(item.externalId) === String(channel.externalId)
         })
