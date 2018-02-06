@@ -15,7 +15,7 @@ export default ListPage({
   title: 'Grupos',
   icon: 'users',
   exact: true,
-  roles: 'admin, orgadmin, analyst, enterprisemanager',
+  roles: 'admin, orgadmin, analyst',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Grupo',
   create: false,

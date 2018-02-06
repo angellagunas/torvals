@@ -82,7 +82,7 @@ class Sidebar extends Component {
           title: 'Manage Your Team',
           icon: 'users',
           to: '/manage',
-          roles: 'orgadmin, admin, analyst, enterprisemanager',
+          roles: 'orgadmin, admin, analyst',
           opened: false,
           dropdown: [
             Users.asSidebarItem(),
