@@ -32,6 +32,7 @@ const dataSetSchema = new Schema({
   dateMax: String,
   dateMin: String,
   error: String,
+  etag: String,
 
   status: {
     type: String,
