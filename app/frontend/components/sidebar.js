@@ -76,13 +76,13 @@ class Sidebar extends Component {
   getMenuItems () {
     if (tree.get('organization')) {
       return [
-      
+
         Dashboard.asSidebarItem(),
         {
           title: 'Manage Your Team',
           icon: 'users',
           to: '/manage',
-          roles: 'orgadmin, admin',
+          roles: 'orgadmin, admin, analyst',
           opened: false,
           dropdown: [
             Users.asSidebarItem(),
@@ -157,7 +157,7 @@ class Sidebar extends Component {
     return (<div className='offcanvas column is-narrow is-paddingless'>
       <aside className={menuClass}>
         <ul className='menu-list'>
-          <SelectOrg collapsed={this.state.collapsed}/>
+          <SelectOrg collapsed={this.state.collapsed} />
           {this.state.menuItems.map((item, index) => {
             if (item) {
               return <SidebarItem

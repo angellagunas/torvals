@@ -15,7 +15,7 @@ export default ListPage({
   title: 'Grupos',
   icon: 'users',
   exact: true,
-  roles: 'admin, orgadmin',
+  roles: 'admin, orgadmin, analyst',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Grupo',
   create: false,
@@ -106,12 +106,12 @@ export default ListPage({
                 </Link>
               </div>
               <div className='control'>
-                  <DeleteButton
-                    iconOnly
-                    icon='fa fa-trash'
-                    objectName='Grupo'
-                    objectDelete={deleteObject}
-                    message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
+                <DeleteButton
+                  iconOnly
+                  icon='fa fa-trash'
+                  objectName='Grupo'
+                  objectDelete={deleteObject}
+                  message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
                   />
               </div>
             </div>

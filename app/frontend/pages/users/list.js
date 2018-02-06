@@ -14,7 +14,7 @@ export default ListPage({
   title: 'Usuarios',
   icon: 'user',
   exact: true,
-  roles: 'admin, orgadmin',
+  roles: 'admin, orgadmin, analyst',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Usuario',
   create: false,
@@ -68,8 +68,7 @@ export default ListPage({
                 {row.groups.length - 2} más
               </div>
             )
-          }
-          else if (row.groups.length > 1) {
+          } else if (row.groups.length > 1) {
             return (
               <div>
                 {row.groups[0].name}
@@ -77,8 +76,7 @@ export default ListPage({
                 {row.groups[1].name}
               </div>
             )
-          }
-          else if (row.groups.length > 0) {
+          } else if (row.groups.length > 0) {
             return (
               <div>
                 {row.groups[0].name}
