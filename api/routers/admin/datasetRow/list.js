@@ -73,6 +73,7 @@ module.exports = new Route({
 
     rows = rows.map(item => {
       return {
+        uuid: item.uuid,
         salesCenter: item.salesCenter.name,
         productId: item.product.externalId,
         productName: item.product.name,

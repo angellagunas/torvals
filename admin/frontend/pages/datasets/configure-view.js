@@ -21,7 +21,7 @@ class ConfigureViewDataset extends Component {
     })
 
     if (posColumn < 0) {
-      return ''
+      return 'N/A'
     } else {
       return this.state.formData.columns[posColumn].name
     }
@@ -63,6 +63,14 @@ class ConfigureViewDataset extends Component {
             <tr>
               <td><label className='label'>Análisis</label></td>
               <td>{this.getColumnForValue('isAnalysis')}</td>
+            </tr>
+            <tr>
+              <td><label className='label'>Ajuste</label></td>
+              <td>{this.getColumnForValue('isAdjustment')}</td>
+            </tr>
+            <tr>
+              <td><label className='label'>Predicción</label></td>
+              <td>{this.getColumnForValue('isPrediction')}</td>
             </tr>
             <tr>
               <td><label className='label'>Producto</label></td>
@@ -133,18 +141,17 @@ class ConfigureViewDataset extends Component {
               <tr>
                 <td colSpan='2'>No hay agrupaciones que mostrar</td>
               </tr>
-                ) : (
-                  this.state.formData.groupings.map((item, key) => {
-                    return (
-                      <tr key={key}>
-                        <td>{item.column}</td>
-                        <td>{item.inputValue}</td>
-                        <td>{item.outputValue}</td>
-                      </tr>
-                    )
-                  })
-
-                )}
+            ) : (
+              this.state.formData.groupings.map((item, key) => {
+                return (
+                  <tr key={key}>
+                    <td>{item.column}</td>
+                    <td>{item.inputValue}</td>
+                    <td>{item.outputValue}</td>
+                  </tr>
+                )
+              })
+            )}
           </tbody>
         </table>
       </div>

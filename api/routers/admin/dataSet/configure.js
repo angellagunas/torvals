@@ -58,6 +58,18 @@ module.exports = new Route({
 
     var isChannelName = checkChannelName ? checkChannelName.name : undefined
 
+    var checkIsAdjustment = body.columns.find((item) => {
+      return item.isAdjustment
+    })
+
+    var isAdjustment = checkIsAdjustment ? checkIsAdjustment.name : undefined
+
+    var checkIsPrediction = body.columns.find((item) => {
+      return item.isPrediction
+    })
+
+    var isPrediction = checkIsPrediction ? checkIsPrediction.name : undefined
+
     var filterAnalysis = []
     var filterOperations = []
     var groupings = []
@@ -107,6 +119,8 @@ module.exports = new Route({
       body: {
         is_date: isDate,
         is_analysis: isAnalysis,
+        is_adjustment: isAdjustment,
+        is_prediction: isPrediction,
         filter_analysis: filterAnalysis,
         filter_operations: filterOperations,
         groupings: groupings
