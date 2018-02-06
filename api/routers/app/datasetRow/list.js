@@ -73,6 +73,20 @@ module.exports = new Route({
       .populate(['organization', 'salesCenter', 'product', 'adjustmentRequest', 'channel'])
       .sort(ctx.request.query.sort || '-dateCreated')
 
+    rows = rows.map(item => {
+      return {
+        salesCenter: item.salesCenter.name,
+        productId: item.product.externalId,
+        productName: item.product.name,
+        channel: item.channel.name,
+        semanaBimbo: item.data.semanaBimbo,
+        prediction: item.data.prediction,
+        adjustment: item.data.adjustment,
+        lastAdjustment: item.data.lastAdjustment,
+        adjustmentRequest: item.adjustmentRequest
+      }
+    })
+
     ctx.body = {
       data: rows
     }

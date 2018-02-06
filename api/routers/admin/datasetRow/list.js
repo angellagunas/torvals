@@ -68,8 +68,21 @@ module.exports = new Route({
     filters['dataset'] = dataset
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
-      .populate(['organization', 'salesCenter', 'product', 'adjustmentRequest', 'channel'])
+      .populate(['salesCenter', 'product', 'adjustmentRequest', 'channel'])
       .sort(ctx.request.query.sort || '-dateCreated')
+
+    rows = rows.map(item => {
+      return {
+        salesCenter: item.salesCenter.name,
+        productId: item.product.externalId,
+        productName: item.product.name,
+        channel: item.channel.name,
+        semanaBimbo: item.data.semanaBimbo,
+        prediction: item.data.prediction,
+        adjustment: item.data.adjustment,
+        adjustmentRequest: item.adjustmentRequest
+      }
+    })
 
     ctx.body = {
       data: rows
