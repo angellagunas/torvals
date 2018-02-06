@@ -318,7 +318,7 @@ export default Page({
   path: '/manage/groups/:uuid',
   title: 'Detalles de grupo',
   exact: true,
-  roles: 'admin, orgadmin, analyst, enterprisemanager',
+  roles: 'admin, orgadmin, analyst',
   validate: [loggedIn, verifyRole],
   component: branchedGroupDetail
 })
