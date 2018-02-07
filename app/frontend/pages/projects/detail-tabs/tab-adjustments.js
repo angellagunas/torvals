@@ -9,8 +9,10 @@ import {
   SelectWidget
 } from '~base/components/base-form'
 import CreateAdjustmentRequest from '../../forecasts/create-adjustmentRequest'
+import tree from '~core/tree'
 
 const generalAdjustment = 0.1
+var currentRole
 
 class TabAdjustment extends Component {
   constructor (props) {
@@ -31,13 +33,15 @@ class TabAdjustment extends Component {
         semanasBimbo: 0
       }
     }
+    currentRole = tree.get('user').currentRole.slug
   }
   componentWillMount () {
     this.getFilters()
   }
 
   async getFilters () {
-    const url = '/admin/rows/filters/dataset/'
+    console.log(this.props)
+    const url = '/app/rows/filters/dataset/'
     let res = await api.get(url + this.props.project.activeDataset.uuid)
 
     this.setState({
@@ -64,7 +68,7 @@ class TabAdjustment extends Component {
     })
   }
 
-  async FilterErrorHandler (e) {
+  async filterErrorHandler (e) {
 
   }
 
@@ -72,7 +76,7 @@ class TabAdjustment extends Component {
     this.setState({
       isLoading: ' is-loading'
     })
-    const url = '/admin/rows/dataset/'
+    const url = '/app/rows/dataset/'
     let data = await api.get(url + this.props.project.activeDataset.uuid,
       {
         semanaBimbo: e.formData.semanasBimbo,
@@ -218,32 +222,37 @@ class TabAdjustment extends Component {
         'property': 'isLimit',
         'default': '',
         formatter: (row) => {
-          if (row.isLimit && !row.adjustmentRequest) {
-            return (
-              <span
-                className='icon'
-                title='No es posible ajustar más allá al límite!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning' />
-              </span>
-            )
-          }
+          if (
+            currentRole !== 'analyst' &&
+            currentRole !== 'enterprisemanager'
+          ) {
+            if (row.isLimit && !row.adjustmentRequest) {
+              return (
+                <span
+                  className='icon'
+                  title='No es posible ajustar más allá al límite!'
+                  onClick={() => {
+                    this.showModalAdjustmentRequest(row)
+                  }}
+                >
+                  <FontAwesome name='warning' />
+                </span>
+              )
+            }
 
-          if (row.isLimit && row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-warning'
-                title='Ya se ha pedido un cambio a esta predicción!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning' />
-              </span>
-            )
+            if (row.isLimit && row.adjustmentRequest) {
+              return (
+                <span
+                  className='icon has-text-warning'
+                  title='Ya se ha pedido un cambio a esta predicción!'
+                  onClick={() => {
+                    this.showModalAdjustmentRequest(row)
+                  }}
+                >
+                  <FontAwesome name='warning' />
+                </span>
+              )
+            }
           }
           return ''
         }
@@ -253,43 +262,45 @@ class TabAdjustment extends Component {
 
 
   getModifyButtons () {
-    return (
-      <div className='columns'>
-        <div className='column'>
-          <h4 className='subtitle'>Resultados: {this.state.dataRows.length} </h4>
-        </div>
-        <div className='column'>
-          <div className='field is-grouped is-grouped-right'>
-            <div className='control'>
-              <p style={{ paddingTop: 5 }}>Modificar porcentaje</p>
-            </div>
+    if (currentRole !== 'enterprisemanager') {
+      return (
+        <div className='columns'>
+          <div className='column'>
+            <h4 className='subtitle'>Resultados: {this.state.dataRows.length} </h4>
+          </div>
+          <div className='column'>
+            <div className='field is-grouped is-grouped-right'>
+              <div className='control'>
+                <p style={{ paddingTop: 5 }}>Modificar porcentaje</p>
+              </div>
 
-            <div className='control'>
-              <button
-                className='button is-primary is-outlined'
-                onClick={() => this.onClickButtonMinus()}
-                disabled={this.state.disableButtons}
-              >
-                <span className='icon'>
-                  <i className='fa fa-minus' />
-                </span>
-              </button>
-            </div>
-            <div className='control'>
-              <button
-                className='button is-primary is-outlined'
-                onClick={() => this.onClickButtonPlus()}
-                disabled={this.state.disableButtons}
-              >
-                <span className='icon'>
-                  <i className='fa fa-plus' />
-                </span>
+              <div className='control'>
+                <button
+                  className='button is-primary is-outlined'
+                  onClick={() => this.onClickButtonMinus()}
+                  disabled={this.state.disableButtons}
+                >
+                  <span className='icon'>
+                    <i className='fa fa-minus' />
+                  </span>
                 </button>
+              </div>
+              <div className='control'>
+                <button
+                  className='button is-primary is-outlined'
+                  onClick={() => this.onClickButtonPlus()}
+                  disabled={this.state.disableButtons}
+                >
+                  <span className='icon'>
+                    <i className='fa fa-plus' />
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    )
+      )
+    }
   }
 
   selectRows (selectAll) {
@@ -383,7 +394,14 @@ class TabAdjustment extends Component {
     obj.percentage = (obj.adjustment - obj.prediction) * 100 / obj.prediction
     obj.isLimit = (obj.adjustment >= maxAdjustment || obj.adjustment <= minAdjustment)
 
-    var url = '/admin/rows/' + obj.uuid
+    if ((currentRole === 'opsmanager' || currentRole === 'localmanager')) {
+      if (obj.adjustment > maxAdjustment || obj.adjustment < minAdjustment) {
+        this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
+        return false
+      }
+    }
+
+    var url = '/app/rows/' + obj.uuid
     const res = await api.post(url, {...obj})
 
     obj.lastAdjustment = res.data.data.lastAdjustment
@@ -504,7 +522,7 @@ class TabAdjustment extends Component {
             hideModal={(e) => this.hideModalAdjustmentRequest(e)}
             finishUp={(e) => this.finishUpAdjustmentRequest(e)}
             prediction={this.state.selectedAR}
-            baseUrl={'/admin/rows/'}
+            baseUrl={'/app/rows/'}
           />
           <BaseForm
             schema={schema}
@@ -512,7 +530,7 @@ class TabAdjustment extends Component {
             formData={this.state.formData}
             onChange={(e) => { this.filterChangeHandler(e) }}
             onSubmit={(e) => { this.getDataRows(e) }}
-            onError={(e) => { this.FilterErrorHandler(e) }}
+            onError={(e) => { this.filterErrorHandler(e) }}
           >
             <div className='field is-grouped'>
               <div className='control'>
@@ -538,7 +556,7 @@ class TabAdjustment extends Component {
                   data={this.state.dataRows}
                   handleChange={(e) => this.handleChange(e)}
                   setRowsToEdit={(e) => this.setRowsToEdit(e)}
-                  selectable={true}
+                  selectable={currentRole !== 'enterprisemanager'}
                 />
               </div>
             }
