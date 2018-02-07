@@ -53,9 +53,22 @@ module.exports = new Route({
       populate: [
         'requestedBy',
         'approvedBy',
-        'rejectedBy'
+        'rejectedBy',
+        'datasetRow',
+        'datasetRow.product',
+        'datasetRow.salesCenter'
       ],
       sort: ctx.request.query.sort || '-dateCreated'
+    })
+
+    adjustmentRequests.data = adjustmentRequests.data.map(item => {
+      return {
+        ...item,
+        requestedBy: item.requestedBy.format(),
+        approvedBy: item.approvedBy ? item.approvedBy.format() : undefined,
+        rejectedBy: item.rejectedBy ? item.rejectedBy.format() : undefined,
+        datasetRow: item.format()
+      }
     })
 
     ctx.body = adjustmentRequests
