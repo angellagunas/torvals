@@ -40,7 +40,6 @@ class TabAdjustment extends Component {
   }
 
   async getFilters () {
-    console.log(this.props)
     const url = '/app/rows/filters/dataset/'
     let res = await api.get(url + this.props.project.activeDataset.uuid)
 
