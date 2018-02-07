@@ -2,6 +2,7 @@ const Route = require('lib/router/route')
 const moment = require('moment')
 
 const {AdjustmentRequest} = require('models')
+const verifyDatasetrows = require('queues/update-datasetrows')
 
 module.exports = new Route({
   method: 'post',
@@ -12,17 +13,18 @@ module.exports = new Route({
     const adjustmentRequest = await AdjustmentRequest.findOne({
       'uuid': adjustmentRequestId,
       'isDeleted': false
-    }).populate('prediction')
+    }).populate('datasetRow')
 
     ctx.assert(adjustmentRequest, 404, 'AdjustmentRequest not found')
 
-    const prediction = adjustmentRequest.prediction
+    const datasetRow = adjustmentRequest.datasetRow
 
-    prediction.data.lastAdjustment = prediction.data.adjustment
-    prediction.data.adjustment = adjustmentRequest.newAdjustment
-    prediction.data.updatedBy = ctx.state.user
-    prediction.markModified('data')
-    await prediction.save()
+    datasetRow.data.lastAdjustment = datasetRow.data.adjustment
+    datasetRow.data.adjustment = adjustmentRequest.newAdjustment
+    datasetRow.updatedBy = ctx.state.user
+    datasetRow.markModified('data')
+    await datasetRow.save()
+    verifyDatasetrows.add({uuid: datasetRow.uuid})
 
     adjustmentRequest.status = 'approved'
     adjustmentRequest.approvedBy = ctx.state.user
