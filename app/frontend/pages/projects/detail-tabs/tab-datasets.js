@@ -136,16 +136,7 @@ class TabDatasets extends Component {
           <p className='card-header-title'>
             Datasets
                   </p>
-          <div className='card-header-select'>
-            <button className={this.props.project.status !== 'empty' ? 'button is-primary no-hidden' : 'is-hidden'} onClick={() => this.showModalDataset()}>
-              <span className='icon'>
-                <i className='fa fa-plus-circle' />
-              </span>
-              <span>
-                Agregar Dataset
-              </span>
-            </button>
-          </div>
+
         </header>
         <div className='card-content'>
 

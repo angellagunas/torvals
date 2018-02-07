@@ -1,3 +1,4 @@
+admin
 import React, { Component } from 'react'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import Link from '~base/router/link'
@@ -144,19 +145,6 @@ class TabDatasets extends Component {
           </p>
           <div className='card-header-select'>
             <div className='field is-grouped'>
-              <div className='control'>
-                <button
-                  className={this.props.project.status !== 'empty' ? 'button is-primary no-hidden' : 'is-hidden'}
-                  onClick={() => this.showModalDataset()}
-                >
-                  <span className='icon'>
-                    <i className='fa fa-plus-circle' />
-                  </span>
-                  <span>
-                  Agregar Dataset
-                </span>
-                </button>
-              </div>
               <div className='control'>
                 <AddExternalDataset
                   project={this.props.project}
