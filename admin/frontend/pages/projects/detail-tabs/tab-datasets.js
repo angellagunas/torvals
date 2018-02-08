@@ -1,4 +1,3 @@
-admin
 import React, { Component } from 'react'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import Link from '~base/router/link'
