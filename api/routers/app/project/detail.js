@@ -13,6 +13,7 @@ module.exports = new Route({
       'isDeleted': false,
       'organization': ctx.state.organization._id
     }).populate('organization')
+      .populate('activeDataset')
 
     ctx.assert(project, 404, 'Project not found')
 

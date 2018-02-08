@@ -27,7 +27,7 @@ module.exports = new Route({
       datasetRow.data.updatedBy = ctx.state.user
       datasetRow.status = 'sendingChanges'
       datasetRow.markModified('data')
-      datasetRow.save()
+      await datasetRow.save()
       verifyDatasetrows.add({uuid: datasetRowId})
     }
 
