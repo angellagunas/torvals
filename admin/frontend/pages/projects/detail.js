@@ -1,4 +1,3 @@
-admin
 import React, { Component } from 'react'
 import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
