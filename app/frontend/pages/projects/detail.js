@@ -13,6 +13,7 @@ import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
+import TabAdjustment from './detail-tabs/tab-adjustments'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -110,7 +111,12 @@ class ProjectDetail extends Component {
         name: 'Ajustes',
         title: 'Ajustes',
         icon: 'fa-cogs',
-        content: <div className='card'>Ajustes</div>
+        content: (
+          <TabAdjustment
+            project={project}
+            history={this.props.history}
+          />
+        )
       },
       {
         name: 'Historico',

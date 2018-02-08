@@ -352,6 +352,69 @@ class DataSetDetail extends Component {
           </div>
         </div>
       )
+    } else if (dataset.status === 'pendingRows') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                Dataset enviado a procesamiento
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='message is-success'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon has-text-success is-large'>
+                        <FontAwesome className='fa-3x fa-spin' name='cog' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      Este Dataset se está procesando para ajuste, en unos momentos más aparecerá su información
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'adjustment') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                Procesando ajustes del Dataset
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='message is-success'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon has-text-success is-large'>
+                        <FontAwesome className='fa-3x' name='pencil' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      Se está haciendo ajuste de este Dataset
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ConfigureViewDataset
+                initialState={dataset}
+              />
+            </div>
+          </div>
+        </div>
+      )
     }
   }
 

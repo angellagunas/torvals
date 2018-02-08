@@ -564,7 +564,7 @@ class ContainerTable extends Component {
         hideModal={(e) => this.hideModalAdjustmentRequest(e)}
         finishUp={(e) => this.finishUpAdjustmentRequest(e)}
         prediction={this.state.selectedAR}
-        baseUrl={''}
+        baseUrl={'/admin/predictions/'}
       />
       {this.getFilters()}
 
