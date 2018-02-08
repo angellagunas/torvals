@@ -60,6 +60,8 @@ datasetRowSchema.methods.format = function () {
     uuid: this.uuid,
     dateCreated: this.dateCreated,
     organization: this.organization,
+    product: this.product,
+    salesCenter: this.salesCenter,
     project: this.project,
     status: this.status,
     data: this.data

@@ -5,7 +5,7 @@ const {AdjustmentRequest} = require('models')
 const verifyDatasetrows = require('queues/update-datasetrows')
 
 module.exports = new Route({
-  method: 'post',
+  method: 'get',
   path: '/approve/:uuid',
   handler: async function (ctx) {
     var adjustmentRequestId = ctx.params.uuid

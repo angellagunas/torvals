@@ -11,6 +11,7 @@ import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
+import TabAprove from './detail-tabs/tab-aprove'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -95,6 +96,14 @@ class ProjectDetail extends Component {
               Ajustes
             </div>
           </div>
+        )
+      },
+      {
+        name: 'Aprobar',
+        title: 'Aprobar',
+        icon: 'fa-calendar-check-o',
+        content: (
+          <TabAprove project={project} />
         )
       },
       {
