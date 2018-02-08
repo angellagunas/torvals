@@ -11,6 +11,8 @@ import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
+import SidePanel from '~base/side-panel'
+import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 
 class ProjectDetail extends Component {
@@ -20,7 +22,8 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'General'
+      selectedTab: 'General',
+      datasetClassName: ''
     }
   }
 
@@ -43,6 +46,24 @@ class ProjectDetail extends Component {
     var url = '/admin/projects/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/admin/projects')
+  }
+
+  showModalDataset () {
+    this.setState({
+      datasetClassName: ' is-active'
+    })
+  }
+  hideModalDataset (e) {
+    this.setState({
+      datasetClassName: ''
+    })
+  }
+
+  finishUpDataset (object) {
+    this.setState({
+      datasetClassName: ''
+    })
+    this.props.history.push('/admin/datasets/detail/' + object.uuid)
   }
 
   render () {
@@ -104,6 +125,17 @@ class ProjectDetail extends Component {
       }
 
     ]
+
+    let options = (<button className={'button is-primary no-hidden'}
+      onClick={() => this.showModalDataset()}>
+      <span className='icon'>
+        <i className='fa fa-plus-circle' />
+      </span>
+      <span>
+        Agregar Dataset
+      </span>
+    </button>)
+
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
@@ -124,14 +156,28 @@ class ProjectDetail extends Component {
                 </div>
               </div>
             </div>
-
+            <br />
             <Tabs
               tabs={tabs}
-              selectedTab={this.state.selectedTab}
-            />
-
+              selectedTab={this.state.selectedTab} />
           </div>
         </div>
+
+        <SidePanel
+          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+          icon={'plus'}
+          title={'Opciones'}
+          content={options} />
+
+        <CreateDataSet
+          branchName='datasets'
+          url='/admin/datasets'
+          organization={project.organization.uuid}
+          project={project.uuid}
+          className={this.state.datasetClassName}
+          hideModal={this.hideModalDataset.bind(this)}
+          finishUp={this.finishUpDataset.bind(this)} />
+
       </div>
     )
   }
