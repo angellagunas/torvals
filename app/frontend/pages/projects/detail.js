@@ -11,6 +11,8 @@ import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
+import TabAprove from './detail-tabs/tab-aprove'
+
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -92,6 +94,15 @@ class ProjectDetail extends Component {
         icon: 'fa-cogs',
         content: <div className='card'>Ajustes</div>
       },
+      ,
+      {
+        name: 'Aprobar',
+        title: 'Aprobar',
+        icon: 'fa-calendar-check-o',
+        content: (
+          <TabAprove project={project} />
+        )
+      },
       {
         name: 'Historico',
         title: 'Historico',
@@ -100,7 +111,7 @@ class ProjectDetail extends Component {
       }
 
     ]
-
+console.log(this.state)
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>

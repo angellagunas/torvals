@@ -26,7 +26,7 @@ class TabAprove extends Component {
   }
 
   async getAdjustmentRequests () {
-    let url = '/admin/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid
+    let url = '/app/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid
     let data = await api.get(url)
     this.setState({
       dataRows: data.data
@@ -57,16 +57,6 @@ class TabAprove extends Component {
         'default': 'N/A',
         formatter: (row) => {
           return String(row.datasetRow.product.name)
-        }
-      },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.datasetRow.salesCenter.name)
         }
       },
       {
@@ -275,7 +265,7 @@ class TabAprove extends Component {
   }
 
   aprove = async () => {
-    let url = '/admin/adjustmentRequests/approve/'
+    let url = '/app/adjustmentRequests/approve/'
 
     for (const row of this.state.selectedCheckboxes) {
       row.edited = true
@@ -291,7 +281,7 @@ class TabAprove extends Component {
   }
 
   reject = async () => {
-    let url = '/admin/adjustmentRequests/reject/'
+    let url = '/app/adjustmentRequests/reject/'
 
     for (const row of this.state.selectedCheckboxes) {
       row.edited = true
