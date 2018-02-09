@@ -3,7 +3,7 @@ require('../../config')
 require('lib/databases/mongo')
 
 const Task = require('lib/task')
-const { DataSet, FileChunk } = require('models')
+const { DataSet } = require('models')
 
 const task = new Task(async function (argv) {
   if (!argv.uuid) {

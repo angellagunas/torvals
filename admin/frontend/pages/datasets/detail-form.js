@@ -1,40 +1,30 @@
 import React, { Component } from 'react'
 
 import api from '~base/api'
-import Loader from '~base/components/spinner'
 
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget,
-  SelectWidget
+  TextareaWidget
 } from '~base/components/base-form'
 
 const schema = {
   type: 'object',
   title: '',
   required: [
-    'name',
-    'organization'
+    'name'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
     description: {type: 'string', title: 'Description'},
-    status: {type: 'string', title: 'Status'},
-    organization: {
-      type: 'string',
-      title: 'Organization',
-      enum: [],
-      enumNames: []
-    }
+    status: {type: 'string', title: 'Status'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
-  status: {'ui:widget': TextWidget, 'ui:disabled': true},
-  organization: {'ui:widget': SelectWidget}
+  status: {'ui:widget': TextWidget, 'ui:disabled': true}
 }
 
 class DatasetDetailForm extends Component {
@@ -45,6 +35,12 @@ class DatasetDetailForm extends Component {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    this.setState({
+      formData: nextProps.initialState
+    })
   }
 
   errorHandler (e) {}
@@ -89,15 +85,6 @@ class DatasetDetailForm extends Component {
         Error: {this.state.error}
       </div>
     }
-
-    if (this.props.organizations.length === 0) {
-      return <Loader />
-    }
-
-    let org = schema.properties.organization
-
-    org.enum = this.props.organizations.map(item => { return item.uuid })
-    org.enumNames = this.props.organizations.map(item => { return item.name })
 
     return (
       <div>

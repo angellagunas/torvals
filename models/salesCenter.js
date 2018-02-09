@@ -14,9 +14,9 @@ const salesCenterSchema = new Schema({
   type: { type: String },
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
   externalId: { type: String },
-
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
+  isNewExternal: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true })
 

@@ -12,7 +12,8 @@ module.exports = new Route({
     isDate: lov.string().required(),
     isAnalysis: lov.string().required(),
     isProduct: lov.string().required(),
-    isSalesCenter: lov.string().required()
+    isSalesCenter: lov.string().required(),
+    isChannel: lov.string().required()
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
@@ -33,9 +34,43 @@ module.exports = new Route({
       return item.isProduct
     }).name
 
+    var checkProductName = body.columns.find((item) => {
+      return item.isProductName
+    })
+
+    var isProductName = checkProductName ? checkProductName.name : undefined
+
     var isSalesCenter = body.columns.find((item) => {
       return item.isSalesCenter
     }).name
+
+    var checkSalesCenterName = body.columns.find((item) => {
+      return item.isSalesCenterName
+    })
+
+    var isSalesCenterName = checkSalesCenterName ? checkSalesCenterName.name : undefined
+
+    var isChannel = body.columns.find((item) => {
+      return item.isChannel
+    }).name
+
+    var checkChannelName = body.columns.find((item) => {
+      return item.isChannelName
+    })
+
+    var isChannelName = checkChannelName ? checkChannelName.name : undefined
+
+    var checkIsAdjustment = body.columns.find((item) => {
+      return item.isAdjustment
+    })
+
+    var isAdjustment = checkIsAdjustment ? checkIsAdjustment.name : undefined
+
+    var checkIsPrediction = body.columns.find((item) => {
+      return item.isPrediction
+    })
+
+    var isPrediction = checkIsPrediction ? checkIsPrediction.name : undefined
 
     var filterAnalysis = []
     var filterOperations = []
@@ -46,9 +81,20 @@ module.exports = new Route({
       if (col.isOperationFilter) filterOperations.push(col.name)
     }
 
-    filterAnalysis.push(isProduct)
-    filterAnalysis.push(isSalesCenter)
-    filterAnalysis = Array.from(new Set(filterAnalysis))
+    filterAnalysis.push({product: {
+      _id: isProduct,
+      name: isProductName
+    }})
+
+    filterAnalysis.push({agency: {
+      _id: isSalesCenter,
+      name: isSalesCenterName
+    }})
+
+    filterAnalysis.push({channel: {
+      _id: isChannel,
+      name: isChannelName
+    }})
 
     for (var group of body.groupings) {
       groupings.push({
@@ -73,13 +119,12 @@ module.exports = new Route({
         'Authorization': `Bearer ${apiData.token}`
       },
       body: {
-        isDate: isDate,
-        isAnalysis: isAnalysis,
-        isProduct: isProduct,
-        isSalesCenter: isSalesCenter,
-        filterAnalysis: filterAnalysis,
-        filterOperations: filterOperations,
-        groupings: groupings
+        is_date: isDate,
+        is_analysis: isAnalysis,
+        is_adjustment: isAdjustment,
+        is_prediction: isPrediction,
+        filter_analysis: filterAnalysis,
+        filter_operations: filterOperations
       },
       json: true,
       persist: true

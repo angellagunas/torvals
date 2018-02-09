@@ -20,10 +20,10 @@ const task = new Task(async function (argv) {
       message: 'How many fields are in the model?'
     }
   ]
-  const answers = await scaffolding.promt(INITPROMPT)
+  const answers = await scaffolding.prompt(INITPROMPT)
 
   const total = answers.totalFields
-  const model = {
+  var model = {
     name: answers.modelName.toLowerCase(),
     fields: []
   }
@@ -65,7 +65,7 @@ const task = new Task(async function (argv) {
       })
   }
 
-  const dataModel = await scaffolding.promt(QUESTIONFIELDS)
+  const dataModel = await scaffolding.prompt(QUESTIONFIELDS)
 
   for (i = 0; i < total; i++) {
     model.fields.push({
@@ -78,15 +78,16 @@ const task = new Task(async function (argv) {
   }
 
   const templatePath = path.join('./tasks/scaffolding/templates/model.js')
+  const dirPath = path.join('./models/')
   const filePath = path.join('./models/' + model.name + '.js')
-  const fileModel = await scaffolding.createFileFromTemplate(filePath, templatePath, model)
+  const fileModel = await scaffolding.createFileFromTemplate(dirPath, filePath, templatePath, model)
 
   const modelIndexPath = path.join('./models/index.js')
 
   scaffolding.replaceInFile(modelIndexPath, '// #Exports', ',\n  ' + s.capitalize(model.name) + '// #Exports')
   scaffolding.replaceInFile(modelIndexPath, '// #Import', 'const ' + s.capitalize(model.name) + ' = require(\'./' + model.name + '\')\n// #Import')
 
-  return true
+  return model.name
 }, 500)
 
 if (require.main === module) {

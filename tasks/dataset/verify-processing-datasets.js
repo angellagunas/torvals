@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { DataSet, Product, SalesCenter } = require('models')
+const { DataSet } = require('models')
 const request = require('lib/request')
 
 const task = new Task(async function (argv) {
@@ -48,22 +48,15 @@ const task = new Task(async function (argv) {
     if (res.status === 'ready') {
       console.log(`${dataset.name} dataset has finished processing`)
 
-      var productCol = dataset.columns.find(item => { return item.isProduct })
-      var salesCenterCol = dataset.columns.find(item => { return item.isSalesCenter })
       let apiData = {
         products: [],
-        salesCenters: []
+        salesCenters: [],
+        channels: []
       }
 
-      if (productCol) {
-        productCol = productCol.name
-        apiData['products'] = res.data[productCol]
-      }
-
-      if (salesCenterCol) {
-        salesCenterCol = salesCenterCol.name
-        apiData['salesCenters'] = res.data[salesCenterCol]
-      }
+      apiData['products'] = res.data['product']
+      apiData['salesCenters'] = res.data['agency']
+      apiData['channels'] = res.data['channel']
 
       dataset.set({
         status: 'reviewing',
@@ -74,6 +67,17 @@ const task = new Task(async function (argv) {
 
       await dataset.save()
       await dataset.processData()
+    }
+
+    if (res.status === 'error') {
+      dataset.set({
+        error: res.message,
+        status: 'error'
+      })
+
+      await dataset.save()
+
+      console.log(`Error while processing dataset: ${dataset.error}`)
     }
   }
 

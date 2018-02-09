@@ -21,7 +21,7 @@ class ConfigureViewDataset extends Component {
     })
 
     if (posColumn < 0) {
-      return ''
+      return 'N/A'
     } else {
       return this.state.formData.columns[posColumn].name
     }
@@ -57,20 +57,44 @@ class ConfigureViewDataset extends Component {
         <table className='table is-fullwidth'>
           <tbody>
             <tr>
-              <td><label className='label'>Is Date</label></td>
+              <td><label className='label'>Fecha</label></td>
               <td>{this.getColumnForValue('isDate')}</td>
             </tr>
             <tr>
-              <td><label className='label'>Is Analysis</label></td>
+              <td><label className='label'>Análisis</label></td>
               <td>{this.getColumnForValue('isAnalysis')}</td>
             </tr>
             <tr>
-              <td><label className='label'>Is Product</label></td>
+              <td><label className='label'>Ajuste</label></td>
+              <td>{this.getColumnForValue('isAdjustment')}</td>
+            </tr>
+            <tr>
+              <td><label className='label'>Predicción</label></td>
+              <td>{this.getColumnForValue('isPrediction')}</td>
+            </tr>
+            <tr>
+              <td><label className='label'>Producto</label></td>
               <td>{this.getColumnForValue('isProduct')}</td>
             </tr>
             <tr>
-              <td><label className='label'>Is Sales Center</label></td>
+              <td><label className='label'>Producto Nombre</label></td>
+              <td>{this.getColumnForValue('isProductName')}</td>
+            </tr>
+            <tr>
+              <td><label className='label'>Centro de Venta</label></td>
               <td>{this.getColumnForValue('isSalesCenter')}</td>
+            </tr>
+            <tr>
+              <td><label className='label'>Centro de Venta Nombre</label></td>
+              <td>{this.getColumnForValue('isSalesCenterName')}</td>
+            </tr>
+            <tr>
+              <td><label className='label'>Canal</label></td>
+              <td>{this.getColumnForValue('isChannel')}</td>
+            </tr>
+            <tr>
+              <td><label className='label'>Canal Nombre</label></td>
+              <td>{this.getColumnForValue('isChannelName')}</td>
             </tr>
           </tbody>
         </table>
@@ -80,7 +104,7 @@ class ConfigureViewDataset extends Component {
             <table className='table is-fullwidth'>
               <thead>
                 <tr>
-                  <th>Operation Filter</th>
+                  <th>Filtro de Operación</th>
                 </tr>
               </thead>
               <tbody >
@@ -92,7 +116,7 @@ class ConfigureViewDataset extends Component {
             <table className='table is-fullwidth'>
               <thead>
                 <tr>
-                  <th>Analysis Filter</th>
+                  <th>Filtro de Análisis</th>
                 </tr>
               </thead>
               <tbody >
@@ -102,33 +126,32 @@ class ConfigureViewDataset extends Component {
           </div>
         </div>
 
-        <label className='label'>Groupings</label>
+        <label className='label'>Agrupaciones</label>
         <table className='table is-fullwidth'>
           <thead>
             <tr>
-              <th>Column</th>
-              <th>Value 1</th>
-              <th>Value 2</th>
+              <th>Columna</th>
+              <th>Valor 1</th>
+              <th>Valor 2</th>
               <th />
             </tr>
           </thead>
           <tbody>
             {this.state.formData.groupings.length === 0 ? (
               <tr>
-                <td colSpan='2'>No groupings to show</td>
+                <td colSpan='2'>No hay agrupaciones que mostrar</td>
               </tr>
-                ) : (
-                  this.state.formData.groupings.map((item, key) => {
-                    return (
-                      <tr key={key}>
-                        <td>{item.column}</td>
-                        <td>{item.inputValue}</td>
-                        <td>{item.outputValue}</td>
-                      </tr>
-                    )
-                  })
-
-                )}
+            ) : (
+              this.state.formData.groupings.map((item, key) => {
+                return (
+                  <tr key={key}>
+                    <td>{item.column}</td>
+                    <td>{item.inputValue}</td>
+                    <td>{item.outputValue}</td>
+                  </tr>
+                )
+              })
+            )}
           </tbody>
         </table>
       </div>

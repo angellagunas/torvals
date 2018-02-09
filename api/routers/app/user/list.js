@@ -48,6 +48,18 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'groupAsign') {
+        const group = await Group.findOne(
+          {'uuid': ctx.request.query[filter]}
+        )
+
+        if (group) {
+          filters['groups'] = { $nin: [ObjectId(group._id)] }
+        }
+
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
@@ -63,7 +75,8 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
-      sort: ctx.request.query.sort || '-email'
+      sort: ctx.request.query.sort || '-email',
+      populate: 'groups'
     })
 
     users.data = users.data.map((user) => { return user.toPublic() })

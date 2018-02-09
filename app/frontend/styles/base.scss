@@ -307,3 +307,272 @@ a.navbar-item:hover {
   background-color: rgba(237, 237, 237, 0.849) !important;
 }
 
+.c-topbar__aside__white{
+  width: 130px !important;
+  background-color: $primary !important;
+  color: #000000 !important
+}
+
+.r-pad{
+  margin-right: 10px !important;
+}
+
+.is-hidden{
+  display: none !important;
+}
+
+.no-hidden{
+  display: block !important;
+}
+
+.no-flex{
+  display: block !important;
+}
+
+
+.dash-card{
+  cursor: pointer;
+  background-color: $abraxas-color !important;
+  color: white !important;
+  border-radius: 5px !important;
+  i{
+    padding: 5px 10px 5px 0px !important;
+    box-sizing: border-box !important;
+  }
+  .content p:not(:last-child){
+    margin-bottom: 0.3em !important;
+  }
+}
+
+
+
+.land-side{
+  position: relative !important;
+  background-color: rgba(92,138,169,1) !important;
+  .down{
+    position: absolute !important;
+    bottom: 120px !important;
+  }
+  img{
+    padding: 0px 40px !important;
+    margin-bottom: -10px !important;
+  }
+}
+.land-content{
+  margin: auto !important;
+  max-width: 800px !important;
+}
+.is-bg-whitesmoke{
+  background-color: whitesmoke !important;
+}
+
+.has-text-color{
+  color: $abraxas-color !important;
+}
+
+.icon-land{
+  height: 7rem !important;
+  width: 7rem !important;
+  background: #28d2eb !important;
+  border-radius: 100px !important;
+  margin: 30px 20px 0px !important;
+}
+.card-land{
+  height: 295px !important;
+}
+.pad-bottom{
+  padding-bottom: 20px !important;
+}
+
+.land-login{
+  width: 800px !important;
+  background-color: rgba(48, 90, 122, 0.7);
+  overflow: hidden !important;
+  text-align: center !important;
+  padding: 40px !important;
+
+  .input{
+    color: white !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+    border: 0px !important;
+    border-bottom: 1px solid whitesmoke !important;
+  }
+  .input:focus{
+    border: 0px !important;
+    border-bottom: 2px solid white !important;
+    box-shadow: none !important;
+  }
+
+  .label{
+    text-align: left !important;
+    color: white !important;
+  }
+
+}
+
+.land-card{
+  background-color: rgba(48, 90, 122, 0.7) !important;
+  .navbar-item{
+    background-color: rgba(48, 90, 122, 0.3) !important;
+  }
+  .navbar-item:hover{
+    background-color: rgba(48, 90, 122, 0.8) !important;
+  }
+  .navbar-divider{
+    background: $abraxas-color !important;
+  }
+}
+
+@media screen and (max-width: 1023px){
+.navbar-menu{
+  box-shadow: none !important;
+}
+}
+
+
+.has-bg-color{
+  background-color: $abraxas-color !important;
+  color: white !important;
+}
+
+.has-bg-hover:hover{
+  background-color: darken($primary, 3%) !important;
+}
+
+.sidepanel{
+  position: absolute;
+  top: 65px;
+  right: 0px;
+  padding: 0px;
+  background-color: #5d5d5d;
+  color: white;
+  border-radius: 5px 0px 0px 5px;
+  cursor: pointer;
+  text-align: center;
+  width: 40px;
+}
+
+.z100{
+  z-index: 100 !important;
+}
+
+.pad-sides{
+  padding: 0 3em !important;
+}
+
+
+.dark-card{
+  background-color: #3d495a !important ;
+  color: white !important;
+  .card-header{
+    color: white !important;
+  }
+  .card-header-title{
+    color: white !important;
+  }
+  .panel-block{
+    color: white !important;
+    border-bottom: 0px !important;
+    border-left: 0px !important;
+    border-right: 0px !important;
+    .input{
+      color: white !important;
+      background-color: rgba(0, 0, 0, 0.15) !important;
+      border: 0px !important;
+      border-bottom: 1px solid whitesmoke !important;
+    }
+    .input:focus{
+      border: 0px !important;
+      border-bottom: 2px solid white !important;
+      box-shadow: none !important;
+    }
+
+    .label{
+      text-align: left !important;
+      color: #b4becc !important;
+    }
+
+    .select select {
+      background-color: rgba(0, 0, 0, 0.15) !important;
+      border-color: rgba(0, 0, 0, 0.15) !important;
+      color: white !important;
+    }
+
+    .select option{
+      background-color: rgb(55, 65, 80) !important;
+      border-color: rgb(55, 65, 80) !important;
+      color: white !important;
+    }
+
+    .textarea{
+      color: white !important;
+      background-color: rgba(0, 0, 0, 0.15) !important;
+      border: 0px !important;
+      border-bottom: 1px solid whitesmoke !important;
+    }
+  }
+}
+
+
+
+
+
+.navstrong {
+  .navbar-item.has-dropdown:hover .navbar-link, .navbar-item .has-dropdown .is-active .navbar-link {
+    background-color: darken($primary, 3%) !important;
+    :hover{
+      background-color: darken($primary, 3%) !important;
+    }
+  }
+  .navbar-dropdown{
+    background-color: $primary !important;
+    color: white !important;
+    :hover{
+      background-color: darken($primary, 3%) !important;
+      color: white !important;
+    }
+  }
+  .navbar-item{
+    :hover{
+      background-color: darken($primary, 3%) !important;
+      color: white !important;
+    }
+  }
+  strong{
+  color:white !important;
+  }
+  .navbar-link::after{
+    border: 2px solid white;
+    border-right: 0;
+    border-top: 0;
+    content: " ";
+    display: block;
+    height: 0.5em;
+    pointer-events: none;
+    position: absolute;
+    transform: rotate(-45deg);
+    width: 0.5em;
+    margin-top: -0.375em;
+    right: 1.125em;
+    top: 50%;
+  }
+}
+
+.historical-container{
+  display: flex;
+  justify-content: center;
+}
+.historical tbody{
+  font-size: 12px
+}
+
+.font-blue{
+  color: #01579B;
+}
+.font-orange{
+  color: #FF9800;
+}
+.font-green{
+  color: #8BC34A;
+}
+

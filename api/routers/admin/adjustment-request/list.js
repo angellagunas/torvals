@@ -1,23 +1,29 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Forecast, AdjustmentRequest, Organization} = require('models')
+const {DataSet, AdjustmentRequest, Organization, SalesCenter} = require('models')
 
 module.exports = new Route({
   method: 'get',
-  path: '/',
+  path: '/dataset/:uuid',
   handler: async function (ctx) {
+    var datasetId = ctx.params.uuid
+
+    const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
+
+    ctx.assert(dataset, 404, 'DataSet not found')
+
     var filters = {}
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
       }
 
-      if (filter === 'forecast') {
-        const forecast = await Forecast.findOne({'uuid': ctx.request.query[filter]})
+      if (filter === 'salesCenter') {
+        const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]})
 
-        if (forecast) {
-          filters['forecast'] = ObjectId(forecast._id)
+        if (salesCenter) {
+          filters['salesCenter'] = ObjectId(salesCenter._id)
         }
 
         continue
@@ -43,15 +49,26 @@ module.exports = new Route({
     var adjustmentRequests = await AdjustmentRequest.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters},
+      find: {...filters, isDeleted: false, dataset: dataset},
       populate: [
-        'organization',
-        'prediction',
         'requestedBy',
         'approvedBy',
-        'rejectedBy'
+        'rejectedBy',
+        'datasetRow',
+        'datasetRow.product',
+        'datasetRow.salesCenter'
       ],
       sort: ctx.request.query.sort || '-dateCreated'
+    })
+
+    adjustmentRequests.data = adjustmentRequests.data.map(item => {
+      return {
+        ...item,
+        requestedBy: item.requestedBy.format(),
+        approvedBy: item.approvedBy ? item.approvedBy.format() : undefined,
+        rejectedBy: item.rejectedBy ? item.rejectedBy.format() : undefined,
+        datasetRow: item.format()
+      }
     })
 
     ctx.body = adjustmentRequests

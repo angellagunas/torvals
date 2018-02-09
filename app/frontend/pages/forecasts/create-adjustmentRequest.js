@@ -17,22 +17,22 @@ class CreateAdjustmentRequest extends Component {
 
     return (
       <BaseModal
-        title='Create Adjustment Request'
+        title='Crear Pedido de Ajuste'
         className={this.props.className}
         hideModal={this.hideModal}
       >
         <AdjustmentRequestForm
-          url={`/app/predictions/${this.props.prediction.uuid}/request`}
+          url={`${this.props.baseUrl}${this.props.prediction.uuid}/request`}
           finishUp={this.props.finishUp}
           initialState={{newAdjustment: this.props.prediction.adjustment}}
           prediction={this.props.prediction}
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary'>Create</button>
+              <button className='button is-primary' type='submit'>Crear</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal}>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>
           </div>
         </AdjustmentRequestForm>

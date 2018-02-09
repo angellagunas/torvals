@@ -49,6 +49,7 @@ const task = new Task(async function (argv) {
       console.log(`${dataset.name} dataset has finished preprocessing`)
       dataset.set({
         status: 'configuring',
+        etag: res._etag,
         columns: res.headers.map(item => {
           return {
             name: item,
@@ -61,6 +62,17 @@ const task = new Task(async function (argv) {
       })
 
       await dataset.save()
+    }
+
+    if (res.status === 'error') {
+      dataset.set({
+        error: res.message,
+        status: 'error'
+      })
+
+      await dataset.save()
+
+      console.log(`Error while preprocessing dataset: ${dataset.error}`)
     }
   }
 

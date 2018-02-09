@@ -8,7 +8,13 @@ module.exports = new Route({
   handler: async function (ctx) {
     var projectId = ctx.params.uuid
 
-    const project = await Project.findOne({'uuid': projectId, 'isDeleted': false, 'organization': ctx.state.organization._id}).populate('organization')
+    const project = await Project.findOne({
+      'uuid': projectId,
+      'isDeleted': false,
+      'organization': ctx.state.organization._id
+    }).populate('organization')
+      .populate('activeDataset')
+
     ctx.assert(project, 404, 'Project not found')
 
     ctx.body = {

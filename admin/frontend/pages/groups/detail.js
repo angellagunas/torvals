@@ -12,6 +12,7 @@ import BaseModal from '~base/components/base-modal'
 import GroupForm from './form'
 import DeleteButton from '~base/components/base-deleteButton'
 import CreateUser from '../users/create'
+import tree from '~core/tree'
 
 class GroupDetail extends Component {
   constructor (props) {
@@ -73,7 +74,7 @@ class GroupDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -85,10 +86,13 @@ class GroupDetail extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/users/' + row.uuid}>
-            Detalle
+          return <Link className='button is-primary'
+            to={'/manage/users/' + row.uuid}>
+            <span className='icon is-small'>
+              <i className='fa fa-pencil' />
+            </span>
           </Link>
         }
       }
@@ -148,14 +152,31 @@ class GroupDetail extends Component {
       }
     )
 
+    this.updateUsersToAsign()
     this.loadGroupUsers()
     this.hideModalList()
+  }
+
+  async updateUsersToAsign () {
+    const cursor = tree.get('usersAsign')
+    const updateUsers = await api.get(
+      '/admin/users',
+      {groupAsign: this.props.match.params.uuid, organization: this.state.group.organization.uuid}
+    )
+
+    tree.set('usersAsign', {
+      page: cursor.page,
+      totalItems: updateUsers.total,
+      items: updateUsers.data,
+      pageLength: cursor.pageLength
+    })
+    tree.commit()
   }
 
   getColumnsUsersToAsign () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -167,11 +188,11 @@ class GroupDetail extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.addToGroup(row.uuid) }}>
-              Add to group
+              Agregar al grupo
             </button>
           )
         }
@@ -203,7 +224,6 @@ class GroupDetail extends Component {
     if (!group.uuid) {
       return <Loader />
     }
-
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
@@ -213,10 +233,10 @@ class GroupDetail extends Component {
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <DeleteButton
-                      titleButton={'Delete'}
-                      objectName='Group'
+                      titleButton={'Eliminar Grupo'}
+                      objectName='Grupo'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={`Are you sure you want to delete the group ${group.name}?`}
+                      message={`Está seguro que quiere eliminar el grupo ${group.name}?`}
                     />
                   </div>
                 </div>
@@ -227,7 +247,7 @@ class GroupDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Group
+                      Grupo
                     </p>
                   </header>
                   <div className='card-content'>
@@ -236,13 +256,13 @@ class GroupDetail extends Component {
                         <GroupForm
                           baseUrl='/admin/groups'
                           url={'/admin/groups/' + this.props.match.params.uuid}
-                          initialState={this.state.group}
+                          initialState={{...this.state.group, organization: this.state.group.organization._id}}
                           load={this.load.bind(this)}
                           organizations={this.state.orgs || []}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button className='button is-primary'>Guardar</button>
                             </div>
                           </div>
                         </GroupForm>
@@ -255,14 +275,14 @@ class GroupDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Users
+                      Usuarios
                     </p>
                     <div className='card-header-select'>
                       <button className='button is-primary' onClick={() => this.showModalList()}>
-                        Add existing user
+                        Agregar usuario existente
                       </button>
                       <BaseModal
-                        title='Users to asign'
+                        title='Usuarios para asignar'
                         className={this.state.classNameList}
                         finishUp={this.finishUpList.bind(this)}
                         hideModal={this.hideModalList.bind(this)}
@@ -271,14 +291,14 @@ class GroupDetail extends Component {
                           branchName='usersAsign'
                           baseUrl='/admin/users'
                           columns={this.getColumnsUsersToAsign()}
-                          filters={{groupAsign: this.props.match.params.uuid}}
+                          filters={{groupAsign: this.props.match.params.uuid, organization: group.organization.uuid}}
                          />
                       </BaseModal>
 
                     </div>
                     <div className='card-header-select'>
                       <button className='button is-primary' onClick={() => this.showModal()}>
-                        New User
+                        Nuevo Usuario
                       </button>
                       <CreateUser
                         className={this.state.className}
@@ -288,7 +308,7 @@ class GroupDetail extends Component {
                         baseUrl='/admin/users'
                         url='/admin/users/'
                         filters={{group: this.props.match.params.uuid}}
-                        organization={group.organization}
+                        organization={group.organization._id}
                       />
                     </div>
                   </header>
@@ -322,7 +342,7 @@ const branchedGroupDetail = branch({groups: 'groups'}, GroupDetail)
 
 export default Page({
   path: '/manage/groups/:uuid',
-  title: 'Group details',
+  title: 'Detalles de grupo',
   exact: true,
   validate: loggedIn,
   component: branchedGroupDetail

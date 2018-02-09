@@ -66,7 +66,7 @@ class NavBar extends Component {
     tree.set('loggedIn', false)
     tree.commit()
 
-    history.push('/admin/log-in')
+    history.push('/admin/')
   }
 
   toggleBtnClass () {
@@ -114,13 +114,13 @@ class NavBar extends Component {
 
     return (<nav className='c-topbar navbar c-fixed'>
       <div className={navbarBrand}>
-        <Link to='/' className='navbar-item'>
-          <img className='is-flex' src='/admin/public/img/pythia-logo.png' />
+        <Link to='/dashboard' className='navbar-item'>
+          <img className='is-flex r-pad' src='/admin/public/img/pythia-logo.png' />
           <h3 className='is-size-4 has-text-white is-capitalized has-text-weight-semibold'>Pythia</h3>
         </Link>
       </div>
       <div className='c-topbar__main'>
-        <div className='navbar-menu-container'>
+        <div className='navbar-menu-container has-bg-color has-text-white'>
           <div className='navbar-start'>
             <div className='navbar-burger burger-desktop' onClick={this.props.handleBurgerEvent}>
               <span />
@@ -129,7 +129,7 @@ class NavBar extends Component {
             </div>
           </div>
           <div className='navbar-end'>
-            <div className='navbar-item is-size-7 has-text-grey is-capitalized'>
+            <div className='navbar-item is-size-7 has-text-white is-capitalized'>
               Bienvenido { username }
             </div>
             <div className='is-flex is-align-center'>
@@ -137,7 +137,7 @@ class NavBar extends Component {
             </div>
             <div className='dropdown is-active is-right' ref={this.setWrapperRef}>
               <div className='dropdown-trigger is-flex'>
-                <a href='javascript:undefined' className='navbar-item grey-hover' onClick={() => this.toggleBtnClass()}>
+                <a href='javascript:undefined' className='navbar-item has-bg-hover has-text-white' onClick={() => this.toggleBtnClass()}>
                   <span className='icon'>
                     <i className={this.state.dropCaret} />
                   </span>

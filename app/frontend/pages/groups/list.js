@@ -1,36 +1,46 @@
-import React, { Component } from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
+import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
-
-import Page from '~base/page'
+import api from '~base/api'
+import tree from '~core/tree'
+import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import CreateGroup from './create'
+import CreateGroupNoModal from './create-no-modal'
+import DeleteButton from '~base/components/base-deleteButton'
+import GroupUsers from './group-users'
 
-class Groups extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      className: ''
+export default ListPage({
+  path: '/manage/groups',
+  title: 'Grupos',
+  icon: 'users',
+  exact: true,
+  roles: 'admin, orgadmin',
+  validate: [loggedIn, verifyRole],
+  titleSingular: 'Grupo',
+  create: false,
+  createComponent: CreateGroup,
+  sidePanel: true,
+  sidePanelIcon: 'plus',
+  sidePanelComponent: CreateGroupNoModal,
+  baseUrl: '/app/groups',
+  branchName: 'groups',
+  detailUrl: '/manage/groups/',
+  filters: true,
+  schema: {
+    type: 'object',
+    required: [],
+    properties: {
+      name: {type: 'text', title: 'Por nombre'}
     }
-  }
-
-  componentWillMount () {
-    this.context.tree.set('groups', {
-      page: 1,
-      totalItems: 0,
-      items: [],
-      pageLength: 10
-    })
-    this.context.tree.commit()
-  }
-
-  getColumns () {
+  },
+  uiSchema: {
+    name: {'ui:widget': 'SearchFilter'}
+  },
+  getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -43,7 +53,7 @@ class Groups extends Component {
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -54,92 +64,60 @@ class Groups extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Miembros',
+        'property': 'users',
+        'default': '0',
+        'sortable': true,
         formatter: (row) => {
-          return <Link className='button' to={'/manage/groups/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <div>
+              {row.users.length}
+              {row.users.length > 0 && <GroupUsers group={row} /> }
+            </div>
+          )
+        }
+      },
+      {
+        'title': 'Acciones',
+        formatter: (row) => {
+          const deleteObject = async function () {
+            var url = '/app/groups/' + row.uuid
+            await api.del(url)
+
+            const cursor = tree.get('groups')
+            const users = await api.get('/app/groups/')
+
+            tree.set('groups', {
+              page: cursor.page,
+              totalItems: users.total,
+              items: users.data,
+              pageLength: cursor.pageLength
+            })
+            tree.commit()
+          }
+
+          return (
+            <div className='field is-grouped'>
+              <div className='control'>
+                <Link className='button is-primary' to={'/manage/groups/' + row.uuid}>
+                  <span className='icon is-small'>
+                    <i className='fa fa-pencil' />
+                  </span>
+                </Link>
+              </div>
+              <div className='control'>
+                  <DeleteButton
+                    iconOnly
+                    icon='fa fa-trash'
+                    objectName='Grupo'
+                    objectDelete={deleteObject}
+                    message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
+                  />
+              </div>
+            </div>
+          )
         }
       }
     ]
   }
-
-  showModal () {
-    this.setState({
-      className: ' is-active'
-    })
-  }
-
-  hideModal () {
-    this.setState({
-      className: ''
-    })
-  }
-
-  finishUp (object) {
-    this.setState({
-      className: ''
-    })
-    this.props.history.push('/manage/groups/' + object.uuid)
-  }
-
-  render () {
-    return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Grupos</h1>
-            <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                    Groups
-                </p>
-                <div className='card-header-select'>
-                  <button className='button is-primary' onClick={() => this.showModal()}>
-                    New Group
-                  </button>
-                  <CreateGroup
-                    className={this.state.className}
-                    hideModal={this.hideModal.bind(this)}
-                    finishUp={this.finishUp.bind(this)}
-                    branchName='groups'
-                    baseUrl='/app/groups'
-                    url='/app/groups'
-                  />
-                </div>
-              </header>
-              <div className='card-content'>
-                <div className='columns'>
-                  <div className='column'>
-                    <BranchedPaginatedTable
-                      branchName='groups'
-                      baseUrl='/app/groups'
-                      columns={this.getColumns()}
-                      // getData={this.getData.bind(this)}
-                       />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-}
-
-Groups.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedGroups = branch({groups: 'groups'}, Groups)
-
-export default Page({
-  path: '/manage/groups',
-  title: 'Groups',
-  icon: 'users',
-  exact: true,
-  roles: 'admin, orgadmin',
-  validate: [loggedIn, verifyRole],
-  component: branchedGroups
 })

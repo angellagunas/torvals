@@ -20,6 +20,7 @@ const dataSetSchema = new Schema({
   externalId: { type: String },
   fileChunk: { type: Schema.Types.ObjectId, ref: 'FileChunk' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   type: {
@@ -30,6 +31,8 @@ const dataSetSchema = new Schema({
 
   dateMax: String,
   dateMin: String,
+  error: String,
+  etag: String,
 
   status: {
     type: String,
@@ -41,19 +44,40 @@ const dataSetSchema = new Schema({
       'configuring',
       'processing',
       'reviewing',
-      'ready'
+      'ready',
+      'conciliated',
+      'pendingRows',
+      'adjustment',
+      'error'
     ],
     default: 'new'
+  },
+
+  source: {
+    type: String,
+    enum: [
+      'uploaded',
+      'forecast',
+      'adjustment',
+      'external'
+    ],
+    default: 'uploaded'
   },
 
   columns: [{
     name: { type: String },
     isDate: { type: Boolean, default: false },
     isAnalysis: { type: Boolean },
+    isAdjustment: { type: Boolean },
+    isPrediction: { type: Boolean },
     isOperationFilter: { type: Boolean, default: false },
     isAnalysisFilter: { type: Boolean, default: false },
     isProduct: { type: Boolean, default: false },
+    isProductName: { type: Boolean, default: false },
     isSalesCenter: { type: Boolean, default: false },
+    isSalesCenterName: { type: Boolean, default: false },
+    isChannel: { type: Boolean, default: false },
+    isChannelName: { type: Boolean, default: false },
     values: [{ type: String }]
   }],
 
@@ -67,6 +91,8 @@ const dataSetSchema = new Schema({
   newSalesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   newProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+  channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
+  newChannels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
 
   apiData: { type: Schema.Types.Mixed },
   dateCreated: { type: Date, default: moment.utc },
@@ -89,13 +115,16 @@ dataSetSchema.methods.toPublic = function () {
     status: this.status,
     url: this.url,
     uploaded: this.uploaded,
+    source: this.source,
     fileChunk: this.fileChunk,
+    project: this.project,
     columns: this.columns,
     groupings: this.groupings,
     dateMax: this.dateMax,
     dateMin: this.dateMin,
     newSalesCenters: this.newSalesCenters,
-    newProducts: this.newProducts
+    newProducts: this.newProducts,
+    newChannels: this.newChannels
   }
 }
 
@@ -111,12 +140,15 @@ dataSetSchema.methods.format = function () {
     status: this.status,
     url: this.url,
     uploaded: this.uploaded,
+    source: this.source,
+    project: this.project,
     columns: this.columns,
     groupings: this.groupings,
     dateMax: this.dateMax,
     dateMin: this.dateMin,
     newSalesCenters: this.newSalesCenters,
-    newProducts: this.newProducts
+    newProducts: this.newProducts,
+    newChannels: this.newChannels
   }
 }
 
@@ -184,37 +216,52 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
 }
 
 dataSetSchema.methods.processData = async function () {
-  const { Product, SalesCenter } = require('models')
+  const { Product, SalesCenter, Channel } = require('models')
 
   if (!this.apiData) return
 
   this.products = []
   this.newProducts = []
+  this.channels = []
   this.salesCenters = []
   this.newSalesCenters = []
+  this.newChannels = []
 
   if (this.apiData.products) {
     for (var p of this.apiData.products) {
       var product = await Product.findOne({
-        externalId: p,
+        externalId: p._id,
         organization: this.organization
       })
 
       if (!product) {
         product = await Product.create({
-          name: 'Not identified',
-          externalId: p,
-          organization: this.organization
+          name: p['name'] ? p['name'] : 'Not identified',
+          externalId: p._id,
+          organization: this.organization,
+          isNewExternal: true
         })
 
         this.newProducts.push(product)
-      } else {
-        var pos = this.products.findIndex(item => {
-          return String(item) === String(product._id)
-        })
+      } else if (product.isNewExternal) {
+        product.set({name: p['name'] ? p['name'] : 'Not identified'})
+        await product.save()
 
         var posNew = this.newProducts.findIndex(item => {
-          return String(item) === String(product._id)
+          return String(item.externalId) === String(product.externalId)
+        })
+        if (posNew < 0) {
+          this.newProducts.push(product)
+        }
+      } else {
+        product.set({isDeleted: false})
+        await product.save()
+        var pos = this.products.findIndex(item => {
+          return String(item.externalId) === String(product.externalId)
+        })
+
+        posNew = this.newProducts.findIndex(item => {
+          return String(item.externalId) === String(product.externalId)
         })
 
         if (pos < 0 && posNew < 0) this.products.push(product)
@@ -225,25 +272,37 @@ dataSetSchema.methods.processData = async function () {
   if (this.apiData.salesCenters) {
     for (var a of this.apiData.salesCenters) {
       var salesCenter = await SalesCenter.findOne({
-        externalId: a,
+        externalId: a._id,
         organization: this.organization
       })
 
       if (!salesCenter) {
         salesCenter = await SalesCenter.create({
-          name: 'Not identified',
-          externalId: a,
-          organization: this.organization
+          name: a['name'] ? a['name'] : 'Not identified',
+          externalId: a._id,
+          organization: this.organization,
+          isNewExternal: true
         })
 
         this.newSalesCenters.push(salesCenter)
+      } else if (salesCenter.isNewExternal) {
+        salesCenter.set({name: a['name'] ? a['name'] : 'Not identified'})
+        await salesCenter.save()
+        posNew = this.newSalesCenters.findIndex(item => {
+          return String(item.externalId) === String(salesCenter.externalId)
+        })
+        if (posNew < 0) {
+          this.newSalesCenters.push(salesCenter)
+        }
       } else {
+        salesCenter.set({isDeleted: false})
+        await salesCenter.save()
         pos = this.salesCenters.findIndex(item => {
-          return String(item) === String(salesCenter._id)
+          return String(item.externalId) === String(salesCenter.externalId)
         })
 
         posNew = this.newSalesCenters.findIndex(item => {
-          return String(item) === String(salesCenter._id)
+          return String(item.externalId) === String(salesCenter.externalId)
         })
 
         if (pos < 0 && posNew < 0) this.salesCenters.push(salesCenter)
@@ -251,8 +310,217 @@ dataSetSchema.methods.processData = async function () {
     }
   }
 
-  this.markModified('products', 'newProducts', 'salesCenters', 'newSalesCenters')
+  if (this.apiData.channels) {
+    for (var c of this.apiData.channels) {
+      var channel = await Channel.findOne({
+        externalId: c._id,
+        organization: this.organization
+      })
+
+      if (!channel) {
+        channel = await Channel.create({
+          name: c['name'] ? c['name'] : 'Not identified',
+          externalId: c._id,
+          organization: this.organization,
+          isNewExternal: true
+        })
+
+        posNew = this.newChannels.findIndex(item => {
+          return String(item.externalId) === String(channel.externalId)
+        })
+
+        if (posNew < 0) {
+          this.newChannels.push(channel)
+        }
+      } else if (channel.isNewExternal) {
+        channel.set({name: c['name'] ? c['name'] : 'Not identified'})
+        await channel.save()
+        this.newChannels.push(channel)
+      } else {
+        channel.set({isDeleted: false})
+        await channel.save()
+
+        pos = this.channels.findIndex(item => {
+          return String(item.externalId) === String(channel.externalId)
+        })
+
+        posNew = this.newChannels.findIndex(item => {
+          return String(item.externalId) === String(channel.externalId)
+        })
+
+        if (pos < 0 && posNew < 0) this.channels.push(channel)
+      }
+    }
+  }
+
+  this.markModified(
+    'products', 'newProducts',
+    'salesCenters', 'newSalesCenters',
+    'channels', 'newChannels')
+
   await this.save()
+}
+
+dataSetSchema.methods.process = async function (res) {
+  if (res.status === 'error') {
+    this.set({
+      error: res.message,
+      status: 'error'
+    })
+
+    await this.save()
+    return
+  }
+
+  this.set({
+    status: 'preprocessing'
+  })
+
+  if (res.status === 'uploading' || !res.headers) {
+    await this.save()
+    return
+  }
+
+  this.set({
+    status: 'configuring',
+    columns: res.headers.map(item => {
+      return {
+        name: item,
+        isDate: false,
+        isAnalysis: false,
+        isOperationFilter: false,
+        isAnalysisFilter: false
+      }
+    })
+  })
+
+  if (res.status === 'done') {
+    await this.save()
+    return
+  }
+
+  this.set({
+    status: 'processing'
+  })
+
+  if (res.status === 'processing') {
+    await this.save()
+    return
+  }
+
+  let apiData = {
+    products: [],
+    salesCenters: [],
+    channels: []
+  }
+
+  apiData['products'] = res.data['product']
+  apiData['salesCenters'] = res.data['agency']
+  apiData['channels'] = res.data['channel']
+
+  this.set({
+    status: 'reviewing',
+    columns: res.headers.map(item => {
+      var isDate = false
+      var isAnalysis = false
+      var isOperationFilter = false
+      var isAnalysisFilter = false
+      var isProductName = false
+      var isProduct = false
+      var isSalesCenterName = false
+      var isSalesCenter = false
+      var isChannel = false
+      var isChannelName = false
+
+      if (res.columns['is_date'] === item) {
+        isDate = true
+      }
+
+      if (res.columns['is_analysis'] === item) {
+        isAnalysis = true
+      }
+
+      if (res.columns['filter_operations'].find(col => { return col === item })) {
+        isOperationFilter = true
+      }
+
+      var product = res.columns.filter_analysis.find(col => {
+        return col.product || false
+      })
+
+      if (product) {
+        product = product.product
+        if (product._id === item) {
+          isProduct = true
+        }
+
+        if (product.name && product.name === item) {
+          isProductName = true
+        }
+      }
+
+      var salesCenter = res.columns.filter_analysis.find(col => {
+        return col.agency || false
+      })
+
+      if (salesCenter) {
+        salesCenter = salesCenter.agency
+        if (salesCenter._id === item) {
+          isSalesCenter = true
+        }
+
+        if (salesCenter.name && salesCenter.name === item) {
+          isSalesCenterName = true
+        }
+      }
+
+      var channel = res.columns.filter_analysis.find(col => {
+        return col.channel || false
+      })
+
+      if (channel) {
+        channel = channel.channel
+        if (channel._id === item) {
+          isChannel = true
+        }
+
+        if (channel.name && channel.name === item) {
+          isChannelName = true
+        }
+      }
+
+      return {
+        name: item,
+        isDate: isDate,
+        isAnalysis: isAnalysis,
+        isOperationFilter: isOperationFilter,
+        isAnalysisFilter: isAnalysisFilter,
+        isProduct: isProduct,
+        isProductName: isProductName,
+        isSalesCenter: isSalesCenter,
+        isSalesCenterName: isSalesCenterName,
+        isChannel: isChannel,
+        isChannelName: isChannelName
+      }
+    }),
+    dateMax: res.date_max,
+    dateMin: res.date_min,
+    apiData: apiData,
+    groupings: res.columns.groupings
+  })
+
+  if (res.status === 'ready') {
+    await this.save()
+    await this.processData()
+    return
+  }
+
+  this.set({
+    status: 'conciliated'
+  })
+
+  await this.save()
+  await this.processData()
 }
 
 dataSetSchema.virtual('url').get(function () {

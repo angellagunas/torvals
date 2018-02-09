@@ -8,7 +8,7 @@ import {
 
 import AdminLayout from '~components/admin-layout'
 
-import LogIn from './pages/log-in'
+import LandPage from './pages/land-page'
 import Dashboard from './pages/dashboard'
 import Users from './pages/users/list'
 import UserDetail from './pages/users/detail'
@@ -31,6 +31,8 @@ import ProductDetail from './pages/products/detail'
 import Forecasts from './pages/forecasts/list'
 import ForecastDetail from './pages/forecasts/detail'
 import env from '~base/env-variables'
+import Channels from './pages/channel/list'
+import ChannelsDetail from './pages/channel/detail'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -44,7 +46,7 @@ const AppRouter = () => {
     <AdminLayout>
       <div className='c-flex-1 is-flex is-flex-column is-relative'>
         <Switch>
-          {LogIn.asRouterItem()}
+          {LandPage.asRouterItem()}
           {ResetPassword.asRouterItem()}
           {EmailResetLanding.asRouterItem()}
           {EmailInviteLanding.asRouterItem()}
@@ -74,8 +76,9 @@ const AppRouter = () => {
 
           {Forecasts.asRouterItem()}
           {ForecastDetail.asRouterItem()}
+          {Channels.asRouterItem()}
+          {ChannelsDetail.asRouterItem()}
 
-          <Redirect from='/' to='/dashboard' />
           <Route component={NoMatch} />
         </Switch>
       </div>
