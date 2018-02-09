@@ -152,7 +152,6 @@ class TabDatasets extends Component {
               </div>
             </div>
           </div>
-
         </header>
         <div className='card-content'>
           <div className={this.props.project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
@@ -164,7 +163,7 @@ class TabDatasets extends Component {
                 <div className='message-body has-text-centered is-size-5'>
                   Necesitas subir y configurar al menos un
                   <strong> dataset </strong> para tener información disponible
-                <br />
+                  <br />
                   <br />
                   <a
                     className='button is-large is-primary'

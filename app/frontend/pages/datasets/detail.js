@@ -7,6 +7,7 @@ import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
 import env from '~base/env-variables'
 import classNames from 'classnames'
+import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -35,7 +36,9 @@ class DataSetDetail extends Component {
       dataset: {},
       currentProduct: null,
       currentSalesCenter: null,
-      columns: []
+      columns: [],
+      roles: 'admin, orgadmin, analyst',
+      canEdit: false
     }
   }
 
@@ -49,6 +52,7 @@ class DataSetDetail extends Component {
     this.context.tree.commit()
     this.load()
     this.interval = setInterval(() => this.load(), 30000)
+    this.setState({canEdit: testRoles(this.state.roles)})
   }
 
   componentWillUnmount () {
@@ -98,18 +102,21 @@ class DataSetDetail extends Component {
   }
 
   async deleteObject () {
+    if (!this.state.canEdit) return
     var url = '/app/datasets/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/datasets')
   }
 
   async configureOnClick () {
+    if (!this.state.canEdit) return
     var url = '/app/datasets/' + this.props.match.params.uuid + '/set/configure'
     await api.post(url)
     await this.load()
   }
 
   async consolidateOnClick () {
+    if (!this.state.canEdit) return
     var url = '/app/datasets/' + this.props.match.params.uuid + '/set/conciliate'
     await api.post(url)
     await this.load()
@@ -121,20 +128,46 @@ class DataSetDetail extends Component {
   }
 
   getUpload () {
-    let dataset = this.state.dataset
+    let { dataset, canEdit } = this.state
     if (
       (!dataset.fileChunk && dataset.source === 'uploaded') ||
       (dataset.fileChunk && dataset.status === 'uploading')
     ) {
-      return (
-        <div className='column'>
-          <UploadDataset
-            query={{dataset: dataset.uuid}}
-            load={() => { this.load() }}
-            url={env.API_HOST + '/api/app/upload/'}
-          />
-        </div>
-      )
+      if (canEdit) {
+        return (
+          <div className='column'>
+            <UploadDataset
+              query={{dataset: dataset.uuid}}
+              load={() => { this.load() }}
+              url={env.API_HOST + '/api/app/upload/'}
+            />
+          </div>
+        )
+      } else {
+        return (
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  En espera de archivo
+                </p>
+              </header>
+              <div className='card-content'>
+                <div className='message is-info'>
+                  <div className='message-body is-large has-text-centered'>
+                    <div className='columns'>
+                      <div className='column'>
+                        Aún no se a cargado un archivo!.
+                        Favor de acudir con su supervisor para cualquier aclaración.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
     }
 
     if (dataset.status === 'uploaded') {
@@ -143,7 +176,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                File uploaded
+                Archivo cargado
               </p>
             </header>
             <div className='card-content'>
@@ -158,9 +191,9 @@ class DataSetDetail extends Component {
                   </div>
                   <div className='columns'>
                     <div className='column'>
-                      File {dataset.fileChunk.filename} has been uploaded
-                      and will be sent for preprocessing. Please come back in
-                      a couple of minutes.
+                      El archivo {dataset.fileChunk.filename} ha sido cargado a
+                      nuestros servidores y se enviará para preprocesamiento.
+                      Favor de regresar en un par de minutos.
                     </div>
                   </div>
                 </div>
@@ -229,12 +262,14 @@ class DataSetDetail extends Component {
                 <div className='column'>
                   <div className='field is-grouped'>
                     <div className='control'>
-                      <button
-                        className='button is-black'
-                        onClick={e => this.cancelOnClick()}
-                      >
-                        Cancel
-                      </button>
+                      { canEdit &&
+                        <button
+                          className='button is-black'
+                          onClick={e => this.cancelOnClick()}
+                        >
+                          Cancelar
+                        </button>
+                      }
                     </div>
                   </div>
                 </div>
@@ -244,30 +279,55 @@ class DataSetDetail extends Component {
         </div>
       )
     } else if (dataset.status === 'configuring') {
-      return (
-        <div className='column'>
-          <div className='card'>
-            <header className='card-header'>
-              <p className='card-header-title'>
-                Configurando el Dataset
-              </p>
-            </header>
-            <div className='card-content'>
-              <div className='columns'>
-                <div className='column'>
-                  <ConfigureDatasetForm
-                    initialState={dataset}
-                    columns={dataset.columns}
-                    url={'/app/datasets/' + dataset.uuid + '/configure'}
-                    changeHandler={(data) => this.changeHandler(data)}
-                    load={this.load.bind(this)}
-                  />
+      if (canEdit) {
+        return (
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  Configurando el Dataset
+                </p>
+              </header>
+              <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <ConfigureDatasetForm
+                      initialState={dataset}
+                      columns={dataset.columns}
+                      url={'/app/datasets/' + dataset.uuid + '/configure'}
+                      changeHandler={(data) => this.changeHandler(data)}
+                      load={this.load.bind(this)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )
+        )
+      } else {
+        return (
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  Configurando el Dataset
+                </p>
+              </header>
+              <div className='card-content'>
+                <div className='message is-info'>
+                  <div className='message-body is-large has-text-centered'>
+                    <div className='columns'>
+                      <div className='column'>
+                        Configuración en proceso!
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
     } else if (dataset.status === 'reviewing') {
       return (
         <div className='column'>
@@ -289,24 +349,26 @@ class DataSetDetail extends Component {
                   <ConfigureViewDataset
                     initialState={dataset}
                   />
-                  <div className='field is-grouped'>
-                    <div className='control'>
-                      <button
-                        className='button is-black'
-                        onClick={e => this.configureOnClick()}
-                      >
-                        Configure
-                      </button>
+                  { canEdit &&
+                    <div className='field is-grouped'>
+                      <div className='control'>
+                        <button
+                          className='button is-black'
+                          onClick={e => this.configureOnClick()}
+                        >
+                          Configurar
+                        </button>
+                      </div>
+                      <div className='control'>
+                        <button
+                          className='button is-primary'
+                          onClick={e => this.consolidateOnClick()}
+                        >
+                          Conciliar
+                        </button>
+                      </div>
                     </div>
-                    <div className='control'>
-                      <button
-                        className='button is-primary'
-                        onClick={e => this.consolidateOnClick()}
-                      >
-                        Conciliar
-                      </button>
-                    </div>
-                  </div>
+                  }
                 </div>
               </div>
             </div>
@@ -347,7 +409,7 @@ class DataSetDetail extends Component {
               </div>
               <ConfigureViewDataset
                 initialState={dataset}
-                  />
+              />
             </div>
           </div>
         </div>
@@ -505,7 +567,7 @@ class DataSetDetail extends Component {
   }
 
   getModalCurrentProduct () {
-    if (this.state.currentProduct) {
+    if (this.state.currentProduct && this.state.canEdit) {
       return (<BaseModal
         title='Edit Product'
         className={this.state.className}
@@ -531,7 +593,7 @@ class DataSetDetail extends Component {
   }
 
   getModalChannels () {
-    if (this.state.currentChannel) {
+    if (this.state.currentChannel && this.state.canEdit) {
       return (<BaseModal
         title='Editar Canal'
         className={this.state.classNameCh}
@@ -555,7 +617,7 @@ class DataSetDetail extends Component {
   }
 
   getModalSalesCenters () {
-    if (this.state.currentSalesCenter) {
+    if (this.state.currentSalesCenter && this.state.canEdit) {
       return (<BaseModal
         title='Edit Sales Center'
         className={this.state.classNameSC}
@@ -601,7 +663,7 @@ class DataSetDetail extends Component {
   }
 
   getUnidentifiedChannels () {
-    const { dataset } = this.state
+    const { dataset, canEdit } = this.state
     if (!dataset.uuid) {
       return <Loader />
     }
@@ -655,8 +717,9 @@ class DataSetDetail extends Component {
                     <tr>
                       <th colSpan='2'>Id Externo</th>
                       <th colSpan='2'>Nombre</th>
-                      <th colSpan='2'>Acciones</th>
-
+                      { canEdit &&
+                        <th colSpan='2'>Acciones</th>
+                      }
                     </tr>
                   </thead>
                   <tbody>
@@ -666,11 +729,16 @@ class DataSetDetail extends Component {
                           <tr key={key}>
                             <td colSpan='2'>{item.externalId}</td>
                             <td colSpan='2'>{item.name}</td>
-                            <td colSpan='2'>
-                              <button className='button is-primary' onClick={() => this.showModalChannels(item)}>
+                            { canEdit &&
+                              <td colSpan='2'>
+                                <button
+                                  className='button is-primary'
+                                  onClick={() => this.showModalChannels(item)}
+                                >
                                   Edit
                                 </button>
-                            </td>
+                              </td>
+                            }
                           </tr>
                         )
                       })
@@ -686,7 +754,7 @@ class DataSetDetail extends Component {
   }
 
   getUnidentifiedSalesCenters () {
-    const { dataset } = this.state
+    const { dataset, canEdit } = this.state
     if (!dataset.uuid) {
       return <Loader />
     }
@@ -740,8 +808,9 @@ class DataSetDetail extends Component {
                     <tr>
                       <th colSpan='2'>Id Externo</th>
                       <th colSpan='2'>Nombre</th>
-                      <th colSpan='2'>Acciones</th>
-
+                      { canEdit &&
+                        <th colSpan='2'>Acciones</th>
+                      }
                     </tr>
                   </thead>
                   <tbody>
@@ -751,11 +820,16 @@ class DataSetDetail extends Component {
                           <tr key={key}>
                             <td colSpan='2'>{item.externalId}</td>
                             <td colSpan='2'>{item.name}</td>
-                            <td colSpan='2'>
-                              <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
+                            { canEdit &&
+                              <td colSpan='2'>
+                                <button
+                                  className='button is-primary'
+                                  onClick={() => this.showModalSalesCenters(item)}
+                                >
                                   Edit
                                 </button>
-                            </td>
+                              </td>
+                            }
                           </tr>
                         )
                       })
@@ -771,7 +845,7 @@ class DataSetDetail extends Component {
   }
 
   getUnidentifiedProducts () {
-    const { dataset } = this.state
+    const { dataset, canEdit } = this.state
 
     if (!dataset.uuid) {
       return <Loader />
@@ -826,7 +900,9 @@ class DataSetDetail extends Component {
                       <tr>
                         <th colSpan='2'>Id Externo</th>
                         <th colSpan='2'>Nombre</th>
-                        <th colSpan='2'>Acciones</th>
+                        { canEdit &&
+                          <th colSpan='2'>Acciones</th>
+                        }
                       </tr>
                     </thead>
                     <tbody>
@@ -836,11 +912,16 @@ class DataSetDetail extends Component {
                             <tr key={key}>
                               <td colSpan='2'>{item.externalId}</td>
                               <td colSpan='2'>{item.name}</td>
-                              <td colSpan='2'>
-                                <button className='button is-primary' onClick={() => this.showModal(item)}>
+                              { canEdit &&
+                                <td colSpan='2'>
+                                  <button
+                                    className='button is-primary'
+                                    onClick={() => this.showModal(item)}
+                                  >
                                     Edit
                                   </button>
-                              </td>
+                                </td>
+                              }
                             </tr>
                           )
                         })
@@ -857,10 +938,23 @@ class DataSetDetail extends Component {
   }
 
   render () {
-    const { dataset } = this.state
+    const { dataset, canEdit } = this.state
 
     if (!dataset.uuid) {
       return <Loader />
+    }
+
+    var deleteButton = (
+      <DeleteButton
+        titleButton={'Eliminar'}
+        objectName='Dataset'
+        objectDelete={this.deleteObject.bind(this)}
+        message={`Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
+      />
+    )
+
+    if (!canEdit) {
+      deleteButton = null
     }
 
     return (
@@ -871,12 +965,7 @@ class DataSetDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <DeleteButton
-                      titleButton={'Eliminar'}
-                      objectName='Dataset'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={`Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
-                    />
+                    {deleteButton}
                   </div>
                 </div>
               </div>
@@ -905,6 +994,7 @@ class DataSetDetail extends Component {
                             status: dataset.status
                           }}
                           load={this.load.bind(this)}
+                          canEdit={canEdit}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>

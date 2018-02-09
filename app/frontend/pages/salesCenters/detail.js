@@ -2,11 +2,12 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import moment from 'moment'
 import Link from '~base/router/link'
+import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
-import ProjectForm from './create-form'
+import SalesCenterForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
@@ -18,13 +19,16 @@ class SalesCenterDetail extends Component {
       loading: true,
       loaded: false,
       salesCenter: {},
-      groups: []
+      groups: [],
+      roles: 'admin, orgadmin, analyst',
+      canEdit: false
     }
   }
 
   componentWillMount () {
     this.load()
     this.loadGroups()
+    this.setState({canEdit: testRoles(this.state.roles)})
   }
 
   async load () {
@@ -145,7 +149,8 @@ class SalesCenterDetail extends Component {
   }
 
   render () {
-    if (!this.state.loaded) {
+    let { loaded, canEdit } = this.state
+    if (!loaded) {
       return <Loader />
     }
 
@@ -157,12 +162,14 @@ class SalesCenterDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <DeleteButton
-                      titleButton={'Delete'}
-                      objectName='Sales Center'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={`Are you sure you want to delete the sales center ${this.state.salesCenter.name}?`}
-                    />
+                    { canEdit &&
+                      <DeleteButton
+                        titleButton={'Delete'}
+                        objectName='Sales Center'
+                        objectDelete={this.deleteObject.bind(this)}
+                        message={`Are you sure you want to delete the sales center ${this.state.salesCenter.name}?`}
+                      />
+                    }
                   </div>
                 </div>
               </div>
@@ -178,18 +185,19 @@ class SalesCenterDetail extends Component {
                   <div className='card-content'>
                     <div className='columns'>
                       <div className='column'>
-                        <ProjectForm
+                        <SalesCenterForm
                           baseUrl='/app/salesCenters'
                           url={'/app/salesCenters/' + this.props.match.params.uuid}
                           initialState={this.state.salesCenter}
                           load={this.load.bind(this)}
+                          canEdit={canEdit}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
                               <button className='button is-primary'>Save</button>
                             </div>
                           </div>
-                        </ProjectForm>
+                        </SalesCenterForm>
                       </div>
                     </div>
                   </div>

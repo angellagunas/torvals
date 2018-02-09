@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
+import { testRoles } from '~base/tools'
 
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
@@ -23,12 +24,15 @@ class ProjectDetail extends Component {
       loaded: false,
       project: {},
       selectedTab: 'General',
-      datasetClassName: ''
+      datasetClassName: '',
+      roles: 'admin, orgadmin, analyst',
+      canEdit: false
     }
   }
 
   componentWillMount () {
     this.load()
+    this.setState({canEdit: testRoles(this.state.roles)})
   }
 
   async load () {
@@ -66,7 +70,7 @@ class ProjectDetail extends Component {
     this.props.history.push('/datasets/' + object.uuid)
   }
   render () {
-    const { project } = this.state
+    const { project, canEdit } = this.state
 
     if (!this.state.loaded) {
       return <Loader />
@@ -85,6 +89,7 @@ class ProjectDetail extends Component {
                 url={'/app/projects/' + this.props.match.params.uuid}
                 initialState={{ ...project, organization: project.organization.uuid }}
                 load={this.load.bind(this)}
+                canEdit={canEdit}
               >
                 <div className='field is-grouped'>
                   <div className='control'>
@@ -104,6 +109,7 @@ class ProjectDetail extends Component {
           <TabDatasets
             project={project}
             history={this.props.history}
+            canEdit={canEdit}
           />
         )
       },
@@ -115,15 +121,16 @@ class ProjectDetail extends Component {
           <TabAdjustment
             project={project}
             history={this.props.history}
+            canEdit={canEdit}
           />
         )
-      },
-      {
-        name: 'Historico',
-        title: 'Historico',
-        icon: 'fa-history',
-        content: <TabHistorical />
       }
+      // {
+      //   name: 'Historico',
+      //   title: 'Historico',
+      //   icon: 'fa-history',
+      //   content: <TabHistorical />
+      // }
 
     ]
 
@@ -148,11 +155,13 @@ class ProjectDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <DeleteButton
-                      objectName='Proyecto'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={'Estas seguro de querer eliminar este Proyecto?'}
-                    />
+                    { canEdit &&
+                      <DeleteButton
+                        objectName='Proyecto'
+                        objectDelete={this.deleteObject.bind(this)}
+                        message={'Estas seguro de querer eliminar este Proyecto?'}
+                      />
+                    }
                   </div>
                 </div>
               </div>
@@ -166,21 +175,25 @@ class ProjectDetail extends Component {
           </div>
         </div>
 
-        <SidePanel
-          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-          icon={'plus'}
-          title={'Opciones'}
-          content={options} />
-
-        <CreateDataSet
-          branchName='datasets'
-          url='/admin/datasets'
-          organization={project.organization.uuid}
-          project={project.uuid}
-          className={this.state.datasetClassName}
-          hideModal={this.hideModalDataset.bind(this)}
-          finishUp={this.finishUpDataset.bind(this)} />
-
+        { canEdit &&
+          <div>
+            <SidePanel
+              sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+              icon={'plus'}
+              title={'Opciones'}
+              content={options}
+            />
+            <CreateDataSet
+              branchName='datasets'
+              url='/admin/datasets'
+              organization={project.organization.uuid}
+              project={project.uuid}
+              className={this.state.datasetClassName}
+              hideModal={this.hideModalDataset.bind(this)}
+              finishUp={this.finishUpDataset.bind(this)}
+            />
+          </div>
+        }
       </div>
     )
   }

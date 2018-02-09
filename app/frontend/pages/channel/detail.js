@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import api from '~base/api'
+import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
@@ -13,12 +14,15 @@ class ChannelDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      channel: {}
+      channel: {},
+      roles: 'admin, orgadmin, analyst',
+      canEdit: false
     }
   }
 
   componentWillMount () {
     this.load()
+    this.setState({canEdit: testRoles(this.state.roles)})
   }
 
   async load () {
@@ -39,7 +43,8 @@ class ChannelDetail extends Component {
   }
 
   render () {
-    if (!this.state.loaded) {
+    let { loaded, canEdit } = this.state
+    if (!loaded) {
       return <Loader />
     }
 
@@ -58,11 +63,13 @@ class ChannelDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <DeleteButton titleButton={'Borrar'}
-                      objectName='Canal'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={`Estas seguro de quieres borrar el canal ${channel.name}?`}
+                    { canEdit &&
+                      <DeleteButton titleButton={'Borrar'}
+                        objectName='Canal'
+                        objectDelete={this.deleteObject.bind(this)}
+                        message={`Estas seguro de quieres borrar el canal ${channel.name}?`}
                       />
+                    }
                   </div>
                 </div>
               </div>
@@ -82,7 +89,9 @@ class ChannelDetail extends Component {
                           baseUrl='/app/channels'
                           url={'/app/channels/' + this.props.match.params.uuid}
                           initialState={channel}
-                          load={this.load.bind(this)}>
+                          load={this.load.bind(this)}
+                          canEdit={canEdit}
+                        >
                           <div className='field is-grouped'>
                             <div className='control'>
                               <button className='button is-primary'>Save</button>

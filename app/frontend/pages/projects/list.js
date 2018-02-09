@@ -16,6 +16,7 @@ export default ListPage({
   titleSingular: 'Proyecto',
   create: true,
   createComponent: CreateProject,
+  canCreate: 'admin, orgadmin, analyst',
   baseUrl: '/app/projects',
   branchName: 'projects',
   detailUrl: '/projects/',

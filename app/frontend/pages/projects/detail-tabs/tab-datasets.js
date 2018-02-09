@@ -71,11 +71,13 @@ class TabDatasets extends Component {
                 </Link>
               </div>
               <div className='control'>
-                <DeleteButton
-                  objectName='Dataset'
-                  objectDelete={() => this.removeDatasetOnClick(row.uuid)}
-                  message={'Estas seguro de querer eliminar este dataset?'}
-                />
+                { this.props.canEdit &&
+                  <DeleteButton
+                    objectName='Dataset'
+                    objectDelete={() => this.removeDatasetOnClick(row.uuid)}
+                    message={'Estas seguro de querer eliminar este dataset?'}
+                  />
+                }
               </div>
             </div>
           )
@@ -135,11 +137,9 @@ class TabDatasets extends Component {
         <header className='card-header'>
           <p className='card-header-title'>
             Datasets
-                  </p>
-
+          </p>
         </header>
         <div className='card-content'>
-
           <div className={this.props.project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
             <div className='column'>
               <article className='message is-warning'>
@@ -147,15 +147,21 @@ class TabDatasets extends Component {
                   <p>Atención</p>
                 </div>
                 <div className='message-body has-text-centered is-size-5'>
-                  Necesitas subir y configurar al menos un <strong> dataset </strong> para tener información disponible
-                <br />
+                  Necesitas subir y configurar al menos un
+                  <strong> dataset </strong> para tener información disponible
                   <br />
-                  <a className='button is-large is-primary' onClick={() => this.showModalDataset()}>
-                    <span className='icon is-medium'>
-                      <i className='fa fa-plus-circle' />
-                    </span>
-                    <span>Agregar Dataset</span>
-                  </a>
+                  <br />
+                  { this.props.canEdit &&
+                    <a
+                      className='button is-large is-primary'
+                      onClick={() => this.showModalDataset()}
+                    >
+                      <span className='icon is-medium'>
+                        <i className='fa fa-plus-circle' />
+                      </span>
+                      <span>Agregar Dataset</span>
+                    </a>
+                  }
                 </div>
               </article>
             </div>

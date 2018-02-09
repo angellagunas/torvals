@@ -16,6 +16,7 @@ export default ListPage({
   titleSingular: 'Canal',
   create: true,
   createComponent: CreateChannel,
+  canCreate: 'admin, orgadmin, analyst',
   baseUrl: '/app/channels',
   branchName: 'channels',
   detailUrl: '/channels/',

@@ -11,7 +11,6 @@ import ReadyDataSets from '../pages/datasets/list-ready'
 import Projects from '../pages/projects/list'
 import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
-import Forecasts from '../pages/forecasts/list'
 import Channels from '../pages/channel/list'
 import SelectOrg from '../pages/select-org'
 
@@ -79,7 +78,7 @@ class Sidebar extends Component {
 
         Dashboard.asSidebarItem(),
         {
-          title: 'Manage Your Team',
+          title: 'Administra tu equipo',
           icon: 'users',
           to: '/manage',
           roles: 'orgadmin, admin, analyst, enterprisemanager',
@@ -88,7 +87,7 @@ class Sidebar extends Component {
             Users.asSidebarItem(),
             Groups.asSidebarItem(),
             {
-              title: 'My Organization',
+              title: 'Mi Organización',
               icon: 'user',
               roles: 'orgadmin, admin, analyst',
               to: '/manage/organizations/' + tree.get('organization').uuid
@@ -109,7 +108,6 @@ class Sidebar extends Component {
         Projects.asSidebarItem(),
         SalesCenters.asSidebarItem(),
         Products.asSidebarItem(),
-        Forecasts.asSidebarItem(),
         Channels.asSidebarItem()
       ]
     }
@@ -117,7 +115,7 @@ class Sidebar extends Component {
     return [
       Dashboard.asSidebarItem(),
       {
-        title: 'Manage Your Team',
+        title: 'Administra tu equipo',
         icon: 'users',
         to: '/manage',
         roles: 'orgadmin, admin',
