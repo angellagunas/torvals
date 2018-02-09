@@ -11,8 +11,14 @@ import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
+<<<<<<< HEAD
 import TabAprove from './detail-tabs/tab-aprove'
 
+=======
+import SidePanel from '~base/side-panel'
+import CreateDataSet from './create-dataset'
+import TabAdjustment from './detail-tabs/tab-adjustments'
+>>>>>>> origin/dev
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -21,7 +27,8 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'General'
+      selectedTab: 'General',
+      datasetClassName: ''
     }
   }
 
@@ -46,6 +53,23 @@ class ProjectDetail extends Component {
     this.props.history.push('/projects')
   }
 
+  showModalDataset () {
+    this.setState({
+      datasetClassName: ' is-active'
+    })
+  }
+  hideModalDataset (e) {
+    this.setState({
+      datasetClassName: ''
+    })
+  }
+
+  finishUpDataset (object) {
+    this.setState({
+      datasetClassName: ''
+    })
+    this.props.history.push('/datasets/' + object.uuid)
+  }
   render () {
     const { project } = this.state
 
@@ -92,7 +116,12 @@ class ProjectDetail extends Component {
         name: 'Ajustes',
         title: 'Ajustes',
         icon: 'fa-cogs',
-        content: <div className='card'>Ajustes</div>
+        content: (
+          <TabAdjustment
+            project={project}
+            history={this.props.history}
+          />
+        )
       },
       ,
       {
@@ -111,7 +140,17 @@ class ProjectDetail extends Component {
       }
 
     ]
-console.log(this.state)
+
+    let options = (<button className={'button is-primary no-hidden'}
+      onClick={() => this.showModalDataset()}>
+      <span className='icon'>
+        <i className='fa fa-plus-circle' />
+      </span>
+      <span>
+        Agregar Dataset
+      </span>
+    </button>)
+
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
@@ -132,7 +171,7 @@ console.log(this.state)
                 </div>
               </div>
             </div>
-
+            <br />
             <Tabs
               tabs={tabs}
               selectedTab={this.state.selectedTab}
@@ -140,6 +179,22 @@ console.log(this.state)
 
           </div>
         </div>
+
+        <SidePanel
+          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+          icon={'plus'}
+          title={'Opciones'}
+          content={options} />
+
+        <CreateDataSet
+          branchName='datasets'
+          url='/admin/datasets'
+          organization={project.organization.uuid}
+          project={project.uuid}
+          className={this.state.datasetClassName}
+          hideModal={this.hideModalDataset.bind(this)}
+          finishUp={this.finishUpDataset.bind(this)} />
+
       </div>
     )
   }

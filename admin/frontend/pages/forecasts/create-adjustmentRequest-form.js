@@ -14,7 +14,7 @@ const schema = {
     'newAdjustment'
   ],
   properties: {
-    newAdjustment: {type: 'string', title: 'Adjustment'}
+    newAdjustment: {type: 'string', title: 'Ajuste'}
   }
 }
 
