@@ -18,7 +18,7 @@ class ProductDetail extends Component {
       loading: true,
       loaded: false,
       product: {},
-      roles: 'admin, orgadmin, analyst',
+      roles: 'admin, orgadmin, analyst, opsmanager',
       canEdit: false
     }
   }

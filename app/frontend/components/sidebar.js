@@ -81,7 +81,7 @@ class Sidebar extends Component {
           title: 'Administra tu equipo',
           icon: 'users',
           to: '/manage',
-          roles: 'orgadmin, admin, analyst, enterprisemanager',
+          roles: 'orgadmin, admin, analyst, enterprisemanager, opsmanager',
           opened: false,
           dropdown: [
             Users.asSidebarItem(),
@@ -98,7 +98,7 @@ class Sidebar extends Component {
           title: 'Datasets',
           icon: 'file',
           to: '/datasets',
-          roles: 'enterprisemanager, analyst, orgadmin, admin',
+          roles: 'enterprisemanager, analyst, orgadmin, admin, opsmanager',
           opened: false,
           dropdown: [
             DataSets.asSidebarItem(),

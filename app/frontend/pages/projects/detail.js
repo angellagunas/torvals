@@ -25,14 +25,17 @@ class ProjectDetail extends Component {
       project: {},
       selectedTab: 'General',
       datasetClassName: '',
-      roles: 'admin, orgadmin, analyst',
+      roles: 'admin, orgadmin, analyst, opsmanager',
       canEdit: false
     }
   }
 
   componentWillMount () {
     this.load()
-    this.setState({canEdit: testRoles(this.state.roles)})
+    this.setState({
+      canEdit: testRoles(this.state.roles),
+      selectedTab: testRoles('localmanager') ? 'Ajustes' : 'General'
+    })
   }
 
   async load () {
@@ -80,6 +83,7 @@ class ProjectDetail extends Component {
         name: 'General',
         title: 'Información',
         icon: 'fa-tasks',
+        hide: testRoles('localmanager'),
         content: (
           <div className='card'>
             <header className='card-header'><p className='card-header-title'> Información </p></header>
@@ -105,6 +109,7 @@ class ProjectDetail extends Component {
         name: 'Datasets',
         title: 'Datasets',
         icon: 'fa-signal',
+        hide: testRoles('localmanager'),
         content: (
           <TabDatasets
             project={project}
@@ -213,7 +218,7 @@ export default Page({
   path: '/projects/:uuid',
   title: 'Detalle de Proyecto',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin',
+  roles: 'enterprisemanager, analyst, orgadmin, admin, opsmanager, localmanager',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

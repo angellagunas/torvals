@@ -15,7 +15,7 @@ class ChannelDetail extends Component {
       loading: true,
       loaded: false,
       channel: {},
-      roles: 'admin, orgadmin, analyst',
+      roles: 'admin, orgadmin, analyst, opsmanager',
       canEdit: false
     }
   }
