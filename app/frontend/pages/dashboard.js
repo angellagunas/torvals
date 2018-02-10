@@ -41,6 +41,7 @@ class Dashboard extends Component {
       dashboard: body,
       forecasts: body.forecasts,
       forecastsCount: body.forecasts.length,
+      projects: body.project,
       loading: false
     })
   }
@@ -173,10 +174,14 @@ class Dashboard extends Component {
     if (user.currentRole.slug === 'enterprisemanager') {
       return <DashEntManager dashboard={this.state.dashboard} history={this.props.history} />
     }
-    
+
+    if (user.currentRole.slug === 'localmanager') {
+      return <Redirect to={'/projects/' + this.state.projects[0].uuid} />
+    }
+
     return (
       <div className='section'>
-      
+
         <div className='columns'>
           <div className='column'>
             {this.getForecastList()}
