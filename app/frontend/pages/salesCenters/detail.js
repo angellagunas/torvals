@@ -218,6 +218,7 @@ class SalesCenterDetail extends Component {
                       dataFormatter={(item) => { return item.name }}
                       availableClickHandler={this.availableGroupOnClick.bind(this)}
                       assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                      disabled={!canEdit}
                     />
                   </div>
                 </div>
@@ -261,7 +262,7 @@ export default Page({
   path: '/salesCenters/:uuid',
   title: 'Sales center detail',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
+  roles: 'analyst, orgadmin, admin, localmanager, opsmanager',
   validate: [loggedIn, verifyRole],
   component: SalesCenterDetail
 })

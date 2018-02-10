@@ -180,7 +180,7 @@ export default Page({
   path: '/products/:uuid',
   title: 'Product detail',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
+  roles: 'analyst, orgadmin, admin, localmanager',
   validate: [loggedIn, verifyRole],
   component: ProductDetail
 })
