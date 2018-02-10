@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
+import { ToastContainer } from 'react-toastify'
 
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
@@ -186,7 +187,7 @@ class ProjectDetail extends Component {
           className={this.state.datasetClassName}
           hideModal={this.hideModalDataset.bind(this)}
           finishUp={this.finishUpDataset.bind(this)} />
-
+<ToastContainer />
       </div>
     )
   }

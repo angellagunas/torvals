@@ -2,12 +2,12 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import moment from 'moment'
 import { EditableTable } from '~base/components/base-editableTable'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 import FontAwesome from 'react-fontawesome'
 import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 
-const range = 10
+const generalAdjustment = 0.1
 
 class TabAprove extends Component {
   constructor (props) {
@@ -104,7 +104,7 @@ class TabAprove extends Component {
         'default': 0,
         'type': 'number',
         formatter: (row) => {
-            return `${range} %`
+            return `${(generalAdjustment * 100)} %`
         }
       },
       {
@@ -177,16 +177,16 @@ class TabAprove extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (this.state.remainingItems > 0) {
           return (
-            <Checkbox
-              label='checkAll'
-              handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
-              key='checkAll'
-              checked={false}
-              hideLabel />
+            <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
+              <Checkbox
+                label='checkAll'
+                handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
+                key='checkAll'
+                checked={false}
+                hideLabel />
+            </div>
           )
-        }
         })(),
         'property': 'checkbox',
         'default': '',
@@ -210,23 +210,23 @@ class TabAprove extends Component {
     for (let row of this.state.dataRows) {
       this.toggleCheckbox(row, !this.state.selectedAll)
     }
-    this.setState({selectedAll: !this.state.selectedAll}, function () {
+    this.setState({ selectedAll: !this.state.selectedAll }, function () {
       this.toggleButtons()
     })
   }
 
   toggleCheckbox = (row, all) => {
     if (row.status === 'created') {
-    if (this.state.selectedCheckboxes.has(row) && !all) {
-      this.state.selectedCheckboxes.delete(row)
-    } 
-    else {
-      this.state.selectedCheckboxes.add(row)
+      if (this.state.selectedCheckboxes.has(row) && !all) {
+        this.state.selectedCheckboxes.delete(row)
+      }
+      else {
+        this.state.selectedCheckboxes.add(row)
+      }
+
+      row.selected = true
+      this.toggleButtons()
     }
-    
-    row.selected = true
-    this.toggleButtons()
-  }
   }
 
   getModifyButtons () {
@@ -299,8 +299,8 @@ class TabAprove extends Component {
 
       if (res) {
         row.status = res.data.status
-        row.approvedBy = res.data.approvedBy
-        row.dateApproved = res.data.dateApproved
+        row.rejectedBy = res.data.rejectedBy
+        row.dateRejected = res.data.dateRejected
         await this.handleChange(row)      
       }
     }
@@ -369,12 +369,12 @@ class TabAprove extends Component {
     this.setState({
       remainingItems: cont
     })
+    this.toggleButtons()
   }
 
   render () {
     return (
       <div>
-        <ToastContainer />
         <section className='section'>
         {this.getModifyButtons()}
         <BaseTable

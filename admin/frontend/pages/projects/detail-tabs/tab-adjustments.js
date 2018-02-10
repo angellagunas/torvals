@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import api from '~base/api'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 import { EditableTable } from '~base/components/base-editableTable'
 import Loader from '~base/components/spinner'
 import {
@@ -9,6 +9,11 @@ import {
   SelectWidget
 } from '~base/components/base-form'
 import CreateAdjustmentRequest from '../../forecasts/create-adjustmentRequest'
+
+import { BaseTable } from '~base/components/base-table'
+import Checkbox from '~base/components/base-checkbox'
+import Editable from '~base/components/base-editable'
+
 
 const generalAdjustment = 0.1
 
@@ -29,7 +34,10 @@ class TabAdjustment extends Component {
       },
       formData: {
         semanasBimbo: 0
-      }
+      },
+      disableButtons: true,
+      selectedCheckboxes: new Set(),
+      searchTerm: ''
     }
   }
   componentWillMount () {
@@ -69,6 +77,7 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows (e) {
+    this.checkAll(false)
     this.setState({
       isLoading: ' is-loading'
     })
@@ -80,45 +89,19 @@ class TabAdjustment extends Component {
         channel: e.formData.channels,
         salesCenter: e.formData.salesCenters
       })
-
+    
     this.setState({
       dataRows: data.data,
       isFiltered: true,
-      isLoading: ''
+      isLoading: '',
+      selectedCheckboxes: new Set()
     })
+    this.toggleButtons()
+
   }
 
   getColumns () {
     return [
-      {
-        'title': 'checker',
-        'abbreviate': true,
-        'abbr': (() => {
-          return (<div className='field'>
-            <div className='control has-text-centered'>
-              <label className='checkbox'>
-                <input
-                  type='checkbox'
-                  checked={this.state.selectedAll}
-                  onChange={(e) => this.selectRows(!this.state.selectedAll)} />
-              </label>
-            </div>
-          </div>)
-        })(),
-        'property': 'checkbox',
-        'default': 'N/A',
-        formatter: (row, state) => {
-          return (<div className='field'>
-            <div className='control has-text-centered'>
-              <label className='checkbox'>
-                <input
-                  type='checkbox'
-                  checked={state.isRowSelected || false} />
-              </label>
-            </div>
-          </div>)
-        }
-      },
       {
         'title': 'Product Id',
         'abbreviate': true,
@@ -189,13 +172,20 @@ class TabAdjustment extends Component {
         'title': 'Ajuste',
         'property': 'adjustment',
         'default': 0,
-        'editable': true,
         'type': 'number',
         formatter: (row) => {
           if (!row.adjustment) {
             row.adjustment = 0
           }
-          return row.adjustment
+          return (
+            <Editable 
+              value={row.adjustment}
+              handleChange={this.changeAdjustment}
+              type='number'
+              obj={row}
+              width={80}
+            />
+          )
         }
       },
       {
@@ -204,30 +194,63 @@ class TabAdjustment extends Component {
         'default': 0,
         'type': 'number',
         formatter: (row) => {
-          if (row.percentage) {
-            return `${row.percentage.toFixed(2)} %`
-          }
-          else {
-            row.percentage = (row.adjustment - row.prediction) * 100 / row.prediction
-            return `${row.percentage.toFixed(2)} %`
-          }
+          return `${(generalAdjustment * 100).toFixed(2)} %`
+        }
+      },
+      {
+        'title': 'Seleccionar Todo',
+        'abbreviate': true,
+        'abbr': (() => {
+          return (
+            <Checkbox
+              label='checkAll'
+              handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
+              key='checkAll'
+              checked={this.state.selectedAll}
+              hideLabel />
+          )
+        })(),
+        'property': 'checkbox',
+        'default': '',
+        formatter: (row) => {
+          return (
+            <Checkbox
+              label={row}
+              handleCheckboxChange={this.toggleCheckbox}
+              key={row}
+              checked={row.selected}
+              hideLabel />
+          )
         }
       },
       {
         'title': '',
+        'abbreviate': true,
+        'abbr': (() => {
+          return (
+            <div className='is-invisible'>
+              <span
+                className='icon'
+                title='límite'
+              >
+                <FontAwesome name='warning fa-lg' />
+              </span>
+            </div>
+          )
+        })(),
         'property': 'isLimit',
         'default': '',
         formatter: (row) => {
           if (row.isLimit && !row.adjustmentRequest) {
             return (
               <span
-                className='icon'
+                className='icon has-text-danger'
                 title='No es posible ajustar más allá al límite!'
                 onClick={() => {
                   this.showModalAdjustmentRequest(row)
                 }}
               >
-                <FontAwesome name='warning' />
+                <FontAwesome name='warning fa-lg' />
               </span>
             )
           }
@@ -241,7 +264,7 @@ class TabAdjustment extends Component {
                   this.showModalAdjustmentRequest(row)
                 }}
               >
-                <FontAwesome name='warning' />
+                <FontAwesome name='info-circle fa-lg' />
               </span>
             )
           }
@@ -251,13 +274,63 @@ class TabAdjustment extends Component {
     ]
   }
 
+  checkAll = (check) => {
+    for (let row of this.state.dataRows) {
+      this.toggleCheckbox(row, check)
+    }
+    this.setState({ selectedAll: check }, function () {
+      this.toggleButtons()
+    })
+  }
+
+  toggleCheckbox = (row, all) => {
+    if (this.state.selectedCheckboxes.has(row) && !all) {
+      this.state.selectedCheckboxes.delete(row)
+      row.selected = false
+    }
+    else {
+      this.state.selectedCheckboxes.add(row)
+      row.selected = true
+    }
+
+    this.toggleButtons()
+  }
+
+  changeAdjustment = async (value, row) => {
+    row.adjustment = value
+    const res = await this.handleChange(row)
+    if (!res) {
+      return false
+    }
+    return res
+  }
 
   getModifyButtons () {
     return (
       <div className='columns'>
         <div className='column'>
-          <h4 className='subtitle'>Resultados: {this.state.dataRows.length} </h4>
-        </div>
+          <div className='field is-grouped'>
+            <div className='control'>
+              <h4 className='subtitle'>Resultados: {this.state.dataRows.length} </h4>
+            </div>
+            <div className='control'>
+              <div className='field has-addons'>
+                <div className='control'>
+                  <input 
+                    className='input'
+                    type='text'
+                    value={this.state.searchTerm}
+                    onChange={this.searchOnChange} placeholder='Buscar' />
+                </div>
+                <div className='control'>
+                  <a className='button is-light' onClick={this.clearSearch}>
+                    Limpiar
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> 
         <div className='column'>
           <div className='field is-grouped is-grouped-right'>
             <div className='control'>
@@ -292,83 +365,43 @@ class TabAdjustment extends Component {
     )
   }
 
-  selectRows (selectAll) {
-    let selectedRows = {}
-    this.state.dataRows.map((item) => {
-      if (selectAll) selectedRows[item.uuid] = item
-
-      item.selected = selectAll
-      return item
-    })
-
-    this.setState({selectedRows, selectedAll: !this.state.selectedAll}, function () {
-      this.toggleButtons()
-    })
-  }
-
-  setRowsToEdit (row, index) {
-    let rows = {...this.state.selectedRows}
-    let selectedAll = false
-
-    if (rows.hasOwnProperty(row.uuid)) {
-      row.selected = !row.selected
-      delete rows[row.uuid]
-    } else {
-      row.selected = true
-      rows[row.uuid] = row
-    }
-
-    if (Object.keys(rows).length === this.state.dataRows.length) {
-      selectedAll = !selectedAll
-    }
-
-    this.setState({selectedRows: rows, selectedAll}, function () {
-      this.toggleButtons()
-    })
-  }
-
   async onClickButtonPlus () {
-    let rows = this.state.selectedRows
-
-    for (var item in rows) {
-      let toAdd = rows[item].prediction * 0.01
-      if (Math.round(toAdd) === 0) {
+    for (const row of this.state.selectedCheckboxes) {
+      let toAdd = row.prediction * 0.01
+      if (Math.round(toAdd) === 0) { 
         toAdd = 1
       }
-      rows[item].edited = true
-      var adjustment = rows[item].adjustment
-      var newAdjustment = rows[item].adjustment + toAdd
-      rows[item].adjustment = newAdjustment
-      const res = await this.handleChange(rows[item])
+      var adjustment = row.adjustment
+      var newAdjustment = row.adjustment + toAdd
+      row.adjustment = newAdjustment
+      const res = await this.handleChange(row)
       if (!res) {
-        rows[item].adjustment = adjustment
-      }
+        row.adjustment = adjustment
+      }      
     }
   }
 
   async onClickButtonMinus () {
-    let rows = this.state.selectedRows
-
-    for (var item in rows) {
-      let toAdd = rows[item].prediction * 0.01
+    for (const row of this.state.selectedCheckboxes) {
+      let toAdd = row.prediction * 0.01
       if (Math.round(toAdd) === 0) { 
         toAdd = 1
       }
-      rows[item].edited = true
-      var adjustment = rows[item].adjustment
-      var newAdjustment = rows[item].adjustment - toAdd
-      rows[item].adjustment = newAdjustment
-      const res = await this.handleChange(rows[item])
+      var adjustment = row.adjustment
+      var newAdjustment = row.adjustment - toAdd
+      row.adjustment = newAdjustment
+      const res = await this.handleChange(row)
       if (!res) {
-        rows[item].adjustment = adjustment
+        row.adjustment = adjustment
       }
     }
   }
 
   toggleButtons () {
     let disable = true
-    let rows = {...this.state.selectedRows}
-    if (Object.keys(rows).length) disable = false
+
+    if (this.state.selectedCheckboxes.size > 0) 
+      disable = false
 
     this.setState({
       disableButtons: disable
@@ -376,9 +409,10 @@ class TabAdjustment extends Component {
   }
 
   async handleChange (obj) {
-    const row = this.state.dataRows.find((item) => { return obj.uuid === item.uuid })
-    var maxAdjustment = Math.ceil(row.prediction * (1 + generalAdjustment))
-    var minAdjustment = Math.floor(row.prediction * (1 - generalAdjustment))
+    
+    var maxAdjustment = Math.ceil(obj.prediction * (1 + generalAdjustment))
+    var minAdjustment = Math.floor(obj.prediction * (1 - generalAdjustment))
+
     obj.adjustment = Math.round(obj.adjustment)
     obj.percentage = (obj.adjustment - obj.prediction) * 100 / obj.prediction
     obj.isLimit = (obj.adjustment >= maxAdjustment || obj.adjustment <= minAdjustment)
@@ -390,10 +424,18 @@ class TabAdjustment extends Component {
     
     obj.edited = true
 
-    this.notify('Ajuste guardado!', 3000, toast.TYPE.SUCCESS)
 
-    this.selectRows(false)
+    let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
+    let aux = this.state.dataRows
 
+    aux.splice(index,1,obj)
+
+    this.setState({
+      dataRows: aux
+    })
+
+    this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
+    
     return true
   }
 
@@ -436,8 +478,36 @@ class TabAdjustment extends Component {
     this.setState({
       selectedAR: undefined
     })
-    this.selectRows(false)
   }
+
+  searchDatarows() {
+    const items = this.state.dataRows.map((item) => {
+      if (this.state.searchTerm === ''){
+        return item
+      }
+      const regEx = new RegExp(this.state.searchTerm, 'gi')
+
+      if (regEx.test(item.productName) || regEx.test(item.Id) || regEx.test(item.channel) || regEx.test(item.salesCenter))
+        return item 
+      else
+        return null  
+    })
+    .filter(function(item){ return item != null });
+    
+    return items
+  }
+
+  searchOnChange = (e) => {
+    this.setState({
+      searchTerm: e.target.value
+    })
+  }
+
+  clearSearch = () => {
+    this.setState({
+      searchTerm: ''
+    })
+  } 
 
   render () {
     if (!this.state.dataRows || !this.state.filters.semanasBimbo.length > 0) {
@@ -498,7 +568,7 @@ class TabAdjustment extends Component {
           <p className='card-header-title'> Ajustes </p>
         </header>
         <div className='card-content'>
-          <ToastContainer />
+          
           <CreateAdjustmentRequest
             className={this.state.classNameAR}
             hideModal={(e) => this.hideModalAdjustmentRequest(e)}
@@ -533,13 +603,11 @@ class TabAdjustment extends Component {
               </article>
               : <div>
                 {this.getModifyButtons()}
-                <EditableTable
+                <BaseTable
+                  data={this.searchDatarows()}
                   columns={this.getColumns()}
-                  data={this.state.dataRows}
-                  handleChange={(e) => this.handleChange(e)}
-                  setRowsToEdit={(e) => this.setRowsToEdit(e)}
-                  selectable={true}
-                />
+                  sortAscending
+                  sortBy={'name'} />
               </div>
             }
           </section>

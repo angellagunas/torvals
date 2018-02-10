@@ -11,14 +11,11 @@ import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
-<<<<<<< HEAD
 import TabAprove from './detail-tabs/tab-aprove'
 
-=======
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
->>>>>>> origin/dev
 
 class ProjectDetail extends Component {
   constructor (props) {

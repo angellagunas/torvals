@@ -285,7 +285,7 @@ pre.json {
 }
 
 .is-edited {
-  background-color: #C3ECEF !important;
+  background-color: lighten($primary,42%) !important;
   color: #363636;
 }
 
@@ -487,4 +487,8 @@ pre.json {
 }
 td, th, tr{
   vertical-align: middle !important;
+  height: 70px !important;
+}
+.is-invisible{
+  visibility: hidden !important;
 }
