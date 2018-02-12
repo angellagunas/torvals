@@ -30,29 +30,11 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      name: {type: 'text', title: 'Por nombre'},
-      email: {type: 'text', title: 'Por email'},
-      organization: {type: 'text', title: 'Por organización', values: []}
+      general: {type: 'text', title: 'Buscar'}
     }
   },
   uiSchema: {
-    name: {'ui:widget': 'SearchFilter'},
-    email: {'ui:widget': 'SearchFilter'},
-    organization: {'ui:widget': 'SelectSearchFilter'}
-  },
-  loadValues: async function () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    return {
-      'organization': body.data
-    }
+    general: {'ui:widget': 'SearchFilter'}
   },
   getColumns: () => {
     return [
