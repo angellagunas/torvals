@@ -32,7 +32,8 @@ module.exports = new Route({
     dataset.set({
       name: body.name,
       description: body.description,
-      organization: body.organization
+      organization: body.organization,
+      status: body.status
     })
     await dataset.save()
 
