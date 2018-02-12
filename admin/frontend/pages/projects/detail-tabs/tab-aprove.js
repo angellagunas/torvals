@@ -17,7 +17,8 @@ class TabAprove extends Component {
       isLoading: '',
       selectedAll: false,
       disableButtons: true,
-      selectedCheckboxes: new Set()
+      selectedCheckboxes: new Set(),
+      searchTerm: ''
     }
   }
 
@@ -25,13 +26,15 @@ class TabAprove extends Component {
     this.getAdjustmentRequests()
   }
 
-  async getAdjustmentRequests () {
-    let url = '/admin/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid
-    let data = await api.get(url)
-    this.setState({
-      dataRows: data.data
-    })
-    this.getRemainingItems()
+  async getAdjustmentRequests() {
+    if (this.props.project.activeDataset) {
+      let url = '/admin/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid
+      let data = await api.get(url)
+      this.setState({
+        dataRows: data.data
+      })
+      this.getRemainingItems()
+    }
   }
 
   getColumns () {
@@ -240,6 +243,22 @@ class TabAprove extends Component {
             <div className='control'>
               <h4 className='subtitle'>Pendientes: {this.state.remainingItems} </h4>
             </div>
+            <div className='control'>
+              <div className='field has-addons'>
+                <div className='control'>
+                  <input 
+                    className='input'
+                    type='text'
+                    value={this.state.searchTerm}
+                    onChange={this.searchOnChange} placeholder='Buscar' />
+                </div>
+                <div className='control'>
+                  <a className='button is-light' onClick={this.clearSearch}>
+                    Limpiar
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div className='column'>
@@ -273,6 +292,37 @@ class TabAprove extends Component {
       </div>
     )
   }
+
+  searchDatarows() {
+    const items = this.state.dataRows.map((item) => {
+      if (this.state.searchTerm === ''){
+        return item
+      }
+      const regEx = new RegExp(this.state.searchTerm, 'gi')
+
+      if (regEx.test(item.datasetRow.product.name) || 
+      regEx.test(item.datasetRow.product.externalId) || 
+      regEx.test(item.datasetRow.salesCenter.name))
+        return item 
+      else
+        return null  
+    })
+    .filter(function(item){ return item != null });
+    
+    return items
+  }
+
+  searchOnChange = (e) => {
+    this.setState({
+      searchTerm: e.target.value
+    })
+  }
+
+  clearSearch = () => {
+    this.setState({
+      searchTerm: ''
+    })
+  } 
 
   aprove = async () => {
     let url = '/admin/adjustmentRequests/approve/'
@@ -378,7 +428,7 @@ class TabAprove extends Component {
         <section className='section'>
         {this.getModifyButtons()}
         <BaseTable
-          data={this.state.dataRows}
+          data={this.searchDatarows()}
           columns={this.getColumns()}
           sortAscending={true}
           sortBy={'name'} />

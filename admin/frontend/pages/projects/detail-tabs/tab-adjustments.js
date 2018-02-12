@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import api from '~base/api'
 import { toast } from 'react-toastify'
-import { EditableTable } from '~base/components/base-editableTable'
 import Loader from '~base/components/spinner'
 import {
   BaseForm,
@@ -24,20 +23,20 @@ class TabAdjustment extends Component {
       dataRows: [],
       isFiltered: false,
       isLoading: '',
-      selectedRows: {},
       selectedAll: false,
       filters: {
         channels: [],
         products: [],
         salesCenters: [],
-        semanasBimbo: []
+        semanasBimbo: [],
+        categories: []
       },
       formData: {
         semanasBimbo: 0
       },
       disableButtons: true,
       selectedCheckboxes: new Set(),
-      searchTerm: ''
+      searchTerm: '',
     }
   }
   componentWillMount () {
@@ -45,20 +44,33 @@ class TabAdjustment extends Component {
   }
 
   async getFilters () {
-    const url = '/admin/rows/filters/dataset/'
-    let res = await api.get(url + this.props.project.activeDataset.uuid)
+    if (this.props.project.activeDataset) {
+      const url = '/admin/rows/filters/dataset/'
+      let res = await api.get(url + this.props.project.activeDataset.uuid)
 
-    this.setState({
-      filters: {
-        channels: res.channels,
-        products: res.products,
-        salesCenters: res.salesCenters,
-        semanasBimbo: res.semanasBimbo
-      },
-      formData: {
-        semanasBimbo: res.semanasBimbo[0]
+      this.setState({
+        filters: {
+          channels: res.channels,
+          products: res.products,
+          salesCenters: res.salesCenters,
+          semanasBimbo: res.semanasBimbo,
+          categories: this.getCategory(res.products)
+        },
+        formData: {
+          semanasBimbo: res.semanasBimbo[0]
+        }
+      })
+    }
+  }
+
+  getCategory (products) {
+    const categories = new Set()
+    products.map((item) => {
+      if (item.category && !categories.has(item.category)) {
+        categories.add(item.category)
       }
     })
+    return Array.from(categories)
   }
 
   async filterChangeHandler (e) {
@@ -67,7 +79,8 @@ class TabAdjustment extends Component {
         semanasBimbo: e.formData.semanasBimbo,
         products: e.formData.products,
         channels: e.formData.channels,
-        salesCenters: e.formData.salesCenters
+        salesCenters: e.formData.salesCenters,
+        categories: e.formData.categories
       }
     })
   }
@@ -78,6 +91,7 @@ class TabAdjustment extends Component {
 
   async getDataRows (e) {
     this.checkAll(false)
+
     this.setState({
       isLoading: ' is-loading'
     })
@@ -87,7 +101,8 @@ class TabAdjustment extends Component {
         semanaBimbo: e.formData.semanasBimbo,
         product: e.formData.products,
         channel: e.formData.channels,
-        salesCenter: e.formData.salesCenters
+        salesCenter: e.formData.salesCenters,
+        category: e.formData.categories
       })
     
     this.setState({
@@ -97,7 +112,7 @@ class TabAdjustment extends Component {
       selectedCheckboxes: new Set()
     })
     this.toggleButtons()
-
+    this.clearSearch()
   }
 
   getColumns () {
@@ -472,7 +487,7 @@ class TabAdjustment extends Component {
   }
 
   async finishUpAdjustmentRequest (obj) {
-    if (this.state.selectedRows.hasOwnProperty(this.state.selectedAR.uuid)) {
+    if (this.state.selectedCheckboxes.has(this.state.selectedAR)) {
       this.state.selectedAR.adjustmentRequest = true
     }
     this.setState({
@@ -487,7 +502,7 @@ class TabAdjustment extends Component {
       }
       const regEx = new RegExp(this.state.searchTerm, 'gi')
 
-      if (regEx.test(item.productName) || regEx.test(item.Id) || regEx.test(item.channel) || regEx.test(item.salesCenter))
+      if (regEx.test(item.productName) || regEx.test(item.productId) || regEx.test(item.channel) || regEx.test(item.salesCenter))
         return item 
       else
         return null  
@@ -509,9 +524,30 @@ class TabAdjustment extends Component {
     })
   } 
 
+  
   render () {
     if (!this.state.dataRows || !this.state.filters.semanasBimbo.length > 0) {
-      return <Loader />
+      return (
+        this.props.project.status === 'empty' ?
+          <div className='section columns'>
+            <div className='column'>
+              <article className='message is-warning'>
+                <div className='message-header'>
+                  <p>Atención</p>
+                </div>
+                <div className='message-body has-text-centered is-size-5'>
+                  Se debe agregar al menos un
+                  <strong> dataset </strong> para poder generar ajustes.
+                  </div>
+              </article>
+            </div>
+          </div>
+          :
+          <div className='section has-text-centered subtitle has-text-primary'>
+            Cargando un momento por favor
+         <Loader />
+          </div>
+      )
     }
 
     var schema = {
@@ -535,6 +571,12 @@ class TabAdjustment extends Component {
           enum: [],
           enumNames: []
         },
+        categories: {
+          type: 'string',
+          title: 'Categorias de producto',
+          enum: [],
+          enumNames: []
+        },
         salesCenters: {
           type: 'string',
           title: 'Centros de Venta',
@@ -545,10 +587,11 @@ class TabAdjustment extends Component {
     }
 
     const uiSchema = {
-      semanasBimbo: {'ui:widget': SelectWidget, 'ui:placeholder': 'Selecciona semana'},
-      channels: {'ui:widget': SelectWidget, 'ui:placeholder': 'Selecciona canal'},
-      products: {'ui:widget': SelectWidget, 'ui:placeholder': 'Selecciona producto'},
-      salesCenters: {'ui:widget': SelectWidget, 'ui:placeholder': 'Selecciona Centro de Venta'}
+      semanasBimbo: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione semana'},
+      channels: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione canal'},
+      products: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione producto'},
+      categories: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione categoria'},
+      salesCenters: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Centro de Venta'}
     }
 
     schema.properties.semanasBimbo.enum = this.state.filters.semanasBimbo
@@ -558,6 +601,9 @@ class TabAdjustment extends Component {
 
     schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
     schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
+
+    schema.properties.categories.enum = this.state.filters.categories
+    schema.properties.categories.enumNames = this.state.filters.categories
 
     schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
     schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
@@ -576,41 +622,42 @@ class TabAdjustment extends Component {
             prediction={this.state.selectedAR}
             baseUrl={'/admin/rows/'}
           />
-          <BaseForm
-            schema={schema}
-            uiSchema={uiSchema}
-            formData={this.state.formData}
-            onChange={(e) => { this.filterChangeHandler(e) }}
-            onSubmit={(e) => { this.getDataRows(e) }}
-            onError={(e) => { this.FilterErrorHandler(e) }}
-          >
-            <div className='field is-grouped'>
-              <div className='control'>
-                <button className={'button is-primary is-medium' + this.state.isLoading} type='submit'>Filtrar</button>
+            <BaseForm
+              schema={schema}
+              uiSchema={uiSchema}
+              formData={this.state.formData}
+              onChange={(e) => { this.filterChangeHandler(e) }}
+              onSubmit={(e) => { this.getDataRows(e) }}
+              onError={(e) => { this.FilterErrorHandler(e) }}
+            >
+              <div className='field is-grouped'>
+                <div className='control'>
+                  <button className={'button is-primary is-medium' + this.state.isLoading} type='submit'>Filtrar</button>
+                </div>
               </div>
-            </div>
-          </BaseForm>
-          <section className='section'>
+            </BaseForm>
+            <section className='section'>
 
-            {!this.state.isFiltered
-              ? <article className='message is-primary'>
-                <div className='message-header'>
-                  <p>Información</p>
+              {!this.state.isFiltered
+                ? <article className='message is-primary'>
+                  <div className='message-header'>
+                    <p>Información</p>
+                  </div>
+                  <div className='message-body'>
+                    Debe aplicar un filtro para visualizar información
                 </div>
-                <div className='message-body'>
-                  Debe aplicar un filtro para visualizar información
+                </article>
+                : <div>
+                  {this.getModifyButtons()}
+                  <BaseTable
+                    data={this.searchDatarows()}
+                    columns={this.getColumns()}
+                    sortAscending
+                    sortBy={'name'} />
                 </div>
-              </article>
-              : <div>
-                {this.getModifyButtons()}
-                <BaseTable
-                  data={this.searchDatarows()}
-                  columns={this.getColumns()}
-                  sortAscending
-                  sortBy={'name'} />
-              </div>
-            }
-          </section>
+              }
+            </section>
+           
         </div>
       </div>
     )

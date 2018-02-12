@@ -74,40 +74,7 @@ class ProjectDetail extends Component {
     if (!this.state.loaded) {
       return <Loader />
     }
-    const tabs = [
-      {
-        name: 'General',
-        title: 'Información',
-        icon: 'fa-tasks',
-        content: (
-          <div className='card'>
-            <header className='card-header'><p className='card-header-title'> Información </p></header>
-            <div className='card-content'>
-              <ProjectForm
-                baseUrl='/admin/projects'
-                url={'/admin/projects/' + this.props.match.params.uuid}
-                initialState={{ ...project, organization: project.organization.uuid }}
-                load={this.load.bind(this)}
-              >
-                <div className='field is-grouped'>
-                  <div className='control'>
-                    <button className='button is-primary'>Guardar</button>
-                  </div>
-                </div>
-              </ProjectForm>
-            </div>
-          </div>
-      )},
-      {
-        name: 'Datasets',
-        title: 'Datasets',
-        icon: 'fa-signal',
-        content: (
-          <TabDatasets
-            project={project}
-            history={this.props.history}
-          />
-      )},
+    const tabs = [      
       {
         name: 'Ajustes',
         title: 'Ajustes',
@@ -128,12 +95,44 @@ class ProjectDetail extends Component {
         )
       },
       {
+        name: 'Datasets',
+        title: 'Datasets',
+        icon: 'fa-signal',
+        content: (
+          <TabDatasets
+            project={project}
+            history={this.props.history}
+          />
+      )},
+      {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
         content: <TabHistorical />
-      }
-
+      },
+      {
+        name: 'Configuración',
+        title: 'Información',
+        icon: 'fa-tasks',
+        content: (
+          <div className='card'>
+            <header className='card-header'><p className='card-header-title'> Información </p></header>
+            <div className='card-content'>
+              <ProjectForm
+                baseUrl='/admin/projects'
+                url={'/admin/projects/' + this.props.match.params.uuid}
+                initialState={{ ...project, organization: project.organization.uuid }}
+                load={this.load.bind(this)}
+              >
+                <div className='field is-grouped'>
+                  <div className='control'>
+                    <button className='button is-primary'>Guardar</button>
+                  </div>
+                </div>
+              </ProjectForm>
+            </div>
+          </div>
+      )}
     ]
 
     let options = (<button className={'button is-primary no-hidden'}
@@ -187,7 +186,8 @@ class ProjectDetail extends Component {
           className={this.state.datasetClassName}
           hideModal={this.hideModalDataset.bind(this)}
           finishUp={this.finishUpDataset.bind(this)} />
-<ToastContainer />
+        
+        <ToastContainer />
       </div>
     )
   }
