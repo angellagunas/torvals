@@ -16,8 +16,7 @@ module.exports = new Route({
     var statement = [
       { '$match':
         { 'isDeleted': false }
-      },
-      { '$skip': parseInt(ctx.request.query.start) }
+      }
     ]
 
     var statementsGeneral = []
@@ -54,6 +53,7 @@ module.exports = new Route({
         statement.push({ '$sort': sortStatement })
       }
     }
+    statement.push({ '$skip': parseInt(ctx.request.query.start) })
 
     if (ctx.state.organization) {
       statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })

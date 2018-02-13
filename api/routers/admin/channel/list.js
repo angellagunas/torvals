@@ -19,8 +19,7 @@ module.exports = new Route({
       },
       { '$lookup':
         { 'localField': 'organization', 'from': 'organizations', 'foreignField': '_id', 'as': 'infoOrganization' } },
-      { '$unwind': '$infoOrganization' },
-      { '$skip': parseInt(ctx.request.query.start) }
+      { '$unwind': '$infoOrganization' }
     ]
 
     var statementsGeneral = []
@@ -60,6 +59,8 @@ module.exports = new Route({
         statement.push({ '$match': { 'organization': { $in: [ObjectId(organization._id)] } } })
       }
     }
+    statement.push({ '$skip': parseInt(ctx.request.query.start) })
+
     var general = {}
     if (statementsGeneral.length > 0) {
       general = { '$match': { '$or': statementsGeneral } }
