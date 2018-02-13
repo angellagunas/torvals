@@ -965,6 +965,14 @@ class DataSetDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
+                    <Link
+                      className='button'
+                      to={'/projects/' + dataset.project.uuid}
+                    >
+                      Regresar al proyecto
+                    </Link>
+                  </div>
+                  <div className='control'>
                     {deleteButton}
                   </div>
                 </div>
