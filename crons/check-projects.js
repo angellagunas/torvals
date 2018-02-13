@@ -1,4 +1,4 @@
-// node crons/check-preprocessing-progress
+// node crons/check-projects
 require('../config')
 require('lib/databases/mongo')
 

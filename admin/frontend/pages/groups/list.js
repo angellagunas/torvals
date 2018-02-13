@@ -81,7 +81,6 @@ export default ListPage({
         'default': '0',
         'sortable': true,
         formatter: (row) => {
-          console.log(row)
           return (
             <div>
               {row.users.length}

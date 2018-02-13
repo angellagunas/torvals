@@ -63,8 +63,6 @@ module.exports = new Route({
       }
     }
 
-    console.log(filters)
-
     filters['dataset'] = dataset
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})

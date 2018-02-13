@@ -44,9 +44,8 @@ const task = new Task(async function (argv) {
     }
 
     var res = await request(options)
-    console.log(res)
 
-    if (res.dataset) {
+    if (res.dataset && res.dataset.status === 'ready') {
       options = {
         url: `${apiData.hostname}${apiData.baseUrl}/filter/projects/${project.externalId}`,
         method: 'POST',
@@ -56,7 +55,6 @@ const task = new Task(async function (argv) {
           'Authorization': `Bearer ${apiData.token}`
         },
         body: {
-          filter_date_ini: res.dataset.date_min,
           filter_date_end: res.dataset.date_max
         },
         json: true,
@@ -64,23 +62,8 @@ const task = new Task(async function (argv) {
       }
 
       var resFilter = await request(options)
-      console.log(resFilter)
 
       if (resFilter.message === 'Ok') {
-        options = {
-          url: `${apiData.hostname}${apiData.baseUrl}/datasets/${resFilter._id}`,
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${apiData.token}`
-          },
-          json: true,
-          persist: true
-        }
-
-        var resDataset = await request(options)
-        console.log(resDataset)
         var dataset = await DataSet.create({
           name: 'New Adjustment',
           description: '',
