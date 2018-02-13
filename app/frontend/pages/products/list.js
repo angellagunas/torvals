@@ -24,11 +24,11 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      name: {type: 'text', title: 'Por nombre'}
+      general: {type: 'text', title: 'Buscar'}
     }
   },
   uiSchema: {
-    name: {'ui:widget': 'SearchFilter'}
+    general: {'ui:widget': 'SearchFilter'}
   },
   getColumns: () => {
     return [
