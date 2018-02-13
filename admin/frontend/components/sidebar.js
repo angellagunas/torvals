@@ -18,7 +18,6 @@ import DeletedSalesCenters from '../pages/salesCenters/deleted-list'
 import RequestLogs from '../pages/request-logs/list'
 import Products from '../pages/products/list'
 import DeletedProducts from '../pages/products/deleted-list'
-import Forecasts from '../pages/forecasts/list'
 import Channels from '../pages/channels/list'
 import DeletedChannels from '../pages/channels/deleted-list'
 
@@ -84,7 +83,7 @@ class Sidebar extends Component {
     return [
       Dashboard.asSidebarItem(),
       {
-        title: 'Manage Your Team',
+        title: 'Administra tu equipo',
         icon: 'users',
         to: '/manage',
         opened: false,
@@ -108,7 +107,7 @@ class Sidebar extends Component {
         ]
       },
       {
-        title: 'Projects',
+        title: 'Proyectos',
         icon: 'cog',
         to: '/projects',
         opened: false,
@@ -118,7 +117,7 @@ class Sidebar extends Component {
         ]
       },
       {
-        title: 'SalesCenters',
+        title: 'Centros de Venta',
         icon: 'credit-card-alt',
         to: '/salesCenters',
         opened: false,
@@ -128,7 +127,7 @@ class Sidebar extends Component {
         ]
       },
       {
-        title: 'Products',
+        title: 'Productos',
         icon: 'dropbox',
         to: '/products',
         opened: false,
@@ -137,9 +136,8 @@ class Sidebar extends Component {
           DeletedProducts.asSidebarItem()
         ]
       },
-      Forecasts.asSidebarItem(),
       {
-        title: 'Channels',
+        title: 'Canales',
         icon: 'filter',
         to: '/channels',
         opened: false,

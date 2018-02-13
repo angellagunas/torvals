@@ -80,11 +80,17 @@ class DatasetDetailForm extends Component {
   }
 
   render () {
+    let { canEdit } = this.props
     var error
     if (this.state.error) {
       error = <div>
         Error: {this.state.error}
       </div>
+    }
+
+    if (!canEdit) {
+      uiSchema.name['ui:disabled'] = true
+      uiSchema.description['ui:disabled'] = true
     }
 
     return (
@@ -107,7 +113,7 @@ class DatasetDetailForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
+          {canEdit && this.props.children}
         </BaseForm>
       </div>
     )
