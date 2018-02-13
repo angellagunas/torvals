@@ -30,7 +30,7 @@ const task = new Task(async function (argv) {
   }
 
   for (var project of projects) {
-    console.log(`Creating dataset for adjustment of project ${project.name} ...`)
+    console.log(`Verifying status of project ${project.name} ...`)
     var options = {
       url: `${apiData.hostname}${apiData.baseUrl}/projects/${project.externalId}`,
       method: 'GET',
@@ -44,9 +44,10 @@ const task = new Task(async function (argv) {
     }
 
     var res = await request(options)
-    console.log(res)
 
-    if (res.dataset) {
+    if (res.dataset && res.dataset.status === 'ready') {
+      console.log(`Creating dataset for adjustment of project ${project.name} ...`)
+
       options = {
         url: `${apiData.hostname}${apiData.baseUrl}/filter/projects/${project.externalId}`,
         method: 'POST',
@@ -56,7 +57,6 @@ const task = new Task(async function (argv) {
           'Authorization': `Bearer ${apiData.token}`
         },
         body: {
-          filter_date_ini: res.dataset.date_min,
           filter_date_end: res.dataset.date_max
         },
         json: true,
@@ -64,23 +64,8 @@ const task = new Task(async function (argv) {
       }
 
       var resFilter = await request(options)
-      console.log(resFilter)
 
       if (resFilter.message === 'Ok') {
-        options = {
-          url: `${apiData.hostname}${apiData.baseUrl}/datasets/${resFilter._id}`,
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${apiData.token}`
-          },
-          json: true,
-          persist: true
-        }
-
-        var resDataset = await request(options)
-        console.log(resDataset)
         var dataset = await DataSet.create({
           name: 'New Adjustment',
           description: '',
@@ -108,6 +93,8 @@ const task = new Task(async function (argv) {
       })
 
       await project.save()
+    } else {
+      console.log(`Project ${project.name} is still conciliating!`)
     }
   }
 

@@ -323,7 +323,6 @@ class ForecastDetail extends Component {
         </div>
       )
     }
-    console.log('this.props.match', this.props.match)
 
     return (
 
