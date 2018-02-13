@@ -17,9 +17,10 @@ module.exports = new Route({
       { '$match':
         { 'isDeleted': false }
       },
-      { '$limit': parseInt(ctx.request.query['limit']) || 20 },
       { '$lookup':
-        { 'localField': 'groups', 'from': 'groups', 'foreignField': '_id', 'as': 'infoGroup' } }
+        { 'localField': 'groups', 'from': 'groups', 'foreignField': '_id', 'as': 'infoGroup' } },
+      { '$skip': parseInt(ctx.request.query.start) }
+
     ]
 
     var statementsGeneral = []
