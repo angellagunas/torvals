@@ -3,6 +3,7 @@ import api from '~base/api'
 import moment from 'moment'
 import Link from '~base/router/link'
 import { testRoles } from '~base/tools'
+import FontAwesome from 'react-fontawesome'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -21,7 +22,10 @@ class SalesCenterDetail extends Component {
       salesCenter: {},
       groups: [],
       roles: 'admin, orgadmin, analyst',
-      canEdit: false
+      canEdit: false,
+      selectedGroups: [],
+      saving: false,
+      saved: false
     }
   }
 
@@ -38,7 +42,8 @@ class SalesCenterDetail extends Component {
     this.setState({
       loading: false,
       loaded: true,
-      salesCenter: body.data
+      salesCenter: body.data,
+      selectedGroups: [...body.data.groups]
     })
   }
 
@@ -53,12 +58,28 @@ class SalesCenterDetail extends Component {
     )
 
     this.setState({
-      ...this.state,
       groups: body.data
     })
   }
 
   async availableGroupOnClick (uuid) {
+    this.setState({
+      saving: true
+    })
+
+    var selected = this.state.selectedGroups
+    var group = this.state.groups.find(item => { return item.uuid === uuid })
+
+    if (selected.findIndex(item => { return item.uuid === uuid }) !== -1) {
+      return
+    }
+
+    selected.push(group)
+
+    this.setState({
+      selectedGroups: selected
+    })
+
     var url = '/app/salesCenters/' + this.props.match.params.uuid + '/add/group'
     await api.post(url,
       {
@@ -66,11 +87,32 @@ class SalesCenterDetail extends Component {
       }
     )
 
-    this.load()
-    this.loadGroups()
+    setTimeout(() => {
+      this.setState({
+        saving: false,
+        saved: true
+      })
+    }, 300)
   }
 
   async assignedGroupOnClick (uuid) {
+    this.setState({
+      saving: true
+    })
+
+    var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
+    var selected = this.state.selectedGroups
+
+    if (index === -1) {
+      return
+    }
+
+    selected.splice(index, 1)
+
+    this.setState({
+      selectedGroups: selected
+    })
+
     var url = '/app/salesCenters/' + this.props.match.params.uuid + '/remove/group'
     await api.post(url,
       {
@@ -78,31 +120,18 @@ class SalesCenterDetail extends Component {
       }
     )
 
-    this.load()
-    this.loadGroups()
+    setTimeout(() => {
+      this.setState({
+        saving: false,
+        saved: true
+      })
+    }, 300)
   }
 
   async deleteObject () {
     var url = '/app/salesCenters/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/salesCenters')
-  }
-
-  compareArrays (first, second) {
-    var third = []
-    for (var i = 0; i < first.length; i++) {
-      var available = true
-      for (var j = 0; j < second.length; j++) {
-        if (first[i]._id === second[j]._id) {
-          available = false
-        }
-      }
-      if (available) {
-        third.push(first[i])
-      }
-    }
-
-    return third
   }
 
   getColumns () {
@@ -148,11 +177,47 @@ class SalesCenterDetail extends Component {
     ]
   }
 
+  getSavingMessage () {
+    let {saving, saved} = this.state
+
+    if (saving) {
+      return (
+        <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
+          Guardando <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
+        </p>
+      )
+    }
+
+    if (saved) {
+      if (this.savedTimeout) {
+        clearTimeout(this.savedTimeout)
+      }
+
+      this.savedTimeout = setTimeout(() => {
+        this.setState({
+          saved: false
+        })
+      }, 500)
+
+      return (
+        <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
+          Guardado
+        </p>
+      )
+    }
+  }
+
   render () {
     let { loaded, canEdit } = this.state
     if (!loaded) {
       return <Loader />
     }
+
+    const availableList = this.state.groups.filter(item => {
+      return (this.state.selectedGroups.findIndex(group => {
+        return group.uuid === item.uuid
+      }) === -1)
+    })
 
     return (
       <div className='columns c-flex-1 is-marginless'>
@@ -179,7 +244,7 @@ class SalesCenterDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Sales Center
+                      Centro de venta
                     </p>
                   </header>
                   <div className='card-content'>
@@ -208,13 +273,15 @@ class SalesCenterDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Groups
+                      Grupos
                     </p>
                   </header>
                   <div className='card-content'>
                     <Multiselect
-                      assignedList={this.state.salesCenter.groups}
-                      availableList={this.compareArrays(this.state.groups, this.state.salesCenter.groups)}
+                      availableTitle='Disponible'
+                      assignedTitle='Asignado'
+                      assignedList={this.state.selectedGroups}
+                      availableList={availableList}
                       dataFormatter={(item) => { return item.name }}
                       availableClickHandler={this.availableGroupOnClick.bind(this)}
                       assignedClickHandler={this.assignedGroupOnClick.bind(this)}
@@ -230,7 +297,7 @@ class SalesCenterDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Forecasts
+                          Predicciones
                         </p>
                       </header>
                       <div className='card-content'>
