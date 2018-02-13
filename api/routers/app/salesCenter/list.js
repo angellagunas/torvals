@@ -6,60 +6,105 @@ module.exports = new Route({
   method: 'get',
   path: '/',
   handler: async function (ctx) {
-    var filters = {}
+    var sortStatement = {}
+    var columns = [
+      {name: 'name', type: 'String'}
+    ]
+    var statement = [
+      { '$match':
+        { 'isDeleted': false }
+      }
+    ]
+
+    var statementsGeneral = []
     for (var filter in ctx.request.query) {
-      if (filter === 'limit' || filter === 'start' || filter === 'sort') {
-        continue
+      var flagNumber = false
+      if (!isNaN(ctx.request.query[filter])) {
+        flagNumber = true
       }
+      if (filter === 'general') {
+        if (!isNaN(ctx.request.query[filter])) {
+          flagNumber = true
+        }
 
-      const user = ctx.state.user
-      var currentRole
-      const currentOrganization = user.organizations.find(orgRel => {
-        return ctx.state.organization._id.equals(orgRel.organization._id)
-      })
-
-      if (currentOrganization) {
-        const role = await Role.findOne({_id: currentOrganization.role})
-
-        currentRole = role.toPublic()
-      }
-
-      if (currentRole.slug === 'localmanager' || currentRole.slug === 'opsmanager') {
-        var groups = user.groups
-        var salesCentersList = []
-
-        salesCentersList = await SalesCenter.find({groups: {$in: groups}})
-
-        filters['salesCenters'] = {$in: salesCentersList}
-      }
-
-      if (filter === 'predictions') {
+        for (var column of columns) {
+          var fil = {}
+          if (flagNumber && column.type === 'Number') {
+            fil[column.name] = {
+              '$gt': parseInt(ctx.request.query[filter] - column.limit),
+              '$lt': parseInt(ctx.request.query[filter]) + column.limit
+            }
+            statementsGeneral.push(fil)
+          } else if (!flagNumber && column.type === 'String') {
+            fil[column.name] = {$regex: ctx.request.query[filter], $options: 'i'}
+            statementsGeneral.push(fil)
+          }
+        }
+      } else if (filter === 'sort') {
+        var filterSort = ctx.request.query.sort.split('-')
+        if (ctx.request.query.sort.split('-').length > 1) {
+          sortStatement[filterSort[1]] = -1
+        } else {
+          sortStatement[filterSort[0]] = 1
+        }
+        statement.push({ '$sort': sortStatement })
+      } else if (filter === 'predictions') {
         const forecast = await Forecast.findOne({'uuid': ctx.request.query[filter]})
 
         if (forecast) {
           const predictions = await Prediction.find({'forecast': ObjectId(forecast._id)}).populate('salesCenter')
-
-          filters['_id'] = { $in: predictions.map(item => { return item.salesCenter._id }) }
+          statement.push({'$match': { '_id': { $in: predictions.map(item => { return item.salesCenter._id }) } }})
         }
-
-        continue
-      }
-
-      if (!isNaN(parseInt(ctx.request.query[filter]))) {
-        filters[filter] = parseInt(ctx.request.query[filter])
-      } else {
-        filters[filter] = { '$regex': ctx.request.query[filter], '$options': 'i' }
       }
     }
 
-    var salesCenters = await SalesCenter.dataTables({
-      limit: ctx.request.query.limit || 20,
-      skip: ctx.request.query.start,
-      find: {...filters, isDeleted: false, organization: ctx.state.organization._id},
-      sort: ctx.request.query.sort || '-dateCreated',
-      populate: 'organization'
+    if (ctx.state.organization) {
+      statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })
+    }
+
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
     })
 
-    ctx.body = salesCenters
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
+    if (currentRole.slug === 'localmanager' || currentRole.slug === 'opsmanager') {
+      var groups = user.groups
+      var salesCentersList = []
+
+      salesCentersList = await SalesCenter.find({groups: {$in: groups}})
+      console.log('groups', salesCentersList)
+      statement.push({ '$match': { '_id': { $in: salesCentersList.map(item => { return item._id }) } } })
+    }
+
+    statement.push({ '$skip': parseInt(ctx.request.query.start) })
+
+    var general = {}
+    if (statementsGeneral.length > 0) {
+      general = { '$match': { '$or': statementsGeneral } }
+      statement.push(general)
+    }
+
+    var statementCount = [...statement]
+
+    statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
+    var salesCenter = await SalesCenter.aggregate(statement)
+
+    statementCount.push({$count: 'total'})
+    var salesCenterCount = await SalesCenter.aggregate(statementCount) || 0
+
+    salesCenter = salesCenter.map((sc) => {
+      return {
+        ...sc,
+        organization: sc.infoOrganization
+      }
+    })
+    ctx.body = {'data': salesCenter, 'total': salesCenterCount[0] ? salesCenterCount[0].total : 0}
   }
 })
