@@ -6,77 +6,96 @@ module.exports = new Route({
   method: 'get',
   path: '/',
   handler: async function (ctx) {
-    var filters = {}
+    var sortStatement = {}
+
+    var columns = [
+      {name: 'name', type: 'String'},
+      {name: 'email', type: 'String'}
+    ]
+    var statement = [
+      { '$unwind': {path: '$groups', preserveNullAndEmptyArrays: true} },
+      { '$match':
+        { 'isDeleted': false }
+      },
+      { '$limit': parseInt(ctx.request.query['limit']) || 20 },
+      { '$lookup':
+        { 'localField': 'groups', 'from': 'groups', 'foreignField': '_id', 'as': 'infoGroup' } }
+    ]
+
+    var statementsGeneral = []
     for (var filter in ctx.request.query) {
-      if (filter === 'limit' || filter === 'start' || filter === 'sort') {
-        continue
+      var flagNumber = false
+      if (!isNaN(ctx.request.query[filter])) {
+        flagNumber = true
       }
-
-      if (filter === 'role') {
-        const role = await Role.findOne(
-          {'uuid': ctx.request.query[filter]}
-        )
-
-        if (role) {
-          filters['organizations.role'] = { $in: [ObjectId(role._id)] }
+      if (filter === 'general') {
+        if (!isNaN(ctx.request.query[filter])) {
+          flagNumber = true
         }
 
-        continue
-      }
-
-      if (filter === 'organization') {
-        const organization = await Organization.findOne(
-          {'uuid': ctx.request.query[filter]}
-        )
-
-        if (organization) {
-          filters['organizations.organization'] = { $in: [ObjectId(organization._id)] }
+        for (var column of columns) {
+          var fil = {}
+          if (flagNumber && column.type === 'Number') {
+            fil[column.name] = {
+              '$gt': parseInt(ctx.request.query[filter] - column.limit),
+              '$lt': parseInt(ctx.request.query[filter]) + column.limit
+            }
+            statementsGeneral.push(fil)
+          } else if (!flagNumber && column.type === 'String') {
+            fil[column.name] = {$regex: ctx.request.query[filter], $options: 'i'}
+            statementsGeneral.push(fil)
+          }
         }
-
-        continue
-      }
-
-      if (filter === 'group') {
-        const group = await Group.findOne(
-          {'uuid': ctx.request.query[filter]}
-        )
-
-        if (group) {
-          filters['groups'] = { $in: [ObjectId(group._id)] }
+      } else if (filter === 'sort') {
+        var filterSort = ctx.request.query.sort.split('-')
+        if (ctx.request.query.sort.split('-').length > 1) {
+          sortStatement[filterSort[1]] = -1
+        } else {
+          sortStatement[filterSort[0]] = 1
         }
-
-        continue
-      }
-
-      if (filter === 'groupAsign') {
-        const group = await Group.findOne(
-          {'uuid': ctx.request.query[filter]}
-        )
-
-        if (group) {
-          filters['groups'] = { $nin: [ObjectId(group._id)] }
-        }
-
-        continue
-      }
-
-      if (!isNaN(parseInt(ctx.request.query[filter]))) {
-        filters[filter] = parseInt(ctx.request.query[filter])
-      } else {
-        filters[filter] = { '$regex': ctx.request.query[filter], '$options': 'i' }
+        statement.push({ '$sort': sortStatement })
+      } else if (filter === 'role') {
+        const role = await Role.findOne({'uuid': ctx.request.query[filter]})
+        statement.push({ '$match': { 'organizations.role': { $in: [ObjectId(role._id)] } } })
+      } else if (filter === 'organization') {
+        const organization = await Organization.findOne({'uuid': ctx.request.query[filter]})
+        statement.push({ '$match': { 'organizations.organization': { $in: [ObjectId(organization._id)] } } })
+      } else if (filter === 'group') {
+        const group = await Group.findOne({'uuid': ctx.request.query[filter]})
+        statement.push({ '$match': { 'groups': { $in: [ObjectId(group._id)] } } })
+      } else if (filter === 'groupAsign') {
+        const group = await Group.findOne({'uuid': ctx.request.query[filter]})
+        statement.push({ '$match': { 'groups': { $nin: [ObjectId(group._id)] } } })
       }
     }
+    var general = {}
+    if (statementsGeneral.length > 0) {
+      general = { '$match': { '$or': statementsGeneral } }
+      statement.push(general)
+    }
 
-    var users = await User.dataTables({
-      limit: ctx.request.query.limit || 20,
-      skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters},
-      sort: ctx.request.query.sort || '-email',
-      populate: 'groups'
+    var statementCount = [...statement]
+
+    statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
+    var users = await User.aggregate(statement)
+
+    statementCount.push({$count: 'total'})
+    var usersCount = await User.aggregate(statementCount) || 0
+
+    users = users.map((user) => {
+      return {
+        uuid: user.uuid,
+        screenName: user.screenName,
+        displayName: user.displayName,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        validEmail: user.validEmail,
+        organizations: user.organizations,
+        groups: user.infoGroup,
+        profileUrl: user.profileUrl
+      }
     })
-
-    users.data = users.data.map((user) => { return user.toAdmin() })
-
-    ctx.body = users
+    ctx.body = {'data': users, 'total': usersCount[0] ? usersCount[0].total : 0}
   }
 })
