@@ -40,7 +40,7 @@ module.exports = new Route({
               '$lt': parseInt(ctx.request.query[filter]) + column.limit
             }
             statementsGeneral.push(fil)
-          } else if (!flagNumber && column.type === 'String') {
+          } else {
             fil[column.name] = {$regex: ctx.request.query[filter], $options: 'i'}
             statementsGeneral.push(fil)
           }
