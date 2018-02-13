@@ -15,7 +15,7 @@ export default ListPage({
   title: 'Grupos',
   icon: 'users',
   exact: true,
-  roles: 'admin, orgadmin',
+  roles: 'admin, orgadmin, analyst, enterprisemanager, opsmanager',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Grupo',
   create: false,
@@ -31,11 +31,11 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      name: {type: 'text', title: 'Por nombre'}
+      general: {type: 'text', title: 'Buscar'}
     }
   },
   uiSchema: {
-    name: {'ui:widget': 'SearchFilter'}
+    general: {'ui:widget': 'SearchFilter'}
   },
   getColumns: () => {
     return [
@@ -106,12 +106,12 @@ export default ListPage({
                 </Link>
               </div>
               <div className='control'>
-                  <DeleteButton
-                    iconOnly
-                    icon='fa fa-trash'
-                    objectName='Grupo'
-                    objectDelete={deleteObject}
-                    message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
+                <DeleteButton
+                  iconOnly
+                  icon='fa fa-trash'
+                  objectName='Grupo'
+                  objectDelete={deleteObject}
+                  message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
                   />
               </div>
             </div>

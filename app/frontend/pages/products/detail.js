@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import moment from 'moment'
 import Link from '~base/router/link'
+import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -16,12 +17,15 @@ class ProductDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      product: {}
+      product: {},
+      roles: 'admin, orgadmin, analyst, opsmanager',
+      canEdit: false
     }
   }
 
   componentWillMount () {
     this.load()
+    this.setState({canEdit: testRoles(this.state.roles)})
   }
 
   async load () {
@@ -85,7 +89,8 @@ class ProductDetail extends Component {
   }
 
   render () {
-    if (this.state.loading) {
+    let { loading, canEdit } = this.state
+    if (loading) {
       return <Loader />
     }
 
@@ -97,12 +102,14 @@ class ProductDetail extends Component {
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <DeleteButton
-                      titleButton={'Delete'}
-                      objectName='Product'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={`Are you sure you want to delete the product ${this.state.product.name}?`}
-                    />
+                    { canEdit &&
+                      <DeleteButton
+                        titleButton={'Delete'}
+                        objectName='Product'
+                        objectDelete={this.deleteObject.bind(this)}
+                        message={`Are you sure you want to delete the product ${this.state.product.name}?`}
+                      />
+                    }
                   </div>
                 </div>
               </div>
@@ -123,6 +130,7 @@ class ProductDetail extends Component {
                           url={'/app/products/' + this.props.match.params.uuid}
                           initialState={this.state.product}
                           load={this.load.bind(this)}
+                          canEdit={canEdit}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>

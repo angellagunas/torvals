@@ -27,6 +27,7 @@ class ProjectDetail extends Component {
       selectedTab: 'General',
       datasetClassName: ''
     }
+    this.intervalo = null
   }
 
   componentWillMount () {
@@ -68,8 +69,30 @@ class ProjectDetail extends Component {
     this.props.history.push('/admin/datasets/detail/' + object.uuid)
   }
 
+  async getProjectStatus () {
+    const url = '/admin/projects/' + this.state.project.uuid
+    let res = await api.get(url)
+
+    if (res) {
+      this.setState({
+        project: res.data
+      })
+
+      if (res.data.status === 'adjustment'){
+        clearInterval(this.intervalo)
+      }
+    }
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.intervalo)
+  }
   render () {
     const { project } = this.state
+
+    if (this.intervalo === null && (project.status === 'processing' || project.status === 'pendingRows')) {
+      this.intervalo = setInterval(() => this.getProjectStatus(), 10000)
+    }
 
     if (!this.state.loaded) {
       return <Loader />

@@ -9,7 +9,7 @@ export default ListPage({
   title: 'Datasets',
   icon: 'check',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin',
+  roles: 'enterprisemanager, analyst, orgadmin, admin, opsmanager',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Dataset',
   baseUrl: '/app/datasets',

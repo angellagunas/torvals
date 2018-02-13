@@ -25,6 +25,17 @@ export default ListPage({
   baseUrl: '/admin/groups',
   branchName: 'groups',
   detailUrl: '/admin/manage/groups/',
+  filters: true,
+  schema: {
+    type: 'object',
+    required: [],
+    properties: {
+      general: {type: 'text', title: 'Buscar'}
+    }
+  },
+  uiSchema: {
+    general: {'ui:widget': 'SearchFilter'}
+  },
   getColumns: () => {
     return [
       {
@@ -70,7 +81,6 @@ export default ListPage({
         'default': '0',
         'sortable': true,
         formatter: (row) => {
-          console.log(row)
           return (
             <div>
               {row.users.length}

@@ -298,7 +298,7 @@ class UserDetail extends Component {
     if (saving) {
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Saving <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
+          Guardando <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
       )
     }
@@ -316,7 +316,7 @@ class UserDetail extends Component {
 
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Saved
+          Guardado
         </p>
       )
     }

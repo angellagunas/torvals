@@ -1,57 +1,91 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Group, User, SalesCenter} = require('models')
+const {Group, User} = require('models')
 
 module.exports = new Route({
   method: 'get',
   path: '/',
   handler: async function (ctx) {
-    var filters = {}
+    var sortStatement = {}
+
+    var columns = [
+      {name: 'name', type: 'String'}
+    ]
+    var statement = [
+      { '$match':
+        { 'isDeleted': false }
+      }
+    ]
+    var statementsGeneral = []
     for (var filter in ctx.request.query) {
-      if (filter === 'limit' || filter === 'start' || filter === 'sort') {
-        continue
+      var flagNumber = false
+      if (!isNaN(ctx.request.query[filter])) {
+        flagNumber = true
       }
-
-      if (filter === 'user') {
-        const user = await User.findOne({'uuid': ctx.request.query[filter]})
-
-        if (user) {
-          filters['users'] = { $nin: [ObjectId(user._id)] }
+      if (filter === 'general') {
+        if (!isNaN(ctx.request.query[filter])) {
+          flagNumber = true
         }
 
-        continue
-      }
-
-      if (filter === 'user_orgs') {
-        const user = await User.findOne({'uuid': ctx.request.query[filter]})
-
-        if (user) {
-          filters['organization'] = { $in: user.organizations.map(item => { return item.organization }) }
+        for (var column of columns) {
+          var fil = {}
+          if (flagNumber && column.type === 'Number') {
+            fil[column.name] = {
+              '$gt': parseInt(ctx.request.query[filter] - column.limit),
+              '$lt': parseInt(ctx.request.query[filter]) + column.limit
+            }
+            statementsGeneral.push(fil)
+          } else {
+            fil[column.name] = {$regex: ctx.request.query[filter], $options: 'i'}
+            statementsGeneral.push(fil)
+          }
         }
-
-        continue
-      }
-
-      if (!isNaN(parseInt(ctx.request.query[filter]))) {
-        filters[filter] = parseInt(ctx.request.query[filter])
-      } else {
-        filters[filter] = ctx.request.query[filter]
+      } else if (filter === 'sort') {
+        var filterSort = ctx.request.query.sort.split('-')
+        if (ctx.request.query.sort.split('-').length > 1) {
+          sortStatement[filterSort[1]] = -1
+        } else {
+          sortStatement[filterSort[0]] = 1
+        }
+        statement.push({ '$sort': sortStatement })
+      } else if (filter === 'user') {
+        const user = await User.findOne({'uuid': ctx.request.query[filter]})
+        if (user) {
+          statement.push({ '$match': { 'users': { $nin: [ObjectId(user._id)] } } })
+        } else if (filter === 'user_orgs') {
+          const user = await User.findOne({'uuid': ctx.request.query[filter]})
+          if (user) {
+            statement.push({ '$match': { 'organization': user.organizations.map(item => { return item.organization }) } })
+          }
+        }
       }
     }
 
-    var groups = await Group.dataTables({
-      limit: ctx.request.query.limit || 20,
-      skip: ctx.request.query.start,
-      find: {
-        isDeleted: false,
-        ...filters,
-        organization: ctx.state.organization
-      },
-      sort: ctx.request.query.sort || '-dateCreated',
-      populate: 'organization'
-    })
+    if (ctx.state.organization) {
+      statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })
+    }
 
-    ctx.body = groups
+    statement.push({ '$skip': parseInt(ctx.request.query.start) })
+
+    var general = {}
+    if (statementsGeneral.length > 0) {
+      general = { '$match': { '$or': statementsGeneral } }
+      statement.push(general)
+    }
+
+    var statementCount = [...statement]
+
+    statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
+    var groups = await Group.aggregate(statement)
+
+    statementCount.push({$count: 'total'})
+    var groupsCount = await Group.aggregate(statementCount)
+    groups = groups.map((channel) => {
+      return { ...channel,
+        organization: channel.infoOrganization
+      }
+    })
+    ctx.body = {'data': groups, 'total': groupsCount[0] ? groupsCount[0].total : 0}
   }
 })

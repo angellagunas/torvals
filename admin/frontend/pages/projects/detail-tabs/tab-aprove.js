@@ -6,6 +6,9 @@ import { toast } from 'react-toastify'
 import FontAwesome from 'react-fontawesome'
 import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import CustomDate from './custom-date';
 
 const generalAdjustment = 0.1
 
@@ -232,13 +235,87 @@ class TabAprove extends Component {
     }
   }
 
+  startDateChange = (date) => {
+
+    this.setState({
+      startDate: date
+    }, () => this.filterbyDate())
+
+  }
+
+  endDateChange = (date) => {
+
+    date = date.set({ 'hour': 23, 'minute': 59, 'second': 59 })
+
+    this.setState({
+      endDate: date
+    }, () => this.filterbyDate())
+
+    
+  }
+
+  filterbyDate() {
+    if (this.state.startDate && this.state.endDate) {
+
+      if (this.state.startDate > this.state.endDate) {
+        this.notify('Rango de fechas inválido', 3000, toast.TYPE.ERROR)
+        return
+      }
+
+      this.setState({
+        searchDate: true
+      })
+    }
+  }
+
   getModifyButtons () {
     return (
+      <div>
+        <div className='columns'>
+          <div className='column'>
+            <div className='field is-grouped'>
+              <div className='control'>
+                <h4 className='subtitle'>Filtrar por fecha: </h4>
+              </div>
+              <div className='control'>
+                <DatePicker
+                  selected={this.state.startDate}
+                  selectsStart
+                  startDate={this.state.startDate}
+                  endDate={this.state.endDate}
+                  onChange={this.startDateChange}
+                  dateFormat="DD/MM/YYYY"
+                  todayButton={"Hoy"}
+                  placeholderText="Fecha inicio"
+                  customInput={<CustomDate />}
+                />
+              </div>
+              <div className='control'>
+                <DatePicker
+                  selected={this.state.endDate}
+                  selectsEnd
+                  startDate={this.state.startDate}
+                  endDate={this.state.endDate}
+                  onChange={this.endDateChange}
+                  dateFormat="DD/MM/YYYY"
+                  todayButton={"Hoy"}
+                  placeholderText="Fecha final"
+                  customInput={<CustomDate />}
+                />
+              </div>
+              <div className='control'>
+                <a className='button is-light' onClick={this.clearSearchDate}>
+                  Limpiar
+                  </a>
+              </div>
+            </div>
+          </div>
+        </div>  
       <div className='columns'>
         <div className='column'>
           <div className='field is-grouped'>
             <div className='control'>
-              <h4 className='subtitle'>Resultados: {this.state.dataRows.length} </h4>
+              <h4 className='subtitle'>Total: {this.state.dataRows.length} </h4>
             </div>
             <div className='control'>
               <h4 className='subtitle'>Pendientes: {this.state.remainingItems} </h4>
@@ -290,25 +367,51 @@ class TabAprove extends Component {
           </div>
         </div>
       </div>
+      </div>
     )
   }
 
   searchDatarows() {
     const items = this.state.dataRows.map((item) => {
-      if (this.state.searchTerm === ''){
+      if (this.state.searchTerm === '' && !this.state.searchDate) {
         return item
       }
-      const regEx = new RegExp(this.state.searchTerm, 'gi')
+      else if (this.state.searchDate) {
+        let d = moment(item.dateRequested)
 
-      if (regEx.test(item.datasetRow.product.name) || 
-      regEx.test(item.datasetRow.product.externalId) || 
-      regEx.test(item.datasetRow.salesCenter.name))
-        return item 
-      else
-        return null  
+        if (d >= this.state.startDate && d <= this.state.endDate) {
+
+          if (this.state.searchTerm !== '') {
+            const regEx = new RegExp(this.state.searchTerm, 'gi')
+
+            if (regEx.test(item.datasetRow.product.name) ||
+              regEx.test(item.datasetRow.product.externalId) ||
+              regEx.test(item.datasetRow.salesCenter.name))
+              return item
+            else
+              return null
+          }
+
+          else
+            return item
+        }
+
+        else
+          return null
+      }
+      else if (this.state.searchTerm !== '' && !this.state.searchDate) {
+        const regEx = new RegExp(this.state.searchTerm, 'gi')
+
+        if (regEx.test(item.datasetRow.product.name) ||
+          regEx.test(item.datasetRow.product.externalId) ||
+          regEx.test(item.datasetRow.salesCenter.name))
+          return item
+        else
+          return null
+      }
     })
-    .filter(function(item){ return item != null });
-    
+      .filter(function (item) { return item != null });
+
     return items
   }
 
@@ -322,7 +425,15 @@ class TabAprove extends Component {
     this.setState({
       searchTerm: ''
     })
-  } 
+  }
+  
+  clearSearchDate = () => {
+    this.setState({
+      searchDate: false,
+      startDate: undefined,
+      endDate: undefined
+    })
+  }
 
   aprove = async () => {
     let url = '/admin/adjustmentRequests/approve/'

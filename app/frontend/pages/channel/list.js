@@ -16,6 +16,7 @@ export default ListPage({
   titleSingular: 'Canal',
   create: true,
   createComponent: CreateChannel,
+  canCreate: 'admin, orgadmin, analyst',
   baseUrl: '/app/channels',
   branchName: 'channels',
   detailUrl: '/channels/',
@@ -24,11 +25,11 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      name: {type: 'text', title: 'Por nombre'}
+      general: {type: 'text', title: 'Buscar'}
     }
   },
   uiSchema: {
-    name: {'ui:widget': 'SearchFilter'}
+    general: {'ui:widget': 'SearchFilter'}
   },
   getColumns: () => {
     return [

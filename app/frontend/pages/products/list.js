@@ -8,7 +8,7 @@ import CreateProduct from './create'
 
 export default ListPage({
   path: '/products',
-  title: 'Products',
+  title: 'Productos',
   icon: 'dropbox',
   exact: true,
   roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
@@ -16,6 +16,7 @@ export default ListPage({
   titleSingular: 'Product',
   create: true,
   createComponent: CreateProduct,
+  canCreate: 'admin, orgadmin, analyst',
   baseUrl: '/app/products',
   branchName: 'products',
   detailUrl: '/products/',
@@ -24,11 +25,11 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      name: {type: 'text', title: 'Por nombre'}
+      general: {type: 'text', title: 'Buscar'}
     }
   },
   uiSchema: {
-    name: {'ui:widget': 'SearchFilter'}
+    general: {'ui:widget': 'SearchFilter'}
   },
   getColumns: () => {
     return [
