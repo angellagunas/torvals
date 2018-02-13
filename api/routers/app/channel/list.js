@@ -1,4 +1,5 @@
 const Route = require('lib/router/route')
+const ObjectId = require('mongodb').ObjectID
 
 const {Channel} = require('models')
 
@@ -6,23 +7,76 @@ module.exports = new Route({
   method: 'get',
   path: '/',
   handler: async function (ctx) {
-    var filters = {}
+    var sortStatement = {}
 
+    var columns = [
+      {name: 'name', type: 'String'},
+      {name: 'email', type: 'String'}
+    ]
+    var statement = [
+      { '$match':
+        { 'isDeleted': false }
+      },
+      { '$skip': parseInt(ctx.request.query.start) }
+    ]
+
+    var statementsGeneral = []
     for (var filter in ctx.request.query) {
-      if (filter === 'limit' || filter === 'start' || filter === 'sort') {
-        continue
+      var flagNumber = false
+      if (!isNaN(ctx.request.query[filter])) {
+        flagNumber = true
       }
-      filters[filter] = { '$regex': ctx.request.query[filter], '$options': 'i' }
+      if (filter === 'general') {
+        if (!isNaN(ctx.request.query[filter])) {
+          flagNumber = true
+        }
+
+        for (var column of columns) {
+          var fil = {}
+          if (flagNumber && column.type === 'Number') {
+            fil[column.name] = {
+              '$gt': parseInt(ctx.request.query[filter] - column.limit),
+              '$lt': parseInt(ctx.request.query[filter]) + column.limit
+            }
+            statementsGeneral.push(fil)
+          } else if (!flagNumber && column.type === 'String') {
+            fil[column.name] = {$regex: ctx.request.query[filter], $options: 'i'}
+            statementsGeneral.push(fil)
+          }
+        }
+      } else if (filter === 'sort') {
+        var filterSort = ctx.request.query.sort.split('-')
+        if (ctx.request.query.sort.split('-').length > 1) {
+          sortStatement[filterSort[1]] = -1
+        } else {
+          sortStatement[filterSort[0]] = 1
+        }
+        statement.push({ '$sort': sortStatement })
+      }
     }
 
-    var channels = await Channel.dataTables({
-      limit: ctx.request.query.limit || 20,
-      skip: ctx.request.query.start,
-      find: {...filters, isDeleted: false, organization: ctx.state.organization._id},
-      sort: ctx.request.query.sort || '-dateCreated',
-      populate: 'organization'
-    })
+    if (ctx.state.organization) {
+      statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })
+    }
 
-    ctx.body = channels
+    var general = {}
+    if (statementsGeneral.length > 0) {
+      general = { '$match': { '$or': statementsGeneral } }
+      statement.push(general)
+    }
+
+    var statementCount = [...statement]
+
+    statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
+    var channels = await Channel.aggregate(statement)
+
+    statementCount.push({$count: 'total'})
+    var channelsCount = await Channel.aggregate(statementCount)
+    channels = channels.map((channel) => {
+      return { ...channel,
+        organization: channel.infoOrganization
+      }
+    })
+    ctx.body = {'data': channels, 'total': channelsCount[0] ? channelsCount[0].total : 0}
   }
 })
