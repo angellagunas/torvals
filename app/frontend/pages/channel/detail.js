@@ -3,7 +3,7 @@ import api from '~base/api'
 import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
-import { loggedIn } from '~base/middlewares/'
+import { loggedIn, verifyRole } from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ChannelForm from './create-form'
 import DeleteButton from '~base/components/base-deleteButton'
@@ -115,6 +115,7 @@ export default Page({
   path: '/channels/:uuid',
   title: 'Channel Detail',
   exact: true,
-  validate: loggedIn,
+  roles: 'analyst, orgadmin, admin, localmanager',
+  validate: [loggedIn, verifyRole],
   component: ChannelDetail
 })
