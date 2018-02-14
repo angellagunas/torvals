@@ -378,9 +378,11 @@ dataSetSchema.methods.processReady = async function (res) {
     channels: []
   }
 
-  apiData['products'] = res.data['product']
-  apiData['salesCenters'] = res.data['agency']
-  apiData['channels'] = res.data['channel']
+  if (res.data) {
+    apiData['products'] = res.data['product']
+    apiData['salesCenters'] = res.data['agency']
+    apiData['channels'] = res.data['channel']
+  }
 
   this.set({
     columns: res.headers.map(item => {
