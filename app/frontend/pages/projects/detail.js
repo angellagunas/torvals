@@ -31,7 +31,7 @@ class ProjectDetail extends Component {
       roles: 'admin, orgadmin, analyst, opsmanager',
       canEdit: false
     }
-    this.intervalo = null
+    this.interval = null
   }
 
   componentWillMount () {
@@ -86,20 +86,20 @@ class ProjectDetail extends Component {
       })
 
       if (res.data.status === 'adjustment') {
-        clearInterval(this.intervalo)
+        clearInterval(this.interval)
       }
     }
   }
 
   componentWillUnmount () {
-    clearInterval(this.intervalo)
+    clearInterval(this.interval)
   }
 
   render () {
     const { project, canEdit } = this.state
 
-    if (this.intervalo === null && (project.status === 'processing' || project.status === 'pendingRows')) {
-      this.intervalo = setInterval(() => this.getProjectStatus(), 30000)
+    if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
+      this.interval = setInterval(() => this.getProjectStatus(), 30000)
     }
 
     if (!this.state.loaded) {
@@ -112,6 +112,7 @@ class ProjectDetail extends Component {
         icon: 'fa-cogs',
         content: (
           <TabAdjustment
+            load={this.getProjectStatus.bind(this)}
             project={project}
             history={this.props.history}
             canEdit={canEdit}
