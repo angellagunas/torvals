@@ -43,16 +43,20 @@ class TabAdjustment extends Component {
     }
 
     currentRole = tree.get('user').currentRole.slug
-    this.timeout = null
+    this.interval = null
   }
 
   componentWillMount () {
     this.getFilters()
     this.getModifiedCount()
+
+    if (this.props.canEdit && currentRole !== 'enterprisemanager') {
+      this.interval = setInterval(() => { this.getModifiedCount() }, 10000)
+    }
   }
 
   componentWillUnmount () {
-    clearTimeout(this.timeout)
+    clearInterval(this.interval)
   }
 
   async getFilters() {
@@ -493,8 +497,6 @@ class TabAdjustment extends Component {
 
     this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
 
-    this.timeout = setTimeout(() => { this.getModifiedCount() }, 10000)
-    
     return true
   }
   
@@ -707,41 +709,46 @@ class TabAdjustment extends Component {
             prediction={this.state.selectedAR}
             baseUrl={'/app/rows/'}
           />
-          <BaseForm
-            schema={schema}
-            uiSchema={uiSchema}
-            formData={this.state.formData}
-            onChange={(e) => { this.filterChangeHandler(e) }}
-            onSubmit={(e) => { this.getDataRows(e) }}
-            onError={(e) => { this.filterErrorHandler(e) }}
-          >
-            <div className='field is-grouped'>
-              <div className='control'>
-                <button
-                  className={'button is-primary is-medium' + this.state.isLoading}
-                  type='submit'
-                  disabled={!!this.state.isLoading}
-                >
-                  Filtrar
-                </button>
-              </div>
+          <div className='columns'>
+            <div className='column'>
+              <BaseForm
+                schema={schema}
+                uiSchema={uiSchema}
+                formData={this.state.formData}
+                onChange={(e) => { this.filterChangeHandler(e) }}
+                onSubmit={(e) => { this.getDataRows(e) }}
+                onError={(e) => { this.filterErrorHandler(e) }}
+              >
+                <div className='field is-grouped'>
+                  <div className='control'>
+                    <button
+                      className={'button is-primary is-medium' + this.state.isLoading}
+                      type='submit'
+                      disabled={!!this.state.isLoading}
+                    >
+                      Filtrar
+                    </button>
+                  </div>
+                </div>
+              </BaseForm>
             </div>
-          </BaseForm>
-          <section className='section'>
-            <div className='field is-grouped'>
-              <div className='control'>
-                <button
-                  className='button is-primary'
-                  className={'button is-primary is-medium' + this.state.isConciliating}
-                  disabled={!!this.state.isConciliating}
-                  type='button'
-                  onClick={e => this.conciliateOnClick()}
-                >
-                  Enviar cambios ({ this.state.modified })
-                </button>
+            { this.props.canEdit && currentRole !== 'enterprisemanager' &&
+              <div className='column has-text-right'>
+                <div className='field is-grouped is-grouped-right'>
+                  <div className='control'>
+                    <button
+                      className={'button is-success is-medium' + this.state.isConciliating}
+                      disabled={!!this.state.isConciliating}
+                      type='button'
+                      onClick={e => this.conciliateOnClick()}
+                    >
+                      Enviar cambios ({ this.state.modified })
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </section>
+            }
+          </div>
           <section className='section'>
             {!this.state.isFiltered
               ? <article className='message is-primary'>
