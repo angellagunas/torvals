@@ -64,13 +64,13 @@ const task = new Task(async function (argv) {
     }
     if (res._id) {
       dataset.set({
-        externalId: 'externalId not received',
-        status: 'error'
+        externalId: res._id,
+        status: 'preprocessing'
       })
     } else {
       dataset.set({
-        externalId: res._id,
-        status: 'preprocessing'
+        externalId: 'externalId not received',
+        status: 'error'
       })
     }
     await dataset.save()
