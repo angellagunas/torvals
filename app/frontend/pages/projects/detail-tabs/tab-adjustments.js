@@ -193,15 +193,20 @@ class TabAdjustment extends Component {
           if (!row.adjustment) {
             row.adjustment = 0
           }
-          return (
-            <Editable 
-              value={row.adjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={80}
-            />
-          )
+          if (currentRole !== 'enterprisemanager') {
+            return (
+              <Editable
+                value={row.adjustment}
+                handleChange={this.changeAdjustment}
+                type='number'
+                obj={row}
+                width={80}
+              />
+            )
+          }
+          else {
+            return row.adjustment
+          }
         }
       },
       {
@@ -217,26 +222,30 @@ class TabAdjustment extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          return (
-            <Checkbox
-              label='checkAll'
-              handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
-              key='checkAll'
-              checked={this.state.selectedAll}
-              hideLabel />
-          )
+          if (currentRole !== 'enterprisemanager') {
+            return (
+              <Checkbox
+                label='checkAll'
+                handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
+                key='checkAll'
+                checked={this.state.selectedAll}
+                hideLabel />
+            )
+          }
         })(),
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
-          return (
-            <Checkbox
-              label={row}
-              handleCheckboxChange={this.toggleCheckbox}
-              key={row}
-              checked={row.selected}
-              hideLabel />
-          )
+          if (currentRole !== 'enterprisemanager') {
+            return (
+              <Checkbox
+                label={row}
+                handleCheckboxChange={this.toggleCheckbox}
+                key={row}
+                checked={row.selected}
+                hideLabel />
+            )
+          }
         }
       },
       {
@@ -348,6 +357,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div> 
+        {currentRole !== 'enterprisemanager' ?
         <div className='column'>
           <div className='field is-grouped is-grouped-right'>
             <div className='control'>
@@ -377,7 +387,7 @@ class TabAdjustment extends Component {
                 </button>
             </div>
           </div>
-        </div>
+        </div> : null }
       </div>
     )
   }
