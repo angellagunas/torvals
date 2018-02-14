@@ -38,7 +38,6 @@ class ProjectDetail extends Component {
     this.load()
     this.setState({
       canEdit: testRoles(this.state.roles),
-      selectedTab: testRoles('localmanager') ? 'Configuración' : 'Ajustes'
     })
   }
 
@@ -123,6 +122,7 @@ class ProjectDetail extends Component {
         name: 'Aprobar',
         title: 'Aprobar',
         icon: 'fa-calendar-check-o',
+        hide: testRoles('localmanager'),
         content: (
           <TabAprove
             project={project}
@@ -191,7 +191,7 @@ class ProjectDetail extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top pad-sides'>
-            <div className='columns is-padding-top-small is-padding-bottom-small'>
+            <div className='columns is-padding-top-small'>
               <div className='column'>
                 <h1 className='is-size-3'>{project.name}</h1>
               </div>
@@ -209,7 +209,6 @@ class ProjectDetail extends Component {
                 </div>
               </div>
             </div>
-            <br />
             <Tabs
               tabs={tabs}
               selectedTab={this.state.selectedTab}

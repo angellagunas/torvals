@@ -98,11 +98,11 @@ class UserForm extends Component {
       uiSchema.email['ui:disabled'] = true
     }
 
-    if (
-      (this.props.initialState.uuid === currentUser.uuid) &&
-      (testRoles('enterprisemanager'))
-    ) {
+    if (this.props.initialState.uuid === currentUser.uuid) {
       uiSchema.role['ui:disabled'] = true
+    }
+    else {
+      uiSchema.role['ui:disabled'] = false
     }
 
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })

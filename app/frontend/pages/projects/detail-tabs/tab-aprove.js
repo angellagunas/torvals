@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import api from '~base/api'
+import tree from '~core/tree'
 import moment from 'moment'
 import { EditableTable } from '~base/components/base-editableTable'
 import { toast } from 'react-toastify'
@@ -11,6 +12,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import CustomDate from './custom-date'
 
 const generalAdjustment = 0.1
+var currentRole
 
 class TabAprove extends Component {
   constructor (props) {
@@ -23,6 +25,7 @@ class TabAprove extends Component {
       selectedCheckboxes: new Set(),
       searchTerm: ''
     }
+    currentRole = tree.get('user').currentRole.slug
   }
 
   componentWillMount () {
@@ -183,29 +186,33 @@ class TabAprove extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          return (
-            <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
-              <Checkbox
-                label='checkAll'
-                handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
-                key='checkAll'
-                checked={false}
-                hideLabel />
-            </div>
-          )
+          if (currentRole !== 'enterprisemanager') {
+            return (
+              <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
+                <Checkbox
+                  label='checkAll'
+                  handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
+                  key='checkAll'
+                  checked={false}
+                  hideLabel />
+              </div>
+            )
+          }
         })(),
         'property': 'checkbox',
         'default': '',
         formatter: (row, state) => {
-          if (row.status === 'created') {
-            return (
-              <Checkbox
-                label={row}
-                handleCheckboxChange={this.toggleCheckbox}
-                key={row}
-                checked={this.state.selectedAll}
-                hideLabel />
-            )
+          if (currentRole !== 'enterprisemanager') {
+            if (row.status === 'created') {
+              return (
+                <Checkbox
+                  label={row}
+                  handleCheckboxChange={this.toggleCheckbox}
+                  key={row}
+                  checked={this.state.selectedAll}
+                  hideLabel />
+              )
+            }
           }
         }
       }
@@ -338,6 +345,7 @@ class TabAprove extends Component {
               </div>
             </div>
           </div>
+          {currentRole !== 'enterprisemanager' ?
           <div className='column'>
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
@@ -365,7 +373,7 @@ class TabAprove extends Component {
                 </button>
               </div>
             </div>
-          </div>
+          </div> : null }
         </div>
       </div>
     )
