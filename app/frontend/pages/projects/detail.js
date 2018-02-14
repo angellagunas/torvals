@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
+import { ToastContainer } from 'react-toastify'
 import { testRoles } from '~base/tools'
 
 import DeleteButton from '~base/components/base-deleteButton'
@@ -12,6 +13,8 @@ import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
+import TabAprove from './detail-tabs/tab-aprove'
+
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
@@ -23,7 +26,7 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'General',
+      selectedTab: 'Ajustes',
       datasetClassName: '',
       roles: 'admin, orgadmin, analyst, opsmanager',
       canEdit: false
@@ -34,7 +37,7 @@ class ProjectDetail extends Component {
     this.load()
     this.setState({
       canEdit: testRoles(this.state.roles),
-      selectedTab: testRoles('localmanager') ? 'Ajustes' : 'General'
+      selectedTab: testRoles('localmanager') ? 'Configuración' : 'Ajustes'
     })
   }
 
@@ -80,7 +83,49 @@ class ProjectDetail extends Component {
     }
     const tabs = [
       {
-        name: 'General',
+        name: 'Ajustes',
+        title: 'Ajustes',
+        icon: 'fa-cogs',
+        content: (
+          <TabAdjustment
+            project={project}
+            history={this.props.history}
+            canEdit={canEdit}
+          />
+        )
+      },
+      {
+        name: 'Aprobar',
+        title: 'Aprobar',
+        icon: 'fa-calendar-check-o',
+        content: (
+          <TabAprove
+            project={project}
+            canEdit={canEdit}
+          />
+        )
+      },
+      {
+        name: 'Datasets',
+        title: 'Datasets',
+        icon: 'fa-signal',
+        hide: testRoles('localmanager'),
+        content: (
+          <TabDatasets
+            project={project}
+            history={this.props.history}
+            canEdit={canEdit}
+          />
+        )
+      },
+      /* {
+        name: 'Historico',
+        title: 'Historico',
+        icon: 'fa-history',
+        content: <TabHistorical />
+      }, */
+      {
+        name: 'Configuración',
         title: 'Información',
         icon: 'fa-tasks',
         hide: testRoles('localmanager'),
@@ -104,39 +149,7 @@ class ProjectDetail extends Component {
             </div>
           </div>
         )
-      },
-      {
-        name: 'Datasets',
-        title: 'Datasets',
-        icon: 'fa-signal',
-        hide: testRoles('localmanager'),
-        content: (
-          <TabDatasets
-            project={project}
-            history={this.props.history}
-            canEdit={canEdit}
-          />
-        )
-      },
-      {
-        name: 'Ajustes',
-        title: 'Ajustes',
-        icon: 'fa-cogs',
-        content: (
-          <TabAdjustment
-            project={project}
-            history={this.props.history}
-            canEdit={canEdit}
-          />
-        )
       }
-      // {
-      //   name: 'Historico',
-      //   title: 'Historico',
-      //   icon: 'fa-history',
-      //   content: <TabHistorical />
-      // }
-
     ]
 
     let options = (<button className={'button is-primary no-hidden'}
@@ -152,7 +165,7 @@ class ProjectDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
+          <div className='section is-paddingless-top pad-sides'>
             <div className='columns is-padding-top-small is-padding-bottom-small'>
               <div className='column'>
                 <h1 className='is-size-3'>{project.name}</h1>
@@ -199,6 +212,8 @@ class ProjectDetail extends Component {
             />
           </div>
         }
+
+        <ToastContainer />
       </div>
     )
   }

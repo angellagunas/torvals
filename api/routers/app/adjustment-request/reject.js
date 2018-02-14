@@ -4,7 +4,7 @@ const moment = require('moment')
 const {AdjustmentRequest} = require('models')
 
 module.exports = new Route({
-  method: 'post',
+  method: 'get',
   path: '/reject/:uuid',
   handler: async function (ctx) {
     var adjustmentRequestId = ctx.params.uuid
