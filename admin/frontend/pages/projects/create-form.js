@@ -109,7 +109,7 @@ class ProjectForm extends Component {
       uiSchema['status'] = {'ui:widget': SelectWidget}
       schema.properties['status'] = {
         type: 'string',
-        title: 'Status',
+        title: 'Estado',
         enum: [
           'empty',
           'processing',
