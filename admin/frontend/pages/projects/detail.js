@@ -24,7 +24,7 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'General',
+      selectedTab: 'Ajustes',
       datasetClassName: ''
     }
     this.intervalo = null
@@ -127,12 +127,12 @@ class ProjectDetail extends Component {
             history={this.props.history}
           />
       )},
-      {
+      /* {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
         content: <TabHistorical />
-      },
+      }, */
       {
         name: 'Configuración',
         title: 'Información',

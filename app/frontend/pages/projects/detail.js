@@ -37,7 +37,7 @@ class ProjectDetail extends Component {
     this.load()
     this.setState({
       canEdit: testRoles(this.state.roles),
-      selectedTab: testRoles('localmanager') ? 'Ajustes' : 'General'
+      selectedTab: testRoles('localmanager') ? 'Configuración' : 'Ajustes'
     })
   }
 
@@ -99,7 +99,10 @@ class ProjectDetail extends Component {
         title: 'Aprobar',
         icon: 'fa-calendar-check-o',
         content: (
-          <TabAprove project={project} />
+          <TabAprove
+            project={project}
+            canEdit={canEdit}
+          />
         )
       },
       {
@@ -115,12 +118,12 @@ class ProjectDetail extends Component {
           />
         )
       },
-      {
+      /* {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
         content: <TabHistorical />
-      },
+      }, */
       {
         name: 'Configuración',
         title: 'Información',
