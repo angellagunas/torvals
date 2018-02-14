@@ -82,7 +82,7 @@ class TabAdjustment extends Component {
 
   async getModifiedCount () {
     if (this.props.project.activeDataset) {
-      const url = '/admin/rows/modified/dataset/'
+      const url = '/app/rows/modified/dataset/'
       let res = await api.get(url + this.props.project.activeDataset.uuid)
 
       this.setState({
@@ -575,7 +575,7 @@ class TabAdjustment extends Component {
     this.setState({
       isConciliating: ' is-loading'
     })
-    var url = '/admin/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
+    var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
     await api.post(url)
     await this.props.load()
 
