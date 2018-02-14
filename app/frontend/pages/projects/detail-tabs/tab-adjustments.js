@@ -535,27 +535,48 @@ class TabAdjustment extends Component {
   } 
 
   render () {
-    if (!this.state.dataRows || !this.state.filters.semanasBimbo.length > 0) {
+    if (this.props.project.status === 'empty') {
       return (
-        this.props.project.status === 'empty' ?
-          <div className='section columns'>
-            <div className='column'>
-              <article className='message is-warning'>
-                <div className='message-header'>
-                  <p>Atención</p>
-                </div>
-                <div className='message-body has-text-centered is-size-5'>
-                  Se debe agregar al menos un
+        <div className='section columns'>
+          <div className='column'>
+            <article className='message is-warning'>
+              <div className='message-header'>
+                <p>Atención</p>
+              </div>
+              <div className='message-body has-text-centered is-size-5'>
+                Se debe agregar al menos un
                   <strong> dataset </strong> para poder generar ajustes.
                   </div>
-              </article>
-            </div>
+            </article>
           </div>
-          :
-          <div className='section has-text-centered subtitle has-text-primary'>
-            Cargando un momento por favor
+        </div>
+      )
+    }
+
+    if (this.props.project.status === 'processing') {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Se están obteniendo las filas para ajuste, en un momento más las podrá consultar.
          <Loader />
-          </div>
+        </div>
+      )
+    }
+
+    if (this.props.project.status === 'pendingRows') {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Se está preparando al proyecto para generar un dataset de ajuste, espere por favor.
+         <Loader />
+        </div>
+      )
+    }
+
+    if (!this.state.dataRows || !this.state.filters.semanasBimbo.length > 0) {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Cargando un momento por favor
+         <Loader />
+        </div>
       )
     }
 
