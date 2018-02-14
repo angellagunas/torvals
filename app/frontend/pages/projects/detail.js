@@ -31,6 +31,7 @@ class ProjectDetail extends Component {
       roles: 'admin, orgadmin, analyst, opsmanager',
       canEdit: false
     }
+    this.intervalo = null
   }
 
   componentWillMount () {
@@ -74,8 +75,32 @@ class ProjectDetail extends Component {
     })
     this.props.history.push('/datasets/' + object.uuid)
   }
+
+  async getProjectStatus () {
+    const url = '/app/projects/' + this.state.project.uuid
+    let res = await api.get(url)
+
+    if (res) {
+      this.setState({
+        project: res.data
+      })
+
+      if (res.data.status === 'adjustment') {
+        clearInterval(this.intervalo)
+      }
+    }
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.intervalo)
+  }
+
   render () {
     const { project, canEdit } = this.state
+
+    if (this.intervalo === null && (project.status === 'processing' || project.status === 'pendingRows')) {
+      this.intervalo = setInterval(() => this.getProjectStatus(), 30000)
+    }
 
     if (!this.state.loaded) {
       return <Loader />

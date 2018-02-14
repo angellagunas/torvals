@@ -15,13 +15,15 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Nombre'},
-    description: {type: 'string', title: 'Descripción'}
+    description: {type: 'string', title: 'Descripción'},
+    status: {type: 'string', title: 'Estado'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
+  description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
+  status: {'ui:widget': TextWidget, 'ui:disabled': true}
 }
 
 class ProjectForm extends Component {

@@ -91,7 +91,7 @@ class ProjectDetail extends Component {
     const { project } = this.state
 
     if (this.intervalo === null && (project.status === 'processing' || project.status === 'pendingRows')) {
-      this.intervalo = setInterval(() => this.getProjectStatus(), 10000)
+      this.intervalo = setInterval(() => this.getProjectStatus(), 30000)
     }
 
     if (!this.state.loaded) {
@@ -146,6 +146,7 @@ class ProjectDetail extends Component {
                 url={'/admin/projects/' + this.props.match.params.uuid}
                 initialState={{ ...project, organization: project.organization.uuid }}
                 load={this.load.bind(this)}
+                editable
               >
                 <div className='field is-grouped'>
                   <div className='control'>

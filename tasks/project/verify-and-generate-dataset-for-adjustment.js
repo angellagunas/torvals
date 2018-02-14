@@ -45,7 +45,7 @@ const task = new Task(async function (argv) {
 
     var res = await request(options)
 
-    if (res.dataset && res.dataset.status === 'ready') {
+    if (res.dataset && res.status === 'ready') {
       console.log(`Creating dataset for adjustment of project ${project.name} ...`)
 
       options = {

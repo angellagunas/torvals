@@ -54,9 +54,11 @@ const task = new Task(async function (argv) {
         channels: []
       }
 
-      apiData['products'] = res.data['product']
-      apiData['salesCenters'] = res.data['agency']
-      apiData['channels'] = res.data['channel']
+      if (res.data) {
+        apiData['products'] = res.data['product']
+        apiData['salesCenters'] = res.data['agency']
+        apiData['channels'] = res.data['channel']
+      }
 
       dataset.set({
         status: 'reviewing',

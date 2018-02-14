@@ -103,6 +103,38 @@ class ProjectForm extends Component {
   }
 
   render () {
+    let { editable } = this.props
+
+    if (editable) {
+      uiSchema['status'] = {'ui:widget': SelectWidget}
+      schema.properties['status'] = {
+        type: 'string',
+        title: 'Estado',
+        enum: [
+          'empty',
+          'processing',
+          'ready',
+          'adjustment',
+          'reviewing',
+          'pendingRows',
+          'adjustment',
+          'conciliating'
+        ],
+        enumNames: [
+          'empty',
+          'processing',
+          'ready',
+          'adjustment',
+          'reviewing',
+          'pendingRows',
+          'adjustment',
+          'conciliating'
+        ]
+      }
+    } else {
+      delete uiSchema['status']
+      delete schema.properties['status']
+    }
     var error
     if (this.state.error) {
       error = <div>
