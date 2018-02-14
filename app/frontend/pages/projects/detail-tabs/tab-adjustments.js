@@ -22,6 +22,7 @@ class TabAdjustment extends Component {
     this.state = {
       dataRows: [],
       isFiltered: false,
+      filtersLoaded: false,      
       isLoading: '',
       selectedAll: false,
       filters: {
@@ -59,7 +60,8 @@ class TabAdjustment extends Component {
         },
         formData: {
           semanasBimbo: res.semanasBimbo[0]
-        }
+        },
+        filtersLoaded: true
       })
     }
   }
@@ -571,7 +573,15 @@ class TabAdjustment extends Component {
       )
     }
 
-    if (!this.state.dataRows || !this.state.filters.semanasBimbo.length > 0) {
+    if (!this.state.filters.semanasBimbo.length > 0 && this.state.filtersLoaded) {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          El proyecto no continene data rows
+        </div>
+      )
+    }
+
+    if (!this.state.filters.semanasBimbo.length > 0 && !this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           Cargando un momento por favor
