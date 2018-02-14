@@ -146,6 +146,7 @@ class ProjectDetail extends Component {
                 url={'/admin/projects/' + this.props.match.params.uuid}
                 initialState={{ ...project, organization: project.organization.uuid }}
                 load={this.load.bind(this)}
+                editable
               >
                 <div className='field is-grouped'>
                   <div className='control'>
