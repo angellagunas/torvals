@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const lov = require('lov')
 const crypto = require('crypto')
 
-const {User, Role, Group} = require('models')
+const {User, Role, Group, Project} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -52,6 +52,14 @@ module.exports = new Route({
       }
 
       user.groups.push(group)
+    }
+    if (userData.project) {
+      const project = await Project.findOne({'uuid': userData.project})
+      ctx.assert(project, 404, 'Project not found')
+
+      user.set({
+        defaultProject: project
+      })
     }
 
     await user.save()

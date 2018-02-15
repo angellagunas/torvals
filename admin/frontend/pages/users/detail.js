@@ -209,15 +209,29 @@ class UserDetail extends Component {
   }
 
   async roleSelectOnChange (role, org) {
-    var url = '/admin/users/' + this.props.match.params.uuid + '/add/role'
-    await api.post(url,
-      {
-        organization: org,
-        role: role
-      }
-    )
+    console.log('role', role)
+    console.log('org', org)
 
-    this.load()
+    var currentRole = this.state.roles.find((item) => {
+      return item.uuid === role
+    })
+    console.log('currentRole', currentRole.slug)
+
+    if (role.slug === 'localmanager') {
+      console.log('')
+    } else {
+      console.log('')
+    }
+
+    // var url = '/admin/users/' + this.props.match.params.uuid + '/add/role'
+    // await api.post(url,
+    //   {
+    //     organization: org,
+    //     role: role
+    //   }
+    // )
+    //
+    // this.load()
   }
 
   getColumns () {
