@@ -8,7 +8,8 @@ const {
   User,
   Group,
   Product,
-  SalesCenter
+  SalesCenter,
+  Project
 } = require('models')
 
 module.exports = new Route({
@@ -38,7 +39,7 @@ module.exports = new Route({
         filters['status'] = 'analistReview'
         response = {
           productCount: await Product.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
-          
+
           salesCenterCount: await SalesCenter.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count()
         }
         break
@@ -59,13 +60,14 @@ module.exports = new Route({
         response = {
           usersCount: await User.find({'organizations.organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
 
-          groupsCount: await Group.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
+          groupsCount: await Group.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count()
         }
         break
     }
 
     response = {
       ...response,
+      project: await Project.find().sort('-dateCreated').limit(1),
       forecasts: await Forecast.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false, ...filters}),
       predictions: await PredictionHistoric.find({
         updatedBy: ObjectId(ctx.state.user._id),

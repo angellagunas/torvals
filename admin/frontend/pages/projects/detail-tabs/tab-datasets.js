@@ -65,13 +65,21 @@ class TabDatasets extends Component {
             <div className='field is-grouped'>
               <div className='control'>
                 <Link
-                  className={row.status === 'conciliated' ? 'button' : 'is-hidden'}
+                  className={
+                    row.status === 'conciliated' || row.status === 'adjustment'
+                      ? 'button'
+                      : 'is-hidden'
+                  }
                   to={'/datasets/detail/' + row.uuid}
                 >
                   Detalle
                 </Link>
                 <Link
-                  className={row.status !== 'conciliated' ? 'button is-primary' : 'is-hidden'}
+                  className={
+                    row.status !== 'conciliated' && row.status !== 'adjustment'
+                    ? 'button is-primary'
+                    : 'is-hidden'
+                  }
                   to={'/datasets/detail/' + row.uuid}
                 >
                   Fin. Configuración
@@ -152,7 +160,6 @@ class TabDatasets extends Component {
               </div>
             </div>
           </div>
-
         </header>
         <div className='card-content'>
           <div className={this.props.project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
@@ -164,7 +171,7 @@ class TabDatasets extends Component {
                 <div className='message-body has-text-centered is-size-5'>
                   Necesitas subir y configurar al menos un
                   <strong> dataset </strong> para tener información disponible
-                <br />
+                  <br />
                   <br />
                   <a
                     className='button is-large is-primary'

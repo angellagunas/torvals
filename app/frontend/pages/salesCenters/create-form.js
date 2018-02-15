@@ -82,11 +82,18 @@ class SalesCenterForm extends Component {
   }
 
   render () {
+    let { canEdit, children } = this.props
     var error
     if (this.state.error) {
       error = <div>
         Error: {this.state.error}
       </div>
+    }
+
+    if (!canEdit) {
+      for (var key in uiSchema) {
+        uiSchema[key]['ui:disabled'] = true
+      }
     }
 
     return (
@@ -109,7 +116,7 @@ class SalesCenterForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
+          {canEdit && children}
         </BaseForm>
       </div>
     )

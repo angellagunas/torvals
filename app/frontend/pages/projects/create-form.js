@@ -15,13 +15,15 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Nombre'},
-    description: {type: 'string', title: 'Descripción'}
+    description: {type: 'string', title: 'Descripción'},
+    status: {type: 'string', title: 'Estado'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
+  description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
+  status: {'ui:widget': TextWidget, 'ui:disabled': true}
 }
 
 class ProjectForm extends Component {
@@ -73,11 +75,17 @@ class ProjectForm extends Component {
   }
 
   render () {
+    let { canEdit } = this.props
     var error
     if (this.state.error) {
       error = <div>
         Error: {this.state.error}
       </div>
+    }
+
+    if (!canEdit) {
+      uiSchema.name['ui:disabled'] = true
+      uiSchema.description['ui:disabled'] = true
     }
 
     return (
@@ -100,7 +108,7 @@ class ProjectForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
+          {canEdit && this.props.children}
         </BaseForm>
       </div>
     )

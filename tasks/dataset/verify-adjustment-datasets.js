@@ -48,7 +48,7 @@ const task = new Task(async function (argv) {
     if (res.status === 'ready') {
       console.log(`${dataset.externalId} dataset has finished processing`)
 
-      await dataset.process(res)
+      await dataset.processReady(res)
 
       options = {
         url: `${apiData.hostname}${apiData.baseUrl}/rows/datasets/${dataset.externalId}`,

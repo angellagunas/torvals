@@ -361,7 +361,7 @@ dataSetSchema.methods.processData = async function () {
   await this.save()
 }
 
-dataSetSchema.methods.process = async function (res) {
+dataSetSchema.methods.processReady = async function (res) {
   if (res.status === 'error') {
     this.set({
       error: res.message,
@@ -372,54 +372,19 @@ dataSetSchema.methods.process = async function (res) {
     return
   }
 
-  this.set({
-    status: 'preprocessing'
-  })
-
-  if (res.status === 'uploading' || !res.headers) {
-    await this.save()
-    return
-  }
-
-  this.set({
-    status: 'configuring',
-    columns: res.headers.map(item => {
-      return {
-        name: item,
-        isDate: false,
-        isAnalysis: false,
-        isOperationFilter: false,
-        isAnalysisFilter: false
-      }
-    })
-  })
-
-  if (res.status === 'done') {
-    await this.save()
-    return
-  }
-
-  this.set({
-    status: 'processing'
-  })
-
-  if (res.status === 'processing') {
-    await this.save()
-    return
-  }
-
   let apiData = {
     products: [],
     salesCenters: [],
     channels: []
   }
 
-  apiData['products'] = res.data['product']
-  apiData['salesCenters'] = res.data['agency']
-  apiData['channels'] = res.data['channel']
+  if (res.data) {
+    apiData['products'] = res.data['product']
+    apiData['salesCenters'] = res.data['agency']
+    apiData['channels'] = res.data['channel']
+  }
 
   this.set({
-    status: 'reviewing',
     columns: res.headers.map(item => {
       var isDate = false
       var isAnalysis = false
@@ -509,7 +474,61 @@ dataSetSchema.methods.process = async function (res) {
     groupings: res.columns.groupings
   })
 
+  await this.save()
+  await this.processData()
+}
+
+dataSetSchema.methods.process = async function (res) {
+  if (res.status === 'error') {
+    this.set({
+      error: res.message,
+      status: 'error'
+    })
+
+    await this.save()
+    return
+  }
+
+  this.set({
+    status: 'preprocessing'
+  })
+
+  if (res.status === 'uploading' || !res.headers) {
+    await this.save()
+    return
+  }
+
+  this.set({
+    status: 'configuring',
+    columns: res.headers.map(item => {
+      return {
+        name: item,
+        isDate: false,
+        isAnalysis: false,
+        isOperationFilter: false,
+        isAnalysisFilter: false
+      }
+    })
+  })
+
+  if (res.status === 'done') {
+    await this.save()
+    return
+  }
+
+  this.set({
+    status: 'processing'
+  })
+
+  if (res.status === 'processing') {
+    await this.save()
+    return
+  }
+
+  await this.processReady(res)
+
   if (res.status === 'ready') {
+    this.set({status: 'ready'})
     await this.save()
     await this.processData()
     return

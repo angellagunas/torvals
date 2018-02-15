@@ -62,11 +62,17 @@ const task = new Task(async function (argv) {
       console.log(`Error while sending dataset for preprocessing: ${dataset.error}`)
       return false
     }
-
-    dataset.set({
-      externalId: res._id,
-      status: 'preprocessing'
-    })
+    if (res._id) {
+      dataset.set({
+        externalId: res._id,
+        status: 'preprocessing'
+      })
+    } else {
+      dataset.set({
+        externalId: 'externalId not received',
+        status: 'error'
+      })
+    }
     await dataset.save()
 
     console.log(`Successfully sent for preprocessing dataset ${dataset.name}`)

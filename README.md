@@ -27,7 +27,7 @@ These instructions will get you a copy of the project up and running on your loc
 npm install
 ```
 
-Before running the app remember set the env variables, these are a few of them, to see  all the variables look [.env.default](.env.default)
+Before running the app remember to set the env variables by creating a new file named `.env.development`. These are a few of them:
 
 ```bash
 API_PORT=3000
@@ -36,6 +36,8 @@ API_HOST=http://pythia.dev:3000
 APP_PORT=4000
 APP_HOST=http://pythia.dev:4000
 ```
+
+To see all the enviroment variables available, take a look at [.env.default](.env.default)
 
 Run API with
 
@@ -55,7 +57,7 @@ Run APP with
 make app-server
 ```
 
-As alternative for run APP
+You could alternatively execute `app`, `admin` and `api` by running
 
 ```bash
 node runner.js
@@ -95,6 +97,9 @@ ADMIN_HOST=<ADMIN BASE URL>
 EMAIL_SEND=false
 EMAIL_PROVIDER=mandrill
 EMAIL_KEY=<MANDRIL TOKEN>
+
+# Multiple workers for API, by default sets NUM_WORKERS to the same number of processing cores available
+MULTIPLE_WORKERS=true
 ```
 
 To use docker compose do:

@@ -285,12 +285,12 @@ pre.json {
 }
 
 .is-edited {
-  background-color: #C3ECEF !important;
+  background-color: lighten($primary,36%) !important;
   color: #363636;
 }
 
 .was-edited {
-  background-color: #9cbcbf !important;
+  background-color: lighten($primary,46%) !important;
   color: #363636;
 }
 
@@ -484,4 +484,16 @@ pre.json {
 }
 .font-green{
   color: #8BC34A;
+}
+td, th, tr{
+  vertical-align: middle !important;
+  height: 70px !important;
+}
+.is-invisible{
+  visibility: hidden !important;
+}
+
+.is-error{
+  background-color: #e44a4a !important;
+  color: white;
 }

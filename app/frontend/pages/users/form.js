@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import Loader from '~base/components/spinner'
+import tree from '~core/tree'
+import { testRoles } from '~base/tools'
 
 import api from '~base/api'
 
@@ -80,6 +82,7 @@ class UserForm extends Component {
   }
 
   render () {
+    const currentUser = tree.get('user')
     var error
     if (this.state.error) {
       error = <div>
@@ -93,6 +96,13 @@ class UserForm extends Component {
 
     if (this.state.formData.email) {
       uiSchema.email['ui:disabled'] = true
+    }
+
+    if (this.props.initialState.uuid === currentUser.uuid) {
+      uiSchema.role['ui:disabled'] = true
+    }
+    else {
+      uiSchema.role['ui:disabled'] = false
     }
 
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })

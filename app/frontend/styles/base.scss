@@ -235,12 +235,12 @@ select.placeholder {
 
 
 .is-edited {
-  background-color: #C3ECEF !important;
+  background-color: lighten($primary,36%) !important;
   color: #363636;
 }
 
 .was-edited {
-  background-color: #9cbcbf !important;
+  background-color: lighten($primary,46%) !important;
   color: #363636;
 }
 
@@ -518,6 +518,7 @@ a.navbar-item:hover {
 
 
 .navstrong {
+  min-height: 3.25rem !important;
   .navbar-item.has-dropdown:hover .navbar-link, .navbar-item .has-dropdown .is-active .navbar-link {
     background-color: darken($primary, 3%) !important;
     :hover{
@@ -576,3 +577,14 @@ a.navbar-item:hover {
   color: #8BC34A;
 }
 
+td, th, tr{
+  vertical-align: middle !important;
+  height: 70px !important;
+}
+.is-invisible{
+  visibility: hidden !important;
+}
+.is-error{
+  background-color: #e44a4a !important;
+  color: white;
+}

@@ -5,7 +5,8 @@ import api from '~base/api'
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget
+  TextareaWidget,
+  SelectWidget
 } from '~base/components/base-form'
 
 const schema = {
@@ -17,14 +18,45 @@ const schema = {
   properties: {
     name: {type: 'string', title: 'Name'},
     description: {type: 'string', title: 'Description'},
-    status: {type: 'string', title: 'Status'}
+    status: {
+      type: 'string',
+      title: 'Status',
+      enum: [
+        'new',
+        'uploading',
+        'uploaded',
+        'preprocessing',
+        'configuring',
+        'processing',
+        'reviewing',
+        'ready',
+        'conciliated',
+        'pendingRows',
+        'adjustment',
+        'error'
+      ],
+      enumNames: [
+        'new',
+        'uploading',
+        'uploaded',
+        'preprocessing',
+        'configuring',
+        'processing',
+        'reviewing',
+        'ready',
+        'conciliated',
+        'pendingRows',
+        'adjustment',
+        'error'
+      ]
+    }
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
-  status: {'ui:widget': TextWidget, 'ui:disabled': true}
+  status: {'ui:widget': SelectWidget}
 }
 
 class DatasetDetailForm extends Component {

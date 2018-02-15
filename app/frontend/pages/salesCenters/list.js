@@ -8,14 +8,15 @@ import CreateSalesCenter from './create'
 
 export default ListPage({
   path: '/salesCenters',
-  title: 'Sales Centers',
+  title: 'Centros de venta',
   icon: 'credit-card-alt',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
+  roles: 'analyst, orgadmin, admin, localmanager, opsmanager',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'Sales center',
+  titleSingular: 'Centro de venta',
   create: true,
   createComponent: CreateSalesCenter,
+  canCreate: 'admin, orgadmin, analyst',
   baseUrl: '/app/salesCenters',
   branchName: 'salesCenters',
   detailUrl: 'salesCenters/',
@@ -24,11 +25,11 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      name: {type: 'text', title: 'Por nombre'}
+      general: {type: 'text', title: 'Buscar'}
     }
   },
   uiSchema: {
-    name: {'ui:widget': 'SearchFilter'}
+    general: {'ui:widget': 'SearchFilter'}
   },
   getColumns: () => {
     return [

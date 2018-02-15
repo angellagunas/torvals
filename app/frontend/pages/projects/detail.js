@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
+import { ToastContainer } from 'react-toastify'
+import { testRoles } from '~base/tools'
 
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
@@ -11,6 +13,8 @@ import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
+import TabAprove from './detail-tabs/tab-aprove'
+
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
@@ -22,13 +26,19 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'General',
-      datasetClassName: ''
+      selectedTab: 'Ajustes',
+      datasetClassName: '',
+      roles: 'admin, orgadmin, analyst, opsmanager',
+      canEdit: false
     }
+    this.interval = null
   }
 
   componentWillMount () {
     this.load()
+    this.setState({
+      canEdit: testRoles(this.state.roles),
+    })
   }
 
   async load () {
@@ -65,17 +75,86 @@ class ProjectDetail extends Component {
     })
     this.props.history.push('/datasets/' + object.uuid)
   }
+
+  async getProjectStatus () {
+    const url = '/app/projects/' + this.state.project.uuid
+    let res = await api.get(url)
+
+    if (res) {
+      this.setState({
+        project: res.data
+      })
+
+      if (res.data.status === 'adjustment') {
+        clearInterval(this.interval)
+      }
+    }
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.interval)
+  }
+
   render () {
-    const { project } = this.state
+    const { project, canEdit } = this.state
+
+    if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
+      this.interval = setInterval(() => this.getProjectStatus(), 30000)
+    }
 
     if (!this.state.loaded) {
       return <Loader />
     }
     const tabs = [
       {
-        name: 'General',
+        name: 'Ajustes',
+        title: 'Ajustes',
+        icon: 'fa-cogs',
+        content: (
+          <TabAdjustment
+            load={this.getProjectStatus.bind(this)}
+            project={project}
+            history={this.props.history}
+            canEdit={canEdit}
+          />
+        )
+      },
+      {
+        name: 'Aprobar',
+        title: 'Aprobar',
+        icon: 'fa-calendar-check-o',
+        hide: testRoles('localmanager'),
+        content: (
+          <TabAprove
+            project={project}
+            canEdit={canEdit}
+          />
+        )
+      },
+      {
+        name: 'Datasets',
+        title: 'Datasets',
+        icon: 'fa-signal',
+        hide: testRoles('localmanager'),
+        content: (
+          <TabDatasets
+            project={project}
+            history={this.props.history}
+            canEdit={canEdit}
+          />
+        )
+      },
+      /* {
+        name: 'Historico',
+        title: 'Historico',
+        icon: 'fa-history',
+        content: <TabHistorical />
+      }, */
+      {
+        name: 'Configuración',
         title: 'Información',
         icon: 'fa-tasks',
+        hide: testRoles('localmanager'),
         content: (
           <div className='card'>
             <header className='card-header'><p className='card-header-title'> Información </p></header>
@@ -85,6 +164,7 @@ class ProjectDetail extends Component {
                 url={'/app/projects/' + this.props.match.params.uuid}
                 initialState={{ ...project, organization: project.organization.uuid }}
                 load={this.load.bind(this)}
+                canEdit={canEdit}
               >
                 <div className='field is-grouped'>
                   <div className='control'>
@@ -95,36 +175,7 @@ class ProjectDetail extends Component {
             </div>
           </div>
         )
-      },
-      {
-        name: 'Datasets',
-        title: 'Datasets',
-        icon: 'fa-signal',
-        content: (
-          <TabDatasets
-            project={project}
-            history={this.props.history}
-          />
-        )
-      },
-      {
-        name: 'Ajustes',
-        title: 'Ajustes',
-        icon: 'fa-cogs',
-        content: (
-          <TabAdjustment
-            project={project}
-            history={this.props.history}
-          />
-        )
-      },
-      {
-        name: 'Historico',
-        title: 'Historico',
-        icon: 'fa-history',
-        content: <TabHistorical />
       }
-
     ]
 
     let options = (<button className={'button is-primary no-hidden'}
@@ -140,24 +191,25 @@ class ProjectDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
-            <div className='columns is-padding-top-small is-padding-bottom-small'>
+          <div className='section is-paddingless-top pad-sides'>
+            <div className='columns is-padding-top-small'>
               <div className='column'>
                 <h1 className='is-size-3'>{project.name}</h1>
               </div>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <DeleteButton
-                      objectName='Proyecto'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={'Estas seguro de querer eliminar este Proyecto?'}
-                    />
+                    { canEdit &&
+                      <DeleteButton
+                        objectName='Proyecto'
+                        objectDelete={this.deleteObject.bind(this)}
+                        message={'Estas seguro de querer eliminar este Proyecto?'}
+                      />
+                    }
                   </div>
                 </div>
               </div>
             </div>
-            <br />
             <Tabs
               tabs={tabs}
               selectedTab={this.state.selectedTab}
@@ -166,21 +218,27 @@ class ProjectDetail extends Component {
           </div>
         </div>
 
-        <SidePanel
-          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-          icon={'plus'}
-          title={'Opciones'}
-          content={options} />
+        { canEdit &&
+          <div>
+            <SidePanel
+              sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+              icon={'plus'}
+              title={'Opciones'}
+              content={options}
+            />
+            <CreateDataSet
+              branchName='datasets'
+              url='/admin/datasets'
+              organization={project.organization.uuid}
+              project={project.uuid}
+              className={this.state.datasetClassName}
+              hideModal={this.hideModalDataset.bind(this)}
+              finishUp={this.finishUpDataset.bind(this)}
+            />
+          </div>
+        }
 
-        <CreateDataSet
-          branchName='datasets'
-          url='/admin/datasets'
-          organization={project.organization.uuid}
-          project={project.uuid}
-          className={this.state.datasetClassName}
-          hideModal={this.hideModalDataset.bind(this)}
-          finishUp={this.finishUpDataset.bind(this)} />
-
+        <ToastContainer />
       </div>
     )
   }
@@ -200,7 +258,7 @@ export default Page({
   path: '/projects/:uuid',
   title: 'Detalle de Proyecto',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin',
+  roles: 'enterprisemanager, analyst, orgadmin, admin, opsmanager, localmanager',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

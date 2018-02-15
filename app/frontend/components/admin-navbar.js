@@ -131,7 +131,7 @@ class NavBar extends Component {
         </Link>
       </div>
       <div className='c-topbar__main'>
-        <div className='navbar-menu-container has-bg-color has-text-white'>
+        <div className='navbar-menu has-bg-color has-text-white'>
           <div className='navbar-start'>
             { this.props.user.currentRole.slug !== 'localmanager' &&
               <div className='navbar-start'>
@@ -142,9 +142,8 @@ class NavBar extends Component {
                 </div>
               </div>
             }
-            { this.props.user.currentRole.slug === 'localmanager' && <div className='navbar-select'>
+            { this.props.user.currentRole.slug === 'localmanager' && 
               <SelectOrganizationForm className='has-bg-color navstrong' />
-            </div>
             }
           </div>
           <div className='navbar-end'>

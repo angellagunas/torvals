@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
+import { ToastContainer } from 'react-toastify'
 
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
@@ -11,6 +12,7 @@ import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
+import TabAprove from './detail-tabs/tab-aprove'
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
@@ -22,9 +24,10 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'General',
+      selectedTab: 'Ajustes',
       datasetClassName: ''
     }
+    this.interval = null
   }
 
   componentWillMount () {
@@ -66,15 +69,74 @@ class ProjectDetail extends Component {
     this.props.history.push('/admin/datasets/detail/' + object.uuid)
   }
 
+  async getProjectStatus () {
+    const url = '/admin/projects/' + this.state.project.uuid
+    let res = await api.get(url)
+
+    if (res) {
+      this.setState({
+        project: res.data
+      })
+
+      if (res.data.status === 'adjustment') {
+        clearInterval(this.interval)
+      }
+    }
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.interval)
+  }
+
   render () {
     const { project } = this.state
+
+    if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
+      this.interval = setInterval(() => this.getProjectStatus(), 30000)
+    }
 
     if (!this.state.loaded) {
       return <Loader />
     }
     const tabs = [
       {
-        name: 'General',
+        name: 'Ajustes',
+        title: 'Ajustes',
+        icon: 'fa-cogs',
+        content: (
+          <TabAdjustment
+            load={this.getProjectStatus.bind(this)}
+            project={project}
+            history={this.props.history}
+          />
+        )
+      },
+      {
+        name: 'Aprobar',
+        title: 'Aprobar',
+        icon: 'fa-calendar-check-o',
+        content: (
+          <TabAprove project={project} />
+        )
+      },
+      {
+        name: 'Datasets',
+        title: 'Datasets',
+        icon: 'fa-signal',
+        content: (
+          <TabDatasets
+            project={project}
+            history={this.props.history}
+          />
+      )},
+      /* {
+        name: 'Historico',
+        title: 'Historico',
+        icon: 'fa-history',
+        content: <TabHistorical />
+      }, */
+      {
+        name: 'Configuración',
         title: 'Información',
         icon: 'fa-tasks',
         content: (
@@ -86,6 +148,7 @@ class ProjectDetail extends Component {
                 url={'/admin/projects/' + this.props.match.params.uuid}
                 initialState={{ ...project, organization: project.organization.uuid }}
                 load={this.load.bind(this)}
+                editable
               >
                 <div className='field is-grouped'>
                   <div className='control'>
@@ -95,35 +158,7 @@ class ProjectDetail extends Component {
               </ProjectForm>
             </div>
           </div>
-      )},
-      {
-        name: 'Datasets',
-        title: 'Datasets',
-        icon: 'fa-signal',
-        content: (
-          <TabDatasets
-            project={project}
-            history={this.props.history}
-          />
-      )},
-      {
-        name: 'Ajustes',
-        title: 'Ajustes',
-        icon: 'fa-cogs',
-        content: (
-          <TabAdjustment
-            project={project}
-            history={this.props.history}
-          />
-        )
-      },
-      {
-        name: 'Historico',
-        title: 'Historico',
-        icon: 'fa-history',
-        content: <TabHistorical />
-      }
-
+      )}
     ]
 
     let options = (<button className={'button is-primary no-hidden'}
@@ -140,7 +175,7 @@ class ProjectDetail extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top pad-sides'>
-            <div className='columns is-padding-top-small is-padding-bottom-small'>
+            <div className='columns is-padding-top-small'>
               <div className='column'>
                 <h1 className='is-size-3'>{project.name}</h1>
               </div>
@@ -156,7 +191,6 @@ class ProjectDetail extends Component {
                 </div>
               </div>
             </div>
-            <br />
             <Tabs
               tabs={tabs}
               selectedTab={this.state.selectedTab} />
@@ -176,8 +210,10 @@ class ProjectDetail extends Component {
           project={project.uuid}
           className={this.state.datasetClassName}
           hideModal={this.hideModalDataset.bind(this)}
-          finishUp={this.finishUpDataset.bind(this)} />
+          finishUp={this.finishUpDataset.bind(this)}
+        />
 
+        <ToastContainer />
       </div>
     )
   }

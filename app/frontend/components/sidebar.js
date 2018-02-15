@@ -11,7 +11,6 @@ import ReadyDataSets from '../pages/datasets/list-ready'
 import Projects from '../pages/projects/list'
 import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
-import Forecasts from '../pages/forecasts/list'
 import Channels from '../pages/channel/list'
 import SelectOrg from '../pages/select-org'
 
@@ -76,20 +75,21 @@ class Sidebar extends Component {
   getMenuItems () {
     if (tree.get('organization')) {
       return [
-      
+
         Dashboard.asSidebarItem(),
         {
-          title: 'Manage Your Team',
+          title: 'Administra tu equipo',
           icon: 'users',
           to: '/manage',
-          roles: 'orgadmin, admin',
+          roles: 'orgadmin, admin, analyst, enterprisemanager, opsmanager',
           opened: false,
           dropdown: [
             Users.asSidebarItem(),
             Groups.asSidebarItem(),
             {
-              title: 'My Organization',
+              title: 'Mi Organización',
               icon: 'user',
+              roles: 'orgadmin, admin, analyst',
               to: '/manage/organizations/' + tree.get('organization').uuid
             }
           ]
@@ -98,7 +98,7 @@ class Sidebar extends Component {
           title: 'Datasets',
           icon: 'file',
           to: '/datasets',
-          roles: 'enterprisemanager, analyst, orgadmin, admin',
+          roles: 'enterprisemanager, analyst, orgadmin, admin, opsmanager',
           opened: false,
           dropdown: [
             DataSets.asSidebarItem(),
@@ -108,7 +108,6 @@ class Sidebar extends Component {
         Projects.asSidebarItem(),
         SalesCenters.asSidebarItem(),
         Products.asSidebarItem(),
-        Forecasts.asSidebarItem(),
         Channels.asSidebarItem()
       ]
     }
@@ -116,7 +115,7 @@ class Sidebar extends Component {
     return [
       Dashboard.asSidebarItem(),
       {
-        title: 'Manage Your Team',
+        title: 'Administra tu equipo',
         icon: 'users',
         to: '/manage',
         roles: 'orgadmin, admin',
@@ -157,7 +156,7 @@ class Sidebar extends Component {
     return (<div className='offcanvas column is-narrow is-paddingless'>
       <aside className={menuClass}>
         <ul className='menu-list'>
-          <SelectOrg collapsed={this.state.collapsed}/>
+          <SelectOrg collapsed={this.state.collapsed} />
           {this.state.menuItems.map((item, index) => {
             if (item) {
               return <SidebarItem
