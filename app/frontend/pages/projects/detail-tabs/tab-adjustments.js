@@ -731,7 +731,7 @@ class TabAdjustment extends Component {
           <p className='card-header-title'> Ajustes </p>
         </header>
         {currentRole === 'enterprisemanager' ?
-          <div className='notification is-error has-text-centered is-uppercase	is-paddingless'>
+          <div className='notification is-error has-text-centered is-uppercase  is-paddingless'>
             <span className='icon is-medium has-text-warning'>
               <i className='fa fa-warning'></i>
             </span>
@@ -788,7 +788,7 @@ class TabAdjustment extends Component {
                       type='button'
                       onClick={e => this.conciliateOnClick()}
                     >
-                      Enviar cambios ({ this.state.modified })
+                      Confirmar ajustes ({ this.state.modified })
                     </button>
                   </div>
                 </div>

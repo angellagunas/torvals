@@ -757,7 +757,7 @@ class TabAdjustment extends Component {
                     type='button'
                     onClick={e => this.conciliateOnClick()}
                   >
-                    Enviar cambios ({ this.state.modified })
+                    Confirmar ajustes ({ this.state.modified })
                   </button>
                 </div>
               </div>
