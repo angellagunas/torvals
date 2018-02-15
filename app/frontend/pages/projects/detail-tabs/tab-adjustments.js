@@ -118,7 +118,6 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows (e) {
-    this.checkAll(false)
 
     this.setState({
       isLoading: ' is-loading'
@@ -134,13 +133,24 @@ class TabAdjustment extends Component {
       })
 
     this.setState({
-      dataRows: data.data,
+      dataRows: this.getEditedRows(data.data),
       isFiltered: true,
       isLoading: '',
       selectedCheckboxes: new Set()
     })
-    this.toggleButtons()
     this.clearSearch()
+  }
+
+  getEditedRows(data) {
+    for (let row of data) {
+      if (row.adjustment != row.prediction) {
+        row.wasEdited = true
+        var maxAdjustment = Math.ceil(row.prediction * (1 + generalAdjustment))
+        var minAdjustment = Math.floor(row.prediction * (1 - generalAdjustment))
+        row.isLimit = (row.adjustment >= maxAdjustment || row.adjustment <= minAdjustment)
+      }
+    }
+    return data
   }
 
   getColumns () {
@@ -263,6 +273,9 @@ class TabAdjustment extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
+          if (!row.selected) {
+            row.selected = false
+          }
           if (currentRole !== 'enterprisemanager') {
             return (
               <Checkbox
@@ -327,7 +340,7 @@ class TabAdjustment extends Component {
   }
 
   checkAll = (check) => {
-    for (let row of this.state.dataRows) {
+    for (let row of this.state.filteredData) {
       this.toggleCheckbox(row, check)
     }
     this.setState({ selectedAll: check }, function () {
@@ -357,6 +370,17 @@ class TabAdjustment extends Component {
     return res
   }
 
+  uncheckAll() {
+    for (let row of this.state.dataRows) {
+      row.selected = false
+    }
+    this.setState({
+      selectedCheckboxes: new Set(),
+      selectedAll: false
+    }, function () {
+      this.toggleButtons()
+    })
+  }
 
   getModifyButtons () {
     return (
@@ -556,19 +580,24 @@ class TabAdjustment extends Component {
     })
     .filter(function(item){ return item != null });
     
-    return items
+    this.setState({
+      filteredData: items
+    })
   }
 
   searchOnChange = (e) => {
+    this.uncheckAll()
+
     this.setState({
       searchTerm: e.target.value
-    })
+    }, () => this.searchDatarows())
   }
 
   clearSearch = () => {
+    this.uncheckAll()
     this.setState({
       searchTerm: ''
-    })
+    }, () => this.searchDatarows())
   }
 
   async conciliateOnClick () {
@@ -701,7 +730,24 @@ class TabAdjustment extends Component {
         <header className='card-header'>
           <p className='card-header-title'> Ajustes </p>
         </header>
-        <div className='card-content'>
+        {currentRole === 'enterprisemanager' ?
+          <div className='notification is-error has-text-centered is-uppercase	is-paddingless'>
+            <span className='icon is-medium has-text-warning'>
+              <i className='fa fa-warning'></i>
+            </span>
+            Modo de Visualización - No se permiten ajustes para tu tipo de usuario.
+          </div>
+          :
+          <div className='notification is-warning has-text-centered is-uppercase is-paddingless'>
+            <span className='icon is-medium has-text-info'>
+              <i className='fa fa-warning'></i>
+            </span>
+            Modo de Ajuste - Para este periodo se permite un ajuste máximo de <strong>{(generalAdjustment * 100) + '%'}</strong> sobre el ajuste anterior.
+            {currentRole === 'opsmanager' && ' Tu tipo de usuario permite ajustes fuera de rango'}
+          </div>
+        }
+        <div className='section is-paddingless-top'>
+          
           <CreateAdjustmentRequest
             className={this.state.classNameAR}
             hideModal={(e) => this.hideModalAdjustmentRequest(e)}
@@ -762,7 +808,7 @@ class TabAdjustment extends Component {
               : <div>
                 {this.getModifyButtons()}
                 <BaseTable
-                  data={this.searchDatarows()}
+                  data={this.state.filteredData}
                   columns={this.getColumns()}
                   sortAscending
                   sortBy={'name'} />

@@ -40,6 +40,7 @@ class TabAprove extends Component {
         dataRows: data.data
       })
       this.getRemainingItems()
+      this.clearSearch()
     }
   }
 
@@ -193,7 +194,7 @@ class TabAprove extends Component {
                   label='checkAll'
                   handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
                   key='checkAll'
-                  checked={false}
+                  checked={this.state.selectedAll}
                   hideLabel />
               </div>
             )
@@ -204,12 +205,15 @@ class TabAprove extends Component {
         formatter: (row, state) => {
           if (currentRole !== 'enterprisemanager') {
             if (row.status === 'created') {
+              if (!row.selected) {
+                row.selected = false
+              }
               return (
                 <Checkbox
                   label={row}
                   handleCheckboxChange={this.toggleCheckbox}
                   key={row}
-                  checked={this.state.selectedAll}
+                  checked={row.selected}
                   hideLabel />
               )
             }
@@ -220,10 +224,10 @@ class TabAprove extends Component {
   }
 
   checkAll = (check) => {
-    for (let row of this.state.dataRows) {
-      this.toggleCheckbox(row, !this.state.selectedAll)
+    for (let row of this.state.filteredData) {
+      this.toggleCheckbox(row, check)
     }
-    this.setState({ selectedAll: !this.state.selectedAll }, function () {
+    this.setState({ selectedAll: check }, function () {
       this.toggleButtons()
     })
   }
@@ -232,12 +236,12 @@ class TabAprove extends Component {
     if (row.status === 'created') {
       if (this.state.selectedCheckboxes.has(row) && !all) {
         this.state.selectedCheckboxes.delete(row)
+        row.selected = false
       }
       else {
         this.state.selectedCheckboxes.add(row)
+        row.selected = true
       }
-
-      row.selected = true
       this.toggleButtons()
     }
   }
@@ -263,7 +267,8 @@ class TabAprove extends Component {
 
   filterbyDate() {
     if (this.state.startDate && this.state.endDate) {
-
+      this.uncheckAll()
+      
       if (this.state.startDate > this.state.endDate) {
         this.notify('Rango de fechas inválido', 3000, toast.TYPE.ERROR)
         return
@@ -271,7 +276,7 @@ class TabAprove extends Component {
 
       this.setState({
         searchDate: true
-      })
+      }, () => this.searchDatarows())
     }
   }
 
@@ -420,27 +425,47 @@ class TabAprove extends Component {
     })
     .filter(function(item){ return item != null });
     
-    return items
+    this.setState({
+      filteredData: items
+    })
+  }
+
+  uncheckAll() {
+    for (let row of this.state.dataRows) {
+      row.selected = false
+    }
+    this.setState({
+      selectedCheckboxes: new Set(),
+      selectedAll: false
+    }, function () {
+      this.toggleButtons()
+    })
   }
 
   searchOnChange = (e) => {
+    this.uncheckAll()
+
     this.setState({
       searchTerm: e.target.value
-    })
+    }, () => this.searchDatarows())
   }
 
   clearSearch = () => {
+    this.uncheckAll()
+
     this.setState({
       searchTerm: ''
-    })
-  } 
+    }, () => this.searchDatarows())
+  }
 
   clearSearchDate = () => {
+    this.uncheckAll()
+
     this.setState({
       searchDate: false,
       startDate: undefined,
       endDate: undefined
-    })
+    }, () => this.searchDatarows())
   }
 
   aprove = async () => {
@@ -543,11 +568,30 @@ class TabAprove extends Component {
 
   render () {
     return (
-      <div>
-        <section className='section'>
+      <div className='card'>
+        <header className='card-header'>
+          <p className='card-header-title'> Aprobar / Rechazar Ajustes </p>
+        </header>
+        {currentRole === 'enterprisemanager' ?
+          <div className='notification is-error has-text-centered is-uppercase	is-paddingless'>
+            <span className='icon is-medium has-text-warning'>
+              <i className='fa fa-warning'></i>
+            </span>
+            Modo de Visualización - No se permite aprobar / rechazar a tu tipo de usuario.
+          </div>
+          :
+          <div className='notification is-warning has-text-centered is-uppercase is-paddingless'>
+            <span className='icon is-medium has-text-info'>
+              <i className='fa fa-warning'></i>
+            </span>
+            Es necesario aprobar ajustes fuera de rango.
+            {currentRole === 'opsmanager' && ' Tu tipo de usuario permite ajustes fuera de rango'}
+          </div>
+        }
+        <section className='section is-paddingless-top'>
         {this.getModifyButtons()}
         <BaseTable
-          data={this.searchDatarows()}
+          data={this.state.filteredData}
           columns={this.getColumns()}
           sortAscending={true}
           sortBy={'name'} />
