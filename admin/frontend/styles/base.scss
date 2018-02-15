@@ -285,12 +285,12 @@ pre.json {
 }
 
 .is-edited {
-  background-color: lighten($primary,42%) !important;
+  background-color: lighten($primary,36%) !important;
   color: #363636;
 }
 
 .was-edited {
-  background-color: #9cbcbf !important;
+  background-color: lighten($primary,46%) !important;
   color: #363636;
 }
 
@@ -491,4 +491,9 @@ td, th, tr{
 }
 .is-invisible{
   visibility: hidden !important;
+}
+
+.is-error{
+  background-color: #e44a4a !important;
+  color: white;
 }
