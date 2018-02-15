@@ -85,7 +85,7 @@ class InviteUserForm extends Component {
       } else {
         delete schema.properties['project']
         delete uiSchema['project']
-        // delete schema.required['project']
+        delete formData['project']
         schema.required = ['email', 'organization']
       }
     }

@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {Organization, User, Role} = require('models')
+const {Organization, User, Role, Project} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -18,6 +18,11 @@ module.exports = new Route({
     const role = await Role.findOne({'uuid': roleData.role})
     ctx.assert(role, 404, 'Role not found')
 
+    if (roleData.project) {
+      var project = await Project.findOne({'uuid': roleData.project})
+      ctx.assert(project, 404, 'Project not found')
+    }
+
     var pos = user.organizations.findIndex(e => {
       return (
         String(e.organization) === String(org._id)
@@ -29,6 +34,12 @@ module.exports = new Route({
     }
 
     user.organizations[pos] = {organization: org, role: role}
+
+    if (project) {
+      user.set({
+        defaultProject: project
+      })
+    }
 
     user.save()
 
