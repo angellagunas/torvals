@@ -185,6 +185,21 @@ class ConfigureDatasetForm extends Component {
     })
   }
 
+  testAllConditions (column) {
+    return (
+      column.isDate ||
+      column.isAnalysis ||
+      column.isAdjustment ||
+      column.isPrediction ||
+      column.isProduct ||
+      column.isProductName ||
+      column.isChannel ||
+      column.isChannelName ||
+      column.isSalesCenter ||
+      column.isSalesCenterName
+    )
+  }
+
   getValueForColumn (type) {
     const column = type.split('|')
     var posColumn = this.state.formData.columns.findIndex(e => {
@@ -522,6 +537,8 @@ class ConfigureDatasetForm extends Component {
 
           {
           this.state.formData.columns.map((item, key) => {
+            if (this.testAllConditions(item)) return null
+
             return (
               <div key={key} className='field is-horizontal'>
                 <div className='field-label is-normal has-text-left' style={checkboxLabelwidth}>
