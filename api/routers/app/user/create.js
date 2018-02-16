@@ -57,6 +57,8 @@ module.exports = new Route({
       }
 
       user.groups.push(group)
+      group.users.push(user)
+      await group.save()
     }
 
     await user.save()
