@@ -22,7 +22,8 @@ module.exports = async function (ctx, next) {
 
       userToken = await UserToken.findOne({
         key: data.key,
-        secret: data.secret
+        secret: data.secret,
+        isDeleted: {$ne: true}
       }).populate('user')
 
       if (!userToken) {
@@ -54,7 +55,8 @@ module.exports = async function (ctx, next) {
 
       userToken = await UserToken.findOne({
         key: key,
-        secret: secret
+        secret: secret,
+        isDeleted: {$ne: true}
       }).populate('user')
 
       if (!userToken) {
