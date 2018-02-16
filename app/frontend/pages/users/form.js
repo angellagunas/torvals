@@ -70,15 +70,21 @@ class UserForm extends Component {
         apiCallErrorMessage: 'message is-danger'
       })
     }
-
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
       this.clearState()
-      this.setState({...this.state, apiCallMessage: 'message is-success'})
+      this.setState({
+        ...this.state,
+        apiCallMessage: 'message is-success'
+      })
+      setTimeout(() => { this.setState({ apiCallMessage: 'is-hidden' }) }, 3000)
+
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,

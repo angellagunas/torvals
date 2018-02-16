@@ -29,7 +29,8 @@ class UserDetail extends Component {
       groups: [],
       selectedGroups: [],
       saving: false,
-      saved: false
+      saved: false,
+      isLoading: ''
     }
   }
 
@@ -322,6 +323,18 @@ class UserDetail extends Component {
     }
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     const { user } = this.state
 
@@ -378,10 +391,17 @@ class UserDetail extends Component {
                           url={'/admin/users/' + this.props.match.params.uuid}
                           initialState={this.state.user}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Guardar</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </UserForm>

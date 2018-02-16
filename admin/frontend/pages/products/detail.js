@@ -16,7 +16,8 @@ class ProductDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      product: {}
+      product: {},
+      isLoading: ''
     }
   }
 
@@ -84,6 +85,18 @@ class ProductDetail extends Component {
     ]
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     const { product } = this.state
 
@@ -125,10 +138,17 @@ class ProductDetail extends Component {
                           url={'/admin/products/' + this.props.match.params.uuid}
                           initialState={product}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </ProductForm>

@@ -19,7 +19,8 @@ class ProductDetail extends Component {
       loaded: false,
       product: {},
       roles: 'admin, orgadmin, analyst, opsmanager',
-      canEdit: false
+      canEdit: false,
+      isLoading: ''
     }
   }
 
@@ -48,13 +49,13 @@ class ProductDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Status',
+        'title': 'Estatus',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Start date',
+        'title': 'Fecha Inicial',
         'property': 'dateStart',
         'default': 'N/A',
         'sortable': true,
@@ -65,7 +66,7 @@ class ProductDetail extends Component {
         }
       },
       {
-        'title': 'End date',
+        'title': 'Fecha Final',
         'property': 'dateEnd',
         'default': 'N/A',
         'sortable': true,
@@ -76,7 +77,7 @@ class ProductDetail extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <Link className='button' to={'/forecasts/' + row.uuid}>
@@ -86,6 +87,18 @@ class ProductDetail extends Component {
         }
       }
     ]
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
@@ -131,10 +144,17 @@ class ProductDetail extends Component {
                           initialState={this.state.product}
                           load={this.load.bind(this)}
                           canEdit={canEdit}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </ProductForm>

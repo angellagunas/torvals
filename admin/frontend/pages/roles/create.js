@@ -42,7 +42,7 @@ class CreateRole extends Component {
   render () {
     return (
       <BaseModal
-        title='Create Role'
+        title='Crear Rol'
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -55,10 +55,10 @@ class CreateRole extends Component {
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Create</button>
+              <button className='button is-primary' type='submit'>Crear</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>
           </div>
         </RoleForm>

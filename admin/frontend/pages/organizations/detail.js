@@ -17,7 +17,8 @@ class OrganizationDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      organization: {}
+      organization: {},
+      isLoading: ''
     }
   }
 
@@ -77,6 +78,18 @@ class OrganizationDetail extends Component {
     this.props.history.push('/admin/manage/organizations')
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     const { organization } = this.state
 
@@ -117,10 +130,17 @@ class OrganizationDetail extends Component {
                           url={'/admin/organizations/' + this.props.match.params.uuid}
                           initialState={this.state.organization}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </OrganizationForm>

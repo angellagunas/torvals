@@ -29,7 +29,8 @@ class ProjectDetail extends Component {
       selectedTab: 'Ajustes',
       datasetClassName: '',
       roles: 'admin, orgadmin, analyst, opsmanager',
-      canEdit: false
+      canEdit: false,
+      isLoading: ''
     }
     this.interval = null
   }
@@ -93,6 +94,18 @@ class ProjectDetail extends Component {
 
   componentWillUnmount () {
     clearInterval(this.interval)
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
@@ -169,10 +182,17 @@ class ProjectDetail extends Component {
                 load={this.load.bind(this)}
                 canEdit={canEdit}
                 editable
+                submitHandler={(data) => this.submitHandler(data)}
+                errorHandler={(data) => this.errorHandler(data)}
+                finishUp={(data) => this.finishUpHandler(data)}
               >
                 <div className='field is-grouped'>
                   <div className='control'>
-                    <button className='button is-primary'>Guardar</button>
+                    <button
+                      className={'button is-primary ' + this.state.isLoading}
+                      disabled={!!this.state.isLoading}
+                      type='submit'
+                    >Guardar</button>
                   </div>
                 </div>
               </ProjectForm>
@@ -223,12 +243,12 @@ class ProjectDetail extends Component {
         </div>
 
         { canEdit &&
-            <SidePanel
-              sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-              icon={'plus'}
-              title={'Opciones'}
-              content={options}
-            />  
+        <SidePanel
+          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+          icon={'plus'}
+          title={'Opciones'}
+          content={options}
+            />
         }
         <CreateDataSet
           branchName='datasets'
