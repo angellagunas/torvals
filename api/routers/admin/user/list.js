@@ -13,7 +13,6 @@ module.exports = new Route({
       {name: 'email', type: 'String'}
     ]
     var statement = [
-      { '$unwind': {path: '$groups', preserveNullAndEmptyArrays: true} },
       { '$match':
         { 'isDeleted': false }
       },
