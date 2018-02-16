@@ -115,6 +115,9 @@ class ProjectDetail extends Component {
         name: 'Aprobar',
         title: 'Aprobar',
         icon: 'fa-calendar-check-o',
+        hide: project.status === 'processing' ||
+              project.status === 'pendingRows' ||
+              project.status === 'empty',
         content: (
           <TabAprove project={project} />
         )
