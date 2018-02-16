@@ -18,11 +18,6 @@ module.exports = new Route({
     const role = await Role.findOne({'uuid': orgData.role})
     ctx.assert(org, 404, 'Role not found')
 
-    if (orgData.project) {
-      var project = await Project.findOne({'uuid': orgData.project})
-      ctx.assert(project, 404, 'Project not found')
-    }
-
     var pos = user.organizations.findIndex(e => {
       return (
         String(e.organization) === String(org._id)
@@ -44,16 +39,15 @@ module.exports = new Route({
       ctx.throw(400, 'You cannot add the same role and organization twice!')
     }
 
-    user.organizations.push({
-      organization: org,
-      role: role
-    })
+    let orgObj = {organization: org, role: role}
 
-    if (project) {
-      user.set({
-        defaultProject: project
-      })
+    if (orgData.project) {
+      var project = await Project.findOne({'uuid': orgData.project})
+      ctx.assert(project, 404, 'Project not found')
+      orgObj.defaultProject = project
     }
+
+    user.organizations.push(orgObj)
 
     user.save()
 

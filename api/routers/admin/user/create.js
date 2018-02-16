@@ -35,11 +35,18 @@ module.exports = new Route({
 
       userData.role = defaultRole
     }
-
-    userData.organizations = [{
+    let orgObj = {
       organization: userData.organization,
       role: userData.role
-    }]
+    }
+
+    if (userData.project) {
+      const project = await Project.findOne({'uuid': userData.project})
+      ctx.assert(project, 404, 'Project not found')
+      orgObj.defaultProject = project
+    }
+
+    userData.organizations = [orgObj]
 
     const user = await User.register(userData)
 
@@ -52,14 +59,6 @@ module.exports = new Route({
       }
 
       user.groups.push(group)
-    }
-    if (userData.project) {
-      const project = await Project.findOne({'uuid': userData.project})
-      ctx.assert(project, 404, 'Project not found')
-
-      user.set({
-        defaultProject: project
-      })
     }
 
     await user.save()
