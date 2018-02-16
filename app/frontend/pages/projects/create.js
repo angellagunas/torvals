@@ -35,6 +35,7 @@ class CreateProject extends Component {
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
+          canEdit={this.props.canEdit}
         >
           <div className='field is-grouped'>
             <div className='control'>

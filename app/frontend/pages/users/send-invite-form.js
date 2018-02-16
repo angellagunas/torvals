@@ -105,10 +105,6 @@ class InviteUserForm extends Component {
       return <Loader />
     }
 
-    if (this.props.groups && this.props.groups.length === 0) {
-      return <Loader />
-    }
-
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
     if (this.props.groups) {

@@ -37,7 +37,7 @@ class ProjectDetail extends Component {
   componentWillMount () {
     this.load()
     this.setState({
-      canEdit: testRoles(this.state.roles),
+      canEdit: testRoles(this.state.roles)
     })
   }
 
@@ -123,7 +123,10 @@ class ProjectDetail extends Component {
         name: 'Aprobar',
         title: 'Aprobar',
         icon: 'fa-calendar-check-o',
-        hide: testRoles('localmanager'),
+        hide: (testRoles('localmanager') ||
+              project.status === 'processing' ||
+              project.status === 'pendingRows' ||
+              project.status === 'empty'),
         content: (
           <TabAprove
             project={project}
@@ -165,6 +168,7 @@ class ProjectDetail extends Component {
                 initialState={{ ...project, organization: project.organization.uuid }}
                 load={this.load.bind(this)}
                 canEdit={canEdit}
+                editable
               >
                 <div className='field is-grouped'>
                   <div className='control'>
@@ -219,25 +223,22 @@ class ProjectDetail extends Component {
         </div>
 
         { canEdit &&
-          <div>
             <SidePanel
               sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
               icon={'plus'}
               title={'Opciones'}
               content={options}
-            />
-            <CreateDataSet
-              branchName='datasets'
-              url='/admin/datasets'
-              organization={project.organization.uuid}
-              project={project.uuid}
-              className={this.state.datasetClassName}
-              hideModal={this.hideModalDataset.bind(this)}
-              finishUp={this.finishUpDataset.bind(this)}
-            />
-          </div>
+            />  
         }
-
+        <CreateDataSet
+          branchName='datasets'
+          url='/admin/datasets'
+          organization={project.organization.uuid}
+          project={project.uuid}
+          className={this.state.datasetClassName}
+          hideModal={this.hideModalDataset.bind(this)}
+          finishUp={this.finishUpDataset.bind(this)}
+        />
         <ToastContainer />
       </div>
     )
