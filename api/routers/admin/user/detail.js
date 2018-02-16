@@ -11,6 +11,7 @@ module.exports = new Route({
     const user = await User.findOne({'uuid': userId})
       .populate('organizations.organization')
       .populate('organizations.role')
+      .populate('organizations.defaultProject')
       .populate('groups')
       .populate('groups.organization')
 

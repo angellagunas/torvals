@@ -266,6 +266,28 @@ class UserDetail extends Component {
         'property': 'role',
         'default': 'N/A',
         formatter: (row) => {
+          if (row.defaultProject && row.role.slug === 'localmanager') {
+            return (
+              <div>
+                <div className='select'>
+                  <select
+                    value={row.role.uuid}
+                    onChange={event => {
+                      this.roleSelectOnChange(event.target.value, row.organization.uuid)
+                    }}>
+                    {this.state.roles.map((obj) => {
+                      return (
+                        <option key={obj.uuid} value={obj.uuid}>
+                          {obj.name}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+                &nbsp;{row.defaultProject.name}
+              </div>
+            )
+          }
           return (
             <div className='select'>
               <select
