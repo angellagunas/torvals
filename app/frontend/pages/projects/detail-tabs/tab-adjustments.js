@@ -26,6 +26,7 @@ class TabAdjustment extends Component {
       isLoading: '',
       selectedAll: false,
       modified: 0,
+      pending: 0,
       filters: {
         channels: [],
         products: [],
@@ -85,9 +86,19 @@ class TabAdjustment extends Component {
       const url = '/app/rows/modified/dataset/'
       let res = await api.get(url + this.props.project.activeDataset.uuid)
 
-      this.setState({
-        modified: res.data
-      })
+      if (res.data.pending > 0) {
+        this.setState({
+          modified: res.data.modified,
+          pending: res.data.pending,
+          isConciliating: ' is-loading'
+        })
+      } else {
+        this.setState({
+          modified: res.data.modified,
+          pending: res.data.pending,
+          isConciliating: ''
+        })
+      }
     }
   }
 
