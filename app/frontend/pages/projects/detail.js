@@ -37,7 +37,7 @@ class ProjectDetail extends Component {
   componentWillMount () {
     this.load()
     this.setState({
-      canEdit: testRoles(this.state.roles),
+      canEdit: testRoles(this.state.roles)
     })
   }
 
@@ -165,6 +165,7 @@ class ProjectDetail extends Component {
                 initialState={{ ...project, organization: project.organization.uuid }}
                 load={this.load.bind(this)}
                 canEdit={canEdit}
+                editable
               >
                 <div className='field is-grouped'>
                   <div className='control'>

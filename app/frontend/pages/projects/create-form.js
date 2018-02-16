@@ -4,7 +4,8 @@ import api from '~base/api'
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget
+  TextareaWidget,
+  SelectWidget
 } from '~base/components/base-form'
 
 const schema = {
@@ -15,15 +16,13 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Nombre'},
-    description: {type: 'string', title: 'Descripción'},
-    status: {type: 'string', title: 'Estado'}
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
-  status: {'ui:widget': TextWidget, 'ui:disabled': true}
+  description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
 
 class ProjectForm extends Component {
@@ -83,9 +82,46 @@ class ProjectForm extends Component {
       </div>
     }
 
+    let { editable } = this.props
+
+    if (editable) {
+      uiSchema['status'] = {'ui:widget': SelectWidget}
+      schema.properties['status'] = {
+        type: 'string',
+        title: 'Estado',
+        enum: [
+          'empty',
+          'processing',
+          'ready',
+          'adjustment',
+          'reviewing',
+          'pendingRows',
+          'adjustment',
+          'conciliating'
+        ],
+        enumNames: [
+          'empty',
+          'processing',
+          'ready',
+          'adjustment',
+          'reviewing',
+          'pendingRows',
+          'adjustment',
+          'conciliating'
+        ]
+      }
+    } else {
+      delete uiSchema['status']
+      delete schema.properties['status']
+    }
     if (!canEdit) {
       uiSchema.name['ui:disabled'] = true
       uiSchema.description['ui:disabled'] = true
+      if (uiSchema.status) uiSchema.status['ui:disabled'] = true
+    } else {
+      delete uiSchema.name['ui:disabled']
+      delete uiSchema.description['ui:disabled']
+      if (uiSchema.status) delete uiSchema.status['ui:disabled']
     }
 
     return (
