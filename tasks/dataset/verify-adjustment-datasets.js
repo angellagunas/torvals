@@ -103,13 +103,12 @@ const task = new Task(async function (argv) {
         status: 'adjustment',
         etag: res._etag
       })
+      await dataset.save()
 
       const project = await Project.findOne({'_id': dataset.project, 'isDeleted': false})
       project.set({
         status: 'adjustment'
       })
-
-      await dataset.save()
       await project.save()
     }
 

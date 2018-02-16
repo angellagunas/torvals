@@ -60,6 +60,13 @@ class TabAdjustment extends Component {
     clearInterval(this.interval)
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.project.status === 'adjustment') {
+      this.clearSearch()
+      this.getFilters()
+    }
+  }
+
   async getFilters() {
     if (this.props.project.activeDataset) {
       const url = '/app/rows/filters/dataset/'
@@ -623,8 +630,12 @@ class TabAdjustment extends Component {
     } catch(e){
       this.notify('Error '+ e.message, 3000, toast.TYPE.ERROR)      
     }
+    
     this.setState({
-      isConciliating: ''
+      isConciliating: '',
+      modified: 0,
+      dataRows: [],
+      isFiltered: false
     })
   }
 
