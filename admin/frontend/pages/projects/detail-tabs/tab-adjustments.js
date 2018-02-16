@@ -507,7 +507,8 @@ class TabAdjustment extends Component {
     aux.splice(index,1,obj)
 
     this.setState({
-      dataRows: aux
+      dataRows: aux,
+      isConciliating: ' is-loading'
     })
 
     this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
