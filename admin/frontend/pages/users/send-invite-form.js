@@ -140,9 +140,6 @@ class InviteUserForm extends Component {
       </div>
     }
 
-    if (this.props.roles.length === 0) {
-      return <Loader />
-    }
 
     if (this.props.roles.length === 0 || this.props.orgs.length === 0) {
       return <Loader />

@@ -220,25 +220,22 @@ class ProjectDetail extends Component {
         </div>
 
         { canEdit &&
-          <div>
             <SidePanel
               sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
               icon={'plus'}
               title={'Opciones'}
               content={options}
-            />
-            <CreateDataSet
-              branchName='datasets'
-              url='/admin/datasets'
-              organization={project.organization.uuid}
-              project={project.uuid}
-              className={this.state.datasetClassName}
-              hideModal={this.hideModalDataset.bind(this)}
-              finishUp={this.finishUpDataset.bind(this)}
-            />
-          </div>
+            />  
         }
-
+        <CreateDataSet
+          branchName='datasets'
+          url='/admin/datasets'
+          organization={project.organization.uuid}
+          project={project.uuid}
+          className={this.state.datasetClassName}
+          hideModal={this.hideModalDataset.bind(this)}
+          finishUp={this.finishUpDataset.bind(this)}
+        />
         <ToastContainer />
       </div>
     )
