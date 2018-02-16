@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import Loader from '~base/components/spinner'
 import tree from '~core/tree'
-import { testRoles } from '~base/tools'
 
 import api from '~base/api'
 
@@ -65,6 +64,13 @@ class UserForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    if (!formData.role) {
+      return this.setState({
+        error: 'Se debe seleccionar un rol!',
+        apiCallErrorMessage: 'message is-danger'
+      })
+    }
+
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
@@ -100,8 +106,7 @@ class UserForm extends Component {
 
     if (this.props.initialState.uuid === currentUser.uuid) {
       uiSchema.role['ui:disabled'] = true
-    }
-    else {
+    } else {
       uiSchema.role['ui:disabled'] = false
     }
 
