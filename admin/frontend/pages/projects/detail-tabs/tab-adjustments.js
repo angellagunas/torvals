@@ -584,9 +584,14 @@ class TabAdjustment extends Component {
       isConciliating: ' is-loading'
     })
     var url = '/admin/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
-    await api.post(url)
-    await this.props.load()
-
+  
+    try {
+      await api.post(url)
+      await this.props.load()
+    } catch (e) {
+      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+    }
+    
     this.setState({
       isConciliating: '',
       modified: 0
