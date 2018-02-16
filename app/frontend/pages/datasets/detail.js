@@ -953,7 +953,7 @@ class DataSetDetail extends Component {
       />
     )
 
-    if (!canEdit) {
+    if (!canEdit || dataset.status === 'conciliated') {
       deleteButton = null
     }
 

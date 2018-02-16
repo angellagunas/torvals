@@ -904,14 +904,16 @@ class DataSetDetail extends Component {
                       Regresar al proyecto
                     </Link>
                   </div>
-                  <div className='control'>
-                    <DeleteButton
-                      titleButton={'Eliminar'}
-                      objectName='Dataset'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={`Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
-                    />
-                  </div>
+                  { dataset.status !== 'conciliated' &&
+                    <div className='control'>
+                      <DeleteButton
+                        titleButton={'Eliminar'}
+                        objectName='Dataset'
+                        objectDelete={this.deleteObject.bind(this)}
+                        message={`Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
+                      />
+                    </div>
+                  }
                 </div>
               </div>
             </div>
