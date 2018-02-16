@@ -373,7 +373,7 @@ class UserDetail extends Component {
   getModalProjects () {
     return (
       <BaseModal
-        title='Agregar Proyecto'
+        title='Asignar Proyecto'
         className={this.state.classNameProjects}
         hideModal={(e) => this.hideModalProjects(e)}>
 
@@ -402,7 +402,7 @@ class UserDetail extends Component {
         <div className='field is-grouped'>
           <div className='control'>
             <button className='button is-primary' type='submit' onClick={(e) => { this.submitHandler(e) }}>
-              Crear
+              Asignar
             </button>
           </div>
           <div className='control'>
