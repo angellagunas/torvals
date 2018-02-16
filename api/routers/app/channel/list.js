@@ -53,7 +53,7 @@ module.exports = new Route({
         statement.push({ '$sort': sortStatement })
       }
     }
-    statement.push({ '$skip': parseInt(ctx.request.query.start) })
+    statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })
 
     if (ctx.state.organization) {
       statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })

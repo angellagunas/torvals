@@ -66,7 +66,7 @@ module.exports = new Route({
       statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })
     }
 
-    statement.push({ '$skip': parseInt(ctx.request.query.start) })
+    statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })
 
     var general = {}
     if (statementsGeneral.length > 0) {
