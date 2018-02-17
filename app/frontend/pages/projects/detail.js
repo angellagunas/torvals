@@ -176,6 +176,7 @@ class ProjectDetail extends Component {
             <header className='card-header'><p className='card-header-title'> Información </p></header>
             <div className='card-content'>
               <ProjectForm
+                className='is-shadowless'
                 baseUrl='/app/projects'
                 url={'/app/projects/' + this.props.match.params.uuid}
                 initialState={{ ...project, organization: project.organization.uuid }}
@@ -243,12 +244,12 @@ class ProjectDetail extends Component {
         </div>
 
         { canEdit &&
-        <SidePanel
-          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-          icon={'plus'}
-          title={'Opciones'}
-          content={options}
-            />
+          <SidePanel
+            sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+            icon={'plus'}
+            title={'Opciones'}
+            content={options}
+          />
         }
         <CreateDataSet
           branchName='datasets'

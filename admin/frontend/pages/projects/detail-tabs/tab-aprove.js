@@ -560,7 +560,7 @@ class TabAprove extends Component {
 
   render () {
     return (
-      <div className='card'>
+      <div className='cards'>
         <header className='card-header'>
           <p className='card-header-title'> Aprobar / Rechazar Ajustes </p>
         </header>

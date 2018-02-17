@@ -881,7 +881,7 @@ class TabAdjustment extends Component {
     }
 
     return (
-      <div className='card'>
+      <div className='cards'>
         <header className='card-header'>
           <p className='card-header-title'> Ajustes </p>
         </header>
