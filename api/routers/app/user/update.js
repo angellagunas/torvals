@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const {User} = require('models')
+const {User, Project} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -23,10 +23,13 @@ module.exports = new Route({
       return String(e.organization) === String(ctx.state.organization._id)
     })
 
+    if (data.project) {
+      const project = await Project.findOne({'uuid': data.project})
+      ctx.assert(project, 404, 'Project not found')
+      org.defaultProject = project
+    }
+
     org.role = data.role
-
-    user.save()
-
     ctx.body = {
       data: user.format()
     }
