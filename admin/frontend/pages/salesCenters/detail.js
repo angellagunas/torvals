@@ -136,13 +136,13 @@ class SalesCenterDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Status',
+        'title': 'Estatus',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Start date',
+        'title': 'Fecha Inicial',
         'property': 'dateStart',
         'default': 'N/A',
         'sortable': true,
@@ -153,7 +153,7 @@ class SalesCenterDetail extends Component {
         }
       },
       {
-        'title': 'End date',
+        'title': 'Fecha Final',
         'property': 'dateEnd',
         'default': 'N/A',
         'sortable': true,
@@ -164,7 +164,7 @@ class SalesCenterDetail extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <Link className='button' to={'/forecasts/detail/' + row.uuid}>

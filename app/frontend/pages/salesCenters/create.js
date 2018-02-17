@@ -20,12 +20,21 @@ class CreateSalesCenter extends Component {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
-      organizations: []
+      organizations: [],
+      isLoading: ''
     }
   }
 
   componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
@@ -41,10 +50,17 @@ class CreateSalesCenter extends Component {
           finishUp={this.props.finishUp}
           initialState={initialState}
           canEdit={this.props.canEdit}
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Crear</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'>
+                Crear
+              </button>
             </div>
             <div className='control'>
               <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>

@@ -8,8 +8,8 @@ import CreateOrganization from './create'
 
 export default ListPage({
   path: '/manage/organizations',
-  title: 'Organizations',
-  titleSingular: 'Organization',
+  title: 'Organizaciones',
+  titleSingular: 'Organización',
   icon: 'users',
   exact: true,
   validate: loggedIn,
@@ -21,7 +21,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -34,7 +34,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -45,7 +45,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/manage/organizations/' + row.uuid}>
             Detalle

@@ -62,7 +62,7 @@ class InviteUserForm extends Component {
 
   async submitHandler ({formData}) {
     formData.sendInvite = true
-
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       if (this.props.filters) {
         formData = {...formData,
@@ -76,6 +76,7 @@ class InviteUserForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -128,7 +129,7 @@ class InviteUserForm extends Component {
     if (this.props.initialState.organization) {
       uiSchema['organization']['ui:disabled'] = true
     }
-    
+
     if (this.props.initialState.groups) {
       uiSchema['groups']['ui:disabled'] = true
     }
@@ -139,7 +140,6 @@ class InviteUserForm extends Component {
         Error: {this.state.error}
       </div>
     }
-
 
     if (this.props.roles.length === 0 || this.props.orgs.length === 0) {
       return <Loader />

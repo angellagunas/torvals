@@ -50,7 +50,7 @@ class OrganizationDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -62,7 +62,7 @@ class OrganizationDetail extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/manage/users/' + row.uuid}>
             Detalle
@@ -119,7 +119,7 @@ class OrganizationDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Organization
+                      Organización
                     </p>
                   </header>
                   <div className='card-content'>
@@ -153,7 +153,7 @@ class OrganizationDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Users
+                      Usuarios
                     </p>
                   </header>
                   <div className='card-content'>

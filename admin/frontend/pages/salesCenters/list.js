@@ -9,11 +9,11 @@ import CreateSalesCenter from './create'
 
 export default ListPage({
   path: '/salesCenters',
-  title: 'Active',
+  title: 'Activos',
   icon: 'check',
   exact: true,
   validate: loggedIn,
-  titleSingular: 'Sales center',
+  titleSingular: 'Centro de Venta',
   create: true,
   createComponent: CreateSalesCenter,
   baseUrl: '/admin/salesCenters',
@@ -33,7 +33,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -46,7 +46,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -62,7 +62,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -73,7 +73,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/salesCenters/detail/' + row.uuid}>
             Detalle

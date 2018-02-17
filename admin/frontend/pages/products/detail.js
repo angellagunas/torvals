@@ -45,13 +45,13 @@ class ProductDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Status',
+        'title': 'Estatus',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Start date',
+        'title': 'Fecha Inicial',
         'property': 'dateStart',
         'default': 'N/A',
         'sortable': true,
@@ -62,7 +62,7 @@ class ProductDetail extends Component {
         }
       },
       {
-        'title': 'End date',
+        'title': 'Fecha Final',
         'property': 'dateEnd',
         'default': 'N/A',
         'sortable': true,
@@ -73,7 +73,7 @@ class ProductDetail extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <Link className='button' to={'/forecasts/detail/' + row.uuid}>
@@ -127,7 +127,7 @@ class ProductDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Product
+                      Productos
                     </p>
                   </header>
                   <div className='card-content'>
@@ -163,7 +163,7 @@ class ProductDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Forecasts
+                          Predicciones
                         </p>
                       </header>
                       <div className='card-content'>

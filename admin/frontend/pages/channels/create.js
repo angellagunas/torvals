@@ -13,8 +13,17 @@ class CreateChannel extends Component {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
-      organizations: []
+      organizations: [],
+      isLoading: ''
     }
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
@@ -27,10 +36,16 @@ class CreateChannel extends Component {
           baseUrl='/admin/channels'
           url={this.props.url}
           finishUp={this.props.finishUp}
-          initialState={initialState}>
+          initialState={initialState}
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
+          >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'>
                 Crear
               </button>
             </div>
