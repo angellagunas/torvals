@@ -1,7 +1,6 @@
 import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
-import api from '~base/api'
 
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares/'
