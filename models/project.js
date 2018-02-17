@@ -59,6 +59,7 @@ projectSchema.methods.toPublic = function () {
     adjustment: this.adjustment,
     status: this.status,
     activeDataset: this.activeDataset,
+    businessRules: this.businessRules,
     externalId: this.externalId,
     dateCreated: this.dateCreated
   }
@@ -74,6 +75,7 @@ projectSchema.methods.toAdmin = function () {
     adjustment: this.adjustment,
     status: this.status,
     activeDataset: this.activeDataset,
+    businessRules: this.businessRules,
     externalId: this.externalId,
     dateCreated: this.dateCreated
   }

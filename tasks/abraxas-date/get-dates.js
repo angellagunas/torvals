@@ -43,6 +43,9 @@ const task = new Task(async function (argv) {
       })
     }
   }
+
+  console.log(`Received ${res._items.length} dates!`)
+  return true
 })
 
 if (require.main === module) {

@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
+const moment = require('moment')
 
-const { DataSetRow, DataSet, Channel, SalesCenter, Product } = require('models')
+const { DataSetRow, DataSet, Channel, SalesCenter, Product, AbraxasDate } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -22,6 +23,12 @@ module.exports = new Route({
     semanasBimbo.sort((a, b) => {
       return a - b
     })
+
+    var dates = await AbraxasDate.find({
+      week: {$in: semanasBimbo},
+      dateStart: {$lte: moment(dataset.dateMax)}
+    }).sort('dateStart').limit(semanasBimbo.length)
+    console.log(dates)
 
     channels = await Channel.find({ _id: { $in: channels } })
     salesCenters = await SalesCenter.find({ _id: { $in: salesCenters } })
