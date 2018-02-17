@@ -93,8 +93,13 @@ class SalesCenterForm extends Component {
     }
 
     if (!canEdit) {
-      for (var key in uiSchema) {
+      for (let key in uiSchema) {
         uiSchema[key]['ui:disabled'] = true
+      }
+    }
+    if (canEdit) {
+      for (let key in uiSchema) {
+        uiSchema[key]['ui:disabled'] = false
       }
     }
 

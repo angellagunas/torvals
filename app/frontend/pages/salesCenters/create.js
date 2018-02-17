@@ -31,7 +31,7 @@ class CreateSalesCenter extends Component {
   render () {
     return (
       <BaseModal
-        title='Create Sales Center'
+        title='Crear Centro de Ventas'
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -40,13 +40,14 @@ class CreateSalesCenter extends Component {
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
+          canEdit={this.props.canEdit}
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Create</button>
+              <button className='button is-primary' type='submit'>Crear</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>
           </div>
         </SalesCenterForm>

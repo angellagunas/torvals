@@ -242,7 +242,7 @@ class SalesCenterDetail extends Component {
                   <div className='control'>
                     { canEdit &&
                       <DeleteButton
-                        titleButton={'Delete'}
+                        titleButton={'Eliminar'}
                         objectName='Sales Center'
                         objectDelete={this.deleteObject.bind(this)}
                         message={`Are you sure you want to delete the sales center ${this.state.salesCenter.name}?`}
