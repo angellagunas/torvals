@@ -16,9 +16,9 @@ const schema = {
     'name'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    description: {type: 'string', title: 'Description'},
-    profile: {type: 'string', title: 'Profile picture', format: 'data-url'}
+    name: {type: 'string', title: 'Nombre'},
+    description: {type: 'string', title: 'Descripción'},
+    profile: {type: 'string', title: 'Imagen', format: 'data-url'}
   }
 }
 
@@ -57,6 +57,7 @@ class CreateOrganizationForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
@@ -65,6 +66,7 @@ class CreateOrganizationForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,

@@ -19,6 +19,9 @@ class CreateDataSet extends Component {
     this.hideModal = this.props.hideModal.bind(this)
     initialState.organization = this.props.organization
     initialState.project = this.props.project
+    this.state = {
+      isLoading: ''
+    }
   }
 
   componentWillMount () {
@@ -44,6 +47,14 @@ class CreateDataSet extends Component {
     this.context.tree.commit()
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     return (
       <BaseModal
@@ -57,10 +68,17 @@ class CreateDataSet extends Component {
           finishUp={this.props.finishUp}
           initialState={initialState}
           load={this.load.bind(this)}
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Crear</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'>
+                Crear
+              </button>
             </div>
             <div className='control'>
               <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>

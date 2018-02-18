@@ -239,7 +239,7 @@ class EmailInviteLanding extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Select Organization to log in
+              Selecciona una organización
             </p>
             <a className='card-header-icon'>
               <span className='icon'>
@@ -262,7 +262,7 @@ class EmailInviteLanding extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Hi {this.state.user.name}!
+              Hola {this.state.user.name}!
             </p>
             <a className='card-header-icon'>
               <span className='icon'>
@@ -273,8 +273,7 @@ class EmailInviteLanding extends Component {
           <div className='card-content'>
             <div className='content'>
               <p>
-                You need to create a password
-                before you can log in.
+                Necesitas crear una contraseña antes de poder iniciar sesión
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}
@@ -288,8 +287,8 @@ class EmailInviteLanding extends Component {
                 { spinner }
                 <div className={this.state.apiCallMessage}>
                   <div className='message-body is-size-7 has-text-centered'>
-                    Password created successfully! We'll redirect you to the
-                    app in a sec.
+                    Contraseña creada con éxito! Te redirigiremos a la
+                    aplicación en un segundo
                   </div>
                 </div>
                 <div className={this.state.apiCallErrorMessage}>
@@ -302,7 +301,7 @@ class EmailInviteLanding extends Component {
                   type='submit'
                   disabled={!!error || this.state.bigError}
                   >
-                    Create password
+                    Crear contraseña
                   </button>
               </BaseForm>
             </div>

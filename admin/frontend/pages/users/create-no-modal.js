@@ -19,7 +19,8 @@ class CreateUserNoModal extends Component {
     super(props)
     this.state = {
       roles: [],
-      orgs: []
+      orgs: [],
+      isLoading: ''
     }
     initialState['organization'] = this.props.organization || ''
   }
@@ -87,15 +88,22 @@ class CreateUserNoModal extends Component {
         baseUrl='/admin/users'
         url={this.props.url}
         initialState={initialState}
-        finishUp={this.props.finishUp}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
         orgs={this.state.orgs || []}
         filters={this.props.filters}
+        finishUp={(data) => this.finishUpHandler(data)}
+        submitHandler={(data) => this.submitHandler(data)}
+        errorHandler={(data) => this.errorHandler(data)}
       >
         <div className='field is-grouped is-padding-top-small'>
           <div className='control'>
-            <button className='button is-primary' type='submit'>Crear</button>
+            <button
+              className={'button is-primary ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'>
+                Crear
+              </button>
           </div>
         </div>
       </PasswordUserForm>
@@ -108,19 +116,38 @@ class CreateUserNoModal extends Component {
         baseUrl='/admin/users'
         url={this.props.url}
         initialState={initialState}
-        finishUp={this.props.finishUp}
         load={this.props.load || this.load.bind(this)}
         roles={this.state.roles || []}
         orgs={this.state.orgs || []}
         filters={this.props.filters}
+        finishUp={(data) => this.finishUpHandler(data)}
+        submitHandler={(data) => this.submitHandler(data)}
+        errorHandler={(data) => this.errorHandler(data)}
       >
         <div className='field is-grouped is-padding-top-small'>
           <div className='control'>
-            <button className='button is-primary' type='submit'>Invitar</button>
+            <button
+              className={'button is-primary ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'>
+                Invitar
+              </button>
           </div>
         </div>
       </InviteUserForm>
     )
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {

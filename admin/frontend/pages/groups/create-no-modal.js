@@ -13,7 +13,8 @@ class CreateGroupNoModal extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      orgs: []
+      orgs: [],
+      isLoading: ''
     }
   }
 
@@ -56,19 +57,38 @@ class CreateGroupNoModal extends Component {
     })
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     return (
       <GroupForm
         baseUrl='/admin/groups'
         url={this.props.url}
-        finishUp={this.props.finishUp}
+        finishUp={(data) => this.finishUpHandler(data)}
         initialState={initialState}
         load={this.load.bind(this)}
         organizations={this.state.orgs || []}
+        submitHandler={(data) => this.submitHandler(data)}
+        errorHandler={(data) => this.errorHandler(data)}
       >
         <div className='field is-grouped is-padding-top-small'>
           <div className='control'>
-            <button className='button is-primary' type='submit'>Crear</button>
+            <button
+              className={'button is-primary ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'>
+                Crear
+              </button>
           </div>
         </div>
       </GroupForm>

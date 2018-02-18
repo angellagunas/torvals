@@ -22,7 +22,8 @@ class SalesCenterDetail extends Component {
       groups: [],
       selectedGroups: [],
       saving: false,
-      saved: false
+      saved: false,
+      isLoading: ''
     }
   }
 
@@ -135,13 +136,13 @@ class SalesCenterDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Status',
+        'title': 'Estatus',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Start date',
+        'title': 'Fecha Inicial',
         'property': 'dateStart',
         'default': 'N/A',
         'sortable': true,
@@ -152,7 +153,7 @@ class SalesCenterDetail extends Component {
         }
       },
       {
-        'title': 'End date',
+        'title': 'Fecha Final',
         'property': 'dateEnd',
         'default': 'N/A',
         'sortable': true,
@@ -163,7 +164,7 @@ class SalesCenterDetail extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <Link className='button' to={'/forecasts/detail/' + row.uuid}>
@@ -203,6 +204,18 @@ class SalesCenterDetail extends Component {
         </p>
       )
     }
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
@@ -250,10 +263,17 @@ class SalesCenterDetail extends Component {
                           url={'/admin/salesCenters/' + this.props.match.params.uuid}
                           initialState={this.state.salesCenter}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Guardar</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </ProjectForm>

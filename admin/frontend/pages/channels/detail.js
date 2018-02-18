@@ -13,7 +13,8 @@ class ChannelDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      channel: {}
+      channel: {},
+      isLoading: ''
     }
   }
 
@@ -47,6 +48,18 @@ class ChannelDetail extends Component {
         'sortable': true
       }
     ]
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
@@ -92,10 +105,18 @@ class ChannelDetail extends Component {
                           baseUrl='/admin/channels'
                           url={'/admin/channels/' + this.props.match.params.uuid}
                           initialState={channel}
-                          load={this.load.bind(this)}>
+                          load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
+                          >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </ChannelForm>

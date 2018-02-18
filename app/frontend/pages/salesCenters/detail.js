@@ -25,7 +25,8 @@ class SalesCenterDetail extends Component {
       canEdit: false,
       selectedGroups: [],
       saving: false,
-      saved: false
+      saved: false,
+      isLoading: ''
     }
   }
 
@@ -137,13 +138,13 @@ class SalesCenterDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Status',
+        'title': 'Estatus',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Start date',
+        'title': 'Fecha Inicial',
         'property': 'dateStart',
         'default': 'N/A',
         'sortable': true,
@@ -154,7 +155,7 @@ class SalesCenterDetail extends Component {
         }
       },
       {
-        'title': 'End date',
+        'title': 'Fecha Final',
         'property': 'dateEnd',
         'default': 'N/A',
         'sortable': true,
@@ -165,7 +166,7 @@ class SalesCenterDetail extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <Link className='button' to={'/forecasts/' + row.uuid}>
@@ -207,6 +208,18 @@ class SalesCenterDetail extends Component {
     }
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     let { loaded, canEdit } = this.state
     if (!loaded) {
@@ -229,7 +242,7 @@ class SalesCenterDetail extends Component {
                   <div className='control'>
                     { canEdit &&
                       <DeleteButton
-                        titleButton={'Delete'}
+                        titleButton={'Eliminar'}
                         objectName='Sales Center'
                         objectDelete={this.deleteObject.bind(this)}
                         message={`Are you sure you want to delete the sales center ${this.state.salesCenter.name}?`}
@@ -256,10 +269,17 @@ class SalesCenterDetail extends Component {
                           initialState={this.state.salesCenter}
                           load={this.load.bind(this)}
                           canEdit={canEdit}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </SalesCenterForm>

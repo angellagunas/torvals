@@ -54,7 +54,7 @@ class AdjustmentRequestForm extends Component {
 
   async submitHandler ({formData}) {
     formData.newAdjustment = Number(formData.newAdjustment.replace(/[^(\-|\+)?][^0-9.]/g, ''))
-
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       await api.post(this.props.url, formData)
       this.clearState()
@@ -62,6 +62,7 @@ class AdjustmentRequestForm extends Component {
       if (this.props.finishUp) this.props.finishUp()
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,

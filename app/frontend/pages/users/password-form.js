@@ -85,7 +85,7 @@ class PasswordUserForm extends Component {
     formData.password = formData.password_1
     formData.password_1 = ''
     formData.password_2 = ''
-
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
@@ -94,6 +94,7 @@ class PasswordUserForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -120,7 +121,7 @@ class PasswordUserForm extends Component {
       schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
       schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
     }
-       
+
     return (
       <div>
         <BaseForm schema={schema}
