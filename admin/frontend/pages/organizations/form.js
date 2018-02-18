@@ -16,10 +16,10 @@ const schema = {
     'name', 'slug'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     slug: {type: 'string', title: 'Slug'},
-    description: {type: 'string', title: 'Description'},
-    profile: {type: 'string', title: 'Profile picture', format: 'data-url'}
+    description: {type: 'string', title: 'Descripción'},
+    profile: {type: 'string', title: 'Imagen', format: 'data-url'}
   }
 }
 
@@ -63,12 +63,12 @@ class OrganizationForm extends Component {
     if (formData.slug !== this.state.initialState.slug && !this.state.confirmed) {
       return this.setState({
         ...this.state,
-        error: 'If you modify the slug, all logged in users from this organization will be logged out. If you REALLY want to continue, click save again',
+        error: 'Si modificas el slug, se cerrará la sesión de todos los usuarios que hayan iniciado sesión en esta organización. Si REALMENTE desea continuar, haga clic en guardar de nuevo',
         apiCallErrorMessage: 'message is-danger',
         confirmed: true
       })
     }
-
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
@@ -77,6 +77,7 @@ class OrganizationForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,

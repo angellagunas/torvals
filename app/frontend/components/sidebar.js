@@ -94,6 +94,7 @@ class Sidebar extends Component {
             }
           ]
         },
+        Projects.asSidebarItem(),
         {
           title: 'Datasets',
           icon: 'file',
@@ -105,7 +106,6 @@ class Sidebar extends Component {
             ReadyDataSets.asSidebarItem()
           ]
         },
-        Projects.asSidebarItem(),
         SalesCenters.asSidebarItem(),
         Products.asSidebarItem(),
         Channels.asSidebarItem()

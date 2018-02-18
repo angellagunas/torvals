@@ -17,7 +17,8 @@ class OrganizationDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      organization: {}
+      organization: {},
+      isLoading: ''
     }
   }
 
@@ -49,7 +50,7 @@ class OrganizationDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -61,7 +62,7 @@ class OrganizationDetail extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/manage/users/' + row.uuid}>
             Detalle
@@ -75,6 +76,18 @@ class OrganizationDetail extends Component {
     var url = '/admin/organizations/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/admin/manage/organizations')
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
@@ -106,7 +119,7 @@ class OrganizationDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Organization
+                      Organización
                     </p>
                   </header>
                   <div className='card-content'>
@@ -117,10 +130,17 @@ class OrganizationDetail extends Component {
                           url={'/admin/organizations/' + this.props.match.params.uuid}
                           initialState={this.state.organization}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </OrganizationForm>
@@ -133,7 +153,7 @@ class OrganizationDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Users
+                      Usuarios
                     </p>
                   </header>
                   <div className='card-content'>

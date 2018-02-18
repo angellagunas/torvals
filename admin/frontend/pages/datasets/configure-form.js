@@ -57,7 +57,8 @@ class ConfigureDatasetForm extends Component {
         apiCallErrorMessage: 'is-hidden',
         groupingColumn: '',
         groupingInput: '',
-        groupingOutput: ''
+        groupingOutput: '',
+        isLoading: ''
       }
     } else {
       this.state = {
@@ -79,7 +80,8 @@ class ConfigureDatasetForm extends Component {
         groupingInput: '',
         groupingOutput: '',
         apiCallMessage: 'is-hidden',
-        apiCallErrorMessage: 'is-hidden'
+        apiCallErrorMessage: 'is-hidden',
+        isLoading: ''
       }
     }
   }
@@ -185,6 +187,21 @@ class ConfigureDatasetForm extends Component {
     })
   }
 
+  testAllConditions (column) {
+    return (
+      column.isDate ||
+      column.isAnalysis ||
+      column.isAdjustment ||
+      column.isPrediction ||
+      column.isProduct ||
+      column.isProductName ||
+      column.isChannel ||
+      column.isChannelName ||
+      column.isSalesCenter ||
+      column.isSalesCenterName
+    )
+  }
+
   getValueForColumn (type) {
     const column = type.split('|')
     var posColumn = this.state.formData.columns.findIndex(e => {
@@ -202,6 +219,8 @@ class ConfigureDatasetForm extends Component {
 
   async submitHandler (event) {
     event.preventDefault()
+    this.setState({isLoading: ' is-loading'})
+
     const formData = {
       ...this.state.formData,
       isDate: this.state.isDate,
@@ -248,13 +267,16 @@ class ConfigureDatasetForm extends Component {
       try {
         var response = await api.post(this.props.url, formData)
         this.props.changeHandler(response.data)
+        this.setState({isLoading: ''})
       } catch (e) {
+        this.setState({isLoading: ''})
         return this.setState({
           error: e.message,
           apiCallErrorMessage: 'message is-danger'
         })
       }
     } else {
+      this.setState({isLoading: ''})
       return this.setState({
         error: result.error.message,
         apiCallErrorMessage: 'message is-danger'
@@ -521,6 +543,8 @@ class ConfigureDatasetForm extends Component {
 
           {
           this.state.formData.columns.map((item, key) => {
+            if (this.testAllConditions(item)) return null
+
             return (
               <div className='field is-horizontal' key={key}>
                 <div className='field-label is-normal has-text-left' style={checkboxLabelwidth}>
@@ -657,7 +681,12 @@ class ConfigureDatasetForm extends Component {
 
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary'>Configurar</button>
+              <button
+                className={'button is-primary' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+              >
+                Configurar
+              </button>
             </div>
           </div>
         </form>

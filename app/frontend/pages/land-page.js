@@ -13,7 +13,7 @@ class LandPage extends Component {
           <div className='column is-3 land-side has-text-centered'>
             <div className='down'>
               <figure className='image'>
-                <img src={AbraxasLogo} alt='abraxas logo' />
+                <img src='/app/public/img/abraxas-logo.svg' alt='abraxas logo' />
               </figure>
               <br />
               <h2 className='has-text-white is-size-4-desktop is-size-5-touch'>Nuestra misión es dar cognición sistemática a las organizaciones</h2>

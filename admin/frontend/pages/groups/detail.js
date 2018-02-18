@@ -23,7 +23,8 @@ class GroupDetail extends Component {
       className: '',
       classNameList: '',
       orgs: [],
-      group: {}
+      group: {},
+      isLoading: ''
     }
   }
 
@@ -218,6 +219,18 @@ class GroupDetail extends Component {
     })
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     const { group } = this.state
 
@@ -259,10 +272,17 @@ class GroupDetail extends Component {
                           initialState={{...this.state.group, organization: this.state.group.organization._id}}
                           load={this.load.bind(this)}
                           organizations={this.state.orgs || []}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Guardar</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </GroupForm>

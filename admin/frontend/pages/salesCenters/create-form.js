@@ -17,19 +17,19 @@ const schema = {
     'organization'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     organization: {
       type: 'string',
       title: 'Organization',
       enum: [],
       enumNames: []
     },
-    description: {type: 'string', title: 'Description'},
-    address: {type: 'string', title: 'Address'},
-    brand: {type: 'string', title: 'Brand'},
+    description: {type: 'string', title: 'Descripción'},
+    address: {type: 'string', title: 'Dirección'},
+    brand: {type: 'string', title: 'Marca'},
     region: {type: 'string', title: 'Region'},
-    type: {type: 'string', title: 'Type'},
-    externalId: {type: 'string', title: 'External Id'}
+    type: {type: 'string', title: 'Tipo'},
+    externalId: {type: 'string', title: 'Id Externo'}
   }
 }
 
@@ -94,6 +94,7 @@ class SalesCenterForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {
@@ -104,6 +105,7 @@ class SalesCenterForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,

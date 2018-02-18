@@ -106,6 +106,28 @@ class InviteUserForm extends Component {
         error: 'Para el rol localManager es necesario un proyecto',
         apiCallErrorMessage: 'message is-danger'
       })
+
+    formData.sendInvite = true
+    if (this.props.submitHandler) this.props.submitHandler(formData)
+    try {
+      if (this.props.filters) {
+        formData = {...formData,
+          ...this.props.filters}
+      }
+
+      var data = await api.post(this.props.url, formData)
+      await this.props.load()
+      this.clearState()
+      this.setState({...this.state, apiCallMessage: 'message is-success'})
+      if (this.props.finishUp) this.props.finishUp(data.data)
+      return
+    } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
+      return this.setState({
+        ...this.state,
+        error: e.message,
+        apiCallErrorMessage: 'message is-danger'
+      })
     } else {
       formData.sendInvite = true
 
@@ -140,10 +162,6 @@ class InviteUserForm extends Component {
     }
 
     if (this.props.roles.length === 0) {
-      return <Loader />
-    }
-
-    if (this.props.groups && this.props.groups.length === 0) {
       return <Loader />
     }
 

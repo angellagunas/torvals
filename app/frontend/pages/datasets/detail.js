@@ -38,7 +38,10 @@ class DataSetDetail extends Component {
       currentSalesCenter: null,
       columns: [],
       roles: 'admin, orgadmin, analyst',
-      canEdit: false
+      canEdit: false,
+      isLoading: '',
+      isLoadingConsolidate: '',
+      isLoadingConfigure: ''
     }
   }
 
@@ -110,16 +113,22 @@ class DataSetDetail extends Component {
 
   async configureOnClick () {
     if (!this.state.canEdit) return
+
+    this.setState({ isLoadingConfigure: ' is-loading' })
     var url = '/app/datasets/' + this.props.match.params.uuid + '/set/configure'
     await api.post(url)
     await this.load()
+    this.setState({ isLoadingConfigure: '' })
   }
 
   async consolidateOnClick () {
     if (!this.state.canEdit) return
+
+    this.setState({ isLoadingConsolidate: ' is-loading' })
     var url = '/app/datasets/' + this.props.match.params.uuid + '/set/conciliate'
     await api.post(url)
     await this.load()
+    this.setState({ isLoadingConsolidate: '' })
     this.props.history.push(`/projects/${this.state.dataset.project.uuid}`)
   }
 
@@ -264,7 +273,8 @@ class DataSetDetail extends Component {
                     <div className='control'>
                       { canEdit &&
                         <button
-                          className='button is-black'
+                          className={'button is-black' + this.state.isLoadingConfigure}
+                          disabled={!!this.state.isLoadingConfigure}
                           onClick={e => this.cancelOnClick()}
                         >
                           Cancelar
@@ -353,7 +363,8 @@ class DataSetDetail extends Component {
                     <div className='field is-grouped'>
                       <div className='control'>
                         <button
-                          className='button is-black'
+                          className={'button is-black' + this.state.isLoadingConfigure}
+                          disabled={!!this.state.isLoadingConfigure}
                           onClick={e => this.configureOnClick()}
                         >
                           Configurar
@@ -361,7 +372,8 @@ class DataSetDetail extends Component {
                       </div>
                       <div className='control'>
                         <button
-                          className='button is-primary'
+                          className={'button is-primary' + this.state.isLoadingConsolidate}
+                          disabled={!!this.state.isLoadingConsolidate}
                           onClick={e => this.consolidateOnClick()}
                         >
                           Conciliar
@@ -566,6 +578,18 @@ class DataSetDetail extends Component {
     })
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   getModalCurrentProduct () {
     if (this.state.currentProduct && this.state.canEdit) {
       return (<BaseModal
@@ -578,10 +602,17 @@ class DataSetDetail extends Component {
           url={'/app/products/' + this.state.currentProduct.uuid}
           initialState={this.state.currentProduct}
           load={this.deleteNewProduct.bind(this)}
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
+          finishUp={(data) => this.finishUpHandler(data)}
           >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Save</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'
+              >Guardar</button>
             </div>
             <div className='control'>
               <button className='button' onClick={() => this.hideModal()} type='button'>Cancel</button>
@@ -602,10 +633,18 @@ class DataSetDetail extends Component {
           baseUrl='/app/channels'
           url={'/app/channels/' + this.state.currentChannel.uuid}
           initialState={this.state.currentChannel}
-          load={this.deleteNewChannel.bind(this)}>
+          load={this.deleteNewChannel.bind(this)}
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
+          finishUp={(data) => this.finishUpHandler(data)}
+          >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Save</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'
+              >Guardar</button>
             </div>
             <div className='control'>
               <button className='button' onClick={() => this.hideModalChannels()} type='button'>Cancel</button>
@@ -628,10 +667,17 @@ class DataSetDetail extends Component {
           url={'/app/salesCenters/' + this.state.currentSalesCenter.uuid}
           initialState={this.state.currentSalesCenter}
           load={this.deleteNewSalesCenter.bind(this)}
-      >
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
+          finishUp={(data) => this.finishUpHandler(data)}
+        >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Save</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'
+              >Guardar</button>
             </div>
             <div className='control'>
               <button className='button' onClick={() => this.hideModalSalesCenters()} type='button'>Cancel</button>
@@ -735,7 +781,7 @@ class DataSetDetail extends Component {
                                   className='button is-primary'
                                   onClick={() => this.showModalChannels(item)}
                                 >
-                                  Edit
+                                  Editar
                                 </button>
                               </td>
                             }
@@ -826,7 +872,7 @@ class DataSetDetail extends Component {
                                   className='button is-primary'
                                   onClick={() => this.showModalSalesCenters(item)}
                                 >
-                                  Edit
+                                  Editar
                                 </button>
                               </td>
                             }
@@ -918,7 +964,7 @@ class DataSetDetail extends Component {
                                     className='button is-primary'
                                     onClick={() => this.showModal(item)}
                                   >
-                                    Edit
+                                    Editar
                                   </button>
                                 </td>
                               }
@@ -953,7 +999,7 @@ class DataSetDetail extends Component {
       />
     )
 
-    if (!canEdit) {
+    if (!canEdit || dataset.status === 'conciliated') {
       deleteButton = null
     }
 
@@ -1003,10 +1049,17 @@ class DataSetDetail extends Component {
                           }}
                           load={this.load.bind(this)}
                           canEdit={canEdit}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </DatasetDetailForm>

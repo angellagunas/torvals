@@ -3,7 +3,7 @@ import api from '~base/api'
 import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
-import { loggedIn } from '~base/middlewares/'
+import { loggedIn, verifyRole } from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ChannelForm from './create-form'
 import DeleteButton from '~base/components/base-deleteButton'
@@ -16,7 +16,8 @@ class ChannelDetail extends Component {
       loaded: false,
       channel: {},
       roles: 'admin, orgadmin, analyst, opsmanager',
-      canEdit: false
+      canEdit: false,
+      isLoading: ''
     }
   }
 
@@ -40,6 +41,18 @@ class ChannelDetail extends Component {
     var url = '/app/channels/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/channels')
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
@@ -91,10 +104,17 @@ class ChannelDetail extends Component {
                           initialState={channel}
                           load={this.load.bind(this)}
                           canEdit={canEdit}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </ChannelForm>
@@ -115,6 +135,7 @@ export default Page({
   path: '/channels/:uuid',
   title: 'Channel Detail',
   exact: true,
-  validate: loggedIn,
+  roles: 'analyst, orgadmin, admin, localmanager',
+  validate: [loggedIn, verifyRole],
   component: ChannelDetail
 })

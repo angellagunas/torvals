@@ -25,6 +25,8 @@ class TabAdjustment extends Component {
       filtersLoaded: false,
       isLoading: '',
       selectedAll: false,
+      modified: 0,
+      pending: 0,
       filters: {
         channels: [],
         products: [],
@@ -38,10 +40,27 @@ class TabAdjustment extends Component {
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
+      isConciliating: ''
     }
+
+    this.interval = null
   }
+
   componentWillMount () {
     this.getFilters()
+    this.getModifiedCount()
+    this.interval = setInterval(() => { this.getModifiedCount() }, 10000)
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.interval)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.project.status === 'adjustment') {
+      this.clearSearch()
+      this.getFilters()
+    }
   }
 
   async getFilters () {
@@ -62,6 +81,27 @@ class TabAdjustment extends Component {
         },
         filtersLoaded: true
       })
+    }
+  }
+
+  async getModifiedCount () {
+    if (this.props.project.activeDataset) {
+      const url = '/admin/rows/modified/dataset/'
+      let res = await api.get(url + this.props.project.activeDataset.uuid)
+
+      if (res.data.pending > 0) {
+        this.setState({
+          modified: res.data.modified,
+          pending: res.data.pending,
+          isConciliating: ' is-loading'
+        })
+      } else {
+        this.setState({
+          modified: res.data.modified,
+          pending: res.data.pending,
+          isConciliating: ''
+        })
+      }
     }
   }
 
@@ -92,7 +132,6 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows (e) {
-    this.checkAll(false)
 
     this.setState({
       isLoading: ' is-loading'
@@ -108,13 +147,24 @@ class TabAdjustment extends Component {
       })
     
     this.setState({
-      dataRows: data.data,
+      dataRows: this.getEditedRows(data.data),
       isFiltered: true,
       isLoading: '',
       selectedCheckboxes: new Set()
     })
-    this.toggleButtons()
     this.clearSearch()
+  }
+
+  getEditedRows (data) {
+    for (let row of data) {
+      if (row.adjustment != row.prediction) {
+        row.wasEdited = true
+        var maxAdjustment = Math.ceil(row.prediction * (1 + generalAdjustment))
+        var minAdjustment = Math.floor(row.prediction * (1 - generalAdjustment))
+        row.isLimit = (row.adjustment >= maxAdjustment || row.adjustment <= minAdjustment)
+      }
+    }
+    return data
   }
 
   getColumns () {
@@ -194,6 +244,7 @@ class TabAdjustment extends Component {
           if (!row.adjustment) {
             row.adjustment = 0
           }
+          
           return (
             <Editable 
               value={row.adjustment}
@@ -230,6 +281,9 @@ class TabAdjustment extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
+          if(!row.selected){
+            row.selected = false
+          }
           return (
             <Checkbox
               label={row}
@@ -292,7 +346,7 @@ class TabAdjustment extends Component {
   }
 
   checkAll = (check) => {
-    for (let row of this.state.dataRows) {
+    for (let row of this.state.filteredData) {
       this.toggleCheckbox(row, check)
     }
     this.setState({ selectedAll: check }, function () {
@@ -320,6 +374,18 @@ class TabAdjustment extends Component {
       return false
     }
     return res
+  }
+
+  uncheckAll () {
+    for (let row of this.state.dataRows) {
+      row.selected = false
+    }
+    this.setState({ 
+      selectedCheckboxes: new Set(),
+      selectedAll: false
+    }, function () {
+      this.toggleButtons()
+    })
   }
 
   getModifyButtons () {
@@ -448,7 +514,8 @@ class TabAdjustment extends Component {
     aux.splice(index,1,obj)
 
     this.setState({
-      dataRows: aux
+      dataRows: aux,
+      isConciliating: ' is-loading'
     })
 
     this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
@@ -511,22 +578,47 @@ class TabAdjustment extends Component {
     })
     .filter(function(item){ return item != null });
     
-    return items
+    this.setState({
+      filteredData: items
+    })
   }
 
   searchOnChange = (e) => {
+    this.uncheckAll()
+
     this.setState({
       searchTerm: e.target.value
-    })
+    }, () => this.searchDatarows() )
   }
 
   clearSearch = () => {
+    this.uncheckAll()
     this.setState({
       searchTerm: ''
-    })
+    },() => this.searchDatarows() )
   } 
 
+  async conciliateOnClick () {
+    this.setState({
+      isConciliating: ' is-loading'
+    })
+    var url = '/admin/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
   
+    try {
+      await api.post(url)
+      await this.props.load()
+    } catch (e) {
+      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+    }
+    
+    this.setState({
+      isConciliating: '',
+      modified: 0,
+      dataRows: [],
+      isFiltered: false
+    })
+  }
+
   render () {
     if (this.props.project.status === 'empty') {
       return (
@@ -538,8 +630,8 @@ class TabAdjustment extends Component {
               </div>
               <div className='message-body has-text-centered is-size-5'>
                 Se debe agregar al menos un
-                  <strong> dataset </strong> para poder generar ajustes.
-                  </div>
+                <strong> dataset </strong> para poder generar ajustes.
+              </div>
             </article>
           </div>
         </div>
@@ -550,7 +642,7 @@ class TabAdjustment extends Component {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           Se están obteniendo las filas para ajuste, en un momento más las podrá consultar.
-         <Loader />
+          <Loader />
         </div>
       )
     }
@@ -559,7 +651,7 @@ class TabAdjustment extends Component {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           Se está preparando al proyecto para generar un dataset de ajuste, espere por favor.
-         <Loader />
+          <Loader />
         </div>
       )
     }
@@ -574,10 +666,10 @@ class TabAdjustment extends Component {
 
     if (!this.state.filters.semanasBimbo.length > 0 && !this.state.filtersLoaded) {
       return (
-          <div className='section has-text-centered subtitle has-text-primary'>
-            Cargando un momento por favor
-         <Loader />
-          </div>
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Cargando un momento por favor
+          <Loader />
+        </div>
       )
     }
 
@@ -645,8 +737,13 @@ class TabAdjustment extends Component {
         <header className='card-header'>
           <p className='card-header-title'> Ajustes </p>
         </header>
-        <div className='card-content'>
-          
+        <div className='notification is-warning has-text-centered is-uppercase is-paddingless'>
+          <span className='icon is-medium has-text-info'>
+            <i className='fa fa-warning'></i>
+          </span>
+          Modo de Ajuste - Para este periodo se permite un ajuste máximo de <strong>{(generalAdjustment * 100) + '%'}</strong> sobre el ajuste anterior.
+        </div>
+        <div className='section is-paddingless-top'>
           <CreateAdjustmentRequest
             className={this.state.classNameAR}
             hideModal={(e) => this.hideModalAdjustmentRequest(e)}
@@ -654,42 +751,65 @@ class TabAdjustment extends Component {
             prediction={this.state.selectedAR}
             baseUrl={'/admin/rows/'}
           />
-            <BaseForm
-              schema={schema}
-              uiSchema={uiSchema}
-              formData={this.state.formData}
-              onChange={(e) => { this.filterChangeHandler(e) }}
-              onSubmit={(e) => { this.getDataRows(e) }}
-              onError={(e) => { this.FilterErrorHandler(e) }}
-            >
-              <div className='field is-grouped'>
+          <div className='columns'>
+            <div className='column'>
+              <BaseForm
+                schema={schema}
+                uiSchema={uiSchema}
+                formData={this.state.formData}
+                onChange={(e) => { this.filterChangeHandler(e) }}
+                onSubmit={(e) => { this.getDataRows(e) }}
+                onError={(e) => { this.FilterErrorHandler(e) }}
+              >
+                <div className='field is-grouped'>
+                  <div className='control'>
+                    <button
+                      className={'button is-primary is-medium' + this.state.isLoading}
+                      type='submit'
+                      disabled={!!this.state.isLoading}
+                    >
+                      Filtrar
+                    </button>
+                  </div>
+                </div>
+              </BaseForm>
+            </div>
+            <div className='column has-text-right'>
+              <div className='field is-grouped is-grouped-right'>
                 <div className='control'>
-                  <button className={'button is-primary is-medium' + this.state.isLoading} type='submit'>Filtrar</button>
+                  <button
+                    className={'button is-success is-medium' + this.state.isConciliating}
+                    disabled={!!this.state.isConciliating}
+                    type='button'
+                    onClick={e => this.conciliateOnClick()}
+                  >
+                    Confirmar ajustes ({ this.state.modified })
+                  </button>
                 </div>
               </div>
-            </BaseForm>
-            <section className='section'>
-
-              {!this.state.isFiltered
-                ? <article className='message is-primary'>
+            </div>
+          </div>
+          <section className='section'>
+            {!this.state.isFiltered
+              ? <article className='message is-primary'>
                   <div className='message-header'>
                     <p>Información</p>
                   </div>
                   <div className='message-body'>
                     Debe aplicar un filtro para visualizar información
-                </div>
+                  </div>
                 </article>
-                : <div>
+              : <div>
                   {this.getModifyButtons()}
                   <BaseTable
-                    data={this.searchDatarows()}
+                    data={this.state.filteredData}
                     columns={this.getColumns()}
                     sortAscending
-                    sortBy={'name'} />
+                    sortBy={'name'}
+                  />
                 </div>
-              }
-            </section>
-           
+            }
+          </section>
         </div>
       </div>
     )

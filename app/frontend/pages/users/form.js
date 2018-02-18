@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import Loader from '~base/components/spinner'
 import tree from '~core/tree'
-import { testRoles } from '~base/tools'
 
 import api from '~base/api'
 
@@ -97,14 +96,27 @@ class UserForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    if (!formData.role) {
+      return this.setState({
+        error: 'Se debe seleccionar un rol!',
+        apiCallErrorMessage: 'message is-danger'
+      })
+    }
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
       this.clearState()
-      this.setState({...this.state, apiCallMessage: 'message is-success'})
+      this.setState({
+        ...this.state,
+        apiCallMessage: 'message is-success'
+      })
+      setTimeout(() => { this.setState({ apiCallMessage: 'is-hidden' }) }, 3000)
+
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -130,11 +142,10 @@ class UserForm extends Component {
       uiSchema.email['ui:disabled'] = true
     }
 
-    if (
-      (this.props.initialState.uuid === currentUser.uuid) &&
-      (testRoles('enterprisemanager'))
-    ) {
+    if (this.props.initialState.uuid === currentUser.uuid) {
       uiSchema.role['ui:disabled'] = true
+    } else {
+      uiSchema.role['ui:disabled'] = false
     }
 
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })

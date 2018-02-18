@@ -29,16 +29,16 @@ class ProjectDetail extends Component {
       selectedTab: 'Ajustes',
       datasetClassName: '',
       roles: 'admin, orgadmin, analyst, opsmanager',
-      canEdit: false
+      canEdit: false,
+      isLoading: ''
     }
-    this.intervalo = null
+    this.interval = null
   }
 
   componentWillMount () {
     this.load()
     this.setState({
-      canEdit: testRoles(this.state.roles),
-      selectedTab: testRoles('localmanager') ? 'Configuración' : 'Ajustes'
+      canEdit: testRoles(this.state.roles)
     })
   }
 
@@ -87,20 +87,32 @@ class ProjectDetail extends Component {
       })
 
       if (res.data.status === 'adjustment') {
-        clearInterval(this.intervalo)
+        clearInterval(this.interval)
       }
     }
   }
 
   componentWillUnmount () {
-    clearInterval(this.intervalo)
+    clearInterval(this.interval)
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
     const { project, canEdit } = this.state
 
-    if (this.intervalo === null && (project.status === 'processing' || project.status === 'pendingRows')) {
-      this.intervalo = setInterval(() => this.getProjectStatus(), 30000)
+    if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
+      this.interval = setInterval(() => this.getProjectStatus(), 30000)
     }
 
     if (!this.state.loaded) {
@@ -113,6 +125,7 @@ class ProjectDetail extends Component {
         icon: 'fa-cogs',
         content: (
           <TabAdjustment
+            load={this.getProjectStatus.bind(this)}
             project={project}
             history={this.props.history}
             canEdit={canEdit}
@@ -123,6 +136,10 @@ class ProjectDetail extends Component {
         name: 'Aprobar',
         title: 'Aprobar',
         icon: 'fa-calendar-check-o',
+        hide: (testRoles('localmanager') ||
+              project.status === 'processing' ||
+              project.status === 'pendingRows' ||
+              project.status === 'empty'),
         content: (
           <TabAprove
             project={project}
@@ -164,10 +181,18 @@ class ProjectDetail extends Component {
                 initialState={{ ...project, organization: project.organization.uuid }}
                 load={this.load.bind(this)}
                 canEdit={canEdit}
+                editable
+                submitHandler={(data) => this.submitHandler(data)}
+                errorHandler={(data) => this.errorHandler(data)}
+                finishUp={(data) => this.finishUpHandler(data)}
               >
                 <div className='field is-grouped'>
                   <div className='control'>
-                    <button className='button is-primary'>Guardar</button>
+                    <button
+                      className={'button is-primary ' + this.state.isLoading}
+                      disabled={!!this.state.isLoading}
+                      type='submit'
+                    >Guardar</button>
                   </div>
                 </div>
               </ProjectForm>
@@ -191,7 +216,7 @@ class ProjectDetail extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top pad-sides'>
-            <div className='columns is-padding-top-small is-padding-bottom-small'>
+            <div className='columns is-padding-top-small'>
               <div className='column'>
                 <h1 className='is-size-3'>{project.name}</h1>
               </div>
@@ -209,7 +234,6 @@ class ProjectDetail extends Component {
                 </div>
               </div>
             </div>
-            <br />
             <Tabs
               tabs={tabs}
               selectedTab={this.state.selectedTab}
@@ -219,25 +243,22 @@ class ProjectDetail extends Component {
         </div>
 
         { canEdit &&
-          <div>
-            <SidePanel
-              sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-              icon={'plus'}
-              title={'Opciones'}
-              content={options}
+        <SidePanel
+          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+          icon={'plus'}
+          title={'Opciones'}
+          content={options}
             />
-            <CreateDataSet
-              branchName='datasets'
-              url='/admin/datasets'
-              organization={project.organization.uuid}
-              project={project.uuid}
-              className={this.state.datasetClassName}
-              hideModal={this.hideModalDataset.bind(this)}
-              finishUp={this.finishUpDataset.bind(this)}
-            />
-          </div>
         }
-
+        <CreateDataSet
+          branchName='datasets'
+          url='/admin/datasets'
+          organization={project.organization.uuid}
+          project={project.uuid}
+          className={this.state.datasetClassName}
+          hideModal={this.hideModalDataset.bind(this)}
+          finishUp={this.finishUpDataset.bind(this)}
+        />
         <ToastContainer />
       </div>
     )

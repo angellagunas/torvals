@@ -23,7 +23,7 @@ checkDatasets.run()
 const checkProjects = require('crons/check-projects')
 checkProjects.run()
 
-const checkDatasetRows = require('crons/check-datasetrows')
+const checkDatasetRows = require('crons/check-datasetsrows')
 checkDatasetRows.run()
 
 // Queue
