@@ -39,7 +39,9 @@ class DataSetDetail extends Component {
       columns: [],
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
-      isLoading: ''
+      isLoading: '',
+      isLoadingConsolidate: '',
+      isLoadingConfigure: ''
     }
   }
 
@@ -111,16 +113,22 @@ class DataSetDetail extends Component {
 
   async configureOnClick () {
     if (!this.state.canEdit) return
+
+    this.setState({ isLoadingConfigure: ' is-loading' })
     var url = '/app/datasets/' + this.props.match.params.uuid + '/set/configure'
     await api.post(url)
     await this.load()
+    this.setState({ isLoadingConfigure: '' })
   }
 
   async consolidateOnClick () {
     if (!this.state.canEdit) return
+
+    this.setState({ isLoadingConsolidate: ' is-loading' })
     var url = '/app/datasets/' + this.props.match.params.uuid + '/set/conciliate'
     await api.post(url)
     await this.load()
+    this.setState({ isLoadingConsolidate: '' })
     this.props.history.push(`/projects/${this.state.dataset.project.uuid}`)
   }
 
@@ -265,7 +273,8 @@ class DataSetDetail extends Component {
                     <div className='control'>
                       { canEdit &&
                         <button
-                          className='button is-black'
+                          className={'button is-black' + this.state.isLoadingConfigure}
+                          disabled={!!this.state.isLoadingConfigure}
                           onClick={e => this.cancelOnClick()}
                         >
                           Cancelar
@@ -354,7 +363,8 @@ class DataSetDetail extends Component {
                     <div className='field is-grouped'>
                       <div className='control'>
                         <button
-                          className='button is-black'
+                          className={'button is-black' + this.state.isLoadingConfigure}
+                          disabled={!!this.state.isLoadingConfigure}
                           onClick={e => this.configureOnClick()}
                         >
                           Configurar
@@ -362,7 +372,8 @@ class DataSetDetail extends Component {
                       </div>
                       <div className='control'>
                         <button
-                          className='button is-primary'
+                          className={'button is-primary' + this.state.isLoadingConsolidate}
+                          disabled={!!this.state.isLoadingConsolidate}
                           onClick={e => this.consolidateOnClick()}
                         >
                           Conciliar
