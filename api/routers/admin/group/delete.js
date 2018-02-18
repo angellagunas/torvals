@@ -16,12 +16,12 @@ module.exports = new Route({
     for (var user of group.users) {
       var pos = user.groups.indexOf(group._id)
       user.groups.splice(pos, 1)
-      user.save()
+      await user.save()
     }
 
     group.set({users: []})
 
-    group.save()
+    await group.save()
 
     ctx.body = {
       data: group.format()
