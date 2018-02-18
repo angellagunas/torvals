@@ -26,6 +26,7 @@ class TabAdjustment extends Component {
       isLoading: '',
       selectedAll: false,
       modified: 0,
+      pending: 0,
       filters: {
         channels: [],
         products: [],
@@ -59,6 +60,13 @@ class TabAdjustment extends Component {
     clearInterval(this.interval)
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.project.status === 'adjustment') {
+      this.clearSearch()
+      this.getFilters()
+    }
+  }
+
   async getFilters() {
     if (this.props.project.activeDataset) {
       const url = '/app/rows/filters/dataset/'
@@ -85,9 +93,19 @@ class TabAdjustment extends Component {
       const url = '/app/rows/modified/dataset/'
       let res = await api.get(url + this.props.project.activeDataset.uuid)
 
-      this.setState({
-        modified: res.data
-      })
+      if (res.data.pending > 0) {
+        this.setState({
+          modified: res.data.modified,
+          pending: res.data.pending,
+          isConciliating: ' is-loading'
+        })
+      } else {
+        this.setState({
+          modified: res.data.modified,
+          pending: res.data.pending,
+          isConciliating: ''
+        })
+      }
     }
   }
 
@@ -516,7 +534,8 @@ class TabAdjustment extends Component {
     aux.splice(index,1,obj)
 
     this.setState({
-      dataRows: aux
+      dataRows: aux,
+      isConciliating: ' is-loading'
     })
 
     this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
@@ -611,8 +630,12 @@ class TabAdjustment extends Component {
     } catch(e){
       this.notify('Error '+ e.message, 3000, toast.TYPE.ERROR)      
     }
+    
     this.setState({
-      isConciliating: ''
+      isConciliating: '',
+      modified: 0,
+      dataRows: [],
+      isFiltered: false
     })
   }
 
