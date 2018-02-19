@@ -207,7 +207,7 @@ class ContainerTable extends Component {
 
     if (
         forecast.status !== 'readyToOrder' &&
-        currentRole !== 'enterprisemanager'
+        currentRole !== 'manager-level-3'
     ) {
       return (
         <div className='columns'>
@@ -282,7 +282,7 @@ class ContainerTable extends Component {
 
     data.isLimit = (data.adjustment >= maxAdjustment || data.adjustment <= minAdjustment)
 
-    if ((currentRole === 'opsmanager' || currentRole === 'localmanager')) {
+    if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
       if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
         this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
         return false
@@ -472,7 +472,7 @@ class ContainerTable extends Component {
         formatter: (row) => {
           if (
               currentRole !== 'analyst' &&
-              currentRole !== 'enterprisemanager'
+              currentRole !== 'manager-level-3'
           ) {
             if (row.isLimit && !row.adjustmentRequest) {
               return (
@@ -613,7 +613,7 @@ class ContainerTable extends Component {
               setRowsToEdit={(e) => this.setRowsToEdit(e)}
               selectable={
                 (forecast.status !== 'readyToOrder') &&
-                (currentRole !== 'enterprisemanager')
+                (currentRole !== 'manager-level-3')
               }
              />
           </div>

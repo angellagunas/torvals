@@ -18,7 +18,7 @@ class ProductDetail extends Component {
       loading: true,
       loaded: false,
       product: {},
-      roles: 'admin, orgadmin, analyst, opsmanager',
+      roles: 'admin, orgadmin, analyst, manager-level-2',
       canEdit: false,
       isLoading: ''
     }
@@ -200,7 +200,7 @@ export default Page({
   path: '/products/:uuid',
   title: 'Product detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, localmanager',
+  roles: 'analyst, orgadmin, admin, manager-level-1',
   validate: [loggedIn, verifyRole],
   component: ProductDetail
 })

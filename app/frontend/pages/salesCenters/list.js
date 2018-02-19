@@ -11,7 +11,7 @@ export default ListPage({
   title: 'Centros de venta',
   icon: 'credit-card-alt',
   exact: true,
-  roles: 'analyst, orgadmin, admin, localmanager, opsmanager',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Centro de venta',
   create: true,

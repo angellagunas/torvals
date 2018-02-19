@@ -11,7 +11,7 @@ export default ListPage({
   title: 'Productos',
   icon: 'dropbox',
   exact: true,
-  roles: 'analyst, orgadmin, admin, localmanager',
+  roles: 'analyst, orgadmin, admin, manager-level-1',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Product',
   create: true,

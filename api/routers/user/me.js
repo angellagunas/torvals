@@ -25,7 +25,7 @@ module.exports = new Route({
           data.user.currentOrganization = org.toPublic()
           data.user.currentRole = role.toPublic()
 
-          if (role.slug === 'localmanager') {
+          if (role.slug === 'manager-level-1') {
             data.user.currentProject = await Project.findOne({_id: currentOrganization.defaultProject})
           }
         }

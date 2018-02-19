@@ -11,7 +11,7 @@ export default ListPage({
   title: 'Proyectos',
   icon: 'cog',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin, opsmanager',
+  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Proyecto',
   create: true,

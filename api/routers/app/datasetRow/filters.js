@@ -45,8 +45,8 @@ module.exports = new Route({
     }
 
     if (
-      currentRole.slug === 'localmanager' ||
-      currentRole.slug === 'opsmanager'
+      currentRole.slug === 'manager-level-1' ||
+      currentRole.slug === 'manager-level-2'
     ) {
       var groups = user.groups
 
