@@ -35,7 +35,11 @@ const projectSchema = new Schema({
   externalId: { type: String },
   adjustment: { type: Number },
   activeDataset: { type: Schema.Types.ObjectId, ref: 'DataSet' },
-  businessRules: Schema.Types.Mixed,
+  businessRules: {
+    period: { type: Number },
+    adjustments: { type: Schema.Types.Mixed },
+    frequency: { type: Number }
+  },
 
   dateCreated: { type: Date, default: moment.utc },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -55,6 +59,7 @@ projectSchema.methods.toPublic = function () {
     adjustment: this.adjustment,
     status: this.status,
     activeDataset: this.activeDataset,
+    businessRules: this.businessRules,
     externalId: this.externalId,
     dateCreated: this.dateCreated
   }
@@ -70,6 +75,7 @@ projectSchema.methods.toAdmin = function () {
     adjustment: this.adjustment,
     status: this.status,
     activeDataset: this.activeDataset,
+    businessRules: this.businessRules,
     externalId: this.externalId,
     dateCreated: this.dateCreated
   }

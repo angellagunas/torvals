@@ -84,7 +84,11 @@ const task = new Task(async function (argv) {
           columns: []
         })
 
-        project.activeDataset = dataset
+        project.set({
+          activeDataset: dataset,
+          bussinesRules: res.rules
+        })
+
         await project.save()
       }
 

@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const { DataSetRow, DataSet, Channel, SalesCenter, Product } = require('models')
+const { DataSetRow, DataSet, Channel, SalesCenter, Product, AbraxasDate } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -27,6 +27,21 @@ module.exports = new Route({
       return a - b
     })
 
+    var dates = await AbraxasDate.find({
+      week: {$in: semanasBimbo},
+      dateStart: {$lte: moment(dataset.dateMax)}
+    }).sort('dateStart').limit(semanasBimbo.length)
+
+    dates = dates.map(item => {
+      return {
+        week: item.week,
+        month: item.month,
+        year: item.year,
+        dateStart: item.dateStart,
+        dateEnd: item.dateEnd
+      }
+    })
+
     channels = await Channel.find({ _id: { $in: channels } })
     salesCenters = await SalesCenter.find({ _id: { $in: salesCenters } })
     products = await Product.find({ _id: { $in: products } })
@@ -35,7 +50,8 @@ module.exports = new Route({
       semanasBimbo,
       channels,
       salesCenters,
-      products
+      products,
+      dates
     }
   }
 })
