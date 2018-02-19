@@ -28,7 +28,16 @@ module.exports = new Route({
       week: {$in: semanasBimbo},
       dateStart: {$lte: moment(dataset.dateMax)}
     }).sort('dateStart').limit(semanasBimbo.length)
-    console.log(dates)
+
+    dates = dates.map(item => {
+      return {
+        week: item.week,
+        month: item.month,
+        year: item.year,
+        dateStart: item.dateStart,
+        dateEnd: item.dateEnd
+      }
+    })
 
     channels = await Channel.find({ _id: { $in: channels } })
     salesCenters = await SalesCenter.find({ _id: { $in: salesCenters } })
@@ -38,7 +47,8 @@ module.exports = new Route({
       semanasBimbo,
       channels,
       salesCenters,
-      products
+      products,
+      dates
     }
   }
 })

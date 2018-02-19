@@ -312,7 +312,7 @@ class UserDetail extends Component {
         'title': 'Acciones',
         formatter: (row) => {
           return <button
-            className='button'
+            className='button is-danger'
             onClick={() => { this.removeOrgOnClick(row.organization.uuid, row.role.uuid) }}
           >
             Eliminar
@@ -380,16 +380,20 @@ class UserDetail extends Component {
     this.setState({project: e})
   }
 
-  async submitHandler (e) {
+  async submitProjectHandler (e) {
     if (this.state.project !== '') {
+      this.setState({isLoadingProject: ' is-loading'})
       var url = '/admin/users/' + this.props.match.params.uuid + '/add/role'
 
       this.state.formProject['project'] = this.state.project
-      await api.post(url,
-        this.state.formProject
-      )
-      this.setState({classNameProjects: ''})
-      this.load()
+
+      await api.post(url, this.state.formProject)
+      await this.load()
+
+      this.setState({
+        classNameProjects: '',
+        isLoadingProject: ''
+      })
     }
   }
 
@@ -398,7 +402,7 @@ class UserDetail extends Component {
       <BaseModal
         title='Asignar Proyecto'
         className={this.state.classNameProjects}
-        hideModal={(e) => this.hideModalProjects(e)}>
+        hideModal={(e) => this.hideModalProject(e)}>
 
         <div className='field'>
           <label className='label'>Proyecto</label>
@@ -424,12 +428,21 @@ class UserDetail extends Component {
 
         <div className='field is-grouped'>
           <div className='control'>
-            <button className='button is-primary' type='submit' onClick={(e) => { this.submitHandler(e) }}>
+            <button
+              className={'button is-primary ' + this.state.isLoadingProject}
+              disabled={!!this.state.isLoadingProject}
+              type='submit'
+              onClick={(e) => { this.submitProjectHandler(e) }}
+            >
               Asignar
             </button>
           </div>
           <div className='control'>
-            <button className='button' type='button' onClick={(e) => this.hideModalProject(e)}>
+            <button
+              className='button'
+              type='button'
+              onClick={(e) => this.hideModalProject(e)}
+            >
               Cancelar
             </button>
           </div>
