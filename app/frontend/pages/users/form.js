@@ -41,17 +41,49 @@ class UserForm extends Component {
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+      apiCallErrorMessage: 'is-hidden',
+      projects: []
     }
   }
 
   errorHandler (e) {}
 
-  changeHandler ({formData}) {
+  async changeHandler ({formData}) {
+    if (formData['role']) {
+      var role = this.props.roles.find((item) => {
+        return item._id === formData['role']
+      })
+
+      if (role.slug === 'localmanager') {
+        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        uiSchema['project'] = {'ui:widget': SelectWidget}
+        schema.required.push('project')
+        await this.loadProjects()
+      } else {
+        delete schema.properties['project']
+        delete uiSchema['project']
+        delete formData['project']
+        schema.required = ['email']
+      }
+    }
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+      apiCallErrorMessage: 'is-hidden',
+      key: Math.random()
+    })
+  }
+
+  async loadProjects () {
+    var url = '/app/projects/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0
+    })
+
+    this.setState({
+      projects: body.data,
+      key: Math.random()
     })
   }
 
@@ -118,10 +150,16 @@ class UserForm extends Component {
 
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
+    if (schema.properties.project) {
+      schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
+      schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
+    }
 
     return (
       <div>
-        <BaseForm schema={schema}
+        <BaseForm
+          key={this.state.key}
+          schema={schema}
           uiSchema={uiSchema}
           formData={this.state.formData}
           onChange={(e) => { this.changeHandler(e) }}

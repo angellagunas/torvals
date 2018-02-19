@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {Organization, User, Role} = require('models')
+const {Organization, User, Role, Project} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -28,7 +28,15 @@ module.exports = new Route({
       ctx.throw(400, 'Invalid organization!')
     }
 
-    user.organizations[pos] = {organization: org, role: role}
+    let orgObj = {organization: org, role: role}
+
+    if (roleData.project) {
+      var project = await Project.findOne({'uuid': roleData.project})
+      ctx.assert(project, 404, 'Project not found')
+      orgObj.defaultProject = project
+    }
+
+    user.organizations[pos] = orgObj
 
     user.save()
 

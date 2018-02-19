@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {Organization, User, Role} = require('models')
+const {Organization, User, Role, Project} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -39,10 +39,16 @@ module.exports = new Route({
       ctx.throw(400, 'You cannot add the same role and organization twice!')
     }
 
-    user.organizations.push({
-      organization: org,
-      role: role
-    })
+    let orgObj = {organization: org, role: role}
+
+    if (orgData.project) {
+      var project = await Project.findOne({'uuid': orgData.project})
+      ctx.assert(project, 404, 'Project not found')
+      orgObj.defaultProject = project
+    }
+
+    user.organizations.push(orgObj)
+
     user.save()
 
     ctx.body = {

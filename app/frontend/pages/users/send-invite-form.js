@@ -13,9 +13,7 @@ import {
 var schema = {
   type: 'object',
   title: '',
-  required: [
-    'email', 'name'
-  ],
+  required: ['email', 'name'],
   properties: {
     name: {type: 'string', title: 'Nombre'},
     email: {type: 'string', title: 'Email'},
@@ -47,17 +45,50 @@ class InviteUserForm extends Component {
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+      apiCallErrorMessage: 'is-hidden',
+      projects: []
     }
   }
 
   errorHandler (e) {}
 
-  changeHandler ({formData}) {
+  async changeHandler ({formData}) {
+    if (formData['role']) {
+      var role = this.props.roles.find((item) => {
+        return item._id === formData['role']
+      })
+
+      if (role.slug === 'localmanager') {
+        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        uiSchema['project'] = {'ui:widget': SelectWidget}
+        this.setState({projectRequired: true})
+        await this.loadProjects()
+      } else {
+        delete schema.properties['project']
+        delete uiSchema['project']
+        delete formData['project']
+        schema.required = ['email', 'name']
+      }
+    } else {
+      this.setState({projectRequired: false})
+    }
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
+    })
+  }
+
+  async loadProjects () {
+    var url = '/app/projects/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0
+    })
+
+    this.setState({
+      projects: body.data,
+      key: Math.random()
     })
   }
 
@@ -70,6 +101,12 @@ class InviteUserForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    if (this.state.projectRequired && !formData['project']) {
+      this.setState({
+        error: 'Para el rol localManager es necesario un proyecto',
+        apiCallErrorMessage: 'message is-danger'
+      })
+
     formData.sendInvite = true
     if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
@@ -91,6 +128,28 @@ class InviteUserForm extends Component {
         error: e.message,
         apiCallErrorMessage: 'message is-danger'
       })
+    } else {
+      formData.sendInvite = true
+
+      try {
+        if (this.props.filters) {
+          formData = {...formData,
+            ...this.props.filters}
+        }
+
+        var data = await api.post(this.props.url, formData)
+        await this.props.load()
+        this.clearState()
+        this.setState({...this.state, apiCallMessage: 'message is-success'})
+        if (this.props.finishUp) this.props.finishUp(data.data)
+        return
+      } catch (e) {
+        return this.setState({
+          ...this.state,
+          error: e.message,
+          apiCallErrorMessage: 'message is-danger'
+        })
+      }
     }
   }
 
@@ -112,9 +171,17 @@ class InviteUserForm extends Component {
       schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
       schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
     }
+
+    if (schema.properties.project) {
+      schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
+      schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
+    }
+
     return (
       <div>
-        <BaseForm schema={schema}
+        <BaseForm
+          key={this.state.key}
+          schema={schema}
           uiSchema={uiSchema}
           formData={this.state.formData}
           onChange={(e) => { this.changeHandler(e) }}
