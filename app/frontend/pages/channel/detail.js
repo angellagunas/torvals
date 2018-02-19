@@ -15,7 +15,7 @@ class ChannelDetail extends Component {
       loading: true,
       loaded: false,
       channel: {},
-      roles: 'admin, orgadmin, analyst, opsmanager',
+      roles: 'admin, orgadmin, analyst, manager-level-2',
       canEdit: false,
       isLoading: ''
     }
@@ -135,7 +135,7 @@ export default Page({
   path: '/channels/:uuid',
   title: 'Channel Detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, localmanager',
+  roles: 'analyst, orgadmin, admin, manager-level-1',
   validate: [loggedIn, verifyRole],
   component: ChannelDetail
 })

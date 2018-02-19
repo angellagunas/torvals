@@ -187,7 +187,7 @@ class TabAprove extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'enterprisemanager') {
+          if (currentRole !== 'manager-level-3') {
             return (
               <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
                 <Checkbox
@@ -203,7 +203,7 @@ class TabAprove extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row, state) => {
-          if (currentRole !== 'enterprisemanager') {
+          if (currentRole !== 'manager-level-3') {
             if (row.status === 'created') {
               if (!row.selected) {
                 row.selected = false
@@ -350,7 +350,7 @@ class TabAprove extends Component {
               </div>
             </div>
           </div>
-          {currentRole !== 'enterprisemanager' ?
+          {currentRole !== 'manager-level-3' ?
           <div className='column'>
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
@@ -572,8 +572,8 @@ class TabAprove extends Component {
         <header className='card-header'>
           <p className='card-header-title'> Aprobar / Rechazar Ajustes </p>
         </header>
-        {currentRole === 'enterprisemanager' ?
-          <div className='notification is-error has-text-centered is-uppercase	is-paddingless'>
+        {currentRole === 'manager-level-3' ?
+          <div className='notification is-error has-text-centered is-uppercase  is-paddingless'>
             <span className='icon is-medium has-text-warning'>
               <i className='fa fa-warning'></i>
             </span>
@@ -585,7 +585,7 @@ class TabAprove extends Component {
               <i className='fa fa-warning'></i>
             </span>
             Es necesario aprobar ajustes fuera de rango.
-            {currentRole === 'opsmanager' && ' Tu tipo de usuario permite ajustes fuera de rango'}
+            {currentRole === 'manager-level-2' && ' Tu tipo de usuario permite ajustes fuera de rango'}
           </div>
         }
         <section className='section is-paddingless-top'>

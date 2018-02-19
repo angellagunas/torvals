@@ -115,12 +115,12 @@ class NavBar extends Component {
 
     const navbarBrand = classNames('c-topbar__aside navbar-brand', {
       'collapsed': this.state.navbarBrandCollapsed,
-      'c-topbar__aside__white has-bg-hover': this.props.user.currentRole.slug === 'localmanager'
+      'c-topbar__aside__white has-bg-hover': this.props.user.currentRole.slug === 'manager-level-1'
     })
 
     const navItemWhite = classNames({
-      'has-bg-hover has-bg-color': this.props.user.currentRole.slug === 'localmanager',
-      'has-text-black': this.props.user.currentRole.slug !== 'localmanager'
+      'has-bg-hover has-bg-color': this.props.user.currentRole.slug === 'manager-level-1',
+      'has-text-black': this.props.user.currentRole.slug !== 'manager-level-1'
     })
 
     return (<nav className='c-topbar navbar c-fixed'>
@@ -133,7 +133,7 @@ class NavBar extends Component {
       <div className='c-topbar__main'>
         <div className='navbar-menu has-bg-color has-text-white'>
           <div className='navbar-start'>
-            { this.props.user.currentRole.slug !== 'localmanager' &&
+            { this.props.user.currentRole.slug !== 'manager-level-1' &&
               <div className='navbar-start'>
                 <div className='navbar-burger burger-desktop' onClick={this.props.handleBurgerEvent}>
                   <span />
@@ -142,7 +142,7 @@ class NavBar extends Component {
                 </div>
               </div>
             }
-            { this.props.user.currentRole.slug === 'localmanager' && 
+            { this.props.user.currentRole.slug === 'manager-level-1' &&
               <SelectOrganizationForm className='has-bg-color navstrong' />
             }
           </div>

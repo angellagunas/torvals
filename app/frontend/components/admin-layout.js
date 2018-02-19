@@ -86,7 +86,7 @@ class AdminLayout extends Component {
           collapsed={this.state.sidebarCollapsed}
           handleBurgerEvent={() => this.handleBurgerEvent()} />
         <div className='is-flex c-flex-1 columns is-gapless'>
-          { this.state.user.currentRole.slug !== 'localmanager' && <Sidebar
+          { this.state.user.currentRole.slug !== 'manager-level-1' && <Sidebar
             collapsed={this.state.sidebarCollapsed}
             activePath={this.state.activePath} />
           }

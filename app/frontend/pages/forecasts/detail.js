@@ -170,7 +170,7 @@ class ForecastDetail extends Component {
           if (
               row.status === 'created' &&
               currentRole !== 'analyst' &&
-              currentRole !== 'enterprisemanager'
+              currentRole !== 'manager-level-3'
           ) {
             return (
               <div className='field is-grouped'>
@@ -385,7 +385,10 @@ class ForecastDetail extends Component {
       )
     }
 
-    if (forecast.status === 'opsReview' && (currentRole === 'localmanager' || currentRole === 'opsmanager')) {
+    if (
+      forecast.status === 'opsReview' &&
+      (currentRole === 'manager-level-1' || currentRole === 'manager-level-2')
+    ) {
       return (
         <button
           className='button is-primary'
@@ -397,7 +400,10 @@ class ForecastDetail extends Component {
       )
     }
 
-    if (forecast.status === 'consolidate' && (currentRole === 'localmanager' || currentRole === 'opsmanager')) {
+    if (
+      forecast.status === 'consolidate' &&
+      (currentRole === 'manager-level-1' || currentRole === 'manager-level-2')
+    ) {
       return (
         <button
           className='button is-primary'
@@ -619,7 +625,7 @@ class ForecastDetail extends Component {
             </div>
             <div className='column is-6 is-offset-6'>
               <div className='control'>
-                { currentRole !== 'localmanager' &&
+                { currentRole !== 'manager-level-1' &&
                   <DeleteButton
                     objectName='Forecast'
                     objectDelete={this.deleteObject.bind(this)}
@@ -649,7 +655,7 @@ export default Page({
   title: 'Forecast detail',
   icon: 'check',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
+  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-1, manager-level-2',
   validate: [loggedIn, verifyRole],
   component: ForecastDetail
 })

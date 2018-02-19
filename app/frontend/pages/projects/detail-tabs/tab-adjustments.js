@@ -54,7 +54,7 @@ class TabAdjustment extends Component {
     this.getFilters()
     this.getModifiedCount()
 
-    if (this.props.canEdit && currentRole !== 'enterprisemanager') {
+    if (this.props.canEdit && currentRole !== 'manager-level-3') {
       this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
   }
@@ -350,7 +350,7 @@ class TabAdjustment extends Component {
           if (!row.adjustment) {
             row.adjustment = 0
           }
-          if (currentRole !== 'enterprisemanager') {
+          if (currentRole !== 'manager-level-3') {
             return (
               <Editable
                 value={row.adjustment}
@@ -380,7 +380,7 @@ class TabAdjustment extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'enterprisemanager') {
+          if (currentRole !== 'manager-level-3') {
             return (
               <Checkbox
                 label='checkAll'
@@ -397,7 +397,7 @@ class TabAdjustment extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          if (currentRole !== 'enterprisemanager') {
+          if (currentRole !== 'manager-level-3') {
             return (
               <Checkbox
                 label={row}
@@ -529,7 +529,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div> 
-        {currentRole !== 'enterprisemanager' ?
+        {currentRole !== 'manager-level-3' ?
         <div className='column'>
           <div className='field is-grouped is-grouped-right'>
             <div className='control'>
@@ -618,7 +618,7 @@ class TabAdjustment extends Component {
       obj.isLimit = (obj.adjustment >= maxAdjustment || obj.adjustment <= minAdjustment)
     }
 
-    if ((currentRole === 'opsmanager' || currentRole === 'localmanager')) {
+    if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
       if (obj.adjustment > maxAdjustment || obj.adjustment < minAdjustment) {
         this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
         return false
@@ -885,7 +885,7 @@ class TabAdjustment extends Component {
         <header className='card-header'>
           <p className='card-header-title'> Ajustes </p>
         </header>
-        {currentRole === 'enterprisemanager' ?
+        {currentRole === 'manager-level-3' ?
           <div className='notification is-error has-text-centered is-uppercase  is-paddingless'>
             <span className='icon is-medium has-text-warning'>
               <i className='fa fa-warning'></i>
@@ -898,7 +898,7 @@ class TabAdjustment extends Component {
               <i className='fa fa-warning'></i>
             </span>
             {adjustment}
-            {currentRole === 'opsmanager' && ' Tu tipo de usuario permite ajustes fuera de rango'}
+            {currentRole === 'manager-level-2' && ' Tu tipo de usuario permite ajustes fuera de rango'}
           </div>
         }
         <div className='section is-paddingless-top'>
@@ -933,7 +933,7 @@ class TabAdjustment extends Component {
                 </div>
               </BaseForm>
             </div>
-            { this.props.canEdit && currentRole !== 'enterprisemanager' &&
+            { this.props.canEdit && currentRole !== 'manager-level-3' &&
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>

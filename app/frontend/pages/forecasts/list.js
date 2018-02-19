@@ -10,7 +10,7 @@ export default ListPage({
   title: 'Predicciones',
   icon: 'snowflake-o',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
+  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-1, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Predicción',
   baseUrl: '/app/forecasts',

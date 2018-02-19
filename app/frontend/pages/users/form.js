@@ -54,7 +54,7 @@ class UserForm extends Component {
         return item._id === formData['role']
       })
 
-      if (role.slug === 'localmanager') {
+      if (role.slug === 'manager-level-1') {
         schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
         uiSchema['project'] = {'ui:widget': SelectWidget}
         schema.required.push('project')

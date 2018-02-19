@@ -44,15 +44,15 @@ module.exports = new Route({
         }
         break
 
-      case 'localmanager':
+      case 'manager-level-1':
         filters['status'] = 'opsReview'
         break
 
-      case 'enterprisemanager':
+      case 'manager-level-3':
         filters['status'] = 'supervisorReview'
         break
 
-      case 'opsmanager':
+      case 'manager-level-2':
         filters['status'] = 'opsReview'
         break
 
