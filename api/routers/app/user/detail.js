@@ -11,6 +11,7 @@ module.exports = new Route({
     var user = await User.findOne({'uuid': userId})
       .populate('organizations.organization')
       .populate('organizations.role')
+      .populate('organizations.defaultProject')
       .populate('groups')
 
     ctx.assert(user, 404, 'User not found')

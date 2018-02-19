@@ -11,6 +11,7 @@ import { loggedIn, verifyRole } from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import UserForm from './form'
 import Multiselect from '~base/components/base-multiselect'
+import tree from '~core/tree'
 
 class UserDetail extends Component {
   constructor (props) {
@@ -24,6 +25,7 @@ class UserDetail extends Component {
       user: {},
       roles: [],
       groups: [],
+      projects: [],
       selectedGroups: [],
       saving: false,
       saved: false,
@@ -35,8 +37,20 @@ class UserDetail extends Component {
     this.load()
     this.loadGroups()
     this.loadRoles()
+    this.loadProjects()
   }
 
+  async loadProjects () {
+    var url = '/app/projects/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0
+    })
+
+    this.setState({
+      projects: body.data
+    })
+  }
   async load () {
     var url = '/app/users/' + this.props.match.params.uuid
     const body = await api.get(url)
@@ -233,6 +247,27 @@ class UserDetail extends Component {
 
   render () {
     const { user } = this.state
+    const currentUser = tree.get('user')
+
+    if (user) {
+      var role = this.state.roles.find((item) => {
+        return item._id === user.role
+      })
+
+      if (role && role.slug === 'localmanager') {
+        var currentOrg = user.organizations.find((item) => {
+          return item.organization.uuid === currentUser.currentOrganization.uuid
+        })
+
+        var currentProject = this.state.projects.find((item) => {
+          return item.uuid === currentOrg.defaultProject.uuid
+        })
+
+        if (currentProject) {
+          this.state.user.project = currentProject.uuid
+        }
+      }
+    }
 
     if (!user.uuid) {
       return <Loader />
@@ -288,6 +323,7 @@ class UserDetail extends Component {
                           initialState={this.state.user}
                           load={this.load.bind(this)}
                           roles={this.state.roles || []}
+                          projects={this.state.projects}
                           submitHandler={(data) => this.submitHandler(data)}
                           errorHandler={(data) => this.errorHandler(data)}
                           finishUp={(data) => this.finishUpHandler(data)}

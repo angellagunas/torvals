@@ -58,7 +58,6 @@ class UserForm extends Component {
         schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
         uiSchema['project'] = {'ui:widget': SelectWidget}
         schema.required.push('project')
-        await this.loadProjects()
       } else {
         delete schema.properties['project']
         delete uiSchema['project']
@@ -70,19 +69,6 @@ class UserForm extends Component {
       formData,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      key: Math.random()
-    })
-  }
-
-  async loadProjects () {
-    var url = '/app/projects/'
-    const body = await api.get(url, {
-      start: 0,
-      limit: 0
-    })
-
-    this.setState({
-      projects: body.data,
       key: Math.random()
     })
   }
@@ -127,6 +113,16 @@ class UserForm extends Component {
 
   render () {
     const currentUser = tree.get('user')
+
+    var role = this.props.roles.find((item) => {
+      return item._id === this.state.formData.role
+    })
+
+    if (role && role.slug === 'localmanager') {
+      schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+      uiSchema['project'] = {'ui:widget': SelectWidget}
+      schema.required.push('project')
+    }
     var error
     if (this.state.error) {
       error = <div>
@@ -151,8 +147,8 @@ class UserForm extends Component {
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
     if (schema.properties.project) {
-      schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
-      schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
+      schema.properties.project.enum = this.props.projects.map(item => { return item.uuid })
+      schema.properties.project.enumNames = this.props.projects.map(item => { return item.name })
     }
 
     return (

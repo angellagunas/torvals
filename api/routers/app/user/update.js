@@ -22,7 +22,6 @@ module.exports = new Route({
     var org = user.organizations.find(e => {
       return String(e.organization) === String(ctx.state.organization._id)
     })
-
     if (data.project) {
       const project = await Project.findOne({'uuid': data.project})
       ctx.assert(project, 404, 'Project not found')
@@ -30,6 +29,10 @@ module.exports = new Route({
     }
 
     org.role = data.role
+
+    org.save()
+    user.save()
+
     ctx.body = {
       data: user.format()
     }
