@@ -176,7 +176,7 @@ class Dashboard extends Component {
     }
 
     if (user.currentRole.slug === 'localmanager') {
-      return <Redirect to={'/projects/' + this.state.projects[0].uuid} />
+      return <Redirect to={'/projects/' + user.currentProject.uuid} />
     }
 
     return (
