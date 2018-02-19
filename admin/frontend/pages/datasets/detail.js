@@ -1001,7 +1001,9 @@ class DataSetDetail extends Component {
                                 className={'button is-primary ' + this.state.isLoading}
                                 disabled={!!this.state.isLoading}
                                 type='submit'
-                              >Guardar</button>
+                              >
+                                Guardar
+                              </button>
                             </div>
                           </div>
                         </DatasetDetailForm>

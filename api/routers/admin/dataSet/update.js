@@ -1,45 +1,30 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const { DataSet, Organization } = require('models')
+const { DataSet } = require('models')
 
 module.exports = new Route({
   method: 'post',
   path: '/:uuid',
   validator: lov.object().keys({
     name: lov.string().required(),
-    description: lov.string(),
-    organization: lov.string().required()
+    description: lov.string()
   }),
   handler: async function (ctx) {
     const body = ctx.request.body
-    const org = await Organization.findOne({uuid: body.organization})
-
-    if (!org) {
-      ctx.throw(404, 'Organization not found')
-    }
-
-    body.organization = org
     var datasetId = ctx.params.uuid
 
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
       .populate('fileChunk')
-      .populate('organization')
 
     ctx.assert(dataset, 404, 'DataSet not found')
-    const lastOrg = dataset.organization
 
     dataset.set({
       name: body.name,
       description: body.description,
-      organization: body.organization,
       status: body.status
     })
     await dataset.save()
-
-    if (String(org._id) !== String(lastOrg._id)) {
-      await dataset.processData()
-    }
 
     ctx.body = {
       data: dataset
