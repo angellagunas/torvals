@@ -14,6 +14,7 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 
+moment.locale('es');
 
 class TabAdjustment extends Component {
   constructor (props) {
@@ -87,7 +88,6 @@ class TabAdjustment extends Component {
       var period3 = dates.slice(8,12)
       var period2 = dates.slice(4,8)
       var period1 = dates.slice(0,4)
-      moment.locale('es');
 
       periods.push({
         number: 4,
@@ -246,7 +246,7 @@ class TabAdjustment extends Component {
         salesCenter: e.formData.salesCenters,
         category: e.formData.categories
       })
-    
+
     this.setState({
       dataRows: this.getEditedRows(data.data),
       isFiltered: true,
@@ -347,9 +347,9 @@ class TabAdjustment extends Component {
           if (!row.adjustment) {
             row.adjustment = 0
           }
-          
+
           return (
-            <Editable 
+            <Editable
               value={row.adjustment}
               handleChange={this.changeAdjustment}
               type='number'
@@ -484,7 +484,7 @@ class TabAdjustment extends Component {
     for (let row of this.state.dataRows) {
       row.selected = false
     }
-    this.setState({ 
+    this.setState({
       selectedCheckboxes: new Set(),
       selectedAll: false
     }, function () {
@@ -503,7 +503,7 @@ class TabAdjustment extends Component {
             <div className='control'>
               <div className='field has-addons'>
                 <div className='control'>
-                  <input 
+                  <input
                     className='input'
                     type='text'
                     value={this.state.searchTerm}
@@ -517,7 +517,7 @@ class TabAdjustment extends Component {
               </div>
             </div>
           </div>
-        </div> 
+        </div>
         <div className='column'>
           <div className='field is-grouped is-grouped-right'>
             <div className='control'>
@@ -555,7 +555,7 @@ class TabAdjustment extends Component {
   async onClickButtonPlus () {
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = row.prediction * 0.01
-      if (Math.round(toAdd) === 0) { 
+      if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
       var adjustment = row.adjustment
@@ -564,14 +564,14 @@ class TabAdjustment extends Component {
       const res = await this.handleChange(row)
       if (!res) {
         row.adjustment = adjustment
-      }      
+      }
     }
   }
 
   async onClickButtonMinus () {
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = row.prediction * 0.01
-      if (Math.round(toAdd) === 0) { 
+      if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
       var adjustment = row.adjustment
@@ -587,7 +587,7 @@ class TabAdjustment extends Component {
   toggleButtons () {
     let disable = true
 
-    if (this.state.selectedCheckboxes.size > 0) 
+    if (this.state.selectedCheckboxes.size > 0)
       disable = false
 
     this.setState({
@@ -596,12 +596,12 @@ class TabAdjustment extends Component {
   }
 
   async handleChange (obj) {
-    
+
     var maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
     var minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
 
     obj.adjustment = Math.round(obj.adjustment)
-    
+
     if (this.state.generalAdjustment > 0) {
       obj.isLimit = (obj.adjustment >= maxAdjustment || obj.adjustment <= minAdjustment)
     }
@@ -610,7 +610,7 @@ class TabAdjustment extends Component {
     const res = await api.post(url, {...obj})
 
     obj.lastAdjustment = res.data.data.lastAdjustment
-    
+
     obj.edited = true
 
 
@@ -625,7 +625,7 @@ class TabAdjustment extends Component {
     })
 
     this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
-    
+
     return true
   }
 
@@ -678,12 +678,12 @@ class TabAdjustment extends Component {
       const regEx = new RegExp(this.state.searchTerm, 'gi')
 
       if (regEx.test(item.productName) || regEx.test(item.productId) || regEx.test(item.channel) || regEx.test(item.salesCenter))
-        return item 
+        return item
       else
-        return null  
+        return null
     })
     .filter(function(item){ return item != null });
-    
+
     this.setState({
       filteredData: items
     })
@@ -702,21 +702,21 @@ class TabAdjustment extends Component {
     this.setState({
       searchTerm: ''
     },() => this.searchDatarows() )
-  } 
+  }
 
   async conciliateOnClick () {
     this.setState({
       isConciliating: ' is-loading'
     })
     var url = '/admin/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
-  
+
     try {
       await api.post(url)
       await this.props.load()
     } catch (e) {
       this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
     }
-    
+
     this.setState({
       isConciliating: '',
       modified: 0,
@@ -789,7 +789,7 @@ class TabAdjustment extends Component {
       )
     }
 
-   
+
     var schema = {
       type: 'object',
       title: '',

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import Link from '~base/router/link'
 import api from '~base/api'
 
 import Page from '~base/page'
@@ -98,7 +97,7 @@ const branchedDeletedUsers = branch({deletedUsers: 'deletedUsers'}, DeletedUsers
 
 export default Page({
   path: '/manage/users/deleted',
-  title: 'Deactivated users',
+  title: 'Usuarios desactivados',
   icon: 'trash',
   exact: true,
   validate: loggedIn,
