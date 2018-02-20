@@ -30,8 +30,8 @@ module.exports = new Route({
 
     org.role = data.role
 
-    org.save()
-    user.save()
+    await org.save()
+    await user.save()
 
     ctx.body = {
       data: user.format()
