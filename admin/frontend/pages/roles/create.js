@@ -7,6 +7,7 @@ import BaseModal from '~base/components/base-modal'
 import RoleForm from './form'
 
 var initialState = {
+  priority: '',
   name: '',
   description: ''
 }
