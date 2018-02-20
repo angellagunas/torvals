@@ -933,7 +933,7 @@ class TabAdjustment extends Component {
                 </div>
               </BaseForm>
             </div>
-            { this.props.canEdit && currentRole !== 'manager-level-3' &&
+            { currentRole !== 'manager-level-3' &&
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
