@@ -89,8 +89,8 @@ module.exports = new Route({
     }
 
     if (
-      (currentRole.slug === 'localmanager' ||
-      currentRole.slug === 'opsmanager') &&
+      (currentRole.slug === 'manager-level-1' ||
+      currentRole.slug === 'manager-level-2') &&
       !filters['salesCenter']
     ) {
       var groups = user.groups

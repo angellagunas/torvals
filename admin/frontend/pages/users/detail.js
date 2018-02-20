@@ -217,7 +217,7 @@ class UserDetail extends Component {
       return item.uuid === role
     })
 
-    if (currentRole.slug === 'localmanager') {
+    if (currentRole.slug === 'manager-level-1') {
       await this.loadProjects(organization)
       this.setState({classNameProjects: 'is-active', formProject: { organization: organization, role: role }})
     } else {
@@ -267,7 +267,7 @@ class UserDetail extends Component {
         'property': 'role',
         'default': 'N/A',
         formatter: (row) => {
-          if (row.defaultProject && row.role.slug === 'localmanager') {
+          if (row.defaultProject && row.role.slug === 'manager-level-1') {
             return (
               <div>
                 <div className='select'>

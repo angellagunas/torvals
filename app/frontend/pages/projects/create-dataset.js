@@ -71,12 +71,14 @@ class CreateDataSet extends Component {
           errorHandler={(data) => this.errorHandler(data)}
         >
           <div className='field is-grouped'>
-            <button
-              className={'button is-primary ' + this.state.isLoading}
-              disabled={!!this.state.isLoading}
-              type='submit'>
+            <div className='control'>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'>
                 Crear
               </button>
+            </div>
             <div className='control'>
               <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>

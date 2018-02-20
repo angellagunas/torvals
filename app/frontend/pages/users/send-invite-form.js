@@ -58,7 +58,7 @@ class InviteUserForm extends Component {
         return item._id === formData['role']
       })
 
-      if (role.slug === 'localmanager') {
+      if (role.slug === 'manager-level-1') {
         schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
         uiSchema['project'] = {'ui:widget': SelectWidget}
         this.setState({projectRequired: true})
@@ -103,7 +103,7 @@ class InviteUserForm extends Component {
   async submitHandler ({formData}) {
     if (this.state.projectRequired && !formData['project']) {
       this.setState({
-        error: 'Para el rol localManager es necesario un proyecto',
+        error: 'Para el rol Manager Level 1 es necesario un proyecto',
         apiCallErrorMessage: 'message is-danger'
       })
     } else {

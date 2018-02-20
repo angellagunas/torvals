@@ -28,7 +28,7 @@ class ProjectDetail extends Component {
       project: {},
       selectedTab: 'Ajustes',
       datasetClassName: '',
-      roles: 'admin, orgadmin, analyst, opsmanager',
+      roles: 'admin, orgadmin, analyst, manager-level-2',
       canEdit: false,
       isLoading: ''
     }
@@ -136,7 +136,7 @@ class ProjectDetail extends Component {
         name: 'Aprobar',
         title: 'Aprobar',
         icon: 'fa-calendar-check-o',
-        hide: (testRoles('localmanager') ||
+        hide: (testRoles('manager-level-1') ||
               project.status === 'processing' ||
               project.status === 'pendingRows' ||
               project.status === 'empty'),
@@ -151,7 +151,7 @@ class ProjectDetail extends Component {
         name: 'Datasets',
         title: 'Datasets',
         icon: 'fa-signal',
-        hide: testRoles('localmanager'),
+        hide: testRoles('manager-level-1'),
         content: (
           <TabDatasets
             project={project}
@@ -170,7 +170,7 @@ class ProjectDetail extends Component {
         name: 'Configuración',
         title: 'Información',
         icon: 'fa-tasks',
-        hide: testRoles('localmanager'),
+        hide: testRoles('manager-level-1'),
         content: (
           <div className='card'>
             <header className='card-header'><p className='card-header-title'> Información </p></header>
@@ -279,7 +279,7 @@ export default Page({
   path: '/projects/:uuid',
   title: 'Detalle de Proyecto',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin, opsmanager, localmanager',
+  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2, manager-level-1',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })
