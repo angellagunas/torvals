@@ -483,7 +483,7 @@ class TabAdjustment extends Component {
   }
 
   changeAdjustment = async (value, row) => {
-    row.adjustment = value
+    row.newAdjustment = value
     const res = await this.handleChange(row)
     if (!res) {
       return false
@@ -570,9 +570,11 @@ class TabAdjustment extends Component {
       if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
-      var adjustment = row.adjustment
-      var newAdjustment = row.adjustment + toAdd
-      row.adjustment = newAdjustment
+      let adjustment = Math.round(row.adjustment)
+      let newAdjustment = adjustment + toAdd
+      
+      row.newAdjustment = newAdjustment
+            
       const res = await this.handleChange(row)
       if (!res) {
         row.adjustment = adjustment
@@ -586,9 +588,11 @@ class TabAdjustment extends Component {
       if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
-      var adjustment = row.adjustment
-      var newAdjustment = row.adjustment - toAdd
-      row.adjustment = newAdjustment
+      let adjustment = Math.round(row.adjustment)
+      let newAdjustment = adjustment - toAdd
+
+      row.newAdjustment = newAdjustment
+      
       const res = await this.handleChange(row)
       if (!res) {
         row.adjustment = adjustment
@@ -608,21 +612,35 @@ class TabAdjustment extends Component {
   }
 
   async handleChange (obj) {
+    let adjusted = true
+    let maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
+    let minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
 
-    var maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
-    var minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
-
+    obj.newAdjustment = Math.round(obj.newAdjustment)
     obj.adjustment = Math.round(obj.adjustment)
-
+    
     if (this.state.generalAdjustment > 0) {
-      obj.isLimit = (obj.adjustment >= maxAdjustment || obj.adjustment <= minAdjustment)
+      obj.isLimit = (obj.newAdjustment >= maxAdjustment || obj.newAdjustment <= minAdjustment)
     }
 
     if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
-      if (obj.adjustment > maxAdjustment || obj.adjustment < minAdjustment) {
-        this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
-        return false
+      if (obj.newAdjustment >= maxAdjustment){
+        obj.adjustment = maxAdjustment
+        adjusted = false
       }
+        
+      else if (obj.newAdjustment <= minAdjustment) {
+        obj.adjustment = minAdjustment
+        adjusted = false
+      }
+
+      else{
+        obj.adjustment = obj.newAdjustment
+      }
+      
+    }
+    else {
+      obj.adjustment = obj.newAdjustment
     }
 
     var url = '/app/rows/' + obj.uuid
@@ -643,9 +661,12 @@ class TabAdjustment extends Component {
       isConciliating: ' is-loading'
     })
 
-    this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
-
-    return true
+    if(adjusted)
+      this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
+    else
+      this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
+      
+    return adjusted
   }
 
 
