@@ -254,7 +254,7 @@ class UserDetail extends Component {
         return item._id === user.role
       })
 
-      if (role && role.slug === 'localmanager') {
+      if (role && role.slug === 'manager-level-1') {
         var currentOrg = user.organizations.find((item) => {
           return item.organization.uuid === currentUser.currentOrganization.uuid
         })
