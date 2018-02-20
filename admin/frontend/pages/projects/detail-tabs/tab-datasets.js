@@ -146,7 +146,7 @@ class TabDatasets extends Component {
   render () {
     return (
       <div>
-        <header className='card-header'>
+        <header className='card-header is-shadowless'>
           <p className='card-header-title' />
           <div className='card-header-select'>
             <div className='field is-grouped'>
