@@ -84,14 +84,14 @@ class Sidebar extends Component {
           roles: 'orgadmin, admin, analyst, manager-level-3, manager-level-2',
           opened: false,
           dropdown: [
-            Users.asSidebarItem(),
-            Groups.asSidebarItem(),
             {
               title: 'Mi Organización',
               icon: 'user',
               roles: 'orgadmin, admin, analyst',
               to: '/manage/organizations/' + tree.get('organization').uuid
-            }
+            },
+            Groups.asSidebarItem(),
+            Users.asSidebarItem()
           ]
         },
         Projects.asSidebarItem(),
