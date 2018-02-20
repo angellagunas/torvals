@@ -88,11 +88,11 @@ class Sidebar extends Component {
         to: '/manage',
         opened: false,
         dropdown: [
-          Users.asSidebarItem(),
-          DeletedUsers.asSidebarItem(),
           Organizations.asSidebarItem(),
           Roles.asSidebarItem(),
-          Groups.asSidebarItem()
+          Groups.asSidebarItem(),
+          Users.asSidebarItem(),
+          DeletedUsers.asSidebarItem()
         ]
       },
       {

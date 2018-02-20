@@ -17,7 +17,9 @@ module.exports = new Route({
         { 'isDeleted': false }
       },
       { '$lookup':
-        { 'localField': 'groups', 'from': 'groups', 'foreignField': '_id', 'as': 'infoGroup' } }
+        { 'localField': 'groups', 'from': 'groups', 'foreignField': '_id', 'as': 'infoGroup' } },
+      { '$lookup':
+        { 'localField': 'organizations.role', 'from': 'roles', 'foreignField': '_id', 'as': 'infoRole' } }
     ]
 
     var statementsGeneral = []
@@ -78,12 +80,23 @@ module.exports = new Route({
     var statementCount = [...statement]
 
     statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
+
     var users = await User.aggregate(statement)
 
     statementCount.push({$count: 'total'})
     var usersCount = await User.aggregate(statementCount) || 0
 
     users = users.map((user) => {
+      var roleOfOrg
+      if (user.organizations.length > 0) {
+        var org = user.organizations.find(item => {
+          return item.organization.equals(ctx.state.organization._id)
+        })
+
+        roleOfOrg = user.infoRole.find(item => {
+          return item._id.equals(org.role)
+        })
+      }
       return {
         uuid: user.uuid,
         screenName: user.screenName,
@@ -94,7 +107,8 @@ module.exports = new Route({
         validEmail: user.validEmail,
         organizations: user.organizations,
         groups: user.infoGroup,
-        profileUrl: user.profileUrl
+        profileUrl: user.profileUrl,
+        role: roleOfOrg ? roleOfOrg.name : ''
       }
     })
     ctx.body = {'data': users, 'total': usersCount[0] ? usersCount[0].total : 0}

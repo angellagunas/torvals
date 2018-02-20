@@ -285,7 +285,16 @@ class UserDetail extends Component {
                     })}
                   </select>
                 </div>
-                &nbsp;{row.defaultProject.name}
+                &nbsp;
+                <span
+                  className='icon has-text-info'
+                  title={'Proyecto ' + row.defaultProject.name}
+                  onClick={() => {
+                    this.showModalAdjustmentRequest(row)
+                  }}
+                >
+                  <FontAwesome name='info fa-lg' />
+                </span>
               </div>
             )
           }
