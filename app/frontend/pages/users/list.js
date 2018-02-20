@@ -51,6 +51,12 @@ export default ListPage({
         'sortable': true
       },
       {
+        'title': 'Rol',
+        'property': 'role',
+        'default': 'N/A',
+        'sortable': true
+      },
+      {
         'title': 'Grupos',
         'property': 'groups',
         'default': 'N/A',
