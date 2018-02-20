@@ -20,7 +20,8 @@ class GroupDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      group: {}
+      group: {},
+      isLoading: ''
     }
   }
 
@@ -192,6 +193,18 @@ class GroupDetail extends Component {
     })
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     const { group } = this.state
 
@@ -233,10 +246,17 @@ class GroupDetail extends Component {
                           url={'/app/groups/' + this.props.match.params.uuid}
                           initialState={{...this.state.group, organization: this.state.group.organization._id}}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Guardar</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </GroupForm>
@@ -318,7 +338,7 @@ export default Page({
   path: '/manage/groups/:uuid',
   title: 'Detalles de grupo',
   exact: true,
-  roles: 'admin, orgadmin, analyst, enterprisemanager',
+  roles: 'admin, orgadmin, analyst, manager-level-3, manager-level-2',
   validate: [loggedIn, verifyRole],
   component: branchedGroupDetail
 })

@@ -28,8 +28,9 @@ class ProjectDetail extends Component {
       project: {},
       selectedTab: 'Ajustes',
       datasetClassName: '',
-      roles: 'admin, orgadmin, analyst, opsmanager',
-      canEdit: false
+      roles: 'admin, orgadmin, analyst, manager-level-2',
+      canEdit: false,
+      isLoading: ''
     }
     this.interval = null
   }
@@ -37,7 +38,7 @@ class ProjectDetail extends Component {
   componentWillMount () {
     this.load()
     this.setState({
-      canEdit: testRoles(this.state.roles),
+      canEdit: testRoles(this.state.roles)
     })
   }
 
@@ -95,6 +96,18 @@ class ProjectDetail extends Component {
     clearInterval(this.interval)
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     const { project, canEdit } = this.state
 
@@ -123,7 +136,10 @@ class ProjectDetail extends Component {
         name: 'Aprobar',
         title: 'Aprobar',
         icon: 'fa-calendar-check-o',
-        hide: testRoles('localmanager'),
+        hide: (testRoles('manager-level-1') ||
+              project.status === 'processing' ||
+              project.status === 'pendingRows' ||
+              project.status === 'empty'),
         content: (
           <TabAprove
             project={project}
@@ -135,7 +151,7 @@ class ProjectDetail extends Component {
         name: 'Datasets',
         title: 'Datasets',
         icon: 'fa-signal',
-        hide: testRoles('localmanager'),
+        hide: testRoles('manager-level-1'),
         content: (
           <TabDatasets
             project={project}
@@ -154,7 +170,7 @@ class ProjectDetail extends Component {
         name: 'Configuración',
         title: 'Información',
         icon: 'fa-tasks',
-        hide: testRoles('localmanager'),
+        hide: testRoles('manager-level-1'),
         content: (
           <div className='card'>
             <header className='card-header'><p className='card-header-title'> Información </p></header>
@@ -165,10 +181,18 @@ class ProjectDetail extends Component {
                 initialState={{ ...project, organization: project.organization.uuid }}
                 load={this.load.bind(this)}
                 canEdit={canEdit}
+                editable
+                submitHandler={(data) => this.submitHandler(data)}
+                errorHandler={(data) => this.errorHandler(data)}
+                finishUp={(data) => this.finishUpHandler(data)}
               >
                 <div className='field is-grouped'>
                   <div className='control'>
-                    <button className='button is-primary'>Guardar</button>
+                    <button
+                      className={'button is-primary ' + this.state.isLoading}
+                      disabled={!!this.state.isLoading}
+                      type='submit'
+                    >Guardar</button>
                   </div>
                 </div>
               </ProjectForm>
@@ -219,25 +243,22 @@ class ProjectDetail extends Component {
         </div>
 
         { canEdit &&
-          <div>
-            <SidePanel
-              sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-              icon={'plus'}
-              title={'Opciones'}
-              content={options}
+        <SidePanel
+          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+          icon={'plus'}
+          title={'Opciones'}
+          content={options}
             />
-            <CreateDataSet
-              branchName='datasets'
-              url='/admin/datasets'
-              organization={project.organization.uuid}
-              project={project.uuid}
-              className={this.state.datasetClassName}
-              hideModal={this.hideModalDataset.bind(this)}
-              finishUp={this.finishUpDataset.bind(this)}
-            />
-          </div>
         }
-
+        <CreateDataSet
+          branchName='datasets'
+          url='/admin/datasets'
+          organization={project.organization.uuid}
+          project={project.uuid}
+          className={this.state.datasetClassName}
+          hideModal={this.hideModalDataset.bind(this)}
+          finishUp={this.finishUpDataset.bind(this)}
+        />
         <ToastContainer />
       </div>
     )
@@ -258,7 +279,7 @@ export default Page({
   path: '/projects/:uuid',
   title: 'Detalle de Proyecto',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin, opsmanager, localmanager',
+  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2, manager-level-1',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

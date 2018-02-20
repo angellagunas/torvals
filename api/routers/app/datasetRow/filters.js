@@ -1,6 +1,15 @@
 const Route = require('lib/router/route')
+const moment = require('moment')
 
-const { DataSetRow, DataSet, Channel, SalesCenter, Product } = require('models')
+const {
+  DataSetRow,
+  DataSet,
+  Channel,
+  SalesCenter,
+  Product,
+  AbraxasDate,
+  Role
+} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -23,8 +32,44 @@ module.exports = new Route({
     var salesCenters = Array.from(new Set(rows.map(item => { return String(item.salesCenter) })))
     var products = Array.from(new Set(rows.map(item => { return String(item.product) })))
 
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
+    if (
+      currentRole.slug === 'manager-level-1' ||
+      currentRole.slug === 'manager-level-2'
+    ) {
+      var groups = user.groups
+
+      salesCenters = await SalesCenter.find({groups: {$in: groups}})
+    }
+
     semanasBimbo.sort((a, b) => {
       return a - b
+    })
+
+    var dates = await AbraxasDate.find({
+      week: {$in: semanasBimbo},
+      dateStart: {$lte: moment(dataset.dateMax)}
+    }).sort('dateStart').limit(semanasBimbo.length)
+
+    dates = dates.map(item => {
+      return {
+        week: item.week,
+        month: item.month,
+        year: item.year,
+        dateStart: item.dateStart,
+        dateEnd: item.dateEnd
+      }
     })
 
     channels = await Channel.find({ _id: { $in: channels } })
@@ -35,7 +80,8 @@ module.exports = new Route({
       semanasBimbo,
       channels,
       salesCenters,
-      products
+      products,
+      dates
     }
   }
 })

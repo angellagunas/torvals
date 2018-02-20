@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {Organization, Role} = require('models')
+const {Organization, Role, Project} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -24,6 +24,10 @@ module.exports = new Route({
 
           data.user.currentOrganization = org.toPublic()
           data.user.currentRole = role.toPublic()
+
+          if (role.slug === 'manager-level-1') {
+            data.user.currentProject = await Project.findOne({_id: currentOrganization.defaultProject})
+          }
         }
       }
 

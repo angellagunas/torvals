@@ -171,12 +171,12 @@ class Dashboard extends Component {
       return <DashAnalyst dashboard={this.state.dashboard} history={this.props.history} />
     }
 
-    if (user.currentRole.slug === 'enterprisemanager') {
+    if (user.currentRole.slug === 'manager-level-3') {
       return <DashEntManager dashboard={this.state.dashboard} history={this.props.history} />
     }
 
-    if (user.currentRole.slug === 'localmanager') {
-      return <Redirect to={'/projects/' + this.state.projects[0].uuid} />
+    if (user.currentRole.slug === 'manager-level-1') {
+      return <Redirect to={'/projects/' + user.currentProject.uuid} />
     }
 
     return (

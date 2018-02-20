@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const lov = require('lov')
 const crypto = require('crypto')
 
-const {User, Role, Group} = require('models')
+const {User, Role, Group, Project} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -35,11 +35,18 @@ module.exports = new Route({
 
       userData.role = defaultRole
     }
-
-    userData.organizations = [{
+    let orgObj = {
       organization: userData.organization,
       role: userData.role
-    }]
+    }
+
+    if (userData.project) {
+      const project = await Project.findOne({'uuid': userData.project})
+      ctx.assert(project, 404, 'Project not found')
+      orgObj.defaultProject = project
+    }
+
+    userData.organizations = [orgObj]
 
     const user = await User.register(userData)
 
@@ -52,6 +59,8 @@ module.exports = new Route({
       }
 
       user.groups.push(group)
+      group.users.push(user)
+      await group.save()
     }
 
     await user.save()

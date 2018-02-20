@@ -14,6 +14,7 @@ import Multiselect from '~base/components/base-multiselect'
 import { BaseTable } from '~base/components/base-table'
 import Link from '~base/router/link'
 import AddOrganization from './add-organization'
+import BaseModal from '~base/components/base-modal'
 
 class UserDetail extends Component {
   constructor (props) {
@@ -29,7 +30,11 @@ class UserDetail extends Component {
       groups: [],
       selectedGroups: [],
       saving: false,
-      saved: false
+      saved: false,
+      classNameProjects: '',
+      projects: [],
+      project: '',
+      isLoading: ''
     }
   }
 
@@ -102,7 +107,6 @@ class UserDetail extends Component {
         role: role
       }
     )
-
     this.load()
     this.loadGroups()
   }
@@ -208,16 +212,40 @@ class UserDetail extends Component {
     }, 10000)
   }
 
-  async roleSelectOnChange (role, org) {
-    var url = '/admin/users/' + this.props.match.params.uuid + '/add/role'
-    await api.post(url,
-      {
-        organization: org,
-        role: role
-      }
-    )
+  async roleSelectOnChange (role, organization) {
+    var currentRole = this.state.roles.find((item) => {
+      return item.uuid === role
+    })
 
-    this.load()
+    if (currentRole.slug === 'manager-level-1') {
+      await this.loadProjects(organization)
+      this.setState({classNameProjects: 'is-active', formProject: { organization: organization, role: role }})
+    } else {
+      this.setState({
+        projects: []
+      })
+      var url = '/admin/users/' + this.props.match.params.uuid + '/add/role'
+      await api.post(url,
+        {
+          organization: organization,
+          role: role
+        }
+      )
+      this.load()
+    }
+  }
+
+  async loadProjects (organization) {
+    var url = '/admin/projects/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0,
+      organization: organization
+    })
+
+    this.setState({
+      projects: body.data
+    })
   }
 
   getColumns () {
@@ -239,6 +267,28 @@ class UserDetail extends Component {
         'property': 'role',
         'default': 'N/A',
         formatter: (row) => {
+          if (row.defaultProject && row.role.slug === 'manager-level-1') {
+            return (
+              <div>
+                <div className='select'>
+                  <select
+                    value={row.role.uuid}
+                    onChange={event => {
+                      this.roleSelectOnChange(event.target.value, row.organization.uuid)
+                    }}>
+                    {this.state.roles.map((obj) => {
+                      return (
+                        <option key={obj.uuid} value={obj.uuid}>
+                          {obj.name}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+                &nbsp;{row.defaultProject.name}
+              </div>
+            )
+          }
           return (
             <div className='select'>
               <select
@@ -262,7 +312,7 @@ class UserDetail extends Component {
         'title': 'Acciones',
         formatter: (row) => {
           return <button
-            className='button'
+            className='button is-danger'
             onClick={() => { this.removeOrgOnClick(row.organization.uuid, row.role.uuid) }}
           >
             Eliminar
@@ -322,6 +372,97 @@ class UserDetail extends Component {
     }
   }
 
+  hideModalProject (e) {
+    this.setState({classNameProjects: ''})
+  }
+
+  projectSelectOnChange (e) {
+    this.setState({project: e})
+  }
+
+  async submitProjectHandler (e) {
+    if (this.state.project !== '') {
+      this.setState({isLoadingProject: ' is-loading'})
+      var url = '/admin/users/' + this.props.match.params.uuid + '/add/role'
+
+      this.state.formProject['project'] = this.state.project
+
+      await api.post(url, this.state.formProject)
+      await this.load()
+
+      this.setState({
+        classNameProjects: '',
+        isLoadingProject: ''
+      })
+    }
+  }
+
+  getModalProjects () {
+    return (
+      <BaseModal
+        title='Asignar Proyecto'
+        className={this.state.classNameProjects}
+        hideModal={(e) => this.hideModalProject(e)}>
+
+        <div className='field'>
+          <label className='label'>Proyecto</label>
+          <div className='control'>
+            <div className='select'>
+              <select
+                value={this.state.project}
+                onChange={event => { this.projectSelectOnChange(event.target.value) }}>
+                <option value={''}>
+                  Selecciona un proyecto
+                </option>
+                {this.state.projects.map((obj) => {
+                  return (
+                    <option key={obj.uuid} value={obj.uuid}>
+                      {obj.name}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className='field is-grouped'>
+          <div className='control'>
+            <button
+              className={'button is-primary ' + this.state.isLoadingProject}
+              disabled={!!this.state.isLoadingProject}
+              type='submit'
+              onClick={(e) => { this.submitProjectHandler(e) }}
+            >
+              Asignar
+            </button>
+          </div>
+          <div className='control'>
+            <button
+              className='button'
+              type='button'
+              onClick={(e) => this.hideModalProject(e)}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </BaseModal>
+    )
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     const { user } = this.state
 
@@ -378,10 +519,17 @@ class UserDetail extends Component {
                           url={'/admin/users/' + this.props.match.params.uuid}
                           initialState={this.state.user}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Guardar</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </UserForm>
@@ -450,6 +598,7 @@ class UserDetail extends Component {
             </div>
           </div>
         </div>
+        {this.getModalProjects()}
       </div>
     )
   }

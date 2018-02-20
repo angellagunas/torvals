@@ -21,7 +21,8 @@ class CreateUser extends Component {
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
       roles: [],
-      orgs: []
+      orgs: [],
+      isLoading: ''
     }
     initialState['organization'] = this.props.organization || ''
   }
@@ -94,10 +95,17 @@ class CreateUser extends Component {
         roles={this.state.roles || []}
         orgs={this.state.orgs || []}
         filters={this.props.filters}
+        submitHandler={(data) => this.submitHandler(data)}
+        errorHandler={(data) => this.errorHandler(data)}
       >
         <div className='field is-grouped'>
           <div className='control'>
-            <button className='button is-primary' type='submit'>Crear</button>
+            <button
+              className={'button is-primary ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'>
+                Crear
+              </button>
           </div>
           <div className='control'>
             <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
@@ -118,10 +126,17 @@ class CreateUser extends Component {
         roles={this.state.roles || []}
         orgs={this.state.orgs || []}
         filters={this.props.filters}
+        submitHandler={(data) => this.submitHandler(data)}
+        errorHandler={(data) => this.errorHandler(data)}
       >
         <div className='field is-grouped'>
           <div className='control'>
-            <button className='button is-primary' type='submit'>Invitar</button>
+            <button
+              className={'button is-primary ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'>
+                Invitar
+              </button>
           </div>
           <div className='control'>
             <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
@@ -129,6 +144,14 @@ class CreateUser extends Component {
         </div>
       </InviteUserForm>
     )
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {

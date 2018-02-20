@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
+import moment from 'moment'
 import api from '~base/api'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
@@ -13,7 +14,6 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 
-const generalAdjustment = 0.1
 var currentRole
 
 class TabAdjustment extends Component {
@@ -26,20 +26,24 @@ class TabAdjustment extends Component {
       isLoading: '',
       selectedAll: false,
       modified: 0,
+      pending: 0,
       filters: {
         channels: [],
         products: [],
         salesCenters: [],
         semanasBimbo: [],
-        categories: []
+        categories: [],
+        filteredSemanasBimbo: []
       },
       formData: {
-        semanasBimbo: 0
+        semanasBimbo: 0,
+        period: 1
       },
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
-      isConciliating: ''
+      isConciliating: '',
+      generalAdjustment: 0.1
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -50,8 +54,8 @@ class TabAdjustment extends Component {
     this.getFilters()
     this.getModifiedCount()
 
-    if (this.props.canEdit && currentRole !== 'enterprisemanager') {
-      this.interval = setInterval(() => { this.getModifiedCount() }, 10000)
+    if (this.props.canEdit && currentRole !== 'manager-level-3') {
+      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
   }
 
@@ -59,10 +63,72 @@ class TabAdjustment extends Component {
     clearInterval(this.interval)
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.project.status === 'adjustment') {
+      this.clearSearch()
+      this.getFilters()
+    }
+  }
+
   async getFilters() {
     if (this.props.project.activeDataset) {
       const url = '/app/rows/filters/dataset/'
       let res = await api.get(url + this.props.project.activeDataset.uuid)
+
+      var maxDate = moment.utc(this.props.project.activeDataset.dateMax)
+      var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
+      var dates = []
+      var periods = []
+
+      for (var i = 0; i < 16; i++) {
+        dates.push(moment(maxDate.format()))
+        maxDate.subtract(7, 'days')
+      }
+
+      dates.reverse()
+
+      var period4 = dates.slice(12,16)
+      var period3 = dates.slice(8,12)
+      var period2 = dates.slice(4,8)
+      var period1 = dates.slice(0,4)
+      moment.locale('es');
+
+      periods.push({
+        number: 4,
+        name: `Periodo ${period4[3].format('MMMM')}`,
+        adjustment: -1,
+        maxSemana: maxSemana,
+        minSemana: maxSemana - 3
+      })
+      maxSemana = maxSemana - 4
+
+      periods.push({
+        number: 3,
+        name: `Periodo ${period3[3].format('MMMM')}`,
+        adjustment: .30,
+        maxSemana: maxSemana,
+        minSemana: maxSemana - 3
+      })
+      maxSemana = maxSemana - 4
+
+      periods.push({
+        number: 2,
+        name: `Periodo ${period2[3].format('MMMM')}`,
+        adjustment: .20,
+        maxSemana: maxSemana,
+        minSemana: maxSemana - 3
+      })
+      maxSemana = maxSemana - 4
+
+      periods.push({
+        number: 1,
+        name: `Periodo ${period1[3].format('MMMM')}`,
+        adjustment: .10,
+        maxSemana: maxSemana,
+        minSemana: maxSemana - 3
+      })
+
+      var filteredSemanasBimbo = Array.from(Array(4), (_,x) => maxSemana - x).reverse()
 
       this.setState({
         filters: {
@@ -70,10 +136,14 @@ class TabAdjustment extends Component {
           products: res.products,
           salesCenters: res.salesCenters,
           semanasBimbo: res.semanasBimbo,
-          categories: this.getCategory(res.products)
+          filteredSemanasBimbo: filteredSemanasBimbo,
+          dates: res.dates,
+          categories: this.getCategory(res.products),
+          periods: periods
         },
         formData: {
-          semanasBimbo: res.semanasBimbo[0]
+          semanasBimbo: filteredSemanasBimbo[0],
+          period: 1
         },
         filtersLoaded: true
       })
@@ -85,9 +155,24 @@ class TabAdjustment extends Component {
       const url = '/app/rows/modified/dataset/'
       let res = await api.get(url + this.props.project.activeDataset.uuid)
 
-      this.setState({
-        modified: res.data
-      })
+      if (
+          res.data.pending !== this.state.pending ||
+          res.data.modified !== this.state.modified
+      ) {
+        if (res.data.pending > 0) {
+          this.setState({
+            modified: res.data.modified,
+            pending: res.data.pending,
+            isConciliating: ' is-loading'
+          })
+        } else {
+          this.setState({
+            modified: res.data.modified,
+            pending: res.data.pending,
+            isConciliating: ''
+          })
+        }
+      }
     }
   }
 
@@ -102,13 +187,41 @@ class TabAdjustment extends Component {
   }
   
   async filterChangeHandler (e) {
+    if (e.formData.period !== this.state.formData.period) {
+
+      var period = this.state.filters.periods.find(item => {
+        return item.number === e.formData.period
+      })
+
+      var filteredSemanasBimbo = Array.from(Array(4), (_,x) => period.maxSemana - x).reverse()
+
+      this.setState({
+        filters: {
+          ...this.state.filters,
+          filteredSemanasBimbo: filteredSemanasBimbo
+        },
+        generalAdjustment: period.adjustment,
+        formData: {
+          semanasBimbo: filteredSemanasBimbo[0],
+          products: e.formData.products,
+          channels: e.formData.channels,
+          salesCenters: e.formData.salesCenters,
+          categories: e.formData.categories,
+          period: e.formData.period
+        }
+      })
+
+      return
+    }
+
     this.setState({
       formData: {
         semanasBimbo: e.formData.semanasBimbo,
         products: e.formData.products,
         channels: e.formData.channels,
         salesCenters: e.formData.salesCenters,
-        categories: e.formData.categories
+        categories: e.formData.categories,
+        period: e.formData.period
       }
     })
   }
@@ -118,10 +231,15 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows (e) {
+    if (!e.formData.period || !e.formData.semanasBimbo) {
+      this.notify('Se debe filtrar por semana!', 3000, toast.TYPE.ERROR)
+      return
+    }
 
     this.setState({
       isLoading: ' is-loading'
     })
+    
     const url = '/app/rows/dataset/'
     let data = await api.get(url + this.props.project.activeDataset.uuid,
       {
@@ -145,9 +263,11 @@ class TabAdjustment extends Component {
     for (let row of data) {
       if (row.adjustment != row.prediction) {
         row.wasEdited = true
-        var maxAdjustment = Math.ceil(row.prediction * (1 + generalAdjustment))
-        var minAdjustment = Math.floor(row.prediction * (1 - generalAdjustment))
-        row.isLimit = (row.adjustment >= maxAdjustment || row.adjustment <= minAdjustment)
+        if (this.state.generalAdjustment > 0) {
+          var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
+          var minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
+          row.isLimit = (row.adjustment >= maxAdjustment || row.adjustment <= minAdjustment)
+        }
       }
     }
     return data
@@ -230,7 +350,7 @@ class TabAdjustment extends Component {
           if (!row.adjustment) {
             row.adjustment = 0
           }
-          if (currentRole !== 'enterprisemanager') {
+          if (currentRole !== 'manager-level-3') {
             return (
               <Editable
                 value={row.adjustment}
@@ -252,14 +372,15 @@ class TabAdjustment extends Component {
         'default': 0,
         'type': 'number',
         formatter: (row) => {
-          return `${(generalAdjustment * 100).toFixed(2)} %`
+          if (this.state.generalAdjustment < 0) return ' - '
+          return `${(this.state.generalAdjustment * 100).toFixed(2)} %`
         }
       },
       {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'enterprisemanager') {
+          if (currentRole !== 'manager-level-3') {
             return (
               <Checkbox
                 label='checkAll'
@@ -276,7 +397,7 @@ class TabAdjustment extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          if (currentRole !== 'enterprisemanager') {
+          if (currentRole !== 'manager-level-3') {
             return (
               <Checkbox
                 label={row}
@@ -408,7 +529,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div> 
-        {currentRole !== 'enterprisemanager' ?
+        {currentRole !== 'manager-level-3' ?
         <div className='column'>
           <div className='field is-grouped is-grouped-right'>
             <div className='control'>
@@ -488,14 +609,16 @@ class TabAdjustment extends Component {
 
   async handleChange (obj) {
     
-    var maxAdjustment = Math.ceil(obj.prediction * (1 + generalAdjustment))
-    var minAdjustment = Math.floor(obj.prediction * (1 - generalAdjustment))
+    var maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
+    var minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
 
     obj.adjustment = Math.round(obj.adjustment)
-    obj.percentage = (obj.adjustment - obj.prediction) * 100 / obj.prediction
-    obj.isLimit = (obj.adjustment >= maxAdjustment || obj.adjustment <= minAdjustment)
 
-    if ((currentRole === 'opsmanager' || currentRole === 'localmanager')) {
+    if (this.state.generalAdjustment > 0) {
+      obj.isLimit = (obj.adjustment >= maxAdjustment || obj.adjustment <= minAdjustment)
+    }
+
+    if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
       if (obj.adjustment > maxAdjustment || obj.adjustment < minAdjustment) {
         this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
         return false
@@ -516,7 +639,8 @@ class TabAdjustment extends Component {
     aux.splice(index,1,obj)
 
     this.setState({
-      dataRows: aux
+      dataRows: aux,
+      isConciliating: ' is-loading'
     })
 
     this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
@@ -605,11 +729,18 @@ class TabAdjustment extends Component {
       isConciliating: ' is-loading'
     })
     var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
-    await api.post(url)
-    await this.props.load()
-
+    try {
+      await api.post(url)
+      await this.props.load()  
+    } catch(e){
+      this.notify('Error '+ e.message, 3000, toast.TYPE.ERROR)      
+    }
+    
     this.setState({
-      isConciliating: ''
+      isConciliating: '',
+      modified: 0,
+      dataRows: [],
+      isFiltered: false
     })
   }
 
@@ -671,6 +802,11 @@ class TabAdjustment extends Component {
       type: 'object',
       title: '',
       properties: {
+        period: {
+          type: 'number',
+          title: 'Periodo',
+          enum: []
+        },
         semanasBimbo: {
           type: 'number',
           title: 'Semana',
@@ -704,6 +840,7 @@ class TabAdjustment extends Component {
     }
 
     const uiSchema = {
+      period: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Periodo'},
       semanasBimbo: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione semana'},
       channels: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione canal'},
       products: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione producto'},
@@ -711,7 +848,10 @@ class TabAdjustment extends Component {
       salesCenters: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Centro de Venta'}
     }
 
-    schema.properties.semanasBimbo.enum = this.state.filters.semanasBimbo
+    schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
+    schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
+
+    schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
 
     schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
     schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return item.name })
@@ -725,12 +865,27 @@ class TabAdjustment extends Component {
     schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
     schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
 
+    var adjustment = (
+      <span>
+        Modo de Ajuste - Para este periodo se permite un ajuste máximo de 
+        <strong>{` ${(this.state.generalAdjustment * 100)}% `}</strong> 
+        sobre el ajuste anterior.
+      </span>
+    )
+    if (this.state.generalAdjustment < 0) {
+      adjustment = (
+        <span>
+          Ajuste ilimitado.
+        </span>
+      )
+    }
+
     return (
       <div className='card'>
         <header className='card-header'>
           <p className='card-header-title'> Ajustes </p>
         </header>
-        {currentRole === 'enterprisemanager' ?
+        {currentRole === 'manager-level-3' ?
           <div className='notification is-error has-text-centered is-uppercase  is-paddingless'>
             <span className='icon is-medium has-text-warning'>
               <i className='fa fa-warning'></i>
@@ -742,8 +897,8 @@ class TabAdjustment extends Component {
             <span className='icon is-medium has-text-info'>
               <i className='fa fa-warning'></i>
             </span>
-            Modo de Ajuste - Para este periodo se permite un ajuste máximo de <strong>{(generalAdjustment * 100) + '%'}</strong> sobre el ajuste anterior.
-            {currentRole === 'opsmanager' && ' Tu tipo de usuario permite ajustes fuera de rango'}
+            {adjustment}
+            {currentRole === 'manager-level-2' && ' Tu tipo de usuario permite ajustes fuera de rango'}
           </div>
         }
         <div className='section is-paddingless-top'>
@@ -778,7 +933,7 @@ class TabAdjustment extends Component {
                 </div>
               </BaseForm>
             </div>
-            { this.props.canEdit && currentRole !== 'enterprisemanager' &&
+            { currentRole !== 'manager-level-3' &&
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>

@@ -81,7 +81,7 @@ class Sidebar extends Component {
           title: 'Administra tu equipo',
           icon: 'users',
           to: '/manage',
-          roles: 'orgadmin, admin, analyst, enterprisemanager, opsmanager',
+          roles: 'orgadmin, admin, analyst, manager-level-3, manager-level-2',
           opened: false,
           dropdown: [
             Users.asSidebarItem(),
@@ -94,18 +94,18 @@ class Sidebar extends Component {
             }
           ]
         },
+        Projects.asSidebarItem(),
         {
           title: 'Datasets',
           icon: 'file',
           to: '/datasets',
-          roles: 'enterprisemanager, analyst, orgadmin, admin, opsmanager',
+          roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2',
           opened: false,
           dropdown: [
             DataSets.asSidebarItem(),
             ReadyDataSets.asSidebarItem()
           ]
         },
-        Projects.asSidebarItem(),
         SalesCenters.asSidebarItem(),
         Products.asSidebarItem(),
         Channels.asSidebarItem()

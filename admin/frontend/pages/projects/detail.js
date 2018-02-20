@@ -25,7 +25,8 @@ class ProjectDetail extends Component {
       loaded: false,
       project: {},
       selectedTab: 'Ajustes',
-      datasetClassName: ''
+      datasetClassName: '',
+      isLoading: ''
     }
     this.interval = null
   }
@@ -88,6 +89,18 @@ class ProjectDetail extends Component {
     clearInterval(this.interval)
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     const { project } = this.state
 
@@ -115,6 +128,9 @@ class ProjectDetail extends Component {
         name: 'Aprobar',
         title: 'Aprobar',
         icon: 'fa-calendar-check-o',
+        hide: project.status === 'processing' ||
+              project.status === 'pendingRows' ||
+              project.status === 'empty',
         content: (
           <TabAprove project={project} />
         )
@@ -149,10 +165,17 @@ class ProjectDetail extends Component {
                 initialState={{ ...project, organization: project.organization.uuid }}
                 load={this.load.bind(this)}
                 editable
+                submitHandler={(data) => this.submitHandler(data)}
+                errorHandler={(data) => this.errorHandler(data)}
+                finishUp={(data) => this.finishUpHandler(data)}
               >
                 <div className='field is-grouped'>
                   <div className='control'>
-                    <button className='button is-primary'>Guardar</button>
+                    <button
+                      className={'button is-primary ' + this.state.isLoading}
+                      disabled={!!this.state.isLoading}
+                      type='submit'
+                    >Guardar</button>
                   </div>
                 </div>
               </ProjectForm>

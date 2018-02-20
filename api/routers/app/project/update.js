@@ -18,7 +18,8 @@ module.exports = new Route({
 
     project.set({
       name: data.name,
-      description: data.description
+      description: data.description,
+      status: data.status
     })
 
     project.save()

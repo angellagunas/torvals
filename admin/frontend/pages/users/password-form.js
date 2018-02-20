@@ -72,7 +72,7 @@ class PasswordUserForm extends Component {
     formData.password = formData.password_1
     formData.password_1 = ''
     formData.password_2 = ''
-
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       if (this.props.filters) {
         formData = {...formData,
@@ -86,6 +86,7 @@ class PasswordUserForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -127,7 +128,7 @@ class PasswordUserForm extends Component {
         }
       }
     }
-    
+
     const uiSchema = {
       name: {'ui:widget': TextWidget},
       email: {'ui:widget': EmailWidget},
@@ -138,7 +139,7 @@ class PasswordUserForm extends Component {
       organization: {'ui:widget': SelectWidget},
       groups: {'ui:widget': SelectWidget}
     }
-    
+
     if (this.props.initialState.organization) {
       uiSchema['organization']['ui:disabled'] = true
     }

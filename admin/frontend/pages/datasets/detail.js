@@ -34,7 +34,10 @@ class DataSetDetail extends Component {
       organizations: [],
       currentProduct: null,
       currentSalesCenter: null,
-      currentChannel: null
+      currentChannel: null,
+      isLoading: '',
+      isLoadingConsolidate: '',
+      isLoadingConfigure: ''
     }
   }
 
@@ -121,15 +124,19 @@ class DataSetDetail extends Component {
   }
 
   async configureOnClick () {
+    this.setState({ isLoadingConfigure: ' is-loading' })
     var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/configure'
     await api.post(url)
     await this.load()
+    this.setState({ isLoadingConfigure: '' })
   }
 
   async consolidateOnClick () {
+    this.setState({ isLoadingConsolidate: ' is-loading' })
     var url = '/admin/datasets/' + this.props.match.params.uuid + '/set/conciliate'
     await api.post(url)
     await this.load()
+    this.setState({ isLoadingConsolidate: '' })
     this.props.history.push(`/admin/projects/detail/${this.state.dataset.project.uuid}`)
   }
 
@@ -246,7 +253,8 @@ class DataSetDetail extends Component {
                   <div className='field is-grouped'>
                     <div className='control'>
                       <button
-                        className='button is-black'
+                        className={'button is-black' + this.state.isLoadingConfigure}
+                        disabled={!!this.state.isLoadingConfigure}
                         onClick={e => this.cancelOnClick()}
                       >
                         Cancelar
@@ -308,7 +316,8 @@ class DataSetDetail extends Component {
                   <div className='field is-grouped'>
                     <div className='control'>
                       <button
-                        className='button is-black'
+                        className={'button is-black' + this.state.isLoadingConfigure}
+                        disabled={!!this.state.isLoadingConfigure}
                         onClick={e => this.configureOnClick()}
                       >
                         Configurar
@@ -316,7 +325,8 @@ class DataSetDetail extends Component {
                     </div>
                     <div className='control'>
                       <button
-                        className='button is-primary'
+                        className={'button is-primary' + this.state.isLoadingConsolidate}
+                        disabled={!!this.state.isLoadingConsolidate}
                         onClick={e => this.consolidateOnClick()}
                       >
                         Conciliar
@@ -494,7 +504,8 @@ class DataSetDetail extends Component {
   hideModal () {
     this.setState({
       className: '',
-      currentProduct: null
+      currentProduct: null,
+      isLoading: ''
     })
   }
 
@@ -508,7 +519,8 @@ class DataSetDetail extends Component {
   hideModalSalesCenters () {
     this.setState({
       classNameSC: '',
-      currentSalesCenter: null
+      currentSalesCenter: null,
+      isLoading: ''
     })
   }
 
@@ -522,8 +534,21 @@ class DataSetDetail extends Component {
   hideModalChannels () {
     this.setState({
       classNameCh: '',
-      currentChannel: null
+      currentChannel: null,
+      isLoading: ''
     })
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUp () {
+    this.setState({ isLoading: '' })
   }
 
   getModalCurrentProduct () {
@@ -536,12 +561,20 @@ class DataSetDetail extends Component {
         <ProductForm
           baseUrl='/admin/products'
           url={'/admin/products/' + this.state.currentProduct.uuid}
+          submitHandler={(data) => this.submitHandler(data)}
           initialState={this.state.currentProduct}
           load={this.deleteNewProduct.bind(this)}
+          errorHandler={(data) => this.errorHandler(data)}
           >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Guardar</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'
+                >
+                Guardar
+              </button>
             </div>
             <div className='control'>
               <button className='button' onClick={() => this.hideModal()} type='button'>Cancelar</button>
@@ -564,10 +597,18 @@ class DataSetDetail extends Component {
           url={'/admin/salesCenters/' + this.state.currentSalesCenter.uuid}
           initialState={this.state.currentSalesCenter}
           load={this.deleteNewSalesCenter.bind(this)}
-      >
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
+        >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Guardar</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'
+                >
+                Guardar
+              </button>
             </div>
             <div className='control'>
               <button
@@ -594,13 +635,21 @@ class DataSetDetail extends Component {
           baseUrl='/admin/channels'
           url={'/admin/channels/' + this.state.currentChannel.uuid}
           initialState={this.state.currentChannel}
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
           load={this.deleteNewChannel.bind(this)}>
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Save</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'
+              >
+                Guardar
+              </button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModalChannels()} type='button'>Cancel</button>
+              <button className='button' onClick={() => this.hideModalChannels()} type='button'>Cancelar</button>
             </div>
           </div>
         </ChannelForm>
@@ -696,8 +745,8 @@ class DataSetDetail extends Component {
                             <td colSpan='2'>{item.name}</td>
                             <td colSpan='2'>
                               <button className='button is-primary' onClick={() => this.showModalChannels(item)}>
-                                  Edit
-                                </button>
+                                  Editar
+                              </button>
                             </td>
                           </tr>
                         )
@@ -780,7 +829,7 @@ class DataSetDetail extends Component {
                             <td colSpan='2'>{item.name}</td>
                             <td colSpan='2'>
                               <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
-                                  Edit
+                                  Editar
                                 </button>
                             </td>
                           </tr>
@@ -865,7 +914,7 @@ class DataSetDetail extends Component {
                               <td colSpan='2'>{item.name}</td>
                               <td colSpan='2'>
                                 <button className='button is-primary' onClick={() => this.showModal(item)}>
-                                    Edit
+                                    Editar
                                   </button>
                               </td>
                             </tr>
@@ -904,14 +953,16 @@ class DataSetDetail extends Component {
                       Regresar al proyecto
                     </Link>
                   </div>
-                  <div className='control'>
-                    <DeleteButton
-                      titleButton={'Eliminar'}
-                      objectName='Dataset'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={`Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
-                    />
-                  </div>
+                  { dataset.status !== 'conciliated' &&
+                    <div className='control'>
+                      <DeleteButton
+                        titleButton={'Eliminar'}
+                        objectName='Dataset'
+                        objectDelete={this.deleteObject.bind(this)}
+                        message={`Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
+                      />
+                    </div>
+                  }
                 </div>
               </div>
             </div>
@@ -940,10 +991,19 @@ class DataSetDetail extends Component {
                           }}
                           load={this.load.bind(this)}
                           organizations={this.state.organizations}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUp(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Guardar</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >
+                                Guardar
+                              </button>
                             </div>
                           </div>
                         </DatasetDetailForm>

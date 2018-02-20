@@ -96,6 +96,16 @@ class Sidebar extends Component {
         ]
       },
       {
+        title: 'Proyectos',
+        icon: 'cog',
+        to: '/projects',
+        opened: false,
+        dropdown: [
+          Projects.asSidebarItem(),
+          DeletedProjects.asSidebarItem()
+        ]
+      },
+      {
         title: 'Datasets',
         icon: 'file',
         to: '/datasets',
@@ -104,16 +114,6 @@ class Sidebar extends Component {
           DataSets.asSidebarItem(),
           ReadyDataSets.asSidebarItem(),
           DeletedDataSets.asSidebarItem()
-        ]
-      },
-      {
-        title: 'Proyectos',
-        icon: 'cog',
-        to: '/projects',
-        opened: false,
-        dropdown: [
-          Projects.asSidebarItem(),
-          DeletedProjects.asSidebarItem()
         ]
       },
       {

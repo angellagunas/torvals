@@ -23,10 +23,11 @@ const userSchema = new Schema({
   isAdmin: {type: Boolean, default: false},
   organizations: [{
     organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
-    role: { type: Schema.Types.ObjectId, ref: 'Role' }
+    role: { type: Schema.Types.ObjectId, ref: 'Role' },
+    defaultProject: { type: Schema.Types.ObjectId, ref: 'Project' }
+
   }],
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
-
   profilePicture: {
     url: { type: String },
     bucket: { type: String },
@@ -91,7 +92,6 @@ userSchema.methods.toPublic = function () {
     validEmail: this.validEmail,
     groups: this.groups,
     profileUrl: this.profileUrl,
-    validEmail: this.validEmail,
     isAdmin: this.isAdmin
   }
 }

@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import Page from '~base/page'
 import Link from '~base/router/link'
 import { forcePublic } from '~base/middlewares/'
-import AbraxasLogo from '../../public/img/abraxas-logo.svg'
 import LogInButton from './log-in-form'
 
 class LandPage extends Component {
@@ -13,7 +12,7 @@ class LandPage extends Component {
           <div className='column is-3 land-side has-text-centered'>
             <div className='down'>
               <figure className='image'>
-                <img src={AbraxasLogo} alt='abraxas logo' />
+                <img src='/admin/public/img/abraxas-logo.svg' alt='abraxas logo' />
               </figure>
               <br />
               <h2 className='has-text-white is-size-4-desktop is-size-5-touch'>Nuestra misión es dar cognición sistemática a las organizaciones</h2>

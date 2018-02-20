@@ -17,7 +17,8 @@ class RoleDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      role: {}
+      role: {},
+      isLoading: ''
     }
   }
 
@@ -63,7 +64,7 @@ class RoleDetail extends Component {
 
   async deleteObject () {
     var url = '/admin/roles/' + this.props.match.params.uuid
-    const body = await api.del(url)
+    await api.del(url)
     this.props.history.push('/admin/manage/roles')
   }
 
@@ -105,7 +106,7 @@ class RoleDetail extends Component {
                 type='button'
                 onClick={() => this.defaultOnClick()}
                 >
-                  Set as default
+                  Establecer por defecto
                 </button>
             </div>
           </div>
@@ -114,6 +115,18 @@ class RoleDetail extends Component {
     }
 
     return null
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
@@ -136,7 +149,7 @@ class RoleDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Role
+                      Rol
                     </p>
                   </header>
                   <div className='card-content'>
@@ -147,10 +160,17 @@ class RoleDetail extends Component {
                           url={'/admin/roles/' + this.props.match.params.uuid}
                           initialState={this.state.role}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </RoleForm>
@@ -163,7 +183,7 @@ class RoleDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Users
+                      Usuarios
                     </p>
                   </header>
                   <div className='card-content'>

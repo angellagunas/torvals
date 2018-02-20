@@ -1,6 +1,13 @@
 const Route = require('lib/router/route')
 
-const { DataSetRow, DataSet, Product, SalesCenter, Channel } = require('models')
+const {
+  DataSetRow,
+  DataSet,
+  Product,
+  SalesCenter,
+  Channel,
+  Role
+} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -68,6 +75,31 @@ module.exports = new Route({
     }
 
     filters['dataset'] = dataset
+
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
+    if (
+      (currentRole.slug === 'manager-level-1' ||
+      currentRole.slug === 'manager-level-2') &&
+      !filters['salesCenter']
+    ) {
+      var groups = user.groups
+      var salesCenters = []
+
+      salesCenters = await SalesCenter.find({groups: {$in: groups}})
+
+      filters['salesCenter'] = {$in: salesCenters}
+    }
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
       .populate(['organization', 'salesCenter', 'product', 'adjustmentRequest', 'channel'])

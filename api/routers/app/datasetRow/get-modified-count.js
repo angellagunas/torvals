@@ -15,11 +15,14 @@ module.exports = new Route({
     var filters = {}
     filters['dataset'] = dataset
     filters['status'] = 'adjusted'
+    filters['organization'] = ctx.state.organization
+    var modified = await DataSetRow.find({isDeleted: false, ...filters}).count()
 
-    var rows = await DataSetRow.find({isDeleted: false, ...filters}).count()
+    filters['status'] = 'sendingChanges'
+    var pending = await DataSetRow.find({isDeleted: false, ...filters}).count()
 
     ctx.body = {
-      data: rows
+      data: {modified: modified, pending: pending}
     }
   }
 })

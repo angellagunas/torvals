@@ -41,17 +41,57 @@ class OrganizationRoleForm extends Component {
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+      apiCallErrorMessage: 'is-hidden',
+      projects: []
     }
   }
 
   errorHandler (e) {}
 
-  changeHandler ({formData}) {
+  async changeHandler ({formData}) {
+    if (formData['role']) {
+      var role = this.props.roles.find((item) => {
+        return item.uuid === formData['role']
+      })
+
+      if (role.slug === 'manager-level-1') {
+        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        uiSchema['project'] = {'ui:widget': SelectWidget}
+        schema.required.push('project')
+
+        if (formData['organization']) {
+          var organization = this.props.orgs.find((item) => {
+            return item.uuid === formData['organization']
+          })
+          await this.loadProjects(organization.uuid)
+        }
+      } else {
+        delete schema.properties['project']
+        delete uiSchema['project']
+        delete formData['project']
+        schema.required = ['role', 'organization']
+      }
+    }
+
     this.setState({
+      key: Math.random(),
       formData,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
+    })
+  }
+
+  async loadProjects (organization) {
+    var url = '/admin/projects/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0,
+      organization: organization
+    })
+
+    this.setState({
+      projects: body.data,
+      key: Math.random()
     })
   }
 
@@ -97,9 +137,16 @@ class OrganizationRoleForm extends Component {
     schema.properties.organization.enum = this.props.orgs.map(item => { return item.uuid })
     schema.properties.organization.enumNames = this.props.orgs.map(item => { return item.name })
 
+    if (schema.properties.project) {
+      schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
+      schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
+    }
+
     return (
       <div>
-        <BaseForm schema={schema}
+        <BaseForm
+          key={this.state.key}
+          schema={schema}
           uiSchema={uiSchema}
           formData={this.state.formData}
           onChange={(e) => { this.changeHandler(e) }}

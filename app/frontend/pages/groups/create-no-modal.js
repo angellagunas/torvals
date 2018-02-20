@@ -11,6 +11,12 @@ var initialState = {
 }
 
 class CreateGroupNoModal extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      isLoading: ''
+    }
+  }
   componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
   }
@@ -33,18 +39,37 @@ class CreateGroupNoModal extends Component {
     this.context.tree.commit()
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     return (
       <GroupForm
         baseUrl='/app/groups'
         url={this.props.url}
-        finishUp={this.props.finishUp}
         initialState={initialState}
         load={this.load.bind(this)}
+        submitHandler={(data) => this.submitHandler(data)}
+        errorHandler={(data) => this.errorHandler(data)}
+        finishUp={(data) => this.finishUpHandler(data)}
       >
         <div className='field is-grouped is-padding-top-small'>
           <div className='control'>
-            <button className='button is-primary' type='submit'>Crear</button>
+            <button
+              className={'button is-primary ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'>
+                Crear
+              </button>
           </div>
         </div>
       </GroupForm>
