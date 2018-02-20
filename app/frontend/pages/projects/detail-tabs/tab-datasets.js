@@ -145,14 +145,12 @@ class TabDatasets extends Component {
     this.props.history.push('/datasets/' + object.uuid)
   }
 
+  componentWillMount () {
+    this.props.setAlert('is-invisible', ' ')
+  }
   render () {
     return (
-      <div className='cards'>
-        <header className='card-header'>
-          <p className='card-header-title'>
-            Datasets
-          </p>
-        </header>
+      <div>
         <div className='card-content'>
           <div className={this.props.project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
             <div className='column'>

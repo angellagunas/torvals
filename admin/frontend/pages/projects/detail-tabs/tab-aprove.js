@@ -27,6 +27,7 @@ class TabAprove extends Component {
 
   componentWillMount () {
     this.getAdjustmentRequests()
+    this.setAlertMsg()
   }
 
   async getAdjustmentRequests() {
@@ -558,19 +559,14 @@ class TabAprove extends Component {
     this.toggleButtons()
   }
 
+  setAlertMsg() {
+    this.props.setAlert('is-warning', 'Es necesario aprobar ajustes fuera de rango.')
+  }
+
   render () {
     return (
-      <div className='cards'>
-        <header className='card-header'>
-          <p className='card-header-title'> Aprobar / Rechazar Ajustes </p>
-        </header>
-        <div className='notification is-warning has-text-centered is-uppercase is-paddingless'>
-          <span className='icon is-medium has-text-info'>
-            <i className='fa fa-warning'></i>
-          </span>
-          Es necesario aprobar ajustes fuera de rango.
-        </div>
-        <section className='section is-paddingless-top'>
+      <div>
+        <section className='section'>
         {this.getModifyButtons()}
         <BaseTable
           data={this.state.filteredData}
