@@ -15,6 +15,11 @@ class TabDatasets extends Component {
       datasetClassName: ''
     }
   }
+
+  componentWillMount () {
+    this.props.setAlert('is-invisible', ' ')
+  }
+
   getColumns () {
     return [
       {
@@ -145,11 +150,9 @@ class TabDatasets extends Component {
 
   render () {
     return (
-      <div className='card2'>
-        <header className='card-header'>
-          <p className='card-header-title'>
-            Datasets
-          </p>
+      <div>
+        <header className='card-header is-shadowless'>
+          <p className='card-header-title' />
           <div className='card-header-select'>
             <div className='field is-grouped'>
               <div className='control'>

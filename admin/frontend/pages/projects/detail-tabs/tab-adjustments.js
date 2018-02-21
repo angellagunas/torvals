@@ -53,6 +53,7 @@ class TabAdjustment extends Component {
     this.getFilters()
     this.getModifiedCount()
     this.interval = setInterval(() => { this.getModifiedCount() }, 10000)
+    this.setAlertMsg()    
   }
 
   componentWillUnmount () {
@@ -60,7 +61,7 @@ class TabAdjustment extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.project.status === 'adjustment') {
+    if (nextProps.project.status === 'adjustment' && this.props.project.status !== 'adjustment') {
       this.clearSearch()
       this.getFilters()
     }
@@ -205,7 +206,7 @@ class TabAdjustment extends Component {
           period: e.formData.period
         }
       })
-
+      this.setAlertMsg()
       return
     }
 
@@ -219,6 +220,8 @@ class TabAdjustment extends Component {
         period: e.formData.period
       }
     })
+
+    
   }
 
   async FilterErrorHandler (e) {
@@ -722,6 +725,16 @@ class TabAdjustment extends Component {
     })
   }
 
+  setAlertMsg() {
+    let ajuste = (this.state.generalAdjustment * 100)
+    if (ajuste < 0) {
+      this.props.setAlert('is-warning', 'Ajuste Ilimitado.')
+    }
+    else {
+      this.props.setAlert('is-warning', 'Modo de Ajuste - Para este periodo se permite un ajuste máximo de ' + (this.state.generalAdjustment * 100) + '%  sobre el ajuste anterior.')
+    }
+  }
+
   render () {
     if (this.props.project.status === 'empty') {
       return (
@@ -844,33 +857,9 @@ class TabAdjustment extends Component {
     schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
     schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
 
-    var adjustment = (
-      <span>
-        Modo de Ajuste - Para este periodo se permite un ajuste máximo de
-        <strong>{` ${(this.state.generalAdjustment * 100)}% `}</strong>
-        sobre el ajuste anterior.
-      </span>
-    )
-    if (this.state.generalAdjustment < 0) {
-      adjustment = (
-        <span>
-          Ajuste ilimitado
-        </span>
-      )
-    }
-
     return (
-      <div className='card'>
-        <header className='card-header'>
-          <p className='card-header-title'> Ajustes </p>
-        </header>
-        <div className='notification is-warning has-text-centered is-uppercase is-paddingless'>
-          <span className='icon is-medium has-text-info'>
-            <i className='fa fa-warning'></i>
-          </span>
-          {adjustment}
-        </div>
-        <div className='section is-paddingless-top'>
+      <div>
+        <div className='section'>
           <CreateAdjustmentRequest
             className={this.state.classNameAR}
             hideModal={(e) => this.hideModalAdjustmentRequest(e)}

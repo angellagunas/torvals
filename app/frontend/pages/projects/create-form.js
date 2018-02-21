@@ -36,6 +36,9 @@ class ProjectForm extends Component {
     }
   }
 
+  componentWillMount () {
+    if (this.props.setAlert) { this.props.setAlert('is-invisible', ' ') }
+  }
   errorHandler (e) {}
 
   changeHandler ({formData}) {
