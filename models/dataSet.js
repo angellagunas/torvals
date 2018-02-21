@@ -7,6 +7,7 @@ const { aws } = require('../config')
 const awsService = require('aws-sdk')
 const fs = require('fs-extra')
 const path = require('path')
+const Mailer = require('lib/mailer')
 
 const dataSetSchema = new Schema({
   name: { type: String, required: true },
@@ -23,6 +24,7 @@ const dataSetSchema = new Schema({
   project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  conciliatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   type: {
     type: String,
     enum: ['univariable-time-series'],
@@ -77,8 +79,7 @@ const dataSetSchema = new Schema({
     isSalesCenter: { type: Boolean, default: false },
     isSalesCenterName: { type: Boolean, default: false },
     isChannel: { type: Boolean, default: false },
-    isChannelName: { type: Boolean, default: false },
-    values: [{ type: String }]
+    isChannelName: { type: Boolean, default: false }
   }],
 
   groupings: [{
@@ -96,6 +97,7 @@ const dataSetSchema = new Schema({
 
   apiData: { type: Schema.Types.Mixed },
   dateCreated: { type: Date, default: moment.utc },
+  dateConciliated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
   uploaded: { type: Boolean, default: false }
@@ -590,6 +592,28 @@ dataSetSchema.methods.process = async function (res) {
 
   await this.save()
   await this.processData()
+}
+
+dataSetSchema.methods.sendFinishedConciliating = async function () {
+  // if (this.source !== 'adjustment') return
+
+  console.log(this)
+
+  const email = new Mailer('adjustment-finished')
+
+  const data = {
+    name: this.project.name,
+    url: `${process.env.APP_HOST}/projects/${this.project.uuid}`
+  }
+
+  await email.format(data)
+  await email.send({
+    recipient: {
+      email: this.createdBy.email,
+      name: this.createdBy.name
+    },
+    title: 'Ajustes conciliados'
+  })
 }
 
 dataSetSchema.virtual('url').get(function () {
