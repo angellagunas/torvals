@@ -5,6 +5,7 @@ import api from '~base/api'
 import {
   BaseForm,
   TextWidget,
+  NumberWidget,
   TextareaWidget
 } from '~base/components/base-form'
 
@@ -12,15 +13,18 @@ const schema = {
   type: 'object',
   title: '',
   required: [
+    'priority',
     'name'
   ],
   properties: {
+    priority: {type: 'number', title: 'Prioridad'},
     name: {type: 'string', title: 'Nombre'},
     description: {type: 'string', title: 'Descripción'}
   }
 }
 
 const uiSchema = {
+  priority: {'ui:widget': NumberWidget},
   name: {'ui:widget': TextWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
@@ -28,6 +32,7 @@ const uiSchema = {
 class RoleForm extends Component {
   constructor (props) {
     super(props)
+
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',

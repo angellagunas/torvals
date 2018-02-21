@@ -135,7 +135,6 @@ class RoleDetail extends Component {
     if (!role.uuid) {
       return <Loader />
     }
-
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>

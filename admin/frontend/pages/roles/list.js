@@ -21,6 +21,18 @@ export default ListPage({
   getColumns: () => {
     return [
       {
+        'title': 'Prioridad',
+        'property': 'priority',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <div>
+              {row.priority }
+            </div>
+          )
+        }
+      },
+      {
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',

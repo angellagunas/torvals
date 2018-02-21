@@ -17,12 +17,17 @@ module.exports = new Route({
     const role = await Role.findOne({'uuid': roleId, 'isDeleted': false})
     ctx.assert(role, 404, 'Role not found')
 
+    var auxRole = await Role.findOne({priority: parseInt(data.priority)})
+    if (auxRole) {
+      ctx.throw(400, "You can't have two roles with the same priority")
+    }
+
     data.slug = slugify(data.name)
     role.set(data)
 
     if (!data.description) role.set({description: ''})
 
-    role.save()
+    await role.save()
 
     ctx.body = {
       data: role.format()

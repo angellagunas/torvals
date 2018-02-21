@@ -5,6 +5,7 @@ const dataTables = require('mongoose-datatables')
 const moment = require('moment')
 
 const roleSchema = new Schema({
+  priority: { type: Number },
   name: { type: String },
   description: { type: String },
   slug: { type: String, unique: true },
@@ -30,6 +31,7 @@ roleSchema.methods.toPublic = function () {
 roleSchema.methods.format = function () {
   return {
     uuid: this.uuid,
+    priority: this.priority,
     name: this.name,
     description: this.description,
     slug: this.slug,
