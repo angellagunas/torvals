@@ -152,7 +152,12 @@ class CreateUserNoModal extends Component {
 
   render () {
     var content
+
     if (!this.state.loadingGroups) {
+      initialState.role = this.state.roles.find(item => {
+        return item.isDefault === true
+      })._id
+
       if (env.EMAIL_SEND) {
         content = this.getSendInviteForm()
       } else {

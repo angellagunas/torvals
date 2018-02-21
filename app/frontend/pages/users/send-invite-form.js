@@ -146,14 +146,23 @@ class InviteUserForm extends Component {
       </div>
     }
 
+    if (this.props.filters.group) {
+      delete uiSchema.group
+      delete schema.properties.group
+    }
+
     if (this.props.roles.length === 0) {
       return <Loader />
     }
 
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
-    schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
-    schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
+
+    if (schema.properties.group) {
+      schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
+      schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
+    }
+
     if (schema.properties.project) {
       schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
       schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })

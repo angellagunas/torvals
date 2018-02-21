@@ -94,7 +94,7 @@ class CreateUser extends Component {
         initialState={initialState}
         finishUp={this.props.finishUp}
         load={this.load.bind(this)}
-        roles={this.state.roles || []}
+        roles={this.state.roles}
         filters={this.props.filters}
       >
         <div className='field is-grouped'>
@@ -112,6 +112,13 @@ class CreateUser extends Component {
   render () {
     var modalContent
     var title = 'Crear usuario'
+
+    if (this.state.roles.length > 0) {
+      initialState.role = this.state.roles.find(item => {
+        return item.isDefault === true
+      })._id
+    }
+
     if (env.EMAIL_SEND) {
       modalContent = this.getSendInviteForm()
       title = 'Invitar usuario'
