@@ -69,6 +69,7 @@ class DataSetDetail extends Component {
     this.interval = setInterval(() => {
       if (this.state.dataset.status === 'preprocessing' ||
         this.state.dataset.status === 'processing' ||
+        this.state.dataset.status === 'uploaded' ||
         this.state.dataset.status === 'pendingRows') {
         this.load()
       }
