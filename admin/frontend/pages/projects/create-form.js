@@ -47,6 +47,7 @@ class ProjectForm extends Component {
 
   componentWillMount () {
     this.loadOrgs()
+    if (this.props.setAlert) { this.props.setAlert('is-invisible', ' ') }
   }
 
   async loadOrgs () {

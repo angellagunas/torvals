@@ -179,6 +179,7 @@ class ProjectDetail extends Component {
                 submitHandler={(data) => this.submitHandler(data)}
                 errorHandler={(data) => this.errorHandler(data)}
                 finishUp={(data) => this.finishUpHandler(data)}
+                setAlert={(type, data) => this.setAlert(type, data)}
               >
                 <div className='field is-grouped'>
                   <div className='control'>
@@ -222,7 +223,6 @@ class ProjectDetail extends Component {
                 tabTitle={project.name}
                 tabs={tabs}
                 selectedTab={this.state.selectedTab}
-                onChangeTab={() => this.setAlert('is-invisible', ' ')}
                 className='is-right is-medium'
                 extraTab={
                   <DeleteButton

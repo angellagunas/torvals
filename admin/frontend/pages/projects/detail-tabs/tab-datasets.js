@@ -15,6 +15,11 @@ class TabDatasets extends Component {
       datasetClassName: ''
     }
   }
+
+  componentWillMount () {
+    this.props.setAlert('is-invisible', ' ')
+  }
+
   getColumns () {
     return [
       {
