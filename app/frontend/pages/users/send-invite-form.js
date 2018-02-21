@@ -146,9 +146,11 @@ class InviteUserForm extends Component {
       </div>
     }
 
-    if (this.props.filters.group) {
-      delete uiSchema.group
-      delete schema.properties.group
+    if (this.props.filters) {
+      if (this.props.filters.group) {
+        delete uiSchema.group
+        delete schema.properties.group
+      }
     }
 
     if (this.props.roles.length === 0) {

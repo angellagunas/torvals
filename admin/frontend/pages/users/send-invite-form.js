@@ -94,7 +94,12 @@ class InviteUserForm extends Component {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     })
-    this.changeGroups(formData.organization)
+
+    if (this.props.filters) {
+      if (!this.props.filters.group) {
+        this.changeGroups(formData.organization)
+      }
+    }
   }
 
   async loadProjects (organization) {
@@ -179,6 +184,13 @@ class InviteUserForm extends Component {
       </div>
     }
 
+    if (this.props.filters) {
+      if (this.props.filters.group) {
+        delete uiSchema.groups
+        delete schema.properties.groups
+      }
+    }
+
     if (this.props.roles.length === 0 || this.props.orgs.length === 0) {
       return <Loader />
     }
@@ -187,8 +199,11 @@ class InviteUserForm extends Component {
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
     schema.properties.organization.enum = this.props.orgs.map(item => { return item._id })
     schema.properties.organization.enumNames = this.props.orgs.map(item => { return item.name })
-    schema.properties.groups.enum = this.state.groups.map(item => { return item._id })
-    schema.properties.groups.enumNames = this.state.groups.map(item => { return item.name })
+
+    if (schema.properties.groups) {
+      schema.properties.groups.enum = this.state.groups.map(item => { return item._id })
+      schema.properties.groups.enumNames = this.state.groups.map(item => { return item.name })
+    }
     if (schema.properties.project) {
       schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
       schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
