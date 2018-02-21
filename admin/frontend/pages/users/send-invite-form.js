@@ -11,46 +11,6 @@ import {
   CheckboxWidget
 } from '~base/components/base-form'
 
-var schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'email', 'organization'
-  ],
-  properties: {
-    name: {type: 'string', title: 'Nombre'},
-    email: {type: 'string', title: 'Email'},
-    isAdmin: {type: 'boolean', title: 'Es Admin?', default: false},
-    role: {
-      type: 'string',
-      title: 'Rol',
-      enum: [],
-      enumNames: []
-    },
-    organization: {
-      type: 'string',
-      title: 'Organización',
-      enum: [],
-      enumNames: []
-    },
-    groups: {
-      type: 'string',
-      title: 'Grupo',
-      enum: [],
-      enumNames: []
-    }
-  }
-}
-
-const uiSchema = {
-  name: {'ui:widget': TextWidget},
-  email: {'ui:widget': EmailWidget},
-  isAdmin: {'ui:widget': CheckboxWidget},
-  role: {'ui:widget': SelectWidget},
-  organization: { 'ui:widget': SelectWidget },
-  groups: {'ui:widget': SelectWidget}
-}
-
 class InviteUserForm extends Component {
   constructor (props) {
     super(props)
@@ -66,54 +26,33 @@ class InviteUserForm extends Component {
   errorHandler (e) {}
 
   async changeHandler ({formData}) {
-    if (formData['role']) {
-      var role = this.props.roles.find((item) => {
-        return item._id === formData['role']
-      })
+    await this.loadProjects(formData.organization)
+    await this.changeGroups(formData.organization)
 
-      if (role.slug === 'manager-level-1') {
-        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
-        uiSchema['project'] = {'ui:widget': SelectWidget}
-        schema.required.push('project')
-
-        if (formData['organization']) {
-          var organization = this.props.orgs.find((item) => {
-            return item._id === formData['organization']
-          })
-          await this.loadProjects(organization.uuid)
-        }
-      } else {
-        delete schema.properties['project']
-        delete uiSchema['project']
-        delete formData['project']
-        schema.required = ['email', 'organization']
-      }
-    }
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     })
-
-    if (this.props.filters) {
-      if (!this.props.filters.group) {
-        this.changeGroups(formData.organization)
-      }
-    }
   }
 
   async loadProjects (organization) {
-    var url = '/admin/projects/'
-    const body = await api.get(url, {
-      start: 0,
-      limit: 0,
-      organization: organization
-    })
+    if (organization) {
+      var org = this.props.orgs.find((item) => {
+        return item._id === organization
+      })
 
-    this.setState({
-      projects: body.data,
-      key: Math.random()
-    })
+      var url = '/admin/projects/'
+      const body = await api.get(url, {
+        start: 0,
+        limit: 0,
+        organization: org.uuid
+      })
+
+      this.setState({
+        projects: body.data
+      })
+    }
   }
 
   async changeGroups (organization) {
@@ -129,8 +68,7 @@ class InviteUserForm extends Component {
       )
       this.setState({
         ...this.state,
-        groups: body.data,
-        key: Math.random()
+        groups: body.data
       })
     }
   }
@@ -169,6 +107,46 @@ class InviteUserForm extends Component {
   }
 
   render () {
+    var schema = {
+      type: 'object',
+      title: '',
+      required: [
+        'email', 'organization'
+      ],
+      properties: {
+        name: {type: 'string', title: 'Nombre'},
+        email: {type: 'string', title: 'Email'},
+        isAdmin: {type: 'boolean', title: 'Es Admin?', default: false},
+        role: {
+          type: 'string',
+          title: 'Rol',
+          enum: [],
+          enumNames: []
+        },
+        organization: {
+          type: 'string',
+          title: 'Organización',
+          enum: [],
+          enumNames: []
+        },
+        groups: {
+          type: 'string',
+          title: 'Grupo',
+          enum: [],
+          enumNames: []
+        }
+      }
+    }
+
+    const uiSchema = {
+      name: {'ui:widget': TextWidget},
+      email: {'ui:widget': EmailWidget},
+      isAdmin: {'ui:widget': CheckboxWidget},
+      role: {'ui:widget': SelectWidget},
+      organization: { 'ui:widget': SelectWidget },
+      groups: {'ui:widget': SelectWidget}
+    }
+
     if (this.props.initialState.organization) {
       uiSchema['organization']['ui:disabled'] = true
     }
@@ -188,6 +166,22 @@ class InviteUserForm extends Component {
       if (this.props.filters.group) {
         delete uiSchema.groups
         delete schema.properties.groups
+      }
+    }
+
+    if (this.state.formData.role) {
+      var role = this.props.roles.find((item) => {
+        return item._id === this.state.formData.role
+      })
+      if (role.slug === 'manager-level-1') {
+        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        uiSchema['project'] = {'ui:widget': SelectWidget}
+        schema.required.push('project')
+      } else {
+        delete schema.properties['project']
+        delete uiSchema['project']
+        delete this.state.formData['project']
+        schema.required = ['email', 'organization']
       }
     }
 
@@ -212,7 +206,6 @@ class InviteUserForm extends Component {
     return (
       <div>
         <BaseForm
-          key={this.state.key}
           schema={schema}
           uiSchema={uiSchema}
           formData={this.state.formData}
