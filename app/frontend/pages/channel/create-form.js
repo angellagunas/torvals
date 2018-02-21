@@ -74,7 +74,7 @@ class ChannelForm extends Component {
   }
 
   render () {
-    let { canEdit, children } = this.props
+    let { canEdit, canCreate, children } = this.props
     var error
     if (this.state.error) {
       error = <div>
@@ -82,13 +82,13 @@ class ChannelForm extends Component {
       </div>
     }
 
-    if (!canEdit) {
+    if (!canEdit || !canCreate) {
       for (let key in uiSchema) {
         uiSchema[key]['ui:disabled'] = true
       }
     }
 
-    if (canEdit) {
+    if (canEdit || canCreate) {
       for (let key in uiSchema) {
         uiSchema[key]['ui:disabled'] = false
       }
@@ -112,6 +112,7 @@ class ChannelForm extends Component {
           </div>
         </div>
         {canEdit && children}
+        {canCreate && children}
       </BaseForm>
     </div>)
   }

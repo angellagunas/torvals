@@ -49,6 +49,7 @@ class CreateProduct extends Component {
           initialState={initialState}
           submitHandler={(data) => this.submitHandler(data)}
           errorHandler={(data) => this.errorHandler(data)}
+          canCreate={this.props.canCreate}
         >
           <div className='field is-grouped'>
             <div className='control'>
