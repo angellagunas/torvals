@@ -42,6 +42,7 @@ const schema = lov.object().required().keys({
   roles: lov.array().required().items(
     lov.object().keys({
       name: lov.string().required(),
+      priority: lov.number(),
       isDefault: lov.boolean()
     })
   )
@@ -110,7 +111,8 @@ var seedData = async function () {
         const newRole = await Role.create({
           name: role.name,
           slug: slugify(role.name),
-          isDefault: role.isDefault
+          isDefault: role.isDefault,
+          priority: role.priority
         })
 
 
