@@ -101,6 +101,13 @@ class ProjectDetail extends Component {
     this.setState({ isLoading: '' })
   }
 
+  setAlert (type, data) {
+    this.setState({
+      alertMsg: data,
+      alertType: type
+    })
+  }
+
   render () {
     const { project } = this.state
 
@@ -121,6 +128,7 @@ class ProjectDetail extends Component {
             load={this.getProjectStatus.bind(this)}
             project={project}
             history={this.props.history}
+            setAlert={(type, data) => this.setAlert(type, data)}
           />
         )
       },
@@ -132,7 +140,9 @@ class ProjectDetail extends Component {
               project.status === 'pendingRows' ||
               project.status === 'empty',
         content: (
-          <TabAprove project={project} />
+          <TabAprove
+            project={project}
+            setAlert={(type, data) => this.setAlert(type, data)} />
         )
       },
       {
@@ -143,6 +153,7 @@ class ProjectDetail extends Component {
           <TabDatasets
             project={project}
             history={this.props.history}
+            setAlert={(type, data) => this.setAlert(type, data)}
           />
       )},
       /* {
@@ -156,10 +167,10 @@ class ProjectDetail extends Component {
         title: 'Información',
         icon: 'fa-tasks',
         content: (
-          <div className='card'>
-            <header className='card-header'><p className='card-header-title'> Información </p></header>
-            <div className='card-content'>
+          <div>
+            <div className='section'>
               <ProjectForm
+                className='is-shadowless'
                 baseUrl='/admin/projects'
                 url={'/admin/projects/' + this.props.match.params.uuid}
                 initialState={{ ...project, organization: project.organization.uuid }}
@@ -168,6 +179,7 @@ class ProjectDetail extends Component {
                 submitHandler={(data) => this.submitHandler(data)}
                 errorHandler={(data) => this.errorHandler(data)}
                 finishUp={(data) => this.finishUpHandler(data)}
+                setAlert={(type, data) => this.setAlert(type, data)}
               >
                 <div className='field is-grouped'>
                   <div className='control'>
@@ -193,30 +205,34 @@ class ProjectDetail extends Component {
         Agregar Dataset
       </span>
     </button>)
-
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top pad-sides'>
-            <div className='columns is-padding-top-small'>
-              <div className='column'>
-                <h1 className='is-size-3'>{project.name}</h1>
-              </div>
-              <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
-                    <DeleteButton
-                      objectName='Proyecto'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={'Estas seguro de querer eliminar este Proyecto?'}
-                    />
-                  </div>
-                </div>
-              </div>
+          {
+            this.state.alertMsg &&
+            <div className={'notification has-text-centered is-uppercase is-paddingless ' + this.state.alertType}>
+              <span className='icon is-medium has-text-info'>
+                <i className='fa fa-warning' />
+              </span>
+              {this.state.alertMsg}
             </div>
-            <Tabs
-              tabs={tabs}
-              selectedTab={this.state.selectedTab} />
+          }
+          <div className='section pad-sides'>
+            <div className='is-padding-top-small'>
+              <Tabs
+                tabTitle={project.name}
+                tabs={tabs}
+                selectedTab={this.state.selectedTab}
+                className='is-right is-medium'
+                extraTab={
+                  <DeleteButton
+                    objectName='Proyecto'
+                    objectDelete={() => this.deleteObject()}
+                    message={'Estas seguro de querer eliminar este Proyecto?'}
+                  />
+                }
+              />
+            </div>
           </div>
         </div>
 

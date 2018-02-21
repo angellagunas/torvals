@@ -25,23 +25,30 @@
     "roles": [
         {
             "name": "OrgAdmin",
-            "isDefault": false
-        },
-        {
-            "name": "Manager Level 1",
-            "isDefault": true
-        },
-        {
-            "name": "Manager Level 3",
-            "isDefault": false
+            "isDefault": false,
+            "priority": 1
         },
         {
             "name": "Analyst",
-            "isDefault": false
+            "isDefault": false,
+            "priority": 2
+
+        },
+        {
+            "name": "Manager Level 3",
+            "isDefault": false,
+            "priority": 3
+
         },
         {
             "name": "Manager Level 2",
-            "isDefault": false
+            "isDefault": false,
+            "priority": 4
+        },
+        {
+            "name": "Manager Level 1",
+            "isDefault": true,
+            "priority": 5
         }
     ]
 }

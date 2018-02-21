@@ -15,6 +15,7 @@ import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 
 var currentRole
+moment.locale('es')
 
 class TabAdjustment extends Component {
   constructor (props) {
@@ -22,7 +23,7 @@ class TabAdjustment extends Component {
     this.state = {
       dataRows: [],
       isFiltered: false,
-      filtersLoaded: false,      
+      filtersLoaded: false,
       isLoading: '',
       selectedAll: false,
       modified: 0,
@@ -54,9 +55,10 @@ class TabAdjustment extends Component {
     this.getFilters()
     this.getModifiedCount()
 
-    if (this.props.canEdit && currentRole !== 'manager-level-3') {
+    if (currentRole !== 'manager-level-3') {
       this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
+    this.setAlertMsg()
   }
 
   componentWillUnmount () {
@@ -64,7 +66,7 @@ class TabAdjustment extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.project.status === 'adjustment') {
+    if (nextProps.project.status === 'adjustment' && this.props.project.status !== 'adjustment') {
       this.clearSearch()
       this.getFilters()
     }
@@ -91,7 +93,6 @@ class TabAdjustment extends Component {
       var period3 = dates.slice(8,12)
       var period2 = dates.slice(4,8)
       var period1 = dates.slice(0,4)
-      moment.locale('es');
 
       periods.push({
         number: 4,
@@ -185,7 +186,7 @@ class TabAdjustment extends Component {
     })
     return Array.from(categories)
   }
-  
+
   async filterChangeHandler (e) {
     if (e.formData.period !== this.state.formData.period) {
 
@@ -211,6 +212,7 @@ class TabAdjustment extends Component {
         }
       })
 
+      this.setAlertMsg()
       return
     }
 
@@ -239,7 +241,7 @@ class TabAdjustment extends Component {
     this.setState({
       isLoading: ' is-loading'
     })
-    
+
     const url = '/app/rows/dataset/'
     let data = await api.get(url + this.props.project.activeDataset.uuid,
       {
@@ -483,7 +485,7 @@ class TabAdjustment extends Component {
   }
 
   changeAdjustment = async (value, row) => {
-    row.adjustment = value
+    row.newAdjustment = value
     const res = await this.handleChange(row)
     if (!res) {
       return false
@@ -514,7 +516,7 @@ class TabAdjustment extends Component {
             <div className='control'>
               <div className='field has-addons'>
                 <div className='control'>
-                  <input 
+                  <input
                     className='input'
                     type='text'
                     value={this.state.searchTerm}
@@ -528,7 +530,7 @@ class TabAdjustment extends Component {
               </div>
             </div>
           </div>
-        </div> 
+        </div>
         {currentRole !== 'manager-level-3' ?
         <div className='column'>
           <div className='field is-grouped is-grouped-right'>
@@ -567,28 +569,32 @@ class TabAdjustment extends Component {
   async onClickButtonPlus () {
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = row.prediction * 0.01
-      if (Math.round(toAdd) === 0) { 
+      if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
-      var adjustment = row.adjustment
-      var newAdjustment = row.adjustment + toAdd
-      row.adjustment = newAdjustment
+      let adjustment = Math.round(row.adjustment)
+      let newAdjustment = adjustment + toAdd
+      
+      row.newAdjustment = newAdjustment
+            
       const res = await this.handleChange(row)
       if (!res) {
         row.adjustment = adjustment
-      }      
+      }
     }
   }
 
   async onClickButtonMinus () {
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = row.prediction * 0.01
-      if (Math.round(toAdd) === 0) { 
+      if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
-      var adjustment = row.adjustment
-      var newAdjustment = row.adjustment - toAdd
-      row.adjustment = newAdjustment
+      let adjustment = Math.round(row.adjustment)
+      let newAdjustment = adjustment - toAdd
+
+      row.newAdjustment = newAdjustment
+      
       const res = await this.handleChange(row)
       if (!res) {
         row.adjustment = adjustment
@@ -599,7 +605,7 @@ class TabAdjustment extends Component {
   toggleButtons () {
     let disable = true
 
-    if (this.state.selectedCheckboxes.size > 0) 
+    if (this.state.selectedCheckboxes.size > 0)
       disable = false
 
     this.setState({
@@ -608,28 +614,42 @@ class TabAdjustment extends Component {
   }
 
   async handleChange (obj) {
-    
-    var maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
-    var minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
+    let adjusted = true
+    let maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
+    let minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
 
+    obj.newAdjustment = Math.round(obj.newAdjustment)
     obj.adjustment = Math.round(obj.adjustment)
-
+    
     if (this.state.generalAdjustment > 0) {
-      obj.isLimit = (obj.adjustment >= maxAdjustment || obj.adjustment <= minAdjustment)
+      obj.isLimit = (obj.newAdjustment >= maxAdjustment || obj.newAdjustment <= minAdjustment)
     }
 
     if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
-      if (obj.adjustment > maxAdjustment || obj.adjustment < minAdjustment) {
-        this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
-        return false
+      if (obj.newAdjustment >= maxAdjustment){
+        obj.adjustment = maxAdjustment
+        adjusted = false
       }
+        
+      else if (obj.newAdjustment <= minAdjustment) {
+        obj.adjustment = minAdjustment
+        adjusted = false
+      }
+
+      else{
+        obj.adjustment = obj.newAdjustment
+      }
+      
+    }
+    else {
+      obj.adjustment = obj.newAdjustment
     }
 
     var url = '/app/rows/' + obj.uuid
     const res = await api.post(url, {...obj})
 
     obj.lastAdjustment = res.data.data.lastAdjustment
-    
+
     obj.edited = true
 
 
@@ -643,11 +663,14 @@ class TabAdjustment extends Component {
       isConciliating: ' is-loading'
     })
 
-    this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
-
-    return true
+    if(adjusted)
+      this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
+    else
+      this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
+      
+    return adjusted
   }
-  
+
 
   notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
@@ -698,12 +721,12 @@ class TabAdjustment extends Component {
       const regEx = new RegExp(this.state.searchTerm, 'gi')
 
       if (regEx.test(item.productName) || regEx.test(item.productId) || regEx.test(item.channel) || regEx.test(item.salesCenter))
-        return item 
+        return item
       else
-        return null  
+        return null
     })
     .filter(function(item){ return item != null });
-    
+
     this.setState({
       filteredData: items
     })
@@ -731,17 +754,35 @@ class TabAdjustment extends Component {
     var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
     try {
       await api.post(url)
-      await this.props.load()  
+      await this.props.load()
     } catch(e){
-      this.notify('Error '+ e.message, 3000, toast.TYPE.ERROR)      
+      this.notify('Error '+ e.message, 3000, toast.TYPE.ERROR)
     }
-    
+
     this.setState({
       isConciliating: '',
       modified: 0,
       dataRows: [],
       isFiltered: false
     })
+  }
+
+  setAlertMsg() {
+    let ajuste = (this.state.generalAdjustment * 100)
+    if (ajuste < 0){
+      this.props.setAlert('is-warning', 'Ajuste Ilimitado.')
+      return
+    }
+    
+    if (currentRole === 'manager-level-3') {
+      this.props.setAlert('is-error', 'Modo de Visualización -  No se permiten ajustes para tu tipo de usuario.')
+    }
+    else if (currentRole === 'manager-level-2') {
+      this.props.setAlert('is-warning', 'Modo de Ajuste - Para este periodo se permite un ajuste máximo de ' + (this.state.generalAdjustment * 100) + '% sobre el ajuste anterior. Tu tipo de usuario permite ajustes fuera de rango')
+    }
+    else {
+      this.props.setAlert('is-warning', 'Modo de Ajuste - Para este periodo se permite un ajuste máximo de ' + (this.state.generalAdjustment * 100) + '%  sobre el ajuste anterior.')
+    }
   }
 
   render () {
@@ -864,45 +905,10 @@ class TabAdjustment extends Component {
 
     schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
     schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
-
-    var adjustment = (
-      <span>
-        Modo de Ajuste - Para este periodo se permite un ajuste máximo de 
-        <strong>{` ${(this.state.generalAdjustment * 100)}% `}</strong> 
-        sobre el ajuste anterior.
-      </span>
-    )
-    if (this.state.generalAdjustment < 0) {
-      adjustment = (
-        <span>
-          Ajuste ilimitado.
-        </span>
-      )
-    }
-
+    
     return (
-      <div className='card'>
-        <header className='card-header'>
-          <p className='card-header-title'> Ajustes </p>
-        </header>
-        {currentRole === 'manager-level-3' ?
-          <div className='notification is-error has-text-centered is-uppercase  is-paddingless'>
-            <span className='icon is-medium has-text-warning'>
-              <i className='fa fa-warning'></i>
-            </span>
-            Modo de Visualización - No se permiten ajustes para tu tipo de usuario.
-          </div>
-          :
-          <div className='notification is-warning has-text-centered is-uppercase is-paddingless'>
-            <span className='icon is-medium has-text-info'>
-              <i className='fa fa-warning'></i>
-            </span>
-            {adjustment}
-            {currentRole === 'manager-level-2' && ' Tu tipo de usuario permite ajustes fuera de rango'}
-          </div>
-        }
-        <div className='section is-paddingless-top'>
-          
+      <div>
+        <div className='section'>
           <CreateAdjustmentRequest
             className={this.state.classNameAR}
             hideModal={(e) => this.hideModalAdjustmentRequest(e)}

@@ -29,6 +29,7 @@ class TabAprove extends Component {
   }
 
   componentWillMount () {
+    this.setAlertMsg()
     this.getAdjustmentRequests()
   }
 
@@ -566,29 +567,22 @@ class TabAprove extends Component {
     this.toggleButtons()
   }
 
+  setAlertMsg () {
+    if (currentRole === 'manager-level-3') {
+      this.props.setAlert('is-error', 'Modo de Visualización - No se permite aprobar / rechazar a tu tipo de usuario.')
+    }
+    else if (currentRole === 'manager-level-2'){
+      this.props.setAlert('is-warning', 'Es necesario aprobar ajustes fuera de rango. Tu tipo de usuario permite ajustes fuera de rango')
+    }
+    else {
+      this.props.setAlert('is-warning', 'Es necesario aprobar ajustes fuera de rango.')
+    }
+  }
+
   render () {
     return (
-      <div className='card'>
-        <header className='card-header'>
-          <p className='card-header-title'> Aprobar / Rechazar Ajustes </p>
-        </header>
-        {currentRole === 'manager-level-3' ?
-          <div className='notification is-error has-text-centered is-uppercase  is-paddingless'>
-            <span className='icon is-medium has-text-warning'>
-              <i className='fa fa-warning'></i>
-            </span>
-            Modo de Visualización - No se permite aprobar / rechazar a tu tipo de usuario.
-          </div>
-          :
-          <div className='notification is-warning has-text-centered is-uppercase is-paddingless'>
-            <span className='icon is-medium has-text-info'>
-              <i className='fa fa-warning'></i>
-            </span>
-            Es necesario aprobar ajustes fuera de rango.
-            {currentRole === 'manager-level-2' && ' Tu tipo de usuario permite ajustes fuera de rango'}
-          </div>
-        }
-        <section className='section is-paddingless-top'>
+      <div>
+        <section className='section'>
         {this.getModifyButtons()}
         <BaseTable
           data={this.state.filteredData}

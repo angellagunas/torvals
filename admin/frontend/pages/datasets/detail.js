@@ -18,6 +18,7 @@ import BaseModal from '~base/components/base-modal'
 import ProductForm from './edit-product'
 import SalesCenterForm from './edit-salescenter'
 import ChannelForm from './edit-channel'
+import Checkbox from '~base/components/base-checkbox'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -37,8 +38,21 @@ class DataSetDetail extends Component {
       currentChannel: null,
       isLoading: '',
       isLoadingConsolidate: '',
-      isLoadingConfigure: ''
+      isLoadingConfigure: '',
+      selectedProducts: new Set(),
+      selectAllProducts: false,
+      selectAllSalesCenters: false,
+      selectedSalesCenters: new Set(),
+      selectAllChannels: false,
+      selectedChannels: new Set(),
+      disableBtnC: true,
+      disableBtnP: true,
+      disableBtnS: true
     }
+
+    this.newProducts = []
+    this.newChannels = []
+    this.newSalesCenters = []
   }
 
   componentWillMount () {
@@ -52,7 +66,13 @@ class DataSetDetail extends Component {
     this.load()
     this.loadOrgs()
 
-    this.interval = setInterval(() => this.load(), 30000)
+    this.interval = setInterval(() => {
+      if (this.state.dataset.status === 'preprocessing' ||
+        this.state.dataset.status === 'processing' ||
+        this.state.dataset.status === 'pendingRows') {
+        this.load()
+      }
+    }, 30000)
   }
 
   componentWillUnmount () {
@@ -68,6 +88,7 @@ class DataSetDetail extends Component {
       loaded: true,
       dataset: body.data
     })
+
   }
 
   async loadOrgs () {
@@ -84,31 +105,6 @@ class DataSetDetail extends Component {
       ...this.state,
       organizations: body.data
     })
-  }
-
-  getColumns () {
-    return [
-      {
-        'title': 'Nombre',
-        'property': 'name',
-        'default': 'N/A',
-        'sortable': true
-      },
-      {
-        'title': 'Email',
-        'property': 'email',
-        'default': 'N/A',
-        'sortable': true
-      },
-      {
-        'title': 'Acciones',
-        formatter: (row) => {
-          return <Link className='button' to={'/manage/users/' + row.uuid}>
-            Detalle
-          </Link>
-        }
-      }
-    ]
   }
 
   changeHandler (data) {
@@ -693,16 +689,16 @@ class DataSetDetail extends Component {
       'fa-angle-up': this.state.isChannelsOpen !== false
     })
 
-    var newChannels = []
+    this.newChannels = []
     dataset.newChannels.map((item, key) => {
       if (item.isNewExternal) {
-        newChannels.push(item)
+        this.newChannels.push(item)
       }
     })
 
     if ((dataset.status !== 'reviewing' &&
       dataset.status !== 'conciliated') ||
-      newChannels.length === 0) {
+      this.newChannels.length === 0) {
       return ''
     }
 
@@ -711,7 +707,7 @@ class DataSetDetail extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-                Canales no identificados: {newChannels.length}
+                Canales no identificados: {this.newChannels.length}
             </p>
             <div className='field is-grouped is-grouped-right card-header-select'>
               <div className='control'>
@@ -734,11 +730,32 @@ class DataSetDetail extends Component {
                       <th colSpan='2'>Id Externo</th>
                       <th colSpan='2'>Nombre</th>
                       <th colSpan='2'>Acciones</th>
+                      <th colSpan='2'>
+                        <span title='Seleccionar todos'>
+                          <Checkbox
+                            label='checkAll'
+                            handleCheckboxChange={(e) => this.checkAllChannels(!this.state.selectAllChannels)}
+                            key='checkAll'
+                            checked={this.state.selectAllChannels}
+                            hideLabel />
+                        </span>
+                      </th>
+                      <th colSpan='1' className='is-narrow'>
+                        <button
+                          onClick={() => this.confirmChannels()}
+                          disabled={this.state.disableBtnC}
+                          className='button is-primary is-outlined is-pulled-right'>
+                          Confirmar ({this.state.selectedChannels.size})
+                          </button>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {
-                      newChannels.map((item, key) => {
+                      this.newChannels.map((item, key) => {
+                        if (!item.selected) {
+                          item.selected = false
+                        }
                         return (
                           <tr key={key}>
                             <td colSpan='2'>{item.externalId}</td>
@@ -747,6 +764,14 @@ class DataSetDetail extends Component {
                               <button className='button is-primary' onClick={() => this.showModalChannels(item)}>
                                   Editar
                               </button>
+                            </td>
+                            <td colSpan='2'>
+                              <Checkbox
+                                label={item}
+                                handleCheckboxChange={this.toggleCheckboxChannels}
+                                key={item.externalId}
+                                checked={item.selected}
+                                hideLabel />
                             </td>
                           </tr>
                         )
@@ -777,16 +802,16 @@ class DataSetDetail extends Component {
       'fa-angle-up': this.state.isSalesCenterOpen !== false
     })
 
-    var newSalesCenters = []
+    this.newSalesCenters = []
     dataset.newSalesCenters.map((item, key) => {
       if (item.isNewExternal) {
-        newSalesCenters.push(item)
+        this.newSalesCenters.push(item)
       }
     })
 
     if ((dataset.status !== 'reviewing' &&
       dataset.status !== 'conciliated') ||
-      newSalesCenters.length === 0) {
+      this.newSalesCenters.length === 0) {
       return ''
     }
 
@@ -795,7 +820,7 @@ class DataSetDetail extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-                Centros de Venta no identificados: {newSalesCenters.length}
+                Centros de Venta no identificados: {this.newSalesCenters.length}
             </p>
             <div className='field is-grouped is-grouped-right card-header-select'>
               <div className='control'>
@@ -818,11 +843,32 @@ class DataSetDetail extends Component {
                       <th colSpan='2'>Id Externo</th>
                       <th colSpan='2'>Nombre</th>
                       <th colSpan='2'>Acciones</th>
+                      <th colSpan='2'>
+                        <span title='Seleccionar todos'>
+                          <Checkbox
+                            label='checkAll'
+                            handleCheckboxChange={(e) => this.checkAllSalesCenters(!this.state.selectAllSalesCenters)}
+                            key='checkAll'
+                            checked={this.state.selectAllSalesCenters}
+                            hideLabel />
+                        </span>
+                      </th>
+                      <th colSpan='1' className='is-narrow'>
+                        <button
+                          onClick={() => this.confirmSalesCenters()}
+                          disabled={this.state.disableBtnS}
+                          className='button is-primary is-outlined is-pulled-right'>
+                          Confirmar ({this.state.selectedSalesCenters.size})
+                          </button>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {
-                      newSalesCenters.map((item, key) => {
+                      this.newSalesCenters.map((item, key) => {
+                        if (!item.selected) {
+                          item.selected = false
+                        }
                         return (
                           <tr key={key}>
                             <td colSpan='2'>{item.externalId}</td>
@@ -831,6 +877,14 @@ class DataSetDetail extends Component {
                               <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
                                   Editar
                                 </button>
+                            </td>
+                            <td colSpan='2'>
+                              <Checkbox
+                                label={item}
+                                handleCheckboxChange={this.toggleCheckboxSalesCenters}
+                                key={item.externalId}
+                                checked={item.selected}
+                                hideLabel />
                             </td>
                           </tr>
                         )
@@ -861,18 +915,20 @@ class DataSetDetail extends Component {
       'fa-angle-up': this.state.isProductsOpen !== false
     })
 
-    var newProducts = []
+    this.newProducts = []
     dataset.newProducts.map((item, key) => {
       if (item.isNewExternal) {
-        newProducts.push(item)
+        this.newProducts.push(item)
       }
     })
 
     if ((dataset.status !== 'reviewing' &&
       dataset.status !== 'conciliated') ||
-      newProducts.length === 0) {
+      this.newProducts.length === 0) {
       return ''
     }
+    
+    
 
     return (
       <div className='columns'>
@@ -880,7 +936,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                  Productos no identificados: {newProducts.length}
+                  Productos no identificados: {this.newProducts.length}
               </p>
               <div className='field is-grouped is-grouped-right card-header-select'>
                 <div className='control'>
@@ -903,11 +959,32 @@ class DataSetDetail extends Component {
                         <th colSpan='2'>Id Externo</th>
                         <th colSpan='2'>Nombre</th>
                         <th colSpan='2'>Acciones</th>
+                        <th colSpan='2'>
+                        <span title='Seleccionar todos'>
+                          <Checkbox
+                            label='checkAll'
+                            handleCheckboxChange={(e) => this.checkAllProducts(!this.state.selectAllProducts)}
+                            key='checkAll'
+                            checked={this.state.selectAllProducts}
+                            hideLabel />
+                        </span>    
+                        </th>
+                        <th colSpan='1' className='is-narrow'>
+                          <button
+                            onClick={() => this.confirmProducts()}
+                            disabled={this.state.disableBtnP} 
+                            className='button is-primary is-outlined is-pulled-right'>
+                            Confirmar ({this.state.selectedProducts.size})
+                          </button>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {
-                        newProducts.map((item, key) => {
+                        this.newProducts.map((item, key) => {
+                          if(!item.selected){
+                            item.selected = false
+                          }
                           return (
                             <tr key={key}>
                               <td colSpan='2'>{item.externalId}</td>
@@ -915,7 +992,15 @@ class DataSetDetail extends Component {
                               <td colSpan='2'>
                                 <button className='button is-primary' onClick={() => this.showModal(item)}>
                                     Editar
-                                  </button>
+                                </button>
+                              </td>
+                              <td colSpan='2'>
+                                <Checkbox
+                                  label={item}
+                                  handleCheckboxChange={this.toggleCheckboxProducts}
+                                  key={item.externalId}
+                                  checked={item.selected}
+                                  hideLabel />
                               </td>
                             </tr>
                           )
@@ -931,6 +1016,172 @@ class DataSetDetail extends Component {
       </div>
     )
   }
+
+  checkAllProducts = (check) => {
+    this.state.selectedProducts.clear()
+    for (let item of this.newProducts) {
+      if (check)
+        this.state.selectedProducts.add(item)
+      
+        item.selected = check
+    }
+    this.setState({ selectAllProducts: check }, function () {
+      this.toggleButtons()
+    })
+  }
+
+  toggleCheckboxProducts = (item, all) => {
+    if (this.state.selectedProducts.has(item) && !all) {
+      this.state.selectedProducts.delete(item)
+      item.selected = false
+    }
+    else {
+      this.state.selectedProducts.add(item)
+      item.selected = true 
+    }
+
+    this.toggleButtons()
+  }
+
+  checkAllSalesCenters = (check) => {
+    this.state.selectedSalesCenters.clear()
+    for (let item of this.newSalesCenters) {
+      if (check)
+        this.state.selectedSalesCenters.add(item)
+
+      item.selected = check
+    }
+    this.setState({ selectAllSalesCenters: check }, function () {
+      this.toggleButtons()
+    })
+  }
+
+  toggleCheckboxSalesCenters = (item, all) => {
+    if (this.state.selectedSalesCenters.has(item) && !all) {
+      this.state.selectedSalesCenters.delete(item)
+      item.selected = false
+    }
+    else {
+      this.state.selectedSalesCenters.add(item)
+      item.selected = true
+    }
+
+    this.toggleButtons()
+  }
+
+  checkAllChannels = (check) => {
+    this.state.selectedChannels.clear()
+    for (let item of this.newChannels) {
+      if (check)
+        this.state.selectedChannels.add(item)
+
+      item.selected = check
+    }
+    this.setState({ selectAllChannels: check }, function () {
+      this.toggleButtons()
+    })
+  }
+
+  toggleCheckboxChannels = (item, all) => {
+    if (this.state.selectedChannels.has(item) && !all) {
+      this.state.selectedChannels.delete(item)
+      item.selected = false
+    }
+    else {
+      this.state.selectedChannels.add(item)
+      item.selected = true
+    }
+
+    this.toggleButtons()
+  }
+
+
+  toggleButtons() {
+    let disableP = true
+    let disableS = true
+    let disableC = true
+
+    if (this.state.selectedProducts.size > 0)
+      disableP = false
+    if(this.state.selectedChannels.size > 0)
+      disableC = false
+    if(this.state.selectedSalesCenters.size > 0)
+      disableS = false
+
+    this.setState({
+      disableBtnP: disableP,
+      disableBtnS: disableS,
+      disableBtnC: disableC      
+    })
+  }
+
+  async confirmProducts () {
+    const url = '/admin/products/'
+    for (let item of this.state.selectedProducts) {
+      if (!item.category) {
+        item.category = ''
+      }
+      if (!item.subcategory) {
+        item.subcategory = ''
+      }
+      item.organization = this.state.organizations.find(org => {
+        if (org._id === item.organization)
+          return org 
+      }).uuid 
+      await api.post(url + item.uuid, item)
+    }
+    
+    this.setState({
+      selectedProducts: new Set(),
+      selectAllProducts: false
+    }, function () {
+      this.toggleButtons()
+      this.load()
+    })
+  }
+
+  async confirmSalesCenters() {
+    const url = '/admin/salesCenters/'
+    for (let item of this.state.selectedSalesCenters) {
+      
+      item.organization = this.state.organizations.find(org => {
+        if (org._id === item.organization)
+          return org
+      }).uuid 
+
+      await api.post(url + item.uuid, item)
+    }
+
+    this.setState({
+      selectedSalesCenters: new Set(),
+      selectAllSalesCenters: false
+    }, function () {
+      this.toggleButtons()
+      this.load()
+    })
+  }
+
+  async confirmChannels() {
+    const url = '/admin/channels/'
+    for (let item of this.state.selectedChannels) {
+      
+      item.organization = this.state.organizations.find(org => {
+        if (org._id === item.organization)
+          return org
+      }).uuid
+
+      await api.post(url + item.uuid, item)
+    }
+
+    this.setState({
+      selectedChannels: new Set(),
+      selectAllChannels: false
+    }, function () {
+      this.toggleButtons()
+      this.load()
+    })
+  }
+
   render () {
     const { dataset } = this.state
 
