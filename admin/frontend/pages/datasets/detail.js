@@ -692,7 +692,7 @@ class DataSetDetail extends Component {
     this.newChannels = []
     dataset.newChannels.map((item, key) => {
       if (item.isNewExternal) {
-        newChannels.push(item)
+        this.newChannels.push(item)
       }
     })
 
@@ -1070,14 +1070,14 @@ class DataSetDetail extends Component {
   }
 
   checkAllChannels = (check) => {
-    this.state.selectedSalesCenters.clear()
-    for (let item of this.newSalesCenters) {
+    this.state.selectedChannels.clear()
+    for (let item of this.newChannels) {
       if (check)
-        this.state.selectedSalesCenters.add(item)
+        this.state.selectedChannels.add(item)
 
       item.selected = check
     }
-    this.setState({ selectAllSalesCenters: check }, function () {
+    this.setState({ selectAllChannels: check }, function () {
       this.toggleButtons()
     })
   }
