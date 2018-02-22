@@ -76,6 +76,17 @@ class TabAdjustment extends Component {
       var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
       var dates = []
       var periods = []
+      var adjustments = {
+        '1': 10,
+        '2': 20,
+        '3': 30,
+        '4': -1
+      }
+
+
+      if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
+        adjustments = this.props.project.businessRules.adjustments
+      }
 
       for (var i = 0; i < 16; i++) {
         dates.push(moment(maxDate.format()))
@@ -92,7 +103,7 @@ class TabAdjustment extends Component {
       periods.push({
         number: 4,
         name: `Periodo ${period4[3].format('MMMM')}`,
-        adjustment: -1,
+        adjustment: adjustments['4'],
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -101,7 +112,7 @@ class TabAdjustment extends Component {
       periods.push({
         number: 3,
         name: `Periodo ${period3[3].format('MMMM')}`,
-        adjustment: .30,
+        adjustment: adjustments['3']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -110,7 +121,7 @@ class TabAdjustment extends Component {
       periods.push({
         number: 2,
         name: `Periodo ${period2[3].format('MMMM')}`,
-        adjustment: .20,
+        adjustment: adjustments['2']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -119,7 +130,7 @@ class TabAdjustment extends Component {
       periods.push({
         number: 1,
         name: `Periodo ${period1[3].format('MMMM')}`,
-        adjustment: .10,
+        adjustment: adjustments['1']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
