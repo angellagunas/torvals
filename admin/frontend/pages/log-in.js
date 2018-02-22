@@ -13,8 +13,8 @@ const schema = {
   type: 'object',
   required: ['email', 'password'],
   properties: {
-    email: {type: 'string', title: 'Email'},
-    password: {type: 'string', title: 'Password'}
+    email: {type: 'string', title: 'Correo'},
+    password: {type: 'string', title: 'Contraseña'}
   }
 }
 
@@ -31,7 +31,8 @@ class LogIn extends Component {
         email: '',
         password: ''
       },
-      apiCallErrorMessage: 'is-hidden'
+      apiCallErrorMessage: 'is-hidden',
+      isLoading: ''
     }
   }
 
@@ -53,13 +54,15 @@ class LogIn extends Component {
   }
 
   async submitHandler ({formData}) {
+    this.setState({isLoading: ' is-loading'})
     var data
     try {
       data = await api.post('/user/login', formData)
     } catch (e) {
       return this.setState({
         error: e.message,
-        apiCallErrorMessage: 'message is-danger'
+        apiCallErrorMessage: 'message is-danger',
+        isLoading: ''
       })
     }
 
@@ -69,12 +72,14 @@ class LogIn extends Component {
       tree.set('user', data.user)
       tree.set('loggedIn', true)
       tree.commit()
+      this.setState({isLoading: ''})
 
       this.props.history.push(env.PREFIX + '/', {})
     } else {
       this.setState({
-        error: 'Invalid user',
+        error: 'Usuario inválido!',
         apiCallErrorMessage: 'message is-danger',
+        isLoading: '',
         formData: {
           email: '',
           password: ''
@@ -96,7 +101,7 @@ class LogIn extends Component {
       resetLink = (
         <p>
           <Link to='/password/forgotten/'>
-            Forgot password?
+            ¿Olvidó su contraseña?
           </Link>
         </p>
       )
@@ -107,7 +112,7 @@ class LogIn extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Log in
+              Acceder a Admin
             </p>
             <a className='card-header-icon'>
               <span className='icon'>
@@ -133,11 +138,11 @@ class LogIn extends Component {
                     </div>
                     <div>
                       <button
-                        className='button is-primary is-fullwidth'
+                        className={'button is-primary is-fullwidth' + this.state.isLoading}
                         type='submit'
-                        disabled={!!error}
+                        disabled={!!error || !!this.state.isLoading}
                       >
-                        Log in
+                        Iniciar sesión
                       </button>
                     </div>
                   </BaseForm>
