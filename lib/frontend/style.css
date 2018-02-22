@@ -1,3 +1,31 @@
+@keyframes floating {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  45% {
+    transform: translate3d(0, -10%, 0);
+  }
+  55% {
+    transform: translate3d(0, -10%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes floatingShadow {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(0.85);
+  }
+  55% {
+    transform: scale(0.85);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 .container-not-found {
   font-family: 'Varela Round', sans-serif;
   position: relative;
