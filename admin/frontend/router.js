@@ -43,13 +43,14 @@ import DeletedProjects from './pages/projects/deleted-list'
 import Channels from './pages/channels/list'
 import DeletedChannels from './pages/channels/deleted-list'
 import ChannelDetail from './pages/channels/detail'
+import NotFound from '~base/components/not-found'
 // #Import
 
 const NoMatch = () => {
   if (window.location.pathname.replace(/\//g, '') === 'admin') {
     return <Redirect to={{pathname: env.PREFIX + '/dashboard'}} />
   }
-  return <div>Not Found</div>
+  return <NotFound />
 }
 
 const AppRouter = () => {
