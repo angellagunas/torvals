@@ -70,6 +70,10 @@ class TabAdjustment extends Component {
       this.clearSearch()
       this.getFilters()
     }
+
+    if (currentRole !== 'manager-level-3' && this.props.project.status == 'adjustment') {
+      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
+    }
   }
 
   async getFilters() {
@@ -574,9 +578,9 @@ class TabAdjustment extends Component {
       }
       let adjustment = Math.round(row.adjustment)
       let newAdjustment = adjustment + toAdd
-      
+
       row.newAdjustment = newAdjustment
-            
+
       const res = await this.handleChange(row)
       if (!res) {
         row.adjustment = adjustment
@@ -594,7 +598,7 @@ class TabAdjustment extends Component {
       let newAdjustment = adjustment - toAdd
 
       row.newAdjustment = newAdjustment
-      
+
       const res = await this.handleChange(row)
       if (!res) {
         row.adjustment = adjustment
@@ -620,7 +624,7 @@ class TabAdjustment extends Component {
 
     obj.newAdjustment = Math.round(obj.newAdjustment)
     obj.adjustment = Math.round(obj.adjustment)
-    
+
     if (this.state.generalAdjustment > 0) {
       obj.isLimit = (obj.newAdjustment >= maxAdjustment || obj.newAdjustment <= minAdjustment)
     }
@@ -630,7 +634,7 @@ class TabAdjustment extends Component {
         obj.adjustment = maxAdjustment
         adjusted = false
       }
-        
+
       else if (obj.newAdjustment <= minAdjustment) {
         obj.adjustment = minAdjustment
         adjusted = false
@@ -639,7 +643,7 @@ class TabAdjustment extends Component {
       else{
         obj.adjustment = obj.newAdjustment
       }
-      
+
     }
     else {
       obj.adjustment = obj.newAdjustment
@@ -667,7 +671,7 @@ class TabAdjustment extends Component {
       this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
     else
       this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
-      
+
     return adjusted
   }
 
@@ -751,8 +755,10 @@ class TabAdjustment extends Component {
     this.setState({
       isConciliating: ' is-loading'
     })
+
     var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
     try {
+      clearInterval(this.interval)
       await api.post(url)
       await this.props.load()
     } catch(e){
@@ -773,7 +779,7 @@ class TabAdjustment extends Component {
       this.props.setAlert('is-warning', 'Ajuste Ilimitado.')
       return
     }
-    
+
     if (currentRole === 'manager-level-3') {
       this.props.setAlert('is-error', 'Modo de Visualización -  No se permiten ajustes para tu tipo de usuario.')
     }
@@ -905,7 +911,7 @@ class TabAdjustment extends Component {
 
     schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
     schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
-    
+
     return (
       <div>
         <div className='section'>

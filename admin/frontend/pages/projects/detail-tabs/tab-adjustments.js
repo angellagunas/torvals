@@ -53,7 +53,7 @@ class TabAdjustment extends Component {
     this.getFilters()
     this.getModifiedCount()
     this.interval = setInterval(() => { this.getModifiedCount() }, 10000)
-    this.setAlertMsg()    
+    this.setAlertMsg()
   }
 
   componentWillUnmount () {
@@ -64,6 +64,10 @@ class TabAdjustment extends Component {
     if (nextProps.project.status === 'adjustment' && this.props.project.status !== 'adjustment') {
       this.clearSearch()
       this.getFilters()
+    }
+
+    if (this.props.project.status == 'adjustment') {
+      this.interval = setInterval(() => { this.getModifiedCount() }, 10000)
     }
   }
 
@@ -221,7 +225,7 @@ class TabAdjustment extends Component {
       }
     })
 
-    
+
   }
 
   async FilterErrorHandler (e) {
@@ -711,6 +715,7 @@ class TabAdjustment extends Component {
     var url = '/admin/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
 
     try {
+      clearInterval(this.interval)
       await api.post(url)
       await this.props.load()
     } catch (e) {
