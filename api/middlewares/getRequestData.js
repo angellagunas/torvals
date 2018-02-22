@@ -52,10 +52,11 @@ module.exports = async function (ctx, next) {
 
   if (ctx.request.headers.origin) {
     const origin = url.parse(ctx.request.headers.origin)
+    const apiHostname = url.parse(server.apiHost).hostname.split('.')
 
     const host = origin.hostname.split('.')
 
-    if (host.length === 3 && host[0] !== 'www') {
+    if (host.length > apiHostname.length && host[0] !== 'www') {
       ctx.state.orgSlug = host[0]
 
       if (ctx.state.orgSlug) {
