@@ -26,11 +26,12 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'Ajustes',
+      selectedTab: 'ajustes',
       datasetClassName: '',
       roles: 'admin, orgadmin, analyst, manager-level-2',
       canEdit: false,
-      isLoading: ''
+      isLoading: '',
+      counterAdjustments: 0
     }
     this.interval = null
   }
@@ -49,6 +50,17 @@ class ProjectDetail extends Component {
       loading: false,
       loaded: true,
       project: body.data
+    })
+
+    this.countAdjustmentRequests()
+  }
+
+  async countAdjustmentRequests () {
+    var url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
+    var body = await api.get(url)
+
+    this.setState({
+      counterAdjustments: body.data.created
     })
   }
 
@@ -126,9 +138,10 @@ class ProjectDetail extends Component {
     }
     const tabs = [
       {
-        name: 'Ajustes',
+        name: 'ajustes',
         title: 'Ajustes',
         icon: 'fa-cogs',
+        reload: false,
         content: (
           <TabAdjustment
             load={this.getProjectStatus.bind(this)}
@@ -140,9 +153,12 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Aprobar',
+        name: 'aprobar',
         title: 'Aprobar',
+        badge: true,
+        valueBadge: this.state.counterAdjustments,
         icon: 'fa-calendar-check-o',
+        reload: true,
         hide: (testRoles('manager-level-1') ||
               project.status === 'processing' ||
               project.status === 'pendingRows' ||
@@ -156,10 +172,11 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Datasets',
+        name: 'datasets',
         title: 'Datasets',
         icon: 'fa-signal',
         hide: testRoles('manager-level-1'),
+        reload: true,
         content: (
           <TabDatasets
             project={project}
@@ -176,10 +193,11 @@ class ProjectDetail extends Component {
         content: <TabHistorical />
       }, */
       {
-        name: 'Configuración',
-        title: 'Información',
+        name: 'configuracion',
+        title: 'Configuración',
         icon: 'fa-tasks',
         hide: testRoles('manager-level-1'),
+        reload: true,
         content: (
           <div>
             <div className='section'>

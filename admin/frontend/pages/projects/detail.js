@@ -24,9 +24,10 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'Ajustes',
+      selectedTab: 'ajustes',
       datasetClassName: '',
-      isLoading: ''
+      isLoading: '',
+      counterAdjustments: 0
     }
     this.interval = null
   }
@@ -43,6 +44,17 @@ class ProjectDetail extends Component {
       loading: false,
       loaded: true,
       project: body.data
+    })
+
+    this.countAdjustmentRequests()
+  }
+
+  async countAdjustmentRequests () {
+    var url = '/admin/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
+    var body = await api.get(url)
+
+    this.setState({
+      counterAdjustments: body.data.created
     })
   }
 
@@ -120,9 +132,10 @@ class ProjectDetail extends Component {
     }
     const tabs = [
       {
-        name: 'Ajustes',
+        name: 'ajustes',
         title: 'Ajustes',
         icon: 'fa-cogs',
+        reload: false,
         content: (
           <TabAdjustment
             load={this.getProjectStatus.bind(this)}
@@ -133,8 +146,11 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Aprobar',
+        name: 'aprobar',
         title: 'Aprobar',
+        badge: true,
+        valueBadge: this.state.counterAdjustments,
+        reload: true,
         icon: 'fa-calendar-check-o',
         hide: project.status === 'processing' ||
               project.status === 'pendingRows' ||
@@ -146,9 +162,10 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Datasets',
+        name: 'datasets',
         title: 'Datasets',
         icon: 'fa-signal',
+        reload: true,
         content: (
           <TabDatasets
             project={project}
@@ -163,9 +180,10 @@ class ProjectDetail extends Component {
         content: <TabHistorical />
       }, */
       {
-        name: 'Configuración',
-        title: 'Información',
+        name: 'configuracion',
+        title: 'Configuración',
         icon: 'fa-tasks',
+        reload: true,
         content: (
           <div>
             <div className='section'>
