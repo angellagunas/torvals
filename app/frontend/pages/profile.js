@@ -16,8 +16,8 @@ class Profile extends Component {
             <div className='card'>
               <header className='card-header'>
                 <div className='card-header-title'>
-                  {currentUser.name}
-                  <p className='subtitle is-6'> | {currentUser.currentRole.name}</p>
+                  <p className='margin-text'>{currentUser.name}</p>
+                  <p className='subtitle is-6'>| {currentUser.currentRole.name}</p>
                 </div>
               </header>
               <div className='card-content'>
