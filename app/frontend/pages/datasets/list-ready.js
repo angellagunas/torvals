@@ -6,6 +6,7 @@ import Link from '~base/router/link'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class ReadyDataSets extends Component {
   constructor (props) {
@@ -62,6 +63,21 @@ class ReadyDataSets extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/datasets/ready',
+                  label: 'Datasets Listos',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>DataSets</h1>
             <div className='card'>
               <header className='card-header'>

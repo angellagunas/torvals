@@ -12,6 +12,22 @@ export default ListPage({
   roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Dataset',
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/datasets/',
+        label: 'Datasets',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/app/datasets',
   branchName: 'datasets',
   detailUrl: '/datasets/',

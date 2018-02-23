@@ -14,6 +14,7 @@ import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import PredictionsGraph from './predictions-graph'
 import ContainerTable from './components/container-table'
 import { ToastContainer } from 'react-toastify'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class ForecastDetail extends Component {
   constructor (props) {
@@ -623,6 +624,26 @@ class ForecastDetail extends Component {
       <div className='columns c-flex-1 is-marginless' style={{overflowY: 'scroll', height: this.state.bodyHeight}}>
         <div className='column is-12 is-paddingless'>
           <div className='section'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/forecasts',
+                  label: 'Forecasts',
+                  current: false
+                },
+                {
+                  path: '/admin/forecasts/',
+                  label: 'Detalle de forecast',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             {this.getTable()}
           </div>
         </div>

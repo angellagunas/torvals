@@ -9,6 +9,7 @@ import Loader from '~base/components/spinner'
 import ProductForm from './create-form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class ProductDetail extends Component {
   constructor (props) {
@@ -108,6 +109,26 @@ class ProductDetail extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/products',
+                  label: 'Productos',
+                  current: false
+                },
+                {
+                  path: '/admin/products/detail/',
+                  label: 'Detalle de producto',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>

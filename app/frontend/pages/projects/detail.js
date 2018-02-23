@@ -18,6 +18,7 @@ import TabAprove from './detail-tabs/tab-aprove'
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -235,6 +236,26 @@ class ProjectDetail extends Component {
             </div>
           }
           <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/projects',
+                  label: 'Proyectos',
+                  current: false
+                },
+                {
+                  path: '/projects/',
+                  label: 'Detalle de proyecto',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='is-padding-top-small'>
               <Tabs
                 tabTitle={project.name}

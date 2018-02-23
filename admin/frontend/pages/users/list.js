@@ -19,6 +19,22 @@ export default ListPage({
   titleSingular: 'Usuario',
   create: false,
   createComponent: CreateUser,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/admin/manage/users/',
+        label: 'Usuarios activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   sidePanel: true,
   sidePanelIcon: 'user-plus',
   sidePanelComponent: CreateUserNoModal,

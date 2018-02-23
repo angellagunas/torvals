@@ -11,6 +11,7 @@ import ProjectForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class SalesCenterDetail extends Component {
   constructor (props) {
@@ -233,6 +234,26 @@ class SalesCenterDetail extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/salesCenters',
+                  label: 'Centros de venta',
+                  current: false
+                },
+                {
+                  path: '/admin/salesCenters/detail/',
+                  label: 'Detalle de Centro de venta',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>

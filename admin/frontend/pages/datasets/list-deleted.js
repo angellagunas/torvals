@@ -8,6 +8,7 @@ import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import { ToastContainer, toast } from 'react-toastify'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class DeletedDataSets extends Component {
   constructor (props) {
@@ -34,7 +35,7 @@ class DeletedDataSets extends Component {
       this.props.history.push('/admin/datasets/detail/' + uuid)
     } catch (e) {
       this.notify(
-        'El proyecto de este dataset esta eliminado, primero restaure el proyecto', 
+        'El proyecto de este dataset esta eliminado, primero restaure el proyecto',
         3000,
         toast.TYPE.ERROR
       )
@@ -108,6 +109,21 @@ class DeletedDataSets extends Component {
         <ToastContainer />
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/datasets/deleted',
+                  label: 'Datasets desactivados',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Datasets eliminados</h1>
             <div className='card'>
               <header className='card-header'>

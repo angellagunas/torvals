@@ -7,6 +7,7 @@ import api from '~base/api'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class DeletedSalesCenters extends Component {
   componentWillMount () {
@@ -74,6 +75,21 @@ class DeletedSalesCenters extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/salesCenters',
+                  label: 'Centros de venta desactivados',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Sales Centers</h1>
             <div className='card'>
               <div className='card-content'>

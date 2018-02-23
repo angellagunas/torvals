@@ -12,6 +12,7 @@ import Loader from '~base/components/spinner'
 import UserForm from './form'
 import Multiselect from '~base/components/base-multiselect'
 import tree from '~core/tree'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class UserDetail extends Component {
   constructor (props) {
@@ -305,6 +306,26 @@ class UserDetail extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/manage/users',
+                  label: 'Usuarios',
+                  current: false
+                },
+                {
+                  path: '/manage/users/',
+                  label: 'Detalle de usuario',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             {resetButton}
             <div className='columns is-mobile'>
               <div className='column'>
