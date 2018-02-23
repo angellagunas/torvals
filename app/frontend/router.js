@@ -33,12 +33,13 @@ import ForecastDetail from './pages/forecasts/detail'
 import env from '~base/env-variables'
 import Channels from './pages/channel/list'
 import ChannelsDetail from './pages/channel/detail'
+import NotFound from '~base/components/not-found'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
     return <Redirect to={{pathname: env.PREFIX + 'dashboard'}} />
   }
-  return (<div>Not Found</div>)
+  return (<NotFound />)
 }
 
 const AppRouter = () => {
