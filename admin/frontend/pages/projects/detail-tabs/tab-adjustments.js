@@ -65,6 +65,10 @@ class TabAdjustment extends Component {
       this.clearSearch()
       this.getFilters()
     }
+
+    if (this.props.project.status == 'adjustment') {
+      this.interval = setInterval(() => { this.getModifiedCount() }, 10000)
+    }
   }
 
   async getFilters () {
@@ -229,7 +233,6 @@ class TabAdjustment extends Component {
         period: e.formData.period
       }
     })
-
   }
 
   async FilterErrorHandler (e) {
@@ -726,6 +729,7 @@ class TabAdjustment extends Component {
     var url = '/admin/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
 
     try {
+      clearInterval(this.interval)
       await api.post(url)
       await this.props.load()
     } catch (e) {

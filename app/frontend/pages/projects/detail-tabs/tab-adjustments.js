@@ -70,6 +70,10 @@ class TabAdjustment extends Component {
       this.clearSearch()
       this.getFilters()
     }
+
+    if (currentRole !== 'manager-level-3' && this.props.project.status == 'adjustment') {
+      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
+    }
   }
 
   async getFilters() {
@@ -764,8 +768,10 @@ class TabAdjustment extends Component {
     this.setState({
       isConciliating: ' is-loading'
     })
+
     var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
     try {
+      clearInterval(this.interval)
       await api.post(url)
       await this.props.load()
     } catch(e){
