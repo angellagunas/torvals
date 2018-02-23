@@ -26,8 +26,10 @@ class InviteUserForm extends Component {
   errorHandler (e) {}
 
   async changeHandler ({formData}) {
-    await this.loadProjects(formData.organization)
-    await this.changeGroups(formData.organization)
+    if (this.state.formData.organization !== formData.organization) {
+      await this.loadProjects(formData.organization)
+      await this.changeGroups(formData.organization)
+    }
 
     this.setState({
       formData,
