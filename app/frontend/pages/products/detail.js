@@ -152,7 +152,7 @@ class ProductDetail extends Component {
                             <div className='control'>
                               <button
                                 className={'button is-primary ' + this.state.isLoading}
-
+                                disabled={!!this.state.isLoading}
                                 type='submit'
                               >Guardar</button>
                             </div>
