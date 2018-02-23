@@ -7,7 +7,8 @@ import {
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
-import LogIn from './pages/log-in'
+
+import LandPage from './pages/land-page'
 import Dashboard from './pages/dashboard'
 import ResetPassword from './pages/reset-password'
 import EmailResetLanding from './pages/emails/reset'
@@ -56,7 +57,7 @@ const AppRouter = () => {
     <AdminLayout>
       <div className='c-flex-1 is-flex is-flex-column is-relative'>
         <Switch>
-          {LogIn.asRouterItem()}
+          {LandPage.asRouterItem()}
           {ResetPassword.asRouterItem()}
           {EmailResetLanding.asRouterItem()}
           {Dashboard.asRouterItem()}
