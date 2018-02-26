@@ -175,7 +175,7 @@ class InviteUserForm extends Component {
       var role = this.props.roles.find((item) => {
         return item._id === this.state.formData.role
       })
-      if (role.slug === 'manager-level-1') {
+      if (role && role.slug === 'manager-level-1') {
         schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
         uiSchema['project'] = {'ui:widget': SelectWidget}
         schema.required.push('project')

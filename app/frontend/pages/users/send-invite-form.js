@@ -10,35 +10,6 @@ import {
   SelectWidget
 } from '~base/components/base-form'
 
-var schema = {
-  type: 'object',
-  title: '',
-  required: ['email', 'name'],
-  properties: {
-    name: {type: 'string', title: 'Nombre'},
-    email: {type: 'string', title: 'Email'},
-    role: {
-      type: 'string',
-      title: 'Rol',
-      enum: [],
-      enumNames: []
-    },
-    group: {
-      type: 'string',
-      title: 'Grupo',
-      enum: [],
-      enumNames: []
-    }
-  }
-}
-
-const uiSchema = {
-  name: {'ui:widget': TextWidget},
-  email: {'ui:widget': EmailWidget},
-  role: {'ui:widget': SelectWidget},
-  group: {'ui:widget': SelectWidget}
-}
-
 class InviteUserForm extends Component {
   constructor (props) {
     super(props)
@@ -50,28 +21,35 @@ class InviteUserForm extends Component {
     }
   }
 
+  async componentDidMount () {
+    if (this.state.formData.role) {
+      var role = this.props.roles.find((item) => {
+        return item._id === this.state.formData['role']
+      })
+
+      if (role && role.slug === 'manager-level-1') {
+        await this.loadProjects()
+        this.setState({projectRequired: true})
+      }
+    }
+  }
+
   errorHandler (e) {}
 
   async changeHandler ({formData}) {
-    if (formData['role']) {
+    if (formData.role && this.state.formData.role !== formData.role) {
       var role = this.props.roles.find((item) => {
         return item._id === formData['role']
       })
 
-      if (role.slug === 'manager-level-1') {
-        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
-        uiSchema['project'] = {'ui:widget': SelectWidget}
-        this.setState({projectRequired: true})
+      if (role && role.slug === 'manager-level-1') {
         await this.loadProjects()
-      } else {
-        delete schema.properties['project']
-        delete uiSchema['project']
-        delete formData['project']
-        schema.required = ['email', 'name']
+        this.setState({projectRequired: true})
       }
     } else {
       this.setState({projectRequired: false})
     }
+
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
@@ -87,8 +65,7 @@ class InviteUserForm extends Component {
     })
 
     this.setState({
-      projects: body.data,
-      key: Math.random()
+      projects: body.data
     })
   }
 
@@ -146,6 +123,50 @@ class InviteUserForm extends Component {
       </div>
     }
 
+    var schema = {
+      type: 'object',
+      title: '',
+      required: ['email', 'name'],
+      properties: {
+        name: {type: 'string', title: 'Nombre'},
+        email: {type: 'string', title: 'Email'},
+        role: {
+          type: 'string',
+          title: 'Rol',
+          enum: [],
+          enumNames: []
+        },
+        group: {
+          type: 'string',
+          title: 'Grupo',
+          enum: [],
+          enumNames: []
+        }
+      }
+    }
+
+    const uiSchema = {
+      name: {'ui:widget': TextWidget},
+      email: {'ui:widget': EmailWidget},
+      role: {'ui:widget': SelectWidget},
+      group: {'ui:widget': SelectWidget}
+    }
+
+    if (this.state.formData['role']) {
+      var role = this.props.roles.find((item) => {
+        return item._id === this.state.formData['role']
+      })
+      if (role.slug === 'manager-level-1') {
+        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        uiSchema['project'] = {'ui:widget': SelectWidget}
+      } else {
+        delete schema.properties['project']
+        delete uiSchema['project']
+        delete this.state.formData['project']
+        schema.required = ['email', 'name']
+      }
+    }
+
     if (this.props.filters) {
       if (this.props.filters.group) {
         delete uiSchema.group
@@ -173,7 +194,6 @@ class InviteUserForm extends Component {
     return (
       <div>
         <BaseForm
-          key={this.state.key}
           schema={schema}
           uiSchema={uiSchema}
           formData={this.state.formData}
