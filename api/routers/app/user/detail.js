@@ -20,7 +20,9 @@ module.exports = new Route({
     user.role = user.organizations.find(e => {
       return e.organization.uuid === ctx.state.organization.uuid
     }).role._id
-
+    user.roleDetail = user.organizations.find(e => {
+      return e.organization.uuid === ctx.state.organization.uuid
+    }).role
     let auxGroups = []
     let groups = user.groups
 
