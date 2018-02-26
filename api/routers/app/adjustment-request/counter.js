@@ -9,7 +9,11 @@ module.exports = new Route({
   handler: async function (ctx) {
     var datasetId = ctx.params.uuid
 
-    const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false, 'organization': ctx.state.organization})
+    const dataset = await DataSet.findOne({
+      'uuid': datasetId,
+      'isDeleted': false,
+      'organization': ctx.state.organization
+    })
 
     ctx.assert(dataset, 404, 'DataSet not found')
     const adjustmentRequests = await AdjustmentRequest.find({

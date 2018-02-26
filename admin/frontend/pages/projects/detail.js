@@ -30,6 +30,7 @@ class ProjectDetail extends Component {
       counterAdjustments: 0
     }
     this.interval = null
+    this.intervalCounter = null
   }
 
   componentWillMount () {
@@ -93,6 +94,9 @@ class ProjectDetail extends Component {
 
       if (res.data.status === 'adjustment') {
         clearInterval(this.interval)
+        this.intervalCounter = setInterval(() => this.countAdjustmentRequests(), 30000)
+      } else {
+        clearInterval(this.intervalCounter)
       }
     }
   }
