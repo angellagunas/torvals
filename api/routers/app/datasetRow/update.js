@@ -22,7 +22,6 @@ module.exports = new Route({
     ctx.assert(datasetRow, 404, 'DataSetRow not found')
 
     if (parseFloat(datasetRow.data.localAdjustment) !== parseFloat(data.localAdjustment)) {
-      datasetRow.data.lastAdjustment = datasetRow.data.localAdjustment
       datasetRow.data.localAdjustment = data.localAdjustment
       datasetRow.data.updatedBy = ctx.state.user
       datasetRow.status = 'sendingChanges'

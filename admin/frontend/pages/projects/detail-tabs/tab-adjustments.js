@@ -627,10 +627,7 @@ class TabAdjustment extends Component {
     var url = '/admin/rows/' + obj.uuid
     const res = await api.post(url, {...obj})
 
-    obj.lastAdjustment = res.data.data.lastAdjustment
-
     obj.edited = true
-
 
     let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
     let aux = this.state.dataRows

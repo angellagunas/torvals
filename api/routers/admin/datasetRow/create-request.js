@@ -39,7 +39,6 @@ module.exports = new Route({
       adjustmentRequest.requestedBy = ctx.state.user
     }
 
-    datasetRow.data.lastAdjustment = datasetRow.data.localAdjustment
     datasetRow.data.localAdjustment = adjustmentRequest.newAdjustment
     datasetRow.data.updatedBy = ctx.state.user
     datasetRow.markModified('data')

@@ -9,6 +9,7 @@ const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   console.log('Fetching DatasetsRows...')
+  var apiData
 
   const datasetRow = await DataSetRow.findOne({
     uuid: argv.uuid
@@ -20,8 +21,15 @@ const task = new Task(async function (argv) {
   }
 
   console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
+  try {
+    await Api.fetch()
+    apiData = Api.get()
+  } catch (e) {
+    datasetRow.set({status: 'error'})
+    await datasetRow.save()
+
+    return false
+  }
 
   var options = {
     url: `${apiData.hostname}${apiData.baseUrl}/datasets/${datasetRow.dataset.externalId}`,
@@ -54,10 +62,14 @@ const task = new Task(async function (argv) {
     }
   } catch (e) {
     datasetRow.set({status: 'error'})
+
+    return false
   }
 
   await dataset.save()
   await datasetRow.save()
+
+  return true
 })
 
 if (require.main === module) {
