@@ -98,15 +98,15 @@ class TabAprove extends Component {
       },
       {
         'title': 'Ajuste',
-        'property': 'adjustment',
+        'property': 'newAdjustment',
         'default': 0,
         'editable': false,
         'type': 'number',
         formatter: (row) => {
-          if (!row.datasetRow.data.adjustment) {
-            row.datasetRow.data.adjustment = 0
+          if (!row.newAdjustment) {
+            row.newAdjustment = 0
           }
-          return row.datasetRow.data.adjustment
+          return row.newAdjustment
         }
       },
       {
@@ -149,7 +149,7 @@ class TabAprove extends Component {
         }
       },
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': '',
         'centered': true,
