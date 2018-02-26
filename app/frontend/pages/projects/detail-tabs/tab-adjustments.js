@@ -70,6 +70,10 @@ class TabAdjustment extends Component {
       this.clearSearch()
       this.getFilters()
     }
+
+    if (currentRole !== 'manager-level-3' && this.props.project.status == 'adjustment') {
+      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
+    }
   }
 
   async getFilters() {
@@ -81,6 +85,16 @@ class TabAdjustment extends Component {
       var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
       var dates = []
       var periods = []
+      var adjustments = {
+        '1': 10,
+        '2': 20,
+        '3': 30,
+        '4': -1
+      }
+
+      if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
+        adjustments = this.props.project.businessRules.adjustments
+      }
 
       for (var i = 0; i < 16; i++) {
         dates.push(moment(maxDate.format()))
@@ -97,7 +111,7 @@ class TabAdjustment extends Component {
       periods.push({
         number: 4,
         name: `Periodo ${period4[3].format('MMMM')}`,
-        adjustment: -1,
+        adjustment: adjustments['4'],
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -106,7 +120,7 @@ class TabAdjustment extends Component {
       periods.push({
         number: 3,
         name: `Periodo ${period3[3].format('MMMM')}`,
-        adjustment: .30,
+        adjustment: adjustments['3']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -115,7 +129,7 @@ class TabAdjustment extends Component {
       periods.push({
         number: 2,
         name: `Periodo ${period2[3].format('MMMM')}`,
-        adjustment: .20,
+        adjustment: adjustments['2']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -124,7 +138,7 @@ class TabAdjustment extends Component {
       periods.push({
         number: 1,
         name: `Periodo ${period1[3].format('MMMM')}`,
-        adjustment: .10,
+        adjustment: adjustments['1']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -201,7 +215,6 @@ class TabAdjustment extends Component {
           ...this.state.filters,
           filteredSemanasBimbo: filteredSemanasBimbo
         },
-        generalAdjustment: period.adjustment,
         formData: {
           semanasBimbo: filteredSemanasBimbo[0],
           products: e.formData.products,
@@ -211,8 +224,6 @@ class TabAdjustment extends Component {
           period: e.formData.period
         }
       })
-
-      this.setAlertMsg()
       return
     }
 
@@ -238,8 +249,13 @@ class TabAdjustment extends Component {
       return
     }
 
+    var period = this.state.filters.periods.find(item => {
+      return item.number === e.formData.period
+    })
+
     this.setState({
-      isLoading: ' is-loading'
+      isLoading: ' is-loading',
+      generalAdjustment: period.adjustment
     })
 
     const url = '/app/rows/dataset/'
@@ -259,6 +275,7 @@ class TabAdjustment extends Component {
       selectedCheckboxes: new Set()
     })
     this.clearSearch()
+    this.setAlertMsg()
   }
 
   getEditedRows(data) {
@@ -574,9 +591,9 @@ class TabAdjustment extends Component {
       }
       let adjustment = Math.round(row.adjustment)
       let newAdjustment = adjustment + toAdd
-      
+
       row.newAdjustment = newAdjustment
-            
+
       const res = await this.handleChange(row)
       if (!res) {
         row.adjustment = adjustment
@@ -594,7 +611,7 @@ class TabAdjustment extends Component {
       let newAdjustment = adjustment - toAdd
 
       row.newAdjustment = newAdjustment
-      
+
       const res = await this.handleChange(row)
       if (!res) {
         row.adjustment = adjustment
@@ -620,7 +637,7 @@ class TabAdjustment extends Component {
 
     obj.newAdjustment = Math.round(obj.newAdjustment)
     obj.adjustment = Math.round(obj.adjustment)
-    
+
     if (this.state.generalAdjustment > 0) {
       obj.isLimit = (obj.newAdjustment >= maxAdjustment || obj.newAdjustment <= minAdjustment)
     }
@@ -630,7 +647,7 @@ class TabAdjustment extends Component {
         obj.adjustment = maxAdjustment
         adjusted = false
       }
-        
+
       else if (obj.newAdjustment <= minAdjustment) {
         obj.adjustment = minAdjustment
         adjusted = false
@@ -639,7 +656,7 @@ class TabAdjustment extends Component {
       else{
         obj.adjustment = obj.newAdjustment
       }
-      
+
     }
     else {
       obj.adjustment = obj.newAdjustment
@@ -667,7 +684,7 @@ class TabAdjustment extends Component {
       this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
     else
       this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
-      
+
     return adjusted
   }
 
@@ -751,8 +768,10 @@ class TabAdjustment extends Component {
     this.setState({
       isConciliating: ' is-loading'
     })
+
     var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
     try {
+      clearInterval(this.interval)
       await api.post(url)
       await this.props.load()
     } catch(e){
@@ -773,7 +792,7 @@ class TabAdjustment extends Component {
       this.props.setAlert('is-warning', 'Ajuste Ilimitado.')
       return
     }
-    
+
     if (currentRole === 'manager-level-3') {
       this.props.setAlert('is-error', 'Modo de Visualización -  No se permiten ajustes para tu tipo de usuario.')
     }
@@ -881,7 +900,7 @@ class TabAdjustment extends Component {
     }
 
     const uiSchema = {
-      period: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Periodo'},
+      period: {'ui:widget': SelectWidget},
       semanasBimbo: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione semana'},
       channels: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione canal'},
       products: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione producto'},
@@ -891,6 +910,7 @@ class TabAdjustment extends Component {
 
     schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
     schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
+    schema.properties.period.default = true
 
     schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
 
@@ -905,7 +925,7 @@ class TabAdjustment extends Component {
 
     schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
     schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
-    
+
     return (
       <div>
         <div className='section'>

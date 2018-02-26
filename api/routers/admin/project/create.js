@@ -29,10 +29,15 @@ module.exports = new Route({
       createdBy: ctx.state.user
     })
 
-    var apiData = Api.get()
-    if (!apiData.token) {
-      await Api.fetch()
-      apiData = Api.get()
+    try {
+      var apiData = Api.get()
+      if (!apiData.token) {
+        await Api.fetch()
+        apiData = Api.get()
+      }
+    } catch (e) {
+      await project.remove()
+      ctx.throw(401, 'Failed to create Project (Abraxas)')
     }
 
     var options = {

@@ -67,7 +67,14 @@ class DataSetDetail extends Component {
     })
     this.context.tree.commit()
     this.load()
-    this.interval = setInterval(() => this.load(), 30000)
+    this.interval = setInterval(() => {
+      if (this.state.dataset.status === 'preprocessing' ||
+        this.state.dataset.status === 'processing' ||
+        this.state.dataset.status === 'uploaded' ||
+        this.state.dataset.status === 'pendingRows') {
+        this.load()
+      }
+    }, 30000)
     this.setState({canEdit: testRoles(this.state.roles)})
   }
 

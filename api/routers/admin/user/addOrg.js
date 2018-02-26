@@ -49,7 +49,7 @@ module.exports = new Route({
 
     user.organizations.push(orgObj)
 
-    user.save()
+    await user.save()
 
     ctx.body = {
       data: user.toAdmin()
