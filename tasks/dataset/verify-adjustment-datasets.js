@@ -64,19 +64,34 @@ const task = new Task(async function (argv) {
 
       console.log(`Obtaining rows from dataset ...`)
       var resDataset = await request(options)
+      var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
+      var productExternalId = dataset.getProductColumn() || {name: ''}
+      var channelExternalId = dataset.getChannelColumn() || {name: ''}
+      var predictionColumn = dataset.getPredictionColumn() || {name: ''}
+      var adjustmentColumn = dataset.getAdjustmentColumn() || {name: ''}
+      var analysisColumn = dataset.getAnalysisColumn() || {name: ''}
+
+      if (!adjustmentColumn.name) {
+        adjustmentColumn = predictionColumn
+      }
+
+      if (!adjustmentColumn.name && !predictionColumn.name) {
+        adjustmentColumn = analysisColumn
+        predictionColumn = analysisColumn
+      }
 
       for (var d of resDataset._items) {
         var salesCenter = await SalesCenter.findOne({
-          externalId: d.agencia_id,
+          externalId: d[salesCenterExternalId.name],
           organization: dataset.organization
         })
         var product = await Product.findOne({
-          externalId: d.producto_id,
+          externalId: d[productExternalId.name],
           organization: dataset.organization
         })
 
         var channel = await Channel.findOne({
-          externalId: d.canal_id,
+          externalId: d[channelExternalId.name],
           organization: dataset.organization
         })
 
@@ -87,10 +102,12 @@ const task = new Task(async function (argv) {
           externalId: d._id,
           data: {
             existence: d.existencia,
-            prediction: d.prediccion,
+            prediction: d[predictionColumn.name],
             forecastDate: d.fecha,
             semanaBimbo: d.semana_bimbo,
-            adjustment: d.prediccion
+            adjustment: d[adjustmentColumn.name],
+            localAdjustment: d[adjustmentColumn.name],
+            lastAdjustment: d[adjustmentColumn.name]
           },
           apiData: d,
           salesCenter: salesCenter,

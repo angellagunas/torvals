@@ -276,12 +276,12 @@ class TabAdjustment extends Component {
 
   getEditedRows (data) {
     for (let row of data) {
-      if (row.adjustment != row.prediction) {
+      if (row.localAdjustment != row.adjustment) {
         row.wasEdited = true
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
           var minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
-          row.isLimit = (row.adjustment >= maxAdjustment || row.adjustment <= minAdjustment)
+          row.isLimit = (row.localAdjustment >= maxAdjustment || row.localAdjustment <= minAdjustment)
         }
       }
     }
@@ -358,17 +358,17 @@ class TabAdjustment extends Component {
       },
       {
         'title': 'Ajuste',
-        'property': 'adjustment',
+        'property': 'localAdjustment',
         'default': 0,
         'type': 'number',
         formatter: (row) => {
-          if (!row.adjustment) {
-            row.adjustment = 0
+          if (!row.localAdjustment) {
+            row.localAdjustment = 0
           }
 
           return (
             <Editable
-              value={row.adjustment}
+              value={row.localAdjustment}
               handleChange={this.changeAdjustment}
               type='number'
               obj={row}
@@ -490,7 +490,7 @@ class TabAdjustment extends Component {
   }
 
   changeAdjustment = async (value, row) => {
-    row.adjustment = value
+    row.localAdjustment = value
     const res = await this.handleChange(row)
     if (!res) {
       return false
@@ -576,12 +576,12 @@ class TabAdjustment extends Component {
       if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
-      var adjustment = row.adjustment
-      var newAdjustment = row.adjustment + toAdd
-      row.adjustment = newAdjustment
+      var localAdjustment = Math.round(row.localAdjustment)
+      var newAdjustment = row.localAdjustment + toAdd
+      row.localAdjustment = newAdjustment
       const res = await this.handleChange(row)
       if (!res) {
-        row.adjustment = adjustment
+        row.localAdjustment = localAdjustment
       }
     }
   }
@@ -592,12 +592,12 @@ class TabAdjustment extends Component {
       if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
-      var adjustment = row.adjustment
-      var newAdjustment = row.adjustment - toAdd
-      row.adjustment = newAdjustment
+      var localAdjustment = Math.round(row.localAdjustment)
+      var newAdjustment = row.localAdjustment - toAdd
+      row.localAdjustment = newAdjustment
       const res = await this.handleChange(row)
       if (!res) {
-        row.adjustment = adjustment
+        row.localAdjustment = localAdjustment
       }
     }
   }
@@ -618,10 +618,10 @@ class TabAdjustment extends Component {
     var maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
     var minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
 
-    obj.adjustment = Math.round(obj.adjustment)
+    obj.localAdjustment = Math.round(obj.localAdjustment)
 
     if (this.state.generalAdjustment > 0) {
-      obj.isLimit = (obj.adjustment >= maxAdjustment || obj.adjustment <= minAdjustment)
+      obj.isLimit = (obj.localAdjustment >= maxAdjustment || obj.localAdjustment <= minAdjustment)
     }
 
     var url = '/admin/rows/' + obj.uuid
@@ -666,7 +666,7 @@ class TabAdjustment extends Component {
   }
 
   showModalAdjustmentRequest (obj) {
-    obj.adjustment = '' + obj.adjustment
+    obj.localAdjustment = '' + obj.localAdjustment
     this.setState({
       classNameAR: ' is-active',
       selectedAR: obj
@@ -802,7 +802,7 @@ class TabAdjustment extends Component {
     if (!this.state.filters.semanasBimbo.length > 0 && !this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          Cargando un momento por favor
+          Cargando, un momento por favor
           <Loader />
         </div>
       )

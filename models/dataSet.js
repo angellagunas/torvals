@@ -152,6 +152,42 @@ dataSetSchema.methods.format = function () {
   }
 }
 
+dataSetSchema.methods.getAdjustmentColumn = function () {
+  var obj = this.columns.find(item => { return item.isAdjustment })
+
+  return obj
+}
+
+dataSetSchema.methods.getPredictionColumn = function () {
+  var obj = this.columns.find(item => { return item.isPrediction })
+
+  return obj
+}
+
+dataSetSchema.methods.getProductColumn = function () {
+  var obj = this.columns.find(item => { return item.isProduct })
+
+  return obj
+}
+
+dataSetSchema.methods.getSalesCenterColumn = function () {
+  var obj = this.columns.find(item => { return item.isSalesCenter })
+
+  return obj
+}
+
+dataSetSchema.methods.getChannelColumn = function () {
+  var obj = this.columns.find(item => { return item.isChannel })
+
+  return obj
+}
+
+dataSetSchema.methods.getAnalysisColumn = function () {
+  var obj = this.columns.find(item => { return item.isAnalysis })
+
+  return obj
+}
+
 dataSetSchema.methods.recreateAndSaveFileToDisk = async function () {
   await this.fileChunk.recreateFile()
 
@@ -388,6 +424,8 @@ dataSetSchema.methods.processReady = async function (res) {
     columns: res.headers.map(item => {
       var isDate = false
       var isAnalysis = false
+      var isPrediction = false
+      var isAdjustment = false
       var isOperationFilter = false
       var isAnalysisFilter = false
       var isProductName = false
@@ -403,6 +441,14 @@ dataSetSchema.methods.processReady = async function (res) {
 
       if (res.columns['is_analysis'] === item) {
         isAnalysis = true
+      }
+
+      if (res.columns['is_adjustment'] === item) {
+        isAdjustment = true
+      }
+
+      if (res.columns['is_prediction'] === item) {
+        isPrediction = true
       }
 
       if (res.columns['filter_operations'].find(col => { return col === item })) {
@@ -458,6 +504,8 @@ dataSetSchema.methods.processReady = async function (res) {
         name: item,
         isDate: isDate,
         isAnalysis: isAnalysis,
+        isPrediction: isPrediction,
+        isAdjustment: isAdjustment,
         isOperationFilter: isOperationFilter,
         isAnalysisFilter: isAnalysisFilter,
         isProduct: isProduct,

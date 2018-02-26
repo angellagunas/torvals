@@ -8,7 +8,7 @@ module.exports = new Route({
   method: 'post',
   path: '/:uuid',
   validator: lov.object().keys({
-    adjustment: lov.number()
+    localAdjustment: lov.number()
   }),
   handler: async function (ctx) {
     var datasetRowId = ctx.params.uuid
@@ -17,9 +17,9 @@ module.exports = new Route({
     const datasetRow = await DataSetRow.findOne({'uuid': datasetRowId, 'isDeleted': false})
     ctx.assert(datasetRow, 404, 'DataSetRow not found')
 
-    if (parseFloat(datasetRow.data.adjustment) !== parseFloat(data.adjustment)) {
-      datasetRow.data.lastAdjustment = datasetRow.data.adjustment
-      datasetRow.data.adjustment = data.adjustment
+    if (parseFloat(datasetRow.data.localAdjustment) !== parseFloat(data.localAdjustment)) {
+      datasetRow.data.lastAdjustment = datasetRow.data.localAdjustment
+      datasetRow.data.localAdjustment = data.localAdjustment
       datasetRow.data.updatedBy = ctx.state.user
       datasetRow.status = 'sendingChanges'
       datasetRow.markModified('data')

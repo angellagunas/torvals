@@ -34,7 +34,7 @@ const task = new Task(async function (argv) {
     },
     body: {
       data_rows_id: datasetRow.externalId,
-      adjustment: datasetRow.data.adjustment
+      adjustment: datasetRow.data.localAdjustment
     },
     json: true,
     persist: true
