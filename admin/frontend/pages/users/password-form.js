@@ -26,19 +26,24 @@ class PasswordUserForm extends Component {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      groups: []
+      groups: [],
+      projects: []
     }
   }
 
   errorHandler (e) {}
 
-  changeHandler ({formData}) {
+  async changeHandler ({formData}) {
+    if (this.state.formData.organization !== formData.organization) {
+      await this.loadProjects(formData.organization)
+      await this.changeGroups(formData.organization)
+    }
+
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     })
-    this.changeGroups(formData.organization)
   }
 
   clearState () {
@@ -47,6 +52,25 @@ class PasswordUserForm extends Component {
       apiCallErrorMessage: 'is-hidden',
       formData: this.props.initialState
     })
+  }
+
+  async loadProjects (organization) {
+    if (organization) {
+      var org = this.props.orgs.find((item) => {
+        return item._id === organization
+      })
+
+      var url = '/admin/projects/'
+      const body = await api.get(url, {
+        start: 0,
+        limit: 0,
+        organization: org.uuid
+      })
+
+      this.setState({
+        projects: body.data
+      })
+    }
   }
 
   async changeGroups (organization) {
@@ -155,6 +179,29 @@ class PasswordUserForm extends Component {
       </div>
     }
 
+    if (this.props.filters) {
+      if (this.props.filters.group) {
+        delete uiSchema.groups
+        delete schema.properties.groups
+      }
+    }
+
+    if (this.state.formData.role) {
+      var role = this.props.roles.find((item) => {
+        return item._id === this.state.formData.role
+      })
+      if (role && role.slug === 'manager-level-1') {
+        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        uiSchema['project'] = {'ui:widget': SelectWidget}
+        schema.required.push('project')
+      } else {
+        delete schema.properties['project']
+        delete uiSchema['project']
+        delete this.state.formData['project']
+        schema.required = ['email', 'organization']
+      }
+    }
+
     if (this.props.roles.length === 0 || this.props.orgs.length === 0) {
       return <Loader />
     }
@@ -163,8 +210,15 @@ class PasswordUserForm extends Component {
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
     schema.properties.organization.enum = this.props.orgs.map(item => { return item._id })
     schema.properties.organization.enumNames = this.props.orgs.map(item => { return item.name })
-    schema.properties.groups.enum = this.state.groups.map(item => { return item._id })
-    schema.properties.groups.enumNames = this.state.groups.map(item => { return item.name })
+
+    if (schema.properties.groups) {
+      schema.properties.groups.enum = this.state.groups.map(item => { return item._id })
+      schema.properties.groups.enumNames = this.state.groups.map(item => { return item.name })
+    }
+    if (schema.properties.project) {
+      schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
+      schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
+    }
 
     return (
       <div>

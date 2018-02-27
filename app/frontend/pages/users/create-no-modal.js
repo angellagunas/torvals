@@ -7,13 +7,6 @@ import api from '~base/api'
 import PasswordUserForm from './password-form'
 import InviteUserForm from './send-invite-form'
 
-var initialState = {
-  name: '',
-  email: '',
-  password_1: '',
-  password_2: ''
-}
-
 class CreateUserNoModal extends Component {
   constructor (props) {
     super(props)
@@ -21,14 +14,15 @@ class CreateUserNoModal extends Component {
       roles: [],
       groups: [],
       isLoading: '',
-      loadingGroups: true
+      loadingGroups: true,
+      loadingRoles: true
     }
   }
 
-  componentWillMount () {
+  async componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
-    this.loadRoles()
-    this.loadGroups()
+    await this.loadRoles()
+    await this.loadGroups()
   }
 
   async load () {
@@ -61,8 +55,8 @@ class CreateUserNoModal extends Component {
     )
 
     this.setState({
-      ...this.state,
-      roles: body.data
+      roles: body.data,
+      loadingRoles: false
     })
   }
 
@@ -77,7 +71,6 @@ class CreateUserNoModal extends Component {
     )
 
     this.setState({
-      ...this.state,
       groups: body.data,
       loadingGroups: false
     })
@@ -88,10 +81,11 @@ class CreateUserNoModal extends Component {
       <PasswordUserForm
         baseUrl='/app/users'
         url={this.props.url}
-        initialState={initialState}
+        initialState={this.initialState}
         load={this.load.bind(this)}
         roles={this.state.roles}
         groups={this.state.groups}
+        filters={this.props.filters}
         finishUp={(data) => this.finishUpHandler(data)}
         submitHandler={(data) => this.submitHandler(data)}
         errorHandler={(data) => this.errorHandler(data)}
@@ -115,7 +109,7 @@ class CreateUserNoModal extends Component {
       <InviteUserForm
         baseUrl='/app/users'
         url={this.props.url}
-        initialState={initialState}
+        initialState={this.initialState}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
         filters={this.props.filters}
@@ -153,13 +147,20 @@ class CreateUserNoModal extends Component {
   render () {
     var content
 
-    if (!this.state.loadingGroups) {
+    this.initialState = {
+      name: '',
+      email: '',
+      password_1: '',
+      password_2: ''
+    }
+
+    if (!this.state.loadingGroups && !this.state.loadingRoles) {
       var defaultRole = this.state.roles.find(item => {
         return item.isDefault === true
       })
 
       if (defaultRole) {
-        initialState.role = defaultRole._id
+        this.initialState.role = defaultRole._id
       }
 
       if (env.EMAIL_SEND) {

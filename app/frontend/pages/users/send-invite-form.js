@@ -17,7 +17,8 @@ class InviteUserForm extends Component {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      projects: []
+      projects: [],
+      projectRequired: false
     }
   }
 
@@ -45,9 +46,9 @@ class InviteUserForm extends Component {
       if (role && role.slug === 'manager-level-1') {
         await this.loadProjects()
         this.setState({projectRequired: true})
+      } else {
+        this.setState({projectRequired: false})
       }
-    } else {
-      this.setState({projectRequired: false})
     }
 
     this.setState({
