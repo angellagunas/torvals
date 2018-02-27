@@ -94,6 +94,7 @@
     "co-supertest": "0.0.10",
     "mocha": "^3.5.0",
     "nodemon": "^1.11.0",
+    "redbird": "^0.7.0",
     "standard": "^10.0.3",
     "supertest": "^1.0"
   }

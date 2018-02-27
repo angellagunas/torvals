@@ -87,21 +87,48 @@ class LogInButton extends Component {
         shouldSelectOrg: true
       })
     } else {
-      const baseUrl = env.APP_HOST.split('://')
+      const hostname = window.location.hostname
+      const hostnameSplit = hostname.split('.')
 
       const organization = user.organizations[0].organization
       cookies.set('jwt', data.jwt)
       cookies.set('organization', organization.slug)
 
-      window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1] + '/dashboard'
+      if (env.ENV === 'production') {
+        if (hostname.indexOf('stage') >= 0) {
+          const newHostname = hostnameSplit.slice(-3).join('.')
+          window.location = `//${organization.slug}.${newHostname}/dashboard`
+        } else {
+          const newHostname = hostnameSplit.slice(-2).join('.')
+          window.location = `//${organization.slug}.${newHostname}/dashboard`
+        }
+      } else {
+        const baseUrl = env.APP_HOST.split('://')
+
+        const organization = user.organizations[0].organization
+
+        window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1] + '/dashboard'
+      }
     }
   }
 
   selectOrgHandler (slug) {
-    const baseUrl = env.APP_HOST.split('://')
-
+    const hostname = window.location.hostname
+    const hostnameSplit = hostname.split('.')
     cookies.set('jwt', this.state.jwt)
-    window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard'
+
+    if (env.ENV === 'production') {
+      if (hostname.indexOf('stage') >= 0) {
+        const newHostname = hostnameSplit.slice(-3).join('.')
+        window.location = `//${slug}.${newHostname}/dashboard`
+      } else {
+        const newHostname = hostnameSplit.slice(-2).join('.')
+        window.location = `//${slug}.${newHostname}/dashboard`
+      }
+    } else {
+      const baseUrl = env.APP_HOST.split('://')
+      window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard'
+    }
   }
 
   getDropdown () {
@@ -200,7 +227,7 @@ class LogInButton extends Component {
     if (this.state.shouldSelectOrg) {
       return (
         <div className='modal is-active'>
-          <div className='modal-background'></div>
+          <div className='modal-background' />
           <div className='modal-content'>
             <div className={'LogIn single-form ' + this.props.className}>
               <div className='card land-card'>
@@ -226,7 +253,7 @@ class LogInButton extends Component {
       <div>
         <a className='button is-info is-outlined' onClick={(e) => { this.showModal(e) }}>Log In</a>
         <div className={'modal' + this.state.className}>
-          <div className='modal-background' onClick={(e) => { this.hideModal(e) }}></div>
+          <div className='modal-background' onClick={(e) => { this.hideModal(e) }} />
           <div className='modal-content land-login'>
             <section>
               <div className='card-container'>
@@ -265,7 +292,7 @@ class LogInButton extends Component {
               </div>
             </section>
           </div>
-          <button className='modal-close is-large' aria-label='close' onClick={(e) => { this.hideModal(e) }}></button>
+          <button className='modal-close is-large' aria-label='close' onClick={(e) => { this.hideModal(e) }} />
         </div>
       </div>
     )
