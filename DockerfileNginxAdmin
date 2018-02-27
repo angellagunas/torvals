@@ -2,7 +2,7 @@ FROM grupoabraxas/nginx-spa:latest
 
 MAINTAINER rrodriguez@grupoabraxas.com
 
-ADD ./admin/dist/index.html //usr/share/nginx/html
+ADD ./admin/dist/index.html /usr/share/nginx/html
 ADD ./admin/dist /usr/share/nginx/html/admin/assets
 ADD ./admin/public /usr/share/nginx/html/admin/public
 

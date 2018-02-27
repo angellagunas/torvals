@@ -1,18 +1,11 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-
+import Loader from '~base/components/spinner'
 import env from '~base/env-variables'
 import api from '~base/api'
 import PasswordUserForm from './password-form'
 import InviteUserForm from './send-invite-form'
-
-var initialState = {
-  name: '',
-  email: '',
-  password_1: '',
-  password_2: ''
-}
 
 class CreateUserNoModal extends Component {
   constructor (props) {
@@ -20,14 +13,16 @@ class CreateUserNoModal extends Component {
     this.state = {
       roles: [],
       groups: [],
-      isLoading: ''
+      isLoading: '',
+      loadingGroups: true,
+      loadingRoles: true
     }
   }
 
-  componentWillMount () {
+  async componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
-    this.loadRoles()
-    this.loadGroups()
+    await this.loadRoles()
+    await this.loadGroups()
   }
 
   async load () {
@@ -60,8 +55,8 @@ class CreateUserNoModal extends Component {
     )
 
     this.setState({
-      ...this.state,
-      roles: body.data
+      roles: body.data,
+      loadingRoles: false
     })
   }
 
@@ -76,8 +71,8 @@ class CreateUserNoModal extends Component {
     )
 
     this.setState({
-      ...this.state,
-      groups: body.data
+      groups: body.data,
+      loadingGroups: false
     })
   }
 
@@ -86,10 +81,11 @@ class CreateUserNoModal extends Component {
       <PasswordUserForm
         baseUrl='/app/users'
         url={this.props.url}
-        initialState={initialState}
+        initialState={this.initialState}
         load={this.load.bind(this)}
-        roles={this.state.roles || []}
-        groups={this.state.groups || []}
+        roles={this.state.roles}
+        groups={this.state.groups}
+        filters={this.props.filters}
         finishUp={(data) => this.finishUpHandler(data)}
         submitHandler={(data) => this.submitHandler(data)}
         errorHandler={(data) => this.errorHandler(data)}
@@ -113,11 +109,11 @@ class CreateUserNoModal extends Component {
       <InviteUserForm
         baseUrl='/app/users'
         url={this.props.url}
-        initialState={initialState}
+        initialState={this.initialState}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
         filters={this.props.filters}
-        groups={this.state.groups || []}
+        groups={this.state.groups}
         finishUp={(data) => this.finishUpHandler(data)}
         submitHandler={(data) => this.submitHandler(data)}
         errorHandler={(data) => this.errorHandler(data)}
@@ -150,10 +146,30 @@ class CreateUserNoModal extends Component {
 
   render () {
     var content
-    if (env.EMAIL_SEND) {
-      content = this.getSendInviteForm()
+
+    this.initialState = {
+      name: '',
+      email: '',
+      password_1: '',
+      password_2: ''
+    }
+
+    if (!this.state.loadingGroups && !this.state.loadingRoles) {
+      var defaultRole = this.state.roles.find(item => {
+        return item.isDefault === true
+      })
+
+      if (defaultRole) {
+        this.initialState.role = defaultRole._id
+      }
+
+      if (env.EMAIL_SEND) {
+        content = this.getSendInviteForm()
+      } else {
+        content = this.getPasswordForm()
+      }
     } else {
-      content = this.getPasswordForm()
+      content = <Loader />
     }
 
     return (

@@ -280,12 +280,12 @@ class TabAdjustment extends Component {
 
   getEditedRows(data) {
     for (let row of data) {
-      if (row.adjustment != row.prediction) {
+      if (row.localAdjustment != row.adjustment) {
         row.wasEdited = true
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
           var minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
-          row.isLimit = (row.adjustment >= maxAdjustment || row.adjustment <= minAdjustment)
+          row.isLimit = (row.localAdjustment >= maxAdjustment || row.localAdjustment <= minAdjustment)
         }
       }
     }
@@ -362,17 +362,17 @@ class TabAdjustment extends Component {
       },
       {
         'title': 'Ajuste',
-        'property': 'adjustment',
+        'property': 'localAdjustment',
         'default': 0,
         'type': 'number',
         formatter: (row) => {
-          if (!row.adjustment) {
-            row.adjustment = 0
+          if (!row.localAdjustment) {
+            row.localAdjustment = 0
           }
           if (currentRole !== 'manager-level-3') {
             return (
               <Editable
-                value={row.adjustment}
+                value={row.localAdjustment}
                 handleChange={this.changeAdjustment}
                 type='number'
                 obj={row}
@@ -381,7 +381,7 @@ class TabAdjustment extends Component {
             )
           }
           else {
-            return row.adjustment
+            return row.localAdjustment
           }
         }
       },
@@ -589,14 +589,14 @@ class TabAdjustment extends Component {
       if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
-      let adjustment = Math.round(row.adjustment)
-      let newAdjustment = adjustment + toAdd
+      let localAdjustment = Math.round(row.localAdjustment)
+      let newAdjustment = localAdjustment + toAdd
 
       row.newAdjustment = newAdjustment
 
       const res = await this.handleChange(row)
       if (!res) {
-        row.adjustment = adjustment
+        row.localAdjustment = localAdjustment
       }
     }
   }
@@ -607,14 +607,14 @@ class TabAdjustment extends Component {
       if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
-      let adjustment = Math.round(row.adjustment)
-      let newAdjustment = adjustment - toAdd
+      let localAdjustment = Math.round(row.localAdjustment)
+      let newAdjustment = localAdjustment - toAdd
 
       row.newAdjustment = newAdjustment
 
       const res = await this.handleChange(row)
       if (!res) {
-        row.adjustment = adjustment
+        row.localAdjustment = localAdjustment
       }
     }
   }
@@ -636,7 +636,7 @@ class TabAdjustment extends Component {
     let minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
 
     obj.newAdjustment = Math.round(obj.newAdjustment)
-    obj.adjustment = Math.round(obj.adjustment)
+    obj.localAdjustment = Math.round(obj.localAdjustment)
 
     if (this.state.generalAdjustment > 0) {
       obj.isLimit = (obj.newAdjustment >= maxAdjustment || obj.newAdjustment <= minAdjustment)
@@ -644,31 +644,28 @@ class TabAdjustment extends Component {
 
     if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
       if (obj.newAdjustment >= maxAdjustment){
-        obj.adjustment = maxAdjustment
+        obj.localAdjustment = maxAdjustment
         adjusted = false
       }
 
       else if (obj.newAdjustment <= minAdjustment) {
-        obj.adjustment = minAdjustment
+        obj.localAdjustment = minAdjustment
         adjusted = false
       }
 
       else{
-        obj.adjustment = obj.newAdjustment
+        obj.localAdjustment = obj.newAdjustment
       }
 
     }
     else {
-      obj.adjustment = obj.newAdjustment
+      obj.localAdjustment = obj.newAdjustment
     }
 
     var url = '/app/rows/' + obj.uuid
     const res = await api.post(url, {...obj})
 
-    obj.lastAdjustment = res.data.data.lastAdjustment
-
     obj.edited = true
-
 
     let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
     let aux = this.state.dataRows
@@ -708,7 +705,7 @@ class TabAdjustment extends Component {
   }
 
   showModalAdjustmentRequest (obj) {
-    obj.adjustment = '' + obj.adjustment
+    obj.localAdjustment = '' + obj.localAdjustment
     this.setState({
       classNameAR: ' is-active',
       selectedAR: obj
@@ -852,7 +849,7 @@ class TabAdjustment extends Component {
     if (!this.state.filters.semanasBimbo.length > 0 && !this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          Cargando un momento por favor
+          Cargando, un momento por favor
           <Loader />
         </div>
       )

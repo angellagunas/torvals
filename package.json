@@ -82,6 +82,7 @@
     "style-loader": "^0.18.2",
     "superagent": "^3.5.2",
     "traverse": "^0.6.6",
+    "uglifyjs-webpack-plugin": "^1.2.2",
     "underscore.string": "^3.3.4",
     "url-loader": "^0.5.9",
     "webpack": "^3.4.1",
@@ -94,6 +95,7 @@
     "co-supertest": "0.0.10",
     "mocha": "^3.5.0",
     "nodemon": "^1.11.0",
+    "redbird": "^0.7.0",
     "standard": "^10.0.3",
     "supertest": "^1.0"
   }

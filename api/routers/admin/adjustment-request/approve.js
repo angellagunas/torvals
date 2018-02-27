@@ -19,8 +19,7 @@ module.exports = new Route({
 
     const datasetRow = adjustmentRequest.datasetRow
 
-    datasetRow.data.lastAdjustment = datasetRow.data.adjustment
-    datasetRow.data.adjustment = adjustmentRequest.newAdjustment
+    datasetRow.data.localAdjustment = adjustmentRequest.newAdjustment
     datasetRow.updatedBy = ctx.state.user
     datasetRow.markModified('data')
     await datasetRow.save()

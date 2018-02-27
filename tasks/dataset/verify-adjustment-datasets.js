@@ -64,19 +64,34 @@ const task = new Task(async function (argv) {
 
       console.log(`Obtaining rows from dataset ...`)
       var resDataset = await request(options)
+      var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
+      var productExternalId = dataset.getProductColumn() || {name: ''}
+      var channelExternalId = dataset.getChannelColumn() || {name: ''}
+      var predictionColumn = dataset.getPredictionColumn() || {name: ''}
+      var adjustmentColumn = dataset.getAdjustmentColumn() || {name: ''}
+      var analysisColumn = dataset.getAnalysisColumn() || {name: ''}
 
-      for (var d of resDataset._items) {
+      if (!adjustmentColumn.name) {
+        adjustmentColumn = predictionColumn
+      }
+
+      if (!adjustmentColumn.name && !predictionColumn.name) {
+        adjustmentColumn = analysisColumn
+        predictionColumn = analysisColumn
+      }
+
+      for (var dataRow of resDataset._items) {
         var salesCenter = await SalesCenter.findOne({
-          externalId: d.agencia_id,
+          externalId: dataRow[salesCenterExternalId.name],
           organization: dataset.organization
         })
         var product = await Product.findOne({
-          externalId: d.producto_id,
+          externalId: dataRow[productExternalId.name],
           organization: dataset.organization
         })
 
         var channel = await Channel.findOne({
-          externalId: d.canal_id,
+          externalId: dataRow[channelExternalId.name],
           organization: dataset.organization
         })
 
@@ -84,15 +99,17 @@ const task = new Task(async function (argv) {
           organization: dataset.organization,
           project: dataset.project,
           dataset: dataset,
-          externalId: d._id,
+          externalId: dataRow._id,
           data: {
-            existence: d.existencia,
-            prediction: d.prediccion,
-            forecastDate: d.fecha,
-            semanaBimbo: d.semana_bimbo,
-            adjustment: d.prediccion
+            existence: dataRow.existencia,
+            prediction: dataRow[predictionColumn.name],
+            forecastDate: dataRow.fecha,
+            semanaBimbo: dataRow.semana_bimbo,
+            adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
+            localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
+            lastAdjustment: dataRow[adjustmentColumn.name] || undefined
           },
-          apiData: d,
+          apiData: dataRow,
           salesCenter: salesCenter,
           product: product,
           channel: channel

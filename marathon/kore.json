@@ -1,0 +1,70 @@
+{
+  "id": "/orax/${BRANCH_NAME}/kore",
+  "cpus": 0.1,
+  "mem": 1024,
+  "container": {
+    "docker": {
+      "forcePullImage": false,
+      "image": "${DOCKER_IMAGE}",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 0,
+          "labels": {},
+          "protocol": "tcp",
+          "servicePort": ${KORE_API_PORT}
+        },
+        {
+          "containerPort": 4000,
+          "hostPort": 0,
+          "labels": {},
+          "protocol": "tcp",
+          "servicePort": ${KORE_APP_PORT}
+        },
+        {
+          "containerPort": 5000,
+          "hostPort": 0,
+          "labels": {},
+          "protocol": "tcp",
+          "servicePort": ${KORE_ADMIN_PORT}
+        }
+      ],
+      "privileged": false
+    },
+    "type": "DOCKER",
+    "volumes": []
+  },
+  "env": {
+    "MONGO_DB": "${MONGO_DB}",
+    "MONGO_HOST": "${MONGO_HOST}",
+    "MONGO_PORT": "${MONGO_PORT}",
+    "REDIS_HOST": "${REDIS_HOST}",
+    "REDIS_PORT": "${REDIS_PORT}",
+    "API_HOST": "${API_HOST}",
+    "APP_HOST": "${APP_HOST}",
+    "ADMIN_HOST": "${ADMIN_HOST}",
+    "EMAIL_SEND": "${EMAIL_SEND}",
+    "EMAIL_PROVIDER": "${EMAIL_PROVIDER}",
+    "EMAIL_KEY": "${EMAIL_KEY}"
+  },
+  "healthChecks": [
+  ],
+  "labels": {
+    "HAPROXY_GROUP": "${LB_GROUP}",
+    "HAPROXY_0_VHOST": "${API_DOMAIN}",
+    "HAPROXY_0_REDIRECT_TO_HTTPS": "true",
+    "HAPROXY_0_USE_HSTS": "true",
+    "HAPROXY_1_VHOST": "${DOMAIN}",
+    "HAPROXY_1_REDIRECT_TO_HTTPS": "true",
+    "HAPROXY_1_USE_HSTS": "true",
+    "HAPROXY_2_VHOST": "${ADMIN_DOMAIN}",
+    "HAPROXY_2_REDIRECT_TO_HTTPS": "true",
+    "HAPROXY_2_USE_HSTS": "true"
+  },
+  "uris": [${URIS}],
+  "upgradeStrategy": {
+    "maximumOverCapacity": 0,
+    "minimumHealthCapacity": 0
+  }
+}
