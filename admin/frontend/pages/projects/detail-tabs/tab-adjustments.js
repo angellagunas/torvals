@@ -106,7 +106,7 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 4,
-        name: `Periodo ${period4[3].format('MMMM')}`,
+        name: `Periodo ${period4[0].format('MMMM')}`,
         adjustment: adjustments['4'],
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
@@ -115,7 +115,7 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 3,
-        name: `Periodo ${period3[3].format('MMMM')}`,
+        name: `Periodo ${period3[0].format('MMMM')}`,
         adjustment: adjustments['3']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
@@ -124,7 +124,7 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 2,
-        name: `Periodo ${period2[3].format('MMMM')}`,
+        name: `Periodo ${period2[0].format('MMMM')}`,
         adjustment: adjustments['2']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
@@ -133,7 +133,7 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 1,
-        name: `Periodo ${period1[3].format('MMMM')}`,
+        name: `Periodo ${period1[0].format('MMMM')}`,
         adjustment: adjustments['1']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3

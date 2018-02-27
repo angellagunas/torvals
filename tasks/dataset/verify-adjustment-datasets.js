@@ -80,18 +80,18 @@ const task = new Task(async function (argv) {
         predictionColumn = analysisColumn
       }
 
-      for (var d of resDataset._items) {
+      for (var dataRow of resDataset._items) {
         var salesCenter = await SalesCenter.findOne({
-          externalId: d[salesCenterExternalId.name],
+          externalId: dataRow[salesCenterExternalId.name],
           organization: dataset.organization
         })
         var product = await Product.findOne({
-          externalId: d[productExternalId.name],
+          externalId: dataRow[productExternalId.name],
           organization: dataset.organization
         })
 
         var channel = await Channel.findOne({
-          externalId: d[channelExternalId.name],
+          externalId: dataRow[channelExternalId.name],
           organization: dataset.organization
         })
 
@@ -99,17 +99,17 @@ const task = new Task(async function (argv) {
           organization: dataset.organization,
           project: dataset.project,
           dataset: dataset,
-          externalId: d._id,
+          externalId: dataRow._id,
           data: {
-            existence: d.existencia,
-            prediction: d[predictionColumn.name],
-            forecastDate: d.fecha,
-            semanaBimbo: d.semana_bimbo,
-            adjustment: d[adjustmentColumn.name],
-            localAdjustment: d[adjustmentColumn.name],
-            lastAdjustment: d[adjustmentColumn.name]
+            existence: dataRow.existencia,
+            prediction: dataRow[predictionColumn.name],
+            forecastDate: dataRow.fecha,
+            semanaBimbo: dataRow.semana_bimbo,
+            adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
+            localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
+            lastAdjustment: dataRow[adjustmentColumn.name] || undefined
           },
-          apiData: d,
+          apiData: dataRow,
           salesCenter: salesCenter,
           product: product,
           channel: channel
