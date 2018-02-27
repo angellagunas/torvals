@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-
+import Loader from '~base/components/spinner'
 import env from '~base/env-variables'
 import api from '~base/api'
 import PasswordUserForm from './password-form'
@@ -20,7 +20,8 @@ class CreateUserNoModal extends Component {
     this.state = {
       roles: [],
       groups: [],
-      isLoading: ''
+      isLoading: '',
+      loadingGroups: true
     }
   }
 
@@ -77,7 +78,8 @@ class CreateUserNoModal extends Component {
 
     this.setState({
       ...this.state,
-      groups: body.data
+      groups: body.data,
+      loadingGroups: false
     })
   }
 
@@ -88,8 +90,8 @@ class CreateUserNoModal extends Component {
         url={this.props.url}
         initialState={initialState}
         load={this.load.bind(this)}
-        roles={this.state.roles || []}
-        groups={this.state.groups || []}
+        roles={this.state.roles}
+        groups={this.state.groups}
         finishUp={(data) => this.finishUpHandler(data)}
         submitHandler={(data) => this.submitHandler(data)}
         errorHandler={(data) => this.errorHandler(data)}
@@ -117,7 +119,7 @@ class CreateUserNoModal extends Component {
         load={this.load.bind(this)}
         roles={this.state.roles || []}
         filters={this.props.filters}
-        groups={this.state.groups || []}
+        groups={this.state.groups}
         finishUp={(data) => this.finishUpHandler(data)}
         submitHandler={(data) => this.submitHandler(data)}
         errorHandler={(data) => this.errorHandler(data)}
@@ -150,10 +152,23 @@ class CreateUserNoModal extends Component {
 
   render () {
     var content
-    if (env.EMAIL_SEND) {
-      content = this.getSendInviteForm()
+
+    if (!this.state.loadingGroups) {
+      var defaultRole = this.state.roles.find(item => {
+        return item.isDefault === true
+      })
+
+      if (defaultRole) {
+        initialState.role = defaultRole._id
+      }
+
+      if (env.EMAIL_SEND) {
+        content = this.getSendInviteForm()
+      } else {
+        content = this.getPasswordForm()
+      }
     } else {
-      content = this.getPasswordForm()
+      content = <Loader />
     }
 
     return (
