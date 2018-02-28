@@ -1,5 +1,3 @@
-console.log('Base env vars =>', process.env)
-
 const path = require('path')
 require('app-module-path').addPath(path.join(__dirname, '../'))
 
