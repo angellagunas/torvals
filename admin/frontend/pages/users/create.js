@@ -187,7 +187,6 @@ class CreateUser extends Component {
   render () {
     var modalContent
     var title = 'Crear usuario'
-    console.log(this.state)
 
     if (!this.state.loadingOrgs && !this.state.loadingRoles) {
       var defaultRole = this.state.roles.find(item => {

@@ -79,7 +79,6 @@ module.exports = new Route({
       var salesCentersList = []
 
       salesCentersList = await SalesCenter.find({groups: {$in: groups}})
-      console.log('groups', salesCentersList)
       statement.push({ '$match': { '_id': { $in: salesCentersList.map(item => { return item._id }) } } })
     }
 
