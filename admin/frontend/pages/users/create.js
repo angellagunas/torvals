@@ -102,7 +102,7 @@ class CreateUser extends Component {
         filters={this.props.filters}
         finishUp={(data) => {
           this.finishUpHandler(data)
-          this.props.finishUp(data)
+          if (this.props.finishUp) this.props.finishUp(data)
         }}
         submitHandler={(data) => this.submitHandler(data)}
         errorHandler={(data) => this.errorHandler(data)}
@@ -144,7 +144,7 @@ class CreateUser extends Component {
         filters={this.props.filters}
         finishUp={(data) => {
           this.finishUpHandler(data)
-          this.props.finishUp(data)
+          if (this.props.finishUp) this.props.finishUp(data)
         }}
         submitHandler={(data) => this.submitHandler(data)}
         errorHandler={(data) => this.errorHandler(data)}
