@@ -33,16 +33,9 @@ class PasswordUserForm extends Component {
 
   errorHandler (e) {}
 
-  async componentDidMount () {
-    if (this.state.formData.role && this.state.formData.organization) {
-      var role = this.props.roles.find((item) => {
-        return item._id === this.state.formData['role']
-      })
-
-      if (role && role.slug === 'manager-level-1') {
-        await this.loadProjects(this.state.formData.organization)
-        this.setState({projectRequired: true})
-      }
+  async componentWillMount () {
+    if (this.state.formData.organization) {
+      await this.loadProjects(this.state.formData.organization)
     }
   }
 
