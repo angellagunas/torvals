@@ -228,11 +228,7 @@ var seedData = async function () {
       })
 
       if (pos >= 0) {
-        console.log('Error!')
-        console.log(
-          `Can't save relation: ${rel.user} - ${rel.organization} - ${rel.role},
-           the user is already assigned to the organization`
-        )
+        `The user ${rel.user} already has the relation: ${rel.organization} - ${rel.role}`
         continue
       }
 
@@ -244,10 +240,8 @@ var seedData = async function () {
       })
 
       if (pos >= 0) {
-        console.log('Error!')
         console.log(
-          `Can't save relation: ${rel.user} - ${rel.organization} - ${rel.role},
-           the user is already assigned to the organization`
+          `The user ${rel.user} already has the relation: ${rel.organization} - ${rel.role}`
         )
         continue
       }

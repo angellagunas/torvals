@@ -55,19 +55,23 @@ class AddOrganization extends Component {
   }
 
   render () {
+    if (this.state.roles.length > 0) {
+      initialState.role = this.state.roles.find(item => {
+        return item.isDefault === true
+      }).uuid
+    }
     return (
       <BaseModal
         title='Agregar Organización'
         className={this.props.className}
-        hideModal={this.hideModal}
-      >
+        hideModal={this.hideModal}>
         <OrganizationRoleForm
           baseUrl='/admin/users'
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
-          roles={this.state.roles || []}
-          orgs={this.state.orgs || []}
+          roles={this.state.roles}
+          orgs={this.state.orgs}
           load={this.props.load}
         >
           <div className='field is-grouped'>
