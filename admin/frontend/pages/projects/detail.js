@@ -55,12 +55,14 @@ class ProjectDetail extends Component {
   }
 
   async countAdjustmentRequests () {
-    var url = '/admin/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
-    var body = await api.get(url)
+    if (this.state.project.activeDataset) {
+      var url = '/admin/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
+      var body = await api.get(url)
 
-    this.setState({
-      counterAdjustments: body.data.created
-    })
+      this.setState({
+        counterAdjustments: body.data.created
+      })
+    }
   }
 
   async deleteObject () {

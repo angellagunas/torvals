@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
+import Loader from '~base/components/spinner'
 
 import env from '~base/env-variables'
 import api from '~base/api'
@@ -8,25 +9,23 @@ import BaseModal from '~base/components/base-modal'
 import PasswordUserForm from './password-form'
 import InviteUserForm from './send-invite-form'
 
-var initialState = {
-  name: '',
-  email: '',
-  password_1: '',
-  password_2: ''
-}
-
 class CreateUser extends Component {
   constructor (props) {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
-      roles: []
+      roles: [],
+      groups: [],
+      isLoading: '',
+      loadingGroups: true,
+      loadingRoles: true
     }
   }
 
-  componentWillMount () {
+  async componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
-    this.loadRoles()
+    await this.loadRoles()
+    await this.loadGroups()
   }
 
   async load () {
@@ -59,8 +58,24 @@ class CreateUser extends Component {
     )
 
     this.setState({
-      ...this.state,
-      roles: body.data
+      roles: body.data,
+      loadingRoles: false
+    })
+  }
+
+  async loadGroups () {
+    var url = '/app/groups/'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      groups: body.data,
+      loadingGroups: false
     })
   }
 
@@ -69,17 +84,36 @@ class CreateUser extends Component {
       <PasswordUserForm
         baseUrl='/app/users'
         url={this.props.url}
-        initialState={initialState}
-        finishUp={this.props.finishUp}
+        initialState={this.initialState}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
+        groups={this.state.groups}
+        filters={this.props.filters}
+        finishUp={(data) => {
+          this.finishUpHandler(data)
+          this.props.finishUp(data)
+        }}
+        submitHandler={(data) => this.submitHandler(data)}
+        errorHandler={(data) => this.errorHandler(data)}
       >
         <div className='field is-grouped'>
           <div className='control'>
-            <button className='button is-primary' type='submit'>Crear</button>
+            <button
+              className={'button is-primary ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'
+            >
+              Crear
+            </button>
           </div>
           <div className='control'>
-            <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
+            <button
+              className='button'
+              onClick={this.hideModal}
+              type='button'
+            >
+              Cancelar
+            </button>
           </div>
         </div>
       </PasswordUserForm>
@@ -91,39 +125,82 @@ class CreateUser extends Component {
       <InviteUserForm
         baseUrl='/app/users'
         url={this.props.url}
-        initialState={initialState}
-        finishUp={this.props.finishUp}
+        initialState={this.initialState}
         load={this.load.bind(this)}
         roles={this.state.roles}
         filters={this.props.filters}
+        groups={this.state.groups}
+        finishUp={(data) => {
+          this.finishUpHandler(data)
+          this.props.finishUp(data)
+        }}
+        submitHandler={(data) => this.submitHandler(data)}
+        errorHandler={(data) => this.errorHandler(data)}
       >
         <div className='field is-grouped'>
           <div className='control'>
-            <button className='button is-primary' type='submit'>Invitar</button>
+            <button
+              className={'button is-primary ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'
+            >
+              Invitar
+            </button>
           </div>
           <div className='control'>
-            <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
+            <button
+              className='button'
+              onClick={this.hideModal}
+              type='button'
+            >
+              Cancelar
+            </button>
           </div>
         </div>
       </InviteUserForm>
     )
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     var modalContent
     var title = 'Crear usuario'
 
-    if (this.state.roles.length > 0) {
-      initialState.role = this.state.roles.find(item => {
-        return item.isDefault === true
-      })._id
+    this.initialState = {
+      name: '',
+      email: '',
+      password_1: '',
+      password_2: ''
     }
 
-    if (env.EMAIL_SEND) {
-      modalContent = this.getSendInviteForm()
-      title = 'Invitar usuario'
+    if (!this.state.loadingGroups && !this.state.loadingRoles) {
+      var defaultRole = this.state.roles.find(item => {
+        return item.isDefault === true
+      })
+
+      if (defaultRole) {
+        this.initialState.role = defaultRole._id
+      }
+
+      if (env.EMAIL_SEND) {
+        modalContent = this.getSendInviteForm()
+        title = 'Invitar usuario'
+      } else {
+        modalContent = this.getPasswordForm()
+      }
     } else {
-      modalContent = this.getPasswordForm()
+      modalContent = <Loader />
     }
 
     return (

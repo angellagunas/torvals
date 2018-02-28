@@ -25,6 +25,14 @@ class InviteUserForm extends Component {
 
   errorHandler (e) {}
 
+  async componentWillMount () {
+    console.log(this.props)
+    console.log(this.state.formData)
+    if (this.state.formData.organization) {
+      await this.loadProjects(this.state.formData.organization)
+    }
+  }
+
   async changeHandler ({formData}) {
     if (this.state.formData.organization !== formData.organization) {
       await this.loadProjects(formData.organization)

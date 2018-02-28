@@ -93,7 +93,7 @@ export default ListPage({
             const users = await api.get('/admin/users/',
               { start: 0,
                 limit: 10,
-                sort: cursor.sort || ''
+                sort: cursor.sort || 'name'
               })
 
             tree.set('users', {

@@ -32,6 +32,7 @@ module.exports = new Route({
     var chunk = await FileChunk.findOne({fileId: identifier})
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
     ctx.assert(dataset, 404, 'Dataset not found')
+    console.log(ctx.state)
 
     if (String(dataset.organization) !== String(ctx.state.organization._id)) {
       ctx.throw(404, 'Dataset not found')

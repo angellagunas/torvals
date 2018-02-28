@@ -5,6 +5,7 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
+import env from '~base/env-variables'
 import classNames from 'classnames'
 
 import Page from '~base/page'
@@ -143,6 +144,14 @@ class DataSetDetail extends Component {
 
   getUpload () {
     let dataset = this.state.dataset
+    let url = ''
+    
+    if (env.ENV === 'production') {
+      url = `/api/admin/upload/`
+    } else {
+      url = `${env.API_HOST}/api/admin/upload/`
+    }
+
     if (
       (!dataset.fileChunk && dataset.source === 'uploaded') ||
       (dataset.fileChunk && dataset.status === 'uploading')
@@ -152,6 +161,7 @@ class DataSetDetail extends Component {
           <UploadDataset
             query={{dataset: this.state.dataset.uuid}}
             load={() => { this.load() }}
+            url={url}
           />
         </div>
       )
