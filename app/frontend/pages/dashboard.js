@@ -171,7 +171,7 @@ class Dashboard extends Component {
       return <DashAnalyst dashboard={this.state.dashboard} history={this.props.history} />
     }
 
-    if (user.currentRole.slug === 'manager-level-3') {
+    if (user.currentRole.slug === 'manager-level-3' || user.currentRole.slug === 'manager-level-2') {
       return <DashEntManager dashboard={this.state.dashboard} history={this.props.history} />
     }
 
