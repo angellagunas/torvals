@@ -37,11 +37,15 @@ class ProjectDetail extends Component {
     this.intervalCounter = null
   }
 
-  componentWillMount () {
-    this.load()
+  async componentWillMount () {
+    await this.load()
     this.setState({
       canEdit: testRoles(this.state.roles)
     })
+    this.intervalCounter = setInterval(() => {
+      if (this.state.project.status !== 'adjustment') return
+      this.countAdjustmentRequests()
+    }, 10000)
   }
 
   async load () {
@@ -100,15 +104,13 @@ class ProjectDetail extends Component {
 
       if (res.data.status === 'adjustment') {
         clearInterval(this.interval)
-        this.intervalCounter = setInterval(() => this.countAdjustmentRequests(), 30000)
-      } else {
-        clearInterval(this.intervalCounter)
       }
     }
   }
 
   componentWillUnmount () {
     clearInterval(this.interval)
+    clearInterval(this.intervalCounter)
   }
 
   submitHandler () {
