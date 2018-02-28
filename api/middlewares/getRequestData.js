@@ -58,6 +58,7 @@ module.exports = async function (ctx, next) {
     originalHost = ctx.request.headers.origin
   }
 
+  console.log('=>', ctx.request.headers, server.apiHost)
   if (originalHost && !pathname.includes('login')) {
     const origin = url.parse(originalHost)
     const apiHostname = url.parse(server.apiHost).hostname.split('.')
