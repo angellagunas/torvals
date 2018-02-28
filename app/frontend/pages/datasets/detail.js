@@ -795,6 +795,16 @@ class DataSetDetail extends Component {
                 Canales no identificados: {this.newChannels.length}
             </p>
             <div className='field is-grouped is-grouped-right card-header-select'>
+              {canEdit &&
+              <div className={this.state.isChannelsOpen ? 'control' : 'is-hidden'}>
+                <button
+                  onClick={() => this.confirmChannels()}
+                  disabled={this.state.disableBtnC}
+                  className='button is-primary is-outlined is-pulled-right'>
+                  Confirmar ({this.state.selectedChannels.size})
+                </button>
+              </div>
+              }
               <div className='control'>
                 <a
                   className='button is-inverted'
@@ -829,16 +839,7 @@ class DataSetDetail extends Component {
                           </span>
                         </th>
                       }
-                      {canEdit && 
-                        <th colSpan='1' className='is-narrow'>
-                          <button
-                            onClick={() => this.confirmChannels()}
-                            disabled={this.state.disableBtnC}
-                            className='button is-primary is-outlined is-pulled-right'>
-                            Confirmar ({this.state.selectedChannels.size})
-                          </button>
-                        </th>
-                      }
+                      
                     </tr>
                   </thead>
                   <tbody>
@@ -921,6 +922,16 @@ class DataSetDetail extends Component {
                 Centros de Venta no identificados: {this.newSalesCenters.length}
             </p>
             <div className='field is-grouped is-grouped-right card-header-select'>
+              {canEdit &&
+              <div className={this.state.isSalesCenterOpen ? 'control' : 'is-hidden'}>
+                <button
+                  onClick={() => this.confirmSalesCenters()}
+                  disabled={this.state.disableBtnS}
+                  className='button is-primary is-outlined is-pulled-right'>
+                  Confirmar ({this.state.selectedSalesCenters.size})
+                </button>
+              </div> 
+              }
               <div className='control'>
                 <a
                   className='button is-inverted'
@@ -954,16 +965,6 @@ class DataSetDetail extends Component {
                               checked={this.state.selectAllSalesCenters}
                               hideLabel />
                           </span>
-                        </th>
-                      }
-                      {canEdit &&
-                        <th colSpan='1' className='is-narrow'>
-                          <button
-                            onClick={() => this.confirmSalesCenters()}
-                            disabled={this.state.disableBtnS}
-                            className='button is-primary is-outlined is-pulled-right'>
-                            Confirmar ({this.state.selectedSalesCenters.size})
-                          </button>
                         </th>
                       }
                     </tr>
@@ -1049,6 +1050,16 @@ class DataSetDetail extends Component {
                   Productos no identificados: {this.newProducts.length}
               </p>
               <div className='field is-grouped is-grouped-right card-header-select'>
+                {canEdit &&
+                <div className={this.state.isProductsOpen ? 'control' : 'is-hidden'}>
+                  <button
+                    onClick={() => this.confirmProducts()}
+                    disabled={this.state.disableBtnP}
+                    className='button is-primary is-outlined is-pulled-right'>
+                    Confirmar ({this.state.selectedProducts.size})
+                  </button>
+                </div>
+                } 
                 <div className='control'>
                   <a
                     className='button is-inverted'
@@ -1083,16 +1094,7 @@ class DataSetDetail extends Component {
                             </span>
                           </th>
                         }
-                        {canEdit &&
-                          <th colSpan='1' className='is-narrow'>
-                            <button
-                              onClick={() => this.confirmProducts()}
-                              disabled={this.state.disableBtnP}
-                              className='button is-primary is-outlined is-pulled-right'>
-                              Confirmar ({this.state.selectedProducts.size})
-                          </button>
-                          </th>
-                        }
+                        
                       </tr>
                     </thead>
                     <tbody>
