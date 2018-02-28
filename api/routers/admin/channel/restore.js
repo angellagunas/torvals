@@ -13,7 +13,7 @@ module.exports = new Route({
       'isDeleted': true
     })
 
-    ctx.assert(channel, 404, 'Channel not found')
+    ctx.assert(channel, 404, 'Canal no encontrado')
 
     channel.set({
       isDeleted: false

@@ -18,7 +18,7 @@ module.exports = new Route({
     var file = data.profile
 
     const org = await Organization.findOne({'uuid': organizationId, 'isDeleted': false})
-    ctx.assert(org, 404, 'Organization not found')
+    ctx.assert(org, 404, 'Organización no encontrada')
 
     data.slug = slugify(data.slug)
     org.set(data)

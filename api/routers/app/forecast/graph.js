@@ -16,7 +16,7 @@ module.exports = new Route({
 
     const forecast = await Forecast.findOne({'uuid': forecastId, 'isDeleted': false})
 
-    ctx.assert(forecast, 404, 'Forecast not found')
+    ctx.assert(forecast, 404, 'Forecast no encontrado')
 
     var objects = new Set(forecast.graphData.map(item => {
       return item.producto_id

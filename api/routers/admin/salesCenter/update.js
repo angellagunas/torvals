@@ -19,10 +19,10 @@ module.exports = new Route({
       'isDeleted': false
     }).populate('organization')
     .populate('groups')
-    ctx.assert(salesCenter, 404, 'SalesCenter not found')
+    ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
 
     const org = await Organization.findOne({uuid: data.organization})
-    ctx.assert(org, 404, 'Organization not found')
+    ctx.assert(org, 404, 'Organización no encontrada')
 
     data.organization = org
 
@@ -46,7 +46,7 @@ module.exports = new Route({
       isNewExternal: false
     })
 
-    salesCenter.save()
+    await salesCenter.save()
 
     ctx.body = {
       data: salesCenter

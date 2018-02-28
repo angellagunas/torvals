@@ -117,10 +117,10 @@ class ProductDetail extends Component {
                   <div className='control'>
                     { canEdit &&
                       <DeleteButton
-                        titleButton={'Delete'}
-                        objectName='Product'
+                        titleButton={'Eliminar'}
+                        objectName='Producto'
                         objectDelete={this.deleteObject.bind(this)}
-                        message={`Are you sure you want to delete the product ${this.state.product.name}?`}
+                        message={`¿Eliminar el producto ${this.state.product.name}?`}
                       />
                     }
                   </div>

@@ -11,7 +11,7 @@ module.exports = new Route({
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
       .populate('project')
 
-    ctx.assert(dataset, 404, 'DataSet not found')
+    ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     dataset.set({
       status: 'ready'

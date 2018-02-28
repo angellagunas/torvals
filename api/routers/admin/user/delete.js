@@ -9,7 +9,7 @@ module.exports = new Route({
     var userId = ctx.params.uuid
 
     var user = await User.findOne({'uuid': userId})
-    ctx.assert(user, 404, 'User not found')
+    ctx.assert(user, 404, 'Usuario no encontrado')
 
     user.set({
       isDeleted: true

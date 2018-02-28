@@ -13,7 +13,7 @@ export default ListPage({
   exact: true,
   roles: 'analyst, orgadmin, admin, manager-level-1',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'Product',
+  titleSingular: 'Producto',
   create: true,
   createComponent: CreateProduct,
   canCreate: 'admin, orgadmin, analyst',

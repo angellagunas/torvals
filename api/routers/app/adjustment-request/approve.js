@@ -15,7 +15,7 @@ module.exports = new Route({
       'isDeleted': false
     }).populate('datasetRow')
 
-    ctx.assert(adjustmentRequest, 404, 'AdjustmentRequest not found')
+    ctx.assert(adjustmentRequest, 404, 'Ajuste no encontrado')
 
     const datasetRow = adjustmentRequest.datasetRow
 

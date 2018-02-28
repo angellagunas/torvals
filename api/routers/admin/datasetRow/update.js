@@ -15,7 +15,7 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const datasetRow = await DataSetRow.findOne({'uuid': datasetRowId, 'isDeleted': false})
-    ctx.assert(datasetRow, 404, 'DataSetRow not found')
+    ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
 
     if (parseFloat(datasetRow.data.adjustment) !== parseFloat(data.adjustment)) {
       datasetRow.data.lastAdjustment = datasetRow.data.adjustment

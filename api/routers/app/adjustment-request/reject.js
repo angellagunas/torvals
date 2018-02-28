@@ -14,7 +14,7 @@ module.exports = new Route({
       'isDeleted': false
     })
 
-    ctx.assert(adjustmentRequest, 404, 'AdjustmentRequest not found')
+    ctx.assert(adjustmentRequest, 404, 'AdjustmentRequest no encontrado')
 
     adjustmentRequest.status = 'rejected'
     adjustmentRequest.rejectedBy = ctx.state.user

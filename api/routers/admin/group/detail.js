@@ -9,7 +9,7 @@ module.exports = new Route({
     var groupId = ctx.params.uuid
 
     const group = await Group.findOne({'uuid': groupId, 'isDeleted': false}).populate('organization')
-    ctx.assert(group, 404, 'Group not found')
+    ctx.assert(group, 404, 'Grupo no encontrado')
 
     ctx.body = {
       data: group.format()

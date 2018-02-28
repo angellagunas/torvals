@@ -19,7 +19,7 @@ module.exports = new Route({
       'isDeleted': false,
       'organization': ctx.state.organization
     })
-    ctx.assert(datasetRow, 404, 'DataSetRow not found')
+    ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
 
     if (parseFloat(datasetRow.data.adjustment) !== parseFloat(data.adjustment)) {
       datasetRow.data.lastAdjustment = datasetRow.data.adjustment

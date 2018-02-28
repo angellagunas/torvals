@@ -16,7 +16,7 @@ module.exports = new Route({
 
     const prediction = await Prediction.findOne({'uuid': predictionId, 'isDeleted': false})
       .populate('adjustmentRequest')
-    ctx.assert(prediction, 404, 'Prediction not found')
+    ctx.assert(prediction, 404, 'Predicción no encontrada')
 
     var adjustmentRequest = prediction.adjustmentRequest
 

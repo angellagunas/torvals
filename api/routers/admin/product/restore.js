@@ -14,13 +14,13 @@ module.exports = new Route({
       'uuid': productId,
       'isDeleted': true
     })
-    ctx.assert(product, 404, 'Product not found')
+    ctx.assert(product, 404, 'Producto no encontrado')
 
     product.set({
       isDeleted: false
     })
 
-    product.save()
+    await product.save()
 
     ctx.body = {
       data: product.format()

@@ -10,7 +10,7 @@ module.exports = new Route({
 
     var channel = await Channel.findOne({'uuid': channelId})
 
-    ctx.assert(channel, 404, 'Channel not found')
+    ctx.assert(channel, 404, 'Canal no encontrado')
 
     channel.set({isDeleted: true})
     channel.save()
