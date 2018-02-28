@@ -52,12 +52,13 @@ module.exports = async function (ctx, next) {
   }
 
   let originalHost
-  if (ctx.request.headers['x-forwarded-host']) {
-    originalHost = ctx.request.headers['x-forwarded-proto'] + '://' + ctx.request.headers['x-forwarded-host']
+  if (ctx.request.headers['referer']) {
+    originalHost = ctx.request.headers['referer']
   } else if (ctx.request.headers.origin) {
     originalHost = ctx.request.headers.origin
   }
 
+  console.log('=>', ctx.request.headers, server.apiHost)
   if (originalHost && !pathname.includes('login')) {
     const origin = url.parse(originalHost)
     const apiHostname = url.parse(server.apiHost).hostname.split('.')

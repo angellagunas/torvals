@@ -1,4 +1,5 @@
 const config = require('./config')
+console.log('Loaded config =>', config)
 require('lib/databases/mongo')
 
 const { apiPort, appPort, adminPort } = require('config/server')
