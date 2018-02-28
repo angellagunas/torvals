@@ -158,6 +158,14 @@ class DataSetDetail extends Component {
 
   getUpload () {
     let { dataset, canEdit } = this.state
+    let url = ''
+    
+    if (env.ENV === 'production') {
+      url = `/api/app/upload/`
+    } else {
+      url = `${env.API_HOST}/api/app/upload/`
+    }
+
     if (
       (!dataset.fileChunk && dataset.source === 'uploaded') ||
       (dataset.fileChunk && dataset.status === 'uploading')
@@ -168,7 +176,7 @@ class DataSetDetail extends Component {
             <UploadDataset
               query={{dataset: dataset.uuid}}
               load={() => { this.load() }}
-              url={env.API_HOST + '/api/app/upload/'}
+              url={url}
             />
           </div>
         )

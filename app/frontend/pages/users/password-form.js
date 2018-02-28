@@ -170,6 +170,14 @@ class PasswordUserForm extends Component {
       group: {'ui:widget': SelectWidget}
     }
     console.log(this.state)
+    console.log(this.props)
+
+    if (this.props.filters) {
+      if (this.props.filters.group) {
+        delete uiSchema.group
+        delete schema.properties.group
+      }
+    }
 
     if (this.state.formData['role']) {
       var role = this.props.roles.find((item) => {
