@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
+import { Redirect } from 'react-router-dom'
 import PropTypes from 'baobab-react/prop-types'
 import { ToastContainer } from 'react-toastify'
 import { testRoles } from '~base/tools'
@@ -38,6 +39,11 @@ class ProjectDetail extends Component {
   }
 
   async componentWillMount () {
+    const user = this.context.tree.get('user')
+    if (user.currentRole.slug === 'manager-level-1' && this.props.match.params.uuid !== user.currentProject.uuid) {
+      this.props.history.replace('/projects/' + user.currentProject.uuid)
+    }
+
     await this.load()
     this.setState({
       canEdit: testRoles(this.state.roles)
