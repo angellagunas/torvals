@@ -71,6 +71,7 @@ const task = new Task(async function (argv) {
       var predictionColumn = dataset.getPredictionColumn() || {name: ''}
       var adjustmentColumn = dataset.getAdjustmentColumn() || {name: ''}
       var analysisColumn = dataset.getAnalysisColumn() || {name: ''}
+      var dateColumn = dataset.getDateColumn() || {name: ''}
 
       if (!adjustmentColumn.name) {
         adjustmentColumn = predictionColumn
@@ -105,7 +106,7 @@ const task = new Task(async function (argv) {
             data: {
               existence: dataRow.existencia,
               prediction: dataRow[predictionColumn.name],
-              forecastDate: dataRow.fecha,
+              forecastDate: dataRow[dateColumn.name],
               semanaBimbo: dataRow.semana_bimbo,
               adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
               localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
