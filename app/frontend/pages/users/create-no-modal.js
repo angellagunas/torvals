@@ -95,9 +95,10 @@ class CreateUserNoModal extends Component {
             <button
               className={'button is-primary ' + this.state.isLoading}
               disabled={!!this.state.isLoading}
-              type='submit'>
-                Crear
-              </button>
+              type='submit'
+            >
+              Crear
+            </button>
           </div>
         </div>
       </PasswordUserForm>

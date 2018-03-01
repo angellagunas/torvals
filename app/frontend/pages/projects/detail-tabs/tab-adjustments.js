@@ -71,7 +71,7 @@ class TabAdjustment extends Component {
       this.getFilters()
     }
 
-    if (currentRole !== 'manager-level-3' && this.props.project.status == 'adjustment') {
+    if (currentRole !== 'manager-level-3' && this.props.project.status == 'adjustment' && !this.interval) {
       this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
   }

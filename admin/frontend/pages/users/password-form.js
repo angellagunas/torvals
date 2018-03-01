@@ -33,6 +33,12 @@ class PasswordUserForm extends Component {
 
   errorHandler (e) {}
 
+  async componentWillMount () {
+    if (this.state.formData.organization) {
+      await this.loadProjects(this.state.formData.organization)
+    }
+  }
+
   async changeHandler ({formData}) {
     if (this.state.formData.organization !== formData.organization) {
       await this.loadProjects(formData.organization)
