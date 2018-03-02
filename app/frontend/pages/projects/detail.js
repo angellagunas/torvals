@@ -200,12 +200,18 @@ class ProjectDetail extends Component {
           />
         )
       },
-      /* {
+      {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
-        content: <TabHistorical />
-      }, */
+        hide: !project.activeDataset ||
+          project.status === 'empty',
+        content: (
+          <TabHistorical
+            project={project}
+          />
+        )
+      },
       {
         name: 'configuracion',
         title: 'Configuración',
