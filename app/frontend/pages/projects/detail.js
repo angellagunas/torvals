@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
+import { Redirect } from 'react-router-dom'
 import PropTypes from 'baobab-react/prop-types'
 import { ToastContainer } from 'react-toastify'
 import { testRoles } from '~base/tools'
@@ -26,20 +27,31 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'Ajustes',
+      selectedTab: 'ajustes',
       datasetClassName: '',
       roles: 'admin, orgadmin, analyst, manager-level-2',
       canEdit: false,
-      isLoading: ''
+      isLoading: '',
+      counterAdjustments: 0
     }
     this.interval = null
+    this.intervalCounter = null
   }
 
-  componentWillMount () {
-    this.load()
+  async componentWillMount () {
+    const user = this.context.tree.get('user')
+    if (user.currentRole.slug === 'manager-level-1' && this.props.match.params.uuid !== user.currentProject.uuid) {
+      this.props.history.replace('/projects/' + user.currentProject.uuid)
+    }
+
+    await this.load()
     this.setState({
       canEdit: testRoles(this.state.roles)
     })
+    this.intervalCounter = setInterval(() => {
+      if (this.state.project.status !== 'adjustment') return
+      this.countAdjustmentRequests()
+    }, 10000)
   }
 
   async load () {
@@ -50,6 +62,19 @@ class ProjectDetail extends Component {
       loaded: true,
       project: body.data
     })
+
+    this.countAdjustmentRequests()
+  }
+
+  async countAdjustmentRequests () {
+    if (this.state.project.activeDataset) {
+      var url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
+      var body = await api.get(url)
+
+      this.setState({
+        counterAdjustments: body.data.created
+      })
+    }
   }
 
   async deleteObject () {
@@ -93,6 +118,7 @@ class ProjectDetail extends Component {
 
   componentWillUnmount () {
     clearInterval(this.interval)
+    clearInterval(this.intervalCounter)
   }
 
   submitHandler () {
@@ -126,9 +152,10 @@ class ProjectDetail extends Component {
     }
     const tabs = [
       {
-        name: 'Ajustes',
+        name: 'ajustes',
         title: 'Ajustes',
         icon: 'fa-cogs',
+        reload: false,
         content: (
           <TabAdjustment
             load={this.getProjectStatus.bind(this)}
@@ -140,9 +167,12 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Aprobar',
+        name: 'aprobar',
         title: 'Aprobar',
+        badge: true,
+        valueBadge: this.state.counterAdjustments,
         icon: 'fa-calendar-check-o',
+        reload: true,
         hide: (testRoles('manager-level-1') ||
               project.status === 'processing' ||
               project.status === 'pendingRows' ||
@@ -156,10 +186,11 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Datasets',
+        name: 'datasets',
         title: 'Datasets',
         icon: 'fa-signal',
         hide: testRoles('manager-level-1'),
+        reload: true,
         content: (
           <TabDatasets
             project={project}
@@ -176,10 +207,11 @@ class ProjectDetail extends Component {
         content: <TabHistorical />
       }, */
       {
-        name: 'Configuración',
-        title: 'Información',
+        name: 'configuracion',
+        title: 'Configuración',
         icon: 'fa-tasks',
         hide: testRoles('manager-level-1'),
+        reload: true,
         content: (
           <div>
             <div className='section'>

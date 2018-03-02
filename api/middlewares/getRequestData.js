@@ -51,8 +51,15 @@ module.exports = async function (ctx, next) {
     }
   }
 
-  if (ctx.request.headers.origin && !pathname.includes('login')) {
-    const origin = url.parse(ctx.request.headers.origin)
+  let originalHost
+  if (ctx.request.headers['referer']) {
+    originalHost = ctx.request.headers['referer']
+  } else if (ctx.request.headers.origin) {
+    originalHost = ctx.request.headers.origin
+  }
+
+  if (originalHost && !pathname.includes('login')) {
+    const origin = url.parse(originalHost)
     const apiHostname = url.parse(server.apiHost).hostname.split('.')
 
     const host = origin.hostname.split('.')

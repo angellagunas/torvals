@@ -1,12 +1,11 @@
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const MinifyPlugin = require('babel-minify-webpack-plugin')
+const UglifyWebpackPlugin = require('uglifyjs-webpack-plugin')
 
 const config = require('../../config')
 
 const path = require('path')
 const webpack = require('webpack')
 
-console.log('=>', path.resolve('../dist'))
 module.exports = {
   context: __dirname,
   entry: [
@@ -58,7 +57,9 @@ module.exports = {
         'NODE_ENV': JSON.stringify('production')
       }
     }),
-    new MinifyPlugin({}, {})
+    new UglifyWebpackPlugin({
+      parallel: true
+    })
   ],
   resolve: {
     modules: ['node_modules'],

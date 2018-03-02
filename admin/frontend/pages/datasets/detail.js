@@ -5,6 +5,7 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
+import env from '~base/env-variables'
 import classNames from 'classnames'
 
 import Page from '~base/page'
@@ -143,6 +144,14 @@ class DataSetDetail extends Component {
 
   getUpload () {
     let dataset = this.state.dataset
+    let url = ''
+    
+    if (env.ENV === 'production') {
+      url = `/api/admin/upload/`
+    } else {
+      url = `${env.API_HOST}/api/admin/upload/`
+    }
+
     if (
       (!dataset.fileChunk && dataset.source === 'uploaded') ||
       (dataset.fileChunk && dataset.status === 'uploading')
@@ -152,6 +161,7 @@ class DataSetDetail extends Component {
           <UploadDataset
             query={{dataset: this.state.dataset.uuid}}
             load={() => { this.load() }}
+            url={url}
           />
         </div>
       )
@@ -434,6 +444,36 @@ class DataSetDetail extends Component {
               <ConfigureViewDataset
                 initialState={dataset}
               />
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'error') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                Estado del dataset
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='message is-danger'>
+                <div className='message-body is-large has-text-centered'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <span className='icon is-large'>
+                        <FontAwesome className='fa-3x' name='warning' />
+                      </span>
+                    </div>
+                  </div>
+                  <div className='columns'>
+                    <div className='column'>
+                      Se ha generado un error! {dataset.error}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

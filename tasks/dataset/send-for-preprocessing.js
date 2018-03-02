@@ -13,6 +13,7 @@ const task = new Task(async function (argv) {
   }
 
   console.log('Fetching specified Dataset...')
+  var apiData
 
   const dataset = await DataSet.findOne({uuid: argv.uuid})
     .populate('fileChunk')
@@ -24,8 +25,18 @@ const task = new Task(async function (argv) {
   }
 
   console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
+  try {
+    await Api.fetch()
+    apiData = Api.get()
+  } catch (e) {
+    dataset.set({
+      error: 'No se pudo enviar el dataset a preprocesar! Intente borrarlo y crear otro dataset.',
+      status: 'error'
+    })
+    await dataset.save()
+
+    return false
+  }
 
   if (!apiData.token) {
     throw new Error('There is no API endpoint configured!')

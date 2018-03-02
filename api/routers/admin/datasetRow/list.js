@@ -72,13 +72,14 @@ module.exports = new Route({
     rows = rows.map(item => {
       return {
         uuid: item.uuid,
-        salesCenter: item.salesCenter.name,
-        productId: item.product.externalId,
-        productName: item.product.name,
-        channel: item.channel.name,
+        salesCenter: item.salesCenter ? item.salesCenter.name : '',
+        productId: item.product ? item.product.externalId : '',
+        productName: item.product ? item.product.name : '',
+        channel: item.channel ? item.channel.name : '',
         semanaBimbo: item.data.semanaBimbo,
         prediction: item.data.prediction,
         adjustment: item.data.adjustment,
+        localAdjustment: item.data.localAdjustment,
         lastAdjustment: item.data.lastAdjustment,
         adjustmentRequest: item.adjustmentRequest
       }
