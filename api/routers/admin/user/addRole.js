@@ -8,15 +8,15 @@ module.exports = new Route({
     const userId = ctx.params.uuid
 
     const user = await User.findOne({'uuid': userId})
-    ctx.assert(user, 404, 'User not found')
+    ctx.assert(user, 404, 'Usuario no encontrado')
 
     var roleData = ctx.request.body
 
     const org = await Organization.findOne({'uuid': roleData.organization})
-    ctx.assert(org, 404, 'Organization not found')
+    ctx.assert(org, 404, 'Organización no encontrada')
 
     const role = await Role.findOne({'uuid': roleData.role})
-    ctx.assert(role, 404, 'Role not found')
+    ctx.assert(role, 404, 'Rol no encontrado')
 
     var pos = user.organizations.findIndex(e => {
       return (
@@ -25,14 +25,14 @@ module.exports = new Route({
     })
 
     if (pos === -1) {
-      ctx.throw(400, 'Invalid organization!')
+      ctx.throw(400, 'Organización no válida')
     }
 
     let orgObj = {organization: org, role: role}
 
     if (roleData.project) {
       var project = await Project.findOne({'uuid': roleData.project})
-      ctx.assert(project, 404, 'Project not found')
+      ctx.assert(project, 404, 'Proyecto no encontrado')
       orgObj.defaultProject = project
     }
 

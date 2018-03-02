@@ -50,7 +50,7 @@ class DeletedUsers extends Component {
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
-              Restore
+              Restaurar
             </button>
           )
         }

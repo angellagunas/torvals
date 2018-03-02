@@ -11,14 +11,14 @@ module.exports = new Route({
     var columns = []
 
     const project = await Project.findOne({'uuid': projectId, 'isDeleted': false}).populate('organization')
-    ctx.assert(project, 404, 'Project not found')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     const datasets = await DataSet.find({_id: {$in: project.datasets.map(item => {
       return item.dataset
     })}})
 
     ctx.body = {
-      data: _.intersection(...datasets.map(item => { return item.columns.map(c => {return c.name})}))
+      data: _.intersection(...datasets.map(item => { return item.columns.map(c => { return c.name }) }))
     }
   }
 })

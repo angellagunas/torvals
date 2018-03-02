@@ -8,13 +8,13 @@ module.exports = new Route({
     const salesCenterId = ctx.params.uuid
 
     const salesCenter = await SalesCenter.findOne({'uuid': salesCenterId})
-    ctx.assert(salesCenter, 404, 'Sales Center not found')
+    ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
 
     const group = await Group.findOne({'uuid': ctx.request.body.group})
-    ctx.assert(group, 404, 'Group not found')
+    ctx.assert(group, 404, 'Grupo no encontrado')
 
     salesCenter.groups.push(group)
-    salesCenter.save()
+    await salesCenter.save()
 
     ctx.body = {
       data: salesCenter

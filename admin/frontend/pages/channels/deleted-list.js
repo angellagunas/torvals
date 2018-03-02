@@ -85,7 +85,7 @@ class DeletedChannels extends Component {
 
 export default Page({
   path: '/channels/deleted',
-  title: 'Deleted channels',
+  title: 'Canales eliminados',
   icon: 'trash',
   exact: true,
   validate: loggedIn,

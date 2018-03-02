@@ -15,7 +15,7 @@ module.exports = new Route({
     })
     .populate('organization')
     .populate('groups')
-    ctx.assert(salesCenter, 404, 'SalesCenter not found')
+    ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
 
     ctx.body = {
       data: salesCenter.format()

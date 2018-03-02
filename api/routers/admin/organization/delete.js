@@ -9,7 +9,7 @@ module.exports = new Route({
     var organizationId = ctx.params.uuid
 
     var org = await Organization.findOne({'uuid': organizationId})
-    ctx.assert(org, 404, 'Organization not found')
+    ctx.assert(org, 404, 'Organización no encontrada')
 
     org.set({isDeleted: true})
     org.save()

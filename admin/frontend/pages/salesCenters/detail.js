@@ -238,10 +238,10 @@ class SalesCenterDetail extends Component {
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <DeleteButton
-                      titleButton={'Delete'}
+                      titleButton={'Eliminar'}
                       objectName='Sales Centers'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={`Are you sure you want to delete the sales center ${this.state.salesCenter.name}?`}
+                      message={`Estas seguro de eliminar el centro de ventas ${this.state.salesCenter.name}?`}
                     />
                   </div>
                 </div>

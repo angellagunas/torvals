@@ -14,7 +14,7 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const project = await Project.findOne({'uuid': projectId, 'isDeleted': false}).populate('organization')
-    ctx.assert(project, 404, 'Project not found')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     project.set({
       name: data.name,

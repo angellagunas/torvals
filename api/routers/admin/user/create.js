@@ -15,7 +15,7 @@ module.exports = new Route({
     const userData = ctx.request.body
 
     if (!userData.password && !userData.sendInvite) {
-      ctx.throw(400, 'Password or Invite required!')
+      ctx.throw(400, 'Password o invitación requeridos')
     }
 
     if (!userData.password) {
@@ -42,7 +42,7 @@ module.exports = new Route({
 
     if (userData.project) {
       const project = await Project.findOne({'uuid': userData.project})
-      ctx.assert(project, 404, 'Project not found')
+      ctx.assert(project, 404, 'Proyecto no encontrado')
       orgObj.defaultProject = project
     }
 
@@ -52,10 +52,10 @@ module.exports = new Route({
 
     if (userData.group) {
       const group = await Group.findOne({'uuid': userData.group})
-      ctx.assert(group, 404, 'Group not found')
+      ctx.assert(group, 404, 'Grupo no encontrado')
 
       if (user.groups.find(item => { return String(item) === String(group._id) })) {
-        ctx.throw(400, 'You can only add the user to a group once!')
+        ctx.throw(400, 'Solamente puedes agregar el usuario al grupo una vez')
       }
 
       user.groups.push(group)

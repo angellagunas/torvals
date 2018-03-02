@@ -25,7 +25,7 @@ module.exports = new Route({
     }).populate('organization')
     .populate('activeDataset')
 
-    ctx.assert(project, 404, 'Project not found')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     ctx.body = {
       data: project.toPublic()

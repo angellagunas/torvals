@@ -21,7 +21,7 @@ module.exports = new Route({
       organization: ctx.state.organization
     })
 
-    ctx.assert(dataset, 404, 'DataSet not found')
+    ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     var filters = {}
     for (var filter in ctx.request.query) {

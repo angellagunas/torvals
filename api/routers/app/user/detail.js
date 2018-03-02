@@ -14,7 +14,7 @@ module.exports = new Route({
       .populate('organizations.defaultProject')
       .populate('groups')
 
-    ctx.assert(user, 404, 'User not found')
+    ctx.assert(user, 404, 'Usuario no encontrado')
 
     user = user.toPublic()
     user.role = user.organizations.find(e => {
