@@ -752,6 +752,21 @@ class TabAdjustment extends Component {
   }
 
   render () {
+    const dataSetsNumber = this.props.project.datasets.length
+    let adviseContent = null
+    if (dataSetsNumber) {
+      adviseContent =
+        <div>
+          Debes terminar de configurar al menos un
+          <strong> dataset </strong>
+        </div>
+    } else {
+      adviseContent =
+        <div>
+          Se debe agregar al menos un
+                <strong> dataset </strong> para poder generar ajustes.
+        </div>
+    }
     if (this.props.project.status === 'empty') {
       return (
         <div className='section columns'>
@@ -761,8 +776,7 @@ class TabAdjustment extends Component {
                 <p>Atención</p>
               </div>
               <div className='message-body has-text-centered is-size-5'>
-                Se debe agregar al menos un
-                <strong> dataset </strong> para poder generar ajustes.
+                {adviseContent}
               </div>
             </article>
           </div>
