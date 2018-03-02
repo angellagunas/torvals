@@ -146,21 +146,45 @@ class EmailResetLanding extends Component {
         shouldSelectOrg: true
       })
     } else {
-      const baseUrl = env.APP_HOST.split('://')
+      const hostname = window.location.hostname
+      const hostnameSplit = hostname.split('.')
       const organization = user.organizations[0].organization
 
       cookies.set('jwt', data.jwt)
       cookies.set('organization', organization.slug)
 
-      window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1]
+      if (env.ENV === 'production') {
+        if (hostname.indexOf('stage') >= 0) {
+          const newHostname = hostnameSplit.slice(-3).join('.')
+          window.location = `//${organization.slug}.${newHostname}/dashboard`
+        } else {
+          const newHostname = hostnameSplit.slice(-2).join('.')
+          window.location = `//${organization.slug}.${newHostname}/dashboard`
+        }
+      } else {
+        const baseUrl = env.APP_HOST.split('://')
+        window.location = baseUrl[0] + '://' + organization.slug + '.' + baseUrl[1] + '/dashboard'
+      }
     }
   }
 
   selectOrgHandler (slug) {
-    const baseUrl = env.APP_HOST.split('://')
+    const hostname = window.location.hostname
+    const hostnameSplit = hostname.split('.')
 
     cookies.set('jwt', this.state.jwt)
-    window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1]
+    if (env.ENV === 'production') {
+      if (hostname.indexOf('stage') >= 0) {
+        const newHostname = hostnameSplit.slice(-3).join('.')
+        window.location = `//${slug}.${newHostname}/dashboard`
+      } else {
+        const newHostname = hostnameSplit.slice(-2).join('.')
+        window.location = `//${slug}.${newHostname}/dashboard`
+      }
+    } else {
+      const baseUrl = env.APP_HOST.split('://')
+      window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard'
+    }
   }
 
   getDropdown () {
