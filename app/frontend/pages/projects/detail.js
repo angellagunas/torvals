@@ -70,10 +70,11 @@ class ProjectDetail extends Component {
     if (this.state.project.activeDataset) {
       var url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
       var body = await api.get(url)
-
-      this.setState({
-        counterAdjustments: body.data.created
-      })
+      if (this.state.counterAdjustments !== body.data.created) {
+        this.setState({
+          counterAdjustments: body.data.created
+        })
+      }
     }
   }
 

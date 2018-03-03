@@ -4,16 +4,18 @@ import { Line } from 'react-chartjs-2'
 class Graph extends Component {
   constructor (props) {
     super(props)
-    this.data = {
-      datasets: [],
-      labels: []
+    this.state = {
+      dataGraph: this.props.data || [],
+      data: {
+        datasets: [],
+        labels: this.props.labels || []
+      }
     }
   }
 
   getData () {
-    this.data.labels = this.props.labels
-    this.props.data.map((item) => {
-      this.data.datasets.push({
+    this.state.dataGraph.map((item) => {
+      this.state.data.datasets.push({
         label: item.label,
         fill: false,
         lineTension: 0.1,
@@ -42,15 +44,25 @@ class Graph extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    if (this.props !== nextProps) {
-      this.props = nextProps
+    if (nextProps.reloadGraph) {
+      this.setState({
+        dataGraph: nextProps.data,
+        data: {
+          datasets: [],
+          labels: nextProps.labels
+        }
+      },
+        () => {
+          this.getData()
+        }
+      )
     }
   }
 
   render () {
     return (
       <div>
-        <Line data={this.data} width={this.props.width} height={this.props.height} />
+        <Line data={this.state.data} width={this.props.width} height={this.props.height} />
       </div>
     )
   }

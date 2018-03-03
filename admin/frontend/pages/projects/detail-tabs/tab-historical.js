@@ -8,209 +8,6 @@ import {
 } from '~base/components/base-form'
 import Graph from './graph'
 
-const response = {
-  'prediction': [
-    {
-      'x': '2018-05-10',
-      'y': 89278,
-      'text': '89,278',
-      'group': 'Prediction'
-    },
-    {
-      'x': '2018-05-17',
-      'y': 125436,
-      'text': '125,436',
-      'group': 'Prediction'
-    },
-    {
-      'x': '2018-05-24',
-      'y': 81056,
-      'text': '81,056',
-      'group': 'Prediction'
-    },
-    {
-      'x': '2018-05-31',
-      'y': 97737,
-      'text': '97,737',
-      'group': 'Prediction'
-    },
-    {
-      'x': '2018-06-07',
-      'y': 97737,
-      'text': '97,737',
-      'group': 'Prediction'
-    },
-    {
-      'x': '2018-06-14',
-      'y': 97737,
-      'text': '97,737',
-      'group': 'Prediction'
-    },
-    {
-      'x': '2018-06-21',
-      'y': 97737,
-      'text': '97,737',
-      'group': 'Prediction'
-    },
-    {
-      'x': '2018-06-28',
-      'y': 16301,
-      'text': '16,301',
-      'group': 'Prediction'
-    }
-  ],
-  'adjustment': [
-    {
-      'x': '2018-05-10',
-      'y': 89278,
-      'text': '89,278',
-      'group': 'Adjustment'
-    },
-    {
-      'x': '2018-05-17',
-      'y': 125436,
-      'text': '125,436',
-      'group': 'Adjustment'
-    },
-    {
-      'x': '2018-05-24',
-      'y': 81056,
-      'text': '81,056',
-      'group': 'Adjustment'
-    },
-    {
-      'x': '2018-05-31',
-      'y': 97737,
-      'text': '97,737',
-      'group': 'Adjustment'
-    },
-    {
-      'x': '2018-06-07',
-      'y': 97737,
-      'text': '97,737',
-      'group': 'Adjustment'
-    },
-    {
-      'x': '2018-06-14',
-      'y': 97737,
-      'text': '97,737',
-      'group': 'Adjustment'
-    },
-    {
-      'x': '2018-06-21',
-      'y': 97737,
-      'text': '97,737',
-      'group': 'Adjustment'
-    },
-    {
-      'x': '2018-06-28',
-      'y': 16400,
-      'text': '16,400',
-      'group': 'Adjustment'
-    }
-  ],
-  'sale': [
-    {
-      'x': '2018-05-10',
-      'y': 0,
-      'text': '0',
-      'group': 'Sale'
-    },
-    {
-      'x': '2018-05-17',
-      'y': 0,
-      'text': '0',
-      'group': 'Sale'
-    },
-    {
-      'x': '2018-05-24',
-      'y': 0,
-      'text': '0',
-      'group': 'Sale'
-    },
-    {
-      'x': '2018-05-31',
-      'y': 0,
-      'text': '0',
-      'group': 'Sale'
-    },
-    {
-      'x': '2018-06-07',
-      'y': 0,
-      'text': '0',
-      'group': 'Sale'
-    },
-    {
-      'x': '2018-06-14',
-      'y': 0,
-      'text': '0',
-      'group': 'Sale'
-    },
-    {
-      'x': '2018-06-21',
-      'y': 0,
-      'text': '0',
-      'group': 'Sale'
-    },
-    {
-      'x': '2018-06-28',
-      'y': 0,
-      'text': '0',
-      'group': 'Sale'
-    }
-  ],
-  'previous_sale': [
-    {
-      'x': '2017-05-10',
-      'y': 70,
-      'text': '70',
-      'group': 'Previous sale'
-    },
-    {
-      'x': '2017-05-17',
-      'y': 41,
-      'text': '41',
-      'group': 'Previous sale'
-    },
-    {
-      'x': '2017-05-24',
-      'y': 314,
-      'text': '314',
-      'group': 'Previous sale'
-    },
-    {
-      'x': '2017-05-31',
-      'y': 269,
-      'text': '269',
-      'group': 'Previous sale'
-    },
-    {
-      'x': '2017-06-07',
-      'y': 146,
-      'text': '146',
-      'group': 'Previous sale'
-    },
-    {
-      'x': '2017-06-14',
-      'y': 26,
-      'text': '26',
-      'group': 'Previous sale'
-    },
-    {
-      'x': '2017-06-21',
-      'y': 202,
-      'text': '202',
-      'group': 'Previous sale'
-    },
-    {
-      'x': '2017-06-28',
-      'y': 128,
-      'text': '128',
-      'group': 'Previous sale'
-    }
-  ]
-}
-
 class TabHistorical extends Component {
   constructor (props) {
     super(props)
@@ -220,7 +17,8 @@ class TabHistorical extends Component {
       adjustments: [],
       sales: [],
       prevSales: [],
-      isLoading: true,
+      isLoading: '',
+      isFiltered: false,
       filters: {
         channels: [],
         products: [],
@@ -229,12 +27,15 @@ class TabHistorical extends Component {
       },
       formData: {
         period: 1
-      }
+      },
+      historicData: [],
+      reloadGraph: false
     }
   }
 
   getLabels () {
-    for (let label of response.prediction) {
+    this.state.labels.clear()
+    for (let label of this.state.historicData.prediction) {
       if (!this.state.labels.has(label.x)) {
         this.state.labels.add(label.x)
       }
@@ -243,7 +44,7 @@ class TabHistorical extends Component {
 
   getPredictions () {
     let aux = []
-    for (let p of response.prediction) {
+    for (let p of this.state.historicData.prediction) {
       aux.push(p.y)
     }
 
@@ -254,7 +55,7 @@ class TabHistorical extends Component {
 
   getAdjustments () {
     let aux = []
-    for (let a of response.adjustment) {
+    for (let a of this.state.historicData.adjustment) {
       aux.push(a.y)
     }
 
@@ -265,7 +66,7 @@ class TabHistorical extends Component {
 
   getSales () {
     let aux = []
-    for (let s of response.sale) {
+    for (let s of this.state.historicData.sale) {
       aux.push(s.y)
     }
 
@@ -276,7 +77,7 @@ class TabHistorical extends Component {
 
   getPrevSales () {
     let aux = []
-    for (let s of response.previous_sale) {
+    for (let s of this.state.historicData.previous_sale) {
       aux.push(s.y)
     }
 
@@ -285,7 +86,7 @@ class TabHistorical extends Component {
     })
   }
 
-  getWeekTotals (dates) {
+  async getWeekTotals (dates) {
     const wtp = []
     const wta = []
     const wts = []
@@ -293,7 +94,7 @@ class TabHistorical extends Component {
     let ta = 0
     let ts = 0
 
-    for (const week of response.prediction) {
+    for (const week of this.state.historicData.prediction) {
       for (let i = 0; i < dates.length; i++) {
         if (moment(week.x).isBetween(dates[i].dateStart, dates[i].dateEnd, 'days', '[]')) {
           wtp.push({ week: dates[i].week, total: week.y })
@@ -303,7 +104,7 @@ class TabHistorical extends Component {
     }
     wtp.push({ week: '', total: tp })
 
-    for (const week of response.adjustment) {
+    for (const week of this.state.historicData.adjustment) {
       for (let i = 0; i < dates.length; i++) {
         if (moment(week.x).isBetween(dates[i].dateStart, dates[i].dateEnd, 'days', '[]')) {
           wta.push({ week: dates[i].week, total: week.y })
@@ -313,7 +114,7 @@ class TabHistorical extends Component {
     }
     wta.push({ week: '', total: ta })
 
-    for (const week of response.sale) {
+    for (const week of this.state.historicData.sale) {
       for (let i = 0; i < dates.length; i++) {
         if (moment(week.x).isBetween(dates[i].dateStart, dates[i].dateEnd, 'days', '[]')) {
           wts.push({ week: dates[i].week, total: week.y })
@@ -329,73 +130,34 @@ class TabHistorical extends Component {
       weekTotalsSales: wts
     })
   }
+
   async getFilters () {
     if (this.props.project.activeDataset) {
       const url = '/admin/rows/filters/dataset/'
       let res = await api.get(url + this.props.project.activeDataset.uuid)
-
-      var maxDate = moment.utc(this.props.project.activeDataset.dateMax)
-      var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
-      var dates = []
       var periods = []
-      var adjustments = {
-        '1': 10,
-        '2': 20,
-        '3': 30,
-        '4': -1
+
+      const map = new Map()
+      res.dates.map((date) => {
+        const key = date.month
+        const collection = map.get(key)
+        if (!collection) {
+          map.set(key, [date])
+        } else {
+          collection.push(date)
+        }
+      })
+
+      for (let i = 0; i < Array.from(map).length; i++) {
+        const element = Array.from(map)[i]
+        periods.push({
+          number: element[0],
+          name: `Periodo ${moment(element[1][0].dateEnd).format('MMMM')}`,
+          maxSemana: element[1][3].week,
+          minSemana: element[1][0].week
+        })
       }
 
-      if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
-        adjustments = this.props.project.businessRules.adjustments
-      }
-
-      for (var i = 0; i < 16; i++) {
-        dates.push(moment(maxDate.format()))
-        maxDate.subtract(7, 'days')
-      }
-
-      dates.reverse()
-
-      var period4 = dates.slice(12, 16)
-      var period3 = dates.slice(8, 12)
-      var period2 = dates.slice(4, 8)
-      var period1 = dates.slice(0, 4)
-
-      periods.push({
-        number: 4,
-        name: `Periodo ${period4[0].format('MMMM')}`,
-        adjustment: adjustments['4'],
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
-
-      periods.push({
-        number: 3,
-        name: `Periodo ${period3[0].format('MMMM')}`,
-        adjustment: adjustments['3'] / 100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
-
-      periods.push({
-        number: 2,
-        name: `Periodo ${period2[0].format('MMMM')}`,
-        adjustment: adjustments['2'] / 100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
-
-      periods.push({
-        number: 1,
-        name: `Periodo ${period1[0].format('MMMM')}`,
-        adjustment: adjustments['1'] / 100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      this.getWeekTotals(res.dates)
       this.getProducts()
       this.getChannels()
       this.getSalesCent()
@@ -409,7 +171,9 @@ class TabHistorical extends Component {
         formData: {
           period: 1
         },
-        isLoading: false
+        isFiltered: false
+      }, () => {
+        this.getData()
       })
     }
   }
@@ -514,28 +278,62 @@ class TabHistorical extends Component {
   }
 
   async getData (e) {
-    // let url = '/admin/projects/historical/:uuid'
-    console.log(e.formData)
+    this.setState({
+      isLoading: ' is-loading'
+    })
+
+    let min
+    let max
+    var period = this.state.filters.periods.find(item => {
+      return item.number === this.state.formData.period
+    })
+    this.state.filters.dates.map((date) => {
+      if (period.maxSemana === date.week) {
+        max = date.dateEnd
+      }
+      if (period.minSemana === date.week) {
+        min = date.dateStart
+      }
+    })
+    let url = '/admin/projects/historical/' + this.props.project.uuid
+    let res = await api.post(url, {
+      start_date: moment(min).format('YYYY-MM-DD'),
+      end_date: moment(max).format('YYYY-MM-DD'),
+      salesCenter: this.state.formData.salesCenters,
+      channel: this.state.formData.channels,
+      product: this.state.formData.products,
+      category: this.state.formData.categories
+    })
+    this.setState({
+      historicData: res.data,
+      isLoading: '',
+      reloadGraph: true
+    }, async () => {
+      await this.getWeekTotals(this.state.filters.dates)
+      await this.getLabels()
+      await this.getPredictions()
+      await this.getAdjustments()
+      await this.getSales()
+      await this.getPrevSales()
+      this.setState({
+        reloadGraph: false
+      })
+    })
   }
 
   componentDidMount () {
-    this.getLabels()
-    this.getPredictions()
-    this.getAdjustments()
-    this.getSales()
-    this.getPrevSales()
-
     this.getFilters()
   }
 
   render () {
-    if (this.state.isLoading ||
+    if (this.state.isFiltered ||
       this.state.filters.products.length === 0 ||
       this.state.filters.channels.length === 0 ||
       this.state.filters.salesCenters.length === 0
     ) {
       return <Loader />
     }
+
     const graphData = [
       {
         label: 'Predicción',
@@ -645,6 +443,7 @@ class TabHistorical extends Component {
               </div>
             </BaseForm>
           </div>
+          {this.state.historicData.prediction && this.state.weekTotalsPredictions &&
           <div className='column'>
             <div className='card'>
               <div className='card-header'>
@@ -711,14 +510,17 @@ class TabHistorical extends Component {
               </div>
             </div>
           </div>
+          }
         </div>
       </div>
+      {this.state.historicData.prediction && this.state.weekTotalsPredictions &&
       <Graph
         data={graphData}
         labels={Array.from(this.state.labels)}
         width={200}
         height={50}
-      />
+        reloadGraph={this.state.reloadGraph}
+      />}
     </div>)
   }
 }
