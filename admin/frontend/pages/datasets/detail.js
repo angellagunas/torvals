@@ -766,7 +766,7 @@ class DataSetDetail extends Component {
                 <table className='table is-fullwidth'>
                   <thead>
                     <tr>
-                      <th colspan='1'>Id Externo</th>
+                      <th colSpan='1'>Id Externo</th>
                       <th colSpan='1'>Nombre</th>
                       <th colSpan='1'>Acciones</th>
                       <th colSpan='1'>
@@ -789,14 +789,14 @@ class DataSetDetail extends Component {
                         }
                         return (
                           <tr key={key}>
-                            <td colspan='1'>{item.externalId}</td>
-                            <td colspan='1'>{item.name}</td>
-                            <td colspan='1'>
+                            <td colSpan='1'>{item.externalId}</td>
+                            <td colSpan='1'>{item.name}</td>
+                            <td colSpan='1'>
                               <button className='button is-primary' onClick={() => this.showModalChannels(item)}>
                                   Editar
                               </button>
                             </td>
-                            <td colspan='1'>
+                            <td colSpan='1'>
                               <Checkbox
                                 label={item}
                                 handleCheckboxChange={this.toggleCheckboxChannels}
@@ -879,10 +879,10 @@ class DataSetDetail extends Component {
                 <table className='table is-fullwidth'>
                   <thead>
                     <tr>
-                      <th colspan='1'>Id Externo</th>
-                      <th colspan='1'>Nombre</th>
-                      <th colspan='1'>Acciones</th>
-                      <th colspan='1'>
+                      <th colSpan='1'>Id Externo</th>
+                      <th colSpan='1'>Nombre</th>
+                      <th colSpan='1'>Acciones</th>
+                      <th colSpan='1'>
                         <span title='Seleccionar todos'>
                           <Checkbox
                             label='checkAll'
@@ -902,9 +902,9 @@ class DataSetDetail extends Component {
                         }
                         return (
                           <tr key={key}>
-                            <td colspan='1'>{item.externalId}</td>
-                            <td colspan='1'>{item.name}</td>
-                            <td colspan='1'>
+                            <td colSpan='1'>{item.externalId}</td>
+                            <td colSpan='1'>{item.name}</td>
+                            <td colSpan='1'>
                               <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
                                   Editar
                                 </button>
@@ -997,10 +997,10 @@ class DataSetDetail extends Component {
                   <table className='table is-fullwidth'>
                     <thead>
                       <tr>
-                        <th colspan='1'>Id Externo</th>
-                        <th colspan='1'>Nombre</th>
-                        <th colspan='1'>Acciones</th>
-                        <th colspan='1'>
+                        <th colSpan='1'>Id Externo</th>
+                        <th colSpan='1'>Nombre</th>
+                        <th colSpan='1'>Acciones</th>
+                        <th colSpan='1'>
                         <span title='Seleccionar todos'>
                           <Checkbox
                             label='checkAll'
@@ -1021,14 +1021,14 @@ class DataSetDetail extends Component {
                           }
                           return (
                             <tr key={key}>
-                              <td colspan='1'>{item.externalId}</td>
-                              <td colspan='1'>{item.name}</td>
-                              <td colspan='1'>
+                              <td colSpan='1'>{item.externalId}</td>
+                              <td colSpan='1'>{item.name}</td>
+                              <td colSpan='1'>
                                 <button className='button is-primary' onClick={() => this.showModal(item)}>
                                     Editar
                                 </button>
                               </td>
-                              <td colspan='1'>
+                              <td colSpan='1'>
                                 <Checkbox
                                   label={item}
                                   handleCheckboxChange={this.toggleCheckboxProducts}
