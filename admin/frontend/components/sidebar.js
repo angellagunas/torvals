@@ -20,6 +20,8 @@ import Products from '../pages/products/list'
 import DeletedProducts from '../pages/products/deleted-list'
 import Channels from '../pages/channels/list'
 import DeletedChannels from '../pages/channels/deleted-list'
+import Prices from '../pages/prices/list'
+import DeletedPrices from '../pages/prices/deleted-list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -144,6 +146,16 @@ class Sidebar extends Component {
         dropdown: [
           Channels.asSidebarItem(),
           DeletedChannels.asSidebarItem()
+        ]
+      },
+      {
+        title: 'Precios',
+        icon: 'money',
+        to: '/prices',
+        opened: false,
+        dropdown: [
+          Prices.asSidebarItem(),
+          DeletedPrices.asSidebarItem()
         ]
       },
       {

@@ -44,6 +44,9 @@ import Channels from './pages/channels/list'
 import DeletedChannels from './pages/channels/deleted-list'
 import ChannelDetail from './pages/channels/detail'
 import NotFound from '~base/components/not-found'
+import Prices from './pages/prices/list'
+import DeletedPrices from './pages/prices/deleted-list'
+import PriceDetail from './pages/prices/detail'
 // #Import
 
 const NoMatch = () => {
@@ -102,8 +105,12 @@ const AppRouter = () => {
           {Channels.asRouterItem()}
           {DeletedChannels.asRouterItem()}
           {ChannelDetail.asRouterItem()}
+          {Prices.asRouterItem()}
+          {DeletedPrices.asRouterItem()}
+          {PriceDetail.asRouterItem()}
 
           <Route component={NoMatch} />
+
           <div id='route' />
         </Switch>
       </div>
