@@ -311,7 +311,7 @@ class UserDetail extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section'>
-            {resetButton}
+            {!disabledForm && resetButton}
             <div className='columns is-mobile'>
               <div className='column'>
                 <div className='card'>
@@ -337,11 +337,15 @@ class UserDetail extends Component {
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button
-                                className={'button is-primary ' + this.state.isLoading}
-                                disabled={!!this.state.isLoading || disabledForm}
-                                type='submit'
-                              >Guardar</button>
+                              {!disabledForm &&
+                                <button
+                                  className={'button is-primary ' + this.state.isLoading}
+                                  disabled={!!this.state.isLoading}
+                                  type='submit'
+                                >
+                                  Guardar
+                                </button>
+                              }
                             </div>
                           </div>
                         </UserForm>

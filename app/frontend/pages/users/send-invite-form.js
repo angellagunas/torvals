@@ -135,7 +135,8 @@ class InviteUserForm extends Component {
           type: 'string',
           title: 'Rol',
           enum: [],
-          enumNames: []
+          enumNames: [],
+          default: 'manager-level-1'
         },
         group: {
           type: 'string',

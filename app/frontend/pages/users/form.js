@@ -139,10 +139,11 @@ class UserForm extends Component {
       schema.properties.project.enum = this.props.projects.map(item => { return item.uuid })
       schema.properties.project.enumNames = this.props.projects.map(item => { return item.name })
     }
-    console.log('disabled all form', this.props.disabled)
     if (this.props.disabled) {
       for (var field in uiSchema) {
         uiSchema[field]['ui:disabled'] = true
+        delete uiSchema['role']
+        delete schema.properties['role']
       }
     }
 

@@ -50,7 +50,6 @@ class PasswordUserForm extends Component {
       var role = this.props.roles.find((item) => {
         return item._id === formData['role']
       })
-      console.log(role)
 
       if (role && role.slug === 'manager-level-1') {
         await this.loadProjects()
@@ -150,7 +149,8 @@ class PasswordUserForm extends Component {
           type: 'string',
           title: 'Rol',
           enum: [],
-          enumNames: []
+          enumNames: [],
+          default: 'manager-level-1'
         },
         group: {
           type: 'string',
@@ -169,8 +169,6 @@ class PasswordUserForm extends Component {
       role: {'ui:widget': SelectWidget},
       group: {'ui:widget': SelectWidget}
     }
-    console.log(this.state)
-    console.log(this.props)
 
     if (this.props.filters) {
       if (this.props.filters.group) {
