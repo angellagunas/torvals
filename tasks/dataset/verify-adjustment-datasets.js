@@ -95,25 +95,30 @@ const task = new Task(async function (argv) {
           organization: dataset.organization
         })
 
-        await DataSetRow.create({
-          organization: dataset.organization,
-          project: dataset.project,
-          dataset: dataset,
-          externalId: dataRow._id,
-          data: {
-            existence: dataRow.existencia,
-            prediction: dataRow[predictionColumn.name],
-            forecastDate: dataRow.fecha,
-            semanaBimbo: dataRow.semana_bimbo,
-            adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
-            localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
-            lastAdjustment: dataRow[adjustmentColumn.name] || undefined
-          },
-          apiData: dataRow,
-          salesCenter: salesCenter,
-          product: product,
-          channel: channel
-        })
+        try {
+          await DataSetRow.create({
+            organization: dataset.organization,
+            project: dataset.project,
+            dataset: dataset,
+            externalId: dataRow._id,
+            data: {
+              existence: dataRow.existencia,
+              prediction: dataRow[predictionColumn.name],
+              forecastDate: dataRow.fecha,
+              semanaBimbo: dataRow.semana_bimbo,
+              adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
+              localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
+              lastAdjustment: dataRow[adjustmentColumn.name] || undefined
+            },
+            apiData: dataRow,
+            salesCenter: salesCenter,
+            product: product,
+            channel: channel
+          })
+        } catch (e) {
+          console.log('Hubo un error al tratar de guardar la row: ')
+          console.log(dataRow)
+        }
       }
 
       dataset.set({
