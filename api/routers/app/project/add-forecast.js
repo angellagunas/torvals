@@ -18,10 +18,10 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const project = await Project.findOne({'uuid': projectId}).populate('datasets.dataset')
-    ctx.assert(project, 404, 'Project not found')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     if (project.datasets.length === 0) {
-      ctx.throw(401, 'You need to add Datasets to the project first!')
+      ctx.throw(401, 'Necesitas agregar Datasets primero al proyecto')
     }
 
     const forecastData = {
@@ -86,7 +86,7 @@ module.exports = new Route({
         status: 'created'
       })
     } catch (e) {
-      ctx.throw(401, 'Failed to create Forecast, check your internet connection')
+      ctx.throw(401, 'Falló al crear Forecast, revisa tu conexión a internet')
     }
 
     ctx.body = {

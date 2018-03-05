@@ -31,7 +31,7 @@ module.exports = new Route({
       }
     } catch (e) {
       await project.remove()
-      ctx.throw(401, 'Failed to create Project (Abraxas)')
+      ctx.throw(401, 'Falló al crear el proyecto (Abraxas)')
     }
 
     var options = {
@@ -59,7 +59,7 @@ module.exports = new Route({
       await project.save()
     } catch (e) {
       await project.remove()
-      ctx.throw(401, 'Failed to create Project (Abraxas)')
+      ctx.throw(401, 'Falló al crear el proyecto (Abraxas)')
     }
 
     ctx.body = {

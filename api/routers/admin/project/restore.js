@@ -11,7 +11,7 @@ module.exports = new Route({
     const project = await Project.findOne({'uuid': projectId, 'isDeleted': true})
     .populate('datasets.dataset')
 
-    ctx.assert(project, 404, 'Project not found')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     for (var d of project.datasets) {
       d.dataset.isDeleted = false

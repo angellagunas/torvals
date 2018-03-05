@@ -28,7 +28,7 @@ module.exports = new Route({
       return
     }
     if (auxOrg && !auxOrg.isDeleted) {
-      ctx.throw(400, "You can't have two organizations with the same name")
+      ctx.throw(400, 'No se pueden tener dos organizaciones con el mismo nombre')
     }
 
     const org = await Organization.create(data)

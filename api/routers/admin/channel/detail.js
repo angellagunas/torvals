@@ -9,7 +9,7 @@ module.exports = new Route({
     var channelId = ctx.params.uuid
     const channel = await Channel.findOne({'uuid': channelId, 'isDeleted': false})
     .populate('organization')
-    ctx.assert(channel, 404, 'Channel not found')
+    ctx.assert(channel, 404, 'Canal no encontrado')
 
     ctx.body = {
       data: channel.toPublic()

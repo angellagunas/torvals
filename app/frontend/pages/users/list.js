@@ -5,7 +5,6 @@ import tree from '~core/tree'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
-import CreateUser from './create'
 import CreateUserNoModal from './create-no-modal'
 import DeleteButton from '~base/components/base-deleteButton'
 
@@ -18,7 +17,6 @@ export default ListPage({
   validate: [loggedIn, verifyRole],
   titleSingular: 'Usuario',
   create: false,
-  createComponent: CreateUser,
   sidePanel: true,
   sidePanelIcon: 'user-plus',
   sidePanelComponent: CreateUserNoModal,

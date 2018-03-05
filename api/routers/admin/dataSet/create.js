@@ -18,7 +18,7 @@ module.exports = new Route({
     project = await Project.findOne({uuid: body.project}).populate('organization')
 
     if (!project) {
-      ctx.throw(404, 'Project not found')
+      ctx.throw(404, 'Proyecto no encontrado')
     }
 
     org = project.organization

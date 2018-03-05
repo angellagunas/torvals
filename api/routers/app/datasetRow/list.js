@@ -21,7 +21,7 @@ module.exports = new Route({
       organization: ctx.state.organization
     })
 
-    ctx.assert(dataset, 404, 'DataSet not found')
+    ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     var filters = {}
     for (var filter in ctx.request.query) {
@@ -108,13 +108,14 @@ module.exports = new Route({
     rows = rows.map(item => {
       return {
         uuid: item.uuid,
-        salesCenter: item.salesCenter.name,
-        productId: item.product.externalId,
-        productName: item.product.name,
-        channel: item.channel.name,
+        salesCenter: item.salesCenter ? item.salesCenter.name : '',
+        productId: item.product ? item.product.externalId : '',
+        productName: item.product ? item.product.name : '',
+        channel: item.channel ? item.channel.name : '',
         semanaBimbo: item.data.semanaBimbo,
         prediction: item.data.prediction,
         adjustment: item.data.adjustment,
+        localAdjustment: item.data.localAdjustment,
         lastAdjustment: item.data.lastAdjustment,
         adjustmentRequest: item.adjustmentRequest
       }

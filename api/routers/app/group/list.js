@@ -56,14 +56,14 @@ module.exports = new Route({
         } else if (filter === 'user_orgs') {
           const user = await User.findOne({'uuid': ctx.request.query[filter]})
           if (user) {
-            statement.push({ '$match': { 'organization': user.organizations.map(item => { return item.organization }) } })
+            statement.push({ '$match': { 'organization': { $in: user.organizations.map(item => { return item.organization }) } } })
           }
         }
       }
     }
 
     if (ctx.state.organization) {
-      statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })
+      statement.push({ '$match': { 'organization': ObjectId(ctx.state.organization._id) } })
     }
 
     statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })

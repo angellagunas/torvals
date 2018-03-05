@@ -22,7 +22,7 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
-      sort: 'priority'
+      sort: ctx.request.query.sort || 'priority'
     })
 
     ctx.body = role

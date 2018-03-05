@@ -15,10 +15,10 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const user = await User.findOne({'uuid': userId})
-    ctx.assert(user, 404, 'User not found')
+    ctx.assert(user, 404, 'Usuario no encontrado')
 
     user.set({name: data.name, isAdmin: data.isAdmin})
-    user.save()
+    await user.save()
 
     ctx.body = {
       data: user.format()

@@ -11,13 +11,13 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const salesCenter = await SalesCenter.findOne({'uuid': salesCenterId, 'isDeleted': true})
-    ctx.assert(salesCenter, 404, 'SalesCenter not found')
+    ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
 
     salesCenter.set({
       isDeleted: false
     })
 
-    salesCenter.save()
+    await salesCenter.save()
 
     ctx.body = {
       data: salesCenter

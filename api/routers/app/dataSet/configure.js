@@ -21,7 +21,7 @@ module.exports = new Route({
 
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
 
-    ctx.assert(dataset, 404, 'DataSet not found')
+    ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     var isDate = body.columns.find((item) => {
       return item.isDate
@@ -139,7 +139,7 @@ module.exports = new Route({
       })
       await dataset.save()
     } catch (e) {
-      ctx.throw(401, 'Failed to send Dataset for processing')
+      ctx.throw(401, 'Falló al enviar DataSet para procesamiento')
     }
 
     ctx.body = {

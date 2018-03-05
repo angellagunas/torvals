@@ -11,7 +11,7 @@ module.exports = new Route({
     const chunkData = ctx.request.query
 
     if (!chunkData || Object.keys(chunkData).length === 0) {
-      ctx.throw(400, 'Fields parameter is missing!')
+      ctx.throw(400, 'Faltan parámetros')
     }
 
     var chunkNumber = parseInt(chunkData.resumableChunkNumber)

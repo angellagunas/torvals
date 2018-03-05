@@ -9,7 +9,7 @@ module.exports = new Route({
     var forecastId = ctx.params.uuid
 
     var forecast = await Forecast.findOne({'uuid': forecastId}).populate('users')
-    ctx.assert(forecast, 404, 'Forecast not found')
+    ctx.assert(forecast, 404, 'Forecast no encontrado')
 
     forecast.set({isDeleted: true})
 

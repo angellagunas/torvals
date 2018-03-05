@@ -11,7 +11,7 @@ module.exports = new Route({
     const chunkData = ctx.request.query
 
     if (!chunkData || Object.keys(chunkData).length === 0) {
-      ctx.throw(400, 'Fields parameter is missing!')
+      ctx.throw(400, 'Falta especificar campos')
     }
 
     var chunkNumber = parseInt(chunkData.resumableChunkNumber)
@@ -21,10 +21,10 @@ module.exports = new Route({
     var filename = chunkData.resumableFilename
     var datasetId = chunkData.dataset
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
-    ctx.assert(dataset, 404, 'Dataset not found')
+    ctx.assert(dataset, 404, 'Dataset no encontrado')
 
     if (String(dataset.organization) !== String(ctx.state.organization._id)) {
-      ctx.throw(404, 'Dataset not found')
+      ctx.throw(404, 'Dataset no encontrado')
     }
 
     identifier = cleanFileIdentifier(identifier)

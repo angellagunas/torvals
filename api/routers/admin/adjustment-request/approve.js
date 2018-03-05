@@ -15,12 +15,11 @@ module.exports = new Route({
       'isDeleted': false
     }).populate('datasetRow')
 
-    ctx.assert(adjustmentRequest, 404, 'AdjustmentRequest not found')
+    ctx.assert(adjustmentRequest, 404, 'AdjustmentRequest no encontrado')
 
     const datasetRow = adjustmentRequest.datasetRow
 
-    datasetRow.data.lastAdjustment = datasetRow.data.adjustment
-    datasetRow.data.adjustment = adjustmentRequest.newAdjustment
+    datasetRow.data.localAdjustment = adjustmentRequest.newAdjustment
     datasetRow.updatedBy = ctx.state.user
     datasetRow.markModified('data')
     await datasetRow.save()
