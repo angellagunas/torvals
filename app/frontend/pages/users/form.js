@@ -11,30 +11,6 @@ import {
   SelectWidget
 } from '~base/components/base-form'
 
-var schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'email'
-  ],
-  properties: {
-    name: {type: 'string', title: 'Nombre'},
-    email: {type: 'string', title: 'Email'},
-    role: {
-      type: 'string',
-      title: 'Rol',
-      enum: [],
-      enumNames: []
-    }
-  }
-}
-
-const uiSchema = {
-  name: {'ui:widget': TextWidget},
-  email: {'ui:widget': EmailWidget},
-  role: {'ui:widget': SelectWidget}
-}
-
 class UserForm extends Component {
   constructor (props) {
     super(props)
@@ -49,27 +25,10 @@ class UserForm extends Component {
   errorHandler (e) {}
 
   async changeHandler ({formData}) {
-    if (formData['role']) {
-      var role = this.props.roles.find((item) => {
-        return item._id === formData['role']
-      })
-
-      if (role.slug === 'manager-level-1') {
-        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
-        uiSchema['project'] = {'ui:widget': SelectWidget}
-        schema.required.push('project')
-      } else {
-        delete schema.properties['project']
-        delete uiSchema['project']
-        delete formData['project']
-        schema.required = ['email']
-      }
-    }
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden',
-      key: Math.random()
+      apiCallErrorMessage: 'is-hidden'
     })
   }
 
@@ -114,15 +73,47 @@ class UserForm extends Component {
   render () {
     const currentUser = tree.get('user')
 
-    var role = this.props.roles.find((item) => {
-      return item._id === this.state.formData.role
-    })
-
-    if (role && role.slug === 'manager-level-1') {
-      schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
-      uiSchema['project'] = {'ui:widget': SelectWidget}
-      schema.required.push('project')
+    var schema = {
+      type: 'object',
+      title: '',
+      required: [
+        'email'
+      ],
+      properties: {
+        name: {type: 'string', title: 'Nombre'},
+        email: {type: 'string', title: 'Email'},
+        role: {
+          type: 'string',
+          title: 'Rol',
+          enum: [],
+          enumNames: []
+        }
+      }
     }
+
+    const uiSchema = {
+      name: {'ui:widget': TextWidget},
+      email: {'ui:widget': EmailWidget},
+      role: {'ui:widget': SelectWidget}
+    }
+
+    if (this.state.formData['role']) {
+      var role = this.props.roles.find((item) => {
+        return item._id === this.state.formData['role']
+      })
+
+      if (role && role.slug === 'manager-level-1') {
+        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        uiSchema['project'] = {'ui:widget': SelectWidget}
+        schema.required.push('project')
+      } else {
+        delete schema.properties['project']
+        delete uiSchema['project']
+        delete this.state.formData['project']
+        schema.required = ['email']
+      }
+    }
+
     var error
     if (this.state.error) {
       error = <div>
@@ -140,8 +131,6 @@ class UserForm extends Component {
 
     if (this.props.initialState.uuid === currentUser.uuid) {
       uiSchema.role['ui:disabled'] = true
-    } else {
-      uiSchema.role['ui:disabled'] = false
     }
 
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
@@ -150,11 +139,17 @@ class UserForm extends Component {
       schema.properties.project.enum = this.props.projects.map(item => { return item.uuid })
       schema.properties.project.enumNames = this.props.projects.map(item => { return item.name })
     }
+    if (this.props.disabled) {
+      for (var field in uiSchema) {
+        uiSchema[field]['ui:disabled'] = true
+        delete uiSchema['role']
+        delete schema.properties['role']
+      }
+    }
 
     return (
       <div>
         <BaseForm
-          key={this.state.key}
           schema={schema}
           uiSchema={uiSchema}
           formData={this.state.formData}
