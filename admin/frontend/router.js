@@ -44,6 +44,7 @@ import Channels from './pages/channels/list'
 import DeletedChannels from './pages/channels/deleted-list'
 import ChannelDetail from './pages/channels/detail'
 import NotFound from '~base/components/not-found'
+import Calendar from './pages/calendar'
 // #Import
 
 const NoMatch = () => {
@@ -85,6 +86,8 @@ const AppRouter = () => {
           {Projects.asRouterItem()}
           {DeletedProjects.asRouterItem()}
           {ProjectDetail.asRouterItem()}
+
+          {Calendar.asRouterItem()}
 
           {SalesCenters.asRouterItem()}
           {DeletedSalesCenters.asRouterItem()}

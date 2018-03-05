@@ -20,6 +20,7 @@ import Products from '../pages/products/list'
 import DeletedProducts from '../pages/products/deleted-list'
 import Channels from '../pages/channels/list'
 import DeletedChannels from '../pages/channels/deleted-list'
+import Calendar from '../pages/calendar'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -105,6 +106,7 @@ class Sidebar extends Component {
           DeletedProjects.asSidebarItem()
         ]
       },
+      Calendar.asSidebarItem(),
       {
         title: 'Datasets',
         icon: 'file',
