@@ -751,6 +751,14 @@ class DataSetDetail extends Component {
                 Canales no identificados: {this.newChannels.length}
             </p>
             <div className='field is-grouped is-grouped-right card-header-select'>
+              <div className={this.state.isChannelsOpen ? 'control' : 'is-hidden'}>
+                <button
+                  onClick={() => this.confirmChannels()}
+                  disabled={this.state.disableBtnC}
+                  className='button is-primary is-outlined is-pulled-right'>
+                  Confirmar ({this.state.selectedChannels.size})
+                </button>
+              </div> 
               <div className='control'>
                 <a
                   className='button is-inverted'
@@ -768,10 +776,10 @@ class DataSetDetail extends Component {
                 <table className='table is-fullwidth'>
                   <thead>
                     <tr>
-                      <th colSpan='2'>Id Externo</th>
-                      <th colSpan='2'>Nombre</th>
-                      <th colSpan='2'>Acciones</th>
-                      <th colSpan='2'>
+                      <th colSpan='1'>Id Externo</th>
+                      <th colSpan='1'>Nombre</th>
+                      <th colSpan='1'>Acciones</th>
+                      <th colSpan='1'>
                         <span title='Seleccionar todos'>
                           <Checkbox
                             label='checkAll'
@@ -780,14 +788,6 @@ class DataSetDetail extends Component {
                             checked={this.state.selectAllChannels}
                             hideLabel />
                         </span>
-                      </th>
-                      <th colSpan='1' className='is-narrow'>
-                        <button
-                          onClick={() => this.confirmChannels()}
-                          disabled={this.state.disableBtnC}
-                          className='button is-primary is-outlined is-pulled-right'>
-                          Confirmar ({this.state.selectedChannels.size})
-                          </button>
                       </th>
                     </tr>
                   </thead>
@@ -799,14 +799,14 @@ class DataSetDetail extends Component {
                         }
                         return (
                           <tr key={key}>
-                            <td colSpan='2'>{item.externalId}</td>
-                            <td colSpan='2'>{item.name}</td>
-                            <td colSpan='2'>
+                            <td colSpan='1'>{item.externalId}</td>
+                            <td colSpan='1'>{item.name}</td>
+                            <td colSpan='1'>
                               <button className='button is-primary' onClick={() => this.showModalChannels(item)}>
                                   Editar
                               </button>
                             </td>
-                            <td colSpan='2'>
+                            <td colSpan='1'>
                               <Checkbox
                                 label={item}
                                 handleCheckboxChange={this.toggleCheckboxChannels}
@@ -864,6 +864,14 @@ class DataSetDetail extends Component {
                 Centros de Venta no identificados: {this.newSalesCenters.length}
             </p>
             <div className='field is-grouped is-grouped-right card-header-select'>
+              <div className={this.state.isSalesCenterOpen ? 'control' : 'is-hidden'}>
+                <button
+                  onClick={() => this.confirmSalesCenters()}
+                  disabled={this.state.disableBtnS}
+                  className='button is-primary is-outlined is-pulled-right'>
+                  Confirmar ({this.state.selectedSalesCenters.size})
+                </button>
+              </div> 
               <div className='control'>
                 <a
                   className='button is-inverted'
@@ -881,10 +889,10 @@ class DataSetDetail extends Component {
                 <table className='table is-fullwidth'>
                   <thead>
                     <tr>
-                      <th colSpan='2'>Id Externo</th>
-                      <th colSpan='2'>Nombre</th>
-                      <th colSpan='2'>Acciones</th>
-                      <th colSpan='2'>
+                      <th colSpan='1'>Id Externo</th>
+                      <th colSpan='1'>Nombre</th>
+                      <th colSpan='1'>Acciones</th>
+                      <th colSpan='1'>
                         <span title='Seleccionar todos'>
                           <Checkbox
                             label='checkAll'
@@ -893,14 +901,6 @@ class DataSetDetail extends Component {
                             checked={this.state.selectAllSalesCenters}
                             hideLabel />
                         </span>
-                      </th>
-                      <th colSpan='1' className='is-narrow'>
-                        <button
-                          onClick={() => this.confirmSalesCenters()}
-                          disabled={this.state.disableBtnS}
-                          className='button is-primary is-outlined is-pulled-right'>
-                          Confirmar ({this.state.selectedSalesCenters.size})
-                          </button>
                       </th>
                     </tr>
                   </thead>
@@ -912,14 +912,14 @@ class DataSetDetail extends Component {
                         }
                         return (
                           <tr key={key}>
-                            <td colSpan='2'>{item.externalId}</td>
-                            <td colSpan='2'>{item.name}</td>
-                            <td colSpan='2'>
+                            <td colSpan='1'>{item.externalId}</td>
+                            <td colSpan='1'>{item.name}</td>
+                            <td colSpan='1'>
                               <button className='button is-primary' onClick={() => this.showModalSalesCenters(item)}>
                                   Editar
                                 </button>
                             </td>
-                            <td colSpan='2'>
+                            <td colSpan='1'>
                               <Checkbox
                                 label={item}
                                 handleCheckboxChange={this.toggleCheckboxSalesCenters}
@@ -980,6 +980,14 @@ class DataSetDetail extends Component {
                   Productos no identificados: {this.newProducts.length}
               </p>
               <div className='field is-grouped is-grouped-right card-header-select'>
+                <div className={this.state.isProductsOpen ? 'control' : 'is-hidden'}>
+                  <button
+                    onClick={() => this.confirmProducts()}
+                    disabled={this.state.disableBtnP}
+                    className='button is-primary is-outlined is-pulled-right'>
+                    Confirmar ({this.state.selectedProducts.size})
+                  </button>
+                </div> 
                 <div className='control'>
                   <a
                     className='button is-inverted'
@@ -989,18 +997,20 @@ class DataSetDetail extends Component {
                     </span>
                   </a>
                 </div>
+                
               </div>
             </header>
+            
             <div className={headerProductsClass}>
               <div className='columns'>
                 <div className='column'>
                   <table className='table is-fullwidth'>
                     <thead>
                       <tr>
-                        <th colSpan='2'>Id Externo</th>
-                        <th colSpan='2'>Nombre</th>
-                        <th colSpan='2'>Acciones</th>
-                        <th colSpan='2'>
+                        <th colSpan='1'>Id Externo</th>
+                        <th colSpan='1'>Nombre</th>
+                        <th colSpan='1'>Acciones</th>
+                        <th colSpan='1'>
                         <span title='Seleccionar todos'>
                           <Checkbox
                             label='checkAll'
@@ -1010,14 +1020,7 @@ class DataSetDetail extends Component {
                             hideLabel />
                         </span>    
                         </th>
-                        <th colSpan='1' className='is-narrow'>
-                          <button
-                            onClick={() => this.confirmProducts()}
-                            disabled={this.state.disableBtnP} 
-                            className='button is-primary is-outlined is-pulled-right'>
-                            Confirmar ({this.state.selectedProducts.size})
-                          </button>
-                        </th>
+                        
                       </tr>
                     </thead>
                     <tbody>
@@ -1028,14 +1031,14 @@ class DataSetDetail extends Component {
                           }
                           return (
                             <tr key={key}>
-                              <td colSpan='2'>{item.externalId}</td>
-                              <td colSpan='2'>{item.name}</td>
-                              <td colSpan='2'>
+                              <td colSpan='1'>{item.externalId}</td>
+                              <td colSpan='1'>{item.name}</td>
+                              <td colSpan='1'>
                                 <button className='button is-primary' onClick={() => this.showModal(item)}>
                                     Editar
                                 </button>
                               </td>
-                              <td colSpan='2'>
+                              <td colSpan='1'>
                                 <Checkbox
                                   label={item}
                                   handleCheckboxChange={this.toggleCheckboxProducts}
