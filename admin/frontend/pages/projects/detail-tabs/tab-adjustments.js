@@ -53,7 +53,7 @@ class TabAdjustment extends Component {
     this.getFilters()
     this.getModifiedCount()
     this.interval = setInterval(() => { this.getModifiedCount() }, 10000)
-    this.setAlertMsg()
+    if (this.props.project.status === 'adjustment') this.setAlertMsg()
   }
 
   componentWillUnmount () {

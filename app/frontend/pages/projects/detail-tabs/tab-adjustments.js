@@ -58,7 +58,7 @@ class TabAdjustment extends Component {
     if (currentRole !== 'manager-level-3') {
       this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
-    this.setAlertMsg()
+    if (this.props.project.status === 'adjustment') this.setAlertMsg()
   }
 
   componentWillUnmount () {
