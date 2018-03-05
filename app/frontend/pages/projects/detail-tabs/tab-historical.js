@@ -418,110 +418,113 @@ class TabHistorical extends Component {
     schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
     schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
 
-    return (<div className='card'>
-      <div className='card-content'>
-        <div className='columns'>
-          <div className='column is-half'>
-            <BaseForm
-              schema={schema}
-              uiSchema={uiSchema}
-              formData={this.state.formData}
-              onChange={(e) => { this.filterChangeHandler(e) }}
-              onSubmit={(e) => { this.getData(e) }}
-              onError={(e) => { this.FilterErrorHandler(e) }}
-            >
-              <div className='field is-grouped'>
-                <div className='control'>
-                  <button
-                    className={'button is-primary is-medium' + this.state.isLoading}
-                    type='submit'
-                    disabled={!!this.state.isLoading}
-                  >
-                    Filtrar
-                  </button>
+    return (
+      <div>
+        <div className='section'>
+          <div className='columns'>
+            <div className='column is-half'>
+              <BaseForm
+                schema={schema}
+                uiSchema={uiSchema}
+                formData={this.state.formData}
+                onChange={(e) => { this.filterChangeHandler(e) }}
+                onSubmit={(e) => { this.getData(e) }}
+                onError={(e) => { this.FilterErrorHandler(e) }}
+              >
+                <div className='field is-grouped'>
+                  <div className='control'>
+                    <button
+                      className={'button is-primary is-medium' + this.state.isLoading}
+                      type='submit'
+                      disabled={!!this.state.isLoading}
+                    >
+                      Filtrar
+                    </button>
+                  </div>
+                </div>
+              </BaseForm>
+            </div>
+            {this.state.historicData.prediction && this.state.weekTotalsPredictions &&
+              <div className='column'>
+                <div className='card'>
+                  <div className='card-header'>
+                    <h1 className='card-header-title'>Totales de Venta</h1>
+                  </div>
+                  <div className='card-content historical-container'>
+                    <table className='table historical is-fullwidth'>
+                      <thead>
+                        <tr>
+                          <th className='font-blue' colSpan='2'>Predicción</th>
+                          <th className='font-orange' colSpan='2'>Ajuste</th>
+                          <th className='font-green' colSpan='2'>Venta Registrada</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {this.state.weekTotalsPredictions.map((item, key) => {
+                          if (item.week !== '') {
+                            return (
+                              <tr key={key}>
+                                <td className='font-blue'>
+                                  Semana {item.week}
+                                </td>
+                                <td className='font-blue'>
+                                  $ {item.total}
+                                </td>
+                                <td className='font-orange'>
+                                  Semana {this.state.weekTotalsAdjustments[key].week}
+                                </td>
+                                <td className='font-orange'>
+                                  $ {this.state.weekTotalsAdjustments[key].total}
+                                </td>
+                                <td className='font-green'>
+                                  Semana {this.state.weekTotalsSales[key].week}
+                                </td>
+                                <td className='font-green'>
+                                  $ {this.state.weekTotalsSales[key].total}
+                                </td>
+                              </tr>)
+                          }
+                        })}
+
+                        <tr>
+                          <th className='font-blue'>
+                            Total
+                        </th>
+                          <td className='font-blue'>
+                            $ {this.state.weekTotalsPredictions[this.state.weekTotalsPredictions.length - 1].total}
+                          </td>
+                          <th className='font-orange'>
+                            Total
+                        </th>
+                          <td className='font-orange'>
+                            $ {this.state.weekTotalsAdjustments[this.state.weekTotalsAdjustments.length - 1].total}
+                          </td>
+                          <th className='font-green'>
+                            Total
+                        </th>
+                          <td className='font-green'>
+                            $ {this.state.weekTotalsSales[this.state.weekTotalsSales.length - 1].total}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-            </BaseForm>
+            }
           </div>
           {this.state.historicData.prediction && this.state.weekTotalsPredictions &&
-            <div className='column'>
-              <div className='card'>
-                <div className='card-header'>
-                  <h1 className='card-header-title'>Totales de Venta</h1>
-                </div>
-                <div className='card-content historical-container'>
-                  <table className='table historical is-fullwidth'>
-                    <thead>
-                      <tr>
-                        <th className='font-blue' colSpan='2'>Predicción</th>
-                        <th className='font-orange' colSpan='2'>Ajuste</th>
-                        <th className='font-green' colSpan='2'>Venta Registrada</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {this.state.weekTotalsPredictions.map((item, key) => {
-                        if (item.week !== '') {
-                          return (
-                            <tr key={key}>
-                              <td className='font-blue'>
-                                Semana {item.week}
-                              </td>
-                              <td className='font-blue'>
-                                $ {item.total}
-                              </td>
-                              <td className='font-orange'>
-                                Semana {this.state.weekTotalsAdjustments[key].week}
-                              </td>
-                              <td className='font-orange'>
-                                $ {this.state.weekTotalsAdjustments[key].total}
-                              </td>
-                              <td className='font-green'>
-                                Semana {this.state.weekTotalsSales[key].week}
-                              </td>
-                              <td className='font-green'>
-                                $ {this.state.weekTotalsSales[key].total}
-                              </td>
-                            </tr>)
-                        }
-                      })}
-
-                      <tr>
-                        <th className='font-blue'>
-                          Total
-                      </th>
-                        <td className='font-blue'>
-                          $ {this.state.weekTotalsPredictions[this.state.weekTotalsPredictions.length - 1].total}
-                        </td>
-                        <th className='font-orange'>
-                          Total
-                      </th>
-                        <td className='font-orange'>
-                          $ {this.state.weekTotalsAdjustments[this.state.weekTotalsAdjustments.length - 1].total}
-                        </td>
-                        <th className='font-green'>
-                          Total
-                      </th>
-                        <td className='font-green'>
-                          $ {this.state.weekTotalsSales[this.state.weekTotalsSales.length - 1].total}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+            <Graph
+              data={graphData}
+              labels={Array.from(this.state.labels)}
+              width={200}
+              height={50}
+              reloadGraph={this.state.reloadGraph}
+            />
           }
         </div>
       </div>
-      {this.state.historicData.prediction && this.state.weekTotalsPredictions &&
-        <Graph
-          data={graphData}
-          labels={Array.from(this.state.labels)}
-          width={200}
-          height={50}
-          reloadGraph={this.state.reloadGraph}
-        />}
-    </div>)
+    )
   }
 }
 export default TabHistorical
