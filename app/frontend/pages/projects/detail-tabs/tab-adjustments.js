@@ -58,7 +58,7 @@ class TabAdjustment extends Component {
     if (currentRole !== 'manager-level-3') {
       this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
-    this.setAlertMsg()
+    if (this.props.project.status === 'adjustment') this.setAlertMsg()
   }
 
   componentWillUnmount () {
@@ -161,6 +161,8 @@ class TabAdjustment extends Component {
           period: 1
         },
         filtersLoaded: true
+      }, () => {
+        this.getDataRows()
       })
     }
   }
@@ -243,14 +245,14 @@ class TabAdjustment extends Component {
 
   }
 
-  async getDataRows (e) {
-    if (!e.formData.period || !e.formData.semanasBimbo) {
+  async getDataRows () {
+    if (!this.state.formData.period || !this.state.formData.semanasBimbo) {
       this.notify('Se debe filtrar por semana!', 3000, toast.TYPE.ERROR)
       return
     }
 
     var period = this.state.filters.periods.find(item => {
-      return item.number === e.formData.period
+      return item.number === this.state.formData.period
     })
 
     this.setState({
@@ -261,11 +263,11 @@ class TabAdjustment extends Component {
     const url = '/app/rows/dataset/'
     let data = await api.get(url + this.props.project.activeDataset.uuid,
       {
-        semanaBimbo: e.formData.semanasBimbo,
-        product: e.formData.products,
-        channel: e.formData.channels,
-        salesCenter: e.formData.salesCenters,
-        category: e.formData.categories
+        semanaBimbo: this.state.formData.semanasBimbo,
+        product: this.state.formData.products,
+        channel: this.state.formData.channels,
+        salesCenter: this.state.formData.salesCenters,
+        category: this.state.formData.categories
       })
 
     this.setState({

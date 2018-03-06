@@ -43,43 +43,54 @@ const task = new Task(async function (argv) {
       persist: true
     }
 
-    var res = await request(options)
+    try {
+      var res = await request(options)
 
-    if (res.status === 'ready') {
-      console.log(`${dataset.name} dataset has finished processing`)
+      if (res.status === 'ready') {
+        console.log(`${dataset.name} dataset has finished processing`)
 
-      let apiData = {
-        products: [],
-        salesCenters: [],
-        channels: []
+        let apiData = {
+          products: [],
+          salesCenters: [],
+          channels: []
+        }
+
+        if (res.data) {
+          apiData['products'] = res.data['product']
+          apiData['salesCenters'] = res.data['agency']
+          apiData['channels'] = res.data['channel']
+        }
+
+        dataset.set({
+          status: 'reviewing',
+          dateMax: res.date_max,
+          dateMin: res.date_min,
+          apiData: apiData
+        })
+
+        await dataset.save()
+        await dataset.processData()
       }
 
-      if (res.data) {
-        apiData['products'] = res.data['product']
-        apiData['salesCenters'] = res.data['agency']
-        apiData['channels'] = res.data['channel']
+      if (res.status === 'error') {
+        dataset.set({
+          error: res.message,
+          status: 'error'
+        })
+
+        await dataset.save()
+
+        console.log(`Error while processing dataset: ${dataset.error}`)
       }
-
+    } catch (e) {
       dataset.set({
-        status: 'reviewing',
-        dateMax: res.date_max,
-        dateMin: res.date_min,
-        apiData: apiData
-      })
-
-      await dataset.save()
-      await dataset.processData()
-    }
-
-    if (res.status === 'error') {
-      dataset.set({
-        error: res.message,
+        error: e,
         status: 'error'
       })
 
       await dataset.save()
 
-      console.log(`Error while processing dataset: ${dataset.error}`)
+      console.log(`Error while preprocessing dataset: ${dataset.error}`)
     }
   }
 

@@ -695,3 +695,260 @@ tr {
 .vertical {
     margin-top: calc(25%);
 }
+
+.land-content {
+    margin: auto !important;
+    max-width: 800px !important;
+}
+
+.is-bg-whitesmoke {
+    background-color: whitesmoke !important;
+}
+
+.has-text-color {
+    color: $abraxas-color !important;
+}
+
+.icon-land {
+    height: 7rem !important;
+    width: 7rem !important;
+    background: #28d2eb !important;
+    border-radius: 100px !important;
+    margin: 30px 20px 0px !important;
+}
+
+.card-land {
+    height: 295px !important;
+}
+
+.pad-bottom {
+    padding-bottom: 20px !important;
+}
+
+.land-login {
+    width: 800px !important;
+    background-color: rgba(48, 90, 122, 0.7);
+    overflow: hidden !important;
+    text-align: center !important;
+    padding: 40px !important;
+    .input {
+        color: white !important;
+        background-color: rgba(0, 0, 0, 0) !important;
+        border: 0px !important;
+        border-bottom: 1px solid whitesmoke !important;
+    }
+    .input:focus {
+        border: 0px !important;
+        border-bottom: 2px solid white !important;
+        box-shadow: none !important;
+    }
+    .label {
+        text-align: left !important;
+        color: white !important;
+    }
+}
+
+.land-card {
+    background-color: rgba(48, 90, 122, 0.7) !important;
+    .navbar-item {
+        background-color: rgba(48, 90, 122, 0.3) !important;
+    }
+    .navbar-item:hover {
+        background-color: rgba(48, 90, 122, 0.8) !important;
+    }
+    .navbar-divider {
+        background: $abraxas-color !important;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    .navbar-menu {
+        box-shadow: none !important;
+    }
+}
+
+.has-bg-color {
+    background-color: $abraxas-color !important;
+    color: white !important;
+}
+
+.has-bg-hover:hover {
+    background-color: darken($primary, 3%) !important;
+}
+
+.sidepanel {
+    position: absolute;
+    top: 65px;
+    right: 0px;
+    padding: 0px;
+    background-color: #5d5d5d;
+    color: white;
+    border-radius: 5px 0px 0px 5px;
+    cursor: pointer;
+    text-align: center;
+    width: 40px;
+}
+
+.z100 {
+    z-index: 100 !important;
+}
+
+.pad-sides {
+    padding: 0 3em !important;
+}
+
+.dark-card {
+    background-color: #3d495a !important;
+    color: white !important;
+    .card-header {
+        color: white !important;
+    }
+    .card-header-title {
+        color: white !important;
+    }
+    .panel-block {
+        color: white !important;
+        border-bottom: 0px !important;
+        border-left: 0px !important;
+        border-right: 0px !important;
+        .input {
+            color: white !important;
+            background-color: rgba(0, 0, 0, 0.15) !important;
+            border: 0px !important;
+            border-bottom: 1px solid whitesmoke !important;
+        }
+        .input:focus {
+            border: 0px !important;
+            border-bottom: 2px solid white !important;
+            box-shadow: none !important;
+        }
+        .label {
+            text-align: left !important;
+            color: #b4becc !important;
+        }
+        .select select {
+            background-color: rgba(0, 0, 0, 0.15) !important;
+            border-color: rgba(0, 0, 0, 0.15) !important;
+            color: white !important;
+        }
+        .select option {
+            background-color: rgb(55, 65, 80) !important;
+            border-color: rgb(55, 65, 80) !important;
+            color: white !important;
+        }
+        .textarea {
+            color: white !important;
+            background-color: rgba(0, 0, 0, 0.15) !important;
+            border: 0px !important;
+            border-bottom: 1px solid whitesmoke !important;
+        }
+    }
+}
+
+.navstrong {
+    min-height: 3.25rem !important;
+    .navbar-item.has-dropdown:hover .navbar-link,
+    .navbar-item .has-dropdown .is-active .navbar-link {
+        background-color: darken($primary, 3%) !important;
+         :hover {
+            background-color: darken($primary, 3%) !important;
+        }
+    }
+    .navbar-dropdown {
+        background-color: $primary !important;
+        color: white !important;
+         :hover {
+            background-color: darken($primary, 3%) !important;
+            color: white !important;
+        }
+    }
+    .navbar-item {
+         :hover {
+            background-color: darken($primary, 3%) !important;
+            color: white !important;
+        }
+    }
+    strong {
+        color: white !important;
+    }
+    .navbar-link::after {
+        border: 2px solid white;
+        border-right: 0;
+        border-top: 0;
+        content: " ";
+        display: block;
+        height: 0.5em;
+        pointer-events: none;
+        position: absolute;
+        transform: rotate(-45deg);
+        width: 0.5em;
+        margin-top: -0.375em;
+        right: 1.125em;
+        top: 50%;
+    }
+}
+
+.historical-container {
+    display: flex;
+    justify-content: center;
+}
+
+.historical {
+    tbody {
+        font-size: 14px
+    }
+    th {
+        font-size: 14px !important
+    }
+    th,
+    td,
+    tr {
+        height: 30px !important;
+    }
+}
+
+.font-blue {
+    color: #01579B !important;
+}
+
+.font-orange {
+    color: #FF9800 !important;
+}
+
+.font-green {
+    color: #8BC34A !important;
+}
+
+td,
+th,
+tr {
+    vertical-align: middle !important;
+    height: 70px !important;
+}
+
+.is-invisible {
+    visibility: hidden !important;
+}
+
+.is-error {
+    background-color: #e44a4a !important;
+    color: white;
+}
+
+.margin-text {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.secret {
+    border-color: #00d1b2 !important;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    background-color: #d5fff7 !important;
+    padding: 0 2px;
+}
+
+.active {
+    font-weight: bold;
+}

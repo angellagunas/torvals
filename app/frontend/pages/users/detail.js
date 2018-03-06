@@ -249,6 +249,11 @@ class UserDetail extends Component {
     const { user } = this.state
     const currentUser = tree.get('user')
 
+    var disabledForm = false
+    if (user.roleDetail && currentUser) {
+      disabledForm = user.roleDetail.priority < currentUser.currentRole.priority
+    }
+
     if (user) {
       var role = this.state.roles.find((item) => {
         return item._id === user.role
@@ -259,12 +264,14 @@ class UserDetail extends Component {
           return item.organization.uuid === currentUser.currentOrganization.uuid
         })
 
-        var currentProject = this.state.projects.find((item) => {
-          return item.uuid === currentOrg.defaultProject.uuid
-        })
+        if (currentOrg.defaultProject) {
+          var currentProject = this.state.projects.find((item) => {
+            return item.uuid === currentOrg.defaultProject.uuid
+          })
 
-        if (currentProject) {
-          this.state.user.project = currentProject.uuid
+          if (currentProject) {
+            this.state.user.project = currentProject.uuid
+          }
         }
       }
     }
@@ -290,8 +297,7 @@ class UserDetail extends Component {
                   className={this.state.resetClass}
                   type='button'
                   onClick={() => this.resetOnClick()}
-                  disabled={!!this.state.resetLoading}
-                  >
+                  disabled={!!this.state.resetLoading || disabledForm}>
                   {this.state.resetText}
                 </button>
               </div>
@@ -305,7 +311,7 @@ class UserDetail extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           <div className='section'>
-            {resetButton}
+            {!disabledForm && resetButton}
             <div className='columns is-mobile'>
               <div className='column'>
                 <div className='card'>
@@ -327,14 +333,19 @@ class UserDetail extends Component {
                           submitHandler={(data) => this.submitHandler(data)}
                           errorHandler={(data) => this.errorHandler(data)}
                           finishUp={(data) => this.finishUpHandler(data)}
+                          disabled={disabledForm}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button
-                                className={'button is-primary ' + this.state.isLoading}
-                                disabled={!!this.state.isLoading}
-                                type='submit'
-                              >Guardar</button>
+                              {!disabledForm &&
+                                <button
+                                  className={'button is-primary ' + this.state.isLoading}
+                                  disabled={!!this.state.isLoading}
+                                  type='submit'
+                                >
+                                  Guardar
+                                </button>
+                              }
                             </div>
                           </div>
                         </UserForm>
@@ -364,6 +375,7 @@ class UserDetail extends Component {
                           dataFormatter={(item) => { return item.name || 'N/A' }}
                           availableClickHandler={this.availableGroupOnClick.bind(this)}
                           assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                          disabled={disabledForm}
                         />
                       </div>
                     </div>
