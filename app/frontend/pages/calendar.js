@@ -19,7 +19,7 @@ class Calendar extends Component {
     }
   }
   async getDates () {
-    let url = '/admin/dates'
+    let url = '/app/dates'
     let res = await api.get(url, {
       start: 0,
       limit: 0,
