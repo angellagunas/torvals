@@ -13,6 +13,7 @@ import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
 import Channels from '../pages/channel/list'
 import SelectOrg from '../pages/select-org'
+import Prices from '../pages/prices/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -106,6 +107,7 @@ class Sidebar extends Component {
             ReadyDataSets.asSidebarItem()
           ]
         },
+        Prices.asSidebarItem(),
         SalesCenters.asSidebarItem(),
         Products.asSidebarItem(),
         Channels.asSidebarItem()
