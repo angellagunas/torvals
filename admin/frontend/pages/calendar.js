@@ -100,22 +100,22 @@ class Calendar extends Component {
         <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Calendario</h1>
         <div className='container is-margin-top'>
           <div className='columns is-centered is-padding-top-small'>
-          <div className='column is-three-quarters'>
-            <Checkbox
-              label='Mostrar número de semana'
-              handleCheckboxChange={(e) => this.showWeeks()}
-              key='showWeeks'
-              checked={this.state.showWeekNumbers}
+            <div className='column is-three-quarters'>
+              <Checkbox
+                label='Mostrar número de semana'
+                handleCheckboxChange={(e) => this.showWeeks()}
+                key='showWeeks'
+                checked={this.state.showWeekNumbers}
             />
-            <br />
-            <Carousel
-              title=''
-              initialPosition={this.state.currentMonth}
+              <br />
+              <Carousel
+                title=''
+                initialPosition={this.state.currentMonth}
             >
-              {this.getCarouselItems()}
-            </Carousel>
+                {this.getCarouselItems()}
+              </Carousel>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     )
