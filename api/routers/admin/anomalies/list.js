@@ -67,7 +67,7 @@ module.exports = new Route({
         filters[filter] = ctx.request.query[filter]
       }
     }
-    console.log(filters)
+
     var rows = await Anomaly.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
