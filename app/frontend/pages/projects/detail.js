@@ -197,6 +197,7 @@ class ProjectDetail extends Component {
             history={this.props.history}
             canEdit={canEdit}
             setAlert={(type, data) => this.setAlert(type, data)}
+            reload={() => this.load()}
           />
         )
       },

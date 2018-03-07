@@ -126,8 +126,8 @@ class DataSetDetail extends Component {
 
   async deleteObject () {
     if (!this.state.canEdit) return
-    var url = '/app/datasets/' + this.props.match.params.uuid
-    await api.del(url)
+    var url = `/app/projects/${this.state.dataset.project.uuid}/remove/dataset`
+    await api.post(url, { dataset: this.props.match.params.uuid })
     this.props.history.push('/datasets')
   }
 
