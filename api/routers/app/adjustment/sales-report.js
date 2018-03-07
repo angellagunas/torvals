@@ -62,7 +62,7 @@ module.exports = new Route({
     try {
       var res = await request(options)
     } catch (e) {
-      ctx.throw(401, 'Falló al obtener histórico (Abraxas)')
+      ctx.throw(401, 'Falló al obtener información de ventas (Abraxas)')
     }
 
     ctx.body = {
