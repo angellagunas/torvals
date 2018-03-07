@@ -1,12 +1,15 @@
 const Route = require('lib/router/route')
 
-const { Product, Channel, DataSet, Anomaly, SalesCenter } = require('models')
+const { Product, Channel, DataSet, Anomaly, SalesCenter, Project } = require('models')
 
 module.exports = new Route({
   method: 'get',
-  path: '/',
+  path: '/list/:uuid',
   handler: async function (ctx) {
     var filters = {}
+    const project = await Project.findOne({uuid: ctx.params.uuid}).populate('activeDataset')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
+    ctx.assert(project.activeDataset, 404, 'No hay DataSet activo')
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
@@ -19,25 +22,35 @@ module.exports = new Route({
 
       if (filter === 'product') {
         filters[filter] = await Product.findOne({
-          'uuid': ctx.request.query[filter]
+          'uuid': ctx.request.query[filter],
+          organization: ctx.state.organization
         })
         continue
       }
 
       if (filter === 'channel') {
         filters[filter] = await Channel.findOne({
-          'uuid': ctx.request.query[filter]
+          'uuid': ctx.request.query[filter],
+          organization: ctx.state.organization
         })
         continue
       }
 
       if (filter === 'salesCenter') {
         filters[filter] = await SalesCenter.findOne({
-          'uuid': ctx.request.query[filter]
+          'uuid': ctx.request.query[filter],
+          organization: ctx.state.organization
         })
         continue
       }
-
+      if (filter === 'category') {
+        var products = await Product.find({
+          'category': ctx.request.query[filter],
+          organization: ctx.state.organization
+        })
+        filters['product'] = { $in: products.map(item => { return item._id }) }
+        continue
+      }
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
