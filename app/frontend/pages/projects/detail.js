@@ -18,6 +18,7 @@ import TabAprove from './detail-tabs/tab-aprove'
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
+import TabAnomalias from './detail-tabs/tab-anomalias'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -201,11 +202,28 @@ class ProjectDetail extends Component {
         )
       },
       {
+        name: 'anomalias',
+        title: 'Anomalias',
+        icon: 'fa-exclamation-triangle',
+        reload: true,
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabAnomalias
+            project={project}
+          />
+        )
+      },
+      {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
-        hide: !project.activeDataset ||
-          project.status === 'empty',
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
         content: (
           <TabHistorical
             project={project}

@@ -32,7 +32,7 @@ class TabAnomalias extends Component {
   }
  
   async getProducts () {
-    const url = '/admin/products/'
+    const url = '/app/products/'
     let res = await api.get(url, {
       start: 0,
       limit: 0,
@@ -50,7 +50,7 @@ class TabAnomalias extends Component {
   }
 
   async getSalesCent () {
-    const url = '/admin/salesCenters/'
+    const url = '/app/salesCenters/'
     let res = await api.get(url, {
       start: 0,
       limit: 0,
@@ -102,7 +102,7 @@ class TabAnomalias extends Component {
       isLoading: ' is-loading'
     })
 
-    let url = '/admin/anomalies'
+    let url = '/app/anomalies'
     try {
       let res = await api.get(url, {
         ...this.state.formData
@@ -174,7 +174,7 @@ class TabAnomalias extends Component {
       },
       {
         'title': 'Tipo de Anomalia',
-        'property': 'anomaly',
+        'property': 'type',
         'default': 'N/A',
         formatter: (row) => {
           return String(row.type)
@@ -249,7 +249,7 @@ class TabAnomalias extends Component {
 
   async handleChange(obj) {
 
-    var url = '/admin/anomalies/' + obj.uuid
+    var url = '/app/anomalies/' + obj.uuid
     const res = await api.post(url, { ...obj })
     
     if(res.data){
@@ -296,15 +296,18 @@ class TabAnomalias extends Component {
     this.setState({
       isRecovering: ' is-loading'
     })
+    var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
 
-    for (const row of this.state.selected) {
-      let res = await api.get(url + row.uuid)
-
-      if (res) {
-        //await this.handleChange(row)
-      }
+    try {
+      await api.post(url)
+    } catch (e) {
+      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
     }
-    
+
+    this.state.selected.clear()
+    this.setState({
+      isRecovering: ''
+    })
 
     this.getData()
   }

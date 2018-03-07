@@ -296,29 +296,35 @@ class TabHistorical extends Component {
       }
     })
     let url = '/app/projects/historical/' + this.props.project.uuid
-    let res = await api.post(url, {
-      start_date: moment(min).format('YYYY-MM-DD'),
-      end_date: moment(max).format('YYYY-MM-DD'),
-      salesCenter: this.state.formData.salesCenters,
-      channel: this.state.formData.channels,
-      product: this.state.formData.products,
-      category: this.state.formData.categories
-    })
-    this.setState({
-      historicData: res.data,
-      isLoading: '',
-      reloadGraph: true
-    }, async () => {
-      await this.getWeekTotals(this.state.filters.dates)
-      await this.getLabels()
-      await this.getPredictions()
-      await this.getAdjustments()
-      await this.getSales()
-      await this.getPrevSales()
-      this.setState({
-        reloadGraph: false
+    try {
+      let res = await api.post(url, {
+        start_date: moment(min).format('YYYY-MM-DD'),
+        end_date: moment(max).format('YYYY-MM-DD'),
+        salesCenter: this.state.formData.salesCenters,
+        channel: this.state.formData.channels,
+        product: this.state.formData.products,
+        category: this.state.formData.categories
       })
-    })
+      this.setState({
+        historicData: res.data,
+        isLoading: '',
+        reloadGraph: true
+      }, async () => {
+        await this.getWeekTotals(this.state.filters.dates)
+        await this.getLabels()
+        await this.getPredictions()
+        await this.getAdjustments()
+        await this.getSales()
+        await this.getPrevSales()
+        this.setState({
+          reloadGraph: false
+        })
+      })
+    } catch (e) {
+      this.setState({
+        isLoading: ''
+      })
+    }
   }
 
   componentDidMount () {
