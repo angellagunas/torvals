@@ -6,7 +6,6 @@ const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { Price, Product, Channel } = require('models')
 const request = require('lib/request')
-const moment = require('moment')
 
 const task = new Task(async function (argv) {
   console.log('Fetching Prices ...')
@@ -32,7 +31,6 @@ const task = new Task(async function (argv) {
 
   for (var p of res._items) {
     var price = await Price.findOne({externalId: p._id})
-    // check product id
     var product = await Product.findOne({externalId: p.producto_id})
     if (!product) { product = {_id: null} }
     var channel = await Channel.findOne({externalId: p.canal_id})
@@ -46,8 +44,7 @@ const task = new Task(async function (argv) {
         productExternalId: p.producto_id,
         channel: channel._id,
         channelExternalId: p.canal_id,
-        etag: p._etag,
-        dateCreated: moment.unix(p._created).utc()
+        etag: p._etag
       })
     } else {
       price.set({
@@ -57,8 +54,7 @@ const task = new Task(async function (argv) {
         productExternalId: p.producto_id,
         channel: channel._id,
         channelExternalId: p.canal_id,
-        etag: p._etag,
-        dateCreated: moment.unix(p._created).utc()
+        etag: p._etag
       })
       await price.save()
     }
