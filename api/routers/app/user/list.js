@@ -97,6 +97,7 @@ module.exports = new Route({
           return item._id.equals(org.role)
         })
       }
+
       return {
         uuid: user.uuid,
         screenName: user.screenName,
@@ -108,7 +109,8 @@ module.exports = new Route({
         organizations: user.organizations,
         groups: user.infoGroup,
         profileUrl: user.profileUrl,
-        role: roleOfOrg ? roleOfOrg.name : ''
+        role: roleOfOrg ? roleOfOrg.name : '',
+        roleDetail: roleOfOrg
       }
     })
     ctx.body = {'data': users, 'total': usersCount[0] ? usersCount[0].total : 0}
