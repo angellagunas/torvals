@@ -272,7 +272,7 @@ class EmailResetLanding extends Component {
           <div className='card-content'>
             <div className='content'>
               <p>
-                Necesitas crear una contraseña antes de poder iniciar sesión puedes crearla aquí
+                Necesitas crear una contraseña antes de poder iniciar sesión, puedes crearla aquí.
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}
@@ -300,7 +300,7 @@ class EmailResetLanding extends Component {
                   type='submit'
                   disabled={!!error || this.state.bigError}
                   >
-                    Reiniciar contraseña
+                    Restablecer contraseña
                   </button>
               </BaseForm>
             </div>

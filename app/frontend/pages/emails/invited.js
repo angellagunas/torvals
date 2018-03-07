@@ -273,7 +273,7 @@ class EmailInviteLanding extends Component {
           <div className='card-content'>
             <div className='content'>
               <p>
-                Necesitas crear una contraseña antes de poder iniciar sesión
+                Necesitas crear una contraseña antes de poder iniciar sesión.
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}
