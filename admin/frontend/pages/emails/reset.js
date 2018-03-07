@@ -11,7 +11,7 @@ import {BaseForm, PasswordWidget} from '~base/components/base-form'
 
 function validate (formData, errors) {
   if (formData.password_1 !== formData.password_2) {
-    errors.password_2.addError("Passwords don't match!")
+    errors.password_2.addError('Las contraseñas no concuerdan')
   }
   return errors
 }
@@ -20,8 +20,8 @@ const schema = {
   type: 'object',
   required: ['password_1', 'password_2'],
   properties: {
-    password_1: {type: 'string', title: 'Password'},
-    password_2: {type: 'string', title: 'Confirm Password'}
+    password_1: { type: 'string', title: 'Contraseña'},
+    password_2: { type: 'string', title: 'Confirmar Contraseña'}
   }
 }
 
@@ -146,7 +146,7 @@ class EmailResetLanding extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Hi {this.state.user.name}!
+              Hola {this.state.user.name}!
             </p>
             <a className='card-header-icon'>
               <span className='icon'>
@@ -157,7 +157,7 @@ class EmailResetLanding extends Component {
           <div className='card-content'>
             <div className='content'>
               <p>
-                Don't worry, you can create a new password here.
+                Necesitas crear una contraseña antes de poder iniciar sesión, puedes crearla aquí.
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}
@@ -171,8 +171,8 @@ class EmailResetLanding extends Component {
                 { spinner }
                 <div className={this.state.apiCallMessage}>
                   <div className='message-body is-size-7 has-text-centered'>
-                    Password created successfully! We'll redirect you to the
-                    app in a sec.
+                    Contraseña creada con éxito! Te redirigiremos a la
+                    aplicación en un segundo.
                   </div>
                 </div>
                 <div className={this.state.apiCallErrorMessage}>
@@ -185,7 +185,7 @@ class EmailResetLanding extends Component {
                   type='submit'
                   disabled={!!error || this.state.bigError}
                   >
-                    Reset password
+                    Restablecer contraseña
                   </button>
               </BaseForm>
             </div>
