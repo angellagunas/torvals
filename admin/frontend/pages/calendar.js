@@ -96,9 +96,10 @@ class Calendar extends Component {
     }
 
     return (
-      <div className='container is-margin-top'>
+      <div className='section is-paddingless-top pad-sides'>
         <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Calendario</h1>
-        <div className='columns is-centered is-padding-top-small'>
+        <div className='container is-margin-top'>
+          <div className='columns is-centered is-padding-top-small'>
           <div className='column is-three-quarters'>
             <Checkbox
               label='Mostrar número de semana'
@@ -114,6 +115,7 @@ class Calendar extends Component {
               {this.getCarouselItems()}
             </Carousel>
           </div>
+        </div>
         </div>
       </div>
     )
