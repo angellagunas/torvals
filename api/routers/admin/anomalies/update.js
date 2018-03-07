@@ -15,7 +15,7 @@ module.exports = new Route({
 
     const anomaly = await Anomaly.findOne({'uuid': anomalyId, 'isDeleted': false})
 
-    ctx.assert(anomaly, 404, 'Canal no encontrado')
+    ctx.assert(anomaly, 404, 'Anomalía no encontrada')
 
     anomaly.set({
       prediction: data.prediction

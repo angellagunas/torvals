@@ -10,7 +10,7 @@ module.exports = new Route({
 
     const anomaly = await Anomaly.findOne({'uuid': anomalyId, 'isDeleted': false})
     .populate('channel').populate('product').populate('dataset').populate('salesCenter')
-    ctx.assert(anomaly, 404, 'Anomaly not found')
+    ctx.assert(anomaly, 404, 'Anomalía no encontrada')
 
     ctx.body = {
       data: anomaly.toAdmin()

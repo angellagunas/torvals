@@ -20,7 +20,6 @@ const anomalySchema = new Schema({
   semanaBimbo: { type: Number },
   type: { type: String },
   apiData: {type: Schema.Types.Mixed}
-
 }, { usePushEach: true })
 
 anomalySchema.plugin(dataTables)
@@ -50,7 +49,6 @@ anomalySchema.methods.toAdmin = function () {
     channel: this.channel,
     organization: this.organization,
     semanaBimbo: this.semanaBimbo
-
   }
 }
 

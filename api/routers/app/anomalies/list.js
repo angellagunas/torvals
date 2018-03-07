@@ -38,13 +38,6 @@ module.exports = new Route({
         continue
       }
 
-      if (filter === 'organization') {
-        filters[filter] = await Organization.findOne({
-          'uuid': ctx.request.query[filter]
-        })
-        continue
-      }
-
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
@@ -55,7 +48,7 @@ module.exports = new Route({
     var rows = await Anomaly.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters},
+      find: {isDeleted: false, ...filters, organization: ctx.state.organization},
       sort: ctx.request.query.sort || '-dateCreated',
       populate: ['salesCenter', 'product', 'channel', 'dataset', 'organization']
     })
