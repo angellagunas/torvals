@@ -107,6 +107,7 @@ class TabDatasets extends Component {
   async removeDatasetOnClick (uuid) {
     var url = `/admin/projects/${this.props.project.uuid}/remove/dataset`
     await api.post(url, { dataset: uuid })
+    await this.props.reload()
     await this.loadDatasetsList()
   }
 

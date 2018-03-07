@@ -180,6 +180,7 @@ class ProjectDetail extends Component {
             project={project}
             history={this.props.history}
             setAlert={(type, data) => this.setAlert(type, data)}
+            reload={() => this.load()}
           />
       )},
       {
