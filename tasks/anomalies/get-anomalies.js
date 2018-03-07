@@ -19,7 +19,7 @@ const task = new Task(async function (argv) {
   const apiData = Api.get()
   const project = await Project.findOne({uuid: argv.uuid}).populate('activeDataset')
   if (!project) {
-    throw new Error('El proyecto no existe')
+    throw new Error('Project not found')
   }
 
   var options = {
@@ -194,7 +194,7 @@ const task = new Task(async function (argv) {
         apiData: p
       })
     } catch (e) {
-      console.log('Hubo un error al tratar de guardar la anomalía: ')
+      console.log('Error trying to save anomaly: ')
       console.log(p)
       console.log(e)
     }
