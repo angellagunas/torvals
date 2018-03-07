@@ -13,6 +13,7 @@ import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
 import Channels from '../pages/channel/list'
 import SelectOrg from '../pages/select-org'
+import Calendar from '../pages/calendar'
 import Prices from '../pages/prices/list'
 
 class Sidebar extends Component {
@@ -96,6 +97,7 @@ class Sidebar extends Component {
           ]
         },
         Projects.asSidebarItem(),
+        Calendar.asSidebarItem(),
         {
           title: 'Datasets',
           icon: 'file',
