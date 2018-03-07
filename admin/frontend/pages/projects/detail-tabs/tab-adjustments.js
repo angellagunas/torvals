@@ -58,6 +58,7 @@ class TabAdjustment extends Component {
 
   componentWillUnmount () {
     clearInterval(this.interval)
+    this.props.setAlert('is-invisible', ' ')
   }
 
   componentWillReceiveProps(nextProps) {
@@ -753,6 +754,10 @@ class TabAdjustment extends Component {
     }
   }
 
+  downloadReport () {
+
+  }
+
   render () {
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
@@ -901,7 +906,7 @@ class TabAdjustment extends Component {
             baseUrl={'/admin/rows/'}
           />
           <div className='columns'>
-            <div className='column'>
+            <div className='column is-7'>
               <BaseForm
                 schema={schema}
                 uiSchema={uiSchema}
@@ -923,8 +928,69 @@ class TabAdjustment extends Component {
                 </div>
               </BaseForm>
             </div>
+            
             <div className='column has-text-right'>
+              <div className='card'>
+                <div className='card-header'>
+                  <h1 className='card-header-title'>Totales de Venta</h1>
+                </div>
+                <div className='card-content historical-container'>
+                  <table className='table historical is-fullwidth'>
+                    <thead>
+                      <tr>
+                        <th colSpan='2'>Predicción</th>
+                        <th colSpan='2'>Predicción con Ajuste</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          Semana 1
+                        </td>
+                        <td>
+                          $ 0
+                        </td>
+                        <td>
+                          Semana 1
+                        </td>
+                        <td>
+                          $ 0
+                        </td>
+                      </tr>
+
+
+                      <tr>
+                        <th>
+                          Total
+                        </th>
+                        <td>
+                          $ 0
+                          </td>
+                        <th>
+                          Total
+                        </th>
+                        <td>
+                          $ 0
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <br />
               <div className='field is-grouped is-grouped-right'>
+                <div className='control'>
+                  <button
+                    className={'button is-info is-medium'}
+                    type='button'
+                    onClick={e => this.downloadReport()}
+                  >
+                    <span className='icon'>
+                      <i className='fa fa-download' />
+                    </span>
+                    <span>Descargar Reporte</span>
+                  </button>
+                </div>
                 <div className='control'>
                   <button
                     className={'button is-success is-medium' + this.state.isConciliating}
