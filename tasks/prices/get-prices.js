@@ -32,14 +32,13 @@ const task = new Task(async function (argv) {
 
   for (var p of res._items) {
     var price = await Price.findOne({externalId: p._id})
+    // check product id
+    var product = await Product.findOne({externalId: p.producto_id})
+    if (!product) { product = {_id: null} }
+    var channel = await Channel.findOne({externalId: p.canal_id})
+    if (!channel) { channel = {_id: null} }
 
     if (!price) {
-      // check product id
-      var product = await Product.findOne({externalId: p.producto_id})
-      if (!product) { product = {_id: null} }
-      var channel = await Channel.findOne({externalId: p.canal_id})
-      if (!channel) { channel = {_id: null} }
-
       await Price.create({
         price: p.price,
         externalId: p._id,
@@ -50,6 +49,18 @@ const task = new Task(async function (argv) {
         etag: p._etag,
         dateCreated: moment.unix(p._created).utc()
       })
+    } else {
+      price.set({
+        price: p.price,
+        externalId: p._id,
+        product: product._id,
+        productExternalId: p.producto_id,
+        channel: channel._id,
+        channelExternalId: p.canal_id,
+        etag: p._etag,
+        dateCreated: moment.unix(p._created).utc()
+      })
+      await price.save()
     }
   }
 
