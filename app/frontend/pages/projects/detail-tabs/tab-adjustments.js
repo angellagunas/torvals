@@ -922,24 +922,32 @@ class TabAdjustment extends Component {
       salesCenters: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Centro de Venta'}
     }
 
-    schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
-    schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
-    schema.properties.period.default = true
+    if (this.state.filters.periods.length > 0) { 
+      schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
+      schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
+      schema.properties.period.default = true
+    }
+    if (this.state.filters.filteredSemanasBimbo.length > 0) {     
+      schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
+    }
+    if (this.state.filters.channels.length > 0) { 
+      schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
+      schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return item.name })
+    }
 
-    schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
+    if (this.state.filters.products.length > 0) {     
+      schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
+      schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
+    }
+    if (this.state.filters.categories.length > 0) { 
+      schema.properties.categories.enum = this.state.filters.categories
+      schema.properties.categories.enumNames = this.state.filters.categories
+    }
 
-    schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
-    schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return item.name })
-
-    schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
-    schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
-
-    schema.properties.categories.enum = this.state.filters.categories
-    schema.properties.categories.enumNames = this.state.filters.categories
-
-    schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
-    schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
-
+    if (this.state.filters.salesCenters.length > 0) { 
+      schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
+      schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
+    }
     return (
       <div>
         <div className='section'>
