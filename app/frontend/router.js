@@ -34,6 +34,7 @@ import env from '~base/env-variables'
 import Channels from './pages/channel/list'
 import ChannelsDetail from './pages/channel/detail'
 import NotFound from '~base/components/not-found'
+import Calendar from './pages/calendar'
 import Prices from './pages/prices/list'
 import PriceDetail from './pages/prices/detail'
 
@@ -69,6 +70,9 @@ const AppRouter = () => {
           {DataSetDetail.asRouterItem()}
 
           {Projects.asRouterItem()}
+
+          {Calendar.asRouterItem()}
+
           {ProjectDetail.asRouterItem()}
 
           {SalesCenters.asRouterItem()}

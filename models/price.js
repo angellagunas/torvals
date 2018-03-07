@@ -20,7 +20,7 @@ const priceSchema = new Schema({
 priceSchema.plugin(dataTables)
 
 priceSchema.methods.toAdmin = function () {
-  data = {
+  let data = {
     uuid: this.uuid,
     externalId: this.externalId,
     price: this.price,

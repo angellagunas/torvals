@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
-import { Redirect } from 'react-router-dom'
 import PropTypes from 'baobab-react/prop-types'
 import { ToastContainer } from 'react-toastify'
 import { testRoles } from '~base/tools'
