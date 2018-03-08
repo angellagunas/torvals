@@ -11,7 +11,7 @@ import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 import { toast } from 'react-toastify'
 
-class TabAnomalias extends Component {
+class TabAnomalies extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -24,7 +24,7 @@ class TabAnomalias extends Component {
       },
       formData: {
       },
-      anomalias: [],
+      anomalies: [],
       selectAll: false,
       selected: new Set(),
       disableButton: true
@@ -32,7 +32,7 @@ class TabAnomalias extends Component {
   }
  
   async getProducts () {
-    const url = '/app/products/'
+    const url = '/admin/products/'
     let res = await api.get(url, {
       start: 0,
       limit: 0,
@@ -50,7 +50,7 @@ class TabAnomalias extends Component {
   }
 
   async getSalesCent () {
-    const url = '/app/salesCenters/'
+    const url = '/admin/salesCenters/'
     let res = await api.get(url, {
       start: 0,
       limit: 0,
@@ -102,14 +102,14 @@ class TabAnomalias extends Component {
       isLoading: ' is-loading'
     })
 
-    let url = '/app/anomalies'
+    let url = '/admin/anomalies/list/' + this.props.project.uuid
     try {
       let res = await api.get(url, {
         ...this.state.formData
       })
 
       this.setState({
-        anomalias: res.data,
+        anomalies: res.data,
         isLoading: '',
         isFiltered: true
       })
@@ -174,7 +174,7 @@ class TabAnomalias extends Component {
       },
       {
         'title': 'Tipo de Anomalia',
-        'property': 'type',
+        'property': 'anomaly',
         'default': 'N/A',
         formatter: (row) => {
           return String(row.type)
@@ -249,18 +249,18 @@ class TabAnomalias extends Component {
 
   async handleChange(obj) {
 
-    var url = '/app/anomalies/' + obj.uuid
+    var url = '/admin/anomalies/' + obj.uuid
     const res = await api.post(url, { ...obj })
     
     if(res.data){
       obj.edited = true
-      let index = this.state.anomalias.findIndex((item) => { return obj.uuid === item.uuid })
-      let aux = this.state.anomalias
+      let index = this.state.anomalies.findIndex((item) => { return obj.uuid === item.uuid })
+      let aux = this.state.anomalies
 
       aux.splice(index, 1, obj)
 
       this.setState({
-        anomalias: aux
+        anomalies: aux
       })
 
       this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
@@ -292,30 +292,38 @@ class TabAnomalias extends Component {
     }
   }
 
-  async recovery () {
+  async restore () {
     this.setState({
-      isRecovering: ' is-loading'
-    })
-    var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
-
-    try {
-      await api.post(url)
-    } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
-    }
-
-    this.state.selected.clear()
-    this.setState({
-      isRecovering: ''
+      isRestoring: ' is-loading'
     })
 
-    this.getData()
+    let url = '/admin/anomalies/restore/'
+    let res = await api.post(url + this.props.project.uuid,{
+      anomalies: this.state.selected
+    })
+    if (res.data.status === 'ok') {
+      url = '/admin/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
+      try {
+        await api.post(url)
+      } catch (e) {
+        this.setState({
+          isRestoring: ''
+        })
+        this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      }
+      this.state.selected.clear()
+      this.setState({
+        isRestoring: ''
+      })
+    }  
+
+    this.props.reload('configuracion')
   }
 
 
   checkAll = (check) => {
     this.state.selected.clear()
-    for (let item of this.state.anomalias) {
+    for (let item of this.state.anomalies) {
       if (check)
         this.state.selected.add(item)
 
@@ -433,10 +441,10 @@ class TabAnomalias extends Component {
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
                 <button
-                  className={'button is-info is-medium' + this.state.isRecovering}
-                  disabled={!!this.state.isRecovering || this.state.disableButton}
+                  className={'button is-info is-medium' + this.state.isRestoring}
+                  disabled={!!this.state.isRestoring || this.state.disableButton}
                   type='button'
-                  onClick={e => this.recovery()}
+                  onClick={e => this.restore()}
                 >
                   Recuperar ({this.state.selected.size})
                   </button>
@@ -458,7 +466,7 @@ class TabAnomalias extends Component {
             </article>
             : <div>
               <BaseTable
-                data={this.state.anomalias}
+                data={this.state.anomalies}
                 columns={this.getColumns()}
                 sortAscending
                 sortBy={'name'}
@@ -471,4 +479,4 @@ class TabAnomalias extends Component {
   }
 }
 
-export default TabAnomalias
+export default TabAnomalies

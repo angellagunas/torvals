@@ -4,7 +4,6 @@ import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import { ToastContainer } from 'react-toastify'
 import { testRoles } from '~base/tools'
-
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -14,11 +13,10 @@ import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
 import TabAprove from './detail-tabs/tab-aprove'
-
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
-import TabAnomalias from './detail-tabs/tab-anomalias'
+import TabAnomalies from './detail-tabs/tab-anomalies'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -54,13 +52,19 @@ class ProjectDetail extends Component {
     }, 10000)
   }
 
-  async load () {
+  async load (tab) {
     var url = '/app/projects/' + this.props.match.params.uuid
     const body = await api.get(url)
+
+    if (body.data.status === 'empty') {
+      tab = 'datasets'
+    }
+
     this.setState({
       loading: false,
       loaded: true,
-      project: body.data
+      project: body.data,
+      selectedTab: tab || this.state.selectedTab
     })
 
     this.countAdjustmentRequests()
@@ -157,6 +161,7 @@ class ProjectDetail extends Component {
         title: 'Ajustes',
         icon: 'fa-cogs',
         reload: false,
+        hide: project.status === 'empty',
         content: (
           <TabAdjustment
             load={this.getProjectStatus.bind(this)}
@@ -212,8 +217,9 @@ class ProjectDetail extends Component {
           project.status === 'pendingRows' ||
           project.status === 'empty'),
         content: (
-          <TabAnomalias
+          <TabAnomalies
             project={project}
+            reload={(tab) => this.load(tab)}
           />
         )
       },
