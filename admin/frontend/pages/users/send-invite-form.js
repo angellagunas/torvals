@@ -137,7 +137,7 @@ class InviteUserForm extends Component {
           enum: [],
           enumNames: []
         },
-        groups: {
+        group: {
           type: 'string',
           title: 'Grupo',
           enum: [],
@@ -152,7 +152,7 @@ class InviteUserForm extends Component {
       isAdmin: {'ui:widget': CheckboxWidget},
       role: {'ui:widget': SelectWidget},
       organization: { 'ui:widget': SelectWidget },
-      groups: {'ui:widget': SelectWidget}
+      group: {'ui:widget': SelectWidget}
     }
 
     if (this.props.initialState.organization) {
@@ -160,7 +160,7 @@ class InviteUserForm extends Component {
     }
 
     if (this.props.initialState.groups) {
-      uiSchema['groups']['ui:disabled'] = true
+      uiSchema['group']['ui:disabled'] = true
     }
 
     var error
@@ -202,11 +202,24 @@ class InviteUserForm extends Component {
     schema.properties.organization.enum = this.props.orgs.map(item => { return item._id })
     schema.properties.organization.enumNames = this.props.orgs.map(item => { return item.name })
 
-    if (schema.properties.groups) {
-      schema.properties.groups.enum = this.state.groups.map(item => { return item._id })
-      schema.properties.groups.enumNames = this.state.groups.map(item => { return item.name })
+    if (this.state.groups.length > 0) {
+      if (schema.properties.group) {
+        schema.properties.group.enum = this.state.groups.map(item => { return item.uuid })
+        schema.properties.group.enumNames = this.state.groups.map(item => { return item.name })
+      } else {
+        schema.properties['group'] = { type: 'string', title: 'Grupo', enum: [], enumNames: [] }
+        uiSchema['group'] = {'ui:widget': SelectWidget}
+        schema.properties.group.enum = this.state.groups.map(item => { return item.uuid })
+        schema.properties.group.enumNames = this.state.groups.map(item => { return item.name })
+      }
+    } else {
+      if (schema.properties.group) {
+        delete uiSchema.group
+        delete schema.properties.group
+      }
     }
-    if (schema.properties.project) {
+
+    if (schema.properties.project && this.state.projects.length > 0) {
       schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
       schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
     }
