@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
-const { Price, Organization } = require('models')
+const { Price } = require('models')
 const Api = require('lib/abraxas/api')
 const request = require('lib/request')
 const verifyPrices = require('queues/update-prices')
