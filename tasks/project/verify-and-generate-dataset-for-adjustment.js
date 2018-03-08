@@ -86,7 +86,9 @@ const task = new Task(async function (argv) {
 
         project.set({
           activeDataset: dataset,
-          businessRules: res.rules
+          businessRules: res.rules,
+          dateMax: res.dataset.date_max,
+          dateMin: res.dataset.date_min
         })
 
         await project.save()

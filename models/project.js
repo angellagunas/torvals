@@ -41,6 +41,8 @@ const projectSchema = new Schema({
     frequency: { type: Number }
   },
   etag: { type: String },
+  dateMax: {type: Date},
+  dateMin: {type: Date},
   dateCreated: { type: Date, default: moment.utc },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uuid: { type: String, default: v4 },
