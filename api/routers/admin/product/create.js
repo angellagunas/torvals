@@ -24,7 +24,8 @@ module.exports = new Route({
       cost: data.cost,
       organization: org._id,
       category: data.category,
-      subcategory: data.subcategory
+      subcategory: data.subcategory,
+      externalId: data.externalId
     })
 
     ctx.body = {

@@ -34,7 +34,8 @@ anomalySchema.methods.toPublic = function () {
     prediction: this.prediction,
     channel: this.channel,
     organization: this.organization,
-    semanaBimbo: this.semanaBimbo
+    semanaBimbo: this.semanaBimbo,
+    type: this.type
   }
 }
 
@@ -48,7 +49,8 @@ anomalySchema.methods.toAdmin = function () {
     prediction: this.prediction,
     channel: this.channel,
     organization: this.organization,
-    semanaBimbo: this.semanaBimbo
+    semanaBimbo: this.semanaBimbo,
+    type: this.type
   }
 }
 

@@ -59,7 +59,8 @@ module.exports = new Route({
       var res = await request(options)
 
       project.set({
-        externalId: res._id
+        externalId: res._id,
+        etag: res._etag
       })
 
       await project.save()

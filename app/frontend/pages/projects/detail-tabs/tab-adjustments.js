@@ -63,6 +63,7 @@ class TabAdjustment extends Component {
 
   componentWillUnmount () {
     clearInterval(this.interval)
+    this.props.setAlert('is-invisible', ' ')    
   }
 
   componentWillReceiveProps(nextProps) {
@@ -921,24 +922,32 @@ class TabAdjustment extends Component {
       salesCenters: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Centro de Venta'}
     }
 
-    schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
-    schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
-    schema.properties.period.default = true
+    if (this.state.filters.periods.length > 0) { 
+      schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
+      schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
+      schema.properties.period.default = true
+    }
+    if (this.state.filters.filteredSemanasBimbo.length > 0) {     
+      schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
+    }
+    if (this.state.filters.channels.length > 0) { 
+      schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
+      schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return item.name })
+    }
 
-    schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
+    if (this.state.filters.products.length > 0) {     
+      schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
+      schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
+    }
+    if (this.state.filters.categories.length > 0) { 
+      schema.properties.categories.enum = this.state.filters.categories
+      schema.properties.categories.enumNames = this.state.filters.categories
+    }
 
-    schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
-    schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return item.name })
-
-    schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
-    schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
-
-    schema.properties.categories.enum = this.state.filters.categories
-    schema.properties.categories.enumNames = this.state.filters.categories
-
-    schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
-    schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
-
+    if (this.state.filters.salesCenters.length > 0) { 
+      schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
+      schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
+    }
     return (
       <div>
         <div className='section'>
@@ -974,8 +983,68 @@ class TabAdjustment extends Component {
             </div>
             { currentRole !== 'manager-level-3' &&
               <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
+              <div className='card'>
+                <div className='card-header'>
+                  <h1 className='card-header-title'>Totales de Venta</h1>
+                </div>
+                <div className='card-content historical-container'>
+                  <table className='table historical is-fullwidth'>
+                    <thead>
+                      <tr>
+                        <th colSpan='2'>Predicción</th>
+                        <th colSpan='2'>Predicción con Ajuste</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          Semana 1
+                        </td>
+                        <td>
+                          $ 0
+                        </td>
+                        <td>
+                          Semana 1
+                        </td>
+                        <td>
+                          $ 0
+                        </td>
+                      </tr>
+
+
+                      <tr>
+                        <th>
+                          Total
+                        </th>
+                        <td>
+                          $ 0
+                          </td>
+                        <th>
+                          Total
+                        </th>
+                        <td>
+                          $ 0
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <br />
+              <div className='field is-grouped is-grouped-right'>
+                <div className='control'>
+                  <button
+                    className={'button is-info is-medium'}
+                    type='button'
+                    onClick={e => this.downloadReport()}
+                  >
+                    <span className='icon'>
+                      <i className='fa fa-download' />
+                    </span>
+                    <span>Descargar Reporte</span>
+                  </button>
+                </div>                  
+                <div className='control'>
                     <button
                       className={'button is-success is-medium' + this.state.isConciliating}
                       disabled={!!this.state.isConciliating}

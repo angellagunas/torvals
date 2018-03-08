@@ -30,6 +30,10 @@ class TabAprove extends Component {
     this.setAlertMsg()
   }
 
+  componentWillUnmount() {
+    this.props.setAlert('is-invisible', ' ')
+  }
+
   async getAdjustmentRequests() {
     if (this.props.project.activeDataset) {
       let url = '/admin/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid

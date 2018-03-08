@@ -30,16 +30,9 @@ class PasswordUserForm extends Component {
     }
   }
 
-  async componentDidMount () {
-    if (this.state.formData.role) {
-      var role = this.props.roles.find((item) => {
-        return item._id === this.state.formData['role']
-      })
-
-      if (role && role.slug === 'manager-level-1') {
-        await this.loadProjects()
-        this.setState({projectRequired: true})
-      }
+  async componentWillMount () {
+    if (this.state.formData.organization) {
+      await this.loadProjects()
     }
   }
 
@@ -87,42 +80,35 @@ class PasswordUserForm extends Component {
   }
 
   async submitHandler ({formData}) {
-    if (this.state.projectRequired && !formData['project']) {
-      this.setState({
-        error: 'Para el rol Manager Level 1 es necesario un proyecto',
+    formData.password = formData.password_1
+    formData.password_1 = ''
+    formData.password_2 = ''
+
+    if (this.props.submitHandler) this.props.submitHandler(formData)
+
+    try {
+      if (this.props.filters) {
+        formData = {
+          ...formData,
+          ...this.props.filters
+        }
+      }
+
+      var data = await api.post(this.props.url, formData)
+      await this.props.load()
+      this.clearState()
+      this.setState({...this.state, apiCallMessage: 'message is-success'})
+      if (this.props.finishUp) this.props.finishUp(data.data)
+
+      return
+    } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
+
+      return this.setState({
+        ...this.state,
+        error: e.message,
         apiCallErrorMessage: 'message is-danger'
       })
-    } else {
-      formData.password = formData.password_1
-      formData.password_1 = ''
-      formData.password_2 = ''
-
-      if (this.props.submitHandler) this.props.submitHandler(formData)
-
-      try {
-        if (this.props.filters) {
-          formData = {
-            ...formData,
-            ...this.props.filters
-          }
-        }
-
-        var data = await api.post(this.props.url, formData)
-        await this.props.load()
-        this.clearState()
-        this.setState({...this.state, apiCallMessage: 'message is-success'})
-        if (this.props.finishUp) this.props.finishUp(data.data)
-
-        return
-      } catch (e) {
-        if (this.props.errorHandler) this.props.errorHandler(e)
-
-        return this.setState({
-          ...this.state,
-          error: e.message,
-          apiCallErrorMessage: 'message is-danger'
-        })
-      }
     }
   }
 
@@ -177,13 +163,18 @@ class PasswordUserForm extends Component {
       }
     }
 
-    if (this.state.formData['role']) {
+    if (this.props.initialState.groups) {
+      uiSchema['groups']['ui:disabled'] = true
+    }
+
+    if (this.state.formData.role) {
       var role = this.props.roles.find((item) => {
-        return item._id === this.state.formData['role']
+        return item._id === this.state.formData.role
       })
-      if (role.slug === 'manager-level-1') {
+      if (role && role.slug === 'manager-level-1') {
         schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
         uiSchema['project'] = {'ui:widget': SelectWidget}
+        schema.required.push('project')
       } else {
         delete schema.properties['project']
         delete uiSchema['project']
@@ -199,12 +190,24 @@ class PasswordUserForm extends Component {
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
 
-    if (schema.properties.group) {
-      schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
-      schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
+    if (this.props.groups.length > 0) {
+      if (schema.properties.group) {
+        schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
+        schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
+      } else {
+        schema.properties['group'] = { type: 'string', title: 'Grupo', enum: [], enumNames: [] }
+        uiSchema['group'] = {'ui:widget': SelectWidget}
+        schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
+        schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
+      }
+    } else {
+      if (schema.properties.group) {
+        delete uiSchema.group
+        delete schema.properties.group
+      }
     }
 
-    if (schema.properties.project) {
+    if (schema.properties.project && this.state.projects.length > 0) {
       schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
       schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
     }

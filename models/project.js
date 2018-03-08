@@ -40,7 +40,7 @@ const projectSchema = new Schema({
     adjustments: { type: Schema.Types.Mixed },
     frequency: { type: Number }
   },
-
+  etag: { type: String },
   dateCreated: { type: Date, default: moment.utc },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uuid: { type: String, default: v4 },
