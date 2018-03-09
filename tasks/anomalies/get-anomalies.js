@@ -180,19 +180,26 @@ const task = new Task(async function (argv) {
     })
 
     try {
-      await Anomaly.create({
-        channel: channel,
-        dataset: project.activeDataset._id,
-        product: product,
-        salesCenter: salesCenter,
+      var anomaly = Anomaly.findOne({
         externalId: p._id,
-        prediction: p[predictionColumn.name],
-        semanaBimbo: p.semana_bimbo,
-        organization: project.activeDataset.organization,
-        type: p.type,
-        date: moment(p.fecha).utc(),
-        apiData: p
+        dataset: project.activeDataset._id
       })
+
+      if (!anomaly) {
+        await Anomaly.create({
+          channel: channel,
+          dataset: project.activeDataset._id,
+          product: product,
+          salesCenter: salesCenter,
+          externalId: p._id,
+          prediction: p[predictionColumn.name],
+          semanaBimbo: p.semana_bimbo,
+          organization: project.activeDataset.organization,
+          type: p.type,
+          date: moment(p.fecha).utc(),
+          apiData: p
+        })
+      }
     } catch (e) {
       console.log('Error trying to save anomaly: ')
       console.log(p)
