@@ -8,7 +8,10 @@ module.exports = new Route({
   handler: async function (ctx) {
     var priceId = ctx.params.uuid
 
-    const price = await Price.findOne({'uuid': priceId, 'isDeleted': false}).populate('channel').populate('product')
+    const price = await Price.findOne({'uuid': priceId, 'isDeleted': false})
+      .populate('channel')
+      .populate('product')
+
     ctx.assert(price, 404, 'Price not found')
 
     ctx.body = {

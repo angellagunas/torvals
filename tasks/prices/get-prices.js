@@ -11,7 +11,7 @@ const request = require('lib/request')
 const task = new Task(async function (argv) {
   const organization = await Organization.findOne({uuid: argv.uuid})
   if (!organization) {
-    console.log('Error Organization not found')
+    console.log('Error: Organization not found')
     return false
   }
   console.log('Fetching Prices ...')
@@ -50,7 +50,7 @@ const task = new Task(async function (argv) {
     if (!channel) { channel = {_id: null} }
 
     if (!price) {
-      await Price.create({
+      price = await Price.create({
         price: p.price,
         externalId: p._id,
         product: product._id,
@@ -73,6 +73,9 @@ const task = new Task(async function (argv) {
       })
       await price.save()
     }
+
+    product.price = price
+    await product.save()
   }
 
   console.log(`Received ${res._items.length} prices!`)
