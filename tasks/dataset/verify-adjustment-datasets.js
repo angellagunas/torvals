@@ -6,6 +6,7 @@ const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSet, DataSetRow, Channel, Product, SalesCenter, Project } = require('models')
 const request = require('lib/request')
+const getAnomalies = require('../anomalies/get-anomalies')
 
 const task = new Task(async function (argv) {
   console.log('Fetching adjustment Datasets...')
@@ -128,6 +129,22 @@ const task = new Task(async function (argv) {
       await dataset.save()
 
       const project = await Project.findOne({'_id': dataset.project, 'isDeleted': false})
+
+      console.log(`Obtaining anomalies from proyect ...`)
+      res = await getAnomalies({uuid: project.uuid})
+
+      if (!res) {
+        dataset.set({
+          error: 'No se pudieron obtener las anomalías!',
+          status: 'error'
+        })
+
+        await dataset.save()
+
+        console.log(`Error while obtaining dataset rows: ${dataset.error}`)
+        return false
+      }
+
       project.set({
         status: 'adjustment'
       })
@@ -143,6 +160,7 @@ const task = new Task(async function (argv) {
       await dataset.save()
 
       console.log(`Error while obtaining dataset rows: ${dataset.error}`)
+      return false
     }
   }
 
