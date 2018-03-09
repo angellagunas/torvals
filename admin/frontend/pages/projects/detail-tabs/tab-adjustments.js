@@ -275,6 +275,7 @@ class TabAdjustment extends Component {
     })
     this.clearSearch()
     this.setAlertMsg()
+    this.getSalesTable()
   }
 
   getEditedRows (data) {
@@ -754,6 +755,30 @@ class TabAdjustment extends Component {
     }
   }
 
+  async getSalesTable() {
+    let url = '/admin/datasets/sales/' + this.props.project.activeDataset.uuid
+    let res = await api.post(url, {
+      ...this.state.formData,
+      semana_bimbo: this.state.filters.filteredSemanasBimbo
+    })
+
+    if (res.data._items){
+      let totalPrediction = 0
+      let totalAdjustment = 0
+
+      for (let i = 0; i < res.data._items.length; i++) {
+        const element = res.data._items[i];
+        totalAdjustment += element.adjustment  
+        totalPrediction += element.prediction
+      }
+      this.setState({
+        salesTable: res.data._items,
+        totalAdjustment: totalAdjustment,
+        totalPrediction: totalPrediction
+      })
+    }    
+  }
+
   downloadReport () {
 
   }
@@ -937,7 +962,8 @@ class TabAdjustment extends Component {
                 </div>
               </BaseForm>
             </div>
-            
+            {
+              this.state.salesTable &&
             <div className='column has-text-right'>
               <div className='card'>
                 <div className='card-header'>
@@ -952,34 +978,38 @@ class TabAdjustment extends Component {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
+                      { this.state.salesTable.map((item, key) => {
+                          return (
+                      <tr key={key}>
                         <td>
-                          Semana 1
+                          Semana {item.week}
                         </td>
                         <td>
-                          $ 0
+                          $ {item.prediction.toFixed(2)}
                         </td>
                         <td>
-                          Semana 1
+                          Semana {item.week}
                         </td>
                         <td>
-                          $ 0
+                          $ {item.adjustment.toFixed(2)}
                         </td>
                       </tr>
-
+                          )
+                      })
+                    }
 
                       <tr>
                         <th>
                           Total
                         </th>
                         <td>
-                          $ 0
+                          $ {this.state.totalPrediction.toFixed(2)}
                           </td>
                         <th>
                           Total
                         </th>
                         <td>
-                          $ 0
+                          $ {this.state.totalAdjustment.toFixed(2)}
                         </td>
                       </tr>
                     </tbody>
@@ -1012,6 +1042,7 @@ class TabAdjustment extends Component {
                 </div>
               </div>
             </div>
+          }
           </div>
           <section className='section'>
             {!this.state.isFiltered
