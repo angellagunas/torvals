@@ -11,6 +11,7 @@ const priceSchema = new Schema({
   productExternalId: { type: String },
   channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
   channelExternalId: { type: String },
+  organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
   etag: { type: String },
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
@@ -29,7 +30,8 @@ priceSchema.methods.toAdmin = function () {
     channel: this.channel,
     channelExternalId: this.channelExternalId,
     etag: this.etag,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    organization: this.organization
   }
   if (this.channel && this.channel.toPublic) { data.channel = this.channel.toPublic() }
   return data
