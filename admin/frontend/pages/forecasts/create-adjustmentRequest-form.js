@@ -56,10 +56,10 @@ class AdjustmentRequestForm extends Component {
     formData.newAdjustment = Number(formData.newAdjustment.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
-      await api.post(this.props.url, formData)
+      let res = await api.post(this.props.url, formData)
       this.clearState()
       this.setState({...this.state, apiCallMessage: 'message is-success'})
-      if (this.props.finishUp) this.props.finishUp()
+      if (this.props.finishUp) this.props.finishUp(res)
       return
     } catch (e) {
       if (this.props.errorHandler) this.props.errorHandler(e)

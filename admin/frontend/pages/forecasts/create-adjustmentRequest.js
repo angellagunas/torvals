@@ -20,6 +20,10 @@ class CreateAdjustmentRequest extends Component {
     this.setState({ isLoading: '' })
   }
 
+  finish (res) {
+    this.setState({ isLoading: '' })
+    this.props.finishUp(res)
+  }
   render () {
     if (!this.props.prediction) {
       return (<div />)
@@ -33,7 +37,7 @@ class CreateAdjustmentRequest extends Component {
       >
         <AdjustmentRequestForm
           url={`${this.props.baseUrl}${this.props.prediction.uuid}/request`}
-          finishUp={this.props.finishUp}
+          finishUp={(res) => this.finish(res)}
           initialState={{newAdjustment: this.props.prediction.localAdjustment}}
           prediction={this.props.prediction}
           submitHandler={(data) => this.submitHandler(data)}

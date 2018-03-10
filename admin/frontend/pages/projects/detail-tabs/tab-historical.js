@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import moment from 'moment'
 import api from '~base/api'
+import { toast } from 'react-toastify'
 import Loader from '~base/components/spinner'
 import {
   BaseForm,
@@ -29,7 +30,8 @@ class TabHistorical extends Component {
         period: 1
       },
       historicData: [],
-      reloadGraph: false
+      reloadGraph: false,
+      noHistoricData: ''
     }
   }
 
@@ -279,7 +281,9 @@ class TabHistorical extends Component {
 
   async getData (e) {
     this.setState({
-      isLoading: ' is-loading'
+      isLoading: ' is-loading',
+      noHistoricData: '',
+      historicData: []
     })
 
     let min
@@ -296,33 +300,76 @@ class TabHistorical extends Component {
       }
     })
     let url = '/admin/projects/historical/' + this.props.project.uuid
-    let res = await api.post(url, {
-      start_date: moment(min).format('YYYY-MM-DD'),
-      end_date: moment(max).format('YYYY-MM-DD'),
-      salesCenter: this.state.formData.salesCenters,
-      channel: this.state.formData.channels,
-      product: this.state.formData.products,
-      category: this.state.formData.categories
-    })
-    this.setState({
-      historicData: res.data,
-      isLoading: '',
-      reloadGraph: true
-    }, async () => {
-      await this.getWeekTotals(this.state.filters.dates)
-      await this.getLabels()
-      await this.getPredictions()
-      await this.getAdjustments()
-      await this.getSales()
-      await this.getPrevSales()
-      this.setState({
-        reloadGraph: false
+    try {
+      let res = await api.post(url, {
+        start_date: moment(min).format('YYYY-MM-DD'),
+        end_date: moment(max).format('YYYY-MM-DD'),
+        salesCenter: this.state.formData.salesCenters,
+        channel: this.state.formData.channels,
+        product: this.state.formData.products,
+        category: this.state.formData.categories
       })
-    })
+      this.setState({
+        historicData: res.data,
+        isLoading: '',
+        reloadGraph: true
+      }, async () => {
+        await this.getWeekTotals(this.state.filters.dates)
+        await this.getLabels()
+        await this.getPredictions()
+        await this.getAdjustments()
+        await this.getSales()
+        await this.getPrevSales()
+        this.setState({
+          reloadGraph: false
+        })
+      })
+    } catch (e) {
+      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.setState({
+        isLoading: '',
+        noHistoricData: e.message + ', intente más tarde'
+      })
+    }
+  }
+
+  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
   }
 
   componentDidMount () {
     this.getFilters()
+  }
+
+  loadTable () {
+    if (!this.state.noHistoricData) {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Cargando, un momento por favor
+          <Loader />
+        </div>
+      )
+    } else {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          {this.state.noHistoricData}
+        </div>
+      )
+    }
   }
 
   render () {
@@ -372,6 +419,12 @@ class TabHistorical extends Component {
           enum: [],
           enumNames: []
         },
+        salesCenters: {
+          type: 'string',
+          title: 'Centros de Venta',
+          enum: [],
+          enumNames: []
+        },
         products: {
           type: 'string',
           title: 'Productos',
@@ -383,22 +436,16 @@ class TabHistorical extends Component {
           title: 'Categorias de producto',
           enum: [],
           enumNames: []
-        },
-        salesCenters: {
-          type: 'string',
-          title: 'Centros de Venta',
-          enum: [],
-          enumNames: []
         }
       }
     }
 
     const uiSchema = {
       period: { 'ui:widget': SelectWidget },
-      channels: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione canal' },
-      products: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione producto' },
-      categories: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione categoria' },
-      salesCenters: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Centro de Venta' }
+      channels: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los canales' },
+      salesCenters: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los centros de venta' },
+      products: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los productos' },
+      categories: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorías' }
     }
 
     if (this.state.filters.periods.length > 0) {
@@ -408,7 +455,7 @@ class TabHistorical extends Component {
     }
     if (this.state.filters.channels.length > 0) {
       schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
-      schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return item.name })
+      schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return 'Canal ' + item.name })
     }
     if (this.state.filters.products.length > 0) {
       schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
@@ -420,14 +467,15 @@ class TabHistorical extends Component {
     }
     if (this.state.filters.salesCenters.length > 0) {
       schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
-      schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
+      schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
     }
     return (
       <div>
         <div className='section'>
           <div className='columns'>
-            <div className='column is-half'>
+            <div className='column is-narrow'>
               <BaseForm
+                className='inline-form'
                 schema={schema}
                 uiSchema={uiSchema}
                 formData={this.state.formData}
@@ -438,24 +486,32 @@ class TabHistorical extends Component {
                 <div className='field is-grouped'>
                   <div className='control'>
                     <button
-                      className={'button is-primary is-medium' + this.state.isLoading}
+                      className={'button is-primary' + this.state.isLoading}
                       type='submit'
                       disabled={!!this.state.isLoading}
                     >
-                      Filtrar
+                      <span className='icon'>
+                        <i className='fa fa-filter' />
+                      </span>
+                      <span>
+                        Filtrar
+                    </span>
                     </button>
                   </div>
                 </div>
               </BaseForm>
             </div>
-            {this.state.historicData.prediction && this.state.weekTotalsPredictions &&
+
             <div className='column'>
               <div className='card'>
                 <div className='card-header'>
                   <h1 className='card-header-title'>Totales de Venta</h1>
                 </div>
                 <div className='card-content historical-container'>
-                  <table className='table historical is-fullwidth'>
+                  {
+                    this.state.historicData.prediction &&
+                    this.state.weekTotalsPredictions
+                  ? <table className='table historical is-fullwidth'>
                     <thead>
                       <tr>
                         <th className='font-blue' colSpan='2'>Predicción</th>
@@ -512,11 +568,15 @@ class TabHistorical extends Component {
                       </tr>
                     </tbody>
                   </table>
+                  : this.loadTable()
+                  }
+
                 </div>
               </div>
             </div>
-            }
+
           </div>
+          <br />
           {this.state.historicData.prediction && this.state.weekTotalsPredictions &&
             <Graph
               data={graphData}
