@@ -511,7 +511,7 @@ class UserDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -532,6 +532,7 @@ class UserDetail extends Component {
               ]}
               align='left'
             />
+            <br />
             {resetButton}
             <div className='columns is-mobile'>
               <div className='column'>

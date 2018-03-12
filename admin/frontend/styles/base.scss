@@ -676,3 +676,7 @@ tr {
 .calendar {
     margin: auto;
 }
+
+.notification:not(:last-child){
+    margin-bottom: 0 !important;
+}

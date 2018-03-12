@@ -7,6 +7,7 @@ import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import PriceForm from './create-form'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class PriceDetail extends Component {
   constructor (props) {
@@ -48,7 +49,27 @@ class PriceDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section  is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/prices',
+                  label: 'Precios',
+                  current: false
+                },
+                {
+                  path: '/admin/prices/detail/',
+                  label: 'Detalle de precio',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>

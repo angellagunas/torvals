@@ -97,7 +97,7 @@ class ReadyDataSets extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -113,13 +113,8 @@ class ReadyDataSets extends Component {
               ]}
               align='left'
             />
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>DataSets</h1>
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Datasets Listos</h1>
             <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                    DataSets Ready
-                </p>
-              </header>
               <div className='card-content'>
                 <div className='columns'>
                   <div className='column'>
@@ -147,7 +142,7 @@ const branchedReadyDataSets = branch({readydatasets: 'readydatasets'}, ReadyData
 
 export default Page({
   path: '/datasets/ready',
-  title: 'Preparados',
+  title: 'Listos',
   icon: 'thumbs-up',
   exact: true,
   validate: loggedIn,

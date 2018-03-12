@@ -74,7 +74,7 @@ class DeletedProjects extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -84,7 +84,7 @@ class DeletedProjects extends Component {
                 },
                 {
                   path: '/admin/projects/deleted',
-                  label: 'Proyectos Eliminados',
+                  label: 'Proyectos eliminados',
                   current: true
                 }
               ]}

@@ -63,7 +63,7 @@ class DeletedChannels extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -79,7 +79,7 @@ class DeletedChannels extends Component {
               ]}
               align='left'
             />
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Canales</h1>
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Canales desactivados</h1>
             <div className='card'>
               <div className='card-content'>
                 <div className='columns'>

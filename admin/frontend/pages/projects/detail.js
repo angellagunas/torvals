@@ -278,7 +278,7 @@ class ProjectDetail extends Component {
             </div>
           }
             <div className='section pad-sides'>
-            <Breadcrumb
+              <Breadcrumb
               path={[
                 {
                   path: '/admin',
@@ -298,7 +298,7 @@ class ProjectDetail extends Component {
               ]}
               align='left'
             />
-            <div className='is-padding-top-small'>
+              <div className='is-padding-top-small'>
               <Tabs
                 tabTitle={project.name}
                 tabs={tabs}
@@ -313,12 +313,12 @@ class ProjectDetail extends Component {
                 }
               />
             </div>
-          </div>
+            </div>
           </div>
 
           <SidePanel
             noListPage
-            sidePanelClassName={project.status !== 'empty' ? 'searchbox' : 'is-hidden'}
+            sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
             icon={'plus'}
             title={'Opciones'}
             content={options} />

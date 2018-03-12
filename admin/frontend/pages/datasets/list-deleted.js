@@ -108,7 +108,7 @@ class DeletedDataSets extends Component {
       <div className='columns c-flex-1 is-marginless'>
         <ToastContainer />
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -118,7 +118,7 @@ class DeletedDataSets extends Component {
                 },
                 {
                   path: '/admin/datasets/deleted',
-                  label: 'Datasets desactivados',
+                  label: 'Datasets eliminados',
                   current: true
                 }
               ]}
@@ -126,11 +126,6 @@ class DeletedDataSets extends Component {
             />
             <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Datasets eliminados</h1>
             <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                  Datasets eliminados
-                </p>
-              </header>
               <div className='card-content'>
                 <div className='columns'>
                   <div className='column'>

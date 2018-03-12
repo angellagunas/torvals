@@ -14,6 +14,22 @@ export default ListPage({
   exact: true,
   validate: [loggedIn, verifyRole],
   create: false,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/prices',
+        label: 'Precios',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/app/prices',
   branchName: 'prices',
   detailUrl: '/prices/',

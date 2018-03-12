@@ -8,6 +8,7 @@ import CalendarItem from './calendar-item'
 import Loader from '~base/components/spinner'
 import Carousel from './carousel'
 import Checkbox from '~base/components/base-checkbox'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class Calendar extends Component {
   constructor (props) {
@@ -97,6 +98,21 @@ class Calendar extends Component {
 
     return (
       <div className='section is-paddingless-top pad-sides'>
+        <Breadcrumb
+          path={[
+            {
+              path: '/',
+              label: 'Dashboard',
+              current: false
+            },
+            {
+              path: '/calendario',
+              label: 'Calendario',
+              current: true
+            }
+          ]}
+          align='left'
+        />
         <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Calendario</h1>
         <div className='container is-margin-top'>
           <div className='columns is-padding-top-small'>

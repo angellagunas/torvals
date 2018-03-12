@@ -91,7 +91,7 @@ class OrganizationDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -107,6 +107,7 @@ class OrganizationDetail extends Component {
               ]}
               align='left'
             />
+            <br />
             <div className='columns'>
               <div className='column'>
                 <div className='card'>

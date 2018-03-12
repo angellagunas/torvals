@@ -23,13 +23,13 @@ class DeletedSalesCenters extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -40,7 +40,7 @@ class DeletedSalesCenters extends Component {
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -51,7 +51,7 @@ class DeletedSalesCenters extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
@@ -74,7 +74,7 @@ class DeletedSalesCenters extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -84,13 +84,13 @@ class DeletedSalesCenters extends Component {
                 },
                 {
                   path: '/admin/salesCenters',
-                  label: 'Centros de venta desactivados',
+                  label: 'Centros de venta eliminados',
                   current: true
                 }
               ]}
               align='left'
             />
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Sales Centers</h1>
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Eliminados</h1>
             <div className='card'>
               <div className='card-content'>
                 <div className='columns'>
