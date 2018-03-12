@@ -44,7 +44,9 @@ class TabAdjustment extends Component {
       selectedCheckboxes: new Set(),
       searchTerm: '',
       isConciliating: '',
-      generalAdjustment: 0.1
+      generalAdjustment: 0.1,
+      salesTable: [],
+      noSalesData: ''            
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -111,7 +113,7 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 4,
-        name: `Periodo ${period4[3].format('MMMM')}`,
+        name: `Periodo ${period4[0].format('MMMM')}`,
         adjustment: adjustments['4'],
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
@@ -120,7 +122,7 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 3,
-        name: `Periodo ${period3[3].format('MMMM')}`,
+        name: `Periodo ${period3[0].format('MMMM')}`,
         adjustment: adjustments['3']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
@@ -129,7 +131,7 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 2,
-        name: `Periodo ${period2[3].format('MMMM')}`,
+        name: `Periodo ${period2[0].format('MMMM')}`,
         adjustment: adjustments['2']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
@@ -138,7 +140,7 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 1,
-        name: `Periodo ${period1[3].format('MMMM')}`,
+        name: `Periodo ${period1[0].format('MMMM')}`,
         adjustment: adjustments['1']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
@@ -258,7 +260,9 @@ class TabAdjustment extends Component {
 
     this.setState({
       isLoading: ' is-loading',
-      generalAdjustment: period.adjustment
+      generalAdjustment: period.adjustment,
+      salesTable: [],
+      noSalesData: ''      
     })
 
     const url = '/app/rows/dataset/'
@@ -279,6 +283,7 @@ class TabAdjustment extends Component {
     })
     this.clearSearch()
     this.setAlertMsg()
+    this.getSalesTable()    
   }
 
   getEditedRows(data) {
@@ -353,7 +358,7 @@ class TabAdjustment extends Component {
           return String(row.prediction)
         }
       },
-      {
+      /* {
         'title': 'Ajuste Anterior',
         'property': 'lastAdjustment',
         'default': 0,
@@ -362,12 +367,13 @@ class TabAdjustment extends Component {
             return row.lastAdjustment
           }
         }
-      },
+      }, */
       {
         'title': 'Ajuste',
         'property': 'localAdjustment',
         'default': 0,
         'type': 'number',
+        'className': 'keep-cell',
         formatter: (row) => {
           if (!row.localAdjustment) {
             row.localAdjustment = 0
@@ -379,7 +385,7 @@ class TabAdjustment extends Component {
                 handleChange={this.changeAdjustment}
                 type='number'
                 obj={row}
-                width={80}
+                width={100}
               />
             )
           }
@@ -393,6 +399,7 @@ class TabAdjustment extends Component {
         'property': 'percentage',
         'default': 0,
         'type': 'number',
+        'className': 'keep-cell',
         formatter: (row) => {
           if (this.state.generalAdjustment < 0) return ' - '
           return `${(this.state.generalAdjustment * 100).toFixed(2)} %`
@@ -505,6 +512,7 @@ class TabAdjustment extends Component {
   }
 
   changeAdjustment = async (value, row) => {
+    row.lastLocalAdjustment = row.localAdjustment    
     row.newAdjustment = value
     const res = await this.handleChange(row)
     if (!res) {
@@ -594,6 +602,7 @@ class TabAdjustment extends Component {
       }
       let localAdjustment = Math.round(row.localAdjustment)
       let newAdjustment = localAdjustment + toAdd
+      row.lastLocalAdjustment = row.localAdjustment
 
       row.newAdjustment = newAdjustment
 
@@ -612,6 +621,7 @@ class TabAdjustment extends Component {
       }
       let localAdjustment = Math.round(row.localAdjustment)
       let newAdjustment = localAdjustment - toAdd
+      row.lastLocalAdjustment = row.localAdjustment
 
       row.newAdjustment = newAdjustment
 
@@ -680,6 +690,8 @@ class TabAdjustment extends Component {
       isConciliating: ' is-loading'
     })
 
+    await this.updateSalesTable(obj)
+    
     if(adjusted)
       this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
     else
@@ -717,12 +729,13 @@ class TabAdjustment extends Component {
 
   hideModalAdjustmentRequest () {
     this.setState({
-      classNameAR: ''
+      classNameAR: '',
+      selectedAR: undefined            
     })
   }
 
-  async finishUpAdjustmentRequest (obj) {
-    if (this.state.selectedCheckboxes.has(this.state.selectedAR)) {
+  async finishUpAdjustmentRequest (res) {
+    if (res && res.data === 'OK') {
       this.state.selectedAR.adjustmentRequest = true
     }
     this.setState({
@@ -801,6 +814,80 @@ class TabAdjustment extends Component {
     }
     else {
       this.props.setAlert('is-warning', 'Modo de Ajuste - Para este periodo se permite un ajuste máximo de ' + (this.state.generalAdjustment * 100) + '%  sobre el ajuste anterior.')
+    }
+  }
+
+  async getSalesTable() {
+    let url = '/app/datasets/sales/' + this.props.project.activeDataset.uuid
+
+    try {
+      let res = await api.post(url, {
+        ...this.state.formData,
+        semana_bimbo: this.state.filters.filteredSemanasBimbo
+      })
+
+      if (res.data._items) {
+        let totalPrediction = 0
+        let totalAdjustment = 0
+
+        for (let i = 0; i < res.data._items.length; i++) {
+          const element = res.data._items[i];
+          totalAdjustment += element.adjustment
+          totalPrediction += element.prediction
+        }
+        this.setState({
+          salesTable: res.data._items,
+          totalAdjustment: totalAdjustment,
+          totalPrediction: totalPrediction
+        })
+      }
+    } catch (e) {
+      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.setState({
+        noSalesData: e.message + ', intente más tarde'
+      })
+    }
+  }
+
+  async updateSalesTable(row) {
+    if (!row.productPrice) {
+      row.productPrice = 10.00
+    }
+
+    let salesTable = this.state.salesTable
+
+    for (let i = 0; i < salesTable.length; i++) {
+
+      if (row.semanaBimbo === parseInt(salesTable[i].week)) {
+        let price = Math.abs((row.localAdjustment - row.lastLocalAdjustment) * row.productPrice)
+
+        if (row.lastLocalAdjustment > row.localAdjustment) {
+          price *= -1
+        }
+
+        salesTable[i].adjustment += price
+        this.setState({
+          salesTable: salesTable
+        })
+      }
+    }
+
+  }
+  loadTable() {
+    if (this.state.noSalesData === '') {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Cargando, un momento por favor
+          <Loader />
+        </div>
+      )
+    }
+    else {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          {this.state.noSalesData}
+        </div>
+      )
     }
   }
 
@@ -884,11 +971,18 @@ class TabAdjustment extends Component {
         semanasBimbo: {
           type: 'number',
           title: 'Semana',
-          enum: []
+          enum: [],
+          enumNames: []          
         },
         channels: {
           type: 'string',
           title: 'Canales',
+          enum: [],
+          enumNames: []
+        },
+        salesCenters: {
+          type: 'string',
+          title: 'Centros de Venta',
           enum: [],
           enumNames: []
         },
@@ -903,23 +997,17 @@ class TabAdjustment extends Component {
           title: 'Categorias de producto',
           enum: [],
           enumNames: []
-        },
-        salesCenters: {
-          type: 'string',
-          title: 'Centros de Venta',
-          enum: [],
-          enumNames: []
         }
       }
     }
 
     const uiSchema = {
-      period: {'ui:widget': SelectWidget},
-      semanasBimbo: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione semana'},
-      channels: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione canal'},
-      products: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione producto'},
-      categories: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione categoria'},
-      salesCenters: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Centro de Venta'}
+      period: { 'ui:widget': SelectWidget },
+      semanasBimbo: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las semanas' },
+      channels: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los canales' },
+      salesCenters: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los centros de venta' },
+      products: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los productos' },
+      categories: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorías' }
     }
 
     if (this.state.filters.periods.length > 0) { 
@@ -927,12 +1015,13 @@ class TabAdjustment extends Component {
       schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
       schema.properties.period.default = true
     }
-    if (this.state.filters.filteredSemanasBimbo.length > 0) {     
+    if (this.state.filters.filteredSemanasBimbo.length > 0) {
       schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
+      schema.properties.semanasBimbo.enumNames = this.state.filters.filteredSemanasBimbo.map(item => { return 'Semana ' + item })
     }
     if (this.state.filters.channels.length > 0) { 
       schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
-      schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return item.name })
+      schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return 'Canal ' + item.name })
     }
 
     if (this.state.filters.products.length > 0) {     
@@ -946,7 +1035,7 @@ class TabAdjustment extends Component {
 
     if (this.state.filters.salesCenters.length > 0) { 
       schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
-      schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
+      schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
     }
     return (
       <div>
@@ -961,6 +1050,7 @@ class TabAdjustment extends Component {
           <div className='columns'>
             <div className='column'>
               <BaseForm
+                className='inline-form'
                 schema={schema}
                 uiSchema={uiSchema}
                 formData={this.state.formData}
@@ -968,66 +1058,82 @@ class TabAdjustment extends Component {
                 onSubmit={(e) => { this.getDataRows(e) }}
                 onError={(e) => { this.filterErrorHandler(e) }}
               >
+              <br />
                 <div className='field is-grouped'>
                   <div className='control'>
                     <button
-                      className={'button is-primary is-medium' + this.state.isLoading}
+                      className={'button is-primary' + this.state.isLoading}
                       type='submit'
                       disabled={!!this.state.isLoading}
                     >
-                      Filtrar
+                      <span className='icon'>
+                        <i className='fa fa-filter' />
+                      </span>
+                      <span>
+                        Filtrar
+                    </span>
                     </button>
                   </div>
                 </div>
               </BaseForm>
             </div>
-            { currentRole !== 'manager-level-3' &&
-              <div className='column has-text-right'>
+
+            <div className='column has-text-right'>
               <div className='card'>
                 <div className='card-header'>
                   <h1 className='card-header-title'>Totales de Venta</h1>
                 </div>
                 <div className='card-content historical-container'>
-                  <table className='table historical is-fullwidth'>
-                    <thead>
-                      <tr>
-                        <th colSpan='2'>Predicción</th>
-                        <th colSpan='2'>Predicción con Ajuste</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          Semana 1
-                        </td>
-                        <td>
-                          $ 0
-                        </td>
-                        <td>
-                          Semana 1
-                        </td>
-                        <td>
-                          $ 0
-                        </td>
-                      </tr>
+                  {
+                    currentRole !== 'manager-level-3' &&
+                      this.state.salesTable.length > 0 ? 
+                      <table className='table historical is-fullwidth'>
+                        <thead>
+                          <tr>
+                            <th colSpan='2'>Predicción</th>
+                            <th colSpan='2'>Predicción con Ajuste</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {this.state.salesTable.map((item, key) => {
+                            return (
+                              <tr key={key}>
+                                <td>
+                                  Semana {item.week}
+                                </td>
+                                <td>
+                                  $ {item.prediction.toFixed(2)}
+                                </td>
+                                <td>
+                                  Semana {item.week}
+                                </td>
+                                <td>
+                                  $ {item.adjustment.toFixed(2)}
+                                </td>
+                              </tr>
+                            )
+                          })
+                          }
 
-
-                      <tr>
-                        <th>
-                          Total
+                          <tr>
+                            <th>
+                              Total
                         </th>
-                        <td>
-                          $ 0
-                          </td>
-                        <th>
-                          Total
+                            <td>
+                              $ {this.state.totalPrediction.toFixed(2)}
+                            </td>
+                            <th>
+                              Total
                         </th>
-                        <td>
-                          $ 0
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                            <td>
+                              $ {this.state.totalAdjustment.toFixed(2)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      :
+                      this.loadTable()
+                  }
                 </div>
               </div>
               <br />
@@ -1056,7 +1162,7 @@ class TabAdjustment extends Component {
                   </div>
                 </div>
               </div>
-            }
+            
           </div>
           <section className='section'>
             {!this.state.isFiltered

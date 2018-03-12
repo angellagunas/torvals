@@ -26,13 +26,26 @@ class PasswordUserForm extends Component {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
       projects: [],
-      projectRequired: false
+      cannotCreate: false
     }
   }
 
   async componentWillMount () {
-    if (this.state.formData.organization) {
-      await this.loadProjects()
+    await this.loadProjects()
+
+    if (this.state.formData.role) {
+      var role = this.props.roles.find((item) => {
+        return item._id === this.state.formData.role
+      })
+      if (role && role.slug === 'manager-level-1') {
+        if (this.state.projects.length === 0) {
+          this.setState({
+            error: 'No existen proyectos!',
+            apiCallErrorMessage: 'message is-danger',
+            cannotCreate: true
+          })
+        }
+      }
     }
   }
 
@@ -46,9 +59,16 @@ class PasswordUserForm extends Component {
 
       if (role && role.slug === 'manager-level-1') {
         await this.loadProjects()
-        this.setState({projectRequired: true})
+        if (this.state.projects.length === 0) {
+          return this.setState({
+            formData,
+            error: 'No existen proyectos!',
+            apiCallErrorMessage: 'message is-danger',
+            cannotCreate: true
+          })
+        }
       } else {
-        this.setState({projectRequired: false})
+        this.setState({cannotCreate: false})
       }
     }
 
@@ -179,7 +199,7 @@ class PasswordUserForm extends Component {
         delete schema.properties['project']
         delete uiSchema['project']
         delete this.state.formData['project']
-        schema.required = ['email', 'name']
+        schema.required = ['email', 'name', 'password_1', 'password_2']
       }
     }
 
@@ -233,7 +253,7 @@ class PasswordUserForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
+          {!this.state.cannotCreate && this.props.children}
         </BaseForm>
       </div>
     )

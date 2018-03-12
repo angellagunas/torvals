@@ -264,7 +264,8 @@ class ProjectDetail extends Component {
       </span>
     </button>)
     return (
-      <div className='columns c-flex-1 is-marginless'>
+      <div>
+        <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
           {
             this.state.alertMsg &&
@@ -281,7 +282,7 @@ class ProjectDetail extends Component {
                 tabTitle={project.name}
                 tabs={tabs}
                 selectedTab={this.state.selectedTab}
-                className='is-right is-medium'
+                className='is-right'
                 extraTab={
                   <DeleteButton
                     objectName='Proyecto'
@@ -295,11 +296,12 @@ class ProjectDetail extends Component {
         </div>
 
         <SidePanel
-          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+          sidePanelClassName={project.status !== 'empty' ? 'searchbox' : 'is-hidden'}
           icon={'plus'}
           title={'Opciones'}
           content={options} />
 
+      </div>
         <CreateDataSet
           branchName='datasets'
           url='/admin/datasets'

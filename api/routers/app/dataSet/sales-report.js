@@ -41,7 +41,7 @@ module.exports = new Route({
       requestQuery['producto_id'] = data.product
     }
     if (data.semana_bimbo) {
-      requestQuery['semana_bimbo'] = {'$in': data.semana_bimbo}
+      requestQuery['semana_bimbo'] = data.semana_bimbo
     }
 
     var whereQuery = ''
