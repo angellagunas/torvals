@@ -319,6 +319,7 @@ class ProjectDetail extends Component {
 
         { canEdit &&
           <SidePanel
+            noListPage
             sidePanelClassName={project.status !== 'empty' ? 'searchbox' : 'is-hidden'}
             icon={'plus'}
             title={'Opciones'}

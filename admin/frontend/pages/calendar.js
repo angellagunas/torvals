@@ -99,8 +99,8 @@ class Calendar extends Component {
       <div className='section is-paddingless-top pad-sides'>
         <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Calendario</h1>
         <div className='container is-margin-top'>
-          <div className='columns is-centered is-padding-top-small'>
-            <div className='column is-three-quarters-fullhd is-10'>
+          <div className='columns is-padding-top-small'>
+            <div className='column is-three-quarters-fullhd is-10-widescreen is-12-desktop calendar'>
               <Checkbox
                 label='Mostrar número de semana'
                 handleCheckboxChange={(e) => this.showWeeks()}

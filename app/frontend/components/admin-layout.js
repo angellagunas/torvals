@@ -73,6 +73,16 @@ class AdminLayout extends Component {
     }
 
     this.setState({loaded: true})
+    this.getViewPort()
+  }
+
+  getViewPort () {
+    let w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    if (w <= 1024) {
+      this.setState({
+        sidebarCollapsed: true
+      })
+    }
   }
 
   render () {

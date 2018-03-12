@@ -512,6 +512,7 @@ th,
 tr {
     vertical-align: middle !important;
     height: 70px !important;
+    font-size: 0.9rem;
 }
 
 .is-invisible {
@@ -628,6 +629,7 @@ tr {
     td,
     tr {
         height: 30px !important;
+        padding: 0 !important;
     }
 }
 
@@ -645,14 +647,14 @@ tr {
 
 .inline-form {
     width: 100%;
-    .select, select {
+    .select,
+    select {
         display: block !important;
         width: 100%;
         max-width: 400px;
     }
     .field {
         padding: 0 10px 2px 0;
-       
     }
     label {
         display: none !important;
@@ -661,4 +663,16 @@ tr {
 
 .keep-cell {
     width: 100px;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(170, 170, 170);
+}
+
+.calendar {
+    margin: auto;
 }
