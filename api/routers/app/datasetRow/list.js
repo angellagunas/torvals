@@ -105,12 +105,15 @@ module.exports = new Route({
       .populate(['organization', 'salesCenter', 'product', 'adjustmentRequest', 'channel'])
       .sort(ctx.request.query.sort || '-dateCreated')
 
-    rows = rows.map(item => {
+    rows = rows.map(async (item) => {
+      await item.product.populate('price').execPopulate()
+
       return {
         uuid: item.uuid,
         salesCenter: item.salesCenter ? item.salesCenter.name : '',
         productId: item.product ? item.product.externalId : '',
         productName: item.product ? item.product.name : '',
+        productPrice: item.product && item.product.price ? item.product.price.price : 10.00,
         channel: item.channel ? item.channel.name : '',
         semanaBimbo: item.data.semanaBimbo,
         prediction: item.data.prediction,

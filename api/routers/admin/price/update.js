@@ -52,7 +52,6 @@ module.exports = new Route({
 
     var res = await request(options)
     if (res.status === 'ok') {
-      data.patch = res._status
       verifyPrices.add({uuid: price.organization.uuid})
     } else {
       ctx.throw(401, 'Error al actualizar precio (Abraxas)')
