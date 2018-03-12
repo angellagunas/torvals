@@ -1140,7 +1140,7 @@ class TabAdjustment extends Component {
               <div className='field is-grouped is-grouped-right'>
                 <div className='control'>
                   <button
-                    className={'button is-info is-medium'}
+                    className={'button is-info'}
                     type='button'
                     onClick={e => this.downloadReport()}
                   >
@@ -1152,7 +1152,7 @@ class TabAdjustment extends Component {
                 </div>                  
                 <div className='control'>
                     <button
-                      className={'button is-success is-medium' + this.state.isConciliating}
+                      className={'button is-success' + this.state.isConciliating}
                       disabled={!!this.state.isConciliating}
                       type='button'
                       onClick={e => this.conciliateOnClick()}

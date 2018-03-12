@@ -281,7 +281,7 @@ class TabAprove extends Component {
   getModifyButtons () {
     return (
       <div>
-        <div className='columns'>
+        <div className='columns is-marginless is-paddingless'>
           <div className='column'>
             <div className='field is-grouped'>
               <div className='control'>
@@ -321,7 +321,7 @@ class TabAprove extends Component {
             </div>
           </div>
         </div>  
-      <div className='columns'>
+        <div className='columns is-marginless is-paddingless'>
         <div className='column'>
           <div className='field is-grouped'>
             <div className='control'>
@@ -570,7 +570,7 @@ class TabAprove extends Component {
   render () {
     return (
       <div>
-        <section className='section'>
+        <section className='section is-clipped'>
         {this.getModifyButtons()}
         <BaseTable
           data={this.state.filteredData}

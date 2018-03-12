@@ -242,8 +242,8 @@ class ProjectDetail extends Component {
     return (
       <div>
         <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          {
+          <div className='column is-paddingless'>
+            {
             this.state.alertMsg &&
             <div className={'notification has-text-centered is-uppercase is-paddingless ' + this.state.alertType}>
               <span className='icon is-medium has-text-info'>
@@ -252,7 +252,7 @@ class ProjectDetail extends Component {
               {this.state.alertMsg}
             </div>
           }
-          <div className='section pad-sides'>
+            <div className='section pad-sides'>
             <div className='is-padding-top-small'>
               <Tabs
                 tabTitle={project.name}
@@ -269,15 +269,16 @@ class ProjectDetail extends Component {
               />
             </div>
           </div>
+          </div>
+
+          <SidePanel
+            noListPage
+            sidePanelClassName={project.status !== 'empty' ? 'searchbox' : 'is-hidden'}
+            icon={'plus'}
+            title={'Opciones'}
+            content={options} />
+
         </div>
-
-        <SidePanel
-          sidePanelClassName={project.status !== 'empty' ? 'searchbox' : 'is-hidden'}
-          icon={'plus'}
-          title={'Opciones'}
-          content={options} />
-
-      </div>
         <CreateDataSet
           branchName='datasets'
           url='/admin/datasets'
