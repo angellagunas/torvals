@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { Project, SalesCenter, Channel } = require('models')
+const { Project, SalesCenter, Channel, Product } = require('models')
 const Api = require('lib/abraxas/api')
 const request = require('lib/request')
 const lov = require('lov')
@@ -51,6 +51,14 @@ module.exports = new Route({
       ctx.assert(channel, 404, 'Canal no encontrado')
 
       requestBody[channelName.name] = channel.externalId
+    }
+
+    if (data.product) {
+      const productName = project.activeDataset.getProductColumn() || {name: 'producto_id'}
+      const product = await Product.findOne({uuid: data.product})
+      ctx.assert(product, 404, 'Producto no encontrado')
+
+      requestBody[productName.name] = product.externalId
     }
 
     if (data.period) {
