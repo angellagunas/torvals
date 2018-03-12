@@ -842,8 +842,38 @@ class TabAdjustment extends Component {
     }
   }
 
-  downloadReport () {
-
+  async downloadReport () {
+    let min
+    let max
+    var period = this.state.filters.periods.find(item => {
+      return item.number === this.state.formData.period
+    })
+    this.state.filters.dates.map((date) => {
+      if (period.maxSemana === date.week) {
+        max = date.dateEnd
+      }
+      if (period.minSemana === date.week) {
+        min = date.dateStart
+      }
+    })
+    let url = '/admin/rows/download/' + this.props.project.uuid
+    try {
+      let res = await api.post(url, {
+        start_date: moment(max).format('YYYY-MM-DD'),
+        end_date:  moment(min).format('YYYY-MM-DD'),
+        salesCenter: this.state.formData.salesCenters,
+        channel: this.state.formData.channels,
+        product: this.state.formData.products,
+        category: this.state.formData.categories
+      })
+    } catch (e) {
+      console.log('error',e.message)
+      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.setState({
+        isLoading: '',
+        noSalesData: e.message + ', intente más tarde'
+      })
+    }
   }
 
   render () {
