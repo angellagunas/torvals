@@ -14,7 +14,7 @@ const task = new Task(async function (argv) {
   const datasets = await DataSet.find({
     status: 'pendingRows',
     isDeleted: false
-  })
+  }).populate('createdBy')
 
   if (datasets.length === 0) {
     console.log('No adjustment datasets to verify ...')
@@ -149,6 +149,8 @@ const task = new Task(async function (argv) {
         status: 'adjustment'
       })
       await project.save()
+
+      dataset.sendFinishedConciliating()
     }
 
     if (res.status === 'error') {
