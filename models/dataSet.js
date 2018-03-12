@@ -156,6 +156,12 @@ dataSetSchema.methods.format = function () {
   }
 }
 
+dataSetSchema.methods.getDateColumn = function () {
+  var obj = this.columns.find(item => { return item.isDate })
+
+  return obj
+}
+
 dataSetSchema.methods.getAdjustmentColumn = function () {
   var obj = this.columns.find(item => { return item.isAdjustment })
 
