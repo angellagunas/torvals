@@ -3,7 +3,6 @@ import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import { ToastContainer } from 'react-toastify'
-
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
@@ -17,6 +16,7 @@ import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import TabAnomalies from './detail-tabs/tab-anomalies'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -25,26 +25,50 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'Ajustes',
+      selectedTab: 'ajustes',
       datasetClassName: '',
-      isLoading: ''
+      isLoading: '',
+      counterAdjustments: 0
     }
     this.interval = null
+    this.intervalCounter = null
   }
 
-  componentWillMount () {
-    this.load()
+  async componentWillMount () {
+    await this.load()
+    this.intervalCounter = setInterval(() => {
+      if (this.state.project.status !== 'adjustment') return
+      this.countAdjustmentRequests()
+    }, 10000)
   }
 
-  async load () {
+  async load (tab) {
     var url = '/admin/projects/' + this.props.match.params.uuid
     const body = await api.get(url)
 
+    if (body.data.status === 'empty') {
+      tab = 'datasets'
+    }
     this.setState({
       loading: false,
       loaded: true,
-      project: body.data
+      project: body.data,
+      selectedTab: tab || this.state.selectedTab
     })
+
+    this.countAdjustmentRequests()
+  }
+
+  async countAdjustmentRequests () {
+    if (this.state.project.activeDataset) {
+      var url = '/admin/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
+      var body = await api.get(url)
+      if (this.state.counterAdjustments !== body.data.created) {
+        this.setState({
+          counterAdjustments: body.data.created
+        })
+      }
+    }
   }
 
   async deleteObject () {
@@ -88,6 +112,7 @@ class ProjectDetail extends Component {
 
   componentWillUnmount () {
     clearInterval(this.interval)
+    clearInterval(this.intervalCounter)
   }
 
   submitHandler () {
@@ -121,9 +146,11 @@ class ProjectDetail extends Component {
     }
     const tabs = [
       {
-        name: 'Ajustes',
+        name: 'ajustes',
         title: 'Ajustes',
         icon: 'fa-cogs',
+        reload: false,
+        hide: project.status === 'empty',
         content: (
           <TabAdjustment
             load={this.getProjectStatus.bind(this)}
@@ -134,8 +161,11 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Aprobar',
+        name: 'aprobar',
         title: 'Aprobar',
+        badge: true,
+        valueBadge: this.state.counterAdjustments,
+        reload: true,
         icon: 'fa-calendar-check-o',
         hide: project.status === 'processing' ||
               project.status === 'pendingRows' ||
@@ -147,26 +177,54 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Datasets',
+        name: 'datasets',
         title: 'Datasets',
         icon: 'fa-signal',
+        reload: true,
         content: (
           <TabDatasets
             project={project}
             history={this.props.history}
             setAlert={(type, data) => this.setAlert(type, data)}
+            reload={() => this.load()}
           />
       )},
-      /* {
+      {
+        name: 'anomalias',
+        title: 'Anomalias',
+        icon: 'fa-exclamation-triangle',
+        reload: true,
+        hide: !project.activeDataset ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty',
+        content: (
+          <TabAnomalies
+            project={project}
+            reload={(tab) => this.load(tab)}
+          />
+        )
+      },
+      {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
-        content: <TabHistorical />
-      }, */
+        reload: true,
+        hide: !project.activeDataset ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty',
+        content: (
+          <TabHistorical
+            project={project}
+          />
+        )
+      },
       {
-        name: 'Configuración',
-        title: 'Información',
+        name: 'configuracion',
+        title: 'Configuración',
         icon: 'fa-tasks',
+        reload: true,
         content: (
           <div>
             <div className='section'>
@@ -207,9 +265,10 @@ class ProjectDetail extends Component {
       </span>
     </button>)
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          {
+      <div>
+        <div className='columns c-flex-1 is-marginless'>
+          <div className='column is-paddingless'>
+            {
             this.state.alertMsg &&
             <div className={'notification has-text-centered is-uppercase is-paddingless ' + this.state.alertType}>
               <span className='icon is-medium has-text-info'>
@@ -218,7 +277,7 @@ class ProjectDetail extends Component {
               {this.state.alertMsg}
             </div>
           }
-          <div className='section pad-sides'>
+            <div className='section pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -244,7 +303,7 @@ class ProjectDetail extends Component {
                 tabTitle={project.name}
                 tabs={tabs}
                 selectedTab={this.state.selectedTab}
-                className='is-right is-medium'
+                className='is-right'
                 extraTab={
                   <DeleteButton
                     objectName='Proyecto'
@@ -255,14 +314,16 @@ class ProjectDetail extends Component {
               />
             </div>
           </div>
+          </div>
+
+          <SidePanel
+            noListPage
+            sidePanelClassName={project.status !== 'empty' ? 'searchbox' : 'is-hidden'}
+            icon={'plus'}
+            title={'Opciones'}
+            content={options} />
+
         </div>
-
-        <SidePanel
-          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-          icon={'plus'}
-          title={'Opciones'}
-          content={options} />
-
         <CreateDataSet
           branchName='datasets'
           url='/admin/datasets'

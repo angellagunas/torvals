@@ -33,6 +33,11 @@ class TabAprove extends Component {
     this.getAdjustmentRequests()
   }
 
+
+  componentWillUnmount() {
+    this.props.setAlert('is-invisible', ' ')
+  }
+
   async getAdjustmentRequests() {
     if (this.props.project.activeDataset) {
       let url = '/app/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid
@@ -98,15 +103,15 @@ class TabAprove extends Component {
       },
       {
         'title': 'Ajuste',
-        'property': 'adjustment',
+        'property': 'newAdjustment',
         'default': 0,
         'editable': false,
         'type': 'number',
         formatter: (row) => {
-          if (!row.datasetRow.data.adjustment) {
-            row.datasetRow.data.adjustment = 0
+          if (!row.newAdjustment) {
+            row.newAdjustment = 0
           }
-          return row.datasetRow.data.adjustment
+          return row.newAdjustment
         }
       },
       {
@@ -149,7 +154,7 @@ class TabAprove extends Component {
         }
       },
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': '',
         'centered': true,
@@ -284,7 +289,7 @@ class TabAprove extends Component {
   getModifyButtons() {
     return (
       <div>
-        <div className='columns'>
+        <div className='columns is-marginless is-paddingless'>
           <div className='column'>
             <div className='field is-grouped'>
               <div className='control'>
@@ -324,7 +329,7 @@ class TabAprove extends Component {
             </div>
           </div>
         </div>
-        <div className='columns'>
+        <div className='columns is-marginless is-paddingless'>
           <div className='column'>
             <div className='field is-grouped'>
               <div className='control'>
@@ -582,7 +587,7 @@ class TabAprove extends Component {
   render () {
     return (
       <div>
-        <section className='section'>
+        <section className='section is-clipped'>
         {this.getModifyButtons()}
         <BaseTable
           data={this.state.filteredData}

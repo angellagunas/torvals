@@ -1,6 +1,18 @@
 version: '3'
 services:
+  admin:
+    build: 
+      context: .
+      dockerfile: DockerfileNginxAdmin
+    ports:
+      - "3001:80"
   web:
+    build: 
+      context: .
+      dockerfile: DockerfileNginxApp
+    ports:
+      - "3002:80"
+  api:
     build: .
     ports:
      - "3000:3000"

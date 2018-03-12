@@ -7,6 +7,7 @@ const { aws } = require('../config')
 const awsService = require('aws-sdk')
 const fs = require('fs-extra')
 const path = require('path')
+const Mailer = require('lib/mailer')
 
 const dataSetSchema = new Schema({
   name: { type: String, required: true },
@@ -23,6 +24,7 @@ const dataSetSchema = new Schema({
   project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  conciliatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   type: {
     type: String,
     enum: ['univariable-time-series'],
@@ -77,8 +79,7 @@ const dataSetSchema = new Schema({
     isSalesCenter: { type: Boolean, default: false },
     isSalesCenterName: { type: Boolean, default: false },
     isChannel: { type: Boolean, default: false },
-    isChannelName: { type: Boolean, default: false },
-    values: [{ type: String }]
+    isChannelName: { type: Boolean, default: false }
   }],
 
   groupings: [{
@@ -96,6 +97,7 @@ const dataSetSchema = new Schema({
 
   apiData: { type: Schema.Types.Mixed },
   dateCreated: { type: Date, default: moment.utc },
+  dateConciliated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
   uploaded: { type: Boolean, default: false }
@@ -113,6 +115,7 @@ dataSetSchema.methods.toPublic = function () {
     uploadedBy: this.uploadedBy,
     organization: this.organization,
     status: this.status,
+    error: this.error,
     url: this.url,
     uploaded: this.uploaded,
     source: this.source,
@@ -138,6 +141,7 @@ dataSetSchema.methods.format = function () {
     uploadedBy: this.uploadedBy,
     organization: this.organization,
     status: this.status,
+    error: this.error,
     url: this.url,
     uploaded: this.uploaded,
     source: this.source,
@@ -150,6 +154,48 @@ dataSetSchema.methods.format = function () {
     newProducts: this.newProducts,
     newChannels: this.newChannels
   }
+}
+
+dataSetSchema.methods.getDateColumn = function () {
+  var obj = this.columns.find(item => { return item.isDate })
+
+  return obj
+}
+
+dataSetSchema.methods.getAdjustmentColumn = function () {
+  var obj = this.columns.find(item => { return item.isAdjustment })
+
+  return obj
+}
+
+dataSetSchema.methods.getPredictionColumn = function () {
+  var obj = this.columns.find(item => { return item.isPrediction })
+
+  return obj
+}
+
+dataSetSchema.methods.getProductColumn = function () {
+  var obj = this.columns.find(item => { return item.isProduct })
+
+  return obj
+}
+
+dataSetSchema.methods.getSalesCenterColumn = function () {
+  var obj = this.columns.find(item => { return item.isSalesCenter })
+
+  return obj
+}
+
+dataSetSchema.methods.getChannelColumn = function () {
+  var obj = this.columns.find(item => { return item.isChannel })
+
+  return obj
+}
+
+dataSetSchema.methods.getAnalysisColumn = function () {
+  var obj = this.columns.find(item => { return item.isAnalysis })
+
+  return obj
 }
 
 dataSetSchema.methods.recreateAndSaveFileToDisk = async function () {
@@ -388,6 +434,8 @@ dataSetSchema.methods.processReady = async function (res) {
     columns: res.headers.map(item => {
       var isDate = false
       var isAnalysis = false
+      var isPrediction = false
+      var isAdjustment = false
       var isOperationFilter = false
       var isAnalysisFilter = false
       var isProductName = false
@@ -403,6 +451,14 @@ dataSetSchema.methods.processReady = async function (res) {
 
       if (res.columns['is_analysis'] === item) {
         isAnalysis = true
+      }
+
+      if (res.columns['is_adjustment'] === item) {
+        isAdjustment = true
+      }
+
+      if (res.columns['is_prediction'] === item) {
+        isPrediction = true
       }
 
       if (res.columns['filter_operations'].find(col => { return col === item })) {
@@ -458,6 +514,8 @@ dataSetSchema.methods.processReady = async function (res) {
         name: item,
         isDate: isDate,
         isAnalysis: isAnalysis,
+        isPrediction: isPrediction,
+        isAdjustment: isAdjustment,
         isOperationFilter: isOperationFilter,
         isAnalysisFilter: isAnalysisFilter,
         isProduct: isProduct,
@@ -540,6 +598,26 @@ dataSetSchema.methods.process = async function (res) {
 
   await this.save()
   await this.processData()
+}
+
+dataSetSchema.methods.sendFinishedConciliating = async function () {
+  if (this.source !== 'adjustment') return
+
+  const email = new Mailer('adjustment-finished')
+
+  const data = {
+    name: this.project.name,
+    url: `${process.env.APP_HOST}/projects/${this.project.uuid}`
+  }
+
+  await email.format(data)
+  await email.send({
+    recipient: {
+      email: this.createdBy.email,
+      name: this.createdBy.name
+    },
+    title: 'Ajustes conciliados'
+  })
 }
 
 dataSetSchema.virtual('url').get(function () {

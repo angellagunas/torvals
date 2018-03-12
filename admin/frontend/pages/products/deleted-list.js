@@ -55,7 +55,7 @@ class DeletedProducts extends Component {
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
-              Restore
+              Restaurar
             </button>
           )
         }
@@ -119,7 +119,7 @@ const branchedDeletedProducts = branch({deletedproducts: 'deletedproducts'}, Del
 
 export default Page({
   path: '/products/deleted',
-  title: 'Deleted products',
+  title: 'Productos eliminados',
   icon: 'trash',
   exact: true,
   validate: loggedIn,

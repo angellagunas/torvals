@@ -7,6 +7,7 @@ const jwt = require('lib/jwt')
 module.exports = async function (ctx, next) {
   ctx.state.appHost = server.appHost
   ctx.state.apiHost = server.apiHost
+  var pathname = url.parse(ctx.request.url).pathname
 
   if (ctx.req.headers.authorization) {
     const [ method, token ] = ctx.req.headers.authorization.split(' ')
@@ -50,12 +51,20 @@ module.exports = async function (ctx, next) {
     }
   }
 
-  if (ctx.request.headers.origin) {
-    const origin = url.parse(ctx.request.headers.origin)
+  let originalHost
+  if (ctx.request.headers['referer']) {
+    originalHost = ctx.request.headers['referer']
+  } else if (ctx.request.headers.origin) {
+    originalHost = ctx.request.headers.origin
+  }
+
+  if (originalHost && !pathname.includes('login')) {
+    const origin = url.parse(originalHost)
+    const apiHostname = url.parse(server.apiHost).hostname.split('.')
 
     const host = origin.hostname.split('.')
 
-    if (host.length === 3 && host[0] !== 'www') {
+    if (host.length > apiHostname.length && host[0] !== 'www') {
       ctx.state.orgSlug = host[0]
 
       if (ctx.state.orgSlug) {

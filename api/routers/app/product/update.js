@@ -17,7 +17,7 @@ module.exports = new Route({
       'uuid': productId,
       'isDeleted': false
     }).populate('organization')
-    ctx.assert(product, 404, 'Product not found')
+    ctx.assert(product, 404, 'Producto no encontrado')
 
     product.set({
       name: data.name,

@@ -15,7 +15,7 @@ module.exports = new Route({
 
     const datasetRow = await DataSetRow.findOne({'uuid': datasetRowId, 'isDeleted': false})
       .populate('adjustmentRequest')
-    ctx.assert(datasetRow, 404, 'DataSetRow not found')
+    ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
 
     var adjustmentRequest = datasetRow.adjustmentRequest
 
@@ -25,7 +25,7 @@ module.exports = new Route({
         project: datasetRow.project,
         dataset: datasetRow.dataset,
         datasetRow: datasetRow,
-        lastAdjustment: datasetRow.data.adjustment,
+        lastAdjustment: datasetRow.data.localAdjustment,
         newAdjustment: data.newAdjustment,
         requestedBy: ctx.state.user
       })
@@ -33,7 +33,7 @@ module.exports = new Route({
       datasetRow.adjustmentRequest = adjustmentRequest
     } else {
       adjustmentRequest.status = 'created'
-      adjustmentRequest.lastAdjustment = datasetRow.data.adjustment
+      adjustmentRequest.lastAdjustment = datasetRow.data.localAdjustment
       adjustmentRequest.newAdjustment = data.newAdjustment
       adjustmentRequest.requestedBy = ctx.state.user
     }

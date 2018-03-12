@@ -4,7 +4,6 @@ import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import { ToastContainer } from 'react-toastify'
 import { testRoles } from '~base/tools'
-
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -14,11 +13,11 @@ import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
 import TabAprove from './detail-tabs/tab-aprove'
-
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import TabAnomalies from './detail-tabs/tab-anomalies'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -27,30 +26,61 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'Ajustes',
+      selectedTab: 'ajustes',
       datasetClassName: '',
       roles: 'admin, orgadmin, analyst, manager-level-2',
       canEdit: false,
-      isLoading: ''
+      isLoading: '',
+      counterAdjustments: 0
     }
     this.interval = null
+    this.intervalCounter = null
   }
 
-  componentWillMount () {
-    this.load()
+  async componentWillMount () {
+    const user = this.context.tree.get('user')
+    if (user.currentRole.slug === 'manager-level-1' && this.props.match.params.uuid !== user.currentProject.uuid) {
+      this.props.history.replace('/projects/' + user.currentProject.uuid)
+    }
+
+    await this.load()
     this.setState({
       canEdit: testRoles(this.state.roles)
     })
+    this.intervalCounter = setInterval(() => {
+      if (this.state.project.status !== 'adjustment') return
+      this.countAdjustmentRequests()
+    }, 10000)
   }
 
-  async load () {
+  async load (tab) {
     var url = '/app/projects/' + this.props.match.params.uuid
     const body = await api.get(url)
+
+    if (body.data.status === 'empty') {
+      tab = 'datasets'
+    }
+
     this.setState({
       loading: false,
       loaded: true,
-      project: body.data
+      project: body.data,
+      selectedTab: tab || this.state.selectedTab
     })
+
+    this.countAdjustmentRequests()
+  }
+
+  async countAdjustmentRequests () {
+    if (this.state.project.activeDataset) {
+      var url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
+      var body = await api.get(url)
+      if (this.state.counterAdjustments !== body.data.created) {
+        this.setState({
+          counterAdjustments: body.data.created
+        })
+      }
+    }
   }
 
   async deleteObject () {
@@ -94,6 +124,7 @@ class ProjectDetail extends Component {
 
   componentWillUnmount () {
     clearInterval(this.interval)
+    clearInterval(this.intervalCounter)
   }
 
   submitHandler () {
@@ -127,9 +158,11 @@ class ProjectDetail extends Component {
     }
     const tabs = [
       {
-        name: 'Ajustes',
+        name: 'ajustes',
         title: 'Ajustes',
         icon: 'fa-cogs',
+        reload: false,
+        hide: project.status === 'empty',
         content: (
           <TabAdjustment
             load={this.getProjectStatus.bind(this)}
@@ -141,9 +174,12 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Aprobar',
+        name: 'aprobar',
         title: 'Aprobar',
+        badge: true,
+        valueBadge: this.state.counterAdjustments,
         icon: 'fa-calendar-check-o',
+        reload: true,
         hide: (testRoles('manager-level-1') ||
               project.status === 'processing' ||
               project.status === 'pendingRows' ||
@@ -157,30 +193,57 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Datasets',
+        name: 'datasets',
         title: 'Datasets',
         icon: 'fa-signal',
         hide: testRoles('manager-level-1'),
+        reload: true,
         content: (
           <TabDatasets
             project={project}
             history={this.props.history}
             canEdit={canEdit}
             setAlert={(type, data) => this.setAlert(type, data)}
+            reload={() => this.load()}
           />
         )
       },
-      /* {
+      {
+        name: 'anomalias',
+        title: 'Anomalias',
+        icon: 'fa-exclamation-triangle',
+        reload: true,
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabAnomalies
+            project={project}
+            reload={(tab) => this.load(tab)}
+          />
+        )
+      },
+      {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
-        content: <TabHistorical />
-      }, */
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabHistorical
+            project={project}
+          />
+        )
+      },
       {
-        name: 'Configuración',
-        title: 'Información',
+        name: 'configuracion',
+        title: 'Configuración',
         icon: 'fa-tasks',
         hide: testRoles('manager-level-1'),
+        reload: true,
         content: (
           <div>
             <div className='section'>
@@ -261,7 +324,7 @@ class ProjectDetail extends Component {
                 tabTitle={project.name}
                 tabs={tabs}
                 selectedTab={this.state.selectedTab}
-                className='is-right is-medium'
+                className='is-right'
                 extraTab={
                 canEdit &&
                 <DeleteButton
@@ -277,7 +340,8 @@ class ProjectDetail extends Component {
 
         { canEdit &&
           <SidePanel
-            sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+            noListPage
+            sidePanelClassName={project.status !== 'empty' ? 'searchbox' : 'is-hidden'}
             icon={'plus'}
             title={'Opciones'}
             content={options}

@@ -60,6 +60,7 @@ class AdminLayout extends Component {
     }
 
     this.setState({loaded: true})
+    this.getViewPort()
   }
 
   handleBurgerEvent () {
@@ -68,6 +69,15 @@ class AdminLayout extends Component {
 
   handlePathChange (activePath) {
     this.setState({activePath})
+  }
+
+  getViewPort () {
+    let w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    if (w <= 1024) {
+      this.setState({
+        sidebarCollapsed: true
+      })
+    }
   }
 
   render () {

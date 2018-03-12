@@ -264,9 +264,9 @@ class SalesCenterDetail extends Component {
                     { canEdit &&
                       <DeleteButton
                         titleButton={'Eliminar'}
-                        objectName='Sales Center'
+                        objectName='Centro de ventas'
                         objectDelete={this.deleteObject.bind(this)}
-                        message={`Are you sure you want to delete the sales center ${this.state.salesCenter.name}?`}
+                        message={`¿Deseas eliminar el centro de ventas ${this.state.salesCenter.name}?`}
                       />
                     }
                   </div>

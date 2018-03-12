@@ -1,4 +1,5 @@
 const Route = require('lib/router/route')
+const moment = require('moment')
 
 const { DataSet } = require('models')
 const Api = require('lib/abraxas/api')
@@ -13,7 +14,7 @@ module.exports = new Route({
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
       .populate('project')
 
-    ctx.assert(dataset, 404, 'DataSet not found')
+    ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     var apiData = Api.get()
     if (!apiData.token) {
@@ -55,12 +56,14 @@ module.exports = new Route({
       }
 
       dataset.set({
-        status: 'conciliated'
+        status: 'conciliated',
+        conciliatedBy: ctx.state.user,
+        dateConciliated: moment.utc()
       })
 
       await dataset.save()
     } catch (e) {
-      ctx.throw(401, 'Failed to send Dataset for conciliation')
+      ctx.throw(401, 'Falló al enviar DataSet para conciliación')
     }
 
     let project = dataset.project

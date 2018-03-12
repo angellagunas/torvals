@@ -26,19 +26,89 @@ class PasswordUserForm extends Component {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      groups: []
+      groups: [],
+      projects: [],
+      cannotCreate: false
     }
   }
 
   errorHandler (e) {}
 
-  changeHandler ({formData}) {
+  async componentWillMount () {
+    if (this.state.formData.organization) {
+      await this.loadProjects(this.state.formData.organization)
+
+      if (this.state.formData.role) {
+        var role = this.props.roles.find((item) => {
+          return item._id === this.state.formData.role
+        })
+        if (role && role.slug === 'manager-level-1') {
+          if (this.state.projects.length === 0) {
+            this.setState({
+              error: 'No existen proyectos!',
+              apiCallErrorMessage: 'message is-danger',
+              cannotCreate: true
+            })
+          }
+        }
+      }
+    }
+  }
+
+  async changeHandler ({formData}) {
+    console.log(formData)
+    if (this.state.formData.organization !== formData.organization) {
+      await this.loadProjects(formData.organization)
+      await this.changeGroups(formData.organization)
+
+      if (formData.role) {
+        var role = this.props.roles.find((item) => {
+          return item._id === formData['role']
+        })
+
+        if (role && role.slug === 'manager-level-1') {
+          console.log('org => ' + this.state.projects.length)
+          if (this.state.projects.length === 0) {
+            return this.setState({
+              formData,
+              error: 'No existen proyectos!',
+              apiCallErrorMessage: 'message is-danger',
+              cannotCreate: true
+            })
+          } else {
+            this.setState({cannotCreate: false})
+          }
+        } else {
+          this.setState({cannotCreate: false})
+        }
+      }
+    }
+
+    if (formData.role && this.state.formData.role !== formData.role) {
+      var role = this.props.roles.find((item) => {
+        return item._id === formData['role']
+      })
+
+      if (role && role.slug === 'manager-level-1') {
+        console.log('role => ' + this.state.projects.length)
+        if (this.state.projects.length === 0) {
+          return this.setState({
+            formData,
+            error: 'No existen proyectos!',
+            apiCallErrorMessage: 'message is-danger',
+            cannotCreate: true
+          })
+        }
+      } else {
+        this.setState({cannotCreate: false})
+      }
+    }
+
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     })
-    this.changeGroups(formData.organization)
   }
 
   clearState () {
@@ -47,6 +117,25 @@ class PasswordUserForm extends Component {
       apiCallErrorMessage: 'is-hidden',
       formData: this.props.initialState
     })
+  }
+
+  async loadProjects (organization) {
+    if (organization) {
+      var org = this.props.orgs.find((item) => {
+        return item._id === organization
+      })
+
+      var url = '/admin/projects/'
+      const body = await api.get(url, {
+        start: 0,
+        limit: 0,
+        organization: org.uuid
+      })
+
+      this.setState({
+        projects: body.data
+      })
+    }
   }
 
   async changeGroups (organization) {
@@ -96,6 +185,7 @@ class PasswordUserForm extends Component {
   }
 
   render () {
+    console.log(this.state)
     var schema = {
       type: 'object',
       title: '',
@@ -120,7 +210,7 @@ class PasswordUserForm extends Component {
           enum: [],
           enumNames: []
         },
-        groups: {
+        group: {
           type: 'string',
           title: 'Grupo',
           enum: [],
@@ -137,7 +227,7 @@ class PasswordUserForm extends Component {
       isAdmin: {'ui:widget': CheckboxWidget},
       role: {'ui:widget': SelectWidget},
       organization: {'ui:widget': SelectWidget},
-      groups: {'ui:widget': SelectWidget}
+      group: {'ui:widget': SelectWidget}
     }
 
     if (this.props.initialState.organization) {
@@ -145,7 +235,7 @@ class PasswordUserForm extends Component {
     }
 
     if (this.props.initialState.groups) {
-      uiSchema['groups']['ui:disabled'] = true
+      uiSchema['group']['ui:disabled'] = true
     }
 
     var error
@@ -153,6 +243,29 @@ class PasswordUserForm extends Component {
       error = <div>
         Error: {this.state.error}
       </div>
+    }
+
+    if (this.props.filters) {
+      if (this.props.filters.group) {
+        delete uiSchema.groups
+        delete schema.properties.groups
+      }
+    }
+
+    if (this.state.formData.role) {
+      var role = this.props.roles.find((item) => {
+        return item._id === this.state.formData.role
+      })
+      if (role && role.slug === 'manager-level-1') {
+        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        uiSchema['project'] = {'ui:widget': SelectWidget}
+        schema.required.push('project')
+      } else {
+        delete schema.properties['project']
+        delete uiSchema['project']
+        delete this.state.formData['project']
+        schema.required = ['email', 'organization', 'password_1', 'password_2']
+      }
     }
 
     if (this.props.roles.length === 0 || this.props.orgs.length === 0) {
@@ -163,8 +276,28 @@ class PasswordUserForm extends Component {
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
     schema.properties.organization.enum = this.props.orgs.map(item => { return item._id })
     schema.properties.organization.enumNames = this.props.orgs.map(item => { return item.name })
-    schema.properties.groups.enum = this.state.groups.map(item => { return item._id })
-    schema.properties.groups.enumNames = this.state.groups.map(item => { return item.name })
+
+    if (this.state.groups.length > 0) {
+      if (schema.properties.group) {
+        schema.properties.group.enum = this.state.groups.map(item => { return item.uuid })
+        schema.properties.group.enumNames = this.state.groups.map(item => { return item.name })
+      } else {
+        schema.properties['group'] = { type: 'string', title: 'Grupo', enum: [], enumNames: [] }
+        uiSchema['group'] = {'ui:widget': SelectWidget}
+        schema.properties.group.enum = this.state.groups.map(item => { return item.uuid })
+        schema.properties.group.enumNames = this.state.groups.map(item => { return item.name })
+      }
+    } else {
+      if (schema.properties.group) {
+        delete uiSchema.group
+        delete schema.properties.group
+      }
+    }
+
+    if (schema.properties.project && this.state.projects.length > 0) {
+      schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
+      schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
+    }
 
     return (
       <div>
@@ -187,7 +320,7 @@ class PasswordUserForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
+          {!this.state.cannotCreate && this.props.children}
         </BaseForm>
       </div>
     )

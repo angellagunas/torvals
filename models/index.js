@@ -16,6 +16,8 @@ const AdjustmentRequest = require('./adjustment-request')
 const Channel = require('./channel')
 const DataSetRow = require('./dataset-row')
 const AbraxasDate = require('./abraxas-date')
+const Price = require('./price')
+const Anomaly = require('./anomaly')
 // #Import
 
 module.exports = {
@@ -36,5 +38,7 @@ module.exports = {
   Forecast,
   DataSetRow,
   AbraxasDate,
-  Channel // #Exports
+  Channel,
+  Price,
+  Anomaly// #Exports
 }

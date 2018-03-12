@@ -119,7 +119,7 @@ const branchedDeletedProjects = branch({deletedprojects: 'deletedprojects'}, Del
 
 export default Page({
   path: '/projects/deleted',
-  title: 'Deleted',
+  title: 'Eliminados',
   icon: 'trash',
   exact: true,
   validate: loggedIn,

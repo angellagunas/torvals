@@ -1,0 +1,64 @@
+@include touch {
+    .pad-sides {
+        padding: 0 !important;
+    }
+    .is-medium {
+        font-size: 1rem !important;
+    }
+}
+
+@include desktop-only {
+    .pad-sides {
+        padding: 0 0.5rem !important;
+    }
+    .section {
+        padding: 0.8rem 0.5rem;
+    }
+    .md-checkbox input {
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        margin: -10px;
+    }
+    .columns.is-centered {
+        justify-content: space-around;
+    }
+    .md-checkbox>div {
+        margin-left: 20px;
+    }
+    .subtitle {
+        font-size: 1rem;
+        line-height: 2.25;
+    }
+    .calendar {
+        margin: 0;
+    }
+}
+
+@include widescreen-only {
+    .pad-sides {
+        padding: 0 1em !important;
+    }
+    .section {
+        padding: 1.2rem 0.6rem;
+    }
+    .md-checkbox input {
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        margin: -10px;
+    }
+    .columns.is-centered {
+        justify-content: space-around;
+    }
+    .md-checkbox>div {
+        margin-left: 20px;
+    }
+    .subtitle {
+        font-size: 1rem;
+        line-height: 2.25;
+    }
+    .calendar {
+        margin: 0;
+    }
+}

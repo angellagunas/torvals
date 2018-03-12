@@ -15,11 +15,11 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const role = await Role.findOne({'uuid': roleId, 'isDeleted': false})
-    ctx.assert(role, 404, 'Role not found')
+    ctx.assert(role, 404, 'Rol no encontrado')
 
     var auxRole = await Role.findOne({priority: parseInt(data.priority)})
     if (auxRole) {
-      ctx.throw(400, "You can't have two roles with the same priority")
+      ctx.throw(400, 'No se pueden tener dos roles con la misma prioridad')
     }
 
     data.slug = slugify(data.name)

@@ -119,7 +119,7 @@ export default ListPage({
               {
                 start: 0,
                 limit: 10,
-                sort: cursor.sort || ''
+                sort: cursor.sort || 'name'
               })
 
             tree.set('groups', {

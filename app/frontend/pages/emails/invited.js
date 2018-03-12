@@ -11,7 +11,7 @@ import {BaseForm, PasswordWidget} from '~base/components/base-form'
 
 function validate (formData, errors) {
   if (formData.password_1 !== formData.password_2) {
-    errors.password_2.addError("Passwords don't match!")
+    errors.password_2.addError('Las contraseñas no concuerdan')
   }
   return errors
 }
@@ -20,8 +20,8 @@ const schema = {
   type: 'object',
   required: ['password_1', 'password_2'],
   properties: {
-    password_1: {type: 'string', title: 'Password'},
-    password_2: {type: 'string', title: 'Confirm Password'}
+    password_1: {type: 'string', title: 'Contraseña'},
+    password_2: {type: 'string', title: 'Confirmar Contraseña'}
   }
 }
 
@@ -273,7 +273,7 @@ class EmailInviteLanding extends Component {
           <div className='card-content'>
             <div className='content'>
               <p>
-                Necesitas crear una contraseña antes de poder iniciar sesión
+                Necesitas crear una contraseña antes de poder iniciar sesión.
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}

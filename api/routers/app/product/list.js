@@ -63,7 +63,7 @@ module.exports = new Route({
 
     var statementCount = [...statement]
 
-    statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
+    if (parseInt(ctx.request.query['limit'])) { statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 }) }
     var channels = await Product.aggregate(statement)
 
     statementCount.push({$count: 'total'})

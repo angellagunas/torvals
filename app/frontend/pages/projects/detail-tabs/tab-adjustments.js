@@ -44,7 +44,9 @@ class TabAdjustment extends Component {
       selectedCheckboxes: new Set(),
       searchTerm: '',
       isConciliating: '',
-      generalAdjustment: 0.1
+      generalAdjustment: 0.1,
+      salesTable: [],
+      noSalesData: ''            
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -58,17 +60,22 @@ class TabAdjustment extends Component {
     if (currentRole !== 'manager-level-3') {
       this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
-    this.setAlertMsg()
+    if (this.props.project.status === 'adjustment') this.setAlertMsg()
   }
 
   componentWillUnmount () {
     clearInterval(this.interval)
+    this.props.setAlert('is-invisible', ' ')    
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.project.status === 'adjustment' && this.props.project.status !== 'adjustment') {
       this.clearSearch()
       this.getFilters()
+    }
+
+    if (currentRole !== 'manager-level-3' && this.props.project.status == 'adjustment' && !this.interval) {
+      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
   }
 
@@ -81,6 +88,16 @@ class TabAdjustment extends Component {
       var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
       var dates = []
       var periods = []
+      var adjustments = {
+        '1': 10,
+        '2': 20,
+        '3': 30,
+        '4': -1
+      }
+
+      if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
+        adjustments = this.props.project.businessRules.adjustments
+      }
 
       for (var i = 0; i < 16; i++) {
         dates.push(moment(maxDate.format()))
@@ -96,8 +113,8 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 4,
-        name: `Periodo ${period4[3].format('MMMM')}`,
-        adjustment: -1,
+        name: `Periodo ${period4[0].format('MMMM')}`,
+        adjustment: adjustments['4'],
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -105,8 +122,8 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 3,
-        name: `Periodo ${period3[3].format('MMMM')}`,
-        adjustment: .30,
+        name: `Periodo ${period3[0].format('MMMM')}`,
+        adjustment: adjustments['3']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -114,8 +131,8 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 2,
-        name: `Periodo ${period2[3].format('MMMM')}`,
-        adjustment: .20,
+        name: `Periodo ${period2[0].format('MMMM')}`,
+        adjustment: adjustments['2']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -123,8 +140,8 @@ class TabAdjustment extends Component {
 
       periods.push({
         number: 1,
-        name: `Periodo ${period1[3].format('MMMM')}`,
-        adjustment: .10,
+        name: `Periodo ${period1[0].format('MMMM')}`,
+        adjustment: adjustments['1']/100,
         maxSemana: maxSemana,
         minSemana: maxSemana - 3
       })
@@ -147,6 +164,8 @@ class TabAdjustment extends Component {
           period: 1
         },
         filtersLoaded: true
+      }, () => {
+        this.getDataRows()
       })
     }
   }
@@ -201,7 +220,6 @@ class TabAdjustment extends Component {
           ...this.state.filters,
           filteredSemanasBimbo: filteredSemanasBimbo
         },
-        generalAdjustment: period.adjustment,
         formData: {
           semanasBimbo: filteredSemanasBimbo[0],
           products: e.formData.products,
@@ -211,8 +229,6 @@ class TabAdjustment extends Component {
           period: e.formData.period
         }
       })
-
-      this.setAlertMsg()
       return
     }
 
@@ -232,24 +248,31 @@ class TabAdjustment extends Component {
 
   }
 
-  async getDataRows (e) {
-    if (!e.formData.period || !e.formData.semanasBimbo) {
+  async getDataRows () {
+    if (!this.state.formData.period || !this.state.formData.semanasBimbo) {
       this.notify('Se debe filtrar por semana!', 3000, toast.TYPE.ERROR)
       return
     }
 
+    var period = this.state.filters.periods.find(item => {
+      return item.number === this.state.formData.period
+    })
+
     this.setState({
-      isLoading: ' is-loading'
+      isLoading: ' is-loading',
+      generalAdjustment: period.adjustment,
+      salesTable: [],
+      noSalesData: ''      
     })
 
     const url = '/app/rows/dataset/'
     let data = await api.get(url + this.props.project.activeDataset.uuid,
       {
-        semanaBimbo: e.formData.semanasBimbo,
-        product: e.formData.products,
-        channel: e.formData.channels,
-        salesCenter: e.formData.salesCenters,
-        category: e.formData.categories
+        semanaBimbo: this.state.formData.semanasBimbo,
+        product: this.state.formData.products,
+        channel: this.state.formData.channels,
+        salesCenter: this.state.formData.salesCenters,
+        category: this.state.formData.categories
       })
 
     this.setState({
@@ -259,16 +282,18 @@ class TabAdjustment extends Component {
       selectedCheckboxes: new Set()
     })
     this.clearSearch()
+    this.setAlertMsg()
+    this.getSalesTable()    
   }
 
   getEditedRows(data) {
     for (let row of data) {
-      if (row.adjustment != row.prediction) {
+      if (row.localAdjustment != row.adjustment) {
         row.wasEdited = true
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
           var minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
-          row.isLimit = (row.adjustment >= maxAdjustment || row.adjustment <= minAdjustment)
+          row.isLimit = (row.localAdjustment >= maxAdjustment || row.localAdjustment <= minAdjustment)
         }
       }
     }
@@ -333,7 +358,7 @@ class TabAdjustment extends Component {
           return String(row.prediction)
         }
       },
-      {
+      /* {
         'title': 'Ajuste Anterior',
         'property': 'lastAdjustment',
         'default': 0,
@@ -342,29 +367,30 @@ class TabAdjustment extends Component {
             return row.lastAdjustment
           }
         }
-      },
+      }, */
       {
         'title': 'Ajuste',
-        'property': 'adjustment',
+        'property': 'localAdjustment',
         'default': 0,
         'type': 'number',
+        'className': 'keep-cell',
         formatter: (row) => {
-          if (!row.adjustment) {
-            row.adjustment = 0
+          if (!row.localAdjustment) {
+            row.localAdjustment = 0
           }
           if (currentRole !== 'manager-level-3') {
             return (
               <Editable
-                value={row.adjustment}
+                value={row.localAdjustment}
                 handleChange={this.changeAdjustment}
                 type='number'
                 obj={row}
-                width={80}
+                width={100}
               />
             )
           }
           else {
-            return row.adjustment
+            return row.localAdjustment
           }
         }
       },
@@ -373,6 +399,7 @@ class TabAdjustment extends Component {
         'property': 'percentage',
         'default': 0,
         'type': 'number',
+        'className': 'keep-cell',
         formatter: (row) => {
           if (this.state.generalAdjustment < 0) return ' - '
           return `${(this.state.generalAdjustment * 100).toFixed(2)} %`
@@ -485,6 +512,7 @@ class TabAdjustment extends Component {
   }
 
   changeAdjustment = async (value, row) => {
+    row.lastLocalAdjustment = row.localAdjustment    
     row.newAdjustment = value
     const res = await this.handleChange(row)
     if (!res) {
@@ -572,14 +600,15 @@ class TabAdjustment extends Component {
       if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
-      let adjustment = Math.round(row.adjustment)
-      let newAdjustment = adjustment + toAdd
-      
+      let localAdjustment = Math.round(row.localAdjustment)
+      let newAdjustment = localAdjustment + toAdd
+      row.lastLocalAdjustment = row.localAdjustment
+
       row.newAdjustment = newAdjustment
-            
+
       const res = await this.handleChange(row)
       if (!res) {
-        row.adjustment = adjustment
+        row.localAdjustment = localAdjustment
       }
     }
   }
@@ -590,14 +619,15 @@ class TabAdjustment extends Component {
       if (Math.round(toAdd) === 0) {
         toAdd = 1
       }
-      let adjustment = Math.round(row.adjustment)
-      let newAdjustment = adjustment - toAdd
+      let localAdjustment = Math.round(row.localAdjustment)
+      let newAdjustment = localAdjustment - toAdd
+      row.lastLocalAdjustment = row.localAdjustment
 
       row.newAdjustment = newAdjustment
-      
+
       const res = await this.handleChange(row)
       if (!res) {
-        row.adjustment = adjustment
+        row.localAdjustment = localAdjustment
       }
     }
   }
@@ -619,39 +649,36 @@ class TabAdjustment extends Component {
     let minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
 
     obj.newAdjustment = Math.round(obj.newAdjustment)
-    obj.adjustment = Math.round(obj.adjustment)
-    
+    obj.localAdjustment = Math.round(obj.localAdjustment)
+
     if (this.state.generalAdjustment > 0) {
       obj.isLimit = (obj.newAdjustment >= maxAdjustment || obj.newAdjustment <= minAdjustment)
     }
 
     if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
       if (obj.newAdjustment >= maxAdjustment){
-        obj.adjustment = maxAdjustment
+        obj.localAdjustment = maxAdjustment
         adjusted = false
       }
-        
+
       else if (obj.newAdjustment <= minAdjustment) {
-        obj.adjustment = minAdjustment
+        obj.localAdjustment = minAdjustment
         adjusted = false
       }
 
       else{
-        obj.adjustment = obj.newAdjustment
+        obj.localAdjustment = obj.newAdjustment
       }
-      
+
     }
     else {
-      obj.adjustment = obj.newAdjustment
+      obj.localAdjustment = obj.newAdjustment
     }
 
     var url = '/app/rows/' + obj.uuid
     const res = await api.post(url, {...obj})
 
-    obj.lastAdjustment = res.data.data.lastAdjustment
-
     obj.edited = true
-
 
     let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
     let aux = this.state.dataRows
@@ -663,11 +690,13 @@ class TabAdjustment extends Component {
       isConciliating: ' is-loading'
     })
 
+    await this.updateSalesTable(obj)
+    
     if(adjusted)
       this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
     else
       this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
-      
+
     return adjusted
   }
 
@@ -691,7 +720,7 @@ class TabAdjustment extends Component {
   }
 
   showModalAdjustmentRequest (obj) {
-    obj.adjustment = '' + obj.adjustment
+    obj.localAdjustment = '' + obj.localAdjustment
     this.setState({
       classNameAR: ' is-active',
       selectedAR: obj
@@ -700,12 +729,13 @@ class TabAdjustment extends Component {
 
   hideModalAdjustmentRequest () {
     this.setState({
-      classNameAR: ''
+      classNameAR: '',
+      selectedAR: undefined            
     })
   }
 
-  async finishUpAdjustmentRequest (obj) {
-    if (this.state.selectedCheckboxes.has(this.state.selectedAR)) {
+  async finishUpAdjustmentRequest (res) {
+    if (res && res.data === 'OK') {
       this.state.selectedAR.adjustmentRequest = true
     }
     this.setState({
@@ -751,8 +781,10 @@ class TabAdjustment extends Component {
     this.setState({
       isConciliating: ' is-loading'
     })
+
     var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
     try {
+      clearInterval(this.interval)
       await api.post(url)
       await this.props.load()
     } catch(e){
@@ -773,7 +805,7 @@ class TabAdjustment extends Component {
       this.props.setAlert('is-warning', 'Ajuste Ilimitado.')
       return
     }
-    
+
     if (currentRole === 'manager-level-3') {
       this.props.setAlert('is-error', 'Modo de Visualización -  No se permiten ajustes para tu tipo de usuario.')
     }
@@ -785,7 +817,96 @@ class TabAdjustment extends Component {
     }
   }
 
+  async getSalesTable() {
+    let url = '/app/datasets/sales/' + this.props.project.activeDataset.uuid
+
+    try {
+      let res = await api.post(url, {
+        ...this.state.formData,
+        semana_bimbo: this.state.filters.filteredSemanasBimbo
+      })
+
+      if (res.data._items) {
+        let totalPrediction = 0
+        let totalAdjustment = 0
+
+        for (let i = 0; i < res.data._items.length; i++) {
+          const element = res.data._items[i];
+          totalAdjustment += element.adjustment
+          totalPrediction += element.prediction
+        }
+        this.setState({
+          salesTable: res.data._items,
+          totalAdjustment: totalAdjustment,
+          totalPrediction: totalPrediction
+        })
+      }
+    } catch (e) {
+      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.setState({
+        noSalesData: e.message + ', intente más tarde'
+      })
+    }
+  }
+
+  async updateSalesTable(row) {
+    if (!row.productPrice) {
+      row.productPrice = 10.00
+    }
+
+    let salesTable = this.state.salesTable
+
+    for (let i = 0; i < salesTable.length; i++) {
+
+      if (row.semanaBimbo === parseInt(salesTable[i].week)) {
+        let price = Math.abs((row.localAdjustment - row.lastLocalAdjustment) * row.productPrice)
+
+        if (row.lastLocalAdjustment > row.localAdjustment) {
+          price *= -1
+        }
+
+        salesTable[i].adjustment += price
+        this.setState({
+          salesTable: salesTable
+        })
+      }
+    }
+
+  }
+  loadTable() {
+    if (this.state.noSalesData === '') {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Cargando, un momento por favor
+          <Loader />
+        </div>
+      )
+    }
+    else {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          {this.state.noSalesData}
+        </div>
+      )
+    }
+  }
+
   render () {
+    const dataSetsNumber = this.props.project.datasets.length
+    let adviseContent = null
+    if (dataSetsNumber) {
+      adviseContent =
+        <div>
+          Debes terminar de configurar al menos un
+          <strong> dataset </strong>
+        </div>
+    } else {
+      adviseContent =
+        <div>
+          Se debe agregar al menos un
+                <strong> dataset </strong> para poder generar ajustes.
+        </div>
+    }
     if (this.props.project.status === 'empty') {
       return (
         <div className='section columns'>
@@ -795,8 +916,7 @@ class TabAdjustment extends Component {
                 <p>Atención</p>
               </div>
               <div className='message-body has-text-centered is-size-5'>
-                Se debe agregar al menos un
-                <strong> dataset </strong> para poder generar ajustes.
+                {adviseContent}
               </div>
             </article>
           </div>
@@ -833,7 +953,7 @@ class TabAdjustment extends Component {
     if (!this.state.filters.semanasBimbo.length > 0 && !this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          Cargando un momento por favor
+          Cargando, un momento por favor
           <Loader />
         </div>
       )
@@ -851,11 +971,18 @@ class TabAdjustment extends Component {
         semanasBimbo: {
           type: 'number',
           title: 'Semana',
-          enum: []
+          enum: [],
+          enumNames: []          
         },
         channels: {
           type: 'string',
           title: 'Canales',
+          enum: [],
+          enumNames: []
+        },
+        salesCenters: {
+          type: 'string',
+          title: 'Centros de Venta',
           enum: [],
           enumNames: []
         },
@@ -870,42 +997,46 @@ class TabAdjustment extends Component {
           title: 'Categorias de producto',
           enum: [],
           enumNames: []
-        },
-        salesCenters: {
-          type: 'string',
-          title: 'Centros de Venta',
-          enum: [],
-          enumNames: []
         }
       }
     }
 
     const uiSchema = {
-      period: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Periodo'},
-      semanasBimbo: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione semana'},
-      channels: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione canal'},
-      products: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione producto'},
-      categories: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione categoria'},
-      salesCenters: {'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Centro de Venta'}
+      period: { 'ui:widget': SelectWidget },
+      semanasBimbo: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las semanas' },
+      channels: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los canales' },
+      salesCenters: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los centros de venta' },
+      products: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los productos' },
+      categories: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorías' }
     }
 
-    schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
-    schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
+    if (this.state.filters.periods.length > 0) { 
+      schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
+      schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
+      schema.properties.period.default = true
+    }
+    if (this.state.filters.filteredSemanasBimbo.length > 0) {
+      schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
+      schema.properties.semanasBimbo.enumNames = this.state.filters.filteredSemanasBimbo.map(item => { return 'Semana ' + item })
+    }
+    if (this.state.filters.channels.length > 0) { 
+      schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
+      schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return 'Canal ' + item.name })
+    }
 
-    schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
+    if (this.state.filters.products.length > 0) {     
+      schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
+      schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
+    }
+    if (this.state.filters.categories.length > 0) { 
+      schema.properties.categories.enum = this.state.filters.categories
+      schema.properties.categories.enumNames = this.state.filters.categories
+    }
 
-    schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
-    schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return item.name })
-
-    schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
-    schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
-
-    schema.properties.categories.enum = this.state.filters.categories
-    schema.properties.categories.enumNames = this.state.filters.categories
-
-    schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
-    schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
-    
+    if (this.state.filters.salesCenters.length > 0) { 
+      schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
+      schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
+    }
     return (
       <div>
         <div className='section'>
@@ -919,6 +1050,7 @@ class TabAdjustment extends Component {
           <div className='columns'>
             <div className='column'>
               <BaseForm
+                className='inline-form'
                 schema={schema}
                 uiSchema={uiSchema}
                 formData={this.state.formData}
@@ -926,25 +1058,101 @@ class TabAdjustment extends Component {
                 onSubmit={(e) => { this.getDataRows(e) }}
                 onError={(e) => { this.filterErrorHandler(e) }}
               >
+              <br />
                 <div className='field is-grouped'>
                   <div className='control'>
                     <button
-                      className={'button is-primary is-medium' + this.state.isLoading}
+                      className={'button is-primary' + this.state.isLoading}
                       type='submit'
                       disabled={!!this.state.isLoading}
                     >
-                      Filtrar
+                      <span className='icon'>
+                        <i className='fa fa-filter' />
+                      </span>
+                      <span>
+                        Filtrar
+                    </span>
                     </button>
                   </div>
                 </div>
               </BaseForm>
             </div>
-            { currentRole !== 'manager-level-3' &&
-              <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
+
+            <div className='column has-text-right'>
+              <div className='card'>
+                <div className='card-header'>
+                  <h1 className='card-header-title'>Totales de Venta</h1>
+                </div>
+                <div className='card-content historical-container'>
+                  {
+                    currentRole !== 'manager-level-3' &&
+                      this.state.salesTable.length > 0 ? 
+                      <table className='table historical is-fullwidth'>
+                        <thead>
+                          <tr>
+                            <th colSpan='2'>Predicción</th>
+                            <th colSpan='2'>Predicción con Ajuste</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {this.state.salesTable.map((item, key) => {
+                            return (
+                              <tr key={key}>
+                                <td>
+                                  Semana {item.week}
+                                </td>
+                                <td>
+                                  $ {item.prediction.toFixed(2)}
+                                </td>
+                                <td>
+                                  Semana {item.week}
+                                </td>
+                                <td>
+                                  $ {item.adjustment.toFixed(2)}
+                                </td>
+                              </tr>
+                            )
+                          })
+                          }
+
+                          <tr>
+                            <th>
+                              Total
+                        </th>
+                            <td>
+                              $ {this.state.totalPrediction.toFixed(2)}
+                            </td>
+                            <th>
+                              Total
+                        </th>
+                            <td>
+                              $ {this.state.totalAdjustment.toFixed(2)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      :
+                      this.loadTable()
+                  }
+                </div>
+              </div>
+              <br />
+              <div className='field is-grouped is-grouped-right'>
+                <div className='control'>
+                  <button
+                    className={'button is-info'}
+                    type='button'
+                    onClick={e => this.downloadReport()}
+                  >
+                    <span className='icon'>
+                      <i className='fa fa-download' />
+                    </span>
+                    <span>Descargar Reporte</span>
+                  </button>
+                </div>                  
+                <div className='control'>
                     <button
-                      className={'button is-success is-medium' + this.state.isConciliating}
+                      className={'button is-success' + this.state.isConciliating}
                       disabled={!!this.state.isConciliating}
                       type='button'
                       onClick={e => this.conciliateOnClick()}
@@ -954,7 +1162,7 @@ class TabAdjustment extends Component {
                   </div>
                 </div>
               </div>
-            }
+            
           </div>
           <section className='section'>
             {!this.state.isFiltered

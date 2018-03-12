@@ -19,7 +19,7 @@ module.exports = new Route({
       .populate('newSalesCenters')
       .populate('newChannels')
 
-    ctx.assert(dataset, 404, 'DataSet not found ')
+    ctx.assert(dataset, 404, 'DataSet no encontrado ')
 
     ctx.body = {
       data: dataset.toPublic()

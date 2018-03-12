@@ -6,7 +6,6 @@ import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares/'
 
 import tree from '~core/tree'
-import CreateUser from './create'
 import CreateUserNoModal from './create-no-modal'
 import DeleteButton from '~base/components/base-deleteButton'
 
@@ -18,7 +17,6 @@ export default ListPage({
   validate: loggedIn,
   titleSingular: 'Usuario',
   create: false,
-  createComponent: CreateUser,
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
@@ -111,7 +109,7 @@ export default ListPage({
             const users = await api.get('/admin/users/',
               { start: 0,
                 limit: 10,
-                sort: cursor.sort || ''
+                sort: cursor.sort || 'name'
               })
 
             tree.set('users', {

@@ -13,7 +13,7 @@ const task = new Task(async function (argv) {
   const projects = await Project.find({
     status: 'pendingRows',
     isDeleted: false
-  })
+  }).populate('activeDataset')
 
   if (projects.length === 0) {
     console.log('No projects to verify ...')
@@ -70,8 +70,8 @@ const task = new Task(async function (argv) {
           name: 'New Adjustment',
           description: '',
           organization: project.organization,
-          createdBy: project.createdBy,
-          uploadedBy: project.createdBy,
+          createdBy: project.activeDataset.conciliatedBy,
+          uploadedBy: project.activeDataset.conciliatedBy,
           uploaded: true,
           project: project._id,
           externalId: resFilter._id,
@@ -86,7 +86,9 @@ const task = new Task(async function (argv) {
 
         project.set({
           activeDataset: dataset,
-          bussinesRules: res.rules
+          businessRules: res.rules,
+          dateMax: res.dataset.date_max,
+          dateMin: res.dataset.date_min
         })
 
         await project.save()

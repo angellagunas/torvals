@@ -20,7 +20,7 @@ module.exports = new Route({
       .populate('organization')
 
     if (!project) {
-      ctx.throw(404, 'Project not found')
+      ctx.throw(404, 'Proyecto no encontrado')
     }
 
     org = project.organization
@@ -69,7 +69,7 @@ module.exports = new Route({
 
       await dataset.process(res)
     } catch (e) {
-      ctx.throw(401, 'Failed to send Dataset for conciliation')
+      ctx.throw(401, 'Falló al enviar dataset para conciliación')
     }
 
     ctx.body = {

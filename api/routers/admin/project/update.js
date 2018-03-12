@@ -15,10 +15,10 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const project = await Project.findOne({'uuid': projectId, 'isDeleted': false}).populate('organization').populate('datasets.dataset')
-    ctx.assert(project, 404, 'Project not found')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     const org = await Organization.findOne({uuid: data.organization})
-    ctx.assert(org, 404, 'Organization not found')
+    ctx.assert(org, 404, 'Organización no encontrada')
 
     data.organization = org
 

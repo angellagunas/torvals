@@ -45,6 +45,13 @@ const schema = lov.object().required().keys({
       priority: lov.number(),
       isDefault: lov.boolean()
     })
+  ),
+  relations: lov.array().required().items(
+    lov.object().keys({
+      user: lov.string().required(),
+      organization: lov.string().required(),
+      role: lov.string().required()
+    })
   )
 })
 
@@ -190,6 +197,64 @@ var seedData = async function () {
       }
 
       delete existingOrg
+    }
+
+    console.log('Saving organizations and roles of users ....')
+    for (var rel of data.relations) {
+      const existingOrg = await Organization.findOne({
+        name: rel.organization,
+        slug: slugify(rel.organization)
+      })
+
+      const existingRole = await Role.findOne({
+        name: rel.role,
+        slug: slugify(rel.role)
+      })
+
+      const existingUser = await User.findOne({
+        email: rel.user
+      })
+
+      if (!existingOrg || !existingRole || !existingUser) {
+        console.log('Error!')
+        console.log(`Can't save relation: ${rel.user} - ${rel.organization} - ${rel.role}`)
+        continue
+      }
+
+      var pos = existingUser.organizations.findIndex(e => {
+        return (
+          String(e.organization) === String(existingOrg._id)
+        )
+      })
+
+      if (pos >= 0) {
+        `The user ${rel.user} already has the relation: ${rel.organization} - ${rel.role}`
+        continue
+      }
+
+      pos = existingUser.organizations.findIndex(e => {
+        return (
+          String(e.organization) === String(existingOrg._id) &&
+          String(e.role) === String(existingRole._id)
+        )
+      })
+
+      if (pos >= 0) {
+        console.log(
+          `The user ${rel.user} already has the relation: ${rel.organization} - ${rel.role}`
+        )
+        continue
+      }
+
+      let orgObj = {organization: existingOrg, role: existingRole}
+
+      existingUser.organizations.push(orgObj)
+
+      await existingUser.save()
+
+      delete existingOrg
+      delete existingRole
+      delete existingUser
     }
   } catch (e) {
     console.log('ERROR!!!!')

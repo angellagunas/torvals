@@ -5,7 +5,6 @@ import tree from '~core/tree'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
-import CreateUser from './create'
 import CreateUserNoModal from './create-no-modal'
 import DeleteButton from '~base/components/base-deleteButton'
 
@@ -18,7 +17,6 @@ export default ListPage({
   validate: [loggedIn, verifyRole],
   titleSingular: 'Usuario',
   create: false,
-  createComponent: CreateUser,
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
@@ -125,6 +123,11 @@ export default ListPage({
           }
 
           const currentUser = tree.get('user')
+          var disabledActions = false
+
+          if (row.roleDetail && currentUser) {
+            disabledActions = row.roleDetail.priority < currentUser.currentRole.priority
+          }
 
           return (
             <div className='field is-grouped'>
@@ -136,7 +139,7 @@ export default ListPage({
                 </Link>
               </div>
               <div className='control'>
-                {currentUser.uuid !== row.uuid && (
+                {currentUser.uuid !== row.uuid && !disabledActions && (
                   <DeleteButton
                     iconOnly
                     icon='fa fa-trash'

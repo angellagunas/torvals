@@ -147,7 +147,7 @@ const branchedReadyDataSets = branch({readydatasets: 'readydatasets'}, ReadyData
 
 export default Page({
   path: '/datasets/ready',
-  title: 'Ready',
+  title: 'Preparados',
   icon: 'thumbs-up',
   exact: true,
   validate: loggedIn,

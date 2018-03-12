@@ -55,7 +55,7 @@ class DeletedSalesCenters extends Component {
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
-              Restore
+              Restaurar
             </button>
           )
         }
@@ -122,7 +122,7 @@ const branchedDeletedSalesCenters = branch(
 
 export default Page({
   path: '/salesCenters/deleted',
-  title: 'Deleted',
+  title: 'Eliminados',
   icon: 'trash',
   exact: true,
   validate: loggedIn,

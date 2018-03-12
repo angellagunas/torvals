@@ -43,30 +43,41 @@ const task = new Task(async function (argv) {
       persist: true
     }
 
-    var res = await request(options)
+    try {
+      var res = await request(options)
 
-    if (res.status === 'done' && res.headers.length > 1) {
-      console.log(`${dataset.name} dataset has finished preprocessing`)
-      dataset.set({
-        status: 'configuring',
-        etag: res._etag,
-        columns: res.headers.map(item => {
-          return {
-            name: item,
-            isDate: false,
-            isAnalysis: false,
-            isOperationFilter: false,
-            isAnalysisFilter: false
-          }
+      if (res.status === 'done' && res.headers.length > 1) {
+        console.log(`${dataset.name} dataset has finished preprocessing`)
+        dataset.set({
+          status: 'configuring',
+          etag: res._etag,
+          columns: res.headers.map(item => {
+            return {
+              name: item,
+              isDate: false,
+              isAnalysis: false,
+              isOperationFilter: false,
+              isAnalysisFilter: false
+            }
+          })
         })
-      })
 
-      await dataset.save()
-    }
+        await dataset.save()
+      }
 
-    if (res.status === 'error') {
+      if (res.status === 'error') {
+        dataset.set({
+          error: res.message,
+          status: 'error'
+        })
+
+        await dataset.save()
+
+        console.log(`Error while preprocessing dataset: ${dataset.error}`)
+      }
+    } catch (e) {
       dataset.set({
-        error: res.message,
+        error: e,
         status: 'error'
       })
 

@@ -9,7 +9,7 @@ module.exports = new Route({
     var salesCenterId = ctx.params.uuid
 
     var salesCenter = await SalesCenter.findOne({'uuid': salesCenterId})
-    ctx.assert(salesCenter, 404, 'SalesCenter not found')
+    ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
 
     salesCenter.set({
       isDeleted: true

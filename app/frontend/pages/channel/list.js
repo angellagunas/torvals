@@ -11,7 +11,7 @@ export default ListPage({
   title: 'Canales',
   icon: 'filter',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Canal',
   create: true,
@@ -32,7 +32,7 @@ export default ListPage({
     ],
     align: 'left'
   },
-  canCreate: 'admin, orgadmin, analyst',
+  canCreate: 'admin, orgadmin, analyst, manager-level-2',
   baseUrl: '/app/channels',
   branchName: 'channels',
   detailUrl: '/channels/',

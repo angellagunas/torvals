@@ -134,10 +134,10 @@ class ProductDetail extends Component {
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <DeleteButton
-                      titleButton={'Delete'}
-                      objectName='Product'
+                      titleButton={'Eliminar'}
+                      objectName='Producto'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={`Are you sure you want to delete the product ${product.name}?`}
+                      message={`¿Estas seguro de eliminar el producto ${product.name}?`}
                     />
                   </div>
                 </div>

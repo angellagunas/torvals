@@ -24,7 +24,8 @@ roleSchema.methods.toPublic = function () {
     name: this.name,
     description: this.description,
     slug: this.slug,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    priority: this.priority
   }
 }
 
