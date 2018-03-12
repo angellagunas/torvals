@@ -550,6 +550,7 @@ a.navbar-item:hover {
 .historical-container {
     display: flex;
     justify-content: center;
+    height: 250px;
 }
 
 .historical tbody {
@@ -951,4 +952,24 @@ tr {
 
 .active {
     font-weight: bold;
+}
+
+.inline-form {
+    width: 100%;
+    .select,
+    select {
+        display: block !important;
+        width: 100%;
+        max-width: 400px;
+    }
+    .field {
+        padding: 0 10px 2px 0;
+    }
+    label {
+        display: none !important;
+    }
+}
+
+.keep-cell {
+    width: 100px;
 }

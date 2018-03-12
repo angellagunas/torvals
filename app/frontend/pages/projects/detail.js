@@ -279,7 +279,7 @@ class ProjectDetail extends Component {
                 tabTitle={project.name}
                 tabs={tabs}
                 selectedTab={this.state.selectedTab}
-                className='is-right is-medium'
+                className='is-right'
                 extraTab={
                 canEdit &&
                 <DeleteButton
@@ -295,7 +295,7 @@ class ProjectDetail extends Component {
 
         { canEdit &&
           <SidePanel
-            sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+            sidePanelClassName={project.status !== 'empty' ? 'searchbox' : 'is-hidden'}
             icon={'plus'}
             title={'Opciones'}
             content={options}

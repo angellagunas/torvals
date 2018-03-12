@@ -1,0 +1,47 @@
+@include touch {
+    .pad-sides {
+        padding: 0 !important;
+    }
+    .is-medium {
+        font-size: 1rem !important;
+    }
+    .columns.is-centered {
+        justify-content: inherit;
+    }
+}
+
+@include desktop-only {
+    .pad-sides {
+        padding: 0 1rem !important;
+    }
+    .is-medium {
+        font-size: 1rem !important;
+    }
+    section {
+        padding: 0.5rem 1rem;
+    }
+    .columns.is-centered {
+        justify-content: inherit;
+    }
+}
+
+@include widescreen-only {
+    .pad-sides {
+        padding: 0 1em !important;
+    }
+    .section {
+        padding: 1.2rem 0.6rem;
+    }
+    .md-checkbox input {
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        margin: -10px;
+    }
+    .columns.is-centered {
+        justify-content: inherit;
+    }
+    .md-checkbox>div {
+        margin-left: 20px;
+    }
+}
