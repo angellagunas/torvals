@@ -310,21 +310,22 @@ class TabHistorical extends Component {
         product: this.state.formData.products,
         category: this.state.formData.categories
       })
+      
       this.setState({
-      historicData: res.data,
-      isLoading: '',
-      reloadGraph: true
-    }, async () => {
-      await this.getWeekTotals(this.state.filters.dates)
-      await this.getLabels()
-      await this.getPredictions()
-      await this.getAdjustments()
-      await this.getSales()
-      await this.getPrevSales()
-      this.setState({
-        reloadGraph: false
+        historicData: res.data,
+        isLoading: '',
+        reloadGraph: true
+      }, async () => {
+        await this.getWeekTotals(this.state.filters.dates)
+        await this.getLabels()
+        await this.getPredictions()
+        await this.getAdjustments()
+        await this.getSales()
+        await this.getPrevSales()
+        this.setState({
+          reloadGraph: false
+        })
       })
-    })
     } catch (e) {
       this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
       this.setState({
