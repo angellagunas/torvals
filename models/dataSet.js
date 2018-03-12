@@ -595,9 +595,7 @@ dataSetSchema.methods.process = async function (res) {
 }
 
 dataSetSchema.methods.sendFinishedConciliating = async function () {
-  // if (this.source !== 'adjustment') return
-
-  console.log(this)
+  if (this.source !== 'adjustment') return
 
   const email = new Mailer('adjustment-finished')
 
