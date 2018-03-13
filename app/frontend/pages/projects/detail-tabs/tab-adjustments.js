@@ -44,6 +44,7 @@ class TabAdjustment extends Component {
       selectedCheckboxes: new Set(),
       searchTerm: '',
       isConciliating: '',
+      isDownloading: '',
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: ''            
@@ -892,11 +893,21 @@ class TabAdjustment extends Component {
   }
 
   async downloadReport () {
+    if (!this.state.formData.salesCenters) {
+      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 3000, toast.TYPE.ERROR)
+
+      return
+    }
+
+    this.setState({isDownloading: ' is-loading'})
+
     let min
     let max
+    let url = '/app/rows/download/' + this.props.project.uuid
     var period = this.state.filters.periods.find(item => {
       return item.number === this.state.formData.period
     })
+
     this.state.filters.dates.map((date) => {
       if (period.maxSemana === date.week) {
         max = date.dateEnd
@@ -905,7 +916,7 @@ class TabAdjustment extends Component {
         min = date.dateStart
       }
     })
-    let url = '/app/rows/download/' + this.props.project.uuid
+    
     try {
       let res = await api.post(url, {
         start_date: moment(min).format('YYYY-MM-DD'),
@@ -919,12 +930,17 @@ class TabAdjustment extends Component {
       var FileSaver = require('file-saver');
       var blob = new Blob(res.split(''), {type: "text/csv;charset=utf-8"});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
+      this.setState({isDownloading: ''})
+      this.notify('Se ha generado el reporte correctamente!', 3000, toast.TYPE.SUCCESS)
     } catch (e) {
       console.log('error',e.message)
+    
       this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+    
       this.setState({
         isLoading: '',
-        noSalesData: e.message + ', intente más tarde'
+        noSalesData: e.message + ', intente más tarde',
+        isDownloading: ''
       })
     }
   }
@@ -1178,7 +1194,8 @@ class TabAdjustment extends Component {
               <div className='field is-grouped is-grouped-right'>
                 <div className='control'>
                   <button
-                    className={'button is-info'}
+                    className={'button is-primary' + this.state.isDownloading}
+                    disabled={!!this.state.isDownloading}
                     type='button'
                     onClick={e => this.downloadReport()}
                   >
