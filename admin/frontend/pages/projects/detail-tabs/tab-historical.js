@@ -407,37 +407,7 @@ class TabHistorical extends Component {
     var schema = {
       type: 'object',
       title: '',
-      properties: {
-        period: {
-          type: 'number',
-          title: 'Periodo',
-          enum: []
-        },
-        channels: {
-          type: 'string',
-          title: 'Canales',
-          enum: [],
-          enumNames: []
-        },
-        salesCenters: {
-          type: 'string',
-          title: 'Centros de Venta',
-          enum: [],
-          enumNames: []
-        },
-        products: {
-          type: 'string',
-          title: 'Productos',
-          enum: [],
-          enumNames: []
-        },
-        categories: {
-          type: 'string',
-          title: 'Categorias de producto',
-          enum: [],
-          enumNames: []
-        }
-      }
+      properties: {}
     }
 
     const uiSchema = {
@@ -449,23 +419,52 @@ class TabHistorical extends Component {
     }
 
     if (this.state.filters.periods.length > 0) {
+      schema.properties.period = {
+        type: 'number',
+        title: 'Periodo',
+        enum: []
+      }
       schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
       schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
       schema.properties.period.default = true
     }
     if (this.state.filters.channels.length > 0) {
+      schema.properties.channels = {
+        type: 'string',
+        title: 'Canales',
+        enum: [],
+        enumNames: []
+      }
       schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
       schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return 'Canal ' + item.name })
     }
     if (this.state.filters.products.length > 0) {
+      schema.properties.products = {
+        type: 'string',
+        title: 'Productos',
+        enum: [],
+        enumNames: []
+      }
       schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
       schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
     }
     if (this.state.filters.categories.length > 0) {
+      schema.properties.categories = {
+        type: 'string',
+        title: 'Categorias de producto',
+        enum: [],
+        enumNames: []
+      }
       schema.properties.categories.enum = this.state.filters.categories
       schema.properties.categories.enumNames = this.state.filters.categories
     }
     if (this.state.filters.salesCenters.length > 0) {
+      schema.properties.salesCenters = {
+        type: 'string',
+        title: 'Centros de Venta',
+        enum: [],
+        enumNames: []
+      }
       schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
       schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
     }
