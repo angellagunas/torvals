@@ -105,8 +105,8 @@ module.exports = new Route({
       .populate(['organization', 'salesCenter', 'product', 'adjustmentRequest', 'channel'])
       .sort(ctx.request.query.sort || '-dateCreated')
 
-    rows = rows.map(async (item) => {
-      await item.product.populate('price').execPopulate()
+    rows = rows.map((item) => {
+      // item.product.populate('price').execPopulate()
 
       return {
         uuid: item.uuid,
