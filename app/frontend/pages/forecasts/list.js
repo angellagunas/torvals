@@ -13,6 +13,22 @@ export default ListPage({
   roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-1, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Predicción',
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/forcasts',
+        label: 'Forecasts',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/app/forecasts',
   branchName: 'forecasts',
   detailUrl: '/forecasts/',

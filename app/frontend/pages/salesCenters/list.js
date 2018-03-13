@@ -16,6 +16,22 @@ export default ListPage({
   titleSingular: 'Centro de venta',
   create: true,
   createComponent: CreateSalesCenter,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/salesCenters/',
+        label: 'Centros de venta',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   canCreate: 'admin, orgadmin, analyst',
   baseUrl: '/app/salesCenters',
   branchName: 'salesCenters',

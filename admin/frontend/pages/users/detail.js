@@ -15,6 +15,7 @@ import { BaseTable } from '~base/components/base-table'
 import Link from '~base/router/link'
 import AddOrganization from './add-organization'
 import BaseModal from '~base/components/base-modal'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class UserDetail extends Component {
   constructor (props) {
@@ -510,7 +511,28 @@ class UserDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/users',
+                  label: 'Usuarios',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/users/',
+                  label: 'Detalle de usuario',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <br />
             {resetButton}
             <div className='columns is-mobile'>
               <div className='column'>

@@ -6,6 +6,7 @@ import api from '~base/api'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class DeletedUsers extends Component {
   constructor (props) {
@@ -34,7 +35,7 @@ class DeletedUsers extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -46,7 +47,7 @@ class DeletedUsers extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
@@ -62,14 +63,24 @@ class DeletedUsers extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Deleted users</h1>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/users',
+                  label: 'Usuarios desactivados',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Usuarios desactivados</h1>
             <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                  Deleted users
-                </p>
-              </header>
               <div className='card-content'>
                 <div className='columns'>
                   <div className='column'>

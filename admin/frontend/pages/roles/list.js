@@ -15,6 +15,22 @@ export default ListPage({
   titleSingular: 'Rol',
   create: true,
   createComponent: CreateRole,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/admin/manage/roles',
+        label: 'Roles',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/roles',
   branchName: 'roles',
   detailUrl: '/admin/manage/roles/',

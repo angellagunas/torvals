@@ -16,6 +16,22 @@ export default ListPage({
   titleSingular: 'Producto',
   create: true,
   createComponent: CreateProduct,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/products/',
+        label: 'Productos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   canCreate: 'admin, orgadmin, analyst, manager-level-2',
   baseUrl: '/app/products',
   branchName: 'products',

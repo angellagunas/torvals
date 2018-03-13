@@ -15,6 +15,22 @@ export default ListPage({
   titleSingular: 'Canal',
   create: true,
   createComponent: CreateChannel,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/admin/channels/',
+        label: 'Canales activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/channels',
   branchName: 'channels',
   detailUrl: '/admin/channels/detail/',

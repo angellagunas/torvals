@@ -20,6 +20,22 @@ export default ListPage({
   titleSingular: 'Grupo',
   create: false,
   createComponent: CreateGroup,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/manage/groups/',
+        label: 'Grupos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   sidePanel: true,
   sidePanelIcon: 'plus',
   sidePanelComponent: CreateGroupNoModal,
