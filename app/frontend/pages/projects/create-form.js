@@ -37,7 +37,7 @@ class ProjectForm extends Component {
   }
 
   componentWillMount () {
-    if (this.props.setAlert) { this.props.setAlert('is-invisible', ' ') }
+    if (this.props.setAlert) { this.props.setAlert('is-white', ' ') }
   }
   errorHandler (e) {}
 

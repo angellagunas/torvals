@@ -147,7 +147,7 @@ class TabDatasets extends Component {
   }
 
   componentWillMount () {
-    this.props.setAlert('is-invisible', ' ')
+    this.props.setAlert('is-white', ' ')
   }
   render () {
     const dataSetsNumber = this.props.project.datasets.length

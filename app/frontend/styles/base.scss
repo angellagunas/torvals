@@ -122,6 +122,7 @@ body {
     border-radius: 5px 0px 0px 5px;
     cursor: pointer;
     text-align: center;
+    z-index: 3;
 }
 
 .side-filters {
@@ -760,6 +761,25 @@ tr {
     background: rgb(170, 170, 170);
 }
 
-.calendar{
+.calendar {
     margin: auto;
+}
+
+.sticky-tab {
+    background-color: #fff;
+    position: sticky;
+    top: 32px;
+    z-index: 10;
+}
+
+.sticky-msg {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.notification.is-white {
+    .has-text-info {
+        color: #fff !important;
+    }
 }

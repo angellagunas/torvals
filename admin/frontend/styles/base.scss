@@ -123,6 +123,7 @@ body {
     cursor: pointer;
     text-align: center;
     width: 40px;
+    z-index: 3;
 }
 
 .side-filters {
@@ -259,10 +260,6 @@ pre.json {
 
 .is-not-shown {
     visibility: hidden
-}
-
-.is-white {
-    background-color: white
 }
 
 .is-transparent {
@@ -675,4 +672,23 @@ tr {
 
 .calendar {
     margin: auto;
+}
+
+.sticky-tab {
+    background-color: #fff;
+    position: sticky;
+    top: 32px;
+    z-index: 10;
+}
+
+.sticky-msg {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.notification.is-white {
+    .has-text-info{
+         color: #fff !important;
+    }
 }

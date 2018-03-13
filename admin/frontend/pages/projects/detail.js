@@ -263,13 +263,14 @@ class ProjectDetail extends Component {
         Agregar Dataset
       </span>
     </button>)
+
     return (
       <div>
         <div className='columns c-flex-1 is-marginless'>
           <div className='column is-paddingless'>
             {
             this.state.alertMsg &&
-            <div className={'notification has-text-centered is-uppercase is-paddingless ' + this.state.alertType}>
+            <div className={'notification has-text-centered is-uppercase is-paddingless sticky-msg ' + this.state.alertType}>
               <span className='icon is-medium has-text-info'>
                 <i className='fa fa-warning' />
               </span>
@@ -277,22 +278,22 @@ class ProjectDetail extends Component {
             </div>
           }
             <div className='section pad-sides'>
-            <div className='is-padding-top-small'>
-              <Tabs
-                tabTitle={project.name}
-                tabs={tabs}
-                selectedTab={this.state.selectedTab}
-                className='is-right'
-                extraTab={
-                  <DeleteButton
-                    objectName='Proyecto'
-                    objectDelete={() => this.deleteObject()}
-                    message={'Estas seguro de querer eliminar este Proyecto?'}
+              <div className='is-padding-top-small'>
+                <Tabs
+                  tabTitle={project.name}
+                  tabs={tabs}
+                  selectedTab={this.state.selectedTab}
+                  className='is-right sticky-tab'
+                  extraTab={
+                    <DeleteButton
+                      objectName='Proyecto'
+                      objectDelete={() => this.deleteObject()}
+                      message={'Estas seguro de querer eliminar este Proyecto?'}
                   />
                 }
               />
+              </div>
             </div>
-          </div>
           </div>
 
           <SidePanel
