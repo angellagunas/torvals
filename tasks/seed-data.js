@@ -5,6 +5,7 @@ const fs = require('fs')
 const { User, Organization, Role } = require('models')
 const slugify = require('underscore.string/slugify')
 const lov = require('lov')
+const verifyPrices = require('queues/update-prices')
 
 var argv = require('minimist')(process.argv.slice(2))
 
@@ -189,11 +190,12 @@ var seedData = async function () {
       })
 
       if (!existingOrg) {
-        await Organization.create({
+        const organizationCreated = await Organization.create({
           name: org.name,
           description: org.description,
           slug: slugify(org.name)
         })
+        verifyPrices.add({uuid: organizationCreated.uuid})
       }
 
       delete existingOrg
