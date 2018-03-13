@@ -36,7 +36,7 @@ module.exports = new Route({
     var role = await Role.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters, priority: {$gte: currentRole.priority}},
+      find: {isDeleted: false, ...filters, priority: {$gt: currentRole.priority}},
       sort: ctx.request.query.sort || 'priority'
     })
 

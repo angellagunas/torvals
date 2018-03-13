@@ -251,7 +251,7 @@ class UserDetail extends Component {
 
     var disabledForm = false
     if (user.roleDetail && currentUser) {
-      disabledForm = user.roleDetail.priority < currentUser.currentRole.priority
+      disabledForm = user.roleDetail.priority <= currentUser.currentRole.priority
     }
 
     if (user) {

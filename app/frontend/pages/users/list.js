@@ -110,7 +110,7 @@ export default ListPage({
           var disabledActions = false
 
           if (row.roleDetail && currentUser) {
-            disabledActions = row.roleDetail.priority < currentUser.currentRole.priority
+            disabledActions = row.roleDetail.priority <= currentUser.currentRole.priority
           }
 
           return (
