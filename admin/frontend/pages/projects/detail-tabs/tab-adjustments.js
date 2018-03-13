@@ -859,13 +859,17 @@ class TabAdjustment extends Component {
     let url = '/admin/rows/download/' + this.props.project.uuid
     try {
       let res = await api.post(url, {
-        start_date: moment(max).format('YYYY-MM-DD'),
-        end_date:  moment(min).format('YYYY-MM-DD'),
+        start_date: moment(min).format('YYYY-MM-DD'),
+        end_date:  moment(max).format('YYYY-MM-DD'),
         salesCenter: this.state.formData.salesCenters,
         channel: this.state.formData.channels,
         product: this.state.formData.products,
         category: this.state.formData.categories
       })
+
+      var FileSaver = require('file-saver');
+      var blob = new Blob(res.split(''), {type: "text/csv;charset=utf-8"});
+      FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
     } catch (e) {
       console.log('error',e.message)
       this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)

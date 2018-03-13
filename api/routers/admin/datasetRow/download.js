@@ -18,7 +18,7 @@ module.exports = new Route({
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
     if (!project.activeDataset) {
-      ctx.throw(404, 'No hay DataSet activo para el proyecto')
+      ctx.throw(400, 'No hay DataSet activo para el proyecto')
     }
 
     try {
@@ -29,7 +29,7 @@ module.exports = new Route({
         apiData = Api.get()
       }
     } catch (e) {
-      ctx.throw(401, 'Falló al conectar con servidor (Abraxas)')
+      ctx.throw(503, 'Falló al conectar con servidor (Abraxas)')
     }
 
     const requestBody = {
@@ -81,10 +81,10 @@ module.exports = new Route({
     try {
       var res = await request(options)
     } catch (e) {
-      ctx.throw(401, 'Falló al obtener archivo (Abraxas)')
+      ctx.throw(503, 'Falló al obtener archivo (Abraxas)')
     }
 
-    ctx.set('Content-disposition', `attachment; filename=datasetrow.csv`)
+    ctx.set('Content-disposition', 'attachment; filename=dataset_filtered.csv')
     ctx.set('Content-type', `text/csv`)
 
     ctx.body = res
