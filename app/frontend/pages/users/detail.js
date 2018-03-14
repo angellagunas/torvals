@@ -332,7 +332,6 @@ class UserDetail extends Component {
               ]}
               align='left'
             />
-            {resetButton}
             {!disabledForm && resetButton}
             <div className='columns is-mobile'>
               <div className='column'>
