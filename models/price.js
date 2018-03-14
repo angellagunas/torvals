@@ -37,4 +37,21 @@ priceSchema.methods.toAdmin = function () {
   return data
 }
 
+priceSchema.methods.toPublic = function () {
+  let data = {
+    uuid: this.uuid,
+    externalId: this.externalId,
+    price: this.price,
+    product: this.product,
+    productExternalId: this.productExternalId,
+    channel: this.channel,
+    channelExternalId: this.channelExternalId,
+    etag: this.etag,
+    dateCreated: this.dateCreated,
+    organization: this.organization
+  }
+  if (this.channel && this.channel.toPublic) { data.channel = this.channel.toPublic() }
+  return data
+}
+
 module.exports = mongoose.model('Price', priceSchema)

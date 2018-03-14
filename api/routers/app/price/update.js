@@ -59,7 +59,7 @@ module.exports = new Route({
     } catch (e) {
       let errorString = []
       errorString = /<title>(.*?)<\/title>/g.exec(e.message)
-      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+      ctx.throw(503, 'Abraxas API: ' + (errorString ? errorString[1] : 'No está disponible'))
 
       return false
     }
