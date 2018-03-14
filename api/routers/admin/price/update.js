@@ -29,7 +29,7 @@ module.exports = new Route({
         apiData = Api.get()
       }
     } catch (e) {
-      ctx.throw(503, 'Abraxas API: No está disponible')
+      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     var options = {

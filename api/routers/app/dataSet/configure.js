@@ -104,10 +104,14 @@ module.exports = new Route({
       })
     }
 
-    var apiData = Api.get()
-    if (!apiData.token) {
-      await Api.fetch()
-      apiData = Api.get()
+    try {
+      var apiData = Api.get()
+      if (!apiData.token) {
+        await Api.fetch()
+        apiData = Api.get()
+      }
+    } catch (e) {
+      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     var options = {

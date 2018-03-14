@@ -27,7 +27,7 @@ module.exports = new Route({
         apiData = Api.get()
       }
     } catch (e) {
-      ctx.throw(401, 'Falló al conectar con servidor (Abraxas)')
+      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     const requestBody = {
