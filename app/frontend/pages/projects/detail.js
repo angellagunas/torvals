@@ -28,7 +28,7 @@ class ProjectDetail extends Component {
       project: {},
       selectedTab: 'ajustes',
       datasetClassName: '',
-      roles: 'admin, orgadmin, analyst, manager-level-2',
+      roles: 'admin, orgadmin, analyst',
       canEdit: false,
       isLoading: '',
       counterAdjustments: 0
@@ -228,8 +228,7 @@ class ProjectDetail extends Component {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
-        hide: (testRoles('manager-level-1') ||
-          project.status === 'processing' ||
+        hide: (project.status === 'processing' ||
           project.status === 'pendingRows' ||
           project.status === 'empty'),
         content: (
