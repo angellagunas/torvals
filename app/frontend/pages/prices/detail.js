@@ -25,7 +25,7 @@ class PriceDetail extends Component {
   }
 
   async load () {
-    var url = '/admin/prices/' + this.props.match.params.uuid
+    var url = '/app/prices/' + this.props.match.params.uuid
     const body = await api.get(url)
 
     this.setState({
@@ -90,8 +90,8 @@ class PriceDetail extends Component {
                     <div className='columns'>
                       <div className='column'>
                         <PriceForm
-                          baseUrl='/admin/prices'
-                          url={'/admin/prices/' + this.props.match.params.uuid}
+                          baseUrl='/app/prices'
+                          url={'/app/prices/' + this.props.match.params.uuid}
                           initialState={{price: String(price.price), product: price.product.name, channel: price.channel.name}}
                           load={this.load.bind(this)}
                           submitHandler={(data) => this.submitHandler(data)}
@@ -125,7 +125,7 @@ PriceDetail.contextTypes = {
   tree: PropTypes.baobab
 }
 
-const branchedPriceDetails = branch({ prices: 'prices'}, PriceDetail)
+const branchedPriceDetails = branch({ prices: 'prices' }, PriceDetail)
 
 export default Page({
   path: '/prices/:uuid',

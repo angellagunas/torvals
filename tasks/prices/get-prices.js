@@ -41,7 +41,7 @@ const task = new Task(async function (argv) {
     if (!product) {
       product = await Product.create({
         name: 'Not identified',
-        externalId: p._id,
+        externalId: p.producto_id,
         organization: organization._id,
         isNewExternal: true
       })
