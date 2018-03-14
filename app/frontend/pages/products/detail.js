@@ -111,7 +111,7 @@ class ProductDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -153,7 +153,7 @@ class ProductDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Product
+                      Producto
                     </p>
                   </header>
                   <div className='card-content'>
@@ -190,7 +190,7 @@ class ProductDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Forecasts
+                          Predicción
                         </p>
                       </header>
                       <div className='card-content'>

@@ -104,13 +104,13 @@ class ProjectForm extends Component {
           'reviewing'
         ],
         enumNames: [
-          'empty',
-          'processing',
-          'pendingRows',
-          'adjustment',
-          'conciliating',
-          'ready',
-          'reviewing'
+          'Vacio',
+          'Procesando',
+          'Pendiente',
+          'Ajuste',
+          'Conciliando',
+          'Listo',
+          'Revisando'
         ]
       }
     } else {

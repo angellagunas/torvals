@@ -3,6 +3,7 @@ import Link from '~base/router/link'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
+import {datasetStatus} from '~base/tools'
 
 export default ListPage({
   path: '/datasets',
@@ -101,10 +102,13 @@ export default ListPage({
         }
       },
       {
-        'title': 'Status',
+        'title': 'Estatus',
         'property': 'status',
         'default': 'new',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          return datasetStatus[row.status]
+        }
       },
       {
         'title': 'Acciones',
