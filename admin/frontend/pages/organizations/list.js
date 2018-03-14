@@ -15,6 +15,22 @@ export default ListPage({
   validate: loggedIn,
   create: true,
   createComponent: CreateOrganization,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/admin/manage/organizations',
+        label: 'Organizaciones',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/organizations',
   branchName: 'organizations',
   detailUrl: '/admin/manage/organizations/',

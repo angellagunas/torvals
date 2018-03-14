@@ -15,6 +15,22 @@ export default ListPage({
   validate: loggedIn,
   create: false,
   createComponent: CreatePrice,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/admin/prices',
+        label: 'Precios activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/prices',
   branchName: 'prices',
   detailUrl: '/admin/prices/',

@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { Project, SalesCenter, Channel } = require('models')
+const { Project, SalesCenter, Channel, Product } = require('models')
 const Api = require('lib/abraxas/api')
 const request = require('lib/request')
 const lov = require('lov')
@@ -18,7 +18,7 @@ module.exports = new Route({
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
     if (!project.activeDataset) {
-      ctx.throw(404, 'No hay DataSet activo para el proyecto')
+      ctx.throw(400, 'No hay DataSet activo para el proyecto')
     }
 
     try {
@@ -29,7 +29,7 @@ module.exports = new Route({
         apiData = Api.get()
       }
     } catch (e) {
-      ctx.throw(401, 'Falló al conectar con servidor (Abraxas)')
+      ctx.throw(503, 'Falló al conectar con servidor (Abraxas)')
     }
 
     const requestBody = {
@@ -53,6 +53,14 @@ module.exports = new Route({
       requestBody[channelName.name] = channel.externalId
     }
 
+    if (data.product) {
+      const productName = project.activeDataset.getProductColumn() || {name: 'producto_id'}
+      const product = await Product.findOne({uuid: data.product})
+      ctx.assert(product, 404, 'Producto no encontrado')
+
+      requestBody[productName.name] = product.externalId
+    }
+
     if (data.period) {
       requestBody.periodo = data.period
     }
@@ -73,7 +81,7 @@ module.exports = new Route({
     try {
       var res = await request(options)
     } catch (e) {
-      ctx.throw(401, 'Falló al obtener archivo (Abraxas)')
+      ctx.throw(503, 'Falló al obtener archivo (Abraxas)')
     }
 
     ctx.set('Content-disposition', `attachment; filename=datasetrow.csv`)

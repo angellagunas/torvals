@@ -9,6 +9,7 @@ import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import OrganizationForm from './form'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class OrganizationDetail extends Component {
   constructor (props) {
@@ -90,7 +91,23 @@ class OrganizationDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/organizations/',
+                  label: 'Detalle de organización',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <br />
             <div className='columns'>
               <div className='column'>
                 <div className='card'>

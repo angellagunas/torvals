@@ -44,6 +44,7 @@ class TabAdjustment extends Component {
       selectedCheckboxes: new Set(),
       searchTerm: '',
       isConciliating: '',
+      isDownloading: '',
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: ''            
@@ -871,8 +872,8 @@ class TabAdjustment extends Component {
         })
       }
     }
-
   }
+
   loadTable() {
     if (this.state.noSalesData === '') {
       return (
@@ -888,6 +889,59 @@ class TabAdjustment extends Component {
           {this.state.noSalesData}
         </div>
       )
+    }
+  }
+
+  async downloadReport () {
+    if (!this.state.formData.salesCenters) {
+      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 3000, toast.TYPE.ERROR)
+
+      return
+    }
+
+    this.setState({isDownloading: ' is-loading'})
+
+    let min
+    let max
+    let url = '/app/rows/download/' + this.props.project.uuid
+    var period = this.state.filters.periods.find(item => {
+      return item.number === this.state.formData.period
+    })
+
+    this.state.filters.dates.map((date) => {
+      if (period.maxSemana === date.week) {
+        max = date.dateEnd
+      }
+      if (period.minSemana === date.week) {
+        min = date.dateStart
+      }
+    })
+    
+    try {
+      let res = await api.post(url, {
+        start_date: moment(min).format('YYYY-MM-DD'),
+        end_date:  moment(max).format('YYYY-MM-DD'),
+        salesCenter: this.state.formData.salesCenters,
+        channel: this.state.formData.channels,
+        product: this.state.formData.products,
+        category: this.state.formData.categories
+      })
+
+      var FileSaver = require('file-saver');
+      var blob = new Blob(res.split(''), {type: "text/csv;charset=utf-8"});
+      FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
+      this.setState({isDownloading: ''})
+      this.notify('Se ha generado el reporte correctamente!', 3000, toast.TYPE.SUCCESS)
+    } catch (e) {
+      console.log('error',e.message)
+    
+      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+    
+      this.setState({
+        isLoading: '',
+        noSalesData: e.message + ', intente más tarde',
+        isDownloading: ''
+      })
     }
   }
 
@@ -962,43 +1016,7 @@ class TabAdjustment extends Component {
     var schema = {
       type: 'object',
       title: '',
-      properties: {
-        period: {
-          type: 'number',
-          title: 'Periodo',
-          enum: []
-        },
-        semanasBimbo: {
-          type: 'number',
-          title: 'Semana',
-          enum: [],
-          enumNames: []          
-        },
-        channels: {
-          type: 'string',
-          title: 'Canales',
-          enum: [],
-          enumNames: []
-        },
-        salesCenters: {
-          type: 'string',
-          title: 'Centros de Venta',
-          enum: [],
-          enumNames: []
-        },
-        products: {
-          type: 'string',
-          title: 'Productos',
-          enum: [],
-          enumNames: []
-        },
-        categories: {
-          type: 'string',
-          title: 'Categorias de producto',
-          enum: [],
-          enumNames: []
-        }
-      }
+      properties: {}
     }
 
     const uiSchema = {
@@ -1010,30 +1028,67 @@ class TabAdjustment extends Component {
       categories: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorías' }
     }
 
-    if (this.state.filters.periods.length > 0) { 
+    if (this.state.filters.periods.length > 0) {
+      schema.properties.period = {
+        type: 'number',
+        title: 'Periodo',
+        enum: []
+      }
+
       schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
       schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
       schema.properties.period.default = true
     }
     if (this.state.filters.filteredSemanasBimbo.length > 0) {
+      schema.properties.semanasBimbo = {
+        type: 'number',
+        title: 'Semana',
+        enum: [],
+        enumNames: []
+      }
       schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
       schema.properties.semanasBimbo.enumNames = this.state.filters.filteredSemanasBimbo.map(item => { return 'Semana ' + item })
     }
-    if (this.state.filters.channels.length > 0) { 
+    if (this.state.filters.channels.length > 0) {
+      schema.properties.channels = {
+        type: 'string',
+        title: 'Canales',
+        enum: [],
+        enumNames: []
+      }
       schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
       schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return 'Canal ' + item.name })
     }
 
-    if (this.state.filters.products.length > 0) {     
+    if (this.state.filters.products.length > 0) {
+      schema.properties.products = {
+        type: 'string',
+        title: 'Productos',
+        enum: [],
+        enumNames: []
+      }
+
       schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
       schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
     }
-    if (this.state.filters.categories.length > 0) { 
+    if (this.state.filters.categories.length > 0) {
+      schema.properties.categories = {
+        type: 'string',
+        title: 'Categorias de producto',
+        enum: [],
+        enumNames: []
+      }
       schema.properties.categories.enum = this.state.filters.categories
       schema.properties.categories.enumNames = this.state.filters.categories
     }
 
-    if (this.state.filters.salesCenters.length > 0) { 
+    if (this.state.filters.salesCenters.length > 0) {
+      schema.properties.salesCenters = {
+        type: 'string',
+        title: 'Centros de Venta',
+        enum: [],
+        enumNames: []
+      }
       schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
       schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
     }
@@ -1140,7 +1195,8 @@ class TabAdjustment extends Component {
               <div className='field is-grouped is-grouped-right'>
                 <div className='control'>
                   <button
-                    className={'button is-info'}
+                    className={'button is-primary' + this.state.isDownloading}
+                    disabled={!!this.state.isDownloading}
                     type='button'
                     onClick={e => this.downloadReport()}
                   >

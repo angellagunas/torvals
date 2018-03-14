@@ -6,6 +6,7 @@ import { loggedIn } from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ChannelForm from './create-form'
 import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class ChannelDetail extends Component {
   constructor (props) {
@@ -76,7 +77,27 @@ class ChannelDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/channels',
+                  label: 'Canales',
+                  current: false
+                },
+                {
+                  path: '/admin/channels/detail/',
+                  label: 'Detalle de canal',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>

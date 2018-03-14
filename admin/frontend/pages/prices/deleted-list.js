@@ -7,6 +7,7 @@ import api from '~base/api'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class DeletedPrices extends Component {
   constructor (props) {
@@ -92,7 +93,22 @@ class DeletedPrices extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/prices/deleted',
+                  label: 'Precios eliminados',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Precios Eliminados</h1>
             <div className='card'>
               <div className='card-content'>

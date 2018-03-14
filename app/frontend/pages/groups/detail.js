@@ -13,6 +13,7 @@ import DeleteButton from '~base/components/base-deleteButton'
 import CreateUser from '../users/create'
 import BaseModal from '~base/components/base-modal'
 import tree from '~core/tree'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class GroupDetail extends Component {
   constructor (props) {
@@ -215,7 +216,27 @@ class GroupDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/manage/groups',
+                  label: 'Grupos',
+                  current: false
+                },
+                {
+                  path: '/manage/groups/',
+                  label: 'Detalle de grupo',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>

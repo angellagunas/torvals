@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 const slugify = require('underscore.string/slugify')
+const verifyPrices = require('queues/update-prices')
 
 const {Organization} = require('models')
 
@@ -36,6 +37,8 @@ module.exports = new Route({
     if (file) {
       await org.uploadOrganizationPicture(file)
     }
+
+    verifyPrices.add({uuid: org.uuid})
 
     ctx.body = {
       data: org.format()
