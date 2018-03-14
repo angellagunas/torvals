@@ -105,7 +105,9 @@ module.exports = new Route({
       for (var row of rows) {
         await row.product.populate('price').execPopulate()
 
-        difference += (row.data.localAdjustment - row.data.adjustment) * row.product.price.price
+        if (row.product && row.product.price) {
+          difference += (row.data.localAdjustment - row.data.adjustment) * row.product.price.price
+        }
       }
 
       item.adjustment += difference
