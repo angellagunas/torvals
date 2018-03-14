@@ -46,10 +46,7 @@ class CalendarItem extends Component {
       throw new Error('start must precede end')
 
     let next = moment(start).add(1, key).startOf(key);
-    /* if (!this.isWeekDay(next)){
-      next = moment(start).add(2, key).startOf(key);
-    } */
-    
+        
     if (next.isAfter(end, key))
       return arr;
 
@@ -155,8 +152,8 @@ class CalendarItem extends Component {
         openToDate={this.props.openToDate}
         filterDate={this.isWeekDay}
         fixedHeight
-        minDate={this.props.openToDate.startOf('month')}
-        maxDate={this.props.openToDate.endOf('month')}
+        minDate={startOfMonth}
+        maxDate={endOfMonth}
       />
     )
   }
