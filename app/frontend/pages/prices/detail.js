@@ -7,6 +7,7 @@ import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import PriceForm from './create-form'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class PriceDetail extends Component {
   constructor (props) {
@@ -14,7 +15,8 @@ class PriceDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      price: {}
+      price: {},
+      isLoading: ''
     }
   }
 
@@ -33,10 +35,16 @@ class PriceDetail extends Component {
     })
   }
 
-  async deleteOnClick () {
-    var url = '/admin/prices/' + this.props.match.params.uuid
-    const body = await api.del(url)
-    this.props.history.push('/admin/prices')
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
@@ -48,10 +56,28 @@ class PriceDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
-            <div className='columns'>
-              <div className='column has-text-right' />
-            </div>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/prices',
+                  label: 'Precios',
+                  current: false
+                },
+                {
+                  path: '/prices/detail/',
+                  label: 'Detalle de precio',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <br />
             <div className='columns'>
               <div className='column'>
                 <div className='card'>
@@ -68,10 +94,17 @@ class PriceDetail extends Component {
                           url={'/admin/prices/' + this.props.match.params.uuid}
                           initialState={{price: String(price.price), product: price.product.name, channel: price.channel.name}}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Guardar</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </PriceForm>
