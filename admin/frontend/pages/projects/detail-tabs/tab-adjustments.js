@@ -787,6 +787,7 @@ class TabAdjustment extends Component {
           totalAdjustment += element.adjustment
           totalPrediction += element.prediction
         }
+
         this.setState({
           salesTable: res.data._items,
           totalAdjustment: totalAdjustment,
@@ -818,8 +819,20 @@ class TabAdjustment extends Component {
         }
 
         salesTable[i].adjustment += price
+
+        let totalPrediction = 0
+        let totalAdjustment = 0
+
+        for (let i = 0; i < salesTable.length; i++) {
+          const element = salesTable[i];
+          totalAdjustment += element.adjustment
+          totalPrediction += element.prediction
+        }
+
         this.setState({
-          salesTable: salesTable
+          salesTable: salesTable,
+          totalAdjustment: totalAdjustment,
+          totalPrediction: totalPrediction
         })
       }
     }

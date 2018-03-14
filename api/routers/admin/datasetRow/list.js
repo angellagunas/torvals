@@ -69,10 +69,11 @@ module.exports = new Route({
       .populate(['salesCenter', 'product', 'adjustmentRequest', 'channel'])
       .sort(ctx.request.query.sort || '-dateCreated')
 
-    rows = rows.map((item) => {
-      // await item.product.populate('price').execPopulate()
+    var auxRows = []
+    for (var item of rows) {
+      await item.product.populate('price').execPopulate()
 
-      return {
+      auxRows.push({
         uuid: item.uuid,
         salesCenter: item.salesCenter ? item.salesCenter.name : '',
         productId: item.product ? item.product.externalId : '',
@@ -85,11 +86,11 @@ module.exports = new Route({
         localAdjustment: item.data.localAdjustment,
         lastAdjustment: item.data.lastAdjustment,
         adjustmentRequest: item.adjustmentRequest
-      }
-    })
+      })
+    }
 
     ctx.body = {
-      data: rows
+      data: auxRows
     }
   }
 })
