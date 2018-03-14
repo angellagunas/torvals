@@ -51,7 +51,7 @@ module.exports = new Route({
 
       salesCenters = await SalesCenter.find({groups: {$in: groups}})
 
-      if (salesCenters) {
+      if (salesCenters.lenght > 0) {
         requestQuery['agencia_id'] = salesCenters[0].externalId
       } else {
         ctx.throw(400, 'Se le debe asignar al menos un centro de venta al usuario!')
