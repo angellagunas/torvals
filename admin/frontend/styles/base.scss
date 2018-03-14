@@ -665,11 +665,15 @@ tr {
     margin: auto;
 }
 
-.notification:not(:last-child){
+.notification:not(:last-child) {
     margin-bottom: 0 !important;
 }
 
-.editable{
+.editable {
     padding: 12px 0;
     cursor: pointer;
+}
+
+.react-datepicker__day {
+    color: #ccc;
 }
