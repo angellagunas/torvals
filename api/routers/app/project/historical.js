@@ -95,7 +95,11 @@ module.exports = new Route({
         })
       }
     } catch (e) {
-      ctx.throw(401, 'Falló al obtener histórico (Abraxas)')
+      let errorString = []
+      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+
+      return false
     }
 
     ctx.body = {

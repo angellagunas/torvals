@@ -51,7 +51,11 @@ module.exports = new Route({
       await project.save()
       etag = res._etag
     } catch (e) {
-      ctx.throw(401, 'Falló al obtener proyecto (Abraxas)')
+      let errorString = []
+      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+
+      return false
     }
 
     options = {
@@ -71,7 +75,11 @@ module.exports = new Route({
     try {
       var responseData = await request(options)
     } catch (e) {
-      ctx.throw(401, 'Falló al obtener anomalías (Abraxas)')
+      let errorString = []
+      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+
+      return false
     }
 
     ctx.body = {

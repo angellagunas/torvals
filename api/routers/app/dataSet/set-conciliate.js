@@ -63,7 +63,11 @@ module.exports = new Route({
 
       await dataset.save()
     } catch (e) {
-      ctx.throw(401, 'Falló al enviar DataSet para conciliación')
+      let errorString = []
+      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+
+      return false
     }
 
     let project = dataset.project

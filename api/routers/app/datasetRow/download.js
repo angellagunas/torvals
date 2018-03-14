@@ -81,7 +81,11 @@ module.exports = new Route({
     try {
       var res = await request(options)
     } catch (e) {
-      ctx.throw(503, 'Falló al obtener archivo (Abraxas)')
+      let errorString = []
+      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+
+      return false
     }
 
     ctx.set('Content-disposition', `attachment; filename=datasetrow.csv`)

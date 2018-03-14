@@ -16,10 +16,14 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    var apiData = Api.get()
-    if (!apiData.token) {
-      await Api.fetch()
-      apiData = Api.get()
+    try {
+      var apiData = Api.get()
+      if (!apiData.token) {
+        await Api.fetch()
+        apiData = Api.get()
+      }
+    } catch (e) {
+      ctx.throw(401, 'Falló al conectar con la API (Abraxas)')
     }
 
     var options = {
@@ -61,7 +65,11 @@ module.exports = new Route({
 
       await dataset.save()
     } catch (e) {
-      ctx.throw(401, 'Falló en enviar DataSet para conciliación')
+      let errorString = []
+      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+
+      return false
     }
 
     let project = dataset.project

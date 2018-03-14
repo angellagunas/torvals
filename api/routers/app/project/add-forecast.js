@@ -37,10 +37,14 @@ module.exports = new Route({
       columnsForForecast: data.columnsForForecast
     }
 
-    var apiData = Api.get()
-    if (!apiData.token) {
-      await Api.fetch()
-      apiData = Api.get()
+    try {
+      var apiData = Api.get()
+      if (!apiData.token) {
+        await Api.fetch()
+        apiData = Api.get()
+      }
+    } catch (e) {
+      ctx.throw(401, 'Falló al conectar con la API (Abraxas)')
     }
 
     var options = {
@@ -86,7 +90,11 @@ module.exports = new Route({
         status: 'created'
       })
     } catch (e) {
-      ctx.throw(401, 'Falló al crear Forecast, revisa tu conexión a internet')
+      let errorString = []
+      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+
+      return false
     }
 
     ctx.body = {

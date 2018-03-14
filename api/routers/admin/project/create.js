@@ -66,7 +66,11 @@ module.exports = new Route({
       await project.save()
     } catch (e) {
       await project.remove()
-      ctx.throw(401, 'Falló al crear el proyecto (Abraxas)')
+      let errorString = []
+      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+
+      return false
     }
 
     ctx.body = {
