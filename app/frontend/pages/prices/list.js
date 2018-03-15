@@ -48,16 +48,9 @@ export default ListPage({
     return [
       {
         'title': 'ID',
-        'property': 'product.externaId',
+        'property': 'productExternalId',
         'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.product) {
-            return row.product.externalId
-          }
-
-          return 'N/A'
-        }
+        'sortable': true
       },
       {
         'title': 'Producto',

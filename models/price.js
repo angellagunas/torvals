@@ -8,7 +8,7 @@ const priceSchema = new Schema({
   price: { type: Number },
   externalId: { type: String },
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
-  productExternalId: { type: String },
+  productExternalId: { type: Number },
   channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
   channelExternalId: { type: String },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
