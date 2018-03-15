@@ -32,8 +32,8 @@ module.exports = new Route({
         let productValues = []
         let product = await Product.find({
           '$or': [
-                    {name: new RegExp(ctx.request.query[filter], 'i')},
-                    {externalId: new RegExp(ctx.request.query[filter], 'i')}
+            {name: new RegExp(ctx.request.query[filter], 'i')},
+            {externalId: new RegExp(ctx.request.query[filter], 'i')}
           ],
           isDeleted: false
         })
