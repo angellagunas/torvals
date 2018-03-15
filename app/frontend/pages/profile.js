@@ -28,10 +28,10 @@ class Profile extends Component {
             </div>
           </div>
           <div className='column is-half'>
-            <div className='card'>
+            <div className='card update-pass'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Contraseña
+                  Cambiar contraseña
                 </p>
               </header>
               <div className='card-content'>
