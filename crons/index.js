@@ -1,6 +1,6 @@
 const checkDatasets = require('./check-datasets')
 const checkProjects = require('./check-projects')
-const checkDatasetRows = require('./check-datasetrows')
+const checkDatasetRows = require('./check-datasetsrows')
 const checkPrices = require('./check-prices')
 // #Requires
 
