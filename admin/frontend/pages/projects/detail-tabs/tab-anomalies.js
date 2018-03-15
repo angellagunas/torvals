@@ -135,9 +135,7 @@ class TabAnomalies extends Component {
   getColumns () {
     return [
       {
-        'title': 'Product Id',
-        'abbreviate': true,
-        'abbr': 'P. Id',
+        'title': 'Id',
         'property': 'productId',
         'default': 'N/A',
         formatter: (row) => {
@@ -145,10 +143,8 @@ class TabAnomalies extends Component {
         }
       },
       {
-        'title': 'Product Name',
-        'abbreviate': true,
-        'abbr': 'P. Name',
-        'property': 'productNamed',
+        'title': 'Producto',
+        'property': 'productName',
         'default': 'N/A',
         formatter: (row) => {
           return String(row.product.name)
