@@ -106,9 +106,20 @@ class NavBar extends Component {
       }
 
       navButtons = (<div className='dropdown-content'>
-        <Link className='dropdown-item' onClick={() => this.toggleBtnClass()} to='/profile'>Profile</Link>
-        <a className='dropdown-item' onClick={() => this.handleLogout()}>
-          Logout
+        <Link className='dropdown-item'
+          onClick={() => this.toggleBtnClass()}
+          to='/profile'>
+          <span className='icon'>
+            <i className='fa fa-user-o' />
+          </span>
+          Mi perfil
+        </Link>
+        <a className='dropdown-item'
+          onClick={() => this.handleLogout()}>
+          <span className='icon'>
+            <i className='fa fa-sign-out' />
+          </span>
+          Cerrar sesión
         </a>
       </div>)
     }
