@@ -33,6 +33,17 @@ export default ListPage({
   baseUrl: '/app/prices',
   branchName: 'prices',
   detailUrl: '/prices/',
+  filters: true,
+  schema: {
+    type: 'object',
+    required: [],
+    properties: {
+      general: {type: 'text', title: 'Buscar'}
+    }
+  },
+  uiSchema: {
+    general: {'ui:widget': 'SearchFilter'}
+  },
   getColumns: () => {
     return [
       {
