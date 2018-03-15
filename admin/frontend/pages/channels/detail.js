@@ -94,6 +94,11 @@ class ChannelDetail extends Component {
                   path: '/admin/channels/detail/',
                   label: 'Detalle de canal',
                   current: true
+                },
+                {
+                  path: '/admin/channels/detail/',
+                  label: channel.name,
+                  current: true
                 }
               ]}
               align='left'

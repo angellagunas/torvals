@@ -118,12 +118,17 @@ class ProductDetail extends Component {
                 },
                 {
                   path: '/admin/products',
-                  label: 'Productos',
+                  label: 'Productos Activos',
                   current: false
                 },
                 {
                   path: '/admin/products/detail/',
                   label: 'Detalle de producto',
+                  current: true
+                },
+                {
+                  path: '/admin/products/detail/',
+                  label: product.name,
                   current: true
                 }
               ]}

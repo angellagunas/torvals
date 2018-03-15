@@ -279,40 +279,45 @@ class ProjectDetail extends Component {
           }
             <div className='section pad-sides'>
               <Breadcrumb
-              path={[
-                {
-                  path: '/admin',
-                  label: 'Dashboard',
-                  current: false
-                },
-                {
-                  path: '/admin/projects',
-                  label: 'Proyectos',
-                  current: false
-                },
-                {
-                  path: '/admin/projects/detail/',
-                  label: 'Detalle de proyecto',
-                  current: true
-                }
-              ]}
-              align='left'
-            />
-              <div className='is-padding-top-small'>
-              <Tabs
-                tabTitle={project.name}
-                tabs={tabs}
-                selectedTab={this.state.selectedTab}
-                className='is-right'
-                extraTab={
-                  <DeleteButton
-                    objectName='Proyecto'
-                    objectDelete={() => this.deleteObject()}
-                    message={'Estas seguro de querer eliminar este Proyecto?'}
-                  />
-                }
+                path={[
+                  {
+                    path: '/admin',
+                    label: 'Dashboard',
+                    current: false
+                  },
+                  {
+                    path: '/admin/projects',
+                    label: 'Proyectos',
+                    current: false
+                  },
+                  {
+                    path: '/admin/projects/detail/',
+                    label: 'Detalle de proyecto',
+                    current: true
+                  },
+                  {
+                    path: '/admin/projects/detail/',
+                    label: project.name,
+                    current: true
+                  }
+                ]}
+                align='left'
               />
-            </div>
+              <div className='is-padding-top-small'>
+                <Tabs
+                  tabTitle={project.name}
+                  tabs={tabs}
+                  selectedTab={this.state.selectedTab}
+                  className='is-right'
+                  extraTab={
+                    <DeleteButton
+                      objectName='Proyecto'
+                      objectDelete={() => this.deleteObject()}
+                      message={'Estas seguro de querer eliminar este Proyecto?'}
+                    />
+                  }
+                />
+              </div>
             </div>
           </div>
 

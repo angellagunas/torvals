@@ -156,6 +156,11 @@ class RoleDetail extends Component {
                   path: '/admin/manage/roles',
                   label: 'Detalle de rol',
                   current: true
+                },
+                {
+                  path: '/admin/manage/roles',
+                  label: role.name,
+                  current: true
                 }
               ]}
               align='left'

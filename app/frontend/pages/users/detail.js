@@ -328,6 +328,11 @@ class UserDetail extends Component {
                   path: '/manage/users/',
                   label: 'Detalle de usuario',
                   current: true
+                },
+                {
+                  path: '/manage/users/',
+                  label: user.name,
+                  current: true
                 }
               ]}
               align='left'

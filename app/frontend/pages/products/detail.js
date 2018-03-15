@@ -103,7 +103,7 @@ class ProductDetail extends Component {
   }
 
   render () {
-    let { loading, canEdit } = this.state
+    let { loading, canEdit, product } = this.state
     if (loading) {
       return <Loader />
     }
@@ -111,7 +111,7 @@ class ProductDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -127,6 +127,11 @@ class ProductDetail extends Component {
                 {
                   path: '/products/detail/',
                   label: 'Detalle de producto',
+                  current: true
+                },
+                {
+                  path: '/products/detail/',
+                  label: product.name,
                   current: true
                 }
               ]}

@@ -1347,6 +1347,11 @@ class DataSetDetail extends Component {
                   path: '/datasets/',
                   label: 'Detalle de dataset',
                   current: true
+                },
+                {
+                  path: '/datasets/',
+                  label: dataset.name,
+                  current: true
                 }
               ]}
               align='left'

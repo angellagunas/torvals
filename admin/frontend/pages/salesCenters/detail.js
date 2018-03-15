@@ -250,6 +250,11 @@ class SalesCenterDetail extends Component {
                   path: '/admin/salesCenters/detail/',
                   label: 'Detalle de Centro de venta',
                   current: true
+                },
+                {
+                  path: '/admin/salesCenters/detail/',
+                  label: this.state.salesCenter.name,
+                  current: true
                 }
               ]}
               align='left'

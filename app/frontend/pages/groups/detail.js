@@ -233,6 +233,11 @@ class GroupDetail extends Component {
                   path: '/manage/groups/',
                   label: 'Detalle de grupo',
                   current: true
+                },
+                {
+                  path: '/manage/groups/',
+                  label: group.name,
+                  current: true
                 }
               ]}
               align='left'

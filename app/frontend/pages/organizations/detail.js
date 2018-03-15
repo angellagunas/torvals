@@ -103,6 +103,11 @@ class OrganizationDetail extends Component {
                   path: '/organizations/',
                   label: 'Detalle de organización',
                   current: true
+                },
+                {
+                  path: '/organizations/',
+                  label: organization.name,
+                  current: true
                 }
               ]}
               align='left'

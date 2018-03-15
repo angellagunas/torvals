@@ -677,3 +677,9 @@ tr {
 .react-datepicker__day {
     color: #ccc;
 }
+
+.breadcrumb.has-succeeds-separator li+li::before{
+    content: '/';
+    font-weight: 300;
+    font-size: 1.2rem;
+}

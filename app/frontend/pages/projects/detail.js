@@ -316,6 +316,11 @@ class ProjectDetail extends Component {
                     path: '/projects/',
                     label: 'Detalle de proyecto',
                     current: true
+                  },
+                  {
+                    path: '/projects/',
+                    label: project.name,
+                    current: true
                   }
                 ]}
                 align='left'

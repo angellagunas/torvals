@@ -73,6 +73,11 @@ class PriceDetail extends Component {
                   path: '/prices/detail/',
                   label: 'Detalle de precio',
                   current: true
+                },
+                {
+                  path: '/prices/detail/',
+                  label: price.product.name,
+                  current: true
                 }
               ]}
               align='left'

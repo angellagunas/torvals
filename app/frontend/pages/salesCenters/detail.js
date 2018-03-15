@@ -236,7 +236,7 @@ class SalesCenterDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
@@ -252,6 +252,11 @@ class SalesCenterDetail extends Component {
                 {
                   path: '/salesCenters/',
                   label: 'Detalle de Centro de venta',
+                  current: true
+                },
+                {
+                  path: '/salesCenters/',
+                  label: this.state.salesCenter.name,
                   current: true
                 }
               ]}

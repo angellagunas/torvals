@@ -118,6 +118,11 @@ class OrganizationDetail extends Component {
                   path: '/admin/manage/organizations',
                   label: 'Detalle de organización',
                   current: true
+                },
+                {
+                  path: '/admin/manage/organizations',
+                  label: organization.name,
+                  current: true
                 }
               ]}
               align='left'
