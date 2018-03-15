@@ -51,9 +51,12 @@ module.exports = new Route({
       await project.save()
       etag = res._etag
     } catch (e) {
-      let errorString = []
-      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
-      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      if (!errorString) {
+        errorString = []
+        errorString[1] = e.message
+      }
+      ctx.throw(503, 'Abraxas API: ' + errorString[1])
 
       return false
     }
@@ -75,9 +78,12 @@ module.exports = new Route({
     try {
       var responseData = await request(options)
     } catch (e) {
-      let errorString = []
-      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
-      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      if (!errorString) {
+        errorString = []
+        errorString[1] = e.message
+      }
+      ctx.throw(503, 'Abraxas API: ' + errorString[1])
 
       return false
     }

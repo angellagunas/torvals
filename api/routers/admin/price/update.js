@@ -57,9 +57,12 @@ module.exports = new Route({
         ctx.throw(401, 'Error al actualizar precio (Abraxas)')
       }
     } catch (e) {
-      let errorString = []
-      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
-      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      if (!errorString) {
+        errorString = []
+        errorString[1] = e.message
+      }
+      ctx.throw(503, 'Abraxas API: ' + errorString[1])
 
       return false
     }
