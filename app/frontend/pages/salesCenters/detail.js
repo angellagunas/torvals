@@ -139,7 +139,7 @@ class SalesCenterDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true

@@ -43,7 +43,7 @@ class ReadyDataSets extends Component {
         }
       },
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'new',
         'sortable': true,

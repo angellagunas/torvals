@@ -102,7 +102,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'new',
         'sortable': true,

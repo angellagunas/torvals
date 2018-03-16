@@ -68,7 +68,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Organzación',
+        'title': 'Organización',
         'property': 'organization',
         'default': 'N/A',
         'sortable': true,
