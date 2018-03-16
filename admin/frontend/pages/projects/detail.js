@@ -15,6 +15,7 @@ import TabAprove from './detail-tabs/tab-aprove'
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
+import Breadcrumb from '~base/components/base-breadcrumb'
 import TabAnomalies from './detail-tabs/tab-anomalies'
 
 class ProjectDetail extends Component {
@@ -278,17 +279,38 @@ class ProjectDetail extends Component {
             </div>
           }
             <div className='section pad-sides'>
+            
+              <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/projects',
+                  label: 'Proyectos',
+                  current: false
+                },
+                {
+                  path: '/admin/projects/detail/',
+                  label: 'Detalle de proyecto',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
               <div className='is-padding-top-small'>
-                <Tabs
-                  tabTitle={project.name}
-                  tabs={tabs}
-                  selectedTab={this.state.selectedTab}
-                  className='is-right sticky-tab'
-                  extraTab={
-                    <DeleteButton
-                      objectName='Proyecto'
-                      objectDelete={() => this.deleteObject()}
-                      message={'Estas seguro de querer eliminar este Proyecto?'}
+              <Tabs
+                tabTitle={project.name}
+                tabs={tabs}
+                selectedTab={this.state.selectedTab}
+                className='is-right sticky-tab'
+                extraTab={
+                  <DeleteButton
+                    objectName='Proyecto'
+                    objectDelete={() => this.deleteObject()}
+                    message={'Estas seguro de querer eliminar este Proyecto?'}
                   />
                 }
               />
@@ -298,7 +320,7 @@ class ProjectDetail extends Component {
 
           <SidePanel
             noListPage
-            sidePanelClassName={project.status !== 'empty' ? 'searchbox' : 'is-hidden'}
+            sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
             icon={'plus'}
             title={'Opciones'}
             content={options} />

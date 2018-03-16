@@ -21,6 +21,7 @@ import ProductForm from './edit-product'
 import SalesCenterForm from './edit-salescenter'
 import ChannelForm from './edit-channel'
 import Checkbox from '~base/components/base-checkbox'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -1329,7 +1330,27 @@ class DataSetDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/datasets',
+                  label: 'Datasets',
+                  current: false
+                },
+                {
+                  path: '/datasets/',
+                  label: 'Detalle de dataset',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>

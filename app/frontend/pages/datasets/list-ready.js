@@ -6,6 +6,7 @@ import Link from '~base/router/link'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class ReadyDataSets extends Component {
   constructor (props) {
@@ -61,8 +62,23 @@ class ReadyDataSets extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>DataSets</h1>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/datasets/ready',
+                  label: 'Datasets Listos',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Datasets Listos</h1>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
@@ -96,7 +112,7 @@ const branchedReadyDataSets = branch({readydatasets: 'readydatasets'}, ReadyData
 
 export default Page({
   path: '/datasets/ready',
-  title: 'Preparados',
+  title: 'Listos',
   icon: 'thumbs-up',
   exact: true,
   roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2',

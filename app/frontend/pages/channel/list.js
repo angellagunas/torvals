@@ -16,6 +16,22 @@ export default ListPage({
   titleSingular: 'Canal',
   create: true,
   createComponent: CreateChannel,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/admin/channels/',
+        label: 'Canales',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   canCreate: 'admin, orgadmin, analyst, manager-level-2',
   baseUrl: '/app/channels',
   branchName: 'channels',

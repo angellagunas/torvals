@@ -243,19 +243,7 @@ pre.json {
 }
 
 .is-clickable {
-    cursor: pointer
-}
-
-.is-not-shown {
-    visibility: hidden
-}
-
-.is-white {
-    background-color: white
-}
-
-.is-clickable {
-    cursor: pointer
+    cursor: pointer;
 }
 
 .is-not-shown {
@@ -509,7 +497,7 @@ td,
 th,
 tr {
     vertical-align: middle !important;
-    height: 70px !important;
+    height: 63px !important;
     font-size: 0.9rem;
 }
 
@@ -692,4 +680,13 @@ tr {
     .has-text-info{
          color: #fff !important;
     }
+}
+
+.notification:not(:last-child){
+    margin-bottom: 0 !important;
+}
+
+.editable{
+    padding: 12px 0;
+    cursor: pointer;
 }

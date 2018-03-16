@@ -16,6 +16,22 @@ export default ListPage({
   titleSingular: 'Proyecto',
   create: true,
   createComponent: CreateProject,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/admin/projects/',
+        label: 'Proyectos activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/projects',
   branchName: 'projects',
   detailUrl: '/admin/projects/detail/',

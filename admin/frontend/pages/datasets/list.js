@@ -13,6 +13,22 @@ export default ListPage({
   validate: loggedIn,
   titleSingular: 'Dataset',
   create: false,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Dashboard',
+        current: false
+      },
+      {
+        path: '/admin/datasets/',
+        label: 'Datasets activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/datasets',
   branchName: 'datasets',
   detailUrl: '/admin/datasets/detail/',

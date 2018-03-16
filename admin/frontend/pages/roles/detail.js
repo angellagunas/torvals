@@ -10,6 +10,7 @@ import Loader from '~base/components/spinner'
 import RoleForm from './form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class RoleDetail extends Component {
   constructor (props) {
@@ -138,7 +139,28 @@ class RoleDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Dashboard',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/roles',
+                  label: 'Roles',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/roles',
+                  label: 'Detalle de rol',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <br />
             <div className='columns'>
               {this.getDefaultButton()}
               {this.getDeleteButton()}
