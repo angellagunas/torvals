@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import moment from 'moment'
 import api from '~base/api'
+import _ from 'lodash'
 import { toast } from 'react-toastify'
 import Loader from '~base/components/spinner'
 import {
@@ -9,7 +10,6 @@ import {
   SelectWidget
 } from '~base/components/base-form'
 import CreateAdjustmentRequest from '../../forecasts/create-adjustmentRequest'
-
 import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
@@ -916,26 +916,24 @@ class TabAdjustment extends Component {
   handleSort(e){
     let sorted = this.state.filteredData
     
-    if (e === 'productId' ||
-        e === 'semanaBimbo' ||
-        e === 'prediction' ||
-        e === 'localAdjustment'){
-
+    if (e === 'productId'){
           if (this.state.sortAscending){
             sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
           }
           else{
-            sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })            
+            sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })                        
           }
     }
     else{
       if (this.state.sortAscending){
-        sorted.sort((a, b) => a[e].localeCompare(b[e]))        
+        sorted = _.orderBy(sorted,[e], ['asc'])
+              
       }
       else{
-        sorted.sort((a, b) => b[e].localeCompare(a[e]))        
+        sorted = _.orderBy(sorted,[e], ['desc'])    
       }
     }
+    
     this.setState({
       filteredData: sorted,
       sortAscending: !this.state.sortAscending,
