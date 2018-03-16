@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
+import { testRoles } from '~base/tools'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -97,9 +98,23 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/prices/' + row.uuid}>
-            Detalle
-          </Link>
+          if (testRoles('manager-level-3')) {
+            return (
+              <Link className='button' to={'/prices/' + row.uuid}>
+                <span className='icon is-small' title='Visualizar'>
+                  <i className='fa fa-eye' />
+                </span>
+              </Link>
+            )
+          } else {
+            return (
+              <Link className='button is-primary' to={'/prices/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+            )
+          }
         }
       }
     ]

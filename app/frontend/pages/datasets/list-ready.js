@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
+import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -50,9 +51,23 @@ class ReadyDataSets extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/datasets/' + row.uuid}>
-            Detalle
-          </Link>
+          if (testRoles('manager-level-2, manager-level-3')) {
+            return (
+              <Link className='button' to={'/datasets/' + row.uuid}>
+                <span className='icon is-small' title='Visualizar'>
+                  <i className='fa fa-eye' />
+                </span>
+              </Link>
+            )
+          } else {
+            return (
+              <Link className='button is-primary' to={'/datasets/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+            )
+          }
         }
       }
     ]

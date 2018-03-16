@@ -132,11 +132,18 @@ export default ListPage({
           return (
             <div className='field is-grouped'>
               <div className='control'>
-                <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-                  <span className='icon is-small'>
-                    <i className='fa fa-pencil' />
-                  </span>
-                </Link>
+                {disabledActions
+                  ? <Link className='button' to={'/manage/users/' + row.uuid}>
+                    <span className='icon is-small' title='Visualizar'>
+                      <i className='fa fa-eye' />
+                    </span>
+                  </Link>
+              : <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+              }
               </div>
               <div className='control'>
                 {currentUser.uuid !== row.uuid && !disabledActions && (
