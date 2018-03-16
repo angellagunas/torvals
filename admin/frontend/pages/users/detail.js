@@ -16,6 +16,7 @@ import Link from '~base/router/link'
 import AddOrganization from './add-organization'
 import BaseModal from '~base/components/base-modal'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class UserDetail extends Component {
   constructor (props) {
@@ -47,14 +48,22 @@ class UserDetail extends Component {
 
   async load () {
     var url = '/admin/users/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    await this.setState({
-      loading: false,
-      loaded: true,
-      user: body.data,
-      selectedGroups: [...body.data.groups]
-    })
+      await this.setState({
+        loading: false,
+        loaded: true,
+        user: body.data,
+        selectedGroups: [...body.data.groups]
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async loadRoles () {
@@ -474,6 +483,10 @@ class UserDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este usuario' />
+    }
+
     const { user } = this.state
 
     if (!user.uuid) {

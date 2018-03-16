@@ -13,6 +13,7 @@ import UserForm from './form'
 import Multiselect from '~base/components/base-multiselect'
 import tree from '~core/tree'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class UserDetail extends Component {
   constructor (props) {
@@ -54,14 +55,22 @@ class UserDetail extends Component {
   }
   async load () {
     var url = '/app/users/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    await this.setState({
-      loading: false,
-      loaded: true,
-      user: body.data,
-      selectedGroups: [...body.data.groups]
-    })
+      await this.setState({
+        loading: false,
+        loaded: true,
+        user: body.data,
+        selectedGroups: [...body.data.groups]
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async loadGroups () {
@@ -247,6 +256,9 @@ class UserDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este usuario' />
+    }
     const { user } = this.state
     const currentUser = tree.get('user')
 

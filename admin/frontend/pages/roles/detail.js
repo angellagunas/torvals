@@ -11,6 +11,7 @@ import RoleForm from './form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class RoleDetail extends Component {
   constructor (props) {
@@ -29,13 +30,21 @@ class RoleDetail extends Component {
 
   async load () {
     var url = '/admin/roles/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      role: body.data
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        role: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   getColumns () {
@@ -131,6 +140,10 @@ class RoleDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este rol' />
+    }
+
     const { role } = this.state
 
     if (!role.uuid) {

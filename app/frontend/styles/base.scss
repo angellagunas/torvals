@@ -782,3 +782,13 @@ tr {
     font-weight: 300;
     font-size: 1.2rem;
 }
+    
+.update-pass{
+    height: 100%;
+    position: relative;
+    max-height: 557px;
+    .button{
+        position: absolute;
+        bottom: 24px;
+    }
+}

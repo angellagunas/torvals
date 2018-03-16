@@ -8,6 +8,7 @@ import Loader from '~base/components/spinner'
 import ChannelForm from './create-form'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class ChannelDetail extends Component {
   constructor (props) {
@@ -29,13 +30,21 @@ class ChannelDetail extends Component {
 
   async load () {
     var url = '/app/channels/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      channel: body.data
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        channel: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async deleteObject () {
@@ -57,6 +66,10 @@ class ChannelDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este canal' />
+    }
+
     let { loaded, canEdit } = this.state
     if (!loaded) {
       return <Loader />
