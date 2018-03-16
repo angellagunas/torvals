@@ -34,20 +34,24 @@ export default ListPage({
   baseUrl: '/admin/prices',
   branchName: 'prices',
   detailUrl: '/admin/prices/',
+  filters: true,
+  schema: {
+    type: 'object',
+    required: [],
+    properties: {
+      general: {type: 'text', title: 'Buscar'}
+    }
+  },
+  uiSchema: {
+    general: {'ui:widget': 'SearchFilter'}
+  },
   getColumns: () => {
     return [
       {
         'title': 'ID',
-        'property': 'product.externaId',
+        'property': 'productExternalId',
         'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.product) {
-            return row.product.externalId
-          }
-
-          return 'N/A'
-        }
+        'sortable': true
       },
       {
         'title': 'Producto',
