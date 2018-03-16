@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { DataSet, SalesCenter, Channel, Product } = require('models')
+const { DataSet, SalesCenter, Channel, Product, DataSetRow } = require('models')
 const Api = require('lib/abraxas/api')
 const request = require('lib/request')
 
@@ -18,7 +18,7 @@ module.exports = new Route({
         apiData = Api.get()
       }
     } catch (e) {
-      ctx.throw(401, 'Falló al conectar con servidor (Abraxas)')
+      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     const requestQuery = {}
@@ -40,6 +40,7 @@ module.exports = new Route({
       ctx.assert(product, 404, 'Producto no encontrado')
       requestQuery['producto_id'] = data.product
     }
+
     if (data.semana_bimbo) {
       requestQuery['semana_bimbo'] = data.semana_bimbo
     }
@@ -62,7 +63,30 @@ module.exports = new Route({
     try {
       var res = await request(options)
     } catch (e) {
-      ctx.throw(401, 'Falló al obtener información de ventas (Abraxas)')
+      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      if (!errorString) {
+        errorString = []
+        errorString[1] = e.message
+      }
+      ctx.throw(503, 'Abraxas API: ' + errorString[1])
+
+      return false
+    }
+
+    for (var item of res._items) {
+      const rows = await DataSetRow.find({
+        'data.semanaBimbo': item.week,
+        dataset: dataset
+      }).populate('product')
+      let difference = 0
+
+      for (var row of rows) {
+        await row.product.populate('price').execPopulate()
+
+        difference += (row.data.localAdjustment - row.data.adjustment) * row.product.price.price
+      }
+
+      item.adjustment += difference
     }
 
     ctx.body = {

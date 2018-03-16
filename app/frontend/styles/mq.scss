@@ -33,6 +33,10 @@
     .calendar {
         margin: 0;
     }
+    .c-topbar__aside__white {
+        width: 50px !important;
+        padding: 8px;
+    }
 }
 
 @include widescreen-only {

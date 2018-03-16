@@ -23,6 +23,7 @@ import ChannelForm from './edit-channel'
 import Checkbox from '~base/components/base-checkbox'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import {datasetStatus} from '~base/tools'
+import NotFound from '~base/components/not-found'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -86,13 +87,22 @@ class DataSetDetail extends Component {
 
   async load () {
     var url = '/app/datasets/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    
+    try {
+      const body = await api.get(url)
 
     this.setState({
       loading: false,
       loaded: true,
       dataset: body.data
     })
+  }catch (e) {
+    await this.setState({
+      loading: false,
+      loaded: true,
+      notFound: true
+    })
+  }
   }
 
   getColumns () {
@@ -1309,6 +1319,10 @@ class DataSetDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este dataset' />
+    }
+
     const { dataset, canEdit } = this.state
 
     if (!dataset.uuid) {

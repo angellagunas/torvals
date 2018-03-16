@@ -776,3 +776,13 @@ tr {
 .react-datepicker__day{
     color: #ccc;
 }
+
+.update-pass{
+    height: 100%;
+    position: relative;
+    max-height: 557px;
+    .button{
+        position: absolute;
+        bottom: 24px;
+    }
+}

@@ -8,6 +8,7 @@ import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import PriceForm from './create-form'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class PriceDetail extends Component {
   constructor (props) {
@@ -25,14 +26,23 @@ class PriceDetail extends Component {
   }
 
   async load () {
-    var url = '/admin/prices/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    var url = '/app/prices/' + this.props.match.params.uuid
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      price: body.data
-    })
+    try {
+      const body = await api.get(url)
+
+      this.setState({
+        loading: false,
+        loaded: true,
+        price: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   submitHandler () {
@@ -48,6 +58,10 @@ class PriceDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este precio' />
+    }
+
     const {price} = this.state
     if (!this.state.loaded) {
       return <Loader />
@@ -90,8 +104,8 @@ class PriceDetail extends Component {
                     <div className='columns'>
                       <div className='column'>
                         <PriceForm
-                          baseUrl='/admin/prices'
-                          url={'/admin/prices/' + this.props.match.params.uuid}
+                          baseUrl='/app/prices'
+                          url={'/app/prices/' + this.props.match.params.uuid}
                           initialState={{price: String(price.price), product: price.product.name, channel: price.channel.name}}
                           load={this.load.bind(this)}
                           submitHandler={(data) => this.submitHandler(data)}
@@ -125,7 +139,7 @@ PriceDetail.contextTypes = {
   tree: PropTypes.baobab
 }
 
-const branchedPriceDetails = branch({ prices: 'prices'}, PriceDetail)
+const branchedPriceDetails = branch({ prices: 'prices' }, PriceDetail)
 
 export default Page({
   path: '/prices/:uuid',

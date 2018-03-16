@@ -142,9 +142,9 @@ class UserForm extends Component {
     if (this.props.disabled) {
       for (var field in uiSchema) {
         uiSchema[field]['ui:disabled'] = true
-        delete uiSchema['role']
-        delete schema.properties['role']
       }
+      schema.properties.role.enum.push(this.state.formData.roleDetail._id)
+      schema.properties.role.enumNames.push(this.state.formData.roleDetail.name)
     }
 
     return (
