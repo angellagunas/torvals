@@ -282,7 +282,7 @@ class ProjectDetail extends Component {
                 path={[
                   {
                     path: '/admin',
-                    label: 'Dashboard',
+                    label: 'Inicio',
                     current: false
                   },
                   {
@@ -292,7 +292,7 @@ class ProjectDetail extends Component {
                   },
                   {
                     path: '/admin/projects/detail/',
-                    label: 'Detalle de proyecto',
+                    label: 'Detalle',
                     current: true
                   },
                   {

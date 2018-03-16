@@ -61,7 +61,7 @@ class PriceDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -71,7 +71,7 @@ class PriceDetail extends Component {
                 },
                 {
                   path: '/admin/prices/detail/',
-                  label: 'Detalle de precio',
+                  label: 'Detalle',
                   current: true
                 },
                 {

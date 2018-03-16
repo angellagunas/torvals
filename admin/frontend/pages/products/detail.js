@@ -113,7 +113,7 @@ class ProductDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -123,7 +123,7 @@ class ProductDetail extends Component {
                 },
                 {
                   path: '/admin/products/detail/',
-                  label: 'Detalle de producto',
+                  label: 'Detalle',
                   current: true
                 },
                 {

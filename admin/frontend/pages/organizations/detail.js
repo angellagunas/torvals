@@ -106,7 +106,7 @@ class OrganizationDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -116,7 +116,7 @@ class OrganizationDetail extends Component {
                 },
                 {
                   path: '/admin/manage/organizations',
-                  label: 'Detalle de organización',
+                  label: 'Detalle',
                   current: true
                 },
                 {

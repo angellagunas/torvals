@@ -1335,7 +1335,7 @@ class DataSetDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -1345,7 +1345,7 @@ class DataSetDetail extends Component {
                 },
                 {
                   path: '/datasets/',
-                  label: 'Detalle de dataset',
+                  label: 'Detalle',
                   current: true
                 },
                 {

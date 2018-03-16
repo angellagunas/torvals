@@ -304,7 +304,7 @@ class ProjectDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Dashboard',
+                    label: 'Inicio',
                     current: false
                   },
                   {
@@ -314,7 +314,7 @@ class ProjectDetail extends Component {
                   },
                   {
                     path: '/projects/',
-                    label: 'Detalle de proyecto',
+                    label: 'Detalle',
                     current: true
                   },
                   {
@@ -398,7 +398,7 @@ const BranchedProjectDetail = branch((props, context) => {
 
 export default Page({
   path: '/projects/:uuid',
-  title: 'Detalle de Proyecto',
+  title: 'Detalle',
   exact: true,
   roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2, manager-level-1',
   validate: [loggedIn, verifyRole],

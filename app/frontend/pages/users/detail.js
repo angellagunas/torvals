@@ -316,7 +316,7 @@ class UserDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -326,7 +326,7 @@ class UserDetail extends Component {
                 },
                 {
                   path: '/manage/users/',
-                  label: 'Detalle de usuario',
+                  label: 'Detalle',
                   current: true
                 },
                 {

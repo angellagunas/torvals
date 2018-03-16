@@ -116,7 +116,7 @@ class ProductDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -126,7 +126,7 @@ class ProductDetail extends Component {
                 },
                 {
                   path: '/products/detail/',
-                  label: 'Detalle de producto',
+                  label: 'Detalle',
                   current: true
                 },
                 {

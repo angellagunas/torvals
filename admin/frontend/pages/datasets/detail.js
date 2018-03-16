@@ -1242,7 +1242,7 @@ class DataSetDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -1252,7 +1252,7 @@ class DataSetDetail extends Component {
                 },
                 {
                   path: '/admin/datasets/detail/',
-                  label: 'Detalle de dataset',
+                  label: 'Detalle',
                   current: true
                 },
                 {
