@@ -1,7 +1,7 @@
 require('../config')
 require('lib/databases/mongo')
 
-const { apiPort } = require('config/server')
+const { apiPort, apiHost } = require('config/server')
 const { multiple, numWorkers } = require('config/multiple-workers')
 const app = require('./')
 
@@ -15,7 +15,7 @@ if (multiple) {
     for (var i = 0; i < numWorkers; ++i) {
       cluster.fork()
     }
-    console.log(`Api started on port ${apiPort}, ${numWorkers} workers`)
+    console.log(`Api started ${apiHost}, ${numWorkers} workers`)
   } else {
     // Worker:
     // (Workers can share any TCP connection.
@@ -25,5 +25,5 @@ if (multiple) {
   }
 } else {
   app.listen(apiPort)
-  console.log(`Api started on port ${apiPort}`)
+  console.log(`Api started ${apiHost}`)
 }
