@@ -7,6 +7,7 @@ import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
 import env from '~base/env-variables'
 import classNames from 'classnames'
+import { toast, ToastContainer } from 'react-toastify'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -1182,7 +1183,13 @@ class DataSetDetail extends Component {
         if (org._id === item.organization)
           return org 
       }).uuid 
-      await api.post(url + item.uuid, item)
+
+      try {
+        await api.post(url + item.uuid, item)
+        this.notify(item.name + ' confirmado', 3000, toast.TYPE.SUCCESS) 
+      }catch(e){
+        this.notify('Error al confirmar ' + item.name , 3000, toast.TYPE.ERROR) 
+      }
     }
     
     this.setState({
@@ -1203,7 +1210,12 @@ class DataSetDetail extends Component {
           return org
       }).uuid 
 
-      await api.post(url + item.uuid, item)
+      try {
+        await api.post(url + item.uuid, item)
+        this.notify(item.name + ' confirmado', 3000, toast.TYPE.SUCCESS) 
+      }catch(e){
+        this.notify('Error al confirmar ' + item.name , 3000, toast.TYPE.ERROR) 
+      }
     }
 
     this.setState({
@@ -1224,7 +1236,12 @@ class DataSetDetail extends Component {
           return org
       }).uuid
 
-      await api.post(url + item.uuid, item)
+      try {
+        await api.post(url + item.uuid, item)
+        this.notify(item.name + ' confirmado', 3000, toast.TYPE.SUCCESS) 
+      }catch(e){
+        this.notify('Error al confirmar ' + item.name , 3000, toast.TYPE.ERROR) 
+      }
     }
 
     this.setState({
@@ -1233,6 +1250,15 @@ class DataSetDetail extends Component {
     }, function () {
       this.toggleButtons()
       this.load()
+    })
+  }
+
+  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+    this.toastId = toast(message, {
+      autoClose: timeout,
+      type: type,
+      hideProgressBar: true,
+      closeButton: false
     })
   }
 
@@ -1352,6 +1378,7 @@ class DataSetDetail extends Component {
         {this.getModalCurrentProduct()}
         {this.getModalSalesCenters()}
         {this.getModalChannels()}
+        <ToastContainer />
       </div>
     )
   }
