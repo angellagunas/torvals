@@ -1196,13 +1196,17 @@ class TabAdjustment extends Component {
                 </article>
               : <div>
                   {this.getModifyButtons()}
-                  <BaseTable
-                    data={this.state.filteredData}
-                    columns={this.getColumns()}
-                    sortAscending
-                    sortBy={'name'}
-                  />
+                <div className='scroll-table'>
+                  <div className='scroll-table-container'>
+                    <BaseTable
+                      data={this.state.filteredData}
+                      columns={this.getColumns()}
+                      sortAscending
+                      sortBy={'name'}
+                    />
+                  </div>
                 </div>
+              </div>
             }
           </section>
         </div>
