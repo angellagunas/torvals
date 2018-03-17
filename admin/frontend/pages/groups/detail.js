@@ -260,7 +260,7 @@ class GroupDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -270,7 +270,12 @@ class GroupDetail extends Component {
                 },
                 {
                   path: '/admin/manage/groups/detail/',
-                  label: 'Detalle de grupo',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/manage/groups/detail/',
+                  label: group.name,
                   current: true
                 }
               ]}

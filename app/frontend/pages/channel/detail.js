@@ -90,7 +90,7 @@ class ChannelDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -100,7 +100,12 @@ class ChannelDetail extends Component {
                 },
                 {
                   path: '/channels/',
-                  label: 'Detalle de canal',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/channels/',
+                  label: channel.name,
                   current: true
                 }
               ]}

@@ -773,10 +773,16 @@ tr {
     cursor: pointer;
 }
 
-.react-datepicker__day{
+.react-datepicker__day {
     color: #ccc;
 }
 
+.breadcrumb.has-succeeds-separator li+li::before {
+    content: '/';
+    font-weight: 300;
+    font-size: 1.2rem;
+}
+    
 .update-pass{
     height: 100%;
     position: relative;

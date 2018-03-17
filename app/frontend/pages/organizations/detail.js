@@ -110,12 +110,17 @@ class OrganizationDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
                   path: '/organizations/',
-                  label: 'Detalle de organización',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/organizations/',
+                  label: organization.name,
                   current: true
                 }
               ]}

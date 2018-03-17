@@ -102,7 +102,7 @@ class Calendar extends Component {
           path={[
             {
               path: '/',
-              label: 'Dashboard',
+              label: 'Inicio',
               current: false
             },
             {

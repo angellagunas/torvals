@@ -529,7 +529,7 @@ class UserDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -539,7 +539,12 @@ class UserDetail extends Component {
                 },
                 {
                   path: '/admin/manage/users/',
-                  label: 'Detalle de usuario',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/manage/users/',
+                  label: user.name,
                   current: true
                 }
               ]}
@@ -656,7 +661,7 @@ const branchedUserDetail = branch({}, UserDetail)
 
 export default Page({
   path: '/manage/users/:uuid',
-  title: 'Detalle de usuario',
+  title: 'Detalle',
   exact: true,
   validate: loggedIn,
   component: branchedUserDetail

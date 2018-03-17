@@ -295,7 +295,7 @@ class ProjectDetail extends Component {
                 path={[
                   {
                     path: '/admin',
-                    label: 'Dashboard',
+                    label: 'Inicio',
                     current: false
                   },
                   {
@@ -305,12 +305,17 @@ class ProjectDetail extends Component {
                   },
                   {
                     path: '/admin/projects/detail/',
-                    label: 'Detalle de proyecto',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/admin/projects/detail/',
+                    label: project.name,
                     current: true
                   }
                 ]}
                 align='left'
-            />
+              />
               <div className='is-padding-top-small'>
                 <Tabs
                   tabTitle={project.name}
@@ -318,13 +323,13 @@ class ProjectDetail extends Component {
                   selectedTab={this.state.selectedTab}
                   className='is-right'
                   extraTab={
-                  <DeleteButton
-                    objectName='Proyecto'
-                    objectDelete={() => this.deleteObject()}
-                    message={'Estas seguro de querer eliminar este Proyecto?'}
-                  />
-                }
-              />
+                    <DeleteButton
+                      objectName='Proyecto'
+                      objectDelete={() => this.deleteObject()}
+                      message={'Estas seguro de querer eliminar este Proyecto?'}
+                    />
+                  }
+                />
               </div>
             </div>
           </div>

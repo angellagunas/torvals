@@ -21,7 +21,7 @@ export default ListPage({
     path: [
       {
         path: '/admin',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {

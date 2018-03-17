@@ -157,7 +157,7 @@ class RoleDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -167,7 +167,12 @@ class RoleDetail extends Component {
                 },
                 {
                   path: '/admin/manage/roles',
-                  label: 'Detalle de rol',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/manage/roles',
+                  label: role.name,
                   current: true
                 }
               ]}

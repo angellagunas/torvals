@@ -113,11 +113,7 @@ class ProductDetail extends Component {
   }
 
   render () {
-    if (this.state.notFound) {
-      return <NotFound msg='este producto' />
-    }
-
-    let { loading, canEdit } = this.state
+    let { loading, canEdit, product } = this.state
     if (loading) {
       return <Loader />
     }
@@ -130,7 +126,7 @@ class ProductDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -140,7 +136,12 @@ class ProductDetail extends Component {
                 },
                 {
                   path: '/products/detail/',
-                  label: 'Detalle de producto',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/products/detail/',
+                  label: product.name,
                   current: true
                 }
               ]}

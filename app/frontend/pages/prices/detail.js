@@ -75,7 +75,7 @@ class PriceDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -85,7 +85,12 @@ class PriceDetail extends Component {
                 },
                 {
                   path: '/prices/detail/',
-                  label: 'Detalle de precio',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/prices/detail/',
+                  label: price.product.name,
                   current: true
                 }
               ]}

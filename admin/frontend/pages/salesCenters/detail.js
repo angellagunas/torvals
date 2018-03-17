@@ -251,7 +251,7 @@ class SalesCenterDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -261,7 +261,12 @@ class SalesCenterDetail extends Component {
                 },
                 {
                   path: '/admin/salesCenters/detail/',
-                  label: 'Detalle de Centro de venta',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/salesCenters/detail/',
+                  label: this.state.salesCenter.name,
                   current: true
                 }
               ]}
