@@ -95,22 +95,32 @@ class ProjectForm extends Component {
         type: 'string',
         title: 'Estado',
         enum: [
-          'empty',
-          'processing',
-          'pendingRows',
+          'new',
           'adjustment',
-          'conciliating',
+          'uploading',
+          'uploaded',
+          'preprocessing',
+          'configuring',
+          'processing',
+          'reviewing',
           'ready',
-          'reviewing'
+          'conciliated',
+          'pendingRows',
+          'error'
         ],
         enumNames: [
-          'empty',
-          'processing',
-          'pendingRows',
-          'adjustment',
-          'conciliating',
-          'ready',
-          'reviewing'
+          'Nuevo',
+          'Ajuste',
+          'Cargando',
+          'Cargado',
+          'Preprocesando',
+          'Configurando',
+          'Procesando',
+          'Revisando',
+          'Listo',
+          'Conciliado',
+          'Pendiente',
+          'Error'
         ]
       }
     } else {

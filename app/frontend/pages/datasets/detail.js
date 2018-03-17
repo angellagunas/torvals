@@ -22,6 +22,7 @@ import SalesCenterForm from './edit-salescenter'
 import ChannelForm from './edit-channel'
 import Checkbox from '~base/components/base-checkbox'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import {datasetStatus} from '~base/tools'
 import NotFound from '~base/components/not-found'
 
 class DataSetDetail extends Component {
@@ -1403,7 +1404,7 @@ class DataSetDetail extends Component {
                             name: this.state.dataset.name,
                             description: this.state.dataset.description,
                             organization: this.state.dataset.organization.uuid,
-                            status: dataset.status
+                            status: datasetStatus[dataset.status]
                           }}
                           load={this.load.bind(this)}
                           canEdit={canEdit}
