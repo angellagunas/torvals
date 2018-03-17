@@ -689,7 +689,7 @@ tr {
 }
 
 .scroll-table-container {
-    max-height: 30em;
+    max-height: 630px;
     overflow-y: scroll;
 }
 
@@ -698,7 +698,9 @@ tr {
     position: relative;
     overflow: hidden;
     width: 100%;
-    
+    .table {
+        margin-bottom: 0rem;
+    }
     th .is-hidden {
         display: block !important;
         position: absolute;
