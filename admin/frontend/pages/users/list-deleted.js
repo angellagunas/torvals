@@ -86,7 +86,7 @@ class DeletedUsers extends Component {
                   <div className='column'>
                     <BranchedPaginatedTable
                       branchName='deletedUsers'
-                      baseUrl='/admin/users/deleted'
+                      baseUrl='/admin/users/?isDeleted=true'
                       columns={this.getColumns()}
                        />
                   </div>

@@ -47,57 +47,58 @@ module.exports = async function (ctx, next) {
       ctx.state.user = user
       ctx.state.token = userToken
 
-    if (method === 'Basic') {
-      const decodedStr = Buffer.from(token, 'base64').toString('ascii')
+      if (method === 'Basic') {
+        const decodedStr = Buffer.from(token, 'base64').toString('ascii')
 
-      const key = decodedStr.split(':')[0]
-      const secret = decodedStr.split(':')[1]
+        const key = decodedStr.split(':')[0]
+        const secret = decodedStr.split(':')[1]
 
-      userToken = await UserToken.findOne({
-        key: key,
-        secret: secret,
-        isDeleted: {$ne: true}
-      }).populate('user')
+        userToken = await UserToken.findOne({
+          key: key,
+          secret: secret,
+          isDeleted: {$ne: true}
+        }).populate('user')
 
-      if (!userToken) {
-        return ctx.throw(401, 'Invalid User')
-      }
-
-      if (!userToken.user) {
-        return ctx.throw(401, 'Invalid User')
-      }
-
-      ctx.state.authMethod = 'Basic'
-    }
-  }
-
-  let originalHost
-  if (ctx.request.headers['referer']) {
-    originalHost = ctx.request.headers['referer']
-  } else if (ctx.request.headers.origin) {
-    originalHost = ctx.request.headers.origin
-  }
-
-  if (originalHost && !pathname.includes('login')) {
-    const origin = url.parse(originalHost)
-    const apiHostname = url.parse(server.apiHost).hostname.split('.')
-
-    const host = origin.hostname.split('.')
-
-    if (host.length > apiHostname.length && host[0] !== 'www') {
-      ctx.state.orgSlug = host[0]
-
-      if (ctx.state.orgSlug) {
-        const organization = await Organization.findOne({slug: ctx.state.orgSlug, isDeleted: false})
-
-        if (!organization) {
-          ctx.throw(401, 'Organization not found')
+        if (!userToken) {
+          return ctx.throw(401, 'Invalid User')
         }
 
-        ctx.state.organization = organization
+        if (!userToken.user) {
+          return ctx.throw(401, 'Invalid User')
+        }
+
+        ctx.state.authMethod = 'Basic'
       }
     }
-  }
 
-  await next()
+    let originalHost
+    if (ctx.request.headers['referer']) {
+      originalHost = ctx.request.headers['referer']
+    } else if (ctx.request.headers.origin) {
+      originalHost = ctx.request.headers.origin
+    }
+
+    if (originalHost && !pathname.includes('login')) {
+      const origin = url.parse(originalHost)
+      const apiHostname = url.parse(server.apiHost).hostname.split('.')
+
+      const host = origin.hostname.split('.')
+
+      if (host.length > apiHostname.length && host[0] !== 'www') {
+        ctx.state.orgSlug = host[0]
+
+        if (ctx.state.orgSlug) {
+          const organization = await Organization.findOne({slug: ctx.state.orgSlug, isDeleted: false})
+
+          if (!organization) {
+            ctx.throw(401, 'Organization not found')
+          }
+
+          ctx.state.organization = organization
+        }
+      }
+    }
+
+    await next()
+  }
 }

@@ -30,7 +30,7 @@ module.exports = new Route({
     await role.save()
 
     ctx.body = {
-      data: role.format()
+      data: role.toAdmin()
     }
   }
 })

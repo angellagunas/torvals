@@ -75,18 +75,7 @@ module.exports = new Route({
     var usersCount = await User.aggregate(statementCount) || 0
 
     users = users.map((user) => {
-      return {
-        uuid: user.uuid,
-        screenName: user.screenName,
-        displayName: user.displayName,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        validEmail: user.validEmail,
-        organizations: user.organizations,
-        groups: user.infoGroup,
-        profileUrl: user.profileUrl
-      }
+      return user.toAdmin()
     })
     ctx.body = {'data': users, 'total': usersCount[0] ? usersCount[0].total : 0}
   }

@@ -29,7 +29,7 @@ module.exports = new Route({
       await auxRole.save()
 
       ctx.body = {
-        data: auxRole.format()
+        data: auxRole.toAdmin()
       }
 
       return
@@ -38,7 +38,7 @@ module.exports = new Route({
     const role = await Role.create(data)
 
     ctx.body = {
-      data: role.format()
+      data: role.toAdmin()
     }
   }
 })

@@ -41,7 +41,7 @@ module.exports = new Route({
     verifyPrices.add({uuid: org.uuid})
 
     ctx.body = {
-      data: org.format()
+      data: org.toAdmin()
     }
   }
 })

@@ -37,7 +37,7 @@ module.exports = new Route({
     })
 
     ctx.body = {
-      user: user.format(),
+      user: user.toPublic(),
       jwt: token.getJwt()
     }
   }

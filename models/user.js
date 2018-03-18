@@ -8,7 +8,6 @@ const { aws } = require('../config')
 const awsService = require('aws-sdk')
 
 const Mailer = require('lib/mailer')
-const jwt = require('lib/jwt')
 
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR)
 
@@ -71,16 +70,6 @@ userSchema.pre('save', function (next) {
 })
 
 // Methods
-userSchema.methods.format = function () {
-  return {
-    uuid: this.uuid,
-    name: this.name,
-    email: this.email,
-    validEmail: this.validEmail,
-    profileUrl: this.profileUrl
-  }
-}
-
 userSchema.methods.toPublic = function () {
   return {
     uuid: this.uuid,
@@ -273,6 +262,11 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
   })
 }
 
-userSchema.plugin(dataTables)
+userSchema.plugin(dataTables, {
+  formatters: {
+    toAdmin: (user) => user.toAdmin(),
+    toPublic: (user) => user.toAdmin()
+  }
+})
 
 module.exports = mongoose.model('User', userSchema)

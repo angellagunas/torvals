@@ -80,7 +80,7 @@ module.exports = new Route({
     statementCount.push({$count: 'total'})
     var groupsCount = await Group.aggregate(statementCount)
     groups = groups.map((channel) => {
-      return { ...channel,
+      return { ...channel.toAdmin(),
         organization: channel.infoOrganization
       }
     })
