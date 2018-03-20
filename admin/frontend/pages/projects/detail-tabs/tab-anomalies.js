@@ -159,7 +159,12 @@ class TabAnomalies extends Component {
         'property': 'category',
         'default': 'N/A',
         formatter: (row) => {
-          return String(row.product.category)
+          if (row.product.category){
+            return String(row.product.category)
+          }
+          else{
+            return 'Sin categoría'
+          }
         }
       },
       {
@@ -397,9 +402,9 @@ class TabAnomalies extends Component {
     }
 
     const uiSchema = {
-      salesCenter: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Centro de Venta' },
-      product: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione producto' },
-      category: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione categoria' }
+      salesCenter: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los Centros de Venta' },
+      product: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los productos' },
+      category: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorias' }
     }
 
     schema.properties.product.enum = this.state.filters.products.map(item => { return item.uuid })
@@ -417,6 +422,7 @@ class TabAnomalies extends Component {
         <div className='columns'>
           <div className='column is-half'>
             <BaseForm
+              className='inline-form'            
               schema={schema}
               uiSchema={uiSchema}
               formData={this.state.formData}
@@ -427,11 +433,16 @@ class TabAnomalies extends Component {
               <div className='field is-grouped'>
                 <div className='control'>
                   <button
-                    className={'button is-primary is-medium' + this.state.isLoading}
+                    className={'button is-primary' + this.state.isLoading}
                     type='submit'
                     disabled={!!this.state.isLoading}
                   >
-                    Filtrar
+                    <span className='icon'>
+                        <i className='fa fa-filter' />
+                      </span>
+                      <span>
+                        Filtrar
+                    </span>
                     </button>
                 </div>
               </div>

@@ -67,6 +67,15 @@ class TabAnomalies extends Component {
         salesCenters: res.data
       }
     })
+
+    if (res.data.length === 1) {
+      this.setState({
+        formData: {
+          ...this.state.formData,
+          salesCenter: res.data[0].uuid
+        }
+      })
+    }
   }
 
   getCategory (products) {
@@ -136,7 +145,7 @@ class TabAnomalies extends Component {
   }
 
   getColumns () {
-    return [
+    let cols = [
       {
         'title': 'Product Id',
         'abbreviate': true,
@@ -162,17 +171,12 @@ class TabAnomalies extends Component {
         'property': 'category',
         'default': 'N/A',
         formatter: (row) => {
-          return String(row.product.category)
-        }
-      },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.salesCenter.name)
+          if (row.product.category){
+            return String(row.product.category)
+          }
+          else{
+            return 'Sin categoría'
+          }
         }
       },
       {
@@ -247,6 +251,21 @@ class TabAnomalies extends Component {
         }
       }
     ]
+
+    if ( this.state.filters.salesCenters.length > 1){
+      cols.splice(3,0, { 
+        'title': 'Centro de venta',
+        'abbreviate': true,
+        'abbr': 'C. Venta',
+        'property': 'salesCenter',
+        'default': 'N/A',
+        formatter: (row) => {
+          return String(row.salesCenter.name)
+        }
+      })
+    }
+
+    return cols
   }
 
   changeAdjustment = async (value, row) => {
@@ -387,49 +406,56 @@ class TabAnomalies extends Component {
     var schema = {
       type: 'object',
       title: '',
-      properties: {
-        salesCenter: {
-          type: 'string',
-          title: 'Centros de Venta',
-          enum: [],
-          enumNames: []
-        },
-        product: {
-          type: 'string',
-          title: 'Productos',
-          enum: [],
-          enumNames: []
-        },
-        category: {
-          type: 'string',
-          title: 'Categorias de producto',
-          enum: [],
-          enumNames: []
-        }
-      }
+      properties: {}
     }
 
     const uiSchema = {
-      salesCenter: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Centro de Venta' },
-      product: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione producto' },
-      category: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione categoria' }
+      salesCenter: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los centros de venta' },
+      product: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los productos' },
+      category: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorias' }
     }
 
-    schema.properties.product.enum = this.state.filters.products.map(item => { return item.uuid })
-    schema.properties.product.enumNames = this.state.filters.products.map(item => { return item.name })
-
+    if (this.state.filters.products.length > 0) {
+      schema.properties.product = {
+        type: 'string',
+        title: 'Productos',
+        enum: [],
+        enumNames: []
+      }
+      schema.properties.product.enum = this.state.filters.products.map(item => { return item.uuid })
+      schema.properties.product.enumNames = this.state.filters.products.map(item => { return item.name })
+    }
+    
     if (this.state.filters.categories.length > 0) {
+      schema.properties.category = {
+        type: 'string',
+        title: 'Categorias de producto',
+        enum: [],
+        enumNames: []
+      }
       schema.properties.category.enum = this.state.filters.categories
       schema.properties.category.enumNames = this.state.filters.categories
     }
-    schema.properties.salesCenter.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
-    schema.properties.salesCenter.enumNames = this.state.filters.salesCenters.map(item => { return item.name })
-
+    if (this.state.filters.salesCenters.length > 0) {
+      schema.properties.salesCenter = {
+        type: 'string',
+        title: 'Centros de Venta',
+        enum: [],
+        enumNames: []
+      }
+      schema.properties.salesCenter.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
+      schema.properties.salesCenter.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
+      if (this.state.filters.salesCenters.length === 1) {
+        uiSchema.salesCenter['ui:disabled'] = true
+      }
+    }
+    
     return (
       <div className='section'>
         <div className='columns'>
           <div className='column is-half'>
             <BaseForm
+              className='inline-form'
               schema={schema}
               uiSchema={uiSchema}
               formData={this.state.formData}
@@ -440,11 +466,16 @@ class TabAnomalies extends Component {
               <div className='field is-grouped'>
                 <div className='control'>
                   <button
-                    className={'button is-primary is-medium' + this.state.isLoading}
+                    className={'button is-primary' + this.state.isLoading}
                     type='submit'
                     disabled={!!this.state.isLoading}
                   >
-                    Filtrar
+                    <span className='icon'>
+                        <i className='fa fa-filter' />
+                      </span>
+                      <span>
+                        Filtrar
+                    </span>
                     </button>
                 </div>
               </div>

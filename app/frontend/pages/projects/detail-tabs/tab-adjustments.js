@@ -168,6 +168,15 @@ class TabAdjustment extends Component {
       }, () => {
         this.getDataRows()
       })
+
+      if (res.salesCenters.length === 1) {
+        this.setState({
+          formData: {
+            ...this.state.formData,
+            salesCenters: res.salesCenters[0].uuid
+          }
+        })
+      }      
     }
   }
 
@@ -302,7 +311,7 @@ class TabAdjustment extends Component {
   }
 
   getColumns () {
-    return [
+    let cols = [
       {
         'title': 'Product Id',
         'abbreviate': true,
@@ -321,16 +330,6 @@ class TabAdjustment extends Component {
         'default': 'N/A',
         formatter: (row) => {
           return String(row.productName)
-        }
-      },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.salesCenter)
         }
       },
       {
@@ -488,6 +487,21 @@ class TabAdjustment extends Component {
         }
       }
     ]
+
+    if ( this.state.filters.salesCenters.length > 1){
+      cols.splice(2,0, { 
+        'title': 'Centro de venta',
+        'abbreviate': true,
+        'abbr': 'C. Venta',
+        'property': 'salesCenter',
+        'default': 'N/A',
+        formatter: (row) => {
+          return String(row.salesCenter)
+        }
+      })
+    }
+
+    return cols
   }
 
   checkAll = (check) => {
@@ -1104,6 +1118,9 @@ class TabAdjustment extends Component {
       }
       schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
       schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
+      if(this.state.filters.salesCenters.length === 1){
+        uiSchema.salesCenters['ui:disabled'] = true
+      }
     }
     return (
       <div>

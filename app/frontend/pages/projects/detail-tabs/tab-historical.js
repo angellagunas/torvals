@@ -230,6 +230,15 @@ class TabHistorical extends Component {
         salesCenters: res.data
       }
     })
+
+    if (res.data.length === 1) {
+      this.setState({
+        formData: {
+          ...this.state.formData,
+          salesCenters: res.data[0].uuid
+        }
+      })
+    }
   }
 
   getCategory (products) {
@@ -469,6 +478,9 @@ class TabHistorical extends Component {
       }
       schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
       schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
+      if (this.state.filters.salesCenters.length === 1) {
+        uiSchema.salesCenters['ui:disabled'] = true
+      }
     }
 
     return (
@@ -507,10 +519,10 @@ class TabHistorical extends Component {
             <div className='column'>
               <div className='card'>
                 <div className='card-header'>
-                    <h1 className='card-header-title'>Totales de Venta</h1>
-                  </div>
+                  <h1 className='card-header-title'>Totales de Venta</h1>
+                </div>
                 <div className='card-content historical-container'>
-                    {
+                  {
                     this.state.historicData.prediction &&
                     this.state.weekTotalsPredictions
 
@@ -588,7 +600,7 @@ class TabHistorical extends Component {
                     </table>
                       : this.loadTable()
                   }
-                  </div>
+                </div>
               </div>
             </div>
 
