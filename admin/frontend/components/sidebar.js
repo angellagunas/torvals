@@ -8,9 +8,6 @@ import DeletedUsers from '../pages/users/list-deleted'
 import Organizations from '../pages/organizations/list'
 import Roles from '../pages/roles/list'
 import Groups from '../pages/groups/list'
-import DataSets from '../pages/datasets/list'
-import DeletedDataSets from '../pages/datasets/list-deleted'
-import ReadyDataSets from '../pages/datasets/list-ready'
 import Projects from '../pages/projects/list'
 import DeletedProjects from '../pages/projects/deleted-list'
 import SalesCenters from '../pages/salesCenters/list'
@@ -109,53 +106,18 @@ class Sidebar extends Component {
       },
       Calendar.asSidebarItem(),
       {
-        title: 'Datasets',
+        title: 'Catálogos',
         icon: 'file',
-        to: '/datasets',
-        opened: false,
-        dropdown: [
-          DataSets.asSidebarItem(),
-          ReadyDataSets.asSidebarItem(),
-          DeletedDataSets.asSidebarItem()
-        ]
-      },
-      {
-        title: 'Centros de Venta',
-        icon: 'credit-card-alt',
-        to: '/salesCenters',
+        to: '/catalogs',
         opened: false,
         dropdown: [
           SalesCenters.asSidebarItem(),
-          DeletedSalesCenters.asSidebarItem()
-        ]
-      },
-      {
-        title: 'Productos',
-        icon: 'dropbox',
-        to: '/products',
-        opened: false,
-        dropdown: [
           Products.asSidebarItem(),
-          DeletedProducts.asSidebarItem()
-        ]
-      },
-      {
-        title: 'Canales',
-        icon: 'filter',
-        to: '/channels',
-        opened: false,
-        dropdown: [
           Channels.asSidebarItem(),
+          Prices.asSidebarItem(),
+          DeletedSalesCenters.asSidebarItem(),
+          DeletedProducts.asSidebarItem(),
           DeletedChannels.asSidebarItem()
-        ]
-      },
-      {
-        title: 'Precios',
-        icon: 'money',
-        to: '/prices',
-        opened: false,
-        dropdown: [
-          Prices.asSidebarItem()
         ]
       },
       {

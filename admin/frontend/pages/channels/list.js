@@ -1,15 +1,15 @@
 import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
-import api from '~base/api'
+
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares'
 import CreateChannel from './create'
 
 export default ListPage({
-  path: '/channels',
-  title: 'Activos',
-  icon: 'check',
+  path: '/catalogs/channels',
+  title: 'Canales activos',
+  icon: 'filter',
   exact: true,
   validate: loggedIn,
   titleSingular: 'Canal',
@@ -24,7 +24,7 @@ export default ListPage({
         current: false
       },
       {
-        path: '/admin/channels/',
+        path: '/admin/catalogs/channels/',
         label: 'Canales activos',
         current: true
       }
@@ -33,7 +33,7 @@ export default ListPage({
   },
   baseUrl: '/admin/channels',
   branchName: 'channels',
-  detailUrl: '/admin/channels/detail/',
+  detailUrl: '/admin/catalogs/channels/detail/',
   filters: true,
   schema: {
     type: 'object',
@@ -54,7 +54,7 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/channels/detail/' + row.uuid}>
+            <Link to={'/catalogs/channels/detail/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -88,7 +88,7 @@ export default ListPage({
         'title': 'Acciones',
         formatter: (row) => {
           return (
-            <Link className='button' to={'/channels/detail/' + row.uuid}>
+            <Link className='button' to={'/catalogs/channels/detail/' + row.uuid}>
               Detalle
             </Link>
           )

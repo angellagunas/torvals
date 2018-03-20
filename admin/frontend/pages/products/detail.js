@@ -49,7 +49,7 @@ class ProductDetail extends Component {
   async deleteObject () {
     var url = '/admin/products/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/admin/products')
+    this.props.history.push('/admin/catalogs/products')
   }
 
   getColumns () {
@@ -129,17 +129,17 @@ class ProductDetail extends Component {
                   current: false
                 },
                 {
-                  path: '/admin/products',
+                  path: '/admin/catalogs/products',
                   label: 'Productos Activos',
                   current: false
                 },
                 {
-                  path: '/admin/products/detail/',
+                  path: '/admin/catalogs/products/detail/',
                   label: 'Detalle',
                   current: true
                 },
                 {
-                  path: '/admin/products/detail/',
+                  path: '/admin/catalogs/products/detail/',
                   label: product.name,
                   current: true
                 }
@@ -229,7 +229,7 @@ class ProductDetail extends Component {
 }
 
 export default Page({
-  path: '/products/detail/:uuid',
+  path: '/catalogs/products/detail/:uuid',
   title: 'Product detail',
   exact: true,
   validate: loggedIn,

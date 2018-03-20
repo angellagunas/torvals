@@ -50,7 +50,7 @@ class ChannelDetail extends Component {
   async deleteObject () {
     var url = '/app/channels/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/channels')
+    this.props.history.push('/catalogs/channels')
   }
 
   submitHandler () {
@@ -94,17 +94,17 @@ class ChannelDetail extends Component {
                   current: false
                 },
                 {
-                  path: '/channels',
+                  path: '/catalogs/channels',
                   label: 'Canales',
                   current: false
                 },
                 {
-                  path: '/channels/',
+                  path: '/catalogs/channels/',
                   label: 'Detalle',
                   current: true
                 },
                 {
-                  path: '/channels/',
+                  path: '/catalogs/channels/',
                   label: channel.name,
                   current: true
                 }
@@ -171,7 +171,7 @@ class ChannelDetail extends Component {
 }
 
 export default Page({
-  path: '/channels/:uuid',
+  path: '/catalogs/channels/:uuid',
   title: 'Channel Detail',
   exact: true,
   roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, manager-level-3',
