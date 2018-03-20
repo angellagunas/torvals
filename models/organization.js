@@ -84,10 +84,10 @@ organizationSchema.methods.uploadOrganizationPicture = async function (file) {
 
 organizationSchema.virtual('profileUrl').get(function () {
   if (this.organizationPicture && this.organizationPicture.url) {
-    return 'https://s3-' + this.organizationPicture.region + '.amazonaws.com/' + this.organizationPicture.bucket + '/' + this.organizationPicture.url
+    return 'https://s3.' + this.organizationPicture.region + '.amazonaws.com/' + this.organizationPicture.bucket + '/' + this.organizationPicture.url
   }
 
-  return 'https://s3-us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
+  return 'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
 })
 
 module.exports = mongoose.model('Organization', organizationSchema)

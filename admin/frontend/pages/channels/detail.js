@@ -7,6 +7,7 @@ import Loader from '~base/components/spinner'
 import ChannelForm from './create-form'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class ChannelDetail extends Component {
   constructor (props) {
@@ -25,19 +26,27 @@ class ChannelDetail extends Component {
 
   async load () {
     var url = '/admin/channels/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      channel: body.data
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        channel: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async deleteObject () {
     var url = '/admin/channels/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/admin/channels')
+    this.props.history.push('/admin/catalogs/channels')
   }
 
   getColumns () {
@@ -64,6 +73,10 @@ class ChannelDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este canal' />
+    }
+
     if (!this.state.loaded) {
       return <Loader />
     }
@@ -82,17 +95,22 @@ class ChannelDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
-                  path: '/admin/channels',
+                  path: '/admin/catalogs/channels',
                   label: 'Canales',
                   current: false
                 },
                 {
-                  path: '/admin/channels/detail/',
-                  label: 'Detalle de canal',
+                  path: '/admin/catalogs/channels/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/catalogs/channels/detail/',
+                  label: channel.name,
                   current: true
                 }
               ]}
@@ -155,7 +173,7 @@ class ChannelDetail extends Component {
 }
 
 export default Page({
-  path: '/channels/detail/:uuid',
+  path: '/catalogs/channels/detail/:uuid',
   title: 'Channel Detail',
   exact: true,
   validate: loggedIn,

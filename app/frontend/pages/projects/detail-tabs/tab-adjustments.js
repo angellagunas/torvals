@@ -66,7 +66,7 @@ class TabAdjustment extends Component {
 
   componentWillUnmount () {
     clearInterval(this.interval)
-    this.props.setAlert('is-invisible', ' ')    
+    this.props.setAlert('is-white', ' ')    
   }
 
   componentWillReceiveProps(nextProps) {
@@ -1170,13 +1170,17 @@ class TabAdjustment extends Component {
                                   Semana {item.week}
                                 </td>
                                 <td>
-                                  $ {item.prediction.toFixed(2)}
+                                  $ {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
+                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                    })}
                                 </td>
                                 <td>
                                   Semana {item.week}
                                 </td>
                                 <td>
-                                  $ {item.adjustment.toFixed(2)}
+                                  $ {item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                    })}
                                 </td>
                               </tr>
                             )
@@ -1188,13 +1192,17 @@ class TabAdjustment extends Component {
                               Total
                         </th>
                             <td>
-                              $ {this.state.totalPrediction.toFixed(2)}
+                              $ {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })}
                             </td>
                             <th>
                               Total
                         </th>
                             <td>
-                              $ {this.state.totalAdjustment.toFixed(2)}
+                              $ {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })}
                             </td>
                           </tr>
                         </tbody>

@@ -7,7 +7,7 @@ import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 
 export default ListPage({
-  path: '/prices',
+  path: '/catalogs/prices',
   title: 'Precios',
   titleSingular: 'Precio',
   icon: 'money',
@@ -20,11 +20,11 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {
-        path: '/prices',
+        path: '/catalogs/prices',
         label: 'Precios',
         current: true
       }
@@ -33,21 +33,25 @@ export default ListPage({
   },
   baseUrl: '/app/prices',
   branchName: 'prices',
-  detailUrl: '/prices/',
+  detailUrl: '/catalogs/prices/',
+  filters: true,
+  schema: {
+    type: 'object',
+    required: [],
+    properties: {
+      general: {type: 'text', title: 'Buscar'}
+    }
+  },
+  uiSchema: {
+    general: {'ui:widget': 'SearchFilter'}
+  },
   getColumns: () => {
     return [
       {
         'title': 'ID',
-        'property': 'product.externaId',
+        'property': 'productExternalId',
         'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.product) {
-            return row.product.externalId
-          }
-
-          return 'N/A'
-        }
+        'sortable': true
       },
       {
         'title': 'Producto',
@@ -81,7 +85,17 @@ export default ListPage({
         'title': 'Precio',
         'property': 'price',
         'default': 'N/A',
-        'sortable': true
+        'sortable': true,
+        'className': 'has-text-left',
+        formatter: (row) => {
+          if (row && row.price) {
+            return '$ ' + row.price.toFixed(2).replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+
+          return 'N/A'
+        }
       },
 
       {
@@ -100,7 +114,7 @@ export default ListPage({
         formatter: (row) => {
           if (testRoles('manager-level-3')) {
             return (
-              <Link className='button' to={'/prices/' + row.uuid}>
+              <Link className='button' to={'/catalogs/prices/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>
@@ -108,7 +122,7 @@ export default ListPage({
             )
           } else {
             return (
-              <Link className='button is-primary' to={'/prices/' + row.uuid}>
+              <Link className='button is-primary' to={'/catalogs/prices/' + row.uuid}>
                 <span className='icon is-small' title='Editar'>
                   <i className='fa fa-pencil' />
                 </span>

@@ -8,7 +8,7 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateSalesCenter from './create'
 
 export default ListPage({
-  path: '/salesCenters',
+  path: '/catalogs/salesCenters',
   title: 'Centros de venta',
   icon: 'credit-card-alt',
   exact: true,
@@ -22,11 +22,11 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {
-        path: '/salesCenters/',
+        path: '/catalogs/salesCenters/',
         label: 'Centros de venta',
         current: true
       }
@@ -36,7 +36,7 @@ export default ListPage({
   canCreate: 'admin, orgadmin, analyst',
   baseUrl: '/app/salesCenters',
   branchName: 'salesCenters',
-  detailUrl: 'salesCenters/',
+  detailUrl: 'catalogs/salesCenters/',
   filters: true,
   schema: {
     type: 'object',
@@ -57,7 +57,7 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/salesCenters/' + row.uuid}>
+            <Link to={'/catalogs/salesCenters/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -79,7 +79,7 @@ export default ListPage({
         formatter: (row) => {
           if (testRoles('manager-level-3')) {
             return (
-              <Link className='button' to={'/salesCenters/' + row.uuid}>
+              <Link className='button' to={'/catalogs/salesCenters/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>
@@ -87,7 +87,7 @@ export default ListPage({
             )
           } else {
             return (
-              <Link className='button is-primary' to={'/salesCenters/' + row.uuid}>
+              <Link className='button is-primary' to={'/catalogs/salesCenters/' + row.uuid}>
                 <span className='icon is-small' title='Editar'>
                   <i className='fa fa-pencil' />
                 </span>

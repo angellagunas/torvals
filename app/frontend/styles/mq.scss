@@ -66,3 +66,13 @@
         margin: 0;
     }
 }
+
+.md-checkbox input {
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    margin: -10px;
+}
+.md-checkbox>div {
+    margin-left: 20px;
+}

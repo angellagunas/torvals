@@ -647,7 +647,7 @@ class ForecastDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -657,7 +657,7 @@ class ForecastDetail extends Component {
                 },
                 {
                   path: '/forecasts/',
-                  label: 'Detalle de forecast',
+                  label: 'Detalle',
                   current: true
                 }
               ]}

@@ -31,7 +31,7 @@ class TabAprove extends Component {
   }
 
   componentWillUnmount() {
-    this.props.setAlert('is-invisible', ' ')
+    this.props.setAlert('is-white', ' ')
   }
 
   async getAdjustmentRequests() {

@@ -8,6 +8,7 @@ import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import {datasetStatus} from '~base/tools'
 
 class ReadyDataSets extends Component {
   constructor (props) {
@@ -43,10 +44,13 @@ class ReadyDataSets extends Component {
         }
       },
       {
-        'title': 'Status',
+        'title': 'Estado',
         'property': 'status',
         'default': 'new',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          return datasetStatus[row.status]
+        }
       },
       {
         'title': 'Acciones',
@@ -82,7 +86,7 @@ class ReadyDataSets extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {

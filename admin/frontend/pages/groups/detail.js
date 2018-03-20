@@ -14,6 +14,7 @@ import DeleteButton from '~base/components/base-deleteButton'
 import CreateUser from '../users/create'
 import tree from '~core/tree'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class GroupDetail extends Component {
   constructor (props) {
@@ -48,13 +49,22 @@ class GroupDetail extends Component {
     })
 
     var url = '/admin/groups/' + this.props.match.params.uuid
-    const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      group: body.data
-    })
+    try {
+      const body = await api.get(url)
+
+      this.setState({
+        loading: false,
+        loaded: true,
+        group: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async loadOrgs () {
@@ -233,6 +243,10 @@ class GroupDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este grupo' />
+    }
+
     const { group } = this.state
 
     if (!group.uuid) {
@@ -246,7 +260,7 @@ class GroupDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -256,7 +270,12 @@ class GroupDetail extends Component {
                 },
                 {
                   path: '/admin/manage/groups/detail/',
-                  label: 'Detalle de grupo',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/manage/groups/detail/',
+                  label: group.name,
                   current: true
                 }
               ]}

@@ -7,10 +7,10 @@ import {loggedIn} from '~base/middlewares/'
 import CreatePrice from './create'
 
 export default ListPage({
-  path: '/prices',
+  path: '/catalogs/prices',
   title: 'Precios  Activos',
   titleSingular: 'Precio',
-  icon: 'check',
+  icon: 'money',
   exact: true,
   validate: loggedIn,
   create: false,
@@ -20,7 +20,7 @@ export default ListPage({
     path: [
       {
         path: '/admin',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {
@@ -33,21 +33,25 @@ export default ListPage({
   },
   baseUrl: '/admin/prices',
   branchName: 'prices',
-  detailUrl: '/admin/prices/',
+  detailUrl: '/admin/catalogs/prices/',
+  filters: true,
+  schema: {
+    type: 'object',
+    required: [],
+    properties: {
+      general: {type: 'text', title: 'Buscar'}
+    }
+  },
+  uiSchema: {
+    general: {'ui:widget': 'SearchFilter'}
+  },
   getColumns: () => {
     return [
       {
         'title': 'ID',
-        'property': 'product.externaId',
+        'property': 'productExternalId',
         'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.product) {
-            return row.product.externalId
-          }
-
-          return 'N/A'
-        }
+        'sortable': true
       },
       {
         'title': 'Producto',
@@ -81,7 +85,17 @@ export default ListPage({
         'title': 'Precio',
         'property': 'price',
         'default': 'N/A',
-        'sortable': true
+        'sortable': true,
+        'className': 'has-text-left',
+        formatter: (row) => {
+          if (row && row.price) {
+            return '$ ' + row.price.toFixed(2).replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+
+          return 'N/A'
+        }
       },
 
       {
@@ -99,7 +113,7 @@ export default ListPage({
         'title': 'Acciones',
         formatter: (row) => {
           return (
-            <Link className='button is-primary' to={'/prices/' + row.uuid}>
+            <Link className='button is-primary' to={'/catalogs/prices/' + row.uuid}>
               <span className='icon is-small' title='Editar'>
                 <i className='fa fa-pencil' />
               </span>

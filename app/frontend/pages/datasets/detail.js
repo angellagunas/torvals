@@ -22,6 +22,8 @@ import SalesCenterForm from './edit-salescenter'
 import ChannelForm from './edit-channel'
 import Checkbox from '~base/components/base-checkbox'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import {datasetStatus} from '~base/tools'
+import NotFound from '~base/components/not-found'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -85,13 +87,22 @@ class DataSetDetail extends Component {
 
   async load () {
     var url = '/app/datasets/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    
+    try {
+      const body = await api.get(url)
 
     this.setState({
       loading: false,
       loaded: true,
       dataset: body.data
     })
+  }catch (e) {
+    await this.setState({
+      loading: false,
+      loaded: true,
+      notFound: true
+    })
+  }
   }
 
   getColumns () {
@@ -1308,6 +1319,10 @@ class DataSetDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este dataset' />
+    }
+
     const { dataset, canEdit } = this.state
 
     if (!dataset.uuid) {
@@ -1335,7 +1350,7 @@ class DataSetDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -1345,7 +1360,12 @@ class DataSetDetail extends Component {
                 },
                 {
                   path: '/datasets/',
-                  label: 'Detalle de dataset',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/datasets/',
+                  label: dataset.name,
                   current: true
                 }
               ]}
@@ -1389,7 +1409,7 @@ class DataSetDetail extends Component {
                             name: this.state.dataset.name,
                             description: this.state.dataset.description,
                             organization: this.state.dataset.organization.uuid,
-                            status: dataset.status
+                            status: datasetStatus[dataset.status]
                           }}
                           load={this.load.bind(this)}
                           canEdit={canEdit}

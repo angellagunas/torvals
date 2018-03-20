@@ -8,6 +8,7 @@ import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import PriceForm from './create-form'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class PriceDetail extends Component {
   constructor (props) {
@@ -26,13 +27,22 @@ class PriceDetail extends Component {
 
   async load () {
     var url = '/app/prices/' + this.props.match.params.uuid
-    const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      price: body.data
-    })
+    try {
+      const body = await api.get(url)
+
+      this.setState({
+        loading: false,
+        loaded: true,
+        price: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   submitHandler () {
@@ -48,6 +58,10 @@ class PriceDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este precio' />
+    }
+
     const {price} = this.state
     if (!this.state.loaded) {
       return <Loader />
@@ -61,17 +75,22 @@ class PriceDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
-                  path: '/prices',
+                  path: '/catalogs/prices',
                   label: 'Precios',
                   current: false
                 },
                 {
-                  path: '/prices/detail/',
-                  label: 'Detalle de precio',
+                  path: '/catalogs/prices/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/catalogs/prices/detail/',
+                  label: price.product.name,
                   current: true
                 }
               ]}
@@ -128,7 +147,7 @@ PriceDetail.contextTypes = {
 const branchedPriceDetails = branch({ prices: 'prices' }, PriceDetail)
 
 export default Page({
-  path: '/prices/:uuid',
+  path: '/catalogs/prices/:uuid',
   title: 'Price details',
   exact: true,
   validate: loggedIn,

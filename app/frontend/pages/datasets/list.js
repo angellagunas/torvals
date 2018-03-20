@@ -4,6 +4,7 @@ import { testRoles } from '~base/tools'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
+import {datasetStatus} from '~base/tools'
 
 export default ListPage({
   path: '/datasets',
@@ -18,7 +19,7 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {
@@ -102,10 +103,13 @@ export default ListPage({
         }
       },
       {
-        'title': 'Status',
+        'title': 'Estado',
         'property': 'status',
         'default': 'new',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          return datasetStatus[row.status]
+        }
       },
       {
         'title': 'Acciones',

@@ -10,6 +10,7 @@ import ProductForm from './create-form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class ProductDetail extends Component {
   constructor (props) {
@@ -28,25 +29,33 @@ class ProductDetail extends Component {
 
   async load () {
     var url = '/admin/products/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      product: body.data
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        product: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async deleteObject () {
     var url = '/admin/products/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/admin/products')
+    this.props.history.push('/admin/catalogs/products')
   }
 
   getColumns () {
     return [
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
@@ -99,6 +108,9 @@ class ProductDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este producto' />
+    }
     const { product } = this.state
 
     if (!this.state.loaded) {
@@ -113,17 +125,22 @@ class ProductDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
-                  path: '/admin/products',
-                  label: 'Productos',
+                  path: '/admin/catalogs/products',
+                  label: 'Productos Activos',
                   current: false
                 },
                 {
-                  path: '/admin/products/detail/',
-                  label: 'Detalle de producto',
+                  path: '/admin/catalogs/products/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/catalogs/products/detail/',
+                  label: product.name,
                   current: true
                 }
               ]}
@@ -212,7 +229,7 @@ class ProductDetail extends Component {
 }
 
 export default Page({
-  path: '/products/detail/:uuid',
+  path: '/catalogs/products/detail/:uuid',
   title: 'Product detail',
   exact: true,
   validate: loggedIn,

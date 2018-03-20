@@ -11,6 +11,7 @@ import ProductForm from './create-form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class ProductDetail extends Component {
   constructor (props) {
@@ -32,25 +33,34 @@ class ProductDetail extends Component {
 
   async load () {
     var url = '/app/products/' + this.props.match.params.uuid
-    const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      product: body.data
-    })
+    try {
+      const body = await api.get(url)
+
+      this.setState({
+        loading: false,
+        loaded: true,
+        product: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async deleteObject () {
     var url = '/app/products/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/products')
+    this.props.history.push('/catalogs/products')
   }
 
   getColumns () {
     return [
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
@@ -103,7 +113,10 @@ class ProductDetail extends Component {
   }
 
   render () {
-    let { loading, canEdit } = this.state
+    if (this.state.notFound) {
+      return <NotFound msg='este producto' />
+    }
+    let { loading, canEdit, product } = this.state
     if (loading) {
       return <Loader />
     }
@@ -111,22 +124,27 @@ class ProductDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
-                  path: '/products',
+                  path: '/catalogs/products',
                   label: 'Productos',
                   current: false
                 },
                 {
-                  path: '/products/detail/',
-                  label: 'Detalle de producto',
+                  path: '/catalogs/products/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/catalogs/products/detail/',
+                  label: product.name,
                   current: true
                 }
               ]}
@@ -153,7 +171,7 @@ class ProductDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Product
+                      Producto
                     </p>
                   </header>
                   <div className='card-content'>
@@ -190,7 +208,7 @@ class ProductDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Forecasts
+                          Predicción
                         </p>
                       </header>
                       <div className='card-content'>
@@ -218,7 +236,7 @@ class ProductDetail extends Component {
 }
 
 export default Page({
-  path: '/products/:uuid',
+  path: '/catalogs/products/:uuid',
   title: 'Product detail',
   exact: true,
   roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, manager-level-3',
