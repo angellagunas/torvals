@@ -122,6 +122,7 @@ body {
     border-radius: 5px 0px 0px 5px;
     cursor: pointer;
     text-align: center;
+    z-index: 11;
 }
 
 .side-filters {
@@ -446,6 +447,7 @@ a.navbar-item:hover {
     cursor: pointer;
     text-align: center;
     width: 40px;
+    z-index: 11;
 }
 
 .z100 {
@@ -764,6 +766,24 @@ tr {
     margin: auto;
 }
 
+.sticky-tab {
+    background-color: #fff;
+    position: sticky;
+    top: 32px;
+    z-index: 10;
+}
+
+.sticky-msg {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.notification.is-white {
+    .has-text-info {
+        color: #fff !important;
+    }
+}
 .notification:not(:last-child) {
     margin-bottom: 0 !important;
 }

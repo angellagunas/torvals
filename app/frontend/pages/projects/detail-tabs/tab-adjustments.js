@@ -66,7 +66,7 @@ class TabAdjustment extends Component {
 
   componentWillUnmount () {
     clearInterval(this.interval)
-    this.props.setAlert('is-invisible', ' ')    
+    this.props.setAlert('is-white', ' ')    
   }
 
   componentWillReceiveProps(nextProps) {

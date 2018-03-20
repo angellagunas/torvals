@@ -277,13 +277,14 @@ class ProjectDetail extends Component {
         Agregar Dataset
       </span>
     </button>)
+
     return (
       <div>
         <div className='columns c-flex-1 is-marginless'>
           <div className='column is-paddingless'>
             {
             this.state.alertMsg &&
-            <div className={'notification has-text-centered is-uppercase is-paddingless ' + this.state.alertType}>
+            <div className={'notification has-text-centered is-uppercase is-paddingless sticky-msg ' + this.state.alertType}>
               <span className='icon is-medium has-text-info'>
                 <i className='fa fa-warning' />
               </span>
@@ -291,6 +292,7 @@ class ProjectDetail extends Component {
             </div>
           }
             <div className='section pad-sides'>
+            
               <Breadcrumb
                 path={[
                   {
@@ -321,7 +323,7 @@ class ProjectDetail extends Component {
                   tabTitle={project.name}
                   tabs={tabs}
                   selectedTab={this.state.selectedTab}
-                  className='is-right'
+                  className='is-right sticky-tab'
                   extraTab={
                     <DeleteButton
                       objectName='Proyecto'
