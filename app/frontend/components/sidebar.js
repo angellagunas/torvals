@@ -6,8 +6,6 @@ import classNames from 'classnames'
 import Dashboard from '../pages/dashboard'
 import Users from '../pages/users/list'
 import Groups from '../pages/groups/list'
-import DataSets from '../pages/datasets/list'
-import ReadyDataSets from '../pages/datasets/list-ready'
 import Projects from '../pages/projects/list'
 import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
@@ -99,20 +97,18 @@ class Sidebar extends Component {
         Projects.asSidebarItem(),
         Calendar.asSidebarItem(),
         {
-          title: 'Datasets',
+          title: 'Catálogos',
           icon: 'file',
-          to: '/datasets',
+          to: '/catalogs',
           roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2',
           opened: false,
           dropdown: [
-            DataSets.asSidebarItem(),
-            ReadyDataSets.asSidebarItem()
+            Prices.asSidebarItem(),
+            SalesCenters.asSidebarItem(),
+            Products.asSidebarItem(),
+            Channels.asSidebarItem()
           ]
-        },
-        Prices.asSidebarItem(),
-        SalesCenters.asSidebarItem(),
-        Products.asSidebarItem(),
-        Channels.asSidebarItem()
+        }
       ]
     }
 

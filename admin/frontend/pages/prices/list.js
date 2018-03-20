@@ -7,10 +7,10 @@ import {loggedIn} from '~base/middlewares/'
 import CreatePrice from './create'
 
 export default ListPage({
-  path: '/prices',
+  path: '/catalogs/prices',
   title: 'Precios  Activos',
   titleSingular: 'Precio',
-  icon: 'check',
+  icon: 'money',
   exact: true,
   validate: loggedIn,
   create: false,
@@ -33,7 +33,7 @@ export default ListPage({
   },
   baseUrl: '/admin/prices',
   branchName: 'prices',
-  detailUrl: '/admin/prices/',
+  detailUrl: '/admin/catalogs/prices/',
   filters: true,
   schema: {
     type: 'object',
@@ -112,7 +112,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/prices/' + row.uuid}>
+          return <Link className='button' to={'/catalogs/prices/' + row.uuid}>
             Detalle
           </Link>
         }

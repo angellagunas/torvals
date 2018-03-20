@@ -7,7 +7,7 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateProduct from './create'
 
 export default ListPage({
-  path: '/products',
+  path: '/catalogs/products',
   title: 'Productos',
   icon: 'dropbox',
   exact: true,
@@ -25,7 +25,7 @@ export default ListPage({
         current: false
       },
       {
-        path: '/products/',
+        path: '/catalogs/products/',
         label: 'Productos',
         current: true
       }
@@ -35,7 +35,7 @@ export default ListPage({
   canCreate: 'admin, orgadmin, analyst, manager-level-2',
   baseUrl: '/app/products',
   branchName: 'products',
-  detailUrl: '/products/',
+  detailUrl: '/catalogs/products/',
   filters: true,
   schema: {
     type: 'object',
@@ -56,7 +56,7 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/products/' + row.uuid}>
+            <Link to={'/catalogs/products/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -76,7 +76,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/products/' + row.uuid}>
+          return <Link className='button' to={'/catalogs/products/' + row.uuid}>
             Detalle
           </Link>
         }

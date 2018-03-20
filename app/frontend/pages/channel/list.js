@@ -7,7 +7,7 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateChannel from './create'
 
 export default ListPage({
-  path: '/channels',
+  path: '/catalogs/channels',
   title: 'Canales',
   icon: 'filter',
   exact: true,
@@ -25,7 +25,7 @@ export default ListPage({
         current: false
       },
       {
-        path: '/admin/channels/',
+        path: '/admin/catalogs/channels/',
         label: 'Canales',
         current: true
       }
@@ -35,7 +35,7 @@ export default ListPage({
   canCreate: 'admin, orgadmin, analyst, manager-level-2',
   baseUrl: '/app/channels',
   branchName: 'channels',
-  detailUrl: '/channels/',
+  detailUrl: '/catalogs/channels/',
   filters: true,
   schema: {
     type: 'object',
@@ -56,7 +56,7 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/channels/' + row.uuid}>
+            <Link to={'/catalogs/channels/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -76,7 +76,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/channels/' + row.uuid}>
+          return <Link className='button' to={'/catalogs/channels/' + row.uuid}>
             Detalle
           </Link>
         }

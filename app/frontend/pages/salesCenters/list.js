@@ -7,7 +7,7 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateSalesCenter from './create'
 
 export default ListPage({
-  path: '/salesCenters',
+  path: '/catalogs/salesCenters',
   title: 'Centros de venta',
   icon: 'credit-card-alt',
   exact: true,
@@ -25,7 +25,7 @@ export default ListPage({
         current: false
       },
       {
-        path: '/salesCenters/',
+        path: '/catalogs/salesCenters/',
         label: 'Centros de venta',
         current: true
       }
@@ -35,7 +35,7 @@ export default ListPage({
   canCreate: 'admin, orgadmin, analyst',
   baseUrl: '/app/salesCenters',
   branchName: 'salesCenters',
-  detailUrl: 'salesCenters/',
+  detailUrl: 'catalogs/salesCenters/',
   filters: true,
   schema: {
     type: 'object',
@@ -56,7 +56,7 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/salesCenters/' + row.uuid}>
+            <Link to={'/catalogs/salesCenters/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -76,7 +76,7 @@ export default ListPage({
       {
         'title': 'Actions',
         formatter: (row) => {
-          return <Link className='button' to={'/salesCenters/' + row.uuid}>
+          return <Link className='button' to={'/catalogs/salesCenters/' + row.uuid}>
             Detalle
           </Link>
         }

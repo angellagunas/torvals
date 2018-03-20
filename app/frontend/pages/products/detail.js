@@ -54,7 +54,7 @@ class ProductDetail extends Component {
   async deleteObject () {
     var url = '/app/products/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/products')
+    this.props.history.push('/catalogs/products')
   }
 
   getColumns () {
@@ -113,6 +113,9 @@ class ProductDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este producto' />
+    }
     let { loading, canEdit, product } = this.state
     if (loading) {
       return <Loader />
@@ -130,17 +133,17 @@ class ProductDetail extends Component {
                   current: false
                 },
                 {
-                  path: '/products',
+                  path: '/catalogs/products',
                   label: 'Productos',
                   current: false
                 },
                 {
-                  path: '/products/detail/',
+                  path: '/catalogs/products/detail/',
                   label: 'Detalle',
                   current: true
                 },
                 {
-                  path: '/products/detail/',
+                  path: '/catalogs/products/detail/',
                   label: product.name,
                   current: true
                 }
@@ -233,7 +236,7 @@ class ProductDetail extends Component {
 }
 
 export default Page({
-  path: '/products/:uuid',
+  path: '/catalogs/products/:uuid',
   title: 'Product detail',
   exact: true,
   roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, manager-level-3',

@@ -6,7 +6,7 @@ import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 
 export default ListPage({
-  path: '/prices',
+  path: '/catalogs/prices',
   title: 'Precios',
   titleSingular: 'Precio',
   icon: 'money',
@@ -23,7 +23,7 @@ export default ListPage({
         current: false
       },
       {
-        path: '/prices',
+        path: '/catalogs/prices',
         label: 'Precios',
         current: true
       }
@@ -32,7 +32,7 @@ export default ListPage({
   },
   baseUrl: '/app/prices',
   branchName: 'prices',
-  detailUrl: '/prices/',
+  detailUrl: '/catalogs/prices/',
   filters: true,
   schema: {
     type: 'object',
@@ -111,7 +111,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/prices/' + row.uuid}>
+          return <Link className='button' to={'/catalogs/prices/' + row.uuid}>
             Detalle
           </Link>
         }
