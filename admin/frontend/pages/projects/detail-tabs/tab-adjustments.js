@@ -396,6 +396,7 @@ class TabAdjustment extends Component {
         'property': 'percentage',
         'default': 0,
         'type': 'number',
+        'sortable': true,        
         'className': 'keep-cell',
         formatter: (row) => {
           if (this.state.generalAdjustment < 0) return ' - '

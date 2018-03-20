@@ -21,7 +21,8 @@ class TabAprove extends Component {
       selectedAll: false,
       disableButtons: true,
       selectedCheckboxes: new Set(),
-      searchTerm: ''
+      searchTerm: '',
+      sortAscending: true 
     }
   }
 
@@ -52,6 +53,7 @@ class TabAprove extends Component {
         'title': 'Id',
         'property': 'productId',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           if(!row.selected){
             row.selected = false
@@ -61,8 +63,9 @@ class TabAprove extends Component {
       },
       {
         'title': 'Producto',
-        'property': 'productName',
+        'property': 'datasetRow.product.name',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           return String(row.datasetRow.product.name)
         }
@@ -71,24 +74,27 @@ class TabAprove extends Component {
         'title': 'Centro de venta',
         'abbreviate': true,
         'abbr': 'C. Venta',
-        'property': 'salesCenter',
+        'property': 'datasetRow.salesCenter.name',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           return String(row.datasetRow.salesCenter.name)
         }
       },
       {
         'title': 'Semana',
-        'property': 'semanaBimbo',
+        'property': 'datasetRow.data.semanaBimbo',
         'default': 'N/A',
+        'sortable': true,
         formatter: (row) => {
           return String(row.datasetRow.data.semanaBimbo)
         }
       },
       {
         'title': 'Predicción',
-        'property': 'prediction',
+        'property': 'datasetRow.data.prediction',
         'default': 0,
+        'sortable': true,
         formatter: (row) => {
           return String(row.datasetRow.data.prediction)
         }
@@ -97,8 +103,8 @@ class TabAprove extends Component {
         'title': 'Ajuste',
         'property': 'newAdjustment',
         'default': 0,
-        'editable': false,
         'type': 'number',
+        'sortable': true,
         formatter: (row) => {
           if (!row.newAdjustment) {
             row.newAdjustment = 0
@@ -111,6 +117,7 @@ class TabAprove extends Component {
         'property': 'percentage',
         'default': 0,
         'type': 'number',
+        'sortable': true,        
         formatter: (row) => {
             return `${(generalAdjustment * 100)} %`
         }
@@ -118,6 +125,7 @@ class TabAprove extends Component {
       {
         'title': 'Creado',
         'property': 'dateRequested',
+        'sortable': true,        
         formatter: (row) => {
           return (
             <span title={'Creado por ' + row.requestedBy.name }> 
@@ -563,6 +571,34 @@ class TabAprove extends Component {
     this.props.setAlert('is-warning', 'Es necesario aprobar ajustes fuera de rango.')
   }
 
+  handleSort(e){
+    let sorted = this.state.filteredData
+
+    if (e === 'productId'){
+          if (this.state.sortAscending){
+            sorted.sort((a, b) => { return parseFloat(a.datasetRow.product.externalId) - parseFloat(b.datasetRow.product.externalId) })
+          }
+          else{
+            sorted.sort((a, b) => { return parseFloat(b.datasetRow.product.externalId) - parseFloat(a.datasetRow.product.externalId) })                        
+          }
+    }
+    else{
+      if (this.state.sortAscending){
+        sorted = _.orderBy(sorted,[e], ['asc'])
+              
+      }
+      else{
+        sorted = _.orderBy(sorted,[e], ['desc'])    
+      }
+    }
+    
+    this.setState({
+      filteredData: sorted,
+      sortAscending: !this.state.sortAscending,
+      sortBy: e
+    })
+  }
+
   render () {
     return (
       <div>
@@ -571,8 +607,9 @@ class TabAprove extends Component {
         <BaseTable
           data={this.state.filteredData}
           columns={this.getColumns()}
-          sortAscending={true}
-          sortBy={'name'} />
+          sortAscending={this.state.sortAscending}
+          sortBy={this.state.sortBy}
+          handleSort={(e) => this.handleSort(e)} />
 
         </section>
       </div>
