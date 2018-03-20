@@ -14,7 +14,6 @@ module.exports = new Route({
   handler: async function (ctx) {
     var priceId = ctx.params.uuid
     var data = ctx.request.body
-    var apiData
 
     const price = await Price.findOne({'uuid': priceId, 'isDeleted': false}).populate('organization')
     ctx.assert(price, 404, 'Price not found')
@@ -23,14 +22,14 @@ module.exports = new Route({
 
     await price.save()
 
-    // patch abraxas api
     try {
-      await Api.fetch()
-      apiData = Api.get()
+      var apiData = Api.get()
+      if (!apiData.token) {
+        await Api.fetch()
+        apiData = Api.get()
+      }
     } catch (e) {
-      ctx.throw(401, 'Falló al conectar con la api (Abraxas)')
-
-      return false
+      ctx.throw(503, 'Abraxas API: No está disponible')
     }
 
     var options = {
@@ -50,11 +49,22 @@ module.exports = new Route({
       persist: true
     }
 
-    var res = await request(options)
-    if (res.status === 'ok') {
-      verifyPrices.add({uuid: price.organization.uuid})
-    } else {
-      ctx.throw(401, 'Error al actualizar precio (Abraxas)')
+    try {
+      var res = await request(options)
+      if (res.status === 'ok') {
+        verifyPrices.add({uuid: price.organization.uuid})
+      } else {
+        ctx.throw(401, 'Error al actualizar precio (Abraxas)')
+      }
+    } catch (e) {
+      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      if (!errorString) {
+        errorString = []
+        errorString[1] = e.message
+      }
+      ctx.throw(503, 'Abraxas API: ' + errorString[1])
+
+      return false
     }
 
     ctx.body = {

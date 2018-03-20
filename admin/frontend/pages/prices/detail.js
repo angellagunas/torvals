@@ -8,6 +8,7 @@ import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import PriceForm from './create-form'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class PriceDetail extends Component {
   constructor (props) {
@@ -15,7 +16,8 @@ class PriceDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      price: {}
+      price: {},
+      isLoading: ''
     }
   }
 
@@ -25,22 +27,41 @@ class PriceDetail extends Component {
 
   async load () {
     var url = '/admin/prices/' + this.props.match.params.uuid
-    const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      price: body.data
-    })
+    try {
+      const body = await api.get(url)
+
+      this.setState({
+        loading: false,
+        loaded: true,
+        price: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
-  async deleteOnClick () {
-    var url = '/admin/prices/' + this.props.match.params.uuid
-    const body = await api.del(url)
-    this.props.history.push('/admin/prices')
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este precio' />
+    }
+
     const {price} = this.state
     if (!this.state.loaded) {
       return <Loader />
@@ -49,12 +70,12 @@ class PriceDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section  is-paddingless-top pad-sides'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -64,27 +85,18 @@ class PriceDetail extends Component {
                 },
                 {
                   path: '/admin/prices/detail/',
-                  label: 'Detalle de precio',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/prices/detail/',
+                  label: price.product.name,
                   current: true
                 }
               ]}
               align='left'
             />
-            <div className='columns'>
-              <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
-                    <button
-                      className='button is-danger'
-                      type='button'
-                      onClick={() => this.deleteOnClick()}
-                        >
-                          Eliminar
-                        </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <br />
             <div className='columns'>
               <div className='column'>
                 <div className='card'>
@@ -101,10 +113,17 @@ class PriceDetail extends Component {
                           url={'/admin/prices/' + this.props.match.params.uuid}
                           initialState={{price: String(price.price), product: price.product.name, channel: price.channel.name}}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Guardar</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </PriceForm>

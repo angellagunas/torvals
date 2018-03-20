@@ -19,7 +19,7 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {
@@ -33,8 +33,25 @@ export default ListPage({
   baseUrl: '/app/prices',
   branchName: 'prices',
   detailUrl: '/prices/',
+  filters: true,
+  schema: {
+    type: 'object',
+    required: [],
+    properties: {
+      general: {type: 'text', title: 'Buscar'}
+    }
+  },
+  uiSchema: {
+    general: {'ui:widget': 'SearchFilter'}
+  },
   getColumns: () => {
     return [
+      {
+        'title': 'ID',
+        'property': 'productExternalId',
+        'default': 'N/A',
+        'sortable': true
+      },
       {
         'title': 'Producto',
         'property': 'product',
@@ -67,7 +84,17 @@ export default ListPage({
         'title': 'Precio',
         'property': 'price',
         'default': 'N/A',
-        'sortable': true
+        'sortable': true,
+        'className': 'has-text-left',
+        formatter: (row) => {
+          if (row && row.price) {
+            return '$ ' + row.price.toFixed(2).replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+
+          return 'N/A'
+        }
       },
 
       {

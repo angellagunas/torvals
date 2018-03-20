@@ -11,7 +11,7 @@ export default ListPage({
   title: 'Productos',
   icon: 'dropbox',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Producto',
   create: true,
@@ -21,7 +21,7 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {

@@ -11,6 +11,7 @@ import {loggedIn} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import OrganizationForm from './form'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class OrganizationDetail extends Component {
   constructor (props) {
@@ -39,13 +40,21 @@ class OrganizationDetail extends Component {
 
   async load () {
     var url = '/admin/organizations/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      organization: body.data
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        organization: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   getColumns () {
@@ -92,6 +101,10 @@ class OrganizationDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='esta organización' />
+    }
+
     const { organization } = this.state
 
     if (!organization.uuid) {
@@ -106,7 +119,7 @@ class OrganizationDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -116,7 +129,12 @@ class OrganizationDetail extends Component {
                 },
                 {
                   path: '/admin/manage/organizations',
-                  label: 'Detalle de organización',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/manage/organizations',
+                  label: organization.name,
                   current: true
                 }
               ]}

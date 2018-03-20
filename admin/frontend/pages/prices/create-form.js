@@ -54,6 +54,7 @@ class PriceForm extends Component {
 
   async submitHandler ({formData}) {
     formData.isDefault = undefined
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     if (isNaN(formData.price)) {
       return this.setState({
         ...this.state,
@@ -71,6 +72,7 @@ class PriceForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,

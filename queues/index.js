@@ -1,8 +1,10 @@
 const finishUpload = require('./finish-upload')
-const updateDatasetRows = require('./update-datasetrow')
+const updateDatasetRows = require('./update-datasetrows')
+const updatePrices = require('./update-prices')
 // #Requires
 
 module.exports = {
   'finish-upload': finishUpload,
-  'update-datasetrow': updateDatasetRows// #Exports
+  'update-datasetrow': updateDatasetRows,
+  'update-prices': updatePrices// #Exports
 }

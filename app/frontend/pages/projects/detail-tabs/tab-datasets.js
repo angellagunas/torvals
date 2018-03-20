@@ -6,6 +6,7 @@ import api from '~base/api'
 import PropTypes from 'baobab-react/prop-types'
 import DeleteButton from '~base/components/base-deleteButton'
 import moment from 'moment'
+import {datasetStatus} from '~base/tools'
 
 class TabDatasets extends Component {
   constructor (props) {
@@ -44,7 +45,10 @@ class TabDatasets extends Component {
         'title': 'Fuente',
         'property': 'source',
         'default': 'N/A',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          return datasetStatus[row.source]
+        }
       },
       {
         'title': 'Añadido en',

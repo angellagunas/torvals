@@ -24,7 +24,7 @@ export default ListPage({
     path: [
       {
         path: '/admin',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {
@@ -68,7 +68,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Organzación',
+        'title': 'Organización',
         'property': 'organization',
         'default': 'N/A',
         'sortable': true,

@@ -21,7 +21,7 @@ module.exports = new Route({
         apiData = Api.get()
       }
     } catch (e) {
-      ctx.throw(401, 'Falló al conectar con servidor (Abraxas)')
+      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     const requestBody = {}
@@ -71,7 +71,14 @@ module.exports = new Route({
     try {
       var responseData = await request(options)
     } catch (e) {
-      ctx.throw(401, 'Falló al obtener anomalías (Abraxas)')
+      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      if (!errorString) {
+        errorString = []
+        errorString[1] = e.message
+      }
+      ctx.throw(503, 'Abraxas API: ' + errorString[1])
+
+      return false
     }
 
     ctx.body = {

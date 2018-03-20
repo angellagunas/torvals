@@ -33,6 +33,10 @@
     .calendar {
         margin: 0;
     }
+    .c-topbar__aside__white {
+        width: 50px !important;
+        padding: 8px;
+    }
 }
 
 @include widescreen-only {
@@ -61,4 +65,14 @@
     .calendar {
         margin: 0;
     }
+}
+
+.md-checkbox input {
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    margin: -10px;
+}
+.md-checkbox>div {
+    margin-left: 20px;
 }

@@ -8,6 +8,7 @@ import Loader from '~base/components/spinner'
 import ChannelForm from './create-form'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class ChannelDetail extends Component {
   constructor (props) {
@@ -29,13 +30,21 @@ class ChannelDetail extends Component {
 
   async load () {
     var url = '/app/channels/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      channel: body.data
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        channel: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async deleteObject () {
@@ -57,6 +66,10 @@ class ChannelDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este canal' />
+    }
+
     let { loaded, canEdit } = this.state
     if (!loaded) {
       return <Loader />
@@ -72,12 +85,12 @@ class ChannelDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -87,7 +100,12 @@ class ChannelDetail extends Component {
                 },
                 {
                   path: '/channels/',
-                  label: 'Detalle de canal',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/channels/',
+                  label: channel.name,
                   current: true
                 }
               ]}
@@ -156,7 +174,7 @@ export default Page({
   path: '/channels/:uuid',
   title: 'Channel Detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: ChannelDetail
 })

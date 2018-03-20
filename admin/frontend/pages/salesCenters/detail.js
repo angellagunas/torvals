@@ -12,6 +12,7 @@ import Multiselect from '~base/components/base-multiselect'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class SalesCenterDetail extends Component {
   constructor (props) {
@@ -34,16 +35,24 @@ class SalesCenterDetail extends Component {
 
   async load () {
     var url = '/admin/salesCenters/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      salesCenter: body.data,
-      selectedGroups: [...body.data.groups]
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        salesCenter: body.data,
+        selectedGroups: [...body.data.groups]
+      })
 
-    this.loadGroups(body.data)
+      this.loadGroups(body.data)
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async loadGroups (salesCenter) {
@@ -137,7 +146,7 @@ class SalesCenterDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
@@ -220,6 +229,10 @@ class SalesCenterDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este centro de venta' />
+    }
+
     if (!this.state.loaded) {
       return <Loader />
     }
@@ -238,7 +251,7 @@ class SalesCenterDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -248,7 +261,12 @@ class SalesCenterDetail extends Component {
                 },
                 {
                   path: '/admin/salesCenters/detail/',
-                  label: 'Detalle de Centro de venta',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/salesCenters/detail/',
+                  label: this.state.salesCenter.name,
                   current: true
                 }
               ]}

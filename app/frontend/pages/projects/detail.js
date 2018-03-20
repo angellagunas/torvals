@@ -18,6 +18,7 @@ import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import TabAnomalies from './detail-tabs/tab-anomalies'
+import NotFound from '~base/components/not-found'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -28,7 +29,7 @@ class ProjectDetail extends Component {
       project: {},
       selectedTab: 'ajustes',
       datasetClassName: '',
-      roles: 'admin, orgadmin, analyst, manager-level-2',
+      roles: 'admin, orgadmin, analyst',
       canEdit: false,
       isLoading: '',
       counterAdjustments: 0
@@ -55,20 +56,29 @@ class ProjectDetail extends Component {
 
   async load (tab) {
     var url = '/app/projects/' + this.props.match.params.uuid
-    const body = await api.get(url)
 
-    if (body.data.status === 'empty') {
-      tab = 'datasets'
+    try {
+      const body = await api.get(url)
+
+      if (body.data.status === 'empty') {
+        tab = 'datasets'
+      }
+
+      this.setState({
+        loading: false,
+        loaded: true,
+        project: body.data,
+        selectedTab: tab || this.state.selectedTab
+      })
+
+      this.countAdjustmentRequests()
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
     }
-
-    this.setState({
-      loading: false,
-      loaded: true,
-      project: body.data,
-      selectedTab: tab || this.state.selectedTab
-    })
-
-    this.countAdjustmentRequests()
   }
 
   async countAdjustmentRequests () {
@@ -147,6 +157,10 @@ class ProjectDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este proyecto' />
+    }
+
     const { project, canEdit } = this.state
 
     if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
@@ -228,8 +242,7 @@ class ProjectDetail extends Component {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
-        hide: (testRoles('manager-level-1') ||
-          project.status === 'processing' ||
+        hide: (project.status === 'processing' ||
           project.status === 'pendingRows' ||
           project.status === 'empty'),
         content: (
@@ -305,7 +318,7 @@ class ProjectDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Dashboard',
+                    label: 'Inicio',
                     current: false
                   },
                   {
@@ -315,7 +328,12 @@ class ProjectDetail extends Component {
                   },
                   {
                     path: '/projects/',
-                    label: 'Detalle de proyecto',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/projects/',
+                    label: project.name,
                     current: true
                   }
                 ]}
@@ -394,7 +412,7 @@ const BranchedProjectDetail = branch((props, context) => {
 
 export default Page({
   path: '/projects/:uuid',
-  title: 'Detalle de Proyecto',
+  title: 'Detalle',
   exact: true,
   roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2, manager-level-1',
   validate: [loggedIn, verifyRole],

@@ -17,6 +17,7 @@ import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import TabAnomalies from './detail-tabs/tab-anomalies'
+import NotFound from '~base/components/not-found'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -44,19 +45,27 @@ class ProjectDetail extends Component {
 
   async load (tab) {
     var url = '/admin/projects/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    if (body.data.status === 'empty') {
-      tab = 'datasets'
+      if (body.data.status === 'empty') {
+        tab = 'datasets'
+      }
+      this.setState({
+        loading: false,
+        loaded: true,
+        project: body.data,
+        selectedTab: tab || this.state.selectedTab
+      })
+
+      this.countAdjustmentRequests()
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
     }
-    this.setState({
-      loading: false,
-      loaded: true,
-      project: body.data,
-      selectedTab: tab || this.state.selectedTab
-    })
-
-    this.countAdjustmentRequests()
   }
 
   async countAdjustmentRequests () {
@@ -135,6 +144,10 @@ class ProjectDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este proyecto' />
+    }
+
     const { project } = this.state
 
     if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
@@ -281,39 +294,44 @@ class ProjectDetail extends Component {
             <div className='section pad-sides'>
             
               <Breadcrumb
-              path={[
-                {
-                  path: '/admin',
-                  label: 'Dashboard',
-                  current: false
-                },
-                {
-                  path: '/admin/projects',
-                  label: 'Proyectos',
-                  current: false
-                },
-                {
-                  path: '/admin/projects/detail/',
-                  label: 'Detalle de proyecto',
-                  current: true
-                }
-              ]}
-              align='left'
-            />
-              <div className='is-padding-top-small'>
-              <Tabs
-                tabTitle={project.name}
-                tabs={tabs}
-                selectedTab={this.state.selectedTab}
-                className='is-right sticky-tab'
-                extraTab={
-                  <DeleteButton
-                    objectName='Proyecto'
-                    objectDelete={() => this.deleteObject()}
-                    message={'Estas seguro de querer eliminar este Proyecto?'}
-                  />
-                }
+                path={[
+                  {
+                    path: '/admin',
+                    label: 'Inicio',
+                    current: false
+                  },
+                  {
+                    path: '/admin/projects',
+                    label: 'Proyectos',
+                    current: false
+                  },
+                  {
+                    path: '/admin/projects/detail/',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/admin/projects/detail/',
+                    label: project.name,
+                    current: true
+                  }
+                ]}
+                align='left'
               />
+              <div className='is-padding-top-small'>
+                <Tabs
+                  tabTitle={project.name}
+                  tabs={tabs}
+                  selectedTab={this.state.selectedTab}
+                  className='is-right sticky-tab'
+                  extraTab={
+                    <DeleteButton
+                      objectName='Proyecto'
+                      objectDelete={() => this.deleteObject()}
+                      message={'Estas seguro de querer eliminar este Proyecto?'}
+                    />
+                  }
+                />
               </div>
             </div>
           </div>
