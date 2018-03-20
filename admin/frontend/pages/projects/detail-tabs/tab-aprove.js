@@ -22,7 +22,8 @@ class TabAprove extends Component {
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
-      sortAscending: true 
+      sortAscending: true,
+      sortBy: 'statusLevel' 
     }
   }
 
@@ -44,6 +45,7 @@ class TabAprove extends Component {
       })
       this.getRemainingItems()
       this.clearSearch()
+      this.handleSort(this.state.sortBy)
     }
   }
   
@@ -155,11 +157,13 @@ class TabAprove extends Component {
       },
       {
         'title': 'Estado',
-        'property': 'status',
+        'property': 'statusLevel',
         'default': '',
         'centered': true,
+        'sortable': true,                
         formatter: (row) => {
           if (row.status === 'created') {
+            row.statusLevel = 0
             return (
               <span
                 className='icon has-text-info'
@@ -169,6 +173,7 @@ class TabAprove extends Component {
             )
           }
           if (row.status === 'approved') {
+            row.statusLevel = 1
             return (
               <span
                 className='icon has-text-success'
@@ -178,6 +183,7 @@ class TabAprove extends Component {
             )
           }
           if (row.status === 'rejected') {
+            row.statusLevel = 2
             return (
               <span
                 className='icon has-text-danger'

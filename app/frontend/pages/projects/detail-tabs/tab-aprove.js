@@ -24,7 +24,8 @@ class TabAprove extends Component {
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
-      sortAscending: true       
+      sortAscending: true,
+      sortBy: 'statusLevel'       
     }
     currentRole = tree.get('user').currentRole.slug
   }
@@ -48,6 +49,7 @@ class TabAprove extends Component {
       })
       this.getRemainingItems()
       this.clearSearch()
+      this.handleSort(this.state.sortBy)      
     }
   }
 
@@ -159,11 +161,13 @@ class TabAprove extends Component {
       },
       {
         'title': 'Estado',
-        'property': 'status',
+        'property': 'statusLevel',
         'default': '',
         'centered': true,
+        'sortable': true,                        
         formatter: (row) => {
           if (row.status === 'created') {
+            row.statusLevel = 0            
             return (
               <span
                 className='icon has-text-info'
@@ -173,6 +177,7 @@ class TabAprove extends Component {
             )
           }
           if (row.status === 'approved') {
+            row.statusLevel = 1            
             return (
               <span
                 className='icon has-text-success'
@@ -182,6 +187,7 @@ class TabAprove extends Component {
             )
           }
           if (row.status === 'rejected') {
+            row.statusLevel = 2            
             return (
               <span
                 className='icon has-text-danger'
@@ -616,6 +622,34 @@ class TabAprove extends Component {
     })
   }
 
+  handleSort(e){
+    let sorted = this.state.filteredData
+
+    if (e === 'productId'){
+          if (this.state.sortAscending){
+            sorted.sort((a, b) => { return parseFloat(a.datasetRow.product.externalId) - parseFloat(b.datasetRow.product.externalId) })
+          }
+          else{
+            sorted.sort((a, b) => { return parseFloat(b.datasetRow.product.externalId) - parseFloat(a.datasetRow.product.externalId) })                        
+          }
+    }
+    else{
+      if (this.state.sortAscending){
+        sorted = _.orderBy(sorted,[e], ['asc'])
+              
+      }
+      else{
+        sorted = _.orderBy(sorted,[e], ['desc'])    
+      }
+    }
+    
+    this.setState({
+      filteredData: sorted,
+      sortAscending: !this.state.sortAscending,
+      sortBy: e
+    })
+  }
+  
   render () {
     return (
       <div>
