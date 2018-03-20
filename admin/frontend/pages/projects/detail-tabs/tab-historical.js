@@ -527,19 +527,25 @@ class TabHistorical extends Component {
                               Semana {item.week}
                               </td>
                               <td className='font-blue'>
-                              $ {item.total}
+                              $ {item.total.toFixed(2).replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })}
                               </td>
                               <td className='font-orange'>
                               Semana {this.state.weekTotalsAdjustments[key].week}
                               </td>
                               <td className='font-orange'>
-                                $ {this.state.weekTotalsAdjustments[key].total}
+                                $ {this.state.weekTotalsAdjustments[key].total.toFixed(2).replace(/./g, (c, i, a) => {
+                                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                })}
                               </td>
                               <td className='font-green'>
                                 Semana {this.state.weekTotalsSales[key].week}
                               </td>
                               <td className='font-green'>
-                                $ {this.state.weekTotalsSales[key].total}
+                                $ {this.state.weekTotalsSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
+                                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                })}
                               </td>
                             </tr>)
                         }
@@ -550,19 +556,28 @@ class TabHistorical extends Component {
                           Total
                         </th>
                         <td className='font-blue'>
-                          $ {this.state.weekTotalsPredictions[this.state.weekTotalsPredictions.length - 1].total}
+                          $ {this.state.weekTotalsPredictions[this.state.weekTotalsPredictions.length - 1].total
+                            .toFixed(2).replace(/./g, (c, i, a) => {
+                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                            })}
                         </td>
                         <th className='font-orange'>
                           Total
                         </th>
                         <td className='font-orange'>
-                          $ {this.state.weekTotalsAdjustments[this.state.weekTotalsAdjustments.length - 1].total}
+                          $ {this.state.weekTotalsAdjustments[this.state.weekTotalsAdjustments.length - 1].total
+                            .toFixed(2).replace(/./g, (c, i, a) => {
+                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                            })}
                         </td>
                         <th className='font-green'>
                           Total
                         </th>
                         <td className='font-green'>
-                          $ {this.state.weekTotalsSales[this.state.weekTotalsSales.length - 1].total}
+                          $ {this.state.weekTotalsSales[this.state.weekTotalsSales.length - 1].total
+                            .toFixed(2).replace(/./g, (c, i, a) => {
+                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                            })}
                         </td>
                       </tr>
                     </tbody>
