@@ -15,6 +15,8 @@ import { BaseTable } from '~base/components/base-table'
 import Link from '~base/router/link'
 import AddOrganization from './add-organization'
 import BaseModal from '~base/components/base-modal'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class UserDetail extends Component {
   constructor (props) {
@@ -46,14 +48,22 @@ class UserDetail extends Component {
 
   async load () {
     var url = '/admin/users/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    await this.setState({
-      loading: false,
-      loaded: true,
-      user: body.data,
-      selectedGroups: [...body.data.groups]
-    })
+      await this.setState({
+        loading: false,
+        loaded: true,
+        user: body.data,
+        selectedGroups: [...body.data.groups]
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async loadRoles () {
@@ -473,6 +483,10 @@ class UserDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este usuario' />
+    }
+
     const { user } = this.state
 
     if (!user.uuid) {
@@ -510,7 +524,33 @@ class UserDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/users',
+                  label: 'Usuarios',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/users/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/manage/users/',
+                  label: user.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <br />
             {resetButton}
             <div className='columns is-mobile'>
               <div className='column'>
@@ -621,7 +661,7 @@ const branchedUserDetail = branch({}, UserDetail)
 
 export default Page({
   path: '/manage/users/:uuid',
-  title: 'Detalle de usuario',
+  title: 'Detalle',
   exact: true,
   validate: loggedIn,
   component: branchedUserDetail

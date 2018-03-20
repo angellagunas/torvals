@@ -15,7 +15,7 @@ module.exports = new Route({
 
     const datasetRow = await DataSetRow.findOne({'uuid': datasetRowId, 'isDeleted': false})
       .populate('adjustmentRequest')
-    ctx.assert(datasetRow, 404, 'DataSetRow not found')
+    ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
 
     var adjustmentRequest = datasetRow.adjustmentRequest
 

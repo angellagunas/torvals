@@ -7,6 +7,7 @@ const moment = require('moment')
 const productSchema = new Schema({
   name: { type: String, required: true },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  price: { type: Schema.Types.ObjectId, ref: 'Price', required: false },
   description: { type: String },
   type: { type: String },
   category: { type: String },
@@ -29,6 +30,7 @@ productSchema.methods.format = function () {
     category: this.category,
     subcategory: this.subcategory,
     externalId: this.externalId,
+    price: this.price,
     dateCreated: this.dateCreated
   }
 }

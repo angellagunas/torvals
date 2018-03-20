@@ -20,15 +20,19 @@ module.exports = new Route({
       .populate('organization')
 
     if (!project) {
-      ctx.throw(404, 'Project not found')
+      ctx.throw(404, 'Proyecto no encontrado')
     }
 
     org = project.organization
 
-    var apiData = Api.get()
-    if (!apiData.token) {
-      await Api.fetch()
-      apiData = Api.get()
+    try {
+      var apiData = Api.get()
+      if (!apiData.token) {
+        await Api.fetch()
+        apiData = Api.get()
+      }
+    } catch (e) {
+      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     var options = {
@@ -69,7 +73,14 @@ module.exports = new Route({
 
       await dataset.process(res)
     } catch (e) {
-      ctx.throw(401, 'Failed to send Dataset for conciliation')
+      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      if (!errorString) {
+        errorString = []
+        errorString[1] = e.message
+      }
+      ctx.throw(503, 'Abraxas API: ' + errorString[1])
+
+      return false
     }
 
     ctx.body = {

@@ -6,6 +6,7 @@ const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSet, DataSetRow, Channel, Product, SalesCenter, Project } = require('models')
 const request = require('lib/request')
+const getAnomalies = require('../anomalies/get-anomalies')
 
 const task = new Task(async function (argv) {
   console.log('Fetching adjustment Datasets...')
@@ -13,7 +14,7 @@ const task = new Task(async function (argv) {
   const datasets = await DataSet.find({
     status: 'pendingRows',
     isDeleted: false
-  })
+  }).populate('createdBy')
 
   if (datasets.length === 0) {
     console.log('No adjustment datasets to verify ...')
@@ -70,6 +71,7 @@ const task = new Task(async function (argv) {
       var predictionColumn = dataset.getPredictionColumn() || {name: ''}
       var adjustmentColumn = dataset.getAdjustmentColumn() || {name: ''}
       var analysisColumn = dataset.getAnalysisColumn() || {name: ''}
+      var dateColumn = dataset.getDateColumn() || {name: ''}
 
       if (!adjustmentColumn.name) {
         adjustmentColumn = predictionColumn
@@ -95,25 +97,30 @@ const task = new Task(async function (argv) {
           organization: dataset.organization
         })
 
-        await DataSetRow.create({
-          organization: dataset.organization,
-          project: dataset.project,
-          dataset: dataset,
-          externalId: dataRow._id,
-          data: {
-            existence: dataRow.existencia,
-            prediction: dataRow[predictionColumn.name],
-            forecastDate: dataRow.fecha,
-            semanaBimbo: dataRow.semana_bimbo,
-            adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
-            localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
-            lastAdjustment: dataRow[adjustmentColumn.name] || undefined
-          },
-          apiData: dataRow,
-          salesCenter: salesCenter,
-          product: product,
-          channel: channel
-        })
+        try {
+          await DataSetRow.create({
+            organization: dataset.organization,
+            project: dataset.project,
+            dataset: dataset,
+            externalId: dataRow._id,
+            data: {
+              existence: dataRow.existencia,
+              prediction: dataRow[predictionColumn.name],
+              forecastDate: dataRow[dateColumn.name],
+              semanaBimbo: dataRow.semana_bimbo,
+              adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
+              localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
+              lastAdjustment: dataRow[adjustmentColumn.name] || undefined
+            },
+            apiData: dataRow,
+            salesCenter: salesCenter,
+            product: product,
+            channel: channel
+          })
+        } catch (e) {
+          console.log('Hubo un error al tratar de guardar la row: ')
+          console.log(dataRow)
+        }
       }
 
       dataset.set({
@@ -123,10 +130,28 @@ const task = new Task(async function (argv) {
       await dataset.save()
 
       const project = await Project.findOne({'_id': dataset.project, 'isDeleted': false})
+
+      console.log(`Obtaining anomalies from proyect ...`)
+      res = await getAnomalies({uuid: project.uuid})
+
+      if (!res) {
+        dataset.set({
+          error: 'No se pudieron obtener las anomalías!',
+          status: 'error'
+        })
+
+        await dataset.save()
+
+        console.log(`Error while obtaining dataset rows: ${dataset.error}`)
+        return false
+      }
+
       project.set({
         status: 'adjustment'
       })
       await project.save()
+
+      dataset.sendFinishedConciliating()
     }
 
     if (res.status === 'error') {
@@ -138,6 +163,7 @@ const task = new Task(async function (argv) {
       await dataset.save()
 
       console.log(`Error while obtaining dataset rows: ${dataset.error}`)
+      return false
     }
   }
 

@@ -17,6 +17,22 @@ export default ListPage({
   validate: loggedIn,
   titleSingular: 'Usuario',
   create: false,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/manage/users/',
+        label: 'Usuarios activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   sidePanel: true,
   sidePanelIcon: 'user-plus',
   sidePanelComponent: CreateUserNoModal,
@@ -110,7 +126,7 @@ export default ListPage({
           return (
             <div className='field is-grouped'>
               <div className='control'>
-                <Link className='button is-info' to={'/manage/users/' + row.uuid}>
+                <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
                   <span className='icon is-small'>
                     <i className='fa fa-pencil' />
                   </span>

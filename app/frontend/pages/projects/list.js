@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
+import { testRoles } from '~base/tools'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -16,6 +17,22 @@ export default ListPage({
   titleSingular: 'Proyecto',
   create: true,
   createComponent: CreateProject,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/projects/',
+        label: 'Proyectos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   canCreate: 'admin, orgadmin, analyst',
   baseUrl: '/app/projects',
   branchName: 'projects',
@@ -60,9 +77,23 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/projects/' + row.uuid}>
-            Detalle
-          </Link>
+          if (testRoles('manager-level-2, manager-level-3')) {
+            return (
+              <Link className='button' to={'/projects/' + row.uuid}>
+                <span className='icon is-small' title='Visualizar'>
+                  <i className='fa fa-eye' />
+                </span>
+              </Link>
+            )
+          } else {
+            return (
+              <Link className='button is-primary' to={'/projects/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+            )
+          }
         }
       }
     ]

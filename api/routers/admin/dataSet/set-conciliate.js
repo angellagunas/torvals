@@ -1,4 +1,5 @@
 const Route = require('lib/router/route')
+const moment = require('moment')
 
 const { DataSet } = require('models')
 
@@ -14,12 +15,16 @@ module.exports = new Route({
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
       .populate('project')
 
-    ctx.assert(dataset, 404, 'DataSet not found')
+    ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    var apiData = Api.get()
-    if (!apiData.token) {
-      await Api.fetch()
-      apiData = Api.get()
+    try {
+      var apiData = Api.get()
+      if (!apiData.token) {
+        await Api.fetch()
+        apiData = Api.get()
+      }
+    } catch (e) {
+      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     var options = {
@@ -56,12 +61,18 @@ module.exports = new Route({
       }
 
       dataset.set({
-        status: 'conciliated'
+        status: 'conciliated',
+        conciliatedBy: ctx.state.user,
+        dateConciliated: moment.utc()
       })
 
       await dataset.save()
     } catch (e) {
-      ctx.throw(401, 'Failed to send Dataset for conciliation')
+      let errorString = []
+      errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      ctx.throw(503, 'Abraxas API: ' + (errorString[1] || 'No está disponible'))
+
+      return false
     }
 
     let project = dataset.project

@@ -31,7 +31,7 @@ module.exports = new Route({
       }
     } catch (e) {
       await project.remove()
-      ctx.throw(401, 'Failed to create Project (Abraxas)')
+      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     var options = {
@@ -59,7 +59,14 @@ module.exports = new Route({
       await project.save()
     } catch (e) {
       await project.remove()
-      ctx.throw(401, 'Failed to create Project (Abraxas)')
+      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      if (!errorString) {
+        errorString = []
+        errorString[1] = e.message
+      }
+      ctx.throw(503, 'Abraxas API: ' + errorString[1])
+
+      return false
     }
 
     ctx.body = {

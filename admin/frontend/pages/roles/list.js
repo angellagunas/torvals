@@ -15,6 +15,22 @@ export default ListPage({
   titleSingular: 'Rol',
   create: true,
   createComponent: CreateRole,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/manage/roles',
+        label: 'Roles',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/roles',
   branchName: 'roles',
   detailUrl: '/admin/manage/roles/',
@@ -71,9 +87,13 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/roles/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/manage/roles/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]

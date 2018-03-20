@@ -24,18 +24,10 @@ module.exports = new Route({
 
     var statementsGeneral = []
     for (var filter in ctx.request.query) {
-      var flagNumber = false
-      if (!isNaN(ctx.request.query[filter])) {
-        flagNumber = true
-      }
       if (filter === 'general') {
-        if (!isNaN(ctx.request.query[filter])) {
-          flagNumber = true
-        }
-
         for (var column of columns) {
           var fil = {}
-          if (flagNumber && column.type === 'Number') {
+          if (!isNaN(ctx.request.query[filter]) && column.type === 'Number') {
             fil[column.name] = {
               '$gt': parseInt(ctx.request.query[filter] - column.limit),
               '$lt': parseInt(ctx.request.query[filter]) + column.limit
@@ -69,7 +61,7 @@ module.exports = new Route({
 
     var statementCount = [...statement]
 
-    statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
+    if (parseInt(ctx.request.query['limit'])) { statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 }) }
     var channels = await Channel.aggregate(statement)
 
     statementCount.push({$count: 'total'})

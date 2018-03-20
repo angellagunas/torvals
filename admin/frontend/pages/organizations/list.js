@@ -15,6 +15,22 @@ export default ListPage({
   validate: loggedIn,
   create: true,
   createComponent: CreateOrganization,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/manage/organizations',
+        label: 'Organizaciones',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/organizations',
   branchName: 'organizations',
   detailUrl: '/admin/manage/organizations/',
@@ -47,9 +63,13 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/organizations/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/manage/organizations/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]

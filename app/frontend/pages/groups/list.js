@@ -20,6 +20,22 @@ export default ListPage({
   titleSingular: 'Grupo',
   create: false,
   createComponent: CreateGroup,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/manage/groups/',
+        label: 'Grupos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   sidePanel: true,
   sidePanelIcon: 'plus',
   sidePanelComponent: CreateGroupNoModal,
@@ -100,7 +116,7 @@ export default ListPage({
             <div className='field is-grouped'>
               <div className='control'>
                 <Link className='button is-primary' to={'/manage/groups/' + row.uuid}>
-                  <span className='icon is-small'>
+                  <span className='icon is-small' title='Editar'>
                     <i className='fa fa-pencil' />
                   </span>
                 </Link>

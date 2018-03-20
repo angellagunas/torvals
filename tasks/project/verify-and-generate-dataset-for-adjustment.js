@@ -13,7 +13,7 @@ const task = new Task(async function (argv) {
   const projects = await Project.find({
     status: 'pendingRows',
     isDeleted: false
-  })
+  }).populate('activeDataset')
 
   if (projects.length === 0) {
     console.log('No projects to verify ...')
@@ -31,6 +31,13 @@ const task = new Task(async function (argv) {
 
   for (var project of projects) {
     console.log(`Verifying status of project ${project.name} ...`)
+    var projectDataset = project.activeDataset
+
+    if (!projectDataset) {
+      await project.populate('datasets').execPopulate()
+      projectDataset = project.datasets[0]
+    }
+
     var options = {
       url: `${apiData.hostname}${apiData.baseUrl}/projects/${project.externalId}`,
       method: 'GET',
@@ -70,8 +77,8 @@ const task = new Task(async function (argv) {
           name: 'New Adjustment',
           description: '',
           organization: project.organization,
-          createdBy: project.createdBy,
-          uploadedBy: project.createdBy,
+          createdBy: projectDataset.conciliatedBy,
+          uploadedBy: projectDataset.conciliatedBy,
           uploaded: true,
           project: project._id,
           externalId: resFilter._id,
@@ -86,7 +93,9 @@ const task = new Task(async function (argv) {
 
         project.set({
           activeDataset: dataset,
-          businessRules: res.rules
+          businessRules: res.rules,
+          dateMax: res.dataset.date_max,
+          dateMin: res.dataset.date_min
         })
 
         await project.save()

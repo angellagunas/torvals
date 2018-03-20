@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const lov = require('lov')
 const crypto = require('crypto')
 
-const {User, Role, Group} = require('models')
+const {User, Role, Group, Project} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -15,7 +15,7 @@ module.exports = new Route({
     const userData = ctx.request.body
 
     if (!userData.password && !userData.sendInvite) {
-      ctx.throw(400, 'Password or Invite required!')
+      ctx.throw(400, 'Password o invitación requeridos')
     }
 
     if (!userData.password) {
@@ -37,23 +37,32 @@ module.exports = new Route({
     }
 
     if (!ctx.state.organization) {
-      ctx.throw(404, 'Organization not found!')
+      ctx.throw(404, 'Organización no encontrada')
     }
 
-    userData.organizations = [{
+    let orgObj = {
       organization: ctx.state.organization,
       role: userData.role
-    }]
+    }
+
+    if (userData.project) {
+      const project = await Project.findOne({'uuid': userData.project})
+      ctx.assert(project, 404, 'Proyecto no encontrado')
+      orgObj.defaultProject = project
+    }
+
+    userData.organizations = [orgObj]
+
     var group = userData.group
     userData.group = undefined
     const user = await User.register(userData)
 
     if (group) {
       group = await Group.findOne({'uuid': group})
-      ctx.assert(group, 404, 'Group not found')
+      ctx.assert(group, 404, 'Grupo no encontrada')
 
       if (user.groups.find(item => { return String(item) === String(group._id) })) {
-        ctx.throw(400, 'You can only add the user to a group once!')
+        ctx.throw(400, 'Solamente puedes agregar el usuario al grupo una vez')
       }
 
       user.groups.push(group)

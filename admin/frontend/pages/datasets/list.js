@@ -13,6 +13,22 @@ export default ListPage({
   validate: loggedIn,
   titleSingular: 'Dataset',
   create: false,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/datasets/',
+        label: 'Datasets activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/datasets',
   branchName: 'datasets',
   detailUrl: '/admin/datasets/detail/',
@@ -56,9 +72,13 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/datasets/detail/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/datasets/detail/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]

@@ -8,10 +8,10 @@ module.exports = new Route({
     const userId = ctx.params.uuid
 
     const user = await User.findOne({'uuid': userId})
-    ctx.assert(user, 404, 'User not found')
+    ctx.assert(user, 404, 'Usuario no encontrado')
 
     const group = await Group.findOne({'uuid': ctx.request.body.group})
-    ctx.assert(group, 404, 'Group not found')
+    ctx.assert(group, 404, 'Grupo no encontrado')
 
     var pos = user.groups.indexOf(group._id)
     user.groups.splice(pos, 1)
@@ -19,7 +19,7 @@ module.exports = new Route({
 
     pos = group.users.indexOf(user._id)
     group.users.splice(pos, 1)
-    group.save()
+    await group.save()
 
     ctx.body = {
       data: user.toAdmin()

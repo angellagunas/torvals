@@ -6,6 +6,7 @@ import api from '~base/api'
 import PropTypes from 'baobab-react/prop-types'
 import DeleteButton from '~base/components/base-deleteButton'
 import moment from 'moment'
+import {datasetStatus} from '~base/tools'
 
 class TabDatasets extends Component {
   constructor (props) {
@@ -44,7 +45,10 @@ class TabDatasets extends Component {
         'title': 'Fuente',
         'property': 'source',
         'default': 'N/A',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          return datasetStatus[row.source]
+        }
       },
       {
         'title': 'Añadido en',
@@ -103,6 +107,7 @@ class TabDatasets extends Component {
   async removeDatasetOnClick (uuid) {
     var url = `/app/projects/${this.props.project.uuid}/remove/dataset`
     await api.post(url, { dataset: uuid })
+    await this.props.reload()
     await this.loadDatasetsList()
   }
 
@@ -146,9 +151,35 @@ class TabDatasets extends Component {
   }
 
   componentWillMount () {
-    this.props.setAlert('is-invisible', ' ')
+    this.props.setAlert('is-white', ' ')
   }
   render () {
+    const dataSetsNumber = this.props.project.datasets.length
+    let adviseContent = null
+    if (dataSetsNumber) {
+      adviseContent =
+        <div>
+          Debes terminar de configurar al menos un
+          <strong> dataset </strong>
+        </div>
+    } else {
+      adviseContent =
+        <div>
+          Necesitas subir y configurar al menos un
+          <strong> dataset </strong> para tener información disponible
+          <br />
+          <br />
+          <a
+            className='button is-large is-primary'
+            onClick={() => this.showModalDataset()}
+                  >
+            <span className='icon is-medium'>
+              <i className='fa fa-plus-circle' />
+            </span>
+            <span>Agregar Dataset</span>
+          </a>
+        </div>
+    }
     return (
       <div>
         <div className='card-content'>
@@ -159,21 +190,7 @@ class TabDatasets extends Component {
                   <p>Atención</p>
                 </div>
                 <div className='message-body has-text-centered is-size-5'>
-                  Necesitas subir y configurar al menos un
-                  <strong> dataset </strong> para tener información disponible
-                  <br />
-                  <br />
-                  { this.props.canEdit &&
-                    <a
-                      className='button is-large is-primary'
-                      onClick={() => this.showModalDataset()}
-                    >
-                      <span className='icon is-medium'>
-                        <i className='fa fa-plus-circle' />
-                      </span>
-                      <span>Agregar Dataset</span>
-                    </a>
-                  }
+                  {adviseContent}
                 </div>
               </article>
             </div>

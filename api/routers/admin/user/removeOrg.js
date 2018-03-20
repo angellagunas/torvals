@@ -8,15 +8,15 @@ module.exports = new Route({
     const userId = ctx.params.uuid
 
     const user = await User.findOne({'uuid': userId}).populate('groups')
-    ctx.assert(user, 404, 'User not found')
+    ctx.assert(user, 404, 'Usuario no encontrado')
 
     var orgData = ctx.request.body
 
     const org = await Organization.findOne({'uuid': orgData.organization})
-    ctx.assert(org, 404, 'Organization not found')
+    ctx.assert(org, 404, 'Organización no encontrada')
 
     const role = await Role.findOne({'uuid': orgData.role})
-    ctx.assert(org, 404, 'Role not found')
+    ctx.assert(org, 404, 'Rol no encontrado')
 
     var pos = user.organizations.findIndex(e => {
       return (
@@ -35,7 +35,7 @@ module.exports = new Route({
     }
 
     user.groups = groupsAux
-    user.save()
+    await user.save()
 
     ctx.body = {
       data: user.toAdmin()

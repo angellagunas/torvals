@@ -10,7 +10,7 @@ module.exports = new Route({
 
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
 
-    ctx.assert(dataset, 404, 'DataSet not found')
+    ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     var filters = {}
     for (var filter in ctx.request.query) {
@@ -69,12 +69,16 @@ module.exports = new Route({
       .populate(['salesCenter', 'product', 'adjustmentRequest', 'channel'])
       .sort(ctx.request.query.sort || '-dateCreated')
 
-    rows = rows.map(item => {
-      return {
+    var auxRows = []
+    for (var item of rows) {
+      await item.product.populate('price').execPopulate()
+
+      auxRows.push({
         uuid: item.uuid,
         salesCenter: item.salesCenter ? item.salesCenter.name : '',
         productId: item.product ? item.product.externalId : '',
         productName: item.product ? item.product.name : '',
+        productPrice: item.product && item.product.price ? item.product.price.price : 10.00,
         channel: item.channel ? item.channel.name : '',
         semanaBimbo: item.data.semanaBimbo,
         prediction: item.data.prediction,
@@ -82,11 +86,11 @@ module.exports = new Route({
         localAdjustment: item.data.localAdjustment,
         lastAdjustment: item.data.lastAdjustment,
         adjustmentRequest: item.adjustmentRequest
-      }
-    })
+      })
+    }
 
     ctx.body = {
-      data: rows
+      data: auxRows
     }
   }
 })

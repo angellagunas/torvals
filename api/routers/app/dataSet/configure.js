@@ -21,7 +21,7 @@ module.exports = new Route({
 
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
 
-    ctx.assert(dataset, 404, 'DataSet not found')
+    ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     var isDate = body.columns.find((item) => {
       return item.isDate
@@ -104,10 +104,14 @@ module.exports = new Route({
       })
     }
 
-    var apiData = Api.get()
-    if (!apiData.token) {
-      await Api.fetch()
-      apiData = Api.get()
+    try {
+      var apiData = Api.get()
+      if (!apiData.token) {
+        await Api.fetch()
+        apiData = Api.get()
+      }
+    } catch (e) {
+      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     var options = {
@@ -139,7 +143,14 @@ module.exports = new Route({
       })
       await dataset.save()
     } catch (e) {
-      ctx.throw(401, 'Failed to send Dataset for processing')
+      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      if (!errorString) {
+        errorString = []
+        errorString[1] = e.message
+      }
+      ctx.throw(503, 'Abraxas API: ' + errorString[1])
+
+      return false
     }
 
     ctx.body = {

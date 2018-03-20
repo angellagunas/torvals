@@ -16,12 +16,12 @@ module.exports = new Route({
     data.slug = slugify(data.name)
     var auxRole = await Role.findOne({slug: data.slug})
     if (auxRole && !auxRole.isDeleted) {
-      ctx.throw(400, "You can't have two roles with the same name")
+      ctx.throw(400, 'No se pueden tener dos roles con el mismo nombre')
     }
 
     auxRole = await Role.findOne({priority: parseInt(data.priority)})
     if (auxRole && !auxRole.isDeleted) {
-      ctx.throw(400, "You can't have two roles with the same priority")
+      ctx.throw(400, 'No se pueden tener dos roles con la misma prioridad')
     }
 
     if (auxRole && auxRole.isDeleted) {

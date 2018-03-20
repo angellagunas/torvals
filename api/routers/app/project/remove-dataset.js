@@ -11,10 +11,10 @@ module.exports = new Route({
     const project = await Project.findOne({'uuid': projectId})
     .populate('datasets.dataset')
 
-    ctx.assert(project, 404, 'Project not found')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     const dataset = await DataSet.findOne({'uuid': datasetId})
-    ctx.assert(dataset, 404, 'Dataset not found')
+    ctx.assert(dataset, 404, 'Dataset no encontrado')
 
     var auxDatasets = project.datasets.map(item => { return item.dataset.uuid })
 

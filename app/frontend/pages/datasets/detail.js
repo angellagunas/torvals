@@ -21,6 +21,9 @@ import ProductForm from './edit-product'
 import SalesCenterForm from './edit-salescenter'
 import ChannelForm from './edit-channel'
 import Checkbox from '~base/components/base-checkbox'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import {datasetStatus} from '~base/tools'
+import NotFound from '~base/components/not-found'
 
 class DataSetDetail extends Component {
   constructor (props) {
@@ -84,13 +87,22 @@ class DataSetDetail extends Component {
 
   async load () {
     var url = '/app/datasets/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    
+    try {
+      const body = await api.get(url)
 
     this.setState({
       loading: false,
       loaded: true,
       dataset: body.data
     })
+  }catch (e) {
+    await this.setState({
+      loading: false,
+      loaded: true,
+      notFound: true
+    })
+  }
   }
 
   getColumns () {
@@ -126,8 +138,8 @@ class DataSetDetail extends Component {
 
   async deleteObject () {
     if (!this.state.canEdit) return
-    var url = '/app/datasets/' + this.props.match.params.uuid
-    await api.del(url)
+    var url = `/app/projects/${this.state.dataset.project.uuid}/remove/dataset`
+    await api.post(url, { dataset: this.props.match.params.uuid })
     this.props.history.push('/datasets')
   }
 
@@ -803,6 +815,16 @@ class DataSetDetail extends Component {
                 Canales no identificados: {this.newChannels.length}
             </p>
             <div className='field is-grouped is-grouped-right card-header-select'>
+              {canEdit &&
+              <div className={this.state.isChannelsOpen ? 'control' : 'is-hidden'}>
+                <button
+                  onClick={() => this.confirmChannels()}
+                  disabled={this.state.disableBtnC}
+                  className='button is-primary is-outlined is-pulled-right'>
+                  Confirmar ({this.state.selectedChannels.size})
+                </button>
+              </div>
+              }
               <div className='control'>
                 <a
                   className='button is-inverted'
@@ -837,16 +859,7 @@ class DataSetDetail extends Component {
                           </span>
                         </th>
                       }
-                      {canEdit && 
-                        <th colSpan='1' className='is-narrow'>
-                          <button
-                            onClick={() => this.confirmChannels()}
-                            disabled={this.state.disableBtnC}
-                            className='button is-primary is-outlined is-pulled-right'>
-                            Confirmar ({this.state.selectedChannels.size})
-                          </button>
-                        </th>
-                      }
+                      
                     </tr>
                   </thead>
                   <tbody>
@@ -929,6 +942,16 @@ class DataSetDetail extends Component {
                 Centros de Venta no identificados: {this.newSalesCenters.length}
             </p>
             <div className='field is-grouped is-grouped-right card-header-select'>
+              {canEdit &&
+              <div className={this.state.isSalesCenterOpen ? 'control' : 'is-hidden'}>
+                <button
+                  onClick={() => this.confirmSalesCenters()}
+                  disabled={this.state.disableBtnS}
+                  className='button is-primary is-outlined is-pulled-right'>
+                  Confirmar ({this.state.selectedSalesCenters.size})
+                </button>
+              </div> 
+              }
               <div className='control'>
                 <a
                   className='button is-inverted'
@@ -962,16 +985,6 @@ class DataSetDetail extends Component {
                               checked={this.state.selectAllSalesCenters}
                               hideLabel />
                           </span>
-                        </th>
-                      }
-                      {canEdit &&
-                        <th colSpan='1' className='is-narrow'>
-                          <button
-                            onClick={() => this.confirmSalesCenters()}
-                            disabled={this.state.disableBtnS}
-                            className='button is-primary is-outlined is-pulled-right'>
-                            Confirmar ({this.state.selectedSalesCenters.size})
-                          </button>
                         </th>
                       }
                     </tr>
@@ -1057,6 +1070,16 @@ class DataSetDetail extends Component {
                   Productos no identificados: {this.newProducts.length}
               </p>
               <div className='field is-grouped is-grouped-right card-header-select'>
+                {canEdit &&
+                <div className={this.state.isProductsOpen ? 'control' : 'is-hidden'}>
+                  <button
+                    onClick={() => this.confirmProducts()}
+                    disabled={this.state.disableBtnP}
+                    className='button is-primary is-outlined is-pulled-right'>
+                    Confirmar ({this.state.selectedProducts.size})
+                  </button>
+                </div>
+                } 
                 <div className='control'>
                   <a
                     className='button is-inverted'
@@ -1091,16 +1114,7 @@ class DataSetDetail extends Component {
                             </span>
                           </th>
                         }
-                        {canEdit &&
-                          <th colSpan='1' className='is-narrow'>
-                            <button
-                              onClick={() => this.confirmProducts()}
-                              disabled={this.state.disableBtnP}
-                              className='button is-primary is-outlined is-pulled-right'>
-                              Confirmar ({this.state.selectedProducts.size})
-                          </button>
-                          </th>
-                        }
+                        
                       </tr>
                     </thead>
                     <tbody>
@@ -1305,6 +1319,10 @@ class DataSetDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este dataset' />
+    }
+
     const { dataset, canEdit } = this.state
 
     if (!dataset.uuid) {
@@ -1327,7 +1345,32 @@ class DataSetDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/datasets',
+                  label: 'Datasets',
+                  current: false
+                },
+                {
+                  path: '/datasets/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/datasets/',
+                  label: dataset.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
@@ -1366,7 +1409,7 @@ class DataSetDetail extends Component {
                             name: this.state.dataset.name,
                             description: this.state.dataset.description,
                             organization: this.state.dataset.organization.uuid,
-                            status: dataset.status
+                            status: datasetStatus[dataset.status]
                           }}
                           load={this.load.bind(this)}
                           canEdit={canEdit}

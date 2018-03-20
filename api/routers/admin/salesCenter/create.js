@@ -15,7 +15,7 @@ module.exports = new Route({
     const org = await Organization.findOne({uuid: data.organization})
 
     if (!org) {
-      ctx.throw(404, 'Organization not found')
+      ctx.throw(404, 'Organización no encontrada')
     }
 
     const salesCenter = await SalesCenter.create({

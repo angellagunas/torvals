@@ -9,6 +9,8 @@ import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import OrganizationForm from './form'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class OrganizationDetail extends Component {
   constructor (props) {
@@ -34,13 +36,22 @@ class OrganizationDetail extends Component {
 
   async load () {
     var url = '/app/organizations/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      organization: body.data
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        organization: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   getColumns () {
@@ -60,9 +71,13 @@ class OrganizationDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/users/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button' to={'/manage/users/' + row.uuid}>
+              <span className='icon is-small' title='Visualizar'>
+                <i className='fa fa-eye' />
+              </span>
+            </Link>
+          )
         }
       }
     ]
@@ -81,6 +96,10 @@ class OrganizationDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='esta organización' />
+    }
+
     const { organization } = this.state
 
     if (!organization.uuid) {
@@ -90,7 +109,28 @@ class OrganizationDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/organizations/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/organizations/',
+                  label: organization.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <br />
             <div className='columns'>
               <div className='column'>
                 <div className='card'>
@@ -165,7 +205,7 @@ export default Page({
   path: '/manage/organizations/:uuid',
   title: 'User details',
   exact: true,
-  roles: 'admin, orgadmin',
+  roles: 'admin, orgadmin, analyst, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: branchedOrganizationDetail
 })

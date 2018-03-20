@@ -7,17 +7,33 @@ import {loggedIn} from '~base/middlewares/'
 import CreateSalesCenter from './create'
 
 export default ListPage({
-  path: '/salesCenters',
-  title: 'Activos',
-  icon: 'check',
+  path: '/catalogs/salesCenters',
+  title: 'Centros de venta activos',
+  icon: 'credit-card-alt',
   exact: true,
   validate: loggedIn,
   titleSingular: 'Centro de Venta',
   create: true,
   createComponent: CreateSalesCenter,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/catalogs/salesCenters/',
+        label: 'Centros de venta activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/salesCenters',
   branchName: 'salesCenters',
-  detailUrl: '/admin/salesCenters/detail/',
+  detailUrl: '/admin/catalogs/salesCenters/detail/',
   filters: true,
   schema: {
     type: 'object',
@@ -38,7 +54,7 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/salesCenters/detail/' + row.uuid}>
+            <Link to={'/catalogs/salesCenters/detail/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -74,9 +90,13 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/salesCenters/detail/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/catalogs/salesCenters/detail/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]

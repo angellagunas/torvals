@@ -126,7 +126,7 @@ export default Page({
                   <div className='tile is-parent'>
                     <article className='tile is-child notification is-primary has-text-centered'>
                       <p className='title'>{projectsCount}</p>
-                      <p className='subtitle'>Projects</p>
+                      <p className='subtitle'>Proyectos</p>
                     </article>
                   </div>
                 </div>
@@ -136,7 +136,7 @@ export default Page({
                   <div className='tile is-parent'>
                     <article className='tile is-child notification is-primary has-text-centered'>
                       <p className='title'>{projectionsCount}</p>
-                      <p className='subtitle'>Projections</p>
+                      <p className='subtitle'>Proyecciones</p>
                     </article>
                   </div>
                 </div>

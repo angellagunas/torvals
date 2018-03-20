@@ -3,7 +3,6 @@ import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import { ToastContainer } from 'react-toastify'
-
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
@@ -16,6 +15,9 @@ import TabAprove from './detail-tabs/tab-aprove'
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import TabAnomalies from './detail-tabs/tab-anomalies'
+import NotFound from '~base/components/not-found'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -41,27 +43,40 @@ class ProjectDetail extends Component {
     }, 10000)
   }
 
-  async load () {
+  async load (tab) {
     var url = '/admin/projects/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      project: body.data
-    })
+      if (body.data.status === 'empty') {
+        tab = 'datasets'
+      }
+      this.setState({
+        loading: false,
+        loaded: true,
+        project: body.data,
+        selectedTab: tab || this.state.selectedTab
+      })
 
-    this.countAdjustmentRequests()
+      this.countAdjustmentRequests()
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async countAdjustmentRequests () {
     if (this.state.project.activeDataset) {
       var url = '/admin/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
       var body = await api.get(url)
-
-      this.setState({
-        counterAdjustments: body.data.created
-      })
+      if (this.state.counterAdjustments !== body.data.created) {
+        this.setState({
+          counterAdjustments: body.data.created
+        })
+      }
     }
   }
 
@@ -129,6 +144,10 @@ class ProjectDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este proyecto' />
+    }
+
     const { project } = this.state
 
     if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
@@ -144,6 +163,7 @@ class ProjectDetail extends Component {
         title: 'Ajustes',
         icon: 'fa-cogs',
         reload: false,
+        hide: project.status === 'empty',
         content: (
           <TabAdjustment
             load={this.getProjectStatus.bind(this)}
@@ -179,14 +199,40 @@ class ProjectDetail extends Component {
             project={project}
             history={this.props.history}
             setAlert={(type, data) => this.setAlert(type, data)}
+            reload={() => this.load()}
           />
       )},
-      /* {
+      {
+        name: 'anomalias',
+        title: 'Anomalias',
+        icon: 'fa-exclamation-triangle',
+        reload: true,
+        hide: !project.activeDataset ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty',
+        content: (
+          <TabAnomalies
+            project={project}
+            reload={(tab) => this.load(tab)}
+          />
+        )
+      },
+      {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
-        content: <TabHistorical />
-      }, */
+        reload: true,
+        hide: !project.activeDataset ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty',
+        content: (
+          <TabHistorical
+            project={project}
+          />
+        )
+      },
       {
         name: 'configuracion',
         title: 'Configuración',
@@ -231,43 +277,73 @@ class ProjectDetail extends Component {
         Agregar Dataset
       </span>
     </button>)
+
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          {
+      <div>
+        <div className='columns c-flex-1 is-marginless'>
+          <div className='column is-paddingless'>
+            {
             this.state.alertMsg &&
-            <div className={'notification has-text-centered is-uppercase is-paddingless ' + this.state.alertType}>
+            <div className={'notification has-text-centered is-uppercase is-paddingless sticky-msg ' + this.state.alertType}>
               <span className='icon is-medium has-text-info'>
                 <i className='fa fa-warning' />
               </span>
               {this.state.alertMsg}
             </div>
           }
-          <div className='section pad-sides'>
-            <div className='is-padding-top-small'>
-              <Tabs
-                tabTitle={project.name}
-                tabs={tabs}
-                selectedTab={this.state.selectedTab}
-                className='is-right is-medium'
-                extraTab={
-                  <DeleteButton
-                    objectName='Proyecto'
-                    objectDelete={() => this.deleteObject()}
-                    message={'Estas seguro de querer eliminar este Proyecto?'}
-                  />
-                }
+            <div className='section pad-sides'>
+            
+              <Breadcrumb
+                path={[
+                  {
+                    path: '/admin',
+                    label: 'Inicio',
+                    current: false
+                  },
+                  {
+                    path: '/admin/projects',
+                    label: 'Proyectos',
+                    current: false
+                  },
+                  {
+                    path: '/admin/projects/detail/',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/admin/projects/detail/',
+                    label: project.name,
+                    current: true
+                  }
+                ]}
+                align='left'
               />
+              <div className='is-padding-top-small'>
+                <Tabs
+                  tabTitle={project.name}
+                  tabs={tabs}
+                  selectedTab={this.state.selectedTab}
+                  className='is-right sticky-tab'
+                  extraTab={
+                    <DeleteButton
+                      objectName='Proyecto'
+                      objectDelete={() => this.deleteObject()}
+                      message={'Estas seguro de querer eliminar este Proyecto?'}
+                    />
+                  }
+                />
+              </div>
             </div>
           </div>
+
+          <SidePanel
+            noListPage
+            sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+            icon={'plus'}
+            title={'Opciones'}
+            content={options} />
+
         </div>
-
-        <SidePanel
-          sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-          icon={'plus'}
-          title={'Opciones'}
-          content={options} />
-
         <CreateDataSet
           branchName='datasets'
           url='/admin/datasets'

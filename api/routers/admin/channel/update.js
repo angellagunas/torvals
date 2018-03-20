@@ -17,10 +17,10 @@ module.exports = new Route({
 
     const channel = await Channel.findOne({'uuid': channelId, 'isDeleted': false})
     .populate('organization')
-    ctx.assert(channel, 404, 'Channel  not found')
+    ctx.assert(channel, 404, 'Canal no encontrado')
 
     const org = await Organization.findOne({uuid: data.organization})
-    ctx.assert(org, 404, 'Organization not found')
+    ctx.assert(org, 404, 'Organización no encontrada')
 
     channel.set({
       name: data.name,

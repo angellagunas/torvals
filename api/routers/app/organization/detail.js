@@ -9,11 +9,11 @@ module.exports = new Route({
     var organizationId = ctx.params.uuid
 
     if (organizationId !== ctx.state.organization.uuid) {
-      ctx.throw(404, 'Organization not found')
+      ctx.throw(404, 'Organización no encontrada')
     }
 
     const org = await Organization.findOne({'uuid': organizationId, 'isDeleted': false})
-    ctx.assert(org, 404, 'Organization not found')
+    ctx.assert(org, 404, 'Organización no encontrada')
 
     ctx.body = {
       data: org.format()

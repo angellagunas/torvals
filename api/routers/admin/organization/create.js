@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 const slugify = require('underscore.string/slugify')
+const verifyPrices = require('queues/update-prices')
 
 const {Organization} = require('models')
 
@@ -28,7 +29,7 @@ module.exports = new Route({
       return
     }
     if (auxOrg && !auxOrg.isDeleted) {
-      ctx.throw(400, "You can't have two organizations with the same name")
+      ctx.throw(400, 'No se pueden tener dos organizaciones con el mismo nombre')
     }
 
     const org = await Organization.create(data)
@@ -36,6 +37,8 @@ module.exports = new Route({
     if (file) {
       await org.uploadOrganizationPicture(file)
     }
+
+    verifyPrices.add({uuid: org.uuid})
 
     ctx.body = {
       data: org.format()

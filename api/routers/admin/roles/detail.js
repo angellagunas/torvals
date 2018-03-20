@@ -9,7 +9,7 @@ module.exports = new Route({
     var roleId = ctx.params.uuid
 
     const role = await Role.findOne({'uuid': roleId, 'isDeleted': false})
-    ctx.assert(role, 404, 'Role not found')
+    ctx.assert(role, 404, 'Rol no encontrado')
 
     ctx.body = {
       data: role.format()

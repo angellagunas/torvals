@@ -9,7 +9,7 @@ module.exports = new Route({
     var roleId = ctx.params.uuid
 
     var role = await Role.findOne({'uuid': roleId}).populate('users')
-    ctx.assert(role, 404, 'Role not found')
+    ctx.assert(role, 404, 'Rol no encontrado')
 
     if (!role.isDefault) {
       var defaultRole = await Role.findOne({isDefault: true})

@@ -10,6 +10,8 @@ import Loader from '~base/components/spinner'
 import RoleForm from './form'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class RoleDetail extends Component {
   constructor (props) {
@@ -28,19 +30,27 @@ class RoleDetail extends Component {
 
   async load () {
     var url = '/admin/roles/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      role: body.data
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        role: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -52,7 +62,7 @@ class RoleDetail extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button' to={'/manage/users/' + row.uuid}>
             Detalle
@@ -130,6 +140,10 @@ class RoleDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este rol' />
+    }
+
     const { role } = this.state
 
     if (!role.uuid) {
@@ -138,7 +152,33 @@ class RoleDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/roles',
+                  label: 'Roles',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/roles',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/manage/roles',
+                  label: role.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <br />
             <div className='columns'>
               {this.getDefaultButton()}
               {this.getDeleteButton()}

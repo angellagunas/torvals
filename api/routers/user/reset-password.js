@@ -10,7 +10,7 @@ module.exports = new Route({
     var admin = ctx.request.body.admin
 
     const user = await User.findOne({'email': userId})
-    ctx.assert(user, 404, 'User not found!')
+    ctx.assert(user, 404, 'Usuario no encontrado')
 
     user.sendResetPasswordEmail(admin)
 

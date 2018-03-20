@@ -19,6 +19,22 @@ export default ListPage({
   titleSingular: 'Grupo',
   create: false,
   createComponent: CreateGroup,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/manage/groups',
+        label: 'Grupos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   sidePanel: true,
   sidePanelIcon: 'plus',
   sidePanelComponent: CreateGroupNoModal,
@@ -52,7 +68,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Organzación',
+        'title': 'Organización',
         'property': 'organization',
         'default': 'N/A',
         'sortable': true,

@@ -1,4 +1,5 @@
 const Route = require('lib/router/route')
+const _ = require('lodash')
 
 const {Project} = require('models')
 
@@ -8,6 +9,15 @@ module.exports = new Route({
   handler: async function (ctx) {
     var projectId = ctx.params.uuid
 
+    // Check user role for the organization
+    const organizationKey = _.findKey(ctx.state.user.organizations, { 'organization': {'_id': ctx.state.organization._id} })
+    const organization = ctx.state.user.organizations[organizationKey]
+    if (organization.role.slug === 'manager-level-1') {
+      // is manager level 1, show default project
+      const defaultProject = await Project.findOne({ '_id': organization.defaultProject })
+      projectId = defaultProject.uuid
+    }
+
     const project = await Project.findOne({
       'uuid': projectId,
       'isDeleted': false,
@@ -15,7 +25,7 @@ module.exports = new Route({
     }).populate('organization')
     .populate('activeDataset')
 
-    ctx.assert(project, 404, 'Project not found')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     ctx.body = {
       data: project.toPublic()

@@ -1,0 +1,30 @@
+{% extends "./layout.html" %}
+
+{% block content %}
+<table class="container">
+  <tbody>
+    <tr>
+      <td class="header">
+        <a href="http://www.pythia-dev.site" class="logo" target="_blank">
+          <img src="http://www.pythia-dev.site/admin/public/img/pythia-logo.png" width="295" height="295" alt="Pythia">
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" class="body">
+        <p class="main">La conciliación de los ajustes del proyecto {{name}} han terminado!</p>
+        <p class="label">Para ir al proyecto, haz click en el botón:</p>
+        <p>
+          <a class="btn" href="{{ url }}" target="_blank">Ir al proyecto</a>
+        </p>
+        <p>o copia esta url: <a class="link" href="{{ url }}">{{ url }}</a></p>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" class="footer">
+        Para preguntas de suporte visita <br/><a class="link" href="https://github.com/latteware/marble-seeds/" target="_blank">https://github.com/latteware/marble-seeds/</a> y crea un issue.
+      </td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

@@ -11,6 +11,8 @@ import ProjectForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class SalesCenterDetail extends Component {
   constructor (props) {
@@ -33,16 +35,24 @@ class SalesCenterDetail extends Component {
 
   async load () {
     var url = '/admin/salesCenters/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      salesCenter: body.data,
-      selectedGroups: [...body.data.groups]
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        salesCenter: body.data,
+        selectedGroups: [...body.data.groups]
+      })
 
-    this.loadGroups(body.data)
+      this.loadGroups(body.data)
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async loadGroups (salesCenter) {
@@ -130,13 +140,13 @@ class SalesCenterDetail extends Component {
   async deleteObject () {
     var url = '/admin/salesCenters/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/admin/salesCenters')
+    this.props.history.push('/admin/catalogs/salesCenters')
   }
 
   getColumns () {
     return [
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
@@ -219,6 +229,10 @@ class SalesCenterDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este centro de venta' />
+    }
+
     if (!this.state.loaded) {
       return <Loader />
     }
@@ -232,16 +246,41 @@ class SalesCenterDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/admin/catalogs/salesCenters',
+                  label: 'Centros de venta',
+                  current: false
+                },
+                {
+                  path: '/admin/catalogs/salesCenters/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/catalogs/salesCenters/detail/',
+                  label: this.state.salesCenter.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <DeleteButton
-                      titleButton={'Delete'}
+                      titleButton={'Eliminar'}
                       objectName='Sales Centers'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={`Are you sure you want to delete the sales center ${this.state.salesCenter.name}?`}
+                      message={`Estas seguro de eliminar el centro de ventas ${this.state.salesCenter.name}?`}
                     />
                   </div>
                 </div>
@@ -342,7 +381,7 @@ class SalesCenterDetail extends Component {
 }
 
 export default Page({
-  path: '/salesCenters/detail/:uuid',
+  path: '/catalogs/salesCenters/detail/:uuid',
   title: 'Sales center detail',
   exact: true,
   validate: loggedIn,

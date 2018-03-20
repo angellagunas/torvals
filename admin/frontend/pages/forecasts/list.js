@@ -12,6 +12,22 @@ export default ListPage({
   exact: true,
   validate: loggedIn,
   titleSingular: 'Predicción',
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/forecasts/',
+        label: 'Forecasts',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/forecasts',
   branchName: 'forecasts',
   detailUrl: '/admin/forecasts/detail/',

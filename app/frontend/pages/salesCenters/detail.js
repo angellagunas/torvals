@@ -12,6 +12,8 @@ import SalesCenterForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
 import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
 import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class SalesCenterDetail extends Component {
   constructor (props) {
@@ -38,14 +40,22 @@ class SalesCenterDetail extends Component {
 
   async load () {
     var url = '/app/salesCenters/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      salesCenter: body.data,
-      selectedGroups: [...body.data.groups]
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        salesCenter: body.data,
+        selectedGroups: [...body.data.groups]
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async loadGroups () {
@@ -132,13 +142,13 @@ class SalesCenterDetail extends Component {
   async deleteObject () {
     var url = '/app/salesCenters/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/salesCenters')
+    this.props.history.push('/catalogs/salesCenters')
   }
 
   getColumns () {
     return [
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
@@ -221,6 +231,10 @@ class SalesCenterDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este centro de venta' />
+    }
+
     let { loaded, canEdit } = this.state
     if (!loaded) {
       return <Loader />
@@ -235,7 +249,32 @@ class SalesCenterDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/catalogs/salesCenters',
+                  label: 'Centros de venta',
+                  current: false
+                },
+                {
+                  path: '/catalogs/salesCenters/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/catalogs/salesCenters/',
+                  label: this.state.salesCenter.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
@@ -243,9 +282,9 @@ class SalesCenterDetail extends Component {
                     { canEdit &&
                       <DeleteButton
                         titleButton={'Eliminar'}
-                        objectName='Sales Center'
+                        objectName='Centro de ventas'
                         objectDelete={this.deleteObject.bind(this)}
-                        message={`Are you sure you want to delete the sales center ${this.state.salesCenter.name}?`}
+                        message={`¿Deseas eliminar el centro de ventas ${this.state.salesCenter.name}?`}
                       />
                     }
                   </div>
@@ -346,10 +385,10 @@ class SalesCenterDetail extends Component {
 }
 
 export default Page({
-  path: '/salesCenters/:uuid',
+  path: '/catalogs/salesCenters/:uuid',
   title: 'Sales center detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: SalesCenterDetail
 })

@@ -17,6 +17,22 @@ export default ListPage({
   validate: [loggedIn, verifyRole],
   titleSingular: 'Usuario',
   create: false,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/manage/users/',
+        label: 'Usuarios',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   sidePanel: true,
   sidePanelIcon: 'user-plus',
   sidePanelComponent: CreateUserNoModal,
@@ -107,18 +123,30 @@ export default ListPage({
           }
 
           const currentUser = tree.get('user')
+          var disabledActions = false
+
+          if (row.roleDetail && currentUser) {
+            disabledActions = row.roleDetail.priority <= currentUser.currentRole.priority
+          }
 
           return (
             <div className='field is-grouped'>
               <div className='control'>
-                <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-                  <span className='icon is-small'>
-                    <i className='fa fa-pencil' />
-                  </span>
-                </Link>
+                {disabledActions
+                  ? <Link className='button' to={'/manage/users/' + row.uuid}>
+                    <span className='icon is-small' title='Visualizar'>
+                      <i className='fa fa-eye' />
+                    </span>
+                  </Link>
+              : <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+              }
               </div>
               <div className='control'>
-                {currentUser.uuid !== row.uuid && (
+                {currentUser.uuid !== row.uuid && !disabledActions && (
                   <DeleteButton
                     iconOnly
                     icon='fa fa-trash'

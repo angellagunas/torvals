@@ -16,6 +16,22 @@ export default ListPage({
   titleSingular: 'Proyecto',
   create: true,
   createComponent: CreateProject,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/projects/',
+        label: 'Proyectos activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/projects',
   branchName: 'projects',
   detailUrl: '/admin/projects/detail/',
@@ -91,9 +107,13 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/projects/detail/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/projects/detail/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]

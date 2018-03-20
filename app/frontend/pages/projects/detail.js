@@ -4,7 +4,6 @@ import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import { ToastContainer } from 'react-toastify'
 import { testRoles } from '~base/tools'
-
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -14,10 +13,12 @@ import Tabs from '~base/components/base-tabs'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
 import TabAprove from './detail-tabs/tab-aprove'
-
 import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import TabAnomalies from './detail-tabs/tab-anomalies'
+import NotFound from '~base/components/not-found'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -28,7 +29,7 @@ class ProjectDetail extends Component {
       project: {},
       selectedTab: 'ajustes',
       datasetClassName: '',
-      roles: 'admin, orgadmin, analyst, manager-level-2',
+      roles: 'admin, orgadmin, analyst',
       canEdit: false,
       isLoading: '',
       counterAdjustments: 0
@@ -38,6 +39,11 @@ class ProjectDetail extends Component {
   }
 
   async componentWillMount () {
+    const user = this.context.tree.get('user')
+    if (user.currentRole.slug === 'manager-level-1' && this.props.match.params.uuid !== user.currentProject.uuid) {
+      this.props.history.replace('/projects/' + user.currentProject.uuid)
+    }
+
     await this.load()
     this.setState({
       canEdit: testRoles(this.state.roles)
@@ -48,26 +54,42 @@ class ProjectDetail extends Component {
     }, 10000)
   }
 
-  async load () {
+  async load (tab) {
     var url = '/app/projects/' + this.props.match.params.uuid
-    const body = await api.get(url)
-    this.setState({
-      loading: false,
-      loaded: true,
-      project: body.data
-    })
 
-    this.countAdjustmentRequests()
+    try {
+      const body = await api.get(url)
+
+      if (body.data.status === 'empty') {
+        tab = 'datasets'
+      }
+
+      this.setState({
+        loading: false,
+        loaded: true,
+        project: body.data,
+        selectedTab: tab || this.state.selectedTab
+      })
+
+      this.countAdjustmentRequests()
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async countAdjustmentRequests () {
     if (this.state.project.activeDataset) {
       var url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
       var body = await api.get(url)
-
-      this.setState({
-        counterAdjustments: body.data.created
-      })
+      if (this.state.counterAdjustments !== body.data.created) {
+        this.setState({
+          counterAdjustments: body.data.created
+        })
+      }
     }
   }
 
@@ -135,6 +157,10 @@ class ProjectDetail extends Component {
   }
 
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este proyecto' />
+    }
+
     const { project, canEdit } = this.state
 
     if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
@@ -150,6 +176,7 @@ class ProjectDetail extends Component {
         title: 'Ajustes',
         icon: 'fa-cogs',
         reload: false,
+        hide: project.status === 'empty',
         content: (
           <TabAdjustment
             load={this.getProjectStatus.bind(this)}
@@ -191,15 +218,39 @@ class ProjectDetail extends Component {
             history={this.props.history}
             canEdit={canEdit}
             setAlert={(type, data) => this.setAlert(type, data)}
+            reload={() => this.load()}
           />
         )
       },
-      /* {
+      {
+        name: 'anomalias',
+        title: 'Anomalias',
+        icon: 'fa-exclamation-triangle',
+        reload: true,
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabAnomalies
+            project={project}
+            reload={(tab) => this.load(tab)}
+          />
+        )
+      },
+      {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
-        content: <TabHistorical />
-      }, */
+        hide: (project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabHistorical
+            project={project}
+          />
+        )
+      },
       {
         name: 'configuracion',
         title: 'Configuración',
@@ -253,7 +304,7 @@ class ProjectDetail extends Component {
         <div className='column is-paddingless'>
           {
             this.state.alertMsg &&
-            <div className={'notification has-text-centered is-uppercase is-paddingless ' + this.state.alertType}>
+            <div className={'notification has-text-centered is-uppercase is-paddingless sticky-msg ' + this.state.alertType}>
               <span className='icon is-medium has-text-info'>
                 <i className='fa fa-warning' />
               </span>
@@ -261,12 +312,40 @@ class ProjectDetail extends Component {
             </div>
           }
           <div className='section is-paddingless-top pad-sides'>
+            {
+              !testRoles('manager-level-1') &&
+              <Breadcrumb
+                path={[
+                  {
+                    path: '/',
+                    label: 'Inicio',
+                    current: false
+                  },
+                  {
+                    path: '/projects',
+                    label: 'Proyectos',
+                    current: false
+                  },
+                  {
+                    path: '/projects/',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/projects/',
+                    label: project.name,
+                    current: true
+                  }
+                ]}
+                align='left'
+              />
+            }
             <div className='is-padding-top-small'>
               <Tabs
                 tabTitle={project.name}
                 tabs={tabs}
                 selectedTab={this.state.selectedTab}
-                className='is-right is-medium'
+                className='is-right sticky-tab'
                 extraTab={
                 canEdit &&
                 <DeleteButton
@@ -276,12 +355,30 @@ class ProjectDetail extends Component {
                 />
               }
             />
+              {
+                testRoles('manager-level-1') && project.status === 'empty' &&
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <article className='message is-warning'>
+                        <div className='message-header'>
+                          <p>Atención</p>
+                        </div>
+                        <div className='message-body has-text-centered is-size-5'>
+                          Este proyecto aún no contiene datasets, ponte en contacto con tu supervisor.
+                      </div>
+                      </article>
+                    </div>
+                  </div>
+                </div>
+              }
             </div>
           </div>
         </div>
 
         { canEdit &&
           <SidePanel
+            noListPage
             sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
             icon={'plus'}
             title={'Opciones'}
@@ -315,7 +412,7 @@ const BranchedProjectDetail = branch((props, context) => {
 
 export default Page({
   path: '/projects/:uuid',
-  title: 'Detalle de Proyecto',
+  title: 'Detalle',
   exact: true,
   roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2, manager-level-1',
   validate: [loggedIn, verifyRole],

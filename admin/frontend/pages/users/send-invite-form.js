@@ -19,7 +19,8 @@ class InviteUserForm extends Component {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
       groups: [],
-      projects: []
+      projects: [],
+      cannotCreate: false
     }
   }
 
@@ -28,6 +29,21 @@ class InviteUserForm extends Component {
   async componentWillMount () {
     if (this.state.formData.organization) {
       await this.loadProjects(this.state.formData.organization)
+
+      if (this.state.formData.role) {
+        var role = this.props.roles.find((item) => {
+          return item._id === this.state.formData.role
+        })
+        if (role && role.slug === 'manager-level-1') {
+          if (this.state.projects.length === 0) {
+            this.setState({
+              error: 'No existen proyectos!',
+              apiCallErrorMessage: 'message is-danger',
+              cannotCreate: true
+            })
+          }
+        }
+      }
     }
   }
 
@@ -35,6 +51,46 @@ class InviteUserForm extends Component {
     if (this.state.formData.organization !== formData.organization) {
       await this.loadProjects(formData.organization)
       await this.changeGroups(formData.organization)
+
+      if (formData.role) {
+        var role = this.props.roles.find((item) => {
+          return item._id === formData['role']
+        })
+
+        if (role && role.slug === 'manager-level-1') {
+          await this.loadProjects()
+          if (this.state.projects.length === 0) {
+            return this.setState({
+              formData,
+              error: 'No existen proyectos!',
+              apiCallErrorMessage: 'message is-danger',
+              cannotCreate: true
+            })
+          }
+        } else {
+          this.setState({cannotCreate: false})
+        }
+      }
+    }
+
+    if (formData.role && this.state.formData.role !== formData.role) {
+      var role = this.props.roles.find((item) => {
+        return item._id === formData['role']
+      })
+
+      if (role && role.slug === 'manager-level-1') {
+        await this.loadProjects()
+        if (this.state.projects.length === 0) {
+          return this.setState({
+            formData,
+            error: 'No existen proyectos!',
+            apiCallErrorMessage: 'message is-danger',
+            cannotCreate: true
+          })
+        }
+      } else {
+        this.setState({cannotCreate: false})
+      }
     }
 
     this.setState({
@@ -137,7 +193,7 @@ class InviteUserForm extends Component {
           enum: [],
           enumNames: []
         },
-        groups: {
+        group: {
           type: 'string',
           title: 'Grupo',
           enum: [],
@@ -152,7 +208,7 @@ class InviteUserForm extends Component {
       isAdmin: {'ui:widget': CheckboxWidget},
       role: {'ui:widget': SelectWidget},
       organization: { 'ui:widget': SelectWidget },
-      groups: {'ui:widget': SelectWidget}
+      group: {'ui:widget': SelectWidget}
     }
 
     if (this.props.initialState.organization) {
@@ -160,7 +216,7 @@ class InviteUserForm extends Component {
     }
 
     if (this.props.initialState.groups) {
-      uiSchema['groups']['ui:disabled'] = true
+      uiSchema['group']['ui:disabled'] = true
     }
 
     var error
@@ -202,11 +258,24 @@ class InviteUserForm extends Component {
     schema.properties.organization.enum = this.props.orgs.map(item => { return item._id })
     schema.properties.organization.enumNames = this.props.orgs.map(item => { return item.name })
 
-    if (schema.properties.groups) {
-      schema.properties.groups.enum = this.state.groups.map(item => { return item._id })
-      schema.properties.groups.enumNames = this.state.groups.map(item => { return item.name })
+    if (this.state.groups.length > 0) {
+      if (schema.properties.group) {
+        schema.properties.group.enum = this.state.groups.map(item => { return item.uuid })
+        schema.properties.group.enumNames = this.state.groups.map(item => { return item.name })
+      } else {
+        schema.properties['group'] = { type: 'string', title: 'Grupo', enum: [], enumNames: [] }
+        uiSchema['group'] = {'ui:widget': SelectWidget}
+        schema.properties.group.enum = this.state.groups.map(item => { return item.uuid })
+        schema.properties.group.enumNames = this.state.groups.map(item => { return item.name })
+      }
+    } else {
+      if (schema.properties.group) {
+        delete uiSchema.group
+        delete schema.properties.group
+      }
     }
-    if (schema.properties.project) {
+
+    if (schema.properties.project && this.state.projects.length > 0) {
       schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
       schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
     }
@@ -232,7 +301,7 @@ class InviteUserForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
+          {!this.state.cannotCreate && this.props.children}
         </BaseForm>
       </div>
     )

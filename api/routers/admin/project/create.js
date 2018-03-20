@@ -18,7 +18,7 @@ module.exports = new Route({
     const org = await Organization.findOne({uuid: data.organization})
 
     if (!org) {
-      ctx.throw(404, 'Organization not found')
+      ctx.throw(404, 'Organización no encontrada')
     }
 
     const project = await Project.create({
@@ -37,7 +37,7 @@ module.exports = new Route({
       }
     } catch (e) {
       await project.remove()
-      ctx.throw(401, 'Failed to create Project (Abraxas)')
+      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     var options = {
@@ -59,13 +59,21 @@ module.exports = new Route({
       var res = await request(options)
 
       project.set({
-        externalId: res._id
+        externalId: res._id,
+        etag: res._etag
       })
 
       await project.save()
     } catch (e) {
       await project.remove()
-      ctx.throw(401, 'Failed to create Project (Abraxas)')
+      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
+      if (!errorString) {
+        errorString = []
+        errorString[1] = e.message
+      }
+      ctx.throw(503, 'Abraxas API: ' + errorString[1])
+
+      return false
     }
 
     ctx.body = {
