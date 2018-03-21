@@ -235,7 +235,7 @@ class GroupDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
@@ -245,7 +245,12 @@ class GroupDetail extends Component {
                 },
                 {
                   path: '/manage/groups/',
-                  label: 'Detalle de grupo',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/manage/groups/',
+                  label: group.name,
                   current: true
                 }
               ]}

@@ -71,9 +71,13 @@ class OrganizationDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/users/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button' to={'/manage/users/' + row.uuid}>
+              <span className='icon is-small' title='Visualizar'>
+                <i className='fa fa-eye' />
+              </span>
+            </Link>
+          )
         }
       }
     ]
@@ -110,12 +114,17 @@ class OrganizationDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
                   path: '/organizations/',
-                  label: 'Detalle de organización',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/organizations/',
+                  label: organization.name,
                   current: true
                 }
               ]}

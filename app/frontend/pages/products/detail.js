@@ -54,13 +54,13 @@ class ProductDetail extends Component {
   async deleteObject () {
     var url = '/app/products/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/products')
+    this.props.history.push('/catalogs/products')
   }
 
   getColumns () {
     return [
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
@@ -116,8 +116,7 @@ class ProductDetail extends Component {
     if (this.state.notFound) {
       return <NotFound msg='este producto' />
     }
-
-    let { loading, canEdit } = this.state
+    let { loading, canEdit, product } = this.state
     if (loading) {
       return <Loader />
     }
@@ -125,22 +124,27 @@ class ProductDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
-                  path: '/products',
+                  path: '/catalogs/products',
                   label: 'Productos',
                   current: false
                 },
                 {
-                  path: '/products/detail/',
-                  label: 'Detalle de producto',
+                  path: '/catalogs/products/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/catalogs/products/detail/',
+                  label: product.name,
                   current: true
                 }
               ]}
@@ -167,7 +171,7 @@ class ProductDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Product
+                      Producto
                     </p>
                   </header>
                   <div className='card-content'>
@@ -204,7 +208,7 @@ class ProductDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Forecasts
+                          Predicción
                         </p>
                       </header>
                       <div className='card-content'>
@@ -232,7 +236,7 @@ class ProductDetail extends Component {
 }
 
 export default Page({
-  path: '/products/:uuid',
+  path: '/catalogs/products/:uuid',
   title: 'Product detail',
   exact: true,
   roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, manager-level-3',

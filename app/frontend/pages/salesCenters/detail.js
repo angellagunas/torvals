@@ -142,13 +142,13 @@ class SalesCenterDetail extends Component {
   async deleteObject () {
     var url = '/app/salesCenters/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/salesCenters')
+    this.props.history.push('/catalogs/salesCenters')
   }
 
   getColumns () {
     return [
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
@@ -249,22 +249,27 @@ class SalesCenterDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
-                  path: '/salesCenters',
+                  path: '/catalogs/salesCenters',
                   label: 'Centros de venta',
                   current: false
                 },
                 {
-                  path: '/salesCenters/',
-                  label: 'Detalle de Centro de venta',
+                  path: '/catalogs/salesCenters/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/catalogs/salesCenters/',
+                  label: this.state.salesCenter.name,
                   current: true
                 }
               ]}
@@ -380,7 +385,7 @@ class SalesCenterDetail extends Component {
 }
 
 export default Page({
-  path: '/salesCenters/:uuid',
+  path: '/catalogs/salesCenters/:uuid',
   title: 'Sales center detail',
   exact: true,
   roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, manager-level-3',

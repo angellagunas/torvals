@@ -1,12 +1,13 @@
 import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
+import { testRoles } from '~base/tools'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 
 export default ListPage({
-  path: '/prices',
+  path: '/catalogs/prices',
   title: 'Precios',
   titleSingular: 'Precio',
   icon: 'money',
@@ -19,11 +20,11 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {
-        path: '/prices',
+        path: '/catalogs/prices',
         label: 'Precios',
         current: true
       }
@@ -32,7 +33,7 @@ export default ListPage({
   },
   baseUrl: '/app/prices',
   branchName: 'prices',
-  detailUrl: '/prices/',
+  detailUrl: '/catalogs/prices/',
   filters: true,
   schema: {
     type: 'object',
@@ -84,7 +85,17 @@ export default ListPage({
         'title': 'Precio',
         'property': 'price',
         'default': 'N/A',
-        'sortable': true
+        'sortable': true,
+        'className': 'has-text-left',
+        formatter: (row) => {
+          if (row && row.price) {
+            return '$ ' + row.price.toFixed(2).replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+
+          return 'N/A'
+        }
       },
 
       {
@@ -101,9 +112,23 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/prices/' + row.uuid}>
-            Detalle
-          </Link>
+          if (testRoles('manager-level-3')) {
+            return (
+              <Link className='button' to={'/catalogs/prices/' + row.uuid}>
+                <span className='icon is-small' title='Visualizar'>
+                  <i className='fa fa-eye' />
+                </span>
+              </Link>
+            )
+          } else {
+            return (
+              <Link className='button is-primary' to={'/catalogs/prices/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+            )
+          }
         }
       }
     ]

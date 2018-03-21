@@ -1,13 +1,14 @@
 import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
+import { testRoles } from '~base/tools'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateProduct from './create'
 
 export default ListPage({
-  path: '/products',
+  path: '/catalogs/products',
   title: 'Productos',
   icon: 'dropbox',
   exact: true,
@@ -21,11 +22,11 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {
-        path: '/products/',
+        path: '/catalogs/products/',
         label: 'Productos',
         current: true
       }
@@ -35,7 +36,7 @@ export default ListPage({
   canCreate: 'admin, orgadmin, analyst, manager-level-2',
   baseUrl: '/app/products',
   branchName: 'products',
-  detailUrl: '/products/',
+  detailUrl: '/catalogs/products/',
   filters: true,
   schema: {
     type: 'object',
@@ -56,7 +57,7 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/products/' + row.uuid}>
+            <Link to={'/catalogs/products/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -76,9 +77,23 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/products/' + row.uuid}>
-            Detalle
-          </Link>
+          if (testRoles('manager-level-3')) {
+            return (
+              <Link className='button' to={'/catalogs/products/' + row.uuid}>
+                <span className='icon is-small' title='Visualizar'>
+                  <i className='fa fa-eye' />
+                </span>
+              </Link>
+            )
+          } else {
+            return (
+              <Link className='button is-primary' to={'/catalogs/products/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+            )
+          }
         }
       }
     ]

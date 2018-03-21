@@ -304,7 +304,7 @@ class ProjectDetail extends Component {
         <div className='column is-paddingless'>
           {
             this.state.alertMsg &&
-            <div className={'notification has-text-centered is-uppercase is-paddingless ' + this.state.alertType}>
+            <div className={'notification has-text-centered is-uppercase is-paddingless sticky-msg ' + this.state.alertType}>
               <span className='icon is-medium has-text-info'>
                 <i className='fa fa-warning' />
               </span>
@@ -318,7 +318,7 @@ class ProjectDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Dashboard',
+                    label: 'Inicio',
                     current: false
                   },
                   {
@@ -328,7 +328,12 @@ class ProjectDetail extends Component {
                   },
                   {
                     path: '/projects/',
-                    label: 'Detalle de proyecto',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/projects/',
+                    label: project.name,
                     current: true
                   }
                 ]}
@@ -340,7 +345,7 @@ class ProjectDetail extends Component {
                 tabTitle={project.name}
                 tabs={tabs}
                 selectedTab={this.state.selectedTab}
-                className='is-right'
+                className='is-right sticky-tab'
                 extraTab={
                 canEdit &&
                 <DeleteButton
@@ -407,7 +412,7 @@ const BranchedProjectDetail = branch((props, context) => {
 
 export default Page({
   path: '/projects/:uuid',
-  title: 'Detalle de Proyecto',
+  title: 'Detalle',
   exact: true,
   roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2, manager-level-1',
   validate: [loggedIn, verifyRole],

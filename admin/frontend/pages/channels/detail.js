@@ -46,7 +46,7 @@ class ChannelDetail extends Component {
   async deleteObject () {
     var url = '/admin/channels/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/admin/channels')
+    this.props.history.push('/admin/catalogs/channels')
   }
 
   getColumns () {
@@ -95,17 +95,22 @@ class ChannelDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
-                  path: '/admin/channels',
+                  path: '/admin/catalogs/channels',
                   label: 'Canales',
                   current: false
                 },
                 {
-                  path: '/admin/channels/detail/',
-                  label: 'Detalle de canal',
+                  path: '/admin/catalogs/channels/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/catalogs/channels/detail/',
+                  label: channel.name,
                   current: true
                 }
               ]}
@@ -168,7 +173,7 @@ class ChannelDetail extends Component {
 }
 
 export default Page({
-  path: '/channels/detail/:uuid',
+  path: '/catalogs/channels/detail/:uuid',
   title: 'Channel Detail',
   exact: true,
   validate: loggedIn,

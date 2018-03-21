@@ -67,7 +67,7 @@ class DeletedSalesCenters extends Component {
     var url = '/admin/salesCenters/restore/' + uuid
     await api.post(url)
 
-    this.props.history.push('/admin/salesCenters/detail/' + uuid)
+    this.props.history.push('/admin/catalogs/salesCenters/detail/' + uuid)
   }
 
   render () {
@@ -79,11 +79,11 @@ class DeletedSalesCenters extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
-                  path: '/admin/salesCenters',
+                  path: '/admin/catalogs/salesCenters',
                   label: 'Centros de venta eliminados',
                   current: true
                 }
@@ -121,8 +121,8 @@ const branchedDeletedSalesCenters = branch(
 )
 
 export default Page({
-  path: '/salesCenters/deleted',
-  title: 'Eliminados',
+  path: '/catalogs/salesCenters/deleted',
+  title: 'Centros de venta elim...',
   icon: 'trash',
   exact: true,
   validate: loggedIn,

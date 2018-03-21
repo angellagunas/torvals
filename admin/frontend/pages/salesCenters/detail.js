@@ -140,13 +140,13 @@ class SalesCenterDetail extends Component {
   async deleteObject () {
     var url = '/admin/salesCenters/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/admin/salesCenters')
+    this.props.history.push('/admin/catalogs/salesCenters')
   }
 
   getColumns () {
     return [
       {
-        'title': 'Estatus',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
@@ -251,17 +251,22 @@ class SalesCenterDetail extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
-                  path: '/admin/salesCenters',
+                  path: '/admin/catalogs/salesCenters',
                   label: 'Centros de venta',
                   current: false
                 },
                 {
-                  path: '/admin/salesCenters/detail/',
-                  label: 'Detalle de Centro de venta',
+                  path: '/admin/catalogs/salesCenters/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/catalogs/salesCenters/detail/',
+                  label: this.state.salesCenter.name,
                   current: true
                 }
               ]}
@@ -376,7 +381,7 @@ class SalesCenterDetail extends Component {
 }
 
 export default Page({
-  path: '/salesCenters/detail/:uuid',
+  path: '/catalogs/salesCenters/detail/:uuid',
   title: 'Sales center detail',
   exact: true,
   validate: loggedIn,

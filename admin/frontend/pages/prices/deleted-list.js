@@ -69,7 +69,17 @@ class DeletedPrices extends Component {
         'title': 'Precio',
         'property': 'price',
         'default': 'N/A',
-        'sortable': true
+        'sortable': true,
+        'className': 'has-text-left',
+        formatter: (row) => {
+          if (row && row.price) {
+            return '$ ' + row.price.toFixed(2).replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+
+          return 'N/A'
+        }
       },
       {
         'title': 'Creado',
@@ -111,7 +121,7 @@ class DeletedPrices extends Component {
               path={[
                 {
                   path: '/admin',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {

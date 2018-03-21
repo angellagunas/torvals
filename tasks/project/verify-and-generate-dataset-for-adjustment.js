@@ -31,6 +31,13 @@ const task = new Task(async function (argv) {
 
   for (var project of projects) {
     console.log(`Verifying status of project ${project.name} ...`)
+    var projectDataset = project.activeDataset
+
+    if (!projectDataset) {
+      await project.populate('datasets.dataset').execPopulate()
+      projectDataset = project.datasets[0].dataset
+    }
+
     var options = {
       url: `${apiData.hostname}${apiData.baseUrl}/projects/${project.externalId}`,
       method: 'GET',
@@ -70,8 +77,8 @@ const task = new Task(async function (argv) {
           name: 'New Adjustment',
           description: '',
           organization: project.organization,
-          createdBy: project.activeDataset.conciliatedBy,
-          uploadedBy: project.activeDataset.conciliatedBy,
+          createdBy: projectDataset.conciliatedBy,
+          uploadedBy: projectDataset.conciliatedBy,
           uploaded: true,
           project: project._id,
           externalId: resFilter._id,

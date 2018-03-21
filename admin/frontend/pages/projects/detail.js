@@ -277,13 +277,14 @@ class ProjectDetail extends Component {
         Agregar Dataset
       </span>
     </button>)
+
     return (
       <div>
         <div className='columns c-flex-1 is-marginless'>
           <div className='column is-paddingless'>
             {
             this.state.alertMsg &&
-            <div className={'notification has-text-centered is-uppercase is-paddingless ' + this.state.alertType}>
+            <div className={'notification has-text-centered is-uppercase is-paddingless sticky-msg ' + this.state.alertType}>
               <span className='icon is-medium has-text-info'>
                 <i className='fa fa-warning' />
               </span>
@@ -291,11 +292,12 @@ class ProjectDetail extends Component {
             </div>
           }
             <div className='section pad-sides'>
+            
               <Breadcrumb
                 path={[
                   {
                     path: '/admin',
-                    label: 'Dashboard',
+                    label: 'Inicio',
                     current: false
                   },
                   {
@@ -305,26 +307,31 @@ class ProjectDetail extends Component {
                   },
                   {
                     path: '/admin/projects/detail/',
-                    label: 'Detalle de proyecto',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/admin/projects/detail/',
+                    label: project.name,
                     current: true
                   }
                 ]}
                 align='left'
-            />
+              />
               <div className='is-padding-top-small'>
                 <Tabs
                   tabTitle={project.name}
                   tabs={tabs}
                   selectedTab={this.state.selectedTab}
-                  className='is-right'
+                  className='is-right sticky-tab'
                   extraTab={
-                  <DeleteButton
-                    objectName='Proyecto'
-                    objectDelete={() => this.deleteObject()}
-                    message={'Estas seguro de querer eliminar este Proyecto?'}
-                  />
-                }
-              />
+                    <DeleteButton
+                      objectName='Proyecto'
+                      objectDelete={() => this.deleteObject()}
+                      message={'Estas seguro de querer eliminar este Proyecto?'}
+                    />
+                  }
+                />
               </div>
             </div>
           </div>

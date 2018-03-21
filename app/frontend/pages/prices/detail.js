@@ -75,17 +75,22 @@ class PriceDetail extends Component {
               path={[
                 {
                   path: '/',
-                  label: 'Dashboard',
+                  label: 'Inicio',
                   current: false
                 },
                 {
-                  path: '/prices',
+                  path: '/catalogs/prices',
                   label: 'Precios',
                   current: false
                 },
                 {
-                  path: '/prices/detail/',
-                  label: 'Detalle de precio',
+                  path: '/catalogs/prices/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/catalogs/prices/detail/',
+                  label: price.product.name,
                   current: true
                 }
               ]}
@@ -142,7 +147,7 @@ PriceDetail.contextTypes = {
 const branchedPriceDetails = branch({ prices: 'prices' }, PriceDetail)
 
 export default Page({
-  path: '/prices/:uuid',
+  path: '/catalogs/prices/:uuid',
   title: 'Price details',
   exact: true,
   validate: loggedIn,

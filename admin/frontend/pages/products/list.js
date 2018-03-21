@@ -6,9 +6,9 @@ import {loggedIn} from '~base/middlewares/'
 import CreateProduct from './create'
 
 export default ListPage({
-  path: '/products',
-  title: 'Activos',
-  icon: 'check',
+  path: '/catalogs/products',
+  title: 'Productos activos',
+  icon: 'dropbox',
   exact: true,
   validate: loggedIn,
   titleSingular: 'Producto',
@@ -19,7 +19,7 @@ export default ListPage({
     path: [
       {
         path: '/admin',
-        label: 'Dashboard',
+        label: 'Inicio',
         current: false
       },
       {
@@ -32,7 +32,7 @@ export default ListPage({
   },
   baseUrl: '/admin/products',
   branchName: 'products',
-  detailUrl: '/admin/products/detail/',
+  detailUrl: '/admin/catalogs/products/detail/',
   filters: true,
   schema: {
     type: 'object',
@@ -53,7 +53,7 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/products/detail/' + row.uuid}>
+            <Link to={'/catalogs/products/detail/' + row.uuid}>
               {row.name}
             </Link>
           )
@@ -89,9 +89,13 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/products/detail/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/catalogs/products/detail/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]
