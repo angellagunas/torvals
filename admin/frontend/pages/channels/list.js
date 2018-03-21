@@ -88,8 +88,10 @@ export default ListPage({
         'title': 'Acciones',
         formatter: (row) => {
           return (
-            <Link className='button' to={'/catalogs/channels/detail/' + row.uuid}>
-              Detalle
+            <Link className='button is-primary' to={'/catalogs/channels/detail/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
             </Link>
           )
         }

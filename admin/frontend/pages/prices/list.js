@@ -112,9 +112,13 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/catalogs/prices/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/catalogs/prices/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]
