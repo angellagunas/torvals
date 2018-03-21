@@ -648,7 +648,7 @@ tr {
 }
 
 .keep-cell {
-    width: 100px;
+    min-width: 100px;
 }
 
 ::-webkit-scrollbar {

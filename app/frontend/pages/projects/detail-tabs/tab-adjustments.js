@@ -296,7 +296,7 @@ class TabAdjustment extends Component {
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
           var minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
-          row.isLimit = (row.localAdjustment >= maxAdjustment || row.localAdjustment <= minAdjustment)
+          row.isLimit = (row.localAdjustment > maxAdjustment || row.localAdjustment < minAdjustment)
         }
       }
     }
@@ -401,15 +401,21 @@ class TabAdjustment extends Component {
         }
       },
       {
-        'title': 'Rango',
+        'title': 'Rango Ajustado',
+        'subtitle': this.state.generalAdjustment < 0 ? 'ilimitado'
+            :
+           `máximo: ${(this.state.generalAdjustment * 100).toFixed(2)} %`
+        ,
         'property': 'percentage',
         'default': 0,
         'type': 'number',
         'sortable': true,         
         'className': 'keep-cell',
         formatter: (row) => {
-          if (this.state.generalAdjustment < 0) return ' - '
-          return `${(this.state.generalAdjustment * 100).toFixed(2)} %`
+          let percentage = ((row.localAdjustment - row.prediction) / row.prediction) * 100
+          return percentage.toFixed(2).replace(/./g, (c, i, a) => {
+            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+          }) + ' %'
         }
       },
       {
@@ -659,7 +665,7 @@ class TabAdjustment extends Component {
     obj.localAdjustment = Math.round(obj.localAdjustment)
 
     if (this.state.generalAdjustment > 0) {
-      obj.isLimit = (obj.newAdjustment >= maxAdjustment || obj.newAdjustment <= minAdjustment)
+      obj.isLimit = (obj.newAdjustment > maxAdjustment || obj.newAdjustment < minAdjustment)
     }
 
     if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
