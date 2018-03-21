@@ -1,7 +1,6 @@
 const Route = require('lib/router/route')
 const { Project, SalesCenter, Channel, Product } = require('models')
 const Api = require('lib/abraxas/api')
-const request = require('lib/request')
 const lov = require('lov')
 
 module.exports = new Route({
@@ -19,17 +18,6 @@ module.exports = new Route({
 
     if (!project.activeDataset) {
       ctx.throw(400, 'No hay DataSet activo para el proyecto')
-    }
-
-    try {
-      var apiData = Api.get()
-
-      if (!apiData.token) {
-        await Api.fetch()
-        apiData = Api.get()
-      }
-    } catch (e) {
-      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     const requestBody = {
@@ -65,31 +53,7 @@ module.exports = new Route({
       requestBody.periodo = data.period
     }
 
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/download/projects/${project.externalId}`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      body: requestBody,
-      json: true,
-      persist: true
-    }
-
-    try {
-      var res = await request(options)
-    } catch (e) {
-      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
-      if (!errorString) {
-        errorString = []
-        errorString[1] = e.message
-      }
-      ctx.throw(503, 'Abraxas API: ' + errorString[1])
-
-      return false
-    }
+    const res = await Api.downloadProject(project.externalId, requestBody)
 
     ctx.set('Content-disposition', 'attachment; filename=dataset_filtered.csv')
     ctx.set('Content-type', `text/csv`)

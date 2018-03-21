@@ -1,7 +1,6 @@
 const Route = require('lib/router/route')
 const { DataSet, SalesCenter, Channel, Product, DataSetRow } = require('models')
 const Api = require('lib/abraxas/api')
-const request = require('lib/request')
 
 module.exports = new Route({
   method: 'post',
@@ -10,16 +9,6 @@ module.exports = new Route({
     var data = ctx.request.body
     const dataset = await DataSet.findOne({uuid: ctx.params.uuid})
     ctx.assert(dataset, 404, 'Dataset no encontrado')
-
-    try {
-      var apiData = Api.get()
-      if (!apiData.token) {
-        await Api.fetch()
-        apiData = Api.get()
-      }
-    } catch (e) {
-      ctx.throw(503, 'Abraxas API no disponible para la conexión')
-    }
 
     const requestQuery = {}
 
@@ -48,30 +37,7 @@ module.exports = new Route({
     var whereQuery = ''
     if (requestQuery) { whereQuery = '?where=' + JSON.stringify(requestQuery) }
 
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/revenue/datasets/${dataset.externalId}${whereQuery}`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      json: true,
-      persist: true
-    }
-
-    try {
-      var res = await request(options)
-    } catch (e) {
-      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
-      if (!errorString) {
-        errorString = []
-        errorString[1] = e.message
-      }
-      ctx.throw(503, 'Abraxas API: ' + errorString[1])
-
-      return false
-    }
+    const res = await Api.revenueDataset(dataset.externalId, whereQuery)
 
     for (var item of res._items) {
       const rows = await DataSetRow.find({

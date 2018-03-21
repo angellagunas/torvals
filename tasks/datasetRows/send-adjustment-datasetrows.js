@@ -20,38 +20,11 @@ const task = new Task(async function (argv) {
     return true
   }
 
-  console.log('Obtaining Abraxas API token ...')
-  try {
-    await Api.fetch()
-    apiData = Api.get()
-  } catch (e) {
-    datasetRow.set({status: 'error'})
-    await datasetRow.save()
-
-    return false
-  }
-
-  var options = {
-    url: `${apiData.hostname}${apiData.baseUrl}/datasets/${datasetRow.dataset.externalId}`,
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${apiData.token}`,
-      'If-Match': `${datasetRow.dataset.etag}`
-    },
-    body: {
-      data_rows_id: datasetRow.externalId,
-      adjustment: datasetRow.data.localAdjustment
-    },
-    json: true,
-    persist: true
-  }
   var dataset = datasetRow.dataset
   console.log(`Sending adjustment of DataSetRow ${datasetRow.externalId}`)
 
   try {
-    var res = await request(options)
+    var res = await Api.patchDataset(datasetRow)
 
     if (res._status === 'OK') {
       dataset.etag = res._etag

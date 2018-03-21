@@ -3,7 +3,6 @@ const lov = require('lov')
 
 const { Project, Organization } = require('models')
 const Api = require('lib/abraxas/api')
-const request = require('lib/request')
 
 module.exports = new Route({
   method: 'post',
@@ -29,52 +28,14 @@ module.exports = new Route({
       createdBy: ctx.state.user
     })
 
-    try {
-      var apiData = Api.get()
-      if (!apiData.token) {
-        await Api.fetch()
-        apiData = Api.get()
-      }
-    } catch (e) {
-      await project.remove()
-      ctx.throw(503, 'Abraxas API no disponible para la conexión')
-    }
+    const res = await Api.postProject(project.uuid)
+    console.log('response', res)
+    project.set({
+      externalId: res._id,
+      etag: res._etag
+    })
 
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/projects`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      body: {
-        uuid: project.uuid
-      },
-      json: true,
-      persist: true
-    }
-
-    try {
-      var res = await request(options)
-
-      project.set({
-        externalId: res._id,
-        etag: res._etag
-      })
-
-      await project.save()
-    } catch (e) {
-      await project.remove()
-      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
-      if (!errorString) {
-        errorString = []
-        errorString[1] = e.message
-      }
-      ctx.throw(503, 'Abraxas API: ' + errorString[1])
-
-      return false
-    }
+    await project.save()
 
     ctx.body = {
       data: project

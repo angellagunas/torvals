@@ -21,14 +21,6 @@ const task = new Task(async function (argv) {
     return true
   }
 
-  console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
-
-  if (!apiData.token) {
-    throw new Error('There is no API endpoint configured!')
-  }
-
   for (var project of projects) {
     console.log(`Verifying status of project ${project.name} ...`)
     var projectDataset = project.activeDataset
@@ -38,39 +30,12 @@ const task = new Task(async function (argv) {
       projectDataset = project.datasets[0].dataset
     }
 
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/projects/${project.externalId}`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      json: true,
-      persist: true
-    }
-
-    var res = await request(options)
+    var res = await Api.getProject(project.externalId, res.dataset.date_max)
 
     if (res.dataset && res.status === 'ready') {
       console.log(`Creating dataset for adjustment of project ${project.name} ...`)
 
-      options = {
-        url: `${apiData.hostname}${apiData.baseUrl}/filter/projects/${project.externalId}`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${apiData.token}`
-        },
-        body: {
-          filter_date_end: res.dataset.date_max
-        },
-        json: true,
-        persist: true
-      }
-
-      var resFilter = await request(options)
+      var resFilter = await Api.filterProject(project.externalId)
 
       if (resFilter.message === 'Ok') {
         var dataset = await DataSet.create({
