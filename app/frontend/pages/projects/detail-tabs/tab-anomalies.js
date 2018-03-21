@@ -29,7 +29,8 @@ class TabAnomalies extends Component {
       anomalies: [],
       selectAll: false,
       selected: new Set(),
-      disableButton: true
+      disableButton: true,
+      sortAscending: true      
     }
     currentRole = tree.get('user').currentRole.slug
   }
@@ -138,39 +139,44 @@ class TabAnomalies extends Component {
   getColumns () {
     return [
       {
-        'title': 'Product Id',
-        'abbreviate': true,
-        'abbr': 'P. Id',
+        'title': 'Id',
         'property': 'productId',
         'default': 'N/A',
+        'sortable': true,                        
         formatter: (row) => {
           return String(row.product.externalId)
         }
       },
       {
-        'title': 'Product Name',
-        'abbreviate': true,
-        'abbr': 'P. Name',
-        'property': 'productNamed',
+        'title': 'Producto',
+        'property': 'product.name',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
           return String(row.product.name)
         }
       },
       {
         'title': 'Categoría',
-        'property': 'category',
+        'property': 'product.category',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
-          return String(row.product.category)
+          if (row.product.category){
+            return String(row.product.category)
+          }
+          else{
+            return 'Sin categoría'
+          }
         }
       },
       {
         'title': 'Centro de venta',
         'abbreviate': true,
         'abbr': 'C. Venta',
-        'property': 'salesCenter',
+        'property': 'salesCenter.name',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
           return String(row.salesCenter.name)
         }
@@ -179,14 +185,16 @@ class TabAnomalies extends Component {
         'title': 'Tipo de Anomalia',
         'property': 'type',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
           return String(row.type)
         }
       },
       {
         'title': 'Fecha',
-        'property': 'date',
+        'property': 'dateCreated',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
           return moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
         }
@@ -196,6 +204,7 @@ class TabAnomalies extends Component {
         'property': 'prediction',
         'default': 0,
         'type': 'number',
+        'sortable': true,                                
         formatter: (row) => {
           if (currentRole !== 'manager-level-3') {
           return (
@@ -377,6 +386,35 @@ class TabAnomalies extends Component {
       disableButton: disable
     })
   }
+
+  handleSort(e){
+    let sorted = this.state.anomalies
+
+    if (e === 'productId'){
+          if (this.state.sortAscending){
+            sorted.sort((a, b) => { return parseFloat(a.product.externalId) - parseFloat(b.product.externalId) })
+          }
+          else{
+            sorted.sort((a, b) => { return parseFloat(b.product.externalId) - parseFloat(a.product.externalId) })                        
+          }
+    }
+    else{
+      if (this.state.sortAscending){
+        sorted = _.orderBy(sorted,[e], ['asc'])
+              
+      }
+      else{
+        sorted = _.orderBy(sorted,[e], ['desc'])    
+      }
+    }
+    
+    this.setState({
+      anomalies: sorted,
+      sortAscending: !this.state.sortAscending,
+      sortBy: e
+    })
+  }
+
   render () {
     if (this.state.filters.products.length === 0 ||
       this.state.filters.salesCenters.length === 0
@@ -481,8 +519,9 @@ class TabAnomalies extends Component {
               <BaseTable
                 data={this.state.anomalies}
                 columns={this.getColumns()}
-                sortAscending
-                sortBy={'name'}
+                sortAscending={this.state.sortAscending}
+                sortBy={this.state.sortBy}
+                handleSort={(e) => this.handleSort(e)} 
               />
             </div>
           }
