@@ -404,9 +404,8 @@ class TabAdjustment extends Component {
         'className': 'keep-cell',
         formatter: (row) => {
           let percentage = ((row.localAdjustment - row.prediction) / row.prediction) * 100
-          return percentage.toFixed(2).replace(/./g, (c, i, a) => {
-            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-          }) + ' %'
+          row.percentage = percentage                            
+          return Math.round(percentage) + ' %'
         }
       },
       {

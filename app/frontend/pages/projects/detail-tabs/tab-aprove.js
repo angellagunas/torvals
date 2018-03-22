@@ -127,9 +127,8 @@ class TabAprove extends Component {
         formatter: (row) => {
           let percentage = ((row.newAdjustment - row.datasetRow.data.prediction) 
                           / row.datasetRow.data.prediction) * 100
-          return percentage.toFixed(2).replace(/./g, (c, i, a) => {
-          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-          }) + ' %'
+          row.percentage = percentage                                            
+          return Math.round(percentage) + ' %'
         }
       },
       {
