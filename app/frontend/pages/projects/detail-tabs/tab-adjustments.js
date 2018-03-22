@@ -675,14 +675,10 @@ class TabAdjustment extends Component {
       obj.isLimit = (obj.newAdjustment >= maxAdjustment || obj.newAdjustment <= minAdjustment)
     }
 
-    if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
-      if (obj.newAdjustment >= maxAdjustment){
-        obj.localAdjustment = maxAdjustment
-        adjusted = false
-      }
-
-      else if (obj.newAdjustment <= minAdjustment) {
-        obj.localAdjustment = minAdjustment
+    if (currentRole === 'manager-level-1') {
+      if (obj.newAdjustment >= maxAdjustment || 
+          obj.newAdjustment <= minAdjustment)
+      {
         adjusted = false
       }
 
@@ -695,28 +691,34 @@ class TabAdjustment extends Component {
       obj.localAdjustment = obj.newAdjustment
     }
 
-    var url = '/app/rows/' + obj.uuid
-    const res = await api.post(url, {...obj})
+    if (adjusted) {
+      var url = '/app/rows/' + obj.uuid
+      const res = await api.post(url, { ...obj })
 
-    obj.edited = true
+      obj.edited = true
 
-    let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
-    let aux = this.state.dataRows
+      let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
+      let aux = this.state.dataRows
 
-    aux.splice(index,1,obj)
+      aux.splice(index, 1, obj)
 
-    this.setState({
-      dataRows: aux,
-      isConciliating: ' is-loading'
-    })
+      this.setState({
+        dataRows: aux,
+        isConciliating: ' is-loading'
+      })
 
-    await this.updateSalesTable(obj)
-    
-    if(adjusted)
+      await this.updateSalesTable(obj)
+
+
       this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
-    else
-      this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
-
+    }
+    else {
+      let adjustment = Object.create(obj);
+      adjustment.localAdjustment = obj.newAdjustment
+      this.showModalAdjustmentRequest(adjustment)
+      this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)      
+    }
+  
     return adjusted
   }
 
@@ -740,11 +742,13 @@ class TabAdjustment extends Component {
   }
 
   showModalAdjustmentRequest (obj) {
-    obj.localAdjustment = '' + obj.localAdjustment
-    this.setState({
-      classNameAR: ' is-active',
-      selectedAR: obj
-    })
+    if (currentRole !== 'manager-level-3') {
+      obj.localAdjustment = '' + obj.localAdjustment
+      this.setState({
+        classNameAR: ' is-active',
+        selectedAR: obj
+      })
+    }
   }
 
   hideModalAdjustmentRequest () {
