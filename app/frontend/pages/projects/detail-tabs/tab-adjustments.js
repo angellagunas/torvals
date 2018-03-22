@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import moment from 'moment'
 import api from '~base/api'
+import _ from 'lodash'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
 import Loader from '~base/components/spinner'
@@ -47,7 +48,8 @@ class TabAdjustment extends Component {
       isDownloading: '',
       generalAdjustment: 0.1,
       salesTable: [],
-      noSalesData: ''            
+      noSalesData: '',
+      sortAscending: true            
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -313,21 +315,19 @@ class TabAdjustment extends Component {
   getColumns () {
     let cols = [
       {
-        'title': 'Product Id',
-        'abbreviate': true,
-        'abbr': 'P. Id',
+        'title': 'Id',
         'property': 'productId',
         'default': 'N/A',
+        'sortable': true, 
         formatter: (row) => {
           return String(row.productId)
         }
       },
       {
-        'title': 'Product Name',
-        'abbreviate': true,
-        'abbr': 'P. Name',
-        'property': 'productNamed',
+        'title': 'Producto',
+        'property': 'productName',
         'default': 'N/A',
+        'sortable': true, 
         formatter: (row) => {
           return String(row.productName)
         }
@@ -338,6 +338,7 @@ class TabAdjustment extends Component {
         'abbr': 'Canal',
         'property': 'channel',
         'default': 'N/A',
+        'sortable': true, 
         formatter: (row) => {
           return String(row.channel)
         }
@@ -346,6 +347,7 @@ class TabAdjustment extends Component {
         'title': 'Semana',
         'property': 'semanaBimbo',
         'default': 'N/A',
+        'sortable': true, 
         formatter: (row) => {
           return String(row.semanaBimbo)
         }
@@ -354,6 +356,7 @@ class TabAdjustment extends Component {
         'title': 'Predicción',
         'property': 'prediction',
         'default': 0,
+        'sortable': true, 
         formatter: (row) => {
           return String(row.prediction)
         }
@@ -373,6 +376,7 @@ class TabAdjustment extends Component {
         'property': 'localAdjustment',
         'default': 0,
         'type': 'number',
+        'sortable': true, 
         'className': 'keep-cell',
         formatter: (row) => {
           if (!row.localAdjustment) {
@@ -399,6 +403,7 @@ class TabAdjustment extends Component {
         'property': 'percentage',
         'default': 0,
         'type': 'number',
+        'sortable': true,         
         'className': 'keep-cell',
         formatter: (row) => {
           if (this.state.generalAdjustment < 0) return ' - '
@@ -972,6 +977,33 @@ class TabAdjustment extends Component {
     }
   }
 
+  handleSort(e) {
+    let sorted = this.state.filteredData
+
+    if (e === 'productId') {
+      if (this.state.sortAscending) {
+        sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
+      }
+      else {
+        sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
+      }
+    }
+    else {
+      if (this.state.sortAscending) {
+        sorted = _.orderBy(sorted, [e], ['asc'])
+
+      }
+      else {
+        sorted = _.orderBy(sorted, [e], ['desc'])
+      }
+    }
+    this.setState({
+      filteredData: sorted,
+      sortAscending: !this.state.sortAscending,
+      sortBy: e
+    })
+  }
+
   render () {
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
@@ -1270,11 +1302,16 @@ class TabAdjustment extends Component {
               </article>
               : <div>
                 {this.getModifyButtons()}
-                <BaseTable
-                  data={this.state.filteredData}
-                  columns={this.getColumns()}
-                  sortAscending
-                  sortBy={'name'} />
+                <div className='scroll-table'>
+                  <div className='scroll-table-container'>
+                    <BaseTable
+                      data={this.state.filteredData}
+                      columns={this.getColumns()}
+                      sortAscending={this.state.sortAscending}
+                      sortBy={this.state.sortBy}
+                      handleSort={(e) => this.handleSort(e)}/>
+                  </div>
+                </div>
               </div>
             }
           </section>

@@ -116,7 +116,7 @@ export default ListPage({
             <div className='field is-grouped'>
               <div className='control'>
                 <Link className='button is-primary' to={'/manage/groups/' + row.uuid}>
-                  <span className='icon is-small'>
+                  <span className='icon is-small' title='Editar'>
                     <i className='fa fa-pencil' />
                   </span>
                 </Link>

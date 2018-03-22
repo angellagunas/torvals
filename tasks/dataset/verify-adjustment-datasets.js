@@ -132,7 +132,7 @@ const task = new Task(async function (argv) {
       const project = await Project.findOne({'_id': dataset.project, 'isDeleted': false})
 
       console.log(`Obtaining anomalies from proyect ...`)
-      res = await getAnomalies({uuid: project.uuid})
+      res = await getAnomalies.run({uuid: project.uuid})
 
       if (!res) {
         dataset.set({

@@ -1,4 +1,5 @@
 const Route = require('lib/router/route')
+const moment = require('moment')
 
 const { DataSet } = require('models')
 
@@ -60,7 +61,9 @@ module.exports = new Route({
       }
 
       dataset.set({
-        status: 'conciliated'
+        status: 'conciliated',
+        conciliatedBy: ctx.state.user,
+        dateConciliated: moment.utc()
       })
 
       await dataset.save()
