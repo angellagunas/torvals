@@ -677,8 +677,8 @@ tr {
 }
 
 .notification.is-white {
-    .has-text-info{
-         color: #fff !important;
+    .has-text-info {
+        color: #fff !important;
     }
 }
 
@@ -695,13 +695,13 @@ tr {
     color: #ccc;
 }
 
-.breadcrumb.has-succeeds-separator li+li::before{
+.breadcrumb.has-succeeds-separator li+li::before {
     content: '/';
     font-weight: 300;
     font-size: 1.2rem;
 }
-    
-.update-pass{
+
+.update-pass {
     height: 100%;
     position: relative;
     max-height: 557px;
@@ -737,7 +737,7 @@ tr {
         margin-left: calc(-1rem - 1px);
         height: 63px;
     }
-    th .is-hidden :last-child{
+    th .is-hidden :last-child {
         margin-top: -1px;
     }
     thead div {
@@ -747,4 +747,8 @@ tr {
 
 .was-edited:hover {
     background-color: lighten($primary, 45%) !important;
+}
+
+.info-project{
+    height: 2rem;
 }
