@@ -404,7 +404,7 @@ class TabAdjustment extends Component {
         'title': 'Rango Ajustado',
         'subtitle': this.state.generalAdjustment < 0 ? 'ilimitado'
             :
-           `máximo: ${(this.state.generalAdjustment * 100).toFixed(2)} %`
+           `máximo: ${(this.state.generalAdjustment * 100)} %`
         ,
         'property': 'percentage',
         'default': 0,
