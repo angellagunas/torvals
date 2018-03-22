@@ -75,7 +75,7 @@ module.exports = new Route({
     var usersCount = await User.aggregate(statementCount) || 0
 
     users = users.map((user) => {
-      return user.toAdmin()
+      return user
     })
     ctx.body = {'data': users, 'total': usersCount[0] ? usersCount[0].total : 0}
   }
