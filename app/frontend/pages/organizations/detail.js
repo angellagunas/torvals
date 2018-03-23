@@ -7,7 +7,7 @@ import Loader from '~base/components/spinner'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import OrganizationForm from './form'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'

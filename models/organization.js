@@ -22,6 +22,8 @@ const organizationSchema = new Schema({
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true })
 
+organizationSchema.plugin(dataTables)
+
 organizationSchema.methods.toPublic = function () {
   return {
     uuid: this.uuid,

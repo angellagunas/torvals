@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import BaseModal from '~base/components/base-modal'
 import Link from '~base/router/link'
 import api from '~base/api'

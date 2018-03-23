@@ -86,7 +86,7 @@ userSchema.methods.toPublic = function () {
 }
 
 userSchema.methods.toAdmin = function () {
-  return {
+  const data = {
     uuid: this.uuid,
     screenName: this.screenName,
     displayName: this.displayName,
@@ -98,6 +98,12 @@ userSchema.methods.toAdmin = function () {
     groups: this.groups,
     profileUrl: this.profileUrl
   }
+
+  if (this.role && this.role.toAdmin) {
+    data.role = this.role.uuid
+  }
+
+  return data
 }
 
 userSchema.methods.validatePassword = async function (password) {

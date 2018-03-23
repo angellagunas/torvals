@@ -4,6 +4,7 @@ $primary: $abraxas-color !default;
 @import '~font-awesome/css/font-awesome.css';
 @import 'base';
 @import 'navbar';
+@import 'colors';
 @import 'sidebar';
 @import '../../../lib/frontend/style.css';
 @import 'mq';
