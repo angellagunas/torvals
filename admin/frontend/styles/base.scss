@@ -653,6 +653,7 @@ tr {
 
 ::-webkit-scrollbar {
     width: 5px;
+    height: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -677,8 +678,8 @@ tr {
 }
 
 .notification.is-white {
-    .has-text-info{
-         color: #fff !important;
+    .has-text-info {
+        color: #fff !important;
     }
 }
 
@@ -695,13 +696,13 @@ tr {
     color: #ccc;
 }
 
-.breadcrumb.has-succeeds-separator li+li::before{
+.breadcrumb.has-succeeds-separator li+li::before {
     content: '/';
     font-weight: 300;
     font-size: 1.2rem;
 }
-    
-.update-pass{
+
+.update-pass {
     height: 100%;
     position: relative;
     max-height: 557px;
@@ -737,7 +738,7 @@ tr {
         margin-left: calc(-1rem - 1px);
         height: 63px;
     }
-    th .is-hidden :last-child{
+    th .is-hidden :last-child {
         margin-top: -1px;
     }
     thead div {
@@ -747,4 +748,30 @@ tr {
 
 .was-edited:hover {
     background-color: lighten($primary, 45%) !important;
+}
+
+.sticky-table {
+    white-space: nowrap;
+    margin-top: 2rem;
+    border: 2px solid #e5e5e5;
+}
+
+.sticky-table .sticky-table-cell {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid #e5e5e5;
+    background-color: #fff;
+}
+
+.sticky-table .sticky-table-corner,
+.sticky-table .sticky-table-column {
+    border-right: 2px solid #e5e5e5;
+}
+
+.sticky-table .sticky-header {
+    margin-top: 0;
+}
+
+.swrapper {
+    max-width: 90rem;
+    margin: auto;
 }
