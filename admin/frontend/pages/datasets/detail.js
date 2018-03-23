@@ -769,7 +769,8 @@ class DataSetDetail extends Component {
                 <button
                   onClick={() => this.confirmChannels()}
                   disabled={this.state.disableBtnC || !!this.state.isLoadingBtnC}
-                    className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnC}>
+                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnC}
+                >
                   Confirmar ({this.state.selectedChannels.size})
                 </button>
               </div> 
@@ -882,7 +883,8 @@ class DataSetDetail extends Component {
                 <button
                   onClick={() => this.confirmSalesCenters()}
                   disabled={this.state.disableBtnS || !!this.state.isLoadingBtnS}
-                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnS}>
+                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnS}
+                >
                   Confirmar ({this.state.selectedSalesCenters.size})
                 </button>
               </div> 
@@ -996,7 +998,8 @@ class DataSetDetail extends Component {
                   <button
                     onClick={() => this.confirmProducts()}
                     disabled={this.state.disableBtnP || !!this.state.isLoadingBtnP}
-                    className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnP}>
+                    className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnP}
+                  >
                     Confirmar ({this.state.selectedProducts.size})
                   </button>
                 </div> 
