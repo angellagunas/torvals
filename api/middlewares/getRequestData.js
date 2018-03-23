@@ -20,7 +20,7 @@ module.exports = async function (ctx, next) {
         ctx.throw(401, 'Invalid JWT')
       }
 
-      userToken = await UserToken.findOne({
+      var userToken = await UserToken.findOne({
         key: data.key,
         secret: data.secret,
         isDeleted: {$ne: true}
@@ -70,35 +70,35 @@ module.exports = async function (ctx, next) {
         ctx.state.authMethod = 'Basic'
       }
     }
+  }
 
-    let originalHost
-    if (ctx.request.headers['referer']) {
-      originalHost = ctx.request.headers['referer']
-    } else if (ctx.request.headers.origin) {
-      originalHost = ctx.request.headers.origin
-    }
+  let originalHost
+  if (ctx.request.headers['referer']) {
+    originalHost = ctx.request.headers['referer']
+  } else if (ctx.request.headers.origin) {
+    originalHost = ctx.request.headers.origin
+  }
 
-    if (originalHost && !pathname.includes('login')) {
-      const origin = url.parse(originalHost)
-      const apiHostname = url.parse(server.apiHost).hostname.split('.')
+  if (originalHost && !pathname.includes('login')) {
+    const origin = url.parse(originalHost)
+    const apiHostname = url.parse(server.apiHost).hostname.split('.')
 
-      const host = origin.hostname.split('.')
+    const host = origin.hostname.split('.')
 
-      if (host.length > apiHostname.length && host[0] !== 'www') {
-        ctx.state.orgSlug = host[0]
+    if (host.length > apiHostname.length && host[0] !== 'www') {
+      ctx.state.orgSlug = host[0]
 
-        if (ctx.state.orgSlug) {
-          const organization = await Organization.findOne({slug: ctx.state.orgSlug, isDeleted: false})
+      if (ctx.state.orgSlug) {
+        const organization = await Organization.findOne({slug: ctx.state.orgSlug, isDeleted: false})
 
-          if (!organization) {
-            ctx.throw(401, 'Organization not found')
-          }
-
-          ctx.state.organization = organization
+        if (!organization) {
+          ctx.throw(401, 'Organization not found')
         }
+
+        ctx.state.organization = organization
       }
     }
-
-    await next()
   }
+
+  await next()
 }
