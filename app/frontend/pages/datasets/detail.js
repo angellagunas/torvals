@@ -54,8 +54,11 @@ class DataSetDetail extends Component {
       selectAllChannels: false,
       selectedChannels: new Set(),
       disableBtnC: true,
+      isLoadingBtnC: '',
       disableBtnP: true,
-      disableBtnS: true
+      isLoadingBtnP: '',
+      disableBtnS: true,
+      isLoadingBtnS: ''
     }
     this.newProducts = []
     this.newChannels = []
@@ -820,8 +823,9 @@ class DataSetDetail extends Component {
               <div className={this.state.isChannelsOpen ? 'control' : 'is-hidden'}>
                 <button
                   onClick={() => this.confirmChannels()}
-                  disabled={this.state.disableBtnC}
-                  className='button is-primary is-outlined is-pulled-right'>
+                  disabled={this.state.disableBtnC || !!this.state.isLoadingBtnC}
+                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnC}
+                >
                   Confirmar ({this.state.selectedChannels.size})
                 </button>
               </div>
@@ -947,8 +951,9 @@ class DataSetDetail extends Component {
               <div className={this.state.isSalesCenterOpen ? 'control' : 'is-hidden'}>
                 <button
                   onClick={() => this.confirmSalesCenters()}
-                  disabled={this.state.disableBtnS}
-                  className='button is-primary is-outlined is-pulled-right'>
+                  disabled={this.state.disableBtnS || !!this.state.isLoadingBtnS}
+                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnS}
+                >
                   Confirmar ({this.state.selectedSalesCenters.size})
                 </button>
               </div> 
@@ -1075,8 +1080,9 @@ class DataSetDetail extends Component {
                 <div className={this.state.isProductsOpen ? 'control' : 'is-hidden'}>
                   <button
                     onClick={() => this.confirmProducts()}
-                    disabled={this.state.disableBtnP}
-                    className='button is-primary is-outlined is-pulled-right'>
+                    disabled={this.state.disableBtnP || !!this.state.isLoadingBtnP}
+                    className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnP}
+                  >
                     Confirmar ({this.state.selectedProducts.size})
                   </button>
                 </div>
