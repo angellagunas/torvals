@@ -77,7 +77,7 @@ module.exports = new Route({
     }
 
     ctx.body = {
-      data: user.format()
+      data: user.toPublic()
     }
   }
 })

@@ -18,7 +18,7 @@ module.exports = new Route({
     ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
 
     ctx.body = {
-      data: salesCenter.format()
+      data: salesCenter.toPublic()
     }
   }
 })

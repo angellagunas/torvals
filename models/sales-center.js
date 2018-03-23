@@ -22,7 +22,23 @@ const salesCenterSchema = new Schema({
 
 salesCenterSchema.plugin(dataTables)
 
-salesCenterSchema.methods.format = function () {
+salesCenterSchema.methods.toPublic = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    organization: this.organization.uuid,
+    description: this.description,
+    groups: this.groups,
+    address: this.address,
+    brand: this.brand,
+    region: this.region,
+    type: this.type,
+    externalId: this.externalId,
+    dateCreated: this.dateCreated
+  }
+}
+
+salesCenterSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,
     name: this.name,

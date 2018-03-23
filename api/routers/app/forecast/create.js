@@ -16,7 +16,7 @@ module.exports = new Route({
     const forecast = await Forecast.create(data)
 
     ctx.body = {
-      data: forecast.format()
+      data: forecast.toPublic()
     }
   }
 })

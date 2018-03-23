@@ -23,7 +23,7 @@ module.exports = new Route({
       auxOrg.save()
 
       ctx.body = {
-        data: auxOrg.format()
+        data: auxOrg.toAdmin()
       }
 
       return

@@ -18,7 +18,7 @@ module.exports = new Route({
     await product.save()
 
     ctx.body = {
-      data: product.format()
+      data: product.toAdmin()
     }
   }
 })
