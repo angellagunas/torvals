@@ -125,7 +125,10 @@ class TabAprove extends Component {
         'type': 'number',
         'sortable': true,                
         formatter: (row) => {
-            return `${(generalAdjustment * 100)} %`
+          let percentage = ((row.newAdjustment - row.datasetRow.data.prediction) 
+                          / row.datasetRow.data.prediction) * 100
+          row.percentage = percentage                                            
+          return Math.round(percentage) + ' %'
         }
       },
       {
