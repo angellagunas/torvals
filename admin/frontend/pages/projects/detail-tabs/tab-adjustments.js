@@ -14,8 +14,7 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 
-import { StickyTable, Row, Cell } from 'react-sticky-table'
-import 'react-sticky-table/dist/react-sticky-table.css'
+import StickTable from './stick-table'
 
 moment.locale('es');
 
@@ -39,7 +38,7 @@ class TabAdjustment extends Component {
         filteredSemanasBimbo: []
       },
       formData: {
-        semanasBimbo: 0,
+        //semanasBimbo: 0,
         period: 1
       },
       disableButtons: true,
@@ -251,11 +250,11 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows () {
-    if (!this.state.formData.period || !this.state.formData.semanasBimbo) {
+   /*  if (!this.state.formData.period || !this.state.formData.semanasBimbo) {
       this.notify('Se debe filtrar por semana!', 3000, toast.TYPE.ERROR)
       return
     }
-
+ */
     var period = this.state.filters.periods.find(item => {
       return item.number === this.state.formData.period
     })
@@ -270,11 +269,12 @@ class TabAdjustment extends Component {
     const url = '/admin/rows/dataset/'
     let data = await api.get(url + this.props.project.activeDataset.uuid,
       {
-        semanaBimbo: this.state.formData.semanasBimbo,
+        //semanaBimbo: this.state.formData.semanasBimbo,
         product: this.state.formData.products,
         channel: this.state.formData.channels,
         salesCenter: this.state.formData.salesCenters,
-        category: this.state.formData.categories
+        category: this.state.formData.categories,
+        period: this.state.formData.period
       })
 
     this.setState({
@@ -712,7 +712,7 @@ class TabAdjustment extends Component {
     })
   }
 
-  searchDatarows() {
+  async searchDatarows() {
     const items = this.state.dataRows.map((item) => {
       if (this.state.searchTerm === ''){
         return item
@@ -726,9 +726,12 @@ class TabAdjustment extends Component {
     })
     .filter(function(item){ return item != null });
 
-    this.setState({
+    await this.setState({
       filteredData: items
     })
+
+    this.filteredDataByWeek()
+    
   }
 
   searchOnChange = (e) => {
@@ -949,9 +952,8 @@ class TabAdjustment extends Component {
   getColumnsByWeek() {
     return [
       {
-        'title': 'Seleccionar Todo',
-        'abbreviate': true,
-        'abbr': (() => {
+        group: ' ',
+        title: (() => {
           return (
             <Checkbox
               label='checkAll'
@@ -978,295 +980,274 @@ class TabAdjustment extends Component {
         }
       },
       {
-        'title': 'Id',
-        'property': 'productId',
-        'default': 'N/A',
-        'sortable': true,
+        group: ' ',
+        title: 'Id',
+        property: 'id',
+        default: 'N/A',
+        sortable: true,
         formatter: (row) => {
-          return String(row.productId)
-        }
-      },
-      {
-        'title': 'Producto',
-        'property': 'productName',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.productName)
-        }
-      },
-      /* {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.salesCenter)
-        }
-      },
-      {
-        'title': 'Canal',
-        'abbreviate': true,
-        'abbr': 'Canal',
-        'property': 'channel',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.channel)
-        }
-      },
-      {
-        'title': 'Semana',
-        'property': 'semanaBimbo',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.semanaBimbo)
-        }
-      }, */
-      {
-        'title': 'Predicción s1',
-        'property': 'prediction',
-        'default': 0,
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.prediction)
-        }
-      },
-      {
-         'title': 'Ajuste Anterior s1',
-         'property': 'lastAdjustment',
-         'default': 0,
-         formatter: (row) => {
-           if (row.lastAdjustment) {
-             return row.lastAdjustment
-           }
-         }
-       }, 
-      {
-        'title': 'Ajuste s1',
-        'property': 'localAdjustment',
-        'default': 0,
-        'type': 'number',
-        'className': 'keep-cell',
-        'sortable': true,
-        formatter: (row) => {
-          if (!row.localAdjustment) {
-            row.localAdjustment = 0
-          }
-
-          return (
-            <Editable
-              value={row.localAdjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={100}
-            />
-          )
-        }
-      },
-
-      {
-        'title': 'Predicción s2',
-        'property': 'prediction',
-        'default': 0,
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.prediction)
-        }
-      },
-      {
-        'title': 'Ajuste Anterior s2',
-        'property': 'lastAdjustment',
-        'default': 0,
-        formatter: (row) => {
-          if (row.lastAdjustment) {
-            return row.lastAdjustment
+          if (row.content[0].productId) {
+            return row.content[0].productId
           }
         }
       },
       {
-        'title': 'Ajuste s2',
-        'property': 'localAdjustment',
-        'default': 0,
-        'type': 'number',
-        'className': 'keep-cell',
-        'sortable': true,
-        formatter: (row) => {
-          if (!row.localAdjustment) {
-            row.localAdjustment = 0
-          }
-
-          return (
-            <Editable
-              value={row.localAdjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={100}
-            />
-          )
-        }
-      },
-
-
-      {
-        'title': 'Predicción s3',
-        'property': 'prediction',
-        'default': 0,
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.prediction)
-        }
+        group: 'Producto',
+        title: 'Producto',
+        property: 'product',
+        default: 'N/A',
+        sortable: true
       },
       {
-        'title': 'Ajuste Anterior s3',
-        'property': 'lastAdjustment',
-        'default': 0,
-        formatter: (row) => {
-          if (row.lastAdjustment) {
-            return row.lastAdjustment
-          }
-        }
-      },
-      {
-        'title': 'Ajuste s3',
-        'property': 'localAdjustment',
-        'default': 0,
-        'type': 'number',
-        'className': 'keep-cell',
-        'sortable': true,
-        formatter: (row) => {
-          if (!row.localAdjustment) {
-            row.localAdjustment = 0
-          }
-
-          return (
-            <Editable
-              value={row.localAdjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={100}
-            />
-          )
-        }
-      },
-
-
-      {
-        'title': 'Predicción s4',
-        'property': 'prediction',
-        'default': 0,
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.prediction)
-        }
-      },
-      {
-        'title': 'Ajuste Anterior s4',
-        'property': 'lastAdjustment',
-        'default': 0,
-        formatter: (row) => {
-          if (row.lastAdjustment) {
-            return row.lastAdjustment
-          }
-        }
-      },
-      {
-        'title': 'Ajuste s4',
-        'property': 'localAdjustment',
-        'default': 0,
-        'type': 'number',
-        'className': 'keep-cell',
-        'sortable': true,
-        formatter: (row) => {
-          if (!row.localAdjustment) {
-            row.localAdjustment = 0
-          }
-
-          return (
-            <Editable
-              value={row.localAdjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={100}
-            />
-          )
-        }
-      },
-
-      {
-        'title': 'Rango',
-        'property': 'percentage',
-        'default': 0,
-        'type': 'number',
-        'sortable': true,
-        'className': 'keep-cell',
+        group: ' ',
+        title: 'Rango',
+        property: 'percentage',
+        default: 0,
+        sortable: true,
+        className: 'keep-cell',
         formatter: (row) => {
           if (this.state.generalAdjustment < 0) return ' - '
           return `${(this.state.generalAdjustment * 100).toFixed(2)} %`
         }
       },
-      
-     /*  {
-        'title': '',
-        'abbreviate': true,
-        'abbr': (() => {
-          return (
-            <div className='is-invisible'>
-              <span
-                className='icon'
-                title='límite'
-              >
-                <FontAwesome name='warning fa-lg' />
-              </span>
-            </div>
-          )
-        })(),
-        'property': 'isLimit',
-        'default': '',
+      {
+        group: ' ',
+        title: 'Predicción s1',
+        property: 'prediction',
+        default: 0,
         formatter: (row) => {
-          if (row.isLimit && !row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-danger'
-                title='No es posible ajustar más allá al límite!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning fa-lg' />
-              </span>
-            )
+          if (row.content[0].prediction) {
+            return row.content[0].prediction
+          }
+        }
+      },
+      {
+        group: 'Semana 1',
+        title: 'Ajuste Anterior s1',
+        property: 'lastAdjustment',
+        default: 0,
+        formatter: (row) => {
+          if (row.content[0].lastAdjustment) {
+            return row.content[0].lastAdjustment
+          }
+        }
+      },
+      {
+        group: ' ',
+        title: 'Ajuste s1',
+        property: 'localAdjustment',
+        default: 0,
+        className: 'keep-cell',
+        formatter: (row) => {
+          if (!row.content[0].localAdjustment) {
+            row.content[0].localAdjustment = 0
           }
 
-          if (row.isLimit && row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-warning'
-                title='Ya se ha pedido un cambio a esta predicción!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='info-circle fa-lg' />
-              </span>
-            )
-          }
-          return ''
+          return (
+            <Editable
+              value={row.content[0].localAdjustment}
+              handleChange={this.changeAdjustment}
+              type='number'
+              obj={row}
+              width={100}
+            />
+          )
         }
-      } */
+      },
+
+      {
+        group: ' ',
+        title: 'Predicción s2',
+        property: 'prediction',
+        default: 0,
+        formatter: (row) => {
+          if (row.content[1].prediction) {
+            return row.content[1].prediction
+          }
+        }
+      },
+      {
+        group: 'Semana 2',
+        title: 'Ajuste Anterior s2',
+        property: 'lastAdjustment',
+        default: 0,
+        formatter: (row) => {
+          if (row.content[1].lastAdjustment) {
+            return row.content[1].lastAdjustment
+          }
+        }
+      },
+      {
+        group: ' ',
+        title: 'Ajuste s2',
+        property: 'localAdjustment',
+        default: 0,
+        className: 'keep-cell',
+        formatter: (row) => {
+          if (!row.content[1].localAdjustment) {
+            row.content[1].localAdjustment = 0
+          }
+
+          return (
+            <Editable
+              value={row.content[1].localAdjustment}
+              handleChange={this.changeAdjustment}
+              type='number'
+              obj={row}
+              width={100}
+            />
+          )
+        }
+      },
+
+      {
+        group: ' ',
+        title: 'Predicción s3',
+        property: 'prediction',
+        default: 0,
+        formatter: (row) => {
+          if (row.content[2].prediction) {
+            return row.content[2].prediction
+          }
+        }
+      },
+      {
+        group: 'Semana 3',
+        title: 'Ajuste Anterior s3',
+        property: 'lastAdjustment',
+        default: 0,
+        formatter: (row) => {
+          if (row.content[2].lastAdjustment) {
+            return row.content[2].lastAdjustment
+          }
+        }
+      },
+      {
+        group: ' ',
+        title: 'Ajuste s3',
+        property: 'localAdjustment',
+        default: 0,
+        className: 'keep-cell',
+        formatter: (row) => {
+          if (!row.content[2].localAdjustment) {
+            row.localAdjustment = 0
+          }
+
+          return (
+            <Editable
+              value={row.content[2].localAdjustment}
+              handleChange={this.changeAdjustment}
+              type='number'
+              obj={row}
+              width={100}
+            />
+          )
+        }
+      },
+
+      {
+        group: ' ',
+        title: 'Predicción s4',
+        property: 'prediction',
+        default: 0,
+        formatter: (row) => {
+          if (row.content[3].prediction) {
+            return row.content[3].prediction
+          }
+        }
+      },
+      {
+        group: 'Semana 4',
+        title: 'Ajuste Anterior s4',
+        property: 'lastAdjustment',
+        default: 0,
+        formatter: (row) => {
+          if (row.content[3].lastAdjustment) {
+            return row.content[3].lastAdjustment
+          }
+        }
+      },
+      {
+        group: ' ',
+        title: 'Ajuste s4',
+        property: 'localAdjustment',
+        default: 0,
+        className: 'keep-cell',
+        formatter: (row) => {
+          if (!row.content[3].localAdjustment) {
+            row.content[3].localAdjustment = 0
+          }
+
+          return (
+            <Editable
+              value={row.content[3].localAdjustment}
+              handleChange={this.changeAdjustment}
+              type='number'
+              obj={row}
+              width={100}
+            />
+          )
+        }
+      }
     ]
+  }
+
+  filteredDataByWeek = () => {
+    var data = this.state.filteredData
+    var res = data.reduce(function (res, currentValue) {
+      if (res.indexOf(currentValue.productName) === -1) {
+        res.push(currentValue.productName)
+      }
+      return res;
+    }, []).map(function (product, i) {
+      return {
+        pid: data[i].productId,
+        product: product,
+        content: _.orderBy(data.filter(function (_el) {
+          return _el.productName === product
+        }).map(function (_el) { return _el }), 
+          function (e) { return e.semanaBimbo }, ['asc'])
+      }
+
+    });
+
+    console.log('res',res);
+    this.setState({
+      filteredDataByWeek: res
+    })
   }
 
   showByWeek () {
     this.setState({
       byWeek: true
+    })
+  }
+
+  handleSortByWeek(e) {
+    let sorted = this.state.filteredDataByWeek
+
+    if (e === 'id') {
+      if (this.state.sortAscending) {
+        sorted.sort((a, b) => { return parseFloat(a.content[0].productId) - parseFloat(b.content[0].productId) })
+      }
+      else {
+        sorted.sort((a, b) => { return parseFloat(b.content[0].productId) - parseFloat(a.content[0].productId) })
+      }
+    }
+    else {
+      if (this.state.sortAscending) {
+        sorted = _.orderBy(sorted, [e], ['asc'])
+
+      }
+      else {
+        sorted = _.orderBy(sorted, [e], ['desc'])
+      }
+    }
+
+    this.setState({
+      filteredDataByWeek: sorted,
+      sortAscending: !this.state.sortAscending,
+      sortBy: e
     })
   }
 
@@ -1419,40 +1400,6 @@ class TabAdjustment extends Component {
       schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
     }
     
-    var rows = [];
-    var cells;
-    var r = <Row>{[
-      <Cell>{'Id'}</Cell>,
-      <Cell>{'Producto'}</Cell>,
-      <Cell>{'Rango'}</Cell>,
-      
-      <Cell>{'Prediccion S1'}</Cell>,
-      <Cell>{'Ajuste Anterior S1'}</Cell>,
-      <Cell>{'Ajuste S1'}</Cell>,
-
-      <Cell>{'Prediccion S2'}</Cell>,
-      <Cell>{'Ajuste Anterior S2'}</Cell>,
-      <Cell>{'Ajuste S2'}</Cell>,
-
-      <Cell>{'Prediccion S3'}</Cell>,
-      <Cell>{'Ajuste Anterior S3'}</Cell>,
-      <Cell>{'Ajuste S3'}</Cell>,
-
-      <Cell>{'Prediccion S4'}</Cell>,
-      <Cell>{'Ajuste Anterior S4'}</Cell>,
-      <Cell>{'Ajuste S4'}</Cell>
-    ]}</Row>
-    rows.push(r)
-    for (var r = 0; r < 50; r++) {
-      cells = [];
-
-      for (var c = 0; c < 20; c++) {
-        cells.push(<Cell key={c}>{'Cell '+ c}</Cell>)
-      }
-      
-      rows.push(<Row key={r}>{cells}</Row>);
-    }
-    console.log(rows)
 
     return (
       <div>
@@ -1621,16 +1568,17 @@ class TabAdjustment extends Component {
                   </div>
                   </div>
                 </div>
-                <div className='swrapper'>
-                <div style={{ width: '100%', height: '630px' }}>
-                  <StickyTable stickyColumnCount={3} stickyHeaderCount={1}>
-                    {rows}
-                      
-                  </StickyTable>
-                  </div>
-                </div>
                 
                 
+                <StickTable 
+                  data={this.state.filteredDataByWeek}
+                  cols={this.getColumnsByWeek()}
+                  stickyCols={4} 
+                  stickyRows={2}
+                  sortAscending={this.state.sortAscending}
+                  sortBy={this.state.sortBy}
+                  handleSort={(e) => this.handleSortByWeek(e)}
+                />
               </div>
             }
           </section>
