@@ -178,11 +178,23 @@ class SalesCenterDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return (
-            <Link className='button' to={'/forecasts/' + row.uuid}>
-              Detalle
-            </Link>
-          )
+          if (testRoles('manager-level-2, manager-level-3')) {
+            return (
+              <Link className='button' to={'/forecasts/' + row.uuid}>
+                <span className='icon is-small' title='Visualizar'>
+                  <i className='fa fa-eye' />
+                </span>
+              </Link>
+            )
+          } else {
+            return (
+              <Link className='button is-primary' to={'/forecasts/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+            )
+          }
         }
       }
     ]
