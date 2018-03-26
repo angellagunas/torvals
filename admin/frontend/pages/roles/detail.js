@@ -64,8 +64,10 @@ class RoleDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/users/' + row.uuid}>
-            Detalle
+          return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+            <span className='icon is-small' title='Editar'>
+              <i className='fa fa-pencil' />
+            </span>
           </Link>
         }
       }

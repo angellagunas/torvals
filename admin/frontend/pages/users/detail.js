@@ -222,6 +222,18 @@ class UserDetail extends Component {
     }, 10000)
   }
 
+  async showProjectModal (row) {
+    await this.loadProjects(row.organization.uuid)
+    this.setState({
+      classNameProjects: 'is-active',
+      formProject: {
+        organization: row.organization.uuid,
+        role: row.role.uuid
+      },
+      project: row.defaultProject.uuid
+    })
+  }
+
   async roleSelectOnChange (role, organization) {
     var currentRole = this.state.roles.find((item) => {
       return item.uuid === role
@@ -296,15 +308,17 @@ class UserDetail extends Component {
                   </select>
                 </div>
                 &nbsp;
-                <span
-                  className='icon has-text-info'
-                  title={'Proyecto ' + row.defaultProject.name}
-                  onClick={() => {
-                    this.showModalAdjustmentRequest(row)
-                  }}
+                <a className='button info-project'>
+                  <span
+                    className='icon has-text-info is-small'
+                    title={'Proyecto ' + row.defaultProject.name}
+                    onClick={() => {
+                      this.showProjectModal(row)
+                    }}
                 >
-                  <FontAwesome name='info fa-lg' />
-                </span>
+                    <FontAwesome name='info fa-lg' />
+                  </span>
+                </a>
               </div>
             )
           }

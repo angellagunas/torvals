@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import moment from 'moment'
 import api from '~base/api'
+import _ from 'lodash'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
 import Loader from '~base/components/spinner'
@@ -47,7 +48,8 @@ class TabAdjustment extends Component {
       isDownloading: '',
       generalAdjustment: 0.1,
       salesTable: [],
-      noSalesData: ''            
+      noSalesData: '',
+      sortAscending: true            
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -168,6 +170,15 @@ class TabAdjustment extends Component {
       }, () => {
         this.getDataRows()
       })
+
+      if (res.salesCenters.length === 1) {
+        this.setState({
+          formData: {
+            ...this.state.formData,
+            salesCenters: res.salesCenters[0].uuid
+          }
+        })
+      }      
     }
   }
 
@@ -294,7 +305,7 @@ class TabAdjustment extends Component {
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
           var minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
-          row.isLimit = (row.localAdjustment >= maxAdjustment || row.localAdjustment <= minAdjustment)
+          row.isLimit = (row.localAdjustment > maxAdjustment || row.localAdjustment < minAdjustment)
         }
       }
     }
@@ -302,35 +313,23 @@ class TabAdjustment extends Component {
   }
 
   getColumns () {
-    return [
+    let cols = [
       {
-        'title': 'Product Id',
-        'abbreviate': true,
-        'abbr': 'P. Id',
+        'title': 'Id',
         'property': 'productId',
         'default': 'N/A',
+        'sortable': true, 
         formatter: (row) => {
           return String(row.productId)
         }
       },
       {
-        'title': 'Product Name',
-        'abbreviate': true,
-        'abbr': 'P. Name',
-        'property': 'productNamed',
+        'title': 'Producto',
+        'property': 'productName',
         'default': 'N/A',
+        'sortable': true, 
         formatter: (row) => {
           return String(row.productName)
-        }
-      },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.salesCenter)
         }
       },
       {
@@ -339,6 +338,7 @@ class TabAdjustment extends Component {
         'abbr': 'Canal',
         'property': 'channel',
         'default': 'N/A',
+        'sortable': true, 
         formatter: (row) => {
           return String(row.channel)
         }
@@ -347,6 +347,7 @@ class TabAdjustment extends Component {
         'title': 'Semana',
         'property': 'semanaBimbo',
         'default': 'N/A',
+        'sortable': true, 
         formatter: (row) => {
           return String(row.semanaBimbo)
         }
@@ -355,6 +356,7 @@ class TabAdjustment extends Component {
         'title': 'Predicción',
         'property': 'prediction',
         'default': 0,
+        'sortable': true, 
         formatter: (row) => {
           return String(row.prediction)
         }
@@ -374,6 +376,7 @@ class TabAdjustment extends Component {
         'property': 'localAdjustment',
         'default': 0,
         'type': 'number',
+        'sortable': true, 
         'className': 'keep-cell',
         formatter: (row) => {
           if (!row.localAdjustment) {
@@ -396,14 +399,20 @@ class TabAdjustment extends Component {
         }
       },
       {
-        'title': 'Rango',
+        'title': 'Rango Ajustado',
+        'subtitle': this.state.generalAdjustment < 0 ? 'ilimitado'
+            :
+           `máximo: ${(this.state.generalAdjustment * 100)} %`
+        ,
         'property': 'percentage',
         'default': 0,
         'type': 'number',
+        'sortable': true,         
         'className': 'keep-cell',
         formatter: (row) => {
-          if (this.state.generalAdjustment < 0) return ' - '
-          return `${(this.state.generalAdjustment * 100).toFixed(2)} %`
+          let percentage = ((row.localAdjustment - row.prediction) / row.prediction) * 100
+          row.percentage = percentage                            
+          return Math.round(percentage) + ' %'
         }
       },
       {
@@ -488,6 +497,21 @@ class TabAdjustment extends Component {
         }
       }
     ]
+
+    if ( this.state.filters.salesCenters.length > 1){
+      cols.splice(2,0, { 
+        'title': 'Centro de venta',
+        'abbreviate': true,
+        'abbr': 'C. Venta',
+        'property': 'salesCenter',
+        'default': 'N/A',
+        formatter: (row) => {
+          return String(row.salesCenter)
+        }
+      })
+    }
+
+    return cols
   }
 
   checkAll = (check) => {
@@ -653,17 +677,13 @@ class TabAdjustment extends Component {
     obj.localAdjustment = Math.round(obj.localAdjustment)
 
     if (this.state.generalAdjustment > 0) {
-      obj.isLimit = (obj.newAdjustment >= maxAdjustment || obj.newAdjustment <= minAdjustment)
+      obj.isLimit = (obj.newAdjustment > maxAdjustment || obj.newAdjustment < minAdjustment)
     }
 
-    if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
-      if (obj.newAdjustment >= maxAdjustment){
-        obj.localAdjustment = maxAdjustment
-        adjusted = false
-      }
-
-      else if (obj.newAdjustment <= minAdjustment) {
-        obj.localAdjustment = minAdjustment
+    if (currentRole === 'manager-level-1') {
+      if (obj.newAdjustment >= maxAdjustment || 
+          obj.newAdjustment <= minAdjustment)
+      {
         adjusted = false
       }
 
@@ -676,28 +696,34 @@ class TabAdjustment extends Component {
       obj.localAdjustment = obj.newAdjustment
     }
 
-    var url = '/app/rows/' + obj.uuid
-    const res = await api.post(url, {...obj})
+    if (adjusted) {
+      var url = '/app/rows/' + obj.uuid
+      const res = await api.post(url, { ...obj })
 
-    obj.edited = true
+      obj.edited = true
 
-    let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
-    let aux = this.state.dataRows
+      let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
+      let aux = this.state.dataRows
 
-    aux.splice(index,1,obj)
+      aux.splice(index, 1, obj)
 
-    this.setState({
-      dataRows: aux,
-      isConciliating: ' is-loading'
-    })
+      this.setState({
+        dataRows: aux,
+        isConciliating: ' is-loading'
+      })
 
-    await this.updateSalesTable(obj)
-    
-    if(adjusted)
+      await this.updateSalesTable(obj)
+
+
       this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
-    else
-      this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
-
+    }
+    else {
+      let adjustment = Object.create(obj);
+      adjustment.localAdjustment = obj.newAdjustment
+      this.showModalAdjustmentRequest(adjustment)
+      this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)      
+    }
+  
     return adjusted
   }
 
@@ -721,11 +747,13 @@ class TabAdjustment extends Component {
   }
 
   showModalAdjustmentRequest (obj) {
-    obj.localAdjustment = '' + obj.localAdjustment
-    this.setState({
-      classNameAR: ' is-active',
-      selectedAR: obj
-    })
+    if (currentRole !== 'manager-level-3') {
+      obj.localAdjustment = '' + obj.localAdjustment
+      this.setState({
+        classNameAR: ' is-active',
+        selectedAR: obj
+      })
+    }
   }
 
   hideModalAdjustmentRequest () {
@@ -958,6 +986,33 @@ class TabAdjustment extends Component {
     }
   }
 
+  handleSort(e) {
+    let sorted = this.state.filteredData
+
+    if (e === 'productId') {
+      if (this.state.sortAscending) {
+        sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
+      }
+      else {
+        sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
+      }
+    }
+    else {
+      if (this.state.sortAscending) {
+        sorted = _.orderBy(sorted, [e], ['asc'])
+
+      }
+      else {
+        sorted = _.orderBy(sorted, [e], ['desc'])
+      }
+    }
+    this.setState({
+      filteredData: sorted,
+      sortAscending: !this.state.sortAscending,
+      sortBy: e
+    })
+  }
+
   render () {
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
@@ -1104,6 +1159,9 @@ class TabAdjustment extends Component {
       }
       schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
       schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
+      if(this.state.filters.salesCenters.length === 1){
+        uiSchema.salesCenters['ui:disabled'] = true
+      }
     }
     return (
       <div>
@@ -1253,11 +1311,16 @@ class TabAdjustment extends Component {
               </article>
               : <div>
                 {this.getModifyButtons()}
-                <BaseTable
-                  data={this.state.filteredData}
-                  columns={this.getColumns()}
-                  sortAscending
-                  sortBy={'name'} />
+                <div className='scroll-table'>
+                  <div className='scroll-table-container'>
+                    <BaseTable
+                      data={this.state.filteredData}
+                      columns={this.getColumns()}
+                      sortAscending={this.state.sortAscending}
+                      sortBy={this.state.sortBy}
+                      handleSort={(e) => this.handleSort(e)}/>
+                  </div>
+                </div>
               </div>
             }
           </section>

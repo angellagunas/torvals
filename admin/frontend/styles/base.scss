@@ -308,7 +308,7 @@ pre.json {
 }
 
 .was-edited {
-    background-color: lighten($primary, 46%) !important;
+    background-color: lighten($primary, 48%) !important;
     color: #363636;
 }
 
@@ -648,7 +648,7 @@ tr {
 }
 
 .keep-cell {
-    width: 100px;
+    min-width: 100px;
 }
 
 ::-webkit-scrollbar {
@@ -677,8 +677,8 @@ tr {
 }
 
 .notification.is-white {
-    .has-text-info{
-         color: #fff !important;
+    .has-text-info {
+        color: #fff !important;
     }
 }
 
@@ -695,18 +695,60 @@ tr {
     color: #ccc;
 }
 
-.breadcrumb.has-succeeds-separator li+li::before{
+.breadcrumb.has-succeeds-separator li+li::before {
     content: '/';
     font-weight: 300;
     font-size: 1.2rem;
 }
-    
-.update-pass{
+
+.update-pass {
     height: 100%;
     position: relative;
     max-height: 557px;
-    .button{
+    .button {
         position: absolute;
         bottom: 24px;
     }
+}
+
+.scroll-table-container {
+    max-height: 630px;
+    overflow-y: scroll;
+}
+
+.scroll-table {
+    border-collapse: collapse;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    .table {
+        margin-bottom: 0rem;
+    }
+    th .is-hidden {
+        display: block !important;
+        position: absolute;
+        z-index: 2;
+        font-weight: bold;
+        width: 100%;
+        border-width: 0 0 2px;
+        color: #363636;
+        background-color: #fff;
+        padding: 1.4em 1.2em;
+        margin-left: calc(-1rem - 1px);
+        height: 63px;
+    }
+    th .is-hidden :last-child {
+        margin-top: -1px;
+    }
+    thead div {
+        top: 0;
+    }
+}
+
+.was-edited:hover {
+    background-color: lighten($primary, 45%) !important;
+}
+
+.info-project{
+    height: 2rem;
 }

@@ -27,7 +27,8 @@ class TabAnomalies extends Component {
       anomalies: [],
       selectAll: false,
       selected: new Set(),
-      disableButton: true
+      disableButton: true,
+      sortAscending: true            
     }
   }
  
@@ -135,55 +136,62 @@ class TabAnomalies extends Component {
   getColumns () {
     return [
       {
-        'title': 'Product Id',
-        'abbreviate': true,
-        'abbr': 'P. Id',
+        'title': 'Id',
         'property': 'productId',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
           return String(row.product.externalId)
         }
       },
       {
-        'title': 'Product Name',
-        'abbreviate': true,
-        'abbr': 'P. Name',
-        'property': 'productNamed',
+        'title': 'Producto',
+        'property': 'product.name',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
           return String(row.product.name)
         }
       },
       {
         'title': 'Categoría',
-        'property': 'category',
+        'property': 'product.category',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
-          return String(row.product.category)
+          if (row.product.category){
+            return String(row.product.category)
+          }
+          else{
+            return 'Sin categoría'
+          }
         }
       },
       {
         'title': 'Centro de venta',
         'abbreviate': true,
         'abbr': 'C. Venta',
-        'property': 'salesCenter',
+        'property': 'salesCenter.name',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
           return String(row.salesCenter.name)
         }
       },
       {
         'title': 'Tipo de Anomalia',
-        'property': 'anomaly',
+        'property': 'type',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
           return String(row.type)
         }
       },
       {
         'title': 'Fecha',
-        'property': 'date',
+        'property': 'dateCreated',
         'default': 'N/A',
+        'sortable': true,                                
         formatter: (row) => {
           return moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
         }
@@ -193,6 +201,7 @@ class TabAnomalies extends Component {
         'property': 'prediction',
         'default': 0,
         'type': 'number',
+        'sortable': true,                                
         formatter: (row) => {
           return (
             <Editable
@@ -364,6 +373,35 @@ class TabAnomalies extends Component {
       disableButton: disable
     })
   }
+
+  handleSort(e){
+    let sorted = this.state.anomalies
+
+    if (e === 'productId'){
+          if (this.state.sortAscending){
+            sorted.sort((a, b) => { return parseFloat(a.product.externalId) - parseFloat(b.product.externalId) })
+          }
+          else{
+            sorted.sort((a, b) => { return parseFloat(b.product.externalId) - parseFloat(a.product.externalId) })                        
+          }
+    }
+    else{
+      if (this.state.sortAscending){
+        sorted = _.orderBy(sorted,[e], ['asc'])
+              
+      }
+      else{
+        sorted = _.orderBy(sorted,[e], ['desc'])    
+      }
+    }
+    
+    this.setState({
+      anomalies: sorted,
+      sortAscending: !this.state.sortAscending,
+      sortBy: e
+    })
+  }
+
   render () {
     if (this.state.filters.products.length === 0 ||
       this.state.filters.salesCenters.length === 0
@@ -397,9 +435,9 @@ class TabAnomalies extends Component {
     }
 
     const uiSchema = {
-      salesCenter: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione Centro de Venta' },
-      product: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione producto' },
-      category: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Seleccione categoria' }
+      salesCenter: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los Centros de Venta' },
+      product: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los productos' },
+      category: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorias' }
     }
 
     schema.properties.product.enum = this.state.filters.products.map(item => { return item.uuid })
@@ -417,6 +455,7 @@ class TabAnomalies extends Component {
         <div className='columns'>
           <div className='column is-half'>
             <BaseForm
+              className='inline-form'            
               schema={schema}
               uiSchema={uiSchema}
               formData={this.state.formData}
@@ -427,11 +466,16 @@ class TabAnomalies extends Component {
               <div className='field is-grouped'>
                 <div className='control'>
                   <button
-                    className={'button is-primary is-medium' + this.state.isLoading}
+                    className={'button is-primary' + this.state.isLoading}
                     type='submit'
                     disabled={!!this.state.isLoading}
                   >
-                    Filtrar
+                    <span className='icon'>
+                        <i className='fa fa-filter' />
+                      </span>
+                      <span>
+                        Filtrar
+                    </span>
                     </button>
                 </div>
               </div>
@@ -468,8 +512,9 @@ class TabAnomalies extends Component {
               <BaseTable
                 data={this.state.anomalies}
                 columns={this.getColumns()}
-                sortAscending
-                sortBy={'name'}
+                sortAscending={this.state.sortAscending}
+                sortBy={this.state.sortBy}
+                handleSort={(e) => this.handleSort(e)} 
               />
             </div>
           }

@@ -34,8 +34,8 @@ const task = new Task(async function (argv) {
     var projectDataset = project.activeDataset
 
     if (!projectDataset) {
-      await project.populate('datasets').execPopulate()
-      projectDataset = project.datasets[0]
+      await project.populate('datasets.dataset').execPopulate()
+      projectDataset = project.datasets[0].dataset
     }
 
     var options = {
