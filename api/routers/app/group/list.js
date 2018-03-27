@@ -1,7 +1,7 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Group, User} = require('models')
+const {Group, User, Organization} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -41,6 +41,12 @@ module.exports = new Route({
           sortStatement[filterSort[0]] = 1
         }
         statement.push({ '$sort': sortStatement })
+      } else if (filter === 'organization') {
+        const org = await Organization.findOne({'uuid': ctx.state.organization})
+        if (org) {
+          console.log('organization', org)
+          statement.push({ '$match': { 'organization': org._id } })
+        }
       } else if (filter === 'user') {
         const user = await User.findOne({'uuid': ctx.request.query[filter]})
         if (user) {

@@ -10,6 +10,7 @@ const groupSchema = new Schema({
   slug: { type: String },
   users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
+  channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },

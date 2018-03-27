@@ -1,7 +1,7 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Group, User, SalesCenter} = require('models')
+const {Group, User, SalesCenter, Organization} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -46,7 +46,11 @@ module.exports = new Route({
         }
         statement.push({ '$sort': sortStatement })
       } else if (filter === 'organization') {
-        statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.request.query[filter])] } } })
+        const org = await Organization.findOne({'uuid': ctx.request.query[filter]})
+        if (org) {
+          console.log('organization', org)
+          statement.push({ '$match': { 'organization': org._id } })
+        }
       } else if (filter === 'user') {
         const user = await User.findOne({'uuid': ctx.request.query[filter]})
         if (user) {
