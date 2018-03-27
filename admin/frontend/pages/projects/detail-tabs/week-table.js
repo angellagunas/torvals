@@ -15,6 +15,24 @@ class WeekTable extends Component {
     }
   }
 
+  setRange () {
+    let range
+    if (this.props.generalAdjustment < 0)
+      range = 'Ilimitado'
+    else
+      range = this.props.generalAdjustment * 100 + ' %'
+
+    this.setState({
+      range: range
+    })
+  }
+  
+  splitWords (words){
+    return words.split('_').map((item) => {
+      return <p>{item}</p>
+    })
+  }
+
   checkAll = () => {
     for (let row of this.state.filteredDataByWeek) {
       for (const week of row.weeks) {
@@ -49,6 +67,9 @@ class WeekTable extends Component {
               hideLabel />
           )
         })(),
+        groupClassName: 'col-border-left',        
+        headerClassName: 'col-border-left',
+        className: 'col-border-left',        
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
@@ -82,18 +103,48 @@ class WeekTable extends Component {
         title: 'Producto',
         property: 'product',
         default: 'N/A',
-        sortable: true
+        sortable: true,
+        headerClassName: 'col-border',
+        className: 'col-border'
       },
       {
         group: ' ',
-        title: 'Rango',
-        property: 'percentage',
-        default: 0,
-        sortable: true,
-        className: 'keep-cell',
+        title: <span
+                className='icon'
+                title='límite'>
+                <i className='fa fa-exclamation fa-lg' />
+               </span>,
+        headerClassName: 'col-border',
+        className: 'col-border',       
         formatter: (row) => {
-          if (this.props.generalAdjustment < 0) return ' - '
-          return `${(this.props.generalAdjustment * 100).toFixed(2)} %`
+          if (row.weeks[1].isLimit && !row.weeks[1].adjustmentRequest) {
+            return (
+              <span
+                className='icon has-text-danger'
+                title='No es posible ajustar más allá al límite!'
+                onClick={() => {
+                  this.showModalAdjustmentRequest(row)
+                }}
+              >
+                <i className='fa fa-times fa-lg' />
+              </span>
+            )
+          }
+
+          if (row.weeks[1].isLimit && row.weeks[1].adjustmentRequest) {
+            return (
+              <span
+                className='icon has-text-warning'
+                title='Ya se ha pedido un cambio a esta predicción!'
+                onClick={() => {
+                  this.showModalAdjustmentRequest(row)
+                }}
+              >
+                <i className='fa fa-clock-o fa-lg' />
+              </span>
+            )
+          }
+          return ''
         }
       }
     ].concat(this.getWeekCols())
@@ -102,15 +153,19 @@ class WeekTable extends Component {
   getWeekCols(){
     let data = this.state.filteredDataByWeek
     let cols = []
-
+    
     for (let j = 0; j < data[0].weeks.length; j++){
        cols.push(
          {
-           group: ' ',
+           group: <p><strong>{'Semana ' + data[0].weeks[j].semanaBimbo}</strong> 
+                  {' - Ajuste permitido ' + this.state.range}</p>,
            title: 'Predicción',
            property: 'prediction_' + j,
            default: 0,
            sortable: true,
+           groupClassName: 'colspan',
+           className: 'has-text-centered', 
+           headerClassName: 'has-text-centered',                                                      
            formatter: (row) => {
              if (row.weeks[j].prediction) {
                return row.weeks[j].prediction
@@ -118,11 +173,13 @@ class WeekTable extends Component {
            }
          },
          {
-           group: 'Semana ' + data[0].weeks[j].semanaBimbo,
-           title: 'Ajuste Anterior',
+           group: ' ',
+           title: this.splitWords('Ajuste_Anterior '),
            property: 'lastAdjustment_' + j,
            default: 0,
-           sortable: true,           
+           sortable: true,
+           headerClassName: 'has-text-centered',                      
+           className: 'has-text-centered',           
            formatter: (row) => {
              if (row.weeks[j].lastAdjustment) {
                return row.weeks[j].lastAdjustment
@@ -134,24 +191,44 @@ class WeekTable extends Component {
            title: 'Ajuste',
            property: 'localAdjustment_' + j,
            default: 0,
-           sortable: true,           
-           className: 'keep-cell',
+           sortable: true,
+           headerClassName: 'has-text-centered',           
+           className: 'has-text-centered',                      
            formatter: (row) => {
              if (!row.weeks[j].localAdjustment) {
                row.weeks[j].localAdjustment = 0
              }
 
              return (
-               <Editable
-                 value={row.weeks[j].localAdjustment}
-                 handleChange={this.props.changeAdjustment}
-                 type='number'
-                 obj={row.weeks[j]}
-                 width={100}
-               />
+              <Editable
+              tabIndex={row.key + 1}
+              value={row.weeks[j].localAdjustment}
+              handleChange={this.props.changeAdjustment}
+              type='number'
+              obj={row.weeks[j]}
+              width={70}
+              hideIcon
+            /> 
+               
              )
            }
-         }
+         },
+         {
+          group: ' ',
+          title: this.splitWords('Rango_Ajustado'),
+          property: 'percentage_' + j,
+          default: 0,
+          sortable: true,
+          headerClassName: 'col-border has-text-centered',
+          groupClassName: 'col-border',
+          className: 'col-border has-text-centered',
+          formatter: (row) => {
+            let percentage = ((row.weeks[j].localAdjustment - row.weeks[j].prediction) 
+                            / row.weeks[j].prediction) * 100
+            row.weeks[j].percentage = percentage                            
+            return Math.round(percentage) + ' %'
+          }
+        }
        )
       }
     return cols
@@ -160,6 +237,10 @@ class WeekTable extends Component {
   filterData = async () => {
     if(!this.props.data)
       return
+
+      await this.setState({
+        filteredDataByWeek: []
+      })  
 
     let data = this.props.data
     
@@ -227,12 +308,14 @@ class WeekTable extends Component {
   }
 
   componentWillReceiveProps(nextProps){
-    if(nextProps.data !== this.props.data)
+    if(nextProps.data !== this.props.data){
+      this.setRange()
       this.filterData()
-    
+    }
   }
 
   componentWillMount(){
+    this.setRange()
     this.filterData()
   }
 
