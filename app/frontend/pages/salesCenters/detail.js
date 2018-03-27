@@ -362,33 +362,6 @@ class SalesCenterDetail extends Component {
                 </div>
               </div>
             </div>
-            <div className='columns'>
-              <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Predicciones
-                        </p>
-                      </header>
-                      <div className='card-content'>
-                        <div className='columns'>
-                          <div className='column'>
-                            <BranchedPaginatedTable
-                              branchName='forecasts'
-                              baseUrl='/app/forecasts/'
-                              columns={this.getColumns()}
-                              filters={{salesCenter: this.state.salesCenter.uuid}}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
