@@ -14,7 +14,7 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 
-import StickTable from './stick-table'
+import WeekTable from './week-table'
 
 moment.locale('es');
 
@@ -501,11 +501,17 @@ class TabAdjustment extends Component {
       this.state.selectedCheckboxes.delete(row)
       row.selected = false
     }
+    else if (!this.state.selectedCheckboxes.has(row) && all){
+      this.state.selectedCheckboxes.add(row)
+      row.selected = true
+    }
+    else if (!this.state.selectedCheckboxes.has(row) && !all) {
+      
+    }
     else {
       this.state.selectedCheckboxes.add(row)
       row.selected = true
     }
-
     this.toggleButtons()
   }
 
@@ -729,8 +735,6 @@ class TabAdjustment extends Component {
     await this.setState({
       filteredData: items
     })
-
-    this.filteredDataByWeek()
     
   }
 
@@ -949,273 +953,6 @@ class TabAdjustment extends Component {
     })
   }
 
-  getColumnsByWeek() {
-    return [
-      {
-        group: ' ',
-        title: (() => {
-          return (
-            <Checkbox
-              label='checkAll'
-              handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
-              key='checkAll'
-              checked={this.state.selectedAll}
-              hideLabel />
-          )
-        })(),
-        'property': 'checkbox',
-        'default': '',
-        formatter: (row) => {
-          if (!row.selected) {
-            row.selected = false
-          }
-          return (
-            <Checkbox
-              label={row}
-              handleCheckboxChange={this.toggleCheckbox}
-              key={row}
-              checked={row.selected}
-              hideLabel />
-          )
-        }
-      },
-      {
-        group: ' ',
-        title: 'Id',
-        property: 'id',
-        default: 'N/A',
-        sortable: true,
-        formatter: (row) => {
-          if (row.content[0].productId) {
-            return row.content[0].productId
-          }
-        }
-      },
-      {
-        group: 'Producto',
-        title: 'Producto',
-        property: 'product',
-        default: 'N/A',
-        sortable: true
-      },
-      {
-        group: ' ',
-        title: 'Rango',
-        property: 'percentage',
-        default: 0,
-        sortable: true,
-        className: 'keep-cell',
-        formatter: (row) => {
-          if (this.state.generalAdjustment < 0) return ' - '
-          return `${(this.state.generalAdjustment * 100).toFixed(2)} %`
-        }
-      },
-      {
-        group: ' ',
-        title: 'Predicción s1',
-        property: 'prediction',
-        default: 0,
-        formatter: (row) => {
-          if (row.content[0].prediction) {
-            return row.content[0].prediction
-          }
-        }
-      },
-      {
-        group: 'Semana 1',
-        title: 'Ajuste Anterior s1',
-        property: 'lastAdjustment',
-        default: 0,
-        formatter: (row) => {
-          if (row.content[0].lastAdjustment) {
-            return row.content[0].lastAdjustment
-          }
-        }
-      },
-      {
-        group: ' ',
-        title: 'Ajuste s1',
-        property: 'localAdjustment',
-        default: 0,
-        className: 'keep-cell',
-        formatter: (row) => {
-          if (!row.content[0].localAdjustment) {
-            row.content[0].localAdjustment = 0
-          }
-
-          return (
-            <Editable
-              value={row.content[0].localAdjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={100}
-            />
-          )
-        }
-      },
-
-      {
-        group: ' ',
-        title: 'Predicción s2',
-        property: 'prediction',
-        default: 0,
-        formatter: (row) => {
-          if (row.content[1].prediction) {
-            return row.content[1].prediction
-          }
-        }
-      },
-      {
-        group: 'Semana 2',
-        title: 'Ajuste Anterior s2',
-        property: 'lastAdjustment',
-        default: 0,
-        formatter: (row) => {
-          if (row.content[1].lastAdjustment) {
-            return row.content[1].lastAdjustment
-          }
-        }
-      },
-      {
-        group: ' ',
-        title: 'Ajuste s2',
-        property: 'localAdjustment',
-        default: 0,
-        className: 'keep-cell',
-        formatter: (row) => {
-          if (!row.content[1].localAdjustment) {
-            row.content[1].localAdjustment = 0
-          }
-
-          return (
-            <Editable
-              value={row.content[1].localAdjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={100}
-            />
-          )
-        }
-      },
-
-      {
-        group: ' ',
-        title: 'Predicción s3',
-        property: 'prediction',
-        default: 0,
-        formatter: (row) => {
-          if (row.content[2].prediction) {
-            return row.content[2].prediction
-          }
-        }
-      },
-      {
-        group: 'Semana 3',
-        title: 'Ajuste Anterior s3',
-        property: 'lastAdjustment',
-        default: 0,
-        formatter: (row) => {
-          if (row.content[2].lastAdjustment) {
-            return row.content[2].lastAdjustment
-          }
-        }
-      },
-      {
-        group: ' ',
-        title: 'Ajuste s3',
-        property: 'localAdjustment',
-        default: 0,
-        className: 'keep-cell',
-        formatter: (row) => {
-          if (!row.content[2].localAdjustment) {
-            row.localAdjustment = 0
-          }
-
-          return (
-            <Editable
-              value={row.content[2].localAdjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={100}
-            />
-          )
-        }
-      },
-
-      {
-        group: ' ',
-        title: 'Predicción s4',
-        property: 'prediction',
-        default: 0,
-        formatter: (row) => {
-          if (row.content[3].prediction) {
-            return row.content[3].prediction
-          }
-        }
-      },
-      {
-        group: 'Semana 4',
-        title: 'Ajuste Anterior s4',
-        property: 'lastAdjustment',
-        default: 0,
-        formatter: (row) => {
-          if (row.content[3].lastAdjustment) {
-            return row.content[3].lastAdjustment
-          }
-        }
-      },
-      {
-        group: ' ',
-        title: 'Ajuste s4',
-        property: 'localAdjustment',
-        default: 0,
-        className: 'keep-cell',
-        formatter: (row) => {
-          if (!row.content[3].localAdjustment) {
-            row.content[3].localAdjustment = 0
-          }
-
-          return (
-            <Editable
-              value={row.content[3].localAdjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={100}
-            />
-          )
-        }
-      }
-    ]
-  }
-
-  filteredDataByWeek = () => {
-    var data = this.state.filteredData
-    var res = data.reduce(function (res, currentValue) {
-      if (res.indexOf(currentValue.productName) === -1) {
-        res.push(currentValue.productName)
-      }
-      return res;
-    }, []).map(function (product, i) {
-      return {
-        pid: data[i].productId,
-        product: product,
-        content: _.orderBy(data.filter(function (_el) {
-          return _el.productName === product
-        }).map(function (_el) { return _el }), 
-          function (e) { return e.semanaBimbo }, ['asc'])
-      }
-
-    });
-
-    console.log('res',res);
-    this.setState({
-      filteredDataByWeek: res
-    })
-  }
 
   showByWeek () {
     this.setState({
@@ -1223,33 +960,13 @@ class TabAdjustment extends Component {
     })
   }
 
-  handleSortByWeek(e) {
-    let sorted = this.state.filteredDataByWeek
-
-    if (e === 'id') {
-      if (this.state.sortAscending) {
-        sorted.sort((a, b) => { return parseFloat(a.content[0].productId) - parseFloat(b.content[0].productId) })
-      }
-      else {
-        sorted.sort((a, b) => { return parseFloat(b.content[0].productId) - parseFloat(a.content[0].productId) })
-      }
-    }
-    else {
-      if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, [e], ['asc'])
-
-      }
-      else {
-        sorted = _.orderBy(sorted, [e], ['desc'])
-      }
-    }
-
+  showByProduct() {
     this.setState({
-      filteredDataByWeek: sorted,
-      sortAscending: !this.state.sortAscending,
-      sortBy: e
+      byWeek: false
     })
   }
+
+  
 
   render () {
     const dataSetsNumber = this.props.project.datasets.length
@@ -1548,37 +1265,40 @@ class TabAdjustment extends Component {
               : <div>
                 <div className='field is-grouped'>
                   <p className='control'>
-                    <a>Por Producto</a>
+                    <a onClick={() => this.showByProduct()}>Por Producto</a>
                   </p>
                   <p className='control'>
                     <a onClick={() => this.showByWeek()}>Por Semana</a>
                   </p>                
                 </div>
                   {this.getModifyButtons()}
-                <div className='scroll-content'>
-                <div className='scroll-table'>
-                  <div className='scroll-table-container'>
-                    <BaseTable
+                
+                {
+                  !this.state.byWeek ?
+                    <div className='scroll-content'>
+                      <div className='scroll-table'>
+                        <div className='scroll-table-container'>
+                          <BaseTable
+                            data={this.state.filteredData}
+                            columns={this.getColumns()}
+                            sortAscending={this.state.sortAscending}
+                            sortBy={this.state.sortBy}
+                            handleSort={(e) => this.handleSort(e)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    :
+
+                    <WeekTable
+                      isFiltered={this.state.isFiltered}
                       data={this.state.filteredData}
-                      columns={this.state.byWeek ? this.getColumnsByWeek() : this.getColumns()}
-                      sortAscending={this.state.sortAscending}
-                      sortBy={this.state.sortBy}
-                      handleSort={(e) => this.handleSort(e)}
-                    />
-                  </div>
-                  </div>
-                </div>
-                
-                
-                <StickTable 
-                  data={this.state.filteredDataByWeek}
-                  cols={this.getColumnsByWeek()}
-                  stickyCols={4} 
-                  stickyRows={2}
-                  sortAscending={this.state.sortAscending}
-                  sortBy={this.state.sortBy}
-                  handleSort={(e) => this.handleSortByWeek(e)}
-                />
+                      selectedAll={this.state.selectedAll}
+                      checkAll={() => this.checkAll}
+                      toggleCheckbox={this.toggleCheckbox}
+                      changeAdjustment={this.changeAdjustment}
+                      generalAdjustment={this.state.generalAdjustment} />
+                }
               </div>
             }
           </section>
