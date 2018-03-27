@@ -72,17 +72,19 @@ class TabDatasets extends Component {
                 <Link
                   className={
                     row.status === 'conciliated' || row.status === 'adjustment'
-                      ? 'button'
+                      ? 'button is-primary'
                       : 'is-hidden'
                   }
                   to={'/datasets/detail/' + row.uuid}
                 >
-                  Detalle
+                  <span className='icon is-small' title='Editar'>
+                    <i className='fa fa-pencil' />
+                  </span>
                 </Link>
                 <Link
                   className={
                     row.status !== 'conciliated' && row.status !== 'adjustment'
-                    ? 'button is-primary'
+                    ? 'button is-info'
                     : 'is-hidden'
                   }
                   to={'/datasets/detail/' + row.uuid}
@@ -92,6 +94,8 @@ class TabDatasets extends Component {
               </div>
               <div className='control'>
                 <DeleteButton
+                  iconOnly
+                  icon='fa fa-trash'
                   objectName='Dataset'
                   objectDelete={() => this.removeDatasetOnClick(row.uuid)}
                   message={'Estas seguro de querer eliminar este dataset?'}

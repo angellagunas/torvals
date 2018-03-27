@@ -44,6 +44,8 @@ class ProjectDetail extends Component {
       this.props.history.replace('/projects/' + user.currentProject.uuid)
     }
 
+    await this.hasSaleCenter()
+
     await this.load()
     this.setState({
       canEdit: testRoles(this.state.roles)
@@ -156,9 +158,41 @@ class ProjectDetail extends Component {
     })
   }
 
+  async hasSaleCenter () {
+    let url = '/app/salesCenters'
+    let res = await api.get(url, {
+      start: 0,
+      limit: 0,
+      sort: 'name'
+    })
+    if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
+      this.setState({
+        noSalesCenter: true
+      })
+    }
+  }
+
   render () {
     if (this.state.notFound) {
       return <NotFound msg='este proyecto' />
+    }
+    if (this.state.noSalesCenter) {
+      return (
+        <div className='card-content'>
+          <div className='columns'>
+            <div className='column'>
+              <article className='message is-warning'>
+                <div className='message-header'>
+                  <p>Atención</p>
+                </div>
+                <div className='message-body has-text-centered is-size-5'>
+                  Necesitas tener asignado al menos un centro de venta para ver esta sección, ponte en contacto con tu supervisor.
+            </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      )
     }
 
     const { project, canEdit } = this.state
