@@ -11,6 +11,7 @@ const userTokenSchema = new Schema({
   uuid: { type: String, default: v4 },
   key: { type: String, default: v4 },
   secret: { type: String, default: v4 },
+  type: { type: String, default: 'generic' },
   validUntil: { type: Date },
   lastUse: { type: Date },
   isDeleted: { type: Boolean },
