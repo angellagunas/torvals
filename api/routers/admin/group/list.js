@@ -80,7 +80,6 @@ module.exports = new Route({
     statementCount.push({$count: 'total'})
     var groupsCount = await Group.aggregate(statementCount)
     groups = groups.map((group) => {
-      console.log(group)
       return { ...group,
         organization: group.infoOrganization
       }
