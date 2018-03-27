@@ -46,7 +46,7 @@ class RequestLog extends Component {
   async downloadReport () {
     this.setState({isDownloading: ' is-loading'})
 
-    let url = '/request-logs/export/' + this.props.log.uuid
+    let url = '/admin/request-logs/export/' + this.props.log.uuid
 
     try {
       let res = await api.get(url)
