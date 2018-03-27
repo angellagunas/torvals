@@ -47,7 +47,14 @@ const task = new Task(async function (argv) {
       })
     }
     var channel = await Channel.findOne({externalId: p.canal_id})
-    if (!channel) { channel = {_id: null} }
+    if (!channel) {
+      channel = await Channel.create({
+        name: 'Not identified',
+        externalId: p.canal_id,
+        organization: organization._id,
+        isNewExternal: true
+      })
+    }
 
     if (!price) {
       price = await Price.create({
