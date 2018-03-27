@@ -30,12 +30,11 @@ const task = new Task(async function (argv) {
       projectDataset = project.datasets[0].dataset
     }
 
-    var res = await Api.getProject(project.externalId, res.dataset.date_max)
+    var res = await Api.getProject(project.externalId)
 
     if (res.dataset && res.status === 'ready') {
       console.log(`Creating dataset for adjustment of project ${project.name} ...`)
-
-      var resFilter = await Api.filterProject(project.externalId)
+      var resFilter = await Api.filterProject(project.externalId, res.dataset.date_max)
 
       if (resFilter.message === 'Ok') {
         var dataset = await DataSet.create({

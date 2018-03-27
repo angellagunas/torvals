@@ -20,9 +20,8 @@ module.exports = new Route({
 
     if (res.status === 'error') {
       dataset.set({
-        status: 'conciliated',
-        conciliatedBy: ctx.state.user,
-        dateConciliated: moment.utc()
+        status: 'error',
+        error: res.message
       })
 
       await dataset.save()
@@ -35,10 +34,13 @@ module.exports = new Route({
     }
 
     dataset.set({
-      status: 'conciliated'
+      status: 'conciliated',
+      conciliatedBy: ctx.state.user,
+      dateConciliated: moment.utc()
     })
 
     await dataset.save()
+
     let project = dataset.project
 
     project.status = 'pendingRows'

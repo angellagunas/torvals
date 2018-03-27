@@ -4,8 +4,8 @@ const moment = require('moment')
 
 const tokenSchema = new Schema({
   token: {type: String},
-  expires: { type: Date, default: moment.add(1, 'hours').utc },
-  createdAt: { type: Date, default: moment.utc }
+  expires: { type: Date, default: moment().add(1, 'months').utc() },
+  createdAt: { type: Date, default: moment.utc() }
 
 })
 
