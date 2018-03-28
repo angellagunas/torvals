@@ -19,15 +19,6 @@ module.exports = new Route({
     if (!project.activeDataset) {
       ctx.throw(404, 'No hay DataSet activo para el proyecto')
     }
-    try {
-      var apiData = Api.get()
-      if (!apiData.token) {
-        await Api.fetch()
-        apiData = Api.get()
-      }
-    } catch (e) {
-      ctx.throw(503, 'Abraxas API no disponible para la conexión')
-    }
 
     const requestBody = {
       date_start: data.start_date,

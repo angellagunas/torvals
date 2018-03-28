@@ -21,14 +21,6 @@ const task = new Task(async function (argv) {
     return true
   }
 
-  console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
-
-  if (!apiData.token) {
-    throw new Error('There is no API endpoint configured!')
-  }
-
   for (var forecast of forecasts) {
     console.log(`Verifying if ${forecast.configPrId} forecast has finished processing ...`)
 
