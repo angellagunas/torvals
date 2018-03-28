@@ -202,31 +202,6 @@ class ProductDetail extends Component {
                   </div>
                 </div>
               </div>
-              <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Predicción
-                        </p>
-                      </header>
-                      <div className='card-content'>
-                        <div className='columns'>
-                          <div className='column'>
-                            <BranchedPaginatedTable
-                              branchName='forecasts'
-                              baseUrl='/app/forecasts/'
-                              columns={this.getColumns()}
-                              filters={{product: this.state.product.uuid}}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
