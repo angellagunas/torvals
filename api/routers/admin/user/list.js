@@ -84,7 +84,7 @@ module.exports = new Route({
         isAdmin: user.isAdmin,
         validEmail: user.validEmail,
         organizations: user.organizations,
-        groups: user.groups,
+        groups: user.infoGroup,
         profileUrl: user.profileUrl
       }
     })

@@ -85,28 +85,28 @@ class UserList extends ListPageComponent {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          if (row.infoGroup.length > 2) {
+          if (row.groups.length > 2) {
             return (
               <div>
-                {row.infoGroup[0].name}
+                {row.groups[0].name}
                 <br />
-                {row.infoGroup[1].name}
+                {row.groups[1].name}
                 <br />
-                {row.infoGroup.length - 2} más
+                {row.groups.length - 2} más
               </div>
             )
-          } else if (row.infoGroup.length > 1) {
+          } else if (row.groups.length > 1) {
             return (
               <div>
-                {row.infoGroup[0].name}
+                {row.groups[0].name}
                 <br />
-                {row.infoGroup[1].name}
+                {row.groups[1].name}
               </div>
             )
-          } else if (row.infoGroup.length > 0) {
+          } else if (row.groups.length > 0) {
             return (
               <div>
-                {row.infoGroup[0].name}
+                {row.groups[0].name}
               </div>
             )
           }
