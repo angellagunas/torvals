@@ -89,16 +89,25 @@ module.exports = new Route({
     }
 
     if (
-      (currentRole.slug === 'manager-level-1' ||
-      currentRole.slug === 'manager-level-2') &&
-      !filters['salesCenter']
+      currentRole.slug === 'manager-level-1' ||
+      currentRole.slug === 'manager-level-2'
     ) {
       var groups = user.groups
-      var salesCenters = []
+      if (!filters['salesCenter']) {
+        var salesCenters = []
 
-      salesCenters = await SalesCenter.find({groups: {$in: groups}})
+        salesCenters = await SalesCenter.find({groups: {$in: groups}})
 
-      filters['salesCenter'] = {$in: salesCenters}
+        filters['salesCenter'] = {$in: salesCenters}
+      }
+
+      if (!filters['channel']) {
+        var channels = []
+
+        channels = await Channel.find({ groups: { $in: groups } })
+
+        filters['channel'] = {$in: channels}
+      }
     }
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
