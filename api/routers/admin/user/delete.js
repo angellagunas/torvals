@@ -8,7 +8,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     var userId = ctx.params.uuid
 
-    var user = await User.findOne({'uuid': userId}).populate('groups')
+    var user = await User.findOne({'uuid': userId, isDeleted: {$ne: true}}).populate('groups')
     ctx.assert(user, 404, 'Usuario no encontrado')
 
     user.set({

@@ -49,7 +49,7 @@ adjustmentRequestSchema.methods.toPublic = function () {
   }
 }
 
-adjustmentRequestSchema.methods.format = function () {
+adjustmentRequestSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,
     dateRequested: this.dateRequested,

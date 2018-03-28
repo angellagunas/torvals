@@ -1,12 +1,11 @@
-import React, { Component } from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
+import React from 'react'
+
+import PageComponent from '~base/page-component'
 import api from '~base/api'
 import moment from 'moment'
 import env from '~base/env-variables'
 import FontAwesome from 'react-fontawesome'
 
-import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import UserForm from './form'
@@ -18,12 +17,12 @@ import BaseModal from '~base/components/base-modal'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
 
-class UserDetail extends Component {
+class UserDetail extends PageComponent {
   constructor (props) {
     super(props)
+
     this.state = {
-      loaded: false,
-      loading: true,
+      ...this.baseState,
       resetLoading: false,
       resetText: 'Restablecer Contraseña',
       resetClass: 'button is-danger',
@@ -40,23 +39,34 @@ class UserDetail extends Component {
     }
   }
 
-  componentWillMount () {
-    this.load()
-    this.loadRoles()
-    this.loadGroups()
+  async onFirstPageEnter () {
+    const groups = await this.loadGroups()
+    const roles = await this.loadRoles()
+
+    return {roles, groups}
   }
 
-  async load () {
+  async onPageEnter () {
+    const data = await this.loadCurrentUser()
+
+    return {
+      user: data,
+      selectedGroups: data.groups,
+      selectedOrgs: data.organizations
+    }
+  }
+
+  async loadCurrentUser () {
     var url = '/admin/users/' + this.props.match.params.uuid
     try {
       const body = await api.get(url)
-
       await this.setState({
         loading: false,
         loaded: true,
         user: body.data,
         selectedGroups: [...body.data.groups]
       })
+      return body.data
     } catch (e) {
       await this.setState({
         loading: false,
@@ -68,18 +78,12 @@ class UserDetail extends Component {
 
   async loadRoles () {
     var url = '/admin/roles/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      roles: body.data
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0
     })
+
+    return body.data
   }
 
   async loadGroups () {
@@ -97,16 +101,8 @@ class UserDetail extends Component {
       ...this.state,
       groups: body.data
     })
-  }
 
-  getDateCreated () {
-    if (this.state.user.dateCreated) {
-      return moment.utc(
-        this.state.user.dateCreated
-      ).format('DD/MM/YYYY hh:mm a')
-    }
-
-    return 'N/A'
+    return body.data
   }
 
   async removeOrgOnClick (org, role) {
@@ -117,7 +113,6 @@ class UserDetail extends Component {
         role: role
       }
     )
-    this.load()
     this.loadGroups()
   }
 
@@ -253,7 +248,7 @@ class UserDetail extends Component {
           role: role
         }
       )
-      this.load()
+      this.onPageEnter()
     }
   }
 
@@ -421,7 +416,7 @@ class UserDetail extends Component {
       this.state.formProject['project'] = this.state.project
 
       await api.post(url, this.state.formProject)
-      await this.load()
+      await this.onPageEnter()
 
       this.setState({
         classNameProjects: '',
@@ -501,9 +496,9 @@ class UserDetail extends Component {
       return <NotFound msg='este usuario' />
     }
 
-    const { user } = this.state
+    const {user, loaded} = this.state
 
-    if (!user.uuid) {
+    if (!loaded) {
       return <Loader />
     }
 
@@ -581,7 +576,8 @@ class UserDetail extends Component {
                           baseUrl='/admin/users'
                           url={'/admin/users/' + this.props.match.params.uuid}
                           initialState={this.state.user}
-                          load={this.load.bind(this)}
+                          load={() => this.reload()}
+                          roles={this.state.roles || []}
                           submitHandler={(data) => this.submitHandler(data)}
                           errorHandler={(data) => this.errorHandler(data)}
                           finishUp={(data) => this.finishUpHandler(data)}
@@ -617,7 +613,7 @@ class UserDetail extends Component {
                             className={this.state.className}
                             hideModal={this.hideModal.bind(this)}
                             finishUp={this.finishUp.bind(this)}
-                            load={() => { this.load(); this.loadGroups() }}
+                            load={() => { this.onPageEnter(); this.loadGroups() }}
                             baseUrl='/admin/users'
                             url={'/admin/users/' + this.props.match.params.uuid + '/add/organization'}
                           />
@@ -667,16 +663,12 @@ class UserDetail extends Component {
   }
 }
 
-UserDetail.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedUserDetail = branch({}, UserDetail)
-
-export default Page({
+UserDetail.config({
+  name: 'user-details',
   path: '/manage/users/:uuid',
   title: 'Detalle',
   exact: true,
-  validate: loggedIn,
-  component: branchedUserDetail
+  validate: loggedIn
 })
+
+export default UserDetail

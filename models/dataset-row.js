@@ -56,7 +56,7 @@ datasetRowSchema.methods.toPublic = function () {
   }
 }
 
-datasetRowSchema.methods.format = function () {
+datasetRowSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,
     dateCreated: this.dateCreated,

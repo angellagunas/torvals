@@ -12,6 +12,7 @@ import InviteUserForm from './send-invite-form'
 class CreateUser extends Component {
   constructor (props) {
     super(props)
+
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
       roles: [],
@@ -59,13 +60,10 @@ class CreateUser extends Component {
 
   async loadRoles () {
     var url = '/admin/roles/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0
+    })
 
     this.setState({
       roles: body.data,

@@ -32,7 +32,7 @@ abraxasDateSchema.methods.toPublic = function () {
   }
 }
 
-abraxasDateSchema.methods.format = function () {
+abraxasDateSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,
     dateCreated: this.dateCreated,

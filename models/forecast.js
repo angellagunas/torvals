@@ -76,7 +76,7 @@ forecastSchema.methods.toPublic = function () {
   }
 }
 
-forecastSchema.methods.format = function () {
+forecastSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,
     dateCreated: this.dateCreated,

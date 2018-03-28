@@ -79,9 +79,9 @@ module.exports = new Route({
 
     statementCount.push({$count: 'total'})
     var groupsCount = await Group.aggregate(statementCount)
-    groups = groups.map((channel) => {
-      return { ...channel,
-        organization: channel.infoOrganization
+    groups = groups.map((group) => {
+      return { ...group,
+        organization: group.infoOrganization
       }
     })
     ctx.body = {'data': groups, 'total': groupsCount[0] ? groupsCount[0].total : 0}

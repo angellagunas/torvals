@@ -39,7 +39,7 @@ module.exports = new Route({
       .sort(ctx.request.query.sort || '-dateStart')
 
     dates = dates.map(item => {
-      return item.format()
+      return item.toAdmin()
     })
 
     ctx.body = {

@@ -1,56 +1,71 @@
 import React from 'react'
 
+import env from '~base/env-variables'
 import Link from '~base/router/link'
 import api from '~base/api'
-import ListPage from '~base/list-page'
+import ListPageComponent from '~base/list-page-component'
 import {loggedIn} from '~base/middlewares/'
 
 import tree from '~core/tree'
 import CreateUserNoModal from './create-no-modal'
 import DeleteButton from '~base/components/base-deleteButton'
 
-export default ListPage({
-  path: '/manage/users',
-  title: 'Usuarios',
-  icon: 'user',
-  exact: true,
-  validate: loggedIn,
-  titleSingular: 'Usuario',
-  create: false,
-  breadcrumbs: true,
-  breadcrumbConfig: {
-    path: [
-      {
-        path: '/admin',
-        label: 'Inicio',
-        current: false
+class UserList extends ListPageComponent {
+  async onFirstPageEnter () {
+    const organizations = await this.loadOrgs()
+
+    return {organizations}
+  }
+
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0
+    })
+
+    return body.data
+  }
+
+  async deleteObject (row) {
+    await api.del('/admin/users/' + row.uuid)
+    this.reload()
+  }
+
+  finishUp (data) {
+    this.setState({
+      className: ''
+    })
+
+    this.props.history.push(env.PREFIX + '/manage/users/' + data.uuid)
+  }
+
+  getFilters () {
+    const data = {
+      schema: {
+        type: 'object',
+        required: [],
+        properties: {
+          screenName: {type: 'text', title: 'Por nombre'},
+          email: {type: 'text', title: 'Por email'},
+          organization: {type: 'text', title: 'Por organización', values: []}
+        }
       },
-      {
-        path: '/admin/manage/users/',
-        label: 'Usuarios activos',
-        current: true
+      uiSchema: {
+        screenName: {'ui:widget': 'SearchFilter'},
+        email: {'ui:widget': 'SearchFilter'},
+        organization: {'ui:widget': 'SelectSearchFilter'}
       }
-    ],
-    align: 'left'
-  },
-  sidePanel: true,
-  sidePanelIcon: 'user-plus',
-  sidePanelComponent: CreateUserNoModal,
-  baseUrl: '/admin/users',
-  branchName: 'users',
-  detailUrl: '/admin/manage/users/',
-  filters: true,
-  schema: {
-    type: 'object',
-    required: [],
-    properties: {
-      general: {type: 'text', title: 'Buscar'}
     }
-  },
-  uiSchema: {
-    general: {'ui:widget': 'SearchFilter'}
-  },
-  getColumns: () => {
+
+    if (this.state.organizations) {
+      data.schema.properties.organization.values = this.state.organizations.map(item => { return {uuid: item.uuid, name: item.name} })
+    }
+
+    return data
+  }
+
+  getColumns () {
     return [
       {
         'title': 'Nombre',
@@ -70,28 +85,28 @@ export default ListPage({
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          if (row.groups.length > 2) {
+          if (row.infoGroup.length > 2) {
             return (
               <div>
-                {row.groups[0].name}
+                {row.infoGroup[0].name}
                 <br />
-                {row.groups[1].name}
+                {row.infoGroup[1].name}
                 <br />
-                {row.groups.length - 2} más
+                {row.infoGroup.length - 2} más
               </div>
             )
-          } else if (row.groups.length > 1) {
+          } else if (row.infoGroup.length > 1) {
             return (
               <div>
-                {row.groups[0].name}
+                {row.infoGroup[0].name}
                 <br />
-                {row.groups[1].name}
+                {row.infoGroup[1].name}
               </div>
             )
-          } else if (row.groups.length > 0) {
+          } else if (row.infoGroup.length > 0) {
             return (
               <div>
-                {row.groups[0].name}
+                {row.infoGroup[0].name}
               </div>
             )
           }
@@ -138,8 +153,8 @@ export default ListPage({
                     iconOnly
                     icon='fa fa-trash'
                     objectName='Usuario'
-                    objectDelete={deleteObject}
-                    message={`Está seguro de querer desactivar a ${row.name} ?`}
+                    objectDelete={() => this.deleteObject(row)}
+                    message={`Está seguro de querer desactivar a ${row.email} ?`}
                   />
                 )}
               </div>
@@ -149,4 +164,50 @@ export default ListPage({
       }
     ]
   }
+}
+
+UserList.config({
+  name: 'user-list',
+  path: '/manage/users',
+  title: 'Usuarios',
+  icon: 'user',
+  exact: true,
+  validate: loggedIn,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/manage/users/',
+        label: 'Usuarios activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
+  create: false,
+  branchName: 'users',
+  titleSingular: 'Usuario',
+  sidePanel: true,
+  sidePanelIcon: 'user-plus',
+  sidePanelComponent: CreateUserNoModal,
+  filters: true,
+  schema: {
+    type: 'object',
+    required: [],
+    properties: {
+      general: {type: 'text', title: 'Buscar'}
+    }
+  },
+  uiSchema: {
+    general: {'ui:widget': 'SearchFilter'}
+  },
+  apiUrl: '/admin/users',
+  detailUrl: '/admin/manage/users/'
 })
+
+export default UserList

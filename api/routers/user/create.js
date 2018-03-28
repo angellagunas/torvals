@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
-// const jwt = require('lib/jwt')
 
 const {User, Role} = require('models')
 
@@ -37,10 +36,8 @@ module.exports = new Route({
       type: 'session'
     })
 
-    // await user.sendValidationEmail()
-
     ctx.body = {
-      user: user.format(),
+      user: user.toPublic(),
       jwt: token.getJwt()
     }
   }

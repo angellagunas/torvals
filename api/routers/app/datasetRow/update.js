@@ -31,7 +31,7 @@ module.exports = new Route({
     }
 
     ctx.body = {
-      data: datasetRow.format()
+      data: datasetRow.toPublic()
     }
   }
 })
