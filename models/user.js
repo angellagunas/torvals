@@ -160,7 +160,7 @@ userSchema.statics.validateInvite = async function (email, token) {
   const userEmail = email.toLowerCase()
   const user = await this.findOne({email: userEmail})
   assert(user, 401, '¡Usuario inválido! Contacta al administrador de la página.')
-  const userToken = await UserToken.findOne({'user': user._id, 'key': token, 'validUntil': {$gte: moment.utc()}})
+  const userToken = await UserToken.findOne({'user': user._id, 'key': token, type: 'invite', 'validUntil': {$gte: moment.utc()}})
   assert(userToken, 401, 'Token inválido! Contacta al administrador de la página.')
 
   return user
@@ -171,7 +171,7 @@ userSchema.statics.validateResetPassword = async function (email, token) {
   const userEmail = email.toLowerCase()
   const user = await this.findOne({email: userEmail})
   assert(user, 401, '¡Usuario inválido! Contacta al administrador de la página.')
-  const userToken = await UserToken.findOne({'user': user._id, 'key': token, 'validUntil': {$gte: moment.utc()}})
+  const userToken = await UserToken.findOne({'user': user._id, 'key': token, type: 'reset', 'validUntil': {$gte: moment.utc()}})
   assert(userToken, 401, '¡Token inválido! Contacta al administrador de la página.')
   return user
 }
