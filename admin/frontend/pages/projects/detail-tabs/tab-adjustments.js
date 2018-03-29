@@ -15,6 +15,7 @@ import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 
 import WeekTable from './week-table'
+import ProductTable from './product-table'
 
 moment.locale('es');
 
@@ -26,7 +27,6 @@ class TabAdjustment extends Component {
       isFiltered: false,
       filtersLoaded: false,
       isLoading: '',
-      selectedAll: false,
       modified: 0,
       pending: 0,
       filters: {
@@ -38,7 +38,7 @@ class TabAdjustment extends Component {
         filteredSemanasBimbo: []
       },
       formData: {
-        //semanasBimbo: 0,
+        semanasBimbo: 0,
         period: 1
       },
       disableButtons: true,
@@ -49,7 +49,6 @@ class TabAdjustment extends Component {
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: '',
-      sortAscending: true,
       byWeek: false            
     }
 
@@ -250,11 +249,6 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows () {
-   /*  if (!this.state.formData.period || !this.state.formData.semanasBimbo) {
-      this.notify('Se debe filtrar por semana!', 3000, toast.TYPE.ERROR)
-      return
-    }
- */
     var period = this.state.filters.periods.find(item => {
       return item.number === this.state.formData.period
     })
@@ -302,216 +296,25 @@ class TabAdjustment extends Component {
     return data
   }
 
-  getColumns () {
-    return [
-      {
-        'title': 'Id',
-        'property': 'productId',
-        'default': 'N/A',
-        'sortable': true,        
-        formatter: (row) => {
-          return String(row.productId)
-        }
-      },
-      {
-        'title': 'Producto',
-        'property': 'productName',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.productName)
-        }
-      },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.salesCenter)
-        }
-      },
-      {
-        'title': 'Canal',
-        'abbreviate': true,
-        'abbr': 'Canal',
-        'property': 'channel',
-        'default': 'N/A',
-        'sortable': true,        
-        formatter: (row) => {
-          return String(row.channel)
-        }
-      },
-      {
-        'title': 'Semana',
-        'property': 'semanaBimbo',
-        'default': 'N/A',
-        'sortable': true,        
-        formatter: (row) => {
-          return String(row.semanaBimbo)
-        }
-      },
-      {
-        'title': 'Predicción',
-        'property': 'prediction',
-        'default': 0,
-        'sortable': true,        
-        formatter: (row) => {
-          return String(row.prediction)
-        }
-      },
-     /*  {
-        'title': 'Ajuste Anterior',
-        'property': 'lastAdjustment',
-        'default': 0,
-        formatter: (row) => {
-          if (row.lastAdjustment) {
-            return row.lastAdjustment
-          }
-        }
-      }, */
-      {
-        'title': 'Ajuste',
-        'property': 'localAdjustment',
-        'default': 0,
-        'type': 'number',
-        'className': 'keep-cell',
-        'sortable': true,        
-        formatter: (row) => {
-          if (!row.localAdjustment) {
-            row.localAdjustment = 0
-          }
-
-          return (
-            <Editable
-              value={row.localAdjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={100}
-            />
-          )
-        }
-      },
-      {
-        'title': 'Rango',
-        'property': 'percentage',
-        'default': 0,
-        'type': 'number',
-        'sortable': true,        
-        'className': 'keep-cell',
-        formatter: (row) => {
-          if (this.state.generalAdjustment < 0) return ' - '
-          return `${(this.state.generalAdjustment * 100).toFixed(2)} %`
-        }
-      },
-      {
-        'title': 'Seleccionar Todo',
-        'abbreviate': true,
-        'abbr': (() => {
-          return (
-            <Checkbox
-              label='checkAll'
-              handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
-              key='checkAll'
-              checked={this.state.selectedAll}
-              hideLabel />
-          )
-        })(),
-        'property': 'checkbox',
-        'default': '',
-        formatter: (row) => {
-          if(!row.selected){
-            row.selected = false
-          }
-          return (
-            <Checkbox
-              label={row}
-              handleCheckboxChange={this.toggleCheckbox}
-              key={row}
-              checked={row.selected}
-              hideLabel />
-          )
-        }
-      },
-      {
-        'title': '',
-        'abbreviate': true,
-        'abbr': (() => {
-          return (
-            <div className='is-invisible'>
-              <span
-                className='icon'
-                title='límite'
-              >
-                <FontAwesome name='warning fa-lg' />
-              </span>
-            </div>
-          )
-        })(),
-        'property': 'isLimit',
-        'default': '',
-        formatter: (row) => {
-          if (row.isLimit && !row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-danger'
-                title='No es posible ajustar más allá al límite!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning fa-lg' />
-              </span>
-            )
-          }
-
-          if (row.isLimit && row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-warning'
-                title='Ya se ha pedido un cambio a esta predicción!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='info-circle fa-lg' />
-              </span>
-            )
-          }
-          return ''
-        }
-      }
-    ]
-  }
-
-  checkAll = (check) => {
-    for (let row of this.state.filteredData) {
-      this.toggleCheckbox(row, check)
-    }
-    this.setState({ selectedAll: check }, function () {
+  checkAll = (checked) => {
+    this.setState({
+      selectedCheckboxes: checked
+    }, 
+    function () {
       this.toggleButtons()
     })
   }
 
-  toggleCheckbox = (row, all) => {
-    if (this.state.selectedCheckboxes.has(row) && !all) {
+  toggleCheckbox = (row) => {
+    if (this.state.selectedCheckboxes.has(row)) {
       this.state.selectedCheckboxes.delete(row)
       row.selected = false
-    }
-    else if (!this.state.selectedCheckboxes.has(row) && all){
-      this.state.selectedCheckboxes.add(row)
-      row.selected = true
-    }
-    else if (!this.state.selectedCheckboxes.has(row) && !all) {
-      
     }
     else {
       this.state.selectedCheckboxes.add(row)
       row.selected = true
     }
+    
     this.toggleButtons()
   }
 
@@ -633,7 +436,6 @@ class TabAdjustment extends Component {
 
   toggleButtons () {
     let disable = true
-
     if (this.state.selectedCheckboxes.size > 0)
       disable = false
 
@@ -651,6 +453,12 @@ class TabAdjustment extends Component {
 
     if (this.state.generalAdjustment > 0) {
       obj.isLimit = (obj.localAdjustment >= maxAdjustment || obj.localAdjustment <= minAdjustment)
+    }
+
+    if (obj.isLimit && obj.adjustmentRequest && 
+        (obj.adjustmentRequest.status === 'approved' ||
+         obj.adjustmentRequest.status === 'created')){
+      obj.adjustmentRequest.status = 'rejected'
     }
 
     var url = '/admin/rows/' + obj.uuid
@@ -710,7 +518,8 @@ class TabAdjustment extends Component {
 
   async finishUpAdjustmentRequest (res) {
     if (res && res.data === 'OK') {
-      this.state.selectedAR.adjustmentRequest = true
+      this.state.selectedAR.localAdjustment = parseInt(this.state.selectedAR.localAdjustment)
+      this.state.selectedAR.adjustmentRequest = {status: 'created'}
     }
     
     this.setState({
@@ -854,6 +663,7 @@ class TabAdjustment extends Component {
     }
 
   }
+
   loadTable () {
     if (!this.state.noSalesData){
       return (
@@ -925,48 +735,19 @@ class TabAdjustment extends Component {
     }
   }
 
-  handleSort(e){
-    let sorted = this.state.filteredData
-    
-    if (e === 'productId'){
-          if (this.state.sortAscending){
-            sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
-          }
-          else{
-            sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })                        
-          }
-    }
-    else{
-      if (this.state.sortAscending){
-        sorted = _.orderBy(sorted,[e], ['asc'])
-              
-      }
-      else{
-        sorted = _.orderBy(sorted,[e], ['desc'])    
-      }
-    }
-    
-    this.setState({
-      filteredData: sorted,
-      sortAscending: !this.state.sortAscending,
-      sortBy: e
-    })
-  }
-
-
   showByWeek () {
+    this.uncheckAll()
     this.setState({
       byWeek: true
     })
   }
 
   showByProduct() {
+    this.uncheckAll()
     this.setState({
       byWeek: false
     })
   }
-
-  
 
   render () {
     const dataSetsNumber = this.props.project.datasets.length
@@ -1275,29 +1056,23 @@ class TabAdjustment extends Component {
                 
                 {
                   !this.state.byWeek ?
-                    <div className='scroll-content'>
-                      <div className='scroll-table'>
-                        <div className='scroll-table-container'>
-                          <BaseTable
-                            data={this.state.filteredData}
-                            columns={this.getColumns()}
-                            sortAscending={this.state.sortAscending}
-                            sortBy={this.state.sortBy}
-                            handleSort={(e) => this.handleSort(e)}
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    
+                    <ProductTable
+                      data={this.state.filteredData}
+                      checkAll={this.checkAll}
+                      toggleCheckbox={this.toggleCheckbox}
+                      changeAdjustment={this.changeAdjustment}
+                      generalAdjustment={this.state.generalAdjustment}
+                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }} />
                     :
 
                     <WeekTable
-                      isFiltered={this.state.isFiltered}
                       data={this.state.filteredData}
-                      selectedAll={this.state.selectedAll}
-                      checkAll={() => this.checkAll}
+                      checkAll={this.checkAll}
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
-                      generalAdjustment={this.state.generalAdjustment} />
+                      generalAdjustment={this.state.generalAdjustment}
+                      showModalAdjustmentRequest={(row) => {this.showModalAdjustmentRequest(row)}} />
                 }
               </div>
             }

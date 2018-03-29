@@ -3,6 +3,7 @@ import StickTable from '~base/components/stick-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 import Loader from '~base/components/spinner'
+import classNames from 'classnames'
 
 
 class WeekTable extends Component {
@@ -28,18 +29,29 @@ class WeekTable extends Component {
   }
   
   splitWords (words){
-    return words.split('_').map((item) => {
-      return <p>{item}</p>
+    return words.split('_').map((item, key) => {
+      return <p key={key}>{item}</p>
     })
   }
 
   checkAll = () => {
+    let selected = new Set()    
     for (let row of this.state.filteredDataByWeek) {
       for (const week of row.weeks) {
-        this.props.toggleCheckbox(week, !this.state.selectedAll)
+        //this.props.toggleCheckbox(week, !this.state.selectedAll)
+        if (this.state.selectedAll) {
+          selected.delete(week)
+          week.selected = false
+        }
+        else {
+          week.selected = true
+          selected.add(week)
+        } 
       }
       row.selected = !this.state.selectedAll
     }
+
+    this.props.checkAll(selected)
 
     this.setState({
       selectedAll: !this.state.selectedAll
@@ -117,34 +129,7 @@ class WeekTable extends Component {
         headerClassName: 'col-border',
         className: 'col-border',       
         formatter: (row) => {
-          if (row.weeks[1].isLimit && !row.weeks[1].adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-danger'
-                title='No es posible ajustar más allá al límite!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <i className='fa fa-times fa-lg' />
-              </span>
-            )
-          }
-
-          if (row.weeks[1].isLimit && row.weeks[1].adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-warning'
-                title='Ya se ha pedido un cambio a esta predicción!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <i className='fa fa-clock-o fa-lg' />
-              </span>
-            )
-          }
-          return ''
+          return this.getLimit(row)  
         }
       }
     ].concat(this.getWeekCols())
@@ -225,8 +210,13 @@ class WeekTable extends Component {
           formatter: (row) => {
             let percentage = ((row.weeks[j].localAdjustment - row.weeks[j].prediction) 
                             / row.weeks[j].prediction) * 100
-            row.weeks[j].percentage = percentage                            
-            return Math.round(percentage) + ' %'
+            row.weeks[j].percentage = percentage 
+            let status = classNames('has-text-weight-bold', {
+              'has-text-success': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'approved',
+              'has-text-warning': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'created',
+              'has-text-danger': row.weeks[j].isLimit && (!row.weeks[j].adjustmentRequest || row.weeks[j].adjustmentRequest.status === 'rejected'),
+            })     
+            return <span className={status}>{Math.round(percentage) + ' %'}</span>
           }
         }
        )
@@ -305,6 +295,45 @@ class WeekTable extends Component {
       sortAscending: !this.state.sortAscending,
       sortBy: e
     })
+  }
+
+  getLimit (row){
+    let limit = ''
+
+    for (const product of row.weeks) {
+      if (product.isLimit && product.adjustmentRequest && product.adjustmentRequest.status === 'approved') {
+        limit =
+          <span
+            className='icon has-text-success'
+            title='Ajustes aprobados'>
+            <i className='fa fa-check fa-lg' />
+          </span>
+      } 
+
+      if (product.isLimit && product.adjustmentRequest && product.adjustmentRequest.status === 'created') {
+        limit =
+          <span
+            className='icon has-text-warning'
+            title='Ya se ha pedido un cambio'>
+            <i className='fa fa-clock-o fa-lg' />
+          </span>  
+      }
+
+      if (product.isLimit && (!product.adjustmentRequest || product.adjustmentRequest.status === 'rejected')) {
+        limit =
+          <span
+            className='icon has-text-danger'
+            title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
+            onClick={() => {
+              this.props.showModalAdjustmentRequest(product)
+            }}>
+            <i className='fa fa-times fa-lg' />
+          </span>
+        return limit  
+      }
+     
+    }
+    return limit
   }
 
   componentWillReceiveProps(nextProps){
