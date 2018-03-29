@@ -1,12 +1,13 @@
 const Route = require('lib/router/route')
-
+const moment = require('moment')
 const {
   DataSetRow,
   DataSet,
   Product,
   SalesCenter,
   Channel,
-  Role
+  Role,
+  AbraxasDate
 } = require('models')
 
 module.exports = new Route({
@@ -29,10 +30,10 @@ module.exports = new Route({
         continue
       }
 
-      if (filter === 'semanaBimbo') {
+      /* if (filter === 'semanaBimbo') {
         filters['data.semanaBimbo'] = ctx.request.query[filter]
         continue
-      }
+      } */
 
       if (filter === 'product') {
         filters[filter] = await Product.findOne({
@@ -64,6 +65,16 @@ module.exports = new Route({
           organization: dataset.organization
         })
         filters['product'] = { $in: products.map(item => { return item._id }) }
+        continue
+      }
+
+      if (filter === 'period') {
+        const weeks = await AbraxasDate.find({
+          month: ctx.request.query[filter],
+          dateStart: { $lte: moment(dataset.dateMax) }
+        }).sort('dateStart')
+
+        filters['data.semanaBimbo'] = { $in: weeks.map(item => { return item.week }) }
         continue
       }
 

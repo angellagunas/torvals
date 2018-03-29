@@ -15,6 +15,9 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 
+import WeekTable from './week-table'
+import ProductTable from './product-table'
+
 var currentRole
 moment.locale('es')
 
@@ -26,7 +29,6 @@ class TabAdjustment extends Component {
       isFiltered: false,
       filtersLoaded: false,
       isLoading: '',
-      selectedAll: false,
       modified: 0,
       pending: 0,
       filters: {
@@ -49,7 +51,7 @@ class TabAdjustment extends Component {
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: '',
-      sortAscending: true            
+      byWeek: false
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -261,8 +263,8 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows () {
-    if (!this.state.formData.period || !this.state.formData.semanasBimbo) {
-      this.notify('Se debe filtrar por semana!', 3000, toast.TYPE.ERROR)
+    if (!this.state.formData.period) {
+      this.notify('Se debe filtrar por periodo!', 3000, toast.TYPE.ERROR)
       return
     }
 
@@ -280,11 +282,12 @@ class TabAdjustment extends Component {
     const url = '/app/rows/dataset/'
     let data = await api.get(url + this.props.project.activeDataset.uuid,
       {
-        semanaBimbo: this.state.formData.semanasBimbo,
+        //semanaBimbo: this.state.formData.semanasBimbo,
         product: this.state.formData.products,
         channel: this.state.formData.channels,
         salesCenter: this.state.formData.salesCenters,
-        category: this.state.formData.categories
+        category: this.state.formData.categories,
+        period: this.state.formData.period
       })
 
     this.setState({
@@ -509,17 +512,17 @@ class TabAdjustment extends Component {
     return cols
   }
 
-  checkAll = (check) => {
-    for (let row of this.state.filteredData) {
-      this.toggleCheckbox(row, check)
-    }
-    this.setState({ selectedAll: check }, function () {
-      this.toggleButtons()
-    })
+  checkAll = (checked) => {
+    this.setState({
+      selectedCheckboxes: checked
+    },
+      function () {
+        this.toggleButtons()
+      })
   }
 
-  toggleCheckbox = (row, all) => {
-    if (this.state.selectedCheckboxes.has(row) && !all) {
+  toggleCheckbox = (row) => {
+    if (this.state.selectedCheckboxes.has(row)) {
       this.state.selectedCheckboxes.delete(row)
       row.selected = false
     }
@@ -675,6 +678,12 @@ class TabAdjustment extends Component {
       obj.isLimit = (obj.newAdjustment >= maxAdjustment || obj.newAdjustment <= minAdjustment)
     }
 
+    if (obj.isLimit && obj.adjustmentRequest &&
+      (obj.adjustmentRequest.status === 'approved' ||
+      obj.adjustmentRequest.status === 'created')) {
+      obj.adjustmentRequest.status = 'rejected'
+    }
+
     if (currentRole === 'manager-level-1') {
       if (obj.newAdjustment >= maxAdjustment || 
           obj.newAdjustment <= minAdjustment)
@@ -760,14 +769,15 @@ class TabAdjustment extends Component {
 
   async finishUpAdjustmentRequest (res) {
     if (res && res.data === 'OK') {
-      this.state.selectedAR.adjustmentRequest = true
+      this.state.selectedAR.localAdjustment = parseInt(this.state.selectedAR.localAdjustment)
+      this.state.selectedAR.adjustmentRequest = { status: 'created' }
     }
     this.setState({
       selectedAR: undefined
     })
   }
 
-  searchDatarows() {
+  async searchDatarows() {
     const items = this.state.dataRows.map((item) => {
       if (this.state.searchTerm === ''){
         return item
@@ -781,7 +791,7 @@ class TabAdjustment extends Component {
     })
     .filter(function(item){ return item != null });
 
-    this.setState({
+    await this.setState({
       filteredData: items
     })
   }
@@ -981,30 +991,17 @@ class TabAdjustment extends Component {
     }
   }
 
-  handleSort(e) {
-    let sorted = this.state.filteredData
-
-    if (e === 'productId') {
-      if (this.state.sortAscending) {
-        sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
-      }
-      else {
-        sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
-      }
-    }
-    else {
-      if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, [e], ['asc'])
-
-      }
-      else {
-        sorted = _.orderBy(sorted, [e], ['desc'])
-      }
-    }
+  showByWeek() {
+    this.uncheckAll()
     this.setState({
-      filteredData: sorted,
-      sortAscending: !this.state.sortAscending,
-      sortBy: e
+      byWeek: true
+    })
+  }
+
+  showByProduct() {
+    this.uncheckAll()
+    this.setState({
+      byWeek: false
     })
   }
 
@@ -1305,17 +1302,37 @@ class TabAdjustment extends Component {
                 </div>
               </article>
               : <div>
-                {this.getModifyButtons()}
-                <div className='scroll-table'>
-                  <div className='scroll-table-container'>
-                    <BaseTable
-                      data={this.state.filteredData}
-                      columns={this.getColumns()}
-                      sortAscending={this.state.sortAscending}
-                      sortBy={this.state.sortBy}
-                      handleSort={(e) => this.handleSort(e)}/>
-                  </div>
+                <div className='field is-grouped'>
+                  <p className='control'>
+                    <a onClick={() => this.showByProduct()}>Por Producto</a>
+                  </p>
+                  <p className='control'>
+                    <a onClick={() => this.showByWeek()}>Por Semana</a>
+                  </p>
                 </div>
+                {this.getModifyButtons()}
+                {
+                  !this.state.byWeek ?
+
+                    <ProductTable
+                      currentRole={currentRole}
+                      data={this.state.filteredData}
+                      checkAll={this.checkAll}
+                      toggleCheckbox={this.toggleCheckbox}
+                      changeAdjustment={this.changeAdjustment}
+                      generalAdjustment={this.state.generalAdjustment}
+                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }} />
+                    :
+
+                    <WeekTable
+                      currentRole={currentRole}                    
+                      data={this.state.filteredData}
+                      checkAll={this.checkAll}
+                      toggleCheckbox={this.toggleCheckbox}
+                      changeAdjustment={this.changeAdjustment}
+                      generalAdjustment={this.state.generalAdjustment}
+                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }} />
+                }
               </div>
             }
           </section>

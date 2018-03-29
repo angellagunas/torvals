@@ -249,6 +249,11 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows () {
+    if (!this.state.formData.period) {
+      this.notify('Se debe filtrar por periodo!', 3000, toast.TYPE.ERROR)
+      return
+    }
+
     var period = this.state.filters.periods.find(item => {
       return item.number === this.state.formData.period
     })

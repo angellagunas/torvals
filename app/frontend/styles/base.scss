@@ -784,6 +784,7 @@ tr {
         color: #fff !important;
     }
 }
+
 .notification:not(:last-child) {
     margin-bottom: 0 !important;
 }
@@ -802,17 +803,16 @@ tr {
     font-weight: 300;
     font-size: 1.2rem;
 }
-    
-.update-pass{
+
+.update-pass {
     height: 100%;
     position: relative;
     max-height: 557px;
-    .button{
+    .button {
         position: absolute;
         bottom: 24px;
     }
 }
-
 
 .scroll-table-container {
     max-height: 630px;
@@ -840,7 +840,7 @@ tr {
         margin-left: calc(-1rem - 1px);
         height: 63px;
     }
-    th .is-hidden :last-child{
+    th .is-hidden :last-child {
         margin-top: -1px;
     }
     thead div {
@@ -850,4 +850,72 @@ tr {
 
 .was-edited:hover {
     background-color: lighten($primary, 45%) !important;
+}
+
+.sticky-table {
+    white-space: nowrap;
+    margin-top: 2rem;
+    border-top: 2px solid #e5e5e5;
+    font-size: 0.8rem;
+}
+
+.sticky-table .sticky-table-cell {
+    padding: 0.3rem 0.5rem;
+    border-bottom: 2px solid #e5e5e5;
+    background-color: #fff;
+    vertical-align: middle;
+    .input {
+        font-size: 0.8rem !important;
+    }
+    .editable {
+        padding: 0;
+        background-color: whitesmoke;
+        .control {
+            font-size: 0.8rem !important;
+        }
+    }
+    .md-checkbox {
+        line-height: 1;
+    }
+    .md-checkbox--fake {
+        margin: 5px;
+    }
+    p:last-of-type {
+        display: inline;
+    }
+}
+
+
+/* .sticky-table .sticky-table-corner,
+.sticky-table .sticky-table-column {
+    border-right: 3px solid rgba(218, 218, 218, 0.3);
+} */
+
+.sticky-table .sticky-header {
+    margin-top: 0;
+}
+
+.swrapper {
+    max-width: 88rem;
+    margin: auto;
+}
+
+.colspan {
+    max-width: 1px;
+    overflow: visible;
+    text-align: center;
+    p {
+        margin-left: 110%;
+    }
+    p:last-of-type {
+        margin-left: 80%;
+    }
+}
+
+.col-border {
+    border-right: 2px solid #e5e5e5;
+}
+
+.col-border-left {
+    border-left: 2px solid #e5e5e5;
 }
