@@ -601,13 +601,15 @@ dataSetSchema.methods.process = async function (res) {
 }
 
 dataSetSchema.methods.sendFinishedConciliating = async function () {
+  const { Project } = require('models')
+
   if (this.source !== 'adjustment') return
 
   const email = new Mailer('adjustment-finished')
-
+  const project = await Project.findOne({'_id': this.project })
   const data = {
     name: this.project.name,
-    url: `${process.env.APP_HOST}/projects/${this.project.uuid}`
+    url: `${process.env.APP_HOST}/projects/${project.uuid}`
   }
 
   await email.format(data)
