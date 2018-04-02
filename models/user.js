@@ -6,6 +6,7 @@ const dataTables = require('mongoose-datatables')
 const assert = require('http-assert')
 const { aws } = require('../config')
 const awsService = require('aws-sdk')
+const moment = require('moment')
 
 const Mailer = require('lib/mailer')
 
@@ -34,9 +35,6 @@ const userSchema = new Schema({
   },
 
   isDeleted: { type: Boolean, default: false },
-
-  resetPasswordToken: { type: String, default: v4 },
-  inviteToken: { type: String, default: v4 },
 
   uuid: { type: String, default: v4 },
   apiToken: { type: String, default: v4 }
@@ -158,18 +156,23 @@ userSchema.statics.register = async function (options) {
 }
 
 userSchema.statics.validateInvite = async function (email, token) {
+  const UserToken = mongoose.model('UserToken')
   const userEmail = email.toLowerCase()
-  const user = await this.findOne({email: userEmail, inviteToken: token})
-  assert(user, 401, 'Invalid token! You should contact the administrator of this page.')
+  const user = await this.findOne({email: userEmail})
+  assert(user, 401, '¡Usuario inválido! Contacta al administrador de la página.')
+  const userToken = await UserToken.findOne({'user': user._id, 'key': token, type: 'invite', 'validUntil': {$gte: moment.utc()}})
+  assert(userToken, 401, 'Token inválido! Contacta al administrador de la página.')
 
   return user
 }
 
 userSchema.statics.validateResetPassword = async function (email, token) {
+  const UserToken = mongoose.model('UserToken')
   const userEmail = email.toLowerCase()
-  const user = await this.findOne({email: userEmail, resetPasswordToken: token})
-  assert(user, 401, 'Invalid token! You should contact the administrator of this page.')
-
+  const user = await this.findOne({email: userEmail})
+  assert(user, 401, '¡Usuario inválido! Contacta al administrador de la página.')
+  const userToken = await UserToken.findOne({'user': user._id, 'key': token, type: 'reset', 'validUntil': {$gte: moment.utc()}})
+  assert(userToken, 401, '¡Token inválido! Contacta al administrador de la página.')
   return user
 }
 
@@ -228,13 +231,17 @@ userSchema.methods.validatePassword = async function (password) {
 }
 
 userSchema.methods.sendInviteEmail = async function () {
-  this.inviteToken = v4()
-  await this.save()
+  const UserToken = mongoose.model('UserToken')
+  let userToken = await UserToken.create({
+    user: this._id,
+    validUntil: moment().add(24, 'hours').utc(),
+    type: 'invite'
+  })
 
   const email = new Mailer('invite')
 
   const data = this.toJSON()
-  data.url = process.env.APP_HOST + '/emails/invite?token=' + this.inviteToken + '&email=' + encodeURIComponent(this.email)
+  data.url = process.env.APP_HOST + '/emails/invite?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
 
   await email.format(data)
   await email.send({
@@ -247,8 +254,12 @@ userSchema.methods.sendInviteEmail = async function () {
 }
 
 userSchema.methods.sendResetPasswordEmail = async function (admin) {
-  this.inviteToken = v4()
-  await this.save()
+  const UserToken = mongoose.model('UserToken')
+  let userToken = await UserToken.create({
+    user: this._id,
+    validUntil: moment().add(24, 'hours').utc(),
+    type: 'reset'
+  })
   let url = process.env.APP_HOST
 
   if (admin) url = process.env.ADMIN_HOST + process.env.ADMIN_PREFIX
@@ -256,7 +267,7 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
   const email = new Mailer('reset-password')
 
   const data = this.toJSON()
-  data.url = url + '/emails/reset?token=' + this.resetPasswordToken + '&email=' + encodeURIComponent(this.email)
+  data.url = url + '/emails/reset?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
 
   await email.format(data)
   await email.send({

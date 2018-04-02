@@ -119,8 +119,7 @@ class ResetPassword extends Component {
           <div className='card-content'>
             <div className='content'>
               <p>
-                We need your email address for us to send you a password reset
-                link:
+                Necesitamos tu dirección de correo para enviarte un link de reestablecimiento de la contraseña:
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}
@@ -132,7 +131,7 @@ class ResetPassword extends Component {
                 { spinner }
                 <div className={this.state.apiCallMessage}>
                   <div className='message-body is-size-7 has-text-centered'>
-                    Reset password email sent!
+                    El e-mail ha sido enviado. El link tendrá una vigencia de 24 horas.
                   </div>
                 </div>
                 <div className={this.state.apiCallErrorMessage}>
@@ -145,7 +144,7 @@ class ResetPassword extends Component {
                   type='submit'
                   disabled={!!error}
                 >
-                  Send reset password link
+                  Enviar link a la dirección de correo
                 </button>
               </BaseForm>
             </div>
