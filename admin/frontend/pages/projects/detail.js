@@ -203,22 +203,6 @@ class ProjectDetail extends Component {
           />
       )},
       {
-        name: 'anomalias',
-        title: 'Anomalias',
-        icon: 'fa-exclamation-triangle',
-        reload: true,
-        hide: !project.activeDataset ||
-          project.status === 'processing' ||
-          project.status === 'pendingRows' ||
-          project.status === 'empty',
-        content: (
-          <TabAnomalies
-            project={project}
-            reload={(tab) => this.load(tab)}
-          />
-        )
-      },
-      {
         name: 'Historico',
         title: 'Historico',
         icon: 'fa-history',
