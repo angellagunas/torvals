@@ -49,7 +49,7 @@ module.exports = new Route({
       requestBody.categoria_id = data.category
     }
 
-    var res = await Api.graphicProjects(project.externalId, requestBody)
+    var res = await Api.graphicProject(project.externalId, requestBody)
     const abraxasDates = await AbraxasDate.find()
     var responseData = {}
     for (let section in res) {
