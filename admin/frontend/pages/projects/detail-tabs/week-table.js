@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import StickTable from '~base/components/stick-table'
 import Checkbox from '~base/components/base-checkbox'
-import Editable from '~base/components/base-editable'
 import Loader from '~base/components/spinner'
 import classNames from 'classnames'
 
@@ -12,8 +11,10 @@ class WeekTable extends Component {
     super(props)
     this.state = {
       filteredDataByWeek: [],
-      selectedAll: false
+      selectedAll: false,
+      data: this.props.data
     }
+    this.inputs = new Set()
   }
 
   setRange () {
@@ -38,7 +39,6 @@ class WeekTable extends Component {
     let selected = new Set()    
     for (let row of this.state.filteredDataByWeek) {
       for (const week of row.weeks) {
-        //this.props.toggleCheckbox(week, !this.state.selectedAll)
         if (this.state.selectedAll) {
           selected.delete(week)
           week.selected = false
@@ -65,10 +65,27 @@ class WeekTable extends Component {
     row.selected = !row.selected
   }
 
+  getBtns() {
+    return (
+      <div className="field has-addons view-btns">
+        <span className="control">
+          <a className="button is-primary">
+            Vista Semana
+          </a>
+        </span>
+        <span className="control">
+          <a className="button is-primary is-outlined" onClick={this.props.show}>
+            Vista Producto
+          </a>
+        </span>
+      </div>
+    )
+  }
+
   getColumnsByWeek() {
     return [
       {
-        group: ' ',
+        group: this.getBtns(),
         title: (() => {
           return (
             <Checkbox
@@ -79,7 +96,7 @@ class WeekTable extends Component {
               hideLabel />
           )
         })(),
-        groupClassName: 'col-border-left',        
+        groupClassName: 'col-border-left colspan is-paddingless',        
         headerClassName: 'col-border-left',
         className: 'col-border-left',        
         'property': 'checkbox',
@@ -111,7 +128,7 @@ class WeekTable extends Component {
         }
       },
       {
-        group: 'Producto',
+        group: ' ',
         title: 'Producto',
         property: 'product',
         default: 'N/A',
@@ -183,18 +200,21 @@ class WeekTable extends Component {
              if (!row.weeks[j].localAdjustment) {
                row.weeks[j].localAdjustment = 0
              }
-
+             row.tabin = row.key * 10 + j
+             row.weeks[j].tabin = row.key * 10 + j
              return (
-              <Editable
-              tabIndex={row.key + 1}
-              value={row.weeks[j].localAdjustment}
-              handleChange={this.props.changeAdjustment}
-              type='number'
-              obj={row.weeks[j]}
-              width={70}
-              hideIcon
-            /> 
-               
+               <input
+                 type='number'
+                 className='input'
+                 value={row.weeks[j].localAdjustment}
+                 onBlur={(e) => { this.onBlur(e, row.weeks[j])}}
+                 onKeyPress={(e) => { this.onEnter(e, row.weeks[j])}}
+                 style={{ width: 80 }}
+                 onChange={(e) => { this.onChange(e, row.weeks[j])}}
+                 onFocus={(e) => { this.onFocus(e, row.weeks[j]) }}
+                 tabIndex={row.tabin}
+                 ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
+               />
              )
            }
          },
@@ -224,15 +244,66 @@ class WeekTable extends Component {
     return cols
   }
 
+  changeCell = (row, direction) => { 
+    let edit = Array.from(this.inputs).find(e => e.tabin === row.tabin + 10 * direction)
+    
+    if(edit){
+      edit.el.focus()
+    }
+  }
+
+  onFocus (e , row) {
+    row.original = row.localAdjustment
+    e.target.select()
+  }
+
+  onEnter = async (e, row) => {
+    let value = e.target.value
+
+    if (e.target.type === 'number') {
+      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
+    }
+
+    if (e.charCode === 13 && !e.shiftKey) {
+      this.changeCell(row, 1)
+    }
+    else if (e.charCode === 13 && e.shiftKey) {
+      this.changeCell(row, -1)
+    }
+  }
+
+  onBlur = async (e, row) => {
+    let value = e.target.value
+
+    if (e.target.type === 'number') {
+      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
+    }
+
+    if (row.original !== value) {
+      this.props.changeAdjustment(value, row)
+    }
+
+   }
+
+  onChange = (e, row) => {
+    row.localAdjustment = e.target.value
+    let aux = this.state.filteredDataByWeek
+
+    this.setState({
+      filteredDataByWeek: aux 
+    })
+
+  }
+
   filterData = async () => {
-    if(!this.props.data)
+    if(!this.state.data)
       return
 
       await this.setState({
         filteredDataByWeek: []
       })  
 
-    let data = this.props.data
+    let data = this.state.data
     
     let rw = []
     for (let index = 0; index < data.length; index++) {
@@ -338,14 +409,22 @@ class WeekTable extends Component {
 
   componentWillReceiveProps(nextProps){
     if(nextProps.data !== this.props.data){
-      this.setRange()
-      this.filterData()
+      this.setState({
+        data: nextProps.data
+      }, () => {
+        this.setRange()
+        this.filterData()
+      })
     }
   }
 
   componentWillMount(){
-    this.setRange()
-    this.filterData()
+    this.setState({
+      data: this.props.data
+    }, () => {
+      this.setRange()
+      this.filterData()
+    })
   }
 
   render () {

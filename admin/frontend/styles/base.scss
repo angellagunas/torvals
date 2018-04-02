@@ -762,33 +762,32 @@ tr {
     border-bottom: 2px solid #e5e5e5;
     background-color: #fff;
     vertical-align: middle;
-    .input{
-        font-size: 0.8rem !important;        
+    .input {
+        font-size: 0.8rem !important;
     }
     .editable {
         padding: 0;
-        background-color:whitesmoke;
-        .control{
-            font-size: 0.8rem !important;        
+        background-color: whitesmoke;
+        .control {
+            font-size: 0.8rem !important;
         }
-        
     }
     .md-checkbox {
         line-height: 1;
     }
-    
     .md-checkbox--fake {
         margin: 5px;
     }
-    p:last-of-type{
+    p:last-of-type {
         display: inline;
     }
 }
 
-/* .sticky-table .sticky-table-corner,
+.sticky-table .sticky-table-corner,
 .sticky-table .sticky-table-column {
-    border-right: 3px solid rgba(218, 218, 218, 0.3);
-} */
+    border-right: 5px solid rgba(218, 218, 218, 0.4);
+    margin-right: -3px !important;
+}
 
 .sticky-table .sticky-header {
     margin-top: 0;
@@ -803,16 +802,28 @@ tr {
     max-width: 1px;
     overflow: visible;
     text-align: center;
-    p{
+    p {
         margin-left: 110%;
     }
-    p:last-of-type{
+    p:last-of-type {
         margin-left: 80%;
     }
-  }
-.col-border{
+}
+
+.col-border {
     border-right: 2px solid #e5e5e5;
-}  
-.col-border-left{
+}
+
+.col-border-left {
     border-left: 2px solid #e5e5e5;
+}
+
+.productName{
+    min-width: 300px;
+}
+
+.view-btns {
+    .button {
+        width: 227px;
+    }
 }

@@ -885,11 +885,11 @@ tr {
     }
 }
 
-
-/* .sticky-table .sticky-table-corner,
+.sticky-table .sticky-table-corner,
 .sticky-table .sticky-table-column {
-    border-right: 3px solid rgba(218, 218, 218, 0.3);
-} */
+    border-right: 5px solid rgba(218, 218, 218, 0.4);
+    margin-right: -3px !important;
+}
 
 .sticky-table .sticky-header {
     margin-top: 0;
@@ -918,4 +918,14 @@ tr {
 
 .col-border-left {
     border-left: 2px solid #e5e5e5;
+}
+
+.productName {
+    min-width: 300px;
+}
+
+.view-btns {
+    .button {
+        width: 227px;
+    }
 }

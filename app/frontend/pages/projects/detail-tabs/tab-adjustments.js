@@ -991,14 +991,14 @@ class TabAdjustment extends Component {
     }
   }
 
-  showByWeek() {
+  showByWeek = () => {
     this.uncheckAll()
     this.setState({
       byWeek: true
     })
   }
 
-  showByProduct() {
+  showByProduct = () => {
     this.uncheckAll()
     this.setState({
       byWeek: false
@@ -1302,19 +1302,12 @@ class TabAdjustment extends Component {
                 </div>
               </article>
               : <div>
-                <div className='field is-grouped'>
-                  <p className='control'>
-                    <a onClick={() => this.showByProduct()}>Por Producto</a>
-                  </p>
-                  <p className='control'>
-                    <a onClick={() => this.showByWeek()}>Por Semana</a>
-                  </p>
-                </div>
                 {this.getModifyButtons()}
                 {
                   !this.state.byWeek ?
 
                     <ProductTable
+                      show={this.showByWeek}
                       currentRole={currentRole}
                       data={this.state.filteredData}
                       checkAll={this.checkAll}
@@ -1325,6 +1318,7 @@ class TabAdjustment extends Component {
                     :
 
                     <WeekTable
+                      show={this.showByProduct}
                       currentRole={currentRole}                    
                       data={this.state.filteredData}
                       checkAll={this.checkAll}

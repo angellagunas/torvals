@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import StickTable from '~base/components/stick-table'
 import Checkbox from '~base/components/base-checkbox'
-import Editable from '~base/components/base-editable'
 import Loader from '~base/components/spinner'
 import classNames from 'classnames'
 
@@ -10,8 +9,10 @@ class ProductTable extends Component {
     super(props)
     this.state = {
       filteredData: this.props.data || [],
-      selectedAll: false
+      selectedAll: false,
+      data: this.props.data
     }
+    this.inputs = new Set()
   }
 
   splitWords (words) {
@@ -43,10 +44,27 @@ class ProductTable extends Component {
     this.props.toggleCheckbox(row)
   }
 
+  getBtns() {
+    return (
+      <div className="field has-addons view-btns">
+        <span className="control">
+          <a className="button is-primary is-outlined" onClick={this.props.show}>
+            Vista Semana
+          </a>
+        </span>
+        <span className="control">
+          <a className="button is-primary">
+            Vista Producto
+          </a>
+        </span>
+      </div>
+    )
+  }
+
   getColumns () {
     return [
       {
-        group: ' ',
+        group: this.getBtns(),
         title: (() => {
           if (this.props.currentRole !== 'manager-level-3') {
           return (
@@ -59,7 +77,7 @@ class ProductTable extends Component {
           )
         }
         })(),
-        groupClassName: 'col-border-left',
+        groupClassName: 'col-border-left colspan is-paddingless',
         headerClassName: 'col-border-left',
         className: 'col-border-left',
         'property': 'checkbox',
@@ -81,7 +99,7 @@ class ProductTable extends Component {
         }
       },
       {
-        group: 'Producto',
+        group: ' ',
         title: 'Id',
         property: 'productId',
         default: 'N/A',
@@ -98,7 +116,7 @@ class ProductTable extends Component {
         property: 'productName',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
+        headerClassName: 'col-border productName',
         className: 'col-border'
       },
       {
@@ -172,13 +190,19 @@ class ProductTable extends Component {
             row.localAdjustment = 0
           }
 
+          row.tabin = row.key * 10
           return (
-            <Editable
-              value={row.localAdjustment}
-              handleChange={this.props.changeAdjustment}
+            <input
               type='number'
-              obj={row}
-              width={100}
+              className='input'
+              value={row.localAdjustment}
+              onBlur={(e) => { this.onBlur(e, row) }}
+              onKeyPress={(e) => { this.onEnter(e, row) }}
+              style={{ width: 80 }}
+              onChange={(e) => { this.onChange(e, row) }}
+              onFocus={(e) => { this.onFocus(e, row) }}
+              tabIndex={row.tabin}
+              ref={(el) => { this.inputs.add({ tabin: row.tabin, el: el }) }}
             />
           )
         }
@@ -266,6 +290,57 @@ class ProductTable extends Component {
     }
 
     return limit
+  }
+
+  changeCell = (row, direction) => {
+    let edit = Array.from(this.inputs).find(e => e.tabin === row.tabin + 10 * direction)
+
+    if (edit) {
+      edit.el.focus()
+    }
+  }
+
+  onFocus(e, row) {
+    row.original = row.localAdjustment
+    e.target.select()
+  }
+
+  onEnter = async (e, row) => {
+    let value = e.target.value
+
+    if (e.target.type === 'number') {
+      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
+    }
+
+    if (e.charCode === 13 && !e.shiftKey) {
+      this.changeCell(row, 1)
+    }
+    else if (e.charCode === 13 && e.shiftKey) {
+      this.changeCell(row, -1)
+    }
+  }
+
+  onBlur = async (e, row) => {
+    let value = e.target.value
+
+    if (e.target.type === 'number') {
+      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
+    }
+
+    if (row.original !== value) {
+      this.props.changeAdjustment(value, row)
+    }
+
+  }
+
+  onChange = (e, row) => {
+    row.localAdjustment = e.target.value
+    let aux = this.state.filteredData
+
+    this.setState({
+      filteredData: aux
+    })
+
   }
 
   componentWillReceiveProps (nextProps) {
