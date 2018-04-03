@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Loader from '~base/components/spinner'
+import { testRoles } from '~base/tools'
 
 import api from '~base/api'
 
@@ -214,6 +215,11 @@ class InviteUserForm extends Component {
     if (schema.properties.project && this.state.projects.length > 0) {
       schema.properties.project.enum = this.state.projects.map(item => { return item.uuid })
       schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
+    }
+
+    if (testRoles('manager-level-2')) {
+      delete schema.properties.group
+      delete uiSchema.group
     }
 
     return (

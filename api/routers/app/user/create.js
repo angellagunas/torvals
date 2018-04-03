@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 const crypto = require('crypto')
+const ObjectId = require('mongodb').ObjectID
 
 const {User, Role, Group, Project} = require('models')
 
@@ -57,7 +58,21 @@ module.exports = new Route({
     userData.group = undefined
     const user = await User.register(userData)
 
-    if (group) {
+    var currentRole
+    var currentOrganization
+
+    if (ctx.state.organization) {
+      currentOrganization = ctx.state.user.organizations.find(orgRel => {
+        return ctx.state.organization._id.equals(orgRel.organization._id)
+      })
+
+      if (currentOrganization) {
+        const role = await Role.findOne({_id: currentOrganization.role})
+
+        currentRole = role
+      }
+    }
+    if (group && currentRole.slug !== 'manager-level-2') {
       group = await Group.findOne({'uuid': group})
       ctx.assert(group, 404, 'Grupo no encontrada')
 
@@ -68,6 +83,37 @@ module.exports = new Route({
       user.groups.push(group)
       group.users.push(user)
       await group.save()
+    }
+
+    if (currentRole.slug === 'manager-level-2') {
+      var statement = [
+        {
+          '$match': { '_id': ObjectId(ctx.state.user._id) }
+        },
+        {
+          '$lookup': {
+            'from': 'groups',
+            'localField': 'groups',
+            'foreignField': '_id',
+            'as': 'infoGroup'
+          }
+        },
+        {
+          '$unwind': {
+            'path': '$infoGroup'
+          }
+        },
+        {
+          '$match': {
+            'infoGroup.organization': ObjectId('5ab9462f549c650523d6848b')
+          }
+        }
+      ]
+      var currentUserGroups = await User.aggregate(statement)
+      currentUserGroups.map(async (currentGroup) => {
+        user.groups.push(currentGroup.infoGroup)
+        await Group.findOneAndUpdate({'_id': currentGroup.infoGroup._id}, {$push: {'users': user._id}})
+      })
     }
 
     await user.save()
