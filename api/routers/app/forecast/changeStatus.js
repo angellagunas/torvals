@@ -44,7 +44,7 @@ module.exports = new Route({
     }
 
     ctx.body = {
-      data: forecast.format()
+      data: forecast.toPublic()
     }
   }
 })

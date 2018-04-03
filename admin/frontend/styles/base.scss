@@ -225,12 +225,21 @@ pre.json {
     display: block;
     padding: 1em;
     margin: 0;
+    white-space: pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    word-break: break-all;
 }
 
 .request-log {
     margin-bottom: 0.5rem !important;
+
     .message-header {
         cursor: pointer;
+    }
+
+    .message-body {
+        background-color: white;
     }
 }
 
@@ -293,6 +302,29 @@ pre.json {
             padding-left: 274px
         }
     }
+}
+
+.is-relative{
+  position: relative;
+}
+
+.is-bottom{
+  position: absolute;
+  right:    12px;
+  bottom:   12px;
+}
+
+.notification {
+  padding: 0.6em 0.8em !important;
+}
+
+.secret{
+  border-color: #00d1b2 !important;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  background-color: #d5fff7 !important;
+  padding: 0 2px;
 }
 
 .avatar {
@@ -648,7 +680,7 @@ tr {
 }
 
 .keep-cell {
-    width: 100px;
+    min-width: 100px;
 }
 
 ::-webkit-scrollbar {
@@ -826,4 +858,17 @@ tr {
     .button {
         width: 227px;
     }
+}
+.postman-export {
+  margin-bottom: 0px !important;
+  margin-right: 0px;
+  padding-top: .5em;
+
+  .column {
+    padding-bottom: 0px;
+  }
+}
+
+.info-project{
+    height: 2rem;
 }

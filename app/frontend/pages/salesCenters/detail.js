@@ -10,7 +10,7 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import SalesCenterForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
@@ -178,11 +178,23 @@ class SalesCenterDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return (
-            <Link className='button' to={'/forecasts/' + row.uuid}>
-              Detalle
-            </Link>
-          )
+          if (testRoles('manager-level-2, manager-level-3')) {
+            return (
+              <Link className='button' to={'/forecasts/' + row.uuid}>
+                <span className='icon is-small' title='Visualizar'>
+                  <i className='fa fa-eye' />
+                </span>
+              </Link>
+            )
+          } else {
+            return (
+              <Link className='button is-primary' to={'/forecasts/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+            )
+          }
         }
       }
     ]
@@ -346,33 +358,6 @@ class SalesCenterDetail extends Component {
                       assignedClickHandler={this.assignedGroupOnClick.bind(this)}
                       disabled={!canEdit}
                     />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='columns'>
-              <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Predicciones
-                        </p>
-                      </header>
-                      <div className='card-content'>
-                        <div className='columns'>
-                          <div className='column'>
-                            <BranchedPaginatedTable
-                              branchName='forecasts'
-                              baseUrl='/app/forecasts/'
-                              columns={this.getColumns()}
-                              filters={{salesCenter: this.state.salesCenter.uuid}}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>

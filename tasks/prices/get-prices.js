@@ -36,8 +36,15 @@ const task = new Task(async function (argv) {
   var res = await request(options)
 
   for (var p of res._items) {
-    var price = await Price.findOne({externalId: p._id})
-    var product = await Product.findOne({externalId: p.producto_id})
+    var price = await Price.findOne({
+      externalId: p._id,
+      organization: organization._id
+    })
+    var product = await Product.findOne({
+      externalId: p.producto_id,
+      organization: organization._id
+    })
+
     if (!product) {
       product = await Product.create({
         name: 'Not identified',
@@ -46,8 +53,19 @@ const task = new Task(async function (argv) {
         isNewExternal: true
       })
     }
-    var channel = await Channel.findOne({externalId: p.canal_id})
-    if (!channel) { channel = {_id: null} }
+
+    var channel = await Channel.findOne({
+      externalId: p.canal_id,
+      organization: organization._id
+    })
+    if (!channel) {
+      channel = await Channel.create({
+        name: 'Not identified',
+        externalId: p.canal_id,
+        organization: organization._id,
+        isNewExternal: true
+      })
+    }
 
     if (!price) {
       price = await Price.create({

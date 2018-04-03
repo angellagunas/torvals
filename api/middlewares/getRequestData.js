@@ -20,9 +20,10 @@ module.exports = async function (ctx, next) {
         ctx.throw(401, 'Invalid JWT')
       }
 
-      let userToken = await UserToken.findOne({
+      var userToken = await UserToken.findOne({
         key: data.key,
-        secret: data.secret
+        secret: data.secret,
+        isDeleted: {$ne: true}
       }).populate('user')
 
       if (!userToken) {
@@ -45,9 +46,30 @@ module.exports = async function (ctx, next) {
 
       ctx.state.user = user
       ctx.state.token = userToken
+      ctx.state.authMethod = 'Bearer'
+    }
 
-      userToken.lastUse = new Date()
-      await userToken.save()
+    if (method === 'Basic') {
+      const decodedStr = Buffer.from(token, 'base64').toString('ascii')
+
+      const key = decodedStr.split(':')[0]
+      const secret = decodedStr.split(':')[1]
+
+      userToken = await UserToken.findOne({
+        key: key,
+        secret: secret,
+        isDeleted: {$ne: true}
+      }).populate('user')
+
+      if (!userToken) {
+        return ctx.throw(401, 'Invalid User')
+      }
+
+      if (!userToken.user) {
+        return ctx.throw(401, 'Invalid User')
+      }
+
+      ctx.state.authMethod = 'Basic'
     }
   }
 

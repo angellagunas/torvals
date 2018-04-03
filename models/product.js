@@ -21,7 +21,7 @@ const productSchema = new Schema({
 
 productSchema.plugin(dataTables)
 
-productSchema.methods.format = function () {
+productSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,
     name: this.name,

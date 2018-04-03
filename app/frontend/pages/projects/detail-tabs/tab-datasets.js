@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import Link from '~base/router/link'
 import CreateDataSet from '../create-dataset'
 import api from '~base/api'
 import PropTypes from 'baobab-react/prop-types'
 import DeleteButton from '~base/components/base-deleteButton'
 import moment from 'moment'
-import {datasetStatus} from '~base/tools'
+import {datasetStatus, testRoles} from '~base/tools'
 
 class TabDatasets extends Component {
   constructor (props) {
@@ -67,20 +67,38 @@ class TabDatasets extends Component {
           return (
             <div className='field is-grouped'>
               <div className='control'>
-                <Link
-                  className={
-                    row.status === 'conciliated' || row.status === 'adjustment'
-                      ? 'button'
-                      : 'is-hidden'
-                  }
-                  to={'/datasets/' + row.uuid}
-                >
-                  Detalle
-                </Link>
+                {
+                  testRoles('manager-level-2, manager-level-3')
+                    ? <Link
+                      className={
+                        row.status === 'conciliated' || row.status === 'adjustment'
+                          ? 'button'
+                          : 'is-hidden'
+                      }
+                      to={'/datasets/' + row.uuid}
+                    >
+                      <span className='icon is-small' title='Visualizar'>
+                        <i className='fa fa-eye' />
+                      </span>
+                    </Link>
+                    : <Link
+                      className={
+                        row.status === 'conciliated' || row.status === 'adjustment'
+                          ? 'button is-primary'
+                          : 'is-hidden'
+                      }
+                      to={'/datasets/' + row.uuid}
+                    >
+                      <span className='icon is-small' title='Editar'>
+                        <i className='fa fa-pencil' />
+                      </span>
+                    </Link>
+                }
+
                 <Link
                   className={
                     row.status !== 'conciliated' && row.status !== 'adjustment'
-                    ? 'button is-primary'
+                    ? 'button is-info'
                     : 'is-hidden'
                   }
                   to={'/datasets/' + row.uuid}
@@ -91,6 +109,8 @@ class TabDatasets extends Component {
               <div className='control'>
                 { this.props.canEdit &&
                   <DeleteButton
+                    iconOnly
+                    icon='fa fa-trash'
                     objectName='Dataset'
                     objectDelete={() => this.removeDatasetOnClick(row.uuid)}
                     message={'Estas seguro de querer eliminar este dataset?'}

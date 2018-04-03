@@ -31,7 +31,7 @@ module.exports = new Route({
     await adjustmentRequest.save()
 
     ctx.body = {
-      data: adjustmentRequest.format()
+      data: adjustmentRequest.toPublic()
     }
   }
 })

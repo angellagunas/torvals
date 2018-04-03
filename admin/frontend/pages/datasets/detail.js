@@ -7,6 +7,7 @@ import Loader from '~base/components/spinner'
 import FontAwesome from 'react-fontawesome'
 import env from '~base/env-variables'
 import classNames from 'classnames'
+import { toast, ToastContainer } from 'react-toastify'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -49,8 +50,11 @@ class DataSetDetail extends Component {
       selectAllChannels: false,
       selectedChannels: new Set(),
       disableBtnC: true,
+      isLoadingBtnC: '',
       disableBtnP: true,
-      disableBtnS: true
+      isLoadingBtnP: '',
+      disableBtnS: true,
+      isLoadingBtnS: ''
     }
 
     this.newProducts = []
@@ -764,8 +768,9 @@ class DataSetDetail extends Component {
               <div className={this.state.isChannelsOpen ? 'control' : 'is-hidden'}>
                 <button
                   onClick={() => this.confirmChannels()}
-                  disabled={this.state.disableBtnC}
-                  className='button is-primary is-outlined is-pulled-right'>
+                  disabled={this.state.disableBtnC || !!this.state.isLoadingBtnC}
+                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnC}
+                >
                   Confirmar ({this.state.selectedChannels.size})
                 </button>
               </div> 
@@ -877,8 +882,9 @@ class DataSetDetail extends Component {
               <div className={this.state.isSalesCenterOpen ? 'control' : 'is-hidden'}>
                 <button
                   onClick={() => this.confirmSalesCenters()}
-                  disabled={this.state.disableBtnS}
-                  className='button is-primary is-outlined is-pulled-right'>
+                  disabled={this.state.disableBtnS || !!this.state.isLoadingBtnS}
+                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnS}
+                >
                   Confirmar ({this.state.selectedSalesCenters.size})
                 </button>
               </div> 
@@ -978,8 +984,6 @@ class DataSetDetail extends Component {
       this.newProducts.length === 0) {
       return ''
     }
-    
-    
 
     return (
       <div className='columns'>
@@ -993,8 +997,9 @@ class DataSetDetail extends Component {
                 <div className={this.state.isProductsOpen ? 'control' : 'is-hidden'}>
                   <button
                     onClick={() => this.confirmProducts()}
-                    disabled={this.state.disableBtnP}
-                    className='button is-primary is-outlined is-pulled-right'>
+                    disabled={this.state.disableBtnP || !!this.state.isLoadingBtnP}
+                    className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnP}
+                  >
                     Confirmar ({this.state.selectedProducts.size})
                   </button>
                 </div> 
@@ -1170,24 +1175,34 @@ class DataSetDetail extends Component {
   }
 
   async confirmProducts () {
-    const url = '/admin/products/'
-    for (let item of this.state.selectedProducts) {
-      if (!item.category) {
-        item.category = ''
+    this.setState({
+      isLoadingBtnP: ' is-loading'
+    })
+
+    const url = '/admin/products/approve'
+    let products = Array.from(this.state.selectedProducts).map(item => {
+      return {
+        ...item,
+        category: item.category || '',
+        subcategory: item.subcategory || '',
       }
-      if (!item.subcategory) {
-        item.subcategory = ''
+    })
+
+    try {
+      let res = await api.post(url, products)
+      this.notify(`Se confirmaron exitosamente ${res.success} productos!`, 3000, toast.TYPE.SUCCESS)
+
+      if (res.error > 0) {
+        this.notify(`No se pudieron confirmar ${res.error} productos!` , 3000, toast.TYPE.ERROR)
       }
-      item.organization = this.state.organizations.find(org => {
-        if (org._id === item.organization)
-          return org 
-      }).uuid 
-      await api.post(url + item.uuid, item)
+    } catch(e){
+      this.notify('Error al confirmar productos!' , 3000, toast.TYPE.ERROR) 
     }
     
     this.setState({
       selectedProducts: new Set(),
-      selectAllProducts: false
+      selectAllProducts: false,
+      isLoadingBtnP: ''
     }, function () {
       this.toggleButtons()
       this.load()
@@ -1195,20 +1210,34 @@ class DataSetDetail extends Component {
   }
 
   async confirmSalesCenters() {
-    const url = '/admin/salesCenters/'
-    for (let item of this.state.selectedSalesCenters) {
-      
-      item.organization = this.state.organizations.find(org => {
-        if (org._id === item.organization)
-          return org
-      }).uuid 
+    this.setState({
+      isLoadingBtnS: ' is-loading'
+    })
 
-      await api.post(url + item.uuid, item)
+    const url = '/admin/salesCenters/approve'
+    try {
+      let res = await api.post(url, Array.from(this.state.selectedSalesCenters))
+      this.notify(
+        `Se confirmaron exitosamente ${res.success} centros de venta!`,
+        3000,
+        toast.TYPE.SUCCESS
+      )
+
+      if (res.error > 0) {
+        this.notify(
+          `No se pudieron confirmar ${res.error} centros de venta!`,
+          3000,
+          toast.TYPE.ERROR
+        )
+      }
+    } catch(e){
+      this.notify('Error al confirmar centros de venta!', 3000, toast.TYPE.ERROR) 
     }
 
     this.setState({
       selectedSalesCenters: new Set(),
-      selectAllSalesCenters: false
+      selectAllSalesCenters: false,
+      isLoadingBtnS: ''
     }, function () {
       this.toggleButtons()
       this.load()
@@ -1216,23 +1245,46 @@ class DataSetDetail extends Component {
   }
 
   async confirmChannels() {
-    const url = '/admin/channels/'
-    for (let item of this.state.selectedChannels) {
-      
-      item.organization = this.state.organizations.find(org => {
-        if (org._id === item.organization)
-          return org
-      }).uuid
+    this.setState({
+      isLoadingBtnC: ' is-loading'
+    })
 
-      await api.post(url + item.uuid, item)
+    const url = '/admin/channels/approve'
+    try {
+      let res = await api.post(url, Array.from(this.state.selectedChannels))
+      this.notify(
+        `Se confirmaron exitosamente ${res.success} canales!`,
+        3000,
+        toast.TYPE.SUCCESS
+      )
+
+      if (res.error > 0) {
+        this.notify(
+          `No se pudieron confirmar ${res.error} canales!`,
+          3000,
+          toast.TYPE.ERROR
+        )
+      }
+    } catch(e){
+      this.notify('Error al confirmar canales!', 3000, toast.TYPE.ERROR) 
     }
 
     this.setState({
       selectedChannels: new Set(),
-      selectAllChannels: false
+      selectAllChannels: false,
+      isLoadingBtnC: ''
     }, function () {
       this.toggleButtons()
       this.load()
+    })
+  }
+
+  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+    this.toastId = toast(message, {
+      autoClose: timeout,
+      type: type,
+      hideProgressBar: true,
+      closeButton: false
     })
   }
 
@@ -1352,6 +1404,7 @@ class DataSetDetail extends Component {
         {this.getModalCurrentProduct()}
         {this.getModalSalesCenters()}
         {this.getModalChannels()}
+        <ToastContainer />
       </div>
     )
   }

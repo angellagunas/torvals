@@ -6,7 +6,7 @@ import api from '~base/api'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import { ToastContainer, toast } from 'react-toastify'
 import Breadcrumb from '~base/components/base-breadcrumb'
 

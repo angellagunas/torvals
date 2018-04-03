@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import Link from '~base/router/link'
 import CreateDataSet from '../create-dataset'
 import api from '~base/api'
@@ -72,17 +72,19 @@ class TabDatasets extends Component {
                 <Link
                   className={
                     row.status === 'conciliated' || row.status === 'adjustment'
-                      ? 'button'
+                      ? 'button is-primary'
                       : 'is-hidden'
                   }
                   to={'/datasets/detail/' + row.uuid}
                 >
-                  Detalle
+                  <span className='icon is-small' title='Editar'>
+                    <i className='fa fa-pencil' />
+                  </span>
                 </Link>
                 <Link
                   className={
                     row.status !== 'conciliated' && row.status !== 'adjustment'
-                    ? 'button is-primary'
+                    ? 'button is-info'
                     : 'is-hidden'
                   }
                   to={'/datasets/detail/' + row.uuid}
@@ -92,6 +94,8 @@ class TabDatasets extends Component {
               </div>
               <div className='control'>
                 <DeleteButton
+                  iconOnly
+                  icon='fa fa-trash'
                   objectName='Dataset'
                   objectDelete={() => this.removeDatasetOnClick(row.uuid)}
                   message={'Estas seguro de querer eliminar este dataset?'}

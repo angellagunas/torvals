@@ -6,7 +6,7 @@ import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import {datasetStatus} from '~base/tools'
 

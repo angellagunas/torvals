@@ -11,43 +11,55 @@
             "name": "Daniel Zavala",
             "email": "d@commonsense.io",
             "invite": false,
-            "password": "xMLewQXLz8"
+            "password": "123macarena"
         },
         {
             "name": "Samara Salas",
             "email": "s@commonsense.io",
             "invite": true,
-            "password": "mCndkwFFr6"
+            "password": "123macarena"
+        },
+        {
+            "name": "Karla Mendoza",
+            "email": "karla@commonsense.io",
+            "invite": false,
+            "password": "finlandia8"
+        },
+        {
+            "name": "Eva",
+            "email": "eva@commonsense.io",
+            "invite": false,
+            "password": "123macarena"
         },
         {
             "name": "José Pedraza",
             "email": "jpedraza@grupoabraxas.com",
             "invite": true,
-            "password": "TXjsdSDWWK"
+            "password": "123macarena"
         },
         {
             "name": "Josue Monroy",
             "email": "jmonroy@grupoabraxas.com",
             "invite": true,
-            "password": "WcTFNaAs8o"
+            "password": "123macarena"
         },
         {
             "name": "Rodrigo Boyzo",
             "email": "rboyzo@grupoabraxas.com",
             "invite": true,
-            "password": "6kEyOpNJ8j"
+            "password": "123macarena"
         },
         {
             "name": "Felipe Garcia",
             "email": "fgarcia@grupoabraxas.com",
             "invite": true,
-            "password": "u45UJvPTN9"
+            "password": "123macarena"
         },
         {
             "name": "Anibal Ruz",
             "email": "aruz@grupoabraxas.com",
             "invite": true,
-            "password": "BOfi9Seqyv"
+            "password": "123macarena"
         }
     ],
     "organizations": [
@@ -102,6 +114,16 @@
         },
         {
             "user": "s@commonsense.io",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "karla@commonsense.io",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "eva@commonsense.io",
             "organization": "Barcel",
             "role": "OrgAdmin"
         },

@@ -8,7 +8,7 @@ import Loader from '~base/components/spinner'
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import OrganizationForm from './form'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
@@ -74,8 +74,10 @@ class OrganizationDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/users/' + row.uuid}>
-            Detalle
+          return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+            <span className='icon is-small' title='Editar'>
+              <i className='fa fa-pencil' />
+            </span>
           </Link>
         }
       }

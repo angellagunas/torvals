@@ -4,10 +4,11 @@ import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
+import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import OrganizationForm from './form'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
@@ -71,13 +72,23 @@ class OrganizationDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return (
-            <Link className='button' to={'/manage/users/' + row.uuid}>
-              <span className='icon is-small' title='Visualizar'>
-                <i className='fa fa-eye' />
-              </span>
-            </Link>
-          )
+          if (testRoles('manager-level-2, manager-level-3')) {
+            return (
+              <Link className='button' to={'/manage/users/' + row.uuid}>
+                <span className='icon is-small' title='Visualizar'>
+                  <i className='fa fa-eye' />
+                </span>
+              </Link>
+            )
+          } else {
+            return (
+              <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+            )
+          }
         }
       }
     ]
