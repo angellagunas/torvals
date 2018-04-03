@@ -52,7 +52,10 @@ datasetRowSchema.methods.toPublic = function () {
     dateCreated: this.dateCreated,
     organization: this.organization,
     project: this.project,
-    status: this.status
+    product: this.product,
+    salesCenter: this.salesCenter,
+    status: this.status,
+    data: this.data
   }
 }
 
@@ -61,6 +64,7 @@ datasetRowSchema.methods.toAdmin = function () {
     uuid: this.uuid,
     dateCreated: this.dateCreated,
     organization: this.organization,
+    project: this.project,
     product: this.product,
     salesCenter: this.salesCenter,
     project: this.project,
