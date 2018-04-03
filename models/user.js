@@ -279,6 +279,18 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
   })
 }
 
+userSchema.methods.sendPasswordConfirmation = async function () {
+  const email = new Mailer('confirm-password')
+  await email.format()
+  await email.send({
+    recipient: {
+      email: this.email,
+      name: this.name
+    },
+    title: 'Cambio de password en Pythia'
+  })
+}
+
 userSchema.plugin(dataTables, {
   formatters: {
     toAdmin: (user) => user.toAdmin(),
