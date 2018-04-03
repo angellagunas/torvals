@@ -252,8 +252,7 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
       region: aws.s3Region,
       savedToDisk: false
     },
-    uploaded: true,
-    status: 'preprocessing'
+    uploaded: true
   })
 
   await this.save()
