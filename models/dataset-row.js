@@ -67,7 +67,6 @@ datasetRowSchema.methods.toAdmin = function () {
     project: this.project,
     product: this.product,
     salesCenter: this.salesCenter,
-    project: this.project,
     status: this.status,
     data: this.data
   }
