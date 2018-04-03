@@ -35,6 +35,8 @@ class CreateAdjustmentRequest extends Component {
         className={this.props.className}
         hideModal={this.hideModal}
       >
+        <p className='title is-6'>{this.props.prediction.productName}</p>
+        <p className='subtitle is-6'>Semana {this.props.prediction.semanaBimbo}</p>
         <AdjustmentRequestForm
           url={`${this.props.baseUrl}${this.props.prediction.uuid}/request`}
           finishUp={(res) => this.finish(res)}
