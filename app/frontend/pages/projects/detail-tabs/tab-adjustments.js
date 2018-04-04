@@ -18,6 +18,8 @@ import Editable from '~base/components/base-editable'
 import WeekTable from './week-table'
 import ProductTable from './product-table'
 
+import Select from './select'
+
 var currentRole
 moment.locale('es')
 
@@ -40,7 +42,6 @@ class TabAdjustment extends Component {
         filteredSemanasBimbo: []
       },
       formData: {
-        semanasBimbo: 0,
         period: 1
       },
       disableButtons: true,
@@ -51,7 +52,8 @@ class TabAdjustment extends Component {
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: '',
-      byWeek: false
+      byWeek: false,
+      indicators: 'indicators-hide'
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -165,7 +167,6 @@ class TabAdjustment extends Component {
           periods: periods
         },
         formData: {
-          semanasBimbo: filteredSemanasBimbo[0],
           period: 1
         },
         filtersLoaded: true
@@ -220,8 +221,10 @@ class TabAdjustment extends Component {
     return Array.from(categories)
   }
 
-  async filterChangeHandler (e) {
-    if (e.formData.period !== this.state.formData.period) {
+  async filterChangeHandler (name, value) {
+    console.log(value)
+    console.log(name)
+    /* if (e.formData.period !== this.state.formData.period) {
 
       var period = this.state.filters.periods.find(item => {
         return item.number === e.formData.period
@@ -244,17 +247,22 @@ class TabAdjustment extends Component {
         }
       })
       return
-    }
-
+    } */
+    let aux = this.state.formData
+    aux[name] = value
     this.setState({
-      formData: {
+      /* formData: {
         semanasBimbo: e.formData.semanasBimbo,
         products: e.formData.products,
         channels: e.formData.channels,
         salesCenters: e.formData.salesCenters,
         categories: e.formData.categories,
         period: e.formData.period
-      }
+      } */
+      formData: aux
+    }, () => {
+
+    console.log(this.state.formData)
     })
   }
 
@@ -280,15 +288,15 @@ class TabAdjustment extends Component {
     })
 
     const url = '/app/rows/dataset/'
-    let data = await api.get(url + this.props.project.activeDataset.uuid,
-      {
+    let data = await api.get(url + this.props.project.activeDataset.uuid, this.state.formData)
+      /* {
         //semanaBimbo: this.state.formData.semanasBimbo,
         product: this.state.formData.products,
         channel: this.state.formData.channels,
         salesCenter: this.state.formData.salesCenters,
         category: this.state.formData.categories,
         period: this.state.formData.period
-      })
+      }) */
 
     this.setState({
       dataRows: this.getEditedRows(data.data),
@@ -979,7 +987,7 @@ class TabAdjustment extends Component {
       })
 
       var FileSaver = require('file-saver');
-      var blob = new Blob(res.split(''), {type: "text/csv;charset=utf-8"});
+      var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
       this.notify('Se ha generado el reporte correctamente!', 3000, toast.TYPE.SUCCESS)
@@ -1007,6 +1015,12 @@ class TabAdjustment extends Component {
     this.uncheckAll()
     this.setState({
       byWeek: false
+    })
+  }
+
+  toggleIndicators = () =>{
+    this.setState({
+      indicators: this.state.indicators === 'indicators-show' ? 'indicators-hide' : 'indicators-show'
     })
   }
 
@@ -1161,8 +1175,7 @@ class TabAdjustment extends Component {
       }
     }
     return (
-      <div>
-        <div className='section'>
+        <div>
           <CreateAdjustmentRequest
             className={this.state.classNameAR}
             hideModal={(e) => this.hideModalAdjustmentRequest(e)}
@@ -1170,37 +1183,112 @@ class TabAdjustment extends Component {
             prediction={this.state.selectedAR}
             baseUrl={'/app/rows/'}
           />
-          <div className='columns'>
-            <div className='column'>
-              <BaseForm
-                className='inline-form'
-                schema={schema}
-                uiSchema={uiSchema}
-                formData={this.state.formData}
-                onChange={(e) => { this.filterChangeHandler(e) }}
-                onSubmit={(e) => { this.getDataRows(e) }}
-                onError={(e) => { this.filterErrorHandler(e) }}
-              >
-              <br />
-                <div className='field is-grouped'>
-                  <div className='control'>
-                    <button
-                      className={'button is-primary' + this.state.isLoading}
-                      type='submit'
-                      disabled={!!this.state.isLoading}
-                    >
-                      <span className='icon'>
-                        <i className='fa fa-filter' />
-                      </span>
-                      <span>
-                        Filtrar
-                    </span>
-                    </button>
-                  </div>
-                </div>
-              </BaseForm>
-            </div>
+<div className='section level selects'>
+  <div className='level-left'>
+    <div className='level-item'>
+      <Select 
+        label='Periodo'
+        name='period'
+        value={1}
+        placeholder='Seleccionar'
+        optionValue='number'
+        optionName='name'
+        type='integer'
+        options={this.state.filters.periods}
+        onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+        />
+    </div>
 
+    <div className='level-item'>
+      <Select 
+        label='Productos'
+        name='product'
+        value=''
+        placeholder='Seleccionar'
+        optionValue='uuid'
+        optionName='name'
+        options={this.state.filters.products}
+        onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+        />
+    </div>
+
+    <div className='level-item'>
+      <Select 
+        label='Categoria de Productos'
+        name='category'
+        value=''
+        placeholder='Seleccionar'
+        options={this.state.filters.categories}
+        onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+        />
+    </div>
+
+    <div className='level-item'>
+      <Select 
+        label='Canal'
+        name='channel'
+        value=''
+        placeholder='Seleccionar'
+        optionValue='uuid'
+        optionName='name'
+        options={this.state.filters.channels}
+        onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+        />
+    </div>
+
+    <div className='level-item'>
+      <Select 
+        label='Centros de Venta'
+        name='salesCenter'
+        value=''
+        placeholder='Seleccionar'
+        optionValue='uuid'
+        optionName='name'
+        options={this.state.filters.salesCenters}
+        onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+        disabled={this.state.filters.salesCenters.length === 1}
+        />
+    </div>
+  </div>
+</div>
+
+<div className='level indicators shadow'>
+  <div className='level-item has-text-centered'>
+    <div>
+      <h1 className='has-text-weight-semibold'>Indicadores</h1>
+    </div>
+  </div>
+  <div className='level-item has-text-centered has-text-info'>
+    <div>
+      <p className='has-text-weight-semibold'>Prediccion Total</p>
+      <h1 className='num has-text-weight-bold'>3,456</h1>
+    </div>
+  </div>
+  <div className='level-item has-text-centered teal'>
+    <div>
+      <p className='has-text-weight-semibold'>Prediccion Ajuste</p>
+      <h1 className='num has-text-weight-bold'>3,456</h1>
+    </div>
+  </div>
+  <div className='level-item has-text-centered has-text-danger'>
+    <div>
+      <p className='has-text-weight-semibold'>Venta Anterior</p>
+      <h1 className='num has-text-weight-bold'>3,456</h1>
+    </div>
+  </div>
+  <div className='level-item has-text-centered'>
+    <div>
+        <img src='/app/public/img/grafica.svg' />
+      <a className='collapse-btn' onClick={this.toggleIndicators}>
+        <span className='icon is-large'>
+          <i className={this.state.indicators === 'indicators-show' ? 'fa fa-2x fa-caret-up' : 'fa fa-2x fa-caret-down'}></i>
+        </span>
+      </a>
+    </div>
+  </div>
+</div>
+        <div className={'indicators-collapse ' + this.state.indicators}>
+          <div className='columns'>              
             <div className='column has-text-right'>
               <div className='card'>
                 <div className='card-header'>
@@ -1296,6 +1384,8 @@ class TabAdjustment extends Component {
               </div>
             
           </div>
+          </div>
+          
           <section className='section'>
             {!this.state.isFiltered
               ? <article className='message is-primary'>
@@ -1336,7 +1426,6 @@ class TabAdjustment extends Component {
             }
           </section>
         </div>
-      </div>
     )
   }
 }

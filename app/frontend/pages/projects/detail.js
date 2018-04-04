@@ -334,19 +334,17 @@ class ProjectDetail extends Component {
     </button>)
 
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          {
-            this.state.alertMsg &&
+      <div>
+        {
+            /* this.state.alertMsg &&
             <div className={'notification has-text-centered is-uppercase is-paddingless sticky-msg ' + this.state.alertType}>
               <span className='icon is-medium has-text-info'>
                 <i className='fa fa-warning' />
               </span>
               {this.state.alertMsg}
-            </div>
+            </div> */
           }
-          <div className='section is-paddingless-top pad-sides'>
-            {
+        {
               !testRoles('manager-level-1') &&
               <Breadcrumb
                 path={[
@@ -374,22 +372,48 @@ class ProjectDetail extends Component {
                 align='left'
               />
             }
-            <div className='is-padding-top-small'>
-              <Tabs
-                tabTitle={project.name}
-                tabs={tabs}
-                selectedTab={this.state.selectedTab}
-                className='is-right sticky-tab'
-                extraTab={
-                canEdit &&
+        <Tabs
+          tabTitle={project.name}
+          tabs={tabs}
+          selectedTab={this.state.selectedTab}
+          className='sticky-tab'
+          extraTab={
+            <div>
+              <div className='field is-grouped'>
+                <p className='control'>
+                  <a className='has-text-success has-text-weight-semibold'>
+                    <span className='icon is-small'>
+                      <i className='fa fa-check' />
+                    </span>
+                      Ajustes Realizados
+                    </a>
+
+                </p>
+                <p className='control'>
+                  <a className='has-text-warning has-text-weight-semibold'>
+                    <span className='icon is-small'>
+                      <i className='fa fa-exclamation-triangle' />
+                    </span>
+                        Ajustes pendientes
+                      </a>
+                </p>
+                <p className='control'>
+                  <a className='button is-success'>
+                      Enviar a Consolidar
+                    </a>
+                </p>
+              </div>
+              {canEdit &&
                 <DeleteButton
                   objectName='Proyecto'
                   objectDelete={() => this.deleteObject()}
                   message={'Estas seguro de querer eliminar este Proyecto?'}
                 />
+                }
+            </div>
               }
             />
-              {
+        {
                 testRoles('manager-level-1') && project.status === 'empty' &&
                 <div className='card-content'>
                   <div className='columns'>
@@ -406,9 +430,6 @@ class ProjectDetail extends Component {
                   </div>
                 </div>
               }
-            </div>
-          </div>
-        </div>
 
         { canEdit &&
           <SidePanel

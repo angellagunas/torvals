@@ -94,9 +94,21 @@ a .navbar-item:hover {
 } */
 
 .avatar{
-    border-radius: 50px;
+    border-radius: 100px;
     margin-left: 10px;
     margin-right: 10px;
+    max-width: 28px;
+    max-height: 28px;
+}
+
+.logo{
+  max-width: 28px;
+  max-height: 28px;
+  border-radius: 100px;
+}
+
+.navbar-item img{
+  max-height: inherit;
 }
 
 .navbar-item, .navbar-link{
@@ -112,11 +124,11 @@ a .navbar-item:hover {
 }
 
 .orgs{
-  background-color: whitesmoke;
   overflow: hidden;
-  transition: max-height 0.5s ease;
+  transition: max-height 1s ease;
   margin-top: 0;
   margin-left: 50px;
+  margin-bottom: 0 !important;
   .column{
     padding: 1.2rem;
   }

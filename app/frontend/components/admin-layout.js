@@ -103,7 +103,7 @@ class AdminLayout extends Component {
     })
 
     if (!this.state.loaded) {
-      return <div className='is-flex is-flex-1'><Loader /></div>
+      return <Loader />
     }
     if (!isEmpty(this.state.user)) {
       return (
@@ -127,7 +127,7 @@ class AdminLayout extends Component {
           }
 
           <div className={mainClass}>
-            <section className=''>
+            <section className='card'>
               {this.props.children}
             </section>
           </div>

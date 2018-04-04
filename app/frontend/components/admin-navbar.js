@@ -122,11 +122,11 @@ class NavBar extends Component {
     }
     return (
       <div>
-        <nav className='navbar'>
+        <nav className='navbar is-transparent'>
           <div className='navbar-brand'>
             <Link to='/' className='navbar-item'>
-              <figure className='image is-32x32'>
-                <img src='/app/public/img/pythia-logo.png' />
+              <figure className='image is-24x24'>
+                <img className='logo' src='/app/public/img/pythia-logo.png' />
               </figure>
               <span className='navbar-item is-size-5 is-capitalized has-text-weight-semibold'>Pythia</span>
             </Link>

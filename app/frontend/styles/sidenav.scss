@@ -16,8 +16,9 @@
           color: #2b2b2b;
         }
         &.is-active {
-          .item-link-title {
-            color: white;
+          background-color: transparent;
+          .item-link-title, .icon {
+            color: $primary;
           }
         }
       }
