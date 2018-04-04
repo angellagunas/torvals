@@ -51,7 +51,9 @@ class TabAdjustment extends Component {
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: '',
-      byWeek: false
+      byWeek: false,
+      error: false,
+      errorMessage: ''
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -89,6 +91,20 @@ class TabAdjustment extends Component {
       const url = '/app/rows/filters/dataset/'
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
+
+        if (res.dates.length === 0) {
+          this.notify(
+            'Error! No hay fechas disponibles. Por favor contacta a un administrador.',
+            3000,
+            toast.TYPE.ERROR
+          )
+
+          this.setState({
+            error: true,
+            errorMessage: 'No hay fechas disponibles. Por favor contacta a un administrador.'
+          })
+          return
+        }
 
         if (res.dates.length < res.semanasBimbo.length) {
           this.notify(
@@ -201,6 +217,10 @@ class TabAdjustment extends Component {
           })
         }
       } catch (e) {
+        this.setState({
+          error: true,
+          errorMessage: 'No se pudieron cargar los filtros!'
+        })
         this.notify(
           'Ha habido un error al obtener los filtros!',
           3000,
@@ -1039,6 +1059,24 @@ class TabAdjustment extends Component {
   }
 
   render () {
+    if (this.state.error) {
+      return (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-danger">
+              <div className="message-header">
+                <p>Error</p>
+                <button className="delete" aria-label="delete"></button>
+              </div>
+              <div className="message-body">
+                {this.state.errorMessage}
+              </div>
+            </article>
+          </div>
+        </div>
+      )
+    }
+
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
     if (dataSetsNumber) {
@@ -1188,6 +1226,7 @@ class TabAdjustment extends Component {
         uiSchema.salesCenters['ui:disabled'] = true
       }
     }
+    
     return (
       <div>
         <div className='section'>
