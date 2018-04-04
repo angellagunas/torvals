@@ -51,7 +51,7 @@ class SidebarItem extends Component {
   getDropdownButton (to, icon, title, toggle, dropdownItems) {
     const mainPath = new RegExp(to.replace(/\//g, ''))
     const isActive = mainPath.test(this.props.activeItem)
-    
+
     const arrowColorClass = classNames('icon is-pulled-right', {
       'has-text-primary': !isActive,
       'has-text-white': isActive

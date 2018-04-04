@@ -1,4 +1,4 @@
-.navbar-menu-container {
+/* .navbar-menu-container {
     background-color: whitesmoke;
     align-items: stretch;
     display: flex;
@@ -65,7 +65,7 @@ a.navbar-item:hover {
 }
 
 .navbar-brand.collapsed {
-  width: 50px;
+  width: 0px;
   .navbar-item {
     padding: 0px;
     img {
@@ -91,4 +91,36 @@ a .navbar-item:hover {
   max-width: 40px;
   min-height: 40px;
   min-width: 40px;
+} */
+
+.avatar{
+    border-radius: 50px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.navbar-item, .navbar-link{
+  padding: 0.3rem 0.75rem;
+}
+
+.show-orgs{
+  max-height: 300px;
+}
+
+.hide-orgs{
+  max-height: 0;
+}
+
+.orgs{
+  background-color: whitesmoke;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+  margin-top: 0;
+  margin-left: 50px;
+  .column{
+    padding: 1.2rem;
+  }
+  .media-content{
+    margin: auto;
+  }
 }

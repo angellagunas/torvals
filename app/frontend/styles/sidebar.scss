@@ -27,7 +27,7 @@
       }
     }
     &.menu-collapsed {
-      width: 50px;
+      width: 0px;
       & > ul.menu-list > li {
         .dropdown {
           border-radius: 2px;
