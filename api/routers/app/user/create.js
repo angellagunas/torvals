@@ -72,7 +72,8 @@ module.exports = new Route({
         currentRole = role
       }
     }
-    if (group && currentRole.slug !== 'manager-level-2') {
+
+    if (group) {
       group = await Group.findOne({'uuid': group})
       ctx.assert(group, 404, 'Grupo no encontrada')
 
@@ -111,8 +112,10 @@ module.exports = new Route({
       ]
       var currentUserGroups = await User.aggregate(statement)
       currentUserGroups.map(async (currentGroup) => {
-        user.groups.push(currentGroup.infoGroup)
-        await Group.findOneAndUpdate({'_id': currentGroup.infoGroup._id}, {$push: {'users': user._id}})
+        if (!group || (group && String(group._id) !== String(currentGroup.infoGroup._id))) {
+          user.groups.push(currentGroup.infoGroup)
+          await Group.findOneAndUpdate({'_id': currentGroup.infoGroup._id}, {$push: {'users': user._id}})
+        }
       })
     }
 
