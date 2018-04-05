@@ -15,9 +15,7 @@ class CreateUser extends Component {
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
       roles: [],
-      groups: [],
       isLoading: '',
-      loadingGroups: true,
       loadingRoles: true
     }
   }
@@ -25,7 +23,6 @@ class CreateUser extends Component {
   async componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
     await this.loadRoles()
-    await this.loadGroups()
   }
 
   async load () {
@@ -63,22 +60,6 @@ class CreateUser extends Component {
     })
   }
 
-  async loadGroups () {
-    var url = '/app/groups/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      groups: body.data,
-      loadingGroups: false
-    })
-  }
-
   getPasswordForm () {
     return (
       <PasswordUserForm
@@ -87,7 +68,6 @@ class CreateUser extends Component {
         initialState={this.initialState}
         load={this.load.bind(this)}
         roles={this.state.roles || []}
-        groups={this.state.groups}
         filters={this.props.filters}
         finishUp={(data) => {
           this.finishUpHandler(data)
@@ -129,7 +109,6 @@ class CreateUser extends Component {
         load={this.load.bind(this)}
         roles={this.state.roles}
         filters={this.props.filters}
-        groups={this.state.groups}
         finishUp={(data) => {
           this.finishUpHandler(data)
           if (this.props.finishUp) this.props.finishUp(data)
@@ -184,7 +163,7 @@ class CreateUser extends Component {
       password_2: ''
     }
 
-    if (!this.state.loadingGroups && !this.state.loadingRoles) {
+    if (!this.state.loadingRoles) {
       var defaultRole = this.state.roles.find(item => {
         return item.isDefault === true
       })
