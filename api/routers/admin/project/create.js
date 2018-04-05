@@ -29,7 +29,6 @@ module.exports = new Route({
     })
 
     const res = await Api.postProject(project.uuid)
-    console.log('response', res)
     project.set({
       externalId: res._id,
       etag: res._etag
