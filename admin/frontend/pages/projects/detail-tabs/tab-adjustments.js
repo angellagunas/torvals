@@ -49,7 +49,9 @@ class TabAdjustment extends Component {
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: '',
-      byWeek: false            
+      byWeek: false,
+      error: false,
+      errorMessage: ''
     }
 
     this.interval = null
@@ -81,92 +83,133 @@ class TabAdjustment extends Component {
   async getFilters () {
     if (this.props.project.activeDataset) {
       const url = '/admin/rows/filters/dataset/'
-      let res = await api.get(url + this.props.project.activeDataset.uuid)
+      try {
+        let res = await api.get(url + this.props.project.activeDataset.uuid)
 
-      var maxDate = moment.utc(this.props.project.activeDataset.dateMax)
-      var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
-      var dates = []
-      var periods = []
-      var adjustments = {
-        '1': 10,
-        '2': 20,
-        '3': 30,
-        '4': -1
+        if (res.dates.length === 0) {
+          this.notify(
+            'Error! No hay fechas disponibles. Favor de cargar las fechas de Abraxas.',
+            3000,
+            toast.TYPE.ERROR
+          )
+
+          this.setState({
+            error: true,
+            errorMessage: 'No hay fechas disponibles. Favor de cargar las fechas de Abraxas.'
+          })
+          return
+        }
+
+        if (res.dates.length < res.semanasBimbo.length) {
+          this.notify(
+            'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
+            ' correctamente. Favor de cargar las fechas de Abraxas.',
+            3000,
+            toast.TYPE.ERROR
+          )
+        }
+
+        var dates = []
+        var periods = []
+        var adjustments = {
+          '1': 10,
+          '2': 20,
+          '3': 30,
+          '4': -1
+        }
+
+        var maxDate = res.dates[0]
+        var maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period4 = res.dates.slice(0, maxDateEnd)
+
+        var lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period3 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
+
+        lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period2 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
+
+        lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period1 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
+
+
+        if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
+          adjustments = this.props.project.businessRules.adjustments
+        }
+
+        periods.push({
+          number: period4[0].month,
+          name: `Periodo ${moment(period4[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['4'],
+          maxSemana: period4[0].week,
+          minSemana: period4[period4.length - 1].week
+        })
+
+        periods.push({
+          number: period3[0].month,
+          name: `Periodo ${moment(period3[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['3']/100,
+          maxSemana: period3[0].week,
+          minSemana: period3[period4.length - 1].week
+        })
+
+        periods.push({
+          number: period2[0].month,
+          name: `Periodo ${moment(period2[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['2']/100,
+          maxSemana: period2[0].week,
+          minSemana: period2[period4.length - 1].week
+        })
+
+        periods.push({
+          number: period1[0].month,
+          name: `Periodo ${moment(period1[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['1']/100,
+          maxSemana: period1[0].week,
+          minSemana: period1[period4.length - 1].week
+        })
+
+        var filteredSemanasBimbo = Array.from(Array(4), (_,x) => period1[0].week - x).reverse()
+
+        this.setState({
+          filters: {
+            channels: res.channels,
+            products: res.products,
+            salesCenters: res.salesCenters,
+            semanasBimbo: res.semanasBimbo,
+            filteredSemanasBimbo: filteredSemanasBimbo,
+            dates: res.dates,
+            categories: this.getCategory(res.products),
+            periods: periods
+          },
+          formData: {
+            semanasBimbo: filteredSemanasBimbo[0],
+            period: period1[0].month
+          },
+          filtersLoaded: true
+        }, () => {
+          this.getDataRows()
+        })
+      } catch (e) {
+        this.setState({
+          error: true,
+          errorMessage: 'No se pudieron cargar los filtros!'
+        })
+        this.notify(
+          'Ha habido un error al obtener los filtros!',
+          3000,
+          toast.TYPE.ERROR
+        )
       }
-
-
-      if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
-        adjustments = this.props.project.businessRules.adjustments
-      }
-
-      for (var i = 0; i < 16; i++) {
-        dates.push(moment(maxDate.format()))
-        maxDate.subtract(7, 'days')
-      }
-
-      dates.reverse()
-
-      var period4 = dates.slice(12,16)
-      var period3 = dates.slice(8,12)
-      var period2 = dates.slice(4,8)
-      var period1 = dates.slice(0,4)
-
-      periods.push({
-        number: 4,
-        name: `Periodo ${period4[0].format('MMMM')}`,
-        adjustment: adjustments['4'],
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
-
-      periods.push({
-        number: 3,
-        name: `Periodo ${period3[0].format('MMMM')}`,
-        adjustment: adjustments['3']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
-
-      periods.push({
-        number: 2,
-        name: `Periodo ${period2[0].format('MMMM')}`,
-        adjustment: adjustments['2']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
-
-      periods.push({
-        number: 1,
-        name: `Periodo ${period1[0].format('MMMM')}`,
-        adjustment: adjustments['1']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-
-      var filteredSemanasBimbo = Array.from(Array(4), (_,x) => maxSemana - x).reverse()
-
-      this.setState({
-        filters: {
-          channels: res.channels,
-          products: res.products,
-          salesCenters: res.salesCenters,
-          semanasBimbo: res.semanasBimbo,
-          filteredSemanasBimbo: filteredSemanasBimbo,
-          dates: res.dates,
-          categories: this.getCategory(res.products),
-          periods: periods
-        },
-        formData: {
-          semanasBimbo: filteredSemanasBimbo[0],
-          period: 1
-        },
-        filtersLoaded: true
-      }, () => {
-        this.getDataRows()
-      })
     }
   }
 
@@ -212,16 +255,14 @@ class TabAdjustment extends Component {
       var period = this.state.filters.periods.find(item => {
         return item.number === e.formData.period
       })
+      let filters = this.state.filters
 
-      var filteredSemanasBimbo = Array.from(Array(4), (_,x) => period.maxSemana - x).reverse()
+      filters.filteredSemanasBimbo = Array.from(Array(4), (_,x) => period.maxSemana - x).reverse()
 
       this.setState({
-        filters: {
-          ...this.state.filters,
-          filteredSemanasBimbo: filteredSemanasBimbo
-        },
+        filters: filters,
         formData: {
-          semanasBimbo: filteredSemanasBimbo[0],
+          semanasBimbo: filters.filteredSemanasBimbo[0],
           products: e.formData.products,
           channels: e.formData.channels,
           salesCenters: e.formData.salesCenters,
@@ -755,6 +796,24 @@ class TabAdjustment extends Component {
   }
 
   render () {
+    if (this.state.error) {
+      return (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-danger">
+              <div className="message-header">
+                <p>Error</p>
+                <button className="delete" aria-label="delete"></button>
+              </div>
+              <div className="message-body">
+                {this.state.errorMessage}
+              </div>
+            </article>
+          </div>
+        </div>
+      )
+    }
+
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
     if (dataSetsNumber) {
@@ -902,7 +961,6 @@ class TabAdjustment extends Component {
       schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
       schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
     }
-    
 
     return (
       <div>

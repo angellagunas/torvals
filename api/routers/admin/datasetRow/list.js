@@ -73,7 +73,7 @@ module.exports = new Route({
       }
     }
 
-    filters['dataset'] = dataset
+    filters['dataset'] = dataset._id
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
       .populate(['salesCenter', 'product', 'adjustmentRequest', 'channel'])

@@ -85,7 +85,7 @@ module.exports = new Route({
       }
     }
 
-    filters['dataset'] = dataset
+    filters['dataset'] = dataset._id
 
     const user = ctx.state.user
     var currentRole
