@@ -106,17 +106,17 @@ module.exports = new Route({
         },
         {
           '$match': {
-            'infoGroup.organization': ObjectId('5ab9462f549c650523d6848b')
+            'infoGroup.organization': ObjectId(ctx.state.organization._id)
           }
         }
       ]
       var currentUserGroups = await User.aggregate(statement)
-      currentUserGroups.map(async (currentGroup) => {
+      for (let currentGroup of currentUserGroups) {
         if (!group || (group && String(group._id) !== String(currentGroup.infoGroup._id))) {
           user.groups.push(currentGroup.infoGroup)
           await Group.findOneAndUpdate({'_id': currentGroup.infoGroup._id}, {$push: {'users': user._id}})
         }
-      })
+      }
     }
 
     await user.save()
