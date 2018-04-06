@@ -178,6 +178,15 @@ class TabAdjustment extends Component {
             salesCenters: res.salesCenters[0].uuid
           }
         })
+      }
+
+      if (res.channels.length === 1) {
+        this.setState({
+          formData: {
+            ...this.state.formData,
+            channels: res.channels[0].uuid
+          }
+        })
       }      
     }
   }
@@ -1126,6 +1135,9 @@ class TabAdjustment extends Component {
       }
       schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
       schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return 'Canal ' + item.name })
+      if(this.state.filters.channels.length === 1){
+        uiSchema.channels['ui:disabled'] = true
+      }
     }
 
     if (this.state.filters.products.length > 0) {

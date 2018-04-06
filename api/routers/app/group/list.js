@@ -8,6 +8,7 @@ module.exports = new Route({
   path: '/',
   handler: async function (ctx) {
     var sortStatement = {}
+    var statementsGeneral = []
 
     var columns = [
       {name: 'name', type: 'String'}
@@ -17,11 +18,12 @@ module.exports = new Route({
         { 'isDeleted': false }
       }
     ]
-    var statementsGeneral = []
+
     for (var filter in ctx.request.query) {
       if (filter === 'general') {
         for (var column of columns) {
           var fil = {}
+
           if (!isNaN(ctx.request.query[filter]) && column.type === 'Number') {
             fil[column.name] = {
               '$gt': parseInt(ctx.request.query[filter] - column.limit),
@@ -35,24 +37,28 @@ module.exports = new Route({
         }
       } else if (filter === 'sort') {
         var filterSort = ctx.request.query.sort.split('-')
+
         if (ctx.request.query.sort.split('-').length > 1) {
           sortStatement[filterSort[1]] = -1
         } else {
           sortStatement[filterSort[0]] = 1
         }
+
         statement.push({ '$sort': sortStatement })
       } else if (filter === 'organization') {
         const org = await Organization.findOne({'uuid': ctx.state.organization})
+
         if (org) {
-          console.log('organization', org)
           statement.push({ '$match': { 'organization': org._id } })
         }
       } else if (filter === 'user') {
         const user = await User.findOne({'uuid': ctx.request.query[filter]})
+
         if (user) {
           statement.push({ '$match': { 'users': { $nin: [ObjectId(user._id)] } } })
         } else if (filter === 'user_orgs') {
           const user = await User.findOne({'uuid': ctx.request.query[filter]})
+
           if (user) {
             statement.push({ '$match': { 'organization': { $in: user.organizations.map(item => { return item.organization }) } } })
           }
@@ -67,6 +73,7 @@ module.exports = new Route({
     statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })
 
     var general = {}
+
     if (statementsGeneral.length > 0) {
       general = { '$match': { '$or': statementsGeneral } }
       statement.push(general)
@@ -79,11 +86,13 @@ module.exports = new Route({
 
     statementCount.push({$count: 'total'})
     var groupsCount = await Group.aggregate(statementCount)
+
     groups = groups.map((channel) => {
       return { ...channel,
         organization: channel.infoOrganization
       }
     })
+
     ctx.body = {'data': groups, 'total': groupsCount[0] ? groupsCount[0].total : 0}
   }
 })
