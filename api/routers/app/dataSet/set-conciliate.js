@@ -3,7 +3,6 @@ const moment = require('moment')
 
 const { DataSet } = require('models')
 const Api = require('lib/abraxas/api')
-const request = require('lib/request')
 
 module.exports = new Route({
   method: 'post',
@@ -16,65 +15,30 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    try {
-      var apiData = Api.get()
-      if (!apiData.token) {
-        await Api.fetch()
-        apiData = Api.get()
-      }
-    } catch (e) {
-      ctx.throw(503, 'Abraxas API no disponible para la conexión')
-    }
+    const res = await Api.conciliateProject(dataset.project.externalId, dataset.externalId)
 
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/conciliation/projects/${dataset.project.externalId}`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      body: {
-        dataset_id: dataset.externalId
-      },
-      json: true,
-      persist: true
-    }
-
-    try {
-      var res = await request(options)
-
-      if (res.status === 'error') {
-        dataset.set({
-          status: 'error',
-          error: res.message
-        })
-
-        await dataset.save()
-
-        ctx.body = {
-          data: dataset
-        }
-
-        return
-      }
-
+    if (res.status === 'error') {
       dataset.set({
-        status: 'conciliated',
-        conciliatedBy: ctx.state.user,
-        dateConciliated: moment.utc()
+        status: 'error',
+        error: res.message
       })
 
       await dataset.save()
-    } catch (e) {
-      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
-      if (!errorString) {
-        errorString = []
-        errorString[1] = e.message
+
+      ctx.body = {
+        data: dataset
       }
-      ctx.throw(503, 'Abraxas API: ' + errorString[1])
-      return false
+
+      return
     }
+
+    dataset.set({
+      status: 'conciliated',
+      conciliatedBy: ctx.state.user,
+      dateConciliated: moment.utc()
+    })
+
+    await dataset.save()
 
     let project = dataset.project
 
