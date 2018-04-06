@@ -23,6 +23,24 @@ module.exports = new Route({
       userData.password = crypto.randomBytes(15).toString('base64')
     }
 
+    var currentRole
+    var currentOrganization
+    if (ctx.state.organization) {
+      currentOrganization = ctx.state.user.organizations.find(orgRel => {
+        return ctx.state.organization._id.equals(orgRel.organization._id)
+      })
+
+      if (currentOrganization) {
+        const role = await Role.findOne({_id: currentOrganization.role})
+
+        currentRole = role
+      }
+    }
+
+    if (currentRole.slug === 'manager-level-3') {
+      userData.role = currentRole._id
+    }
+
     if (!userData.role) {
       let defaultRole = await Role.findOne({isDefault: true})
       if (!defaultRole) {
