@@ -16,7 +16,7 @@ module.exports = new Route({
     forecast.save()
 
     ctx.body = {
-      data: forecast.format()
+      data: forecast.toAdmin()
     }
   }
 })

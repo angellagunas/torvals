@@ -228,7 +228,7 @@ class InviteUserForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Se ha enviado la invitación correctamente!
+              Se ha enviado la invitación correctamente! La invitación estará vigente durante 24 horas.
             </div>
           </div>
 

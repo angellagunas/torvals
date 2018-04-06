@@ -225,12 +225,21 @@ pre.json {
     display: block;
     padding: 1em;
     margin: 0;
+    white-space: pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    word-break: break-all;
 }
 
 .request-log {
     margin-bottom: 0.5rem !important;
+
     .message-header {
         cursor: pointer;
+    }
+
+    .message-body {
+        background-color: white;
     }
 }
 
@@ -293,6 +302,29 @@ pre.json {
             padding-left: 274px
         }
     }
+}
+
+.is-relative{
+  position: relative;
+}
+
+.is-bottom{
+  position: absolute;
+  right:    12px;
+  bottom:   12px;
+}
+
+.notification {
+  padding: 0.6em 0.8em !important;
+}
+
+.secret{
+  border-color: #00d1b2 !important;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  background-color: #d5fff7 !important;
+  padding: 0 2px;
 }
 
 .avatar {
@@ -653,6 +685,7 @@ tr {
 
 ::-webkit-scrollbar {
     width: 5px;
+    height: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -747,6 +780,93 @@ tr {
 
 .was-edited:hover {
     background-color: lighten($primary, 45%) !important;
+}
+
+.sticky-table {
+    white-space: nowrap;
+    margin-top: 2rem;
+    border-top: 2px solid #e5e5e5;
+    font-size: 0.8rem;
+}
+
+.sticky-table .sticky-table-cell {
+    padding: 0.3rem 0.5rem;
+    border-bottom: 2px solid #e5e5e5;
+    background-color: #fff;
+    vertical-align: middle;
+    .input {
+        font-size: 0.8rem !important;
+    }
+    .editable {
+        padding: 0;
+        background-color: whitesmoke;
+        .control {
+            font-size: 0.8rem !important;
+        }
+    }
+    .md-checkbox {
+        line-height: 1;
+    }
+    .md-checkbox--fake {
+        margin: 5px;
+    }
+    p:last-of-type {
+        display: inline;
+    }
+}
+
+.sticky-table .sticky-table-corner,
+.sticky-table .sticky-table-column {
+    border-right: 5px solid rgba(218, 218, 218, 0.4);
+    margin-right: -3px !important;
+}
+
+.sticky-table .sticky-header {
+    margin-top: 0;
+}
+
+.swrapper {
+    max-width: 88rem;
+    margin: auto;
+}
+
+.colspan {
+    max-width: 1px;
+    overflow: visible;
+    text-align: center;
+    p {
+        margin-left: 110%;
+    }
+    p:last-of-type {
+        margin-left: 80%;
+    }
+}
+
+.col-border {
+    border-right: 2px solid #e5e5e5;
+}
+
+.col-border-left {
+    border-left: 2px solid #e5e5e5;
+}
+
+.productName{
+    min-width: 300px;
+}
+
+.view-btns {
+    .button {
+        width: 227px;
+    }
+}
+.postman-export {
+  margin-bottom: 0px !important;
+  margin-right: 0px;
+  padding-top: .5em;
+
+  .column {
+    padding-bottom: 0px;
+  }
 }
 
 .info-project{

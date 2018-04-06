@@ -30,7 +30,7 @@ module.exports = new Route({
     await group.save()
 
     ctx.body = {
-      data: group.format()
+      data: group.toPublic()
     }
   }
 })

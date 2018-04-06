@@ -15,6 +15,9 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 
+import WeekTable from './week-table'
+import ProductTable from './product-table'
+
 var currentRole
 moment.locale('es')
 
@@ -26,7 +29,6 @@ class TabAdjustment extends Component {
       isFiltered: false,
       filtersLoaded: false,
       isLoading: '',
-      selectedAll: false,
       modified: 0,
       pending: 0,
       filters: {
@@ -49,7 +51,9 @@ class TabAdjustment extends Component {
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: '',
-      sortAscending: true            
+      byWeek: false,
+      error: false,
+      errorMessage: ''
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -85,109 +89,154 @@ class TabAdjustment extends Component {
   async getFilters() {
     if (this.props.project.activeDataset) {
       const url = '/app/rows/filters/dataset/'
-      let res = await api.get(url + this.props.project.activeDataset.uuid)
+      try {
+        let res = await api.get(url + this.props.project.activeDataset.uuid)
 
-      var maxDate = moment.utc(this.props.project.activeDataset.dateMax)
-      var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
-      var dates = []
-      var periods = []
-      var adjustments = {
-        '1': 10,
-        '2': 20,
-        '3': 30,
-        '4': -1
-      }
+        if (res.dates.length === 0) {
+          this.notify(
+            'Error! No hay fechas disponibles. Por favor contacta a un administrador.',
+            3000,
+            toast.TYPE.ERROR
+          )
 
-      if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
-        adjustments = this.props.project.businessRules.adjustments
-      }
+          this.setState({
+            error: true,
+            errorMessage: 'No hay fechas disponibles. Por favor contacta a un administrador.'
+          })
+          return
+        }
 
-      for (var i = 0; i < 16; i++) {
-        dates.push(moment(maxDate.format()))
-        maxDate.subtract(7, 'days')
-      }
+        if (res.dates.length < res.semanasBimbo.length) {
+          this.notify(
+            'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
+            ' correctamente. Por favor contacta a un administrador.',
+            3000,
+            toast.TYPE.ERROR
+          )
+        }
 
-      dates.reverse()
+        var maxDate = moment.utc(this.props.project.activeDataset.dateMax).subtract(1,'days')
+        var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
+        var dates = []
+        var periods = []
+        var adjustments = {
+          '1': 10,
+          '2': 20,
+          '3': 30,
+          '4': -1
+        }
 
-      var period4 = dates.slice(12,16)
-      var period3 = dates.slice(8,12)
-      var period2 = dates.slice(4,8)
-      var period1 = dates.slice(0,4)
+        var maxDate = res.dates[0]
+        var maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period4 = res.dates.slice(0, maxDateEnd)
 
-      periods.push({
-        number: 4,
-        name: `Periodo ${period4[0].format('MMMM')}`,
-        adjustment: adjustments['4'],
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
+        var lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period3 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
 
-      periods.push({
-        number: 3,
-        name: `Periodo ${period3[0].format('MMMM')}`,
-        adjustment: adjustments['3']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
+        lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period2 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
 
-      periods.push({
-        number: 2,
-        name: `Periodo ${period2[0].format('MMMM')}`,
-        adjustment: adjustments['2']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
+        lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period1 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
 
-      periods.push({
-        number: 1,
-        name: `Periodo ${period1[0].format('MMMM')}`,
-        adjustment: adjustments['1']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
 
-      var filteredSemanasBimbo = Array.from(Array(4), (_,x) => maxSemana - x).reverse()
+        if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
+          adjustments = this.props.project.businessRules.adjustments
+        }
 
-      this.setState({
-        filters: {
-          channels: res.channels,
-          products: res.products,
-          salesCenters: res.salesCenters,
-          semanasBimbo: res.semanasBimbo,
-          filteredSemanasBimbo: filteredSemanasBimbo,
-          dates: res.dates,
-          categories: this.getCategory(res.products),
-          periods: periods
-        },
-        formData: {
-          semanasBimbo: filteredSemanasBimbo[0],
-          period: 1
-        },
-        filtersLoaded: true
-      }, () => {
-        this.getDataRows()
-      })
-
-      if (res.salesCenters.length === 1) {
-        this.setState({
-          formData: {
-            ...this.state.formData,
-            salesCenters: res.salesCenters[0].uuid
-          }
+        periods.push({
+          number: period4[0].month,
+          name: `Periodo ${moment(period4[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['4'],
+          maxSemana: period4[0].week,
+          minSemana: period4[period4.length - 1].week
         })
-      }
 
-      if (res.channels.length === 1) {
-        this.setState({
-          formData: {
-            ...this.state.formData,
-            channels: res.channels[0].uuid
-          }
+        periods.push({
+          number: period3[0].month,
+          name: `Periodo ${moment(period3[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['3']/100,
+          maxSemana: period3[0].week,
+          minSemana: period3[period4.length - 1].week
         })
-      }      
+
+        periods.push({
+          number: period2[0].month,
+          name: `Periodo ${moment(period2[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['2']/100,
+          maxSemana: period2[0].week,
+          minSemana: period2[period4.length - 1].week
+        })
+
+        periods.push({
+          number: period1[0].month,
+          name: `Periodo ${moment(period1[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['1']/100,
+          maxSemana: period1[0].week,
+          minSemana: period1[period4.length - 1].week
+        })
+
+        var filteredSemanasBimbo = Array.from(Array(4), (_,x) => period1[0].week - x).reverse()
+
+        this.setState({
+          filters: {
+            channels: res.channels,
+            products: res.products,
+            salesCenters: res.salesCenters,
+            semanasBimbo: res.semanasBimbo,
+            filteredSemanasBimbo: filteredSemanasBimbo,
+            dates: res.dates,
+            categories: this.getCategory(res.products),
+            periods: periods
+          },
+          formData: {
+            semanasBimbo: filteredSemanasBimbo[0],
+            period: period1[0].month
+          },
+          filtersLoaded: true
+        }, () => {
+          this.getDataRows()
+        })
+
+        if (res.salesCenters.length === 1) {
+          this.setState({
+            formData: {
+              ...this.state.formData,
+              salesCenters: res.salesCenters[0].uuid
+            }
+          })
+        }
+
+        if (res.channels.length === 1) {
+          this.setState({
+            formData: {
+              ...this.state.formData,
+              channels: res.channels[0].uuid
+            }
+          })
+        }
+      } catch (e) {
+        this.setState({
+          error: true,
+          errorMessage: 'No se pudieron cargar los filtros!'
+        })
+
+        this.notify(
+          'Ha habido un error al obtener los filtros!',
+          3000,
+          toast.TYPE.ERROR
+        )
+      }            
     }
   }
 
@@ -270,8 +319,8 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows () {
-    if (!this.state.formData.period || !this.state.formData.semanasBimbo) {
-      this.notify('Se debe filtrar por semana!', 3000, toast.TYPE.ERROR)
+    if (!this.state.formData.period) {
+      this.notify('Se debe filtrar por periodo!', 3000, toast.TYPE.ERROR)
       return
     }
 
@@ -289,11 +338,12 @@ class TabAdjustment extends Component {
     const url = '/app/rows/dataset/'
     let data = await api.get(url + this.props.project.activeDataset.uuid,
       {
-        semanaBimbo: this.state.formData.semanasBimbo,
+        //semanaBimbo: this.state.formData.semanasBimbo,
         product: this.state.formData.products,
         channel: this.state.formData.channels,
         salesCenter: this.state.formData.salesCenters,
-        category: this.state.formData.categories
+        category: this.state.formData.categories,
+        period: this.state.formData.period
       })
 
     this.setState({
@@ -523,17 +573,17 @@ class TabAdjustment extends Component {
     return cols
   }
 
-  checkAll = (check) => {
-    for (let row of this.state.filteredData) {
-      this.toggleCheckbox(row, check)
-    }
-    this.setState({ selectedAll: check }, function () {
-      this.toggleButtons()
-    })
+  checkAll = (checked) => {
+    this.setState({
+      selectedCheckboxes: checked
+    },
+      function () {
+        this.toggleButtons()
+      })
   }
 
-  toggleCheckbox = (row, all) => {
-    if (this.state.selectedCheckboxes.has(row) && !all) {
+  toggleCheckbox = (row) => {
+    if (this.state.selectedCheckboxes.has(row)) {
       this.state.selectedCheckboxes.delete(row)
       row.selected = false
     }
@@ -689,6 +739,12 @@ class TabAdjustment extends Component {
       obj.isLimit = (obj.newAdjustment > maxAdjustment || obj.newAdjustment < minAdjustment)
     }
 
+    if (obj.isLimit && obj.adjustmentRequest &&
+      (obj.adjustmentRequest.status === 'approved' ||
+      obj.adjustmentRequest.status === 'created')) {
+      obj.adjustmentRequest.status = 'rejected'
+    }
+
     if (currentRole === 'manager-level-1') {
       if (obj.newAdjustment >= maxAdjustment || 
           obj.newAdjustment <= minAdjustment)
@@ -774,14 +830,15 @@ class TabAdjustment extends Component {
 
   async finishUpAdjustmentRequest (res) {
     if (res && res.data === 'OK') {
-      this.state.selectedAR.adjustmentRequest = true
+      this.state.selectedAR.localAdjustment = parseInt(this.state.selectedAR.localAdjustment)
+      this.state.selectedAR.adjustmentRequest = { status: 'created' }
     }
     this.setState({
       selectedAR: undefined
     })
   }
 
-  searchDatarows() {
+  async searchDatarows() {
     const items = this.state.dataRows.map((item) => {
       if (this.state.searchTerm === ''){
         return item
@@ -795,7 +852,7 @@ class TabAdjustment extends Component {
     })
     .filter(function(item){ return item != null });
 
-    this.setState({
+    await this.setState({
       filteredData: items
     })
   }
@@ -995,34 +1052,39 @@ class TabAdjustment extends Component {
     }
   }
 
-  handleSort(e) {
-    let sorted = this.state.filteredData
-
-    if (e === 'productId') {
-      if (this.state.sortAscending) {
-        sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
-      }
-      else {
-        sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
-      }
-    }
-    else {
-      if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, [e], ['asc'])
-
-      }
-      else {
-        sorted = _.orderBy(sorted, [e], ['desc'])
-      }
-    }
+  showByWeek = () => {
+    this.uncheckAll()
     this.setState({
-      filteredData: sorted,
-      sortAscending: !this.state.sortAscending,
-      sortBy: e
+      byWeek: true
+    })
+  }
+
+  showByProduct = () => {
+    this.uncheckAll()
+    this.setState({
+      byWeek: false
     })
   }
 
   render () {
+    if (this.state.error) {
+      return (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-danger">
+              <div className="message-header">
+                <p>Error</p>
+                <button className="delete" aria-label="delete"></button>
+              </div>
+              <div className="message-body">
+                {this.state.errorMessage}
+              </div>
+            </article>
+          </div>
+        </div>
+      )
+    }
+
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
     if (dataSetsNumber) {
@@ -1175,6 +1237,7 @@ class TabAdjustment extends Component {
         uiSchema.salesCenters['ui:disabled'] = true
       }
     }
+    
     return (
       <div>
         <div className='section'>
@@ -1323,16 +1386,30 @@ class TabAdjustment extends Component {
               </article>
               : <div>
                 {this.getModifyButtons()}
-                <div className='scroll-table'>
-                  <div className='scroll-table-container'>
-                    <BaseTable
+                {
+                  !this.state.byWeek ?
+
+                    <ProductTable
+                      show={this.showByWeek}
+                      currentRole={currentRole}
                       data={this.state.filteredData}
-                      columns={this.getColumns()}
-                      sortAscending={this.state.sortAscending}
-                      sortBy={this.state.sortBy}
-                      handleSort={(e) => this.handleSort(e)}/>
-                  </div>
-                </div>
+                      checkAll={this.checkAll}
+                      toggleCheckbox={this.toggleCheckbox}
+                      changeAdjustment={this.changeAdjustment}
+                      generalAdjustment={this.state.generalAdjustment}
+                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }} />
+                    :
+
+                    <WeekTable
+                      show={this.showByProduct}
+                      currentRole={currentRole}                    
+                      data={this.state.filteredData}
+                      checkAll={this.checkAll}
+                      toggleCheckbox={this.toggleCheckbox}
+                      changeAdjustment={this.changeAdjustment}
+                      generalAdjustment={this.state.generalAdjustment}
+                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }} />
+                }
               </div>
             }
           </section>

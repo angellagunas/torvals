@@ -32,7 +32,7 @@ module.exports = new Route({
     product.save()
 
     ctx.body = {
-      data: product.format()
+      data: product.toPublic()
     }
   }
 })

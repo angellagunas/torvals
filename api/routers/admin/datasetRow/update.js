@@ -26,7 +26,7 @@ module.exports = new Route({
       verifyDatasetrows.add({uuid: datasetRowId})
     }
     ctx.body = {
-      data: datasetRow.format()
+      data: datasetRow.toAdmin()
     }
   }
 })

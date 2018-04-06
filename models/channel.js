@@ -39,4 +39,14 @@ channelSchema.methods.toAdmin = function () {
   }
 }
 
+channelSchema.methods.toAdmin = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    externalId: this.externalId,
+    dateCreated: this.dateCreated,
+    organization: this.organization
+  }
+}
+
 module.exports = mongoose.model('Channel', channelSchema)

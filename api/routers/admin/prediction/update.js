@@ -23,7 +23,7 @@ module.exports = new Route({
     prediction.save()
 
     ctx.body = {
-      data: prediction.format()
+      data: prediction.toAdmin()
     }
   }
 })

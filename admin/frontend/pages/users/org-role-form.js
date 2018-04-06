@@ -57,7 +57,7 @@ class OrganizationRoleForm extends Component {
       if (role.slug === 'manager-level-1') {
         schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
         uiSchema['project'] = {'ui:widget': SelectWidget}
-        schema.required.push('project')
+        schema.required = ['role', 'organization', 'project']
 
         if (formData['organization']) {
           var organization = this.props.orgs.find((item) => {
