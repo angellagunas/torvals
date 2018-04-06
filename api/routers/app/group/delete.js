@@ -25,7 +25,7 @@ module.exports = new Route({
       await channel.save()
     }
 
-    group.set({users: [], groups: []})
+    group.set({users: [], channels: []})
 
     await group.save()
 
