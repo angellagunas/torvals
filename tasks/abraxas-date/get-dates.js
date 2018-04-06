@@ -33,6 +33,14 @@ const task = new Task(async function (argv) {
     var date = await AbraxasDate.findOne({externalId: d._id})
 
     if (!date) {
+      date = await AbraxasDate.findOne({
+        week: d.week,
+        month: d.month,
+        year: d.year
+      })
+    }
+
+    if (!date) {
       await AbraxasDate.create({
         dateStart: d.start_date,
         dateEnd: d.end_date,
