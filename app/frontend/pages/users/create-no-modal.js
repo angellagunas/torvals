@@ -152,8 +152,7 @@ class CreateUserNoModal extends Component {
       name: '',
       email: '',
       password_1: '',
-      password_2: '',
-      group: ''
+      password_2: ''
     }
 
     if (!this.state.loadingGroups && !this.state.loadingRoles) {
