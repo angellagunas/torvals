@@ -74,6 +74,11 @@ module.exports = new Route({
             statement.push({ '$match': {'organization': [salesCenter.organization._id]} })
           }
         }
+      } else if (filter === 'salesCenter') {
+        const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]}).populate('organization')
+        if (salesCenter) {
+          statement.push({ '$match': {'organization': ObjectId(salesCenter.organization._id)} })
+        }
       }
     }
     statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })
