@@ -18,7 +18,13 @@ const task = new Task(async function (argv) {
     throw new Error('Project not found')
   }
 
-  var res = await Api.getAnomalies(project.externalId)
+  try {
+    var res = await Api.getAnomalies(project.externalId)
+  } catch (e) {
+    console.log(e.message)
+    return false
+  }
+
   if (!project.activeDataset) {
     return false
   }

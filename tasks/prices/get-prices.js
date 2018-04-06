@@ -15,7 +15,12 @@ const task = new Task(async function (argv) {
   }
   console.log('Fetching Prices ...')
 
-  var res = await Api.getPrices()
+  try {
+    var res = await Api.getPrices()
+  } catch (e) {
+    console.log('error' + e.message)
+    return false
+  }
 
   for (var p of res._items) {
     var price = await Price.findOne({externalId: p._id})

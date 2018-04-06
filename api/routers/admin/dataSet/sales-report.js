@@ -37,7 +37,13 @@ module.exports = new Route({
     var whereQuery = ''
     if (requestQuery) { whereQuery = '?where=' + JSON.stringify(requestQuery) }
 
-    const res = await Api.revenueDataset(dataset.externalId, whereQuery)
+    var res
+
+    try {
+      res = await Api.revenueDataset(dataset.externalId, whereQuery)
+    } catch (e) {
+      ctx.throw(500, e.message)
+    }
 
     for (var item of res._items) {
       const rows = await DataSetRow.find({

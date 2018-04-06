@@ -9,7 +9,12 @@ const { AbraxasDate } = require('models')
 const task = new Task(async function (argv) {
   console.log('Fetching Dates ...')
 
-  var res = await Api.getDates()
+  try {
+    var res = await Api.getDates()
+  } catch (e) {
+    console.log('Error ' + e.message)
+    return false
+  }
 
   for (var d of res._items) {
     var date = await AbraxasDate.findOne({externalId: d._id})

@@ -24,7 +24,12 @@ const task = new Task(async function (argv) {
   for (var dataset of datasets) {
     console.log(`Verifying if ${dataset.externalId} dataset has finished adjustment ...`)
 
-    var res = await Api.getDataset(dataset.externalId)
+    try {
+      var res = await Api.getDataset(dataset.externalId)
+    } catch (e) {
+      console.log(e.message)
+      return false
+    }
 
     if (res.status === 'ready') {
       console.log(`${dataset.externalId} dataset has finished processing`)
@@ -32,7 +37,14 @@ const task = new Task(async function (argv) {
       await dataset.processReady(res)
 
       console.log(`Obtaining rows from dataset ...`)
-      var resDataset = await Api.rowsDataset(dataset.externalId)
+
+      try {
+        var resDataset = await Api.rowsDataset(dataset.externalId)
+      } catch (e) {
+        console.log(e.message)
+        return false
+      }
+
       var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
       var productExternalId = dataset.getProductColumn() || {name: ''}
       var channelExternalId = dataset.getChannelColumn() || {name: ''}

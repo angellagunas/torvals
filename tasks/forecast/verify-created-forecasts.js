@@ -24,8 +24,12 @@ const task = new Task(async function (argv) {
 
   for (var forecast of forecasts) {
     console.log(`Sending ${forecast.configPrId} forecast for processing ...`)
-
-    var res = await Api.runForecast(forecast.configPrId)
+    try {
+      var res = await Api.runForecast(forecast.configPrId)
+    } catch (e) {
+      console.log('error' + e.message)
+      return false
+    }
 
     if (res.status === 'OK') {
       forecast.set({

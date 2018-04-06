@@ -22,6 +22,8 @@ const task = new Task(async function (argv) {
     throw new Error('Invalid uuid!')
   }
 
+  console.log(`Sending ${dataset.name} dataset for preprocessing ...`)
+
   try {
     var res = await Api.uploadDataset(dataset)
 
@@ -52,6 +54,12 @@ const task = new Task(async function (argv) {
     console.log(`Successfully sent for preprocessing dataset ${dataset.name}`)
     return true
   } catch (e) {
+    dataset.set({
+      error: e.message,
+      status: 'error'
+    })
+    await dataset.save()
+
     console.log(`Error sending the dataset`)
     return false
   }

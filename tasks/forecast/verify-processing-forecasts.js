@@ -24,7 +24,12 @@ const task = new Task(async function (argv) {
   for (var forecast of forecasts) {
     console.log(`Verifying if ${forecast.configPrId} forecast has finished processing ...`)
 
-    var res = await Api.getForecast(forecast.forecastId)
+    try {
+      var res = await Api.getForecast(forecast.forecastId)
+    } catch (e) {
+      console.log('error' + e.message)
+      return false
+    }
 
     if (res.status === 'error') {
       console.log(`${forecast.configPrId} forecast had an error!`)
@@ -55,7 +60,12 @@ const task = new Task(async function (argv) {
 
       console.log(`Obtaining predictions ...`)
 
-      res = await Api.conciliateForecast(forecast.forecastId)
+      try {
+        res = await Api.conciliateForecast(forecast.forecastId)
+      } catch (e) {
+        console.log('error' + e.message)
+        return false
+      }
 
       var products = []
       var newProducts = []
