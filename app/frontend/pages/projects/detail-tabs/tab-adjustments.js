@@ -6,12 +6,8 @@ import _ from 'lodash'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
 import Loader from '~base/components/spinner'
-import {
-  BaseForm,
-  SelectWidget
-} from '~base/components/base-form'
+
 import CreateAdjustmentRequest from '../../forecasts/create-adjustmentRequest'
-import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 
@@ -67,7 +63,6 @@ class TabAdjustment extends Component {
     if (currentRole !== 'manager-level-3') {
       this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
-    if (this.props.project.status === 'adjustment') this.setAlertMsg()
   }
 
   componentWillUnmount () {
@@ -155,6 +150,16 @@ class TabAdjustment extends Component {
 
       var filteredSemanasBimbo = Array.from(Array(4), (_,x) => maxSemana - x).reverse()
 
+      var formData = this.state.formData
+
+      if (res.salesCenters.length === 1) {
+        formData.salesCenter = res.salesCenters[0].uuid
+      }
+
+      if (res.channels.length === 1) {
+        formData.channel = res.channels[0].uuid
+      } 
+
       this.setState({
         filters: {
           channels: res.channels,
@@ -166,22 +171,13 @@ class TabAdjustment extends Component {
           categories: this.getCategory(res.products),
           periods: periods
         },
-        formData: {
-          period: 1
-        },
+        formData: formData,
         filtersLoaded: true
       }, () => {
         this.getDataRows()
       })
 
-      if (res.salesCenters.length === 1) {
-        this.setState({
-          formData: {
-            ...this.state.formData,
-            salesCenters: res.salesCenters[0].uuid
-          }
-        })
-      }      
+       
     }
   }
 
@@ -221,48 +217,13 @@ class TabAdjustment extends Component {
     return Array.from(categories)
   }
 
-  async filterChangeHandler (name, value) {
-    console.log(value)
-    console.log(name)
-    /* if (e.formData.period !== this.state.formData.period) {
-
-      var period = this.state.filters.periods.find(item => {
-        return item.number === e.formData.period
-      })
-
-      var filteredSemanasBimbo = Array.from(Array(4), (_,x) => period.maxSemana - x).reverse()
-
-      this.setState({
-        filters: {
-          ...this.state.filters,
-          filteredSemanasBimbo: filteredSemanasBimbo
-        },
-        formData: {
-          semanasBimbo: filteredSemanasBimbo[0],
-          products: e.formData.products,
-          channels: e.formData.channels,
-          salesCenters: e.formData.salesCenters,
-          categories: e.formData.categories,
-          period: e.formData.period
-        }
-      })
-      return
-    } */
+  async filterChangeHandler (name, value) {  
     let aux = this.state.formData
     aux[name] = value
     this.setState({
-      /* formData: {
-        semanasBimbo: e.formData.semanasBimbo,
-        products: e.formData.products,
-        channels: e.formData.channels,
-        salesCenters: e.formData.salesCenters,
-        categories: e.formData.categories,
-        period: e.formData.period
-      } */
       formData: aux
     }, () => {
-
-    console.log(this.state.formData)
+      this.getDataRows()
     })
   }
 
@@ -289,14 +250,6 @@ class TabAdjustment extends Component {
 
     const url = '/app/rows/dataset/'
     let data = await api.get(url + this.props.project.activeDataset.uuid, this.state.formData)
-      /* {
-        //semanaBimbo: this.state.formData.semanasBimbo,
-        product: this.state.formData.products,
-        channel: this.state.formData.channels,
-        salesCenter: this.state.formData.salesCenters,
-        category: this.state.formData.categories,
-        period: this.state.formData.period
-      }) */
 
     this.setState({
       dataRows: this.getEditedRows(data.data),
@@ -305,7 +258,6 @@ class TabAdjustment extends Component {
       selectedCheckboxes: new Set()
     })
     this.clearSearch()
-    this.setAlertMsg()
     this.getSalesTable()    
   }
 
@@ -571,61 +523,112 @@ class TabAdjustment extends Component {
 
   getModifyButtons () {
     return (
-      <div className='columns'>
-        <div className='column'>
-          <div className='field is-grouped'>
-            <div className='control'>
-              <h4 className='subtitle'>Resultados: {this.state.dataRows.length} </h4>
-            </div>
-            <div className='control'>
-              <div className='field has-addons'>
-                <div className='control'>
+      <div className='columns'>      
+        <div className='column is-narrow'>
+              <div className='field'>
+                <label className='label'>Búsqueda general</label>              
+                <div className='control has-icons-right'>
                   <input
                     className='input'
                     type='text'
                     value={this.state.searchTerm}
                     onChange={this.searchOnChange} placeholder='Buscar' />
+
+                  <span className='icon is-small is-right'>
+                    <i className='fa fa-search fa-xs'></i>
+                  </span>
                 </div>
-                <div className='control'>
-                  <a className='button is-light' onClick={this.clearSearch}>
-                    Limpiar
-                  </a>
+              </div>
+        </div>
+        {currentRole !== 'manager-level-3' ?
+          <div className='column is-narrow'>
+            <div className='modifier'>
+              <div className='field'>
+                <label className='label'>Modificar por porcentaje</label>
+                <div className='field is-grouped control'>
+
+                  <div className='control'>
+                    <button
+                      className='button is-outlined'
+                      onClick={() => this.onClickButtonMinus()}
+                      disabled={this.state.disableButtons}>
+                      <span className='icon'>
+                        <i className='fa fa-minus' />
+                      </span>
+                    </button>
+                  </div>
+                  <div className='control'>
+                    <input
+                      className='input input-cant has-text-centered'
+                      type='text'
+                      placeholder='1%' />
+                  </div>
+
+                  <div className='control'>
+                    <button
+                      className='button is-outlined'
+                      onClick={() => this.onClickButtonPlus()}
+                      disabled={this.state.disableButtons}>
+                      <span className='icon'>
+                        <i className='fa fa-plus' />
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        {currentRole !== 'manager-level-3' ?
-        <div className='column'>
-          <div className='field is-grouped is-grouped-right'>
-            <div className='control'>
-              <p style={{ paddingTop: 5 }}>Modificar porcentaje</p>
-            </div>
-
-            <div className='control'>
-              <button
-                className='button is-primary is-outlined'
-                onClick={() => this.onClickButtonMinus()}
-                disabled={this.state.disableButtons}
-              >
-                <span className='icon'>
-                  <i className='fa fa-minus' />
-                </span>
-              </button>
-            </div>
-            <div className='control'>
-              <button
-                className='button is-primary is-outlined'
-                onClick={() => this.onClickButtonPlus()}
-                disabled={this.state.disableButtons}
-              >
-                <span className='icon'>
-                  <i className='fa fa-plus' />
-                </span>
-                </button>
-            </div>
-          </div>
         </div> : null }
+
+        {currentRole !== 'manager-level-3' ?
+          <div className='column is-narrow'>
+            <div className='modifier'>
+              <div className='field'>
+                <label className='label'>Máximo por cantidad</label>
+                <div className='field is-grouped control'>
+
+                  <div className='control'>
+                    <button
+                      className='button is-outlined'
+                      onClick={() => this.onClickButtonMinus()}
+                      disabled={this.state.disableButtons}>
+                      <span className='icon'>
+                        <i className='fa fa-minus' />
+                      </span>
+                    </button>
+                  </div>
+                  <div className='control'>
+                    <input
+                      className='input input-cant has-text-centered'
+                      type='text'
+                      placeholder='0' />
+                  </div>
+
+                  <div className='control'>
+                    <button
+                      className='button is-outlined'
+                      onClick={() => this.onClickButtonPlus()}
+                      disabled={this.state.disableButtons}>
+                      <span className='icon'>
+                        <i className='fa fa-plus' />
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> : null}
+
+        <div className='column'>
+          <button 
+            className={'button is-medium is-info is-pulled-right ' + this.state.isDownloading}
+            disabled={!!this.state.isDownloading}
+            onClick={e => this.downloadReport()}>
+            <span className='icon' title='Descargar'>
+              <i className='fa fa-download fa-lg' />
+            </span>
+          </button>
+          
+        </div>        
       </div>
     )
   }
@@ -824,43 +827,17 @@ class TabAdjustment extends Component {
     }, () => this.searchDatarows())
   }
 
-  async conciliateOnClick () {
-    this.setState({
-      isConciliating: ' is-loading'
-    })
-
-    var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
-    try {
-      clearInterval(this.interval)
-      await api.post(url)
-      await this.props.load()
-    } catch(e){
-      this.notify('Error '+ e.message, 3000, toast.TYPE.ERROR)
-    }
-
-    this.setState({
-      isConciliating: '',
-      modified: 0,
-      dataRows: [],
-      isFiltered: false
-    })
-  }
-
   setAlertMsg() {
     let ajuste = (this.state.generalAdjustment * 100)
     if (ajuste < 0){
-      this.props.setAlert('is-warning', 'Ajuste Ilimitado.')
-      return
+      return <span>Modo Ajuste Ilimitado</span>
     }
 
     if (currentRole === 'manager-level-3') {
-      this.props.setAlert('is-error', 'Modo de Visualización -  No se permiten ajustes para tu tipo de usuario.')
-    }
-    else if (currentRole === 'manager-level-2') {
-      this.props.setAlert('is-warning', 'Modo de Ajuste - Para este periodo se permite un ajuste máximo de ' + (this.state.generalAdjustment * 100) + '% sobre el ajuste anterior. Tu tipo de usuario permite ajustes fuera de rango')
+      return <span>Modo Visualización - No se permiten ajustes para tu tipo de usuario</span>
     }
     else {
-      this.props.setAlert('is-warning', 'Modo de Ajuste - Para este periodo se permite un ajuste máximo de ' + (this.state.generalAdjustment * 100) + '%  sobre el ajuste anterior.')
+      return <span>Modo Ajuste {this.state.generalAdjustment * 100} % permitido</span>
     }
   }
 
@@ -952,7 +929,7 @@ class TabAdjustment extends Component {
   }
 
   async downloadReport () {
-    if (!this.state.formData.salesCenters) {
+    if (!this.state.formData.salesCenter) {
       this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 3000, toast.TYPE.ERROR)
 
       return
@@ -1024,6 +1001,13 @@ class TabAdjustment extends Component {
     })
   }
 
+  getPeriod() {
+    var period = this.state.filters.periods.find(item => {
+      return item.number === this.state.formData.period
+    })
+    return period.name
+  }
+
   render () {
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
@@ -1092,204 +1076,120 @@ class TabAdjustment extends Component {
       )
     }
 
-    var schema = {
-      type: 'object',
-      title: '',
-      properties: {}
-    }
-
-    const uiSchema = {
-      period: { 'ui:widget': SelectWidget },
-      semanasBimbo: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las semanas' },
-      channels: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los canales' },
-      salesCenters: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los centros de venta' },
-      products: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los productos' },
-      categories: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorías' }
-    }
-
-    if (this.state.filters.periods.length > 0) {
-      schema.properties.period = {
-        type: 'number',
-        title: 'Periodo',
-        enum: []
-      }
-
-      schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
-      schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
-      schema.properties.period.default = true
-    }
-    if (this.state.filters.filteredSemanasBimbo.length > 0) {
-      schema.properties.semanasBimbo = {
-        type: 'number',
-        title: 'Semana',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
-      schema.properties.semanasBimbo.enumNames = this.state.filters.filteredSemanasBimbo.map(item => { return 'Semana ' + item })
-    }
-    if (this.state.filters.channels.length > 0) {
-      schema.properties.channels = {
-        type: 'string',
-        title: 'Canales',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
-      schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return 'Canal ' + item.name })
-    }
-
-    if (this.state.filters.products.length > 0) {
-      schema.properties.products = {
-        type: 'string',
-        title: 'Productos',
-        enum: [],
-        enumNames: []
-      }
-
-      schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
-      schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
-    }
-    if (this.state.filters.categories.length > 0) {
-      schema.properties.categories = {
-        type: 'string',
-        title: 'Categorias de producto',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.categories.enum = this.state.filters.categories
-      schema.properties.categories.enumNames = this.state.filters.categories
-    }
-
-    if (this.state.filters.salesCenters.length > 0) {
-      schema.properties.salesCenters = {
-        type: 'string',
-        title: 'Centros de Venta',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
-      schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
-      if(this.state.filters.salesCenters.length === 1){
-        uiSchema.salesCenters['ui:disabled'] = true
-      }
-    }
     return (
-        <div>
-          <CreateAdjustmentRequest
-            className={this.state.classNameAR}
-            hideModal={(e) => this.hideModalAdjustmentRequest(e)}
-            finishUp={(e) => this.finishUpAdjustmentRequest(e)}
-            prediction={this.state.selectedAR}
-            baseUrl={'/app/rows/'}
-          />
-<div className='section level selects'>
-  <div className='level-left'>
-    <div className='level-item'>
-      <Select 
-        label='Periodo'
-        name='period'
-        value={1}
-        placeholder='Seleccionar'
-        optionValue='number'
-        optionName='name'
-        type='integer'
-        options={this.state.filters.periods}
-        onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-        />
-    </div>
+      <div>
+        <CreateAdjustmentRequest
+          className={this.state.classNameAR}
+          hideModal={(e) => this.hideModalAdjustmentRequest(e)}
+          finishUp={(e) => this.finishUpAdjustmentRequest(e)}
+          prediction={this.state.selectedAR}
+          baseUrl={'/app/rows/'} />
 
-    <div className='level-item'>
-      <Select 
-        label='Productos'
-        name='product'
-        value=''
-        placeholder='Seleccionar'
-        optionValue='uuid'
-        optionName='name'
-        options={this.state.filters.products}
-        onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-        />
-    </div>
+        <div className='section level selects'>
+          <div className='level-left'>
+            <div className='level-item'>
+              <Select
+                label='Periodo'
+                name='period'
+                value={1}
+                placeholder='Seleccionar'
+                optionValue='number'
+                optionName='name'
+                type='integer'
+                options={this.state.filters.periods}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            </div>
 
-    <div className='level-item'>
-      <Select 
-        label='Categoria de Productos'
-        name='category'
-        value=''
-        placeholder='Seleccionar'
-        options={this.state.filters.categories}
-        onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-        />
-    </div>
+            <div className='level-item'>
+              <Select
+                label='Categoria de Productos'
+                name='category'
+                value=''
+                placeholder='Seleccionar'
+                options={this.state.filters.categories}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            </div>
 
-    <div className='level-item'>
-      <Select 
-        label='Canal'
-        name='channel'
-        value=''
-        placeholder='Seleccionar'
-        optionValue='uuid'
-        optionName='name'
-        options={this.state.filters.channels}
-        onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-        />
-    </div>
+            <div className='level-item'>
+              {this.state.filters.channels.length === 1 ?
+                <div className='one-channel'>
+                  <span>Canal: </span>
+                  <span className='has-text-weight-bold'>{this.state.filters.channels[0].name}
+                  </span>
+                </div>
+                :
+              <Select
+                label='Canal'
+                name='channel'
+                value=''
+                placeholder='Seleccionar'
+                optionValue='uuid'
+                optionName='name'
+                options={this.state.filters.channels}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+              }
+            </div>
 
-    <div className='level-item'>
-      <Select 
-        label='Centros de Venta'
-        name='salesCenter'
-        value=''
-        placeholder='Seleccionar'
-        optionValue='uuid'
-        optionName='name'
-        options={this.state.filters.salesCenters}
-        onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-        disabled={this.state.filters.salesCenters.length === 1}
-        />
-    </div>
-  </div>
-</div>
+            <div className='level-item'>
+            {this.state.filters.salesCenters.length === 1 ?
+                <div>
+                  <span>Centro de Venta: </span>
+                  <span className='has-text-weight-bold'>{this.state.filters.salesCenters[0].name}
+                  </span>
+                </div>  
+            :
+              <Select
+                label='Centros de Venta'
+                name='salesCenter'
+                value=''
+                placeholder='Seleccionar'
+                optionValue='uuid'
+                optionName='name'
+                options={this.state.filters.salesCenters}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            }
+            </div>
+          </div>
+        </div>
 
-<div className='level indicators shadow'>
-  <div className='level-item has-text-centered'>
-    <div>
-      <h1 className='has-text-weight-semibold'>Indicadores</h1>
-    </div>
-  </div>
-  <div className='level-item has-text-centered has-text-info'>
-    <div>
-      <p className='has-text-weight-semibold'>Prediccion Total</p>
-      <h1 className='num has-text-weight-bold'>3,456</h1>
-    </div>
-  </div>
-  <div className='level-item has-text-centered teal'>
-    <div>
-      <p className='has-text-weight-semibold'>Prediccion Ajuste</p>
-      <h1 className='num has-text-weight-bold'>3,456</h1>
-    </div>
-  </div>
-  <div className='level-item has-text-centered has-text-danger'>
-    <div>
-      <p className='has-text-weight-semibold'>Venta Anterior</p>
-      <h1 className='num has-text-weight-bold'>3,456</h1>
-    </div>
-  </div>
-  <div className='level-item has-text-centered'>
-    <div>
-        <img src='/app/public/img/grafica.svg' />
-      <a className='collapse-btn' onClick={this.toggleIndicators}>
-        <span className='icon is-large'>
-          <i className={this.state.indicators === 'indicators-show' ? 'fa fa-2x fa-caret-up' : 'fa fa-2x fa-caret-down'}></i>
-        </span>
-      </a>
-    </div>
-  </div>
-</div>
+        <div className='level indicators shadow'>
+          <div className='level-item has-text-centered'>
+            <div>
+              <h1 className='has-text-weight-semibold'>Indicadores</h1>
+            </div>
+          </div>
+          <div className='level-item has-text-centered has-text-info'>
+            <div>
+              <p className='has-text-weight-semibold'>Prediccion</p>
+              <h1 className='num has-text-weight-bold'>3,456</h1>
+            </div>
+          </div>
+          <div className='level-item has-text-centered has-text-teal'>
+            <div>
+              <p className='has-text-weight-semibold'>Ajuste</p>
+              <h1 className='num has-text-weight-bold'>3,456</h1>
+            </div>
+          </div>
+          <div className='level-item has-text-centered'>
+            <div>
+              <img src='/app/public/img/grafica.png' />
+              <a className='collapse-btn' onClick={this.toggleIndicators}>
+                <span className='icon is-large'>
+                  <i className={this.state.indicators === 'indicators-show' ? 'fa fa-2x fa-caret-up' : 'fa fa-2x fa-caret-down'}></i>
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+
         <div className={'indicators-collapse ' + this.state.indicators}>
           <div className='columns'>              
-            <div className='column has-text-right'>
+            <div className='column'>
               <div className='card'>
                 <div className='card-header'>
                   <h1 className='card-header-title'>Totales de Venta</h1>
@@ -1355,38 +1255,13 @@ class TabAdjustment extends Component {
                   }
                 </div>
               </div>
-              <br />
-              <div className='field is-grouped is-grouped-right'>
-                <div className='control'>
-                  <button
-                    className={'button is-primary' + this.state.isDownloading}
-                    disabled={!!this.state.isDownloading}
-                    type='button'
-                    onClick={e => this.downloadReport()}
-                  >
-                    <span className='icon'>
-                      <i className='fa fa-download' />
-                    </span>
-                    <span>Descargar Reporte</span>
-                  </button>
-                </div>                  
-                <div className='control'>
-                    <button
-                      className={'button is-success' + this.state.isConciliating}
-                      disabled={!!this.state.isConciliating}
-                      type='button'
-                      onClick={e => this.conciliateOnClick()}
-                    >
-                      Confirmar ajustes ({ this.state.modified })
-                    </button>
-                  </div>
-                </div>
               </div>
             
           </div>
           </div>
           
-          <section className='section'>
+          <section>
+          
             {!this.state.isFiltered
               ? <article className='message is-primary'>
                 <div className='message-header'>
@@ -1397,7 +1272,14 @@ class TabAdjustment extends Component {
                 </div>
               </article>
               : <div>
+                <section className='section'>
+              <h1>
+                <span className='has-text-weight-semibold'>{this.getPeriod()} - </span> 
+                <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
+              </h1>
+              <br />
                 {this.getModifyButtons()}
+                </section>
                 {
                   !this.state.byWeek ?
 

@@ -21,41 +21,45 @@ class Select extends Component {
     this.setState({
       value: val
     })
-
+    if(val === '')
+     val = undefined
+     
     this.props.onChange(this.props.name, val)
   }
 
   render () {
-    return (
-      <div className='field'>
-        <label className='label'>{this.props.label}</label>
-        <div className='control'>
-          <div className='select'>
-            <select
-              name={this.props.name}
-              value={this.state.value}
-              onChange={this.onChange}
-              disabled={this.props.disabled}
-              >
-              <option value=''>{this.props.placeholder}</option>
-              {this.props.options.map((item, key) => {
-                if (this.props.optionValue && this.props.optionName){
-                  return (
-                    <option key={key} value={item[this.props.optionValue]}>{item[this.props.optionName]}</option>
-                  )
-                }
-                else{
-                  return (
-                    <option key={key} value={item}>{item}</option>
-                  )
-                }
-              })}
+    if(this.props.options){
+      return (
+        <div className='field'>
+          <label className='label'>{this.props.label}</label>
+          <div className='control'>
+            <div className='select'>
+              <select
+                name={this.props.name}
+                value={this.state.value}
+                onChange={this.onChange}
+                disabled={this.props.disabled}
+                >
+                <option value=''>{this.props.placeholder}</option>
+                {this.props.options.map((item, key) => {
+                  if (this.props.optionValue && this.props.optionName){
+                    return (
+                      <option key={key} value={item[this.props.optionValue]}>{item[this.props.optionName]}</option>
+                    )
+                  }
+                  else{
+                    return (
+                      <option key={key} value={item}>{item}</option>
+                    )
+                  }
+                })}
 
-            </select>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-    )
+      )
+    }
   }
 }
 

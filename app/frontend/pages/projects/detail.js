@@ -32,7 +32,8 @@ class ProjectDetail extends Component {
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
       isLoading: '',
-      counterAdjustments: 0
+      counterAdjustments: 0,
+      isConciliating: ''
     }
     this.interval = null
     this.intervalCounter = null
@@ -172,6 +173,28 @@ class ProjectDetail extends Component {
     }
   }
 
+  async conciliateOnClick () {
+    this.setState({
+      isConciliating: ' is-loading'
+    })
+
+    var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
+    try {
+      clearInterval(this.interval)
+      await api.post(url)
+      await this.props.load()
+    } catch (e) {
+      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+    }
+
+    this.setState({
+      isConciliating: '',
+      modified: 0,
+      dataRows: [],
+      isFiltered: false
+    })
+  }
+
   render () {
     if (this.state.notFound) {
       return <NotFound msg='este proyecto' />
@@ -208,7 +231,6 @@ class ProjectDetail extends Component {
       {
         name: 'ajustes',
         title: 'Ajustes',
-        icon: 'fa-cogs',
         reload: false,
         hide: project.status === 'empty',
         content: (
@@ -226,7 +248,6 @@ class ProjectDetail extends Component {
         title: 'Aprobar',
         badge: true,
         valueBadge: this.state.counterAdjustments,
-        icon: 'fa-calendar-check-o',
         reload: true,
         hide: (testRoles('manager-level-1') ||
               project.status === 'processing' ||
@@ -243,7 +264,6 @@ class ProjectDetail extends Component {
       {
         name: 'datasets',
         title: 'Datasets',
-        icon: 'fa-signal',
         hide: testRoles('manager-level-1'),
         reload: true,
         content: (
@@ -259,7 +279,6 @@ class ProjectDetail extends Component {
       {
         name: 'anomalias',
         title: 'Anomalias',
-        icon: 'fa-exclamation-triangle',
         reload: true,
         hide: (testRoles('manager-level-1') ||
           project.status === 'processing' ||
@@ -275,7 +294,6 @@ class ProjectDetail extends Component {
       {
         name: 'Historico',
         title: 'Historico',
-        icon: 'fa-history',
         hide: (project.status === 'processing' ||
           project.status === 'pendingRows' ||
           project.status === 'empty'),
@@ -288,7 +306,6 @@ class ProjectDetail extends Component {
       {
         name: 'configuracion',
         title: 'Configuración',
-        icon: 'fa-tasks',
         hide: testRoles('manager-level-1'),
         reload: true,
         content: (
@@ -345,7 +362,7 @@ class ProjectDetail extends Component {
             </div> */
           }
         {
-              !testRoles('manager-level-1') &&
+              /* !testRoles('manager-level-1') &&
               <Breadcrumb
                 path={[
                   {
@@ -370,7 +387,7 @@ class ProjectDetail extends Component {
                   }
                 ]}
                 align='left'
-              />
+              /> */
             }
         <Tabs
           tabTitle={project.name}
@@ -381,11 +398,16 @@ class ProjectDetail extends Component {
             <div>
               <div className='field is-grouped'>
                 <p className='control'>
+                  <a className='has-text-weight-semibold'>
+                    Ajustes
+                    </a>
+                </p>
+                <p className='control'>
                   <a className='has-text-success has-text-weight-semibold'>
                     <span className='icon is-small'>
                       <i className='fa fa-check' />
                     </span>
-                      Ajustes Realizados
+                      Realizados
                     </a>
 
                 </p>
@@ -394,13 +416,15 @@ class ProjectDetail extends Component {
                     <span className='icon is-small'>
                       <i className='fa fa-exclamation-triangle' />
                     </span>
-                        Ajustes pendientes
+                        Por aprobar
                       </a>
                 </p>
                 <p className='control'>
-                  <a className='button is-success'>
+                  <a className={'button is-success ' + this.state.isConciliating}
+                    disabled={!!this.state.isConciliating}
+                    onClick={e => this.conciliateOnClick()}>
                       Enviar a Consolidar
-                    </a>
+                  </a>
                 </p>
               </div>
               {canEdit &&

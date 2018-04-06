@@ -69,12 +69,12 @@ class WeekTable extends Component {
     return (
       <div className="field has-addons view-btns">
         <span className="control">
-          <a className="button is-primary">
+          <a className="button is-info">
             Vista Semana
           </a>
         </span>
         <span className="control">
-          <a className="button is-primary is-outlined" onClick={this.props.show}>
+          <a className="button is-info is-outlined" onClick={this.props.show}>
             Vista Producto
           </a>
         </span>
@@ -138,7 +138,7 @@ class WeekTable extends Component {
         default: 'N/A',
         sortable: true,
         headerClassName: 'col-border',
-        className: 'col-border'
+        className: 'col-border productName'
       },
       {
         group: ' ',

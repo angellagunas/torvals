@@ -1,9 +1,20 @@
-.selects{
-  .label{
+.label,
+.input {
     font-size: 0.75rem;
-  }
+}
+
+.input{
+  width: 150px;
+}
+
+.input-cant{
+  width: 45px;
+}
+
+.selects {
     .select,
-    select {
+    select,
+    .input {
         width: 150px;
     }
 }
