@@ -216,19 +216,27 @@ class TabAdjustment extends Component {
             }
           })
         }
+
+        if (res.channels.length === 1) {
+          this.setState({
+            formData: {
+              ...this.state.formData,
+              channels: res.channels[0].uuid
+            }
+          })
+        }
       } catch (e) {
         this.setState({
           error: true,
           errorMessage: 'No se pudieron cargar los filtros!'
         })
+
         this.notify(
           'Ha habido un error al obtener los filtros!',
           3000,
           toast.TYPE.ERROR
         )
-      }
-
-            
+      }            
     }
   }
 
@@ -1189,6 +1197,9 @@ class TabAdjustment extends Component {
       }
       schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
       schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return 'Canal ' + item.name })
+      if(this.state.filters.channels.length === 1){
+        uiSchema.channels['ui:disabled'] = true
+      }
     }
 
     if (this.state.filters.products.length > 0) {
