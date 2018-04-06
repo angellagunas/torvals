@@ -226,6 +226,11 @@ class InviteUserForm extends Component {
       schema.required = ['email', 'name']
     }
 
+    if (testRoles('manager-level-2')) {
+      delete schema.properties.group
+      delete uiSchema.group
+    }
+
     return (
       <div>
         <BaseForm
@@ -238,7 +243,7 @@ class InviteUserForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Se ha enviado la invitación correctamente!
+              Se ha enviado la invitación correctamente! La invitación estará vigente durante 24 horas.
             </div>
           </div>
 

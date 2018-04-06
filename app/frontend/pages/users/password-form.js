@@ -239,7 +239,12 @@ class PasswordUserForm extends Component {
       delete schema.properties['project']
       delete uiSchema['project']
       delete this.state.formData['project']
-      schema.required = ['email', 'name']
+      schema.required = ['email', 'name', 'password_1', 'password_2']
+    }
+
+    if (testRoles('manager-level-2')) {
+      delete schema.properties.group
+      delete uiSchema.group
     }
 
     return (

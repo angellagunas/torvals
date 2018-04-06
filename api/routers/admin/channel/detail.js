@@ -8,7 +8,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     var channelId = ctx.params.uuid
     const channel = await Channel.findOne({'uuid': channelId, 'isDeleted': false})
-    .populate('organization')
+    .populate('organization').populate('groups')
     ctx.assert(channel, 404, 'Canal no encontrado')
 
     ctx.body = {
