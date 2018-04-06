@@ -206,7 +206,7 @@ class TabAprove extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
             return (
               <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
                 <Checkbox
@@ -222,7 +222,7 @@ class TabAprove extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row, state) => {
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
             if (row.status === 'created') {
               if (!row.selected) {
                 row.selected = false
@@ -369,7 +369,7 @@ class TabAprove extends Component {
               </div>
             </div>
           </div>
-          {currentRole !== 'manager-level-3' ?
+          {currentRole !== 'consultor' ?
           <div className='column'>
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
@@ -586,7 +586,7 @@ class TabAprove extends Component {
   }
 
   setAlertMsg () {
-    if (currentRole === 'manager-level-3') {
+    if (currentRole === 'consultor') {
       this.props.setAlert('is-error', 'Modo de Visualización - No se permite aprobar / rechazar a tu tipo de usuario.')
     }
     else if (currentRole === 'manager-level-2'){

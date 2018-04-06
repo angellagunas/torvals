@@ -432,7 +432,7 @@ export default Page({
   path: '/projects/:uuid',
   title: 'Detalle',
   exact: true,
-  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2, manager-level-1',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-2, manager-level-1',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

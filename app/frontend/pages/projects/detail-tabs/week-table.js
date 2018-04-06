@@ -87,7 +87,7 @@ class WeekTable extends Component {
       {
         group: this.getBtns(),
         title: (() => {
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
             return (
               <Checkbox
                 label='checkAll'
@@ -104,7 +104,7 @@ class WeekTable extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
             if (!row.selected) {
               row.selected = false
             }

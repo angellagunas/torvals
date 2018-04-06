@@ -64,7 +64,7 @@ class TabAdjustment extends Component {
     this.getFilters()
     this.getModifiedCount()
 
-    if (currentRole !== 'manager-level-3') {
+    if (currentRole !== 'consultor') {
       this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
     if (this.props.project.status === 'adjustment') this.setAlertMsg()
@@ -81,7 +81,7 @@ class TabAdjustment extends Component {
       this.getFilters()
     }
 
-    if (currentRole !== 'manager-level-3' && this.props.project.status == 'adjustment' && !this.interval) {
+    if (currentRole !== 'consultor' && this.props.project.status == 'adjustment' && !this.interval) {
       this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
   }
@@ -441,7 +441,7 @@ class TabAdjustment extends Component {
           if (!row.localAdjustment) {
             row.localAdjustment = 0
           }
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
             return (
               <Editable
                 value={row.localAdjustment}
@@ -478,7 +478,7 @@ class TabAdjustment extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
             return (
               <Checkbox
                 label='checkAll'
@@ -495,7 +495,7 @@ class TabAdjustment extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
             return (
               <Checkbox
                 label={row}
@@ -643,7 +643,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div>
-        {currentRole !== 'manager-level-3' ?
+        {currentRole !== 'consultor' ?
         <div className='column'>
           <div className='field is-grouped is-grouped-right'>
             <div className='control'>
@@ -812,7 +812,7 @@ class TabAdjustment extends Component {
   }
 
   showModalAdjustmentRequest (obj) {
-    if (currentRole !== 'manager-level-3') {
+    if (currentRole !== 'consultor') {
       obj.localAdjustment = '' + obj.localAdjustment
       this.setState({
         classNameAR: ' is-active',
@@ -901,7 +901,7 @@ class TabAdjustment extends Component {
       return
     }
 
-    if (currentRole === 'manager-level-3') {
+    if (currentRole === 'consultor') {
       this.props.setAlert('is-error', 'Modo de Visualización -  No se permiten ajustes para tu tipo de usuario.')
     }
     else if (currentRole === 'manager-level-2') {
@@ -1286,7 +1286,7 @@ class TabAdjustment extends Component {
                 </div>
                 <div className='card-content historical-container'>
                   {
-                    currentRole !== 'manager-level-3' &&
+                    currentRole !== 'consultor' &&
                       this.state.salesTable.length > 0 ? 
                       <table className='table historical is-fullwidth'>
                         <thead>

@@ -204,7 +204,7 @@ class TabAnomalies extends Component {
         'type': 'number',
         'sortable': true,                                
         formatter: (row) => {
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
           return (
             <Editable
               value={row.prediction}
@@ -224,7 +224,7 @@ class TabAnomalies extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
           return (
             <Checkbox
               label='checkAll'
@@ -241,7 +241,7 @@ class TabAnomalies extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
           return (
             <Checkbox
               label={row}
@@ -513,7 +513,7 @@ class TabAnomalies extends Component {
               </div>
             </BaseForm>
           </div>
-          {currentRole !== 'manager-level-3'  && <div className='column has-text-right'>
+          {currentRole !== 'consultor'  && <div className='column has-text-right'>
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
                 <button
