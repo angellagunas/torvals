@@ -1,38 +1,59 @@
-.tabs-title{
-  max-width: 400px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.tabs-title {
+    max-width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 0.5rem;
 }
+
 .tabs {
+    height: 50px;
     font-size: 0.87rem;
+    font-weight: 700;
     background-color: #EFF1F9;
     border-top-left-radius: 5px;
-    -webkit-box-shadow: 0px 3px 8px -2px rgba(0,0,0,0.2);
-    -moz-box-shadow: 0px 3px 8px -2px rgba(0,0,0,0.2);
-    box-shadow: 0px 3px 8px -2px rgba(0,0,0,0.2);
+    -webkit-box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
     h1 {
         padding: 0.5rem 2.5rem 0.5rem 1rem;
+        font-weight: 700;
     }
     li.is-active a {
         border-bottom-color: $info;
         color: $info;
         border-bottom-style: solid;
         border-bottom-width: 3px;
+        padding-bottom: 0.2rem;
     }
     li a {
-        padding: 0.5rem;
+        height: 50px;
     }
-    ul.is-right{
-      padding-right: 1rem;
-      .control{
-        align-self: center;
-      }
+    ul.is-right {
+        padding-right: 1rem;
+        .control {
+            align-self: center;
+        }
     }
     a,
     ul {
         border-bottom-color: inherit;
         border-bottom-style: inherit;
         border-bottom-width: inherit;
+    }
+    .control {
+        font-size: 0.87rem !important;
+    }
+    .field.is-grouped>.control:not(:last-child) {
+        margin-bottom: 0px;
+        margin-right: 0;
+    }
+
+    a{
+        padding: 0.5rem 0.6rem;
+    }
+
+    .button{
+        height: 2rem !important;
     }
 }

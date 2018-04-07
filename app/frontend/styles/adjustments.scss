@@ -1,0 +1,108 @@
+.level:not(:last-child) {
+    margin-bottom: 0.5rem;
+}
+
+.indicators {
+    background-color: #EFF1F9;
+    padding: 0.3rem;
+    box-sizing: border-box;
+    height: 50px;
+    max-height: 50px;
+    h1 {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+    img {
+        height: 40px;
+        width: auto;
+        margin-right: 3rem;
+    }
+    .num {
+        font-size: 1.37rem;
+    }
+    p {
+        font-size: 0.70rem;
+    }
+    .level-item:not(:first-child) {
+        border-left-color: rgb(220, 225, 248);
+        border-left-style: solid;
+        height: 100%;
+        border-left-width: 1px;
+        position: relative;
+    }
+    .collapse-btn {
+        position: absolute;
+        top: -5px;
+        right: 0;
+        width: 65px;
+        height: 50px;
+        background-color: $info;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.indicators-show {
+    max-height: 400px;
+}
+
+.indicators-hide {
+    max-height: 0;
+}
+
+.indicators-collapse {
+    background-color: #F9FAFF;
+    overflow: hidden;
+    transition: max-height 0.8s ease;
+    margin-top: 0;
+}
+
+.modifier {
+    .field .is-grouped .control {
+        margin-right: 0.5rem;
+    }
+}
+
+.one-channel {
+    padding: 0 40px;
+}
+
+.period-info {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.download-btn{
+    .button{
+        height: 2.1rem;
+        width: 3.2rem;
+        font-size: 1.2rem;
+    }
+}
+
+.sales-table{
+    margin: 0.5rem;
+    background-color: #FFF;
+    .panel-heading{
+        h2{
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+    }
+    td, th{
+        font-size: 0.87rem;
+    }
+}
+
+.products-selected {
+    position: relative;
+    p {
+        color: $success;
+        font-weight: 700;
+        font-size: 1rem;
+        position: absolute;
+        top: 50%;
+    }
+}

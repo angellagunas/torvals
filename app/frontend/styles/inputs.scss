@@ -18,3 +18,22 @@
         width: 150px;
     }
 }
+
+.inline-form {
+    width: 100%;
+    .select,
+    select {
+        display: block !important;
+        width: 100%;
+        max-width: 400px;
+    }
+    .field {
+        padding: 0 10px 2px 0;
+    }
+    label {
+        display: none !important;
+    }
+}
+.form-group>fieldset {
+    border: 0;
+}

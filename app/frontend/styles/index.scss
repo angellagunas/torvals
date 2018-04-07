@@ -1,11 +1,4 @@
-$abraxas-color: #3b80af; // rgba(92,138,169,1) !default;
-$primary: $abraxas-color !default;
-$info: #187FE6;
-$link: #0665C5;
-$success: #0CB900;
-$warning: #DA7C30;
-$danger: #EF6950;
-$teal: #30C6CC;
+@import 'colors';
 @import '~bulma';
 @import '~font-awesome/css/font-awesome.css';
 @import 'navbar';
@@ -14,6 +7,7 @@ $teal: #30C6CC;
 @import 'tabs';
 @import 'inputs';
 @import 'landing';
+@import 'adjustments';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html,
 body {
@@ -31,11 +25,11 @@ h2 {
 }
 
 .text {
-    color: #424A55;
+    color: #424A55 !important;
 }
 
 .has-text-teal {
-    color: $teal;
+    color: $teal !important;
 }
 
 .button,
@@ -56,11 +50,13 @@ h2 {
     margin-top: 0px;
     margin-left: 50px;
     transition: margin-left .5s;
-    .card:first-of-type {
+    .main {
         border-radius: 5px;
         -webkit-box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
         -moz-box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
-        box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
+        box-shadow: -6px 5px 16px -6px rgba(0, 0, 0, 0.3);
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
     }
 }
 
@@ -73,79 +69,21 @@ h2 {
     top: 52px;
 }
 
-.shadow {
+.deep-shadow {
     -webkit-box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
     -moz-box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
     box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
 }
 
-.level:not(:last-child) {
-    margin-bottom: 0.5rem;
+::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
 }
 
-.indicators {
-    background-color: #EFF1F9;
-    padding: 0.3rem;
-    box-sizing: border-box;
-    img {
-        height: 40px;
-        width: auto;
-        margin-right: 3rem;
-    }
-    .num {
-        font-size: 1.37rem;
-    }
-    p {
-        font-size: 0.70rem;
-    }
-    .level-item:not(:first-child) {
-        border-left-color: rgb(220, 225, 248);
-        border-left-style: solid;
-        height: 100%;
-        border-left-width: 1px;
-        position: relative;
-    }
-    .collapse-btn {
-        position: absolute;
-        top: -5px;
-        right: 0;
-        width: 65px;
-        height: 50px;
-        background-color: $info;
-        color: #FFFFFF;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-}
-
-.indicators-show {
-    max-height: 400px;
-}
-
-.indicators-hide {
-    max-height: 0;
-}
-
-.indicators-collapse {
-    background-color: #F9FAFF;
-    overflow: hidden;
-    transition: max-height 1s ease;
-    margin-top: 0;
-}
-
-.modifier {
-    .field .is-grouped .control {
-        margin-right: 0.5rem;
-    }
-}
-
-.one-channel{
-    padding: 0 40px;
+::-webkit-scrollbar-thumb {
+    background: rgb(170, 170, 170);
 }
 /* @import 'base'; */
 
-/* @import 'colors';
-@import 'sidebar';
 @import '../../../lib/frontend/style.css';
-@import 'mq'; */
+@import 'mq';

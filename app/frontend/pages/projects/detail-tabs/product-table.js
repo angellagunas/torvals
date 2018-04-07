@@ -78,8 +78,8 @@ class ProductTable extends Component {
         }
         })(),
         groupClassName: 'col-border-left colspan is-paddingless',
-        headerClassName: 'col-border-left',
-        className: 'col-border-left',
+        headerClassName: 'col-border-left table-product-head',
+        className: 'col-border-left', 
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
@@ -104,6 +104,7 @@ class ProductTable extends Component {
         property: 'productId',
         default: 'N/A',
         sortable: true,
+        headerClassName: 'has-text-centered table-product-head',        
         formatter: (row) => {
           if (row.productId) {
             return row.productId
@@ -116,8 +117,8 @@ class ProductTable extends Component {
         property: 'productName',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border productName'
+        headerClassName: 'table-product table-product-head',
+        className: 'table-product productName'
       },
       {
         group: ' ',
@@ -126,8 +127,9 @@ class ProductTable extends Component {
           title='límite'>
           <i className='fa fa-exclamation fa-lg' />
         </span>,
-        headerClassName: 'col-border',
-        className: 'col-border',
+        groupClassName: 'table-product',
+        headerClassName: 'table-product table-product-head table-product-head-bord',
+        className: 'table-product',
         formatter: (row) => {
           return this.getLimit(row)
         }
@@ -138,8 +140,9 @@ class ProductTable extends Component {
         property: 'semanaBimbo',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border'
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
       },
       {
         group: ' ',
@@ -147,8 +150,9 @@ class ProductTable extends Component {
         property: 'salesCenter',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border'
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
       },
       {
         group: ' ',
@@ -156,8 +160,9 @@ class ProductTable extends Component {
         property: 'channel',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border'
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
       },
       {
         group: ' ',
@@ -165,8 +170,9 @@ class ProductTable extends Component {
         property: 'prediction',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border'
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
       },
       {
         group: ' ',
@@ -174,8 +180,9 @@ class ProductTable extends Component {
         property: 'lastAdjustment',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border'
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
       },
       {
         group: ' ',
@@ -183,8 +190,9 @@ class ProductTable extends Component {
         property: 'localAdjustment',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'keep-cell col-border',
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
         formatter: (row) => {
           if (!row.localAdjustment) {
             row.localAdjustment = 0
@@ -198,7 +206,6 @@ class ProductTable extends Component {
               value={row.localAdjustment}
               onBlur={(e) => { this.onBlur(e, row) }}
               onKeyPress={(e) => { this.onEnter(e, row) }}
-              style={{ width: 80 }}
               onChange={(e) => { this.onChange(e, row) }}
               onFocus={(e) => { this.onFocus(e, row) }}
               tabIndex={row.tabin}
@@ -213,9 +220,9 @@ class ProductTable extends Component {
         property: 'percentage',
         default: 0,
         sortable: true,
-        headerClassName: 'col-border has-text-centered',
-        groupClassName: 'col-border',
-        className: 'col-border has-text-centered',
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
         formatter: (row) => {
           let percentage = ((row.localAdjustment - row.prediction) /
             row.prediction) * 100
@@ -301,7 +308,13 @@ class ProductTable extends Component {
   }
 
   onFocus(e, row) {
+    row.focused = true
     row.original = row.localAdjustment
+    let aux = this.state.filteredData
+    this.setState({
+      filteredData: aux
+    })
+
     e.target.select()
   }
 
@@ -322,15 +335,20 @@ class ProductTable extends Component {
 
   onBlur = async (e, row) => {
     let value = e.target.value
-
+    row.focused = false
     if (e.target.type === 'number') {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
 
-    if (row.original !== value) {
+    if (Number(row.original) !== Number(value)) {
       this.props.changeAdjustment(value, row)
     }
+    let aux = this.state.filteredData
 
+    this.setState({
+      filteredData: aux
+    })
+    
   }
 
   onChange = (e, row) => {
@@ -359,6 +377,7 @@ class ProductTable extends Component {
     }
     return (
       <StickTable
+        height='400px'
         data={this.state.filteredData}
         cols={this.getColumns()}
         stickyCols={0}

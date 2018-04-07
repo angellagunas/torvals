@@ -1,30 +1,52 @@
 .sticky-table {
     white-space: nowrap;
-    margin-top: 2rem;
-    border-top: 2px solid #e5e5e5;
-    font-size: 0.8rem;
+    margin-top: 0.8rem;
+    font-size: 0.7rem;
 }
 
 .sticky-table .sticky-table-cell {
-    padding: 0.3rem 0.5rem;
-    border-bottom: 2px solid #e5e5e5;
+    padding: 0.1rem 0.3rem;
+    border-bottom: 1px solid #E6E8F6;
     background-color: #FBFBFB;
     vertical-align: middle;
     .input {
-        font-size: 0.8rem !important;
-    }
-    .editable {
-        padding: 0;
-        background-color: whitesmoke;
-        .control {
-            font-size: 0.8rem !important;
-        }
+        font-size: 0.7rem !important;
+        width: 60px;
+        background-color: #FFF;
     }
     .md-checkbox {
         line-height: 1;
     }
     .md-checkbox--fake {
         margin: 5px;
+        width: 20px;
+        height: 20px;
+    }
+    .md-checkbox--fake::after {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        border: 2px solid #ccc;
+    }
+    .md-checkbox--fake::before {
+        border-radius: 5px;
+        border: 0px solid transparent;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::after {
+        border: 2px solid #ccc;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::before {
+        height: 8px;
+        border-radius: 2px;
+        border-color: $success;
+        border-width: 2px;
+        border-top-style: none;
+        border-right-style: none;
+        -webkit-transform: rotate(-45deg);
+        -moz-transform: rotate(-45deg);
+        -ms-transform: rotate(-45deg);
+        -o-transform: rotate(-45deg);
+        transform: rotate(-45deg) translate(0px, 4px);
     }
     p:last-of-type {
         display: inline;
@@ -33,8 +55,8 @@
 
 .sticky-table .sticky-table-corner,
 .sticky-table .sticky-table-column {
-    border-right: 5px solid rgba(218, 218, 218, 0.4);
-    margin-right: -3px !important;
+    /* border-right: 5px solid rgba(218, 218, 218, 0.4);
+    margin-right: -3px !important; */
 }
 
 .sticky-table .sticky-header {
@@ -42,8 +64,8 @@
 }
 
 .swrapper {
-    max-width: 88rem;
-    margin: auto;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .colspan {
@@ -51,19 +73,23 @@
     overflow: visible;
     text-align: center;
     p {
-        margin-left: 110%;
+        margin-left: 170%;
     }
     p:last-of-type {
-        margin-left: 80%;
+        margin-left: 125%;
     }
 }
 
 .col-border {
-    border-right: 2px solid #e5e5e5;
+    border-right: 1px solid #AFB2B7 !important;
+}
+
+.col-border-right {
+    border-right: 1px solid #e5e5e5;
 }
 
 .col-border-left {
-    border-left: 2px solid #e5e5e5;
+    border-left: 1px solid #e5e5e5;
 }
 
 .productName {
@@ -76,7 +102,61 @@
 
 .view-btns {
     .button {
-        width: 168px;
-        height: 40px;
+        width: 155px;
+        height: 35px;
     }
+}
+
+.table-week {
+    background-color: #EFF1F9 !important;
+    color: $general_text;
+}
+
+.table-week-r {
+    border-right: 1px solid #AFB2B7 !important;
+}
+
+.table-head {
+    background-color: rgba(233, 233, 233, 0.6) !important;
+    text-align: left !important;
+    border-right: 1px solid #FBFBFB;
+    font-weight: 700;
+    color: rgba(66, 74, 85, 0.7);
+}
+
+.table-cell {
+    border-right: 1px solid #E6E8F6;
+    text-align: center !important;
+    background-color: rgba(233, 233, 233, 0.3) !important;
+}
+
+.table-product-head {
+    background-color: rgba(233, 233, 233, 1) !important;
+    font-weight: 700;
+}
+
+.table-product-head-bord {
+    border-right: 1px solid #FBFBFB !important;
+    border-left: 1px solid #FBFBFB;
+}
+
+.table-product {
+    border-right: 1px solid #E6E8F6;
+    -webkit-box-shadow: 2px 0px 2px 0px rgba(181, 174, 181, 0.3);
+    -moz-box-shadow: 2px 0px 2px 0px rgba(181, 174, 181, 0.3);
+    box-shadow: 2px 0px 2px 0px rgba(181, 174, 181, 0.3);
+}
+
+.row-selected {
+    background-color: rgba(12, 185, 0, 0.2) !important;
+}
+
+.row-focus {
+    border-bottom: 1.5px solid #E3E4EB !important;
+    border-top: 1.5px solid #E3E4EB !important;
+    background-color: rgba(227, 228, 235, 0.6) !important;
+}
+
+.row-edited {
+    background-color: rgba(24, 127, 230, 0.2) !important;
 }

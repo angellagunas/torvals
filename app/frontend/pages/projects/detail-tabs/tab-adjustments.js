@@ -49,7 +49,9 @@ class TabAdjustment extends Component {
       salesTable: [],
       noSalesData: '',
       byWeek: false,
-      indicators: 'indicators-hide'
+      indicators: 'indicators-hide',
+      quantity: 0,
+      percentage: 0
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -67,7 +69,6 @@ class TabAdjustment extends Component {
 
   componentWillUnmount () {
     clearInterval(this.interval)
-    this.props.setAlert('is-white', ' ')    
   }
 
   componentWillReceiveProps(nextProps) {
@@ -227,10 +228,6 @@ class TabAdjustment extends Component {
     })
   }
 
-  async filterErrorHandler (e) {
-
-  }
-
   async getDataRows () {
     if (!this.state.formData.period) {
       this.notify('Se debe filtrar por periodo!', 3000, toast.TYPE.ERROR)
@@ -273,208 +270,6 @@ class TabAdjustment extends Component {
       }
     }
     return data
-  }
-
-  getColumns () {
-    let cols = [
-      {
-        'title': 'Id',
-        'property': 'productId',
-        'default': 'N/A',
-        'sortable': true, 
-        formatter: (row) => {
-          return String(row.productId)
-        }
-      },
-      {
-        'title': 'Producto',
-        'property': 'productName',
-        'default': 'N/A',
-        'sortable': true, 
-        formatter: (row) => {
-          return String(row.productName)
-        }
-      },
-      {
-        'title': 'Canal',
-        'abbreviate': true,
-        'abbr': 'Canal',
-        'property': 'channel',
-        'default': 'N/A',
-        'sortable': true, 
-        formatter: (row) => {
-          return String(row.channel)
-        }
-      },
-      {
-        'title': 'Semana',
-        'property': 'semanaBimbo',
-        'default': 'N/A',
-        'sortable': true, 
-        formatter: (row) => {
-          return String(row.semanaBimbo)
-        }
-      },
-      {
-        'title': 'Predicción',
-        'property': 'prediction',
-        'default': 0,
-        'sortable': true, 
-        formatter: (row) => {
-          return String(row.prediction)
-        }
-      },
-      /* {
-        'title': 'Ajuste Anterior',
-        'property': 'lastAdjustment',
-        'default': 0,
-        formatter: (row) => {
-          if (row.lastAdjustment) {
-            return row.lastAdjustment
-          }
-        }
-      }, */
-      {
-        'title': 'Ajuste',
-        'property': 'localAdjustment',
-        'default': 0,
-        'type': 'number',
-        'sortable': true, 
-        'className': 'keep-cell',
-        formatter: (row) => {
-          if (!row.localAdjustment) {
-            row.localAdjustment = 0
-          }
-          if (currentRole !== 'manager-level-3') {
-            return (
-              <Editable
-                value={row.localAdjustment}
-                handleChange={this.changeAdjustment}
-                type='number'
-                obj={row}
-                width={100}
-              />
-            )
-          }
-          else {
-            return row.localAdjustment
-          }
-        }
-      },
-      {
-        'title': 'Rango Ajustado',
-        'subtitle': this.state.generalAdjustment < 0 ? 'ilimitado'
-            :
-           `máximo: ${(this.state.generalAdjustment * 100)} %`
-        ,
-        'property': 'percentage',
-        'default': 0,
-        'type': 'number',
-        'sortable': true,         
-        'className': 'keep-cell',
-        formatter: (row) => {
-          let percentage = ((row.localAdjustment - row.prediction) / row.prediction) * 100
-          row.percentage = percentage                            
-          return Math.round(percentage) + ' %'
-        }
-      },
-      {
-        'title': 'Seleccionar Todo',
-        'abbreviate': true,
-        'abbr': (() => {
-          if (currentRole !== 'manager-level-3') {
-            return (
-              <Checkbox
-                label='checkAll'
-                handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
-                key='checkAll'
-                checked={this.state.selectedAll}
-                hideLabel />
-            )
-          }
-        })(),
-        'property': 'checkbox',
-        'default': '',
-        formatter: (row) => {
-          if (!row.selected) {
-            row.selected = false
-          }
-          if (currentRole !== 'manager-level-3') {
-            return (
-              <Checkbox
-                label={row}
-                handleCheckboxChange={this.toggleCheckbox}
-                key={row}
-                checked={row.selected}
-                hideLabel />
-            )
-          }
-        }
-      },
-      {
-        'title': '',
-        'abbreviate': true,
-        'abbr': (() => {
-          return (
-            <div className='is-invisible'>
-              <span
-                className='icon'
-                title='límite'
-              >
-                <FontAwesome name='warning fa-lg' />
-              </span>
-            </div>
-          )
-        })(),
-        'property': 'isLimit',
-        'default': '',
-        formatter: (row) => {
-          if (row.isLimit && !row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-danger'
-                title='No es posible ajustar más allá al límite!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning fa-lg' />
-              </span>
-            )
-          }
-
-          if (row.isLimit && row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-warning'
-                title='Ya se ha pedido un cambio a esta predicción!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='info-circle fa-lg' />
-              </span>
-            )
-          }
-          return ''
-        }
-      }
-    ]
-
-    if ( this.state.filters.salesCenters.length > 1){
-      cols.splice(2,0, { 
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.salesCenter)
-        }
-      })
-    }
-
-    return cols
   }
 
   checkAll = (checked) => {
@@ -521,6 +316,28 @@ class TabAdjustment extends Component {
     })
   }
 
+  onChangePercentage = (e) => {
+    let val = parseInt(e.target.value)
+    if (isNaN(val)) {
+      val = e.target.value
+    }
+    this.setState({
+      quantity: 0,
+      percentage: val
+    })
+  }
+
+  onChangeQuantity = (e) => {
+    let val = parseInt(e.target.value)
+    if (isNaN(val)) {
+      val = e.target.value
+    }
+    this.setState({
+      quantity: val,
+      percentage: 0
+    })
+  }
+
   getModifyButtons () {
     return (
       <div className='columns'>      
@@ -544,7 +361,7 @@ class TabAdjustment extends Component {
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
-                <label className='label'>Modificar por porcentaje</label>
+                <label className='label'>Modificar por cantidad</label>
                 <div className='field is-grouped control'>
 
                   <div className='control'>
@@ -561,7 +378,9 @@ class TabAdjustment extends Component {
                     <input
                       className='input input-cant has-text-centered'
                       type='text'
-                      placeholder='1%' />
+                      placeholder='0'
+                      value={this.state.quantity}
+                      onChange={this.onChangeQuantity} />
                   </div>
 
                   <div className='control'>
@@ -583,7 +402,7 @@ class TabAdjustment extends Component {
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
-                <label className='label'>Máximo por cantidad</label>
+                <label className='label'>Modificar por porcentaje</label>
                 <div className='field is-grouped control'>
 
                   <div className='control'>
@@ -600,7 +419,9 @@ class TabAdjustment extends Component {
                     <input
                       className='input input-cant has-text-centered'
                       type='text'
-                      placeholder='0' />
+                      placeholder='0%'
+                      value={this.state.percentage}
+                      onChange={this.onChangePercentage} />
                   </div>
 
                   <div className='control'>
@@ -618,13 +439,22 @@ class TabAdjustment extends Component {
             </div>
           </div> : null}
 
-        <div className='column'>
+        {this.state.selectedCheckboxes.size > 0 &&
+        <div className='column products-selected'>
+          <p>
+            <span>{this.state.selectedCheckboxes.size} </span>
+             Productos Seleccionados
+          </p>
+        </div> 
+        }
+
+        <div className='column download-btn'>
           <button 
-            className={'button is-medium is-info is-pulled-right ' + this.state.isDownloading}
+            className={'button is-info is-pulled-right' + this.state.isDownloading}
             disabled={!!this.state.isDownloading}
             onClick={e => this.downloadReport()}>
             <span className='icon' title='Descargar'>
-              <i className='fa fa-download fa-lg' />
+              <i className='fa fa-download' />
             </span>
           </button>
           
@@ -635,9 +465,22 @@ class TabAdjustment extends Component {
 
   async onClickButtonPlus () {
     for (const row of this.state.selectedCheckboxes) {
-      let toAdd = row.prediction * 0.01
-      if (Math.round(toAdd) === 0) {
-        toAdd = 1
+      let toAdd = 0
+      if (parseInt(this.state.quantity) === 0 && 
+          parseInt(this.state.percentage) !== 0 && 
+          !isNaN(this.state.quantity) && 
+          !isNaN(this.state.percentage)){
+        toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
+        toAdd = Math.round(toAdd)
+      }
+      else if (parseInt(this.state.quantity) !== 0 &&
+        parseInt(this.state.percentage) === 0 &&
+        !isNaN(this.state.quantity) &&
+        !isNaN(this.state.percentage)){
+        toAdd = parseInt(this.state.quantity)
+      }
+      else{
+        return
       }
       let localAdjustment = Math.round(row.localAdjustment)
       let newAdjustment = localAdjustment + toAdd
@@ -654,9 +497,22 @@ class TabAdjustment extends Component {
 
   async onClickButtonMinus () {
     for (const row of this.state.selectedCheckboxes) {
-      let toAdd = row.prediction * 0.01
-      if (Math.round(toAdd) === 0) {
-        toAdd = 1
+      let toAdd = 0
+      if (parseInt(this.state.quantity) === 0 &&
+        parseInt(this.state.percentage) !== 0 &&
+        !isNaN(this.state.quantity) &&
+        !isNaN(this.state.percentage)) {
+        toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
+        toAdd = Math.round(toAdd)
+      }
+      else if (parseInt(this.state.quantity) !== 0 &&
+        parseInt(this.state.percentage) === 0 &&
+        !isNaN(this.state.quantity) &&
+        !isNaN(this.state.percentage)) {
+        toAdd = parseInt(this.state.quantity)
+      }
+      else {
+        return
       }
       let localAdjustment = Math.round(row.localAdjustment)
       let newAdjustment = localAdjustment - toAdd
@@ -682,7 +538,7 @@ class TabAdjustment extends Component {
     })
   }
 
-  async handleChange (obj) {
+  async handleChange(obj) {
     let adjusted = true
     let maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
     let minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
@@ -696,31 +552,28 @@ class TabAdjustment extends Component {
 
     if (obj.isLimit && obj.adjustmentRequest &&
       (obj.adjustmentRequest.status === 'approved' ||
-      obj.adjustmentRequest.status === 'created')) {
+        obj.adjustmentRequest.status === 'created')) {
       obj.adjustmentRequest.status = 'rejected'
     }
 
-    if (currentRole === 'manager-level-1') {
-      if (obj.newAdjustment >= maxAdjustment || 
-          obj.newAdjustment <= minAdjustment)
-      {
-        adjusted = false
-      }
+    obj.localAdjustment = obj.newAdjustment
 
-      else{
-        obj.localAdjustment = obj.newAdjustment
-      }
+    try {
 
-    }
-    else {
-      obj.localAdjustment = obj.newAdjustment
-    }
-
-    if (adjusted) {
       var url = '/app/rows/' + obj.uuid
       const res = await api.post(url, { ...obj })
-
+      
       obj.edited = true
+
+      if (currentRole === 'manager-level-1' && obj.isLimit) {
+        this.showModalAdjustmentRequest(obj)
+        this.notify('No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.WARNING)
+      }
+
+      else {
+        this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
+      }
+
 
       let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
       let aux = this.state.dataRows
@@ -734,19 +587,28 @@ class TabAdjustment extends Component {
 
       await this.updateSalesTable(obj)
 
+    } catch (e) {
+      this.notify('Ocurrio un error ' + e.message, 3000, toast.TYPE.ERROR)
+      return false
+    }
 
-      this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
-    }
-    else {
-      let adjustment = Object.create(obj);
-      adjustment.localAdjustment = obj.newAdjustment
-      this.showModalAdjustmentRequest(adjustment)
-      this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)      
-    }
-  
+    this.getCountEdited()
     return adjusted
   }
 
+  getCountEdited = () => {
+    let edited = 0
+    let pending = 0
+    for(let row of this.state.dataRows){
+      if(row.edited){
+        edited++
+      }
+      if(row.adjustmentRequest && row.adjustmentRequest.status === 'created'){
+        pending++
+      }
+    }
+    this.props.counters(edited, pending)
+  }
 
   notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
@@ -785,11 +647,13 @@ class TabAdjustment extends Component {
 
   async finishUpAdjustmentRequest (res) {
     if (res && res.data === 'OK') {
-      this.state.selectedAR.localAdjustment = parseInt(this.state.selectedAR.localAdjustment)
+      //this.state.selectedAR.localAdjustment = parseInt(this.state.selectedAR.localAdjustment)
       this.state.selectedAR.adjustmentRequest = { status: 'created' }
     }
+    let aux = this.state.dataRows
     this.setState({
-      selectedAR: undefined
+      selectedAR: undefined,
+      dataRows: aux
     })
   }
 
@@ -872,6 +736,8 @@ class TabAdjustment extends Component {
         noSalesData: e.message + ', intente más tarde'
       })
     }
+    this.getCountEdited()
+    
   }
 
   async updateSalesTable(row) {
@@ -1156,27 +1022,42 @@ class TabAdjustment extends Component {
           </div>
         </div>
 
-        <div className='level indicators shadow'>
+        <div className='level indicators deep-shadow'>
           <div className='level-item has-text-centered'>
             <div>
-              <h1 className='has-text-weight-semibold'>Indicadores</h1>
+              <h1>Indicadores</h1>
             </div>
           </div>
-          <div className='level-item has-text-centered has-text-info'>
+          <div className={this.state.indicators === 'indicators-hide' ? 
+          'level-item has-text-centered has-text-info' : 
+          'level-item has-text-centered has-text-info is-invisible'} 
+          >
             <div>
               <p className='has-text-weight-semibold'>Prediccion</p>
-              <h1 className='num has-text-weight-bold'>3,456</h1>
+              <h1 className='num has-text-weight-bold'>
+                {this.state.totalPrediction && this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                })}
+              </h1>
             </div>
           </div>
-          <div className='level-item has-text-centered has-text-teal'>
+          <div className={this.state.indicators === 'indicators-hide' ? 
+          'level-item has-text-centered has-text-teal' : 
+          'level-item has-text-centered has-text-teal is-invisible'}>
             <div>
               <p className='has-text-weight-semibold'>Ajuste</p>
-              <h1 className='num has-text-weight-bold'>3,456</h1>
+              <h1 className='num has-text-weight-bold'>
+                {this.state.totalAdjustment && this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                })}
+              </h1>
             </div>
           </div>
           <div className='level-item has-text-centered'>
             <div>
-              <img src='/app/public/img/grafica.png' />
+              <img src='/app/public/img/grafica.png' 
+              className={this.state.indicators === 'indicators-hide' ? 
+              '' : 'is-invisible'}/>
               <a className='collapse-btn' onClick={this.toggleIndicators}>
                 <span className='icon is-large'>
                   <i className={this.state.indicators === 'indicators-show' ? 'fa fa-2x fa-caret-up' : 'fa fa-2x fa-caret-down'}></i>
@@ -1189,20 +1070,21 @@ class TabAdjustment extends Component {
 
         <div className={'indicators-collapse ' + this.state.indicators}>
           <div className='columns'>              
-            <div className='column'>
-              <div className='card'>
-                <div className='card-header'>
-                  <h1 className='card-header-title'>Totales de Venta</h1>
+            <div className='column is-5 is-offset-1'>
+              <div className='panel sales-table'>
+                <div className='panel-heading'>
+                  <h2>Totales de Venta</h2>
                 </div>
-                <div className='card-content historical-container'>
+                <div className='panel-block historical-container'>
                   {
                     currentRole !== 'manager-level-3' &&
                       this.state.salesTable.length > 0 ? 
-                      <table className='table historical is-fullwidth'>
+                      <table className='table is-fullwidth'>
                         <thead>
                           <tr>
-                            <th colSpan='2'>Predicción</th>
-                            <th colSpan='2'>Predicción con Ajuste</th>
+                            <th colSpan='2'>Semana</th>
+                            <th colSpan='2' className='has-text-info'>Predicción</th>
+                            <th colSpan='2' className='has-text-teal'>Ajuste</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1210,15 +1092,12 @@ class TabAdjustment extends Component {
                             return (
                               <tr key={key}>
                                 <td>
-                                  Semana {item.week}
+                                  {item.week}
                                 </td>
                                 <td>
                                   $ {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
                                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                     })}
-                                </td>
-                                <td>
-                                  Semana {item.week}
                                 </td>
                                 <td>
                                   $ {item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
@@ -1233,20 +1112,17 @@ class TabAdjustment extends Component {
                           <tr>
                             <th>
                               Total
-                        </th>
-                            <td>
+                            </th>
+                            <th className='has-text-info'>
                               $ {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
-                            </td>
-                            <th>
-                              Total
-                        </th>
-                            <td>
+                            </th>
+                            <th className='has-text-teal'>
                               $ {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
-                            </td>
+                            </th>
                           </tr>
                         </tbody>
                       </table>
@@ -1273,11 +1149,10 @@ class TabAdjustment extends Component {
               </article>
               : <div>
                 <section className='section'>
-              <h1>
+              <h1 className='period-info'>
                 <span className='has-text-weight-semibold'>{this.getPeriod()} - </span> 
                 <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
               </h1>
-              <br />
                 {this.getModifyButtons()}
                 </section>
                 {

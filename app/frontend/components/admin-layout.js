@@ -127,7 +127,7 @@ class AdminLayout extends Component {
           }
 
           <div className={mainClass}>
-            <section className='card'>
+            <section className='card main'>
               {this.props.children}
             </section>
           </div>

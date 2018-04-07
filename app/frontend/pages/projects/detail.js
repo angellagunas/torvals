@@ -195,6 +195,13 @@ class ProjectDetail extends Component {
     })
   }
 
+  getCounters(realized, pending){
+    this.setState({
+      realized: realized,
+      pending: pending
+    })
+  }
+
   render () {
     if (this.state.notFound) {
       return <NotFound msg='este proyecto' />
@@ -235,6 +242,7 @@ class ProjectDetail extends Component {
         hide: project.status === 'empty',
         content: (
           <TabAdjustment
+            counters={(realized, pending) => {this.getCounters(realized, pending)}}
             load={this.getProjectStatus.bind(this)}
             project={project}
             history={this.props.history}
@@ -292,8 +300,8 @@ class ProjectDetail extends Component {
         )
       },
       {
-        name: 'Historico',
-        title: 'Historico',
+        name: 'Gráficos',
+        title: 'Gráficos',
         hide: (project.status === 'processing' ||
           project.status === 'pendingRows' ||
           project.status === 'empty'),
@@ -407,7 +415,7 @@ class ProjectDetail extends Component {
                     <span className='icon is-small'>
                       <i className='fa fa-check' />
                     </span>
-                      Realizados
+                      Realizados {this.state.realized}
                     </a>
 
                 </p>
@@ -416,7 +424,7 @@ class ProjectDetail extends Component {
                     <span className='icon is-small'>
                       <i className='fa fa-exclamation-triangle' />
                     </span>
-                        Por aprobar
+                        Por aprobar {this.state.pending}
                       </a>
                 </p>
                 <p className='control'>
