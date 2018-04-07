@@ -55,8 +55,9 @@ h2 {
         -webkit-box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
         -moz-box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
         box-shadow: -6px 5px 16px -6px rgba(0, 0, 0, 0.3);
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         padding-bottom: 1rem;
+        min-height: 90vh;
     }
 }
 
@@ -83,6 +84,7 @@ h2 {
 ::-webkit-scrollbar-thumb {
     background: rgb(170, 170, 170);
 }
+
 /* @import 'base'; */
 
 @import '../../../lib/frontend/style.css';

@@ -51,6 +51,9 @@
     p:last-of-type {
         display: inline;
     }
+    .range{
+        min-width: 80px;
+    }
 }
 
 .sticky-table .sticky-table-corner,
@@ -64,7 +67,7 @@
 }
 
 .swrapper {
-    max-width: 100%;
+    max-width: 99.8%;
     margin: 0 auto;
 }
 

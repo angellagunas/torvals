@@ -16,12 +16,14 @@
         height: 40px;
         width: auto;
         margin-right: 3rem;
+        opacity: 1;
+        transition: opacity .25s ease-in-out;
     }
     .num {
-        font-size: 1.37rem;
+        font-size: 1.15rem;
     }
     p {
-        font-size: 0.70rem;
+        font-size: 0.85rem;
     }
     .level-item:not(:first-child) {
         border-left-color: rgb(220, 225, 248);
@@ -42,6 +44,18 @@
         align-items: center;
         justify-content: center;
     }
+    .level-item {
+        opacity: 1;
+        transition: opacity .25s ease-in-out;
+    }
+}
+
+.disapear {
+    opacity: 0 !important;
+}
+
+.no-border {
+    border: none !important;
 }
 
 .indicators-show {
@@ -65,34 +79,82 @@
     }
 }
 
-.one-channel {
-    padding: 0 40px;
-}
-
 .period-info {
     font-size: 1.1rem;
     margin-bottom: 10px;
 }
 
-.download-btn{
-    .button{
+.download-btn {
+    .button {
         height: 2.1rem;
         width: 3.2rem;
         font-size: 1.2rem;
     }
 }
 
-.sales-table{
+.sales-table {
     margin: 0.5rem;
     background-color: #FFF;
-    .panel-heading{
-        h2{
+    border-color: #E6E8F6;
+    .panel-heading {
+        h2 {
             font-size: 0.9rem;
             font-weight: 700;
         }
+        background-color: #EFF1F9;
+        border-color: #E6E8F6;
     }
-    td, th{
+    .panel-block {
+        border-color: #E6E8F6;
+    }
+    td,
+    th {
         font-size: 0.87rem;
+    }
+    .table thead td,
+    .table thead th {
+        border-color: #E6E8F6;
+        border-width: 0 0 1px;
+    }
+    td {
+        border-width: 0 1px 0 0;
+        border-color: #E6E8F6;
+    }
+    tr>td:last-of-type {
+        border-width: 0;
+    }
+    .table {
+        margin-bottom: 0;
+        border-color: #E6E8F6;
+    }
+    .totals {
+        border-width: 1px 0 0 0;
+        border-style: solid;
+        border-color: #E6E8F6;
+        th {
+            font-size: 0.9rem !important;
+        }
+    }
+}
+
+.sales-graph {
+    margin: 0.5rem;
+    background-color: #FFF;
+    border-color: #E6E8F6;
+    .panel-heading {
+        h2 {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        background-color: #EFF1F9;
+        border-color: #E6E8F6;
+    }
+    .panel-block {
+        border-color: #E6E8F6;
+    }
+    canvas {
+        width: 355px !important;
+        height: 180px !important;
     }
 }
 
@@ -105,4 +167,14 @@
         position: absolute;
         top: 50%;
     }
+}
+
+.channel {
+    padding: 0 40px;
+}
+
+.saleCenter,
+.channel {
+    font-size: 0.95rem;
+    margin-top: 20px;
 }

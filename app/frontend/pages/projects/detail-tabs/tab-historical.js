@@ -610,8 +610,7 @@ class TabHistorical extends Component {
             <Graph
               data={graphData}
               labels={Array.from(this.state.labels)}
-              width={200}
-              height={50}
+              height={80}
               reloadGraph={this.state.reloadGraph}
             />
           }

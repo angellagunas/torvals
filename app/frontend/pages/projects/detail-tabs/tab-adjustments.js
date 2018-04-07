@@ -16,6 +16,8 @@ import ProductTable from './product-table'
 
 import Select from './select'
 
+import Graph from './graph'
+
 var currentRole
 moment.locale('es')
 
@@ -218,7 +220,20 @@ class TabAdjustment extends Component {
     return Array.from(categories)
   }
 
-  async filterChangeHandler (name, value) {  
+  async filterChangeHandler (name, value) { 
+    if(name === 'period'){
+      var period = this.state.filters.periods.find(item => {
+        return item.number === value
+      })
+      var filteredSemanasBimbo = Array.from(Array(4), (_, x) => period.maxSemana - x).reverse()
+      this.setState({
+        filters: {
+          ...this.state.filters,
+          filteredSemanasBimbo: filteredSemanasBimbo
+        }
+      })
+    }
+
     let aux = this.state.formData
     aux[name] = value
     this.setState({
@@ -835,7 +850,6 @@ class TabAdjustment extends Component {
       this.setState({isDownloading: ''})
       this.notify('Se ha generado el reporte correctamente!', 3000, toast.TYPE.SUCCESS)
     } catch (e) {
-      console.log('error',e.message)
     
       this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
     
@@ -942,6 +956,19 @@ class TabAdjustment extends Component {
       )
     }
 
+    const graphData = [
+      {
+        label: 'Predicción',
+        color: '#01579B',
+        data: this.state.salesTable.map((item, key) => { return item.prediction })
+      },
+      {
+        label: 'Ajuste',
+        color: '#FF9800',
+        data: this.state.salesTable.map((item, key) => { return item.adjustment })
+      }
+    ]
+
     return (
       <div>
         <CreateAdjustmentRequest
@@ -980,7 +1007,7 @@ class TabAdjustment extends Component {
 
             <div className='level-item'>
               {this.state.filters.channels.length === 1 ?
-                <div className='one-channel'>
+                <div className='channel'>
                   <span>Canal: </span>
                   <span className='has-text-weight-bold'>{this.state.filters.channels[0].name}
                   </span>
@@ -1001,7 +1028,7 @@ class TabAdjustment extends Component {
 
             <div className='level-item'>
             {this.state.filters.salesCenters.length === 1 ?
-                <div>
+                <div className='saleCenter'>
                   <span>Centro de Venta: </span>
                   <span className='has-text-weight-bold'>{this.state.filters.salesCenters[0].name}
                   </span>
@@ -1030,7 +1057,7 @@ class TabAdjustment extends Component {
           </div>
           <div className={this.state.indicators === 'indicators-hide' ? 
           'level-item has-text-centered has-text-info' : 
-          'level-item has-text-centered has-text-info is-invisible'} 
+          'level-item has-text-centered has-text-info disapear'} 
           >
             <div>
               <p className='has-text-weight-semibold'>Prediccion</p>
@@ -1043,7 +1070,7 @@ class TabAdjustment extends Component {
           </div>
           <div className={this.state.indicators === 'indicators-hide' ? 
           'level-item has-text-centered has-text-teal' : 
-          'level-item has-text-centered has-text-teal is-invisible'}>
+          'level-item has-text-centered has-text-teal disapear'}>
             <div>
               <p className='has-text-weight-semibold'>Ajuste</p>
               <h1 className='num has-text-weight-bold'>
@@ -1053,11 +1080,12 @@ class TabAdjustment extends Component {
               </h1>
             </div>
           </div>
-          <div className='level-item has-text-centered'>
+          <div className={this.state.indicators === 'indicators-hide' ?
+            'level-item has-text-centered' : ' level-item has-text-centered no-border'}>
             <div>
               <img src='/app/public/img/grafica.png' 
               className={this.state.indicators === 'indicators-hide' ? 
-              '' : 'is-invisible'}/>
+              '' : 'disapear'}/>
               <a className='collapse-btn' onClick={this.toggleIndicators}>
                 <span className='icon is-large'>
                   <i className={this.state.indicators === 'indicators-show' ? 'fa fa-2x fa-caret-up' : 'fa fa-2x fa-caret-down'}></i>
@@ -1069,22 +1097,22 @@ class TabAdjustment extends Component {
 
 
         <div className={'indicators-collapse ' + this.state.indicators}>
-          <div className='columns'>              
-            <div className='column is-5 is-offset-1'>
+          <div className='columns'>
+            <div className='column is-5-desktop is-4-widescreen is-4-fullhd is-offset-1-fullhd is-offset-1-desktop'>
               <div className='panel sales-table'>
                 <div className='panel-heading'>
                   <h2>Totales de Venta</h2>
                 </div>
-                <div className='panel-block historical-container'>
+                <div className='panel-block'>
                   {
                     currentRole !== 'manager-level-3' &&
-                      this.state.salesTable.length > 0 ? 
-                      <table className='table is-fullwidth'>
+                      this.state.salesTable.length > 0 ?
+                      <table className='table is-fullwidth is-hoverable'>
                         <thead>
                           <tr>
-                            <th colSpan='2'>Semana</th>
-                            <th colSpan='2' className='has-text-info'>Predicción</th>
-                            <th colSpan='2' className='has-text-teal'>Ajuste</th>
+                            <th>Semana</th>
+                            <th className='has-text-info has-text-centered'>Predicción</th>
+                            <th className='has-text-teal has-text-centered'>Ajuste</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1094,31 +1122,31 @@ class TabAdjustment extends Component {
                                 <td>
                                   {item.week}
                                 </td>
-                                <td>
+                                <td className='has-text-centered'>
                                   $ {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
-                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                    })}
+                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                  })}
                                 </td>
-                                <td>
+                                <td className='has-text-centered'>
                                   $ {item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
-                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                    })}
+                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                  })}
                                 </td>
                               </tr>
                             )
                           })
                           }
 
-                          <tr>
+                          <tr className='totals'>
                             <th>
                               Total
                             </th>
-                            <th className='has-text-info'>
+                            <th className='has-text-info has-text-centered'>
                               $ {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>
-                            <th className='has-text-teal'>
+                            <th className='has-text-teal has-text-centered'>
                               $ {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
@@ -1131,10 +1159,31 @@ class TabAdjustment extends Component {
                   }
                 </div>
               </div>
+            </div>
+
+            <div className='column is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
+              <div className='panel sales-graph'>
+                <div className='panel-heading'>
+                  <h2>Reporte de periodo</h2>
+                </div>
+                <div className='panel-block'>
+                  {
+                    currentRole !== 'manager-level-3' &&
+                      this.state.salesTable.length > 0 ?
+                      <Graph
+                        data={graphData}
+                        labels={this.state.salesTable.map((item, key) => { return item.week })}
+                        reloadGraph={this.state.reloadGraph}
+                      />
+                      :
+                      this.loadTable()
+                  }
+                </div>
               </div>
-            
+            </div>
+
           </div>
-          </div>
+        </div>
           
           <section>
           
