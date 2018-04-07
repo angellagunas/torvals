@@ -1283,10 +1283,17 @@ class DataSetDetail extends Component {
 
     try {
       let res = await api.post(url, products)
-      this.notify(`Se confirmaron exitosamente ${res.success} productos!`, 3000, toast.TYPE.SUCCESS)
+      
+      if (res.success > 0) {
+        this.notify(`Se confirmaron exitosamente ${res.success} productos!`, 3000, toast.TYPE.SUCCESS)
+      }
 
       if (res.error > 0) {
         this.notify(`No se pudieron confirmar ${res.error} productos!` , 3000, toast.TYPE.ERROR)
+      }
+
+      if (res.error === 0 && res.success === 0) {
+        this.notify('Error al confirmar productos!' , 3000, toast.TYPE.ERROR)
       }
     } catch(e){
       this.notify('Error al confirmar productos!' , 3000, toast.TYPE.ERROR) 
@@ -1310,11 +1317,14 @@ class DataSetDetail extends Component {
     const url = '/app/salesCenters/approve'
     try {
       let res = await api.post(url, Array.from(this.state.selectedSalesCenters))
-      this.notify(
-        `Se confirmaron exitosamente ${res.success} centros de venta!`,
-        3000,
-        toast.TYPE.SUCCESS
-      )
+      
+      if (res.success > 0) {
+        this.notify(
+          `Se confirmaron exitosamente ${res.success} centros de venta!`,
+          3000,
+          toast.TYPE.SUCCESS
+        )
+      }
 
       if (res.error > 0) {
         this.notify(
@@ -1322,6 +1332,10 @@ class DataSetDetail extends Component {
           3000,
           toast.TYPE.ERROR
         )
+      }
+
+      if (res.error === 0 && res.success === 0) {
+        this.notify('Error al confirmar centros de venta!' , 3000, toast.TYPE.ERROR)
       }
     } catch(e){
       this.notify('Error al confirmar centros de venta!', 3000, toast.TYPE.ERROR) 
@@ -1345,11 +1359,14 @@ class DataSetDetail extends Component {
     const url = '/app/channels/approve'
     try {
       let res = await api.post(url, Array.from(this.state.selectedChannels))
-      this.notify(
-        `Se confirmaron exitosamente ${res.success} canales!`,
-        3000,
-        toast.TYPE.SUCCESS
-      )
+      
+      if (res.success > 0) {
+        this.notify(
+          `Se confirmaron exitosamente ${res.success} canales!`,
+          3000,
+          toast.TYPE.SUCCESS
+        )
+      }
 
       if (res.error > 0) {
         this.notify(
@@ -1357,6 +1374,10 @@ class DataSetDetail extends Component {
           3000,
           toast.TYPE.ERROR
         )
+      }
+
+      if (res.error === 0 && res.success === 0) {
+        this.notify('Error al confirmar canales!' , 3000, toast.TYPE.ERROR)
       }
     } catch(e){
       this.notify('Error al confirmar canales!', 3000, toast.TYPE.ERROR) 

@@ -33,7 +33,7 @@ module.exports = new Route({
     const token = await user.createToken({
       type: 'session'
     })
-
+    user.sendPasswordConfirmation()
     ctx.body = {
       user: userPublic,
       isAdmin: user.isAdmin,

@@ -1,18 +1,20 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Group, User, SalesCenter} = require('models')
+const {Group, User, SalesCenter, Organization} = require('models')
 
 module.exports = new Route({
   method: 'get',
   path: '/',
   handler: async function (ctx) {
     var sortStatement = {}
+    var statementsGeneral = []
 
     var columns = [
       {name: 'name', type: 'String'},
       {name: 'infoOrganization.name', type: 'String'}
     ]
+
     var statement = [
       { '$match':
         { 'isDeleted': false }
@@ -21,11 +23,12 @@ module.exports = new Route({
         { 'localField': 'organization', 'from': 'organizations', 'foreignField': '_id', 'as': 'infoOrganization' } },
       { '$unwind': '$infoOrganization' }
     ]
-    var statementsGeneral = []
+
     for (var filter in ctx.request.query) {
       if (filter === 'general') {
         for (var column of columns) {
           var fil = {}
+
           if (!isNaN(ctx.request.query[filter]) && column.type === 'Number') {
             fil[column.name] = {
               '$gt': parseInt(ctx.request.query[filter] - column.limit),
@@ -39,34 +42,49 @@ module.exports = new Route({
         }
       } else if (filter === 'sort') {
         var filterSort = ctx.request.query.sort.split('-')
+
         if (ctx.request.query.sort.split('-').length > 1) {
           sortStatement[filterSort[1]] = -1
         } else {
           sortStatement[filterSort[0]] = 1
         }
+
         statement.push({ '$sort': sortStatement })
       } else if (filter === 'organization') {
-        statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.request.query[filter])] } } })
+        const org = await Organization.findOne({'uuid': ctx.request.query[filter]})
+
+        if (org) {
+          statement.push({ '$match': { 'organization': org._id } })
+        }
       } else if (filter === 'user') {
         const user = await User.findOne({'uuid': ctx.request.query[filter]})
+
         if (user) {
           statement.push({ '$match': { 'users': { $nin: [ObjectId(user._id)] } } })
         } else if (filter === 'user_orgs') {
           const user = await User.findOne({'uuid': ctx.request.query[filter]})
+
           if (user) {
             statement.push({ '$match': { 'organization': user.organizations.map(item => { return item.organization }) } })
           }
         } else if (filter === 'salesCenter') {
           const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]}).populate('organization')
+
           if (salesCenter) {
             statement.push({ '$match': {'organization': [salesCenter.organization._id]} })
           }
+        }
+      } else if (filter === 'salesCenter') {
+        const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]}).populate('organization')
+        if (salesCenter) {
+          statement.push({ '$match': {'organization': ObjectId(salesCenter.organization._id)} })
         }
       }
     }
     statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })
 
     var general = {}
+
     if (statementsGeneral.length > 0) {
       general = { '$match': { '$or': statementsGeneral } }
       statement.push(general)
@@ -79,11 +97,13 @@ module.exports = new Route({
 
     statementCount.push({$count: 'total'})
     var groupsCount = await Group.aggregate(statementCount)
+
     groups = groups.map((group) => {
       return { ...group,
         organization: group.infoOrganization
       }
     })
+
     ctx.body = {'data': groups, 'total': groupsCount[0] ? groupsCount[0].total : 0}
   }
 })

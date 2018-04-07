@@ -249,7 +249,7 @@ userSchema.methods.sendInviteEmail = async function () {
       email: this.email,
       name: this.name
     },
-    title: 'Invite to Pythia'
+    title: 'Invitación a Pythia'
   })
 }
 
@@ -275,7 +275,19 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
       email: this.email,
       name: this.name
     },
-    title: 'Reset passsword for Pythia'
+    title: 'Reestablecer contraseña en Pythia'
+  })
+}
+
+userSchema.methods.sendPasswordConfirmation = async function () {
+  const email = new Mailer('confirm-password')
+  await email.format()
+  await email.send({
+    recipient: {
+      email: this.email,
+      name: this.name
+    },
+    title: 'Cambio de contraseña en Pythia'
   })
 }
 

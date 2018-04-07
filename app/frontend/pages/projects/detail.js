@@ -1,24 +1,26 @@
 import React, { Component } from 'react'
-import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import { ToastContainer } from 'react-toastify'
+import { ToastContainer, toast } from 'react-toastify'
+
+import api from '~base/api'
+import Page from '~base/page'
 import { testRoles } from '~base/tools'
 import DeleteButton from '~base/components/base-deleteButton'
-import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
-import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
+import SidePanel from '~base/side-panel'
+import NotFound from '~base/components/not-found'
+
+import ProjectForm from './create-form'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
 import TabAprove from './detail-tabs/tab-aprove'
-import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
-import Breadcrumb from '~base/components/base-breadcrumb'
-import TabAnomalies from './detail-tabs/tab-anomalies'
-import NotFound from '~base/components/not-found'
+// import Breadcrumb from '~base/components/base-breadcrumb'
+// import TabAnomalies from './detail-tabs/tab-anomalies'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -46,6 +48,7 @@ class ProjectDetail extends Component {
     }
 
     await this.hasSaleCenter()
+    await this.hasChannel()
 
     await this.load()
     this.setState({
@@ -173,16 +176,30 @@ class ProjectDetail extends Component {
     }
   }
 
+  async hasChannel () {
+    let url = '/app/channels'
+    let res = await api.get(url, {
+      start: 0,
+      limit: 0,
+      sort: 'name'
+    })
+    if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
+      this.setState({
+        noChannel: true
+      })
+    }
+  }
+
   async conciliateOnClick () {
     this.setState({
       isConciliating: ' is-loading'
     })
 
-    var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
+    var url = '/app/datasets/' + this.state.project.activeDataset.uuid + '/set/conciliate'
     try {
       clearInterval(this.interval)
       await api.post(url)
-      await this.props.load()
+      await this.load()
     } catch (e) {
       this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
     }
@@ -195,7 +212,7 @@ class ProjectDetail extends Component {
     })
   }
 
-  getCounters(realized, pending){
+  getCounters (realized, pending) {
     this.setState({
       realized: realized,
       pending: pending
@@ -206,6 +223,7 @@ class ProjectDetail extends Component {
     if (this.state.notFound) {
       return <NotFound msg='este proyecto' />
     }
+
     if (this.state.noSalesCenter) {
       return (
         <div className='card-content'>
@@ -217,6 +235,25 @@ class ProjectDetail extends Component {
                 </div>
                 <div className='message-body has-text-centered is-size-5'>
                   Necesitas tener asignado al menos un centro de venta para ver esta sección, ponte en contacto con tu supervisor.
+            </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (this.state.noChannel) {
+      return (
+        <div className='card-content'>
+          <div className='columns'>
+            <div className='column'>
+              <article className='message is-warning'>
+                <div className='message-header'>
+                  <p>Atención</p>
+                </div>
+                <div className='message-body has-text-centered is-size-5'>
+                  Necesitas tener asignado al menos un canal para ver esta sección, ponte en contacto con tu supervisor.
             </div>
               </article>
             </div>
@@ -242,7 +279,7 @@ class ProjectDetail extends Component {
         hide: project.status === 'empty',
         content: (
           <TabAdjustment
-            counters={(realized, pending) => {this.getCounters(realized, pending)}}
+            counters={(realized, pending) => { this.getCounters(realized, pending) }}
             load={this.getProjectStatus.bind(this)}
             project={project}
             history={this.props.history}
@@ -284,21 +321,21 @@ class ProjectDetail extends Component {
           />
         )
       },
-      {
-        name: 'anomalias',
-        title: 'Anomalias',
-        reload: true,
-        hide: (testRoles('manager-level-1') ||
-          project.status === 'processing' ||
-          project.status === 'pendingRows' ||
-          project.status === 'empty'),
-        content: (
-          <TabAnomalies
-            project={project}
-            reload={(tab) => this.load(tab)}
-          />
-        )
-      },
+      // {
+      //   name: 'anomalias',
+      //   title: 'Anomalias',
+      //   reload: true,
+      //   hide: (testRoles('manager-level-1') ||
+      //     project.status === 'processing' ||
+      //     project.status === 'pendingRows' ||
+      //     project.status === 'empty'),
+      //   content: (
+      //     <TabAnomalies
+      //       project={project}
+      //       reload={(tab) => this.load(tab)}
+      //     />
+      //   )
+      // },
       {
         name: 'Gráficos',
         title: 'Gráficos',
@@ -361,42 +398,33 @@ class ProjectDetail extends Component {
     return (
       <div>
         {
-            /* this.state.alertMsg &&
-            <div className={'notification has-text-centered is-uppercase is-paddingless sticky-msg ' + this.state.alertType}>
-              <span className='icon is-medium has-text-info'>
-                <i className='fa fa-warning' />
-              </span>
-              {this.state.alertMsg}
-            </div> */
-          }
-        {
-              /* !testRoles('manager-level-1') &&
-              <Breadcrumb
-                path={[
-                  {
-                    path: '/',
-                    label: 'Inicio',
-                    current: false
-                  },
-                  {
-                    path: '/projects',
-                    label: 'Proyectos',
-                    current: false
-                  },
-                  {
-                    path: '/projects/',
-                    label: 'Detalle',
-                    current: true
-                  },
-                  {
-                    path: '/projects/',
-                    label: project.name,
-                    current: true
-                  }
-                ]}
-                align='left'
-              /> */
-            }
+          /* !testRoles('manager-level-1') &&
+          <Breadcrumb
+            path={[
+              {
+                path: '/',
+                label: 'Inicio',
+                current: false
+              },
+              {
+                path: '/projects',
+                label: 'Proyectos',
+                current: false
+              },
+              {
+                path: '/projects/',
+                label: 'Detalle',
+                current: true
+              },
+              {
+                path: '/projects/',
+                label: project.name,
+                current: true
+              }
+            ]}
+            align='left'
+          /> */
+        }
         <Tabs
           tabTitle={project.name}
           tabs={tabs}
@@ -416,7 +444,7 @@ class ProjectDetail extends Component {
                       <i className='fa fa-check' />
                     </span>
                       Realizados {this.state.realized}
-                    </a>
+                  </a>
 
                 </p>
                 <p className='control'>
@@ -425,7 +453,7 @@ class ProjectDetail extends Component {
                       <i className='fa fa-exclamation-triangle' />
                     </span>
                         Por aprobar {this.state.pending}
-                      </a>
+                  </a>
                 </p>
                 <p className='control'>
                   <a className={'button is-success ' + this.state.isConciliating}
@@ -443,25 +471,26 @@ class ProjectDetail extends Component {
                 />
                 }
             </div>
-              }
-            />
+          }
+        />
+
         {
-                testRoles('manager-level-1') && project.status === 'empty' &&
-                <div className='card-content'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <article className='message is-warning'>
-                        <div className='message-header'>
-                          <p>Atención</p>
-                        </div>
-                        <div className='message-body has-text-centered is-size-5'>
-                          Este proyecto aún no contiene datasets, ponte en contacto con tu supervisor.
-                      </div>
-                      </article>
-                    </div>
+          testRoles('manager-level-1') && project.status === 'empty' &&
+          <div className='card-content'>
+            <div className='columns'>
+              <div className='column'>
+                <article className='message is-warning'>
+                  <div className='message-header'>
+                    <p>Atención</p>
                   </div>
+                  <div className='message-body has-text-centered is-size-5'>
+                    Este proyecto aún no contiene datasets, ponte en contacto con tu supervisor.
                 </div>
-              }
+                </article>
+              </div>
+            </div>
+          </div>
+        }
 
         { canEdit &&
           <SidePanel

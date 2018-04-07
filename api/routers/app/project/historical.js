@@ -1,7 +1,6 @@
 const Route = require('lib/router/route')
 const { Project, SalesCenter, Channel, Product, AbraxasDate } = require('models')
 const Api = require('lib/abraxas/api')
-const request = require('lib/request')
 const _ = require('lodash')
 const moment = require('moment')
 const lov = require('lov')
@@ -19,15 +18,6 @@ module.exports = new Route({
     ctx.assert(project, 404, 'Proyecto no encontrado')
     if (!project.activeDataset) {
       ctx.throw(404, 'No hay DataSet activo para el proyecto')
-    }
-    try {
-      var apiData = Api.get()
-      if (!apiData.token) {
-        await Api.fetch()
-        apiData = Api.get()
-      }
-    } catch (e) {
-      ctx.throw(503, 'Abraxas API no disponible para la conexión')
     }
 
     const requestBody = {
@@ -59,52 +49,27 @@ module.exports = new Route({
       requestBody.categoria_id = data.category
     }
 
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/graphic/projects/${project.externalId}`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      body: requestBody,
-      json: true,
-      persist: true
-    }
-
-    try {
-      var res = await request(options)
-      const abraxasDates = await AbraxasDate.find()
-      var responseData = {}
-      for (let section in res) {
-        responseData[section] = res[section].map(item => {
-          let aDate = _.filter(abraxasDates, function (dateitem) {
-            return _.inRange(
+    const res = await Api.graphicProject(project.externalId, requestBody)
+    const abraxasDates = await AbraxasDate.find()
+    var responseData = {}
+    for (let section in res) {
+      responseData[section] = res[section].map(item => {
+        let aDate = _.filter(abraxasDates, function (dateitem) {
+          return _.inRange(
               (moment(item.x).unix()) * 1000,
               (moment(dateitem.dateStart).unix()) * 1000,
               (moment(dateitem.dateEnd).unix()) * 1000
             )
-          })
-          return {
-            x: item.x,
-            y: item.y,
-            text: item.text,
-            group: item.group,
-            abraxasDate: aDate
-          }
         })
-      }
-    } catch (e) {
-      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
-      if (!errorString) {
-        errorString = []
-        errorString[1] = e.message
-      }
-      ctx.throw(503, 'Abraxas API: ' + errorString[1])
-
-      return false
+        return {
+          x: item.x,
+          y: item.y,
+          text: item.text,
+          group: item.group,
+          abraxasDate: aDate
+        }
+      })
     }
-
     ctx.body = {
       data: responseData
     }

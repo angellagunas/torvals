@@ -5,7 +5,6 @@ require('lib/databases/mongo')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { Forecast } = require('models')
-const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   console.log('Fetching created Forecasts...')
@@ -22,28 +21,15 @@ const task = new Task(async function (argv) {
   }
 
   console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
-
-  if (!apiData.token) {
-    throw new Error('There is no API endpoint configured!')
-  }
 
   for (var forecast of forecasts) {
     console.log(`Sending ${forecast.configPrId} forecast for processing ...`)
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/run/forecasts/${forecast.configPrId}`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      json: true,
-      persist: true
+    try {
+      var res = await Api.runForecast(forecast.configPrId)
+    } catch (e) {
+      console.log('error' + e.message)
+      return false
     }
-
-    var res = await request(options)
 
     if (res.status === 'OK') {
       forecast.set({

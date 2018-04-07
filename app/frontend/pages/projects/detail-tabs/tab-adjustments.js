@@ -1,21 +1,20 @@
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import moment from 'moment'
-import api from '~base/api'
 import _ from 'lodash'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
+
+import api from '~base/api'
 import Loader from '~base/components/spinner'
+import Editable from '~base/components/base-editable'
+import Checkbox from '~base/components/base-checkbox'
+
 
 import CreateAdjustmentRequest from '../../forecasts/create-adjustmentRequest'
-import Checkbox from '~base/components/base-checkbox'
-import Editable from '~base/components/base-editable'
-
 import WeekTable from './week-table'
 import ProductTable from './product-table'
-
 import Select from './select'
-
 import Graph from './graph'
 
 var currentRole
@@ -53,7 +52,9 @@ class TabAdjustment extends Component {
       byWeek: false,
       indicators: 'indicators-hide',
       quantity: 0,
-      percentage: 0
+      percentage: 0,
+      error: false,
+      errorMessage: ''
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -87,100 +88,142 @@ class TabAdjustment extends Component {
   async getFilters() {
     if (this.props.project.activeDataset) {
       const url = '/app/rows/filters/dataset/'
-      let res = await api.get(url + this.props.project.activeDataset.uuid)
+      try {
+        let res = await api.get(url + this.props.project.activeDataset.uuid)
 
-      var maxDate = moment.utc(this.props.project.activeDataset.dateMax)
-      var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
-      var dates = []
-      var periods = []
-      var adjustments = {
-        '1': 10,
-        '2': 20,
-        '3': 30,
-        '4': -1
-      }
+        if (res.dates.length === 0) {
+          this.notify(
+            'Error! No hay fechas disponibles. Por favor contacta a un administrador.',
+            3000,
+            toast.TYPE.ERROR
+          )
 
-      if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
-        adjustments = this.props.project.businessRules.adjustments
-      }
+          this.setState({
+            error: true,
+            errorMessage: 'No hay fechas disponibles. Por favor contacta a un administrador.'
+          })
+          return
+        }
 
-      for (var i = 0; i < 16; i++) {
-        dates.push(moment(maxDate.format()))
-        maxDate.subtract(7, 'days')
-      }
+        if (res.dates.length < res.semanasBimbo.length) {
+          this.notify(
+            'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
+            ' correctamente. Por favor contacta a un administrador.',
+            3000,
+            toast.TYPE.ERROR
+          )
+        }
 
-      dates.reverse()
+        var periods = []
+        var adjustments = {
+          '1': 10,
+          '2': 20,
+          '3': 30,
+          '4': -1
+        }
 
-      var period4 = dates.slice(12,16)
-      var period3 = dates.slice(8,12)
-      var period2 = dates.slice(4,8)
-      var period1 = dates.slice(0,4)
 
-      periods.push({
-        number: 4,
-        name: `Periodo ${period4[0].format('MMMM')}`,
-        adjustment: adjustments['4'],
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
+        var maxDate = res.dates[0]
+        var maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period4 = res.dates.slice(0, maxDateEnd)
 
-      periods.push({
-        number: 3,
-        name: `Periodo ${period3[0].format('MMMM')}`,
-        adjustment: adjustments['3']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
+        var lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period3 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
 
-      periods.push({
-        number: 2,
-        name: `Periodo ${period2[0].format('MMMM')}`,
-        adjustment: adjustments['2']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
+        lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period2 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
 
-      periods.push({
-        number: 1,
-        name: `Periodo ${period1[0].format('MMMM')}`,
-        adjustment: adjustments['1']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
+        lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period1 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
 
-      var filteredSemanasBimbo = Array.from(Array(4), (_,x) => maxSemana - x).reverse()
+        if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
+          adjustments = this.props.project.businessRules.adjustments
+        }
 
-      var formData = this.state.formData
+        periods.push({
+          number: period4[0].month,
+          name: `Periodo ${moment(period4[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['4'],
+          maxSemana: period4[0].week,
+          minSemana: period4[period4.length - 1].week
+        })
 
-      if (res.salesCenters.length === 1) {
-        formData.salesCenter = res.salesCenters[0].uuid
-      }
+        periods.push({
+          number: period3[0].month,
+          name: `Periodo ${moment(period3[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['3']/100,
+          maxSemana: period3[0].week,
+          minSemana: period3[period3.length - 1].week
+        })
 
-      if (res.channels.length === 1) {
-        formData.channel = res.channels[0].uuid
-      } 
+        periods.push({
+          number: period2[0].month,
+          name: `Periodo ${moment(period2[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['2']/100,
+          maxSemana: period2[0].week,
+          minSemana: period2[period2.length - 1].week
+        })
 
-      this.setState({
-        filters: {
-          channels: res.channels,
-          products: res.products,
-          salesCenters: res.salesCenters,
-          semanasBimbo: res.semanasBimbo,
-          filteredSemanasBimbo: filteredSemanasBimbo,
-          dates: res.dates,
-          categories: this.getCategory(res.products),
-          periods: periods
-        },
-        formData: formData,
-        filtersLoaded: true
-      }, () => {
-        this.getDataRows()
-      })
+        periods.push({
+          number: period1[0].month,
+          name: `Periodo ${moment(period1[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['1']/100,
+          maxSemana: period1[0].week,
+          minSemana: period1[period1.length - 1].week
+        })
 
-       
+        var formData = this.state.formData
+        formData.period = period1[0].month
+
+        if (res.salesCenters.length === 1) {
+          formData.salesCenter = res.salesCenters[0].uuid
+        }
+
+        if (res.channels.length === 1) {
+          formData.channel = res.channels[0].uuid
+        }
+
+        var days = period1[0].week - period1[period1.length - 1].week
+        var filteredSemanasBimbo = Array.from(Array(days+1), (_,x) => period1[0].week - x).reverse()
+
+        this.setState({
+          filters: {
+            channels: res.channels,
+            products: res.products,
+            salesCenters: res.salesCenters,
+            semanasBimbo: res.semanasBimbo,
+            filteredSemanasBimbo: filteredSemanasBimbo,
+            dates: res.dates,
+            categories: this.getCategory(res.products),
+            periods: periods
+          },
+          formData: formData,
+          filtersLoaded: true
+        }, () => {
+          this.getDataRows()
+        })
+      } catch (e) {
+        this.setState({
+          error: true,
+          errorMessage: 'No se pudieron cargar los filtros!'
+        })
+
+        this.notify(
+          'Ha habido un error al obtener los filtros! ' + e.message,
+          3000,
+          toast.TYPE.ERROR
+        )
+      }            
     }
   }
 
@@ -225,7 +268,10 @@ class TabAdjustment extends Component {
       var period = this.state.filters.periods.find(item => {
         return item.number === value
       })
-      var filteredSemanasBimbo = Array.from(Array(4), (_, x) => period.maxSemana - x).reverse()
+
+      var days = period.maxSemana - period.minSemana
+      var filteredSemanasBimbo = Array.from(Array(days+1), (_,x) => period.maxSemana - x).reverse()
+      
       this.setState({
         filters: {
           ...this.state.filters,
@@ -261,7 +307,12 @@ class TabAdjustment extends Component {
     })
 
     const url = '/app/rows/dataset/'
-    let data = await api.get(url + this.props.project.activeDataset.uuid, this.state.formData)
+    let data = await api.get(
+      url + this.props.project.activeDataset.uuid,
+      this.state.formData
+    )
+
+    console.log(data)
 
     this.setState({
       dataRows: this.getEditedRows(data.data),
@@ -275,7 +326,7 @@ class TabAdjustment extends Component {
 
   getEditedRows(data) {
     for (let row of data) {
-      if (row.localAdjustment != row.adjustment) {
+      if (row.localAdjustment != row.adjustment || row.adjustmentRequest) {
         row.wasEdited = true
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
@@ -357,20 +408,20 @@ class TabAdjustment extends Component {
     return (
       <div className='columns'>      
         <div className='column is-narrow'>
-              <div className='field'>
-                <label className='label'>Búsqueda general</label>              
-                <div className='control has-icons-right'>
-                  <input
-                    className='input'
-                    type='text'
-                    value={this.state.searchTerm}
-                    onChange={this.searchOnChange} placeholder='Buscar' />
+          <div className='field'>
+            <label className='label'>Búsqueda general</label>              
+            <div className='control has-icons-right'>
+              <input
+                className='input'
+                type='text'
+                value={this.state.searchTerm}
+                onChange={this.searchOnChange} placeholder='Buscar' />
 
-                  <span className='icon is-small is-right'>
-                    <i className='fa fa-search fa-xs'></i>
-                  </span>
-                </div>
-              </div>
+              <span className='icon is-small is-right'>
+                <i className='fa fa-search fa-xs'></i>
+              </span>
+            </div>
+          </div>
         </div>
         {currentRole !== 'manager-level-3' ?
           <div className='column is-narrow'>
@@ -411,7 +462,8 @@ class TabAdjustment extends Component {
                 </div>
               </div>
             </div>
-        </div> : null }
+          </div> : null
+        }
 
         {currentRole !== 'manager-level-3' ?
           <div className='column is-narrow'>
@@ -419,7 +471,6 @@ class TabAdjustment extends Component {
               <div className='field'>
                 <label className='label'>Modificar por porcentaje</label>
                 <div className='field is-grouped control'>
-
                   <div className='control'>
                     <button
                       className='button is-outlined'
@@ -452,15 +503,16 @@ class TabAdjustment extends Component {
                 </div>
               </div>
             </div>
-          </div> : null}
+          </div> : null
+        }
 
         {this.state.selectedCheckboxes.size > 0 &&
-        <div className='column products-selected'>
-          <p>
-            <span>{this.state.selectedCheckboxes.size} </span>
-             Productos Seleccionados
-          </p>
-        </div> 
+          <div className='column products-selected'>
+            <p>
+              <span>{this.state.selectedCheckboxes.size} </span>
+               Productos Seleccionados
+            </p>
+          </div> 
         }
 
         <div className='column download-btn'>
@@ -472,7 +524,6 @@ class TabAdjustment extends Component {
               <i className='fa fa-download' />
             </span>
           </button>
-          
         </div>        
       </div>
     )
@@ -481,22 +532,26 @@ class TabAdjustment extends Component {
   async onClickButtonPlus () {
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = 0
-      if (parseInt(this.state.quantity) === 0 && 
-          parseInt(this.state.percentage) !== 0 && 
-          !isNaN(this.state.quantity) && 
-          !isNaN(this.state.percentage)){
+      
+      if (
+        parseInt(this.state.quantity) === 0 && 
+        parseInt(this.state.percentage) !== 0 && 
+        !isNaN(this.state.quantity) && 
+        !isNaN(this.state.percentage)
+      ){
         toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
-      }
-      else if (parseInt(this.state.quantity) !== 0 &&
+      } else if (
+        parseInt(this.state.quantity) !== 0 &&
         parseInt(this.state.percentage) === 0 &&
         !isNaN(this.state.quantity) &&
-        !isNaN(this.state.percentage)){
+        !isNaN(this.state.percentage)
+      ) {
         toAdd = parseInt(this.state.quantity)
-      }
-      else{
+      } else {
         return
       }
+
       let localAdjustment = Math.round(row.localAdjustment)
       let newAdjustment = localAdjustment + toAdd
       row.lastLocalAdjustment = row.localAdjustment
@@ -504,6 +559,7 @@ class TabAdjustment extends Component {
       row.newAdjustment = newAdjustment
 
       const res = await this.handleChange(row)
+      
       if (!res) {
         row.localAdjustment = localAdjustment
       }
@@ -513,22 +569,26 @@ class TabAdjustment extends Component {
   async onClickButtonMinus () {
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = 0
-      if (parseInt(this.state.quantity) === 0 &&
+      
+      if (
+        parseInt(this.state.quantity) === 0 &&
         parseInt(this.state.percentage) !== 0 &&
         !isNaN(this.state.quantity) &&
-        !isNaN(this.state.percentage)) {
+        !isNaN(this.state.percentage)
+      ) {
         toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
-      }
-      else if (parseInt(this.state.quantity) !== 0 &&
+      } else if (
+        parseInt(this.state.quantity) !== 0 &&
         parseInt(this.state.percentage) === 0 &&
         !isNaN(this.state.quantity) &&
-        !isNaN(this.state.percentage)) {
+        !isNaN(this.state.percentage)
+      ) {
         toAdd = parseInt(this.state.quantity)
-      }
-      else {
+      } else {
         return
       }
+
       let localAdjustment = Math.round(row.localAdjustment)
       let newAdjustment = localAdjustment - toAdd
       row.lastLocalAdjustment = row.localAdjustment
@@ -536,6 +596,7 @@ class TabAdjustment extends Component {
       row.newAdjustment = newAdjustment
 
       const res = await this.handleChange(row)
+      
       if (!res) {
         row.localAdjustment = localAdjustment
       }
@@ -662,7 +723,6 @@ class TabAdjustment extends Component {
 
   async finishUpAdjustmentRequest (res) {
     if (res && res.data === 'OK') {
-      //this.state.selectedAR.localAdjustment = parseInt(this.state.selectedAR.localAdjustment)
       this.state.selectedAR.adjustmentRequest = { status: 'created' }
     }
     let aux = this.state.dataRows
@@ -889,6 +949,24 @@ class TabAdjustment extends Component {
   }
 
   render () {
+    if (this.state.error) {
+      return (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-danger">
+              <div className="message-header">
+                <p>Error</p>
+                <button className="delete" aria-label="delete"></button>
+              </div>
+              <div className="message-body">
+                {this.state.errorMessage}
+              </div>
+            </article>
+          </div>
+        </div>
+      )
+    }
+
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
     if (dataSetsNumber) {
@@ -904,6 +982,7 @@ class TabAdjustment extends Component {
                 <strong> dataset </strong> para poder generar ajustes.
         </div>
     }
+
     if (this.props.project.status === 'empty') {
       return (
         <div className='section columns'>
@@ -984,7 +1063,7 @@ class TabAdjustment extends Component {
               <Select
                 label='Periodo'
                 name='period'
-                value={1}
+                value={this.state.formData.period}
                 placeholder='Seleccionar'
                 optionValue='number'
                 optionName='name'
@@ -1197,13 +1276,13 @@ class TabAdjustment extends Component {
                 </div>
               </article>
               : <div>
-                <section className='section'>
-              <h1 className='period-info'>
-                <span className='has-text-weight-semibold'>{this.getPeriod()} - </span> 
-                <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
-              </h1>
-                {this.getModifyButtons()}
-                </section>
+                  <section className='section'>
+                    <h1 className='period-info'>
+                      <span className='has-text-weight-semibold'>{this.getPeriod()} - </span> 
+                      <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
+                    </h1>
+                    {this.getModifyButtons()}
+                  </section>
                 {
                   !this.state.byWeek ?
 

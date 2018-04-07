@@ -53,6 +53,24 @@ module.exports = new Route({
         '$match': {
           'areEqual': true
         }
+      },
+      {
+        '$project': {
+          'group': {
+            '$filter': {
+              'input': '$doc.infoGroup',
+              'as': 'item',
+              'cond': {
+                '$eq': [
+                  '$$item.organization',
+                  ObjectId(ctx.state.organization._id)
+                ]
+              }
+            }
+          },
+          'areEqual': '$areEqual',
+          'doc': '$doc'
+        }
       }
     ]
 
@@ -93,10 +111,10 @@ module.exports = new Route({
         statement.push({ '$match': { 'doc.organizations.role': { $in: [ObjectId(role._id)] } } })
       } else if (filter === 'group') {
         const group = await Group.findOne({'uuid': ctx.request.query[filter]})
-        statement.push({ '$match': { 'doc.groups': { $in: [ObjectId(group._id)] } } })
+        statement.push({ '$match': { 'group._id': { $in: [ObjectId(group._id)] } } })
       } else if (filter === 'groupAsign') {
         const group = await Group.findOne({'uuid': ctx.request.query[filter]})
-        statement.push({ '$match': { 'doc.groups': { $nin: [ObjectId(group._id)] } } })
+        statement.push({ '$match': { 'group._id': { $nin: [ObjectId(group._id)] } } })
       }
     }
 
@@ -111,6 +129,7 @@ module.exports = new Route({
     var statementCount = [...statement]
 
     statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
+
     var users = await User.aggregate(statement)
     statementCount.push({$count: 'total'})
     var usersCount = await User.aggregate(statementCount) || 0
@@ -125,7 +144,7 @@ module.exports = new Route({
         isAdmin: user.doc.isAdmin,
         validEmail: user.doc.validEmail,
         organizations: user.doc.organizations,
-        groups: user.doc.infoGroup,
+        groups: user.group,
         profileUrl: user.doc.profileUrl,
         role: user.doc.infoRole ? user.doc.infoRole.name : '',
         roleDetail: user.doc.infoRole

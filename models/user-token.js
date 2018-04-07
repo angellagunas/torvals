@@ -13,7 +13,6 @@ const userTokenSchema = new Schema({
   secret: { type: String, default: v4 },
   type: { type: String, default: 'generic' },
   validUntil: { type: Date },
-  type: { type: String },
   lastUse: { type: Date },
   isDeleted: { type: Boolean },
   dateCreated: { type: Date, default: moment.utc }

@@ -13,7 +13,7 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    var rows = await DataSetRow.find({isDeleted: false, dataset: dataset})
+    var rows = await DataSetRow.find({isDeleted: false, dataset: dataset._id})
 
     var semanasBimbo = Array.from(new Set(rows.map(item => { return item.data.semanaBimbo })))
     var channels = Array.from(new Set(rows.map(item => { return String(item.channel) })))
@@ -26,8 +26,8 @@ module.exports = new Route({
 
     var dates = await AbraxasDate.find({
       week: {$in: semanasBimbo},
-      dateStart: {$lte: moment(dataset.dateMax)}
-    }).sort('dateStart').limit(semanasBimbo.length)
+      dateStart: {$lte: moment(dataset.dateMax), $gte: moment(dataset.dateMin)}
+    }).sort('-dateStart').limit(semanasBimbo.length)
 
     dates = dates.map(item => {
       return {
