@@ -46,6 +46,18 @@ h2 {
     cursor: pointer;
 }
 
+.not-clickable {
+    cursor: initial;
+}
+
+.is-transparent-text{
+    color: transparent !important;
+}
+
+.is-fullwidth{
+    width: 100%;
+}
+
 .main-wrapper {
     margin-top: 0px;
     margin-left: 50px;

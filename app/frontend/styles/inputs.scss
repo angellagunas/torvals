@@ -8,7 +8,7 @@
 }
 
 .input-cant{
-  width: 45px;
+  width: 55px;
 }
 
 .selects {
@@ -17,8 +17,10 @@
     .input {
         width: 150px;
     }
+    select, .select, option{
+        text-transform: capitalize;
+    }
 }
-
 .inline-form {
     width: 100%;
     .select,
@@ -26,6 +28,7 @@
         display: block !important;
         width: 100%;
         max-width: 400px;
+        text-transform: capitalize;
     }
     .field {
         padding: 0 10px 2px 0;
