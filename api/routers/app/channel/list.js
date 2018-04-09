@@ -45,19 +45,23 @@ module.exports = new Route({
         statement.push({ '$sort': sortStatement })
       }
     }
+
+    var statementNoSkip = statement.slice()
     statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })
 
     if (ctx.state.organization) {
       statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })
+      statementNoSkip.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })
     }
 
     var general = {}
     if (statementsGeneral.length > 0) {
       general = { '$match': { '$or': statementsGeneral } }
       statement.push(general)
+      statementNoSkip.push(general)
     }
 
-    var statementCount = [...statement]
+    var statementCount = [...statementNoSkip]
 
     statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
     var channels = await Channel.aggregate(statement)

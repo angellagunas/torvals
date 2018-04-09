@@ -64,15 +64,18 @@ module.exports = new Route({
         }
       }
     }
+
+    var statementNoSkip = statement.slice()
     statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })
 
     var general = {}
     if (statementsGeneral.length > 0) {
       general = { '$match': { '$or': statementsGeneral } }
       statement.push(general)
+      statementNoSkip.push(general)
     }
 
-    var statementCount = [...statement]
+    var statementCount = [...statementNoSkip]
 
     statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
     var groups = await Group.aggregate(statement)
