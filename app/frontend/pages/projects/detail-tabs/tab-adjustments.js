@@ -1066,12 +1066,12 @@ class TabAdjustment extends Component {
       {
         label: 'Predicción',
         color: '#01579B',
-        data: this.state.salesTable.map((item, key) => { return item.prediction })
+        data: this.state.salesTable.map((item, key) => { return item.prediction.toFixed(2) })
       },
       {
         label: 'Ajuste',
         color: '#FF9800',
-        data: this.state.salesTable.map((item, key) => { return item.adjustment })
+        data: this.state.salesTable.map((item, key) => { return item.adjustment.toFixed(2) })
       }
     ]
 
@@ -1278,7 +1278,7 @@ class TabAdjustment extends Component {
                       this.state.salesTable.length > 0 ?
                       <Graph
                         data={graphData}
-                        labels={this.state.salesTable.map((item, key) => { return item.week })}
+                        labels={this.state.salesTable.map((item, key) => { return 'Semana '+item.week })}
                         reloadGraph={this.state.reloadGraph}
                       />
                       :
