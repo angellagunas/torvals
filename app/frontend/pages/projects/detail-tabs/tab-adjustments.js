@@ -1102,7 +1102,7 @@ class TabAdjustment extends Component {
 
             <div className='level-item'>
               <Select
-                label='Categoria de Productos'
+                label='Categoría'
                 name='category'
                 value=''
                 placeholder='Seleccionar'
