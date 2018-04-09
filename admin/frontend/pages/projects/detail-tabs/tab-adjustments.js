@@ -89,7 +89,7 @@ class TabAdjustment extends Component {
         if (res.dates.length === 0) {
           this.notify(
             'Error! No hay fechas disponibles. Favor de cargar las fechas de Abraxas.',
-            3000,
+            5000,
             toast.TYPE.ERROR
           )
 
@@ -104,7 +104,7 @@ class TabAdjustment extends Component {
           this.notify(
             'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
             ' correctamente. Favor de cargar las fechas de Abraxas.',
-            3000,
+            5000,
             toast.TYPE.ERROR
           )
         }
@@ -206,7 +206,7 @@ class TabAdjustment extends Component {
         })
         this.notify(
           'Ha habido un error al obtener los filtros!',
-          3000,
+          5000,
           toast.TYPE.ERROR
         )
       }
@@ -291,7 +291,7 @@ class TabAdjustment extends Component {
 
   async getDataRows () {
     if (!this.state.formData.period) {
-      this.notify('Se debe filtrar por periodo!', 3000, toast.TYPE.ERROR)
+      this.notify('Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
       return
     }
 
@@ -524,12 +524,12 @@ class TabAdjustment extends Component {
 
     await this.updateSalesTable(obj)
     
-    this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
+    this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
 
     return true
   }
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -619,7 +619,7 @@ class TabAdjustment extends Component {
       await api.post(url)
       await this.props.load()
     } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
 
     this.setState({
@@ -666,7 +666,7 @@ class TabAdjustment extends Component {
         })
       }
     } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)      
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)      
       this.setState({
         noSalesData: e.message + ', intente más tarde'
       })
@@ -730,7 +730,7 @@ class TabAdjustment extends Component {
 
   async downloadReport () {
     if (!this.state.formData.salesCenters) {
-      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 3000, toast.TYPE.ERROR)
+      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
 
       return
     }
@@ -767,11 +767,11 @@ class TabAdjustment extends Component {
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
-      this.notify('Se ha generado el reporte correctamente!', 3000, toast.TYPE.SUCCESS)
+      this.notify('Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
       console.log('error',e.message)
       
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       
       this.setState({
         isLoading: '',

@@ -116,14 +116,14 @@ class TabAnomalies extends Component {
       })
 
       if(res.data.length === 0)
-        this.notify('No hay anomalias que mostrar', 3000, toast.TYPE.INFO)      
+        this.notify('No hay anomalias que mostrar', 5000, toast.TYPE.INFO)      
         
     } catch (e) {
       this.setState({
         isLoading: '',
         isFiltered: false
       })
-      this.notify('Error:Intente de nuevo', 3000, toast.TYPE.ERROR)      
+      this.notify('Error:Intente de nuevo', 5000, toast.TYPE.ERROR)      
     }
   }
 
@@ -272,18 +272,18 @@ class TabAnomalies extends Component {
         anomalies: aux
       })
 
-      this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
+      this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
       
     }
     else{
-      this.notify('Intente de nuevo', 3000, toast.TYPE.ERROR)
+      this.notify('Intente de nuevo', 5000, toast.TYPE.ERROR)
     }
 
     return true
   }
 
 
-  notify(message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -318,7 +318,7 @@ class TabAnomalies extends Component {
         this.setState({
           isRestoring: ''
         })
-        this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+        this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       }
       this.state.selected.clear()
       this.setState({
