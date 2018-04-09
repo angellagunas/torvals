@@ -397,7 +397,6 @@ class TabAdjustment extends Component {
       val = e.target.value
     }
     this.setState({
-      quantity: 0,
       percentage: val
     })
   }
@@ -408,8 +407,7 @@ class TabAdjustment extends Component {
       val = e.target.value
     }
     this.setState({
-      quantity: val,
-      percentage: 0
+      quantity: val
     })
   }
 
@@ -443,7 +441,7 @@ class TabAdjustment extends Component {
                   <div className='control'>
                     <button
                       className='button is-outlined'
-                      onClick={() => this.onClickButtonMinus()}
+                      onClick={() => this.onClickButtonMinus('quantity')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
                         <i className='fa fa-minus' />
@@ -462,7 +460,7 @@ class TabAdjustment extends Component {
                   <div className='control'>
                     <button
                       className='button is-outlined'
-                      onClick={() => this.onClickButtonPlus()}
+                      onClick={() => this.onClickButtonPlus('quantity')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
                         <i className='fa fa-plus' />
@@ -484,7 +482,7 @@ class TabAdjustment extends Component {
                   <div className='control'>
                     <button
                       className='button is-outlined'
-                      onClick={() => this.onClickButtonMinus()}
+                      onClick={() => this.onClickButtonMinus('percent')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
                         <i className='fa fa-minus' />
@@ -503,7 +501,7 @@ class TabAdjustment extends Component {
                   <div className='control'>
                     <button
                       className='button is-outlined'
-                      onClick={() => this.onClickButtonPlus()}
+                      onClick={() => this.onClickButtonPlus('percent')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
                         <i className='fa fa-plus' />
@@ -540,23 +538,21 @@ class TabAdjustment extends Component {
     )
   }
 
-  async onClickButtonPlus () {
+  async onClickButtonPlus (type) {
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = 0
       
       if (
-        parseInt(this.state.quantity) === 0 && 
-        parseInt(this.state.percentage) !== 0 && 
-        !isNaN(this.state.quantity) && 
-        !isNaN(this.state.percentage)
+        type === 'percent' && 
+        !isNaN(this.state.percentage) &&
+        parseInt(this.state.percentage) !== 0 
       ){
         toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
       } else if (
-        parseInt(this.state.quantity) !== 0 &&
-        parseInt(this.state.percentage) === 0 &&
+        type === 'quantity' &&
         !isNaN(this.state.quantity) &&
-        !isNaN(this.state.percentage)
+        parseInt(this.state.quantity) !== 0
       ) {
         toAdd = parseInt(this.state.quantity)
       } else {
@@ -577,23 +573,21 @@ class TabAdjustment extends Component {
     }
   }
 
-  async onClickButtonMinus () {
+  async onClickButtonMinus (type) {
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = 0
       
       if (
-        parseInt(this.state.quantity) === 0 &&
-        parseInt(this.state.percentage) !== 0 &&
-        !isNaN(this.state.quantity) &&
+        type === 'percent' && 
+        parseInt(this.state.percentage) !== 0 && 
         !isNaN(this.state.percentage)
       ) {
         toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
       } else if (
+        type === 'quantity' &&
         parseInt(this.state.quantity) !== 0 &&
-        parseInt(this.state.percentage) === 0 &&
-        !isNaN(this.state.quantity) &&
-        !isNaN(this.state.percentage)
+        !isNaN(this.state.quantity)
       ) {
         toAdd = parseInt(this.state.quantity)
       } else {
