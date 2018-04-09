@@ -27,7 +27,7 @@ class TabAdjustment extends Component {
     this.state = {
       isUpdating: false,
       dataRows: [],
-      pendingDataRows: [],
+      pendingDataRows: {},
       isFiltered: false,
       filtersLoaded: false,
       isLoading: '',
@@ -63,12 +63,13 @@ class TabAdjustment extends Component {
 
     currentRole = tree.get('user').currentRole.slug
     this.interval = null
+    this.toastId = null
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.isUpdating) {
-      return false
-    }
+    // if (nextState.isUpdating) {
+    //   return false
+    // }
 
     return true
   }
@@ -662,7 +663,7 @@ class TabAdjustment extends Component {
           toast.TYPE.WARNING
         )
 
-        pendingDataRows.push(obj)
+        if (!pendingDataRows[obj.uuid]) pendingDataRows[obj.uuid] = obj
       } else {
         var url = '/app/rows/' + obj.uuid
         const res = await api.post(url, { ...obj })
@@ -706,6 +707,7 @@ class TabAdjustment extends Component {
   }
 
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    console.log(toast.toastId)
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -713,6 +715,7 @@ class TabAdjustment extends Component {
         hideProgressBar: true,
         closeButton: false
       })
+      console.log(toast.toastId)
     } else {
       toast.update(this.toastId, {
         render: message,
@@ -723,47 +726,41 @@ class TabAdjustment extends Component {
     }
   }
 
-  showModalAdjustmentRequest (obj) {
-    if (currentRole !== 'manager-level-3') {
-      obj.localAdjustment = '' + obj.localAdjustment
-      this.setState({
-        classNameAR: ' is-active',
-        selectedAR: obj
-      })
-    }
-  }
-
   async handleAdjustmentRequest (obj) {
+    let { pendingDataRows } = this.state
+    let productAux = []
     if (currentRole === 'manager-level-3') {
       return
     }
 
-    obj.localAdjustment = '' + obj.localAdjustment
-    this.setState({
-      classNameAR: ' is-active',
-      selectedAR: obj
-    })
-
-    let res = await api.post(this.props.url, formData)
-
-  }
-
-  hideModalAdjustmentRequest () {
-    this.setState({
-      classNameAR: '',
-      selectedAR: undefined            
-    })
-  }
-
-  async finishUpAdjustmentRequest (res) {
-    if (res && res.data === 'OK') {
-      this.state.selectedAR.adjustmentRequest = { status: 'created' }
+    if (obj instanceof Array) {
+      productAux = obj
+    } else {
+      productAux.push(obj)
     }
-    let aux = this.state.dataRows
+
+    for (var product of productAux) {
+      let res = await api.post(
+        `/app/rows/${product.uuid}/request`,
+        {
+          newAdjustment: product.adjustmentForDisplay
+        }
+      )
+      
+      product.adjustmentRequest = res.data
+      delete pendingDataRows[product.uuid]
+    }
+
     this.setState({
-      selectedAR: undefined,
-      dataRows: aux
+      pendingDataRows: pendingDataRows
     })
+  }
+
+  async handleAllAdjustmentRequest (obj) {
+    let { pendingDataRows } = this.state
+    let pendingDataRowsArray = Object.values(pendingDataRows)
+
+    await this.handleAdjustmentRequest(pendingDataRowsArray)
   }
 
   async searchDatarows() {
@@ -981,7 +978,6 @@ class TabAdjustment extends Component {
   }
 
   render () {
-    console.log(this.state.pendingDataRows)
     if (this.state.error) {
       return (
         <div className='section columns'>
@@ -1083,13 +1079,6 @@ class TabAdjustment extends Component {
 
     return (
       <div>
-        <CreateAdjustmentRequest
-          className={this.state.classNameAR}
-          hideModal={(e) => this.hideModalAdjustmentRequest(e)}
-          finishUp={(e) => this.finishUpAdjustmentRequest(e)}
-          prediction={this.state.selectedAR}
-          baseUrl={'/app/rows/'} />
-
         <div className='section level selects'>
           <div className='level-left'>
             <div className='level-item'>
@@ -1326,8 +1315,9 @@ class TabAdjustment extends Component {
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
-                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }}
+                      adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
                       handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }} 
+                      handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }} 
                     />
                     :
 
@@ -1339,8 +1329,9 @@ class TabAdjustment extends Component {
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
-                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }}
+                      adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
                       handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
+                      handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }} 
                     />
                 }
               </div>
