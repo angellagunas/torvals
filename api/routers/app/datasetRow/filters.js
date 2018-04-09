@@ -50,8 +50,8 @@ module.exports = new Route({
     ) {
       var groups = user.groups
 
-      salesCenters = await SalesCenter.find({groups: {$in: groups}})
-      channels = await Channel.find({ groups: { $in: groups } })
+      salesCenters = await SalesCenter.find({groups: {$in: groups}, organization: currentOrganization.organization._id})
+      channels = await Channel.find({groups: {$in: groups}, organization: currentOrganization.organization._id})
     }
 
     semanasBimbo.sort((a, b) => {
