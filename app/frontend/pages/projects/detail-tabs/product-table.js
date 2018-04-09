@@ -187,15 +187,15 @@ class ProductTable extends Component {
       {
         group: ' ',
         title: 'Ajuste',
-        property: 'localAdjustment',
+        property: 'adjustmentForDisplay',
         default: 'N/A',
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
         className: 'table-cell', 
         formatter: (row) => {
-          if (!row.localAdjustment) {
-            row.localAdjustment = 0
+          if (!row.adjustmentForDisplay) {
+            row.adjustmentForDisplay = 0
           }
 
           row.tabin = row.key * 10
@@ -203,7 +203,7 @@ class ProductTable extends Component {
             <input
               type='number'
               className='input'
-              value={row.localAdjustment}
+              value={row.adjustmentForDisplay}
               onBlur={(e) => { this.onBlur(e, row) }}
               onKeyPress={(e) => { this.onEnter(e, row) }}
               onChange={(e) => { this.onChange(e, row) }}
@@ -224,7 +224,7 @@ class ProductTable extends Component {
         headerClassName: 'table-head',
         className: 'table-cell', 
         formatter: (row) => {
-          let percentage = ((row.localAdjustment - row.prediction) /
+          let percentage = ((row.adjustmentForDisplay - row.prediction) /
             row.prediction) * 100
           row.percentage = percentage
           let status = classNames('has-text-weight-bold', {
@@ -289,7 +289,7 @@ class ProductTable extends Component {
           className='icon has-text-danger'
           title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
           onClick={() => {
-            this.props.showModalAdjustmentRequest(product)
+            // this.props.showModalAdjustmentRequest(product)
           }}>
           <i className='fa fa-times fa-lg' />
         </span>
@@ -309,7 +309,7 @@ class ProductTable extends Component {
 
   onFocus(e, row) {
     row.focused = true
-    row.original = row.localAdjustment
+    row.original = row.adjustmentForDisplay
     let aux = this.state.filteredData
     this.setState({
       filteredData: aux
@@ -352,7 +352,7 @@ class ProductTable extends Component {
   }
 
   onChange = (e, row) => {
-    row.localAdjustment = e.target.value
+    row.adjustmentForDisplay = e.target.value
     let aux = this.state.filteredData
 
     this.setState({

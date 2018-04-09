@@ -220,15 +220,15 @@ class WeekTable extends Component {
          {
            group: ' ',
            title: 'Ajuste',
-           property: 'localAdjustment_' + j,
+           property: 'adjustmentForDisplay_' + j,
            default: 0,
            sortable: true,
            groupClassName: 'table-week',
            headerClassName: 'table-head',           
            className: 'table-cell',                      
            formatter: (row) => {
-             if (!row.weeks[j].localAdjustment) {
-               row.weeks[j].localAdjustment = 0
+             if (!row.weeks[j].adjustmentForDisplay) {
+               row.weeks[j].adjustmentForDisplay = 0
              }
 
              row.tabin = row.key * 10 + j
@@ -237,7 +237,7 @@ class WeekTable extends Component {
                <input
                  type='number'
                  className='input'
-                 value={row.weeks[j].localAdjustment}
+                 value={row.weeks[j].adjustmentForDisplay}
                  onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
                  onKeyPress={(e) => { this.onEnter(e, row.weeks[j]) }}
                  onChange={(e) => { this.onChange(e, row.weeks[j]) }}
@@ -258,8 +258,9 @@ class WeekTable extends Component {
           groupClassName: 'table-week table-week-r',
           className: 'col-border table-cell',
           formatter: (row) => {
-            let percentage = ((row.weeks[j].localAdjustment - row.weeks[j].prediction) 
-                            / row.weeks[j].prediction) * 100
+            let percentage = (
+              ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
+            )
             row.weeks[j].percentage = percentage 
             let status = classNames('has-text-weight-bold', {
               'has-text-success': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'approved',
@@ -284,7 +285,7 @@ class WeekTable extends Component {
 
   onFocus(e, week, row) {
     row.focused = true    
-    week.original = week.localAdjustment
+    week.original = week.adjustmentForDisplay
     let aux = this.state.filteredDataByWeek
 
     this.setState({
@@ -322,7 +323,7 @@ class WeekTable extends Component {
         row.edited = true
       }
       else{
-        week.localAdjustment = week.original
+        week.adjustmentForDisplay = week.original
       }
 
       let aux = this.state.filteredDataByWeek
@@ -335,7 +336,7 @@ class WeekTable extends Component {
   }
 
   onChange = (e, row) => {
-    row.localAdjustment = e.target.value
+    row.adjustmentForDisplay = e.target.value
     let aux = this.state.filteredDataByWeek
 
     this.setState({
@@ -447,7 +448,7 @@ class WeekTable extends Component {
             className='icon has-text-danger'
             title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
             onClick={() => {
-              this.props.showModalAdjustmentRequest(product)
+              // this.props.showModalAdjustmentRequest(product)
             }}>
             <i className='fa fa-times fa-lg' />
           </span>
