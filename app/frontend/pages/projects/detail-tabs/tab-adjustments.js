@@ -155,7 +155,7 @@ class TabAdjustment extends Component {
 
         periods.push({
           number: period4[0].month,
-          name: `Periodo ${moment(period4[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period4[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['4'],
           maxSemana: period4[0].week,
           minSemana: period4[period4.length - 1].week
@@ -163,7 +163,7 @@ class TabAdjustment extends Component {
 
         periods.push({
           number: period3[0].month,
-          name: `Periodo ${moment(period3[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period3[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['3']/100,
           maxSemana: period3[0].week,
           minSemana: period3[period3.length - 1].week
@@ -171,7 +171,7 @@ class TabAdjustment extends Component {
 
         periods.push({
           number: period2[0].month,
-          name: `Periodo ${moment(period2[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period2[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['2']/100,
           maxSemana: period2[0].week,
           minSemana: period2[period2.length - 1].week
@@ -179,7 +179,7 @@ class TabAdjustment extends Component {
 
         periods.push({
           number: period1[0].month,
-          name: `Periodo ${moment(period1[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period1[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['1']/100,
           maxSemana: period1[0].week,
           minSemana: period1[period1.length - 1].week
