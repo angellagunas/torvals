@@ -25,6 +25,7 @@ class TabAdjustment extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      isUpdating: false,
       dataRows: [],
       pendingDataRows: [],
       isFiltered: false,
@@ -62,6 +63,14 @@ class TabAdjustment extends Component {
 
     currentRole = tree.get('user').currentRole.slug
     this.interval = null
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.isUpdating) {
+      return false
+    }
+
+    return true
   }
 
   componentWillMount () {
@@ -574,6 +583,7 @@ class TabAdjustment extends Component {
   }
 
   async onClickButtonMinus (type) {
+    this.setState({isUpdating: true})
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = 0
       
@@ -597,7 +607,6 @@ class TabAdjustment extends Component {
       let adjustmentForDisplayAux = Math.round(row.adjustmentForDisplay)
       let newAdjustment = adjustmentForDisplayAux - toAdd
       row.lastLocalAdjustment = row.adjustmentForDisplay
-
       row.newAdjustment = newAdjustment
 
       const res = await this.handleChange(row)
@@ -606,6 +615,7 @@ class TabAdjustment extends Component {
         row.adjustmentForDisplay = adjustmentForDisplayAux
       }
     }
+    this.setState({isUpdating: false})
   }
 
   toggleButtons () {
