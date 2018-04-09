@@ -48,10 +48,14 @@
         -o-transform: rotate(-45deg);
         transform: rotate(-45deg) translate(0px, 4px);
     }
-    p:last-of-type {
-        display: inline;
+    p {
+        line-height: 1;
+        padding-top: 0.3rem;
+        &:last-of-type {
+            display: inline;
+        }
     }
-    .range{
+    .range {
         min-width: 80px;
     }
 }
@@ -105,7 +109,7 @@
 
 .view-btns {
     .button {
-        width: 155px;
+        width: 153px;
         height: 35px;
     }
 }

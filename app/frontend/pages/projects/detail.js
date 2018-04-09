@@ -455,7 +455,7 @@ class ProjectDetail extends Component {
                         Por aprobar {this.state.pending}
                   </a>
                 </p>
-                <p className='control'>
+                <p className='control btn-conciliate'>
                   <a className={'button is-success ' + this.state.isConciliating}
                     disabled={!!this.state.isConciliating}
                     onClick={e => this.conciliateOnClick()}>

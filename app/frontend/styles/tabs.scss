@@ -40,6 +40,9 @@
         border-bottom-color: inherit;
         border-bottom-style: inherit;
         border-bottom-width: inherit;
+        &>li:first-child {
+            border-left: 1px solid rgb(220, 225, 248);
+        }
     }
     .control {
         font-size: 0.87rem !important;
@@ -48,12 +51,10 @@
         margin-bottom: 0px;
         margin-right: 0;
     }
-
-    a{
+    a {
         padding: 0.5rem 0.6rem;
     }
-
-    .button{
+    .button {
         height: 2rem !important;
     }
 }

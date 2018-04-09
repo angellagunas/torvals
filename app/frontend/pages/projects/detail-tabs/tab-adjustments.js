@@ -1180,7 +1180,7 @@ class TabAdjustment extends Component {
             <div className='column is-5-desktop is-4-widescreen is-4-fullhd is-offset-1-fullhd is-offset-1-desktop'>
               <div className='panel sales-table'>
                 <div className='panel-heading'>
-                  <h2>Totales de Venta</h2>
+                  <h2>Predicciones</h2>
                 </div>
                 <div className='panel-block'>
                   {
@@ -1189,7 +1189,7 @@ class TabAdjustment extends Component {
                       <table className='table is-fullwidth is-hoverable'>
                         <thead>
                           <tr>
-                            <th>Semana</th>
+                            <th className='has-text-centered'>Semana</th>
                             <th className='has-text-info has-text-centered'>Predicción</th>
                             <th className='has-text-teal has-text-centered'>Ajuste</th>
                           </tr>
@@ -1198,7 +1198,7 @@ class TabAdjustment extends Component {
                           {this.state.salesTable.map((item, key) => {
                             return (
                               <tr key={key}>
-                                <td>
+                                <td className='has-text-centered'>
                                   {item.week}
                                 </td>
                                 <td className='has-text-centered'>
@@ -1217,7 +1217,7 @@ class TabAdjustment extends Component {
                           }
 
                           <tr className='totals'>
-                            <th>
+                            <th className='has-text-centered'>
                               Total
                             </th>
                             <th className='has-text-info has-text-centered'>

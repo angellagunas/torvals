@@ -70,7 +70,7 @@
     background-color: #F9FAFF;
     overflow: hidden;
     transition: max-height 0.8s ease;
-    margin-top: 0;
+    margin-top: -.36rem;
 }
 
 .modifier {
@@ -177,4 +177,8 @@
 .channel {
     font-size: 0.95rem;
     margin-top: 20px;
+}
+
+.btn-conciliate{
+    margin-left: 0.9rem;
 }
