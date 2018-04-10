@@ -6,33 +6,37 @@ const {DataSetRow} = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/:uuid',
-  validator: lov.object().keys({
-    adjustment: lov.number()
-  }),
+  path: '/',
+  validator: lov.array().items([
+    lov.object().keys({
+      uuid: lov.string().required(),
+      adjustmentForDisplay: lov.string().required()
+    }).required()
+  ]),
   handler: async function (ctx) {
-    var datasetRowId = ctx.params.uuid
     var data = ctx.request.body
-    console.log(data)
 
-    const datasetRow = await DataSetRow.findOne({
-      'uuid': datasetRowId,
-      'isDeleted': false,
-      'organization': ctx.state.organization
-    })
-    ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
+    for (let row of data) {
+      let datasetRow = await DataSetRow.findOne({
+        'uuid': row.uuid,
+        'isDeleted': false,
+        'organization': ctx.state.organization._id
+      })
 
-    if (parseFloat(datasetRow.data.adjustmentForDisplay) !== parseFloat(data.localAdjustment)) {
-      datasetRow.data.localAdjustment = data.adjustmentForDisplay
-      datasetRow.data.updatedBy = ctx.state.user
-      datasetRow.status = 'sendingChanges'
-      datasetRow.markModified('data')
-      await datasetRow.save()
-      verifyDatasetrows.add({uuid: datasetRowId})
+      ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
+
+      if (parseFloat(datasetRow.data.adjustmentForDisplay) !== parseFloat(row.localAdjustment)) {
+        datasetRow.data.localAdjustment = row.adjustmentForDisplay
+        datasetRow.data.updatedBy = ctx.state.user
+        datasetRow.status = 'sendingChanges'
+        datasetRow.markModified('data')
+        await datasetRow.save()
+        verifyDatasetrows.add({uuid: row.uuid})
+      }
     }
 
     ctx.body = {
-      data: datasetRow.toPublic()
+      data: 'OK'
     }
   }
 })
