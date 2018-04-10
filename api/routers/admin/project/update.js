@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const {Project, Organization} = require('models')
+const {Project, Organization, DataSetRow, Product, AdjustmentRequest} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -28,6 +28,21 @@ module.exports = new Route({
         dataset.organization = data.organization._id
         await dataset.save()
         await dataset.processData()
+      }
+      var datasetrows = await DataSetRow.find({'project': project._id})
+      for (var dsr of datasetrows) {
+        dsr.organization = data.organization._id
+        await dsr.save()
+        let product = Product.findOne({'_id': dsr.product})
+        if (product) {
+          product.organization = data.organization._id
+          await product.save()
+        }
+      }
+      var adjustmentrequest = await AdjustmentRequest.find({'project': project._id})
+      for (var ar of adjustmentrequest) {
+        ar.organization = data.organization._id
+        await ar.save()
       }
     }
     project.set({
