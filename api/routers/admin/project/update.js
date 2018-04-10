@@ -32,11 +32,20 @@ module.exports = new Route({
       var datasetrows = await DataSetRow.find({'project': project._id})
       for (var dsr of datasetrows) {
         dsr.organization = data.organization._id
-        await dsr.save()
+
         let product = await Product.findOne({'_id': dsr.product})
         if (product) {
-          product.organization = data.organization._id
-          await product.save()
+          let productNewOrg = await Product.findOne({'externalId': product.externalId})
+          if (productNewOrg) {
+            dsr.product = productNewOrg._id
+          } else {
+            // TODO: create new product with the same info different organization
+            /* let newProduct = await Product.create({
+
+            }) */
+          }
+
+          await dsr.save()
         }
       }
       var adjustmentrequest = await AdjustmentRequest.find({'project': project._id})
