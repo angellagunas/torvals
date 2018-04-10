@@ -21,6 +21,20 @@ const productSchema = new Schema({
 
 productSchema.plugin(dataTables)
 
+productSchema.methods.toPublic = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    organization: this.organization.uuid,
+    description: this.description,
+    category: this.category,
+    subcategory: this.subcategory,
+    externalId: this.externalId,
+    price: this.price,
+    dateCreated: this.dateCreated
+  }
+}
+
 productSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,

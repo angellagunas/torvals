@@ -267,6 +267,16 @@ class UserDetail extends Component {
       disabledForm = user.roleDetail.priority <= currentUser.currentRole.priority
     }
 
+    var disabledRoles = false
+    if (user.roleDetail && currentUser.currentRole.slug === 'manager-level-3') {
+      disabledRoles = true
+      if (user.roleDetail.slug === 'manager-level-3') {
+        disabledForm = false
+      } else {
+        disabledForm = true
+      }
+    }
+
     if (user) {
       var role = this.state.roles.find((item) => {
         return item._id === user.role
@@ -372,6 +382,7 @@ class UserDetail extends Component {
                           errorHandler={(data) => this.errorHandler(data)}
                           finishUp={(data) => this.finishUpHandler(data)}
                           disabled={disabledForm}
+                          disabledRoles={disabledRoles}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
