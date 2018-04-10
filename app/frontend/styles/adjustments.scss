@@ -13,7 +13,7 @@
         font-weight: 700;
     }
     img {
-        height: 40px;
+        height: 30px;
         width: auto;
         margin-right: 3rem;
         opacity: 1;
@@ -85,10 +85,18 @@
 }
 
 .download-btn {
+    position: relative;
     .button {
+        position: absolute;
+        right: 1rem;
+        top: 41%;
         height: 2.1rem;
         width: 3.2rem;
         font-size: 1.2rem;
+        background-color: $general_text !important;
+        .icon {
+            height: 1.2em;
+        }
     }
 }
 
@@ -96,6 +104,9 @@
     margin: 0.5rem;
     background-color: #FFF;
     border-color: #E6E8F6;
+    height: 100%;
+    max-height: 300px;
+    min-height: 265px;
     .panel-heading {
         h2 {
             font-size: 0.9rem;
@@ -106,6 +117,8 @@
     }
     .panel-block {
         border-color: #E6E8F6;
+        height: 83%;
+        min-height: 265px;
     }
     td,
     th {
@@ -141,6 +154,9 @@
     margin: 0.5rem;
     background-color: #FFF;
     border-color: #E6E8F6;
+    height: 100%;
+    max-height: 300px;
+    min-height: 265px;
     .panel-heading {
         h2 {
             font-size: 0.9rem;
@@ -150,12 +166,15 @@
         border-color: #E6E8F6;
     }
     .panel-block {
+        height: 83%;
+        max-height: 83%;
+        min-height: 265px;
         border-color: #E6E8F6;
     }
-    canvas {
+    /* canvas {
         width: 355px !important;
         height: 180px !important;
-    }
+    } */
 }
 
 .products-selected {
@@ -179,6 +198,10 @@
     margin-top: 20px;
 }
 
-.btn-conciliate{
+.btn-conciliate {
     margin-left: 0.9rem;
+}
+
+.chart-container {
+    width: 100%;
 }

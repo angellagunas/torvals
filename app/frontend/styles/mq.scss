@@ -104,10 +104,14 @@
         }
     }
     .sales-graph {
-        canvas {
-            width: 400px !important;
-            height: 200px !important;
-        }
+        margin: 0.7rem;
+        max-height: 320px;
+        min-height: 320px;
+    }
+    .sales-table {
+        margin: 0.7rem;
+        max-height: 320px;
+        min-height: 320px;
     }
     .tabs-title {
         margin-top: 0.3rem;
@@ -119,5 +123,8 @@
         .button {
             width: 155px;
         }
+    }
+    .button {
+        font-size: 0.85rem;
     }
 }

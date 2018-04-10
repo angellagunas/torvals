@@ -65,21 +65,15 @@ class Graph extends Component {
 
   render () {
     return (
-      <div>
+      <div className='chart-container'>
         <Line
           data={this.state.data}
-          width={this.props.width}
-          height={this.props.height}
+          /* width={this.props.width}
+          height={this.props.height} */
           options={{
-            labels: {
-              boxWidth: 10,
-              fontSize: 16,
-              fontStyle: 'bold',
-              fontColor: 'red',
-              fontFamily: 'inherit',
-              padding: 20,
-              usePointStyle: true
-            }
+            responsive: true,
+            responsiveAnimationDuration: 1,
+            maintainAspectRatio: true
           }} />
       </div>
     )

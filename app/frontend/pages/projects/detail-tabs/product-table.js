@@ -128,8 +128,8 @@ class ProductTable extends Component {
           <i className='fa fa-exclamation fa-lg' />
         </span>,
         groupClassName: 'table-product',
-        headerClassName: 'table-product table-product-head table-product-head-bord',
-        className: 'table-product',
+        headerClassName: 'table-product table-product-head table-product-head-bord table-product-shadow',
+        className: 'table-product table-product-shadow',
         formatter: (row) => {
           return this.getLimit(row)
         }
@@ -152,7 +152,7 @@ class ProductTable extends Component {
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell is-capitalized', 
       },
       {
         group: ' ',
@@ -162,7 +162,7 @@ class ProductTable extends Component {
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell is-capitalized', 
       },
       {
         group: ' ',
