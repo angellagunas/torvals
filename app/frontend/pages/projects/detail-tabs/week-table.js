@@ -148,7 +148,8 @@ class WeekTable extends Component {
         property: 'productId',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'has-text-centered table-product-head',
+        headerClassName: 'has-text-centered table-product-head id',
+        className: 'id',
         formatter: (row) => {
           if (row.weeks[0].productId) {
             return row.weeks[0].productId
@@ -266,6 +267,8 @@ class WeekTable extends Component {
             let percentage = (
               ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
             )
+            if(isNaN(percentage))
+              percentage = 0
             row.weeks[j].percentage = percentage 
             let status = classNames('has-text-weight-bold', {
               'has-text-success': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'approved',
@@ -360,7 +363,6 @@ class WeekTable extends Component {
       })  
 
     let data = this.state.data
-    
     let rw = []
     for (let index = 0; index < data.length; index++) {
       const element = data[index];
@@ -495,7 +497,7 @@ class WeekTable extends Component {
     }
     return (
         <StickTable
-          height='100%'
+          height='55vh'
           data={this.state.filteredDataByWeek}
           cols={this.getColumnsByWeek()}
           stickyCols={4}

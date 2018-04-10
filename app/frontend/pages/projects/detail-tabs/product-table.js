@@ -104,7 +104,8 @@ class ProductTable extends Component {
         property: 'productId',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'has-text-centered table-product-head',        
+        headerClassName: 'has-text-centered table-product-head id',   
+        className: 'id',     
         formatter: (row) => {
           if (row.productId) {
             return row.productId
@@ -381,7 +382,7 @@ class ProductTable extends Component {
     }
     return (
       <StickTable
-        height='400px'
+        height='55vh'
         data={this.state.filteredData}
         cols={this.getColumns()}
         stickyCols={0}

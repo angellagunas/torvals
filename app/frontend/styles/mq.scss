@@ -91,27 +91,28 @@
     }
     .sticky-table {
         font-size: 0.8rem;
-    }
-    .sticky-table .sticky-table-cell {
-        padding: 0.1rem 0.2rem;
-        .input {
-            font-size: 0.8rem !important;
-            width: 80px;
+        .sticky-table-cell {
+            padding: 0.1rem 0.2rem;
+            .input {
+                font-size: 0.8rem !important;
+                width: 80px;
+            }
+            p {
+                line-height: .5;
+                padding-top: 0.3rem;
+            }
         }
-        p {
-            line-height: .5;
-            padding-top: 0.3rem;
+    }
+    .sales {
+        &-graph,
+        &-table {
+            margin: 0.7rem;
+            max-height: 320px;
+            min-height: 320px;
+            .panel-block {
+                min-height: 282px;
+            }
         }
-    }
-    .sales-graph {
-        margin: 0.7rem;
-        max-height: 320px;
-        min-height: 320px;
-    }
-    .sales-table {
-        margin: 0.7rem;
-        max-height: 320px;
-        min-height: 320px;
     }
     .tabs-title {
         margin-top: 0.3rem;
@@ -121,7 +122,7 @@
     }
     .view-btns {
         .button {
-            width: 155px;
+            width: 164px;
         }
     }
     .button {
