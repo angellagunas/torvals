@@ -24,13 +24,14 @@ module.exports = new Route({
         organization: datasetRow.organization,
         project: datasetRow.project,
         dataset: datasetRow.dataset,
-        datasetRow: datasetRow,
+        datasetRow: datasetRow._id,
         lastAdjustment: datasetRow.data.localAdjustment,
         newAdjustment: data.newAdjustment,
-        requestedBy: ctx.state.user
+        requestedBy: ctx.state.user._id
       })
 
       datasetRow.adjustmentRequest = adjustmentRequest
+      await datasetRow.save()
     } else {
       adjustmentRequest.status = 'created'
       adjustmentRequest.lastAdjustment = datasetRow.data.localAdjustment
@@ -38,9 +39,8 @@ module.exports = new Route({
       adjustmentRequest.requestedBy = ctx.state.user
     }
 
-    await datasetRow.save()
     await adjustmentRequest.save()
 
-    ctx.body = {data: 'OK'}
+    ctx.body = {data: adjustmentRequest.toPublic()}
   }
 })

@@ -11,8 +11,6 @@ import Loader from '~base/components/spinner'
 import Editable from '~base/components/base-editable'
 import Checkbox from '~base/components/base-checkbox'
 
-
-import CreateAdjustmentRequest from '../../forecasts/create-adjustmentRequest'
 import WeekTable from './week-table'
 import ProductTable from './product-table'
 import Select from './select'
@@ -25,8 +23,9 @@ class TabAdjustment extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      isUpdating: false,
       dataRows: [],
-      pendingDataRows: [],
+      pendingDataRows: {},
       isFiltered: false,
       filtersLoaded: false,
       isLoading: '',
@@ -62,6 +61,15 @@ class TabAdjustment extends Component {
 
     currentRole = tree.get('user').currentRole.slug
     this.interval = null
+    this.toastId = null
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    // if (nextState.isUpdating) {
+    //   return false
+    // }
+
+    return true
   }
 
   componentWillMount () {
@@ -397,7 +405,6 @@ class TabAdjustment extends Component {
       val = e.target.value
     }
     this.setState({
-      quantity: 0,
       percentage: val
     })
   }
@@ -408,8 +415,7 @@ class TabAdjustment extends Component {
       val = e.target.value
     }
     this.setState({
-      quantity: val,
-      percentage: 0
+      quantity: val
     })
   }
 
@@ -443,7 +449,7 @@ class TabAdjustment extends Component {
                   <div className='control'>
                     <button
                       className='button is-outlined'
-                      onClick={() => this.onClickButtonMinus()}
+                      onClick={() => this.onClickButtonMinus('quantity')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
                         <i className='fa fa-minus' />
@@ -462,7 +468,7 @@ class TabAdjustment extends Component {
                   <div className='control'>
                     <button
                       className='button is-outlined'
-                      onClick={() => this.onClickButtonPlus()}
+                      onClick={() => this.onClickButtonPlus('quantity')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
                         <i className='fa fa-plus' />
@@ -484,7 +490,7 @@ class TabAdjustment extends Component {
                   <div className='control'>
                     <button
                       className='button is-outlined'
-                      onClick={() => this.onClickButtonMinus()}
+                      onClick={() => this.onClickButtonMinus('percent')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
                         <i className='fa fa-minus' />
@@ -503,7 +509,7 @@ class TabAdjustment extends Component {
                   <div className='control'>
                     <button
                       className='button is-outlined'
-                      onClick={() => this.onClickButtonPlus()}
+                      onClick={() => this.onClickButtonPlus('percent')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
                         <i className='fa fa-plus' />
@@ -540,23 +546,21 @@ class TabAdjustment extends Component {
     )
   }
 
-  async onClickButtonPlus () {
+  async onClickButtonPlus (type) {
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = 0
       
       if (
-        parseInt(this.state.quantity) === 0 && 
-        parseInt(this.state.percentage) !== 0 && 
-        !isNaN(this.state.quantity) && 
-        !isNaN(this.state.percentage)
+        type === 'percent' && 
+        !isNaN(this.state.percentage) &&
+        parseInt(this.state.percentage) !== 0 
       ){
         toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
       } else if (
-        parseInt(this.state.quantity) !== 0 &&
-        parseInt(this.state.percentage) === 0 &&
+        type === 'quantity' &&
         !isNaN(this.state.quantity) &&
-        !isNaN(this.state.percentage)
+        parseInt(this.state.quantity) !== 0
       ) {
         toAdd = parseInt(this.state.quantity)
       } else {
@@ -577,23 +581,22 @@ class TabAdjustment extends Component {
     }
   }
 
-  async onClickButtonMinus () {
+  async onClickButtonMinus (type) {
+    this.setState({isUpdating: true})
     for (const row of this.state.selectedCheckboxes) {
       let toAdd = 0
       
       if (
-        parseInt(this.state.quantity) === 0 &&
-        parseInt(this.state.percentage) !== 0 &&
-        !isNaN(this.state.quantity) &&
+        type === 'percent' && 
+        parseInt(this.state.percentage) !== 0 && 
         !isNaN(this.state.percentage)
       ) {
         toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
       } else if (
+        type === 'quantity' &&
         parseInt(this.state.quantity) !== 0 &&
-        parseInt(this.state.percentage) === 0 &&
-        !isNaN(this.state.quantity) &&
-        !isNaN(this.state.percentage)
+        !isNaN(this.state.quantity)
       ) {
         toAdd = parseInt(this.state.quantity)
       } else {
@@ -603,7 +606,6 @@ class TabAdjustment extends Component {
       let adjustmentForDisplayAux = Math.round(row.adjustmentForDisplay)
       let newAdjustment = adjustmentForDisplayAux - toAdd
       row.lastLocalAdjustment = row.adjustmentForDisplay
-
       row.newAdjustment = newAdjustment
 
       const res = await this.handleChange(row)
@@ -612,6 +614,7 @@ class TabAdjustment extends Component {
         row.adjustmentForDisplay = adjustmentForDisplayAux
       }
     }
+    this.setState({isUpdating: false})
   }
 
   toggleButtons () {
@@ -650,7 +653,6 @@ class TabAdjustment extends Component {
       let { pendingDataRows } = this.state
 
       if (currentRole === 'manager-level-1' && obj.isLimit) {
-        // this.showModalAdjustmentRequest(obj)
         this.notify(
           'No te puedes pasar de los límites establecidos! Debes pedir una solicitud de ajuste '+
           'haciendo click sobre el ícono rojo.',
@@ -658,7 +660,7 @@ class TabAdjustment extends Component {
           toast.TYPE.WARNING
         )
 
-        pendingDataRows.push(obj)
+        if (!pendingDataRows[obj.uuid]) pendingDataRows[obj.uuid] = obj
       } else {
         var url = '/app/rows/' + obj.uuid
         const res = await api.post(url, { ...obj })
@@ -719,47 +721,41 @@ class TabAdjustment extends Component {
     }
   }
 
-  showModalAdjustmentRequest (obj) {
-    if (currentRole !== 'manager-level-3') {
-      obj.localAdjustment = '' + obj.localAdjustment
-      this.setState({
-        classNameAR: ' is-active',
-        selectedAR: obj
-      })
-    }
-  }
-
   async handleAdjustmentRequest (obj) {
+    let { pendingDataRows } = this.state
+    let productAux = []
     if (currentRole === 'manager-level-3') {
       return
     }
 
-    obj.localAdjustment = '' + obj.localAdjustment
-    this.setState({
-      classNameAR: ' is-active',
-      selectedAR: obj
-    })
-
-    let res = await api.post(this.props.url, formData)
-
-  }
-
-  hideModalAdjustmentRequest () {
-    this.setState({
-      classNameAR: '',
-      selectedAR: undefined            
-    })
-  }
-
-  async finishUpAdjustmentRequest (res) {
-    if (res && res.data === 'OK') {
-      this.state.selectedAR.adjustmentRequest = { status: 'created' }
+    if (obj instanceof Array) {
+      productAux = obj
+    } else {
+      productAux.push(obj)
     }
-    let aux = this.state.dataRows
+
+    for (var product of productAux) {
+      let res = await api.post(
+        `/app/rows/${product.uuid}/request`,
+        {
+          newAdjustment: product.adjustmentForDisplay
+        }
+      )
+      
+      product.adjustmentRequest = res.data
+      delete pendingDataRows[product.uuid]
+    }
+
     this.setState({
-      selectedAR: undefined,
-      dataRows: aux
+      pendingDataRows: pendingDataRows
     })
+  }
+
+  async handleAllAdjustmentRequest (obj) {
+    let { pendingDataRows } = this.state
+    let pendingDataRowsArray = Object.values(pendingDataRows)
+
+    await this.handleAdjustmentRequest(pendingDataRowsArray)
   }
 
   async searchDatarows() {
@@ -977,7 +973,6 @@ class TabAdjustment extends Component {
   }
 
   render () {
-    console.log(this.state.pendingDataRows)
     if (this.state.error) {
       return (
         <div className='section columns'>
@@ -1079,13 +1074,6 @@ class TabAdjustment extends Component {
 
     return (
       <div>
-        <CreateAdjustmentRequest
-          className={this.state.classNameAR}
-          hideModal={(e) => this.hideModalAdjustmentRequest(e)}
-          finishUp={(e) => this.finishUpAdjustmentRequest(e)}
-          prediction={this.state.selectedAR}
-          baseUrl={'/app/rows/'} />
-
         <div className='section level selects'>
           <div className='level-left'>
             <div className='level-item'>
@@ -1322,8 +1310,9 @@ class TabAdjustment extends Component {
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
-                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }}
+                      adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
                       handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }} 
+                      handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }} 
                     />
                     :
 
@@ -1335,8 +1324,9 @@ class TabAdjustment extends Component {
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
-                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }}
+                      adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
                       handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
+                      handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }} 
                     />
                 }
               </div>

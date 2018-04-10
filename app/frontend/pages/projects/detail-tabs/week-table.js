@@ -168,7 +168,11 @@ class WeekTable extends Component {
         group: ' ',
         title: <span
                 className='icon'
-                title='límite'>
+                title={`Hay ${this.props.adjustmentRequestCount} productos fuera de rango!`}
+                onClick={() => {
+                  this.props.handleAllAdjustmentRequest()
+                }}
+              >
                 <i className='fa fa-exclamation fa-lg' />
                </span>,
         groupClassName: 'table-product',
@@ -450,7 +454,7 @@ class WeekTable extends Component {
             className='icon has-text-danger'
             title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
             onClick={() => {
-              // this.props.showModalAdjustmentRequest(product)
+              this.props.handleAdjustmentRequest(row.weeks)
             }}>
             <i className='fa fa-times fa-lg' />
           </span>

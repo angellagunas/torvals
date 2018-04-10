@@ -124,7 +124,11 @@ class ProductTable extends Component {
         group: ' ',
         title: <span
           className='icon'
-          title='límite'>
+          title={`Hay ${this.props.adjustmentRequestCount} productos fuera de rango!`}
+          onClick={() => {
+            this.props.handleAllAdjustmentRequest()
+          }}
+        >
           <i className='fa fa-exclamation fa-lg' />
         </span>,
         groupClassName: 'table-product',
@@ -289,8 +293,8 @@ class ProductTable extends Component {
           className='icon has-text-danger'
           title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
           onClick={() => {
-            // this.props.showModalAdjustmentRequest(product)
-          }}>
+              this.props.handleAdjustmentRequest(product)
+            }}>
           <i className='fa fa-times fa-lg' />
         </span>
       return limit

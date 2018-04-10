@@ -135,12 +135,12 @@ class TabHistorical extends Component {
 
   async getFilters () {
     if (this.props.project.activeDataset) {
-      const url = '/admin/rows/filters/dataset/'
-      let res = await api.get(url + this.props.project.activeDataset.uuid)
+      const url = '/admin/dates/'
+      let res = await api.get(url)
       var periods = []
 
       const map = new Map()
-      res.dates.map((date) => {
+      res.data.map((date) => {
         const key = date.month
         const collection = map.get(key)
         if (!collection) {
@@ -167,11 +167,11 @@ class TabHistorical extends Component {
       this.setState({
         filters: {
           ...this.state.filters,
-          dates: res.dates,
+          dates: res.data,
           periods: periods
         },
         formData: {
-          period: 1
+          period: periods[0].number
         },
         isFiltered: false
       }, () => {
