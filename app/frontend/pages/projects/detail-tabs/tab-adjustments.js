@@ -4,6 +4,7 @@ import moment from 'moment'
 import _ from 'lodash'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
+import {FileSaver} from 'file-saver'
 
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -25,6 +26,7 @@ class TabAdjustment extends Component {
     super(props)
     this.state = {
       dataRows: [],
+      pendingDataRows: [],
       isFiltered: false,
       filtersLoaded: false,
       isLoading: '',
@@ -36,7 +38,8 @@ class TabAdjustment extends Component {
         salesCenters: [],
         semanasBimbo: [],
         categories: [],
-        filteredSemanasBimbo: []
+        filteredSemanasBimbo: [],
+        periods: []
       },
       formData: {
         period: 1
@@ -49,10 +52,10 @@ class TabAdjustment extends Component {
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: '',
-      byWeek: false,
+      byWeek: true,
       indicators: 'indicators-hide',
-      quantity: 0,
-      percentage: 0,
+      quantity: 100,
+      percentage: 1,
       error: false,
       errorMessage: ''
     }
@@ -312,8 +315,6 @@ class TabAdjustment extends Component {
       this.state.formData
     )
 
-    console.log(data)
-
     this.setState({
       dataRows: this.getEditedRows(data.data),
       isFiltered: true,
@@ -326,14 +327,22 @@ class TabAdjustment extends Component {
 
   getEditedRows(data) {
     for (let row of data) {
+      row.adjustmentForDisplay = row.localAdjustment
+      if (row.adjustmentRequest) {
+        row.adjustmentForDisplay = row.adjustmentRequest.newAdjustment
+      }
+
       if (row.localAdjustment != row.adjustment || row.adjustmentRequest) {
         row.wasEdited = true
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
           var minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
-          row.isLimit = (row.localAdjustment > maxAdjustment || row.localAdjustment < minAdjustment)
+          row.isLimit = (
+            row.adjustmentForDisplay > maxAdjustment || row.adjustmentForDisplay < minAdjustment
+          )
         }
       }
+
     }
     return data
   }
@@ -361,7 +370,7 @@ class TabAdjustment extends Component {
   }
 
   changeAdjustment = async (value, row) => {
-    row.lastLocalAdjustment = row.localAdjustment    
+    row.lastLocalAdjustment = row.adjustmentForDisplay    
     row.newAdjustment = value
     const res = await this.handleChange(row)
     if (!res) {
@@ -554,16 +563,16 @@ class TabAdjustment extends Component {
         return
       }
 
-      let localAdjustment = Math.round(row.localAdjustment)
-      let newAdjustment = localAdjustment + toAdd
-      row.lastLocalAdjustment = row.localAdjustment
+      let adjustmentForDisplayAux = Math.round(row.adjustmentForDisplay)
+      let newAdjustment = adjustmentForDisplayAux + toAdd
+      row.lastLocalAdjustment = row.adjustmentForDisplay
 
       row.newAdjustment = newAdjustment
 
       const res = await this.handleChange(row)
       
       if (!res) {
-        row.localAdjustment = localAdjustment
+        row.adjustmentForDisplay = adjustmentForDisplayAux
       }
     }
   }
@@ -591,16 +600,16 @@ class TabAdjustment extends Component {
         return
       }
 
-      let localAdjustment = Math.round(row.localAdjustment)
-      let newAdjustment = localAdjustment - toAdd
-      row.lastLocalAdjustment = row.localAdjustment
+      let adjustmentForDisplayAux = Math.round(row.adjustmentForDisplay)
+      let newAdjustment = adjustmentForDisplayAux - toAdd
+      row.lastLocalAdjustment = row.adjustmentForDisplay
 
       row.newAdjustment = newAdjustment
 
       const res = await this.handleChange(row)
       
       if (!res) {
-        row.localAdjustment = localAdjustment
+        row.adjustmentForDisplay = adjustmentForDisplayAux
       }
     }
   }
@@ -622,7 +631,7 @@ class TabAdjustment extends Component {
     let minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
 
     obj.newAdjustment = Math.round(obj.newAdjustment)
-    obj.localAdjustment = Math.round(obj.localAdjustment)
+    obj.adjustmentForDisplay = Math.round(obj.adjustmentForDisplay)
 
     if (this.state.generalAdjustment > 0) {
       obj.isLimit = (obj.newAdjustment > maxAdjustment || obj.newAdjustment < minAdjustment)
@@ -634,25 +643,28 @@ class TabAdjustment extends Component {
       obj.adjustmentRequest.status = 'rejected'
     }
 
-    obj.localAdjustment = obj.newAdjustment
+    obj.adjustmentForDisplay = obj.newAdjustment
 
-    try {
-
-      var url = '/app/rows/' + obj.uuid
-      const res = await api.post(url, { ...obj })
-      
+    try { 
       obj.edited = true
+      let { pendingDataRows } = this.state
 
       if (currentRole === 'manager-level-1' && obj.isLimit) {
-        this.showModalAdjustmentRequest(obj)
-        this.notify('No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.WARNING)
-      }
+        // this.showModalAdjustmentRequest(obj)
+        this.notify(
+          'No te puedes pasar de los límites establecidos! Debes pedir una solicitud de ajuste '+
+          'haciendo click sobre el ícono rojo.',
+          5000,
+          toast.TYPE.WARNING
+        )
 
-      else {
+        pendingDataRows.push(obj)
+      } else {
+        var url = '/app/rows/' + obj.uuid
+        const res = await api.post(url, { ...obj })
         this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
       }
-
-
+      
       let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
       let aux = this.state.dataRows
 
@@ -660,6 +672,7 @@ class TabAdjustment extends Component {
 
       this.setState({
         dataRows: aux,
+        pendingDataRows: pendingDataRows,
         isConciliating: ' is-loading'
       })
 
@@ -714,6 +727,21 @@ class TabAdjustment extends Component {
         selectedAR: obj
       })
     }
+  }
+
+  async handleAdjustmentRequest (obj) {
+    if (currentRole === 'manager-level-3') {
+      return
+    }
+
+    obj.localAdjustment = '' + obj.localAdjustment
+    this.setState({
+      classNameAR: ' is-active',
+      selectedAR: obj
+    })
+
+    let res = await api.post(this.props.url, formData)
+
   }
 
   hideModalAdjustmentRequest () {
@@ -813,8 +841,7 @@ class TabAdjustment extends Component {
         noSalesData: e.message + ', intente más tarde'
       })
     }
-    this.getCountEdited()
-    
+    this.getCountEdited() 
   }
 
   async updateSalesTable(row) {
@@ -827,9 +854,9 @@ class TabAdjustment extends Component {
     for (let i = 0; i < salesTable.length; i++) {
 
       if (row.semanaBimbo === parseInt(salesTable[i].week)) {
-        let price = Math.abs((row.localAdjustment - row.lastLocalAdjustment) * row.productPrice)
+        let price = Math.abs((row.adjustmentForDisplay - row.lastLocalAdjustment) * row.productPrice)
 
-        if (row.lastLocalAdjustment > row.localAdjustment) {
+        if (row.lastLocalAdjustment > row.adjustmentForDisplay) {
           price *= -1
         }
 
@@ -906,13 +933,12 @@ class TabAdjustment extends Component {
         category: this.state.formData.categories
       })
 
-      var FileSaver = require('file-saver');
+      
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
       this.notify('Se ha generado el reporte correctamente!', 3000, toast.TYPE.SUCCESS)
     } catch (e) {
-    
       this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
     
       this.setState({
@@ -951,6 +977,7 @@ class TabAdjustment extends Component {
   }
 
   render () {
+    console.log(this.state.pendingDataRows)
     if (this.state.error) {
       return (
         <div className='section columns'>
@@ -981,7 +1008,7 @@ class TabAdjustment extends Component {
       adviseContent =
         <div>
           Se debe agregar al menos un
-                <strong> dataset </strong> para poder generar ajustes.
+          <strong> dataset </strong> para poder generar ajustes.
         </div>
     }
 
@@ -1020,7 +1047,7 @@ class TabAdjustment extends Component {
       )
     }
 
-    if (!this.state.filters.semanasBimbo.length > 0 && this.state.filtersLoaded) {
+    if (!this.state.filters.periods.length > 0 && this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           El proyecto no continene data rows
@@ -1028,7 +1055,7 @@ class TabAdjustment extends Component {
       )
     }
 
-    if (!this.state.filters.semanasBimbo.length > 0 && !this.state.filtersLoaded) {
+    if (!this.state.filters.periods.length > 0 && !this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           Cargando, un momento por favor
@@ -1266,10 +1293,9 @@ class TabAdjustment extends Component {
           </div>
         </div>
           
-          <section>
-          
-            {!this.state.isFiltered
-              ? <article className='message is-primary'>
+        <section>
+          {!this.state.isFiltered
+            ? <article className='message is-primary'>
                 <div className='message-header'>
                   <p>Información</p>
                 </div>
@@ -1277,14 +1303,14 @@ class TabAdjustment extends Component {
                   Debe aplicar un filtro para visualizar información
                 </div>
               </article>
-              : <div>
-                  <section className='section'>
-                    <h1 className='period-info'>
-                      <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getPeriod()} - </span> 
-                      <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
-                    </h1>
-                    {this.getModifyButtons()}
-                  </section>
+            : <div>
+                <section className='section'>
+                  <h1 className='period-info'>
+                    <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getPeriod()} - </span> 
+                    <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
+                  </h1>
+                  {this.getModifyButtons()}
+                </section>
                 {
                   !this.state.byWeek ?
 
@@ -1296,7 +1322,9 @@ class TabAdjustment extends Component {
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
-                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }} />
+                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }}
+                      handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }} 
+                    />
                     :
 
                     <WeekTable
@@ -1307,12 +1335,14 @@ class TabAdjustment extends Component {
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
-                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }} />
+                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }}
+                      handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
+                    />
                 }
               </div>
-            }
-          </section>
-        </div>
+          }
+        </section>
+      </div>
     )
   }
 }
