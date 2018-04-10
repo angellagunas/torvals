@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Line } from 'react-chartjs-2'
+import { Line, Chart } from 'react-chartjs-2'
 
 class Graph extends Component {
   constructor (props) {
@@ -40,6 +40,7 @@ class Graph extends Component {
   }
 
   componentWillMount () {
+    Chart.boxWidth = 50
     this.getData()
   }
 
@@ -61,8 +62,16 @@ class Graph extends Component {
 
   render () {
     return (
-      <div>
-        <Line data={this.state.data} width={this.props.width} height={this.props.height} />
+      <div className='chart-container'>
+        <Line
+          data={this.state.data}
+          /* width={this.props.width}
+          height={this.props.height} */
+          options={{
+            responsive: true,
+            responsiveAnimationDuration: 1,
+            maintainAspectRatio: true
+          }} />
       </div>
     )
   }

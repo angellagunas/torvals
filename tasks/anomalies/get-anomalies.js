@@ -4,8 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { Product, Channel, DataSet, Anomaly, SalesCenter, Project } = require('models')
-const request = require('lib/request')
+const { Product, Channel, Anomaly, SalesCenter, Project } = require('models')
 const moment = require('moment')
 
 const task = new Task(async function (argv) {
@@ -14,28 +13,18 @@ const task = new Task(async function (argv) {
   }
   console.log('Fetching Anomalies ...')
 
-  console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
   const project = await Project.findOne({uuid: argv.uuid}).populate('activeDataset')
   if (!project) {
     throw new Error('Project not found')
   }
 
-  var options = {
-    url: `${apiData.hostname}${apiData.baseUrl}/anomalies/projects/${project.externalId}`,
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${apiData.token}`
-    },
-    body: {},
-    json: true,
-    persist: true
+  try {
+    var res = await Api.getAnomalies(project.externalId)
+  } catch (e) {
+    console.log(e.message)
+    return false
   }
 
-  var res = await request(options)
   if (!project.activeDataset) {
     return false
   }

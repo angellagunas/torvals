@@ -50,7 +50,7 @@ predictionSchema.methods.toPublic = function () {
   }
 }
 
-predictionSchema.methods.format = function () {
+predictionSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,
     dateCreated: this.dateCreated,

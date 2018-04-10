@@ -25,7 +25,7 @@ module.exports = new Route({
     group.save()
 
     ctx.body = {
-      data: group.format()
+      data: group.toPublic()
     }
   }
 })

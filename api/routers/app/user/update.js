@@ -34,7 +34,7 @@ module.exports = new Route({
     await user.save()
 
     ctx.body = {
-      data: user.format()
+      data: user.toPublic()
     }
   }
 })

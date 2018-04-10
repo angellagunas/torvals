@@ -13,6 +13,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     var datasetRowId = ctx.params.uuid
     var data = ctx.request.body
+    console.log(data)
 
     const datasetRow = await DataSetRow.findOne({
       'uuid': datasetRowId,
@@ -21,8 +22,8 @@ module.exports = new Route({
     })
     ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
 
-    if (parseFloat(datasetRow.data.localAdjustment) !== parseFloat(data.localAdjustment)) {
-      datasetRow.data.localAdjustment = data.localAdjustment
+    if (parseFloat(datasetRow.data.adjustmentForDisplay) !== parseFloat(data.localAdjustment)) {
+      datasetRow.data.localAdjustment = data.adjustmentForDisplay
       datasetRow.data.updatedBy = ctx.state.user
       datasetRow.status = 'sendingChanges'
       datasetRow.markModified('data')
@@ -31,7 +32,7 @@ module.exports = new Route({
     }
 
     ctx.body = {
-      data: datasetRow.format()
+      data: datasetRow.toPublic()
     }
   }
 })

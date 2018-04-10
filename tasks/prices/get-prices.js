@@ -6,7 +6,6 @@ require('lib/databases/mongo')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { Price, Product, Channel, Organization } = require('models')
-const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   const organization = await Organization.findOne({uuid: argv.uuid})
@@ -16,28 +15,23 @@ const task = new Task(async function (argv) {
   }
   console.log('Fetching Prices ...')
 
-  console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
-
-  var options = {
-    url: `${apiData.hostname}${apiData.baseUrl}/prices/organizations/all`,
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${apiData.token}`
-    },
-    body: {},
-    json: true,
-    persist: true
+  try {
+    var res = await Api.getPrices()
+  } catch (e) {
+    console.log('error' + e.message)
+    return false
   }
 
-  var res = await request(options)
-
   for (var p of res._items) {
-    var price = await Price.findOne({externalId: p._id})
-    var product = await Product.findOne({externalId: p.producto_id})
+    var price = await Price.findOne({
+      externalId: p._id,
+      organization: organization._id
+    })
+    var product = await Product.findOne({
+      externalId: p.producto_id,
+      organization: organization._id
+    })
+
     if (!product) {
       product = await Product.create({
         name: 'Not identified',
@@ -46,8 +40,19 @@ const task = new Task(async function (argv) {
         isNewExternal: true
       })
     }
-    var channel = await Channel.findOne({externalId: p.canal_id})
-    if (!channel) { channel = {_id: null} }
+
+    var channel = await Channel.findOne({
+      externalId: p.canal_id,
+      organization: organization._id
+    })
+    if (!channel) {
+      channel = await Channel.create({
+        name: 'Not identified',
+        externalId: p.canal_id,
+        organization: organization._id,
+        isNewExternal: true
+      })
+    }
 
     if (!price) {
       price = await Price.create({

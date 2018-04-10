@@ -10,13 +10,12 @@ const groupSchema = new Schema({
   slug: { type: String },
   users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
+  channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true })
-
-groupSchema.plugin(dataTables)
 
 groupSchema.methods.toPublic = function () {
   return {
@@ -29,7 +28,7 @@ groupSchema.methods.toPublic = function () {
   }
 }
 
-groupSchema.methods.format = function () {
+groupSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,
     name: this.name,
@@ -38,5 +37,12 @@ groupSchema.methods.format = function () {
     organization: this.organization
   }
 }
+
+groupSchema.plugin(dataTables, {
+  formatters: {
+    toAdmin: (group) => group.toAdmin(),
+    toPublic: (group) => group.toPublic()
+  }
+})
 
 module.exports = mongoose.model('Group', groupSchema)

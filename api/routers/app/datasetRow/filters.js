@@ -25,7 +25,7 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    var rows = await DataSetRow.find({isDeleted: false, dataset: dataset})
+    var rows = await DataSetRow.find({isDeleted: false, dataset: dataset._id})
 
     var semanasBimbo = Array.from(new Set(rows.map(item => { return item.data.semanaBimbo })))
     var channels = Array.from(new Set(rows.map(item => { return String(item.channel) })))
@@ -50,7 +50,8 @@ module.exports = new Route({
     ) {
       var groups = user.groups
 
-      salesCenters = await SalesCenter.find({groups: {$in: groups}})
+      salesCenters = await SalesCenter.find({groups: {$in: groups}, organization: currentOrganization.organization._id})
+      channels = await Channel.find({groups: {$in: groups}, organization: currentOrganization.organization._id})
     }
 
     semanasBimbo.sort((a, b) => {
@@ -59,8 +60,8 @@ module.exports = new Route({
 
     var dates = await AbraxasDate.find({
       week: {$in: semanasBimbo},
-      dateStart: {$lte: moment(dataset.dateMax)}
-    }).sort('dateStart').limit(semanasBimbo.length)
+      dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin)}
+    }).sort('-dateStart').limit(semanasBimbo.length)
 
     dates = dates.map(item => {
       return {

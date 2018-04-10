@@ -284,7 +284,7 @@ class ContainerTable extends Component {
 
     if ((currentRole === 'manager-level-2' || currentRole === 'manager-level-1')) {
       if (data.adjustment > maxAdjustment || data.adjustment < minAdjustment) {
-        this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)
+        this.notify(' No te puedes pasar de los límites establecidos!', 5000, toast.TYPE.ERROR)
         return false
       }
     }
@@ -300,7 +300,7 @@ class ContainerTable extends Component {
       (item) => data.uuid === item.uuid ? data : item
     )
 
-    this.notify('Ajuste guardado!', 3000, toast.TYPE.SUCCESS)
+    this.notify('Ajuste guardado!', 5000, toast.TYPE.SUCCESS)
 
     this.setState({
       predictionsFormatted,
@@ -530,7 +530,7 @@ class ContainerTable extends Component {
     })
   }
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,

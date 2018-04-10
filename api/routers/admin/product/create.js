@@ -29,7 +29,7 @@ module.exports = new Route({
     })
 
     ctx.body = {
-      data: product.format()
+      data: product.toAdmin()
     }
   }
 })

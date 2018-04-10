@@ -15,10 +15,8 @@ module.exports = new Route({
 
     const product = await Product.findOne({uuid: data.product})
     ctx.assert(product, 404, 'Producto no encontrado')
-    console.log(product)
     const channel = await Channel.findOne({uuid: data.channel})
     ctx.assert(channel, 404, 'Canal no encontrado')
-    console.log(channel)
     const price = await Price.create({
 
       externalId: data.externalId,

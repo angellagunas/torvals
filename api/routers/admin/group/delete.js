@@ -19,12 +19,18 @@ module.exports = new Route({
       await user.save()
     }
 
-    group.set({users: []})
+    for (var channel of group.channels) {
+      pos = channel.groups.indexOf(group._id)
+      channel.groups.splice(pos, 1)
+      await channel.save()
+    }
+
+    group.set({users: [], channels: []})
 
     await group.save()
 
     ctx.body = {
-      data: group.format()
+      data: group.toAdmin()
     }
   }
 })

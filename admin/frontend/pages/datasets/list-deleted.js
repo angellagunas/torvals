@@ -6,7 +6,7 @@ import api from '~base/api'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import { ToastContainer, toast } from 'react-toastify'
 import Breadcrumb from '~base/components/base-breadcrumb'
 
@@ -36,7 +36,7 @@ class DeletedDataSets extends Component {
     } catch (e) {
       this.notify(
         'El proyecto de este dataset esta eliminado, primero restaure el proyecto',
-        3000,
+        5000,
         toast.TYPE.ERROR
       )
     }
@@ -85,7 +85,7 @@ class DeletedDataSets extends Component {
     ]
   }
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,

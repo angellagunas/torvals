@@ -18,6 +18,7 @@ const DataSetRow = require('./dataset-row')
 const AbraxasDate = require('./abraxas-date')
 const Price = require('./price')
 const Anomaly = require('./anomaly')
+const Token = require('./token')
 // #Import
 
 module.exports = {
@@ -40,5 +41,6 @@ module.exports = {
   AbraxasDate,
   Channel,
   Price,
-  Anomaly// #Exports
+  Anomaly,
+  Token// #Exports
 }

@@ -9,6 +9,9 @@ import ChannelForm from './create-form'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
+import Multiselect from '~base/components/base-multiselect'
+import FontAwesome from 'react-fontawesome'
+import { ToastContainer, toast } from 'react-toastify'
 
 class ChannelDetail extends Component {
   constructor (props) {
@@ -19,7 +22,9 @@ class ChannelDetail extends Component {
       channel: {},
       roles: 'admin, orgadmin, analyst, manager-level-2',
       canEdit: false,
-      isLoading: ''
+      isLoading: '',
+      groups: [],
+      selectedGroups: []
     }
   }
 
@@ -36,8 +41,11 @@ class ChannelDetail extends Component {
       this.setState({
         loading: false,
         loaded: true,
-        channel: body.data
+        channel: body.data,
+        selectedGroups: [...body.data.groups]
       })
+
+      this.loadGroups()
     } catch (e) {
       await this.setState({
         loading: false,
@@ -45,6 +53,129 @@ class ChannelDetail extends Component {
         notFound: true
       })
     }
+  }
+
+  async loadGroups () {
+    var url = '/app/groups'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      groups: body.data
+    })
+  }
+  getSavingMessage () {
+    let {saving, saved} = this.state
+
+    if (saving) {
+      return (
+        <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
+          Guardando <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
+        </p>
+      )
+    }
+
+    if (saved) {
+      if (this.savedTimeout) {
+        clearTimeout(this.savedTimeout)
+      }
+
+      this.savedTimeout = setTimeout(() => {
+        this.setState({
+          saved: false
+        })
+      }, 500)
+
+      return (
+        <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
+          Guardado
+        </p>
+      )
+    }
+  }
+
+  async availableGroupOnClick (uuid) {
+    this.setState({
+      saving: true
+    })
+
+    var selected = this.state.selectedGroups
+    var group = this.state.groups.find(item => { return item.uuid === uuid })
+
+    if (selected.findIndex(item => { return item.uuid === uuid }) !== -1) {
+      return
+    }
+
+    selected.push(group)
+
+    this.setState({
+      selectedGroups: selected
+    })
+
+    var url = '/app/channels/' + this.props.match.params.uuid + '/add/group'
+
+    try {
+      await api.post(url,
+        {
+          group: uuid
+        }
+        )
+    } catch (e) {
+      var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
+      var selectedRemove = this.state.selectedGroups
+      selectedRemove.splice(index, 1)
+      this.notify(
+        e.message,
+        5000,
+        toast.TYPE.ERROR
+      )
+    }
+
+    setTimeout(() => {
+      this.setState({
+        saving: false,
+        saved: true
+      })
+    }, 300)
+  }
+
+  async assignedGroupOnClick (uuid) {
+    this.setState({
+      saving: true
+    })
+
+    var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
+    var selected = this.state.selectedGroups
+
+    if (index === -1) {
+      return
+    }
+
+    selected.splice(index, 1)
+
+    this.setState({
+      selectedGroups: selected
+    })
+
+    var url = '/app/channels/' + this.props.match.params.uuid + '/remove/group'
+    await api.post(url,
+      {
+        group: uuid
+      }
+    )
+
+    setTimeout(() => {
+      this.setState({
+        saving: false,
+        saved: true
+      })
+    }, 300)
   }
 
   async deleteObject () {
@@ -65,6 +196,24 @@ class ChannelDetail extends Component {
     this.setState({ isLoading: '' })
   }
 
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
+  }
+
   render () {
     if (this.state.notFound) {
       return <NotFound msg='este canal' />
@@ -82,8 +231,46 @@ class ChannelDetail extends Component {
 
     }
 
+    const availableList = this.state.groups.filter(item => {
+      return (this.state.selectedGroups.findIndex(group => {
+        return group.uuid === item.uuid
+      }) === -1)
+    })
+
+    let groupField
+    if (testRoles('analyst') || testRoles('orgadmin')) {
+      groupField = <div className='column'>
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                          Grupos
+                        </p>
+                <div>
+                  {this.getSavingMessage()}
+                </div>
+              </header>
+              <div className='card-content'>
+                <Multiselect
+                  availableTitle='Disponible'
+                  assignedTitle='Asignado'
+                  assignedList={this.state.selectedGroups}
+                  availableList={availableList}
+                  dataFormatter={(item) => { return item.name || 'N/A' }}
+                  availableClickHandler={this.availableGroupOnClick.bind(this)}
+                  assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                        />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
     return (
       <div className='columns c-flex-1 is-marginless'>
+        <ToastContainer />
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
@@ -162,6 +349,7 @@ class ChannelDetail extends Component {
                   </div>
                 </div>
               </div>
+              {groupField}
             </div>
           </div>
         </div>

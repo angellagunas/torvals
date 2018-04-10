@@ -16,7 +16,7 @@ module.exports = new Route({
     ctx.assert(product, 404, 'Producto no encontrado')
 
     ctx.body = {
-      data: product.format()
+      data: product.toPublic()
     }
   }
 })

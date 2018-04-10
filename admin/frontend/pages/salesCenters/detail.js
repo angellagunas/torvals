@@ -9,7 +9,7 @@ import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProjectForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
@@ -342,33 +342,6 @@ class SalesCenterDetail extends Component {
                       availableClickHandler={this.availableGroupOnClick.bind(this)}
                       assignedClickHandler={this.assignedGroupOnClick.bind(this)}
                         />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='columns'>
-              <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Predicciones
-                        </p>
-                      </header>
-                      <div className='card-content'>
-                        <div className='columns'>
-                          <div className='column'>
-                            <BranchedPaginatedTable
-                              branchName='forecasts'
-                              baseUrl='/admin/forecasts/'
-                              columns={this.getColumns()}
-                              filters={{salesCenter: this.state.salesCenter.uuid}}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>

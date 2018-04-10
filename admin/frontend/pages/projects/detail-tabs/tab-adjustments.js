@@ -14,6 +14,9 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 
+import WeekTable from './week-table'
+import ProductTable from './product-table'
+
 moment.locale('es');
 
 class TabAdjustment extends Component {
@@ -24,7 +27,6 @@ class TabAdjustment extends Component {
       isFiltered: false,
       filtersLoaded: false,
       isLoading: '',
-      selectedAll: false,
       modified: 0,
       pending: 0,
       filters: {
@@ -47,7 +49,9 @@ class TabAdjustment extends Component {
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: '',
-      sortAscending: true            
+      byWeek: false,
+      error: false,
+      errorMessage: ''
     }
 
     this.interval = null
@@ -79,92 +83,133 @@ class TabAdjustment extends Component {
   async getFilters () {
     if (this.props.project.activeDataset) {
       const url = '/admin/rows/filters/dataset/'
-      let res = await api.get(url + this.props.project.activeDataset.uuid)
+      try {
+        let res = await api.get(url + this.props.project.activeDataset.uuid)
 
-      var maxDate = moment.utc(this.props.project.activeDataset.dateMax)
-      var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
-      var dates = []
-      var periods = []
-      var adjustments = {
-        '1': 10,
-        '2': 20,
-        '3': 30,
-        '4': -1
+        if (res.dates.length === 0) {
+          this.notify(
+            'Error! No hay fechas disponibles. Favor de cargar las fechas de Abraxas.',
+            5000,
+            toast.TYPE.ERROR
+          )
+
+          this.setState({
+            error: true,
+            errorMessage: 'No hay fechas disponibles. Favor de cargar las fechas de Abraxas.'
+          })
+          return
+        }
+
+        if (res.dates.length < res.semanasBimbo.length) {
+          this.notify(
+            'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
+            ' correctamente. Favor de cargar las fechas de Abraxas.',
+            5000,
+            toast.TYPE.ERROR
+          )
+        }
+
+        var dates = []
+        var periods = []
+        var adjustments = {
+          '1': 10,
+          '2': 20,
+          '3': 30,
+          '4': -1
+        }
+
+        var maxDate = res.dates[0]
+        var maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period4 = res.dates.slice(0, maxDateEnd)
+
+        var lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period3 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
+
+        lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period2 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
+
+        lastMaxDateEnd = maxDateEnd
+        maxDate = res.dates[maxDateEnd]
+        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
+        if (maxDateEnd === -1) maxDateEnd = res.dates.length
+        var period1 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
+
+
+        if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
+          adjustments = this.props.project.businessRules.adjustments
+        }
+
+        periods.push({
+          number: period4[0].month,
+          name: `Periodo ${moment(period4[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['4'],
+          maxSemana: period4[0].week,
+          minSemana: period4[period4.length - 1].week
+        })
+
+        periods.push({
+          number: period3[0].month,
+          name: `Periodo ${moment(period3[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['3']/100,
+          maxSemana: period3[0].week,
+          minSemana: period3[period4.length - 1].week
+        })
+
+        periods.push({
+          number: period2[0].month,
+          name: `Periodo ${moment(period2[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['2']/100,
+          maxSemana: period2[0].week,
+          minSemana: period2[period4.length - 1].week
+        })
+
+        periods.push({
+          number: period1[0].month,
+          name: `Periodo ${moment(period1[0].month, 'M').format('MMMM')}`,
+          adjustment: adjustments['1']/100,
+          maxSemana: period1[0].week,
+          minSemana: period1[period4.length - 1].week
+        })
+
+        var filteredSemanasBimbo = Array.from(Array(4), (_,x) => period1[0].week - x).reverse()
+
+        this.setState({
+          filters: {
+            channels: res.channels,
+            products: res.products,
+            salesCenters: res.salesCenters,
+            semanasBimbo: res.semanasBimbo,
+            filteredSemanasBimbo: filteredSemanasBimbo,
+            dates: res.dates,
+            categories: this.getCategory(res.products),
+            periods: periods
+          },
+          formData: {
+            semanasBimbo: filteredSemanasBimbo[0],
+            period: period1[0].month
+          },
+          filtersLoaded: true
+        }, () => {
+          this.getDataRows()
+        })
+      } catch (e) {
+        this.setState({
+          error: true,
+          errorMessage: 'No se pudieron cargar los filtros!'
+        })
+        this.notify(
+          'Ha habido un error al obtener los filtros!',
+          5000,
+          toast.TYPE.ERROR
+        )
       }
-
-
-      if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
-        adjustments = this.props.project.businessRules.adjustments
-      }
-
-      for (var i = 0; i < 16; i++) {
-        dates.push(moment(maxDate.format()))
-        maxDate.subtract(7, 'days')
-      }
-
-      dates.reverse()
-
-      var period4 = dates.slice(12,16)
-      var period3 = dates.slice(8,12)
-      var period2 = dates.slice(4,8)
-      var period1 = dates.slice(0,4)
-
-      periods.push({
-        number: 4,
-        name: `Periodo ${period4[0].format('MMMM')}`,
-        adjustment: adjustments['4'],
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
-
-      periods.push({
-        number: 3,
-        name: `Periodo ${period3[0].format('MMMM')}`,
-        adjustment: adjustments['3']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
-
-      periods.push({
-        number: 2,
-        name: `Periodo ${period2[0].format('MMMM')}`,
-        adjustment: adjustments['2']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-      maxSemana = maxSemana - 4
-
-      periods.push({
-        number: 1,
-        name: `Periodo ${period1[0].format('MMMM')}`,
-        adjustment: adjustments['1']/100,
-        maxSemana: maxSemana,
-        minSemana: maxSemana - 3
-      })
-
-      var filteredSemanasBimbo = Array.from(Array(4), (_,x) => maxSemana - x).reverse()
-
-      this.setState({
-        filters: {
-          channels: res.channels,
-          products: res.products,
-          salesCenters: res.salesCenters,
-          semanasBimbo: res.semanasBimbo,
-          filteredSemanasBimbo: filteredSemanasBimbo,
-          dates: res.dates,
-          categories: this.getCategory(res.products),
-          periods: periods
-        },
-        formData: {
-          semanasBimbo: filteredSemanasBimbo[0],
-          period: 1
-        },
-        filtersLoaded: true
-      }, () => {
-        this.getDataRows()
-      })
     }
   }
 
@@ -210,16 +255,14 @@ class TabAdjustment extends Component {
       var period = this.state.filters.periods.find(item => {
         return item.number === e.formData.period
       })
+      let filters = this.state.filters
 
-      var filteredSemanasBimbo = Array.from(Array(4), (_,x) => period.maxSemana - x).reverse()
+      filters.filteredSemanasBimbo = Array.from(Array(4), (_,x) => period.maxSemana - x).reverse()
 
       this.setState({
-        filters: {
-          ...this.state.filters,
-          filteredSemanasBimbo: filteredSemanasBimbo
-        },
+        filters: filters,
         formData: {
-          semanasBimbo: filteredSemanasBimbo[0],
+          semanasBimbo: filters.filteredSemanasBimbo[0],
           products: e.formData.products,
           channels: e.formData.channels,
           salesCenters: e.formData.salesCenters,
@@ -247,8 +290,8 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows () {
-    if (!this.state.formData.period || !this.state.formData.semanasBimbo) {
-      this.notify('Se debe filtrar por semana!', 3000, toast.TYPE.ERROR)
+    if (!this.state.formData.period) {
+      this.notify('Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
       return
     }
 
@@ -266,11 +309,12 @@ class TabAdjustment extends Component {
     const url = '/admin/rows/dataset/'
     let data = await api.get(url + this.props.project.activeDataset.uuid,
       {
-        semanaBimbo: this.state.formData.semanasBimbo,
+        //semanaBimbo: this.state.formData.semanasBimbo,
         product: this.state.formData.products,
         channel: this.state.formData.channels,
         salesCenter: this.state.formData.salesCenters,
-        category: this.state.formData.categories
+        category: this.state.formData.categories,
+        period: this.state.formData.period
       })
 
     this.setState({
@@ -298,207 +342,17 @@ class TabAdjustment extends Component {
     return data
   }
 
-  getColumns () {
-    return [
-      {
-        'title': 'Id',
-        'property': 'productId',
-        'default': 'N/A',
-        'sortable': true,        
-        formatter: (row) => {
-          return String(row.productId)
-        }
-      },
-      {
-        'title': 'Producto',
-        'property': 'productName',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.productName)
-        }
-      },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.salesCenter)
-        }
-      },
-      {
-        'title': 'Canal',
-        'abbreviate': true,
-        'abbr': 'Canal',
-        'property': 'channel',
-        'default': 'N/A',
-        'sortable': true,        
-        formatter: (row) => {
-          return String(row.channel)
-        }
-      },
-      {
-        'title': 'Semana',
-        'property': 'semanaBimbo',
-        'default': 'N/A',
-        'sortable': true,        
-        formatter: (row) => {
-          return String(row.semanaBimbo)
-        }
-      },
-      {
-        'title': 'Predicción',
-        'property': 'prediction',
-        'default': 0,
-        'sortable': true,        
-        formatter: (row) => {
-          return String(row.prediction)
-        }
-      },
-     /*  {
-        'title': 'Ajuste Anterior',
-        'property': 'lastAdjustment',
-        'default': 0,
-        formatter: (row) => {
-          if (row.lastAdjustment) {
-            return row.lastAdjustment
-          }
-        }
-      }, */
-      {
-        'title': 'Ajuste',
-        'property': 'localAdjustment',
-        'default': 0,
-        'type': 'number',
-        'className': 'keep-cell',
-        'sortable': true,        
-        formatter: (row) => {
-          if (!row.localAdjustment) {
-            row.localAdjustment = 0
-          }
-
-          return (
-            <Editable
-              value={row.localAdjustment}
-              handleChange={this.changeAdjustment}
-              type='number'
-              obj={row}
-              width={100}
-            />
-          )
-        }
-      },
-      {
-        'title': 'Rango Ajustado',
-        'subtitle': this.state.generalAdjustment < 0 ? 'ilimitado'
-            :
-           `máximo: ${(this.state.generalAdjustment * 100)} %`
-        ,
-        'property': 'percentage',
-        'default': 0,
-        'type': 'number',
-        'sortable': true,        
-        'className': 'keep-cell',
-        formatter: (row) => {
-          let percentage = ((row.localAdjustment - row.prediction) / row.prediction) * 100
-          row.percentage = percentage                            
-          return Math.round(percentage) + ' %'
-        }
-      },
-      {
-        'title': 'Seleccionar Todo',
-        'abbreviate': true,
-        'abbr': (() => {
-          return (
-            <Checkbox
-              label='checkAll'
-              handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
-              key='checkAll'
-              checked={this.state.selectedAll}
-              hideLabel />
-          )
-        })(),
-        'property': 'checkbox',
-        'default': '',
-        formatter: (row) => {
-          if(!row.selected){
-            row.selected = false
-          }
-          return (
-            <Checkbox
-              label={row}
-              handleCheckboxChange={this.toggleCheckbox}
-              key={row}
-              checked={row.selected}
-              hideLabel />
-          )
-        }
-      },
-      {
-        'title': '',
-        'abbreviate': true,
-        'abbr': (() => {
-          return (
-            <div className='is-invisible'>
-              <span
-                className='icon'
-                title='límite'
-              >
-                <FontAwesome name='warning fa-lg' />
-              </span>
-            </div>
-          )
-        })(),
-        'property': 'isLimit',
-        'default': '',
-        formatter: (row) => {
-          if (row.isLimit && !row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-danger'
-                title='No es posible ajustar más allá al límite!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning fa-lg' />
-              </span>
-            )
-          }
-
-          if (row.isLimit && row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-warning'
-                title='Ya se ha pedido un cambio a esta predicción!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='info-circle fa-lg' />
-              </span>
-            )
-          }
-          return ''
-        }
-      }
-    ]
-  }
-
-  checkAll = (check) => {
-    for (let row of this.state.filteredData) {
-      this.toggleCheckbox(row, check)
-    }
-    this.setState({ selectedAll: check }, function () {
+  checkAll = (checked) => {
+    this.setState({
+      selectedCheckboxes: checked
+    }, 
+    function () {
       this.toggleButtons()
     })
   }
 
-  toggleCheckbox = (row, all) => {
-    if (this.state.selectedCheckboxes.has(row) && !all) {
+  toggleCheckbox = (row) => {
+    if (this.state.selectedCheckboxes.has(row)) {
       this.state.selectedCheckboxes.delete(row)
       row.selected = false
     }
@@ -506,7 +360,7 @@ class TabAdjustment extends Component {
       this.state.selectedCheckboxes.add(row)
       row.selected = true
     }
-
+    
     this.toggleButtons()
   }
 
@@ -628,7 +482,6 @@ class TabAdjustment extends Component {
 
   toggleButtons () {
     let disable = true
-
     if (this.state.selectedCheckboxes.size > 0)
       disable = false
 
@@ -648,6 +501,12 @@ class TabAdjustment extends Component {
       obj.isLimit = (obj.localAdjustment > maxAdjustment || obj.localAdjustment < minAdjustment)
     }
 
+    if (obj.isLimit && obj.adjustmentRequest && 
+        (obj.adjustmentRequest.status === 'approved' ||
+         obj.adjustmentRequest.status === 'created')){
+      obj.adjustmentRequest.status = 'rejected'
+    }
+
     var url = '/admin/rows/' + obj.uuid
     const res = await api.post(url, {...obj})
 
@@ -665,12 +524,12 @@ class TabAdjustment extends Component {
 
     await this.updateSalesTable(obj)
     
-    this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
+    this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
 
     return true
   }
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -705,7 +564,8 @@ class TabAdjustment extends Component {
 
   async finishUpAdjustmentRequest (res) {
     if (res && res.data === 'OK') {
-      this.state.selectedAR.adjustmentRequest = true
+      this.state.selectedAR.localAdjustment = parseInt(this.state.selectedAR.localAdjustment)
+      this.state.selectedAR.adjustmentRequest = {status: 'created'}
     }
     
     this.setState({
@@ -713,7 +573,7 @@ class TabAdjustment extends Component {
     })
   }
 
-  searchDatarows() {
+  async searchDatarows() {
     const items = this.state.dataRows.map((item) => {
       if (this.state.searchTerm === ''){
         return item
@@ -727,9 +587,10 @@ class TabAdjustment extends Component {
     })
     .filter(function(item){ return item != null });
 
-    this.setState({
+    await this.setState({
       filteredData: items
     })
+    
   }
 
   searchOnChange = (e) => {
@@ -758,7 +619,7 @@ class TabAdjustment extends Component {
       await api.post(url)
       await this.props.load()
     } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
 
     this.setState({
@@ -805,7 +666,7 @@ class TabAdjustment extends Component {
         })
       }
     } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)      
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)      
       this.setState({
         noSalesData: e.message + ', intente más tarde'
       })
@@ -848,6 +709,7 @@ class TabAdjustment extends Component {
     }
 
   }
+
   loadTable () {
     if (!this.state.noSalesData){
       return (
@@ -868,7 +730,7 @@ class TabAdjustment extends Component {
 
   async downloadReport () {
     if (!this.state.formData.salesCenters) {
-      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 3000, toast.TYPE.ERROR)
+      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
 
       return
     }
@@ -902,14 +764,14 @@ class TabAdjustment extends Component {
       })
 
       var FileSaver = require('file-saver');
-      var blob = new Blob(res.split(''), {type: "text/csv;charset=utf-8"});
+      var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
-      this.notify('Se ha generado el reporte correctamente!', 3000, toast.TYPE.SUCCESS)
+      this.notify('Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
       console.log('error',e.message)
       
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       
       this.setState({
         isLoading: '',
@@ -919,35 +781,39 @@ class TabAdjustment extends Component {
     }
   }
 
-  handleSort(e){
-    let sorted = this.state.filteredData
-    
-    if (e === 'productId'){
-          if (this.state.sortAscending){
-            sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
-          }
-          else{
-            sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })                        
-          }
-    }
-    else{
-      if (this.state.sortAscending){
-        sorted = _.orderBy(sorted,[e], ['asc'])
-              
-      }
-      else{
-        sorted = _.orderBy(sorted,[e], ['desc'])    
-      }
-    }
-    
+  showByWeek = () => {
+    this.uncheckAll()
     this.setState({
-      filteredData: sorted,
-      sortAscending: !this.state.sortAscending,
-      sortBy: e
+      byWeek: true
+    })
+  }
+
+  showByProduct = () => {
+    this.uncheckAll()
+    this.setState({
+      byWeek: false
     })
   }
 
   render () {
+    if (this.state.error) {
+      return (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-danger">
+              <div className="message-header">
+                <p>Error</p>
+                <button className="delete" aria-label="delete"></button>
+              </div>
+              <div className="message-body">
+                {this.state.errorMessage}
+              </div>
+            </article>
+          </div>
+        </div>
+      )
+    }
+
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
     if (dataSetsNumber) {
@@ -1095,7 +961,7 @@ class TabAdjustment extends Component {
       schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
       schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
     }
-    
+
     return (
       <div>
         <div className='section'>
@@ -1184,7 +1050,7 @@ class TabAdjustment extends Component {
                         <td>
                           $ {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })}}
+                          })}
                           </td>
                         <th>
                           Total
@@ -1192,7 +1058,7 @@ class TabAdjustment extends Component {
                         <td>
                           $ {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
                               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })}}
+                          })}
                         </td>
                       </tr>
                     </tbody>
@@ -1242,17 +1108,28 @@ class TabAdjustment extends Component {
                 </article>
               : <div>
                   {this.getModifyButtons()}
-                <div className='scroll-table'>
-                  <div className='scroll-table-container'>
-                    <BaseTable
+                {
+                  !this.state.byWeek ?
+                    
+                    <ProductTable
+                      show={this.showByWeek}
                       data={this.state.filteredData}
-                      columns={this.getColumns()}
-                      sortAscending={this.state.sortAscending}
-                      sortBy={this.state.sortBy}
-                      handleSort={(e) => this.handleSort(e)}
-                    />
-                  </div>
-                </div>
+                      checkAll={this.checkAll}
+                      toggleCheckbox={this.toggleCheckbox}
+                      changeAdjustment={this.changeAdjustment}
+                      generalAdjustment={this.state.generalAdjustment}
+                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }} />
+                    :
+
+                    <WeekTable
+                      show={this.showByProduct}
+                      data={this.state.filteredData}
+                      checkAll={this.checkAll}
+                      toggleCheckbox={this.toggleCheckbox}
+                      changeAdjustment={this.changeAdjustment}
+                      generalAdjustment={this.state.generalAdjustment}
+                      showModalAdjustmentRequest={(row) => {this.showModalAdjustmentRequest(row)}} />
+                }
               </div>
             }
           </section>

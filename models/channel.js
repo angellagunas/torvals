@@ -11,12 +11,35 @@ const channelSchema = new Schema({
   dateCreated: { type: Date, default: moment.utc },
   isDeleted: { type: Boolean, default: false },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
   isNewExternal: { type: Boolean, default: false }
-})
+}, { usePushEach: true })
 
 channelSchema.plugin(dataTables)
 
 channelSchema.methods.toPublic = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    externalId: this.externalId,
+    dateCreated: this.dateCreated,
+    organization: this.organization,
+    groups: this.groups
+  }
+}
+
+channelSchema.methods.toAdmin = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    externalId: this.externalId,
+    dateCreated: this.dateCreated,
+    organization: this.organization,
+    groups: this.groups
+  }
+}
+
+channelSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,
     name: this.name,

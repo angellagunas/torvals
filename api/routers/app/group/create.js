@@ -22,7 +22,7 @@ module.exports = new Route({
     const group = await Group.create(data)
 
     ctx.body = {
-      data: group.format()
+      data: group.toPublic()
     }
   }
 })

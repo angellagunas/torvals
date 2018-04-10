@@ -61,11 +61,11 @@ module.exports = new Route({
 
     adjustmentRequests.data = adjustmentRequests.data.map(item => {
       return {
-        ...item.format(),
-        requestedBy: item.requestedBy.format(),
-        approvedBy: item.approvedBy ? item.approvedBy.format() : undefined,
-        rejectedBy: item.rejectedBy ? item.rejectedBy.format() : undefined,
-        datasetRow: item.datasetRow.format()
+        ...item.toAdmin(),
+        requestedBy: item.requestedBy.toAdmin(),
+        approvedBy: item.approvedBy ? item.approvedBy.toAdmin() : undefined,
+        rejectedBy: item.rejectedBy ? item.rejectedBy.toAdmin() : undefined,
+        datasetRow: item.datasetRow.toAdmin()
       }
     })
 

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Loader from '~base/components/spinner'
+import { testRoles } from '~base/tools'
 
 import api from '~base/api'
 
@@ -216,6 +217,20 @@ class InviteUserForm extends Component {
       schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
     }
 
+    if (testRoles('manager-level-3')) {
+      delete uiSchema['role']
+      delete schema.properties['role']
+      delete schema.properties['project']
+      delete uiSchema['project']
+      delete this.state.formData['project']
+      schema.required = ['email', 'name']
+    }
+
+    if (testRoles('manager-level-2')) {
+      delete schema.properties.group
+      delete uiSchema.group
+    }
+
     return (
       <div>
         <BaseForm
@@ -228,7 +243,7 @@ class InviteUserForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Se ha enviado la invitación correctamente!
+              Se ha enviado la invitación correctamente! La invitación estará vigente durante 24 horas.
             </div>
           </div>
 

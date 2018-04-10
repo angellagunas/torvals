@@ -1,11 +1,10 @@
-// node tasks/send-for-preprocessing.js
+// node tasks/dataset/send-for-preprocessing.js
 require('../../config')
 require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSet } = require('models')
-const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   if (!argv.uuid) {
@@ -13,7 +12,6 @@ const task = new Task(async function (argv) {
   }
 
   console.log('Fetching specified Dataset...')
-  var apiData
 
   const dataset = await DataSet.findOne({uuid: argv.uuid})
     .populate('fileChunk')
@@ -24,43 +22,10 @@ const task = new Task(async function (argv) {
     throw new Error('Invalid uuid!')
   }
 
-  console.log('Obtaining Abraxas API token ...')
-  try {
-    await Api.fetch()
-    apiData = Api.get()
-  } catch (e) {
-    dataset.set({
-      error: 'No se pudo enviar el dataset a preprocesar! Intente borrarlo y crear otro dataset.',
-      status: 'error'
-    })
-    await dataset.save()
-
-    return false
-  }
-
-  if (!apiData.token) {
-    throw new Error('There is no API endpoint configured!')
-  }
-
   console.log(`Sending ${dataset.name} dataset for preprocessing ...`)
-  var options = {
-    url: `${apiData.hostname}${apiData.baseUrl}/upload/file/datasets`,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${apiData.token}`
-    },
-    body: {
-      project_id: dataset.project.externalId,
-      path: dataset.url
-    },
-    json: true,
-    persist: true
-  }
 
   try {
-    var res = await request(options)
+    var res = await Api.uploadDataset(dataset)
 
     if (res.status === 'error') {
       dataset.set({
@@ -89,7 +54,13 @@ const task = new Task(async function (argv) {
     console.log(`Successfully sent for preprocessing dataset ${dataset.name}`)
     return true
   } catch (e) {
-    console.log(`Error while sending dataset for preprocessing: ${e}`)
+    dataset.set({
+      error: e.message,
+      status: 'error'
+    })
+    await dataset.save()
+
+    console.log(`Error sending the dataset`)
     return false
   }
 })

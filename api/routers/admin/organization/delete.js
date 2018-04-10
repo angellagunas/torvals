@@ -28,7 +28,7 @@ module.exports = new Route({
     }
 
     ctx.body = {
-      data: org.format()
+      data: org.toAdmin()
     }
   }
 })

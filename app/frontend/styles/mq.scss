@@ -73,6 +73,58 @@
     opacity: 0;
     margin: -10px;
 }
+
 .md-checkbox>div {
     margin-left: 20px;
+}
+
+@include fullhd {
+    html,
+    body {
+        font-size: 1rem;
+    }
+    h1 {
+        font-size: 1.7rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+    .sticky-table {
+        font-size: 0.8rem;
+    }
+    .sticky-table .sticky-table-cell {
+        padding: 0.1rem 0.2rem;
+        .input {
+            font-size: 0.8rem !important;
+            width: 80px;
+        }
+        p {
+            line-height: .5;
+            padding-top: 0.3rem;
+        }
+    }
+    .sales-graph {
+        margin: 0.7rem;
+        max-height: 320px;
+        min-height: 320px;
+    }
+    .sales-table {
+        margin: 0.7rem;
+        max-height: 320px;
+        min-height: 320px;
+    }
+    .tabs-title {
+        margin-top: 0.3rem;
+        h1 {
+            font-size: 1.25rem;
+        }
+    }
+    .view-btns {
+        .button {
+            width: 155px;
+        }
+    }
+    .button {
+        font-size: 0.85rem;
+    }
 }
