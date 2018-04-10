@@ -201,7 +201,7 @@ class ProjectDetail extends Component {
       await api.post(url)
       await this.load()
     } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
 
     this.setState({

@@ -325,7 +325,7 @@ class TabHistorical extends Component {
         })
       })
     } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         isLoading: '',
         noHistoricData: e.message + ', intente más tarde'
@@ -333,7 +333,7 @@ class TabHistorical extends Component {
     }
   }
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,

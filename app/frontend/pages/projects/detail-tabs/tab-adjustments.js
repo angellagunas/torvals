@@ -97,7 +97,7 @@ class TabAdjustment extends Component {
         if (res.dates.length === 0) {
           this.notify(
             'Error! No hay fechas disponibles. Por favor contacta a un administrador.',
-            3000,
+            5000,
             toast.TYPE.ERROR
           )
 
@@ -112,7 +112,7 @@ class TabAdjustment extends Component {
           this.notify(
             'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
             ' correctamente. Por favor contacta a un administrador.',
-            3000,
+            5000,
             toast.TYPE.ERROR
           )
         }
@@ -155,7 +155,7 @@ class TabAdjustment extends Component {
 
         periods.push({
           number: period4[0].month,
-          name: `Periodo ${moment(period4[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period4[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['4'],
           maxSemana: period4[0].week,
           minSemana: period4[period4.length - 1].week
@@ -163,7 +163,7 @@ class TabAdjustment extends Component {
 
         periods.push({
           number: period3[0].month,
-          name: `Periodo ${moment(period3[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period3[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['3']/100,
           maxSemana: period3[0].week,
           minSemana: period3[period3.length - 1].week
@@ -171,7 +171,7 @@ class TabAdjustment extends Component {
 
         periods.push({
           number: period2[0].month,
-          name: `Periodo ${moment(period2[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period2[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['2']/100,
           maxSemana: period2[0].week,
           minSemana: period2[period2.length - 1].week
@@ -179,7 +179,7 @@ class TabAdjustment extends Component {
 
         periods.push({
           number: period1[0].month,
-          name: `Periodo ${moment(period1[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period1[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['1']/100,
           maxSemana: period1[0].week,
           minSemana: period1[period1.length - 1].week
@@ -223,7 +223,7 @@ class TabAdjustment extends Component {
 
         this.notify(
           'Ha habido un error al obtener los filtros! ' + e.message,
-          3000,
+          5000,
           toast.TYPE.ERROR
         )
       }            
@@ -294,7 +294,7 @@ class TabAdjustment extends Component {
 
   async getDataRows () {
     if (!this.state.formData.period) {
-      this.notify('Se debe filtrar por periodo!', 3000, toast.TYPE.ERROR)
+      this.notify('Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
       return
     }
 
@@ -662,7 +662,7 @@ class TabAdjustment extends Component {
       } else {
         var url = '/app/rows/' + obj.uuid
         const res = await api.post(url, { ...obj })
-        this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
+        this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
       }
       
       let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
@@ -679,7 +679,7 @@ class TabAdjustment extends Component {
       await this.updateSalesTable(obj)
 
     } catch (e) {
-      this.notify('Ocurrio un error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
       return false
     }
 
@@ -701,7 +701,7 @@ class TabAdjustment extends Component {
     this.props.counters(edited, pending)
   }
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -836,7 +836,7 @@ class TabAdjustment extends Component {
         })
       }
     } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         noSalesData: e.message + ', intente más tarde'
       })
@@ -900,7 +900,7 @@ class TabAdjustment extends Component {
 
   async downloadReport () {
     if (!this.state.formData.salesCenter) {
-      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 3000, toast.TYPE.ERROR)
+      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
 
       return
     }
@@ -937,9 +937,9 @@ class TabAdjustment extends Component {
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
-      this.notify('Se ha generado el reporte correctamente!', 3000, toast.TYPE.SUCCESS)
+      this.notify('Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     
       this.setState({
         isLoading: '',
@@ -1068,12 +1068,12 @@ class TabAdjustment extends Component {
       {
         label: 'Predicción',
         color: '#187FE6',
-        data: this.state.salesTable.map((item, key) => { return item.prediction })
+        data: this.state.salesTable.map((item, key) => { return item.prediction.toFixed(2) })
       },
       {
         label: 'Ajuste',
         color: '#30C6CC',
-        data: this.state.salesTable.map((item, key) => { return item.adjustment })
+        data: this.state.salesTable.map((item, key) => { return item.adjustment.toFixed(2) })
       }
     ]
 
@@ -1104,7 +1104,7 @@ class TabAdjustment extends Component {
 
             <div className='level-item'>
               <Select
-                label='Categoria de Productos'
+                label='Categoría'
                 name='category'
                 value=''
                 placeholder='Seleccionar'

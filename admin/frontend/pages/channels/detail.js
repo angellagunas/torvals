@@ -129,7 +129,7 @@ class ChannelDetail extends Component {
       selectedRemove.splice(index, 1)
       this.notify(
         e.message,
-        3000,
+        5000,
         toast.TYPE.ERROR
       )
     }
@@ -204,7 +204,7 @@ class ChannelDetail extends Component {
     this.setState({ isLoading: '' })
   }
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
