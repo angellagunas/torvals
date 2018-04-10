@@ -434,29 +434,29 @@ class ProjectDetail extends Component {
             <div>
               <div className='field is-grouped'>
                 <p className='control'>
-                  <p className='has-text-weight-semibold'>
+                  <span className='has-text-weight-semibold'>
                     <span className='icon is-small is-transparent-text'>
                       <i className='fa fa-gears' />
                     </span>
                     Ajustes
-                  </p>
+                  </span>
                 </p>
                 <p className='control'>
-                  <p className='has-text-success has-text-weight-semibold'>
+                  <span className='has-text-success has-text-weight-semibold'>
                     <span className='icon is-small'>
                       <i className='fa fa-check' />
                     </span>
                       Realizados {this.state.realized}
-                  </p>
+                  </span>
 
                 </p>
                 <p className='control'>
-                  <p className='has-text-warning has-text-weight-semibold'>
+                  <span className='has-text-warning has-text-weight-semibold'>
                     <span className='icon is-small'>
                       <i className='fa fa-exclamation-triangle' />
                     </span>
                         Por aprobar {this.state.pending}
-                  </p>
+                  </span>
                 </p>
                 <p className='control btn-conciliate'>
                   <a className={'button is-success ' + this.state.isConciliating}

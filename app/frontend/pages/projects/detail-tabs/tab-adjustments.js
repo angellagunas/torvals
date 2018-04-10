@@ -1158,9 +1158,12 @@ class TabAdjustment extends Component {
             <div>
               <p className='has-text-weight-semibold'>Predicción</p>
               <h1 className='num has-text-weight-bold'>
-                {this.state.totalPrediction && this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                {this.state.totalPrediction ? 
+                '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                   return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                })}
+                })
+                : null
+                }
               </h1>
             </div>
           </div>
@@ -1170,9 +1173,12 @@ class TabAdjustment extends Component {
             <div>
               <p className='has-text-weight-semibold'>Ajuste</p>
               <h1 className='num has-text-weight-bold'>
-                {this.state.totalAdjustment && this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                {this.state.totalAdjustment ? 
+                '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
                   return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                })}
+                })
+                : null
+              }
               </h1>
             </div>
           </div>

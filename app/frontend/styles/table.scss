@@ -124,9 +124,8 @@
 
 .view-btns {
     .button {
-        width: 153px;
+        width: 164px;
         height: 35px;
-        z-index: 15 !important;
     }
 }
 
@@ -168,4 +167,9 @@
             border-left: 1px solid #FBFBFB;
         }
     }
+}
+
+.id {
+    min-width: 60px;
+    max-width: 60px;
 }
