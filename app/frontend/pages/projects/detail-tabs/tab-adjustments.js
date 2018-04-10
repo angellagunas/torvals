@@ -415,7 +415,8 @@ class TabAdjustment extends Component {
 
   getModifyButtons () {
     return (
-      <div className='columns'>      
+      <div className='columns'>
+            
         <div className='column is-narrow'>
           <div className='field'>
             <label className='label'>Búsqueda general</label>              
@@ -518,22 +519,23 @@ class TabAdjustment extends Component {
         {this.state.selectedCheckboxes.size > 0 &&
           <div className='column products-selected'>
             <p>
-              <span>{this.state.selectedCheckboxes.size} </span>
+              <span>{this.state.byWeek ? this.state.selectedCheckboxes.size / this.state.filters.filteredSemanasBimbo.length : this.state.selectedCheckboxes.size} </span>
                Productos Seleccionados
             </p>
           </div> 
         }
 
         <div className='column download-btn'>
-          <button 
-            className={'button is-info is-pulled-right' + this.state.isDownloading}
+          <button
+            className={'button is-info ' + this.state.isDownloading}
             disabled={!!this.state.isDownloading}
             onClick={e => this.downloadReport()}>
             <span className='icon' title='Descargar'>
               <i className='fa fa-download' />
             </span>
           </button>
-        </div>        
+        </div> 
+       
       </div>
     )
   }
@@ -881,7 +883,7 @@ class TabAdjustment extends Component {
   loadTable() {
     if (this.state.noSalesData === '') {
       return (
-        <div className='section has-text-centered subtitle has-text-primary'>
+        <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
           Cargando, un momento por favor
           <Loader />
         </div>
@@ -1065,12 +1067,12 @@ class TabAdjustment extends Component {
     const graphData = [
       {
         label: 'Predicción',
-        color: '#01579B',
+        color: '#187FE6',
         data: this.state.salesTable.map((item, key) => { return item.prediction.toFixed(2) })
       },
       {
         label: 'Ajuste',
-        color: '#FF9800',
+        color: '#30C6CC',
         data: this.state.salesTable.map((item, key) => { return item.adjustment.toFixed(2) })
       }
     ]
@@ -1115,7 +1117,7 @@ class TabAdjustment extends Component {
               {this.state.filters.channels.length === 1 ?
                 <div className='channel'>
                   <span>Canal: </span>
-                  <span className='has-text-weight-bold'>{this.state.filters.channels[0].name}
+                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.channels[0].name}
                   </span>
                 </div>
                 :
@@ -1136,7 +1138,7 @@ class TabAdjustment extends Component {
             {this.state.filters.salesCenters.length === 1 ?
                 <div className='saleCenter'>
                   <span>Centro de Venta: </span>
-                  <span className='has-text-weight-bold'>{this.state.filters.salesCenters[0].name}
+                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
                   </span>
                 </div>  
             :
@@ -1166,7 +1168,7 @@ class TabAdjustment extends Component {
           'level-item has-text-centered has-text-info disapear'} 
           >
             <div>
-              <p className='has-text-weight-semibold'>Prediccion</p>
+              <p className='has-text-weight-semibold'>Predicción</p>
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalPrediction && this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                   return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -1207,7 +1209,7 @@ class TabAdjustment extends Component {
             <div className='column is-5-desktop is-4-widescreen is-4-fullhd is-offset-1-fullhd is-offset-1-desktop'>
               <div className='panel sales-table'>
                 <div className='panel-heading'>
-                  <h2>Predicciones</h2>
+                  <h2 className='is-capitalized'>Totales {this.getPeriod()}</h2>
                 </div>
                 <div className='panel-block'>
                   {
@@ -1270,7 +1272,7 @@ class TabAdjustment extends Component {
             <div className='column is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
               <div className='panel sales-graph'>
                 <div className='panel-heading'>
-                  <h2>Reporte de periodo</h2>
+                  <h2 className='is-capitalized'>Reporte {this.getPeriod()}</h2>
                 </div>
                 <div className='panel-block'>
                   {
@@ -1278,7 +1280,7 @@ class TabAdjustment extends Component {
                       this.state.salesTable.length > 0 ?
                       <Graph
                         data={graphData}
-                        labels={this.state.salesTable.map((item, key) => { return 'Semana '+item.week })}
+                        labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
                         reloadGraph={this.state.reloadGraph}
                       />
                       :
@@ -1304,7 +1306,7 @@ class TabAdjustment extends Component {
             : <div>
                 <section className='section'>
                   <h1 className='period-info'>
-                    <span className='has-text-weight-semibold'>{this.getPeriod()} - </span> 
+                    <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getPeriod()} - </span> 
                     <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
                   </h1>
                   {this.getModifyButtons()}

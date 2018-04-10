@@ -12,7 +12,9 @@ class WeekTable extends Component {
     this.state = {
       filteredDataByWeek: [],
       selectedAll: false,
-      data: this.props.data
+      data: this.props.data,
+      sortBy: 'prediction_0',
+      sortAscending: false
     }
     this.inputs = new Set()
     this.lastRow = null
@@ -59,7 +61,6 @@ class WeekTable extends Component {
     })
 
     this.getEdited()
-    
   }
 
   toggleCheckbox = (row) => {
@@ -171,8 +172,8 @@ class WeekTable extends Component {
                 <i className='fa fa-exclamation fa-lg' />
                </span>,
         groupClassName: 'table-product',
-        headerClassName: 'table-product table-product-head table-product-head-bord',
-        className: 'table-product',       
+        headerClassName: 'table-product table-product-head table-product-head-bord table-product-shadow',
+        className: 'table-product table-product-shadow',       
         formatter: (row) => {
           return this.getLimit(row)  
         }
@@ -378,7 +379,8 @@ class WeekTable extends Component {
       filteredDataByWeek: rw
     })
     this.getEdited()
-
+    this.handleSortByWeek(this.state.sortBy)
+    
   }
 
   handleSortByWeek(e) {

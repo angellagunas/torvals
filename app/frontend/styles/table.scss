@@ -2,6 +2,10 @@
     white-space: nowrap;
     margin-top: 0.8rem;
     font-size: 0.7rem;
+    .x-scrollbar {
+        bottom: 0px;
+        height: 4px;
+    }
 }
 
 .sticky-table .sticky-table-cell {
@@ -58,6 +62,17 @@
     .range {
         min-width: 80px;
     }
+    &.row-edited {
+        background-color: rgba(24, 127, 230, 0.2) !important;
+    }
+    &.row-selected {
+        background-color: rgba(12, 185, 0, 0.2) !important;
+    }
+    &.row-focus {
+        border-bottom: 1.5px solid #E3E4EB !important;
+        border-top: 1.5px solid #E3E4EB !important;
+        background-color: rgba(227, 228, 235, 0.6) !important;
+    }
 }
 
 .sticky-table .sticky-table-corner,
@@ -111,6 +126,7 @@
     .button {
         width: 153px;
         height: 35px;
+        z-index: 15 !important;
     }
 }
 
@@ -137,33 +153,19 @@
     background-color: rgba(233, 233, 233, 0.3) !important;
 }
 
-.table-product-head {
-    background-color: rgba(233, 233, 233, 1) !important;
-    font-weight: 700;
-}
-
-.table-product-head-bord {
-    border-right: 1px solid #FBFBFB !important;
-    border-left: 1px solid #FBFBFB;
-}
-
 .table-product {
     border-right: 1px solid #E6E8F6;
-    -webkit-box-shadow: 2px 0px 2px 0px rgba(181, 174, 181, 0.3);
-    -moz-box-shadow: 2px 0px 2px 0px rgba(181, 174, 181, 0.3);
-    box-shadow: 2px 0px 2px 0px rgba(181, 174, 181, 0.3);
-}
-
-.row-selected {
-    background-color: rgba(12, 185, 0, 0.2) !important;
-}
-
-.row-focus {
-    border-bottom: 1.5px solid #E3E4EB !important;
-    border-top: 1.5px solid #E3E4EB !important;
-    background-color: rgba(227, 228, 235, 0.6) !important;
-}
-
-.row-edited {
-    background-color: rgba(24, 127, 230, 0.2) !important;
+    &-shadow {
+        -webkit-box-shadow: 2px 0px 2px 0px rgba(181, 174, 181, 0.3);
+        -moz-box-shadow: 2px 0px 2px 0px rgba(181, 174, 181, 0.3);
+        box-shadow: 3px 0px 2px 0px rgba(181, 174, 181, 0.3);
+    }
+    &-head {
+        background-color: rgba(233, 233, 233, 1) !important;
+        font-weight: 700;
+        &-bord {
+            border-right: 1px solid #FBFBFB !important;
+            border-left: 1px solid #FBFBFB;
+        }
+    }
 }
