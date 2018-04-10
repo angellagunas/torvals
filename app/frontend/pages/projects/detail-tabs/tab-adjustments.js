@@ -11,8 +11,6 @@ import Loader from '~base/components/spinner'
 import Editable from '~base/components/base-editable'
 import Checkbox from '~base/components/base-checkbox'
 
-
-import CreateAdjustmentRequest from '../../forecasts/create-adjustmentRequest'
 import WeekTable from './week-table'
 import ProductTable from './product-table'
 import Select from './select'
