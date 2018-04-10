@@ -48,7 +48,7 @@ const NoMatch = () => {
 const AppRouter = () => {
   return (<Router>
     <AdminLayout>
-      <div className='c-flex-1 is-flex is-flex-column is-relative'>
+      <div>
         <Switch>
           {LandPage.asRouterItem()}
           {ResetPassword.asRouterItem()}

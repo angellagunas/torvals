@@ -281,7 +281,7 @@ class TabAprove extends Component {
       this.uncheckAll()
       
       if (this.state.startDate > this.state.endDate) {
-        this.notify('Rango de fechas inválido', 3000, toast.TYPE.ERROR)
+        this.notify('Rango de fechas inválido', 5000, toast.TYPE.ERROR)
         return
       }
 
@@ -533,10 +533,10 @@ class TabAprove extends Component {
     })
 
     if (obj.status === 'approved') {
-      this.notify('Ajuste aprobado', 3000, toast.TYPE.SUCCESS) 
+      this.notify('Ajuste aprobado', 5000, toast.TYPE.SUCCESS) 
     }
     else if (obj.status === 'rejected') {
-      this.notify('Ajuste rechazado', 3000, toast.TYPE.ERROR) 
+      this.notify('Ajuste rechazado', 5000, toast.TYPE.ERROR) 
     }
 
     this.state.selectedCheckboxes.delete(obj)
@@ -545,7 +545,7 @@ class TabAprove extends Component {
     return true
   }
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,

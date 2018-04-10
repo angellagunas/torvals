@@ -1,24 +1,26 @@
 import React, { Component } from 'react'
-import api from '~base/api'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import { ToastContainer } from 'react-toastify'
+import { ToastContainer, toast } from 'react-toastify'
+
+import api from '~base/api'
+import Page from '~base/page'
 import { testRoles } from '~base/tools'
 import DeleteButton from '~base/components/base-deleteButton'
-import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
-import ProjectForm from './create-form'
 import Tabs from '~base/components/base-tabs'
+import SidePanel from '~base/side-panel'
+import NotFound from '~base/components/not-found'
+
+import ProjectForm from './create-form'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
 import TabAprove from './detail-tabs/tab-aprove'
-import SidePanel from '~base/side-panel'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
-import Breadcrumb from '~base/components/base-breadcrumb'
-import TabAnomalies from './detail-tabs/tab-anomalies'
-import NotFound from '~base/components/not-found'
+// import Breadcrumb from '~base/components/base-breadcrumb'
+// import TabAnomalies from './detail-tabs/tab-anomalies'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -32,7 +34,8 @@ class ProjectDetail extends Component {
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
       isLoading: '',
-      counterAdjustments: 0
+      counterAdjustments: 0,
+      isConciliating: ''
     }
     this.interval = null
     this.intervalCounter = null
@@ -45,6 +48,7 @@ class ProjectDetail extends Component {
     }
 
     await this.hasSaleCenter()
+    await this.hasChannel()
 
     await this.load()
     this.setState({
@@ -172,10 +176,54 @@ class ProjectDetail extends Component {
     }
   }
 
+  async hasChannel () {
+    let url = '/app/channels'
+    let res = await api.get(url, {
+      start: 0,
+      limit: 0,
+      sort: 'name'
+    })
+    if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
+      this.setState({
+        noChannel: true
+      })
+    }
+  }
+
+  async conciliateOnClick () {
+    this.setState({
+      isConciliating: ' is-loading'
+    })
+
+    var url = '/app/datasets/' + this.state.project.activeDataset.uuid + '/set/conciliate'
+    try {
+      clearInterval(this.interval)
+      await api.post(url)
+      await this.load()
+    } catch (e) {
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+    }
+
+    this.setState({
+      isConciliating: '',
+      modified: 0,
+      dataRows: [],
+      isFiltered: false
+    })
+  }
+
+  getCounters (realized, pending) {
+    this.setState({
+      realized: realized,
+      pending: pending
+    })
+  }
+
   render () {
     if (this.state.notFound) {
       return <NotFound msg='este proyecto' />
     }
+
     if (this.state.noSalesCenter) {
       return (
         <div className='card-content'>
@@ -187,6 +235,25 @@ class ProjectDetail extends Component {
                 </div>
                 <div className='message-body has-text-centered is-size-5'>
                   Necesitas tener asignado al menos un centro de venta para ver esta sección, ponte en contacto con tu supervisor.
+            </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (this.state.noChannel) {
+      return (
+        <div className='card-content'>
+          <div className='columns'>
+            <div className='column'>
+              <article className='message is-warning'>
+                <div className='message-header'>
+                  <p>Atención</p>
+                </div>
+                <div className='message-body has-text-centered is-size-5'>
+                  Necesitas tener asignado al menos un canal para ver esta sección, ponte en contacto con tu supervisor.
             </div>
               </article>
             </div>
@@ -208,11 +275,11 @@ class ProjectDetail extends Component {
       {
         name: 'ajustes',
         title: 'Ajustes',
-        icon: 'fa-cogs',
         reload: false,
         hide: project.status === 'empty',
         content: (
           <TabAdjustment
+            counters={(realized, pending) => { this.getCounters(realized, pending) }}
             load={this.getProjectStatus.bind(this)}
             project={project}
             history={this.props.history}
@@ -226,7 +293,6 @@ class ProjectDetail extends Component {
         title: 'Aprobar',
         badge: true,
         valueBadge: this.state.counterAdjustments,
-        icon: 'fa-calendar-check-o',
         reload: true,
         hide: (testRoles('manager-level-1') ||
               project.status === 'processing' ||
@@ -243,7 +309,6 @@ class ProjectDetail extends Component {
       {
         name: 'datasets',
         title: 'Datasets',
-        icon: 'fa-signal',
         hide: testRoles('manager-level-1'),
         reload: true,
         content: (
@@ -256,10 +321,24 @@ class ProjectDetail extends Component {
           />
         )
       },
+      // {
+      //   name: 'anomalias',
+      //   title: 'Anomalias',
+      //   reload: true,
+      //   hide: (testRoles('manager-level-1') ||
+      //     project.status === 'processing' ||
+      //     project.status === 'pendingRows' ||
+      //     project.status === 'empty'),
+      //   content: (
+      //     <TabAnomalies
+      //       project={project}
+      //       reload={(tab) => this.load(tab)}
+      //     />
+      //   )
+      // },
       {
-        name: 'Historico',
-        title: 'Historico',
-        icon: 'fa-history',
+        name: 'Gráficos',
+        title: 'Gráficos',
         hide: (project.status === 'processing' ||
           project.status === 'pendingRows' ||
           project.status === 'empty'),
@@ -272,7 +351,6 @@ class ProjectDetail extends Component {
       {
         name: 'configuracion',
         title: 'Configuración',
-        icon: 'fa-tasks',
         hide: testRoles('manager-level-1'),
         reload: true,
         content: (
@@ -318,81 +396,104 @@ class ProjectDetail extends Component {
     </button>)
 
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          {
-            this.state.alertMsg &&
-            <div className={'notification has-text-centered is-uppercase is-paddingless sticky-msg ' + this.state.alertType}>
-              <span className='icon is-medium has-text-info'>
-                <i className='fa fa-warning' />
-              </span>
-              {this.state.alertMsg}
-            </div>
-          }
-          <div className='section is-paddingless-top pad-sides'>
-            {
-              !testRoles('manager-level-1') &&
-              <Breadcrumb
-                path={[
-                  {
-                    path: '/',
-                    label: 'Inicio',
-                    current: false
-                  },
-                  {
-                    path: '/projects',
-                    label: 'Proyectos',
-                    current: false
-                  },
-                  {
-                    path: '/projects/',
-                    label: 'Detalle',
-                    current: true
-                  },
-                  {
-                    path: '/projects/',
-                    label: project.name,
-                    current: true
-                  }
-                ]}
-                align='left'
-              />
-            }
-            <div className='is-padding-top-small'>
-              <Tabs
-                tabTitle={project.name}
-                tabs={tabs}
-                selectedTab={this.state.selectedTab}
-                className='is-right sticky-tab'
-                extraTab={
-                canEdit &&
+      <div>
+        {
+          /* !testRoles('manager-level-1') &&
+          <Breadcrumb
+            path={[
+              {
+                path: '/',
+                label: 'Inicio',
+                current: false
+              },
+              {
+                path: '/projects',
+                label: 'Proyectos',
+                current: false
+              },
+              {
+                path: '/projects/',
+                label: 'Detalle',
+                current: true
+              },
+              {
+                path: '/projects/',
+                label: project.name,
+                current: true
+              }
+            ]}
+            align='left'
+          /> */
+        }
+        <Tabs
+          tabTitle={project.name}
+          tabs={tabs}
+          selectedTab={this.state.selectedTab}
+          className='sticky-tab'
+          extraTab={
+            <div>
+              <div className='field is-grouped'>
+                <p className='control'>
+                  <p className='has-text-weight-semibold'>
+                    <span className='icon is-small is-transparent-text'>
+                      <i className='fa fa-gears' />
+                    </span>
+                    Ajustes
+                  </p>
+                </p>
+                <p className='control'>
+                  <p className='has-text-success has-text-weight-semibold'>
+                    <span className='icon is-small'>
+                      <i className='fa fa-check' />
+                    </span>
+                      Realizados {this.state.realized}
+                  </p>
+
+                </p>
+                <p className='control'>
+                  <p className='has-text-warning has-text-weight-semibold'>
+                    <span className='icon is-small'>
+                      <i className='fa fa-exclamation-triangle' />
+                    </span>
+                        Por aprobar {this.state.pending}
+                  </p>
+                </p>
+                <p className='control btn-conciliate'>
+                  <a className={'button is-success ' + this.state.isConciliating}
+                    disabled={!!this.state.isConciliating}
+                    onClick={e => this.conciliateOnClick()}>
+                      Consolidar
+                  </a>
+                </p>
+              </div>
+              {canEdit &&
                 <DeleteButton
                   objectName='Proyecto'
                   objectDelete={() => this.deleteObject()}
                   message={'Estas seguro de querer eliminar este Proyecto?'}
                 />
-              }
-            />
-              {
-                testRoles('manager-level-1') && project.status === 'empty' &&
-                <div className='card-content'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <article className='message is-warning'>
-                        <div className='message-header'>
-                          <p>Atención</p>
-                        </div>
-                        <div className='message-body has-text-centered is-size-5'>
-                          Este proyecto aún no contiene datasets, ponte en contacto con tu supervisor.
-                      </div>
-                      </article>
-                    </div>
+                }
+            </div>
+          }
+        />
+
+        {
+          testRoles('manager-level-1') && project.status === 'empty' &&
+          <div className='card-content'>
+            <div className='columns'>
+              <div className='column'>
+                <article className='message is-warning'>
+                  <div className='message-header'>
+                    <p>Atención</p>
                   </div>
+                  <div className='message-body has-text-centered is-size-5'>
+                    Este proyecto aún no contiene datasets, ponte en contacto con tu supervisor.
                 </div>
-              }
+                </article>
+              </div>
             </div>
           </div>
-        </div>
+        }
 
         { canEdit &&
           <SidePanel
