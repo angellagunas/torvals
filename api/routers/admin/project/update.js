@@ -33,7 +33,7 @@ module.exports = new Route({
       for (var dsr of datasetrows) {
         dsr.organization = data.organization._id
         await dsr.save()
-        let product = Product.findOne({'_id': dsr.product})
+        let product = await Product.findOne({'_id': dsr.product})
         if (product) {
           product.organization = data.organization._id
           await product.save()
