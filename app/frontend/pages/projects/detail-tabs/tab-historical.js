@@ -297,7 +297,6 @@ class TabHistorical extends Component {
 
     let min
     let max
-    console.log(this.state.formData.period)
     var period = this.state.filters.periods.find(item => {
       return item.number === this.state.formData.period
     })

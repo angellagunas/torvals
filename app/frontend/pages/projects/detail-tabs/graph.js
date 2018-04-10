@@ -40,10 +40,7 @@ class Graph extends Component {
   }
 
   componentWillMount () {
-    console.log(Chart.boxWidth)
-
     Chart.boxWidth = 50
-    console.log(Chart.boxWidth)
     this.getData()
   }
 

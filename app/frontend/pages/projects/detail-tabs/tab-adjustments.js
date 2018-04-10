@@ -655,7 +655,6 @@ class TabAdjustment extends Component {
       let { pendingDataRows } = this.state
 
       if (currentRole === 'manager-level-1' && obj.isLimit) {
-        // this.showModalAdjustmentRequest(obj)
         this.notify(
           'No te puedes pasar de los límites establecidos! Debes pedir una solicitud de ajuste '+
           'haciendo click sobre el ícono rojo.',
@@ -707,7 +706,6 @@ class TabAdjustment extends Component {
   }
 
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
-    console.log(toast.toastId)
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -715,7 +713,6 @@ class TabAdjustment extends Component {
         hideProgressBar: true,
         closeButton: false
       })
-      console.log(toast.toastId)
     } else {
       toast.update(this.toastId, {
         render: message,
