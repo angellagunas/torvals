@@ -14,6 +14,7 @@ import ResetPassword from './pages/reset-password'
 import EmailResetLanding from './pages/emails/reset'
 import Users from './pages/users/list'
 import UserDetail from './pages/users/detail'
+import UsersImport from './pages/users/import'
 import DeletedUsers from './pages/users/list-deleted'
 import Profile from './pages/profile'
 import Organizations from './pages/organizations/list'
@@ -70,6 +71,7 @@ const AppRouter = () => {
           {Users.asRouterItem()}
           {DeletedUsers.asRouterItem()}
           {UserDetail.asRouterItem()}
+          {UsersImport.asRouterItem()}
 
           {Organizations.asRouterItem()}
           {OrganizationDetail.asRouterItem()}
