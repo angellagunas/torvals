@@ -6,6 +6,7 @@ import Dashboard from '../pages/dashboard'
 import Users from '../pages/users/list'
 import DeletedUsers from '../pages/users/list-deleted'
 import UsersImport from '../pages/users/import'
+import SalesCentersImport from '../pages/salesCenters/import'
 import Organizations from '../pages/organizations/list'
 import Roles from '../pages/roles/list'
 import Groups from '../pages/groups/list'
@@ -126,7 +127,8 @@ class Sidebar extends Component {
         icon: 'file-o',
         to: '/import',
         dropdown: [
-          UsersImport.asSidebarItem()
+          UsersImport.asSidebarItem(),
+          SalesCentersImport.asSidebarItem()
         ]
       }, {
         title: 'Developer Tools',

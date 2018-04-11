@@ -28,6 +28,7 @@ import DeletedDataSets from './pages/datasets/list-deleted'
 import ReadyDataSets from './pages/datasets/list-ready'
 import DataSetDetail from './pages/datasets/detail'
 import SalesCenters from './pages/salesCenters/list'
+import SalesCentersImport from './pages/salesCenters/import'
 import SalesCenterDetail from './pages/salesCenters/detail'
 import DeletedSalesCenters from './pages/salesCenters/deleted-list'
 import RequestLogs from './pages/request-logs/list'
@@ -96,6 +97,7 @@ const AppRouter = () => {
           {SalesCenters.asRouterItem()}
           {DeletedSalesCenters.asRouterItem()}
           {SalesCenterDetail.asRouterItem()}
+          {SalesCentersImport.asRouterItem()}
 
           {Products.asRouterItem()}
           {DeletedProducts.asRouterItem()}
