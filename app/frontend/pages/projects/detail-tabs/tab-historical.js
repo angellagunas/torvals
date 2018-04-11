@@ -3,10 +3,6 @@ import moment from 'moment'
 import api from '~base/api'
 import { toast } from 'react-toastify'
 import Loader from '~base/components/spinner'
-import {
-  BaseForm,
-  SelectWidget
-} from '~base/components/base-form'
 import Graph from './graph'
 import Select from './select'
 
