@@ -631,12 +631,17 @@ class TabAdjustment extends Component {
 
       if (isLimited) {
         this.notify(
-          '¡Debes pedir una solicitud de ajuste haciendo click sobre el ícono rojo!',
+          (<p>
+            <span className='icon'>
+              <i className='fa fa-warning fa-lg' />
+            </span>
+            ¡Debes pedir una solicitud de ajuste haciendo click sobre el ícono rojo!
+          </p>),
           5000,
           toast.TYPE.WARNING
         )
       } else {
-        this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
+        this.notify('Ajustes guardado!', 5000, toast.TYPE.INFO)
       }
       
       this.setState({
@@ -764,7 +769,7 @@ class TabAdjustment extends Component {
 
     const items = this.state.dataRows.filter((item) => {
       const regEx = new RegExp(this.state.searchTerm, 'gi')
-      const searchStr = `${item.productName} ${item.productId} ${item.channel} ${item.salesCenter} `
+      const searchStr = `${item.productName} ${item.productId} ${item.channel} ${item.salesCenter}`
 
       if (regEx.test(searchStr))
         return true
@@ -1276,7 +1281,6 @@ class TabAdjustment extends Component {
                       <Graph
                         data={graphData}
                         labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
-                        reloadGraph={this.state.reloadGraph}
                       />
                       :
                       this.loadTable()

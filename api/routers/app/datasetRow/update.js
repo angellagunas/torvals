@@ -16,24 +16,40 @@ module.exports = new Route({
   handler: async function (ctx) {
     var data = ctx.request.body
 
-    for (let row of data) {
-      let datasetRow = await DataSetRow.findOne({
-        'uuid': row.uuid,
-        'isDeleted': false,
-        'organization': ctx.state.organization._id
-      })
+    var hashTable = {}
+    var uuidsAux = []
+    var uuids = data.map(item => {
+      hashTable[item.uuid] = {
+        adjustmentForDisplay: item.adjustmentForDisplay,
+        localAdjustment: item.localAdjustment
+      }
 
-      ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
+      return item.uuid
+    })
 
-      if (parseFloat(datasetRow.data.adjustmentForDisplay) !== parseFloat(row.localAdjustment)) {
-        datasetRow.data.localAdjustment = row.adjustmentForDisplay
-        datasetRow.data.updatedBy = ctx.state.user
-        datasetRow.status = 'sendingChanges'
-        datasetRow.markModified('data')
-        await datasetRow.save()
-        verifyDatasetrows.add({uuid: row.uuid})
+    let datasetRows = await DataSetRow.find({
+      'uuid': { $in: uuids },
+      'isDeleted': false,
+      'organization': ctx.state.organization._id
+    })
+
+    if (datasetRows.length < data.length) {
+      ctx.throw(404, 'Algunos DataSetRows no fueron encontrados')
+    }
+
+    for (let row of datasetRows) {
+      let auxData = hashTable[row.uuid]
+      if (parseFloat(row.data.adjustmentForDisplay) !== parseFloat(auxData.localAdjustment)) {
+        row.data.localAdjustment = auxData.adjustmentForDisplay
+        row.data.updatedBy = ctx.state.user
+        row.status = 'sendingChanges'
+        row.markModified('data')
+        await row.save()
+        uuidsAux.push({uuid: row.uuid})
       }
     }
+
+    verifyDatasetrows.addList(uuidsAux)
 
     ctx.body = {
       data: 'OK'

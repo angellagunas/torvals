@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { Line, Chart } from 'react-chartjs-2'
 
-class Graph extends Component {
+class Graph extends PureComponent {
   constructor (props) {
     super(props)
     this.state = {
@@ -41,22 +41,6 @@ class Graph extends Component {
   componentWillMount () {
     Chart.boxWidth = 50
     this.getData()
-  }
-
-  componentWillReceiveProps (nextProps) {
-    if (nextProps.reloadGraph) {
-      this.setState({
-        dataGraph: nextProps.data,
-        data: {
-          datasets: [],
-          labels: nextProps.labels
-        }
-      },
-        () => {
-          this.getData()
-        }
-      )
-    }
   }
 
   render () {
