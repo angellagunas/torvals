@@ -22,6 +22,9 @@ import TabAdjustment from './detail-tabs/tab-adjustments'
 // import Breadcrumb from '~base/components/base-breadcrumb'
 // import TabAnomalies from './detail-tabs/tab-anomalies'
 
+var currentRole
+var user
+
 class ProjectDetail extends Component {
   constructor (props) {
     super(props)
@@ -35,29 +38,44 @@ class ProjectDetail extends Component {
       canEdit: false,
       isLoading: '',
       counterAdjustments: 0,
-      isConciliating: ''
+      isConciliating: '',
+      modified: 0,
+      pendingChanges: 0
     }
+
     this.interval = null
     this.intervalCounter = null
+    this.intervalConciliate = null
   }
 
   async componentWillMount () {
-    const user = this.context.tree.get('user')
-    if (user.currentRole.slug === 'manager-level-1' && this.props.match.params.uuid !== user.currentProject.uuid) {
+    user = this.context.tree.get('user')
+    currentRole = user.currentRole.slug
+
+    if (currentRole === 'manager-level-1' && this.props.match.params.uuid !== user.currentProject.uuid) {
       this.props.history.replace('/projects/' + user.currentProject.uuid)
     }
 
     await this.hasSaleCenter()
     await this.hasChannel()
-
     await this.load()
+
     this.setState({
       canEdit: testRoles(this.state.roles)
     })
+
     this.intervalCounter = setInterval(() => {
       if (this.state.project.status !== 'adjustment') return
       this.countAdjustmentRequests()
     }, 10000)
+
+    if (
+      currentRole !== 'manager-level-3' &&
+      !this.intervalConciliate &&
+      this.state.project.status === 'adjustment'
+    ) {
+      this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
+    }
   }
 
   async load (tab) {
@@ -99,6 +117,32 @@ class ProjectDetail extends Component {
     }
   }
 
+  async getModifiedCount () {
+    if (this.state.project.activeDataset) {
+      const url = '/app/rows/modified/dataset/'
+      let res = await api.get(url + this.state.project.activeDataset.uuid)
+
+      if (
+          res.data.pending !== this.state.pendingChanges ||
+          res.data.modified !== this.state.modified
+      ) {
+        if (res.data.pending > 0) {
+          this.setState({
+            modified: res.data.modified,
+            pendingChanges: res.data.pending,
+            isConciliating: ' is-loading'
+          })
+        } else {
+          this.setState({
+            modified: res.data.modified,
+            pendingChanges: res.data.pending,
+            isConciliating: ''
+          })
+        }
+      }
+    }
+  }
+
   async deleteObject () {
     var url = '/app/projects/' + this.props.match.params.uuid
     await api.del(url)
@@ -134,6 +178,11 @@ class ProjectDetail extends Component {
 
       if (res.data.status === 'adjustment') {
         clearInterval(this.interval)
+        if (!this.intervalConciliate) {
+          this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
+        }
+      } else {
+        clearInterval(this.intervalConciliate)
       }
     }
   }
@@ -141,6 +190,7 @@ class ProjectDetail extends Component {
   componentWillUnmount () {
     clearInterval(this.interval)
     clearInterval(this.intervalCounter)
+    clearInterval(this.intervalConciliate)
   }
 
   submitHandler () {

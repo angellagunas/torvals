@@ -371,7 +371,10 @@ class ProductTable extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    if (nextProps.data !== this.props.data) {
+    var same = nextProps.data.length === this.props.data.length
+    same = same && nextProps.data.every((v,i)=> v === this.props.data[i])
+
+    if (!same) {
       this.setState({
         filteredData: nextProps.data
       })

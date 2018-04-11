@@ -71,7 +71,7 @@ module.exports = new Route({
       if (filter === 'period') {
         const weeks = await AbraxasDate.find({
           month: ctx.request.query[filter],
-          dateStart: { $lte: moment(dataset.dateMax) }
+          dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin)}
         }).sort('dateStart')
 
         filters['data.semanaBimbo'] = { $in: weeks.map(item => { return item.week }) }
@@ -107,7 +107,10 @@ module.exports = new Route({
       if (!filters['salesCenter']) {
         var salesCenters = []
 
-        salesCenters = await SalesCenter.find({groups: {$in: groups}})
+        salesCenters = await SalesCenter.find({
+          groups: {$in: groups},
+          organization: ctx.state.organization._id
+        })
 
         filters['salesCenter'] = {$in: salesCenters}
       }
@@ -115,7 +118,10 @@ module.exports = new Route({
       if (!filters['channel']) {
         var channels = []
 
-        channels = await Channel.find({ groups: { $in: groups } })
+        channels = await Channel.find({
+          groups: { $in: groups },
+          organization: ctx.state.organization._id
+        })
 
         filters['channel'] = {$in: channels}
       }

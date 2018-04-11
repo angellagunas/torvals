@@ -60,39 +60,17 @@ class TabAdjustment extends Component {
     }
 
     currentRole = tree.get('user').currentRole.slug
-    this.interval = null
     this.toastId = null
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    // if (nextState.isUpdating) {
-    //   return false
-    // }
-
-    return true
   }
 
   componentWillMount () {
     this.getFilters()
-    this.getModifiedCount()
-
-    if (currentRole !== 'manager-level-3') {
-      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
-    }
-  }
-
-  componentWillUnmount () {
-    clearInterval(this.interval)
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.project.status === 'adjustment' && this.props.project.status !== 'adjustment') {
       this.clearSearch()
       this.getFilters()
-    }
-
-    if (currentRole !== 'manager-level-3' && this.props.project.status == 'adjustment' && !this.interval) {
-      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
   }
 
@@ -235,32 +213,6 @@ class TabAdjustment extends Component {
           toast.TYPE.ERROR
         )
       }            
-    }
-  }
-
-  async getModifiedCount () {
-    if (this.props.project.activeDataset) {
-      const url = '/app/rows/modified/dataset/'
-      let res = await api.get(url + this.props.project.activeDataset.uuid)
-
-      if (
-          res.data.pending !== this.state.pending ||
-          res.data.modified !== this.state.modified
-      ) {
-        if (res.data.pending > 0) {
-          this.setState({
-            modified: res.data.modified,
-            pending: res.data.pending,
-            isConciliating: ' is-loading'
-          })
-        } else {
-          this.setState({
-            modified: res.data.modified,
-            pending: res.data.pending,
-            isConciliating: ''
-          })
-        }
-      }
     }
   }
 
@@ -547,7 +499,10 @@ class TabAdjustment extends Component {
   }
 
   async onClickButtonPlus (type) {
-    for (const row of this.state.selectedCheckboxes) {
+    let { selectedCheckboxes } = this.state
+    selectedCheckboxes = Array.from(selectedCheckboxes)
+
+    for (const row of selectedCheckboxes) {
       let toAdd = 0
       
       if (
@@ -569,21 +524,19 @@ class TabAdjustment extends Component {
 
       let adjustmentForDisplayAux = Math.round(row.adjustmentForDisplay)
       let newAdjustment = adjustmentForDisplayAux + toAdd
-      row.lastLocalAdjustment = row.adjustmentForDisplay
-
-      row.newAdjustment = newAdjustment
-
-      const res = await this.handleChange(row)
       
-      if (!res) {
-        row.adjustmentForDisplay = adjustmentForDisplayAux
-      }
+      row.lastLocalAdjustment = row.adjustmentForDisplay
+      row.newAdjustment = newAdjustment
     }
+
+    await this.handleChange(selectedCheckboxes)
   }
 
   async onClickButtonMinus (type) {
-    this.setState({isUpdating: true})
-    for (const row of this.state.selectedCheckboxes) {
+    let { selectedCheckboxes } = this.state
+    selectedCheckboxes = Array.from(selectedCheckboxes)
+
+    for (const row of selectedCheckboxes) {
       let toAdd = 0
       
       if (
@@ -607,14 +560,9 @@ class TabAdjustment extends Component {
       let newAdjustment = adjustmentForDisplayAux - toAdd
       row.lastLocalAdjustment = row.adjustmentForDisplay
       row.newAdjustment = newAdjustment
-
-      const res = await this.handleChange(row)
-      
-      if (!res) {
-        row.adjustmentForDisplay = adjustmentForDisplayAux
-      }
     }
-    this.setState({isUpdating: false})
+    
+     await this.handleChange(selectedCheckboxes)
   }
 
   toggleButtons () {
@@ -629,51 +577,74 @@ class TabAdjustment extends Component {
   }
 
   async handleChange(obj) {
-    let adjusted = true
-    let maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
-    let minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
+    let rowAux = []
+    let isLimited = false
+    let limitedRows = []
+    let { pendingDataRows } = this.state
 
-    obj.newAdjustment = Math.round(obj.newAdjustment)
-    obj.adjustmentForDisplay = Math.round(obj.adjustmentForDisplay)
 
-    if (this.state.generalAdjustment > 0) {
-      obj.isLimit = (obj.newAdjustment > maxAdjustment || obj.newAdjustment < minAdjustment)
+    if (obj instanceof Array) {
+      rowAux = obj
+    } else {
+      rowAux.push(obj)
     }
 
-    if (obj.isLimit && obj.adjustmentRequest &&
-      (obj.adjustmentRequest.status === 'approved' ||
-        obj.adjustmentRequest.status === 'created')) {
-      obj.adjustmentRequest.status = 'rejected'
+    for (let row of rowAux) {
+      let maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
+      let minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
+
+      row.newAdjustment = Math.round(row.newAdjustment)
+      row.adjustmentForDisplay = Math.round(row.adjustmentForDisplay)
+      row.adjustmentForDisplayAux = row.adjustmentForDisplay
+      row.isLimitAux = row.isLimit
+
+      if (this.state.generalAdjustment > 0) {
+        row.isLimit = (row.newAdjustment > maxAdjustment || row.newAdjustment < minAdjustment)
+      }
+
+      if (row.isLimit && row.adjustmentRequest &&
+        (row.adjustmentRequest.status === 'approved' ||
+          row.adjustmentRequest.status === 'created')) {
+        row.adjustmentRequest.status = 'rejected'
+      }
+
+      row.adjustmentForDisplay = row.newAdjustment
+
+      row.edited = true
+
+      if (currentRole === 'manager-level-1' && row.isLimit) {
+        isLimited = true
+
+        if (!pendingDataRows[row.uuid]) pendingDataRows[row.uuid] = row
+
+        rowAux = rowAux.filter((item) => { return row.uuid !== item.uuid })
+        limitedRows.push(row)
+      }
     }
 
-    obj.adjustmentForDisplay = obj.newAdjustment
+    try {
+      var url = '/app/rows/'
 
-    try { 
-      obj.edited = true
-      let { pendingDataRows } = this.state
+      if (rowAux.length > 0) {
+        const res = await api.post(url, rowAux)
+      }
 
-      if (currentRole === 'manager-level-1' && obj.isLimit) {
+      if (isLimited) {
         this.notify(
-          'No te puedes pasar de los límites establecidos! Debes pedir una solicitud de ajuste '+
-          'haciendo click sobre el ícono rojo.',
+          (<p>
+            <span className='icon'>
+              <i className='fa fa-warning fa-lg' />
+            </span>
+            ¡Debes pedir una solicitud de ajuste haciendo click sobre el ícono rojo!
+          </p>),
           5000,
           toast.TYPE.WARNING
         )
-
-        if (!pendingDataRows[obj.uuid]) pendingDataRows[obj.uuid] = obj
       } else {
-        var url = '/app/rows/' + obj.uuid
-        const res = await api.post(url, { ...obj })
-        this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
+        this.notify('Ajustes guardado!', 5000, toast.TYPE.INFO)
       }
       
-      let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
-      let aux = this.state.dataRows
-
-      aux.splice(index, 1, obj)
-
       this.setState({
-        dataRows: aux,
         pendingDataRows: pendingDataRows,
         isConciliating: ' is-loading'
       })
@@ -682,18 +653,46 @@ class TabAdjustment extends Component {
 
     } catch (e) {
       this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
+
+      for (let row of rowAux) {
+        row.edited = false
+        row.adjustmentForDisplay = row.adjustmentForDisplayAux
+        if (row.isLimitAux !== row.isLimit) {
+          row.isLimit = false
+        }
+
+        delete row.adjustmentForDisplayAux
+        delete row.isLimitAux
+      }
+
+      for (let row of limitedRows) {
+        row.edited = false
+        row.adjustmentForDisplay = row.adjustmentForDisplayAux
+        if (row.isLimitAux !== row.isLimit) {
+          row.isLimit = false
+        }
+
+        delete row.adjustmentForDisplayAux
+        delete row.isLimitAux
+        delete pendingDataRows[row.uuid]
+      }
+
+      this.setState({
+        pendingDataRows: pendingDataRows
+      })
+
       return false
     }
 
     this.getCountEdited()
-    return adjusted
+    return true
   }
 
   getCountEdited = () => {
     let edited = 0
     let pending = 0
     for(let row of this.state.dataRows){
-      if(row.edited){
+      if(row.edited || row.wasEdited){
         edited++
       }
       if(row.adjustmentRequest && row.adjustmentRequest.status === 'created'){
@@ -734,15 +733,16 @@ class TabAdjustment extends Component {
       productAux.push(obj)
     }
 
+    try {
+      var res = await api.post('/app/rows/request', productAux)
+    } catch (e) {
+      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
+
+      return
+    }
+
     for (var product of productAux) {
-      let res = await api.post(
-        `/app/rows/${product.uuid}/request`,
-        {
-          newAdjustment: product.adjustmentForDisplay
-        }
-      )
-      
-      product.adjustmentRequest = res.data
+      product.adjustmentRequest = res.data[product.uuid]
       delete pendingDataRows[product.uuid]
     }
 
@@ -759,18 +759,24 @@ class TabAdjustment extends Component {
   }
 
   async searchDatarows() {
-    const items = this.state.dataRows.map((item) => {
-      if (this.state.searchTerm === ''){
-        return item
-      }
-      const regEx = new RegExp(this.state.searchTerm, 'gi')
+    if (this.state.searchTerm === '') {
+      this.setState({
+        filteredData: this.state.dataRows
+      })
 
-      if (regEx.test(item.productName) || regEx.test(item.productId) || regEx.test(item.channel) || regEx.test(item.salesCenter))
-        return item
-      else
-        return null
+      return
+    }
+
+    const items = this.state.dataRows.filter((item) => {
+      const regEx = new RegExp(this.state.searchTerm, 'gi')
+      const searchStr = `${item.productName} ${item.productId} ${item.channel} ${item.salesCenter}`
+
+      if (regEx.test(searchStr))
+        return true
+      
+      return false
     })
-    .filter(function(item){ return item != null });
+    // .filter(function(item){ return item != null });
 
     await this.setState({
       filteredData: items
@@ -1275,7 +1281,6 @@ class TabAdjustment extends Component {
                       <Graph
                         data={graphData}
                         labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
-                        reloadGraph={this.state.reloadGraph}
                       />
                       :
                       this.loadTable()

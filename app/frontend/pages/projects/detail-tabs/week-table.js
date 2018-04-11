@@ -6,7 +6,6 @@ import classNames from 'classnames'
 
 
 class WeekTable extends Component {
-
   constructor(props){
     super(props)
     this.state = {
@@ -366,7 +365,7 @@ class WeekTable extends Component {
         filteredDataByWeek: []
       })  
 
-    let data = this.state.data
+    let data = this.state.data.slice(0)
     let rw = []
     for (let index = 0; index < data.length; index++) {
       const element = data[index];
@@ -472,15 +471,29 @@ class WeekTable extends Component {
   }
 
   componentWillReceiveProps(nextProps){
-    if(nextProps.data !== this.props.data){
-      if (nextProps.data !== this.props.data) {
-        this.setState({
-          data: nextProps.data
-        }, () => {
-          this.setRange()
-          this.filterData()
-        })
-      }
+    if (!nextProps.data) return
+
+    if (!this.props.data) {
+      this.setState({
+        data: nextProps.data
+      }, () => {
+        this.setRange()
+        this.filterData()
+      })
+
+      return
+    }
+
+    var same = nextProps.data.length === this.props.data.length
+    same = same && nextProps.data.every((v,i)=> v === this.props.data[i])
+
+    if (!same) {
+      this.setState({
+        data: nextProps.data
+      }, () => {
+        this.setRange()
+        this.filterData()
+      })
     }
   }
 
