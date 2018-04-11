@@ -6,14 +6,19 @@ class CustomDate extends Component {
       <div>
         <button
           title={this.props.placeholder}
-          className='button'
+          className='button date-selector'
           onClick={this.props.onClick}>
-          <span className='icon is-medium'>
+          <span className={this.props.value ? 'icon is-medium' : 'icon is-medium has-text-grey-lighter'}>
             <i className='fa fa-calendar' />
           </span>
-          <span>
-            {this.props.value || this.props.placeholder}
+          {this.props.value
+          ? <span>
+            {this.props.value}
           </span>
+          : <span className='has-text-grey-lighter'>
+            {this.props.placeholder}
+          </span>
+          }
         </button>
       </div>
     )

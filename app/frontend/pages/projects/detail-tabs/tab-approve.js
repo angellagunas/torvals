@@ -14,7 +14,7 @@ import CustomDate from './custom-date'
 const generalAdjustment = 0.1
 var currentRole
 
-class TabAprove extends Component {
+class TabApprove extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -31,7 +31,6 @@ class TabAprove extends Component {
   }
 
   componentWillMount () {
-    this.setAlertMsg()
     this.getAdjustmentRequests()
   }
 
@@ -55,6 +54,43 @@ class TabAprove extends Component {
 
   getColumns () {
     return [
+      {
+        'title': 'Seleccionar Todo',
+        'abbreviate': true,
+        'abbr': (() => {
+          if (currentRole !== 'manager-level-3') {
+            return (
+              <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
+                <Checkbox
+                  label='checkAll'
+                  handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
+                  key='checkAll'
+                  checked={this.state.selectedAll}
+                  hideLabel />
+              </div>
+            )
+          }
+        })(),
+        'property': 'checkbox',
+        'default': '',
+        formatter: (row, state) => {
+          if (currentRole !== 'manager-level-3') {
+            if (row.status === 'created') {
+              if (!row.selected) {
+                row.selected = false
+              }
+              return (
+                <Checkbox
+                  label={row}
+                  handleCheckboxChange={this.toggleCheckbox}
+                  key={row}
+                  checked={row.selected}
+                  hideLabel />
+              )
+            }
+          }
+        }
+      },
       {
         'title': 'Id',
         'property': 'productId',
@@ -175,7 +211,7 @@ class TabAprove extends Component {
               <span
                 className='icon has-text-info'
                 title={'Creado por ' + row.requestedBy.name}>
-                <FontAwesome name='info-circle fa-2x' />
+                <FontAwesome name='info-circle fa-lg' />
               </span>
             )
           }
@@ -185,7 +221,7 @@ class TabAprove extends Component {
               <span
                 className='icon has-text-success'
                 title={'Aprobado por ' + row.approvedBy.name}>
-                <FontAwesome name='check-circle fa-2x' />
+                <FontAwesome name='check-circle fa-lg' />
               </span>
             )
           }
@@ -195,48 +231,11 @@ class TabAprove extends Component {
               <span
                 className='icon has-text-danger'
                 title={'Rechazado por ' + row.rejectedBy.name}>
-                <FontAwesome name='times-circle fa-2x' />
+                <FontAwesome name='times-circle fa-lg' />
               </span>
             )
           }
           return ''
-        }
-      },
-      {
-        'title': 'Seleccionar Todo',
-        'abbreviate': true,
-        'abbr': (() => {
-          if (currentRole !== 'manager-level-3') {
-            return (
-              <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
-                <Checkbox
-                  label='checkAll'
-                  handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
-                  key='checkAll'
-                  checked={this.state.selectedAll}
-                  hideLabel />
-              </div>
-            )
-          }
-        })(),
-        'property': 'checkbox',
-        'default': '',
-        formatter: (row, state) => {
-          if (currentRole !== 'manager-level-3') {
-            if (row.status === 'created') {
-              if (!row.selected) {
-                row.selected = false
-              }
-              return (
-                <Checkbox
-                  label={row}
-                  handleCheckboxChange={this.toggleCheckbox}
-                  key={row}
-                  checked={row.selected}
-                  hideLabel />
-              )
-            }
-          }
         }
       }
     ]
@@ -301,104 +300,112 @@ class TabAprove extends Component {
 
   getModifyButtons() {
     return (
-      <div>
-        <div className='columns is-marginless is-paddingless'>
-          <div className='column'>
+      <div className='section level selects'>
+        <div className='level-left'>
+          <div className='level-item'>
+        
+            <div className='field'>
+              <label className='label'>Búsqueda general</label>
+              <div className='control has-icons-right'>
+                <input
+                  className='input'
+                  type='text'
+                  value={this.state.searchTerm}
+                  onChange={this.searchOnChange} placeholder='Buscar' />
+
+                <span className='icon is-small is-right'>
+                  <i className='fa fa-search fa-xs'></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className='level-item'>
             <div className='field is-grouped'>
-              <div className='control'>
-                <h4 className='subtitle'>Filtrar por fecha: </h4>
+              <div className='field control'>
+                <label className='label'>Filtrar por fecha</label>
+                <div className='control'>
+                  <DatePicker
+                    selected={this.state.startDate}
+                    selectsStart
+                    startDate={this.state.startDate}
+                    endDate={this.state.endDate}
+                    onChange={this.startDateChange}
+                    dateFormat="DD/MM/YYYY"
+                    todayButton={"Hoy"}
+                    placeholderText="Fecha inicio"
+                    customInput={<CustomDate />}
+                  />
+                </div>
               </div>
-              <div className='control'>
-                <DatePicker
-                  selected={this.state.startDate}
-                  selectsStart
-                  startDate={this.state.startDate}
-                  endDate={this.state.endDate}
-                  onChange={this.startDateChange}
-                  dateFormat="DD/MM/YYYY"
-                  todayButton={"Hoy"}
-                  placeholderText="Fecha inicio"
-                  customInput={<CustomDate />}
-                />
+              <div className='field control'>
+                <label className='label'>&nbsp;</label>
+                <div className='control'>
+                  <DatePicker
+                    selected={this.state.endDate}
+                    selectsEnd
+                    startDate={this.state.startDate}
+                    endDate={this.state.endDate}
+                    onChange={this.endDateChange}
+                    dateFormat="DD/MM/YYYY"
+                    todayButton={"Hoy"}
+                    placeholderText="Fecha final"
+                    customInput={<CustomDate />}
+                  />
+                </div>
               </div>
-              <div className='control'>
-                <DatePicker
-                  selected={this.state.endDate}
-                  selectsEnd
-                  startDate={this.state.startDate}
-                  endDate={this.state.endDate}
-                  onChange={this.endDateChange}
-                  dateFormat="DD/MM/YYYY"
-                  todayButton={"Hoy"}
-                  placeholderText="Fecha final"
-                  customInput={<CustomDate />}
-                />
-              </div>
-              <div className='control'>
-                <a className='button is-light' onClick={this.clearSearchDate}>
-                  Limpiar
+              <div className='control is-margin-top-20'>
+                  <a className='button is-info'
+                    onClick={() => {
+                      this.clearSearch()
+                      this.clearSearchDate()
+                    }}>
+                    Limpiar
                   </a>
-              </div>
+                </div>
             </div>
           </div>
         </div>
-        <div className='columns is-marginless is-paddingless'>
-          <div className='column'>
-            <div className='field is-grouped'>
-              <div className='control'>
-                <h4 className='subtitle'>Total: {this.state.dataRows.length} </h4>
-              </div>
-              <div className='control'>
-                <h4 className='subtitle'>Pendientes: {this.state.remainingItems} </h4>
-              </div>
-              <div className='control'>
-                <div className='field has-addons'>
-                  <div className='control'>
-                    <input
-                      className='input'
-                      type='text'
-                      value={this.state.searchTerm}
-                      onChange={this.searchOnChange} placeholder='Buscar' />
-                  </div>
-                  <div className='control'>
-                    <a className='button is-light' onClick={this.clearSearch}>
-                      Limpiar
-                  </a>
-                  </div>
-                </div>
+          
+
+          {currentRole !== 'manager-level-3' ?
+           
+          <div className='level-right'>
+            <div className='level-item'>
+              <div className='saleCenter'>
+                <span>Total: </span>
+                <span className='has-text-weight-bold is-capitalized'>{this.state.dataRows.length}
+                </span>
               </div>
             </div>
-          </div>
-          {currentRole !== 'manager-level-3' ?
-          <div className='column'>
-            <div className='field is-grouped is-grouped-right'>
-              <div className='control'>
+
+            <div className='level-item'>
+              <div className='saleCenter'>
+                <span>Pendientes: </span>
+                <span className='has-text-weight-bold is-capitalized'>{this.state.remainingItems}
+                </span>
+              </div>
+            </div>
+            <div className='level-item is-margin-top-20'>
                 <button
                   className='button is-danger'
                   onClick={this.reject}
                   disabled={this.state.disableButtons}
                 >
-                  <span className='icon'>
-                    <i className='fa fa-times-circle' />
-                  </span>
                   <span>Rechazar</span>
                 </button>
               </div>
-              <div className='control'>
+            <div className='level-item is-margin-top-20'>
+              
                 <button
                   className='button is-success'
-                  onClick={this.aprove}
+                  onClick={this.approve}
                   disabled={this.state.disableButtons}
                 >
-                  <span className='icon'>
-                    <i className='fa fa-check-circle' />
-                  </span>
                   <span>Aprobar</span>
                 </button>
               </div>
-            </div>
           </div> : null }
-        </div>
       </div>
     )
   }
@@ -487,7 +494,7 @@ class TabAprove extends Component {
     }, () => this.searchDatarows())
   }
 
-  aprove = async () => {
+  approve = async () => {
     let url = '/app/adjustmentRequests/approve/'
 
     for (const row of this.state.selectedCheckboxes) {
@@ -534,7 +541,8 @@ class TabAprove extends Component {
 
     let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
     let aux = this.state.dataRows
-
+    obj.selected = false
+console.log(obj)
     aux.splice(index,1,obj)
 
     this.setState({
@@ -585,46 +593,6 @@ class TabAprove extends Component {
     this.toggleButtons()
   }
 
-  setAlertMsg () {
-    if (currentRole === 'manager-level-3') {
-      this.props.setAlert('is-error', 'Modo de Visualización - No se permite aprobar / rechazar a tu tipo de usuario.')
-    }
-    else if (currentRole === 'manager-level-2'){
-      this.props.setAlert('is-warning', 'Es necesario aprobar ajustes fuera de rango. Tu tipo de usuario permite ajustes fuera de rango')
-    }
-    else {
-      this.props.setAlert('is-warning', 'Es necesario aprobar ajustes fuera de rango.')
-    }
-  }
-
-  handleSort(e){
-    let sorted = this.state.filteredData
-
-    if (e === 'productId'){
-          if (this.state.sortAscending){
-            sorted.sort((a, b) => { return parseFloat(a.datasetRow.product.externalId) - parseFloat(b.datasetRow.product.externalId) })
-          }
-          else{
-            sorted.sort((a, b) => { return parseFloat(b.datasetRow.product.externalId) - parseFloat(a.datasetRow.product.externalId) })                        
-          }
-    }
-    else{
-      if (this.state.sortAscending){
-        sorted = _.orderBy(sorted,[e], ['asc'])
-              
-      }
-      else{
-        sorted = _.orderBy(sorted,[e], ['desc'])    
-      }
-    }
-    
-    this.setState({
-      filteredData: sorted,
-      sortAscending: !this.state.sortAscending,
-      sortBy: e
-    })
-  }
-
   handleSort(e){
     let sorted = this.state.filteredData
 
@@ -654,11 +622,13 @@ class TabAprove extends Component {
   }
   
   render () {
+    console.log(this.state.dataRows)
     return (
       <div>
         <section className='section is-clipped'>
         {this.getModifyButtons()}
         <BaseTable
+          className='aprobe-table is-fullwidth'
           data={this.state.filteredData}
           columns={this.getColumns()}
           sortAscending={this.state.sortAscending}
@@ -670,4 +640,4 @@ class TabAprove extends Component {
   }
 }
 
-export default TabAprove
+export default TabApprove

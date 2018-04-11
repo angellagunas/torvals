@@ -8,6 +8,7 @@
 @import 'inputs';
 @import 'landing';
 @import 'adjustments';
+@import 'sidepanel';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html,
 body {
@@ -50,11 +51,11 @@ h2 {
     cursor: initial;
 }
 
-.is-transparent-text{
+.is-transparent-text {
     color: transparent !important;
 }
 
-.is-fullwidth{
+.is-fullwidth {
     width: 100%;
 }
 
@@ -74,7 +75,7 @@ h2 {
 }
 
 .sidenav-open {
-    margin-left: 200px;
+    margin-left: 210px;
 }
 
 .is-hamburguer {
@@ -95,6 +96,51 @@ h2 {
 
 ::-webkit-scrollbar-thumb {
     background: rgb(170, 170, 170);
+}
+
+.is-margin-top-20 {
+    margin-top: 20px;
+}
+
+.badge {
+    position: relative;
+    span {
+        position: absolute;
+        top: -5px;
+        right: -10px;
+        transform: translate(0, -100%);
+        padding: 1px;
+        color: white;
+        border-radius: 100px;
+        background: $warning;
+        font-size: .75rem;
+        font-weight: bold;
+        width: 16px;
+        height: 16px;
+        text-align: center;
+        line-height: 16px;
+    }
+}
+
+.card-header-select {
+    padding: .30em
+}
+
+.card-header {
+    &-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+    background-color: #EFF1F9;
+    border-color: #E6E8F6;
+}
+
+.is-size-3 {
+    font-size: 1.3rem !important;
+}
+
+.is-padding-bottom-small {
+    padding-bottom: 0.5em;
 }
 
 /* @import 'base'; */

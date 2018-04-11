@@ -1,0 +1,60 @@
+.searchbox {
+    position: absolute;
+    top: 20px;
+    right: 0px;
+    padding: 0px;
+    background-color: #5d5d5d;
+    color: white;
+    border-radius: 5px 0px 0px 5px;
+    cursor: pointer;
+    text-align: center;
+    z-index: 11;
+    width: 2.5rem;
+}
+
+.side-filters {
+    width: 250px;
+    background-color: #FBFBFB;
+    height: 100vh;
+    .panel-block {
+        .control {
+            .input {
+                width: 225px !important;
+            }
+        }
+    }
+}
+
+.sidepanel {
+    position: absolute;
+    top: 65px;
+    right: 0px;
+    padding: 0px;
+    background-color: #5d5d5d;
+    color: white;
+    border-radius: 5px 0px 0px 5px;
+    cursor: pointer;
+    text-align: center;
+    z-index: 11;
+    width: 2.5rem;
+    &-content {
+        width: 250px;
+        height: 100vh;
+        background: #FBFBFB;
+        .panel-block {
+            .control {
+                .input {
+                    width: 225px !important;
+                }
+            }
+        }
+    }
+}
+
+.z100 {
+    z-index: 100 !important;
+}
+
+.pad-sides {
+    padding: 0 3em !important;
+}
