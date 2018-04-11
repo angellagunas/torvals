@@ -64,12 +64,12 @@ class Graph extends Component {
       <div className='chart-container'>
         <Line
           data={this.state.data}
-          /* width={this.props.width}
-          height={this.props.height} */
+          width={this.props.width}
+          height={this.props.height}
           options={{
-            responsive: true,
+            responsive: this.props.responsive || true,
             responsiveAnimationDuration: 1,
-            maintainAspectRatio: true,
+            maintainAspectRatio: this.props.maintainAspectRatio || true,
             scales: {
               xAxes: [
                 {

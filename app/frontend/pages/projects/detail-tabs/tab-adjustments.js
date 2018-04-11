@@ -887,7 +887,7 @@ class TabAdjustment extends Component {
     }
     else {
       return (
-        <div className='section has-text-centered subtitle has-text-primary'>
+        <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
           {this.state.noSalesData}
         </div>
       )
