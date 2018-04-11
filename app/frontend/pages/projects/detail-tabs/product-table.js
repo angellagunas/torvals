@@ -204,19 +204,23 @@ class ProductTable extends Component {
           }
 
           row.tabin = row.key * 10
-          return (
-            <input
-              type='number'
-              className='input'
-              value={row.adjustmentForDisplay}
-              onBlur={(e) => { this.onBlur(e, row) }}
-              onKeyPress={(e) => { this.onEnter(e, row) }}
-              onChange={(e) => { this.onChange(e, row) }}
-              onFocus={(e) => { this.onFocus(e, row) }}
-              tabIndex={row.tabin}
-              ref={(el) => { this.inputs.add({ tabin: row.tabin, el: el }) }}
-            />
-          )
+          if (this.props.currentRole !== 'manager-level-3') {
+            return (
+              <input
+                type='number'
+                className='input'
+                value={row.adjustmentForDisplay}
+                onBlur={(e) => { this.onBlur(e, row) }}
+                onKeyPress={(e) => { this.onEnter(e, row) }}
+                onChange={(e) => { this.onChange(e, row) }}
+                onFocus={(e) => { this.onFocus(e, row) }}
+                tabIndex={row.tabin}
+                ref={(el) => { this.inputs.add({ tabin: row.tabin, el: el }) }}
+              />
+            )
+          }else{
+            return <span>{row.adjustmentForDisplay}</span>
+          }
         }
       },
       {

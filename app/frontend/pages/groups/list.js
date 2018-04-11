@@ -112,15 +112,10 @@ export default ListPage({
             tree.commit()
           }
 
-          return (
-            <div className='field is-grouped'>
-              <div className='control'>
-                <Link className='button is-primary' to={'/manage/groups/' + row.uuid}>
-                  <span className='icon is-small' title='Editar'>
-                    <i className='fa fa-pencil' />
-                  </span>
-                </Link>
-              </div>
+          var currentRole = tree.get('user').currentRole.slug
+          var deleteButton
+          if (currentRole !== 'manager-level-3') {
+            deleteButton =
               <div className='control'>
                 <DeleteButton
                   iconOnly
@@ -130,6 +125,18 @@ export default ListPage({
                   message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
                   />
               </div>
+          }
+
+          return (
+            <div className='field is-grouped'>
+              <div className='control'>
+                <Link className='button is-primary' to={'/manage/groups/' + row.uuid}>
+                  <span className='icon is-small' title='Editar'>
+                    <i className='fa fa-pencil' />
+                  </span>
+                </Link>
+              </div>
+              {deleteButton}
             </div>
           )
         }

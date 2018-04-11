@@ -89,6 +89,12 @@ class PriceForm extends Component {
       </div>
     }
 
+    if (this.props.disabled) {
+      for (var field in uiSchema) {
+        uiSchema[field]['ui:disabled'] = true
+      }
+    }
+
     return (
       <div>
         <BaseForm schema={schema}

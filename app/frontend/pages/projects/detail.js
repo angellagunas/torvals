@@ -394,6 +394,17 @@ class ProjectDetail extends Component {
         Agregar Dataset
       </span>
     </button>)
+    var consolidarButton
+    if (!testRoles('manager-level-3')) {
+      consolidarButton =
+        <p className='control btn-conciliate'>
+          <a className={'button is-success ' + this.state.isConciliating}
+            disabled={!!this.state.isConciliating}
+            onClick={e => this.conciliateOnClick()}>
+                      Consolidar
+                  </a>
+        </p>
+    }
 
     return (
       <div>
@@ -458,13 +469,7 @@ class ProjectDetail extends Component {
                         Por aprobar {this.state.pending}
                   </span>
                 </p>
-                <p className='control btn-conciliate'>
-                  <a className={'button is-success ' + this.state.isConciliating}
-                    disabled={!!this.state.isConciliating}
-                    onClick={e => this.conciliateOnClick()}>
-                      Consolidar
-                  </a>
-                </p>
+                {consolidarButton}
               </div>
               {canEdit &&
                 <DeleteButton

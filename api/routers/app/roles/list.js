@@ -33,10 +33,14 @@ module.exports = new Route({
       }
     }
 
+    if (currentRole.slug !== 'manager-level-3') {
+      filters['priority'] = { $gt: currentRole.priority }
+    }
+
     var role = await Role.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters, priority: {$gt: currentRole.priority}},
+      find: {isDeleted: false, ...filters},
       sort: ctx.request.query.sort || 'priority'
     })
 

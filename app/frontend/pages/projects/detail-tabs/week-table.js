@@ -239,19 +239,23 @@ class WeekTable extends Component {
 
              row.tabin = row.key * 10 + j
              row.weeks[j].tabin = row.key * 10 + j
-             return (
-               <input
-                 type='number'
-                 className='input'
-                 value={row.weeks[j].adjustmentForDisplay}
-                 onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
-                 onKeyPress={(e) => { this.onEnter(e, row.weeks[j]) }}
-                 onChange={(e) => { this.onChange(e, row.weeks[j]) }}
-                 onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
-                 tabIndex={row.tabin}
-                 ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
-               />
-             )
+             if (this.props.currentRole !== 'manager-level-3') {
+               return (
+                 <input
+                   type='number'
+                   className='input'
+                   value={row.weeks[j].adjustmentForDisplay}
+                   onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
+                   onKeyPress={(e) => { this.onEnter(e, row.weeks[j]) }}
+                   onChange={(e) => { this.onChange(e, row.weeks[j]) }}
+                   onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
+                   tabIndex={row.tabin}
+                   ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
+                 />
+               )
+             }else{
+                return <span>{row.weeks[j].adjustmentForDisplay}</span>
+             }
            }
          },
          {
