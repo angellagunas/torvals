@@ -11,19 +11,19 @@
           "containerPort": 3000,
           "hostPort": 0,
           "protocol": "tcp",
-          "servicePort": "${KORE_API_PORT}"
+          "servicePort": ${KORE_API_PORT}
         },
         {
           "containerPort": 4000,
           "hostPort": 0,
           "protocol": "tcp",
-          "servicePort": "${KORE_APP_PORT}"
+          "servicePort": ${KORE_APP_PORT}
         },
         {
           "containerPort": 5000,
           "hostPort": 0,
           "protocol": "tcp",
-          "servicePort": "${KORE_ADMIN_PORT}"
+          "servicePort": ${KORE_ADMIN_PORT}
         }
       ],
       "privileged": false
