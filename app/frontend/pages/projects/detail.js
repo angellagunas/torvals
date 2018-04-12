@@ -57,6 +57,12 @@ class ProjectDetail extends Component {
       this.props.history.replace('/projects/' + user.currentProject.uuid)
     }
 
+    if (currentRole === 'consultor') {
+      this.setState({
+        selectedTab: 'graficos'
+      })
+    }
+
     await this.hasSaleCenter()
     await this.hasChannel()
     await this.load()
@@ -385,7 +391,7 @@ class ProjectDetail extends Component {
       //   )
       // },
       {
-        name: 'Gráficos',
+        name: 'graficos',
         title: 'Gráficos',
         hide: (project.status === 'processing' ||
           project.status === 'pendingRows' ||
@@ -399,7 +405,7 @@ class ProjectDetail extends Component {
       {
         name: 'configuracion',
         title: 'Configuración',
-        hide: testRoles('manager-level-1'),
+        hide: testRoles('manager-level-1, manager-level-2, consultor'),
         reload: true,
         content: (
           <div>

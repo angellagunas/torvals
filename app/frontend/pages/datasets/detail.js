@@ -144,7 +144,7 @@ class DataSetDetail extends Component {
     if (!this.state.canEdit) return
     var url = `/app/projects/${this.state.dataset.project.uuid}/remove/dataset`
     await api.post(url, { dataset: this.props.match.params.uuid })
-    this.props.history.push('/datasets')
+    this.props.history.push('/projects/' + this.state.dataset.project.uuid)
   }
 
   async configureOnClick () {
