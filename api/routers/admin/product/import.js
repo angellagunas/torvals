@@ -33,14 +33,30 @@ module.exports = new Route({
       ctx.throw(400, result.error)
     }
 
+    var creados = 0
+    var modificados = 0
+
     for (var d of data) {
       let organization = await Organization.findOne({'slug': d.organizationSlug})
       if (organization) {
         d.organization = organization._id
-        await Product.create(d)
+        let product = await Product.findOne({'externalId': d.externalId, 'organization': organization._id})
+        if (product) {
+          product.set({
+            name: d.name,
+            description: d.description,
+            category: d.category,
+            subcategory: d.subcategory
+          })
+          await product.save()
+          modificados++
+        } else {
+          await Product.create(d)
+          creados++
+        }
       }
     }
 
-    ctx.body = {message: `Se han creado ${data.length} Productos satisfactoriamente!`}
+    ctx.body = {message: `Se han creado ${creados} Productos y modificado ${modificados} satisfactoriamente!`}
   }
 })

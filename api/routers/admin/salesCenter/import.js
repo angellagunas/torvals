@@ -31,14 +31,28 @@ module.exports = new Route({
       ctx.throw(400, result.error)
     }
 
+    var modificados = 0
+    var creados = 0
+
     for (var d of data) {
       let organization = await Organization.findOne({'slug': d.organizationSlug})
       if (organization) {
         d.organization = organization._id
-        await SalesCenter.create(d)
+        let salesCenter = await SalesCenter.findOne({'organization': organization._id, 'externalId': d.externalId})
+        if (salesCenter) {
+          salesCenter.set({
+            name: d.name,
+            description: d.description
+          })
+          await salesCenter.save()
+          modificados++
+        } else {
+          await SalesCenter.create(d)
+          creados++
+        }
       }
     }
 
-    ctx.body = {message: `Se han creado ${data.length} Centros de venta satisfactoriamente!`}
+    ctx.body = {message: `Se han creado ${creados} Centros de venta y modificado ${modificados} satisfactoriamente!`}
   }
 })
