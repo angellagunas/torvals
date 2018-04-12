@@ -256,13 +256,18 @@ class LogInButton extends Component {
           <div className='modal-background' onClick={(e) => {}} />
           <div className='modal-content land-login'>
             <section>
+              <div className='card-image'>
+                <figure className='image'>
+                  <img src='/app/public/img/logo.png' />
+                </figure>
+              </div>
               <div className='card-container'>
-                <h1 className='is-size-4 has-text-white pad-bottom'>
+                <h1 className='is-size-4 pad-bottom'>
                   Bienvenido a Orax
                 </h1>
                 <div className='content'>
                   <div className='columns is-centered'>
-                    <div className='column is-7'>
+                    <div className='column is-10'>
                       <BaseForm schema={schema}
                         uiSchema={uiSchema}
                         formData={this.state.formData}
@@ -277,11 +282,11 @@ class LogInButton extends Component {
                         </div>
                         <div>
                           <button
-                            className='button is-danger is-fullwidth'
+                            className='button is-info is-fullwidth'
                             type='submit'
                             disabled={!!error}
                           >
-                            Log in
+                            Iniciar sesión
                       </button>
                         </div>
                       </BaseForm>
