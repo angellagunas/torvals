@@ -174,7 +174,7 @@ class TabAdjustment extends Component {
         var formData = this.state.formData
         formData.period = period1[0].month
 
-        if (res.salesCenters.length === 1) {
+        if (res.salesCenters.length > 0) {
           formData.salesCenter = res.salesCenters[0].uuid
         }
 
@@ -848,7 +848,6 @@ class TabAdjustment extends Component {
         noSalesData: e.message + ', intente más tarde'
       })
     }
-    this.getCountEdited() 
   }
 
   async updateSalesTable(row) {
@@ -1144,7 +1143,7 @@ class TabAdjustment extends Component {
               <Select
                 label='Centros de Venta'
                 name='salesCenter'
-                value=''
+                value={this.state.formData.salesCenter}
                 placeholder='Seleccionar'
                 optionValue='uuid'
                 optionName='name'
