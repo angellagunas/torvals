@@ -1,11 +1,11 @@
-import React, { PureComponent } from 'react'
+import React, { Component } from 'react'
 import StickTable from '~base/components/stick-table'
 import Checkbox from '~base/components/base-checkbox'
 import Loader from '~base/components/spinner'
 import classNames from 'classnames'
 
 
-class WeekTable extends PureComponent {
+class WeekTable extends Component {
   constructor(props){
     super(props)
     this.state = {
