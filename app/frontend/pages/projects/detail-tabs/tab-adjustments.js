@@ -4,7 +4,6 @@ import moment from 'moment'
 import _ from 'lodash'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
-import {FileSaver} from 'file-saver'
 
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -939,7 +938,7 @@ class TabAdjustment extends Component {
         category: this.state.formData.categories
       })
 
-      
+      var FileSaver = require('file-saver');
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
