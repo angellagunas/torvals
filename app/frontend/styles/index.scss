@@ -9,6 +9,7 @@
 @import 'landing';
 @import 'adjustments';
 @import 'sidepanel';
+@import 'calendar';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html,
 body {
@@ -113,12 +114,12 @@ h2 {
         color: white;
         border-radius: 100px;
         background: $warning;
-        font-size: .75rem;
+        font-size: .8rem;
         font-weight: bold;
-        width: 16px;
-        height: 16px;
+        width: 1.3rem;
+        height: 1.3rem;
         text-align: center;
-        line-height: 16px;
+        line-height: 1.3rem;
     }
 }
 
@@ -141,6 +142,13 @@ h2 {
 
 .is-padding-bottom-small {
     padding-bottom: 0.5em;
+}
+
+.clear-btn {
+    margin-top: 20px;
+    .button {
+        height: 1.7rem;
+    }
 }
 
 /* @import 'base'; */

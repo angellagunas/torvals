@@ -354,7 +354,7 @@ class TabApprove extends Component {
                   />
                 </div>
               </div>
-              <div className='control is-margin-top-20'>
+              <div className='control clear-btn'>
                   <a className='button is-info'
                     onClick={() => {
                       this.clearSearch()
