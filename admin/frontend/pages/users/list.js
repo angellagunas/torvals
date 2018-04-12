@@ -46,20 +46,12 @@ class UserList extends ListPageComponent {
         type: 'object',
         required: [],
         properties: {
-          screenName: {type: 'text', title: 'Por nombre'},
-          email: {type: 'text', title: 'Por email'},
-          organization: {type: 'text', title: 'Por organización', values: []}
+          general: {type: 'text', title: 'Buscar'}
         }
       },
       uiSchema: {
-        screenName: {'ui:widget': 'SearchFilter'},
-        email: {'ui:widget': 'SearchFilter'},
-        organization: {'ui:widget': 'SelectSearchFilter'}
+        general: {'ui:widget': 'SearchFilter'}
       }
-    }
-
-    if (this.state.organizations) {
-      data.schema.properties.organization.values = this.state.organizations.map(item => { return {uuid: item.uuid, name: item.name} })
     }
 
     return data
