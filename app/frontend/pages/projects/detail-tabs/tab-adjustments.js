@@ -47,7 +47,6 @@ class TabAdjustment extends Component {
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
-      isConciliating: '',
       isDownloading: '',
       generalAdjustment: 0.1,
       salesTable: [],
@@ -660,8 +659,7 @@ class TabAdjustment extends Component {
       }
       
       this.setState({
-        pendingDataRows: pendingDataRows,
-        isConciliating: ' is-loading'
+        pendingDataRows: pendingDataRows
       })
 
       await this.updateSalesTable(obj)
@@ -699,22 +697,8 @@ class TabAdjustment extends Component {
       return false
     }
 
-    this.getCountEdited()
+    this.props.loadCounters()
     return true
-  }
-
-  getCountEdited = () => {
-    let edited = 0
-    let pending = 0
-    for(let row of this.state.dataRows){
-      if(row.edited || row.wasEdited){
-        edited++
-      }
-      if(row.adjustmentRequest && row.adjustmentRequest.status === 'created'){
-        pending++
-      }
-    }
-    this.props.counters(edited, pending)
   }
 
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {

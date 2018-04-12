@@ -43,6 +43,22 @@ class Graph extends PureComponent {
     this.getData()
   }
 
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.reloadGraph) {
+      this.setState({
+        dataGraph: nextProps.data,
+        data: {
+          datasets: [],
+          labels: nextProps.labels
+        }
+      },
+        () => {
+          this.getData()
+        }
+      )
+    }
+  }
+
   render () {
     return (
       <div className='chart-container'>
