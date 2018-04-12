@@ -5,7 +5,6 @@ require('lib/databases/mongo')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSet } = require('models')
-const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   console.log('Fetching preprocessing Datasets...')
@@ -21,30 +20,10 @@ const task = new Task(async function (argv) {
     return true
   }
 
-  console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
-
-  if (!apiData.token) {
-    throw new Error('There is no API endpoint configured!')
-  }
-
   for (var dataset of datasets) {
     console.log(`Verifying if ${dataset.name} dataset has finished preprocessing ...`)
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/datasets/${dataset.externalId}`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      json: true,
-      persist: true
-    }
-
     try {
-      var res = await request(options)
+      var res = await Api.getDataset(dataset.externalId)
 
       if (res.status === 'done' && res.headers.length > 1) {
         console.log(`${dataset.name} dataset has finished preprocessing`)

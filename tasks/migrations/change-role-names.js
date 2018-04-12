@@ -24,7 +24,7 @@ var changeRoleNames = async function () {
     }
 
     console.log('*****Changing role "Manager Level 3" to "Consultor"')
-    roleObj = await Role.findOne({slug: 'consultor'})
+    roleObj = await Role.findOne({slug: 'manager-level-3'})
     newNameRole = 'Consultor'
     newNameRoleSlug = slugify(newNameRole)
 

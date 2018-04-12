@@ -17,8 +17,13 @@ class CalendarItem extends Component {
   }
 
   componentWillReceiveProps(nextProps){
-    if(this.props.showWeekNumbers !== nextProps.showWeekNumbers){
-
+    if(this.props.weeks !== nextProps.weeks){
+      this.setState({
+        highlightDates: [],
+        weekNumbers: []
+      },() => {
+        this.weekHightlight()
+      } )
     }
   }
 
@@ -53,7 +58,8 @@ class CalendarItem extends Component {
     return this.getRangeOfDates(next, end, key, arr.concat(next));
   }
 
-  weekHightlight(date) {
+  weekHightlight() {
+
     let monthWeeks = [
       {
         'monthWeek1': []

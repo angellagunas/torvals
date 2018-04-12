@@ -6,32 +6,53 @@ const {DataSetRow} = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/:uuid',
-  validator: lov.object().keys({
-    adjustment: lov.number()
-  }),
+  path: '/',
+  validator: lov.array().items([
+    lov.object().keys({
+      uuid: lov.string().required(),
+      adjustmentForDisplay: lov.string().required()
+    }).required()
+  ]),
   handler: async function (ctx) {
-    var datasetRowId = ctx.params.uuid
     var data = ctx.request.body
 
-    const datasetRow = await DataSetRow.findOne({
-      'uuid': datasetRowId,
-      'isDeleted': false,
-      'organization': ctx.state.organization
-    })
-    ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
+    var hashTable = {}
+    var uuidsAux = []
+    var uuids = data.map(item => {
+      hashTable[item.uuid] = {
+        adjustmentForDisplay: item.adjustmentForDisplay,
+        localAdjustment: item.localAdjustment
+      }
 
-    if (parseFloat(datasetRow.data.localAdjustment) !== parseFloat(data.localAdjustment)) {
-      datasetRow.data.localAdjustment = data.localAdjustment
-      datasetRow.data.updatedBy = ctx.state.user
-      datasetRow.status = 'sendingChanges'
-      datasetRow.markModified('data')
-      await datasetRow.save()
-      verifyDatasetrows.add({uuid: datasetRowId})
+      return item.uuid
+    })
+
+    let datasetRows = await DataSetRow.find({
+      'uuid': { $in: uuids },
+      'isDeleted': false,
+      'organization': ctx.state.organization._id
+    })
+
+    if (datasetRows.length < data.length) {
+      ctx.throw(404, 'Algunos DataSetRows no fueron encontrados')
     }
 
+    for (let row of datasetRows) {
+      let auxData = hashTable[row.uuid]
+      if (parseFloat(row.data.adjustmentForDisplay) !== parseFloat(auxData.localAdjustment)) {
+        row.data.localAdjustment = auxData.adjustmentForDisplay
+        row.data.updatedBy = ctx.state.user
+        row.status = 'sendingChanges'
+        row.markModified('data')
+        await row.save()
+        uuidsAux.push({uuid: row.uuid})
+      }
+    }
+
+    verifyDatasetrows.addList(uuidsAux)
+
     ctx.body = {
-      data: datasetRow.toPublic()
+      data: 'OK'
     }
   }
 })

@@ -5,7 +5,6 @@ require('lib/databases/mongo')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSet, DataSetRow, Channel, Product, SalesCenter, Project } = require('models')
-const request = require('lib/request')
 const getAnomalies = require('../anomalies/get-anomalies')
 
 const task = new Task(async function (argv) {
@@ -22,49 +21,30 @@ const task = new Task(async function (argv) {
     return true
   }
 
-  console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
-
-  if (!apiData.token) {
-    throw new Error('There is no API endpoint configured!')
-  }
-
   for (var dataset of datasets) {
     console.log(`Verifying if ${dataset.externalId} dataset has finished adjustment ...`)
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/datasets/${dataset.externalId}`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      json: true,
-      persist: true
-    }
 
-    var res = await request(options)
+    try {
+      var res = await Api.getDataset(dataset.externalId)
+    } catch (e) {
+      console.log(e.message)
+      return false
+    }
 
     if (res.status === 'ready') {
       console.log(`${dataset.externalId} dataset has finished processing`)
 
       await dataset.processReady(res)
 
-      options = {
-        url: `${apiData.hostname}${apiData.baseUrl}/rows/datasets/${dataset.externalId}`,
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${apiData.token}`
-        },
-        json: true,
-        persist: true
+      console.log(`Obtaining rows from dataset ...`)
+
+      try {
+        var resDataset = await Api.rowsDataset(dataset.externalId)
+      } catch (e) {
+        console.log(e.message)
+        return false
       }
 
-      console.log(`Obtaining rows from dataset ...`)
-      var resDataset = await request(options)
       var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
       var productExternalId = dataset.getProductColumn() || {name: ''}
       var channelExternalId = dataset.getChannelColumn() || {name: ''}

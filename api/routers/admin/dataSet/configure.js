@@ -3,7 +3,6 @@ const lov = require('lov')
 
 const { DataSet } = require('models')
 const Api = require('lib/abraxas/api')
-const request = require('lib/request')
 
 module.exports = new Route({
   method: 'post',
@@ -101,56 +100,21 @@ module.exports = new Route({
         output: group.outputValue
       })
     }
-
-    try {
-      var apiData = Api.get()
-      if (!apiData.token) {
-        await Api.fetch()
-        apiData = Api.get()
-      }
-    } catch (e) {
-      ctx.throw(503, 'Abraxas API no disponible para la conexión')
-    }
-
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/process/datasets/${dataset.externalId}`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      body: {
-        is_date: isDate,
-        is_analysis: isAnalysis,
-        is_adjustment: isAdjustment,
-        is_prediction: isPrediction,
-        filter_analysis: filterAnalysis,
-        filter_operations: filterOperations,
-        groupings: groupings
-      },
-      json: true,
-      persist: true
-    }
-
-    try {
-      await request(options)
-      dataset.set({
-        columns: body.columns,
-        groupings: body.groupings,
-        status: 'processing'
-      })
-      await dataset.save()
-    } catch (e) {
-      let errorString = /<title>(.*?)<\/title>/g.exec(e.message)
-      if (!errorString) {
-        errorString = []
-        errorString[1] = e.message
-      }
-      ctx.throw(503, 'Abraxas API: ' + errorString[1])
-
-      return false
-    }
+    await Api.processDataset(dataset.externalId, {
+      is_date: isDate,
+      is_analysis: isAnalysis,
+      is_adjustment: isAdjustment,
+      is_prediction: isPrediction,
+      filter_analysis: filterAnalysis,
+      filter_operations: filterOperations,
+      groupings: groupings
+    })
+    dataset.set({
+      columns: body.columns,
+      groupings: body.groupings,
+      status: 'processing'
+    })
+    await dataset.save()
 
     ctx.body = {
       data: dataset

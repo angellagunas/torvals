@@ -6,7 +6,6 @@ const moment = require('moment')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { Forecast, Prediction, SalesCenter, Product } = require('models')
-const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   console.log('Fetching processing Forecasts...')
@@ -22,30 +21,15 @@ const task = new Task(async function (argv) {
     return true
   }
 
-  console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
-
-  if (!apiData.token) {
-    throw new Error('There is no API endpoint configured!')
-  }
-
   for (var forecast of forecasts) {
     console.log(`Verifying if ${forecast.configPrId} forecast has finished processing ...`)
 
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/forecasts/${forecast.forecastId}`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      json: true,
-      persist: true
+    try {
+      var res = await Api.getForecast(forecast.forecastId)
+    } catch (e) {
+      console.log('error' + e.message)
+      return false
     }
-
-    var res = await request(options)
 
     if (res.status === 'error') {
       console.log(`${forecast.configPrId} forecast had an error!`)
@@ -74,21 +58,14 @@ const task = new Task(async function (argv) {
 
       await forecast.save()
 
-      options = {
-        url: `${apiData.hostname}${apiData.baseUrl}/conciliation/forecasts/${forecast.forecastId}`,
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${apiData.token}`
-        },
-        json: true,
-        persist: true
-      }
-
       console.log(`Obtaining predictions ...`)
 
-      res = await request(options)
+      try {
+        res = await Api.conciliateForecast(forecast.forecastId)
+      } catch (e) {
+        console.log('error' + e.message)
+        return false
+      }
 
       var products = []
       var newProducts = []

@@ -74,8 +74,15 @@ module.exports = new Route({
             statement.push({ '$match': {'organization': [salesCenter.organization._id]} })
           }
         }
+      } else if (filter === 'salesCenter') {
+        const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]}).populate('organization')
+        if (salesCenter) {
+          statement.push({ '$match': {'organization': ObjectId(salesCenter.organization._id)} })
+        }
       }
     }
+
+    var statementNoSkip = statement.slice()
     statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })
 
     var general = {}
@@ -83,9 +90,10 @@ module.exports = new Route({
     if (statementsGeneral.length > 0) {
       general = { '$match': { '$or': statementsGeneral } }
       statement.push(general)
+      statementNoSkip.push(general)
     }
 
-    var statementCount = [...statement]
+    var statementCount = [...statementNoSkip]
 
     statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
     var groups = await Group.aggregate(statement)

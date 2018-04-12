@@ -135,12 +135,12 @@ class TabHistorical extends Component {
 
   async getFilters () {
     if (this.props.project.activeDataset) {
-      const url = '/admin/rows/filters/dataset/'
-      let res = await api.get(url + this.props.project.activeDataset.uuid)
+      const url = '/admin/dates/'
+      let res = await api.get(url)
       var periods = []
 
       const map = new Map()
-      res.dates.map((date) => {
+      res.data.map((date) => {
         const key = date.month
         const collection = map.get(key)
         if (!collection) {
@@ -167,11 +167,11 @@ class TabHistorical extends Component {
       this.setState({
         filters: {
           ...this.state.filters,
-          dates: res.dates,
+          dates: res.data,
           periods: periods
         },
         formData: {
-          period: 1
+          period: periods[0].number
         },
         isFiltered: false
       }, () => {
@@ -325,7 +325,7 @@ class TabHistorical extends Component {
         })
       })
     } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         isLoading: '',
         noHistoricData: e.message + ', intente más tarde'
@@ -333,7 +333,7 @@ class TabHistorical extends Component {
     }
   }
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,

@@ -36,7 +36,7 @@ class DeletedDataSets extends Component {
     } catch (e) {
       this.notify(
         'El proyecto de este dataset esta eliminado, primero restaure el proyecto',
-        3000,
+        5000,
         toast.TYPE.ERROR
       )
     }
@@ -85,7 +85,7 @@ class DeletedDataSets extends Component {
     ]
   }
 
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,

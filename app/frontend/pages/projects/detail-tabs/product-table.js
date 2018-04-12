@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import StickTable from '~base/components/stick-table'
 import Checkbox from '~base/components/base-checkbox'
 import Loader from '~base/components/spinner'
 import classNames from 'classnames'
 
-class ProductTable extends Component {
+class ProductTable extends PureComponent {
   constructor (props) {
     super(props)
     this.state = {
@@ -48,12 +48,12 @@ class ProductTable extends Component {
     return (
       <div className="field has-addons view-btns">
         <span className="control">
-          <a className="button is-primary is-outlined" onClick={this.props.show}>
+          <a className="button is-info is-outlined" onClick={this.props.show}>
             Vista Semana
           </a>
         </span>
         <span className="control">
-          <a className="button is-primary">
+          <a className="button is-info">
             Vista Producto
           </a>
         </span>
@@ -78,8 +78,8 @@ class ProductTable extends Component {
         }
         })(),
         groupClassName: 'col-border-left colspan is-paddingless',
-        headerClassName: 'col-border-left',
-        className: 'col-border-left',
+        headerClassName: 'col-border-left table-product-head',
+        className: 'col-border-left', 
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
@@ -104,6 +104,8 @@ class ProductTable extends Component {
         property: 'productId',
         default: 'N/A',
         sortable: true,
+        headerClassName: 'has-text-centered table-product-head id',   
+        className: 'id',     
         formatter: (row) => {
           if (row.productId) {
             return row.productId
@@ -116,18 +118,23 @@ class ProductTable extends Component {
         property: 'productName',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border productName',
-        className: 'col-border'
+        headerClassName: 'table-product table-product-head',
+        className: 'table-product productName'
       },
       {
         group: ' ',
         title: <span
           className='icon'
-          title='límite'>
+          title={`Hay ${this.props.adjustmentRequestCount} productos fuera de rango!`}
+          onClick={() => {
+            this.props.handleAllAdjustmentRequest()
+          }}
+        >
           <i className='fa fa-exclamation fa-lg' />
         </span>,
-        headerClassName: 'col-border',
-        className: 'col-border',
+        groupClassName: 'table-product',
+        headerClassName: 'table-product table-product-head table-product-head-bord table-product-shadow',
+        className: 'table-product table-product-shadow',
         formatter: (row) => {
           return this.getLimit(row)
         }
@@ -138,8 +145,9 @@ class ProductTable extends Component {
         property: 'semanaBimbo',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border'
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
       },
       {
         group: ' ',
@@ -147,8 +155,9 @@ class ProductTable extends Component {
         property: 'salesCenter',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border'
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell is-capitalized', 
       },
       {
         group: ' ',
@@ -156,8 +165,9 @@ class ProductTable extends Component {
         property: 'channel',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border'
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell is-capitalized', 
       },
       {
         group: ' ',
@@ -165,8 +175,9 @@ class ProductTable extends Component {
         property: 'prediction',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border'
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
       },
       {
         group: ' ',
@@ -174,37 +185,42 @@ class ProductTable extends Component {
         property: 'lastAdjustment',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'col-border'
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
       },
       {
         group: ' ',
         title: 'Ajuste',
-        property: 'localAdjustment',
+        property: 'adjustmentForDisplay',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'col-border',
-        className: 'keep-cell col-border',
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
         formatter: (row) => {
-          if (!row.localAdjustment) {
-            row.localAdjustment = 0
+          if (!row.adjustmentForDisplay) {
+            row.adjustmentForDisplay = 0
           }
 
           row.tabin = row.key * 10
-          return (
-            <input
-              type='number'
-              className='input'
-              value={row.localAdjustment}
-              onBlur={(e) => { this.onBlur(e, row) }}
-              onKeyPress={(e) => { this.onEnter(e, row) }}
-              style={{ width: 80 }}
-              onChange={(e) => { this.onChange(e, row) }}
-              onFocus={(e) => { this.onFocus(e, row) }}
-              tabIndex={row.tabin}
-              ref={(el) => { this.inputs.add({ tabin: row.tabin, el: el }) }}
-            />
-          )
+          if (this.props.currentRole !== 'consultor') {
+            return (
+              <input
+                type='number'
+                className='input'
+                value={row.adjustmentForDisplay}
+                onBlur={(e) => { this.onBlur(e, row) }}
+                onKeyPress={(e) => { this.onEnter(e, row) }}
+                onChange={(e) => { this.onChange(e, row) }}
+                onFocus={(e) => { this.onFocus(e, row) }}
+                tabIndex={row.tabin}
+                ref={(el) => { this.inputs.add({ tabin: row.tabin, el: el }) }}
+              />
+            )
+          }else{
+            return <span>{row.adjustmentForDisplay}</span>
+          }
         }
       },
       {
@@ -213,11 +229,11 @@ class ProductTable extends Component {
         property: 'percentage',
         default: 0,
         sortable: true,
-        headerClassName: 'col-border has-text-centered',
-        groupClassName: 'col-border',
-        className: 'col-border has-text-centered',
+        groupClassName: 'table-week',
+        headerClassName: 'table-head',
+        className: 'table-cell', 
         formatter: (row) => {
-          let percentage = ((row.localAdjustment - row.prediction) /
+          let percentage = ((row.adjustmentForDisplay - row.prediction) /
             row.prediction) * 100
           row.percentage = percentage
           let status = classNames('has-text-weight-bold', {
@@ -282,8 +298,8 @@ class ProductTable extends Component {
           className='icon has-text-danger'
           title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
           onClick={() => {
-            this.props.showModalAdjustmentRequest(product)
-          }}>
+              this.props.handleAdjustmentRequest(product)
+            }}>
           <i className='fa fa-times fa-lg' />
         </span>
       return limit
@@ -301,7 +317,13 @@ class ProductTable extends Component {
   }
 
   onFocus(e, row) {
-    row.original = row.localAdjustment
+    row.focused = true
+    row.original = row.adjustmentForDisplay
+    let aux = this.state.filteredData
+    this.setState({
+      filteredData: aux
+    })
+
     e.target.select()
   }
 
@@ -322,19 +344,24 @@ class ProductTable extends Component {
 
   onBlur = async (e, row) => {
     let value = e.target.value
-
+    row.focused = false
     if (e.target.type === 'number') {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
 
-    if (row.original !== value) {
+    if (Number(row.original) !== Number(value)) {
       this.props.changeAdjustment(value, row)
     }
+    let aux = this.state.filteredData
 
+    this.setState({
+      filteredData: aux
+    })
+    
   }
 
   onChange = (e, row) => {
-    row.localAdjustment = e.target.value
+    row.adjustmentForDisplay = e.target.value
     let aux = this.state.filteredData
 
     this.setState({
@@ -344,7 +371,10 @@ class ProductTable extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    if (nextProps.data !== this.props.data) {
+    var same = nextProps.data.length === this.props.data.length
+    same = same && nextProps.data.every((v,i)=> v === this.props.data[i])
+
+    if (!same) {
       this.setState({
         filteredData: nextProps.data
       })
@@ -359,6 +389,7 @@ class ProductTable extends Component {
     }
     return (
       <StickTable
+        height='55vh'
         data={this.state.filteredData}
         cols={this.getColumns()}
         stickyCols={0}

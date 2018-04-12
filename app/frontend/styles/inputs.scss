@@ -1,0 +1,53 @@
+.label,
+.input {
+    font-size: 0.75rem;
+}
+
+.date-selector {
+    font-size: 0.75rem !important;
+    color: $general_text;
+    font-weight: 500 !important;
+}
+
+.input {
+    width: 150px;
+}
+
+.input-cant {
+    width: 55px;
+    height: 98%;
+}
+
+.selects {
+    .select,
+    select,
+    .input {
+        width: 150px;
+    }
+    select,
+    .select,
+    option {
+        text-transform: capitalize;
+    }
+}
+
+.inline-form {
+    width: 100%;
+    .select,
+    select {
+        display: block !important;
+        width: 100%;
+        max-width: 400px;
+        text-transform: capitalize;
+    }
+    .field {
+        padding: 0 10px 2px 0;
+    }
+    label {
+        display: none !important;
+    }
+}
+
+.form-group>fieldset {
+    border: 0;
+}

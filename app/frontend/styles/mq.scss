@@ -73,6 +73,74 @@
     opacity: 0;
     margin: -10px;
 }
+
 .md-checkbox>div {
     margin-left: 20px;
+}
+
+@include fullhd {
+    html,
+    body {
+        font-size: 1rem;
+    }
+    h1 {
+        font-size: 1.7rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+    .sticky-table {
+        font-size: 0.8rem;
+        .sticky-table-cell {
+            padding: 0.1rem 0.2rem;
+            .input {
+                font-size: 0.8rem !important;
+                width: 80px;
+            }
+            p {
+                line-height: .5;
+                padding-top: 0.3rem;
+            }
+        }
+    }
+    .sales {
+        &-graph,
+        &-table {
+            margin: 0.7rem;
+            max-height: 320px;
+            min-height: 320px;
+            .panel-block {
+                min-height: 282px;
+            }
+        }
+    }
+    .tabs-title {
+        margin-top: 0.3rem;
+        h1 {
+            font-size: 1.25rem;
+        }
+    }
+    .view-btns {
+        .button {
+            width: 164px;
+        }
+    }
+    .button {
+        font-size: 0.85rem;
+    }
+    .sidenav-open {
+        margin-left: 250px;
+    }
+    .sidenav {
+        width: 240px;
+    }
+    .is-size-3 {
+        font-size: 1.5rem !important;
+    }
+    .clear-btn {
+        margin-top: 23px;
+        .button {
+            height: 1.7rem;
+        }
+    }
 }

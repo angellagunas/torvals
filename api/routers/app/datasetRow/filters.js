@@ -50,8 +50,8 @@ module.exports = new Route({
     ) {
       var groups = user.groups
 
-      salesCenters = await SalesCenter.find({groups: {$in: groups}})
-      channels = await Channel.find({ groups: { $in: groups } })
+      salesCenters = await SalesCenter.find({groups: {$in: groups}, organization: currentOrganization.organization._id})
+      channels = await Channel.find({groups: {$in: groups}, organization: currentOrganization.organization._id})
     }
 
     semanasBimbo.sort((a, b) => {
@@ -60,8 +60,8 @@ module.exports = new Route({
 
     var dates = await AbraxasDate.find({
       week: {$in: semanasBimbo},
-      dateStart: {$lte: moment(dataset.dateMax), $gte: moment(dataset.dateMin)}
-    }).sort('-dateStart').limit(semanasBimbo.length)
+      dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
+    }).sort('-dateStart')
 
     dates = dates.map(item => {
       return {

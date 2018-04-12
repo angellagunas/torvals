@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import { root } from 'baobab-react/higher-order'
 
 import tree from '~core/tree'
+import classNames from 'classnames'
 
 import cookies from '~base/cookies'
 import api from '~base/api'
@@ -80,33 +81,57 @@ class AdminLayout extends Component {
     let w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
     if (w <= 1024) {
       this.setState({
-        sidebarCollapsed: true
+        sidebarCollapsed: false
       })
     }
   }
 
+  openNav = () => {
+    this.setState({
+      open: this.state.open === 'open' ? '' : 'open'
+    })
+  }
+
   render () {
+    const mainClass = classNames('main-wrapper',{
+      'sidenav-open': this.state.sidebarCollapsed
+    })
+
+    const burguerIcon = classNames('fa fa-2x',{
+      'fa-times': this.state.sidebarCollapsed,
+      'fa-bars': !this.state.sidebarCollapsed,
+    })
+
     if (!this.state.loaded) {
-      return <div className='is-flex is-flex-1'><Loader /></div>
+      return <Loader />
     }
     if (!isEmpty(this.state.user)) {
-      return (<div className='is-wrapper'>
-        <AdminNavBar
-          handlePathChange={(p) => this.handlePathChange(p)}
-          collapsed={this.state.sidebarCollapsed}
-          handleBurgerEvent={() => this.handleBurgerEvent()} />
-        <div className='is-flex c-flex-1 columns is-gapless'>
-          { this.state.user.currentRole.slug !== 'manager-level-1' && <Sidebar
+      return (
+        <div className='is-wrapper'>
+          <AdminNavBar
+            handlePathChange={(p) => this.handlePathChange(p)}
+            collapsed={this.state.sidebarCollapsed}
+            handleBurgerEvent={() => this.handleBurgerEvent()} />
+          
+          
+          { this.state.user.currentRole.slug !== 'manager-level-1' &&
+          <div>
+          <div className='icon is-large is-clickable is-hamburguer'
+          onClick={() => {this.handleBurgerEvent()}}>
+          <i className={burguerIcon} />
+          </div>
+          <Sidebar
             collapsed={this.state.sidebarCollapsed}
             activePath={this.state.activePath} />
+           </div> 
           }
-          <div className='column is-flex is-flex-column main-wrapper'>
-            <section className='c-flex-1 is-flex'>
+
+          <div className={mainClass}>
+            <section className='card main'>
               {this.props.children}
             </section>
           </div>
-        </div>
-      </div>)
+        </div>)
     } else {
       return (<div>
         {this.props.children}

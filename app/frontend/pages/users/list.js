@@ -129,6 +129,14 @@ export default ListPage({
             disabledActions = row.roleDetail.priority <= currentUser.currentRole.priority
           }
 
+          if (currentUser.currentRole.slug === 'consultor') {
+            if (row.roleDetail.slug === 'consultor') {
+              disabledActions = false
+            } else {
+              disabledActions = true
+            }
+          }
+
           return (
             <div className='field is-grouped'>
               <div className='control'>

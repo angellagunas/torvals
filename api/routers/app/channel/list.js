@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const ObjectId = require('mongodb').ObjectID
 
-const {Channel} = require('models')
+const {Channel, Role} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -45,19 +45,43 @@ module.exports = new Route({
         statement.push({ '$sort': sortStatement })
       }
     }
+
+    var statementNoSkip = statement.slice()
     statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })
 
     if (ctx.state.organization) {
       statement.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })
+      statementNoSkip.push({ '$match': { 'organization': { $in: [ObjectId(ctx.state.organization._id)] } } })
+    }
+
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
+    if (currentRole.slug === 'manager-level-1' || currentRole.slug === 'manager-level-2') {
+      var groups = user.groups
+      var channelsList = []
+
+      channelsList = await Channel.find({groups: {$in: groups}})
+      statement.push({ '$match': { '_id': { $in: channelsList.map(item => { return item._id }) } } })
     }
 
     var general = {}
     if (statementsGeneral.length > 0) {
       general = { '$match': { '$or': statementsGeneral } }
       statement.push(general)
+      statementNoSkip.push(general)
     }
 
-    var statementCount = [...statement]
+    var statementCount = [...statementNoSkip]
 
     statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
     var channels = await Channel.aggregate(statement)

@@ -38,8 +38,7 @@ class Sidebar extends Component {
   componentWillReceiveProps (nextProps) {
     if (this.state.collapsed !== nextProps.collapsed) {
       this.setState({
-        collapsed: !this.state.collapsed,
-        menuItems: JSON.parse(JSON.stringify(this.state.menuItems)).filter(Boolean).map(this.resetDoropdownItem)
+        collapsed: !this.state.collapsed
       })
     }
     if (nextProps.activePath !== this.state.activePath) {
@@ -150,10 +149,10 @@ class Sidebar extends Component {
   }
 
   render () {
-    const menuClass = classNames('menu', {
+    const menuClass = classNames({
       'menu-collapsed': this.state.collapsed
     })
-    return (<div className='offcanvas column is-narrow is-paddingless'>
+    /* return (<div className='offcanvas column is-narrow is-paddingless'>
       <aside className={menuClass}>
         <ul className='menu-list'>
           <SelectOrg collapsed={this.state.collapsed} />
@@ -176,7 +175,30 @@ class Sidebar extends Component {
           })}
         </ul>
       </aside>
-    </div>)
+    </div>) */
+    return (
+      <div className={'sidenav menu ' + menuClass}>
+        <ul className='menu-list'>
+          {this.state.menuItems.map((item, index) => {
+            if (item) {
+              return <SidebarItem
+                title={item.title}
+                index={index}
+                status={item.opened}
+                collapsed={false}
+                icon={item.icon}
+                to={item.to}
+                dropdown={item.dropdown}
+                roles={item.roles}
+                onClick={this.handleActiveLink}
+                dropdownOnClick={(i) => this.handleToggle(i)}
+                activeItem={this.state.active}
+                key={item.title.toLowerCase().replace(/\s/g, '')} />
+            }
+          })}
+        </ul>
+      </div>
+    )
   }
 }
 

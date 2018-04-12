@@ -1,22 +1,20 @@
 import React, { Component } from 'react'
 import FontAwesome from 'react-fontawesome'
 import moment from 'moment'
-import api from '~base/api'
 import _ from 'lodash'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
+import {FileSaver} from 'file-saver'
+
+import api from '~base/api'
 import Loader from '~base/components/spinner'
-import {
-  BaseForm,
-  SelectWidget
-} from '~base/components/base-form'
-import CreateAdjustmentRequest from '../../forecasts/create-adjustmentRequest'
-import { BaseTable } from '~base/components/base-table'
-import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
+import Checkbox from '~base/components/base-checkbox'
 
 import WeekTable from './week-table'
 import ProductTable from './product-table'
+import Select from './select'
+import Graph from './graph'
 
 var currentRole
 moment.locale('es')
@@ -25,10 +23,13 @@ class TabAdjustment extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      isUpdating: false,
       dataRows: [],
+      pendingDataRows: {},
       isFiltered: false,
       filtersLoaded: false,
       isLoading: '',
+      isLoadingButtons: '',
       modified: 0,
       pending: 0,
       filters: {
@@ -37,52 +38,39 @@ class TabAdjustment extends Component {
         salesCenters: [],
         semanasBimbo: [],
         categories: [],
-        filteredSemanasBimbo: []
+        filteredSemanasBimbo: [],
+        periods: []
       },
       formData: {
-        semanasBimbo: 0,
         period: 1
       },
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
-      isConciliating: '',
       isDownloading: '',
       generalAdjustment: 0.1,
       salesTable: [],
       noSalesData: '',
-      byWeek: false,
+      byWeek: true,
+      indicators: 'indicators-hide',
+      quantity: 100,
+      percentage: 1,
       error: false,
       errorMessage: ''
     }
 
     currentRole = tree.get('user').currentRole.slug
-    this.interval = null
+    this.toastId = null
   }
 
   componentWillMount () {
     this.getFilters()
-    this.getModifiedCount()
-
-    if (currentRole !== 'consultor') {
-      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
-    }
-    if (this.props.project.status === 'adjustment') this.setAlertMsg()
-  }
-
-  componentWillUnmount () {
-    clearInterval(this.interval)
-    this.props.setAlert('is-white', ' ')    
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.project.status === 'adjustment' && this.props.project.status !== 'adjustment') {
       this.clearSearch()
       this.getFilters()
-    }
-
-    if (currentRole !== 'consultor' && this.props.project.status == 'adjustment' && !this.interval) {
-      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
   }
 
@@ -95,7 +83,7 @@ class TabAdjustment extends Component {
         if (res.dates.length === 0) {
           this.notify(
             'Error! No hay fechas disponibles. Por favor contacta a un administrador.',
-            3000,
+            5000,
             toast.TYPE.ERROR
           )
 
@@ -110,14 +98,11 @@ class TabAdjustment extends Component {
           this.notify(
             'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
             ' correctamente. Por favor contacta a un administrador.',
-            3000,
+            5000,
             toast.TYPE.ERROR
           )
         }
 
-        var maxDate = moment.utc(this.props.project.activeDataset.dateMax).subtract(1,'days')
-        var maxSemana = res.semanasBimbo[res.semanasBimbo.length - 1]
-        var dates = []
         var periods = []
         var adjustments = {
           '1': 10,
@@ -125,6 +110,7 @@ class TabAdjustment extends Component {
           '3': 30,
           '4': -1
         }
+
 
         var maxDate = res.dates[0]
         var maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
@@ -149,14 +135,13 @@ class TabAdjustment extends Component {
         if (maxDateEnd === -1) maxDateEnd = res.dates.length
         var period1 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
 
-
         if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
           adjustments = this.props.project.businessRules.adjustments
         }
 
         periods.push({
           number: period4[0].month,
-          name: `Periodo ${moment(period4[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period4[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['4'],
           maxSemana: period4[0].week,
           minSemana: period4[period4.length - 1].week
@@ -164,29 +149,41 @@ class TabAdjustment extends Component {
 
         periods.push({
           number: period3[0].month,
-          name: `Periodo ${moment(period3[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period3[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['3']/100,
           maxSemana: period3[0].week,
-          minSemana: period3[period4.length - 1].week
+          minSemana: period3[period3.length - 1].week
         })
 
         periods.push({
           number: period2[0].month,
-          name: `Periodo ${moment(period2[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period2[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['2']/100,
           maxSemana: period2[0].week,
-          minSemana: period2[period4.length - 1].week
+          minSemana: period2[period2.length - 1].week
         })
 
         periods.push({
           number: period1[0].month,
-          name: `Periodo ${moment(period1[0].month, 'M').format('MMMM')}`,
+          name: `${_.capitalize(moment(period1[0].month, 'M').format('MMMM'))}`,
           adjustment: adjustments['1']/100,
           maxSemana: period1[0].week,
-          minSemana: period1[period4.length - 1].week
+          minSemana: period1[period1.length - 1].week
         })
 
-        var filteredSemanasBimbo = Array.from(Array(4), (_,x) => period1[0].week - x).reverse()
+        var formData = this.state.formData
+        formData.period = period1[0].month
+
+        if (res.salesCenters.length === 1) {
+          formData.salesCenter = res.salesCenters[0].uuid
+        }
+
+        if (res.channels.length === 1) {
+          formData.channel = res.channels[0].uuid
+        }
+
+        var days = period1[0].week - period1[period1.length - 1].week
+        var filteredSemanasBimbo = Array.from(Array(days+1), (_,x) => period1[0].week - x).reverse()
 
         this.setState({
           filters: {
@@ -199,32 +196,11 @@ class TabAdjustment extends Component {
             categories: this.getCategory(res.products),
             periods: periods
           },
-          formData: {
-            semanasBimbo: filteredSemanasBimbo[0],
-            period: period1[0].month
-          },
+          formData: formData,
           filtersLoaded: true
         }, () => {
           this.getDataRows()
         })
-
-        if (res.salesCenters.length === 1) {
-          this.setState({
-            formData: {
-              ...this.state.formData,
-              salesCenters: res.salesCenters[0].uuid
-            }
-          })
-        }
-
-        if (res.channels.length === 1) {
-          this.setState({
-            formData: {
-              ...this.state.formData,
-              channels: res.channels[0].uuid
-            }
-          })
-        }
       } catch (e) {
         this.setState({
           error: true,
@@ -232,37 +208,11 @@ class TabAdjustment extends Component {
         })
 
         this.notify(
-          'Ha habido un error al obtener los filtros!',
-          3000,
+          'Ha habido un error al obtener los filtros! ' + e.message,
+          5000,
           toast.TYPE.ERROR
         )
       }            
-    }
-  }
-
-  async getModifiedCount () {
-    if (this.props.project.activeDataset) {
-      const url = '/app/rows/modified/dataset/'
-      let res = await api.get(url + this.props.project.activeDataset.uuid)
-
-      if (
-          res.data.pending !== this.state.pending ||
-          res.data.modified !== this.state.modified
-      ) {
-        if (res.data.pending > 0) {
-          this.setState({
-            modified: res.data.modified,
-            pending: res.data.pending,
-            isConciliating: ' is-loading'
-          })
-        } else {
-          this.setState({
-            modified: res.data.modified,
-            pending: res.data.pending,
-            isConciliating: ''
-          })
-        }
-      }
     }
   }
 
@@ -276,51 +226,35 @@ class TabAdjustment extends Component {
     return Array.from(categories)
   }
 
-  async filterChangeHandler (e) {
-    if (e.formData.period !== this.state.formData.period) {
-
+  async filterChangeHandler (name, value) { 
+    if(name === 'period'){
       var period = this.state.filters.periods.find(item => {
-        return item.number === e.formData.period
+        return item.number === value
       })
 
-      var filteredSemanasBimbo = Array.from(Array(4), (_,x) => period.maxSemana - x).reverse()
-
+      var days = period.maxSemana - period.minSemana
+      var filteredSemanasBimbo = Array.from(Array(days+1), (_,x) => period.maxSemana - x).reverse()
+      
       this.setState({
         filters: {
           ...this.state.filters,
           filteredSemanasBimbo: filteredSemanasBimbo
-        },
-        formData: {
-          semanasBimbo: filteredSemanasBimbo[0],
-          products: e.formData.products,
-          channels: e.formData.channels,
-          salesCenters: e.formData.salesCenters,
-          categories: e.formData.categories,
-          period: e.formData.period
         }
       })
-      return
     }
 
+    let aux = this.state.formData
+    aux[name] = value
     this.setState({
-      formData: {
-        semanasBimbo: e.formData.semanasBimbo,
-        products: e.formData.products,
-        channels: e.formData.channels,
-        salesCenters: e.formData.salesCenters,
-        categories: e.formData.categories,
-        period: e.formData.period
-      }
+      formData: aux
+    }, () => {
+      this.getDataRows()
     })
-  }
-
-  async filterErrorHandler (e) {
-
   }
 
   async getDataRows () {
     if (!this.state.formData.period) {
-      this.notify('Se debe filtrar por periodo!', 3000, toast.TYPE.ERROR)
+      this.notify('Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
       return
     }
 
@@ -330,21 +264,17 @@ class TabAdjustment extends Component {
 
     this.setState({
       isLoading: ' is-loading',
+      isFiltered: false,
       generalAdjustment: period.adjustment,
       salesTable: [],
       noSalesData: ''      
     })
 
     const url = '/app/rows/dataset/'
-    let data = await api.get(url + this.props.project.activeDataset.uuid,
-      {
-        //semanaBimbo: this.state.formData.semanasBimbo,
-        product: this.state.formData.products,
-        channel: this.state.formData.channels,
-        salesCenter: this.state.formData.salesCenters,
-        category: this.state.formData.categories,
-        period: this.state.formData.period
-      })
+    let data = await api.get(
+      url + this.props.project.activeDataset.uuid,
+      this.state.formData
+    )
 
     this.setState({
       dataRows: this.getEditedRows(data.data),
@@ -353,224 +283,30 @@ class TabAdjustment extends Component {
       selectedCheckboxes: new Set()
     })
     this.clearSearch()
-    this.setAlertMsg()
     this.getSalesTable()    
   }
 
   getEditedRows(data) {
     for (let row of data) {
-      if (row.localAdjustment != row.adjustment) {
+      row.adjustmentForDisplay = row.localAdjustment
+      if (row.adjustmentRequest) {
+        row.adjustmentForDisplay = row.adjustmentRequest.newAdjustment
+      }
+
+      if (row.localAdjustment != row.adjustment || row.adjustmentRequest) {
         row.wasEdited = true
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
           var minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
-          row.isLimit = (row.localAdjustment > maxAdjustment || row.localAdjustment < minAdjustment)
+
+          row.isLimit = (
+            row.adjustmentForDisplay > maxAdjustment || row.adjustmentForDisplay < minAdjustment
+          )
         }
       }
+
     }
     return data
-  }
-
-  getColumns () {
-    let cols = [
-      {
-        'title': 'Id',
-        'property': 'productId',
-        'default': 'N/A',
-        'sortable': true, 
-        formatter: (row) => {
-          return String(row.productId)
-        }
-      },
-      {
-        'title': 'Producto',
-        'property': 'productName',
-        'default': 'N/A',
-        'sortable': true, 
-        formatter: (row) => {
-          return String(row.productName)
-        }
-      },
-      {
-        'title': 'Canal',
-        'abbreviate': true,
-        'abbr': 'Canal',
-        'property': 'channel',
-        'default': 'N/A',
-        'sortable': true, 
-        formatter: (row) => {
-          return String(row.channel)
-        }
-      },
-      {
-        'title': 'Semana',
-        'property': 'semanaBimbo',
-        'default': 'N/A',
-        'sortable': true, 
-        formatter: (row) => {
-          return String(row.semanaBimbo)
-        }
-      },
-      {
-        'title': 'Predicción',
-        'property': 'prediction',
-        'default': 0,
-        'sortable': true, 
-        formatter: (row) => {
-          return String(row.prediction)
-        }
-      },
-      /* {
-        'title': 'Ajuste Anterior',
-        'property': 'lastAdjustment',
-        'default': 0,
-        formatter: (row) => {
-          if (row.lastAdjustment) {
-            return row.lastAdjustment
-          }
-        }
-      }, */
-      {
-        'title': 'Ajuste',
-        'property': 'localAdjustment',
-        'default': 0,
-        'type': 'number',
-        'sortable': true, 
-        'className': 'keep-cell',
-        formatter: (row) => {
-          if (!row.localAdjustment) {
-            row.localAdjustment = 0
-          }
-          if (currentRole !== 'consultor') {
-            return (
-              <Editable
-                value={row.localAdjustment}
-                handleChange={this.changeAdjustment}
-                type='number'
-                obj={row}
-                width={100}
-              />
-            )
-          }
-          else {
-            return row.localAdjustment
-          }
-        }
-      },
-      {
-        'title': 'Rango Ajustado',
-        'subtitle': this.state.generalAdjustment < 0 ? 'ilimitado'
-            :
-           `máximo: ${(this.state.generalAdjustment * 100)} %`
-        ,
-        'property': 'percentage',
-        'default': 0,
-        'type': 'number',
-        'sortable': true,         
-        'className': 'keep-cell',
-        formatter: (row) => {
-          let percentage = ((row.localAdjustment - row.prediction) / row.prediction) * 100
-          row.percentage = percentage                            
-          return Math.round(percentage) + ' %'
-        }
-      },
-      {
-        'title': 'Seleccionar Todo',
-        'abbreviate': true,
-        'abbr': (() => {
-          if (currentRole !== 'consultor') {
-            return (
-              <Checkbox
-                label='checkAll'
-                handleCheckboxChange={(e) => this.checkAll(!this.state.selectedAll)}
-                key='checkAll'
-                checked={this.state.selectedAll}
-                hideLabel />
-            )
-          }
-        })(),
-        'property': 'checkbox',
-        'default': '',
-        formatter: (row) => {
-          if (!row.selected) {
-            row.selected = false
-          }
-          if (currentRole !== 'consultor') {
-            return (
-              <Checkbox
-                label={row}
-                handleCheckboxChange={this.toggleCheckbox}
-                key={row}
-                checked={row.selected}
-                hideLabel />
-            )
-          }
-        }
-      },
-      {
-        'title': '',
-        'abbreviate': true,
-        'abbr': (() => {
-          return (
-            <div className='is-invisible'>
-              <span
-                className='icon'
-                title='límite'
-              >
-                <FontAwesome name='warning fa-lg' />
-              </span>
-            </div>
-          )
-        })(),
-        'property': 'isLimit',
-        'default': '',
-        formatter: (row) => {
-          if (row.isLimit && !row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-danger'
-                title='No es posible ajustar más allá al límite!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='warning fa-lg' />
-              </span>
-            )
-          }
-
-          if (row.isLimit && row.adjustmentRequest) {
-            return (
-              <span
-                className='icon has-text-warning'
-                title='Ya se ha pedido un cambio a esta predicción!'
-                onClick={() => {
-                  this.showModalAdjustmentRequest(row)
-                }}
-              >
-                <FontAwesome name='info-circle fa-lg' />
-              </span>
-            )
-          }
-          return ''
-        }
-      }
-    ]
-
-    if ( this.state.filters.salesCenters.length > 1){
-      cols.splice(2,0, { 
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.salesCenter)
-        }
-      })
-    }
-
-    return cols
   }
 
   checkAll = (checked) => {
@@ -596,7 +332,7 @@ class TabAdjustment extends Component {
   }
 
   changeAdjustment = async (value, row) => {
-    row.lastLocalAdjustment = row.localAdjustment    
+    row.lastLocalAdjustment = row.adjustmentForDisplay    
     row.newAdjustment = value
     const res = await this.handleChange(row)
     if (!res) {
@@ -617,103 +353,231 @@ class TabAdjustment extends Component {
     })
   }
 
+  onChangePercentage = (e) => {
+    let val = parseInt(e.target.value)
+    if (isNaN(val)) {
+      val = e.target.value
+    }
+    this.setState({
+      percentage: val
+    })
+  }
+
+  onChangeQuantity = (e) => {
+    let val = parseInt(e.target.value)
+    if (isNaN(val)) {
+      val = e.target.value
+    }
+    this.setState({
+      quantity: val
+    })
+  }
+
   getModifyButtons () {
     return (
       <div className='columns'>
-        <div className='column'>
-          <div className='field is-grouped'>
-            <div className='control'>
-              <h4 className='subtitle'>Resultados: {this.state.dataRows.length} </h4>
-            </div>
-            <div className='control'>
-              <div className='field has-addons'>
-                <div className='control'>
-                  <input
-                    className='input'
-                    type='text'
-                    value={this.state.searchTerm}
-                    onChange={this.searchOnChange} placeholder='Buscar' />
-                </div>
-                <div className='control'>
-                  <a className='button is-light' onClick={this.clearSearch}>
-                    Limpiar
-                  </a>
-                </div>
-              </div>
+            
+        <div className='column is-narrow'>
+          <div className='field'>
+            <label className='label'>Búsqueda general</label>              
+            <div className='control has-icons-right'>
+              <input
+                className='input'
+                type='text'
+                value={this.state.searchTerm}
+                onChange={this.searchOnChange} placeholder='Buscar' />
+
+              <span className='icon is-small is-right'>
+                <i className='fa fa-search fa-xs'></i>
+              </span>
             </div>
           </div>
         </div>
         {currentRole !== 'consultor' ?
-        <div className='column'>
-          <div className='field is-grouped is-grouped-right'>
-            <div className='control'>
-              <p style={{ paddingTop: 5 }}>Modificar porcentaje</p>
-            </div>
+          <div className='column is-narrow'>
+            <div className='modifier'>
+              <div className='field'>
+                <label className='label'>Modificar por cantidad</label>
+                <div className='field is-grouped control'>
 
-            <div className='control'>
-              <button
-                className='button is-primary is-outlined'
-                onClick={() => this.onClickButtonMinus()}
-                disabled={this.state.disableButtons}
-              >
-                <span className='icon'>
-                  <i className='fa fa-minus' />
-                </span>
-              </button>
+                  <div className='control'>
+                    <button
+                      className='button is-outlined'
+                      onClick={() => this.onClickButtonMinus('quantity')}
+                      disabled={this.state.disableButtons}>
+                      <span className='icon'>
+                        <i className='fa fa-minus' />
+                      </span>
+                    </button>
+                  </div>
+                  <div className='control'>
+                    <input
+                      className='input input-cant has-text-centered'
+                      type='text'
+                      placeholder='0'
+                      value={this.state.quantity}
+                      onChange={this.onChangeQuantity} />
+                  </div>
+
+                  <div className='control'>
+                    <button
+                      className='button is-outlined'
+                      onClick={() => this.onClickButtonPlus('quantity')}
+                      disabled={this.state.disableButtons}>
+                      <span className='icon'>
+                        <i className='fa fa-plus' />
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className='control'>
-              <button
-                className='button is-primary is-outlined'
-                onClick={() => this.onClickButtonPlus()}
-                disabled={this.state.disableButtons}
-              >
-                <span className='icon'>
-                  <i className='fa fa-plus' />
-                </span>
-                </button>
+          </div> : null
+        }
+
+        {currentRole !== 'consultor' ?
+          <div className='column is-narrow'>
+            <div className='modifier'>
+              <div className='field'>
+                <label className='label'>Modificar por porcentaje</label>
+                <div className='field is-grouped control'>
+                  <div className='control'>
+                    <button
+                      className='button is-outlined'
+                      onClick={() => this.onClickButtonMinus('percent')}
+                      disabled={this.state.disableButtons}>
+                      <span className='icon'>
+                        <i className='fa fa-minus' />
+                      </span>
+                    </button>
+                  </div>
+                  <div className='control'>
+                    <input
+                      className='input input-cant has-text-centered'
+                      type='text'
+                      placeholder='0%'
+                      value={this.state.percentage}
+                      onChange={this.onChangePercentage} />
+                  </div>
+
+                  <div className='control'>
+                    <button
+                      className='button is-outlined'
+                      onClick={() => this.onClickButtonPlus('percent')}
+                      disabled={this.state.disableButtons}>
+                      <span className='icon'>
+                        <i className='fa fa-plus' />
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div> : null }
+          </div> : null
+        }
+
+        <div className='column is-narrow'>
+          <p style={{color: 'grey', paddingTop: '1.7rem', width: '.8rem'}}>
+          {
+            this.state.isLoadingButtons && 
+            <span><FontAwesome className='fa-spin' name='spinner' /></span>
+          }
+          </p>
+        </div>
+
+        {this.state.selectedCheckboxes.size > 0 &&
+          <div className='column products-selected'>
+            <p>
+              <span>{this.state.byWeek ? this.state.selectedCheckboxes.size / this.state.filters.filteredSemanasBimbo.length : this.state.selectedCheckboxes.size} </span>
+               Productos Seleccionados
+            </p>
+          </div> 
+        }
+
+        <div className='column download-btn'>
+          <button
+            className={'button is-info ' + this.state.isDownloading}
+            disabled={!!this.state.isDownloading}
+            onClick={e => this.downloadReport()}>
+            <span className='icon' title='Descargar'>
+              <i className='fa fa-download' />
+            </span>
+          </button>
+        </div> 
+       
       </div>
     )
   }
 
-  async onClickButtonPlus () {
-    for (const row of this.state.selectedCheckboxes) {
-      let toAdd = row.prediction * 0.01
-      if (Math.round(toAdd) === 0) {
-        toAdd = 1
-      }
-      let localAdjustment = Math.round(row.localAdjustment)
-      let newAdjustment = localAdjustment + toAdd
-      row.lastLocalAdjustment = row.localAdjustment
+  async onClickButtonPlus (type) {
+    this.setState({isLoadingButtons: ' is-loading'})
+    let { selectedCheckboxes } = this.state
+    selectedCheckboxes = Array.from(selectedCheckboxes)
 
+    for (const row of selectedCheckboxes) {
+      let toAdd = 0
+      
+      if (
+        type === 'percent' && 
+        !isNaN(this.state.percentage) &&
+        parseInt(this.state.percentage) !== 0 
+      ){
+        toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
+        toAdd = Math.round(toAdd)
+      } else if (
+        type === 'quantity' &&
+        !isNaN(this.state.quantity) &&
+        parseInt(this.state.quantity) !== 0
+      ) {
+        toAdd = parseInt(this.state.quantity)
+      } else {
+        return
+      }
+
+      let adjustmentForDisplayAux = Math.round(row.adjustmentForDisplay)
+      let newAdjustment = adjustmentForDisplayAux + toAdd
+      
+      row.lastLocalAdjustment = row.adjustmentForDisplay
       row.newAdjustment = newAdjustment
-
-      const res = await this.handleChange(row)
-      if (!res) {
-        row.localAdjustment = localAdjustment
-      }
     }
+
+    await this.handleChange(selectedCheckboxes)
+    this.setState({isLoadingButtons: ''})
   }
 
-  async onClickButtonMinus () {
-    for (const row of this.state.selectedCheckboxes) {
-      let toAdd = row.prediction * 0.01
-      if (Math.round(toAdd) === 0) {
-        toAdd = 1
-      }
-      let localAdjustment = Math.round(row.localAdjustment)
-      let newAdjustment = localAdjustment - toAdd
-      row.lastLocalAdjustment = row.localAdjustment
+  async onClickButtonMinus (type) {
+    this.setState({isLoadingButtons: ' is-loading'})
+    let { selectedCheckboxes } = this.state
+    selectedCheckboxes = Array.from(selectedCheckboxes)
 
+    for (const row of selectedCheckboxes) {
+      let toAdd = 0
+      
+      if (
+        type === 'percent' && 
+        parseInt(this.state.percentage) !== 0 && 
+        !isNaN(this.state.percentage)
+      ) {
+        toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
+        toAdd = Math.round(toAdd)
+      } else if (
+        type === 'quantity' &&
+        parseInt(this.state.quantity) !== 0 &&
+        !isNaN(this.state.quantity)
+      ) {
+        toAdd = parseInt(this.state.quantity)
+      } else {
+        return
+      }
+
+      let adjustmentForDisplayAux = Math.round(row.adjustmentForDisplay)
+      let newAdjustment = adjustmentForDisplayAux - toAdd
+      row.lastLocalAdjustment = row.adjustmentForDisplay
       row.newAdjustment = newAdjustment
-
-      const res = await this.handleChange(row)
-      if (!res) {
-        row.localAdjustment = localAdjustment
-      }
     }
+    
+    await this.handleChange(selectedCheckboxes)
+    this.setState({isLoadingButtons: ''})
   }
 
   toggleButtons () {
@@ -727,73 +591,123 @@ class TabAdjustment extends Component {
     })
   }
 
-  async handleChange (obj) {
-    let adjusted = true
-    let maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
-    let minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
+  async handleChange(obj) {
+    let rowAux = []
+    let isLimited = false
+    let limitedRows = []
+    let { pendingDataRows } = this.state
 
-    obj.newAdjustment = Math.round(obj.newAdjustment)
-    obj.localAdjustment = Math.round(obj.localAdjustment)
 
-    if (this.state.generalAdjustment > 0) {
-      obj.isLimit = (obj.newAdjustment > maxAdjustment || obj.newAdjustment < minAdjustment)
+    if (obj instanceof Array) {
+      rowAux = obj
+    } else {
+      rowAux.push(obj)
     }
 
-    if (obj.isLimit && obj.adjustmentRequest &&
-      (obj.adjustmentRequest.status === 'approved' ||
-      obj.adjustmentRequest.status === 'created')) {
-      obj.adjustmentRequest.status = 'rejected'
-    }
+    for (let row of rowAux) {
+      let maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
+      let minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
 
-    if (currentRole === 'manager-level-1') {
-      if (obj.newAdjustment >= maxAdjustment || 
-          obj.newAdjustment <= minAdjustment)
-      {
-        adjusted = false
+      row.newAdjustment = Math.round(row.newAdjustment)
+      row.adjustmentForDisplay = Math.round(row.adjustmentForDisplay)
+      row.adjustmentForDisplayAux = row.adjustmentForDisplay
+      row.isLimitAux = row.isLimit
+
+      if (this.state.generalAdjustment > 0) {
+        row.isLimit = (row.newAdjustment > maxAdjustment || row.newAdjustment < minAdjustment)
       }
 
-      else{
-        obj.localAdjustment = obj.newAdjustment
+      if (row.isLimit && row.adjustmentRequest &&
+        (row.adjustmentRequest.status === 'approved' ||
+          row.adjustmentRequest.status === 'created')) {
+        row.adjustmentRequest.status = 'rejected'
       }
 
+      row.adjustmentForDisplay = row.newAdjustment
+
+      row.edited = true
+
+      if (row.isLimit) {
+        isLimited = true
+
+        if (!pendingDataRows[row.uuid]) pendingDataRows[row.uuid] = row
+
+        rowAux = rowAux.filter((item) => { return row.uuid !== item.uuid })
+        limitedRows.push(row)
+      }
     }
-    else {
-      obj.localAdjustment = obj.newAdjustment
-    }
 
-    if (adjusted) {
-      var url = '/app/rows/' + obj.uuid
-      const res = await api.post(url, { ...obj })
+    try {
+      var url = '/app/rows/'
 
-      obj.edited = true
+      if (rowAux.length > 0) {
+        const res = await api.post(url, rowAux)
+      }
 
-      let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
-      let aux = this.state.dataRows
-
-      aux.splice(index, 1, obj)
-
+      if (isLimited && currentRole === 'manager-level-1') {
+        this.notify(
+          (<p>
+            <span className='icon'>
+              <i className='fa fa-warning fa-lg' />
+            </span>
+            ¡Debes pedir una solicitud de ajuste haciendo click sobre el ícono rojo!
+          </p>),
+          5000,
+          toast.TYPE.WARNING
+        )
+      } else {
+        this.notify('Ajustes guardado!', 5000, toast.TYPE.INFO)
+      }
+      
       this.setState({
-        dataRows: aux,
-        isConciliating: ' is-loading'
+        pendingDataRows: pendingDataRows
       })
 
       await this.updateSalesTable(obj)
 
+    } catch (e) {
+      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
 
-      this.notify('Ajuste guardado!', 3000, toast.TYPE.INFO)
+      for (let row of rowAux) {
+        row.edited = false
+        row.adjustmentForDisplay = row.adjustmentForDisplayAux
+        if (row.isLimitAux !== row.isLimit) {
+          row.isLimit = false
+        }
+
+        delete row.adjustmentForDisplayAux
+        delete row.isLimitAux
+      }
+
+      for (let row of limitedRows) {
+        row.edited = false
+        row.adjustmentForDisplay = row.adjustmentForDisplayAux
+        if (row.isLimitAux !== row.isLimit) {
+          row.isLimit = false
+        }
+
+        delete row.adjustmentForDisplayAux
+        delete row.isLimitAux
+        delete pendingDataRows[row.uuid]
+      }
+
+      this.setState({
+        pendingDataRows: pendingDataRows
+      })
+
+      return false
     }
-    else {
-      let adjustment = Object.create(obj);
-      adjustment.localAdjustment = obj.newAdjustment
-      this.showModalAdjustmentRequest(adjustment)
-      this.notify(' No te puedes pasar de los límites establecidos!', 3000, toast.TYPE.ERROR)      
+
+    this.props.loadCounters()
+
+    if (currentRole !== 'manager-level-1' && limitedRows.length) {
+      this.handleAdjustmentRequest(limitedRows)
     }
-  
-    return adjusted
+
+    return true
   }
 
-
-  notify (message = '', timeout = 3000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -811,46 +725,63 @@ class TabAdjustment extends Component {
     }
   }
 
-  showModalAdjustmentRequest (obj) {
-    if (currentRole !== 'consultor') {
-      obj.localAdjustment = '' + obj.localAdjustment
-      this.setState({
-        classNameAR: ' is-active',
-        selectedAR: obj
-      })
+  async handleAdjustmentRequest (obj) {
+    let { pendingDataRows } = this.state
+    let productAux = []
+    if (currentRole === 'consultor') {
+      return
     }
-  }
 
-  hideModalAdjustmentRequest () {
+    if (obj instanceof Array) {
+      productAux = obj
+    } else {
+      productAux.push(obj)
+    }
+
+    try {
+      var res = await api.post('/app/rows/request', productAux)
+    } catch (e) {
+      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
+
+      return
+    }
+
+    for (var product of productAux) {
+      product.adjustmentRequest = res.data[product.uuid]
+      delete pendingDataRows[product.uuid]
+    }
+
     this.setState({
-      classNameAR: '',
-      selectedAR: undefined            
+      pendingDataRows: pendingDataRows
     })
   }
 
-  async finishUpAdjustmentRequest (res) {
-    if (res && res.data === 'OK') {
-      this.state.selectedAR.localAdjustment = parseInt(this.state.selectedAR.localAdjustment)
-      this.state.selectedAR.adjustmentRequest = { status: 'created' }
-    }
-    this.setState({
-      selectedAR: undefined
-    })
+  async handleAllAdjustmentRequest (obj) {
+    let { pendingDataRows } = this.state
+    let pendingDataRowsArray = Object.values(pendingDataRows)
+
+    await this.handleAdjustmentRequest(pendingDataRowsArray)
   }
 
   async searchDatarows() {
-    const items = this.state.dataRows.map((item) => {
-      if (this.state.searchTerm === ''){
-        return item
-      }
-      const regEx = new RegExp(this.state.searchTerm, 'gi')
+    if (this.state.searchTerm === '') {
+      this.setState({
+        filteredData: this.state.dataRows
+      })
 
-      if (regEx.test(item.productName) || regEx.test(item.productId) || regEx.test(item.channel) || regEx.test(item.salesCenter))
-        return item
-      else
-        return null
+      return
+    }
+
+    const items = this.state.dataRows.filter((item) => {
+      const regEx = new RegExp(this.state.searchTerm, 'gi')
+      const searchStr = `${item.productName} ${item.productId} ${item.channel} ${item.salesCenter}`
+
+      if (regEx.test(searchStr))
+        return true
+      
+      return false
     })
-    .filter(function(item){ return item != null });
+    // .filter(function(item){ return item != null });
 
     await this.setState({
       filteredData: items
@@ -872,43 +803,17 @@ class TabAdjustment extends Component {
     }, () => this.searchDatarows())
   }
 
-  async conciliateOnClick () {
-    this.setState({
-      isConciliating: ' is-loading'
-    })
-
-    var url = '/app/datasets/' + this.props.project.activeDataset.uuid + '/set/conciliate'
-    try {
-      clearInterval(this.interval)
-      await api.post(url)
-      await this.props.load()
-    } catch(e){
-      this.notify('Error '+ e.message, 3000, toast.TYPE.ERROR)
-    }
-
-    this.setState({
-      isConciliating: '',
-      modified: 0,
-      dataRows: [],
-      isFiltered: false
-    })
-  }
-
   setAlertMsg() {
     let ajuste = (this.state.generalAdjustment * 100)
     if (ajuste < 0){
-      this.props.setAlert('is-warning', 'Ajuste Ilimitado.')
-      return
+      return <span>Modo Ajuste Ilimitado</span>
     }
 
     if (currentRole === 'consultor') {
-      this.props.setAlert('is-error', 'Modo de Visualización -  No se permiten ajustes para tu tipo de usuario.')
-    }
-    else if (currentRole === 'manager-level-2') {
-      this.props.setAlert('is-warning', 'Modo de Ajuste - Para este periodo se permite un ajuste máximo de ' + (this.state.generalAdjustment * 100) + '% sobre el ajuste anterior. Tu tipo de usuario permite ajustes fuera de rango')
+      return <span>Modo Visualización - No se permiten ajustes para tu tipo de usuario</span>
     }
     else {
-      this.props.setAlert('is-warning', 'Modo de Ajuste - Para este periodo se permite un ajuste máximo de ' + (this.state.generalAdjustment * 100) + '%  sobre el ajuste anterior.')
+      return <span>Modo Ajuste {this.state.generalAdjustment * 100} % permitido</span>
     }
   }
 
@@ -938,11 +843,12 @@ class TabAdjustment extends Component {
         })
       }
     } catch (e) {
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         noSalesData: e.message + ', intente más tarde'
       })
     }
+    this.getCountEdited() 
   }
 
   async updateSalesTable(row) {
@@ -955,9 +861,9 @@ class TabAdjustment extends Component {
     for (let i = 0; i < salesTable.length; i++) {
 
       if (row.semanaBimbo === parseInt(salesTable[i].week)) {
-        let price = Math.abs((row.localAdjustment - row.lastLocalAdjustment) * row.productPrice)
+        let price = Math.abs((row.adjustmentForDisplay - row.lastLocalAdjustment) * row.productPrice)
 
-        if (row.lastLocalAdjustment > row.localAdjustment) {
+        if (row.lastLocalAdjustment > row.adjustmentForDisplay) {
           price *= -1
         }
 
@@ -984,7 +890,7 @@ class TabAdjustment extends Component {
   loadTable() {
     if (this.state.noSalesData === '') {
       return (
-        <div className='section has-text-centered subtitle has-text-primary'>
+        <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
           Cargando, un momento por favor
           <Loader />
         </div>
@@ -992,7 +898,7 @@ class TabAdjustment extends Component {
     }
     else {
       return (
-        <div className='section has-text-centered subtitle has-text-primary'>
+        <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
           {this.state.noSalesData}
         </div>
       )
@@ -1000,8 +906,8 @@ class TabAdjustment extends Component {
   }
 
   async downloadReport () {
-    if (!this.state.formData.salesCenters) {
-      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 3000, toast.TYPE.ERROR)
+    if (!this.state.formData.salesCenter) {
+      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
 
       return
     }
@@ -1034,15 +940,13 @@ class TabAdjustment extends Component {
         category: this.state.formData.categories
       })
 
-      var FileSaver = require('file-saver');
-      var blob = new Blob(res.split(''), {type: "text/csv;charset=utf-8"});
+      
+      var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
-      this.notify('Se ha generado el reporte correctamente!', 3000, toast.TYPE.SUCCESS)
+      this.notify('Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
-      console.log('error',e.message)
-    
-      this.notify('Error ' + e.message, 3000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     
       this.setState({
         isLoading: '',
@@ -1064,6 +968,19 @@ class TabAdjustment extends Component {
     this.setState({
       byWeek: false
     })
+  }
+
+  toggleIndicators = () =>{
+    this.setState({
+      indicators: this.state.indicators === 'indicators-show' ? 'indicators-hide' : 'indicators-show'
+    })
+  }
+
+  getPeriod() {
+    var period = this.state.filters.periods.find(item => {
+      return item.number === this.state.formData.period
+    })
+    return period.name
   }
 
   render () {
@@ -1097,9 +1014,10 @@ class TabAdjustment extends Component {
       adviseContent =
         <div>
           Se debe agregar al menos un
-                <strong> dataset </strong> para poder generar ajustes.
+          <strong> dataset </strong> para poder generar ajustes.
         </div>
     }
+
     if (this.props.project.status === 'empty') {
       return (
         <div className='section columns'>
@@ -1135,7 +1053,7 @@ class TabAdjustment extends Component {
       )
     }
 
-    if (!this.state.filters.semanasBimbo.length > 0 && this.state.filtersLoaded) {
+    if (!this.state.filters.periods.length > 0 && this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           El proyecto no continene data rows
@@ -1143,7 +1061,7 @@ class TabAdjustment extends Component {
       )
     }
 
-    if (!this.state.filters.semanasBimbo.length > 0 && !this.state.filtersLoaded) {
+    if (!this.state.filters.periods.length > 0 && !this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           Cargando, un momento por favor
@@ -1152,191 +1070,200 @@ class TabAdjustment extends Component {
       )
     }
 
-    var schema = {
-      type: 'object',
-      title: '',
-      properties: {}
-    }
+    const graphData = [
+      {
+        label: 'Predicción',
+        color: '#187FE6',
+        data: this.state.salesTable.map((item, key) => { return item.prediction.toFixed(2) })
+      },
+      {
+        label: 'Ajuste',
+        color: '#30C6CC',
+        data: this.state.salesTable.map((item, key) => { return item.adjustment.toFixed(2) })
+      }
+    ]
 
-    const uiSchema = {
-      period: { 'ui:widget': SelectWidget },
-      semanasBimbo: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las semanas' },
-      channels: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los canales' },
-      salesCenters: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los centros de venta' },
-      products: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los productos' },
-      categories: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorías' }
-    }
-
-    if (this.state.filters.periods.length > 0) {
-      schema.properties.period = {
-        type: 'number',
-        title: 'Periodo',
-        enum: []
-      }
-
-      schema.properties.period.enum = this.state.filters.periods.map(item => { return item.number })
-      schema.properties.period.enumNames = this.state.filters.periods.map(item => { return item.name })
-      schema.properties.period.default = true
-    }
-    if (this.state.filters.filteredSemanasBimbo.length > 0) {
-      schema.properties.semanasBimbo = {
-        type: 'number',
-        title: 'Semana',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.semanasBimbo.enum = this.state.filters.filteredSemanasBimbo
-      schema.properties.semanasBimbo.enumNames = this.state.filters.filteredSemanasBimbo.map(item => { return 'Semana ' + item })
-    }
-    if (this.state.filters.channels.length > 0) {
-      schema.properties.channels = {
-        type: 'string',
-        title: 'Canales',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.channels.enum = this.state.filters.channels.map(item => { return item.uuid })
-      schema.properties.channels.enumNames = this.state.filters.channels.map(item => { return 'Canal ' + item.name })
-      if(this.state.filters.channels.length === 1){
-        uiSchema.channels['ui:disabled'] = true
-      }
-    }
-
-    if (this.state.filters.products.length > 0) {
-      schema.properties.products = {
-        type: 'string',
-        title: 'Productos',
-        enum: [],
-        enumNames: []
-      }
-
-      schema.properties.products.enum = this.state.filters.products.map(item => { return item.uuid })
-      schema.properties.products.enumNames = this.state.filters.products.map(item => { return item.name })
-    }
-    if (this.state.filters.categories.length > 0) {
-      schema.properties.categories = {
-        type: 'string',
-        title: 'Categorias de producto',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.categories.enum = this.state.filters.categories
-      schema.properties.categories.enumNames = this.state.filters.categories
-    }
-
-    if (this.state.filters.salesCenters.length > 0) {
-      schema.properties.salesCenters = {
-        type: 'string',
-        title: 'Centros de Venta',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.salesCenters.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
-      schema.properties.salesCenters.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
-      if(this.state.filters.salesCenters.length === 1){
-        uiSchema.salesCenters['ui:disabled'] = true
-      }
-    }
-    
     return (
       <div>
-        <div className='section'>
-          <CreateAdjustmentRequest
-            className={this.state.classNameAR}
-            hideModal={(e) => this.hideModalAdjustmentRequest(e)}
-            finishUp={(e) => this.finishUpAdjustmentRequest(e)}
-            prediction={this.state.selectedAR}
-            baseUrl={'/app/rows/'}
-          />
-          <div className='columns'>
-            <div className='column'>
-              <BaseForm
-                className='inline-form'
-                schema={schema}
-                uiSchema={uiSchema}
-                formData={this.state.formData}
-                onChange={(e) => { this.filterChangeHandler(e) }}
-                onSubmit={(e) => { this.getDataRows(e) }}
-                onError={(e) => { this.filterErrorHandler(e) }}
-              >
-              <br />
-                <div className='field is-grouped'>
-                  <div className='control'>
-                    <button
-                      className={'button is-primary' + this.state.isLoading}
-                      type='submit'
-                      disabled={!!this.state.isLoading}
-                    >
-                      <span className='icon'>
-                        <i className='fa fa-filter' />
-                      </span>
-                      <span>
-                        Filtrar
-                    </span>
-                    </button>
-                  </div>
-                </div>
-              </BaseForm>
+        <div className='section level selects'>
+          <div className='level-left'>
+            <div className='level-item'>
+              <Select
+                label='Periodo'
+                name='period'
+                value={this.state.formData.period}
+                placeholder='Seleccionar'
+                optionValue='number'
+                optionName='name'
+                type='integer'
+                options={this.state.filters.periods}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
             </div>
 
-            <div className='column has-text-right'>
-              <div className='card'>
-                <div className='card-header'>
-                  <h1 className='card-header-title'>Totales de Venta</h1>
+            <div className='level-item'>
+              <Select
+                label='Categoría'
+                name='category'
+                value=''
+                placeholder='Seleccionar'
+                options={this.state.filters.categories}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            </div>
+
+            <div className='level-item'>
+              {this.state.filters.channels.length === 1 ?
+                <div className='channel'>
+                  <span>Canal: </span>
+                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.channels[0].name}
+                  </span>
                 </div>
-                <div className='card-content historical-container'>
+                :
+              <Select
+                label='Canal'
+                name='channel'
+                value=''
+                placeholder='Seleccionar'
+                optionValue='uuid'
+                optionName='name'
+                options={this.state.filters.channels}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+              }
+            </div>
+
+            <div className='level-item'>
+            {this.state.filters.salesCenters.length === 1 ?
+                <div className='saleCenter'>
+                  <span>Centro de Venta: </span>
+                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
+                  </span>
+                </div>  
+            :
+              <Select
+                label='Centros de Venta'
+                name='salesCenter'
+                value=''
+                placeholder='Seleccionar'
+                optionValue='uuid'
+                optionName='name'
+                options={this.state.filters.salesCenters}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            }
+            </div>
+          </div>
+        </div>
+
+        <div className='level indicators deep-shadow'>
+          <div className='level-item has-text-centered'>
+            <div>
+              <h1>Indicadores</h1>
+            </div>
+          </div>
+          <div className={this.state.indicators === 'indicators-hide' ? 
+          'level-item has-text-centered has-text-info' : 
+          'level-item has-text-centered has-text-info disapear'} 
+          >
+            <div>
+              <p className='has-text-weight-semibold'>Predicción</p>
+              <h1 className='num has-text-weight-bold'>
+                {this.state.totalPrediction ? 
+                '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                })
+                : null
+                }
+              </h1>
+            </div>
+          </div>
+          <div className={this.state.indicators === 'indicators-hide' ? 
+          'level-item has-text-centered has-text-teal' : 
+          'level-item has-text-centered has-text-teal disapear'}>
+            <div>
+              <p className='has-text-weight-semibold'>Ajuste</p>
+              <h1 className='num has-text-weight-bold'>
+                {this.state.totalAdjustment ? 
+                '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                })
+                : null
+              }
+              </h1>
+            </div>
+          </div>
+          <div className={this.state.indicators === 'indicators-hide' ?
+            'level-item has-text-centered' : ' level-item has-text-centered no-border'}>
+            <div>
+              <img src='/app/public/img/grafica.png' 
+              className={this.state.indicators === 'indicators-hide' ? 
+              '' : 'disapear'}/>
+              <a className='collapse-btn' onClick={this.toggleIndicators}>
+                <span className='icon is-large'>
+                  <i className={this.state.indicators === 'indicators-show' ? 'fa fa-2x fa-caret-up' : 'fa fa-2x fa-caret-down'}></i>
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+
+        <div className={'indicators-collapse ' + this.state.indicators}>
+          <div className='columns'>
+            <div className='column is-5-desktop is-4-widescreen is-4-fullhd is-offset-1-fullhd is-offset-1-desktop'>
+              <div className='panel sales-table'>
+                <div className='panel-heading'>
+                  <h2 className='is-capitalized'>Totales {this.getPeriod()}</h2>
+                </div>
+                <div className='panel-block'>
                   {
                     currentRole !== 'consultor' &&
-                      this.state.salesTable.length > 0 ? 
-                      <table className='table historical is-fullwidth'>
+                      this.state.salesTable.length > 0 ?
+                      <table className='table is-fullwidth is-hoverable'>
                         <thead>
                           <tr>
-                            <th colSpan='2'>Predicción</th>
-                            <th colSpan='2'>Predicción con Ajuste</th>
+                            <th className='has-text-centered'>Semana</th>
+                            <th className='has-text-info has-text-centered'>Predicción</th>
+                            <th className='has-text-teal has-text-centered'>Ajuste</th>
                           </tr>
                         </thead>
                         <tbody>
                           {this.state.salesTable.map((item, key) => {
                             return (
                               <tr key={key}>
-                                <td>
-                                  Semana {item.week}
+                                <td className='has-text-centered'>
+                                  {item.week}
                                 </td>
-                                <td>
+                                <td className='has-text-centered'>
                                   $ {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
-                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                    })}
+                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                  })}
                                 </td>
-                                <td>
-                                  Semana {item.week}
-                                </td>
-                                <td>
+                                <td className='has-text-centered'>
                                   $ {item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
-                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                    })}
+                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                  })}
                                 </td>
                               </tr>
                             )
                           })
                           }
 
-                          <tr>
-                            <th>
+                          <tr className='totals'>
+                            <th className='has-text-centered'>
                               Total
-                        </th>
-                            <td>
+                            </th>
+                            <th className='has-text-info has-text-centered'>
                               $ {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
-                            </td>
-                            <th>
-                              Total
-                        </th>
-                            <td>
+                            </th>
+                            <th className='has-text-teal has-text-centered'>
                               $ {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
-                            </td>
+                            </th>
                           </tr>
                         </tbody>
                       </table>
@@ -1345,47 +1272,45 @@ class TabAdjustment extends Component {
                   }
                 </div>
               </div>
-              <br />
-              <div className='field is-grouped is-grouped-right'>
-                <div className='control'>
-                  <button
-                    className={'button is-primary' + this.state.isDownloading}
-                    disabled={!!this.state.isDownloading}
-                    type='button'
-                    onClick={e => this.downloadReport()}
-                  >
-                    <span className='icon'>
-                      <i className='fa fa-download' />
-                    </span>
-                    <span>Descargar Reporte</span>
-                  </button>
-                </div>                  
-                <div className='control'>
-                    <button
-                      className={'button is-success' + this.state.isConciliating}
-                      disabled={!!this.state.isConciliating}
-                      type='button'
-                      onClick={e => this.conciliateOnClick()}
-                    >
-                      Confirmar ajustes ({ this.state.modified })
-                    </button>
-                  </div>
+            </div>
+
+            <div className='column is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
+              <div className='panel sales-graph'>
+                <div className='panel-heading'>
+                  <h2 className='is-capitalized'>Reporte {this.getPeriod()}</h2>
+                </div>
+                <div className='panel-block'>
+                  {
+                    currentRole !== 'consultor' &&
+                      this.state.salesTable.length > 0 ?
+                      <Graph
+                        data={graphData}
+                        labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
+                      />
+                      :
+                      this.loadTable()
+                  }
                 </div>
               </div>
-            
+            </div>
+
           </div>
-          <section className='section'>
-            {!this.state.isFiltered
-              ? <article className='message is-primary'>
-                <div className='message-header'>
-                  <p>Información</p>
-                </div>
-                <div className='message-body'>
-                  Debe aplicar un filtro para visualizar información
-                </div>
-              </article>
-              : <div>
-                {this.getModifyButtons()}
+        </div>
+          
+        <section>
+          {!this.state.isFiltered || this.state.isLoading
+            ? <div className='section has-text-centered subtitle has-text-primary'>
+                Cargando, un momento por favor
+                <Loader />
+              </div>
+            : <div>
+                <section className='section'>
+                  <h1 className='period-info'>
+                    <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getPeriod()} - </span> 
+                    <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
+                  </h1>
+                  {this.getModifyButtons()}
+                </section>
                 {
                   !this.state.byWeek ?
 
@@ -1397,7 +1322,10 @@ class TabAdjustment extends Component {
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
-                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }} />
+                      adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
+                      handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }} 
+                      handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }} 
+                    />
                     :
 
                     <WeekTable
@@ -1408,12 +1336,14 @@ class TabAdjustment extends Component {
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
-                      showModalAdjustmentRequest={(row) => { this.showModalAdjustmentRequest(row) }} />
+                      adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
+                      handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
+                      handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }} 
+                    />
                 }
               </div>
-            }
-          </section>
-        </div>
+          }
+        </section>
       </div>
     )
   }
