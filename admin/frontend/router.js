@@ -49,6 +49,7 @@ import Prices from './pages/prices/list'
 import PriceDetail from './pages/prices/detail'
 import UsersImport from './pages/import/users'
 import ChannelImport from './pages/import/channels'
+import ProductsImport from './pages/import/products'
 import SalesCentersImport from './pages/import/sales-centers'
 // #Import
 
@@ -113,6 +114,7 @@ const AppRouter = () => {
           {DeletedChannels.asRouterItem()}
           {ChannelDetail.asRouterItem()}
           {ChannelImport.asRouterItem()}
+          {ProductsImport.asRouterItem()}
 
           {Prices.asRouterItem()}
           {PriceDetail.asRouterItem()}
