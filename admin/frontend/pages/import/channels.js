@@ -15,7 +15,11 @@ const schema = {
 }
 
 const uiSchema = {
-  file: {'ui:widget': FileWidget, 'ui:className': 'is-centered'}
+  file: {
+    'ui:widget': FileWidget,
+    'ui:className': 'is-centered',
+    'ui:accept': '.csv'
+  }
 }
 
 class ImportChannels extends Component {
@@ -42,7 +46,6 @@ class ImportChannels extends Component {
     var data
     try {
       data = await api.post('/admin/channels/import/', formData)
-      console.log(data)
     } catch (e) {
       return this.setState({
         error: e.message,
@@ -111,7 +114,7 @@ class ImportChannels extends Component {
                       El archivo <strong>.csv</strong> debe contener el mismo formato que el mostrado debajo:
                     </h4>
                     <pre style={{marginTop: '1em'}}>
-                      "name","organizationSlug",externalId"<br />
+                      "name","organizationSlug","externalId"<br />
                       "detalle","globo", "12888"
                     </pre>
                   </div>

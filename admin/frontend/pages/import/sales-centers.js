@@ -15,7 +15,11 @@ const schema = {
 }
 
 const uiSchema = {
-  file: {'ui:widget': FileWidget, 'ui:className': 'is-centered'}
+  file: {
+    'ui:widget': FileWidget,
+    'ui:className': 'is-centered',
+    'ui:accept': '.csv'
+  }
 }
 
 class ImportSalesCenter extends Component {
@@ -42,7 +46,6 @@ class ImportSalesCenter extends Component {
     var data
     try {
       data = await api.post('/admin/salesCenters/import/', formData)
-      console.log(data)
     } catch (e) {
       return this.setState({
         error: e.message,
