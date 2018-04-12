@@ -405,11 +405,13 @@ class ProjectDetail extends Component {
           <div>
             <div className='section'>
               <div className='has-text-right'>
-                <DeleteButton
-                  objectName='Proyecto'
-                  objectDelete={() => this.deleteObject()}
-                  message={'Estas seguro de querer eliminar este Proyecto?'}
-                />
+                { canEdit &&
+                  <DeleteButton
+                    objectName='Proyecto'
+                    objectDelete={() => this.deleteObject()}
+                    message={'Estas seguro de querer eliminar este Proyecto?'}
+                  />
+                }
               </div>
               <ProjectForm
                 className='is-shadowless'
