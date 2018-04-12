@@ -55,7 +55,7 @@ class ReadyDataSets extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-2, manager-level-3')) {
+          if (testRoles('manager-level-2, consultor')) {
             return (
               <Link className='button' to={'/datasets/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
@@ -134,7 +134,7 @@ export default Page({
   title: 'Listos',
   icon: 'thumbs-up',
   exact: true,
-  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
   validate: [loggedIn, verifyRole],
   component: branchedReadyDataSets
 })

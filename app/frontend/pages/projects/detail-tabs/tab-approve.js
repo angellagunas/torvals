@@ -58,7 +58,7 @@ class TabApprove extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
             return (
               <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
                 <Checkbox
@@ -74,7 +74,7 @@ class TabApprove extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row, state) => {
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
             if (row.status === 'created') {
               if (!row.selected) {
                 row.selected = false
@@ -161,8 +161,9 @@ class TabApprove extends Component {
         'type': 'number',
         'sortable': true,                
         formatter: (row) => {
-          let percentage = ((row.newAdjustment - row.datasetRow.data.prediction) 
-                          / row.datasetRow.data.prediction) * 100
+          let percentage = (
+            ((row.newAdjustment - row.datasetRow.data.prediction) / row.datasetRow.data.prediction) * 100
+          )
           row.percentage = percentage                                            
           return Math.round(percentage) + ' %'
         }
@@ -366,27 +367,25 @@ class TabApprove extends Component {
             </div>
           </div>
         </div>
-          
 
-          {currentRole !== 'manager-level-3' ?
-           
-          <div className='level-right'>
-            <div className='level-item'>
-              <div className='saleCenter'>
-                <span>Total: </span>
-                <span className='has-text-weight-bold is-capitalized'>{this.state.dataRows.length}
-                </span>
+        {currentRole !== 'consultor'
+          ? <div className='level-right'>
+              <div className='level-item'>
+                <div className='saleCenter'>
+                  <span>Total: </span>
+                  <span className='has-text-weight-bold is-capitalized'>{this.state.dataRows.length}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div className='level-item'>
-              <div className='saleCenter'>
-                <span>Pendientes: </span>
-                <span className='has-text-weight-bold is-capitalized'>{this.state.remainingItems}
-                </span>
+              <div className='level-item'>
+                <div className='saleCenter'>
+                  <span>Pendientes: </span>
+                  <span className='has-text-weight-bold is-capitalized'>{this.state.remainingItems}
+                  </span>
+                </div>
               </div>
-            </div>
-            <div className='level-item is-margin-top-20'>
+              <div className='level-item is-margin-top-20'>
                 <button
                   className='button is-danger'
                   onClick={this.reject}
@@ -395,8 +394,7 @@ class TabApprove extends Component {
                   <span>Rechazar</span>
                 </button>
               </div>
-            <div className='level-item is-margin-top-20'>
-              
+              <div className='level-item is-margin-top-20'>
                 <button
                   className='button is-success'
                   onClick={this.approve}
@@ -405,7 +403,9 @@ class TabApprove extends Component {
                   <span>Aprobar</span>
                 </button>
               </div>
-          </div> : null }
+            </div>
+          : null
+        }
       </div>
     )
   }
@@ -542,7 +542,6 @@ class TabApprove extends Component {
     let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
     let aux = this.state.dataRows
     obj.selected = false
-console.log(obj)
     aux.splice(index,1,obj)
 
     this.setState({
@@ -622,7 +621,6 @@ console.log(obj)
   }
   
   render () {
-    console.log(this.state.dataRows)
     return (
       <div>
         <section className='section is-clipped'>

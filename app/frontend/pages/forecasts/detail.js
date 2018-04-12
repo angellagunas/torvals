@@ -171,7 +171,7 @@ class ForecastDetail extends Component {
           if (
               row.status === 'created' &&
               currentRole !== 'analyst' &&
-              currentRole !== 'manager-level-3'
+              currentRole !== 'consultor'
           ) {
             return (
               <div className='field is-grouped'>
@@ -676,7 +676,7 @@ export default Page({
   title: 'Forecast detail',
   icon: 'check',
   exact: true,
-  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-1, manager-level-2',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-1, manager-level-2',
   validate: [loggedIn, verifyRole],
   component: ForecastDetail
 })

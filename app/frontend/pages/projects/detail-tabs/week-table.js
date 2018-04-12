@@ -109,7 +109,7 @@ class WeekTable extends PureComponent {
       {
         group: this.getBtns(),
         title: (() => {
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
             return (
               <Checkbox
                 label='checkAll'
@@ -126,7 +126,7 @@ class WeekTable extends PureComponent {
         property: 'checkbox',
         default: '',
         formatter: (row) => {
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
             if (!row.selected) {
               row.selected = false
             }
@@ -238,7 +238,7 @@ class WeekTable extends PureComponent {
 
              row.tabin = row.key * 10 + j
              row.weeks[j].tabin = row.key * 10 + j
-             if (this.props.currentRole !== 'manager-level-3') {
+             if (this.props.currentRole !== 'consultor') {
                return (
                  <input
                    type='number'

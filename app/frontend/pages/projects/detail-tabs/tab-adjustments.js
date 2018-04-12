@@ -298,6 +298,7 @@ class TabAdjustment extends Component {
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
           var minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
+
           row.isLimit = (
             row.adjustmentForDisplay > maxAdjustment || row.adjustmentForDisplay < minAdjustment
           )
@@ -392,7 +393,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div>
-        {currentRole !== 'manager-level-3' ?
+        {currentRole !== 'consultor' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -434,7 +435,7 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
-        {currentRole !== 'manager-level-3' ?
+        {currentRole !== 'consultor' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -727,7 +728,7 @@ class TabAdjustment extends Component {
   async handleAdjustmentRequest (obj) {
     let { pendingDataRows } = this.state
     let productAux = []
-    if (currentRole === 'manager-level-3') {
+    if (currentRole === 'consultor') {
       return
     }
 
@@ -808,7 +809,7 @@ class TabAdjustment extends Component {
       return <span>Modo Ajuste Ilimitado</span>
     }
 
-    if (currentRole === 'manager-level-3') {
+    if (currentRole === 'consultor') {
       return <span>Modo Visualización - No se permiten ajustes para tu tipo de usuario</span>
     }
     else {
@@ -1217,7 +1218,7 @@ class TabAdjustment extends Component {
                 </div>
                 <div className='panel-block'>
                   {
-                    currentRole !== 'manager-level-3' &&
+                    currentRole !== 'consultor' &&
                       this.state.salesTable.length > 0 ?
                       <table className='table is-fullwidth is-hoverable'>
                         <thead>
@@ -1280,7 +1281,7 @@ class TabAdjustment extends Component {
                 </div>
                 <div className='panel-block'>
                   {
-                    currentRole !== 'manager-level-3' &&
+                    currentRole !== 'consultor' &&
                       this.state.salesTable.length > 0 ?
                       <Graph
                         data={graphData}

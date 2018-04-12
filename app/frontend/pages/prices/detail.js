@@ -70,7 +70,7 @@ class PriceDetail extends Component {
 
     const currentUser = tree.get('user')
     var disabledForm = false
-    if (currentUser.currentRole.slug === 'manager-level-3') {
+    if (currentUser.currentRole.slug === 'consultor') {
       disabledForm = true
     }
     return (

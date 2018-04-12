@@ -37,7 +37,7 @@ module.exports = new Route({
       }
     }
 
-    if (currentRole.slug === 'manager-level-3') {
+    if (currentRole.slug === 'consultor') {
       userData.role = currentRole._id
     }
 

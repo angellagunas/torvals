@@ -71,7 +71,7 @@ class ProjectDetail extends Component {
     }, 10000)
 
     if (
-      currentRole !== 'manager-level-3' &&
+      currentRole !== 'consultor' &&
       !this.intervalConciliate &&
       this.state.project.status === 'adjustment'
     ) {
@@ -443,7 +443,7 @@ class ProjectDetail extends Component {
       </span>
     </button>)
     var consolidarButton
-    if (!testRoles('manager-level-3')) {
+    if (!testRoles('consultor')) {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
@@ -586,7 +586,7 @@ export default Page({
   path: '/projects/:uuid',
   title: 'Detalle',
   exact: true,
-  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2, manager-level-1',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-2, manager-level-1',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

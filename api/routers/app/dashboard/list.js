@@ -48,7 +48,7 @@ module.exports = new Route({
         filters['status'] = 'opsReview'
         break
 
-      case 'manager-level-3':
+      case 'consultor':
         filters['status'] = 'supervisorReview'
         break
 

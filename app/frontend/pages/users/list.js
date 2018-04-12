@@ -13,7 +13,7 @@ export default ListPage({
   title: 'Usuarios',
   icon: 'user',
   exact: true,
-  roles: 'admin, orgadmin, analyst, manager-level-3, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Usuario',
   create: false,
@@ -129,8 +129,8 @@ export default ListPage({
             disabledActions = row.roleDetail.priority <= currentUser.currentRole.priority
           }
 
-          if (currentUser.currentRole.slug === 'manager-level-3') {
-            if (row.roleDetail.slug === 'manager-level-3') {
+          if (currentUser.currentRole.slug === 'consultor') {
+            if (row.roleDetail.slug === 'consultor') {
               disabledActions = false
             } else {
               disabledActions = true

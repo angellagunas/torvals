@@ -15,7 +15,7 @@ export default ListPage({
   title: 'Grupos',
   icon: 'users',
   exact: true,
-  roles: 'admin, orgadmin, analyst, manager-level-3, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Grupo',
   create: false,
@@ -114,7 +114,7 @@ export default ListPage({
 
           var currentRole = tree.get('user').currentRole.slug
           var deleteButton
-          if (currentRole !== 'manager-level-3') {
+          if (currentRole !== 'consultor') {
             deleteButton =
               <div className='control'>
                 <DeleteButton

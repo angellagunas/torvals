@@ -33,7 +33,7 @@ module.exports = new Route({
       }
     }
 
-    if (currentRole.slug !== 'manager-level-3') {
+    if (currentRole.slug !== 'consultor') {
       filters['priority'] = { $gt: currentRole.priority }
     }
 

@@ -11,7 +11,7 @@ export default ListPage({
   title: 'Precios',
   titleSingular: 'Precio',
   icon: 'money',
-  roles: 'admin, orgadmin, analyst, manager-level-3, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
   exact: true,
   validate: [loggedIn, verifyRole],
   create: false,
@@ -112,7 +112,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-3')) {
+          if (testRoles('consultor')) {
             return (
               <Link className='button' to={'/catalogs/prices/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>

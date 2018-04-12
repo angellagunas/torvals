@@ -66,7 +66,7 @@ class ProductTable extends PureComponent {
       {
         group: this.getBtns(),
         title: (() => {
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
           return (
             <Checkbox
               label='checkAll'
@@ -83,7 +83,7 @@ class ProductTable extends PureComponent {
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
           if (!row.selected) {
             row.selected = false
           }
@@ -204,7 +204,7 @@ class ProductTable extends PureComponent {
           }
 
           row.tabin = row.key * 10
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
             return (
               <input
                 type='number'
