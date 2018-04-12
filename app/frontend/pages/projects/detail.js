@@ -16,7 +16,7 @@ import NotFound from '~base/components/not-found'
 import ProjectForm from './create-form'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
-import TabAprove from './detail-tabs/tab-aprove'
+import TabApprove from './detail-tabs/tab-approve'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 // import Breadcrumb from '~base/components/base-breadcrumb'
@@ -347,7 +347,7 @@ class ProjectDetail extends Component {
               project.status === 'pendingRows' ||
               project.status === 'empty'),
         content: (
-          <TabAprove
+          <TabApprove
             setAlert={(type, data) => this.setAlert(type, data)}
             project={project}
             canEdit={canEdit}
