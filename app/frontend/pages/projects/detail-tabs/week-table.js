@@ -457,7 +457,7 @@ class WeekTable extends PureComponent {
         limit =
           <span
             className='icon has-text-danger'
-            title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
+            title={'Hay ajustes fuera de rango!'}
             onClick={() => {
               this.props.handleAdjustmentRequest(row.weeks)
             }}>
