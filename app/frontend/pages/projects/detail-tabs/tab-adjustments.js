@@ -1302,7 +1302,9 @@ class TabAdjustment extends Component {
                 <Loader />
               </div>
             : <div>
-                <section className='section'>
+              { this.state.dataRows.length > 0 ?
+                <div>
+                  <section className='section'>
                   <h1 className='period-info'>
                     <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getPeriod()} - </span> 
                     <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
@@ -1340,6 +1342,12 @@ class TabAdjustment extends Component {
                     />
                 }
               </div>
+              :
+                <div className='section has-text-centered subtitle has-text-primary'>
+                  Este dataset no contiene datarows
+                </div>
+              }
+            </div>
           }
         </section>
       </div>
