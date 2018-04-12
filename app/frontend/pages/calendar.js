@@ -10,6 +10,7 @@ import Carousel from './carousel'
 import Checkbox from '~base/components/base-checkbox'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import Select from './projects/detail-tabs/select'
+import _ from 'lodash'
 
 class Calendar extends Component {
   constructor (props) {
@@ -23,7 +24,6 @@ class Calendar extends Component {
   }
   async getDates () {
     const map = new Map()
-
     this.state.data.map((date) => {
       if (date.year === this.state.selectedYear) {
         const key = date.month
@@ -41,7 +41,8 @@ class Calendar extends Component {
     for (let i = 0; i < Array.from(map).length; i++) {
       const element = Array.from(map)[i]
       periods.push({
-        name: `Periodo ${moment(element[1][0].dateEnd).format('MMMM')}`,
+        name: `Periodo ${moment(element[1][0].month, 'M').format('MMMM')}`,
+        month: element[1][0].month,
         weeks: element[1]
       })
     }
@@ -54,6 +55,8 @@ class Calendar extends Component {
         currentMonth = i
       }
     }
+
+    periods = _.orderBy(periods, ['month'], ['asc'])
 
     this.setState({
       periods: periods,

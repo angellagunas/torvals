@@ -47,6 +47,7 @@
         background-color: rgba(0, 0, 0, 0) !important;
         border: 0px !important;
         border-bottom: 1px solid whitesmoke !important;
+        width: 100%;
     }
     .input:focus {
         border: 0px !important;
@@ -60,10 +61,17 @@
 }
 
 .land-card {
-    width: 550px;
+    width: 400px;
+    margin: 0 auto;
     background-color: rgba(48, 90, 122, 0.7) !important;
+    .card-header {
+        background-color: rgba(48, 90, 122, 0.7) !important;
+    }
     .navbar-item {
         background-color: rgba(48, 90, 122, 0.3) !important;
+        .column.is-one-third{
+            text-align: center;
+        }
     }
     .navbar-item:hover {
         background-color: rgba(48, 90, 122, 0.8) !important;
@@ -83,7 +91,7 @@
         .down {
             position: absolute !important;
             bottom: 100px !important;
-            h2{
+            h2 {
                 padding: 2.5rem;
             }
         }
