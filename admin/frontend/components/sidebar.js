@@ -22,6 +22,7 @@ import Prices from '../pages/prices/list'
 import UsersImport from '../pages/import/users'
 import SalesCentersImport from '../pages/import/sales-centers'
 import ChannelsImport from '../pages/import/channels'
+import ProductsImport from '../pages/import/products'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -130,7 +131,8 @@ class Sidebar extends Component {
         dropdown: [
           UsersImport.asSidebarItem(),
           SalesCentersImport.asSidebarItem(),
-          ChannelsImport.asSidebarItem()
+          ChannelsImport.asSidebarItem(),
+          ProductsImport.asSidebarItem()
         ]
       }, {
         title: 'Developer Tools',
