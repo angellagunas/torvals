@@ -48,12 +48,12 @@ class ProductTable extends PureComponent {
     return (
       <div className="field has-addons view-btns">
         <span className="control">
-          <a className="button is-info is-outlined" onClick={this.props.show}>
+          <a className={this.props.currentRole === 'consultor' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
             Vista Semana
           </a>
         </span>
         <span className="control">
-          <a className="button is-info">
+          <a className={this.props.currentRole === 'consultor' ? 'button is-info btn-lvl-3' : 'button is-info'}>
             Vista Producto
           </a>
         </span>
