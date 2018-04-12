@@ -68,7 +68,7 @@ class ImportSalesCenter extends Component {
             <h1
               className='is-size-3 is-padding-top-small is-padding-bottom-small'
             >
-              Load users
+              Cargar centros de venta
             </h1>
             <div className='card'>
               <div className='card-content'>
