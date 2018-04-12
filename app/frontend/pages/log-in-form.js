@@ -26,7 +26,7 @@ class LogInButton extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      className: '',
+      className: ' is-active',
       formData: {
         email: '',
         password: ''
@@ -253,12 +253,12 @@ class LogInButton extends Component {
       <div>
         <a className='button is-info is-outlined' onClick={(e) => { this.showModal(e) }}>Log In</a>
         <div className={'modal' + this.state.className}>
-          <div className='modal-background' onClick={(e) => { this.hideModal(e) }} />
+          <div className='modal-background' onClick={(e) => {}} />
           <div className='modal-content land-login'>
             <section>
               <div className='card-container'>
                 <h1 className='is-size-4 has-text-white pad-bottom'>
-                  Bienvenido
+                  Bienvenido a Orax
                 </h1>
                 <div className='content'>
                   <div className='columns is-centered'>
@@ -292,7 +292,6 @@ class LogInButton extends Component {
               </div>
             </section>
           </div>
-          <button className='modal-close is-large' aria-label='close' onClick={(e) => { this.hideModal(e) }} />
         </div>
       </div>
     )
