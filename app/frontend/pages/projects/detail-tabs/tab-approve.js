@@ -621,10 +621,17 @@ class TabApprove extends Component {
   }
   
   render () {
+    
     return (
       <div>
-        <section className='section is-clipped'>
+        <section>
         {this.getModifyButtons()}
+        {this.state.dataRows.length === 0 ?
+            <section className='section'>
+              <center>
+                <h2 className='has-text-info'>No hay ajustes por aprobar</h2></center>
+            </section>
+         :   
         <BaseTable
           className='aprobe-table is-fullwidth'
           data={this.state.filteredData}
@@ -632,7 +639,8 @@ class TabApprove extends Component {
           sortAscending={this.state.sortAscending}
           sortBy={this.state.sortBy}
           handleSort={(e) => this.handleSort(e)} />
-        </section>
+        }
+          </section>
       </div>
     )
   }

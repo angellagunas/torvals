@@ -619,12 +619,18 @@ class TabHistorical extends Component {
                 <div className='panel-block'>
                   {
                   this.state.historicData.prediction && this.state.weekTotalsPredictions &&
-                  <Graph
+                    this.state.predictions.length > 0 &&
+                    this.state.adjustments.length > 0
+
+                  ? <Graph
                     data={graphData}
                     labels={Array.from(this.state.labels)}
                     height={50}
                     reloadGraph={this.state.reloadGraph}
                   />
+                  : <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
+                        No hay datos que mostrar
+                      </div>
                 }
                 </div>
               </div>

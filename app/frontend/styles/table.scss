@@ -13,6 +13,7 @@
     border-bottom: 1px solid #E6E8F6;
     background-color: #FBFBFB;
     vertical-align: middle;
+    height: 33px;
     .input {
         font-size: 0.7rem !important;
         width: 60px;
@@ -87,7 +88,7 @@
 
 .swrapper {
     max-width: 99.8%;
-    margin: 0 auto;
+    margin: 0;
 }
 
 .colspan {
@@ -127,6 +128,10 @@
         width: 164px;
         height: 35px;
     }
+}
+
+.btn-lvl-3{
+    width: 148px !important;
 }
 
 .table-week {
