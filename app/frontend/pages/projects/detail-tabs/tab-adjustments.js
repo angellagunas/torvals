@@ -1144,7 +1144,6 @@ class TabAdjustment extends Component {
                 label='Centros de Venta'
                 name='salesCenter'
                 value={this.state.formData.salesCenter}
-                placeholder='Seleccionar'
                 optionValue='uuid'
                 optionName='name'
                 options={this.state.filters.salesCenters}
