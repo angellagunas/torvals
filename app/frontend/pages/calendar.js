@@ -111,7 +111,6 @@ class Calendar extends Component {
   }
 
   async filterChangeHandler (name, value) {
-    console.log(value)
     this.setState({
       selectedYear: value
     }, () => {
