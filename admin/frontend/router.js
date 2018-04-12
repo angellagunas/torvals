@@ -45,6 +45,7 @@ import DeletedProjects from './pages/projects/deleted-list'
 import Channels from './pages/channels/list'
 import DeletedChannels from './pages/channels/deleted-list'
 import ChannelDetail from './pages/channels/detail'
+import ChannelImport from './pages/channels/import'
 import NotFound from '~base/components/not-found'
 import Calendar from './pages/calendar'
 import Prices from './pages/prices/list'
@@ -111,6 +112,8 @@ const AppRouter = () => {
           {Channels.asRouterItem()}
           {DeletedChannels.asRouterItem()}
           {ChannelDetail.asRouterItem()}
+          {ChannelImport.asRouterItem()}
+
           {Prices.asRouterItem()}
           {PriceDetail.asRouterItem()}
 

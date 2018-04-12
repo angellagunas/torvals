@@ -19,6 +19,7 @@ import Products from '../pages/products/list'
 import DeletedProducts from '../pages/products/deleted-list'
 import Channels from '../pages/channels/list'
 import DeletedChannels from '../pages/channels/deleted-list'
+import ChannelsImport from '../pages/channels/import'
 import Calendar from '../pages/calendar'
 import Prices from '../pages/prices/list'
 
@@ -123,12 +124,13 @@ class Sidebar extends Component {
         ]
       },
       {
-        title: 'Load Data',
+        title: 'Cargar Datos',
         icon: 'file-o',
         to: '/import',
         dropdown: [
           UsersImport.asSidebarItem(),
-          SalesCentersImport.asSidebarItem()
+          SalesCentersImport.asSidebarItem(),
+          ChannelsImport.asSidebarItem()
         ]
       }, {
         title: 'Developer Tools',

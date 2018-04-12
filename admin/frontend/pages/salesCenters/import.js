@@ -10,7 +10,7 @@ const schema = {
   type: 'object',
   required: ['file'],
   properties: {
-    file: {type: 'string', title: 'File to import', format: 'data-url'}
+    file: {type: 'string', title: 'Archivo a importar', format: 'data-url'}
   }
 }
 
@@ -127,7 +127,7 @@ class ImportSalesCenter extends Component {
 
 export default Page({
   path: '/import/salesCenters',
-  title: 'Cargar centros de venta ',
+  title: 'Centros de venta ',
   icon: 'credit-card-alt',
   exact: true,
   validate: loggedIn,

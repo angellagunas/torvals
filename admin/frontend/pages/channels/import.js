@@ -18,7 +18,7 @@ const uiSchema = {
   file: {'ui:widget': FileWidget, 'ui:className': 'is-centered'}
 }
 
-class ImportUsers extends Component {
+class ImportChannels extends Component {
   constructor (props) {
     super(props)
 
@@ -41,7 +41,7 @@ class ImportUsers extends Component {
   async submitHandler ({formData}) {
     var data
     try {
-      data = await api.post('/admin/users/import/', formData)
+      data = await api.post('/admin/channels/import/', formData)
       console.log(data)
     } catch (e) {
       return this.setState({
@@ -68,7 +68,7 @@ class ImportUsers extends Component {
             <h1
               className='is-size-3 is-padding-top-small is-padding-bottom-small'
             >
-              Cargar usuarios
+              Cargar canales
             </h1>
             <div className='card'>
               <div className='card-content'>
@@ -111,8 +111,8 @@ class ImportUsers extends Component {
                       El archivo <strong>.csv</strong> debe contener el mismo formato que el mostrado debajo:
                     </h4>
                     <pre style={{marginTop: '1em'}}>
-                      "name","screenName","email","password"<br />
-                      "Juan Perez","Juan","juan@coporation.com","password"
+                      "name","organizationSlug",externalId"<br />
+                      "detalle","globo", "12888"
                     </pre>
                   </div>
                 </div>
@@ -126,10 +126,10 @@ class ImportUsers extends Component {
 }
 
 export default Page({
-  path: '/import/users',
-  title: 'Usuarios',
-  icon: 'user',
+  path: '/import/channels',
+  title: 'Canales',
+  icon: 'filter',
   exact: true,
   validate: loggedIn,
-  component: ImportUsers
+  component: ImportChannels
 })
