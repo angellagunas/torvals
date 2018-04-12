@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 const moment = require('moment')
+const verifyDatasetrows = require('queues/update-datasetrows')
 
 const {DataSetRow, AdjustmentRequest, Role} = require('models')
 
@@ -16,6 +17,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     var data = ctx.request.body
     var returnData = {}
+    var uuidsAux = []
 
     for (let row of data) {
       const datasetRow = await DataSetRow.findOne({'uuid': row.uuid, 'isDeleted': false})
@@ -65,12 +67,19 @@ module.exports = new Route({
       if (currentRole.slug !== 'manager-level-1') {
         adjustmentRequest.approvedBy = ctx.state.user._id
         adjustmentRequest.dateApproved = moment.utc()
+        datasetRow.data.localAdjustment = adjustmentRequest.newAdjustment
+        datasetRow.data.updatedBy = ctx.state.user
+        datasetRow.markModified('data')
+        await datasetRow.save()
+        uuidsAux.push({uuid: datasetRow.uuid})
       }
 
       await adjustmentRequest.save()
 
       returnData[row.uuid] = adjustmentRequest.toPublic()
     }
+
+    verifyDatasetrows.addList(uuidsAux)
 
     ctx.body = {data: returnData}
   }

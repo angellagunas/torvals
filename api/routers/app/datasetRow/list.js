@@ -71,7 +71,7 @@ module.exports = new Route({
       if (filter === 'period') {
         const weeks = await AbraxasDate.find({
           month: ctx.request.query[filter],
-          dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin)}
+          dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
         }).sort('dateStart')
 
         filters['data.semanaBimbo'] = { $in: weeks.map(item => { return item.week }) }
