@@ -5,7 +5,6 @@ require('lib/databases/mongo')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { Project, DataSet } = require('models')
-const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   console.log('Fetching existing Projects...')
@@ -52,8 +51,8 @@ const task = new Task(async function (argv) {
           name: 'New Adjustment',
           description: '',
           organization: project.organization,
-          createdBy: projectDataset.conciliatedBy,
-          uploadedBy: projectDataset.conciliatedBy,
+          createdBy: projectDataset.conciliatedBy || projectDataset.createdBy,
+          uploadedBy: projectDataset.conciliatedBy || projectDataset.createdBy,
           uploaded: true,
           project: project._id,
           externalId: resFilter._id,
