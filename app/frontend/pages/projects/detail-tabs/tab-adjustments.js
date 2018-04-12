@@ -626,7 +626,7 @@ class TabAdjustment extends Component {
 
       row.edited = true
 
-      if (currentRole === 'manager-level-1' && row.isLimit) {
+      if (row.isLimit) {
         isLimited = true
 
         if (!pendingDataRows[row.uuid]) pendingDataRows[row.uuid] = row
@@ -643,7 +643,7 @@ class TabAdjustment extends Component {
         const res = await api.post(url, rowAux)
       }
 
-      if (isLimited) {
+      if (isLimited && currentRole === 'manager-level-1') {
         this.notify(
           (<p>
             <span className='icon'>
@@ -698,6 +698,11 @@ class TabAdjustment extends Component {
     }
 
     this.props.loadCounters()
+
+    if (currentRole !== 'manager-level-1' && limitedRows.length) {
+      this.handleAdjustmentRequest(limitedRows)
+    }
+
     return true
   }
 

@@ -60,8 +60,8 @@ module.exports = new Route({
 
     var dates = await AbraxasDate.find({
       week: {$in: semanasBimbo},
-      dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin)}
-    }).sort('-dateStart').limit(semanasBimbo.length)
+      dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
+    }).sort('-dateStart')
 
     dates = dates.map(item => {
       return {
