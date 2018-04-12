@@ -151,6 +151,34 @@ h2 {
     }
 }
 
+.breadcrumb.has-succeeds-separator li+li::before {
+    content: '/';
+    font-weight: 300;
+    font-size: 1.2rem;
+}
+
+.single-form {
+    max-width: 400px;
+    margin: 100px auto;
+    .input{
+        width: 100%;
+    }
+}
+
+.multiselect {
+    &-column {
+        height: 15em;
+        max-height: 70%;
+        overflow-y: auto;
+        border: 1px solid;
+        border-color: #dbdbdb;
+        border-radius: 3px;
+    }
+    &-icon {
+        padding-top: 7.8em;
+    }
+}
+
 /* @import 'base'; */
 
 @import '../../../lib/frontend/style.css';

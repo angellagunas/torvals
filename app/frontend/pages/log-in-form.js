@@ -261,8 +261,8 @@ class LogInButton extends Component {
                   Bienvenido
                 </h1>
                 <div className='content'>
-                  <div className='columns'>
-                    <div className='column is-offset-4 is-4'>
+                  <div className='columns is-centered'>
+                    <div className='column is-7'>
                       <BaseForm schema={schema}
                         uiSchema={uiSchema}
                         formData={this.state.formData}
