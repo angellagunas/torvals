@@ -40,7 +40,8 @@ class ProjectDetail extends Component {
       counterAdjustments: 0,
       isConciliating: '',
       modified: 0,
-      pendingChanges: 0
+      pendingChanges: 0,
+      pending: 0
     }
 
     this.interval = null
@@ -96,6 +97,7 @@ class ProjectDetail extends Component {
       })
 
       this.countAdjustmentRequests()
+      this.getModifiedCount()
     } catch (e) {
       await this.setState({
         loading: false,
@@ -262,13 +264,6 @@ class ProjectDetail extends Component {
     })
   }
 
-  getCounters (realized, pending) {
-    this.setState({
-      realized: realized,
-      pending: pending
-    })
-  }
-
   render () {
     if (this.state.notFound) {
       return <NotFound msg='este proyecto' />
@@ -329,7 +324,10 @@ class ProjectDetail extends Component {
         hide: project.status === 'empty',
         content: (
           <TabAdjustment
-            counters={(realized, pending) => { this.getCounters(realized, pending) }}
+            loadCounters={() => {
+              this.countAdjustmentRequests()
+              this.getModifiedCount()
+            }}
             load={this.getProjectStatus.bind(this)}
             project={project}
             history={this.props.history}
@@ -451,8 +449,8 @@ class ProjectDetail extends Component {
           <a className={'button is-success ' + this.state.isConciliating}
             disabled={!!this.state.isConciliating}
             onClick={e => this.conciliateOnClick()}>
-                      Consolidar
-                  </a>
+              Consolidar
+          </a>
         </p>
     }
 
@@ -507,7 +505,7 @@ class ProjectDetail extends Component {
                     <span className='icon is-small'>
                       <i className='fa fa-check' />
                     </span>
-                      Realizados {this.state.realized}
+                      Realizados {this.state.modified}
                   </span>
 
                 </p>
@@ -516,7 +514,7 @@ class ProjectDetail extends Component {
                     <span className='icon is-small'>
                       <i className='fa fa-exclamation-triangle' />
                     </span>
-                        Por aprobar {this.state.pending}
+                      Por aprobar {this.state.counterAdjustments}
                   </span>
                 </p>
                 {consolidarButton}

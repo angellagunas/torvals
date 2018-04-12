@@ -29,6 +29,7 @@ class TabAdjustment extends Component {
       isFiltered: false,
       filtersLoaded: false,
       isLoading: '',
+      isLoadingButtons: '',
       modified: 0,
       pending: 0,
       filters: {
@@ -46,7 +47,6 @@ class TabAdjustment extends Component {
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
-      isConciliating: '',
       isDownloading: '',
       generalAdjustment: 0.1,
       salesTable: [],
@@ -264,6 +264,7 @@ class TabAdjustment extends Component {
 
     this.setState({
       isLoading: ' is-loading',
+      isFiltered: false,
       generalAdjustment: period.adjustment,
       salesTable: [],
       noSalesData: ''      
@@ -474,6 +475,15 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
+        <div className='column is-narrow'>
+          <p style={{color: 'grey', paddingTop: '1.7rem', width: '.8rem'}}>
+          {
+            this.state.isLoadingButtons && 
+            <span><FontAwesome className='fa-spin' name='spinner' /></span>
+          }
+          </p>
+        </div>
+
         {this.state.selectedCheckboxes.size > 0 &&
           <div className='column products-selected'>
             <p>
@@ -499,6 +509,7 @@ class TabAdjustment extends Component {
   }
 
   async onClickButtonPlus (type) {
+    this.setState({isLoadingButtons: ' is-loading'})
     let { selectedCheckboxes } = this.state
     selectedCheckboxes = Array.from(selectedCheckboxes)
 
@@ -530,9 +541,11 @@ class TabAdjustment extends Component {
     }
 
     await this.handleChange(selectedCheckboxes)
+    this.setState({isLoadingButtons: ''})
   }
 
   async onClickButtonMinus (type) {
+    this.setState({isLoadingButtons: ' is-loading'})
     let { selectedCheckboxes } = this.state
     selectedCheckboxes = Array.from(selectedCheckboxes)
 
@@ -562,7 +575,8 @@ class TabAdjustment extends Component {
       row.newAdjustment = newAdjustment
     }
     
-     await this.handleChange(selectedCheckboxes)
+    await this.handleChange(selectedCheckboxes)
+    this.setState({isLoadingButtons: ''})
   }
 
   toggleButtons () {
@@ -645,8 +659,7 @@ class TabAdjustment extends Component {
       }
       
       this.setState({
-        pendingDataRows: pendingDataRows,
-        isConciliating: ' is-loading'
+        pendingDataRows: pendingDataRows
       })
 
       await this.updateSalesTable(obj)
@@ -684,22 +697,8 @@ class TabAdjustment extends Component {
       return false
     }
 
-    this.getCountEdited()
+    this.props.loadCounters()
     return true
-  }
-
-  getCountEdited = () => {
-    let edited = 0
-    let pending = 0
-    for(let row of this.state.dataRows){
-      if(row.edited || row.wasEdited){
-        edited++
-      }
-      if(row.adjustmentRequest && row.adjustmentRequest.status === 'created'){
-        pending++
-      }
-    }
-    this.props.counters(edited, pending)
   }
 
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
@@ -1293,15 +1292,11 @@ class TabAdjustment extends Component {
         </div>
           
         <section>
-          {!this.state.isFiltered
-            ? <article className='message is-primary'>
-                <div className='message-header'>
-                  <p>Información</p>
-                </div>
-                <div className='message-body'>
-                  Debe aplicar un filtro para visualizar información
-                </div>
-              </article>
+          {!this.state.isFiltered || this.state.isLoading
+            ? <div className='section has-text-centered subtitle has-text-primary'>
+                Cargando, un momento por favor
+                <Loader />
+              </div>
             : <div>
                 <section className='section'>
                   <h1 className='period-info'>
