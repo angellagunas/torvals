@@ -51,6 +51,19 @@ export default ListPage({
   getColumns: () => {
     return [
       {
+        'title': 'Id',
+        'property': 'externalId',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/catalogs/products/detail/' + row.uuid}>
+              {row.externalId}
+            </Link>
+          )
+        }
+      },
+      {
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
@@ -62,6 +75,12 @@ export default ListPage({
             </Link>
           )
         }
+      },
+      {
+        'title': 'Categoría',
+        'property': 'category',
+        'default': 'N/A',
+        'sortable': true
       },
       {
         'title': 'Creado',
