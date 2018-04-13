@@ -383,7 +383,7 @@ class TabAdjustment extends Component {
             <label className='label'>Búsqueda general</label>              
             <div className='control has-icons-right'>
               <input
-                className='input'
+                className='input input-search'
                 type='text'
                 value={this.state.searchTerm}
                 onChange={this.searchOnChange} placeholder='Buscar' />

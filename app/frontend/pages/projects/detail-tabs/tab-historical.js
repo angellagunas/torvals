@@ -524,83 +524,93 @@ class TabHistorical extends Component {
                 <div className='panel-block'>
                   {
                     this.state.historicData.prediction &&
-                    this.state.weekTotalsPredictions
+                      this.state.weekTotalsPredictions
 
-                    ? <table className='table historical is-fullwidth'>
-                      <thead>
-                        <tr>
-                          <th className='has-text-centered'>Semana</th>
-                          <th className='has-text-info has-text-centered'>Predicción</th>
-                          <th className='has-text-teal has-text-centered'>Ajuste</th>
-                          <th className='has-text-success has-text-centered'>Venta Registrada</th>
-                          <th className='has-text-danger has-text-centered'>Venta Anterior</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {this.state.weekTotalsPredictions.map((item, key) => {
-                          if (item.week !== '') {
-                            return (
-                              <tr className='has-text-centered' key={key}>
-                                <td>
-                                  {item.week}
-                                </td>
-                                <td>
-                                  $ {item.total.toFixed(2).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                                <td>
-                                  $ {this.state.weekTotalsAdjustments[key].total.toFixed(2).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                                <td>
-                                  $ {this.state.weekTotalsSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                                <td>
-                                  $ {this.state.weekTotalsLastSales[key]
-                                   ? this.state.weekTotalsLastSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
-                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                   }) : '0.00'
-                                }
-                                </td>
-                              </tr>)
-                          }
-                        })}
-
-                        <tr className='totals'>
-                          <th>
-                            Total
-                          </th>
-                          <th className='has-text-info'>
-                            $ {this.state.weekTotalsPredictions[this.state.weekTotalsPredictions.length - 1].total
-                            .toFixed(2).replace(/./g, (c, i, a) => {
-                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                            })}
-                          </th>
-                          <th className='has-text-teal'>
-                            $ {this.state.weekTotalsAdjustments[this.state.weekTotalsAdjustments.length - 1].total
-                            .toFixed(2).replace(/./g, (c, i, a) => {
-                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                            })}
-                          </th>
-                          <th className='has-text-success'>
-                            $ {this.state.weekTotalsSales[this.state.weekTotalsSales.length - 1].total
-                            .toFixed(2).replace(/./g, (c, i, a) => {
-                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                            })}
-                          </th>
-                          <th className='has-text-danger'>
-                              $ {this.state.weekTotalsLastSales[this.state.weekTotalsLastSales.length - 1].total
-                                .toFixed(2).replace(/./g, (c, i, a) => {
-                                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    ? <div className='is-fullwidth'>
+                      {
+                          this.state.historicData.prediction.length > 0 &&
+                            this.state.weekTotalsPredictions.length > 0
+                            ? <table className='table historical is-fullwidth'>
+                              <thead>
+                                <tr>
+                                  <th className='has-text-centered'>Semana</th>
+                                  <th className='has-text-info has-text-centered'>Predicción</th>
+                                  <th className='has-text-teal has-text-centered'>Ajuste</th>
+                                  <th className='has-text-success has-text-centered'>Venta Registrada</th>
+                                  <th className='has-text-danger has-text-centered'>Venta Anterior</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {this.state.weekTotalsPredictions.map((item, key) => {
+                                  if (item.week !== '') {
+                                    return (
+                                      <tr className='has-text-centered' key={key}>
+                                        <td>
+                                          {item.week}
+                                        </td>
+                                        <td>
+                                          $ {item.total.toFixed(2).replace(/./g, (c, i, a) => {
+                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                          })}
+                                        </td>
+                                        <td>
+                                          $ {this.state.weekTotalsAdjustments[key].total.toFixed(2).replace(/./g, (c, i, a) => {
+                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                          })}
+                                        </td>
+                                        <td>
+                                          $ {this.state.weekTotalsSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
+                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                          })}
+                                        </td>
+                                        <td>
+                                          $ {this.state.weekTotalsLastSales[key]
+                                            ? this.state.weekTotalsLastSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
+                                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                            }) : '0.00'
+                                          }
+                                        </td>
+                                      </tr>)
+                                  }
                                 })}
+
+                                <tr className='totals'>
+                                  <th>
+                                    Total
                           </th>
-                        </tr>
-                      </tbody>
-                    </table>
+                                  <th className='has-text-info'>
+                                    $ {this.state.weekTotalsPredictions[this.state.weekTotalsPredictions.length - 1].total
+                                      .toFixed(2).replace(/./g, (c, i, a) => {
+                                        return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                      })}
+                                  </th>
+                                  <th className='has-text-teal'>
+                                    $ {this.state.weekTotalsAdjustments[this.state.weekTotalsAdjustments.length - 1].total
+                                      .toFixed(2).replace(/./g, (c, i, a) => {
+                                        return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                      })}
+                                  </th>
+                                  <th className='has-text-success'>
+                                    $ {this.state.weekTotalsSales[this.state.weekTotalsSales.length - 1].total
+                                      .toFixed(2).replace(/./g, (c, i, a) => {
+                                        return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                      })}
+                                  </th>
+                                  <th className='has-text-danger'>
+                                    $ {this.state.weekTotalsLastSales[this.state.weekTotalsLastSales.length - 1].total
+                                      .toFixed(2).replace(/./g, (c, i, a) => {
+                                        return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                      })}
+                                  </th>
+                                </tr>
+                              </tbody>
+                            </table>
+
+                            : <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
+                              No hay datos que mostrar
+                      </div>
+                        }
+                    </div>
                       : this.loadTable()
                   }
                 </div>
