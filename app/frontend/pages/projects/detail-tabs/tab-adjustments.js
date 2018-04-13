@@ -272,6 +272,7 @@ class TabAdjustment extends Component {
     })
 
     const url = '/app/rows/dataset/'
+    try{
     let data = await api.get(
       url + this.props.project.activeDataset.uuid,
       this.state.formData
@@ -285,6 +286,9 @@ class TabAdjustment extends Component {
     })
     this.clearSearch()
     this.getSalesTable()    
+  }catch(e){
+    console.log(e)
+  }
   }
 
   getEditedRows(data) {

@@ -173,96 +173,113 @@ class TabHistorical extends Component {
   async getFilters () {
     if (this.props.project.activeDataset) {
       const url = '/app/dates/'
-      let res = await api.get(url)
-      var periods = []
-      let years = new Set()
 
-      res.data.map((date) => {
-        years.add(date.year)
-      })
+      try {
+        let res = await api.get(url)
+        var periods = []
+        let years = new Set()
 
-      periods = this.getPeriods(res.data, Array.from(years)[0])
+        res.data.map((date) => {
+          years.add(date.year)
+        })
 
-      this.getProducts()
-      this.getChannels()
-      this.getSalesCent()
+        periods = this.getPeriods(res.data, Array.from(years)[0])
 
-      this.setState({
-        filters: {
-          ...this.state.filters,
-          dates: res.data,
-          periods: periods,
-          years: Array.from(years)
-        },
-        formData: {
-          period: periods[0].number,
-          year: Array.from(years)[0]
-        },
-        isFiltered: false
-      }, () => {
-        this.getData()
-      })
+        this.getProducts()
+        this.getChannels()
+        this.getSalesCent()
+
+        this.setState({
+          filters: {
+            ...this.state.filters,
+            dates: res.data,
+            periods: periods,
+            years: Array.from(years)
+          },
+          formData: {
+            period: periods[0].number,
+            year: Array.from(years)[0]
+          },
+          isFiltered: false
+        }, () => {
+          this.getData()
+        })
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 
   async getProducts () {
     const url = '/app/products/'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name',
-      organization: this.props.project.organization.uuid
-    })
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        products: res.data
-      }
-    }, () => {
-      this.getCategory(res.data)
-    })
+    try {
+      let res = await api.get(url, {
+        start: 0,
+        limit: 0,
+        sort: 'name',
+        organization: this.props.project.organization.uuid
+      })
+      this.setState({
+        filters: {
+          ...this.state.filters,
+          products: res.data
+        }
+      }, () => {
+        this.getCategory(res.data)
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async getChannels () {
     const url = '/app/channels/'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name',
-      organization: this.props.project.organization.uuid
-    })
+    try {
+      let res = await api.get(url, {
+        start: 0,
+        limit: 0,
+        sort: 'name',
+        organization: this.props.project.organization.uuid
+      })
 
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        channels: res.data
-      }
-    })
+      this.setState({
+        filters: {
+          ...this.state.filters,
+          channels: res.data
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async getSalesCent () {
     const url = '/app/salesCenters/'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name',
-      organization: this.props.project.organization.uuid
-    })
+    try {
+      let res = await api.get(url, {
+        start: 0,
+        limit: 0,
+        sort: 'name',
+        organization: this.props.project.organization.uuid
+      })
 
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        salesCenters: res.data
-      }
-    })
-
-    if (res.data.length === 1) {
       this.setState({
-        formData: {
-          ...this.state.formData,
-          salesCenters: res.data[0].uuid
+        filters: {
+          ...this.state.filters,
+          salesCenters: res.data
         }
       })
+
+      if (res.data.length === 1) {
+        this.setState({
+          formData: {
+            ...this.state.formData,
+            salesCenters: res.data[0].uuid
+          }
+        })
+      }
+    } catch (e) {
+      console.log(e)
     }
   }
 
