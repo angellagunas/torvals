@@ -25,7 +25,7 @@ class LandPage extends Component {
                 <div className='navbar-brand'>
                   <Link to='/landing' className='navbar-item grey-hover'>
                     {/* <img className='is-flex r-pad' src='/app/public/img/pythia-logo.png' /> */}
-                    <h3 className='is-size-4 is-capitalized has-text-weight-semibold'>Pythia</h3>
+                    <h3 className='is-size-4 is-capitalized has-text-weight-semibold'>Orax</h3>
                   </Link>
                 </div>
                 <div className='navbar-menu is-active'>
