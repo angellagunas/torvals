@@ -33,8 +33,8 @@ module.exports = new Route({
       ctx.throw(400, result.error)
     }
 
-    var creados = 0
-    var modificados = 0
+    var created = 0
+    var modified = 0
 
     for (var d of data) {
       let organization = await Organization.findOne({'slug': d.organizationSlug})
@@ -49,14 +49,14 @@ module.exports = new Route({
             subcategory: d.subcategory
           })
           await product.save()
-          modificados++
+          modified++
         } else {
           await Product.create(d)
-          creados++
+          created++
         }
       }
     }
 
-    ctx.body = {message: `Se han creado ${creados} Productos y modificado ${modificados} satisfactoriamente!`}
+    ctx.body = {message: `Se han creado ${created} Productos y modificado ${modified} satisfactoriamente!`}
   }
 })

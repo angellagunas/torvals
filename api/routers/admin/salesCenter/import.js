@@ -31,8 +31,8 @@ module.exports = new Route({
       ctx.throw(400, result.error)
     }
 
-    var modificados = 0
-    var creados = 0
+    var modified = 0
+    var created = 0
 
     for (var d of data) {
       let organization = await Organization.findOne({'slug': d.organizationSlug})
@@ -45,14 +45,14 @@ module.exports = new Route({
             description: d.description
           })
           await salesCenter.save()
-          modificados++
+          modified++
         } else {
           await SalesCenter.create(d)
-          creados++
+          created++
         }
       }
     }
 
-    ctx.body = {message: `Se han creado ${creados} Centros de venta y modificado ${modificados} satisfactoriamente!`}
+    ctx.body = {message: `Se han creado ${created} Centros de venta y modificado ${modified} satisfactoriamente!`}
   }
 })

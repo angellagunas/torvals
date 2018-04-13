@@ -29,8 +29,8 @@ module.exports = new Route({
     if (result.error) {
       ctx.throw(400, result.error)
     }
-    var modificados = 0
-    var creados = 0
+    var modified = 0
+    var created = 0
     for (var d of data) {
       let organization = await Organization.findOne({'slug': d.organizationSlug})
       if (organization) {
@@ -41,14 +41,14 @@ module.exports = new Route({
             name: d.name
           })
           await channel.save()
-          modificados++
+          modified++
         } else {
           await Channel.create(d)
-          creados++
+          created++
         }
       }
     }
 
-    ctx.body = {message: `Se han creado ${creados} Canales y modificado ${modificados} satisfactoriamente!`}
+    ctx.body = {message: `Se han creado ${created} Canales y modificado ${modified} satisfactoriamente!`}
   }
 })
