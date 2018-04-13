@@ -122,7 +122,6 @@ class NavBar extends Component {
     const navbarBrand = classNames('c-topbar__aside navbar-brand', {
       'collapsed': this.state.navbarBrandCollapsed
     })
-    console.log(this.state.navbarBrandCollapsed)
     return (<nav className='c-topbar navbar c-fixed'>
       <div className={navbarBrand}>
         <Link to='/dashboard' className='navbar-item'>
