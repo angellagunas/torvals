@@ -161,7 +161,7 @@ class TabHistorical extends Component {
       const element = Array.from(map)[i]
       periods.push({
         number: element[0],
-        name: `Periodo ${moment(element[1][0].month, 'M').format('MMMM')}`,
+        name: `${moment(element[1][0].month, 'M').format('MMMM')}`,
         maxSemana: element[1][0].week,
         minSemana: element[1][element[1].length - 1].week
       })
