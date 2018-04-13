@@ -811,7 +811,7 @@ class TabAdjustment extends Component {
     }
 
     if (currentRole === 'consultor') {
-      return <span>Modo Visualización - No se permiten ajustes para tu tipo de usuario</span>
+      return <span>Modo Visualización</span>
     }
     else {
       return <span>Modo Ajuste {this.state.generalAdjustment * 100} % permitido</span>
