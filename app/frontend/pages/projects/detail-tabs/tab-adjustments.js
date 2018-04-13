@@ -739,7 +739,7 @@ class TabAdjustment extends Component {
     }
 
     try {
-      var res = await api.post('/app/rows/request', productAux)
+      var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment}))
     } catch (e) {
       this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
 
