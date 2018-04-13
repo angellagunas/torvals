@@ -12,19 +12,6 @@ class DashOrgAdmin extends Component {
   getColumns = () => {
     return [
       {
-        'title': 'ID',
-        'property': 'uuid',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            <Link to={'/projects/' + row.uuid}>
-              {row.uuid}
-            </Link>
-          )
-        }
-      },
-      {
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
@@ -33,6 +20,19 @@ class DashOrgAdmin extends Component {
           return (
             <Link to={'/projects/' + row.uuid}>
               {row.name}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'ID',
+        'property': 'uuid',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/projects/' + row.uuid}>
+              {row.uuid}
             </Link>
           )
         }
