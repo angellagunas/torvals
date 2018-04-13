@@ -245,7 +245,7 @@ class WeekTable extends Component {
                    className='input'
                    value={row.weeks[j].adjustmentForDisplay}
                    onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
-                   onKeyPress={(e) => { this.onEnter(e, row.weeks[j]) }}
+                   onKeyDown={(e) => { this.onEnter(e, row.weeks[j]) }}
                    onChange={(e) => { this.onChange(e, row.weeks[j]) }}
                    onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
                    tabIndex={row.tabin}
@@ -313,10 +313,10 @@ class WeekTable extends Component {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
 
-    if (e.charCode === 13 && !e.shiftKey) {
+    if ((e.keyCode === 13 || e.which === 13) && !e.shiftKey) {
       this.changeCell(row, 1)
     }
-    else if (e.charCode === 13 && e.shiftKey) {
+    else if ((e.keyCode === 13 || e.which === 13) && e.shiftKey) {
       this.changeCell(row, -1)
     }
   }
