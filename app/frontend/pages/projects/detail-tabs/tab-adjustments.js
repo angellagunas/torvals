@@ -15,6 +15,8 @@ import ProductTable from './product-table'
 import Select from './select'
 import Graph from './graph'
 
+const FileSaver = require('file-saver')
+
 var currentRole
 moment.locale('es')
 
@@ -938,7 +940,6 @@ class TabAdjustment extends Component {
         category: this.state.formData.categories
       })
 
-      var FileSaver = require('file-saver');
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
