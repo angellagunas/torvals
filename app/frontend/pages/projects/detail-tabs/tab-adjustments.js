@@ -934,10 +934,10 @@ class TabAdjustment extends Component {
       let res = await api.post(url, {
         start_date: moment(min).format('YYYY-MM-DD'),
         end_date:  moment(max).format('YYYY-MM-DD'),
-        salesCenter: this.state.formData.salesCenters,
-        channel: this.state.formData.channels,
-        product: this.state.formData.products,
-        category: this.state.formData.categories
+        salesCenter: this.state.formData.salesCenter,
+        channel: this.state.formData.channel,
+        product: this.state.formData.product,
+        category: this.state.formData.category
       })
 
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
