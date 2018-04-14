@@ -61,7 +61,7 @@
         text-align: left !important;
         color: $general_text !important;
     }
-    .image{
+    .image {
         margin-bottom: 15px;
     }
 }
@@ -75,21 +75,12 @@
 .land-card {
     width: 400px;
     margin: 0 auto;
-    background-color: rgba(48, 90, 122, 0.7) !important;
-    .card-header {
-        background-color: rgba(48, 90, 122, 0.7) !important;
-    }
     .navbar-item {
-        background-color: rgba(48, 90, 122, 0.3) !important;
+        background-color: #EFF1F9;
+        border-color: #E6E8F6;
         .column.is-one-third {
             text-align: center;
         }
-    }
-    .navbar-item:hover {
-        background-color: rgba(48, 90, 122, 0.8) !important;
-    }
-    .navbar-divider {
-        background: $abraxas-color !important;
     }
 }
 

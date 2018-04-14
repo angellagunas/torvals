@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
-import classNames from 'classnames'
 import env from '~base/env-variables'
 
 import cookies from '~base/cookies'
 import api from '~base/api'
 import Link from '~base/router/link'
 import tree from '~core/tree'
-import SelectOrganizationForm from '~base/components/select-organization'
 
 class NavBar extends Component {
   constructor (props) {
@@ -125,10 +123,9 @@ class NavBar extends Component {
         <nav className='navbar is-transparent'>
           <div className='navbar-brand'>
             <Link to='/' className='navbar-item'>
-              <figure className='image is-24x24'>
-                <img className='logo' src='/app/public/img/pythia-logo.png' />
+              <figure className='image'>
+                <img className='logo' src='/app/public/img/oraxh.svg' />
               </figure>
-              <span className='navbar-item is-size-5 is-capitalized has-text-weight-semibold'>Pythia</span>
             </Link>
           </div>
           <div className='navbar-menu'>

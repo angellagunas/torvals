@@ -3,6 +3,6 @@ module.exports = {
   mailchimpKey: process.env.EMAIL_KEY,
   sender: {
     email: 'pythia-kore@latteware.io',
-    name: 'Pythia app'
+    name: 'Orax app'
   }
 }
