@@ -15,8 +15,8 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Nombre'},
-    category: {type: 'string', title: 'Categoria'},
-    subcategory: {type: 'string', title: 'Subcategoria'},
+    category: {type: 'string', title: 'Categoría'},
+    subcategory: {type: 'string', title: 'Subcategoría'},
     externalId: {type: 'string', title: 'Id Externo'},
     description: {type: 'string', title: 'Descripción'}
 
