@@ -82,6 +82,7 @@
 .period-info {
     font-size: 1.1rem;
     margin-bottom: 10px;
+    margin-top: 0.8rem;
 }
 
 .download-btn {
@@ -100,81 +101,59 @@
     }
 }
 
-.sales-table {
-    margin: 0.5rem;
-    background-color: #FFF;
-    border-color: #E6E8F6;
-    height: 100%;
-    max-height: 300px;
-    min-height: 265px;
-    .panel-heading {
-        h2 {
-            font-size: 0.9rem;
-            font-weight: 700;
-        }
-        background-color: #EFF1F9;
+.sales {
+    &-table,
+    &-graph {
+        margin: 0.5rem;
+        background-color: #FFF;
         border-color: #E6E8F6;
-    }
-    .panel-block {
-        border-color: #E6E8F6;
-        height: 83%;
+        height: 100%;
+        max-height: 280px;
         min-height: 265px;
+        .panel-heading {
+            h2 {
+                font-size: 0.9rem;
+                font-weight: 700;
+            }
+            background-color: #EFF1F9;
+            border-color: #E6E8F6;
+        }
+        .panel-block {
+            border-color: #E6E8F6;
+            height: 83%;
+            min-height: 247px;
+        }
     }
-    td,
-    th {
-        font-size: 0.87rem;
-    }
-    .table thead td,
-    .table thead th {
-        border-color: #E6E8F6;
-        border-width: 0 0 1px;
-    }
-    td {
-        border-width: 0 1px 0 0;
-        border-color: #E6E8F6;
-    }
-    tr>td:last-of-type {
-        border-width: 0;
-    }
-    .table {
-        margin-bottom: 0;
-        border-color: #E6E8F6;
-    }
-    .totals {
-        border-width: 1px 0 0 0;
-        border-style: solid;
-        border-color: #E6E8F6;
+    &-table {
+        td,
         th {
-            font-size: 0.9rem !important;
+            font-size: 0.87rem;
+        }
+        .table thead td,
+        .table thead th {
+            border-color: #E6E8F6;
+            border-width: 0 0 1px;
+        }
+        td {
+            border-width: 0 1px 0 0;
+            border-color: #E6E8F6;
+        }
+        tr>td:last-of-type {
+            border-width: 0;
+        }
+        .table {
+            margin-bottom: 0;
+            border-color: #E6E8F6;
+        }
+        .totals {
+            border-width: 1px 0 0 0;
+            border-style: solid;
+            border-color: #E6E8F6;
+            th {
+                font-size: 0.9rem !important;
+            }
         }
     }
-}
-
-.sales-graph {
-    margin: 0.5rem;
-    background-color: #FFF;
-    border-color: #E6E8F6;
-    height: 100%;
-    max-height: 300px;
-    min-height: 265px;
-    .panel-heading {
-        h2 {
-            font-size: 0.9rem;
-            font-weight: 700;
-        }
-        background-color: #EFF1F9;
-        border-color: #E6E8F6;
-    }
-    .panel-block {
-        height: 83%;
-        max-height: 83%;
-        min-height: 265px;
-        border-color: #E6E8F6;
-    }
-    /* canvas {
-        width: 355px !important;
-        height: 180px !important;
-    } */
 }
 
 .products-selected {

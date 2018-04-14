@@ -13,6 +13,7 @@
     border-bottom: 1px solid #E6E8F6;
     background-color: #FBFBFB;
     vertical-align: middle;
+    height: 33px;
     .input {
         font-size: 0.7rem !important;
         width: 60px;
@@ -87,7 +88,7 @@
 
 .swrapper {
     max-width: 99.8%;
-    margin: 0 auto;
+    margin: 0;
 }
 
 .colspan {
@@ -124,10 +125,13 @@
 
 .view-btns {
     .button {
-        width: 153px;
+        width: 164px;
         height: 35px;
-        z-index: 15 !important;
     }
+}
+
+.btn-lvl-3{
+    width: 148px !important;
 }
 
 .table-week {
@@ -167,5 +171,154 @@
             border-right: 1px solid #FBFBFB !important;
             border-left: 1px solid #FBFBFB;
         }
+    }
+}
+
+.id {
+    min-width: 60px;
+    max-width: 60px;
+}
+
+.historic {
+    &-table,
+    &-graph {
+        margin: 0.5rem;
+        background-color: #FFF;
+        border-color: #E6E8F6;
+        .panel-heading {
+            h2 {
+                font-size: 0.9rem;
+                font-weight: 700;
+            }
+            background-color: #EFF1F9;
+            border-color: #E6E8F6;
+        }
+        .panel-block {
+            border-color: #E6E8F6;
+        }
+    }
+    &-graph {
+        .panel {
+            max-height: 350px;
+        }
+        .panel-block {
+            max-height: 300px;
+        }
+    }
+    &-table {
+        .table {
+            margin-bottom: 0;
+            border-color: #E6E8F6;
+            td,
+            th {
+                text-align: center;
+            }
+            th {
+                font-size: 0.9rem;
+                font-weight: 700;
+            }
+            thead td,
+            thead th {
+                border-color: #E6E8F6;
+                border-width: 0 0 1px;
+            }
+            td {
+                border-width: 0 1px 0 0;
+                border-color: #E6E8F6;
+            }
+            tr>td:last-of-type {
+                border-width: 0;
+            }
+        }
+        .totals {
+            border-width: 1px 0 0 0;
+            border-style: solid;
+            border-color: #E6E8F6;
+            th {
+                font-size: 1rem !important;
+            }
+        }
+    }
+}
+
+.aprobe-table {
+    font-size: 0.8rem;
+    tr {
+        height: 37px !important;
+        background-color: #FBFBFB;
+    }
+    th,
+    td {
+        padding: 0.2rem 0.4rem;
+        vertical-align: middle;
+        &:nth-child(1),
+        &:nth-child(2) {
+            border-right: none;
+        }
+    }
+    td {
+        border-bottom: 1px solid #E6E8F6;
+        border-right: 1px solid #E6E8F6;
+    }
+    th {
+        background-color: rgba(233, 233, 233, 1);
+        font-weight: 700;
+        border-right: 1px solid #FBFBFB;
+        border-left: 1px solid #FBFBFB;
+        position: relative;
+        &:nth-child(1),
+        &:nth-child(2),
+        &:nth-child(3) {
+            border-left: none;
+        }
+        i {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+    .md-checkbox {
+        line-height: 1;
+    }
+    .md-checkbox--fake {
+        margin: 5px;
+        width: 20px;
+        height: 20px;
+    }
+    .md-checkbox--fake::after {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        border: 2px solid #ccc;
+    }
+    .md-checkbox--fake::before {
+        border-radius: 5px;
+        border: 0px solid transparent;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::after {
+        border: 2px solid #ccc;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::before {
+        height: 8px;
+        border-radius: 2px;
+        border-color: $success;
+        border-width: 2px;
+        border-top-style: none;
+        border-right-style: none;
+        -webkit-transform: rotate(-45deg);
+        -moz-transform: rotate(-45deg);
+        -ms-transform: rotate(-45deg);
+        -o-transform: rotate(-45deg);
+        transform: rotate(-45deg) translate(0px, 4px);
+    }
+    .is-approved {
+        background: rgba(12, 185, 0, 0.1) !important;
+    }
+    .is-rejected {
+        background: rgba($danger, 0.1) !important;
+    }
+    .is-selected {
+        background: rgba(227, 228, 235, 0.6) !important;
     }
 }

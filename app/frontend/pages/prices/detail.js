@@ -9,6 +9,7 @@ import Loader from '~base/components/spinner'
 import PriceForm from './create-form'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
+import tree from '~core/tree'
 
 class PriceDetail extends Component {
   constructor (props) {
@@ -67,6 +68,11 @@ class PriceDetail extends Component {
       return <Loader />
     }
 
+    const currentUser = tree.get('user')
+    var disabledForm = false
+    if (currentUser.currentRole.slug === 'consultor') {
+      disabledForm = true
+    }
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
@@ -116,14 +122,18 @@ class PriceDetail extends Component {
                           submitHandler={(data) => this.submitHandler(data)}
                           errorHandler={(data) => this.errorHandler(data)}
                           finishUp={(data) => this.finishUpHandler(data)}
+                          disabled={disabledForm}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button
-                                className={'button is-primary ' + this.state.isLoading}
-                                disabled={!!this.state.isLoading}
-                                type='submit'
-                              >Guardar</button>
+                              {
+                                !disabledForm ? <button
+                                  className={'button is-primary ' + this.state.isLoading}
+                                  disabled={!!this.state.isLoading}
+                                  type='submit'
+                              >Guardar</button> : ''
+                              }
+
                             </div>
                           </div>
                         </PriceForm>

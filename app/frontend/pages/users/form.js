@@ -147,6 +147,9 @@ class UserForm extends Component {
       schema.properties.role.enumNames.push(this.state.formData.roleDetail.name)
     }
 
+    if (this.props.disabledRoles) {
+      uiSchema['role']['ui:disabled'] = true
+    }
     return (
       <div>
         <BaseForm

@@ -3,12 +3,19 @@
     font-size: 0.75rem;
 }
 
-.input{
-  width: 150px;
+.date-selector {
+    font-size: 0.75rem !important;
+    color: $general_text;
+    font-weight: 500 !important;
 }
 
-.input-cant{
-  width: 55px;
+.input-search {
+    width: 150px;
+}
+
+.input-cant {
+    width: 55px;
+    height: 98%;
 }
 
 .selects {
@@ -17,10 +24,13 @@
     .input {
         width: 150px;
     }
-    select, .select, option{
+    select,
+    .select,
+    option {
         text-transform: capitalize;
     }
 }
+
 .inline-form {
     width: 100%;
     .select,
@@ -37,6 +47,13 @@
         display: none !important;
     }
 }
+
 .form-group>fieldset {
     border: 0;
+}
+
+.rjsf{
+    .input{
+        width: 100%;
+    }
 }

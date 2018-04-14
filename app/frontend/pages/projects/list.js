@@ -12,7 +12,7 @@ export default ListPage({
   title: 'Proyectos',
   icon: 'cog',
   exact: true,
-  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Proyecto',
   create: true,
@@ -77,7 +77,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-2, manager-level-3')) {
+          if (testRoles('manager-level-2, consultor')) {
             return (
               <Link className='button' to={'/projects/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>

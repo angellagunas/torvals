@@ -48,12 +48,12 @@ class ProductTable extends Component {
     return (
       <div className="field has-addons view-btns">
         <span className="control">
-          <a className="button is-info is-outlined" onClick={this.props.show}>
+          <a className={this.props.currentRole === 'consultor' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
             Vista Semana
           </a>
         </span>
         <span className="control">
-          <a className="button is-info">
+          <a className={this.props.currentRole === 'consultor' ? 'button is-info btn-lvl-3' : 'button is-info'}>
             Vista Producto
           </a>
         </span>
@@ -66,7 +66,7 @@ class ProductTable extends Component {
       {
         group: this.getBtns(),
         title: (() => {
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
           return (
             <Checkbox
               label='checkAll'
@@ -83,7 +83,7 @@ class ProductTable extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
           if (!row.selected) {
             row.selected = false
           }
@@ -104,7 +104,8 @@ class ProductTable extends Component {
         property: 'productId',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'has-text-centered table-product-head',        
+        headerClassName: 'has-text-centered table-product-head id',   
+        className: 'id',     
         formatter: (row) => {
           if (row.productId) {
             return row.productId
@@ -203,19 +204,23 @@ class ProductTable extends Component {
           }
 
           row.tabin = row.key * 10
-          return (
-            <input
-              type='number'
-              className='input'
-              value={row.adjustmentForDisplay}
-              onBlur={(e) => { this.onBlur(e, row) }}
-              onKeyPress={(e) => { this.onEnter(e, row) }}
-              onChange={(e) => { this.onChange(e, row) }}
-              onFocus={(e) => { this.onFocus(e, row) }}
-              tabIndex={row.tabin}
-              ref={(el) => { this.inputs.add({ tabin: row.tabin, el: el }) }}
-            />
-          )
+          if (this.props.currentRole !== 'consultor') {
+            return (
+              <input
+                type='number'
+                className='input'
+                value={row.adjustmentForDisplay}
+                onBlur={(e) => { this.onBlur(e, row) }}
+                onKeyPress={(e) => { this.onEnter(e, row) }}
+                onChange={(e) => { this.onChange(e, row) }}
+                onFocus={(e) => { this.onFocus(e, row) }}
+                tabIndex={row.tabin}
+                ref={(el) => { this.inputs.add({ tabin: row.tabin, el: el }) }}
+              />
+            )
+          }else{
+            return <span>{row.adjustmentForDisplay}</span>
+          }
         }
       },
       {
@@ -366,7 +371,10 @@ class ProductTable extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    if (nextProps.data !== this.props.data) {
+    var same = nextProps.data.length === this.props.data.length
+    same = same && nextProps.data.every((v,i)=> v === this.props.data[i])
+
+    if (!same) {
       this.setState({
         filteredData: nextProps.data
       })
@@ -381,7 +389,7 @@ class ProductTable extends Component {
     }
     return (
       <StickTable
-        height='400px'
+        height='55vh'
         data={this.state.filteredData}
         cols={this.getColumns()}
         stickyCols={0}

@@ -68,7 +68,7 @@ class TabDatasets extends Component {
             <div className='field is-grouped'>
               <div className='control'>
                 {
-                  testRoles('manager-level-2, manager-level-3')
+                  testRoles('manager-level-2, consultor')
                     ? <Link
                       className={
                         row.status === 'conciliated' || row.status === 'adjustment'

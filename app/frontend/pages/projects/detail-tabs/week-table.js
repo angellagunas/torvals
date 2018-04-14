@@ -6,7 +6,6 @@ import classNames from 'classnames'
 
 
 class WeekTable extends Component {
-
   constructor(props){
     super(props)
     this.state = {
@@ -90,14 +89,14 @@ class WeekTable extends Component {
 
   getBtns() {
     return (
-      <div className="field has-addons view-btns">
-        <span className="control">
-          <a className="button is-info">
+      <div className='field has-addons view-btns'>
+        <span className='control'>
+          <a className={this.props.currentRole === 'consultor' ? 'button is-info btn-lvl-3' : 'button is-info'}>
             Vista Semana
           </a>
         </span>
-        <span className="control">
-          <a className="button is-info is-outlined" onClick={this.props.show}>
+        <span className='control'>
+          <a className={this.props.currentRole === 'consultor' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
             Vista Producto
           </a>
         </span>
@@ -110,7 +109,7 @@ class WeekTable extends Component {
       {
         group: this.getBtns(),
         title: (() => {
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
             return (
               <Checkbox
                 label='checkAll'
@@ -127,7 +126,7 @@ class WeekTable extends Component {
         property: 'checkbox',
         default: '',
         formatter: (row) => {
-          if (this.props.currentRole !== 'manager-level-3') {
+          if (this.props.currentRole !== 'consultor') {
             if (!row.selected) {
               row.selected = false
             }
@@ -148,7 +147,8 @@ class WeekTable extends Component {
         property: 'productId',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'has-text-centered table-product-head',
+        headerClassName: 'has-text-centered table-product-head id',
+        className: 'id',
         formatter: (row) => {
           if (row.weeks[0].productId) {
             return row.weeks[0].productId
@@ -238,19 +238,23 @@ class WeekTable extends Component {
 
              row.tabin = row.key * 10 + j
              row.weeks[j].tabin = row.key * 10 + j
-             return (
-               <input
-                 type='number'
-                 className='input'
-                 value={row.weeks[j].adjustmentForDisplay}
-                 onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
-                 onKeyPress={(e) => { this.onEnter(e, row.weeks[j]) }}
-                 onChange={(e) => { this.onChange(e, row.weeks[j]) }}
-                 onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
-                 tabIndex={row.tabin}
-                 ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
-               />
-             )
+             if (this.props.currentRole !== 'consultor') {
+               return (
+                 <input
+                   type='number'
+                   className='input'
+                   value={row.weeks[j].adjustmentForDisplay}
+                   onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
+                   onKeyPress={(e) => { this.onEnter(e, row.weeks[j]) }}
+                   onChange={(e) => { this.onChange(e, row.weeks[j]) }}
+                   onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
+                   tabIndex={row.tabin}
+                   ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
+                 />
+               )
+             }else{
+                return <span>{row.weeks[j].adjustmentForDisplay}</span>
+             }
            }
          },
          {
@@ -266,6 +270,8 @@ class WeekTable extends Component {
             let percentage = (
               ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
             )
+            if(isNaN(percentage))
+              percentage = 0
             row.weeks[j].percentage = percentage 
             let status = classNames('has-text-weight-bold', {
               'has-text-success': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'approved',
@@ -359,8 +365,7 @@ class WeekTable extends Component {
         filteredDataByWeek: []
       })  
 
-    let data = this.state.data
-    
+    let data = this.state.data.slice(0)
     let rw = []
     for (let index = 0; index < data.length; index++) {
       const element = data[index];
@@ -452,7 +457,7 @@ class WeekTable extends Component {
         limit =
           <span
             className='icon has-text-danger'
-            title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
+            title={'Hay ajustes fuera de rango!'}
             onClick={() => {
               this.props.handleAdjustmentRequest(row.weeks)
             }}>
@@ -466,15 +471,29 @@ class WeekTable extends Component {
   }
 
   componentWillReceiveProps(nextProps){
-    if(nextProps.data !== this.props.data){
-      if (nextProps.data !== this.props.data) {
-        this.setState({
-          data: nextProps.data
-        }, () => {
-          this.setRange()
-          this.filterData()
-        })
-      }
+    if (!nextProps.data) return
+
+    if (!this.props.data) {
+      this.setState({
+        data: nextProps.data
+      }, () => {
+        this.setRange()
+        this.filterData()
+      })
+
+      return
+    }
+
+    var same = nextProps.data.length === this.props.data.length
+    same = same && nextProps.data.every((v,i)=> v === this.props.data[i])
+
+    if (!same) {
+      this.setState({
+        data: nextProps.data
+      }, () => {
+        this.setRange()
+        this.filterData()
+      })
     }
   }
 
@@ -495,7 +514,7 @@ class WeekTable extends Component {
     }
     return (
         <StickTable
-          height='100%'
+          height='55vh'
           data={this.state.filteredDataByWeek}
           cols={this.getColumnsByWeek()}
           stickyCols={4}

@@ -8,6 +8,8 @@
 @import 'inputs';
 @import 'landing';
 @import 'adjustments';
+@import 'sidepanel';
+@import 'calendar';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html,
 body {
@@ -50,11 +52,11 @@ h2 {
     cursor: initial;
 }
 
-.is-transparent-text{
+.is-transparent-text {
     color: transparent !important;
 }
 
-.is-fullwidth{
+.is-fullwidth {
     width: 100%;
 }
 
@@ -74,7 +76,7 @@ h2 {
 }
 
 .sidenav-open {
-    margin-left: 200px;
+    margin-left: 210px;
 }
 
 .is-hamburguer {
@@ -95,6 +97,89 @@ h2 {
 
 ::-webkit-scrollbar-thumb {
     background: rgb(170, 170, 170);
+}
+
+.is-margin-top-20 {
+    margin-top: 20px;
+}
+
+.badge {
+    position: relative;
+    span {
+        position: absolute;
+        top: 1px;
+        right: -14px;
+        transform: translate(0, -100%);
+        padding: 1px;
+        color: white;
+        border-radius: 100px;
+        background: $warning;
+        font-size: .8rem;
+        font-weight: bold;
+        width: 1.3rem;
+        height: 1.3rem;
+        text-align: center;
+        line-height: 1.3rem;
+    }
+}
+
+.card-header-select {
+    padding: .30em
+}
+
+.card-header {
+    &-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+    background-color: #EFF1F9;
+    border-color: #E6E8F6;
+}
+
+.is-size-3 {
+    font-size: 1.3rem !important;
+}
+
+.is-padding-bottom-small {
+    padding-bottom: 0.5em;
+}
+
+.clear-btn {
+    margin-top: 20px;
+    .button {
+        height: 1.7rem;
+    }
+}
+
+.breadcrumb{
+    margin: 10px 0;
+    &.has-succeeds-separator li+li::before {
+        content: '/';
+        font-weight: 300;
+        font-size: 1.2rem;
+    }
+}
+
+.single-form {
+    max-width: 400px;
+    margin: 100px auto;
+    .input{
+        width: 100%;
+    }
+}
+
+.multiselect {
+    &-column {
+        height: 15em;
+        max-height: 70%;
+        overflow-y: auto;
+        border: 1px solid;
+        border-color: #dbdbdb;
+        border-radius: 3px;
+    }
+    &-icon {
+        padding-top: 7.8em;
+    }
 }
 
 /* @import 'base'; */

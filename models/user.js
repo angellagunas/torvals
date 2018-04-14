@@ -249,7 +249,7 @@ userSchema.methods.sendInviteEmail = async function () {
       email: this.email,
       name: this.name
     },
-    title: 'Invitación a Pythia'
+    title: 'Invitación a Orax'
   })
 }
 
@@ -275,7 +275,7 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
       email: this.email,
       name: this.name
     },
-    title: 'Reestablecer contraseña en Pythia'
+    title: 'Reestablecer contraseña en Orax'
   })
 }
 
@@ -287,7 +287,7 @@ userSchema.methods.sendPasswordConfirmation = async function () {
       email: this.email,
       name: this.name
     },
-    title: 'Cambio de contraseña en Pythia'
+    title: 'Cambio de contraseña en Orax'
   })
 }
 

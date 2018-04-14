@@ -12,7 +12,7 @@ export default ListPage({
   title: 'Productos',
   icon: 'dropbox',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, manager-level-3',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Producto',
   create: true,
@@ -51,6 +51,19 @@ export default ListPage({
   getColumns: () => {
     return [
       {
+        'title': 'Id',
+        'property': 'externalId',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/catalogs/products/detail/' + row.uuid}>
+              {row.externalId}
+            </Link>
+          )
+        }
+      },
+      {
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
@@ -62,6 +75,12 @@ export default ListPage({
             </Link>
           )
         }
+      },
+      {
+        'title': 'Categoría',
+        'property': 'category',
+        'default': 'N/A',
+        'sortable': true
       },
       {
         'title': 'Creado',
@@ -77,7 +96,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-3')) {
+          if (testRoles('consultor')) {
             return (
               <Link className='button' to={'/catalogs/products/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>

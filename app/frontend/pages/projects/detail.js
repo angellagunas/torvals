@@ -16,11 +16,14 @@ import NotFound from '~base/components/not-found'
 import ProjectForm from './create-form'
 import TabDatasets from './detail-tabs/tab-datasets'
 import TabHistorical from './detail-tabs/tab-historical'
-import TabAprove from './detail-tabs/tab-aprove'
+import TabApprove from './detail-tabs/tab-approve'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 // import Breadcrumb from '~base/components/base-breadcrumb'
 // import TabAnomalies from './detail-tabs/tab-anomalies'
+
+var currentRole
+var user
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -35,29 +38,51 @@ class ProjectDetail extends Component {
       canEdit: false,
       isLoading: '',
       counterAdjustments: 0,
-      isConciliating: ''
+      isConciliating: '',
+      modified: 0,
+      pendingChanges: 0,
+      pending: 0
     }
+
     this.interval = null
     this.intervalCounter = null
+    this.intervalConciliate = null
   }
 
   async componentWillMount () {
-    const user = this.context.tree.get('user')
-    if (user.currentRole.slug === 'manager-level-1' && this.props.match.params.uuid !== user.currentProject.uuid) {
+    user = this.context.tree.get('user')
+    currentRole = user.currentRole.slug
+
+    if (currentRole === 'manager-level-1' && this.props.match.params.uuid !== user.currentProject.uuid) {
       this.props.history.replace('/projects/' + user.currentProject.uuid)
+    }
+
+    if (currentRole === 'consultor') {
+      this.setState({
+        selectedTab: 'graficos'
+      })
     }
 
     await this.hasSaleCenter()
     await this.hasChannel()
-
     await this.load()
+
     this.setState({
       canEdit: testRoles(this.state.roles)
     })
+
     this.intervalCounter = setInterval(() => {
       if (this.state.project.status !== 'adjustment') return
       this.countAdjustmentRequests()
     }, 10000)
+
+    if (
+      currentRole !== 'consultor' &&
+      !this.intervalConciliate &&
+      this.state.project.status === 'adjustment'
+    ) {
+      this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
+    }
   }
 
   async load (tab) {
@@ -78,6 +103,7 @@ class ProjectDetail extends Component {
       })
 
       this.countAdjustmentRequests()
+      this.getModifiedCount()
     } catch (e) {
       await this.setState({
         loading: false,
@@ -95,6 +121,32 @@ class ProjectDetail extends Component {
         this.setState({
           counterAdjustments: body.data.created
         })
+      }
+    }
+  }
+
+  async getModifiedCount () {
+    if (this.state.project.activeDataset) {
+      const url = '/app/rows/modified/dataset/'
+      let res = await api.get(url + this.state.project.activeDataset.uuid)
+
+      if (
+          res.data.pending !== this.state.pendingChanges ||
+          res.data.modified !== this.state.modified
+      ) {
+        if (res.data.pending > 0) {
+          this.setState({
+            modified: res.data.modified,
+            pendingChanges: res.data.pending,
+            isConciliating: ' is-loading'
+          })
+        } else {
+          this.setState({
+            modified: res.data.modified,
+            pendingChanges: res.data.pending,
+            isConciliating: ''
+          })
+        }
       }
     }
   }
@@ -134,6 +186,11 @@ class ProjectDetail extends Component {
 
       if (res.data.status === 'adjustment') {
         clearInterval(this.interval)
+        if (!this.intervalConciliate) {
+          this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
+        }
+      } else {
+        clearInterval(this.intervalConciliate)
       }
     }
   }
@@ -141,6 +198,7 @@ class ProjectDetail extends Component {
   componentWillUnmount () {
     clearInterval(this.interval)
     clearInterval(this.intervalCounter)
+    clearInterval(this.intervalConciliate)
   }
 
   submitHandler () {
@@ -212,13 +270,6 @@ class ProjectDetail extends Component {
     })
   }
 
-  getCounters (realized, pending) {
-    this.setState({
-      realized: realized,
-      pending: pending
-    })
-  }
-
   render () {
     if (this.state.notFound) {
       return <NotFound msg='este proyecto' />
@@ -279,7 +330,10 @@ class ProjectDetail extends Component {
         hide: project.status === 'empty',
         content: (
           <TabAdjustment
-            counters={(realized, pending) => { this.getCounters(realized, pending) }}
+            loadCounters={() => {
+              this.countAdjustmentRequests()
+              this.getModifiedCount()
+            }}
             load={this.getProjectStatus.bind(this)}
             project={project}
             history={this.props.history}
@@ -299,7 +353,7 @@ class ProjectDetail extends Component {
               project.status === 'pendingRows' ||
               project.status === 'empty'),
         content: (
-          <TabAprove
+          <TabApprove
             setAlert={(type, data) => this.setAlert(type, data)}
             project={project}
             canEdit={canEdit}
@@ -337,7 +391,7 @@ class ProjectDetail extends Component {
       //   )
       // },
       {
-        name: 'Gráficos',
+        name: 'graficos',
         title: 'Gráficos',
         hide: (project.status === 'processing' ||
           project.status === 'pendingRows' ||
@@ -351,11 +405,20 @@ class ProjectDetail extends Component {
       {
         name: 'configuracion',
         title: 'Configuración',
-        hide: testRoles('manager-level-1'),
+        hide: testRoles('manager-level-1, manager-level-2, consultor'),
         reload: true,
         content: (
           <div>
             <div className='section'>
+              <div className='has-text-right'>
+                { canEdit &&
+                  <DeleteButton
+                    objectName='Proyecto'
+                    objectDelete={() => this.deleteObject()}
+                    message={'Estas seguro de querer eliminar este Proyecto?'}
+                  />
+                }
+              </div>
               <ProjectForm
                 className='is-shadowless'
                 baseUrl='/app/projects'
@@ -394,6 +457,17 @@ class ProjectDetail extends Component {
         Agregar Dataset
       </span>
     </button>)
+    var consolidarButton
+    if (!testRoles('consultor')) {
+      consolidarButton =
+        <p className='control btn-conciliate'>
+          <a className={'button is-success ' + this.state.isConciliating}
+            disabled={!!this.state.isConciliating}
+            onClick={e => this.conciliateOnClick()}>
+              Consolidar
+          </a>
+        </p>
+    }
 
     return (
       <div>
@@ -434,45 +508,32 @@ class ProjectDetail extends Component {
             <div>
               <div className='field is-grouped'>
                 <p className='control'>
-                  <p className='has-text-weight-semibold'>
+                  <span className='has-text-weight-semibold'>
                     <span className='icon is-small is-transparent-text'>
                       <i className='fa fa-gears' />
                     </span>
                     Ajustes
-                  </p>
+                  </span>
                 </p>
                 <p className='control'>
-                  <p className='has-text-success has-text-weight-semibold'>
+                  <span className='has-text-success has-text-weight-semibold'>
                     <span className='icon is-small'>
                       <i className='fa fa-check' />
                     </span>
-                      Realizados {this.state.realized}
-                  </p>
+                      Realizados {this.state.modified}
+                  </span>
 
                 </p>
                 <p className='control'>
-                  <p className='has-text-warning has-text-weight-semibold'>
+                  <span className='has-text-warning has-text-weight-semibold'>
                     <span className='icon is-small'>
                       <i className='fa fa-exclamation-triangle' />
                     </span>
-                        Por aprobar {this.state.pending}
-                  </p>
+                      Por aprobar {this.state.counterAdjustments}
+                  </span>
                 </p>
-                <p className='control btn-conciliate'>
-                  <a className={'button is-success ' + this.state.isConciliating}
-                    disabled={!!this.state.isConciliating}
-                    onClick={e => this.conciliateOnClick()}>
-                      Consolidar
-                  </a>
-                </p>
+                {consolidarButton}
               </div>
-              {canEdit &&
-                <DeleteButton
-                  objectName='Proyecto'
-                  objectDelete={() => this.deleteObject()}
-                  message={'Estas seguro de querer eliminar este Proyecto?'}
-                />
-                }
             </div>
           }
         />
@@ -533,7 +594,7 @@ export default Page({
   path: '/projects/:uuid',
   title: 'Detalle',
   exact: true,
-  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2, manager-level-1',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-2, manager-level-1',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

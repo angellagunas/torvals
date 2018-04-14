@@ -17,6 +17,8 @@ import Editable from '~base/components/base-editable'
 import WeekTable from './week-table'
 import ProductTable from './product-table'
 
+const FileSaver = require('file-saver')
+
 moment.locale('es');
 
 class TabAdjustment extends Component {
@@ -763,7 +765,6 @@ class TabAdjustment extends Component {
         category: this.state.formData.categories
       })
 
-      var FileSaver = require('file-saver');
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})

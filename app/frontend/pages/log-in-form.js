@@ -26,7 +26,7 @@ class LogInButton extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      className: '',
+      className: ' is-active',
       formData: {
         email: '',
         password: ''
@@ -157,7 +157,7 @@ class LogInButton extends Component {
             return (
               <div key={d.key}>
                 <a
-                  className='navbar-item has-text-white'
+                  className='navbar-item'
                   href='#'
                   onClick={e => { this.selectOrgHandler(d.id) }}
                   >
@@ -170,7 +170,7 @@ class LogInButton extends Component {
             return (
               <div key={d.key}>
                 <a
-                  className='navbar-item has-text-white'
+                  className='navbar-item'
                   href='#'
                   onClick={e => { this.selectOrgHandler(d.id) }}
                   >
@@ -214,7 +214,7 @@ class LogInButton extends Component {
     if (env.EMAIL_SEND) {
       resetLink = (
         <p>
-          <Link to='/password/forgotten/' className='has-text-white'>
+          <Link to='/password/forgotten/'>
             Olvidó su contraseña?
           </Link>
         </p>
@@ -229,7 +229,7 @@ class LogInButton extends Component {
             <div className={'LogIn single-form ' + this.props.className}>
               <div className='card land-card'>
                 <header className='card-header'>
-                  <p className='card-header-title has-text-white'>
+                  <p className='card-header-title'>
                     Seleccione una organización
                   </p>
                 </header>
@@ -250,16 +250,21 @@ class LogInButton extends Component {
       <div>
         <a className='button is-info is-outlined' onClick={(e) => { this.showModal(e) }}>Log In</a>
         <div className={'modal' + this.state.className}>
-          <div className='modal-background' onClick={(e) => { this.hideModal(e) }} />
+          <div className='modal-background' onClick={(e) => {}} />
           <div className='modal-content land-login'>
             <section>
+              <div className='card-image'>
+                <figure className='image'>
+                  <img src='/app/public/img/logo.png' />
+                </figure>
+              </div>
               <div className='card-container'>
-                <h1 className='is-size-4 has-text-white pad-bottom'>
-                  Bienvenido
+                <h1 className='is-size-4 pad-bottom'>
+                  Bienvenido a Orax
                 </h1>
                 <div className='content'>
-                  <div className='columns'>
-                    <div className='column is-offset-4 is-4'>
+                  <div className='columns is-centered'>
+                    <div className='column is-10'>
                       <BaseForm schema={schema}
                         uiSchema={uiSchema}
                         formData={this.state.formData}
@@ -274,11 +279,11 @@ class LogInButton extends Component {
                         </div>
                         <div>
                           <button
-                            className='button is-danger is-fullwidth'
+                            className='button is-info is-fullwidth'
                             type='submit'
                             disabled={!!error}
                           >
-                            Log in
+                            Iniciar sesión
                       </button>
                         </div>
                       </BaseForm>
@@ -289,7 +294,6 @@ class LogInButton extends Component {
               </div>
             </section>
           </div>
-          <button className='modal-close is-large' aria-label='close' onClick={(e) => { this.hideModal(e) }} />
         </div>
       </div>
     )

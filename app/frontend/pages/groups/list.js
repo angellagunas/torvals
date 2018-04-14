@@ -15,7 +15,7 @@ export default ListPage({
   title: 'Grupos',
   icon: 'users',
   exact: true,
-  roles: 'admin, orgadmin, analyst, manager-level-3, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Grupo',
   create: false,
@@ -112,15 +112,10 @@ export default ListPage({
             tree.commit()
           }
 
-          return (
-            <div className='field is-grouped'>
-              <div className='control'>
-                <Link className='button is-primary' to={'/manage/groups/' + row.uuid}>
-                  <span className='icon is-small' title='Editar'>
-                    <i className='fa fa-pencil' />
-                  </span>
-                </Link>
-              </div>
+          var currentRole = tree.get('user').currentRole.slug
+          var deleteButton
+          if (currentRole !== 'consultor') {
+            deleteButton =
               <div className='control'>
                 <DeleteButton
                   iconOnly
@@ -130,6 +125,18 @@ export default ListPage({
                   message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
                   />
               </div>
+          }
+
+          return (
+            <div className='field is-grouped'>
+              <div className='control'>
+                <Link className='button is-primary' to={'/manage/groups/' + row.uuid}>
+                  <span className='icon is-small' title='Editar'>
+                    <i className='fa fa-pencil' />
+                  </span>
+                </Link>
+              </div>
+              {deleteButton}
             </div>
           )
         }

@@ -9,6 +9,8 @@ import Loader from '~base/components/spinner'
 import Carousel from './carousel'
 import Checkbox from '~base/components/base-checkbox'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import Select from './projects/detail-tabs/select'
+import _ from 'lodash'
 
 class Calendar extends Component {
   constructor (props) {
@@ -16,25 +18,21 @@ class Calendar extends Component {
     this.state = {
       startWeekDate: moment(),
       highlightDates: [],
-      showWeekNumbers: true
+      showWeekNumbers: true,
+      selectedYear: moment().get('year')
     }
   }
   async getDates () {
-    let url = '/app/dates'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'year'
-    })
-
     const map = new Map()
-    res.data.map((date) => {
-      const key = date.month
-      const collection = map.get(key)
-      if (!collection) {
-        map.set(key, [date])
-      } else {
-        collection.push(date)
+    this.state.data.map((date) => {
+      if (date.year === this.state.selectedYear) {
+        const key = date.month
+        const collection = map.get(key)
+        if (!collection) {
+          map.set(key, [date])
+        } else {
+          collection.push(date)
+        }
       }
     })
 
@@ -43,7 +41,8 @@ class Calendar extends Component {
     for (let i = 0; i < Array.from(map).length; i++) {
       const element = Array.from(map)[i]
       periods.push({
-        name: `Periodo ${moment(element[1][0].dateEnd).format('MMMM')}`,
+        name: `Periodo ${moment(element[1][0].month, 'M').format('MMMM')}`,
+        month: element[1][0].month,
         weeks: element[1]
       })
     }
@@ -57,14 +56,37 @@ class Calendar extends Component {
       }
     }
 
+    periods = _.orderBy(periods, ['month'], ['asc'])
+
     this.setState({
       periods: periods,
       currentMonth: currentMonth
     })
   }
 
+  async getYears () {
+    let url = '/app/dates'
+    let res = await api.get(url, {
+      start: 0,
+      limit: 0,
+      sort: 'year'
+    })
+    let years = new Set()
+
+    res.data.map((date) => {
+      years.add(date.year)
+    })
+
+    this.setState({
+      years: Array.from(years),
+      data: res.data
+    }, () => {
+      this.getDates()
+    })
+  }
+
   componentWillMount () {
-    this.getDates()
+    this.getYears()
   }
 
   getCarouselItems () {
@@ -91,6 +113,14 @@ class Calendar extends Component {
     })
   }
 
+  async filterChangeHandler (name, value) {
+    this.setState({
+      selectedYear: value
+    }, () => {
+      this.getDates()
+    })
+  }
+
   render () {
     if (!this.state.periods) {
       return <Loader />
@@ -114,6 +144,15 @@ class Calendar extends Component {
           align='left'
         />
         <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Calendario</h1>
+        <Select
+          label='Año'
+          name='year'
+          value={this.state.selectedYear}
+          type='integer'
+          placeholder='Seleccionar'
+          options={this.state.years}
+          onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+        />
         <div className='container is-margin-top'>
           <div className='columns is-padding-top-small'>
             <div className='column is-three-quarters-fullhd is-10-widescreen is-12-desktop calendar'>

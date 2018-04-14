@@ -23,9 +23,9 @@ var changeRoleNames = async function () {
       console.log('Role "OpsManager" doesnt exits or role "Manager Level 2" already exits')
     }
 
-    console.log('*****Changing role "EnterpriseManager" to "Manager Level 3"')
-    roleObj = await Role.findOne({slug: 'enterprisemanager'})
-    newNameRole = 'Manager Level 3'
+    console.log('*****Changing role "Manager Level 3" to "Consultor"')
+    roleObj = await Role.findOne({slug: 'manager-level-3'})
+    newNameRole = 'Consultor'
     newNameRoleSlug = slugify(newNameRole)
 
     newRoleObj = await Role.findOne({slug: newNameRoleSlug})
@@ -34,9 +34,9 @@ var changeRoleNames = async function () {
       roleObj.name = newNameRole
       roleObj.slug = newNameRoleSlug
       await roleObj.save()
-      console.log('Done "EnterpriseManager" to "Manager Level 3" .....')
+      console.log('Done "Manager Level 3" to "Consultor" .....')
     } else {
-      console.log('Role "EnterpriseManager" doesnt exits or role "Manager Level 3" already exits')
+      console.log('Role "Manager Level 3" doesnt exits or role "Consultor" already exits')
     }
 
     console.log('*****Changing role "LocalManager" to "Manager Level 1"')

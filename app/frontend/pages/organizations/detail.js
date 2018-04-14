@@ -72,7 +72,7 @@ class OrganizationDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-2, manager-level-3')) {
+          if (testRoles('manager-level-2, consultor')) {
             return (
               <Link className='button' to={'/manage/users/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
@@ -216,7 +216,7 @@ export default Page({
   path: '/manage/organizations/:uuid',
   title: 'User details',
   exact: true,
-  roles: 'admin, orgadmin, analyst, manager-level-3',
+  roles: 'admin, orgadmin, analyst, consultor',
   validate: [loggedIn, verifyRole],
   component: branchedOrganizationDetail
 })

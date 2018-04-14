@@ -144,7 +144,7 @@ class DataSetDetail extends Component {
     if (!this.state.canEdit) return
     var url = `/app/projects/${this.state.dataset.project.uuid}/remove/dataset`
     await api.post(url, { dataset: this.props.match.params.uuid })
-    this.props.history.push('/datasets')
+    this.props.history.push('/projects/' + this.state.dataset.project.uuid)
   }
 
   async configureOnClick () {
@@ -1540,7 +1540,7 @@ export default Page({
   title: 'Dataset detail',
   icon: 'check',
   exact: true,
-  roles: 'manager-level-3, analyst, orgadmin, admin, manager-level-2',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
   validate: [loggedIn, verifyRole],
   component: branchedDataSetDetail
 })

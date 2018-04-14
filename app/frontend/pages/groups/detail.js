@@ -16,6 +16,8 @@ import tree from '~core/tree'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
 
+var currentRole
+
 class GroupDetail extends Component {
   constructor (props) {
     super(props)
@@ -25,6 +27,8 @@ class GroupDetail extends Component {
       group: {},
       isLoading: ''
     }
+
+    currentRole = tree.get('user').currentRole.slug
   }
 
   componentWillMount () {
@@ -75,11 +79,19 @@ class GroupDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-            <span className='icon is-small'>
-              <i className='fa fa-pencil' />
-            </span>
-          </Link>
+          if (currentRole !== 'consultor' || (currentRole === 'consultor' && row.roleDetail.slug === 'consultor')) {
+            return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+              <span className='icon is-small'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          } else {
+            return <Link className='button' to={'/manage/users/' + row.uuid}>
+              <span className='icon is-small'>
+                <i className='fa fa-eye' />
+              </span>
+            </Link>
+          }
         }
       }
     ]
@@ -226,7 +238,24 @@ class GroupDetail extends Component {
     if (!group.uuid) {
       return <Loader />
     }
-
+    var deleteButton
+    if (currentRole !== 'consultor') {
+      deleteButton =
+        <div className='columns'>
+          <div className='column has-text-right'>
+            <div className='field is-grouped is-grouped-right'>
+              <div className='control'>
+                <DeleteButton
+                  titleButton={'Eliminar'}
+                  objectName='Grupo'
+                  objectDelete={this.deleteObject.bind(this)}
+                  message={`Está seguro que desea eliminar el grupo ${group.name}?`}
+                    />
+              </div>
+            </div>
+          </div>
+        </div>
+    }
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
@@ -256,20 +285,7 @@ class GroupDetail extends Component {
               ]}
               align='left'
             />
-            <div className='columns'>
-              <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
-                    <DeleteButton
-                      titleButton={'Eliminar'}
-                      objectName='Grupo'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={`Está seguro que desea eliminar el grupo ${group.name}?`}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            {deleteButton}
             <div className='columns'>
               <div className='column'>
                 <div className='card'>
@@ -378,7 +394,7 @@ export default Page({
   path: '/manage/groups/:uuid',
   title: 'Detalles de grupo',
   exact: true,
-  roles: 'admin, orgadmin, analyst, manager-level-3, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
   validate: [loggedIn, verifyRole],
   component: branchedGroupDetail
 })

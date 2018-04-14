@@ -40,7 +40,9 @@ class Select extends Component {
                 onChange={this.onChange}
                 disabled={this.props.disabled}
                 >
-                <option value=''>{this.props.placeholder}</option>
+                { this.props.placeholder && 
+                  <option value=''>{this.props.placeholder}</option>
+                }
                 {this.props.options.map((item, key) => {
                   if (this.props.optionValue && this.props.optionName){
                     return (

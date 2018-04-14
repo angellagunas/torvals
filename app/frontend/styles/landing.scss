@@ -37,39 +37,50 @@
 }
 
 .land-login {
-    width: 550px !important;
-    background-color: rgba(48, 90, 122, 0.7);
+    width: 350px !important;
+    background-color: white;
     overflow: hidden !important;
     text-align: center !important;
     padding: 40px !important;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     .input {
-        color: white !important;
+        color: $general_text !important;
         background-color: rgba(0, 0, 0, 0) !important;
         border: 0px !important;
-        border-bottom: 1px solid whitesmoke !important;
+        border-bottom: 2px solid $info !important;
+        width: 100%;
+        border-radius: 0;
+        box-shadow: none;
     }
     .input:focus {
         border: 0px !important;
-        border-bottom: 2px solid white !important;
+        border-bottom: 3px solid $info !important;
         box-shadow: none !important;
     }
     .label {
         text-align: left !important;
-        color: white !important;
+        color: $general_text !important;
+    }
+    .image {
+        margin-bottom: 15px;
+    }
+}
+
+.landing {
+    .modal-background {
+        background-color: whitesmoke;
     }
 }
 
 .land-card {
-    width: 550px;
-    background-color: rgba(48, 90, 122, 0.7) !important;
+    width: 400px;
+    margin: 0 auto;
     .navbar-item {
-        background-color: rgba(48, 90, 122, 0.3) !important;
-    }
-    .navbar-item:hover {
-        background-color: rgba(48, 90, 122, 0.8) !important;
-    }
-    .navbar-divider {
-        background: $abraxas-color !important;
+        background-color: #EFF1F9;
+        border-color: #E6E8F6;
+        .column.is-one-third {
+            text-align: center;
+        }
     }
 }
 
@@ -83,7 +94,7 @@
         .down {
             position: absolute !important;
             bottom: 100px !important;
-            h2{
+            h2 {
                 padding: 2.5rem;
             }
         }

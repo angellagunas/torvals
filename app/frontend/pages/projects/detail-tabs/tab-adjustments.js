@@ -4,7 +4,6 @@ import moment from 'moment'
 import _ from 'lodash'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
-import {FileSaver} from 'file-saver'
 
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -15,6 +14,8 @@ import WeekTable from './week-table'
 import ProductTable from './product-table'
 import Select from './select'
 import Graph from './graph'
+
+const FileSaver = require('file-saver')
 
 var currentRole
 moment.locale('es')
@@ -29,6 +30,7 @@ class TabAdjustment extends Component {
       isFiltered: false,
       filtersLoaded: false,
       isLoading: '',
+      isLoadingButtons: '',
       modified: 0,
       pending: 0,
       filters: {
@@ -46,7 +48,6 @@ class TabAdjustment extends Component {
       disableButtons: true,
       selectedCheckboxes: new Set(),
       searchTerm: '',
-      isConciliating: '',
       isDownloading: '',
       generalAdjustment: 0.1,
       salesTable: [],
@@ -60,39 +61,17 @@ class TabAdjustment extends Component {
     }
 
     currentRole = tree.get('user').currentRole.slug
-    this.interval = null
     this.toastId = null
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    // if (nextState.isUpdating) {
-    //   return false
-    // }
-
-    return true
   }
 
   componentWillMount () {
     this.getFilters()
-    this.getModifiedCount()
-
-    if (currentRole !== 'manager-level-3') {
-      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
-    }
-  }
-
-  componentWillUnmount () {
-    clearInterval(this.interval)
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.project.status === 'adjustment' && this.props.project.status !== 'adjustment') {
       this.clearSearch()
       this.getFilters()
-    }
-
-    if (currentRole !== 'manager-level-3' && this.props.project.status == 'adjustment' && !this.interval) {
-      this.interval = setInterval(() => { this.getModifiedCount() }, 30000)
     }
   }
 
@@ -196,7 +175,7 @@ class TabAdjustment extends Component {
         var formData = this.state.formData
         formData.period = period1[0].month
 
-        if (res.salesCenters.length === 1) {
+        if (res.salesCenters.length > 0) {
           formData.salesCenter = res.salesCenters[0].uuid
         }
 
@@ -235,32 +214,6 @@ class TabAdjustment extends Component {
           toast.TYPE.ERROR
         )
       }            
-    }
-  }
-
-  async getModifiedCount () {
-    if (this.props.project.activeDataset) {
-      const url = '/app/rows/modified/dataset/'
-      let res = await api.get(url + this.props.project.activeDataset.uuid)
-
-      if (
-          res.data.pending !== this.state.pending ||
-          res.data.modified !== this.state.modified
-      ) {
-        if (res.data.pending > 0) {
-          this.setState({
-            modified: res.data.modified,
-            pending: res.data.pending,
-            isConciliating: ' is-loading'
-          })
-        } else {
-          this.setState({
-            modified: res.data.modified,
-            pending: res.data.pending,
-            isConciliating: ''
-          })
-        }
-      }
     }
   }
 
@@ -312,6 +265,7 @@ class TabAdjustment extends Component {
 
     this.setState({
       isLoading: ' is-loading',
+      isFiltered: false,
       generalAdjustment: period.adjustment,
       salesTable: [],
       noSalesData: ''      
@@ -345,6 +299,7 @@ class TabAdjustment extends Component {
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
           var minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
+
           row.isLimit = (
             row.adjustmentForDisplay > maxAdjustment || row.adjustmentForDisplay < minAdjustment
           )
@@ -428,7 +383,7 @@ class TabAdjustment extends Component {
             <label className='label'>Búsqueda general</label>              
             <div className='control has-icons-right'>
               <input
-                className='input'
+                className='input input-search'
                 type='text'
                 value={this.state.searchTerm}
                 onChange={this.searchOnChange} placeholder='Buscar' />
@@ -439,7 +394,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div>
-        {currentRole !== 'manager-level-3' ?
+        {currentRole !== 'consultor' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -481,7 +436,7 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
-        {currentRole !== 'manager-level-3' ?
+        {currentRole !== 'consultor' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -522,6 +477,15 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
+        <div className='column is-narrow'>
+          <p style={{color: 'grey', paddingTop: '1.7rem', width: '.8rem'}}>
+          {
+            this.state.isLoadingButtons && 
+            <span><FontAwesome className='fa-spin' name='spinner' /></span>
+          }
+          </p>
+        </div>
+
         {this.state.selectedCheckboxes.size > 0 &&
           <div className='column products-selected'>
             <p>
@@ -547,7 +511,11 @@ class TabAdjustment extends Component {
   }
 
   async onClickButtonPlus (type) {
-    for (const row of this.state.selectedCheckboxes) {
+    this.setState({isLoadingButtons: ' is-loading'})
+    let { selectedCheckboxes } = this.state
+    selectedCheckboxes = Array.from(selectedCheckboxes)
+
+    for (const row of selectedCheckboxes) {
       let toAdd = 0
       
       if (
@@ -569,21 +537,21 @@ class TabAdjustment extends Component {
 
       let adjustmentForDisplayAux = Math.round(row.adjustmentForDisplay)
       let newAdjustment = adjustmentForDisplayAux + toAdd
-      row.lastLocalAdjustment = row.adjustmentForDisplay
-
-      row.newAdjustment = newAdjustment
-
-      const res = await this.handleChange(row)
       
-      if (!res) {
-        row.adjustmentForDisplay = adjustmentForDisplayAux
-      }
+      row.lastLocalAdjustment = row.adjustmentForDisplay
+      row.newAdjustment = newAdjustment
     }
+
+    await this.handleChange(selectedCheckboxes)
+    this.setState({isLoadingButtons: ''})
   }
 
   async onClickButtonMinus (type) {
-    this.setState({isUpdating: true})
-    for (const row of this.state.selectedCheckboxes) {
+    this.setState({isLoadingButtons: ' is-loading'})
+    let { selectedCheckboxes } = this.state
+    selectedCheckboxes = Array.from(selectedCheckboxes)
+
+    for (const row of selectedCheckboxes) {
       let toAdd = 0
       
       if (
@@ -607,14 +575,10 @@ class TabAdjustment extends Component {
       let newAdjustment = adjustmentForDisplayAux - toAdd
       row.lastLocalAdjustment = row.adjustmentForDisplay
       row.newAdjustment = newAdjustment
-
-      const res = await this.handleChange(row)
-      
-      if (!res) {
-        row.adjustmentForDisplay = adjustmentForDisplayAux
-      }
     }
-    this.setState({isUpdating: false})
+    
+    await this.handleChange(selectedCheckboxes)
+    this.setState({isLoadingButtons: ''})
   }
 
   toggleButtons () {
@@ -629,78 +593,119 @@ class TabAdjustment extends Component {
   }
 
   async handleChange(obj) {
-    let adjusted = true
-    let maxAdjustment = Math.ceil(obj.prediction * (1 + this.state.generalAdjustment))
-    let minAdjustment = Math.floor(obj.prediction * (1 - this.state.generalAdjustment))
+    let rowAux = []
+    let isLimited = false
+    let limitedRows = []
+    let { pendingDataRows } = this.state
 
-    obj.newAdjustment = Math.round(obj.newAdjustment)
-    obj.adjustmentForDisplay = Math.round(obj.adjustmentForDisplay)
 
-    if (this.state.generalAdjustment > 0) {
-      obj.isLimit = (obj.newAdjustment > maxAdjustment || obj.newAdjustment < minAdjustment)
+    if (obj instanceof Array) {
+      rowAux = obj
+    } else {
+      rowAux.push(obj)
     }
 
-    if (obj.isLimit && obj.adjustmentRequest &&
-      (obj.adjustmentRequest.status === 'approved' ||
-        obj.adjustmentRequest.status === 'created')) {
-      obj.adjustmentRequest.status = 'rejected'
+    for (let row of rowAux) {
+      let maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
+      let minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
+
+      row.newAdjustment = Math.round(row.newAdjustment)
+      row.adjustmentForDisplay = Math.round(row.adjustmentForDisplay)
+      row.adjustmentForDisplayAux = row.adjustmentForDisplay
+      row.isLimitAux = row.isLimit
+
+      if (this.state.generalAdjustment > 0) {
+        row.isLimit = (row.newAdjustment > maxAdjustment || row.newAdjustment < minAdjustment)
+      }
+
+      if (row.isLimit && row.adjustmentRequest &&
+        (row.adjustmentRequest.status === 'approved' ||
+          row.adjustmentRequest.status === 'created')) {
+        row.adjustmentRequest.status = 'rejected'
+      }
+
+      row.adjustmentForDisplay = row.newAdjustment
+
+      row.edited = true
+
+      if (row.isLimit) {
+        isLimited = true
+
+        if (!pendingDataRows[row.uuid]) pendingDataRows[row.uuid] = row
+
+        rowAux = rowAux.filter((item) => { return row.uuid !== item.uuid })
+        limitedRows.push(row)
+      }
     }
 
-    obj.adjustmentForDisplay = obj.newAdjustment
+    try {
+      var url = '/app/rows/'
 
-    try { 
-      obj.edited = true
-      let { pendingDataRows } = this.state
+      if (rowAux.length > 0) {
+        const res = await api.post(url, rowAux)
+      }
 
-      if (currentRole === 'manager-level-1' && obj.isLimit) {
+      if (isLimited && currentRole === 'manager-level-1') {
         this.notify(
-          'No te puedes pasar de los límites establecidos! Debes pedir una solicitud de ajuste '+
-          'haciendo click sobre el ícono rojo.',
+          (<p>
+            <span className='icon'>
+              <i className='fa fa-warning fa-lg' />
+            </span>
+            ¡Debes pedir una solicitud de ajuste haciendo click sobre el ícono rojo!
+          </p>),
           5000,
           toast.TYPE.WARNING
         )
-
-        if (!pendingDataRows[obj.uuid]) pendingDataRows[obj.uuid] = obj
       } else {
-        var url = '/app/rows/' + obj.uuid
-        const res = await api.post(url, { ...obj })
-        this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
+        this.notify('Ajustes guardado!', 5000, toast.TYPE.INFO)
       }
       
-      let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
-      let aux = this.state.dataRows
-
-      aux.splice(index, 1, obj)
-
       this.setState({
-        dataRows: aux,
-        pendingDataRows: pendingDataRows,
-        isConciliating: ' is-loading'
+        pendingDataRows: pendingDataRows
       })
 
       await this.updateSalesTable(obj)
 
     } catch (e) {
       this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
+
+      for (let row of rowAux) {
+        row.edited = false
+        row.adjustmentForDisplay = row.adjustmentForDisplayAux
+        if (row.isLimitAux !== row.isLimit) {
+          row.isLimit = false
+        }
+
+        delete row.adjustmentForDisplayAux
+        delete row.isLimitAux
+      }
+
+      for (let row of limitedRows) {
+        row.edited = false
+        row.adjustmentForDisplay = row.adjustmentForDisplayAux
+        if (row.isLimitAux !== row.isLimit) {
+          row.isLimit = false
+        }
+
+        delete row.adjustmentForDisplayAux
+        delete row.isLimitAux
+        delete pendingDataRows[row.uuid]
+      }
+
+      this.setState({
+        pendingDataRows: pendingDataRows
+      })
+
       return false
     }
 
-    this.getCountEdited()
-    return adjusted
-  }
+    this.props.loadCounters()
 
-  getCountEdited = () => {
-    let edited = 0
-    let pending = 0
-    for(let row of this.state.dataRows){
-      if(row.edited){
-        edited++
-      }
-      if(row.adjustmentRequest && row.adjustmentRequest.status === 'created'){
-        pending++
-      }
+    if (currentRole !== 'manager-level-1' && limitedRows.length) {
+      this.handleAdjustmentRequest(limitedRows)
     }
-    this.props.counters(edited, pending)
+
+    return true
   }
 
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
@@ -724,7 +729,7 @@ class TabAdjustment extends Component {
   async handleAdjustmentRequest (obj) {
     let { pendingDataRows } = this.state
     let productAux = []
-    if (currentRole === 'manager-level-3') {
+    if (currentRole === 'consultor') {
       return
     }
 
@@ -734,15 +739,16 @@ class TabAdjustment extends Component {
       productAux.push(obj)
     }
 
+    try {
+      var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment}))
+    } catch (e) {
+      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
+
+      return
+    }
+
     for (var product of productAux) {
-      let res = await api.post(
-        `/app/rows/${product.uuid}/request`,
-        {
-          newAdjustment: product.adjustmentForDisplay
-        }
-      )
-      
-      product.adjustmentRequest = res.data
+      product.adjustmentRequest = res.data[product.uuid]
       delete pendingDataRows[product.uuid]
     }
 
@@ -759,18 +765,24 @@ class TabAdjustment extends Component {
   }
 
   async searchDatarows() {
-    const items = this.state.dataRows.map((item) => {
-      if (this.state.searchTerm === ''){
-        return item
-      }
-      const regEx = new RegExp(this.state.searchTerm, 'gi')
+    if (this.state.searchTerm === '') {
+      this.setState({
+        filteredData: this.state.dataRows
+      })
 
-      if (regEx.test(item.productName) || regEx.test(item.productId) || regEx.test(item.channel) || regEx.test(item.salesCenter))
-        return item
-      else
-        return null
+      return
+    }
+
+    const items = this.state.dataRows.filter((item) => {
+      const regEx = new RegExp(this.state.searchTerm, 'gi')
+      const searchStr = `${item.productName} ${item.productId} ${item.channel} ${item.salesCenter}`
+
+      if (regEx.test(searchStr))
+        return true
+      
+      return false
     })
-    .filter(function(item){ return item != null });
+    // .filter(function(item){ return item != null });
 
     await this.setState({
       filteredData: items
@@ -798,8 +810,8 @@ class TabAdjustment extends Component {
       return <span>Modo Ajuste Ilimitado</span>
     }
 
-    if (currentRole === 'manager-level-3') {
-      return <span>Modo Visualización - No se permiten ajustes para tu tipo de usuario</span>
+    if (currentRole === 'consultor') {
+      return <span>Modo Visualización</span>
     }
     else {
       return <span>Modo Ajuste {this.state.generalAdjustment * 100} % permitido</span>
@@ -837,7 +849,6 @@ class TabAdjustment extends Component {
         noSalesData: e.message + ', intente más tarde'
       })
     }
-    this.getCountEdited() 
   }
 
   async updateSalesTable(row) {
@@ -887,7 +898,7 @@ class TabAdjustment extends Component {
     }
     else {
       return (
-        <div className='section has-text-centered subtitle has-text-primary'>
+        <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
           {this.state.noSalesData}
         </div>
       )
@@ -923,13 +934,12 @@ class TabAdjustment extends Component {
       let res = await api.post(url, {
         start_date: moment(min).format('YYYY-MM-DD'),
         end_date:  moment(max).format('YYYY-MM-DD'),
-        salesCenter: this.state.formData.salesCenters,
-        channel: this.state.formData.channels,
-        product: this.state.formData.products,
-        category: this.state.formData.categories
+        salesCenter: this.state.formData.salesCenter,
+        channel: this.state.formData.channel,
+        product: this.state.formData.product,
+        category: this.state.formData.category
       })
 
-      
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
@@ -1133,8 +1143,7 @@ class TabAdjustment extends Component {
               <Select
                 label='Centros de Venta'
                 name='salesCenter'
-                value=''
-                placeholder='Seleccionar'
+                value={this.state.formData.salesCenter}
                 optionValue='uuid'
                 optionName='name'
                 options={this.state.filters.salesCenters}
@@ -1158,9 +1167,12 @@ class TabAdjustment extends Component {
             <div>
               <p className='has-text-weight-semibold'>Predicción</p>
               <h1 className='num has-text-weight-bold'>
-                {this.state.totalPrediction && this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                {this.state.totalPrediction ? 
+                '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                   return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                })}
+                })
+                : null
+                }
               </h1>
             </div>
           </div>
@@ -1170,9 +1182,12 @@ class TabAdjustment extends Component {
             <div>
               <p className='has-text-weight-semibold'>Ajuste</p>
               <h1 className='num has-text-weight-bold'>
-                {this.state.totalAdjustment && this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                {this.state.totalAdjustment ? 
+                '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
                   return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                })}
+                })
+                : null
+              }
               </h1>
             </div>
           </div>
@@ -1201,7 +1216,7 @@ class TabAdjustment extends Component {
                 </div>
                 <div className='panel-block'>
                   {
-                    currentRole !== 'manager-level-3' &&
+                    currentRole !== 'consultor' &&
                       this.state.salesTable.length > 0 ?
                       <table className='table is-fullwidth is-hoverable'>
                         <thead>
@@ -1264,12 +1279,11 @@ class TabAdjustment extends Component {
                 </div>
                 <div className='panel-block'>
                   {
-                    currentRole !== 'manager-level-3' &&
+                    currentRole !== 'consultor' &&
                       this.state.salesTable.length > 0 ?
                       <Graph
                         data={graphData}
                         labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
-                        reloadGraph={this.state.reloadGraph}
                       />
                       :
                       this.loadTable()
@@ -1282,15 +1296,11 @@ class TabAdjustment extends Component {
         </div>
           
         <section>
-          {!this.state.isFiltered
-            ? <article className='message is-primary'>
-                <div className='message-header'>
-                  <p>Información</p>
-                </div>
-                <div className='message-body'>
-                  Debe aplicar un filtro para visualizar información
-                </div>
-              </article>
+          {!this.state.isFiltered || this.state.isLoading
+            ? <div className='section has-text-centered subtitle has-text-primary'>
+                Cargando, un momento por favor
+                <Loader />
+              </div>
             : <div>
                 <section className='section'>
                   <h1 className='period-info'>

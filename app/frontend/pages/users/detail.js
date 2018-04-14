@@ -267,6 +267,16 @@ class UserDetail extends Component {
       disabledForm = user.roleDetail.priority <= currentUser.currentRole.priority
     }
 
+    var disabledRoles = false
+    if (user.roleDetail && currentUser.currentRole.slug === 'consultor') {
+      disabledRoles = true
+      if (user.roleDetail.slug === 'consultor') {
+        disabledForm = false
+      } else {
+        disabledForm = true
+      }
+    }
+
     if (user) {
       var role = this.state.roles.find((item) => {
         return item._id === user.role
@@ -302,18 +312,16 @@ class UserDetail extends Component {
     var resetButton
     if (env.EMAIL_SEND) {
       resetButton = (
-        <div className='columns'>
-          <div className='column has-text-right'>
-            <div className='field is-grouped is-grouped-right'>
-              <div className='control'>
-                <button
-                  className={this.state.resetClass}
-                  type='button'
-                  onClick={() => this.resetOnClick()}
-                  disabled={!!this.state.resetLoading || disabledForm}>
-                  {this.state.resetText}
-                </button>
-              </div>
+        <div className='column has-text-right'>
+          <div className='field is-grouped is-grouped-right'>
+            <div className='control'>
+              <button
+                className={this.state.resetClass}
+                type='button'
+                onClick={() => this.resetOnClick()}
+                disabled={!!this.state.resetLoading || disabledForm}>
+                {this.state.resetText}
+              </button>
             </div>
           </div>
         </div>
@@ -349,13 +357,22 @@ class UserDetail extends Component {
               ]}
               align='left'
             />
-            {!disabledForm && resetButton}
+
+            <div className='columns'>
+              <div className='column'>
+                <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>
+                  {user.name}
+                </h1>
+              </div>
+              {!disabledForm && resetButton}
+            </div>
+
             <div className='columns is-mobile'>
               <div className='column'>
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      { user.name }
+                      Detalle
                     </p>
                   </header>
                   <div className='card-content'>
@@ -372,6 +389,7 @@ class UserDetail extends Component {
                           errorHandler={(data) => this.errorHandler(data)}
                           finishUp={(data) => this.finishUpHandler(data)}
                           disabled={disabledForm}
+                          disabledRoles={disabledRoles}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
@@ -437,7 +455,7 @@ const branchedUserDetail = branch({}, UserDetail)
 export default Page({
   path: '/manage/users/:uuid',
   title: 'User details',
-  roles: 'admin, orgadmin, analyst, manager-level-3, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
   exact: true,
   validate: [loggedIn, verifyRole],
   component: branchedUserDetail

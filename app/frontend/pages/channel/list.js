@@ -12,7 +12,7 @@ export default ListPage({
   title: 'Canales',
   icon: 'filter',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, manager-level-3',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Canal',
   create: true,
@@ -77,7 +77,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-3')) {
+          if (testRoles('consultor')) {
             return (
               <Link className='button' to={'/catalogs/channels/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
