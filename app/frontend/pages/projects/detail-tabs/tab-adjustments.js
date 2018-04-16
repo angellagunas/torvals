@@ -76,7 +76,7 @@ class TabAdjustment extends Component {
   }
 
   async getFilters() {
-    if (this.props.project.activeDataset) {
+    if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       const url = '/app/rows/filters/dataset/'
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)

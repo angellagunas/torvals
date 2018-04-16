@@ -27,7 +27,14 @@ const task = new Task(async function (argv) {
     try {
       var res = await Api.getDataset(dataset.externalId)
     } catch (e) {
-      console.log(e.message)
+      dataset.set({
+        error: 'Hubo un problema al obtener el dataset de Abraxas!',
+        status: 'error'
+      })
+
+      await dataset.save()
+
+      console.log(`Error while obtaining dataset: ${dataset.error}`)
       return false
     }
 
@@ -41,7 +48,14 @@ const task = new Task(async function (argv) {
       try {
         var resDataset = await Api.rowsDataset(dataset.externalId)
       } catch (e) {
-        console.log(e.message)
+        dataset.set({
+          error: 'No se pudieron obtener filas del dataset!',
+          status: 'error'
+        })
+
+        await dataset.save()
+
+        console.log(`Error while obtaining dataset rows: ${dataset.error}`)
         return false
       }
 
