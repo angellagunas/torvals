@@ -173,27 +173,37 @@ class ProductTable extends Component {
         group: ' ',
         title: 'Predicción',
         property: 'prediction',
-        default: 'N/A',
+        default: 0,
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
+        formatter: (row) => {
+          if (row.prediction) {
+            return row.prediction
+          }
+        }
       },
       {
         group: ' ',
         title: this.splitWords('Ajuste_Anterior'),
         property: 'lastAdjustment',
-        default: 'N/A',
+        default: 0,
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
+        formatter: (row) => {
+          if (row.prediction) {
+            return row.prediction
+          }
+        }
       },
       {
         group: ' ',
         title: 'Ajuste',
         property: 'adjustmentForDisplay',
-        default: 'N/A',
+        default: 0,
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
@@ -235,6 +245,10 @@ class ProductTable extends Component {
         formatter: (row) => {
           let percentage = ((row.adjustmentForDisplay - row.prediction) /
             row.prediction) * 100
+
+          if(isNaN(percentage) || !isFinite(percentage))
+              percentage = 0
+          
           row.percentage = percentage
           let status = classNames('has-text-weight-bold', {
             'has-text-success': row.isLimit && row.adjustmentRequest && row.adjustmentRequest.status === 'approved',
