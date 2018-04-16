@@ -270,7 +270,7 @@ class WeekTable extends Component {
             let percentage = (
               ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
             )
-            if(isNaN(percentage))
+            if(isNaN(percentage) || !isFinite(percentage))
               percentage = 0
             row.weeks[j].percentage = percentage 
             let status = classNames('has-text-weight-bold', {
