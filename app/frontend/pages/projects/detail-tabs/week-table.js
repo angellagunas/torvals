@@ -295,13 +295,7 @@ class WeekTable extends Component {
   }
 
   onFocus(e, week, row) {
-    //row.focused = true    
     week.original = week.adjustmentForDisplay
-    /* let aux = this.state.filteredDataByWeek
-
-    this.setState({
-      filteredDataByWeek: aux
-    }) */
 
     e.target.select()
   }
@@ -323,7 +317,6 @@ class WeekTable extends Component {
 
   onBlur = async (e, week, row) => {
     let value = e.target.value
-    //row.focused = false
     if (e.target.type === 'number') {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
@@ -389,12 +382,9 @@ class WeekTable extends Component {
       filteredDataByWeek: rw
     })
     this.getEdited()
-    await this.setState({
-      sortAscending: true
-    })
-    
-    this.handleSortByWeek(this.state.sortBy)
-    
+    this.setState({
+      sortAscending: false
+    }, () => {this.handleSortByWeek(this.state.sortBy)})    
   }
 
   handleSortByWeek(e) {
@@ -422,7 +412,6 @@ class WeekTable extends Component {
     else {
       if (this.state.sortAscending) {
         sorted = _.orderBy(sorted, [e], ['asc'])
-
       }
       else {
         sorted = _.orderBy(sorted, [e], ['desc'])

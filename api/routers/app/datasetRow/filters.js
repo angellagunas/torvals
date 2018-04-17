@@ -16,6 +16,11 @@ module.exports = new Route({
   path: '/filters/dataset/:uuid',
   handler: async function (ctx) {
     var datasetId = ctx.params.uuid
+    var filters = {}
+    var semanasBimboSet = new Set()
+    var channelsSet = new Set()
+    var salesCentersSet = new Set()
+    var productsSet = new Set()
 
     const dataset = await DataSet.findOne({
       'uuid': datasetId,
@@ -27,10 +32,17 @@ module.exports = new Route({
 
     var rows = await DataSetRow.find({isDeleted: false, dataset: dataset._id})
 
-    var semanasBimbo = Array.from(new Set(rows.map(item => { return item.data.semanaBimbo })))
-    var channels = Array.from(new Set(rows.map(item => { return String(item.channel) })))
-    var salesCenters = Array.from(new Set(rows.map(item => { return String(item.salesCenter) })))
-    var products = Array.from(new Set(rows.map(item => { return String(item.product) })))
+    for (var row of rows) {
+      semanasBimboSet.add(row.data.semanaBimbo)
+      channelsSet.add(row.channel)
+      salesCentersSet.add(row.salesCenter)
+      productsSet.add(row.product)
+    }
+
+    var semanasBimbo = Array.from(semanasBimboSet)
+    var channels = Array.from(channelsSet)
+    var salesCenters = Array.from(salesCentersSet)
+    var products = Array.from(productsSet)
 
     const user = ctx.state.user
     var currentRole
@@ -50,8 +62,8 @@ module.exports = new Route({
     ) {
       var groups = user.groups
 
-      salesCenters = await SalesCenter.find({groups: {$in: groups}, organization: currentOrganization.organization._id})
-      channels = await Channel.find({groups: {$in: groups}, organization: currentOrganization.organization._id})
+      filters['groups'] = groups
+      filters['organization'] = currentOrganization.organization._id
     }
 
     semanasBimbo.sort((a, b) => {
@@ -73,8 +85,8 @@ module.exports = new Route({
       }
     })
 
-    channels = await Channel.find({ _id: { $in: channels } })
-    salesCenters = await SalesCenter.find({ _id: { $in: salesCenters } })
+    channels = await Channel.find({ _id: { $in: channels }, ...filters })
+    salesCenters = await SalesCenter.find({ _id: { $in: salesCenters }, ...filters })
     products = await Product.find({ _id: { $in: products } })
 
     ctx.body = {
