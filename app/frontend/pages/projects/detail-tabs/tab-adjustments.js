@@ -1095,7 +1095,6 @@ class TabAdjustment extends Component {
                 label='Periodo'
                 name='period'
                 value={this.state.formData.period}
-                placeholder='Seleccionar'
                 optionValue='number'
                 optionName='name'
                 type='integer'
