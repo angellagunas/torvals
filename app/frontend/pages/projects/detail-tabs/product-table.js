@@ -309,21 +309,11 @@ class ProductTable extends Component {
   }
 
   changeCell = (row, direction) => {
-    /* let edit = Array.from(this.inputs).find(e => e.tabin === row.tabin + 10 * direction)
-
-    if (edit) {
-      edit.el.focus()
-    } */
     this.inputs[row.tabin + 10 * direction].focus()
   }
 
   onFocus(e, row) {
-    //row.focused = true
     row.original = row.adjustmentForDisplay
-   /*  let aux = this.state.filteredData
-    this.setState({
-      filteredData: aux
-    }) */
 
     e.target.select()
   }
@@ -345,7 +335,6 @@ class ProductTable extends Component {
 
   onBlur = async (e, row) => {
     let value = e.target.value
-    //row.focused = false
     if (e.target.type === 'number') {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
@@ -353,12 +342,6 @@ class ProductTable extends Component {
     if (Number(row.original) !== Number(value)) {
       this.props.changeAdjustment(value, row)
     }
-    /* let aux = this.state.filteredData
-
-    this.setState({
-      filteredData: aux
-    }) */
-    
   }
 
   onChange = (e, row) => {
@@ -370,20 +353,7 @@ class ProductTable extends Component {
 
   }
 
-  /* shouldComponentUpdate(nextProps, nextState){
-    console.log(nextProps.data !== this.props.data && nextState !== this.state)
-    return nextProps.data !== this.props.data && nextState !== this.state
-  } */
-
   componentWillReceiveProps (nextProps) {
-    /* var same = nextProps.data.length === this.props.data.length
-    same = same && nextProps.data.every((v,i)=> v === this.props.data[i])
-
-    if (!same) { */
-  //    this.setState({
-  //      filteredData: nextProps.data
-  //    })
-    /* } */
     if (nextProps.data !== this.props.data){
       this.setState({
         filteredData: nextProps.data
