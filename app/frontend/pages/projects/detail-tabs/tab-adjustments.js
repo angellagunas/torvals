@@ -1344,7 +1344,7 @@ class TabAdjustment extends Component {
               </div>
               :
                 <div className='section has-text-centered subtitle has-text-primary'>
-                  Este dataset no contiene datarows
+                  No hay información
                 </div>
               }
             </div>
