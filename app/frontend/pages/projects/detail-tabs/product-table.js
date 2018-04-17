@@ -225,6 +225,7 @@ class ProductTable extends Component {
                 onChange={(e) => { this.onChange(e, row) }}
                 onFocus={(e) => { this.onFocus(e, row) }}
                 tabIndex={row.tabin}
+                max='99999'
                 ref={(el) => { this.inputs[row.tabin] = el }}
               />
             )
@@ -359,12 +360,13 @@ class ProductTable extends Component {
   }
 
   onChange = (e, row) => {
-    row.adjustmentForDisplay = e.target.value
-    let aux = this.state.filteredData
-    this.setState({
-      filteredData: aux
-    })
-
+    if(e.target.value.length<=5){
+      row.adjustmentForDisplay = e.target.value
+      let aux = this.state.filteredData
+      this.setState({
+        filteredData: aux
+      })
+    }
   }
 
   componentWillReceiveProps (nextProps) {
