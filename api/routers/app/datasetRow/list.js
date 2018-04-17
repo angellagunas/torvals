@@ -128,7 +128,7 @@ module.exports = new Route({
     }
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
-      .populate(['organization', 'salesCenter', 'product', 'adjustmentRequest', 'channel'])
+      .populate(['salesCenter', 'product', 'adjustmentRequest', 'channel'])
       .sort(ctx.request.query.sort || '-dateCreated')
 
     var auxRows = []
