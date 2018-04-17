@@ -85,7 +85,7 @@ class ResetPassword extends Component {
     this.setState({...this.state, apiCallMessage: 'message is-success'})
 
     setTimeout(() => {
-      this.props.history.push('/log-in', {})
+      this.props.history.push('/', {})
     }, 5000)
   }
 

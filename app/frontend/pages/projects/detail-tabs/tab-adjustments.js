@@ -76,7 +76,7 @@ class TabAdjustment extends Component {
   }
 
   async getFilters() {
-    if (this.props.project.activeDataset) {
+    if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       const url = '/app/rows/filters/dataset/'
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
@@ -272,6 +272,7 @@ class TabAdjustment extends Component {
     })
 
     const url = '/app/rows/dataset/'
+    try{
     let data = await api.get(
       url + this.props.project.activeDataset.uuid,
       this.state.formData
@@ -285,6 +286,9 @@ class TabAdjustment extends Component {
     })
     this.clearSearch()
     this.getSalesTable()    
+  }catch(e){
+    console.log(e)
+  }
   }
 
   getEditedRows(data) {
@@ -1302,7 +1306,9 @@ class TabAdjustment extends Component {
                 <Loader />
               </div>
             : <div>
-                <section className='section'>
+              { this.state.dataRows.length > 0 ?
+                <div>
+                  <section className='section'>
                   <h1 className='period-info'>
                     <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getPeriod()} - </span> 
                     <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
@@ -1340,6 +1346,12 @@ class TabAdjustment extends Component {
                     />
                 }
               </div>
+              :
+                <div className='section has-text-centered subtitle has-text-primary'>
+                  No hay información
+                </div>
+              }
+            </div>
           }
         </section>
       </div>

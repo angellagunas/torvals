@@ -15,7 +15,7 @@ const generalAdjustment = 0.1
 var currentRole
 
 class TabApprove extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
       dataRows: [],
@@ -25,12 +25,12 @@ class TabApprove extends Component {
       selectedCheckboxes: new Set(),
       searchTerm: '',
       sortAscending: true,
-      sortBy: 'statusLevel'       
+      sortBy: 'statusLevel'
     }
     currentRole = tree.get('user').currentRole.slug
   }
 
-  componentWillMount () {
+  componentWillMount() {
     this.getAdjustmentRequests()
   }
 
@@ -42,17 +42,21 @@ class TabApprove extends Component {
   async getAdjustmentRequests() {
     if (this.props.project.activeDataset) {
       let url = '/app/adjustmentRequests/dataset/' + this.props.project.activeDataset.uuid
-      let data = await api.get(url)
-      this.setState({
-        dataRows: data.data
-      })
-      this.getRemainingItems()
-      this.clearSearch()
-      this.handleSort(this.state.sortBy)      
+      try {
+        let data = await api.get(url)
+        this.setState({
+          dataRows: data.data
+        })
+        this.getRemainingItems()
+        this.clearSearch()
+        this.handleSort(this.state.sortBy)
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 
-  getColumns () {
+  getColumns() {
     return [
       {
         'title': 'Seleccionar Todo',
@@ -95,9 +99,9 @@ class TabApprove extends Component {
         'title': 'Id',
         'property': 'productId',
         'default': 'N/A',
-        'sortable': true,                
+        'sortable': true,
         formatter: (row) => {
-          if(!row.selected){
+          if (!row.selected) {
             row.selected = false
           }
           return String(row.datasetRow.product.externalId)
@@ -107,7 +111,7 @@ class TabApprove extends Component {
         'title': 'Producto',
         'property': 'datasetRow.product.name',
         'default': 'N/A',
-        'sortable': true,                
+        'sortable': true,
         formatter: (row) => {
           return String(row.datasetRow.product.name)
         }
@@ -118,7 +122,7 @@ class TabApprove extends Component {
         'abbr': 'C. Venta',
         'property': 'datasetRow.salesCenter.name',
         'default': 'N/A',
-        'sortable': true,                
+        'sortable': true,
         formatter: (row) => {
           return String(row.datasetRow.salesCenter.name)
         }
@@ -127,7 +131,7 @@ class TabApprove extends Component {
         'title': 'Semana',
         'property': 'datasetRow.data.semanaBimbo',
         'default': 'N/A',
-        'sortable': true,                
+        'sortable': true,
         formatter: (row) => {
           return String(row.datasetRow.data.semanaBimbo)
         }
@@ -136,7 +140,7 @@ class TabApprove extends Component {
         'title': 'Predicción',
         'property': 'datasetRow.data.prediction',
         'default': 0,
-        'sortable': true,                
+        'sortable': true,
         formatter: (row) => {
           return String(row.datasetRow.data.prediction)
         }
@@ -146,7 +150,7 @@ class TabApprove extends Component {
         'property': 'newAdjustment',
         'default': 0,
         'type': 'number',
-        'sortable': true,        
+        'sortable': true,
         formatter: (row) => {
           if (!row.newAdjustment) {
             row.newAdjustment = 0
@@ -159,24 +163,24 @@ class TabApprove extends Component {
         'property': 'percentage',
         'default': 0,
         'type': 'number',
-        'sortable': true,                
+        'sortable': true,
         formatter: (row) => {
           let percentage = (
             ((row.newAdjustment - row.datasetRow.data.prediction) / row.datasetRow.data.prediction) * 100
           )
-          row.percentage = percentage                                            
+          row.percentage = percentage
           return Math.round(percentage) + ' %'
         }
       },
       {
         'title': 'Creado',
         'property': 'dateRequested',
-        'sortable': true,                
+        'sortable': true,
         formatter: (row) => {
           return (
-            <span title={'Creado por ' + row.requestedBy.name }> 
-              { moment.utc(row.dateRequested).local().format('DD/MM/YYYY hh:mm a') }
-            </span>  
+            <span title={'Creado por ' + row.requestedBy.name}>
+              {moment.utc(row.dateRequested).local().format('DD/MM/YYYY hh:mm a')}
+            </span>
           )
         }
       },
@@ -185,15 +189,15 @@ class TabApprove extends Component {
         formatter: (row) => {
           if (row.dateRejected) {
             return (
-              <span title={'Rechazado por ' + row.rejectedBy.name }> 
-                { moment.utc(row.dateRejected).local().format('DD/MM/YYYY hh:mm a') }
+              <span title={'Rechazado por ' + row.rejectedBy.name}>
+                {moment.utc(row.dateRejected).local().format('DD/MM/YYYY hh:mm a')}
               </span>
             )
           }
           else if (row.dateApproved) {
             return (
-              <span title={'Aprobado por ' + row.approvedBy.name }>
-                { moment.utc(row.dateApproved).local().format('DD/MM/YYYY hh:mm a') }
+              <span title={'Aprobado por ' + row.approvedBy.name}>
+                {moment.utc(row.dateApproved).local().format('DD/MM/YYYY hh:mm a')}
               </span>
             )
           }
@@ -204,10 +208,10 @@ class TabApprove extends Component {
         'property': 'statusLevel',
         'default': '',
         'centered': true,
-        'sortable': true,                        
+        'sortable': true,
         formatter: (row) => {
           if (row.status === 'created') {
-            row.statusLevel = 0            
+            row.statusLevel = 0
             return (
               <span
                 className='icon has-text-info'
@@ -217,7 +221,7 @@ class TabApprove extends Component {
             )
           }
           if (row.status === 'approved') {
-            row.statusLevel = 1            
+            row.statusLevel = 1
             return (
               <span
                 className='icon has-text-success'
@@ -227,7 +231,7 @@ class TabApprove extends Component {
             )
           }
           if (row.status === 'rejected') {
-            row.statusLevel = 2            
+            row.statusLevel = 2
             return (
               <span
                 className='icon has-text-danger'
@@ -287,7 +291,7 @@ class TabApprove extends Component {
   filterbyDate() {
     if (this.state.startDate && this.state.endDate) {
       this.uncheckAll()
-      
+
       if (this.state.startDate > this.state.endDate) {
         this.notify('Rango de fechas inválido', 5000, toast.TYPE.ERROR)
         return
@@ -304,7 +308,7 @@ class TabApprove extends Component {
       <div className='section level selects'>
         <div className='level-left'>
           <div className='level-item'>
-        
+
             <div className='field'>
               <label className='label'>Búsqueda general</label>
               <div className='control has-icons-right'>
@@ -356,54 +360,54 @@ class TabApprove extends Component {
                 </div>
               </div>
               <div className='control clear-btn'>
-                  <a className='button is-info'
-                    onClick={() => {
-                      this.clearSearch()
-                      this.clearSearchDate()
-                    }}>
-                    Limpiar
+                <a className='button is-info'
+                  onClick={() => {
+                    this.clearSearch()
+                    this.clearSearchDate()
+                  }}>
+                  Limpiar
                   </a>
-                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {currentRole !== 'consultor'
           ? <div className='level-right'>
-              <div className='level-item'>
-                <div className='saleCenter'>
-                  <span>Total: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.dataRows.length}
-                  </span>
-                </div>
-              </div>
-
-              <div className='level-item'>
-                <div className='saleCenter'>
-                  <span>Pendientes: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.remainingItems}
-                  </span>
-                </div>
-              </div>
-              <div className='level-item is-margin-top-20'>
-                <button
-                  className='button is-danger'
-                  onClick={this.reject}
-                  disabled={this.state.disableButtons}
-                >
-                  <span>Rechazar</span>
-                </button>
-              </div>
-              <div className='level-item is-margin-top-20'>
-                <button
-                  className='button is-success'
-                  onClick={this.approve}
-                  disabled={this.state.disableButtons}
-                >
-                  <span>Aprobar</span>
-                </button>
+            <div className='level-item'>
+              <div className='saleCenter'>
+                <span>Total: </span>
+                <span className='has-text-weight-bold is-capitalized'>{this.state.dataRows.length}
+                </span>
               </div>
             </div>
+
+            <div className='level-item'>
+              <div className='saleCenter'>
+                <span>Pendientes: </span>
+                <span className='has-text-weight-bold is-capitalized'>{this.state.remainingItems}
+                </span>
+              </div>
+            </div>
+            <div className='level-item is-margin-top-20'>
+              <button
+                className='button is-danger'
+                onClick={this.reject}
+                disabled={this.state.disableButtons}
+              >
+                <span>Rechazar</span>
+              </button>
+            </div>
+            <div className='level-item is-margin-top-20'>
+              <button
+                className='button is-success'
+                onClick={this.approve}
+                disabled={this.state.disableButtons}
+              >
+                <span>Aprobar</span>
+              </button>
+            </div>
+          </div>
           : null
         }
       </div>
@@ -412,7 +416,7 @@ class TabApprove extends Component {
 
   searchDatarows() {
     const items = this.state.dataRows.map((item) => {
-      if (this.state.searchTerm === '' && !this.state.searchDate){
+      if (this.state.searchTerm === '' && !this.state.searchDate) {
         return item
       }
       else if (this.state.searchDate) {
@@ -447,10 +451,10 @@ class TabApprove extends Component {
           return item
         else
           return null
-      }   
+      }
     })
-    .filter(function(item){ return item != null });
-    
+      .filter(function (item) { return item != null });
+
     this.setState({
       filteredData: items
     })
@@ -498,14 +502,19 @@ class TabApprove extends Component {
     let url = '/app/adjustmentRequests/approve/'
 
     for (const row of this.state.selectedCheckboxes) {
-      row.edited = true
-      let res = await api.get(url + row.uuid)
+      try {
+        row.edited = true
+        let res = await api.get(url + row.uuid)
 
-      if (res) {
-        row.status = res.data.status
-        row.approvedBy = res.data.approvedBy
-        row.dateApproved = res.data.dateApproved
-        await this.handleChange(row)      
+        if (res) {
+          row.status = res.data.status
+          row.approvedBy = res.data.approvedBy
+          row.dateApproved = res.data.dateApproved
+          await this.handleChange(row)
+        }
+      } catch (e) {
+        row.edited = false
+        console.log(e)
       }
     }
   }
@@ -514,22 +523,27 @@ class TabApprove extends Component {
     let url = '/app/adjustmentRequests/reject/'
 
     for (const row of this.state.selectedCheckboxes) {
-      row.edited = true
-      let res = await api.get(url + row.uuid)
+      try {
+        row.edited = true
+        let res = await api.get(url + row.uuid)
 
-      if (res) {
-        row.status = res.data.status
-        row.rejectedBy = res.data.rejectedBy
-        row.dateRejected = res.data.dateRejected
-        await this.handleChange(row)      
+        if (res) {
+          row.status = res.data.status
+          row.rejectedBy = res.data.rejectedBy
+          row.dateRejected = res.data.dateRejected
+          await this.handleChange(row)
+        }
+      } catch (e) {
+        row.edited = false
+        console.log(e)
       }
     }
   }
 
-  toggleButtons () {
+  toggleButtons() {
     let disable = true
 
-    if (this.state.selectedCheckboxes.size > 0) 
+    if (this.state.selectedCheckboxes.size > 0)
       disable = false
 
     this.setState({
@@ -537,22 +551,22 @@ class TabApprove extends Component {
     })
   }
 
-  async handleChange (obj) {
+  async handleChange(obj) {
 
     let index = this.state.dataRows.findIndex((item) => { return obj.uuid === item.uuid })
     let aux = this.state.dataRows
     obj.selected = false
-    aux.splice(index,1,obj)
+    aux.splice(index, 1, obj)
 
     this.setState({
       dataRows: aux
     })
 
     if (obj.status === 'approved') {
-      this.notify('Ajuste aprobado', 5000, toast.TYPE.SUCCESS) 
+      this.notify('Ajuste aprobado', 5000, toast.TYPE.SUCCESS)
     }
     else if (obj.status === 'rejected') {
-      this.notify('Ajuste rechazado', 5000, toast.TYPE.ERROR) 
+      this.notify('Ajuste rechazado', 5000, toast.TYPE.ERROR)
     }
 
     this.state.selectedCheckboxes.delete(obj)
@@ -561,7 +575,7 @@ class TabApprove extends Component {
     return true
   }
 
-  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -579,9 +593,9 @@ class TabApprove extends Component {
     }
   }
 
-  getRemainingItems () {
+  getRemainingItems() {
     let cont = 0
-    for ( let row of this.state.dataRows) {
+    for (let row of this.state.dataRows) {
       if (row.status === 'created') {
         cont++
       }
@@ -592,55 +606,55 @@ class TabApprove extends Component {
     this.toggleButtons()
   }
 
-  handleSort(e){
+  handleSort(e) {
     let sorted = this.state.filteredData
 
-    if (e === 'productId'){
-          if (this.state.sortAscending){
-            sorted.sort((a, b) => { return parseFloat(a.datasetRow.product.externalId) - parseFloat(b.datasetRow.product.externalId) })
-          }
-          else{
-            sorted.sort((a, b) => { return parseFloat(b.datasetRow.product.externalId) - parseFloat(a.datasetRow.product.externalId) })                        
-          }
-    }
-    else{
-      if (this.state.sortAscending){
-        sorted = _.orderBy(sorted,[e], ['asc'])
-              
+    if (e === 'productId') {
+      if (this.state.sortAscending) {
+        sorted.sort((a, b) => { return parseFloat(a.datasetRow.product.externalId) - parseFloat(b.datasetRow.product.externalId) })
       }
-      else{
-        sorted = _.orderBy(sorted,[e], ['desc'])    
+      else {
+        sorted.sort((a, b) => { return parseFloat(b.datasetRow.product.externalId) - parseFloat(a.datasetRow.product.externalId) })
       }
     }
-    
+    else {
+      if (this.state.sortAscending) {
+        sorted = _.orderBy(sorted, [e], ['asc'])
+
+      }
+      else {
+        sorted = _.orderBy(sorted, [e], ['desc'])
+      }
+    }
+
     this.setState({
       filteredData: sorted,
       sortAscending: !this.state.sortAscending,
       sortBy: e
     })
   }
-  
-  render () {
-    
+
+  render() {
+
     return (
       <div>
         <section>
-        {this.getModifyButtons()}
-        {this.state.dataRows.length === 0 ?
+          {this.getModifyButtons()}
+          {this.state.dataRows.length === 0 ?
             <section className='section'>
               <center>
                 <h2 className='has-text-info'>No hay ajustes por aprobar</h2></center>
             </section>
-         :   
-        <BaseTable
-          className='aprobe-table is-fullwidth'
-          data={this.state.filteredData}
-          columns={this.getColumns()}
-          sortAscending={this.state.sortAscending}
-          sortBy={this.state.sortBy}
-          handleSort={(e) => this.handleSort(e)} />
-        }
-          </section>
+            :
+            <BaseTable
+              className='aprobe-table is-fullwidth'
+              data={this.state.filteredData}
+              columns={this.getColumns()}
+              sortAscending={this.state.sortAscending}
+              sortBy={this.state.sortBy}
+              handleSort={(e) => this.handleSort(e)} />
+          }
+        </section>
       </div>
     )
   }
