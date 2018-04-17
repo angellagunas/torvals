@@ -4,7 +4,6 @@ import moment from 'moment'
 import _ from 'lodash'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
-import {FileSaver} from 'file-saver'
 
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -15,6 +14,8 @@ import WeekTable from './week-table'
 import ProductTable from './product-table'
 import Select from './select'
 import Graph from './graph'
+
+const FileSaver = require('file-saver')
 
 var currentRole
 moment.locale('es')
@@ -75,7 +76,7 @@ class TabAdjustment extends Component {
   }
 
   async getFilters() {
-    if (this.props.project.activeDataset) {
+    if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       const url = '/app/rows/filters/dataset/'
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
@@ -271,6 +272,7 @@ class TabAdjustment extends Component {
     })
 
     const url = '/app/rows/dataset/'
+    try{
     let data = await api.get(
       url + this.props.project.activeDataset.uuid,
       this.state.formData
@@ -284,6 +286,9 @@ class TabAdjustment extends Component {
     })
     this.clearSearch()
     this.getSalesTable()    
+  }catch(e){
+    console.log(e)
+  }
   }
 
   getEditedRows(data) {
@@ -382,7 +387,7 @@ class TabAdjustment extends Component {
             <label className='label'>Búsqueda general</label>              
             <div className='control has-icons-right'>
               <input
-                className='input'
+                className='input input-search'
                 type='text'
                 value={this.state.searchTerm}
                 onChange={this.searchOnChange} placeholder='Buscar' />
@@ -810,7 +815,7 @@ class TabAdjustment extends Component {
     }
 
     if (currentRole === 'consultor') {
-      return <span>Modo Visualización - No se permiten ajustes para tu tipo de usuario</span>
+      return <span>Modo Visualización</span>
     }
     else {
       return <span>Modo Ajuste {this.state.generalAdjustment * 100} % permitido</span>
@@ -933,13 +938,12 @@ class TabAdjustment extends Component {
       let res = await api.post(url, {
         start_date: moment(min).format('YYYY-MM-DD'),
         end_date:  moment(max).format('YYYY-MM-DD'),
-        salesCenter: this.state.formData.salesCenters,
-        channel: this.state.formData.channels,
-        product: this.state.formData.products,
-        category: this.state.formData.categories
+        salesCenter: this.state.formData.salesCenter,
+        channel: this.state.formData.channel,
+        product: this.state.formData.product,
+        category: this.state.formData.category
       })
 
-      
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})

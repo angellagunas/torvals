@@ -160,7 +160,7 @@ class LogInButton extends Component {
             return (
               <div key={d.key}>
                 <a
-                  className='navbar-item has-text-white'
+                  className='navbar-item'
                   href='#'
                   onClick={e => { this.selectOrgHandler(d.id) }}
                   >
@@ -173,7 +173,7 @@ class LogInButton extends Component {
             return (
               <div key={d.key}>
                 <a
-                  className='navbar-item has-text-white'
+                  className='navbar-item'
                   href='#'
                   onClick={e => { this.selectOrgHandler(d.id) }}
                   >
@@ -217,7 +217,7 @@ class LogInButton extends Component {
     if (env.EMAIL_SEND) {
       resetLink = (
         <p>
-          <Link to='/password/forgotten/' className='has-text-white'>
+          <Link to='/password/forgotten/'>
             Olvidó su contraseña?
           </Link>
         </p>
@@ -232,7 +232,7 @@ class LogInButton extends Component {
             <div className={'LogIn single-form ' + this.props.className}>
               <div className='card land-card'>
                 <header className='card-header'>
-                  <p className='card-header-title has-text-white'>
+                  <p className='card-header-title'>
                     Seleccione una organización
                   </p>
                 </header>

@@ -16,10 +16,10 @@ class Calendar extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      startWeekDate: moment(),
+      startWeekDate: moment().utc(),
       highlightDates: [],
       showWeekNumbers: true,
-      selectedYear: moment().get('year')
+      selectedYear: moment().utc().get('year')
     }
   }
   async getDates () {
@@ -41,14 +41,14 @@ class Calendar extends Component {
     for (let i = 0; i < Array.from(map).length; i++) {
       const element = Array.from(map)[i]
       periods.push({
-        name: `Periodo ${moment(element[1][0].month, 'M').format('MMMM')}`,
+        name: `Periodo ${moment.utc(element[1][0].month, 'M').format('MMMM')}`,
         month: element[1][0].month,
         weeks: element[1]
       })
     }
 
     let currentMonth = 0
-    let month = moment().month()
+    let month = moment.utc().month()
     for (let i = 0; i < Array.from(map).length; i++) {
       const element = Array.from(map)[i]
       if (element[0] === month) {
@@ -91,7 +91,7 @@ class Calendar extends Component {
 
   getCarouselItems () {
     let items = this.state.periods.map((item, key) => {
-      let min = moment(item.weeks[1].dateStart)
+      let min = moment.utc(item.weeks[1].dateStart)
       return (
         <CalendarItem
           key={key}

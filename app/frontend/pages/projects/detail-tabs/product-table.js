@@ -12,7 +12,7 @@ class ProductTable extends Component {
       selectedAll: false,
       data: this.props.data
     }
-    this.inputs = new Set()
+    this.inputs = {}
   }
 
   splitWords (words) {
@@ -173,27 +173,37 @@ class ProductTable extends Component {
         group: ' ',
         title: 'Predicción',
         property: 'prediction',
-        default: 'N/A',
+        default: 0,
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
+        formatter: (row) => {
+          if (row.prediction) {
+            return row.prediction
+          }
+        }
       },
       {
         group: ' ',
         title: this.splitWords('Ajuste_Anterior'),
         property: 'lastAdjustment',
-        default: 'N/A',
+        default: 0,
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
+        formatter: (row) => {
+          if (row.prediction) {
+            return row.prediction
+          }
+        }
       },
       {
         group: ' ',
         title: 'Ajuste',
         property: 'adjustmentForDisplay',
-        default: 'N/A',
+        default: 0,
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
@@ -211,11 +221,11 @@ class ProductTable extends Component {
                 className='input'
                 value={row.adjustmentForDisplay}
                 onBlur={(e) => { this.onBlur(e, row) }}
-                onKeyPress={(e) => { this.onEnter(e, row) }}
+                onKeyDown={(e) => { this.onEnter(e, row) }}
                 onChange={(e) => { this.onChange(e, row) }}
                 onFocus={(e) => { this.onFocus(e, row) }}
                 tabIndex={row.tabin}
-                ref={(el) => { this.inputs.add({ tabin: row.tabin, el: el }) }}
+                ref={(el) => { this.inputs[row.tabin] = el }}
               />
             )
           }else{
@@ -235,6 +245,10 @@ class ProductTable extends Component {
         formatter: (row) => {
           let percentage = ((row.adjustmentForDisplay - row.prediction) /
             row.prediction) * 100
+
+          if(isNaN(percentage) || !isFinite(percentage))
+              percentage = 0
+          
           row.percentage = percentage
           let status = classNames('has-text-weight-bold', {
             'has-text-success': row.isLimit && row.adjustmentRequest && row.adjustmentRequest.status === 'approved',
@@ -309,20 +323,11 @@ class ProductTable extends Component {
   }
 
   changeCell = (row, direction) => {
-    let edit = Array.from(this.inputs).find(e => e.tabin === row.tabin + 10 * direction)
-
-    if (edit) {
-      edit.el.focus()
-    }
+    this.inputs[row.tabin + 10 * direction].focus()
   }
 
   onFocus(e, row) {
-    row.focused = true
     row.original = row.adjustmentForDisplay
-    let aux = this.state.filteredData
-    this.setState({
-      filteredData: aux
-    })
 
     e.target.select()
   }
@@ -334,17 +339,16 @@ class ProductTable extends Component {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
 
-    if (e.charCode === 13 && !e.shiftKey) {
+    if ((e.keyCode === 13 || e.which === 13) && !e.shiftKey) {
       this.changeCell(row, 1)
     }
-    else if (e.charCode === 13 && e.shiftKey) {
+    else if ((e.keyCode === 13 || e.which === 13) && e.shiftKey) {
       this.changeCell(row, -1)
     }
   }
 
   onBlur = async (e, row) => {
     let value = e.target.value
-    row.focused = false
     if (e.target.type === 'number') {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
@@ -352,18 +356,11 @@ class ProductTable extends Component {
     if (Number(row.original) !== Number(value)) {
       this.props.changeAdjustment(value, row)
     }
-    let aux = this.state.filteredData
-
-    this.setState({
-      filteredData: aux
-    })
-    
   }
 
   onChange = (e, row) => {
     row.adjustmentForDisplay = e.target.value
     let aux = this.state.filteredData
-
     this.setState({
       filteredData: aux
     })
@@ -371,10 +368,7 @@ class ProductTable extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    var same = nextProps.data.length === this.props.data.length
-    same = same && nextProps.data.every((v,i)=> v === this.props.data[i])
-
-    if (!same) {
+    if (nextProps.data !== this.props.data){
       this.setState({
         filteredData: nextProps.data
       })

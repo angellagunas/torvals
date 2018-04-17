@@ -78,6 +78,7 @@ class DataSetDetail extends Component {
       if (this.state.dataset.status === 'preprocessing' ||
         this.state.dataset.status === 'processing' ||
         this.state.dataset.status === 'uploaded' ||
+        this.state.dataset.status === 'receiving' ||
         this.state.dataset.status === 'pendingRows') {
         this.load()
       }
@@ -144,7 +145,7 @@ class DataSetDetail extends Component {
     if (!this.state.canEdit) return
     var url = `/app/projects/${this.state.dataset.project.uuid}/remove/dataset`
     await api.post(url, { dataset: this.props.match.params.uuid })
-    this.props.history.push('/datasets')
+    this.props.history.push('/projects/' + this.state.dataset.project.uuid)
   }
 
   async configureOnClick () {
@@ -470,7 +471,7 @@ class DataSetDetail extends Component {
           </div>
         </div>
       )
-    } else if (dataset.status === 'pendingRows') {
+    } else if (dataset.status === 'pendingRows' || dataset.status === 'receiving') {
       return (
         <div className='column'>
           <div className='card'>

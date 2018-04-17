@@ -161,7 +161,7 @@ class TabHistorical extends Component {
       const element = Array.from(map)[i]
       periods.push({
         number: element[0],
-        name: `Periodo ${moment(element[1][0].month, 'M').format('MMMM')}`,
+        name: `${moment(element[1][0].month, 'M').format('MMMM')}`,
         maxSemana: element[1][0].week,
         minSemana: element[1][element[1].length - 1].week
       })
@@ -173,96 +173,113 @@ class TabHistorical extends Component {
   async getFilters () {
     if (this.props.project.activeDataset) {
       const url = '/app/dates/'
-      let res = await api.get(url)
-      var periods = []
-      let years = new Set()
 
-      res.data.map((date) => {
-        years.add(date.year)
-      })
+      try {
+        let res = await api.get(url)
+        var periods = []
+        let years = new Set()
 
-      periods = this.getPeriods(res.data, Array.from(years)[0])
+        res.data.map((date) => {
+          years.add(date.year)
+        })
 
-      this.getProducts()
-      this.getChannels()
-      this.getSalesCent()
+        periods = this.getPeriods(res.data, Array.from(years)[0])
 
-      this.setState({
-        filters: {
-          ...this.state.filters,
-          dates: res.data,
-          periods: periods,
-          years: Array.from(years)
-        },
-        formData: {
-          period: periods[0].number,
-          year: Array.from(years)[0]
-        },
-        isFiltered: false
-      }, () => {
-        this.getData()
-      })
+        this.getProducts()
+        this.getChannels()
+        this.getSalesCent()
+
+        this.setState({
+          filters: {
+            ...this.state.filters,
+            dates: res.data,
+            periods: periods,
+            years: Array.from(years)
+          },
+          formData: {
+            period: periods[0].number,
+            year: Array.from(years)[0]
+          },
+          isFiltered: false
+        }, () => {
+          this.getData()
+        })
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 
   async getProducts () {
     const url = '/app/products/'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name',
-      organization: this.props.project.organization.uuid
-    })
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        products: res.data
-      }
-    }, () => {
-      this.getCategory(res.data)
-    })
+    try {
+      let res = await api.get(url, {
+        start: 0,
+        limit: 0,
+        sort: 'name',
+        organization: this.props.project.organization.uuid
+      })
+      this.setState({
+        filters: {
+          ...this.state.filters,
+          products: res.data
+        }
+      }, () => {
+        this.getCategory(res.data)
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async getChannels () {
     const url = '/app/channels/'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name',
-      organization: this.props.project.organization.uuid
-    })
+    try {
+      let res = await api.get(url, {
+        start: 0,
+        limit: 0,
+        sort: 'name',
+        organization: this.props.project.organization.uuid
+      })
 
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        channels: res.data
-      }
-    })
+      this.setState({
+        filters: {
+          ...this.state.filters,
+          channels: res.data
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async getSalesCent () {
     const url = '/app/salesCenters/'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name',
-      organization: this.props.project.organization.uuid
-    })
+    try {
+      let res = await api.get(url, {
+        start: 0,
+        limit: 0,
+        sort: 'name',
+        organization: this.props.project.organization.uuid
+      })
 
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        salesCenters: res.data
-      }
-    })
-
-    if (res.data.length === 1) {
       this.setState({
-        formData: {
-          ...this.state.formData,
-          salesCenters: res.data[0].uuid
+        filters: {
+          ...this.state.filters,
+          salesCenters: res.data
         }
       })
+
+      if (res.data.length === 1) {
+        this.setState({
+          formData: {
+            ...this.state.formData,
+            salesCenters: res.data[0].uuid
+          }
+        })
+      }
+    } catch (e) {
+      console.log(e)
     }
   }
 
@@ -524,83 +541,93 @@ class TabHistorical extends Component {
                 <div className='panel-block'>
                   {
                     this.state.historicData.prediction &&
-                    this.state.weekTotalsPredictions
+                      this.state.weekTotalsPredictions
 
-                    ? <table className='table historical is-fullwidth'>
-                      <thead>
-                        <tr>
-                          <th className='has-text-centered'>Semana</th>
-                          <th className='has-text-info has-text-centered'>Predicción</th>
-                          <th className='has-text-teal has-text-centered'>Ajuste</th>
-                          <th className='has-text-success has-text-centered'>Venta Registrada</th>
-                          <th className='has-text-danger has-text-centered'>Venta Anterior</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {this.state.weekTotalsPredictions.map((item, key) => {
-                          if (item.week !== '') {
-                            return (
-                              <tr className='has-text-centered' key={key}>
-                                <td>
-                                  {item.week}
-                                </td>
-                                <td>
-                                  $ {item.total.toFixed(2).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                                <td>
-                                  $ {this.state.weekTotalsAdjustments[key].total.toFixed(2).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                                <td>
-                                  $ {this.state.weekTotalsSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
-                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                  })}
-                                </td>
-                                <td>
-                                  $ {this.state.weekTotalsLastSales[key]
-                                   ? this.state.weekTotalsLastSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
-                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                   }) : '0.00'
-                                }
-                                </td>
-                              </tr>)
-                          }
-                        })}
-
-                        <tr className='totals'>
-                          <th>
-                            Total
-                          </th>
-                          <th className='has-text-info'>
-                            $ {this.state.weekTotalsPredictions[this.state.weekTotalsPredictions.length - 1].total
-                            .toFixed(2).replace(/./g, (c, i, a) => {
-                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                            })}
-                          </th>
-                          <th className='has-text-teal'>
-                            $ {this.state.weekTotalsAdjustments[this.state.weekTotalsAdjustments.length - 1].total
-                            .toFixed(2).replace(/./g, (c, i, a) => {
-                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                            })}
-                          </th>
-                          <th className='has-text-success'>
-                            $ {this.state.weekTotalsSales[this.state.weekTotalsSales.length - 1].total
-                            .toFixed(2).replace(/./g, (c, i, a) => {
-                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                            })}
-                          </th>
-                          <th className='has-text-danger'>
-                              $ {this.state.weekTotalsLastSales[this.state.weekTotalsLastSales.length - 1].total
-                                .toFixed(2).replace(/./g, (c, i, a) => {
-                                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    ? <div className='is-fullwidth'>
+                      {
+                          this.state.historicData.prediction.length > 0 &&
+                            this.state.weekTotalsPredictions.length > 0
+                            ? <table className='table historical is-fullwidth'>
+                              <thead>
+                                <tr>
+                                  <th className='has-text-centered'>Semana</th>
+                                  <th className='has-text-info has-text-centered'>Predicción</th>
+                                  <th className='has-text-teal has-text-centered'>Ajuste</th>
+                                  <th className='has-text-success has-text-centered'>Venta Registrada</th>
+                                  <th className='has-text-danger has-text-centered'>Venta Anterior</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {this.state.weekTotalsPredictions.map((item, key) => {
+                                  if (item.week !== '') {
+                                    return (
+                                      <tr className='has-text-centered' key={key}>
+                                        <td>
+                                          {item.week}
+                                        </td>
+                                        <td>
+                                          $ {item.total.toFixed(2).replace(/./g, (c, i, a) => {
+                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                          })}
+                                        </td>
+                                        <td>
+                                          $ {this.state.weekTotalsAdjustments[key].total.toFixed(2).replace(/./g, (c, i, a) => {
+                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                          })}
+                                        </td>
+                                        <td>
+                                          $ {this.state.weekTotalsSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
+                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                          })}
+                                        </td>
+                                        <td>
+                                          $ {this.state.weekTotalsLastSales[key]
+                                            ? this.state.weekTotalsLastSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
+                                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                            }) : '0.00'
+                                          }
+                                        </td>
+                                      </tr>)
+                                  }
                                 })}
+
+                                <tr className='totals'>
+                                  <th>
+                                    Total
                           </th>
-                        </tr>
-                      </tbody>
-                    </table>
+                                  <th className='has-text-info'>
+                                    $ {this.state.weekTotalsPredictions[this.state.weekTotalsPredictions.length - 1].total
+                                      .toFixed(2).replace(/./g, (c, i, a) => {
+                                        return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                      })}
+                                  </th>
+                                  <th className='has-text-teal'>
+                                    $ {this.state.weekTotalsAdjustments[this.state.weekTotalsAdjustments.length - 1].total
+                                      .toFixed(2).replace(/./g, (c, i, a) => {
+                                        return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                      })}
+                                  </th>
+                                  <th className='has-text-success'>
+                                    $ {this.state.weekTotalsSales[this.state.weekTotalsSales.length - 1].total
+                                      .toFixed(2).replace(/./g, (c, i, a) => {
+                                        return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                      })}
+                                  </th>
+                                  <th className='has-text-danger'>
+                                    $ {this.state.weekTotalsLastSales[this.state.weekTotalsLastSales.length - 1].total
+                                      .toFixed(2).replace(/./g, (c, i, a) => {
+                                        return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                      })}
+                                  </th>
+                                </tr>
+                              </tbody>
+                            </table>
+
+                            : <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
+                              No hay datos que mostrar
+                      </div>
+                        }
+                    </div>
                       : this.loadTable()
                   }
                 </div>

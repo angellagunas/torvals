@@ -9,7 +9,7 @@
     font-weight: 500 !important;
 }
 
-.input {
+.input-search {
     width: 150px;
 }
 
@@ -50,4 +50,10 @@
 
 .form-group>fieldset {
     border: 0;
+}
+
+.rjsf{
+    .input{
+        width: 100%;
+    }
 }

@@ -29,15 +29,26 @@ module.exports = new Route({
     if (result.error) {
       ctx.throw(400, result.error)
     }
-
+    var modified = 0
+    var created = 0
     for (var d of data) {
       let organization = await Organization.findOne({'slug': d.organizationSlug})
       if (organization) {
         d.organization = organization._id
-        await Channel.create(d)
+        let channel = await Channel.findOne({'externalId': d.externalId, 'organization': organization._id})
+        if (channel) {
+          channel.set({
+            name: d.name
+          })
+          await channel.save()
+          modified++
+        } else {
+          await Channel.create(d)
+          created++
+        }
       }
     }
 
-    ctx.body = {message: `Se han creado ${data.length} Canales satisfactoriamente!`}
+    ctx.body = {message: `Se han creado ${created} Canales y modificado ${modified} satisfactoriamente!`}
   }
 })

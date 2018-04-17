@@ -57,6 +57,12 @@ class ProjectDetail extends Component {
       this.props.history.replace('/projects/' + user.currentProject.uuid)
     }
 
+    if (currentRole === 'consultor') {
+      this.setState({
+        selectedTab: 'graficos'
+      })
+    }
+
     await this.hasSaleCenter()
     await this.hasChannel()
     await this.load()
@@ -110,11 +116,15 @@ class ProjectDetail extends Component {
   async countAdjustmentRequests () {
     if (this.state.project.activeDataset) {
       var url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
-      var body = await api.get(url)
-      if (this.state.counterAdjustments !== body.data.created) {
-        this.setState({
-          counterAdjustments: body.data.created
-        })
+      try {
+        var body = await api.get(url)
+        if (this.state.counterAdjustments !== body.data.created) {
+          this.setState({
+            counterAdjustments: body.data.created
+          })
+        }
+      } catch (e) {
+        console.log(e)
       }
     }
   }
@@ -122,33 +132,41 @@ class ProjectDetail extends Component {
   async getModifiedCount () {
     if (this.state.project.activeDataset) {
       const url = '/app/rows/modified/dataset/'
-      let res = await api.get(url + this.state.project.activeDataset.uuid)
+      try {
+        let res = await api.get(url + this.state.project.activeDataset.uuid)
 
-      if (
+        if (
           res.data.pending !== this.state.pendingChanges ||
           res.data.modified !== this.state.modified
       ) {
-        if (res.data.pending > 0) {
-          this.setState({
-            modified: res.data.modified,
-            pendingChanges: res.data.pending,
-            isConciliating: ' is-loading'
-          })
-        } else {
-          this.setState({
-            modified: res.data.modified,
-            pendingChanges: res.data.pending,
-            isConciliating: ''
-          })
+          if (res.data.pending > 0) {
+            this.setState({
+              modified: res.data.modified,
+              pendingChanges: res.data.pending,
+              isConciliating: ' is-loading'
+            })
+          } else {
+            this.setState({
+              modified: res.data.modified,
+              pendingChanges: res.data.pending,
+              isConciliating: ''
+            })
+          }
         }
+      } catch (e) {
+        console.log(e)
       }
     }
   }
 
   async deleteObject () {
     var url = '/app/projects/' + this.props.match.params.uuid
-    await api.del(url)
-    this.props.history.push('/projects')
+    try {
+      await api.del(url)
+      this.props.history.push('/projects')
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   showModalDataset () {
@@ -171,21 +189,25 @@ class ProjectDetail extends Component {
 
   async getProjectStatus () {
     const url = '/app/projects/' + this.state.project.uuid
-    let res = await api.get(url)
+    try {
+      let res = await api.get(url)
 
-    if (res) {
-      this.setState({
-        project: res.data
-      })
+      if (res) {
+        this.setState({
+          project: res.data
+        })
 
-      if (res.data.status === 'adjustment') {
-        clearInterval(this.interval)
-        if (!this.intervalConciliate) {
-          this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
+        if (res.data.status === 'adjustment') {
+          clearInterval(this.interval)
+          if (!this.intervalConciliate) {
+            this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
+          }
+        } else {
+          clearInterval(this.intervalConciliate)
         }
-      } else {
-        clearInterval(this.intervalConciliate)
       }
+    } catch (e) {
+      console.log(e)
     }
   }
 
@@ -216,29 +238,37 @@ class ProjectDetail extends Component {
 
   async hasSaleCenter () {
     let url = '/app/salesCenters'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name'
-    })
-    if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
-      this.setState({
-        noSalesCenter: true
+    try {
+      let res = await api.get(url, {
+        start: 0,
+        limit: 0,
+        sort: 'name'
       })
+      if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
+        this.setState({
+          noSalesCenter: true
+        })
+      }
+    } catch (e) {
+      console.log(e)
     }
   }
 
   async hasChannel () {
     let url = '/app/channels'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name'
-    })
-    if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
-      this.setState({
-        noChannel: true
+    try {
+      let res = await api.get(url, {
+        start: 0,
+        limit: 0,
+        sort: 'name'
       })
+      if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
+        this.setState({
+          noChannel: true
+        })
+      }
+    } catch (e) {
+      console.log(e)
     }
   }
 
@@ -385,7 +415,7 @@ class ProjectDetail extends Component {
       //   )
       // },
       {
-        name: 'Gráficos',
+        name: 'graficos',
         title: 'Gráficos',
         hide: (project.status === 'processing' ||
           project.status === 'pendingRows' ||
@@ -399,7 +429,7 @@ class ProjectDetail extends Component {
       {
         name: 'configuracion',
         title: 'Configuración',
-        hide: testRoles('manager-level-1'),
+        hide: testRoles('manager-level-1, manager-level-2, consultor'),
         reload: true,
         content: (
           <div>

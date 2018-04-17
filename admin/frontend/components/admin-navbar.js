@@ -122,12 +122,12 @@ class NavBar extends Component {
     const navbarBrand = classNames('c-topbar__aside navbar-brand', {
       'collapsed': this.state.navbarBrandCollapsed
     })
-
     return (<nav className='c-topbar navbar c-fixed'>
       <div className={navbarBrand}>
         <Link to='/dashboard' className='navbar-item'>
-          <img className='is-flex r-pad' src='/admin/public/img/pythia-logo.png' />
-          <h3 className='is-size-4 has-text-white is-capitalized has-text-weight-semibold'>Pythia</h3>
+          {this.state.navbarBrandCollapsed
+            ? <img className='is-flex r-pad' src='/admin/public/img/orax-logo.svg' />
+            : <img className='is-flex r-pad' src='/admin/public/img/oraxh.svg' />}
         </Link>
       </div>
       <div className='c-topbar__main'>

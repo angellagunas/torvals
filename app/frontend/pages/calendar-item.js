@@ -50,10 +50,10 @@ class CalendarItem extends Component {
     if (start.isAfter(end))
       throw new Error('start must precede end')
 
-    let next = moment(start).add(1, key).startOf(key);
-        
-    if (next.isAfter(end, key))
+    let next = moment.utc(start).add(1, key).startOf(key);
+    if (next.isAfter(end, key)){
       return arr;
+    }
 
     return this.getRangeOfDates(next, end, key, arr.concat(next));
   }
@@ -87,15 +87,15 @@ class CalendarItem extends Component {
       w.push(weeks[i].week)
       monthWeeks[0].monthWeek1 =
         this.getRangeOfDates(
-          moment(weeks[i].dateStart),
-          moment(weeks[i].dateEnd),
+          moment.utc(weeks[i].dateStart),
+          moment.utc(weeks[i].dateEnd),
           'days'
         )
       if (weeks[i + 1]) {
         monthWeeks[1].monthWeek2 =
           this.getRangeOfDates(
-            moment(weeks[i + 1].dateStart),
-            moment(weeks[i + 1].dateEnd),
+            moment.utc(weeks[i + 1].dateStart),
+            moment.utc(weeks[i + 1].dateEnd),
             'days'
           )
         w.push(weeks[i+1].week)
@@ -105,8 +105,8 @@ class CalendarItem extends Component {
 
         monthWeeks[2].monthWeek3 =
           this.getRangeOfDates(
-            moment(weeks[i + 2].dateStart),
-            moment(weeks[i + 2].dateEnd),
+            moment.utc(weeks[i + 2].dateStart),
+            moment.utc(weeks[i + 2].dateEnd),
             'days'
           )
 
@@ -117,8 +117,8 @@ class CalendarItem extends Component {
 
         monthWeeks[3].monthWeek4 =
           this.getRangeOfDates(
-            moment(weeks[i + 3].dateStart),
-            moment(weeks[i + 3].dateEnd),
+            moment.utc(weeks[i + 3].dateStart),
+            moment.utc(weeks[i + 3].dateEnd),
             'days'
           )
 
@@ -129,14 +129,15 @@ class CalendarItem extends Component {
 
         monthWeeks[4].monthWeek5 =
           this.getRangeOfDates(
-            moment(weeks[i + 4].dateStart),
-            moment(weeks[i + 4].dateEnd),
+            moment.utc(weeks[i + 4].dateStart),
+            moment.utc(weeks[i + 4].dateEnd),
             'days'
           )
         w.push(weeks[i+4].week)
 
       }      
     }
+
 
     this.setState({
       highlightDates: monthWeeks,
@@ -145,8 +146,8 @@ class CalendarItem extends Component {
 
   }
   render() {
-    const startOfMonth = moment(this.props.openToDate).startOf('month');
-    const endOfMonth = moment(this.props.openToDate).endOf('month');
+    const startOfMonth = moment.utc(this.props.openToDate).startOf('month');
+    const endOfMonth = moment.utc(this.props.openToDate).endOf('month');
 
     return (
       <DatePicker
