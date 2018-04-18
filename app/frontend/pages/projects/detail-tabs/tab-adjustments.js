@@ -1109,7 +1109,7 @@ class TabAdjustment extends Component {
                 label='Categoría'
                 name='category'
                 value=''
-                placeholder='Seleccionar'
+                placeholder='Todas'
                 options={this.state.filters.categories}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
