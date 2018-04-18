@@ -76,6 +76,8 @@ module.exports = async function (ctx, next) {
   let originalHost
   if (ctx.request.headers['referer']) {
     originalHost = ctx.request.headers['referer']
+  } else if (ctx.request.headers.host) {
+    originalHost = ctx.request.headers.host
   } else if (ctx.request.headers.origin) {
     originalHost = ctx.request.headers.origin
   }
