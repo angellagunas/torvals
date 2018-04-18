@@ -5,7 +5,7 @@
             padding-left: 0;
             padding-right: 0;
         }
-        .message{
+        .message {
             padding: 0 1rem;
         }
         .message-header {
@@ -78,11 +78,10 @@
     &-detail {
         margin-top: -35px;
         .card {
-            min-height: 100%;
+            //min-height: 100%;
             .card-content {
                 position: relative;
-                height: 305px;
-                min-height: 100%;
+                min-height: 300px;
                 .message {
                     margin-top: 2rem;
                     .message-body {
@@ -106,6 +105,16 @@
                             .icon {
                                 padding-top: 15px;
                                 color: $danger;
+                            }
+                        }
+                    }
+                    &.is-success {
+                        .message-body {
+                            border-color: $success;
+                            background-color: rgba($success, 0.05);
+                            color: $general_text;
+                            .icon {
+                                color: $success;
                             }
                         }
                     }
@@ -139,14 +148,99 @@
                     right: 25px;
                 }
                 .button {
-                    width: 120px;
-                    height: 2rem;
+                    width: 120px; //height: 2rem;
+                }
+                .icon-btn {
+                    width: inherit;
                 }
                 .resumable-list {
                     text-align: center;
                 }
             }
         }
+        .configure-dataset {
+            .columns:not(:last-child) {
+                margin-bottom: 0;
+            }
+            .columns.has-borders {
+                border-bottom: 1px solid #E6E8F6;
+                margin-top: .2rem;
+            }
+            font-size: 0.8rem;
+            tr {
+                height: 37px !important;
+                background-color: #FBFBFB;
+            }
+            th,
+            td {
+                padding: 0.2rem 0.4rem;
+                vertical-align: middle;
+            }
+            td {
+                border-right: 1px solid #FBFBFB;
+                border-left: 1px solid #FBFBFB;
+            }
+            th {
+                background-color: rgba(233, 233, 233, 1);
+                font-weight: 700;
+                border-right: 1px solid #FBFBFB;
+                border-left: 1px solid #FBFBFB;
+            }
+        }
+        .media-content {
+            align-self: center;
+        }
+        .configure-view {
+            .columns:not(:last-child) {
+                margin-bottom: 0;
+            }
+            .columns.has-borders {
+                border-bottom: 1px solid #E6E8F6;
+                margin-top: .2rem;
+                .column {
+                    padding: 0.3rem .75rem;
+                }
+            }
+            .message {
+                margin-top: 0 !important;
+                max-width: 100% !important;
+                .message-body {
+                    padding: 1em 1.25em !important;
+                    max-width: 100% !important;
+                }
+            }
+            .media-content {
+                overflow: hidden;
+            }
+            .msg {
+                padding: 10px;
+            }
+            .subtitle {
+                margin-left: 1rem;
+                margin-top: -1rem;
+            }
+            font-size: 0.8rem;
+            tr {
+                height: 37px !important;
+                background-color: #FBFBFB;
+            }
+            th,
+            td {
+                padding: 0.2rem 0.4rem;
+                vertical-align: middle;
+            }
+            td {
+                border-right: 1px solid #FBFBFB;
+                border-left: 1px solid #FBFBFB;
+            }
+            th {
+                background-color: rgba(233, 233, 233, 1);
+                font-weight: 700;
+                border-right: 1px solid #FBFBFB;
+                border-left: 1px solid #FBFBFB;
+            }
+        }
+        
     }
 }
 

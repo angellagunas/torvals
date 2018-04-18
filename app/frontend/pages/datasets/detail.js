@@ -214,7 +214,7 @@ class DataSetDetail extends Component {
                         <div className='media'>
                           <div className='media-left'>
                             <span className='icon is-large'>
-                              <FontAwesome className='fa-3x' name='info-circle' />
+                              <FontAwesome className='fa-2x' name='info-circle' />
                             </span>
                           </div>
                           <div className='media-content'>
@@ -250,7 +250,7 @@ class DataSetDetail extends Component {
                       <div className='media'>
                         <div className='media-left'>
                           <span className='icon is-large'>
-                            <FontAwesome className='fa-3x fa-spin' name='cog' />
+                            <FontAwesome className='fa-2x fa-spin' name='cog' />
                           </span>
                         </div>
                         <div className='media-content'>
@@ -273,7 +273,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Archivo enviado a preprocesamiento
+                Dataset enviado a preprocesamiento
               </p>
             </header>
             <div className='card-content'>
@@ -284,11 +284,11 @@ class DataSetDetail extends Component {
                       <div className='media'>
                         <div className='media-left'>
                           <span className='icon is-large'>
-                            <FontAwesome className='fa-3x' name='check-square-o' />
+                            <FontAwesome className='fa-2x' name='hourglass-half' />
                           </span>
                         </div>
                         <div className='media-content'>
-                          El archivo {dataset.fileChunk.filename} se está preprocesando
+                          El dataset {dataset.fileChunk.filename} se está preprocesando
                           </div>
                       </div>
                     </div>
@@ -305,7 +305,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Procesando archivo
+                Procesando Dataset
               </p>
             </header>
             <div className='card-content'>
@@ -316,7 +316,7 @@ class DataSetDetail extends Component {
                       <div className='media'>
                         <div className='media-left'>
                           <span className='icon is-large'>
-                            <FontAwesome className='fa-3x fa-spin' name='cog' />
+                            <FontAwesome className='fa-2x fa-spin' name='cog' />
                           </span>
                         </div>
                         <div className='media-content'>
@@ -334,7 +334,7 @@ class DataSetDetail extends Component {
                     <div className='control'>
                       { canEdit &&
                         <button
-                          className={'button is-black' + this.state.isLoadingConfigure}
+                          className={'button is-info' + this.state.isLoadingConfigure}
                           disabled={!!this.state.isLoadingConfigure}
                           onClick={e => this.cancelOnClick()}
                         >
@@ -385,15 +385,24 @@ class DataSetDetail extends Component {
                 </p>
               </header>
               <div className='card-content'>
-                <div className='message is-info'>
-                  <div className='message-body is-large has-text-centered'>
-                    <div className='columns'>
-                      <div className='column'>
-                        Configuración en proceso!
+                <div className='columns is-centered'>
+                  <div className='column is-8 is-narrow'>
+                  <div className='message is-info'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-2x' name='info-circle' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          Configuración en proceso!
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           </div>
@@ -409,22 +418,18 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='columns'>
-                <div className='column'>
-                  <div className='field is-grouped'>
-                    <b>Fecha mínima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMin}</span>
-                  </div>
-                  <div className='field is-grouped'>
-                    <b>Fecha máxima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMax}</span>
-                  </div>
                   <ConfigureViewDataset
+                    fmin={dataset.dateMin}
+                    fmax={dataset.dateMax}
+                    statusText={'Dataset conciliado'}
+                    statusIcon={'fa fa-2x fa-check'}
                     initialState={dataset}
                   />
                   { canEdit &&
                     <div className='field is-grouped'>
                       <div className='control'>
                         <button
-                          className={'button is-black' + this.state.isLoadingConfigure}
+                          className={'button is-info' + this.state.isLoadingConfigure}
                           disabled={!!this.state.isLoadingConfigure}
                           onClick={e => this.configureOnClick()}
                         >
@@ -433,7 +438,7 @@ class DataSetDetail extends Component {
                       </div>
                       <div className='control'>
                         <button
-                          className={'button is-primary' + this.state.isLoadingConsolidate}
+                          className={'button is-success' + this.state.isLoadingConsolidate}
                           disabled={!!this.state.isLoadingConsolidate}
                           onClick={e => this.consolidateOnClick()}
                         >
@@ -442,8 +447,6 @@ class DataSetDetail extends Component {
                       </div>
                     </div>
                   }
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -458,29 +461,11 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x' name='thumbs-up' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      Dataset conciliado
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='field is-grouped'>
-                <b>Fecha mínima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMin}</span>
-              </div>
-              <div className='field is-grouped'>
-                <b>Fecha máxima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMax}</span>
-              </div>
               <ConfigureViewDataset
+                fmin={dataset.dateMin}
+                fmax={dataset.dateMax}
+                statusText={'Dataset conciliado'}
+                statusIcon={'fa fa-2x fa-check'}
                 initialState={dataset}
               />
             </div>
@@ -502,7 +487,7 @@ class DataSetDetail extends Component {
                   <div className='columns'>
                     <div className='column'>
                       <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x fa-spin' name='cog' />
+                        <FontAwesome className='fa-2x fa-spin' name='cog' />
                       </span>
                     </div>
                   </div>
@@ -527,23 +512,11 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x' name='pencil' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      Se está haciendo ajuste de este Dataset
-                    </div>
-                  </div>
-                </div>
-              </div>
               <ConfigureViewDataset
+                fmin={dataset.dateMin}
+                fmax={dataset.dateMax}
+                statusText={'Se está haciendo ajuste de este Dataset'}
+                statusIcon={'fa fa-2x fa-pencil'}
                 initialState={dataset}
               />
             </div>
@@ -567,7 +540,7 @@ class DataSetDetail extends Component {
                       <div className='media'>
                         <div className='media-left'>
                           <span className='icon is-large'>
-                            <FontAwesome className='fa-3x' name='warning' />
+                            <FontAwesome className='fa-2x' name='warning' />
                           </span>
                         </div>
                         <div className='media-content'>

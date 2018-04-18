@@ -214,6 +214,53 @@ h2 {
     }
 }
 
+.progress.is-small {
+    height: 0.5rem;
+}
+
+    .modal {
+        .modal-card {
+            width: 540px;
+            .modal-card-head {
+                border-radius: 0;
+                padding: 10px 15px;
+                background-color: #EFF1F9;
+                border-color: #E6E8F6;
+                .modal-card-title {
+                    font-size: 1.2rem;
+                }
+                .delete {
+                    border-radius: 0;
+                    background-color: $info;
+                }
+            }
+            .modal-card-body {
+                font-size: .9rem;
+                .field.is-grouped {
+                    justify-content: flex-end;
+                }
+                .button {
+                    width: 80px;
+                    height: 2rem;
+                }
+                .buttons {
+                    margin-top: 20px;
+                    margin-bottom: -10px;
+                }
+            }
+            .modal-card-foot {
+                .field.is-grouped {
+                    justify-content: flex-end;
+                }
+                background-color: #EFF1F9 !important;
+                border-color: #E6E8F6 !important;
+                padding: 10px 15px;
+                border-radius: 0;
+            }
+        }
+    }
+
+
 /* @import 'base'; */
 
 @import '../../../lib/frontend/style.css';

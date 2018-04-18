@@ -19,6 +19,13 @@
     height: 98%;
 }
 
+.select select,
+.input,
+.textarea {
+    border-color: #E6E8F6;
+    color: $general_text;
+}
+
 .selects {
     .select,
     select,
@@ -53,8 +60,8 @@
     border: 0;
 }
 
-.rjsf{
-    .input{
+.rjsf {
+    .input {
         width: 100%;
     }
 }
