@@ -197,6 +197,7 @@ class ProductTable extends Component {
               onChange={(e) => { this.onChange(e, row) }}
               onFocus={(e) => { this.onFocus(e, row) }}
               tabIndex={row.tabin}
+              max='99999'
               ref={(el) => { this.inputs.add({ tabin: row.tabin, el: el }) }}
             />
           )
@@ -329,13 +330,14 @@ class ProductTable extends Component {
   }
 
   onChange = (e, row) => {
-    row.localAdjustment = e.target.value
-    let aux = this.state.filteredData
+    if(e.target.value.length<=5){
+      row.localAdjustment = e.target.value
+      let aux = this.state.filteredData
 
-    this.setState({
-      filteredData: aux
-    })
-
+      this.setState({
+        filteredData: aux
+      })
+    }
   }
 
   componentWillReceiveProps (nextProps) {
