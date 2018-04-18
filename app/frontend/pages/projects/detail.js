@@ -529,36 +529,37 @@ class ProjectDetail extends Component {
           selectedTab={this.state.selectedTab}
           className='sticky-tab'
           extraTab={
-            <div>
-              <div className='field is-grouped'>
-                <p className='control'>
-                  <span className='has-text-weight-semibold'>
-                    <span className='icon is-small is-transparent-text'>
-                      <i className='fa fa-gears' />
-                    </span>
+                project.status !== 'empty' &&
+                <div>
+                  <div className='field is-grouped'>
+                    <p className='control'>
+                      <span className='has-text-weight-semibold'>
+                        <span className='icon is-small is-transparent-text'>
+                          <i className='fa fa-gears' />
+                        </span>
                     Ajustes
                   </span>
-                </p>
-                <p className='control'>
-                  <span className='has-text-success has-text-weight-semibold'>
-                    <span className='icon is-small'>
-                      <i className='fa fa-check' />
-                    </span>
+                    </p>
+                    <p className='control'>
+                      <span className='has-text-success has-text-weight-semibold'>
+                        <span className='icon is-small'>
+                          <i className='fa fa-check' />
+                        </span>
                       Realizados {this.state.modified}
-                  </span>
+                      </span>
 
-                </p>
-                <p className='control'>
-                  <span className='has-text-warning has-text-weight-semibold'>
-                    <span className='icon is-small'>
-                      <i className='fa fa-exclamation-triangle' />
-                    </span>
+                    </p>
+                    <p className='control'>
+                      <span className='has-text-warning has-text-weight-semibold'>
+                        <span className='icon is-small'>
+                          <i className='fa fa-exclamation-triangle' />
+                        </span>
                       Por aprobar {this.state.counterAdjustments}
-                  </span>
-                </p>
-                {consolidarButton}
-              </div>
-            </div>
+                      </span>
+                    </p>
+                    {consolidarButton}
+                  </div>
+                </div>
           }
         />
 

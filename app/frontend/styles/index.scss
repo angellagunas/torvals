@@ -10,6 +10,7 @@
 @import 'adjustments';
 @import 'sidepanel';
 @import 'calendar';
+@import 'datasets';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html,
 body {
@@ -127,6 +128,13 @@ h2 {
     padding: .30em
 }
 
+.card {
+    border-color: #E6E8F6;
+    box-shadow: none;
+    border-width: 1px;
+    border-style: solid;
+}
+
 .card-header {
     &-title {
         font-size: 0.9rem;
@@ -151,19 +159,25 @@ h2 {
     }
 }
 
-.breadcrumb{
-    margin: 10px 0;
+.breadcrumb {
+    margin: 15px 0;
+    font-size: 0.85rem;
+    a {
+        color: $general_text;
+        padding: 0.5em;
+    }
     &.has-succeeds-separator li+li::before {
         content: '/';
         font-weight: 300;
-        font-size: 1.2rem;
+        font-size: 1rem;
+        color: $info;
     }
 }
 
 .single-form {
     max-width: 400px;
     margin: 100px auto;
-    .input{
+    .input {
         width: 100%;
     }
 }
@@ -179,6 +193,24 @@ h2 {
     }
     &-icon {
         padding-top: 7.8em;
+    }
+}
+
+.has-20-margin-top {
+    margin: 20px 0;
+}
+
+.section-header {
+    background-color: #EFF1F9;
+    border-color: #E6E8F6;
+    height: 50px;
+    -webkit-box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        padding: 0.8rem 1rem;
     }
 }
 

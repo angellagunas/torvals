@@ -203,16 +203,25 @@ class DataSetDetail extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  En espera de archivo
+                  Subir archivo
                 </p>
               </header>
               <div className='card-content'>
-                <div className='message is-info'>
-                  <div className='message-body is-large has-text-centered'>
-                    <div className='columns'>
-                      <div className='column'>
-                        Aún no se a cargado un archivo!.
-                        Favor de acudir con su supervisor para cualquier aclaración.
+                <div className='columns is-centered'>
+                  <div className='column is-8 is-narrow'>
+                    <div className='message is-info'>
+                      <div className='message-body is-large has-text-centered'>
+                        <div className='media'>
+                          <div className='media-left'>
+                            <span className='icon is-large'>
+                              <FontAwesome className='fa-3x' name='info-circle' />
+                            </span>
+                          </div>
+                          <div className='media-content'>
+                            Aún no se a cargado un archivo. 
+                            Favor de acudir con su supervisor para cualquier aclaración.
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -234,20 +243,22 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon is-large'>
-                        <FontAwesome className='fa-3x fa-spin' name='cog' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      El archivo {dataset.fileChunk.filename} ha sido cargado a
-                      nuestros servidores y se enviará para preprocesamiento.
-                      Favor de regresar en un par de minutos.
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-success'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-3x fa-spin' name='cog' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          El archivo {dataset.fileChunk.filename} ha sido cargado y 
+                          se enviará para preprocesamiento.
+                          Favor de regresar en un par de minutos.
+                          </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -266,18 +277,20 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x' name='check-square-o' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      El archivo {dataset.fileChunk.filename} se está preprocesando
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-success'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-3x' name='check-square-o' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          El archivo {dataset.fileChunk.filename} se está preprocesando
+                          </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -296,22 +309,25 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x fa-spin' name='cog' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      El Dataset se está procesando
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-success'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-3x fa-spin' name='cog' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          El dataset {dataset.fileChunk.filename} se está procesando
+                          </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
               <div className='columns'>
                 <div className='column'>
                   <div className='field is-grouped'>
@@ -544,23 +560,27 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-danger'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon is-large'>
-                        <FontAwesome className='fa-3x' name='warning' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      Se ha generado un error! Por favor intenta borrar este dataset y generar otro.
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-danger'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-3x' name='warning' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          Se ha generado un error. Por favor intenta borrar este dataset y generar otro.
                       Si no se soluciona, contacta a un administrador.
+                          </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
+              
             </div>
           </div>
         </div>
@@ -1416,6 +1436,7 @@ class DataSetDetail extends Component {
 
     var deleteButton = (
       <DeleteButton
+        hideIcon
         titleButton={'Eliminar'}
         objectName='Dataset'
         objectDelete={this.deleteObject.bind(this)}
@@ -1430,7 +1451,12 @@ class DataSetDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
+        <div className='section-header'>
+            <h2>{dataset.name}</h2>
+        </div>
           <div className='section is-paddingless-top pad-sides'>
+            <div className='columns'>
+              <div className='column'>
             <Breadcrumb
               path={[
                 {
@@ -1439,13 +1465,18 @@ class DataSetDetail extends Component {
                   current: false
                 },
                 {
-                  path: '/datasets',
-                  label: 'Datasets',
+                  path: '/projects',
+                  label: 'Proyectos',
                   current: false
                 },
                 {
-                  path: '/datasets/',
-                  label: 'Detalle',
+                  path: '/projects/' + dataset.project.uuid,
+                  label: dataset.project.name,
+                  current: false
+                },
+                {
+                  path: '/datasets',
+                  label: 'Datasets',
                   current: true
                 },
                 {
@@ -1456,12 +1487,12 @@ class DataSetDetail extends Component {
               ]}
               align='left'
             />
-            <div className='columns'>
-              <div className='column has-text-right'>
+            </div>
+              <div className='column has-text-right has-20-margin-top'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <Link
-                      className='button'
+                      className='button is-info'
                       to={'/projects/' + dataset.project.uuid}
                     >
                       Regresar al proyecto
@@ -1476,7 +1507,7 @@ class DataSetDetail extends Component {
             {this.getUnidentifiedProducts()}
             {this.getUnidentifiedSalesCenters()}
             {this.getUnidentifiedChannels()}
-            <div className='columns'>
+            <div className='columns dataset-detail'>
               <div className='column is-5-tablet'>
                 <div className='card'>
                   <header className='card-header'>

@@ -65,6 +65,16 @@
     .calendar {
         margin: 0;
     }
+    .dataset {
+        &-detail {
+            margin-top: -35px;
+            .card {
+                .card-content {
+                    height: 265px;
+                }
+            }
+        }
+    }
 }
 
 .md-checkbox input {
