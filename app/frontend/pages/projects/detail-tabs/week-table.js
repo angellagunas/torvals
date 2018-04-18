@@ -366,15 +366,18 @@ class WeekTable extends Component {
       const element = data[index];
       let find = rw.indexOf(element.productName + ' (' + element.channel + ')')
       if (find === -1) {
-        rw.push(element.productName + ' (' + element.channel + ')')
+        let productInfo = []
+        productInfo[0] = element.productName + ' (' + element.channel + ')'
+        productInfo[1] = element.productName
+        rw.push(productInfo)
       }
     }
-
+    
     rw = rw.map((item) => {
       return {
-        product: item,
+        product: item[1],
         weeks: _.orderBy(data.filter((element, index) => {
-          return element.productName + ' (' + element.channel + ')' === item
+          return element.productName + ' (' + element.channel + ')' === item[0]
         }), function (e) { return e.semanaBimbo }, ['asc'])
       }
     }) 
