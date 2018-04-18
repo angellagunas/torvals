@@ -60,7 +60,7 @@ module.exports = new Route({
       }
     }
 
-    const tmpdir = path.join('.', 'media', 'uploads', identifier)
+    const tmpdir = path.resolve('.', 'media', 'uploads', identifier)
 
     if (!chunk && chunkNumber === 1) {
       chunk = await FileChunk.create({
@@ -128,7 +128,7 @@ module.exports = new Route({
         const file = files[key]
         const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
         const reader = fs.createReadStream(file.path)
-        const writer = fs.createWriteStream(filePath)
+        const writer = fs.createWriteStream(filePath).on('error', e => console.error(e))
         reader.pipe(writer)
         filePaths.push(filePath)
       }

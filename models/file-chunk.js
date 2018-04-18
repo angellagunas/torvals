@@ -55,12 +55,17 @@ fileChunkSchema.methods.recreateFile = async function () {
 
   if (this.recreated) return true
 
-  await recreateFile(path.join(this.path, this.filename), this.totalChunks)
-  this.recreated = true
+  try {
+    await recreateFile(path.join(this.path, this.filename), this.totalChunks)
+    this.recreated = true
 
-  await this.save()
+    await this.save()
 
-  return true
+    return true
+  } catch (e) {
+    this.lastChunk = 0
+    await this.save()
+  }
 }
 
 fileChunkSchema.methods.uploadChunks = async function (s3File, chunkKey) {
