@@ -384,7 +384,10 @@ class TabAdjustment extends Component {
             
         <div className='column is-narrow'>
           <div className='field'>
-            <label className='label'>Búsqueda general</label>              
+            {currentRole !== 'consultor' ?
+              <label className='label'>Búsqueda general</label>:
+              null   
+            }           
             <div className='control has-icons-right'>
               <input
                 className='input input-search'
