@@ -17,7 +17,7 @@ module.exports = new Route({
     const role = await Role.findOne({'uuid': roleId, 'isDeleted': false})
     ctx.assert(role, 404, 'Rol no encontrado')
 
-    var auxRole = await Role.findOne({priority: parseInt(data.priority)})
+    var auxRole = await Role.findOne({priority: parseInt(data.priority), 'uuid': {'$ne': roleId}})
     if (auxRole) {
       ctx.throw(400, 'No se pueden tener dos roles con la misma prioridad')
     }
