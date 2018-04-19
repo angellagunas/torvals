@@ -371,8 +371,11 @@ class WeekTable extends Component {
     }
 
     rw = rw.map((item) => {
+      let productName = data.filter((element, index) => {
+          return element.productName + ' (' + element.channel + ')' === item
+      })
       return {
-        product: item,
+        product: productName[0].productName,
         weeks: _.orderBy(data.filter((element, index) => {
           return element.productName + ' (' + element.channel + ')' === item
         }), function (e) { return e.semanaBimbo }, ['asc'])
