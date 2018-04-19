@@ -658,13 +658,13 @@ class TabAdjustment extends Component {
             <span className='icon'>
               <i className='fa fa-warning fa-lg' />
             </span>
-            ¡Debes pedir una solicitud de ajuste haciendo click sobre el ícono rojo!
+            ¡Debes pedir una solicitud de ajuste haciendo clic sobre el ícono rojo!
           </p>),
           5000,
           toast.TYPE.WARNING
         )
       } else {
-        this.notify('Ajustes guardado!', 5000, toast.TYPE.INFO)
+        this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
       }
       
       this.setState({
