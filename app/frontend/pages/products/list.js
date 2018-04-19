@@ -57,7 +57,7 @@ export default ListPage({
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/catalogs/products/detail/' + row.uuid}>
+            <Link to={'/catalogs/products/' + row.uuid}>
               {row.externalId}
             </Link>
           )
