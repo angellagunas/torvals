@@ -162,7 +162,12 @@ class WeekTable extends Component {
         default: 'N/A',
         sortable: true,
         headerClassName: 'table-product table-product-head',
-        className: 'table-product productName'
+        className: 'table-product productName',
+        formatter: (row) => {
+          if (row.weeks[0].productName) {
+            return row.weeks[0].productName
+          }
+        }
       },
       {
         group: ' ',
@@ -371,11 +376,8 @@ class WeekTable extends Component {
     }
 
     rw = rw.map((item) => {
-      let productName = data.filter((element, index) => {
-          return element.productName + ' (' + element.channel + ')' === item
-      })
       return {
-        product: productName[0].productName,
+        product: item,
         weeks: _.orderBy(data.filter((element, index) => {
           return element.productName + ' (' + element.channel + ')' === item
         }), function (e) { return e.semanaBimbo }, ['asc'])
