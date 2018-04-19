@@ -162,7 +162,12 @@ class WeekTable extends Component {
         default: 'N/A',
         sortable: true,
         headerClassName: 'table-product table-product-head',
-        className: 'table-product productName'
+        className: 'table-product productName',
+        formatter: (row) => {
+          if (row.weeks[0].productName) {
+            return row.weeks[0].productName
+          }
+        }
       },
       {
         group: ' ',
@@ -363,9 +368,9 @@ class WeekTable extends Component {
     let rw = []
     for (let index = 0; index < data.length; index++) {
       const element = data[index];
-      let find = rw.indexOf(element.productName + ' (' + element.channel + ')')
+      let find = rw.indexOf(element.productId + ' (' + element.channelId + ')')
       if (find === -1) {
-        rw.push(element.productName + ' (' + element.channel + ')')
+        rw.push(element.productId + ' (' + element.channelId + ')')
       }
     }
 
@@ -373,7 +378,7 @@ class WeekTable extends Component {
       return {
         product: item,
         weeks: _.orderBy(data.filter((element, index) => {
-          return element.productName + ' (' + element.channel + ')' === item
+          return element.productId + ' (' + element.channelId + ')' === item
         }), function (e) { return e.semanaBimbo }, ['asc'])
       }
     }) 
