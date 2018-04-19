@@ -1129,7 +1129,7 @@ class TabAdjustment extends Component {
                 label='Canal'
                 name='channel'
                 value=''
-                placeholder='Seleccionar'
+                placeholder='Todos'
                 optionValue='uuid'
                 optionName='name'
                 options={this.state.filters.channels}
