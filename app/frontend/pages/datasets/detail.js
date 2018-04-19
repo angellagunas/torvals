@@ -421,8 +421,6 @@ class DataSetDetail extends Component {
                   <ConfigureViewDataset
                     fmin={dataset.dateMin}
                     fmax={dataset.dateMax}
-                    statusText={'Dataset conciliado'}
-                    statusIcon={'fa fa-2x fa-check'}
                     initialState={dataset}
                   />
                   { canEdit &&
@@ -482,18 +480,20 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-2x fa-spin' name='cog' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      Este Dataset se está procesando para ajuste, en unos momentos más aparecerá su información
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-success'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-2x fa-spin' name='cog' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          Este Dataset se está procesando para ajuste, en unos momentos más aparecerá su información
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -787,9 +787,9 @@ class DataSetDetail extends Component {
       'is-hidden': this.state.isChannelsOpen === false
     })
 
-    const toggleBtnIconClass = classNames('fa', {
-      'fa-angle-down': this.state.isChannelsOpen === false,
-      'fa-angle-up': this.state.isChannelsOpen !== false
+    const toggleBtnIconClass = classNames('fa fa-2x', {
+      'fa-caret-down': this.state.isChannelsOpen === false,
+      'fa-caret-up': this.state.isChannelsOpen !== false
     })
 
     this.newChannels = []
@@ -818,7 +818,7 @@ class DataSetDetail extends Component {
                 <button
                   onClick={() => this.confirmChannels()}
                   disabled={this.state.disableBtnC || !!this.state.isLoadingBtnC}
-                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnC}
+                  className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnC}
                 >
                   Confirmar ({this.state.selectedChannels.size})
                 </button>
@@ -826,9 +826,9 @@ class DataSetDetail extends Component {
               }
               <div className='control'>
                 <a
-                  className='button is-inverted'
+                  className='button is-info undefined-btn'
                   onClick={() => this.toggleUnidentifiedChannels()}>
-                  <span className='icon is-small'>
+                  <span className='icon is-large'>
                     <i className={toggleBtnIconClass} />
                   </span>
                 </a>
@@ -915,9 +915,9 @@ class DataSetDetail extends Component {
       'is-hidden': this.state.isSalesCenterOpen === false
     })
 
-    const toggleBtnIconClass = classNames('fa', {
-      'fa-angle-down': this.state.isSalesCenterOpen === false,
-      'fa-angle-up': this.state.isSalesCenterOpen !== false
+    const toggleBtnIconClass = classNames('fa fa-2x', {
+      'fa-caret-down': this.state.isSalesCenterOpen === false,
+      'fa-caret-up': this.state.isSalesCenterOpen !== false
     })
 
     this.newSalesCenters = []
@@ -946,7 +946,7 @@ class DataSetDetail extends Component {
                 <button
                   onClick={() => this.confirmSalesCenters()}
                   disabled={this.state.disableBtnS || !!this.state.isLoadingBtnS}
-                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnS}
+                  className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnS}
                 >
                   Confirmar ({this.state.selectedSalesCenters.size})
                 </button>
@@ -954,9 +954,9 @@ class DataSetDetail extends Component {
               }
               <div className='control'>
                 <a
-                  className='button is-inverted'
+                  className='button is-info undefined-btn'
                   onClick={() => this.toggleUnidentifiedSalesCenters()}>
-                  <span className='icon is-small'>
+                  <span className='icon is-large'>
                     <i className={toggleBtnIconClass} />
                   </span>
                 </a>
@@ -1043,9 +1043,9 @@ class DataSetDetail extends Component {
     const headerProductsClass = classNames('card-content', {
       'is-hidden': this.state.isProductsOpen === false
     })
-    const toggleBtnIconClass = classNames('fa', {
-      'fa-angle-down': this.state.isProductsOpen === false,
-      'fa-angle-up': this.state.isProductsOpen !== false
+    const toggleBtnIconClass = classNames('fa fa-2x', {
+      'fa-caret-down': this.state.isProductsOpen === false,
+      'fa-caret-up': this.state.isProductsOpen !== false
     })
 
     this.newProducts = []
@@ -1075,7 +1075,7 @@ class DataSetDetail extends Component {
                   <button
                     onClick={() => this.confirmProducts()}
                     disabled={this.state.disableBtnP || !!this.state.isLoadingBtnP}
-                    className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnP}
+                    className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnP}
                   >
                     Confirmar ({this.state.selectedProducts.size})
                   </button>
@@ -1083,9 +1083,9 @@ class DataSetDetail extends Component {
                 } 
                 <div className='control'>
                   <a
-                    className='button is-inverted'
+                    className='button is-info undefined-btn'
                     onClick={() => this.toggleUnidentifiedProducts()}>
-                    <span className='icon is-small'>
+                    <span className='icon is-large'>
                       <i className={toggleBtnIconClass} />
                     </span>
                   </a>
@@ -1427,9 +1427,9 @@ class DataSetDetail extends Component {
         <div className='section-header'>
             <h2>{dataset.name}</h2>
         </div>
-          <div className='section is-paddingless-top pad-sides'>
-            <div className='columns'>
-              <div className='column'>
+          <div className=' is-paddingless-top pad-sides'>
+            <div className='columns is-marginless'>
+              <div className='column is-paddingless'>
             <Breadcrumb
               path={[
                 {
@@ -1461,7 +1461,7 @@ class DataSetDetail extends Component {
               align='left'
             />
             </div>
-              <div className='column has-text-right has-20-margin-top'>
+              <div className='column has-text-right has-20-margin-top is-paddingless'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <Link
@@ -1477,9 +1477,12 @@ class DataSetDetail extends Component {
                 </div>
               </div>
             </div>
-            {this.getUnidentifiedProducts()}
-            {this.getUnidentifiedSalesCenters()}
-            {this.getUnidentifiedChannels()}
+            </div>
+          {this.getUnidentifiedProducts()}
+          {this.getUnidentifiedSalesCenters()}
+          {this.getUnidentifiedChannels()}
+          <div className='section is-paddingless-top pad-sides'>
+            
             <div className='columns dataset-detail'>
               <div className='column is-5-tablet'>
                 <div className='card'>

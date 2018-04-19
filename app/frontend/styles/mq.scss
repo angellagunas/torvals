@@ -47,6 +47,10 @@
             }
         }
     }
+    .breadcrumb,
+    .has-20-margin-top {
+        margin: 20px 0 10px;
+    }
 }
 
 @include widescreen-only {
@@ -77,13 +81,16 @@
     }
     .dataset {
         &-detail {
-            margin-top: -35px;
             .card {
                 .card-content {
                     min-height: 265px;
                 }
             }
         }
+    }
+    .breadcrumb,
+    .has-20-margin-top {
+        margin: 20px 0 10px;
     }
 }
 
@@ -162,5 +169,16 @@
         .button {
             height: 1.7rem;
         }
+    }
+    .label,
+    .input,
+    .textarea,
+    .date-selector,
+    .select select,
+    option {
+        font-size: 0.85rem;
+    }
+    .confirm-btn {
+        margin-top: .2rem;
     }
 }

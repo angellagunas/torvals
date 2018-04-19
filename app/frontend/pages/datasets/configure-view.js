@@ -173,14 +173,13 @@ class ConfigureViewDataset extends Component {
             <tr>
               <th>Columna</th>
               <th>Valor 1</th>
-              <th>Valor 2</th>
-              <th />
+              <th colSpan='2'>Valor 2</th>
             </tr>
           </thead>
           <tbody>
             {this.state.formData.groupings.length === 0 ? (
               <tr>
-                <td colSpan='2'>No hay agrupaciones que mostrar</td>
+                <td colSpan='4'>No hay agrupaciones que mostrar</td>
               </tr>
             ) : (
               this.state.formData.groupings.map((item, key) => {

@@ -24,10 +24,6 @@
             td {
                 padding: 0.2rem 0.6rem;
                 vertical-align: middle;
-                &:nth-child(1),
-                &:nth-child(2) {
-                    border-right: none;
-                }
             }
             td {
                 border-bottom: 1px solid #E6E8F6;
@@ -76,12 +72,14 @@
         }
     }
     &-detail {
-        margin-top: -35px;
+        .is-size-7 {
+            font-size: .9rem !important;
+        }
         .card {
             //min-height: 100%;
             .card-content {
                 position: relative;
-                min-height: 300px;
+                min-height: 330px;
                 .message {
                     margin-top: 2rem;
                     .message-body {
@@ -122,7 +120,7 @@
                 .message,
                 .message-body,
                 label.file-label {
-                    max-width: 500px;
+                    max-width: 100%;
                 }
                 .file-cta {
                     white-space: initial;
@@ -240,8 +238,19 @@
                 border-left: 1px solid #FBFBFB;
             }
         }
-        
     }
+}
+
+.undefined-btn {
+    height: 100%;
+    width: 60px;
+    box-sizing: content-box;
+    margin-top: -5px;
+    margin-right: -5px;
+}
+
+.confirm-btn {
+    margin-top: .4rem;
 }
 
 #upload_file_dropzone {
