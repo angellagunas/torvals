@@ -162,7 +162,12 @@ class WeekTable extends Component {
         default: 'N/A',
         sortable: true,
         headerClassName: 'table-product table-product-head',
-        className: 'table-product productName'
+        className: 'table-product productName',
+        formatter: (row) => {
+          if (row.weeks[0].productName) {
+            return row.weeks[0].productName
+          }
+        }
       },
       {
         group: ' ',
