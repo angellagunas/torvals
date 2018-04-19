@@ -12,7 +12,7 @@ export default ListPage({
   title: 'Productos',
   icon: 'dropbox',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
+  roles: 'analyst, orgadmin, admin, manager-level-2, consultor',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Producto',
   create: true,
