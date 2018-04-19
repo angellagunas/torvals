@@ -658,13 +658,13 @@ class TabAdjustment extends Component {
             <span className='icon'>
               <i className='fa fa-warning fa-lg' />
             </span>
-            ¡Debes pedir una solicitud de ajuste haciendo click sobre el ícono rojo!
+            ¡Debes pedir una solicitud de ajuste haciendo clic sobre el ícono rojo!
           </p>),
           5000,
           toast.TYPE.WARNING
         )
       } else {
-        this.notify('Ajustes guardado!', 5000, toast.TYPE.INFO)
+        this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
       }
       
       this.setState({
@@ -950,7 +950,7 @@ class TabAdjustment extends Component {
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
-      this.notify('Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
+      this.notify('¡Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     
