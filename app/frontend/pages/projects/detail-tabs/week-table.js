@@ -282,7 +282,8 @@ class WeekTable extends Component {
             let status = classNames('has-text-weight-bold', {
               'has-text-success': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'approved',
               'has-text-warning': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'created',
-              'has-text-danger': row.weeks[j].isLimit && (!row.weeks[j].adjustmentRequest || row.weeks[j].adjustmentRequest.status === 'rejected'),
+              'has-text-danger': row.weeks[j].isLimit && ((!row.weeks[j].adjustmentRequest || row.weeks[j].adjustmentRequest.status === 'rejected')
+                                                           || this.props.currentRole === 'manager-level-2' )
             })     
             return <span className={status}>{Math.round(percentage) + ' %'}</span>
           }
