@@ -195,13 +195,14 @@ class WeekTable extends Component {
     let cols = []
     
     for (let j = 0; j < data[0].weeks.length; j++){
+      console.log(data[0].weeks)
       cols.push(
         {
           group: <strong>{this.splitWords('Semana ' + data[0].weeks[j].semanaBimbo
           + '_Ajuste permitido ' + this.state.range)}</strong>,
           title: 'Predicción',
           property: 'prediction_' + j,
-          default: 0,
+          default: '',
           sortable: true,
           groupClassName: 'colspan table-week text',
           className: 'table-cell', 
@@ -212,7 +213,7 @@ class WeekTable extends Component {
                 return row.weeks[j].prediction
               }
             } else {
-              return 0
+              return ''
             }
           }
         },
@@ -220,7 +221,7 @@ class WeekTable extends Component {
           group: ' ',
           title: this.splitWords('Ajuste_Anterior '),
           property: 'lastAdjustment_' + j,
-          default: 0,
+          default: '',
           sortable: true,
           groupClassName: 'table-week',           
           headerClassName: 'table-head',                      
@@ -231,7 +232,7 @@ class WeekTable extends Component {
                 return row.weeks[j].lastAdjustment
               }
             } else {
-              return 0
+              return ''
             }
           }
         },
@@ -239,7 +240,7 @@ class WeekTable extends Component {
           group: ' ',
           title: 'Ajuste',
           property: 'adjustmentForDisplay_' + j,
-          default: 0,
+          default: '',
           sortable: true,
           groupClassName: 'table-week',
           headerClassName: 'table-head',           
@@ -270,7 +271,7 @@ class WeekTable extends Component {
                 return <span>{row.weeks[j].adjustmentForDisplay}</span>
               }
             } else {
-              return 0
+              return ''
             }
           }
         },
@@ -278,7 +279,7 @@ class WeekTable extends Component {
           group: ' ',
           title: this.splitWords('Rango_Ajustado'),
           property: 'percentage_' + j,
-          default: 0,
+          default: '',
           sortable: true,
           headerClassName: 'col-border table-head',
           groupClassName: 'table-week table-week-r',
@@ -298,7 +299,7 @@ class WeekTable extends Component {
               })     
               return <span className={status}>{Math.round(percentage) + ' %'}</span>
             } else {
-              return 0
+              return ''
             }
           }
         }
