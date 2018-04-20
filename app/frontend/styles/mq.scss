@@ -148,7 +148,7 @@
     }
     .view-btns {
         .button {
-            width: 164px;
+            width: 214px;
         }
     }
     .button {
@@ -179,5 +179,9 @@
     }
     .confirm-btn {
         margin-top: .2rem;
+    }
+    .productName {
+        max-width: 300px;
+        width: 300px;
     }
 }
