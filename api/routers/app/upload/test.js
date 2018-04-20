@@ -49,9 +49,11 @@ module.exports = new Route({
 
     if (chunk.lastChunk >= chunkNumber) {
       if (chunk.totalChunks === chunkNumber) {
-        dataset.set({ status: 'uploaded' })
-        await dataset.save()
-        finishUpload.add({uuid: dataset.uuid})
+        if (dataset.status !== 'uploaded') {
+          dataset.set({ status: 'uploaded' })
+          await dataset.save()
+          finishUpload.add({uuid: dataset.uuid})
+        }
       }
 
       ctx.body = 'OK'

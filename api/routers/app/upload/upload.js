@@ -44,19 +44,21 @@ module.exports = new Route({
     }
 
     if (chunk && !dataset.fileChunk) {
-      dataset.set({
-        fileChunk: chunk,
-        status: chunk.recreated ? 'uploaded' : 'uploading',
-        uploadedBy: ctx.state.user
-      })
-      await dataset.save()
+      if (dataset.status !== 'uploaded') {
+        dataset.set({
+          fileChunk: chunk,
+          status: chunk.recreated ? 'uploaded' : 'uploading',
+          uploadedBy: ctx.state.user
+        })
+        await dataset.save()
 
-      if (chunk.recreated) {
+        if (chunk.recreated) {
         // The File has been already uploaded to Kore
-        finishUpload.add({uuid: dataset.uuid})
+          finishUpload.add({uuid: dataset.uuid})
 
-        ctx.body = 'OK'
-        return
+          ctx.body = 'OK'
+          return
+        }
       }
     }
 
@@ -139,9 +141,11 @@ module.exports = new Route({
     chunk.lastChunk = chunkNumber
 
     if (chunkNumber === totalChunks) {
-      dataset.set({ status: 'uploaded' })
-      await dataset.save()
-      finishUpload.add({uuid: dataset.uuid})
+      if (dataset.status !== 'uploaded') {
+        dataset.set({ status: 'uploaded' })
+        await dataset.save()
+        finishUpload.add({uuid: dataset.uuid})
+      }
     }
 
     chunk.save()
