@@ -264,7 +264,8 @@ class ProductTable extends Component {
           let status = classNames('has-text-weight-bold', {
             'has-text-success': row.isLimit && row.adjustmentRequest && row.adjustmentRequest.status === 'approved',
             'has-text-warning': row.isLimit && row.adjustmentRequest && row.adjustmentRequest.status === 'created',
-            'has-text-danger': row.isLimit && (!row.adjustmentRequest || row.adjustmentRequest.status === 'rejected')
+            'has-text-danger': row.isLimit && ((!row.adjustmentRequest || row.adjustmentRequest.status === 'rejected')
+                                                || this.props.currentRole  === 'manager-level-2')
           })
           return <span className={status}>{Math.round(percentage) + ' %'}</span>
         }
