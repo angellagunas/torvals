@@ -200,6 +200,10 @@ h2 {
     margin: 20px 0;
 }
 
+.has-20-margin-sides {
+    margin: 0 20px;
+}
+
 .section-header {
     background-color: #EFF1F9;
     border-color: #E6E8F6;
@@ -247,6 +251,15 @@ h2 {
                 margin-top: 20px;
                 margin-bottom: -10px;
             }
+        }
+        .modal-card-foot {
+            .field.is-grouped {
+                justify-content: flex-end;
+            }
+            background-color: #EFF1F9 !important;
+            border-color: #E6E8F6 !important;
+            padding: 10px 15px;
+            border-radius: 0;
         }
         .modal-card-foot {
             .field.is-grouped {

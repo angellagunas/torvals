@@ -192,9 +192,10 @@ class TabDatasets extends Component {
     return (
       <div className='dataset-tab'>
         <div className='card-content'>
-          <div className={this.props.project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
+          <div className='columns'>
             <div className='column'>
-              <article className='message is-warning'>
+              {this.props.project.status === 'empty'
+              ? <article className='message is-warning'>
                 <div className='message-header'>
                   <p>Atención</p>
                 </div>
@@ -222,6 +223,13 @@ class TabDatasets extends Component {
                   </div>
                 </div>
               </article>
+              : this.props.canEdit &&
+              <a
+                className='button is-info is-pulled-right has-20-margin-sides'
+                onClick={() => this.showModalDataset()}>
+                <span>Agregar Dataset</span>
+              </a>
+            }
             </div>
           </div>
           <div className='columns'>
