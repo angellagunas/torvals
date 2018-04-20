@@ -1,5 +1,8 @@
 .label,
-.input {
+.input,
+.textarea,
+.select select,
+option {
     font-size: 0.75rem;
 }
 
@@ -16,6 +19,13 @@
 .input-cant {
     width: 55px;
     height: 98%;
+}
+
+.select select,
+.input,
+.textarea {
+    border-color: #E6E8F6;
+    color: $general_text;
 }
 
 .selects {
@@ -52,8 +62,8 @@
     border: 0;
 }
 
-.rjsf{
-    .input{
+.rjsf {
+    .input {
         width: 100%;
     }
 }

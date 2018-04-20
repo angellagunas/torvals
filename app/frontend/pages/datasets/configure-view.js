@@ -53,54 +53,95 @@ class ConfigureViewDataset extends Component {
     })
 
     return (
-      <div>
-        <table className='table is-fullwidth'>
-          <tbody>
-            <tr>
-              <td><label className='label'>Fecha</label></td>
-              <td>{this.getColumnForValue('isDate')}</td>
-            </tr>
-            <tr>
-              <td><label className='label'>Análisis</label></td>
-              <td>{this.getColumnForValue('isAnalysis')}</td>
-            </tr>
-            <tr>
-              <td><label className='label'>Ajuste</label></td>
-              <td>{this.getColumnForValue('isAdjustment')}</td>
-            </tr>
-            <tr>
-              <td><label className='label'>Predicción</label></td>
-              <td>{this.getColumnForValue('isPrediction')}</td>
-            </tr>
-            <tr>
-              <td><label className='label'>Producto</label></td>
-              <td>{this.getColumnForValue('isProduct')}</td>
-            </tr>
-            <tr>
-              <td><label className='label'>Producto Nombre</label></td>
-              <td>{this.getColumnForValue('isProductName')}</td>
-            </tr>
-            <tr>
-              <td><label className='label'>Centro de Venta</label></td>
-              <td>{this.getColumnForValue('isSalesCenter')}</td>
-            </tr>
-            <tr>
-              <td><label className='label'>Centro de Venta Nombre</label></td>
-              <td>{this.getColumnForValue('isSalesCenterName')}</td>
-            </tr>
-            <tr>
-              <td><label className='label'>Canal</label></td>
-              <td>{this.getColumnForValue('isChannel')}</td>
-            </tr>
-            <tr>
-              <td><label className='label'>Canal Nombre</label></td>
-              <td>{this.getColumnForValue('isChannelName')}</td>
-            </tr>
-          </tbody>
-        </table>
-
+      <div className='configure-view'>
+        {this.props.statusText &&
         <div className='columns'>
           <div className='column'>
+            <div className='message is-success'>
+              <div className='message-body'>
+                <div className='media'>
+                  <div className='media-content has-text-centered'>
+                    {this.props.statusIcon &&
+                    <span className='icon is-medium'>
+                      <i className={this.props.statusIcon} />
+                    </span>
+                  }
+                    <span className='msg'>{this.props.statusText}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+        <div className='columns has-borders'>
+          <div className='column'>
+            <p className='title is-7'>Fecha mínima</p>
+            <p className='subtitle is-7'>{this.props.fmin}</p>
+          </div>
+          <div className='column'>
+            <p className='title is-7'>Fecha máxima</p>
+            <p className='subtitle is-7'>{this.props.fmax}</p>
+          </div>
+        </div>
+
+        <div className='columns has-borders'>
+          <div className='column'>
+            <p className='title is-7'>Fecha*</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isDate')}</p>
+          </div>
+          <div className='column'>
+            <p className='title is-7'>Análisis*</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isAnalysis')}</p>
+          </div>
+        </div>
+
+        <div className='columns has-borders'>
+          <div className='column'>
+            <p className='title is-7'>Ajuste</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isAdjustment')}</p>
+          </div>
+          <div className='column'>
+            <p className='title is-7'>Predicción</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isPrediction')}</p>
+          </div>
+        </div>
+
+        <div className='columns has-borders'>
+          <div className='column'>
+            <p className='title is-7'>Id Centro de venta*</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isSalesCenter')}</p>
+          </div>
+          <div className='column'>
+            <p className='title is-7'>Centro de venta Nombre</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isSalesCenterName')}</p>
+          </div>
+        </div>
+
+        <div className='columns has-borders'>
+          <div className='column'>
+            <p className='title is-7'>Id Producto*</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isProduct')}</p>
+          </div>
+          <div className='column'>
+            <p className='title is-7'>Producto Nombre</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isProductName')}</p>
+          </div>
+        </div>
+
+        <div className='columns has-borders'>
+          <div className='column'>
+            <p className='title is-7'>Id Canal*</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isChannel')}</p>
+          </div>
+          <div className='column'>
+            <p className='title is-7'>Canal Nombre</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isChannelName')}</p>
+          </div>
+        </div>
+
+        <div className='columns has-20-margin-top'>
+          <div className='column is-paddingless'>
             <table className='table is-fullwidth'>
               <thead>
                 <tr>
@@ -112,7 +153,7 @@ class ConfigureViewDataset extends Component {
               </tbody>
             </table>
           </div>
-          <div className='column'>
+          <div className='column is-paddingless'>
             <table className='table is-fullwidth'>
               <thead>
                 <tr>
@@ -132,14 +173,13 @@ class ConfigureViewDataset extends Component {
             <tr>
               <th>Columna</th>
               <th>Valor 1</th>
-              <th>Valor 2</th>
-              <th />
+              <th colSpan='2'>Valor 2</th>
             </tr>
           </thead>
           <tbody>
             {this.state.formData.groupings.length === 0 ? (
               <tr>
-                <td colSpan='2'>No hay agrupaciones que mostrar</td>
+                <td colSpan='4'>No hay agrupaciones que mostrar</td>
               </tr>
             ) : (
               this.state.formData.groupings.map((item, key) => {

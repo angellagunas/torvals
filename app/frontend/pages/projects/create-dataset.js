@@ -73,14 +73,14 @@ class CreateDataSet extends Component {
           <div className='field is-grouped'>
             <div className='control'>
               <button
-                className={'button is-primary ' + this.state.isLoading}
+                className={'button is-info ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
                 type='submit'>
                 Crear
               </button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
+              <button className='button is-info is-outlined' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>
           </div>
         </CreateDatasetForm>
