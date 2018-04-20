@@ -662,7 +662,7 @@ class DataSetDetail extends Component {
   getModalCurrentProduct () {
     if (this.state.currentProduct && this.state.canEdit) {
       return (<BaseModal
-        title='Edit Product'
+        title='Editar Producto'
         className={this.state.className}
         hideModal={() => this.hideModal()}
         >
@@ -684,7 +684,7 @@ class DataSetDetail extends Component {
               >Guardar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModal()} type='button'>Cancel</button>
+              <button className='button' onClick={() => this.hideModal()} type='button'>Cancelar</button>
             </div>
           </div>
         </ProductForm>
@@ -716,7 +716,7 @@ class DataSetDetail extends Component {
               >Guardar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModalChannels()} type='button'>Cancel</button>
+              <button className='button' onClick={() => this.hideModalChannels()} type='button'>Cancelar</button>
             </div>
           </div>
         </ChannelForm>
@@ -727,7 +727,7 @@ class DataSetDetail extends Component {
   getModalSalesCenters () {
     if (this.state.currentSalesCenter && this.state.canEdit) {
       return (<BaseModal
-        title='Edit Sales Center'
+        title='Editar Centro de Venta'
         className={this.state.classNameSC}
         hideModal={() => this.hideModalSalesCenters()}
       >
@@ -749,7 +749,7 @@ class DataSetDetail extends Component {
               >Guardar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModalSalesCenters()} type='button'>Cancel</button>
+              <button className='button' onClick={() => this.hideModalSalesCenters()} type='button'>Cancelar</button>
             </div>
           </div>
         </SalesCenterForm>
@@ -805,10 +805,10 @@ class DataSetDetail extends Component {
       return ''
     }
 
-    return (<div className='columns'>
+    return (<div className='columns unidentified'>
       <div className='column'>
         <div className='card'>
-          <header className='card-header'>
+          <header className='card-header deep-shadow '>
             <p className='card-header-title'>
                 Canales no identificados: {this.newChannels.length}
             </p>
@@ -841,13 +841,8 @@ class DataSetDetail extends Component {
                 <table className='table is-fullwidth'>
                   <thead>
                     <tr>
-                      <th colSpan='2'>Id Externo</th>
-                      <th colSpan='2'>Nombre</th>
-                      { canEdit &&
-                        <th colSpan='2'>Acciones</th>
-                      }
-                      {canEdit && 
-                        <th colSpan='2'>
+                      {canEdit &&
+                        <th className='has-text-centered'>
                           <span title='Seleccionar todos'>
                             <Checkbox
                               label='checkAll'
@@ -858,7 +853,11 @@ class DataSetDetail extends Component {
                           </span>
                         </th>
                       }
-                      
+                      <th>Id Externo</th>
+                      <th>Nombre</th>
+                      { canEdit &&
+                        <th>Acciones</th>
+                      }                      
                     </tr>
                   </thead>
                   <tbody>
@@ -869,20 +868,8 @@ class DataSetDetail extends Component {
                         }
                         return (
                           <tr key={key}>
-                            <td colSpan='2'>{item.externalId}</td>
-                            <td colSpan='2'>{item.name}</td>
-                            { canEdit &&
-                              <td colSpan='2'>
-                                <button
-                                  className='button is-primary'
-                                  onClick={() => this.showModalChannels(item)}
-                                >
-                                  Editar
-                                </button>
-                              </td>
-                            }
-                            {canEdit && 
-                              <td colSpan='2'>
+                            {canEdit &&
+                              <td className='has-text-centered'>
                                 <Checkbox
                                   label={item}
                                   handleCheckboxChange={this.toggleCheckboxChannels}
@@ -891,6 +878,20 @@ class DataSetDetail extends Component {
                                   hideLabel />
                               </td>
                             }
+                            <td>{item.externalId}</td>
+                            <td>{item.name}</td>
+                            { canEdit &&
+                              <td>
+                                <button
+                                  className='button is-primary'
+                                  onClick={() => this.showModalChannels(item)}
+                                >
+                                  <span className='icon' title='Editar'>
+                                  <i className='fa fa-pencil' />
+                                  </span>
+                                </button>
+                              </td>
+                            }                      
                           </tr>
                         )
                       })
@@ -933,10 +934,10 @@ class DataSetDetail extends Component {
       return ''
     }
 
-    return (<div className='columns'>
+    return (<div className='columns unidentified'>
       <div className='column'>
         <div className='card'>
-          <header className='card-header'>
+          <header className='card-header deep-shadow'>
             <p className='card-header-title'>
                 Centros de Venta no identificados: {this.newSalesCenters.length}
             </p>
@@ -969,14 +970,9 @@ class DataSetDetail extends Component {
                 <table className='table is-fullwidth'>
                   <thead>
                     <tr>
-                      <th colSpan='2'>Id Externo</th>
-                      <th colSpan='2'>Nombre</th>
-                      { canEdit &&
-                        <th colSpan='2'>Acciones</th>
-                      }
                       {
                         canEdit &&
-                        <th colSpan='2'>
+                        <th className='has-text-centered'>
                           <span title='Seleccionar todos'>
                             <Checkbox
                               label='checkAll'
@@ -987,6 +983,12 @@ class DataSetDetail extends Component {
                           </span>
                         </th>
                       }
+                      <th>Id Externo</th>
+                      <th>Nombre</th>
+                      { canEdit &&
+                        <th>Acciones</th>
+                      }
+                      
                     </tr>
                   </thead>
                   <tbody>
@@ -997,26 +999,28 @@ class DataSetDetail extends Component {
                         }
                         return (
                           <tr key={key}>
-                            <td colSpan='2'>{item.externalId}</td>
-                            <td colSpan='2'>{item.name}</td>
-                            { canEdit &&
-                              <td colSpan='2'>
-                                <button
-                                  className='button is-primary'
-                                  onClick={() => this.showModalSalesCenters(item)}
-                                >
-                                  Editar
-                                </button>
-                              </td>
-                            }
                             {canEdit &&
-                              <td colSpan='2'>
+                              <td className='has-text-centered'>
                                 <Checkbox
                                   label={item}
                                   handleCheckboxChange={this.toggleCheckboxSalesCenters}
                                   key={item.externalId}
                                   checked={item.selected}
                                   hideLabel />
+                              </td>
+                            }
+                            <td>{item.externalId}</td>
+                            <td>{item.name}</td>
+                            { canEdit &&
+                              <td>
+                                <button
+                                  className='button is-primary'
+                                  onClick={() => this.showModalSalesCenters(item)}
+                                >
+                                <span className='icon' title='Editar'>
+                                  <i className='fa fa-pencil' />
+                                </span>
+                                </button>
                               </td>
                             }
                           </tr>
@@ -1062,10 +1066,10 @@ class DataSetDetail extends Component {
     }
 
     return (
-      <div className='columns'>
+      <div className='columns unidentified'>
         <div className='column'>
           <div className='card'>
-            <header className='card-header'>
+            <header className='card-header deep-shadow'>
               <p className='card-header-title'>
                   Productos no identificados: {this.newProducts.length}
               </p>
@@ -1095,16 +1099,11 @@ class DataSetDetail extends Component {
             <div className={headerProductsClass}>
               <div className='columns'>
                 <div className='column'>
-                  <table className='table is-fullwidth'>
+                  <table className='table is-fullwidth is-narrow'>
                     <thead>
                       <tr>
-                        <th colSpan='2'>Id Externo</th>
-                        <th colSpan='2'>Nombre</th>
-                        { canEdit &&
-                          <th colSpan='2'>Acciones</th>
-                        }
                         {canEdit &&
-                          <th colSpan='2'>
+                          <th className='has-text-centered'>
                             <span title='Seleccionar todos'>
                               <Checkbox
                                 label='checkAll'
@@ -1115,7 +1114,11 @@ class DataSetDetail extends Component {
                             </span>
                           </th>
                         }
-                        
+                        <th>Id Externo</th>
+                        <th>Nombre</th>
+                        { canEdit &&
+                          <th>Acciones</th>
+                        }
                       </tr>
                     </thead>
                     <tbody>
@@ -1126,26 +1129,28 @@ class DataSetDetail extends Component {
                           }
                           return (
                             <tr key={key}>
-                              <td colSpan='2'>{item.externalId}</td>
-                              <td colSpan='2'>{item.name}</td>
-                              { canEdit &&
-                                <td colSpan='2'>
-                                  <button
-                                    className='button is-primary'
-                                    onClick={() => this.showModal(item)}
-                                  >
-                                    Editar
-                                  </button>
-                                </td>
-                              }
                               {canEdit &&
-                                <td colSpan='2'>
+                                <td className='has-text-centered'>
                                   <Checkbox
                                     label={item}
                                     handleCheckboxChange={this.toggleCheckboxProducts}
                                     key={item.externalId}
                                     checked={item.selected}
                                     hideLabel />
+                                </td>
+                              }
+                              <td>{item.externalId}</td>
+                              <td>{item.name}</td>
+                              { canEdit &&
+                                <td>
+                                  <button
+                                    className='button is-primary'
+                                    onClick={() => this.showModal(item)}
+                                  >
+                                  <span className='icon' title='Editar'>
+                                    <i className='fa fa-pencil' />
+                                  </span>
+                                  </button>
                                 </td>
                               }
                             </tr>
