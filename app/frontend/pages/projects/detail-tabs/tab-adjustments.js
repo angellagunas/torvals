@@ -607,7 +607,6 @@ getProductsSelected () {
     let limitedRows = []
     let { pendingDataRows } = this.state
 
-
     if (obj instanceof Array) {
       rowAux = obj
     } else {
@@ -615,8 +614,15 @@ getProductsSelected () {
     }
 
     for (let row of rowAux) {
-      let maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
-      let minAdjustment = Math.floor(row.prediction * (1 - this.state.generalAdjustment))
+      let base
+      if(row.lastAdjustment){
+        base = row.lastAdjustment
+      }else{
+        base = row.prediction
+      }
+
+      let maxAdjustment = Math.ceil(base * (1 + this.state.generalAdjustment))
+      let minAdjustment = Math.floor(base * (1 - this.state.generalAdjustment))
 
       row.newAdjustment = Math.round(row.newAdjustment)
       row.adjustmentForDisplay = Math.round(row.adjustmentForDisplay)

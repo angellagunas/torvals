@@ -227,6 +227,8 @@ class WeekTable extends Component {
             if (row.weeks[j]) {
               if (row.weeks[j].lastAdjustment) {
                 return row.weeks[j].lastAdjustment
+              }else{
+                return row.weeks[j].prediction
               }
             } else {
               return ''
@@ -283,9 +285,17 @@ class WeekTable extends Component {
           className: 'col-border table-cell',
           formatter: (row) => {
             if (row.weeks[j]) {
-              let percentage = (
-                ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
-              )
+              let percentage 
+              if(row.weeks[j].lastAdjustment){
+                percentage = (
+                  ((row.weeks[j].adjustmentForDisplay - row.weeks[j].lastAdjustment) / row.weeks[j].lastAdjustment) * 100
+                )  
+              }else{
+                percentage = (
+                  ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
+                )  
+              }
+
               if(isNaN(percentage) || !isFinite(percentage))
                 percentage = 0
               row.weeks[j].percentage = percentage 

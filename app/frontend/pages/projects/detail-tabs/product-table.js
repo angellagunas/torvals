@@ -194,7 +194,9 @@ class ProductTable extends Component {
         headerClassName: 'table-head',
         className: 'table-cell',
         formatter: (row) => {
-          if (row.prediction) {
+          if (row.lastAdjustment) {
+            return row.lastAdjustment
+          }else{
             return row.prediction
           }
         }
@@ -243,8 +245,16 @@ class ProductTable extends Component {
         headerClassName: 'table-head',
         className: 'table-cell', 
         formatter: (row) => {
-          let percentage = ((row.adjustmentForDisplay - row.prediction) /
-            row.prediction) * 100
+          let percentage 
+          if(row.lastAdjustment){
+            percentage = (
+              ((row.adjustmentForDisplay - row.lastAdjustment) / row.lastAdjustment) * 100
+            )  
+          }else{
+            percentage = (
+              ((row.adjustmentForDisplay - row.prediction) / row.prediction) * 100
+            )  
+          }
 
           if(isNaN(percentage) || !isFinite(percentage))
               percentage = 0
