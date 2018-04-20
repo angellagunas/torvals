@@ -412,7 +412,7 @@ class TabAdjustment extends Component {
                     <button
                       className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonMinus('quantity')}
-                      disabled={this.state.disableButtons}>
+                      >
                       <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
@@ -431,7 +431,7 @@ class TabAdjustment extends Component {
                     <button
                       className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonPlus('quantity')}
-                      disabled={this.state.disableButtons}>
+                      >
                       <span className='icon'>
                         <i className='fa fa-plus' />
                       </span>
@@ -453,7 +453,7 @@ class TabAdjustment extends Component {
                     <button
                       className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonMinus('percent')}
-                      disabled={this.state.disableButtons}>
+                      >
                       <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
@@ -472,7 +472,7 @@ class TabAdjustment extends Component {
                     <button
                       className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonPlus('percent')}
-                      disabled={this.state.disableButtons}>
+                      >
                       <span className='icon'>
                         <i className='fa fa-plus' />
                       </span>
@@ -518,6 +518,10 @@ class TabAdjustment extends Component {
   }
 
   async onClickButtonPlus (type) {
+    if(this.state.selectedCheckboxes.size === 0){
+      this.notify('No tienes productos seleccionados', 3000, toast.TYPE.INFO)
+      return
+    }
     this.setState({isLoadingButtons: ' is-loading'})
     let { selectedCheckboxes } = this.state
     selectedCheckboxes = Array.from(selectedCheckboxes)
@@ -554,6 +558,11 @@ class TabAdjustment extends Component {
   }
 
   async onClickButtonMinus (type) {
+    if (this.state.selectedCheckboxes.size === 0) {
+      this.notify('No tienes productos seleccionados', 3000, toast.TYPE.INFO)
+      return
+    }
+
     this.setState({isLoadingButtons: ' is-loading'})
     let { selectedCheckboxes } = this.state
     selectedCheckboxes = Array.from(selectedCheckboxes)
