@@ -40,7 +40,7 @@ const task = new Task(async function (argv) {
       console.log(`Creating dataset for adjustment of project ${project.name} ...`)
 
       try {
-        var resFilter = await Api.filterProject(project.externalId, res.dataset.date_max)
+        var resFilter = await Api.filterProject(project.externalId, res.dataset.date_max, res.dataset.date_min)
       } catch (e) {
         console.log(e.message)
         return false

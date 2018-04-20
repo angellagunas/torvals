@@ -162,12 +162,7 @@ class WeekTable extends Component {
         default: 'N/A',
         sortable: true,
         headerClassName: 'table-product table-product-head',
-        className: 'table-product productName',
-        formatter: (row) => {
-          if (row.weeks[0].productName) {
-            return row.weeks[0].productName
-          }
-        }
+        className: 'table-product productName'
       },
       {
         group: ' ',
@@ -193,112 +188,131 @@ class WeekTable extends Component {
   getWeekCols(){
     let data = this.state.filteredDataByWeek
     let cols = []
+    let maxWeeks = data.map(item => {return item.weeks.length})
+    maxWeeks = maxWeeks.sort((a,b) => {return b-a})
     
-    for (let j = 0; j < data[0].weeks.length; j++){
-       cols.push(
-         {
-           group: <strong>{this.splitWords('Semana ' + data[0].weeks[j].semanaBimbo
-           + '_Ajuste permitido ' + this.state.range)}</strong>,
-           title: 'Predicción',
-           property: 'prediction_' + j,
-           default: 0,
-           sortable: true,
-           groupClassName: 'colspan table-week text',
-           className: 'table-cell', 
-           headerClassName: 'table-head',                                                      
-           formatter: (row) => {
-             if (row.weeks[j].prediction) {
-               return row.weeks[j].prediction
-             }
-           }
-         },
-         {
-           group: ' ',
-           title: this.splitWords('Ajuste_Anterior '),
-           property: 'lastAdjustment_' + j,
-           default: 0,
-           sortable: true,
-           groupClassName: 'table-week',           
-           headerClassName: 'table-head',                      
-           className: 'table-cell',           
-           formatter: (row) => {
-             if (row.weeks[j].lastAdjustment) {
-               return row.weeks[j].lastAdjustment
-             }else{
+    for (let j = 0; j < maxWeeks[0]; j++){
+      let semanaBimbo = this.props.filteredSemanasBimbo[j]
+      cols.push(
+        {
+          group: <strong>{this.splitWords('Semana ' + semanaBimbo
+          + '_Ajuste permitido ' + this.state.range)}</strong>,
+          title: 'Predicción',
+          property: 'prediction_' + j,
+          default: '',
+          sortable: true,
+          groupClassName: 'colspan table-week text',
+          className: 'table-cell', 
+          headerClassName: 'table-head',                                                      
+          formatter: (row) => {
+            if (row.weeks[j]) {
+              if (row.weeks[j].prediction) {
                 return row.weeks[j].prediction
-             }
-           }
-         },
-         {
-           group: ' ',
-           title: 'Ajuste',
-           property: 'adjustmentForDisplay_' + j,
-           default: 0,
-           sortable: true,
-           groupClassName: 'table-week',
-           headerClassName: 'table-head',           
-           className: 'table-cell',                      
-           formatter: (row) => {
-             if (!row.weeks[j].adjustmentForDisplay) {
-               row.weeks[j].adjustmentForDisplay = 0
-             }
+              }
+            } else {
+              return ''
+            }
+          }
+        },
+        {
+          group: ' ',
+          title: this.splitWords('Ajuste_Anterior '),
+          property: 'lastAdjustment_' + j,
+          default: '',
+          sortable: true,
+          groupClassName: 'table-week',           
+          headerClassName: 'table-head',                      
+          className: 'table-cell',           
+          formatter: (row) => {
+            if (row.weeks[j]) {
+              if (row.weeks[j].lastAdjustment) {
+                return row.weeks[j].lastAdjustment
+              }else{
+                return row.weeks[j].prediction
+              }
+            } else {
+              return ''
+            }
+          }
+        },
+        {
+          group: ' ',
+          title: 'Ajuste',
+          property: 'adjustmentForDisplay_' + j,
+          default: '',
+          sortable: true,
+          groupClassName: 'table-week',
+          headerClassName: 'table-head',           
+          className: 'table-cell',                      
+          formatter: (row) => {
+            if (row.weeks[j]) {
+              if (!row.weeks[j].adjustmentForDisplay) {
+                row.weeks[j].adjustmentForDisplay = 0
+              }
 
-             row.tabin = row.key * 10 + j
-             row.weeks[j].tabin = row.key * 10 + j
-             if (this.props.currentRole !== 'consultor') {
-               return (
-                 <input
-                   type='number'
-                   className='input'
-                   value={row.weeks[j].adjustmentForDisplay}
-                   onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
-                   onKeyDown={(e) => { this.onEnter(e, row.weeks[j]) }}
-                   onChange={(e) => { this.onChange(e, row.weeks[j]) }}
-                   onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
-                   tabIndex={row.tabin}
-                   ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
-                 />
-               )
-             }else{
+              row.tabin = row.key * 10 + j
+              row.weeks[j].tabin = row.key * 10 + j
+              if (this.props.currentRole !== 'consultor') {
+                return (
+                  <input
+                    type='number'
+                    className='input'
+                    value={row.weeks[j].adjustmentForDisplay}
+                    onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
+                    onKeyDown={(e) => { this.onEnter(e, row.weeks[j]) }}
+                    onChange={(e) => { this.onChange(e, row.weeks[j]) }}
+                    onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
+                    tabIndex={row.tabin}
+                    ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
+                  />
+                )
+              }else{
                 return <span>{row.weeks[j].adjustmentForDisplay}</span>
-             }
-           }
-         },
-         {
+              }
+            } else {
+              return ''
+            }
+          }
+        },
+        {
           group: ' ',
           title: this.splitWords('Rango_Ajustado'),
           property: 'percentage_' + j,
-          default: 0,
+          default: '',
           sortable: true,
           headerClassName: 'col-border table-head',
           groupClassName: 'table-week table-week-r',
           className: 'col-border table-cell',
           formatter: (row) => {
+            if (row.weeks[j]) {
+              let percentage 
+              if(row.weeks[j].lastAdjustment){
+                percentage = (
+                  ((row.weeks[j].adjustmentForDisplay - row.weeks[j].lastAdjustment) / row.weeks[j].lastAdjustment) * 100
+                )  
+              }else{
+                percentage = (
+                  ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
+                )  
+              }
 
-            let percentage 
-            if(row.weeks[j].lastAdjustment){
-              percentage = (
-                ((row.weeks[j].adjustmentForDisplay - row.weeks[j].lastAdjustment) / row.weeks[j].lastAdjustment) * 100
-              )  
-            }else{
-              percentage = (
-                ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
-              )  
+              if(isNaN(percentage) || !isFinite(percentage))
+                percentage = 0
+              row.weeks[j].percentage = percentage 
+              let status = classNames('has-text-weight-bold', {
+                'has-text-success': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'approved',
+                'has-text-warning': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'created',
+                'has-text-danger': row.weeks[j].isLimit && (!row.weeks[j].adjustmentRequest || row.weeks[j].adjustmentRequest.status === 'rejected'),
+              })     
+              return <span className={status}>{Math.round(percentage) + ' %'}</span>
+            } else {
+              return ''
             }
-            
-            if(isNaN(percentage) || !isFinite(percentage))
-              percentage = 0
-            row.weeks[j].percentage = percentage 
-            let status = classNames('has-text-weight-bold', {
-              'has-text-success': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'approved',
-              'has-text-warning': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'created',
-              'has-text-danger': row.weeks[j].isLimit && (!row.weeks[j].adjustmentRequest || row.weeks[j].adjustmentRequest.status === 'rejected'),
-            })     
-            return <span className={status}>{Math.round(percentage) + ' %'}</span>
           }
         }
-       )
-      }
+      )
+    }
+    
     return cols
   }
 
@@ -379,18 +393,21 @@ class WeekTable extends Component {
     let rw = []
     for (let index = 0; index < data.length; index++) {
       const element = data[index];
-      let find = rw.indexOf(element.productId + ' (' + element.channelId + ')')
+      let find = rw.indexOf(element.productId + ' (' + element.channel + ')')
       if (find === -1) {
-        rw.push(element.productId + ' (' + element.channelId + ')')
+        rw.push(element.productId + ' (' + element.channel + ')')
       }
     }
 
     rw = rw.map((item) => {
-      return {
-        product: item,
-        weeks: _.orderBy(data.filter((element, index) => {
-          return element.productId + ' (' + element.channelId + ')' === item
+      let weeks = _.orderBy(data.filter((element, index) => {
+          return element.productId + ' (' + element.channel + ')' === item
         }), function (e) { return e.semanaBimbo }, ['asc'])
+
+      let product = weeks[0].productName
+      return {
+        product,
+        weeks
       }
     }) 
 

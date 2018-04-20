@@ -493,8 +493,8 @@ class TabAdjustment extends Component {
         {this.state.selectedCheckboxes.size > 0 &&
           <div className='column products-selected'>
             <p>
-              <span>{this.state.byWeek ? this.state.selectedCheckboxes.size / this.state.filters.filteredSemanasBimbo.length : this.state.selectedCheckboxes.size} </span>
-               Productos Seleccionados
+            <span>{this.state.byWeek ? this.getProductsSelected() : this.state.selectedCheckboxes.size} </span>
+            Productos Seleccionados
             </p>
           </div> 
         }
@@ -513,6 +513,11 @@ class TabAdjustment extends Component {
       </div>
     )
   }
+
+getProductsSelected () {
+  let p = _.groupBy(Array.from(this.state.selectedCheckboxes), 'productId')
+  return _.size(p)
+}
 
   async onClickButtonPlus (type) {
     this.setState({isLoadingButtons: ' is-loading'})
@@ -1343,6 +1348,7 @@ class TabAdjustment extends Component {
                       currentRole={currentRole}                    
                       data={this.state.filteredData}
                       checkAll={this.checkAll}
+                      filteredSemanasBimbo={this.state.filters.filteredSemanasBimbo}
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
