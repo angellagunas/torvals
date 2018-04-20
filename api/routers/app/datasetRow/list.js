@@ -142,12 +142,14 @@ module.exports = new Route({
         productName: item.product ? item.product.name : '',
         productPrice: item.product && item.product.price ? item.product.price.price : 10.00,
         channel: item.channel ? item.channel.name : '',
+        channelId: item.channel ? item.channel.externalId : '',
         semanaBimbo: item.data.semanaBimbo,
         prediction: item.data.prediction,
         adjustment: item.data.adjustment,
         localAdjustment: item.data.localAdjustment,
         lastAdjustment: item.data.lastAdjustment,
-        adjustmentRequest: item.adjustmentRequest
+        adjustmentRequest: item.adjustmentRequest,
+        externalId: item.externalId
       })
     }
 
