@@ -30,7 +30,7 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    var rows = await DataSetRow.find({isDeleted: false, dataset: dataset._id})
+    var rows = await DataSetRow.find({isDeleted: false, dataset: dataset})
 
     for (var row of rows) {
       semanasBimboSet.add(row.data.semanaBimbo)

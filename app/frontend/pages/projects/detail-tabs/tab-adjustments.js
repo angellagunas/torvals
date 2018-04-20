@@ -1337,6 +1337,7 @@ class TabAdjustment extends Component {
                       currentRole={currentRole}                    
                       data={this.state.filteredData}
                       checkAll={this.checkAll}
+                      filteredSemanasBimbo={this.state.filters.filteredSemanasBimbo}
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}

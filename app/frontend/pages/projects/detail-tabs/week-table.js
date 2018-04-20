@@ -162,12 +162,7 @@ class WeekTable extends Component {
         default: 'N/A',
         sortable: true,
         headerClassName: 'table-product table-product-head',
-        className: 'table-product productName',
-        formatter: (row) => {
-          if (row.weeks[0].productName) {
-            return row.weeks[0].productName
-          }
-        }
+        className: 'table-product productName'
       },
       {
         group: ' ',
@@ -193,12 +188,14 @@ class WeekTable extends Component {
   getWeekCols(){
     let data = this.state.filteredDataByWeek
     let cols = []
+    let maxWeeks = data.map(item => {return item.weeks.length})
+    maxWeeks = maxWeeks.sort((a,b) => {return b-a})
     
-    for (let j = 0; j < data[0].weeks.length; j++){
-      console.log(data[0].weeks)
+    for (let j = 0; j < maxWeeks[0]; j++){
+      let semanaBimbo = this.props.filteredSemanasBimbo[j]
       cols.push(
         {
-          group: <strong>{this.splitWords('Semana ' + data[0].weeks[j].semanaBimbo
+          group: <strong>{this.splitWords('Semana ' + semanaBimbo
           + '_Ajuste permitido ' + this.state.range)}</strong>,
           title: 'Predicción',
           property: 'prediction_' + j,
@@ -386,18 +383,21 @@ class WeekTable extends Component {
     let rw = []
     for (let index = 0; index < data.length; index++) {
       const element = data[index];
-      let find = rw.indexOf(element.productId + ' (' + element.channelId + ')')
+      let find = rw.indexOf(element.productId + ' (' + element.channel + ')')
       if (find === -1) {
-        rw.push(element.productId + ' (' + element.channelId + ')')
+        rw.push(element.productId + ' (' + element.channel + ')')
       }
     }
 
     rw = rw.map((item) => {
-      return {
-        product: item,
-        weeks: _.orderBy(data.filter((element, index) => {
-          return element.productId + ' (' + element.channelId + ')' === item
+      let weeks = _.orderBy(data.filter((element, index) => {
+          return element.productId + ' (' + element.channel + ')' === item
         }), function (e) { return e.semanaBimbo }, ['asc'])
+
+      let product = weeks[0].productName
+      return {
+        product,
+        weeks
       }
     }) 
 
