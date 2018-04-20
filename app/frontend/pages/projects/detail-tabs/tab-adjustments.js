@@ -410,7 +410,7 @@ class TabAdjustment extends Component {
 
                   <div className='control'>
                     <button
-                      className='button is-outlined'
+                      className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonMinus('quantity')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
@@ -429,7 +429,7 @@ class TabAdjustment extends Component {
 
                   <div className='control'>
                     <button
-                      className='button is-outlined'
+                      className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonPlus('quantity')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
@@ -451,7 +451,7 @@ class TabAdjustment extends Component {
                 <div className='field is-grouped control'>
                   <div className='control'>
                     <button
-                      className='button is-outlined'
+                      className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonMinus('percent')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
@@ -470,7 +470,7 @@ class TabAdjustment extends Component {
 
                   <div className='control'>
                     <button
-                      className='button is-outlined'
+                      className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonPlus('percent')}
                       disabled={this.state.disableButtons}>
                       <span className='icon'>
