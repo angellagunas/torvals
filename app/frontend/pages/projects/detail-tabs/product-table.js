@@ -205,21 +205,21 @@ class ProductTable extends Component {
         group: ' ',
         title: 'Ajuste',
         property: 'adjustmentForDisplay',
-        default: 0,
+        default: '',
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
         className: 'table-cell', 
         formatter: (row) => {
           if (!row.adjustmentForDisplay) {
-            row.adjustmentForDisplay = 0
+            row.adjustmentForDisplay = ''
           }
 
           row.tabin = row.key * 10
           if (this.props.currentRole !== 'consultor') {
             return (
               <input
-                type='number'
+                type='text'
                 className='input'
                 value={row.adjustmentForDisplay}
                 onBlur={(e) => { this.onBlur(e, row) }}
@@ -228,6 +228,7 @@ class ProductTable extends Component {
                 onFocus={(e) => { this.onFocus(e, row) }}
                 tabIndex={row.tabin}
                 max='99999'
+                placeholder='0'
                 ref={(el) => { this.inputs[row.tabin] = el }}
               />
             )
@@ -365,6 +366,17 @@ class ProductTable extends Component {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
 
+    if (value === '' && row.original !== '') {
+      row.adjustmentForDisplay = row.original
+      let aux = this.state.filteredData
+
+      this.setState({
+        filteredData: aux
+      })
+
+      return
+    }
+
     if (Number(row.original) !== Number(value)) {
       this.props.changeAdjustment(value, row)
     }
@@ -372,7 +384,7 @@ class ProductTable extends Component {
 
   onChange = (e, row) => {
     if(e.target.value.length<=5){
-      row.adjustmentForDisplay = e.target.value
+      row.adjustmentForDisplay = Number(e.target.value)
       let aux = this.state.filteredData
       this.setState({
         filteredData: aux

@@ -233,14 +233,14 @@ class WeekTable extends Component {
            group: ' ',
            title: 'Ajuste',
            property: 'adjustmentForDisplay_' + j,
-           default: 0,
+           default: '',
            sortable: true,
            groupClassName: 'table-week',
            headerClassName: 'table-head',           
            className: 'table-cell',                      
            formatter: (row) => {
              if (!row.weeks[j].adjustmentForDisplay) {
-               row.weeks[j].adjustmentForDisplay = 0
+               row.weeks[j].adjustmentForDisplay = ''
              }
 
              row.tabin = row.key * 10 + j
@@ -248,7 +248,7 @@ class WeekTable extends Component {
              if (this.props.currentRole !== 'consultor') {
                return (
                  <input
-                   type='number'
+                   type='text'
                    className='input'
                    value={row.weeks[j].adjustmentForDisplay}
                    onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
@@ -257,6 +257,7 @@ class WeekTable extends Component {
                    onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
                    tabIndex={row.tabin}
                    max='99999'
+                   placeholder='0'
                    ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
                  />
                )
@@ -338,29 +339,37 @@ class WeekTable extends Component {
     if (e.target.type === 'number') {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
-
-    if (Number(week.original) !== Number(value)) {
-      row.edited = true
-      let res = await this.props.changeAdjustment(value, week)
-      if (!res) {
-        row.edited = false
-      
+    if (value === '' && week.original !== ''){
         week.adjustmentForDisplay = week.original
+        let aux = this.state.filteredDataByWeek
 
-      let aux = this.state.filteredDataByWeek
+        this.setState({
+          filteredDataByWeek: aux
+        })
 
-      this.setState({
-        filteredDataByWeek: aux
-      }) 
+        return
       }
-      
-    }
+      if(Number(week.original) !== Number(value)) {
+        row.edited = true
+        let res = await this.props.changeAdjustment(value, week)
+        if (!res) {
+          row.edited = false
+
+          week.adjustmentForDisplay = week.original
+
+          let aux = this.state.filteredDataByWeek
+
+          this.setState({
+            filteredDataByWeek: aux
+          })
+        }
+      }
 
   }
 
   onChange = (e, row) => {
     if(e.target.value.length<=5){
-      row.adjustmentForDisplay = e.target.value
+      row.adjustmentForDisplay = Number(e.target.value)
       let aux = this.state.filteredDataByWeek
 
       this.setState({
