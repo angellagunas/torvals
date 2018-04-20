@@ -581,15 +581,6 @@ class ProjectDetail extends Component {
           </div>
         }
 
-        { canEdit &&
-          <SidePanel
-            noListPage
-            sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-            icon={'plus'}
-            title={'Opciones'}
-            content={options}
-          />
-        }
         <CreateDataSet
           branchName='datasets'
           url='/admin/datasets'
