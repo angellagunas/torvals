@@ -294,7 +294,7 @@ class TabAdjustment extends Component {
   getEditedRows(data) {
     for (let row of data) {
       row.adjustmentForDisplay = row.localAdjustment
-      if (row.adjustmentRequest) {
+      if (row.adjustmentRequest && row.adjustmentRequest.status !== 'rejected') {
         row.adjustmentForDisplay = row.adjustmentRequest.newAdjustment
       }
 
