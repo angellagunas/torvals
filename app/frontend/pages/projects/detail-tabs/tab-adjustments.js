@@ -727,19 +727,25 @@ getProductsSelected () {
   }
 
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if(type === toast.TYPE.WARNING){
+      className = 'has-bg-warning'
+    }
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
         type: type,
         hideProgressBar: true,
-        closeButton: false
+        closeButton: false,
+        className: className
       })
     } else {
       toast.update(this.toastId, {
         render: message,
         type: type,
         autoClose: timeout,
-        closeButton: false
+        closeButton: false,
+        className: className
       })
     }
   }

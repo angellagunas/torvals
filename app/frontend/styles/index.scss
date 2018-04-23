@@ -264,6 +264,9 @@ h2 {
     }
 }
 
+.has-bg-warning{
+    background-color: $warning !important;
+}
 /* @import 'base'; */
 
 @import '../../../lib/frontend/style.css';
