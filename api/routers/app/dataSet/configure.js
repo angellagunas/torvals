@@ -71,6 +71,12 @@ module.exports = new Route({
 
     var isPrediction = checkIsPrediction ? checkIsPrediction.name : undefined
 
+    var checkIsSales = body.columns.find((item) => {
+      return item.isSales
+    })
+
+    var isSales = checkIsSales ? checkIsSales.name : undefined
+
     var filterAnalysis = []
     var filterOperations = []
     var groupings = []
@@ -108,6 +114,7 @@ module.exports = new Route({
       is_analysis: isAnalysis,
       is_adjustment: isAdjustment,
       is_prediction: isPrediction,
+      is_sale: isSales,
       filter_analysis: filterAnalysis,
       filter_operations: filterOperations
     })
