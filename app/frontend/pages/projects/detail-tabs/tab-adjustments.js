@@ -587,8 +587,7 @@ getProductsSelected () {
     let rowAux = []
     let isLimited = false
     let limitedRows = []
-    let { pendingDataRows } = this.state
-
+    let pendingDataRows = {}
     if (obj instanceof Array) {
       rowAux = obj
     } else {
@@ -656,10 +655,7 @@ getProductsSelected () {
       } else {
         this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
       }
-      
-      this.setState({
-        pendingDataRows: pendingDataRows
-      })
+      this.props.pendingDataRows(pendingDataRows)
 
       await this.updateSalesTable(obj)
 
@@ -689,9 +685,7 @@ getProductsSelected () {
         delete pendingDataRows[row.uuid]
       }
 
-      this.setState({
-        pendingDataRows: pendingDataRows
-      })
+      this.props.pendingDataRows(pendingDataRows)
 
       return false
     }
@@ -699,7 +693,7 @@ getProductsSelected () {
     this.props.loadCounters()
 
     if (currentRole !== 'manager-level-1' && limitedRows.length) {
-      this.handleAdjustmentRequest(limitedRows)
+      this.props.handleAdjustmentRequest(limitedRows)
     }
 
     return true
@@ -721,44 +715,6 @@ getProductsSelected () {
         closeButton: false
       })
     }
-  }
-
-  async handleAdjustmentRequest (obj) {
-    let { pendingDataRows } = this.state
-    let productAux = []
-    if (currentRole === 'consultor') {
-      return
-    }
-
-    if (obj instanceof Array) {
-      productAux = obj
-    } else {
-      productAux.push(obj)
-    }
-
-    try {
-      var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment}))
-    } catch (e) {
-      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
-
-      return
-    }
-
-    for (var product of productAux) {
-      product.adjustmentRequest = res.data[product.uuid]
-      delete pendingDataRows[product.uuid]
-    }
-
-    this.setState({
-      pendingDataRows: pendingDataRows
-    })
-  }
-
-  async handleAllAdjustmentRequest (obj) {
-    let { pendingDataRows } = this.state
-    let pendingDataRowsArray = Object.values(pendingDataRows)
-
-    await this.handleAdjustmentRequest(pendingDataRowsArray)
   }
 
   async searchDatarows() {
@@ -1319,8 +1275,8 @@ getProductsSelected () {
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }} 
-                      handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }} 
+                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }} 
+                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
                     />
                     :
 
@@ -1334,8 +1290,8 @@ getProductsSelected () {
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
-                      handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }} 
+                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
+                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
                     />
                 }
               </div>
