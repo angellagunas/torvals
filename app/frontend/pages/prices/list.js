@@ -2,9 +2,12 @@ import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
 import { testRoles } from '~base/tools'
+import api from '~base/api'
+import { toast } from 'react-toastify'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
+import Editable from '~base/components/base-editable'
 
 export default ListPage({
   path: '/catalogs/prices',
@@ -86,12 +89,44 @@ export default ListPage({
         'property': 'price',
         'default': 'N/A',
         'sortable': true,
-        'className': 'has-text-left',
+        'className': 'editable-cell',
         formatter: (row) => {
           if (row && row.price) {
-            return '$ ' + row.price.toFixed(2).replace(/./g, (c, i, a) => {
+            let price = row.price.toFixed(2).replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+            return (
+
+              <Editable
+                value={price}
+                type='text'
+                obj={row}
+                width={100}
+                prepend='$'
+                handleChange={async (value, row) => {
+                  try {
+                    const res = await api.post('/app/prices/' + row.uuid, {
+                      price: value,
+                      channel: row.channel.name,
+                      product: row.product.name
+                    })
+                    if (!res) {
+                      return false
+                    }
+                    return res
+                  } catch (e) {
+                    toast('Error: ' + e.message, {
+                      autoClose: 5000,
+                      type: toast.TYPE.ERROR,
+                      hideProgressBar: true,
+                      closeButton: false
+                    })
+                    return false
+                  }
+                }
+              }
+              />
+            )
           }
 
           return 'N/A'

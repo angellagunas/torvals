@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 import api from '~base/api'
 import Page from '~base/page'
@@ -283,7 +283,12 @@ class ProjectDetail extends Component {
       await api.post(url)
       await this.load()
     } catch (e) {
-      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+      toast('Error: ' + e.message, {
+        autoClose: 5000,
+        type: toast.TYPE.ERROR,
+        hideProgressBar: true,
+        closeButton: false
+      })
     }
 
     this.setState({
@@ -590,7 +595,7 @@ class ProjectDetail extends Component {
           hideModal={this.hideModalDataset.bind(this)}
           finishUp={this.finishUpDataset.bind(this)}
         />
-        <ToastContainer />
+
       </div>
     )
   }
