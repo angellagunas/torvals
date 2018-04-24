@@ -109,6 +109,14 @@ class ConfigureViewDataset extends Component {
 
         <div className='columns has-borders'>
           <div className='column'>
+            <p className='title is-7'>Venta</p>
+            <p className='subtitle is-7'>{this.getColumnForValue('isSales')}</p>
+          </div>
+          <div className='column' />
+        </div>
+
+        <div className='columns has-borders'>
+          <div className='column'>
             <p className='title is-7'>Id Centro de venta*</p>
             <p className='subtitle is-7'>{this.getColumnForValue('isSalesCenter')}</p>
           </div>

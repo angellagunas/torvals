@@ -28,6 +28,9 @@ class ConfigureDatasetForm extends Component {
       var checkIsPrediction = this.props.initialState.columns.find((item) => {
         return item.isPrediction
       })
+      var checkSales = this.props.initialState.columns.find((item) => {
+        return item.isSales
+      })
 
       this.state = {
         formData: {
@@ -50,6 +53,7 @@ class ConfigureDatasetForm extends Component {
           return item.isSalesCenter
         }).name,
         isSalesCenterName: checkSalesCenterName ? checkSalesCenterName.name : '',
+        isSales: checkSales || '',
         isChannel: this.props.initialState.columns.find((item) => {
           return item.isChannel
         }).name,
@@ -75,6 +79,7 @@ class ConfigureDatasetForm extends Component {
         isProductName: '',
         isSalesCenter: '',
         isSalesCenterName: '',
+        isSales: '',
         isChannel: '',
         isChannelName: '',
         groupingColumn: '',
@@ -199,7 +204,8 @@ class ConfigureDatasetForm extends Component {
       column.isChannel ||
       column.isChannelName ||
       column.isSalesCenter ||
-      column.isSalesCenterName
+      column.isSalesCenterName ||
+      column.isSales
     )
   }
 
@@ -232,6 +238,7 @@ class ConfigureDatasetForm extends Component {
       isProductName: this.state.isProductName,
       isSalesCenter: this.state.isSalesCenter,
       isSalesCenterName: this.state.isSalesCenterName,
+      isSales: this.state.isSales,
       isChannel: this.state.isChannel,
       isChannelName: this.state.isChannelName
     }
@@ -245,6 +252,7 @@ class ConfigureDatasetForm extends Component {
       isProductName: lov.string(),
       isSalesCenter: lov.string().trim().required(),
       isSalesCenterName: lov.string(),
+      isSales: lov.string(),
       isChannel: lov.string().trim().required(),
       isChannelName: lov.string()
     }
@@ -258,6 +266,7 @@ class ConfigureDatasetForm extends Component {
       isProductName: this.state.isProductName,
       isSalesCenter: this.state.isSalesCenter,
       isSalesCenterName: this.state.isSalesCenterName,
+      isSales: this.state.isSales,
       isChannel: this.state.isChannel,
       isChannelName: this.state.isChannelName
     }
@@ -286,8 +295,6 @@ class ConfigureDatasetForm extends Component {
   }
 
   render () {
-    let checkboxLabelwidth = { flexGrow: 4 }
-
     if (this.props.columns.length === 0) {
       return <Loader />
     }
@@ -396,9 +403,9 @@ class ConfigureDatasetForm extends Component {
               <div className='select is-fullwidth'>
                 <select type='text'
                   className='is-fullwidth'
-                  name='isSale'
-                  value={this.state.isSale}
-                  onChange={(e) => { this.handleChangeSelect('isSale', e) }}>
+                  name='isSales'
+                  value={this.state.isSales}
+                  onChange={(e) => { this.handleChangeSelect('isSales', e) }}>
                   <option value=''>Selecciona una opción</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
