@@ -261,6 +261,25 @@ h2 {
             padding: 10px 15px;
             border-radius: 0;
         }
+        .modal-card-foot {
+            .field.is-grouped {
+                justify-content: flex-end;
+            }
+            background-color: #EFF1F9 !important;
+            border-color: #E6E8F6 !important;
+            padding: 10px 15px;
+            border-radius: 0;
+        }
+    }
+}
+
+.disabled-btn {
+    color: rgb(206, 206, 206) !important;
+    border-color: rgb(206, 206, 206) !important;
+    cursor: not-allowed;
+    :hover {
+        color: rgb(206, 206, 206) !important;
+        border-color: rgb(206, 206, 206) !important;
     }
 }
 
