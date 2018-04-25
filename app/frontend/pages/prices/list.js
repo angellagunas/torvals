@@ -15,7 +15,8 @@ export default ListPage({
   exact: true,
   validate: [loggedIn, verifyRole],
   create: false,
-  export: 'consultor',
+  export: true,
+  exportRole: 'consultor',
   exportUrl: '/app/prices',
   breadcrumbs: true,
   breadcrumbConfig: {
