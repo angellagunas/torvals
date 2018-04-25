@@ -236,16 +236,17 @@ class TabAnomalies extends Component {
         'property': 'prediction',
         'default': 0,
         'type': 'number',
-        'sortable': true,                                
+        'sortable': true,
+        'className': 'editable-cell',                                
         formatter: (row) => {
           if (currentRole !== 'consultor') {
           return (
             <Editable
               value={row.prediction}
               handleChange={this.changeAdjustment}
-              type='number'
+              type='text'
               obj={row}
-              width={80}
+              width={100}
             />
           )
           }
@@ -273,12 +274,15 @@ class TabAnomalies extends Component {
   }
 
   changeAdjustment = async (value, row) => {
-    row.prediction = value
-    const res = await this.handleChange(row)
-    if (!res) {
-      return false
+    if (Number(row.prediction) !== Number(value)) {
+      row.prediction = value
+      const res = await this.handleChange(row)
+      if (!res) {
+        return false
+      }
+      return res
     }
-    return res
+    else return false
   }
 
 
@@ -503,13 +507,21 @@ class TabAnomalies extends Component {
         </div>
 
         <section>
-          {!this.state.isFiltered || this.state.anomalies.length === 0
-            ? <section className='section'>
-                <center>
-                  <h2 className='has-text-info'>No hay anomalias que mostrar</h2>
-                </center>
-              </section>
-            : 
+          {!this.state.isFiltered ?
+            <section className='section'>
+              <center>
+                <Loader/>
+                <h2 className='has-text-info'>Cargando anomalias</h2>
+              </center>
+            </section>
+          : 
+            this.state.anomalies.length === 0
+              ? <section className='section'>
+                  <center>
+                    <h2 className='has-text-info'>No hay anomalias que mostrar</h2>
+                  </center>
+                </section>
+              : 
               <BaseTable
                 className='aprobe-table is-fullwidth is-margin-top-20'
                 data={this.state.anomalies}

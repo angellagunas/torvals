@@ -53,16 +53,22 @@ class DashEntManager extends Component {
 
   render () {
     return (
-      <div className='section container'>
+      <div>
+        <div className='columns is-marginless'>
+          <div className='column is-paddingless'>
+            <div className='section-header'>
+              <h2>Proyectos</h2>
+            </div>
+          </div>
+        </div>
+        <div className='card has-20-margin-top'>
+          <BranchedPaginatedTable
+            branchName='projects'
+            baseUrl='/app/projects'
+            columns={this.getColumns()}
+            sortedBy={'name'}
+          />
 
-        <h2 className='is-size-4 is-padding-bottom-small has-text-color'>Proyectos</h2>
-        <div className='card'>
-              <BranchedPaginatedTable
-                branchName='projects'
-                baseUrl='/app/projects'
-                columns={this.getColumns()}
-                sortedBy={'name'}
-              />
         </div>
 
       </div>

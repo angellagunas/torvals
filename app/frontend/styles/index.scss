@@ -12,6 +12,7 @@
 @import 'calendar';
 @import 'datasets';
 @import 'prices';
+@import 'dashboards';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html,
 body {
@@ -288,9 +289,10 @@ h2 {
     }
 }
 
-.has-bg-warning{
+.has-bg-warning {
     background-color: $warning !important;
 }
+
 /* @import 'base'; */
 
 @import '../../../lib/frontend/style.css';
