@@ -20,7 +20,7 @@ import TabApprove from './detail-tabs/tab-approve'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 // import Breadcrumb from '~base/components/base-breadcrumb'
-// import TabAnomalies from './detail-tabs/tab-anomalies'
+import TabAnomalies from './detail-tabs/tab-anomalies'
 
 var currentRole
 var user
@@ -399,21 +399,21 @@ class ProjectDetail extends Component {
           />
         )
       },
-      // {
-      //   name: 'anomalias',
-      //   title: 'Anomalias',
-      //   reload: true,
-      //   hide: (testRoles('manager-level-1') ||
-      //     project.status === 'processing' ||
-      //     project.status === 'pendingRows' ||
-      //     project.status === 'empty'),
-      //   content: (
-      //     <TabAnomalies
-      //       project={project}
-      //       reload={(tab) => this.load(tab)}
-      //     />
-      //   )
-      // },
+      {
+        name: 'anomalias',
+        title: 'Anomalias',
+        reload: true,
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabAnomalies
+            project={project}
+            reload={(tab) => this.load(tab)}
+          />
+        )
+      },
       {
         name: 'graficos',
         title: 'Gráficos',
