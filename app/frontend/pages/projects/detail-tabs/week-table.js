@@ -215,7 +215,8 @@ class WeekTable extends Component {
                 return row.weeks[j].prediction
              }
            }
-         },
+         }
+        },
         {
           group: ' ',
           title: this.splitWords('Ajuste_Anterior '),
@@ -272,10 +273,8 @@ class WeekTable extends Component {
               }else{
                 return <span>{row.weeks[j].adjustmentForDisplay}</span>
               }
-            } else {
-              return ''
             }
-          }
+          
         },
         {
           group: ' ',
