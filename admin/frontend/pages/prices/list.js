@@ -15,6 +15,8 @@ export default ListPage({
   validate: loggedIn,
   create: false,
   createComponent: CreatePrice,
+  export: true,
+  exportUrl: 'prices',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
