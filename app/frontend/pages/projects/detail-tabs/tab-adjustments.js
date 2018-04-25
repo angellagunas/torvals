@@ -656,7 +656,7 @@ getProductsSelected () {
             <span className='icon'>
               <i className='fa fa-warning fa-lg' />
             </span>
-            ¡Debes pedir una solicitud de ajuste haciendo clic sobre el ícono rojo!
+            ¡Debes pedir una solicitud de ajuste haciendo clic sobre el ícono rojo o el botón finalizar!
           </p>),
           5000,
           toast.TYPE.WARNING
