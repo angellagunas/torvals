@@ -90,7 +90,7 @@ class TabAdjustment extends Component {
     }
 
     data.map((date) => {     
-      if (map.size < 4){ 
+      if(date.year === moment().get('year')){
         const key = date.month
         const collection = map.get(key)
         if (!collection) {
@@ -101,7 +101,7 @@ class TabAdjustment extends Component {
       }
     })
 
-    for (let i = map.size; i > 0; i--) {
+    for (let i = map.size; i > map.size-4; i--) {
       const element = Array.from(map)[i-1]
       let adjustment = adjustments['' + (map.size - i + 1)]
 
@@ -164,7 +164,7 @@ class TabAdjustment extends Component {
 
         let days = periods[0].maxSemana - periods[0].minSemana
         let filteredSemanasBimbo = Array.from(Array(days + 1), (_, x) => periods[0].maxSemana - x).reverse()
- 
+
         this.setState({
           filters: {
             channels: res.channels,
@@ -214,7 +214,7 @@ class TabAdjustment extends Component {
 
       var days = period.maxSemana - period.minSemana
       var filteredSemanasBimbo = Array.from(Array(days+1), (_,x) => period.maxSemana - x).reverse()
-      
+
       this.setState({
         filters: {
           ...this.state.filters,

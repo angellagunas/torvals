@@ -196,7 +196,7 @@ class WeekTable extends Component {
     let maxWeeks = data.map(item => {return item.weeks.length})
     maxWeeks = maxWeeks.sort((a,b) => {return b-a})
     
-    for (let j = 0; j < maxWeeks[0]; j++){
+    for (let j = 0; j < this.props.filteredSemanasBimbo.length; j++){
       let semanaBimbo = this.props.filteredSemanasBimbo[j]
       cols.push(
         {
