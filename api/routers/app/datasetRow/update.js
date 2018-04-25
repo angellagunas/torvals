@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const lov = require('lov')
 const verifyDatasetrows = require('queues/update-datasetrows')
 
-const {DataSetRow} = require('models')
+const {DataSetRow, AdjustmentRequest} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -45,6 +45,9 @@ module.exports = new Route({
         row.status = 'sendingChanges'
         row.markModified('data')
         await row.save()
+
+        await AdjustmentRequest.findOneAndRemove({'datasetRow': row._id})
+
         uuidsAux.push({uuid: row.uuid})
       }
     }
