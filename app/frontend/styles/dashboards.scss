@@ -1,0 +1,29 @@
+.dash-card {
+    cursor: pointer;
+    background-color: #fff !important;
+    color: $general_text !important;
+    border-radius: 5px !important;
+    .card-header {
+        &-title {
+            color: $general_text !important;
+            justify-content: center;
+        }
+    }
+    i {
+        padding: 5px 5px 5px 10px !important;
+        box-sizing: border-box !important;
+        font-size: 1.8rem;
+    }
+    .card-content {
+        padding: .5rem 1.5rem;
+    }
+    .content p:not(:last-child) {
+        margin-bottom: 0em !important;
+    }
+}
+
+.h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: .6rem;
+}

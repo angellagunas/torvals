@@ -53,37 +53,43 @@ class DashOrgAdmin extends Component {
 
   render() {
     return (
-      <div className='section container'>
-        <h2 className='is-size-4 is-padding-bottom-small has-text-color'>Organización</h2>
-        <div className='columns'>
-
-          <div className='column is-3' onClick={() => this.moveTo('/manage/users')}>
+      <div>
+      <div className='columns is-marginless'>
+        <div className='column is-paddingless'>
+          <div className='section-header'>
+            <h2>Organización</h2>
+          </div>
+        </div>
+        </div>
+        <div className='section'>
+          <div className='columns has-20-margin-top'>
+          <div className='column is-3 is-2-fullhd' onClick={() => this.moveTo('/manage/users')}>
             <div className='card has-text-centered dash-card'>
               <header className='card-header'>
                 <p className='card-header-title no-flex is-size-5-touch is-size-4-desktop has-text-white'>
                   <i className='fa fa-user' />
-                  Usuarios
                 </p>
               </header>
               <div className='card-content'>
                 <div className='content'>
                   <p className='is-size-3-touch is-size-1-desktop'>{this.props.dashboard.usersCount || 0}</p>
+                  <p className='is-size-6-touch is-size-5-desktop'>Usuarios</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className='column is-3' onClick={() => this.moveTo('/manage/groups')}>
+          <div className='column is-3 is-2-fullhd' onClick={() => this.moveTo('/manage/groups')}>
             <div className='card has-text-centered dash-card'>
               <header className='card-header'>
                 <p className='card-header-title no-flex is-size-5-touch is-size-4-desktop has-text-white'>
                   <i className='fa fa-users' />
-                  Grupos
                 </p>
               </header>
               <div className='card-content'>
                 <div className='content'>
                   <p className='is-size-3-touch is-size-1-desktop'>{this.props.dashboard.groupsCount || 0}</p>
+                  <p className='is-size-6-touch is-size-5-desktop'>Grupos</p>
                 </div>
               </div>
             </div>
@@ -91,8 +97,8 @@ class DashOrgAdmin extends Component {
 
         </div>
 
-        <h2 className='is-size-4 is-padding-bottom-small has-text-color'>Proyectos</h2>
-
+          <h2 className='h2'>Proyectos</h2>
+        </div>
         <div className='card'>
               <BranchedPaginatedTable
                 branchName='projects'
@@ -102,6 +108,7 @@ class DashOrgAdmin extends Component {
               />
 
         </div>
+        
       </div>
 
     )

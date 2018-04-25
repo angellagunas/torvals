@@ -661,7 +661,6 @@ class TabHistorical extends Component {
             </div>
           </div>
 
-          <br />
           <div className='columns'>
 
             <div className='column'>
@@ -671,7 +670,9 @@ class TabHistorical extends Component {
                 </div>
                 <div className='panel-block'>
                   {
-                  this.state.historicData.prediction && this.state.weekTotalsPredictions &&
+                    this.state.historicData.prediction &&
+                    this.state.weekTotalsPredictions
+                  ? this.state.historicData.prediction && this.state.weekTotalsPredictions &&
                     this.state.predictions.length > 0 &&
                     this.state.adjustments.length > 0
 
@@ -684,6 +685,7 @@ class TabHistorical extends Component {
                   : <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
                         No hay datos que mostrar
                       </div>
+                  : this.loadTable()
                 }
                 </div>
               </div>
