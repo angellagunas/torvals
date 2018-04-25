@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const lov = require('lov')
 const verifyDatasetrows = require('queues/update-datasetrows')
 
-const {DataSetRow, AdjustmentRequest} = require('models')
+const {DataSetRow, AdjustmentRequest, Role} = require('models')
 
 module.exports = new Route({
   method: 'post',
