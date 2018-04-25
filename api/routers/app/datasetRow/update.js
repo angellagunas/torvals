@@ -37,6 +37,18 @@ module.exports = new Route({
       ctx.throw(404, 'Algunos DataSetRows no fueron encontrados')
     }
 
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
     for (let row of datasetRows) {
       let auxData = hashTable[row.uuid]
       if (parseFloat(row.data.adjustmentForDisplay) !== parseFloat(auxData.localAdjustment)) {
@@ -46,7 +58,9 @@ module.exports = new Route({
         row.markModified('data')
         await row.save()
 
-        await AdjustmentRequest.findOneAndRemove({'datasetRow': row._id})
+        if (currentRole.slug === 'manager-level-1' || currentRole.slug === 'manager-level-2') {
+          await AdjustmentRequest.findOneAndRemove({'datasetRow': row._id})
+        }
 
         uuidsAux.push({uuid: row.uuid})
       }
