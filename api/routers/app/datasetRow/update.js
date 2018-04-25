@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const lov = require('lov')
 const verifyDatasetrows = require('queues/update-datasetrows')
 
-const {DataSetRow} = require('models')
+const {DataSetRow, AdjustmentRequest, Role} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -37,6 +37,18 @@ module.exports = new Route({
       ctx.throw(404, 'Algunos DataSetRows no fueron encontrados')
     }
 
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
     for (let row of datasetRows) {
       let auxData = hashTable[row.uuid]
       if (parseFloat(row.data.adjustmentForDisplay) !== parseFloat(auxData.localAdjustment)) {
@@ -45,6 +57,11 @@ module.exports = new Route({
         row.status = 'sendingChanges'
         row.markModified('data')
         await row.save()
+
+        if (currentRole.slug === 'manager-level-1' || currentRole.slug === 'manager-level-2') {
+          await AdjustmentRequest.findOneAndRemove({'datasetRow': row._id})
+        }
+
         uuidsAux.push({uuid: row.uuid})
       }
     }
