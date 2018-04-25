@@ -15,7 +15,7 @@ export default ListPage({
   create: true,
   createComponent: CreateProduct,
   export: true,
-  exportUrl: 'products',
+  exportUrl: '/admin/products',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [

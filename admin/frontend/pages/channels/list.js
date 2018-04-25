@@ -16,7 +16,7 @@ export default ListPage({
   create: true,
   createComponent: CreateChannel,
   export: true,
-  exportUrl: 'channels',
+  exportUrl: '/admin/channels',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [

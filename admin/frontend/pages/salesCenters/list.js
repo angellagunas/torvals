@@ -16,7 +16,7 @@ export default ListPage({
   create: true,
   createComponent: CreateSalesCenter,
   export: true,
-  exportUrl: 'salesCenters',
+  exportUrl: '/admin/salesCenters',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [

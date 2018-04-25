@@ -16,7 +16,7 @@ export default ListPage({
   create: false,
   createComponent: CreatePrice,
   export: true,
-  exportUrl: 'prices',
+  exportUrl: '/admin/prices',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
