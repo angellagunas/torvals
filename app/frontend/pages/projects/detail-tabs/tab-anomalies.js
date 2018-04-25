@@ -119,7 +119,9 @@ class TabAnomalies extends Component {
     let url = '/app/anomalies/list/' + this.props.project.uuid
     try {
       let res = await api.get(url, {
-        ...this.state.formData
+        ...this.state.formData,
+        start: 0,
+        limit: 0
       })
 
       this.setState({
