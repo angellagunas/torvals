@@ -11,6 +11,8 @@ import Loader from '~base/components/spinner'
 
 import Sidebar from '~components/sidebar'
 import AdminNavBar from '~components/admin-navbar'
+import { ToastContainer } from 'react-toastify'
+
 
 class AdminLayout extends Component {
   constructor (props) {
@@ -130,6 +132,7 @@ class AdminLayout extends Component {
           <div className={this.state.user.currentRole.slug === 'manager-level-1' ? mainClass + ' main-wrapper-lvl-1' : mainClass}>
             <section className='card main'>
               {this.props.children}
+              <ToastContainer />
             </section>
           </div>
         </div>)
