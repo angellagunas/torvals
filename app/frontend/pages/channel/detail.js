@@ -11,7 +11,7 @@ import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
 import Multiselect from '~base/components/base-multiselect'
 import FontAwesome from 'react-fontawesome'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 class ChannelDetail extends Component {
   constructor (props) {
@@ -270,7 +270,6 @@ class ChannelDetail extends Component {
 
     return (
       <div className='columns c-flex-1 is-marginless'>
-        <ToastContainer />
         <div className='column is-paddingless'>
           <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb

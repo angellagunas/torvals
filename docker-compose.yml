@@ -17,15 +17,19 @@ services:
     ports:
      - "3000:3000"
      - "4000:4000"
-     - "5000:5000"
+     - "5001:5000"
     links:
       - mongodb
       - redisdb
     depends_on:
       - mongodb    
       - redisdb
+    env_file:
+      - .env
   redisdb:
     image: "redis:alpine"
+    ports:
+      - "6379:6379"
   mongodb:
       image: mongo:latest
       container_name: "mongodb"
@@ -36,4 +40,4 @@ services:
         - ./data/db:/data/db
       ports:
           - 27017:27017
-      command: mongod --smallfiles --logpath=/dev/null # --quiet    
+      command: mongod --smallfiles --logpath=/dev/null # --quiet

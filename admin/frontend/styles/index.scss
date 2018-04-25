@@ -1,12 +1,9 @@
-$abraxas-color : #3b80af ;// rgba(92,138,169,1) !default;
-
-$primary: $abraxas-color !default;
-
+@import 'colors';
 @import '~bulma';
 @import '~font-awesome/css/font-awesome.css';
-@import 'colors';
+@import '../../../lib/frontend/style.css';
 @import 'base';
 @import 'navbar';
 @import 'sidebar';
-@import '../../../lib/frontend/style.css';
+@import 'landing';
 @import 'mq';

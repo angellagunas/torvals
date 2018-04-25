@@ -11,6 +11,7 @@
 @import 'sidepanel';
 @import 'calendar';
 @import 'datasets';
+@import 'prices';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html,
 body {
@@ -74,6 +75,10 @@ h2 {
         padding-bottom: 1rem;
         min-height: 90vh;
     }
+}
+
+.main-wrapper-lvl-1 {
+    margin-left: 10px !important;
 }
 
 .sidenav-open {
@@ -261,9 +266,31 @@ h2 {
             padding: 10px 15px;
             border-radius: 0;
         }
+        .modal-card-foot {
+            .field.is-grouped {
+                justify-content: flex-end;
+            }
+            background-color: #EFF1F9 !important;
+            border-color: #E6E8F6 !important;
+            padding: 10px 15px;
+            border-radius: 0;
+        }
     }
 }
 
+.disabled-btn {
+    color: rgb(206, 206, 206) !important;
+    border-color: rgb(206, 206, 206) !important;
+    cursor: not-allowed;
+    :hover {
+        color: rgb(206, 206, 206) !important;
+        border-color: rgb(206, 206, 206) !important;
+    }
+}
+
+.has-bg-warning{
+    background-color: $warning !important;
+}
 /* @import 'base'; */
 
 @import '../../../lib/frontend/style.css';

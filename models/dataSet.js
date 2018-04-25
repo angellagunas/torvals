@@ -74,6 +74,7 @@ const dataSetSchema = new Schema({
     isAnalysis: { type: Boolean, default: false },
     isAdjustment: { type: Boolean, default: false },
     isPrediction: { type: Boolean, default: false },
+    isSales: { type: Boolean, default: false },
     isOperationFilter: { type: Boolean, default: false },
     isAnalysisFilter: { type: Boolean, default: false },
     isProduct: { type: Boolean, default: false },
@@ -196,6 +197,12 @@ dataSetSchema.methods.getChannelColumn = function () {
 
 dataSetSchema.methods.getAnalysisColumn = function () {
   var obj = this.columns.find(item => { return item.isAnalysis })
+
+  return obj
+}
+
+dataSetSchema.methods.getSalesColumn = function () {
+  var obj = this.columns.find(item => { return item.isSales })
 
   return obj
 }
@@ -437,6 +444,7 @@ dataSetSchema.methods.processReady = async function (res) {
       var isAnalysis = false
       var isPrediction = false
       var isAdjustment = false
+      var isSales = false
       var isOperationFilter = false
       var isAnalysisFilter = false
       var isProductName = false
@@ -460,6 +468,10 @@ dataSetSchema.methods.processReady = async function (res) {
 
       if (res.columns['is_prediction'] === item) {
         isPrediction = true
+      }
+
+      if (res.columns['is_sale'] === item) {
+        isSales = true
       }
 
       if (res.columns['filter_operations'].find(col => { return col === item })) {
@@ -517,6 +529,7 @@ dataSetSchema.methods.processReady = async function (res) {
         isAnalysis: isAnalysis,
         isPrediction: isPrediction,
         isAdjustment: isAdjustment,
+        isSales: isSales,
         isOperationFilter: isOperationFilter,
         isAnalysisFilter: isAnalysisFilter,
         isProduct: isProduct,

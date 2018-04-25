@@ -75,6 +75,52 @@ class TabAdjustment extends Component {
     }
   }
 
+  getPeriods(data) {
+    let periods = []
+    let adjustments = {
+      '1': 10,
+      '2': 20,
+      '3': 30,
+      '4': -1
+    }
+    const map = new Map()
+
+    if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
+      adjustments = this.props.project.businessRules.adjustments
+    }
+
+    data.map((date) => {     
+      if(date.year === moment().get('year')){
+        const key = date.month
+        const collection = map.get(key)
+        if (!collection) {
+          map.set(key, [date])
+        } else {
+          collection.push(date)
+        }
+      }
+    })
+
+    for (let i = map.size; i > map.size-4; i--) {
+      const element = Array.from(map)[i-1]
+      let adjustment = adjustments['' + (map.size - i + 1)]
+
+      if(adjustment !== -1){
+        adjustment = adjustment/100
+      }
+
+      periods.push({
+        number: element[0],
+        name: `${moment(element[1][0].month, 'M').format('MMMM')}`,
+        maxSemana: element[1][0].week,
+        minSemana: element[1][element[1].length - 1].week,
+        adjustment: adjustment
+      })
+    }
+
+    return periods
+  }
+
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       const url = '/app/rows/filters/dataset/'
@@ -104,76 +150,9 @@ class TabAdjustment extends Component {
           )
         }
 
-        var periods = []
-        var adjustments = {
-          '1': 10,
-          '2': 20,
-          '3': 30,
-          '4': -1
-        }
-
-
-        var maxDate = res.dates[0]
-        var maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
-        if (maxDateEnd === -1) maxDateEnd = res.dates.length
-        var period4 = res.dates.slice(0, maxDateEnd)
-
-        var lastMaxDateEnd = maxDateEnd
-        maxDate = res.dates[maxDateEnd]
-        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
-        if (maxDateEnd === -1) maxDateEnd = res.dates.length
-        var period3 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
-
-        lastMaxDateEnd = maxDateEnd
-        maxDate = res.dates[maxDateEnd]
-        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
-        if (maxDateEnd === -1) maxDateEnd = res.dates.length
-        var period2 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
-
-        lastMaxDateEnd = maxDateEnd
-        maxDate = res.dates[maxDateEnd]
-        maxDateEnd = res.dates.findIndex(item => {return item.month === maxDate.month-1})
-        if (maxDateEnd === -1) maxDateEnd = res.dates.length
-        var period1 = res.dates.slice(lastMaxDateEnd, maxDateEnd)
-
-        if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
-          adjustments = this.props.project.businessRules.adjustments
-        }
-
-        periods.push({
-          number: period4[0].month,
-          name: `${_.capitalize(moment(period4[0].month, 'M').format('MMMM'))}`,
-          adjustment: adjustments['4'],
-          maxSemana: period4[0].week,
-          minSemana: period4[period4.length - 1].week
-        })
-
-        periods.push({
-          number: period3[0].month,
-          name: `${_.capitalize(moment(period3[0].month, 'M').format('MMMM'))}`,
-          adjustment: adjustments['3']/100,
-          maxSemana: period3[0].week,
-          minSemana: period3[period3.length - 1].week
-        })
-
-        periods.push({
-          number: period2[0].month,
-          name: `${_.capitalize(moment(period2[0].month, 'M').format('MMMM'))}`,
-          adjustment: adjustments['2']/100,
-          maxSemana: period2[0].week,
-          minSemana: period2[period2.length - 1].week
-        })
-
-        periods.push({
-          number: period1[0].month,
-          name: `${_.capitalize(moment(period1[0].month, 'M').format('MMMM'))}`,
-          adjustment: adjustments['1']/100,
-          maxSemana: period1[0].week,
-          minSemana: period1[period1.length - 1].week
-        })
-
-        var formData = this.state.formData
-        formData.period = period1[0].month
+        let periods = this.getPeriods(res.dates)
+        let formData = this.state.formData
+        formData.period = periods[0].number
 
         if (res.salesCenters.length > 0) {
           formData.salesCenter = res.salesCenters[0].uuid
@@ -183,8 +162,8 @@ class TabAdjustment extends Component {
           formData.channel = res.channels[0].uuid
         }
 
-        var days = period1[0].week - period1[period1.length - 1].week
-        var filteredSemanasBimbo = Array.from(Array(days+1), (_,x) => period1[0].week - x).reverse()
+        let days = periods[0].maxSemana - periods[0].minSemana
+        let filteredSemanasBimbo = Array.from(Array(days + 1), (_, x) => periods[0].maxSemana - x).reverse()
 
         this.setState({
           filters: {
@@ -235,7 +214,7 @@ class TabAdjustment extends Component {
 
       var days = period.maxSemana - period.minSemana
       var filteredSemanasBimbo = Array.from(Array(days+1), (_,x) => period.maxSemana - x).reverse()
-      
+
       this.setState({
         filters: {
           ...this.state.filters,
@@ -294,7 +273,7 @@ class TabAdjustment extends Component {
   getEditedRows(data) {
     for (let row of data) {
       row.adjustmentForDisplay = row.localAdjustment
-      if (row.adjustmentRequest) {
+      if (row.adjustmentRequest && row.adjustmentRequest.status !== 'rejected') {
         row.adjustmentForDisplay = row.adjustmentRequest.newAdjustment
       }
 
@@ -410,9 +389,9 @@ class TabAdjustment extends Component {
 
                   <div className='control'>
                     <button
-                      className='button is-outlined'
+                      className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonMinus('quantity')}
-                      disabled={this.state.disableButtons}>
+                      >
                       <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
@@ -429,9 +408,9 @@ class TabAdjustment extends Component {
 
                   <div className='control'>
                     <button
-                      className='button is-outlined'
+                      className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonPlus('quantity')}
-                      disabled={this.state.disableButtons}>
+                      >
                       <span className='icon'>
                         <i className='fa fa-plus' />
                       </span>
@@ -451,9 +430,9 @@ class TabAdjustment extends Component {
                 <div className='field is-grouped control'>
                   <div className='control'>
                     <button
-                      className='button is-outlined'
+                      className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonMinus('percent')}
-                      disabled={this.state.disableButtons}>
+                      >
                       <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
@@ -470,9 +449,9 @@ class TabAdjustment extends Component {
 
                   <div className='control'>
                     <button
-                      className='button is-outlined'
+                      className={this.state.disableButtons ? 'button is-outlined disabled-btn' : 'button is-outlined'}
                       onClick={() => this.onClickButtonPlus('percent')}
-                      disabled={this.state.disableButtons}>
+                      >
                       <span className='icon'>
                         <i className='fa fa-plus' />
                       </span>
@@ -496,8 +475,8 @@ class TabAdjustment extends Component {
         {this.state.selectedCheckboxes.size > 0 &&
           <div className='column products-selected'>
             <p>
-              <span>{this.state.byWeek ? this.state.selectedCheckboxes.size / this.state.filters.filteredSemanasBimbo.length : this.state.selectedCheckboxes.size} </span>
-               Productos Seleccionados
+            <span>{this.state.byWeek ? this.getProductsSelected() : this.state.selectedCheckboxes.size} </span>
+            Productos Seleccionados
             </p>
           </div> 
         }
@@ -517,7 +496,16 @@ class TabAdjustment extends Component {
     )
   }
 
+getProductsSelected () {
+  let p = _.groupBy(Array.from(this.state.selectedCheckboxes), 'productId')
+  return _.size(p)
+}
+
   async onClickButtonPlus (type) {
+    if(this.state.selectedCheckboxes.size === 0){
+      this.notify('No tienes productos seleccionados', 3000, toast.TYPE.INFO)
+      return
+    }
     this.setState({isLoadingButtons: ' is-loading'})
     let { selectedCheckboxes } = this.state
     selectedCheckboxes = Array.from(selectedCheckboxes)
@@ -554,6 +542,11 @@ class TabAdjustment extends Component {
   }
 
   async onClickButtonMinus (type) {
+    if (this.state.selectedCheckboxes.size === 0) {
+      this.notify('No tienes productos seleccionados', 3000, toast.TYPE.INFO)
+      return
+    }
+
     this.setState({isLoadingButtons: ' is-loading'})
     let { selectedCheckboxes } = this.state
     selectedCheckboxes = Array.from(selectedCheckboxes)
@@ -603,8 +596,7 @@ class TabAdjustment extends Component {
     let rowAux = []
     let isLimited = false
     let limitedRows = []
-    let { pendingDataRows } = this.state
-
+    let pendingDataRows = {}
     if (obj instanceof Array) {
       rowAux = obj
     } else {
@@ -672,10 +664,7 @@ class TabAdjustment extends Component {
       } else {
         this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
       }
-      
-      this.setState({
-        pendingDataRows: pendingDataRows
-      })
+      this.props.pendingDataRows(pendingDataRows)
 
       await this.updateSalesTable(obj)
 
@@ -705,9 +694,7 @@ class TabAdjustment extends Component {
         delete pendingDataRows[row.uuid]
       }
 
-      this.setState({
-        pendingDataRows: pendingDataRows
-      })
+      this.props.pendingDataRows(pendingDataRows)
 
       return false
     }
@@ -715,66 +702,34 @@ class TabAdjustment extends Component {
     this.props.loadCounters()
 
     if (currentRole !== 'manager-level-1' && limitedRows.length) {
-      this.handleAdjustmentRequest(limitedRows)
+      this.props.handleAdjustmentRequest(limitedRows)
     }
 
     return true
   }
 
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if(type === toast.TYPE.WARNING){
+      className = 'has-bg-warning'
+    }
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
         type: type,
         hideProgressBar: true,
-        closeButton: false
+        closeButton: false,
+        className: className
       })
     } else {
       toast.update(this.toastId, {
         render: message,
         type: type,
         autoClose: timeout,
-        closeButton: false
+        closeButton: false,
+        className: className
       })
     }
-  }
-
-  async handleAdjustmentRequest (obj) {
-    let { pendingDataRows } = this.state
-    let productAux = []
-    if (currentRole === 'consultor') {
-      return
-    }
-
-    if (obj instanceof Array) {
-      productAux = obj
-    } else {
-      productAux.push(obj)
-    }
-
-    try {
-      var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment}))
-    } catch (e) {
-      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
-
-      return
-    }
-
-    for (var product of productAux) {
-      product.adjustmentRequest = res.data[product.uuid]
-      delete pendingDataRows[product.uuid]
-    }
-
-    this.setState({
-      pendingDataRows: pendingDataRows
-    })
-  }
-
-  async handleAllAdjustmentRequest (obj) {
-    let { pendingDataRows } = this.state
-    let pendingDataRowsArray = Object.values(pendingDataRows)
-
-    await this.handleAdjustmentRequest(pendingDataRowsArray)
   }
 
   async searchDatarows() {
@@ -1335,8 +1290,8 @@ class TabAdjustment extends Component {
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }} 
-                      handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }} 
+                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }} 
+                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
                     />
                     :
 
@@ -1345,12 +1300,13 @@ class TabAdjustment extends Component {
                       currentRole={currentRole}                    
                       data={this.state.filteredData}
                       checkAll={this.checkAll}
+                      filteredSemanasBimbo={this.state.filters.filteredSemanasBimbo}
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
-                      handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }} 
+                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
+                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
                     />
                 }
               </div>

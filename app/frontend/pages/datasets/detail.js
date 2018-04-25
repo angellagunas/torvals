@@ -8,7 +8,7 @@ import FontAwesome from 'react-fontawesome'
 import env from '~base/env-variables'
 import classNames from 'classnames'
 import { testRoles } from '~base/tools'
-import { toast, ToastContainer } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -1536,7 +1536,6 @@ class DataSetDetail extends Component {
         {this.getModalCurrentProduct()}
         {this.getModalSalesCenters()}
         {this.getModalChannels()}
-        <ToastContainer />        
       </div>
     )
   }
