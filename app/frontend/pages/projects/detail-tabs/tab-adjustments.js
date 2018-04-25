@@ -662,7 +662,12 @@ getProductsSelected () {
           toast.TYPE.WARNING
         )
       } else {
-        this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
+        if(currentRole === 'manager-level-2' && isLimited){
+          this.notify('¡Ajustes fuera de rango guardados!', 5000, toast.TYPE.WARNING)          
+        }
+        else{
+          this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
+        }
       }
       this.props.pendingDataRows(pendingDataRows)
 
