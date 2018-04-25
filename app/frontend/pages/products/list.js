@@ -17,6 +17,9 @@ export default ListPage({
   titleSingular: 'Producto',
   create: true,
   createComponent: CreateProduct,
+  export: true,
+  exportRole: 'consultor',
+  exportUrl: '/app/products',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
