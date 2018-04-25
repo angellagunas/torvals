@@ -1,0 +1,113 @@
+.dash-card {
+    cursor: pointer;
+    background-color: $abraxas-color !important;
+    color: white !important;
+    border-radius: 5px !important;
+    i {
+        padding: 5px 10px 5px 0px !important;
+        box-sizing: border-box !important;
+    }
+    .content p:not(:last-child) {
+        margin-bottom: 0.3em !important;
+    }
+}
+
+.is-bg-whitesmoke {
+    background-color: whitesmoke !important;
+}
+
+.has-text-color {
+    color: $abraxas-color !important;
+}
+
+.icon-land {
+    height: 7rem !important;
+    width: 7rem !important;
+    background: #28d2eb !important;
+    border-radius: 100px !important;
+    margin: 30px 20px 0px !important;
+}
+
+.card-land {
+    height: 295px !important;
+}
+
+.pad-bottom {
+    padding-bottom: 20px !important;
+}
+
+.land-login {
+    width: 350px !important;
+    background-color: white;
+    overflow: hidden !important;
+    text-align: center !important;
+    padding: 40px !important;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    .input {
+        color: $general_text !important;
+        background-color: rgba(0, 0, 0, 0) !important;
+        border: 0px !important;
+        border-bottom: 2px solid $info !important;
+        width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .input:focus {
+        border: 0px !important;
+        border-bottom: 3px solid $info !important;
+        box-shadow: none !important;
+    }
+    .label {
+        text-align: left !important;
+        color: $general_text !important;
+    }
+    .image {
+        margin-bottom: 15px;
+        img{
+            max-height: inherit;
+        }
+    }
+}
+
+.landing {
+    .modal-background {
+        background-color: whitesmoke;
+    }
+}
+
+.land-card {
+    width: 400px;
+    margin: 0 auto;
+    .navbar-item {
+        background-color: #EFF1F9;
+        border-color: #E6E8F6;
+        .column.is-one-third {
+            text-align: center;
+        }
+    }
+}
+
+.landing {
+    display: flex;
+    height: 100vh;
+    .left-side {
+        background-color: $primary;
+        flex: 0 0 30%;
+        position: relative;
+        .down {
+            position: absolute !important;
+            bottom: 100px !important;
+            h2 {
+                padding: 2.5rem;
+            }
+        }
+        img {
+            padding: 0px 40px !important;
+            margin-bottom: -10px !important;
+        }
+    }
+    .right-side {
+        background-color: whitesmoke;
+        flex: 1;
+    }
+}

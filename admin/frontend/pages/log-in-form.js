@@ -25,7 +25,7 @@ class LogInButton extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      className: '',
+      className: ' is-active',
       formData: {
         email: '',
         password: ''
@@ -106,7 +106,7 @@ class LogInButton extends Component {
     if (env.EMAIL_SEND) {
       resetLink = (
         <p>
-          <Link to='/password/forgotten/' className='has-text-white'>
+          <Link to='/password/forgotten/'>
             Olvidó su contraseña?
           </Link>
         </p>
@@ -117,16 +117,21 @@ class LogInButton extends Component {
       <div>
         <a className='button is-info is-outlined' onClick={(e) => { this.showModal(e) }}>Log In</a>
         <div className={'modal' + this.state.className}>
-          <div className='modal-background' onClick={(e) => { this.hideModal(e) }}></div>
+          <div className='modal-background' />
           <div className='modal-content land-login'>
             <section>
+              <div className='card-image'>
+                <figure className='image'>
+                  <img src='/admin/public/img/logo.png' />
+                </figure>
+              </div>
               <div className='card-container'>
-                <h1 className='is-size-4 has-text-white pad-bottom'>
+                <h1 className='is-size-5 pad-bottom'>
                   Bienvenido, Administrador
                 </h1>
                 <div className='content'>
-                  <div className='columns'>
-                    <div className='column is-offset-4 is-4'>
+                  <div className='columns is-centered'>
+                    <div className='column is-10'>
                       <BaseForm schema={schema}
                         uiSchema={uiSchema}
                         formData={this.state.formData}
@@ -145,7 +150,7 @@ class LogInButton extends Component {
                             type='submit'
                             disabled={!!error}
                           >
-                            Log in
+                            Iniciar sesión
                       </button>
                         </div>
                       </BaseForm>
@@ -156,7 +161,6 @@ class LogInButton extends Component {
               </div>
             </section>
           </div>
-          <button className='modal-close is-large' aria-label='close' onClick={(e) => { this.hideModal(e) }}></button>
         </div>
       </div>
     )
