@@ -167,7 +167,7 @@ class DataSetDetail extends Component {
     await api.post(url)
     await this.load()
     this.setState({ isLoadingConsolidate: '' })
-    this.props.setDataset('') 
+    this.props.setDataset('', 'ajustes') 
   }
 
   async cancelOnClick() {

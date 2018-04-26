@@ -92,15 +92,23 @@ class ProjectDetail extends Component {
     try {
       const body = await api.get(url)
 
-      if (body.data.status === 'empty') {
-        tab = 'datasets'
+      if (!tab) {
+        if (body.data.status === 'empty') {
+          tab = 'datasets'
+        }
+        else if (body.data.status === 'pendingRows' || body.data.status === 'adjustment') {
+          tab = 'ajustes'
+        }
+        else {
+          tab = this.state.selectedTab
+        }
       }
 
-      this.setState({
+    this.setState({
         loading: false,
         loaded: true,
         project: body.data,
-        selectedTab: tab || this.state.selectedTab
+        selectedTab: tab 
       })
 
       this.countAdjustmentRequests()

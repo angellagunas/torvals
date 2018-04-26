@@ -166,7 +166,7 @@ class TabDatasets extends Component {
       datasetClassName: ''
     })
 
-    this.setDatasetDetail(object, 'ajustes')
+    this.setDatasetDetail(object)
   }
 
   componentWillMount () {
