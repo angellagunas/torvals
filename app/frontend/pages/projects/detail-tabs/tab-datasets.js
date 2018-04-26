@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
-import Link from '~base/router/link'
 import CreateDataSet from '../create-dataset'
 import api from '~base/api'
 import PropTypes from 'baobab-react/prop-types'
 import DeleteButton from '~base/components/base-deleteButton'
 import moment from 'moment'
 import {datasetStatus, testRoles} from '~base/tools'
+import DataSetDetail from '../../datasets/dataset-detail'
 
 class TabDatasets extends Component {
   constructor (props) {
@@ -24,9 +24,9 @@ class TabDatasets extends Component {
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/datasets/' + row.uuid}>
+            <a onClick={() => { this.setDatasetDetail(row) }}>
               {row.name}
-            </Link>
+            </a>
           )
         }
       },
@@ -69,42 +69,40 @@ class TabDatasets extends Component {
               <div className='control'>
                 {
                   testRoles('manager-level-2, consultor')
-                    ? <Link
+                    ? <a onClick={() => { this.setDatasetDetail(row) }}
                       className={
                         row.status === 'conciliated' || row.status === 'adjustment'
                           ? 'button'
                           : 'is-hidden'
                       }
-                      to={'/datasets/' + row.uuid}
                     >
                       <span className='icon is-small' title='Visualizar'>
                         <i className='fa fa-eye' />
                       </span>
-                    </Link>
-                    : <Link
+                    </a>
+                    : <a onClick={() => { this.setDatasetDetail(row) }}
                       className={
                         row.status === 'conciliated' || row.status === 'adjustment'
                           ? 'button is-primary'
                           : 'is-hidden'
                       }
-                      to={'/datasets/' + row.uuid}
+
                     >
                       <span className='icon is-small' title='Editar'>
                         <i className='fa fa-pencil' />
                       </span>
-                    </Link>
+                    </a>
                 }
 
-                <Link
+                <a onClick={() => { this.setDatasetDetail(row) }}
                   className={
                     row.status !== 'conciliated' && row.status !== 'adjustment'
                     ? 'button is-info'
                     : 'is-hidden'
                   }
-                  to={'/datasets/' + row.uuid}
                 >
                   Fin. Configuración
-                </Link>
+                </a>
               </div>
               <div className='control'>
                 { this.props.canEdit &&
@@ -167,12 +165,22 @@ class TabDatasets extends Component {
     this.setState({
       datasetClassName: ''
     })
-    this.props.history.push('/datasets/' + object.uuid)
+
+    this.setDatasetDetail(object, 'ajustes')
   }
 
   componentWillMount () {
     this.props.setAlert('is-white', ' ')
   }
+
+  async setDatasetDetail (dataset, tab) {
+    await this.props.reload(tab)
+
+    this.setState({
+      datasetDetail: dataset
+    })
+  }
+
   render () {
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
@@ -191,7 +199,8 @@ class TabDatasets extends Component {
     }
     return (
       <div className='dataset-tab'>
-        <div className='card-content'>
+        {!this.state.datasetDetail
+        ? <div className='card-content'>
           <div className='columns'>
             <div className='column'>
               {this.props.project.status === 'empty'
@@ -252,6 +261,12 @@ class TabDatasets extends Component {
             finishUp={this.finishUpDataset.bind(this)}
           />
         </div>
+
+            : <DataSetDetail
+              dataset={this.state.datasetDetail}
+              setDataset={this.setDatasetDetail.bind(this)}
+              history={this.props.history} />
+          }
       </div>
     )
   }

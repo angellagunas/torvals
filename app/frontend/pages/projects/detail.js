@@ -460,7 +460,7 @@ class ProjectDetail extends Component {
             history={this.props.history}
             canEdit={canEdit}
             setAlert={(type, data) => this.setAlert(type, data)}
-            reload={() => this.load()}
+            reload={(tab) => this.load(tab)}
           />
         )
       },
@@ -499,15 +499,23 @@ class ProjectDetail extends Component {
         content: (
           <div>
             <div className='section'>
-              <div className='has-text-right'>
-                { canEdit &&
-                  <DeleteButton
-                    objectName='Proyecto'
-                    objectDelete={() => this.deleteObject()}
-                    message={'Estas seguro de querer eliminar este Proyecto?'}
-                  />
-                }
-              </div>
+              {canEdit &&
+                <div className='columns is-marginless'>
+                    <div className='column'>
+                  <div className='is-pulled-right'>
+
+                      <DeleteButton
+                        objectName='Proyecto'
+                        objectDelete={() => this.deleteObject()}
+                        message={'Estas seguro de querer eliminar este Proyecto?'}
+                        hideIcon
+                        titleButton={'Eliminar'}
+                      />
+                  </div>
+                    </div>
+                </div>
+              }
+              
               <ProjectForm
                 className='is-shadowless'
                 baseUrl='/app/projects'

@@ -195,7 +195,7 @@ class WeekTable extends Component {
     let cols = []
     let maxWeeks = data.map(item => {return item.weeks.length})
     maxWeeks = maxWeeks.sort((a,b) => {return b-a})
-    
+
     for (let j = 0; j < this.props.filteredSemanasBimbo.length; j++){
       let semanaBimbo = this.props.filteredSemanasBimbo[j]
       cols.push(
@@ -209,7 +209,7 @@ class WeekTable extends Component {
           groupClassName: 'colspan table-week text',
           className: 'table-cell', 
           headerClassName: 'table-head',                                                      
-          formatter: (row) => {
+          formatter: (row) => {            
             if (row.weeks[j]) {
               if (row.weeks[j].prediction) {
                 return row.weeks[j].prediction
@@ -248,6 +248,7 @@ class WeekTable extends Component {
            headerClassName: 'table-head',           
            className: 'table-cell',                      
            formatter: (row) => {
+             if (row.weeks[j] && row.weeks[j].prediction) {
              if (!row.weeks[j].adjustmentForDisplay) {
                row.weeks[j].adjustmentForDisplay = ''
              }
@@ -274,6 +275,10 @@ class WeekTable extends Component {
                 return <span>{row.weeks[j].adjustmentForDisplay}</span>
               }
             }
+             else {
+               return ''
+             }
+          }
           
         },
         {
@@ -286,7 +291,7 @@ class WeekTable extends Component {
           groupClassName: 'table-week table-week-r',
           className: 'col-border table-cell',
           formatter: (row) => {
-            if(row.weeks[j]){
+            if (row.weeks[j] && row.weeks[j].prediction){
               let percentage 
               if(row.weeks[j].lastAdjustment){
                 percentage = (
