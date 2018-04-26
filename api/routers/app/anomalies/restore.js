@@ -7,14 +7,15 @@ module.exports = new Route({
   path: '/restore/:uuid',
   handler: async function (ctx) {
     var data = ctx.request.body
+
     const project = await Project.findOne({uuid: ctx.params.uuid}).populate('activeDataset')
     ctx.assert(project, 404, 'Proyecto no encontrado')
     if (!project.activeDataset) {
       ctx.throw(404, 'No hay DataSet activo para el proyecto')
     }
 
-    const requestBody = {}
-    for (var anomaly in data.anomalies) {
+    const requestBody = []
+    for (var anomaly of data.anomalies) {
       anomaly = await Anomaly.findOne({uuid: anomaly.uuid})
       if (anomaly) {
         requestBody.push({data_rows_id: anomaly.externalId, prediction: anomaly.prediction})
@@ -27,7 +28,6 @@ module.exports = new Route({
     project.set({etag: res._etag})
     await project.save()
     etag = res._etag
-
     var responseData = await Api.restoreAnomalies(project.externalId, etag, requestBody)
 
     ctx.body = {
