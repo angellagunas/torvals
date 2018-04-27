@@ -24,7 +24,7 @@ module.exports = new Route({
       skip: ctx.request.query.start,
       find: {...filters, isDeleted: false, organization: ctx.state.organization._id},
       sort: ctx.request.query.sort || '-dateCreated',
-      populate: 'organization'
+      populate: ['organization', 'activeDataset']
     })
 
     ctx.body = projects
