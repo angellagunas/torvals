@@ -2,17 +2,13 @@ import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import moment from 'moment'
-import FontAwesome from 'react-fontawesome'
 import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
-import DashOrgAdmin from './dashboards/dash-org-admin'
-import DashAnalyst from './dashboards/dash-analyst'
-import DashEntManager from './dashboards/dash-ent-manager'
+
+import Checkbox from '~base/components/base-checkbox'
 
 class Dashboard extends Component {
   constructor (props) {
@@ -20,17 +16,15 @@ class Dashboard extends Component {
     this.state = {
       loading: true
     }
+    this.selectedProjects = {}
+    this.selectedSalesCenters = []
+    this.selectedChannels = []
+    this.selectedProducts = []
   }
 
   componentWillMount () {
     this.load()
-    this.context.tree.set('forecasts', {
-      page: 1,
-      totalItems: 0,
-      items: [],
-      pageLength: 10
-    })
-    this.context.tree.commit()
+    this.getProjects()
   }
 
   async load () {
@@ -39,113 +33,88 @@ class Dashboard extends Component {
 
     this.setState({
       dashboard: body,
-      forecasts: body.forecasts,
-      forecastsCount: body.forecasts.length,
-      projects: body.project,
       loading: false
     })
   }
 
-  getColumns () {
-    return [
-      {
-        'title': 'Status',
-        'property': 'status',
-        'default': 'N/A',
-        'sortable': true
-      },
-      {
-        'title': 'Start date',
-        'property': 'dateStart',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            moment.utc(row.dateStart).local().format('DD/MM/YYYY')
-          )
-        }
-      },
-      {
-        'title': 'End date',
-        'property': 'dateEnd',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            moment.utc(row.dateEnd).local().format('DD/MM/YYYY')
-          )
-        }
-      },
-      {
-        'title': 'Created',
-        'property': 'dateCreated',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
-          )
-        }
-      },
-      {
-        'title': 'Actions',
-        formatter: (row) => {
-          return <Link className='button' to={'/forecasts/' + row.uuid}>
-            Detalle
-          </Link>
-        }
-      }
-    ]
+  async getProjects () {
+    let url = '/app/projects'
+
+    let res = await api.get(url)
+
+    let activeProjects = res.data.filter(item => { return item.activeDataset })
+
+    this.setState({
+      projects: activeProjects
+    })
   }
 
-  boxOnClick (uuid) {
-    this.props.history.push(`forecasts/${uuid}`)
-  }
-
-  getForecastList () {
-    const {
-      forecastsCount,
-      forecasts
-    } = this.state
-
-    if (forecastsCount > 0) {
-      return (
-        <div>
-          <h1 className='title'>Forecasts pendientes de revisión:</h1>
-          {forecasts.map(item => {
-            return (
-              <div
-                className='box'
-                key={item.uuid}
-                onClick={() => this.boxOnClick(item.uuid)}
-                style={{cursor: 'pointer'}}
-              >
-                Forecast del {moment(item.dateStart).format('YYYY-MM-DD')} al {moment(item.dateEnd).format('YYYY-MM-DD')}, status: {item.status}
-              </div>
-            )
-          })}
-        </div>
-      )
+  checkAll () {
+    let aux = this.state.projects
+    for (const project of aux) {
+      project.selected = true
+      this.selectedProjects[project.uuid] = project
     }
+    this.setState({
+      projects: aux
+    })
 
-    return (
-      <div className='message is-success'>
-        <div className='message-body is-large has-text-centered'>
-          <div className='columns'>
-            <div className='column'>
-              <span className='icon has-text-success is-large'>
-                <FontAwesome className='fa-3x' name='thumbs-up' />
-              </span>
-            </div>
-          </div>
-          <div className='columns'>
-            <div className='column'>
-              No hay Forecasts por revisar!
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    this.getAll()
+  }
+
+  async selectProject (e, value, project) {
+    console.log(project)
+    if (value) {
+      this.selectedProjects[project.uuid] = project.activeDataset._id
+    } else {
+      delete this.selectedProjects[project.uuid]
+      this.setState({
+        filters: undefined,
+        salesCenters: undefined,
+        channels: undefined,
+        products: undefined
+      })
+    }
+    this.getAll()
+  }
+
+  selectSalesCenter (e, value, project) {
+    console.log(e, value)
+    if (value) {
+      this.selectedSalesCenters[project.uuid] = project.uuid
+    } else {
+      delete this.selectedSalesCenters[project.uuid]
+    }
+  }
+
+  selectChannel (e, value, project) {
+    console.log(e, value)
+    if (value) {
+      this.selectedChannels[project.uuid] = project.uuid
+    } else {
+      delete this.selectedChannels[project.uuid]
+    }
+  }
+
+  selectProduct (e, value, project) {
+    console.log(e, value)
+    if (value) {
+      this.selectedProducts[project.uuid] = project.uuid
+    } else {
+      delete this.selectedProducts[project.uuid]
+    }
+  }
+
+  async getAll () {
+    let url = '/app/dashboard/projects'
+    let res = await api.post(url, Object.values(this.selectedProjects))
+
+    this.setState({
+      filters: res,
+      salesCenters: res.salesCenters,
+      channels: res.channels,
+      products: res.products
+    })
   }
 
   render () {
@@ -163,18 +132,6 @@ class Dashboard extends Component {
       return <Redirect to='/landing' />
     }
 
-    if (user.currentRole.slug === 'orgadmin') {
-      return <DashOrgAdmin dashboard={this.state.dashboard} history={this.props.history} />
-    }
-
-    if (user.currentRole.slug === 'analyst') {
-      return <DashAnalyst dashboard={this.state.dashboard} history={this.props.history} />
-    }
-
-    if (user.currentRole.slug === 'consultor' || user.currentRole.slug === 'manager-level-2') {
-      return <DashEntManager dashboard={this.state.dashboard} history={this.props.history} />
-    }
-
     if (user.currentRole.slug === 'manager-level-1') {
       return <Redirect to={'/projects/' + user.currentProject.uuid} />
     }
@@ -182,34 +139,100 @@ class Dashboard extends Component {
     return (
       <div className='section'>
 
-        <div className='columns'>
-          <div className='column'>
-            {this.getForecastList()}
-          </div>
+        <div className='filters-project section columns'>
+          <aside className='menu column is-narrow'>
+            <p className='menu-label'>
+              Proyectos <strong>{this.state.projects && this.state.projects.length}</strong>
+            </p>
+            <ul className='menu-list'>
+              {this.state.projects &&
+                this.state.projects.map((item) => {
+                  if (item.activeDataset) {
+                    return (
+                      <li key={item.uuid}>
+                        <a>
+                          <Checkbox
+                            checked={item.selected}
+                            label={item.name}
+                            handleCheckboxChange={(e, value) => this.selectProject(e, value, item)}
+                            key={item.uuid}
+                          />
+                        </a>
+                      </li>
+                    )
+                  }
+                })
+              }
+            </ul>
+          </aside>
+          <aside className='menu column is-narrow'>
+            <p className='menu-label'>
+              Centros de Venta <strong>{this.state.salesCenters && this.state.salesCenters.length}</strong>
+            </p>
+            <ul className='menu-list'>
+              {this.state.salesCenters &&
+                this.state.salesCenters.map((item) => {
+                  return (
+                    <li key={item.uuid}>
+                      <a>
+                        <Checkbox
+                          label={item.name}
+                          handleCheckboxChange={(e, value) => this.selectSalesCenter(e, value, item)}
+                          key={item.uuid}
+                        />
+                      </a>
+                    </li>
+                  )
+                })
+              }
+            </ul>
+          </aside>
+          <aside className='menu column is-narrow'>
+            <p className='menu-label'>
+              Canales <strong>{this.state.channels && this.state.channels.length}</strong>
+            </p>
+            <ul className='menu-list'>
+              {this.state.channels &&
+                this.state.channels.map((item) => {
+                  return (
+                    <li key={item.uuid}>
+                      <a>
+                        <Checkbox
+                          label={item.name}
+                          handleCheckboxChange={(e, value) => this.selectChannel(e, value, item)}
+                          key={item.uuid}
+                        />
+                      </a>
+                    </li>
+                  )
+                })
+              }
+            </ul>
+          </aside>
+          <aside className='menu column is-narrow'>
+            <p className='menu-label'>
+              Productos <strong>{this.state.products && this.state.products.length}</strong>
+            </p>
+            <ul className='menu-list'>
+              {this.state.products &&
+                this.state.products.map((item) => {
+                  return (
+                    <li key={item.uuid}>
+                      <a>
+                        <Checkbox
+                          label={item.name}
+                          handleCheckboxChange={(e, value) => this.selectProduct(e, value, item)}
+                          key={item.uuid}
+                        />
+                      </a>
+                    </li>
+                  )
+                })
+              }
+            </ul>
+          </aside>
         </div>
-        <div className='columns'>
-          <div className='column'>
-            <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                    Forecasts revisados
-                </p>
-              </header>
-              <div className='card-content'>
-                <div className='columns'>
-                  <div className='column'>
-                    <BranchedPaginatedTable
-                      branchName='forecasts'
-                      baseUrl='/app/forecasts'
-                      columns={this.getColumns()}
-                      filters={{status: 'readyToOrder'}}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
     )
   }

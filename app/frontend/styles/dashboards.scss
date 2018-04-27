@@ -27,3 +27,45 @@
     font-weight: 700;
     margin-bottom: .6rem;
 }
+
+.filters-project {
+    font-size: .8rem !important;
+    .md-checkbox {
+        line-height: 1;
+        font-size: inherit;
+    }
+    .md-checkbox--fake {
+        margin: 2px;
+        width: 15px;
+        height: 15px;
+    }
+    .md-checkbox--fake::after {
+        width: 15px;
+        height: 15px;
+        border-radius: 2px;
+        border: 2px solid #ccc;
+    }
+    .md-checkbox--fake::before {
+        border-radius: 2px;
+        border: 0px solid transparent;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::after {
+        border: 2px solid #ccc;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::before {
+        height: 5px;
+        border-radius: 2px;
+        border-color: $success;
+        border-width: 2px;
+        border-top-style: none;
+        border-right-style: none;
+        -webkit-transform: rotate(-45deg);
+        -moz-transform: rotate(-45deg);
+        -ms-transform: rotate(-45deg);
+        -o-transform: rotate(-45deg);
+        transform: rotate(-45deg) translate(0px, 4px);
+    }
+    .md-checkbox>div {
+        line-height: 20px;
+    }
+}
