@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
-
-const {Project, User} = require('models')
+const {Project} = require('models')
 
 module.exports = new Route({
   method: 'delete',
@@ -9,7 +8,14 @@ module.exports = new Route({
     var projectId = ctx.params.uuid
 
     var project = await Project.findOne({'uuid': projectId})
-    ctx.assert(project, 404, 'Project not found')
+    .populate('datasets.dataset')
+
+    ctx.assert(project, 404, 'Proyecto no encontrado')
+
+    for (var d of project.datasets) {
+      d.dataset.isDeleted = true
+      await d.dataset.save()
+    }
 
     project.set({
       isDeleted: true

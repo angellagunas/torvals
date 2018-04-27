@@ -15,7 +15,7 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const group = await Group.findOne({'uuid': groupId, 'isDeleted': false})
-    ctx.assert(group, 404, 'Group not found')
+    ctx.assert(group, 404, 'Grupo no encontrado')
 
     data.slug = slugify(data.name)
     group.set(data)
@@ -25,7 +25,7 @@ module.exports = new Route({
     group.save()
 
     ctx.body = {
-      data: group.format()
+      data: group.toPublic()
     }
   }
 })

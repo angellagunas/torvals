@@ -1,24 +1,24 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
-import classNames from 'classnames'
+import env from '~base/env-variables'
 
 import cookies from '~base/cookies'
 import api from '~base/api'
 import Link from '~base/router/link'
 import tree from '~core/tree'
-import SelectOrganizationForm from '~base/components/select-organization'
 
 class NavBar extends Component {
   constructor (props) {
     super(props)
     this.state = {
       mobileMenu: 'close',
-      profileDropdown: 'is-hidden',
+      profileDropdown: '',
       dropCaret: 'fa fa-caret-down',
       redirect: false,
       navbarBrandCollapsed: false,
-      path: ''
+      path: '',
+      toggleOrgsClass: 'hide-orgs'
     }
 
     this.setWrapperRef = this.setWrapperRef.bind(this)
@@ -27,10 +27,10 @@ class NavBar extends Component {
 
   componentWillReceiveProps (nextProps) {
     if (this.state.navbarBrandCollapsed !== nextProps.collapsed) {
-      this.setState({navbarBrandCollapsed: !this.state.navbarBrandCollapsed})
+      this.setState({ navbarBrandCollapsed: !this.state.navbarBrandCollapsed })
     }
     if (nextProps.location.pathname !== this.state.path) {
-      this.setState({path: nextProps.location.pathname})
+      this.setState({ path: nextProps.location.pathname })
       this.props.handlePathChange(nextProps.location.pathname)
     }
   }
@@ -49,12 +49,14 @@ class NavBar extends Component {
 
   handleClickOutside (event) {
     if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-      this.setState({ 'profileDropdown': 'is-hidden', 'dropCaret': 'fa fa-caret-down' })
+      this.setState({
+        profileDropdown: ''
+      })
     }
   }
 
   async handleLogout () {
-    const {history} = this.props
+    const { history } = this.props
 
     try {
       await api.del('/user')
@@ -70,32 +72,43 @@ class NavBar extends Component {
     tree.set('loggedIn', false)
     await tree.commit()
 
-    history.push('/log-in')
+    history.push('/landing')
+  }
+
+  async changeHandler (slug) {
+    tree.set('shouldSelectOrg', false)
+    await tree.commit()
+    cookies.set('organization', slug)
+    var data = env.APP_HOST.split('://')
+    window.location = data[0] + '://' + slug + '.' + data[1] + '/dashboard'
   }
 
   toggleBtnClass () {
-    if (this.wrapperRef) {
-      if (this.state.profileDropdown === 'is-hidden') {
-        this.setState({ 'profileDropdown': 'is-active', 'dropCaret': 'fa fa-caret-up' })
-      } else {
-        this.setState({ 'profileDropdown': 'is-hidden', 'dropCaret': 'fa fa-caret-down' })
-      }
-    }
+    this.setState({
+      profileDropdown: this.state.profileDropdown === 'is-active' ? '' : 'is-active'
+    })
+  }
+
+  toggleOrgs () {
+    this.setState({
+      dropCaret: this.state.dropCaret === 'fa fa-caret-up' ? 'fa fa-caret-down' : 'fa fa-caret-up',
+      toggleOrgsClass: this.state.toggleOrgsClass === 'hide-orgs' ? 'show-orgs' : 'hide-orgs'
+    })
   }
 
   handleNavbarBurgerClick () {
     if (this.state.mobileMenu === 'open') {
-      this.setState({mobileMenu: 'close'})
+      this.setState({ mobileMenu: 'close' })
     } else {
-      this.setState({mobileMenu: 'open'})
+      this.setState({ mobileMenu: 'open' })
     }
   }
 
   render () {
-    var navButtons
     let avatar
     let username
     let user = this.props.user
+    let org = user.currentOrganization
 
     if (this.props.loggedIn) {
       avatar = '/public/img/avt-default.jpg'
@@ -104,63 +117,95 @@ class NavBar extends Component {
         avatar = user.profileUrl
         username = user.name
       }
-
-      navButtons = (<div className='dropdown-content'>
-        <Link className='dropdown-item' onClick={() => this.toggleBtnClass()} to='/profile'>Profile</Link>
-        <a className='dropdown-item' onClick={() => this.handleLogout()}>
-          Logout
-        </a>
-      </div>)
     }
-
-    const navbarBrand = classNames('c-topbar__aside navbar-brand', {
-      'collapsed': this.state.navbarBrandCollapsed
-    })
-
-    return (<nav className='c-topbar navbar c-fixed'>
-      <div className={navbarBrand}>
-        <Link to='/' className='navbar-item'>
-          <img className='is-flex' src='/app/public/img/pythia-logo.png' />
-          <h3 className='is-size-4 has-text-white is-capitalized has-text-weight-semibold'>Pythia</h3>
-        </Link>
-      </div>
-      <div className='c-topbar__main'>
-        <div className='navbar-menu-container'>
-          <div className='navbar-start'>
-            <div className='navbar-start'>
-              <div className='navbar-burger burger-desktop' onClick={this.props.handleBurgerEvent}>
-                <span />
-                <span />
-                <span />
-              </div>
-            </div>
-            <div className='navbar-select'>
-              <SelectOrganizationForm />
-            </div>
+    return (
+      <div>
+        <nav className='navbar is-transparent'>
+          <div className='navbar-brand'>
+            <Link to='/' className='navbar-item'>
+              <figure className='image'>
+                <img className='logo' src='/app/public/img/oraxh.svg' />
+              </figure>
+            </Link>
           </div>
-          <div className='navbar-end'>
-            <div className='navbar-item is-size-7 has-text-grey is-capitalized'>
-              Bienvenido { username }
-            </div>
-            <div className='is-flex is-align-center'>
-              <img className='is-rounded avatar' src={avatar} width='40' height='40' alt='Avatar' />
-            </div>
-            <div className='dropdown is-active is-right' ref={this.setWrapperRef}>
-              <div className='dropdown-trigger is-flex'>
-                <a href='javascript:undefined' className='navbar-item grey-hover' onClick={() => this.toggleBtnClass()}>
+          <div className='navbar-menu'>
+            <div className='navbar-start'>
+              {
+                this.props.user.currentRole.slug !== 'manager-level-1' &&
+                <div className='navbar-start'>
+                  <div className='navbar-burger burger-desktop' onClick={this.props.handleBurgerEvent}>
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                </div>
+              }
+
+              <a className='navbar-item is-size-6 is-capitalized has-text-weight-semibold'
+                onClick={() => this.toggleOrgs()}>
+                <img className='avatar' src={org.profileUrl} alt='Avatar org' />
+                {org.name}
+                {
+                  user.organizations.length > 1 &&
                   <span className='icon'>
                     <i className={this.state.dropCaret} />
                   </span>
+                }
+              </a>
+            </div>
+            <div className='navbar-end'>
+              <div className={'navbar-item has-dropdown ' + this.state.profileDropdown}
+                ref={this.setWrapperRef}>
+                <a className='navbar-link'
+                  onClick={() => this.toggleBtnClass()}>
+                  <div className='navbar-item is-size-7 is-capitalized has-text-weight-semibold'>
+                    {username}
+                    <img className='avatar' src={avatar} alt='Avatar' />
+                  </div>
                 </a>
-              </div>
-              <div className={this.state.profileDropdown}>
-                <div className='dropdown-menu' id='dropdown-menu' role='menu'>{ navButtons }</div>
+                <div className='navbar-dropdown is-right'>
+                  <Link className='dropdown-item'
+                    onClick={() => this.toggleBtnClass()}
+                    to='/profile'>
+                    <span className='icon'>
+                      <i className='fa fa-user-o' />
+                    </span>
+                    Mi perfil
+                  </Link>
+                  <a className='dropdown-item'
+                    onClick={() => this.handleLogout()}>
+                    <span className='icon'>
+                      <i className='fa fa-sign-out' />
+                    </span>
+                    Cerrar sesión
+                  </a>
+                </div>
               </div>
             </div>
           </div>
+        </nav>
+        <div className={'columns is-multiline is-mobile orgs ' + this.state.toggleOrgsClass}>
+          {
+            user.organizations.map((item, key) => {
+              if (item.organization.slug !== user.currentOrganization.slug) {
+                return (
+                  <div className='column is-narrow is-clickable' key={key}>
+                    <span className='media is-size-6 is-capitalized has-text-weight-semibold'
+                      onClick={() => { this.changeHandler(item.organization.slug) }}>
+                      <figure className='media-left image is-32x32'>
+                        <img className='avatar' src={item.organization.profileUrl} alt='Avatar org' />
+                      </figure>
+                      <span className='media-content'>
+                        {item.organization.name}
+                      </span>
+                    </span>
+                  </div>
+                )
+              }
+            })
+          }
         </div>
-      </div>
-    </nav>)
+      </div>)
   }
 }
 

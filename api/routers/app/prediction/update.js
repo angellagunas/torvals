@@ -14,7 +14,7 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const prediction = await Prediction.findOne({'uuid': predictionId, 'isDeleted': false})
-    ctx.assert(prediction, 404, 'Prediction not found')
+    ctx.assert(prediction, 404, 'Predicción no encontrada')
 
     prediction.data.lastAdjustment = prediction.data.adjustment
     prediction.data.adjustment = data.adjustment
@@ -23,7 +23,7 @@ module.exports = new Route({
     prediction.save()
 
     ctx.body = {
-      data: prediction.format()
+      data: prediction.toPublic()
     }
   }
 })

@@ -14,17 +14,22 @@ module.exports = new Route({
     var data = ctx.request.body
 
     data.slug = slugify(data.name)
-    const auxRole = await Role.findOne({slug: data.slug})
+    var auxRole = await Role.findOne({slug: data.slug})
     if (auxRole && !auxRole.isDeleted) {
-      ctx.throw(400, "You can't have two roles with the same name")
+      ctx.throw(400, 'No se pueden tener dos roles con el mismo nombre')
+    }
+
+    auxRole = await Role.findOne({priority: parseInt(data.priority)})
+    if (auxRole && !auxRole.isDeleted) {
+      ctx.throw(400, 'No se pueden tener dos roles con la misma prioridad')
     }
 
     if (auxRole && auxRole.isDeleted) {
       auxRole.isDeleted = false
-      auxRole.save()
+      await auxRole.save()
 
       ctx.body = {
-        data: auxRole.format()
+        data: auxRole.toAdmin()
       }
 
       return
@@ -33,7 +38,7 @@ module.exports = new Route({
     const role = await Role.create(data)
 
     ctx.body = {
-      data: role.format()
+      data: role.toAdmin()
     }
   }
 })

@@ -3,7 +3,6 @@ const lov = require('lov')
 
 const {Project, Forecast} = require('models')
 const Api = require('lib/abraxas/api')
-const request = require('lib/request')
 const moment = require('moment')
 
 module.exports = new Route({
@@ -18,10 +17,10 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const project = await Project.findOne({'uuid': projectId}).populate('datasets.dataset')
-    ctx.assert(project, 404, 'Project not found')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     if (project.datasets.length === 0) {
-      ctx.throw(401, 'You need to add Datasets to the project first!')
+      ctx.throw(401, 'Se necesitan agregar datasets al proyecto primero!')
     }
 
     const forecastData = {
@@ -37,60 +36,36 @@ module.exports = new Route({
       columnsForForecast: data.columnsForForecast
     }
 
-    var apiData = Api.get()
-    if (!apiData.token) {
-      await Api.fetch()
-      apiData = Api.get()
-    }
-
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/configs_pr/`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      body: {
-        project_id: project.uuid,
-        datasets: forecastData.datasets.map(item => {
-          return {
-            _id: item.dataset.externalId,
-            columns: item.columns.map(col => {
-              return {
-                'name_dataset': col.name_dataset,
-                'name_project': col.name_project
-              }
-            })
-          }
-        }),
-        columns_for_forecast: forecastData.columnsForForecast,
-        forecast_start: forecastData.dateStart.format('YYYY-MM-DD'),
-        forecast_end: forecastData.dateEnd.format('YYYY-MM-DD'),
-        frequency: forecastData.frequency,
-        holidays: forecastData.holidays,
-        change_points: forecastData.changePoints
-      },
-      json: true,
-      persist: true
-    }
-
     let forecast
+    const res = await Api.configForecast({
+      project_id: project.uuid,
+      datasets: forecastData.datasets.map(item => {
+        return {
+          _id: item.dataset.externalId,
+          columns: item.columns.map(col => {
+            return {
+              'name_dataset': col.name_dataset,
+              'name_project': col.name_project
+            }
+          })
+        }
+      }),
+      columns_for_forecast: forecastData.columnsForForecast,
+      forecast_start: forecastData.dateStart.format('YYYY-MM-DD'),
+      forecast_end: forecastData.dateEnd.format('YYYY-MM-DD'),
+      frequency: forecastData.frequency,
+      holidays: forecastData.holidays,
+      change_points: forecastData.changePoints
+    })
 
-    try {
-      var res = await request(options)
-
-      forecast = await Forecast.create({
-        ...forecastData,
-        configPrId: res._id,
-        status: 'created'
-      })
-    } catch (e) {
-      ctx.throw(401, 'Failed to create Forecast, check your internet connection')
-    }
+    forecast = await Forecast.create({
+      ...forecastData,
+      configPrId: res._id,
+      status: 'created'
+    })
 
     ctx.body = {
-      data: forecast.format()
+      data: forecast.toAdmin()
     }
   }
 })

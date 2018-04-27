@@ -2,13 +2,16 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import moment from 'moment'
 import Link from '~base/router/link'
+import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProductForm from './create-form'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class ProductDetail extends Component {
   constructor (props) {
@@ -16,41 +19,54 @@ class ProductDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      product: {}
+      product: {},
+      roles: 'admin, orgadmin, analyst, manager-level-2',
+      canEdit: false,
+      isLoading: ''
     }
   }
 
   componentWillMount () {
     this.load()
+    this.setState({canEdit: testRoles(this.state.roles)})
   }
 
   async load () {
     var url = '/app/products/' + this.props.match.params.uuid
-    const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      product: body.data
-    })
+    try {
+      const body = await api.get(url)
+
+      this.setState({
+        loading: false,
+        loaded: true,
+        product: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async deleteObject () {
     var url = '/app/products/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/products')
+    this.props.history.push('/catalogs/products')
   }
 
   getColumns () {
     return [
       {
-        'title': 'Status',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Start date',
+        'title': 'Fecha Inicial',
         'property': 'dateStart',
         'default': 'N/A',
         'sortable': true,
@@ -61,7 +77,7 @@ class ProductDetail extends Component {
         }
       },
       {
-        'title': 'End date',
+        'title': 'Fecha Final',
         'property': 'dateEnd',
         'default': 'N/A',
         'sortable': true,
@@ -72,7 +88,7 @@ class ProductDetail extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <Link className='button' to={'/forecasts/' + row.uuid}>
@@ -84,25 +100,68 @@ class ProductDetail extends Component {
     ]
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
-    if (this.state.loading) {
+    if (this.state.notFound) {
+      return <NotFound msg='este producto' />
+    }
+    let { loading, canEdit, product } = this.state
+    if (loading) {
       return <Loader />
     }
 
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/catalogs/products',
+                  label: 'Productos',
+                  current: false
+                },
+                {
+                  path: '/catalogs/products/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/catalogs/products/detail/',
+                  label: product.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
-                    <DeleteButton
-                      titleButton={'Delete'}
-                      objectName='Product'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={`Are you sure you want to delete the product ${this.state.product.name}?`}
-                    />
+                    { canEdit &&
+                      <DeleteButton
+                        titleButton={'Eliminar'}
+                        objectName='Producto'
+                        objectDelete={this.deleteObject.bind(this)}
+                        message={`¿Eliminar el producto ${this.state.product.name}?`}
+                      />
+                    }
                   </div>
                 </div>
               </div>
@@ -112,7 +171,7 @@ class ProductDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Product
+                      Producto
                     </p>
                   </header>
                   <div className='card-content'>
@@ -123,38 +182,21 @@ class ProductDetail extends Component {
                           url={'/app/products/' + this.props.match.params.uuid}
                           initialState={this.state.product}
                           load={this.load.bind(this)}
+                          canEdit={canEdit}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </ProductForm>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Forecasts
-                        </p>
-                      </header>
-                      <div className='card-content'>
-                        <div className='columns'>
-                          <div className='column'>
-                            <BranchedPaginatedTable
-                              branchName='forecasts'
-                              baseUrl='/app/forecasts/'
-                              columns={this.getColumns()}
-                              filters={{product: this.state.product.uuid}}
-                            />
-                          </div>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -169,10 +211,10 @@ class ProductDetail extends Component {
 }
 
 export default Page({
-  path: '/products/:uuid',
+  path: '/catalogs/products/:uuid',
   title: 'Product detail',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin, localmanager, opsmanager',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
   validate: [loggedIn, verifyRole],
   component: ProductDetail
 })

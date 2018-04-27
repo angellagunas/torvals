@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {Role} = require('models')
+const { Role } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -18,11 +18,30 @@ module.exports = new Route({
       }
     }
 
+    let user = ctx.state.user
+    var currentRole
+    var currentOrganization
+    if (ctx.state.organization) {
+      currentOrganization = user.organizations.find(orgRel => {
+        return ctx.state.organization._id.equals(orgRel.organization._id)
+      })
+
+      if (currentOrganization) {
+        const role = await Role.findOne({_id: currentOrganization.role})
+
+        currentRole = role.toPublic()
+      }
+    }
+
+    if (currentRole.slug !== 'consultor') {
+      filters['priority'] = { $gt: currentRole.priority }
+    }
+
     var role = await Role.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
-      sort: ctx.request.query.sort || '-dateCreated'
+      sort: ctx.request.query.sort || 'priority'
     })
 
     ctx.body = role

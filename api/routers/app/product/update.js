@@ -17,7 +17,7 @@ module.exports = new Route({
       'uuid': productId,
       'isDeleted': false
     }).populate('organization')
-    ctx.assert(product, 404, 'Product not found')
+    ctx.assert(product, 404, 'Producto no encontrado')
 
     product.set({
       name: data.name,
@@ -25,13 +25,14 @@ module.exports = new Route({
       cost: data.cost,
       category: data.category,
       subcategory: data.subcategory,
-      externalId: data.externalId
+      externalId: data.externalId,
+      isNewExternal: false
     })
 
     product.save()
 
     ctx.body = {
-      data: product.format()
+      data: product.toPublic()
     }
   }
 })

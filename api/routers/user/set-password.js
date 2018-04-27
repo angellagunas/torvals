@@ -13,7 +13,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     const { uuid, password } = ctx.request.body
     var user = await User.findOne({uuid: uuid})
-    ctx.assert(user, 404, 'Invalid user!')
+    ctx.assert(user, 404, 'Usuario inválido')
 
     user.set({password})
     await user.save()
@@ -33,7 +33,7 @@ module.exports = new Route({
     const token = await user.createToken({
       type: 'session'
     })
-
+    user.sendPasswordConfirmation()
     ctx.body = {
       user: userPublic,
       isAdmin: user.isAdmin,

@@ -1,12 +1,11 @@
-import React, { Component } from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
+import React from 'react'
+
+import PageComponent from '~base/page-component'
 import api from '~base/api'
 import moment from 'moment'
 import env from '~base/env-variables'
 import FontAwesome from 'react-fontawesome'
 
-import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import UserForm from './form'
@@ -14,57 +13,77 @@ import Multiselect from '~base/components/base-multiselect'
 import { BaseTable } from '~base/components/base-table'
 import Link from '~base/router/link'
 import AddOrganization from './add-organization'
+import BaseModal from '~base/components/base-modal'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
-class UserDetail extends Component {
+class UserDetail extends PageComponent {
   constructor (props) {
     super(props)
+
     this.state = {
-      loaded: false,
-      loading: true,
+      ...this.baseState,
       resetLoading: false,
-      resetText: 'Reset password',
+      resetText: 'Restablecer Contraseña',
       resetClass: 'button is-danger',
       user: {},
       roles: [],
       groups: [],
       selectedGroups: [],
       saving: false,
-      saved: false
+      saved: false,
+      classNameProjects: '',
+      projects: [],
+      project: '',
+      isLoading: ''
     }
   }
 
-  componentWillMount () {
-    this.load()
-    this.loadRoles()
-    this.loadGroups()
+  async onFirstPageEnter () {
+    const groups = await this.loadGroups()
+    const roles = await this.loadRoles()
+
+    return {roles, groups}
   }
 
-  async load () {
-    var url = '/admin/users/' + this.props.match.params.uuid
-    const body = await api.get(url)
+  async onPageEnter () {
+    const data = await this.loadCurrentUser()
 
-    await this.setState({
-      loading: false,
-      loaded: true,
-      user: body.data,
-      selectedGroups: [...body.data.groups]
-    })
+    return {
+      user: data,
+      selectedGroups: data.groups,
+      selectedOrgs: data.organizations
+    }
+  }
+
+  async loadCurrentUser () {
+    var url = '/admin/users/' + this.props.match.params.uuid
+    try {
+      const body = await api.get(url)
+      await this.setState({
+        loading: false,
+        loaded: true,
+        user: body.data,
+        selectedGroups: [...body.data.groups]
+      })
+      return body.data
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async loadRoles () {
     var url = '/admin/roles/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    this.setState({
-      ...this.state,
-      roles: body.data
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0
     })
+
+    return body.data
   }
 
   async loadGroups () {
@@ -82,16 +101,8 @@ class UserDetail extends Component {
       ...this.state,
       groups: body.data
     })
-  }
 
-  getDateCreated () {
-    if (this.state.user.dateCreated) {
-      return moment.utc(
-        this.state.user.dateCreated
-      ).format('DD/MM/YYYY hh:mm a')
-    }
-
-    return 'N/A'
+    return body.data
   }
 
   async removeOrgOnClick (org, role) {
@@ -102,8 +113,6 @@ class UserDetail extends Component {
         role: role
       }
     )
-
-    this.load()
     this.loadGroups()
   }
 
@@ -176,7 +185,7 @@ class UserDetail extends Component {
   async resetOnClick () {
     await this.setState({
       resetLoading: true,
-      resetText: 'Sending email...',
+      resetText: 'Enviando email...',
       resetClass: 'button is-info'
     })
 
@@ -187,7 +196,7 @@ class UserDetail extends Component {
       setTimeout(() => {
         this.setState({
           resetLoading: true,
-          resetText: 'Sucess!',
+          resetText: 'Éxito!',
           resetClass: 'button is-success'
         })
       }, 3000)
@@ -202,28 +211,64 @@ class UserDetail extends Component {
     setTimeout(() => {
       this.setState({
         resetLoading: false,
-        resetText: 'Reset Password',
+        resetText: 'Restablecer Contraseña',
         resetClass: 'button is-danger'
       })
     }, 10000)
   }
 
-  async roleSelectOnChange (role, org) {
-    var url = '/admin/users/' + this.props.match.params.uuid + '/add/role'
-    await api.post(url,
-      {
-        organization: org,
-        role: role
-      }
-    )
+  async showProjectModal (row) {
+    await this.loadProjects(row.organization.uuid)
+    this.setState({
+      classNameProjects: 'is-active',
+      formProject: {
+        organization: row.organization.uuid,
+        role: row.role.uuid
+      },
+      project: row.defaultProject.uuid
+    })
+  }
 
-    this.load()
+  async roleSelectOnChange (role, organization) {
+    var currentRole = this.state.roles.find((item) => {
+      return item.uuid === role
+    })
+
+    if (currentRole.slug === 'manager-level-1') {
+      await this.loadProjects(organization)
+      this.setState({classNameProjects: 'is-active', formProject: { organization: organization, role: role }})
+    } else {
+      this.setState({
+        projects: []
+      })
+      var url = '/admin/users/' + this.props.match.params.uuid + '/add/role'
+      await api.post(url,
+        {
+          organization: organization,
+          role: role
+        }
+      )
+      this.onPageEnter()
+    }
+  }
+
+  async loadProjects (organization) {
+    var url = '/admin/projects/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0,
+      organization: organization
+    })
+
+    this.setState({
+      projects: body.data
+    })
   }
 
   getColumns () {
     return [
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': 'N/A',
         formatter: (row) => {
@@ -235,10 +280,43 @@ class UserDetail extends Component {
         }
       },
       {
-        'title': 'Role',
+        'title': 'Rol',
         'property': 'role',
         'default': 'N/A',
         formatter: (row) => {
+          if (row.defaultProject && row.role.slug === 'manager-level-1') {
+            return (
+              <div>
+                <div className='select'>
+                  <select
+                    value={row.role.uuid}
+                    onChange={event => {
+                      this.roleSelectOnChange(event.target.value, row.organization.uuid)
+                    }}>
+                    {this.state.roles.map((obj) => {
+                      return (
+                        <option key={obj.uuid} value={obj.uuid}>
+                          {obj.name}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+                &nbsp;
+                <a className='button info-project'>
+                  <span
+                    className='icon has-text-info is-small'
+                    title={'Proyecto ' + row.defaultProject.name}
+                    onClick={() => {
+                      this.showProjectModal(row)
+                    }}
+                >
+                    <FontAwesome name='info fa-lg' />
+                  </span>
+                </a>
+              </div>
+            )
+          }
           return (
             <div className='select'>
               <select
@@ -259,13 +337,13 @@ class UserDetail extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return <button
-            className='button'
+            className='button is-danger'
             onClick={() => { this.removeOrgOnClick(row.organization.uuid, row.role.uuid) }}
           >
-            Remove
+            Eliminar
           </button>
         }
       }
@@ -298,7 +376,7 @@ class UserDetail extends Component {
     if (saving) {
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Saving <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
+          Guardando <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
       )
     }
@@ -316,16 +394,111 @@ class UserDetail extends Component {
 
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Saved
+          Guardado
         </p>
       )
     }
   }
 
-  render () {
-    const { user } = this.state
+  hideModalProject (e) {
+    this.setState({classNameProjects: ''})
+  }
 
-    if (!user.uuid) {
+  projectSelectOnChange (e) {
+    this.setState({project: e})
+  }
+
+  async submitProjectHandler (e) {
+    if (this.state.project !== '') {
+      this.setState({isLoadingProject: ' is-loading'})
+      var url = '/admin/users/' + this.props.match.params.uuid + '/add/role'
+
+      this.state.formProject['project'] = this.state.project
+
+      await api.post(url, this.state.formProject)
+      await this.onPageEnter()
+
+      this.setState({
+        classNameProjects: '',
+        isLoadingProject: ''
+      })
+    }
+  }
+
+  getModalProjects () {
+    return (
+      <BaseModal
+        title='Asignar Proyecto'
+        className={this.state.classNameProjects}
+        hideModal={(e) => this.hideModalProject(e)}>
+
+        <div className='field'>
+          <label className='label'>Proyecto</label>
+          <div className='control'>
+            <div className='select'>
+              <select
+                value={this.state.project}
+                onChange={event => { this.projectSelectOnChange(event.target.value) }}>
+                <option value={''}>
+                  Selecciona un proyecto
+                </option>
+                {this.state.projects.map((obj) => {
+                  return (
+                    <option key={obj.uuid} value={obj.uuid}>
+                      {obj.name}
+                    </option>
+                  )
+                })}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className='field is-grouped'>
+          <div className='control'>
+            <button
+              className={'button is-primary ' + this.state.isLoadingProject}
+              disabled={!!this.state.isLoadingProject}
+              type='submit'
+              onClick={(e) => { this.submitProjectHandler(e) }}
+            >
+              Asignar
+            </button>
+          </div>
+          <div className='control'>
+            <button
+              className='button'
+              type='button'
+              onClick={(e) => this.hideModalProject(e)}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </BaseModal>
+    )
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este usuario' />
+    }
+
+    const {user, loaded} = this.state
+
+    if (!loaded) {
       return <Loader />
     }
 
@@ -360,7 +533,33 @@ class UserDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/users',
+                  label: 'Usuarios',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/users/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/manage/users/',
+                  label: user.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <br />
             {resetButton}
             <div className='columns is-mobile'>
               <div className='column'>
@@ -377,11 +576,19 @@ class UserDetail extends Component {
                           baseUrl='/admin/users'
                           url={'/admin/users/' + this.props.match.params.uuid}
                           initialState={this.state.user}
-                          load={this.load.bind(this)}
+                          load={() => this.reload()}
+                          roles={this.state.roles || []}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </UserForm>
@@ -396,17 +603,17 @@ class UserDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Organizations
+                          Organizaciones
                         </p>
                         <div className='card-header-select'>
                           <button className='button is-primary' onClick={() => this.showModal()}>
-                            Add Organization
+                            Agregar Organización
                           </button>
                           <AddOrganization
                             className={this.state.className}
                             hideModal={this.hideModal.bind(this)}
                             finishUp={this.finishUp.bind(this)}
-                            load={() => { this.load(); this.loadGroups() }}
+                            load={() => { this.onPageEnter(); this.loadGroups() }}
                             baseUrl='/admin/users'
                             url={'/admin/users/' + this.props.match.params.uuid + '/add/organization'}
                           />
@@ -426,7 +633,7 @@ class UserDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Groups
+                          Grupos
                         </p>
                         <div>
                           {this.getSavingMessage()}
@@ -434,6 +641,8 @@ class UserDetail extends Component {
                       </header>
                       <div className='card-content'>
                         <Multiselect
+                          availableTitle='Disponible'
+                          assignedTitle='Asignado'
                           assignedList={this.state.selectedGroups}
                           availableList={availableList}
                           dataFormatter={(item) => { return item.name + ' de ' + item.organization.name || 'N/A' }}
@@ -448,21 +657,18 @@ class UserDetail extends Component {
             </div>
           </div>
         </div>
+        {this.getModalProjects()}
       </div>
     )
   }
 }
 
-UserDetail.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedUserDetail = branch({}, UserDetail)
-
-export default Page({
+UserDetail.config({
+  name: 'user-details',
   path: '/manage/users/:uuid',
-  title: 'User details',
+  title: 'Detalle',
   exact: true,
-  validate: loggedIn,
-  component: branchedUserDetail
+  validate: loggedIn
 })
+
+export default UserDetail

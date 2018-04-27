@@ -7,7 +7,12 @@ import SalesCenterForm from './create-form'
 
 var initialState = {
   name: '',
-  description: ''
+  description: '',
+  address: '',
+  brand: '',
+  region: '',
+  type: '',
+  externalId: ''
 }
 
 class CreateSalesCenter extends Component {
@@ -15,7 +20,8 @@ class CreateSalesCenter extends Component {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
-      organizations: []
+      organizations: [],
+      isLoading: ''
     }
   }
 
@@ -23,10 +29,18 @@ class CreateSalesCenter extends Component {
     this.cursor = this.context.tree.select(this.props.branchName)
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     return (
       <BaseModal
-        title='Create Sales Center'
+        title='Crear Centro de Venta'
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -35,13 +49,20 @@ class CreateSalesCenter extends Component {
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary'>Create</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'>
+                Crear
+              </button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal}>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>
           </div>
         </SalesCenterForm>

@@ -14,25 +14,22 @@ const schema = {
   title: '',
   required: [
     'name',
-    'organization',
-    'adjustment'
+    'organization'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    adjustment: {type: 'string', title: 'Adjustment'},
+    name: {type: 'string', title: 'Nombre'},
     organization: {
       type: 'string',
-      title: 'Organization',
+      title: 'Organización',
       enum: [],
       enumNames: []
     },
-    description: {type: 'string', title: 'Description'}
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  adjustment: {'ui:widget': TextWidget},
   organization: {'ui:widget': SelectWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
@@ -50,6 +47,7 @@ class ProjectForm extends Component {
 
   componentWillMount () {
     this.loadOrgs()
+    if (this.props.setAlert) { this.props.setAlert('is-white', ' ') }
   }
 
   async loadOrgs () {
@@ -87,16 +85,7 @@ class ProjectForm extends Component {
   }
 
   async submitHandler ({formData}) {
-    formData.adjustment = Number(formData.adjustment.replace(/[^(\-|\+)?][^0-9.]/g, ''))
-
-    if (formData.adjustment > 1 || formData.adjustment < 0) {
-      return this.setState({
-        ...this.state,
-        error: 'El ajuste debe estar entre 0 y 1!',
-        apiCallErrorMessage: 'message is-danger'
-      })
-    }
-
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {
@@ -107,6 +96,7 @@ class ProjectForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -116,6 +106,36 @@ class ProjectForm extends Component {
   }
 
   render () {
+    let { editable } = this.props
+
+    if (editable) {
+      uiSchema['status'] = {'ui:widget': SelectWidget}
+      schema.properties['status'] = {
+        type: 'string',
+        title: 'Estado',
+        enum: [
+          'empty',
+          'processing',
+          'pendingRows',
+          'adjustment',
+          'conciliating',
+          'ready',
+          'reviewing'
+        ],
+        enumNames: [
+          'empty',
+          'processing',
+          'pendingRows',
+          'adjustment',
+          'conciliating',
+          'ready',
+          'reviewing'
+        ]
+      }
+    } else {
+      delete uiSchema['status']
+      delete schema.properties['status']
+    }
     var error
     if (this.state.error) {
       error = <div>

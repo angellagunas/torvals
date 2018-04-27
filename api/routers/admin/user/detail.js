@@ -11,10 +11,11 @@ module.exports = new Route({
     const user = await User.findOne({'uuid': userId})
       .populate('organizations.organization')
       .populate('organizations.role')
+      .populate('organizations.defaultProject')
       .populate('groups')
       .populate('groups.organization')
 
-    ctx.assert(user, 404, 'User not found')
+    ctx.assert(user, 404, 'Usuario no encontrado')
 
     for (var group of user.groups) {
       group.organization = await Organization.findOne({'_id': ObjectId(group.organization)})

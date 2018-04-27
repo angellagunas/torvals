@@ -8,9 +8,6 @@ import DeletedUsers from '../pages/users/list-deleted'
 import Organizations from '../pages/organizations/list'
 import Roles from '../pages/roles/list'
 import Groups from '../pages/groups/list'
-import DataSets from '../pages/datasets/list'
-import DeletedDataSets from '../pages/datasets/list-deleted'
-import ReadyDataSets from '../pages/datasets/list-ready'
 import Projects from '../pages/projects/list'
 import DeletedProjects from '../pages/projects/deleted-list'
 import SalesCenters from '../pages/salesCenters/list'
@@ -18,7 +15,14 @@ import DeletedSalesCenters from '../pages/salesCenters/deleted-list'
 import RequestLogs from '../pages/request-logs/list'
 import Products from '../pages/products/list'
 import DeletedProducts from '../pages/products/deleted-list'
-import Forecasts from '../pages/forecasts/list'
+import Channels from '../pages/channels/list'
+import DeletedChannels from '../pages/channels/deleted-list'
+import Calendar from '../pages/calendar'
+import Prices from '../pages/prices/list'
+import UsersImport from '../pages/import/users'
+import SalesCentersImport from '../pages/import/sales-centers'
+import ChannelsImport from '../pages/import/channels'
+import ProductsImport from '../pages/import/products'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -82,31 +86,20 @@ class Sidebar extends Component {
     return [
       Dashboard.asSidebarItem(),
       {
-        title: 'Manage Your Team',
+        title: 'Administra tu equipo',
         icon: 'users',
         to: '/manage',
         opened: false,
         dropdown: [
-          Users.asSidebarItem(),
-          DeletedUsers.asSidebarItem(),
           Organizations.asSidebarItem(),
           Roles.asSidebarItem(),
-          Groups.asSidebarItem()
+          Groups.asSidebarItem(),
+          Users.asSidebarItem(),
+          DeletedUsers.asSidebarItem()
         ]
       },
       {
-        title: 'Datasets',
-        icon: 'file',
-        to: '/datasets',
-        opened: false,
-        dropdown: [
-          DataSets.asSidebarItem(),
-          ReadyDataSets.asSidebarItem(),
-          DeletedDataSets.asSidebarItem()
-        ]
-      },
-      {
-        title: 'Projects',
+        title: 'Proyectos',
         icon: 'cog',
         to: '/projects',
         opened: false,
@@ -115,28 +108,33 @@ class Sidebar extends Component {
           DeletedProjects.asSidebarItem()
         ]
       },
+      Calendar.asSidebarItem(),
       {
-        title: 'SalesCenters',
-        icon: 'credit-card-alt',
-        to: '/salesCenters',
+        title: 'Catálogos',
+        icon: 'file',
+        to: '/catalogs',
         opened: false,
         dropdown: [
           SalesCenters.asSidebarItem(),
-          DeletedSalesCenters.asSidebarItem()
-        ]
-      },
-      {
-        title: 'Products',
-        icon: 'dropbox',
-        to: '/products',
-        opened: false,
-        dropdown: [
           Products.asSidebarItem(),
-          DeletedProducts.asSidebarItem()
+          Channels.asSidebarItem(),
+          Prices.asSidebarItem(),
+          DeletedSalesCenters.asSidebarItem(),
+          DeletedProducts.asSidebarItem(),
+          DeletedChannels.asSidebarItem()
         ]
       },
-      Forecasts.asSidebarItem(),
       {
+        title: 'Cargar Datos',
+        icon: 'file-o',
+        to: '/import',
+        dropdown: [
+          UsersImport.asSidebarItem(),
+          SalesCentersImport.asSidebarItem(),
+          ChannelsImport.asSidebarItem(),
+          ProductsImport.asSidebarItem()
+        ]
+      }, {
         title: 'Developer Tools',
         icon: 'github-alt',
         to: '/devtools',

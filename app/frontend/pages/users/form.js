@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Loader from '~base/components/spinner'
+import tree from '~core/tree'
 
 import api from '~base/api'
 
@@ -10,43 +11,20 @@ import {
   SelectWidget
 } from '~base/components/base-form'
 
-var schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'email'
-  ],
-  properties: {
-    name: {type: 'string', title: 'Name'},
-    email: {type: 'string', title: 'Email'},
-    role: {
-      type: 'string',
-      title: 'Role',
-      enum: [],
-      enumNames: []
-    }
-  }
-}
-
-const uiSchema = {
-  name: {'ui:widget': TextWidget},
-  email: {'ui:widget': EmailWidget},
-  role: {'ui:widget': SelectWidget}
-}
-
 class UserForm extends Component {
   constructor (props) {
     super(props)
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
+      apiCallErrorMessage: 'is-hidden',
+      projects: []
     }
   }
 
   errorHandler (e) {}
 
-  changeHandler ({formData}) {
+  async changeHandler ({formData}) {
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
@@ -63,14 +41,27 @@ class UserForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    if (!formData.role) {
+      return this.setState({
+        error: 'Se debe seleccionar un rol!',
+        apiCallErrorMessage: 'message is-danger'
+      })
+    }
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
       this.clearState()
-      this.setState({...this.state, apiCallMessage: 'message is-success'})
+      this.setState({
+        ...this.state,
+        apiCallMessage: 'message is-success'
+      })
+      setTimeout(() => { this.setState({ apiCallMessage: 'is-hidden' }) }, 3000)
+
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -80,6 +71,49 @@ class UserForm extends Component {
   }
 
   render () {
+    const currentUser = tree.get('user')
+
+    var schema = {
+      type: 'object',
+      title: '',
+      required: [
+        'email'
+      ],
+      properties: {
+        name: {type: 'string', title: 'Nombre'},
+        email: {type: 'string', title: 'Email'},
+        role: {
+          type: 'string',
+          title: 'Rol',
+          enum: [],
+          enumNames: []
+        }
+      }
+    }
+
+    const uiSchema = {
+      name: {'ui:widget': TextWidget},
+      email: {'ui:widget': EmailWidget},
+      role: {'ui:widget': SelectWidget}
+    }
+
+    if (this.state.formData['role']) {
+      var role = this.props.roles.find((item) => {
+        return item._id === this.state.formData['role']
+      })
+
+      if (role && role.slug === 'manager-level-1') {
+        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        uiSchema['project'] = {'ui:widget': SelectWidget}
+        schema.required.push('project')
+      } else {
+        delete schema.properties['project']
+        delete uiSchema['project']
+        delete this.state.formData['project']
+        schema.required = ['email']
+      }
+    }
+
     var error
     if (this.state.error) {
       error = <div>
@@ -95,12 +129,31 @@ class UserForm extends Component {
       uiSchema.email['ui:disabled'] = true
     }
 
+    if (this.props.initialState.uuid === currentUser.uuid) {
+      uiSchema.role['ui:disabled'] = true
+    }
+
     schema.properties.role.enum = this.props.roles.map(item => { return item._id })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
+    if (schema.properties.project) {
+      schema.properties.project.enum = this.props.projects.map(item => { return item.uuid })
+      schema.properties.project.enumNames = this.props.projects.map(item => { return item.name })
+    }
+    if (this.props.disabled) {
+      for (var field in uiSchema) {
+        uiSchema[field]['ui:disabled'] = true
+      }
+      schema.properties.role.enum.push(this.state.formData.roleDetail._id)
+      schema.properties.role.enumNames.push(this.state.formData.roleDetail.name)
+    }
 
+    if (this.props.disabledRoles) {
+      uiSchema['role']['ui:disabled'] = true
+    }
     return (
       <div>
-        <BaseForm schema={schema}
+        <BaseForm
+          schema={schema}
           uiSchema={uiSchema}
           formData={this.state.formData}
           onChange={(e) => { this.changeHandler(e) }}

@@ -7,20 +7,19 @@ module.exports = new Route({
   method: 'post',
   path: '/:uuid',
   validator: lov.object().keys({
-    name: lov.string().required(),
-    adjustment: lov.string().required()
+    name: lov.string().required()
   }),
   handler: async function (ctx) {
     var projectId = ctx.params.uuid
     var data = ctx.request.body
 
     const project = await Project.findOne({'uuid': projectId, 'isDeleted': false}).populate('organization')
-    ctx.assert(project, 404, 'Project not found')
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     project.set({
       name: data.name,
       description: data.description,
-      adjustment: data.adjustment
+      status: data.status
     })
 
     project.save()

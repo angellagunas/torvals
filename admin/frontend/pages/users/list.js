@@ -1,59 +1,66 @@
 import React from 'react'
 
+import env from '~base/env-variables'
 import Link from '~base/router/link'
 import api from '~base/api'
-import ListPage from '~base/list-page'
+import ListPageComponent from '~base/list-page-component'
 import {loggedIn} from '~base/middlewares/'
 
 import tree from '~core/tree'
-import CreateUser from './create'
+import CreateUserNoModal from './create-no-modal'
 import DeleteButton from '~base/components/base-deleteButton'
 
-export default ListPage({
-  path: '/manage/users',
-  title: 'Users',
-  icon: 'user',
-  exact: true,
-  validate: loggedIn,
-  titleSingular: 'User',
-  create: true,
-  createComponent: CreateUser,
-  baseUrl: '/admin/users',
-  branchName: 'users',
-  detailUrl: '/admin/manage/users/',
-  filters: true,
-  schema: {
-    type: 'object',
-    required: [],
-    properties: {
-      screenName: {type: 'text', title: 'Por nombre'},
-      email: {type: 'text', title: 'Por email'},
-      organization: {type: 'text', title: 'Por organización', values: []}
-    }
-  },
-  uiSchema: {
-    screenName: {'ui:widget': 'SearchFilter'},
-    email: {'ui:widget': 'SearchFilter'},
-    organization: {'ui:widget': 'SelectSearchFilter'}
-  },
-  loadValues: async function () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
+class UserList extends ListPageComponent {
+  async onFirstPageEnter () {
+    const organizations = await this.loadOrgs()
 
-    return {
-      'organization': body.data
+    return {organizations}
+  }
+
+  async loadOrgs () {
+    var url = '/admin/organizations/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0
+    })
+
+    return body.data
+  }
+
+  async deleteObject (row) {
+    await api.del('/admin/users/' + row.uuid)
+    this.reload()
+  }
+
+  finishUp (data) {
+    this.setState({
+      className: ''
+    })
+
+    this.props.history.push(env.PREFIX + '/manage/users/' + data.uuid)
+  }
+
+  getFilters () {
+    const data = {
+      schema: {
+        type: 'object',
+        required: [],
+        properties: {
+          general: {type: 'text', title: 'Buscar'}
+        }
+      },
+      uiSchema: {
+        general: {'ui:widget': 'SearchFilter'}
+      }
     }
-  },
-  getColumns: () => {
+
+    return data
+  }
+
+  getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -65,14 +72,52 @@ export default ListPage({
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Grupos',
+        'property': 'groups',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          if (row.groups.length > 2) {
+            return (
+              <div>
+                {row.groups[0].name}
+                <br />
+                {row.groups[1].name}
+                <br />
+                {row.groups.length - 2} más
+              </div>
+            )
+          } else if (row.groups.length > 1) {
+            return (
+              <div>
+                {row.groups[0].name}
+                <br />
+                {row.groups[1].name}
+              </div>
+            )
+          } else if (row.groups.length > 0) {
+            return (
+              <div>
+                {row.groups[0].name}
+              </div>
+            )
+          }
+        }
+      },
+      {
+        'title': 'Acciones',
         formatter: (row) => {
           const deleteObject = async function () {
             var url = '/admin/users/' + row.uuid
             await api.del(url)
 
             const cursor = tree.get('users')
-            const users = await api.get('/admin/users/')
+
+            const users = await api.get('/admin/users/',
+              { start: 0,
+                limit: 10,
+                sort: cursor.sort || 'name'
+              })
 
             tree.set('users', {
               page: cursor.page,
@@ -86,19 +131,22 @@ export default ListPage({
           const currentUser = tree.get('user')
 
           return (
-            <div className='columns'>
-              <div className='column'>
-                <Link className='button' to={'/manage/users/' + row.uuid}>
-                  Detalle
+            <div className='field is-grouped'>
+              <div className='control'>
+                <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+                  <span className='icon is-small'>
+                    <i className='fa fa-pencil' />
+                  </span>
                 </Link>
               </div>
-              <div className='column'>
+              <div className='control'>
                 {currentUser.uuid !== row.uuid && (
                   <DeleteButton
-                    titleButton={'Deactivate'}
-                    objectName='Users'
-                    objectDelete={deleteObject}
-                    message={`Are you sure you want to deactivate ${row.name}?`}
+                    iconOnly
+                    icon='fa fa-trash'
+                    objectName='Usuario'
+                    objectDelete={() => this.deleteObject(row)}
+                    message={`Está seguro de querer desactivar a ${row.email} ?`}
                   />
                 )}
               </div>
@@ -108,4 +156,50 @@ export default ListPage({
       }
     ]
   }
+}
+
+UserList.config({
+  name: 'user-list',
+  path: '/manage/users',
+  title: 'Usuarios',
+  icon: 'user',
+  exact: true,
+  validate: loggedIn,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/manage/users/',
+        label: 'Usuarios activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
+  create: false,
+  branchName: 'users',
+  titleSingular: 'Usuario',
+  sidePanel: true,
+  sidePanelIcon: 'user-plus',
+  sidePanelComponent: CreateUserNoModal,
+  filters: true,
+  schema: {
+    type: 'object',
+    required: [],
+    properties: {
+      general: {type: 'text', title: 'Buscar'}
+    }
+  },
+  uiSchema: {
+    general: {'ui:widget': 'SearchFilter'}
+  },
+  apiUrl: '/admin/users',
+  detailUrl: '/admin/manage/users/'
 })
+
+export default UserList

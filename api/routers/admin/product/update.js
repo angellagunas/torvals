@@ -18,10 +18,10 @@ module.exports = new Route({
       'uuid': productId,
       'isDeleted': false
     }).populate('organization')
-    ctx.assert(product, 404, 'Product not found')
+    ctx.assert(product, 404, 'Producto no encontrado')
 
     const org = await Organization.findOne({uuid: data.organization})
-    ctx.assert(org, 404, 'Organization not found')
+    ctx.assert(org, 404, 'Organización no encontrada')
 
     data.organization = org
 
@@ -31,13 +31,14 @@ module.exports = new Route({
       category: data.category,
       subcategory: data.subcategory,
       organization: data.organization,
-      externalId: data.externalId
+      externalId: data.externalId,
+      isNewExternal: false
     })
 
     product.save()
 
     ctx.body = {
-      data: product.format()
+      data: product.toAdmin()
     }
   }
 })

@@ -15,6 +15,9 @@ class CreateOrganization extends Component {
   constructor (props) {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
+    this.state = {
+      isLoading: ''
+    }
   }
 
   componentWillMount () {
@@ -39,10 +42,18 @@ class CreateOrganization extends Component {
     this.context.tree.commit()
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     return (
       <BaseModal
-        title='Create Organization'
+        title='Crear Organización'
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -52,13 +63,20 @@ class CreateOrganization extends Component {
           finishUp={this.props.finishUp}
           initialState={initialState}
           load={this.load.bind(this)}
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary'>Create</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'>
+                Crear
+              </button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal}>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>
           </div>
         </CreateOrganizationForm>

@@ -16,9 +16,9 @@ const schema = {
     'organization'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    description: {type: 'string', title: 'Description'},
-    status: {type: 'string', title: 'Status'}
+    name: {type: 'string', title: 'Nombre'},
+    description: {type: 'string', title: 'Descripción'},
+    status: {type: 'string', title: 'Estado'}
   }
 }
 
@@ -63,6 +63,7 @@ class DatasetDetailForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
@@ -71,6 +72,7 @@ class DatasetDetailForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -80,11 +82,17 @@ class DatasetDetailForm extends Component {
   }
 
   render () {
+    let { canEdit } = this.props
     var error
     if (this.state.error) {
       error = <div>
         Error: {this.state.error}
       </div>
+    }
+
+    if (!canEdit) {
+      uiSchema.name['ui:disabled'] = true
+      uiSchema.description['ui:disabled'] = true
     }
 
     return (
@@ -107,7 +115,7 @@ class DatasetDetailForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
+          {canEdit && this.props.children}
         </BaseForm>
       </div>
     )

@@ -4,26 +4,24 @@ import api from '~base/api'
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget
+  TextareaWidget,
+  SelectWidget
 } from '~base/components/base-form'
 
 const schema = {
   type: 'object',
   title: '',
   required: [
-    'name',
-    'adjustment'
+    'name'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    adjustment: {type: 'string', title: 'Adjustment'},
-    description: {type: 'string', title: 'Description'}
+    name: {type: 'string', title: 'Nombre'},
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  adjustment: {'ui:widget': TextWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
 
@@ -38,6 +36,9 @@ class ProjectForm extends Component {
     }
   }
 
+  componentWillMount () {
+    if (this.props.setAlert) { this.props.setAlert('is-white', ' ') }
+  }
   errorHandler (e) {}
 
   changeHandler ({formData}) {
@@ -57,16 +58,7 @@ class ProjectForm extends Component {
   }
 
   async submitHandler ({formData}) {
-    formData.adjustment = Number(formData.adjustment.replace(/[^(\-|\+)?][^0-9.]/g, ''))
-
-    if (formData.adjustment > 1 || formData.adjustment < 0) {
-      return this.setState({
-        ...this.state,
-        error: 'El ajuste debe estar entre 0 y 1!',
-        apiCallErrorMessage: 'message is-danger'
-      })
-    }
-
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {
@@ -77,6 +69,7 @@ class ProjectForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -86,11 +79,62 @@ class ProjectForm extends Component {
   }
 
   render () {
+    let { canEdit } = this.props
     var error
     if (this.state.error) {
       error = <div>
         Error: {this.state.error}
       </div>
+    }
+
+    let { editable } = this.props
+
+    if (editable) {
+      uiSchema['status'] = {'ui:widget': SelectWidget}
+      schema.properties['status'] = {
+        type: 'string',
+        title: 'Estado',
+        enum: [
+          'new',
+          'adjustment',
+          'uploading',
+          'uploaded',
+          'preprocessing',
+          'configuring',
+          'processing',
+          'reviewing',
+          'ready',
+          'conciliated',
+          'pendingRows',
+          'error'
+        ],
+        enumNames: [
+          'Nuevo',
+          'Ajuste',
+          'Cargando',
+          'Cargado',
+          'Preprocesando',
+          'Configurando',
+          'Procesando',
+          'Revisando',
+          'Listo',
+          'Conciliado',
+          'Pendiente',
+          'Error'
+        ]
+      }
+    } else {
+      delete uiSchema['status']
+      delete schema.properties['status']
+    }
+    if (!canEdit) {
+      uiSchema.name['ui:disabled'] = true
+      uiSchema.description['ui:disabled'] = true
+      if (uiSchema.status) uiSchema.status['ui:disabled'] = true
+    } else {
+      delete uiSchema.name['ui:disabled']
+      delete uiSchema.description['ui:disabled']
+      if (uiSchema.status) delete uiSchema.status['ui:disabled']
     }
 
     return (
@@ -113,7 +157,7 @@ class ProjectForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
+          {canEdit && this.props.children}
         </BaseForm>
       </div>
     )

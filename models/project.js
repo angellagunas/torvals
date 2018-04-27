@@ -7,6 +7,8 @@ const moment = require('moment')
 const projectSchema = new Schema({
   name: { type: String, required: true },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+
+  // TODO: Remove
   datasets: [{
     dataset: { type: Schema.Types.ObjectId, ref: 'DataSet' },
     columns: [{
@@ -14,11 +16,35 @@ const projectSchema = new Schema({
       name_project: { type: String }
     }]
   }],
-  description: { type: String },
-  adjustment: { type: Number },
-  businessRules: Schema.Types.Mixed,
 
+  status: {
+    type: String,
+    enum: [
+      'empty',
+      'processing',
+      'ready',
+      'reviewing',
+      'pendingRows',
+      'adjustment',
+      'conciliating'
+    ],
+    default: 'empty'
+  },
+
+  description: { type: String },
+  externalId: { type: String },
+  adjustment: { type: Number },
+  activeDataset: { type: Schema.Types.ObjectId, ref: 'DataSet' },
+  businessRules: {
+    period: { type: Number },
+    adjustments: { type: Schema.Types.Mixed },
+    frequency: { type: Number }
+  },
+  etag: { type: String },
+  dateMax: {type: Date},
+  dateMin: {type: Date},
   dateCreated: { type: Date, default: moment.utc },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true })
@@ -33,6 +59,10 @@ projectSchema.methods.toPublic = function () {
     organization: this.organization,
     datasets: this.datasets,
     adjustment: this.adjustment,
+    status: this.status,
+    activeDataset: this.activeDataset,
+    businessRules: this.businessRules,
+    externalId: this.externalId,
     dateCreated: this.dateCreated
   }
 }
@@ -45,6 +75,10 @@ projectSchema.methods.toAdmin = function () {
     organization: this.organization,
     datasets: this.datasets,
     adjustment: this.adjustment,
+    status: this.status,
+    activeDataset: this.activeDataset,
+    businessRules: this.businessRules,
+    externalId: this.externalId,
     dateCreated: this.dateCreated
   }
 }

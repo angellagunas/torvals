@@ -1,5 +1,11 @@
-const checkPreprocessingProgress = require('./check-preprocessing-progress')
+const checkDatasets = require('./check-datasets')
+const checkProjects = require('./check-projects')
+const checkDatasetRows = require('./check-datasetsrows')
+// #Requires
 
 module.exports = {
-  'check-preprocessing-progress': checkPreprocessingProgress
+  'check-datasets': checkDatasets,
+  'check-datasetrows': checkDatasetRows,
+  'check-projects': checkProjects // #Exports
+
 }

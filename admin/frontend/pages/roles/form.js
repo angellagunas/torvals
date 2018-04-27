@@ -5,6 +5,7 @@ import api from '~base/api'
 import {
   BaseForm,
   TextWidget,
+  NumberWidget,
   TextareaWidget
 } from '~base/components/base-form'
 
@@ -12,15 +13,18 @@ const schema = {
   type: 'object',
   title: '',
   required: [
+    'priority',
     'name'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    description: {type: 'string', title: 'Description'}
+    priority: {type: 'number', title: 'Prioridad'},
+    name: {type: 'string', title: 'Nombre'},
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 
 const uiSchema = {
+  priority: {'ui:widget': NumberWidget},
   name: {'ui:widget': TextWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
@@ -28,6 +32,7 @@ const uiSchema = {
 class RoleForm extends Component {
   constructor (props) {
     super(props)
+
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
@@ -55,6 +60,7 @@ class RoleForm extends Component {
 
   async submitHandler ({formData}) {
     formData.isDefault = undefined
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
@@ -63,6 +69,7 @@ class RoleForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,

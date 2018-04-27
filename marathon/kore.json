@@ -1,0 +1,86 @@
+{
+  "id": "/orax/${BRANCH_NAME}/kore",
+  "cpus": 0.1,
+  "mem": 1024,
+  "container": {
+    "docker": {
+      "forcePullImage": false,
+      "image": "${DOCKER_IMAGE}",
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 0,
+          "protocol": "tcp",
+          "servicePort": ${KORE_API_PORT}
+        },
+        {
+          "containerPort": 4000,
+          "hostPort": 0,
+          "protocol": "tcp",
+          "servicePort": ${KORE_APP_PORT}
+        },
+        {
+          "containerPort": 5000,
+          "hostPort": 0,
+          "protocol": "tcp",
+          "servicePort": ${KORE_ADMIN_PORT}
+        }
+      ],
+      "privileged": false
+    },
+    "type": "DOCKER",
+    "volumes": [],
+    "parameters": []
+    },
+    "env": {
+      "MONGO_DB": "${MONGO_DB}",
+      "MONGO_HOST": "${MONGO_HOST}",
+      "MONGO_PORT": "${MONGO_PORT}",
+      "REDIS_HOST": "${REDIS_HOST}",
+      "REDIS_PORT": "${REDIS_PORT}",
+      "API_HOST": "${API_HOST}",
+      "APP_HOST": "${APP_HOST}",
+      "ADMIN_HOST": "${ADMIN_HOST}",
+      "EMAIL_SEND": "${EMAIL_SEND}",
+      "EMAIL_PROVIDER": "${EMAIL_PROVIDER}",
+      "EMAIL_KEY": "${EMAIL_KEY}",
+      "S3_BUCKET": "${S3_BUCKET}",
+      "S3_REGION": "${S3_REGION}",
+      "S3_ACCESS_KEY": "${S3_ACCESS_KEY}",
+      "S3_SECRET": "${S3_SECRET}",
+      "ABRAXAS_HOSTNAME": "${ABRAXAS_HOSTNAME}",
+      "ABRAXAS_BASE_URL": "${ABRAXAS_BASE_URL}",
+      "ABRAXAS_USER": "${ABRAXAS_USER}",
+      "ABRAXAS_SECRET": "${ABRAXAS_SECRET}",
+      "ADMIN_PREFIX": "${ADMIN_PREFIX}",
+      "JWT_SECRET": "${JWT_SECRET}",
+      "NODE_ENV": "${NODE_ENV}",
+      "MULTIPLE_WORKERS": "true"
+    },
+    "labels": {
+      "HAPROXY_0_USE_HSTS": "true",
+      "HAPROXY_0_REDIRECT_TO_HTTPS": "true",
+      "HAPROXY_GROUP": "${LB_GROUP}",
+      "HAPROXY_0_PATH": "/api",
+      "HAPROXY_0_VHOST": "${API_DOMAIN}"
+    },
+    "maxLaunchDelaySeconds": 3600,
+    "gpus": 0,
+    "networks": [
+      {
+        "mode": "container/bridge"
+      }
+    ],
+    "requirePorts": false,
+    "upgradeStrategy": {
+      "maximumOverCapacity": 0,
+      "minimumHealthCapacity": 0
+    },
+    "killSelection": "YOUNGEST_FIRST",
+    "unreachableStrategy": {
+      "inactiveAfterSeconds": 0,
+      "expungeAfterSeconds": 0
+    },
+    "healthChecks": [],
+    "constraints": []
+}

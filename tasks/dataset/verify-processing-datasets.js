@@ -4,8 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
-const { DataSet, Product, SalesCenter } = require('models')
-const request = require('lib/request')
+const { DataSet } = require('models')
 
 const task = new Task(async function (argv) {
   console.log('Fetching procesing Datasets...')
@@ -22,58 +21,57 @@ const task = new Task(async function (argv) {
   }
 
   console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
-
-  if (!apiData.token) {
-    throw new Error('There is no API endpoint configured!')
-  }
 
   for (var dataset of datasets) {
     console.log(`Verifying if ${dataset.name} dataset has finished processing ...`)
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/datasets/${dataset.externalId}`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      json: true,
-      persist: true
-    }
+    try {
+      var res = await Api.getDataset(dataset.externalId)
 
-    var res = await request(options)
+      if (res.status === 'ready') {
+        console.log(`${dataset.name} dataset has finished processing`)
 
-    if (res.status === 'ready') {
-      console.log(`${dataset.name} dataset has finished processing`)
+        let apiData = {
+          products: [],
+          salesCenters: [],
+          channels: []
+        }
 
-      var productCol = dataset.columns.find(item => { return item.isProduct })
-      var salesCenterCol = dataset.columns.find(item => { return item.isSalesCenter })
-      let apiData = {
-        products: [],
-        salesCenters: []
+        if (res.data) {
+          apiData['products'] = res.data['product']
+          apiData['salesCenters'] = res.data['agency']
+          apiData['channels'] = res.data['channel']
+        }
+
+        dataset.set({
+          status: 'reviewing',
+          dateMax: res.date_max,
+          dateMin: res.date_min,
+          apiData: apiData
+        })
+
+        await dataset.save()
+        await dataset.processData()
       }
 
-      if (productCol) {
-        productCol = productCol.name
-        apiData['products'] = res.data[productCol]
-      }
+      if (res.status === 'error') {
+        dataset.set({
+          error: res.message,
+          status: 'error'
+        })
 
-      if (salesCenterCol) {
-        salesCenterCol = salesCenterCol.name
-        apiData['salesCenters'] = res.data[salesCenterCol]
-      }
+        await dataset.save()
 
+        console.log(`Error while processing dataset: ${dataset.error}`)
+      }
+    } catch (e) {
       dataset.set({
-        status: 'reviewing',
-        dateMax: res.date_max,
-        dateMin: res.date_min,
-        apiData: apiData
+        error: e,
+        status: 'error'
       })
 
       await dataset.save()
-      await dataset.processData()
+
+      console.log(`Error while preprocessing dataset: ${dataset.error}`)
     }
   }
 

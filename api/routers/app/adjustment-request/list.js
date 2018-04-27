@@ -1,33 +1,33 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Forecast, AdjustmentRequest, Organization} = require('models')
+const {DataSet, AdjustmentRequest, SalesCenter} = require('models')
 
 module.exports = new Route({
   method: 'get',
-  path: '/',
+  path: '/dataset/:uuid',
   handler: async function (ctx) {
+    var datasetId = ctx.params.uuid
+
+    const dataset = await DataSet.findOne({
+      'uuid': datasetId,
+      'isDeleted': false,
+      'organization': ctx.state.organization
+    })
+
+    ctx.assert(dataset, 404, 'DataSet not found')
+
     var filters = {}
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
       }
 
-      if (filter === 'forecast') {
-        const forecast = await Forecast.findOne({'uuid': ctx.request.query[filter]})
+      if (filter === 'salesCenter') {
+        const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]})
 
-        if (forecast) {
-          filters['forecast'] = ObjectId(forecast._id)
-        }
-
-        continue
-      }
-
-      if (filter === 'organization') {
-        const organization = await Organization.findOne({'uuid': ctx.request.query[filter]})
-
-        if (organization) {
-          filters['organization'] = ObjectId(organization._id)
+        if (salesCenter) {
+          filters['salesCenter'] = ObjectId(salesCenter._id)
         }
 
         continue
@@ -43,15 +43,24 @@ module.exports = new Route({
     var adjustmentRequests = await AdjustmentRequest.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters, organization: ctx.state.organization},
+      find: {...filters, isDeleted: false, dataset: dataset},
       populate: [
-        'organization',
-        'prediction',
         'requestedBy',
         'approvedBy',
-        'rejectedBy'
+        'rejectedBy',
+        {path: 'datasetRow', populate: ['product', 'salesCenter']}
       ],
       sort: ctx.request.query.sort || '-dateCreated'
+    })
+
+    adjustmentRequests.data = adjustmentRequests.data.map(item => {
+      return {
+        ...item.toPublic(),
+        requestedBy: item.requestedBy.toPublic(),
+        approvedBy: item.approvedBy ? item.approvedBy.toPublic() : undefined,
+        rejectedBy: item.rejectedBy ? item.rejectedBy.toPublic() : undefined,
+        datasetRow: item.datasetRow.toPublic()
+      }
     })
 
     ctx.body = adjustmentRequests

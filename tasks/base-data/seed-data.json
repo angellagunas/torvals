@@ -4,12 +4,62 @@
         {
             "name": "Luis Lizarraga",
             "email": "luis@commonsense.io",
+            "invite": false,
             "password": "123macarena"
         },
         {
             "name": "Daniel Zavala",
             "email": "d@commonsense.io",
-            "password": "xMLewQXLz8"
+            "invite": false,
+            "password": "123macarena"
+        },
+        {
+            "name": "Samara Salas",
+            "email": "s@commonsense.io",
+            "invite": true,
+            "password": "123macarena"
+        },
+        {
+            "name": "Karla Mendoza",
+            "email": "karla@commonsense.io",
+            "invite": false,
+            "password": "finlandia8"
+        },
+        {
+            "name": "Eva",
+            "email": "eva@commonsense.io",
+            "invite": false,
+            "password": "123macarena"
+        },
+        {
+            "name": "José Pedraza",
+            "email": "jpedraza@grupoabraxas.com",
+            "invite": true,
+            "password": "123macarena"
+        },
+        {
+            "name": "Josue Monroy",
+            "email": "jmonroy@grupoabraxas.com",
+            "invite": true,
+            "password": "123macarena"
+        },
+        {
+            "name": "Rodrigo Boyzo",
+            "email": "rboyzo@grupoabraxas.com",
+            "invite": true,
+            "password": "123macarena"
+        },
+        {
+            "name": "Felipe Garcia",
+            "email": "fgarcia@grupoabraxas.com",
+            "invite": true,
+            "password": "123macarena"
+        },
+        {
+            "name": "Anibal Ruz",
+            "email": "aruz@grupoabraxas.com",
+            "invite": true,
+            "password": "123macarena"
         }
     ],
     "organizations": [
@@ -25,23 +75,82 @@
     "roles": [
         {
             "name": "OrgAdmin",
-            "isDefault": false
-        },
-        {
-            "name": "LocalManager",
-            "isDefault": true
-        },
-        {
-            "name": "EnterpriseManager",
-            "isDefault": false
+            "isDefault": false,
+            "priority": 1
         },
         {
             "name": "Analyst",
-            "isDefault": false
+            "isDefault": false,
+            "priority": 2
+
         },
         {
-            "name": "OpsManager",
-            "isDefault": false
+            "name": "Consultor",
+            "isDefault": false,
+            "priority": 3
+
+        },
+        {
+            "name": "Manager Level 2",
+            "isDefault": false,
+            "priority": 4
+        },
+        {
+            "name": "Manager Level 1",
+            "isDefault": true,
+            "priority": 5
+        }
+    ],
+    "relations": [
+        {
+            "user": "luis@commonsense.io",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "d@commonsense.io",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "s@commonsense.io",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "karla@commonsense.io",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "eva@commonsense.io",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "jpedraza@grupoabraxas.com",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "jmonroy@grupoabraxas.com",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "rboyzo@grupoabraxas.com",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "fgarcia@grupoabraxas.com",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
+        },
+        {
+            "user": "aruz@grupoabraxas.com",
+            "organization": "Barcel",
+            "role": "OrgAdmin"
         }
     ]
 }

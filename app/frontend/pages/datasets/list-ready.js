@@ -2,10 +2,13 @@ import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
+import { testRoles } from '~base/tools'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import {datasetStatus} from '~base/tools'
 
 class ReadyDataSets extends Component {
   constructor (props) {
@@ -28,7 +31,7 @@ class ReadyDataSets extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -41,17 +44,34 @@ class ReadyDataSets extends Component {
         }
       },
       {
-        'title': 'Status',
+        'title': 'Estado',
         'property': 'status',
         'default': 'new',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          return datasetStatus[row.status]
+        }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/datasets/' + row.uuid}>
-            Detalle
-          </Link>
+          if (testRoles('manager-level-2, consultor')) {
+            return (
+              <Link className='button' to={'/datasets/' + row.uuid}>
+                <span className='icon is-small' title='Visualizar'>
+                  <i className='fa fa-eye' />
+                </span>
+              </Link>
+            )
+          } else {
+            return (
+              <Link className='button is-primary' to={'/datasets/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </Link>
+            )
+          }
         }
       }
     ]
@@ -61,12 +81,27 @@ class ReadyDataSets extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>DataSets</h1>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/datasets/ready',
+                  label: 'Datasets Listos',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Datasets Listos</h1>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                    DataSets Ready
+                    DataSets Listos
                 </p>
               </header>
               <div className='card-content'>
@@ -96,10 +131,10 @@ const branchedReadyDataSets = branch({readydatasets: 'readydatasets'}, ReadyData
 
 export default Page({
   path: '/datasets/ready',
-  title: 'Ready',
+  title: 'Listos',
   icon: 'thumbs-up',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
   validate: [loggedIn, verifyRole],
   component: branchedReadyDataSets
 })

@@ -5,6 +5,7 @@ const dataTables = require('mongoose-datatables')
 const moment = require('moment')
 
 const roleSchema = new Schema({
+  priority: { type: Number },
   name: { type: String },
   description: { type: String },
   slug: { type: String, unique: true },
@@ -15,21 +16,21 @@ const roleSchema = new Schema({
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true })
 
-roleSchema.plugin(dataTables)
-
 roleSchema.methods.toPublic = function () {
   return {
     uuid: this.uuid,
     name: this.name,
     description: this.description,
     slug: this.slug,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    priority: this.priority
   }
 }
 
-roleSchema.methods.format = function () {
+roleSchema.methods.toAdmin = function () {
   return {
     uuid: this.uuid,
+    priority: this.priority,
     name: this.name,
     description: this.description,
     slug: this.slug,
@@ -37,5 +38,12 @@ roleSchema.methods.format = function () {
     isDefault: this.isDefault
   }
 }
+
+roleSchema.plugin(dataTables, {
+  formatters: {
+    toAdmin: (role) => role.toAdmin(),
+    toPublic: (role) => role.toPublic()
+  }
+})
 
 module.exports = mongoose.model('Role', roleSchema)

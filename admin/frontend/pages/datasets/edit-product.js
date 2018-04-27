@@ -17,17 +17,17 @@ const schema = {
     'organization'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     organization: {
       type: 'string',
-      title: 'Organization',
+      title: 'Organización',
       enum: [],
       enumNames: []
     },
-    category: {type: 'string', title: 'Category'},
-    subcategory: {type: 'string', title: 'Subcategory'},
-    externalId: {type: 'string', title: 'External Id'},
-    description: {type: 'string', title: 'Description'}
+    category: {type: 'string', title: 'Categoría'},
+    subcategory: {type: 'string', title: 'Subcategoría'},
+    externalId: {type: 'string', title: 'Id externo'},
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 
@@ -105,6 +105,8 @@ class EditProduct extends Component {
 
   async submitHandler ({formData}) {
     formData.isDefault = undefined
+    if (this.props.submitHandler) this.props.submitHandler(formData)
+
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {
@@ -115,6 +117,7 @@ class EditProduct extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,

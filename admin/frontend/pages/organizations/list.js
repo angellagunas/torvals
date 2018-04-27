@@ -8,20 +8,36 @@ import CreateOrganization from './create'
 
 export default ListPage({
   path: '/manage/organizations',
-  title: 'Organizations',
-  titleSingular: 'Organization',
+  title: 'Organizaciones',
+  titleSingular: 'Organización',
   icon: 'users',
   exact: true,
   validate: loggedIn,
   create: true,
   createComponent: CreateOrganization,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/manage/organizations',
+        label: 'Organizaciones',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/organizations',
   branchName: 'organizations',
   detailUrl: '/admin/manage/organizations/',
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -34,7 +50,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -45,11 +61,15 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/organizations/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/manage/organizations/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]

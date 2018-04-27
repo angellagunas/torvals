@@ -9,7 +9,7 @@ module.exports = new Route({
     var requestId = ctx.params.uuid
 
     const request = await RequestLog.findOne({'uuid': requestId})
-    ctx.assert(request, 404, 'RequestLog not found')
+    ctx.assert(request, 404, 'RequestLog no encontrado')
 
     ctx.body = {
       data: request

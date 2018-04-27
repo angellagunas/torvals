@@ -14,13 +14,13 @@ const schema = {
     'name'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    description: {type: 'string', title: 'Description'},
-    address: {type: 'string', title: 'Address'},
-    brand: {type: 'string', title: 'Brand'},
-    region: {type: 'string', title: 'Region'},
-    type: {type: 'string', title: 'Type'},
-    externalId: {type: 'string', title: 'External Id'}
+    name: {type: 'string', title: 'Nombre'},
+    description: {type: 'string', title: 'Descripción'},
+    address: {type: 'string', title: 'Dirección'},
+    brand: {type: 'string', title: 'Marca'},
+    region: {type: 'string', title: 'Región'},
+    type: {type: 'string', title: 'Tipo'},
+    externalId: {type: 'string', title: 'Id Externo'}
   }
 }
 
@@ -63,6 +63,7 @@ class SalesCenterForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {
@@ -73,6 +74,7 @@ class SalesCenterForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -82,11 +84,23 @@ class SalesCenterForm extends Component {
   }
 
   render () {
+    let { canEdit, children } = this.props
     var error
     if (this.state.error) {
       error = <div>
         Error: {this.state.error}
       </div>
+    }
+
+    if (!canEdit) {
+      for (let key in uiSchema) {
+        uiSchema[key]['ui:disabled'] = true
+      }
+    }
+    if (canEdit) {
+      for (let key in uiSchema) {
+        uiSchema[key]['ui:disabled'] = false
+      }
     }
 
     return (
@@ -109,7 +123,7 @@ class SalesCenterForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
+          {canEdit && children}
         </BaseForm>
       </div>
     )

@@ -41,7 +41,7 @@ class SidebarItem extends Component {
       activeClassName='is-active'
       to={to}
     >
-      <span className='icon has-text-white'>
+      <span className='icon'>
         <FontAwesome name={icon} />
       </span>
       <span className='item-link-title'> {title}</span>
@@ -51,10 +51,10 @@ class SidebarItem extends Component {
   getDropdownButton (to, icon, title, toggle, dropdownItems) {
     const mainPath = new RegExp(to.replace(/\//g, ''))
     const isActive = mainPath.test(this.props.activeItem)
-    
+
     const arrowColorClass = classNames('icon is-pulled-right', {
-      'has-text-primary': !isActive,
-      'has-text-white': isActive
+      'has-text-dark': !isActive,
+      'has-text-primary': isActive
     })
     const dropdownClass = classNames('', {
       'dropdown': this.state.menuIsCollapsed,
@@ -66,7 +66,7 @@ class SidebarItem extends Component {
         onMouseEnter={() => toggle(this.props.index)}
         onMouseLeave={() => toggle(this.props.index)}
         href='javascript:void(0)' >
-        <span className='icon has-text-white'>
+        <span className='icon'>
           <FontAwesome name={icon} />
         </span>
         {dropdownItems}
@@ -77,7 +77,7 @@ class SidebarItem extends Component {
         className={isActive ? 'is-active' : ''}
         onClick={() => toggle(this.props.index)}>
         <span className='icon'>
-          <FontAwesome className='has-text-white' name={icon} />
+          <FontAwesome name={icon} />
         </span>
         <span className='item-link-title'> {title}</span>
         <span className={arrowColorClass}>

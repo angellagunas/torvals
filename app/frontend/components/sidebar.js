@@ -6,12 +6,13 @@ import classNames from 'classnames'
 import Dashboard from '../pages/dashboard'
 import Users from '../pages/users/list'
 import Groups from '../pages/groups/list'
-import DataSets from '../pages/datasets/list'
-import ReadyDataSets from '../pages/datasets/list-ready'
 import Projects from '../pages/projects/list'
 import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
-import Forecasts from '../pages/forecasts/list'
+import Channels from '../pages/channel/list'
+import SelectOrg from '../pages/select-org'
+import Calendar from '../pages/calendar'
+import Prices from '../pages/prices/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -37,8 +38,7 @@ class Sidebar extends Component {
   componentWillReceiveProps (nextProps) {
     if (this.state.collapsed !== nextProps.collapsed) {
       this.setState({
-        collapsed: !this.state.collapsed,
-        menuItems: JSON.parse(JSON.stringify(this.state.menuItems)).filter(Boolean).map(this.resetDoropdownItem)
+        collapsed: !this.state.collapsed
       })
     }
     if (nextProps.activePath !== this.state.activePath) {
@@ -74,45 +74,47 @@ class Sidebar extends Component {
   getMenuItems () {
     if (tree.get('organization')) {
       return [
+
         Dashboard.asSidebarItem(),
         {
-          title: 'Manage Your Team',
+          title: 'Administra tu equipo',
           icon: 'users',
           to: '/manage',
-          roles: 'orgadmin, admin',
+          roles: 'orgadmin, admin, analyst, consultor, manager-level-2',
           opened: false,
           dropdown: [
-            Users.asSidebarItem(),
-            Groups.asSidebarItem(),
             {
-              title: 'My Organization',
+              title: 'Mi Organización',
               icon: 'user',
+              roles: 'orgadmin, admin, analyst',
               to: '/manage/organizations/' + tree.get('organization').uuid
-            }
-          ]
-        },
-        {
-          title: 'Datasets',
-          icon: 'file',
-          to: '/datasets',
-          roles: 'enterprisemanager, analyst, orgadmin, admin',
-          opened: false,
-          dropdown: [
-            DataSets.asSidebarItem(),
-            ReadyDataSets.asSidebarItem()
+            },
+            Groups.asSidebarItem(),
+            Users.asSidebarItem()
           ]
         },
         Projects.asSidebarItem(),
-        SalesCenters.asSidebarItem(),
-        Products.asSidebarItem(),
-        Forecasts.asSidebarItem()
+        Calendar.asSidebarItem(),
+        {
+          title: 'Catálogos',
+          icon: 'file',
+          to: '/catalogs',
+          roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
+          opened: false,
+          dropdown: [
+            Prices.asSidebarItem(),
+            SalesCenters.asSidebarItem(),
+            Products.asSidebarItem(),
+            Channels.asSidebarItem()
+          ]
+        }
       ]
     }
 
     return [
       Dashboard.asSidebarItem(),
       {
-        title: 'Manage Your Team',
+        title: 'Administra tu equipo',
         icon: 'users',
         to: '/manage',
         roles: 'orgadmin, admin',
@@ -147,12 +149,13 @@ class Sidebar extends Component {
   }
 
   render () {
-    const menuClass = classNames('menu', {
+    const menuClass = classNames({
       'menu-collapsed': this.state.collapsed
     })
-    return (<div className='offcanvas column is-narrow is-paddingless'>
+    /* return (<div className='offcanvas column is-narrow is-paddingless'>
       <aside className={menuClass}>
         <ul className='menu-list'>
+          <SelectOrg collapsed={this.state.collapsed} />
           {this.state.menuItems.map((item, index) => {
             if (item) {
               return <SidebarItem
@@ -172,7 +175,30 @@ class Sidebar extends Component {
           })}
         </ul>
       </aside>
-    </div>)
+    </div>) */
+    return (
+      <div className={'sidenav menu ' + menuClass}>
+        <ul className='menu-list'>
+          {this.state.menuItems.map((item, index) => {
+            if (item) {
+              return <SidebarItem
+                title={item.title}
+                index={index}
+                status={item.opened}
+                collapsed={false}
+                icon={item.icon}
+                to={item.to}
+                dropdown={item.dropdown}
+                roles={item.roles}
+                onClick={this.handleActiveLink}
+                dropdownOnClick={(i) => this.handleToggle(i)}
+                activeItem={this.state.active}
+                key={item.title.toLowerCase().replace(/\s/g, '')} />
+            }
+          })}
+        </ul>
+      </div>
+    )
   }
 }
 

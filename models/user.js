@@ -6,9 +6,9 @@ const dataTables = require('mongoose-datatables')
 const assert = require('http-assert')
 const { aws } = require('../config')
 const awsService = require('aws-sdk')
+const moment = require('moment')
 
 const Mailer = require('lib/mailer')
-const jwt = require('lib/jwt')
 
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR)
 
@@ -23,10 +23,11 @@ const userSchema = new Schema({
   isAdmin: {type: Boolean, default: false},
   organizations: [{
     organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
-    role: { type: Schema.Types.ObjectId, ref: 'Role' }
+    role: { type: Schema.Types.ObjectId, ref: 'Role' },
+    defaultProject: { type: Schema.Types.ObjectId, ref: 'Project' }
+
   }],
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
-
   profilePicture: {
     url: { type: String },
     bucket: { type: String },
@@ -34,9 +35,6 @@ const userSchema = new Schema({
   },
 
   isDeleted: { type: Boolean, default: false },
-
-  resetPasswordToken: { type: String, default: v4 },
-  inviteToken: { type: String, default: v4 },
 
   uuid: { type: String, default: v4 },
   apiToken: { type: String, default: v4 }
@@ -70,16 +68,6 @@ userSchema.pre('save', function (next) {
 })
 
 // Methods
-userSchema.methods.format = function () {
-  return {
-    uuid: this.uuid,
-    name: this.name,
-    email: this.email,
-    validEmail: this.validEmail,
-    profileUrl: this.profileUrl
-  }
-}
-
 userSchema.methods.toPublic = function () {
   return {
     uuid: this.uuid,
@@ -91,13 +79,12 @@ userSchema.methods.toPublic = function () {
     validEmail: this.validEmail,
     groups: this.groups,
     profileUrl: this.profileUrl,
-    validEmail: this.validEmail,
     isAdmin: this.isAdmin
   }
 }
 
 userSchema.methods.toAdmin = function () {
-  return {
+  const data = {
     uuid: this.uuid,
     screenName: this.screenName,
     displayName: this.displayName,
@@ -109,6 +96,12 @@ userSchema.methods.toAdmin = function () {
     groups: this.groups,
     profileUrl: this.profileUrl
   }
+
+  if (this.role && this.role.toAdmin) {
+    data.role = this.role.uuid
+  }
+
+  return data
 }
 
 userSchema.methods.validatePassword = async function (password) {
@@ -126,6 +119,7 @@ userSchema.methods.createToken = async function (options = {}) {
 
   const token = await UserToken.create({
     user: this._id,
+    name: options.name,
     type: options.type || ''
   })
 
@@ -162,18 +156,23 @@ userSchema.statics.register = async function (options) {
 }
 
 userSchema.statics.validateInvite = async function (email, token) {
+  const UserToken = mongoose.model('UserToken')
   const userEmail = email.toLowerCase()
-  const user = await this.findOne({email: userEmail, inviteToken: token})
-  assert(user, 401, 'Invalid token! You should contact the administrator of this page.')
+  const user = await this.findOne({email: userEmail})
+  assert(user, 401, '¡Usuario inválido! Contacta al administrador de la página.')
+  const userToken = await UserToken.findOne({'user': user._id, 'key': token, type: 'invite', 'validUntil': {$gte: moment.utc()}})
+  assert(userToken, 401, 'Token inválido! Contacta al administrador de la página.')
 
   return user
 }
 
 userSchema.statics.validateResetPassword = async function (email, token) {
+  const UserToken = mongoose.model('UserToken')
   const userEmail = email.toLowerCase()
-  const user = await this.findOne({email: userEmail, resetPasswordToken: token})
-  assert(user, 401, 'Invalid token! You should contact the administrator of this page.')
-
+  const user = await this.findOne({email: userEmail})
+  assert(user, 401, '¡Usuario inválido! Contacta al administrador de la página.')
+  const userToken = await UserToken.findOne({'user': user._id, 'key': token, type: 'reset', 'validUntil': {$gte: moment.utc()}})
+  assert(userToken, 401, '¡Token inválido! Contacta al administrador de la página.')
   return user
 }
 
@@ -215,10 +214,10 @@ userSchema.methods.uploadProfilePicture = async function (file) {
 
 userSchema.virtual('profileUrl').get(function () {
   if (this.profilePicture && this.profilePicture.url) {
-    return 'https://s3-' + this.profilePicture.region + '.amazonaws.com/' + this.profilePicture.bucket + '/' + this.profilePicture.url
+    return 'https://s3.' + this.profilePicture.region + '.amazonaws.com/' + this.profilePicture.bucket + '/' + this.profilePicture.url
   }
 
-  return 'https://s3-us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
+  return 'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
 })
 
 userSchema.methods.validatePassword = async function (password) {
@@ -232,13 +231,17 @@ userSchema.methods.validatePassword = async function (password) {
 }
 
 userSchema.methods.sendInviteEmail = async function () {
-  this.inviteToken = v4()
-  await this.save()
+  const UserToken = mongoose.model('UserToken')
+  let userToken = await UserToken.create({
+    user: this._id,
+    validUntil: moment().add(24, 'hours').utc(),
+    type: 'invite'
+  })
 
   const email = new Mailer('invite')
 
   const data = this.toJSON()
-  data.url = process.env.APP_HOST + '/emails/invite?token=' + this.inviteToken + '&email=' + encodeURIComponent(this.email)
+  data.url = process.env.APP_HOST + '/emails/invite?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
 
   await email.format(data)
   await email.send({
@@ -246,13 +249,17 @@ userSchema.methods.sendInviteEmail = async function () {
       email: this.email,
       name: this.name
     },
-    title: 'Invite to Pythia'
+    title: 'Invitación a Orax'
   })
 }
 
 userSchema.methods.sendResetPasswordEmail = async function (admin) {
-  this.inviteToken = v4()
-  await this.save()
+  const UserToken = mongoose.model('UserToken')
+  let userToken = await UserToken.create({
+    user: this._id,
+    validUntil: moment().add(24, 'hours').utc(),
+    type: 'reset'
+  })
   let url = process.env.APP_HOST
 
   if (admin) url = process.env.ADMIN_HOST + process.env.ADMIN_PREFIX
@@ -260,7 +267,7 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
   const email = new Mailer('reset-password')
 
   const data = this.toJSON()
-  data.url = url + '/emails/reset?token=' + this.resetPasswordToken + '&email=' + encodeURIComponent(this.email)
+  data.url = url + '/emails/reset?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
 
   await email.format(data)
   await email.send({
@@ -268,10 +275,27 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
       email: this.email,
       name: this.name
     },
-    title: 'Reset passsword for Pythia'
+    title: 'Reestablecer contraseña en Orax'
   })
 }
 
-userSchema.plugin(dataTables)
+userSchema.methods.sendPasswordConfirmation = async function () {
+  const email = new Mailer('confirm-password')
+  await email.format()
+  await email.send({
+    recipient: {
+      email: this.email,
+      name: this.name
+    },
+    title: 'Cambio de contraseña en Orax'
+  })
+}
+
+userSchema.plugin(dataTables, {
+  formatters: {
+    toAdmin: (user) => user.toAdmin(),
+    toPublic: (user) => user.toAdmin()
+  }
+})
 
 module.exports = mongoose.model('User', userSchema)

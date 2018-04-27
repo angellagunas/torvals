@@ -13,10 +13,10 @@ module.exports = new Route({
       'isDeleted': false,
       'organization': ctx.state.organization._id
     }).populate('organization')
-    ctx.assert(product, 404, 'Product not found')
+    ctx.assert(product, 404, 'Producto no encontrado')
 
     ctx.body = {
-      data: product.format()
+      data: product.toPublic()
     }
   }
 })

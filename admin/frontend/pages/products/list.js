@@ -1,68 +1,85 @@
 import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
-import api from '~base/api'
-
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares/'
 import CreateProduct from './create'
 
 export default ListPage({
-  path: '/products',
-  title: 'Active',
-  icon: 'check',
+  path: '/catalogs/products',
+  title: 'Productos activos',
+  icon: 'dropbox',
   exact: true,
   validate: loggedIn,
-  titleSingular: 'Product',
+  titleSingular: 'Producto',
   create: true,
   createComponent: CreateProduct,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/products/',
+        label: 'Productos activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/products',
   branchName: 'products',
-  detailUrl: '/admin/products/',
+  detailUrl: '/admin/catalogs/products/detail/',
   filters: true,
   schema: {
     type: 'object',
     required: [],
     properties: {
-      name: {type: 'text', title: 'Por nombre'},
-      organization: {type: 'text', title: 'Por organización', values: []}
+      general: {type: 'text', title: 'Buscar'}
     }
   },
   uiSchema: {
-    name: {'ui:widget': 'SearchFilter'},
-    organization: {'ui:widget': 'SelectSearchFilter'}
-  },
-  loadValues: async function () {
-    var url = '/admin/organizations/'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
-
-    return {
-      'organization': body.data
-    }
+    general: {'ui:widget': 'SearchFilter'}
   },
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Id',
+        'property': 'externalId',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/catalogs/products/detail/' + row.uuid}>
+              {row.externalId}
+            </Link>
+          )
+        }
+      },
+      {
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/products/detail/' + row.uuid}>
+            <Link to={'/catalogs/products/detail/' + row.uuid}>
               {row.name}
             </Link>
           )
         }
       },
       {
-        'title': 'Organization',
+        'title': 'Categoría',
+        'property': 'category',
+        'default': 'N/A',
+        'sortable': true
+      },
+      {
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -78,7 +95,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -89,11 +106,15 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/products/detail/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/catalogs/products/detail/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]

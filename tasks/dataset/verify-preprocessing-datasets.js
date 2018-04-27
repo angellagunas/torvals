@@ -5,7 +5,6 @@ require('lib/databases/mongo')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSet } = require('models')
-const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   console.log('Fetching preprocessing Datasets...')
@@ -21,46 +20,49 @@ const task = new Task(async function (argv) {
     return true
   }
 
-  console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
-
-  if (!apiData.token) {
-    throw new Error('There is no API endpoint configured!')
-  }
-
   for (var dataset of datasets) {
     console.log(`Verifying if ${dataset.name} dataset has finished preprocessing ...`)
-    var options = {
-      url: `${apiData.hostname}${apiData.baseUrl}/datasets/${dataset.externalId}`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${apiData.token}`
-      },
-      json: true,
-      persist: true
-    }
+    try {
+      var res = await Api.getDataset(dataset.externalId)
 
-    var res = await request(options)
-
-    if (res.status === 'done' && res.headers.length > 1) {
-      console.log(`${dataset.name} dataset has finished preprocessing`)
-      dataset.set({
-        status: 'configuring',
-        columns: res.headers.map(item => {
-          return {
-            name: item,
-            isDate: false,
-            isAnalysis: false,
-            isOperationFilter: false,
-            isAnalysisFilter: false
-          }
+      if (res.status === 'done' && res.headers.length > 1) {
+        console.log(`${dataset.name} dataset has finished preprocessing`)
+        dataset.set({
+          status: 'configuring',
+          etag: res._etag,
+          columns: res.headers.map(item => {
+            return {
+              name: item,
+              isDate: false,
+              isAnalysis: false,
+              isOperationFilter: false,
+              isAnalysisFilter: false
+            }
+          })
         })
+
+        await dataset.save()
+      }
+
+      if (res.status === 'error') {
+        dataset.set({
+          error: res.message,
+          status: 'error'
+        })
+
+        await dataset.save()
+
+        console.log(`Error while preprocessing dataset: ${dataset.error}`)
+      }
+    } catch (e) {
+      dataset.set({
+        error: e,
+        status: 'error'
       })
 
       await dataset.save()
+
+      console.log(`Error while preprocessing dataset: ${dataset.error}`)
     }
   }
 

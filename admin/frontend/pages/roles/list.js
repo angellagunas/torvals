@@ -12,16 +12,44 @@ export default ListPage({
   icon: 'address-book',
   exact: true,
   validate: loggedIn,
-  titleSingular: 'Role',
+  titleSingular: 'Rol',
   create: true,
   createComponent: CreateRole,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/manage/roles',
+        label: 'Roles',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/roles',
   branchName: 'roles',
   detailUrl: '/admin/manage/roles/',
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Prioridad',
+        'property': 'priority',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <div>
+              {row.priority }
+            </div>
+          )
+        }
+      },
+      {
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -34,7 +62,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -45,23 +73,27 @@ export default ListPage({
         }
       },
       {
-        'title': 'Default',
+        'title': 'Por defecto',
         'property': 'isDefault',
         'sortable': true,
         formatter: (row) => {
           if (row.isDefault) {
             return (
-              'Yes'
+              'Si'
             )
           }
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/roles/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/manage/roles/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]

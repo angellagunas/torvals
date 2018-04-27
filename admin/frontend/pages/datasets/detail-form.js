@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 
 import api from '~base/api'
-import Loader from '~base/components/spinner'
 
 import {
   BaseForm,
@@ -14,18 +13,42 @@ const schema = {
   type: 'object',
   title: '',
   required: [
-    'name',
-    'organization'
+    'name'
   ],
   properties: {
     name: {type: 'string', title: 'Name'},
     description: {type: 'string', title: 'Description'},
-    status: {type: 'string', title: 'Status'},
-    organization: {
+    status: {
       type: 'string',
-      title: 'Organization',
-      enum: [],
-      enumNames: []
+      title: 'Status',
+      enum: [
+        'new',
+        'uploading',
+        'uploaded',
+        'preprocessing',
+        'configuring',
+        'processing',
+        'reviewing',
+        'ready',
+        'conciliated',
+        'pendingRows',
+        'adjustment',
+        'error'
+      ],
+      enumNames: [
+        'new',
+        'uploading',
+        'uploaded',
+        'preprocessing',
+        'configuring',
+        'processing',
+        'reviewing',
+        'ready',
+        'conciliated',
+        'pendingRows',
+        'adjustment',
+        'error'
+      ]
     }
   }
 }
@@ -33,8 +56,7 @@ const schema = {
 const uiSchema = {
   name: {'ui:widget': TextWidget},
   description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
-  status: {'ui:widget': TextWidget, 'ui:disabled': true},
-  organization: {'ui:widget': SelectWidget}
+  status: {'ui:widget': SelectWidget}
 }
 
 class DatasetDetailForm extends Component {
@@ -45,6 +67,12 @@ class DatasetDetailForm extends Component {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    this.setState({
+      formData: nextProps.initialState
+    })
   }
 
   errorHandler (e) {}
@@ -66,6 +94,7 @@ class DatasetDetailForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
@@ -74,6 +103,7 @@ class DatasetDetailForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -89,15 +119,6 @@ class DatasetDetailForm extends Component {
         Error: {this.state.error}
       </div>
     }
-
-    if (this.props.organizations.length === 0) {
-      return <Loader />
-    }
-
-    let org = schema.properties.organization
-
-    org.enum = this.props.organizations.map(item => { return item.uuid })
-    org.enumNames = this.props.organizations.map(item => { return item.name })
 
     return (
       <div>

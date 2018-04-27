@@ -14,7 +14,7 @@ module.exports = new Route({
     var data = ctx.request.body
 
     if (!ctx.state.organization) {
-      ctx.throw(404, 'Organization not found!')
+      ctx.throw(404, 'Organización no encontrada')
     }
 
     data.slug = slugify(data.name)
@@ -22,7 +22,7 @@ module.exports = new Route({
     const group = await Group.create(data)
 
     ctx.body = {
-      data: group.format()
+      data: group.toPublic()
     }
   }
 })

@@ -27,7 +27,7 @@ These instructions will get you a copy of the project up and running on your loc
 npm install
 ```
 
-Before running the app remember set the env variables, these are a few of them, to see  all the variables look [.env.default](.env.default)
+Before running the app remember to set the env variables by creating a new file named `.env.development`. These are a few of them:
 
 ```bash
 API_PORT=3000
@@ -36,6 +36,8 @@ API_HOST=http://pythia.dev:3000
 APP_PORT=4000
 APP_HOST=http://pythia.dev:4000
 ```
+
+To see all the enviroment variables available, take a look at [.env.default](.env.default)
 
 Run API with
 
@@ -55,7 +57,7 @@ Run APP with
 make app-server
 ```
 
-As alternative for run APP
+You could alternatively execute `app`, `admin` and `api` by running
 
 ```bash
 node runner.js
@@ -80,3 +82,49 @@ make run-test
 ```
 
 ## Deployment
+
+Before building the docker image we need to add a `.env.production` with:
+```
+MONGO_DB=pythia-db
+MONGO_HOST=mongodb
+REDIS_HOST=redisdb
+
+API_HOST=<API BASE URL>
+APP_HOST=<APP BASE URL>
+ADMIN_HOST=<ADMIN BASE URL>
+
+# To send invites
+EMAIL_SEND=false
+EMAIL_PROVIDER=mandrill
+EMAIL_KEY=<MANDRIL TOKEN>
+
+# Multiple workers for API, by default sets NUM_WORKERS to the same number of processing cores available
+MULTIPLE_WORKERS=true
+```
+
+To use docker compose do:
+```bash
+docker-compose build
+docker-compose up -d
+```
+
+This starts 3 containers, one with nodejs, one with mongodb and one with redis. Do:
+```bash
+docker-compose ps
+```
+To verify that the 3 containers are running.
+
+Node container exposes with 3 ports open:
+```
+[API PORT]  3000
+[APP PORT] 4000 
+[ADMIN PORT] 5000 
+```
+They will need to be wired Mesos DNS. 
+
+The first time the DB is started, the seed data needs to be added with:
+
+```
+docker exec pythia_web_1 node tasks/seed-data.js --file tasks/base-data/seed-data.json
+```
+

@@ -6,7 +6,9 @@ import api from '~base/api'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
+import { ToastContainer, toast } from 'react-toastify'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class DeletedDataSets extends Component {
   constructor (props) {
@@ -28,14 +30,22 @@ class DeletedDataSets extends Component {
 
   async restoreOnClick (uuid) {
     var url = '/admin/datasets/deleted/' + uuid
-    await api.post(url)
-    this.props.history.push('/admin/datasets/detail/' + uuid)
+    try {
+      await api.post(url)
+      this.props.history.push('/admin/datasets/detail/' + uuid)
+    } catch (e) {
+      this.notify(
+        'El proyecto de este dataset esta eliminado, primero restaure el proyecto',
+        5000,
+        toast.TYPE.ERROR
+      )
+    }
   }
 
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -47,7 +57,7 @@ class DeletedDataSets extends Component {
         'sortable': true
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -63,11 +73,11 @@ class DeletedDataSets extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
-              Restore
+              Restaurar
             </button>
           )
         }
@@ -75,18 +85,47 @@ class DeletedDataSets extends Component {
     ]
   }
 
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
+  }
+
   render () {
     return (
       <div className='columns c-flex-1 is-marginless'>
+        <ToastContainer />
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Deleted datasets</h1>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/admin/datasets/deleted',
+                  label: 'Datasets eliminados',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Datasets eliminados</h1>
             <div className='card'>
-              <header className='card-header'>
-                <p className='card-header-title'>
-                  Deleted datasets
-                </p>
-              </header>
               <div className='card-content'>
                 <div className='columns'>
                   <div className='column'>
@@ -114,7 +153,7 @@ const branchedDeletedDataSets = branch({deletedDatasets: 'deletedDatasets'}, Del
 
 export default Page({
   path: '/datasets/deleted',
-  title: 'Deleted datasets',
+  title: 'Datasets eliminados',
   icon: 'trash',
   exact: true,
   validate: loggedIn,

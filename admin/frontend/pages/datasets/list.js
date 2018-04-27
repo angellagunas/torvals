@@ -4,7 +4,6 @@ import api from '~base/api'
 
 import ListPage from '~base/list-page'
 import {loggedIn} from '~base/middlewares/'
-import CreateDataSet from './create'
 
 export default ListPage({
   path: '/datasets',
@@ -13,15 +12,30 @@ export default ListPage({
   exact: true,
   validate: loggedIn,
   titleSingular: 'Dataset',
-  create: true,
-  createComponent: CreateDataSet,
+  create: false,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/datasets/',
+        label: 'Datasets activos',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
   baseUrl: '/admin/datasets',
   branchName: 'datasets',
   detailUrl: '/admin/datasets/detail/',
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -40,7 +54,7 @@ export default ListPage({
         'sortable': true
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -56,11 +70,15 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/datasets/detail/' + row.uuid}>
-            Detalle
-          </Link>
+          return (
+            <Link className='button is-primary' to={'/datasets/detail/' + row.uuid}>
+              <span className='icon is-small' title='Editar'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+          )
         }
       }
     ]

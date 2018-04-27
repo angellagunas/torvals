@@ -9,7 +9,7 @@ module.exports = new Route({
     var productId = ctx.params.uuid
 
     var product = await Product.findOne({'uuid': productId})
-    ctx.assert(product, 404, 'Product not found')
+    ctx.assert(product, 404, 'Producto no encontrado')
 
     product.set({
       isDeleted: true
@@ -18,7 +18,7 @@ module.exports = new Route({
     await product.save()
 
     ctx.body = {
-      data: product.format()
+      data: product.toAdmin()
     }
   }
 })

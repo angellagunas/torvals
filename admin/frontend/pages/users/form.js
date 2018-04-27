@@ -16,9 +16,9 @@ var schema = {
     'email'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
+    name: {type: 'string', title: 'Nombre'},
     email: {type: 'string', title: 'Email'},
-    isAdmin: {type: 'boolean', title: 'Is Admin?', default: false}
+    isAdmin: {type: 'boolean', title: 'Es Admin?', default: false}
   }
 }
 
@@ -31,8 +31,18 @@ const uiSchema = {
 class UserForm extends Component {
   constructor (props) {
     super(props)
+
+    const initialState = this.props.initialState || {}
+
+    const formData = {}
+    formData.name = initialState.name || ''
+    formData.email = initialState.email || ''
+    formData.screenName = initialState.screenName || ''
+    formData.isAdmin = initialState.isAdmin || false
+    formData.role = initialState.role || ''
+
     this.state = {
-      formData: this.props.initialState,
+      formData,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
@@ -57,14 +67,17 @@ class UserForm extends Component {
   }
 
   async submitHandler ({formData}) {
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       await this.props.load()
-      this.clearState()
       this.setState({...this.state, apiCallMessage: 'message is-success'})
-      if (this.props.finishUp) this.props.finishUp(data.data)
+      if (this.props.finishUp) {
+        this.props.finishUp(data.data)
+      }
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,

@@ -11,6 +11,9 @@ import { loggedIn, verifyRole } from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import UserForm from './form'
 import Multiselect from '~base/components/base-multiselect'
+import tree from '~core/tree'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class UserDetail extends Component {
   constructor (props) {
@@ -19,14 +22,16 @@ class UserDetail extends Component {
       loaded: false,
       loading: true,
       resetLoading: false,
-      resetText: 'Reset password',
+      resetText: 'Restablecer Contraseña',
       resetClass: 'button is-danger',
       user: {},
       roles: [],
       groups: [],
+      projects: [],
       selectedGroups: [],
       saving: false,
-      saved: false
+      saved: false,
+      isLoading: ''
     }
   }
 
@@ -34,18 +39,38 @@ class UserDetail extends Component {
     this.load()
     this.loadGroups()
     this.loadRoles()
+    this.loadProjects()
   }
 
+  async loadProjects () {
+    var url = '/app/projects/'
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0
+    })
+
+    this.setState({
+      projects: body.data
+    })
+  }
   async load () {
     var url = '/app/users/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    await this.setState({
-      loading: false,
-      loaded: true,
-      user: body.data,
-      selectedGroups: [...body.data.groups]
-    })
+      await this.setState({
+        loading: false,
+        loaded: true,
+        user: body.data,
+        selectedGroups: [...body.data.groups]
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async loadGroups () {
@@ -156,7 +181,7 @@ class UserDetail extends Component {
   async resetOnClick () {
     await this.setState({
       resetLoading: true,
-      resetText: 'Sending email...',
+      resetText: 'Enviando email...',
       resetClass: 'button is-info'
     })
 
@@ -167,7 +192,7 @@ class UserDetail extends Component {
       setTimeout(() => {
         this.setState({
           resetLoading: true,
-          resetText: 'Sucess!',
+          resetText: 'Éxito!',
           resetClass: 'button is-success'
         })
       }, 3000)
@@ -182,7 +207,7 @@ class UserDetail extends Component {
     setTimeout(() => {
       this.setState({
         resetLoading: false,
-        resetText: 'Reset Password',
+        resetText: 'Restablecer Contraseña',
         resetClass: 'button is-danger'
       })
     }, 10000)
@@ -218,8 +243,61 @@ class UserDetail extends Component {
     }
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este usuario' />
+    }
     const { user } = this.state
+    const currentUser = tree.get('user')
+
+    var disabledForm = false
+    if (user.roleDetail && currentUser) {
+      disabledForm = user.roleDetail.priority <= currentUser.currentRole.priority
+    }
+
+    var disabledRoles = false
+    if (user.roleDetail && currentUser.currentRole.slug === 'consultor') {
+      disabledRoles = true
+      if (user.roleDetail.slug === 'consultor') {
+        disabledForm = false
+      } else {
+        disabledForm = true
+      }
+    }
+
+    if (user) {
+      var role = this.state.roles.find((item) => {
+        return item._id === user.role
+      })
+
+      if (role && role.slug === 'manager-level-1') {
+        var currentOrg = user.organizations.find((item) => {
+          return item.organization.uuid === currentUser.currentOrganization.uuid
+        })
+
+        if (currentOrg.defaultProject) {
+          var currentProject = this.state.projects.find((item) => {
+            return item.uuid === currentOrg.defaultProject.uuid
+          })
+
+          if (currentProject) {
+            this.state.user.project = currentProject.uuid
+          }
+        }
+      }
+    }
 
     if (!user.uuid) {
       return <Loader />
@@ -234,19 +312,16 @@ class UserDetail extends Component {
     var resetButton
     if (env.EMAIL_SEND) {
       resetButton = (
-        <div className='columns'>
-          <div className='column has-text-right'>
-            <div className='field is-grouped is-grouped-right'>
-              <div className='control'>
-                <button
-                  className={this.state.resetClass}
-                  type='button'
-                  onClick={() => this.resetOnClick()}
-                  disabled={!!this.state.resetLoading}
-                  >
-                  {this.state.resetText}
-                </button>
-              </div>
+        <div className='column has-text-right'>
+          <div className='field is-grouped is-grouped-right'>
+            <div className='control'>
+              <button
+                className={this.state.resetClass}
+                type='button'
+                onClick={() => this.resetOnClick()}
+                disabled={!!this.state.resetLoading || disabledForm}>
+                {this.state.resetText}
+              </button>
             </div>
           </div>
         </div>
@@ -256,14 +331,48 @@ class UserDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
-            {resetButton}
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/manage/users',
+                  label: 'Usuarios',
+                  current: false
+                },
+                {
+                  path: '/manage/users/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/manage/users/',
+                  label: user.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+
+            <div className='columns'>
+              <div className='column'>
+                <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>
+                  {user.name}
+                </h1>
+              </div>
+              {!disabledForm && resetButton}
+            </div>
+
             <div className='columns is-mobile'>
               <div className='column'>
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      { user.name }
+                      Detalle
                     </p>
                   </header>
                   <div className='card-content'>
@@ -275,10 +384,24 @@ class UserDetail extends Component {
                           initialState={this.state.user}
                           load={this.load.bind(this)}
                           roles={this.state.roles || []}
+                          projects={this.state.projects}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
+                          disabled={disabledForm}
+                          disabledRoles={disabledRoles}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              {!disabledForm &&
+                                <button
+                                  className={'button is-primary ' + this.state.isLoading}
+                                  disabled={!!this.state.isLoading}
+                                  type='submit'
+                                >
+                                  Guardar
+                                </button>
+                              }
                             </div>
                           </div>
                         </UserForm>
@@ -293,7 +416,7 @@ class UserDetail extends Component {
                     <div className='card'>
                       <header className='card-header'>
                         <p className='card-header-title'>
-                          Groups
+                          Grupos
                         </p>
                         <div>
                           {this.getSavingMessage()}
@@ -301,11 +424,14 @@ class UserDetail extends Component {
                       </header>
                       <div className='card-content'>
                         <Multiselect
+                          availableTitle='Disponible'
+                          assignedTitle='Asignado'
                           assignedList={this.state.selectedGroups}
                           availableList={availableList}
                           dataFormatter={(item) => { return item.name || 'N/A' }}
                           availableClickHandler={this.availableGroupOnClick.bind(this)}
                           assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                          disabled={disabledForm}
                         />
                       </div>
                     </div>
@@ -329,7 +455,7 @@ const branchedUserDetail = branch({}, UserDetail)
 export default Page({
   path: '/manage/users/:uuid',
   title: 'User details',
-  roles: 'admin, orgadmin',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
   exact: true,
   validate: [loggedIn, verifyRole],
   component: branchedUserDetail

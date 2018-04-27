@@ -13,11 +13,13 @@ module.exports = new Route({
       'organization': ctx.state.organization._id
     })
       .populate('fileChunk')
+      .populate('project')
       .populate('organization')
       .populate('newProducts')
       .populate('newSalesCenters')
+      .populate('newChannels')
 
-    ctx.assert(dataset, 404, 'DataSet not found ')
+    ctx.assert(dataset, 404, 'DataSet no encontrado ')
 
     ctx.body = {
       data: dataset.toPublic()

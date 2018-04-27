@@ -20,18 +20,18 @@ module.exports = new Route({
     const { password, newPassword, confirmPassword } = ctx.request.body
 
     if (confirmPassword !== newPassword) {
-      ctx.throw(422, 'New passwords dont match')
+      ctx.throw(422, 'Los campos de password no coinciden')
     }
 
     if (await user.validatePassword(password)) {
       user.password = newPassword
       await user.save()
     } else {
-      return ctx.throw(401, 'Invalid password')
+      return ctx.throw(401, 'Password inválido')
     }
 
     ctx.body = {
-      user: user.format(),
+      user: user.toPublic(),
       data: 'OK'
     }
   }

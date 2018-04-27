@@ -1,7 +1,16 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {Role, Forecast, PredictionHistoric} = require('models')
+const {
+  Role,
+  Forecast,
+  PredictionHistoric,
+  User,
+  Group,
+  Product,
+  SalesCenter,
+  Project
+} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -23,32 +32,49 @@ module.exports = new Route({
     }
 
     var filters = {}
+    var response = {}
 
     switch (currentRole.slug) {
       case 'analyst':
         filters['status'] = 'analistReview'
+        response = {
+          productCount: await Product.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
+
+          salesCenterCount: await SalesCenter.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count()
+        }
         break
-      case 'localmanager':
+
+      case 'manager-level-1':
         filters['status'] = 'opsReview'
         break
-      case 'enterprisemanager':
+
+      case 'consultor':
         filters['status'] = 'supervisorReview'
         break
-      case 'opsmanager':
+
+      case 'manager-level-2':
         filters['status'] = 'opsReview'
+        break
+
+      case 'orgadmin':
+        response = {
+          usersCount: await User.find({'organizations.organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count(),
+
+          groupsCount: await Group.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false}).count()
+        }
         break
     }
 
-    const forecasts = await Forecast.find({'isDeleted': false, ...filters})
-    const predictions = await PredictionHistoric.find({
-      updatedBy: ObjectId(ctx.state.user._id),
-      organization: ObjectId(ctx.state.organization._id)
-    }).limit(20)
-
-    ctx.body = {
-      forecasts: forecasts,
-      forecastsCount: forecasts.length,
-      predictions
+    response = {
+      ...response,
+      project: await Project.find().sort('-dateCreated').limit(1),
+      forecasts: await Forecast.find({'organization': {$in: [ObjectId(currentOrganization.organization._id)]}, 'isDeleted': false, ...filters}),
+      predictions: await PredictionHistoric.find({
+        updatedBy: ObjectId(ctx.state.user._id),
+        organization: ObjectId(ctx.state.organization._id)
+      }).limit(20)
     }
+
+    ctx.body = response
   }
 })

@@ -14,11 +14,11 @@ const schema = {
     'name'
   ],
   properties: {
-    name: {type: 'string', title: 'Name'},
-    category: {type: 'string', title: 'Category'},
-    subcategory: {type: 'string', title: 'Subcategory'},
-    externalId: {type: 'string', title: 'External Id'},
-    description: {type: 'string', title: 'Description'}
+    name: {type: 'string', title: 'Nombre'},
+    category: {type: 'string', title: 'Categoría'},
+    subcategory: {type: 'string', title: 'Subcategoría'},
+    externalId: {type: 'string', title: 'Id Externo'},
+    description: {type: 'string', title: 'Descripción'}
 
   }
 }
@@ -62,6 +62,7 @@ class ProductForm extends Component {
 
   async submitHandler ({formData}) {
     formData.isDefault = undefined
+    if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
       var data = await api.post(this.props.url, formData)
       if (this.props.load) {
@@ -72,6 +73,7 @@ class ProductForm extends Component {
       if (this.props.finishUp) this.props.finishUp(data.data)
       return
     } catch (e) {
+      if (this.props.errorHandler) this.props.errorHandler(e)
       return this.setState({
         ...this.state,
         error: e.message,
@@ -81,11 +83,23 @@ class ProductForm extends Component {
   }
 
   render () {
+    let { canEdit, canCreate, children } = this.props
     var error
     if (this.state.error) {
       error = <div>
         Error: {this.state.error}
       </div>
+    }
+
+    if (!canEdit || !canCreate) {
+      for (let key in uiSchema) {
+        uiSchema[key]['ui:disabled'] = true
+      }
+    }
+    if (canEdit || canCreate) {
+      for (let key in uiSchema) {
+        uiSchema[key]['ui:disabled'] = false
+      }
     }
 
     return (
@@ -108,7 +122,8 @@ class ProductForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
+          {canEdit && children}
+          {canCreate && children}
         </BaseForm>
       </div>
     )

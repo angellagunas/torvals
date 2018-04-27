@@ -15,7 +15,7 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const forecast = await Forecast.findOne({'uuid': forecastId, 'isDeleted': false})
-    ctx.assert(forecast, 404, 'Forecast not found')
+    ctx.assert(forecast, 404, 'Forecast no encontrado')
 
     forecast.set({
       status: data.status
@@ -44,7 +44,7 @@ module.exports = new Route({
     }
 
     ctx.body = {
-      data: forecast.format()
+      data: forecast.toPublic()
     }
   }
 })

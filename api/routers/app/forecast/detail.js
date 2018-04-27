@@ -17,7 +17,7 @@ module.exports = new Route({
       .populate('newSalesCenters')
       .select({graphData: 0, aggregated: 0})
 
-    ctx.assert(forecast, 404, 'Forecast not found')
+    ctx.assert(forecast, 404, 'Forecast no encontrado')
 
     if (forecast.graphData) {
       forecast.graphData.sort((a, b) => {
@@ -29,7 +29,7 @@ module.exports = new Route({
     }
 
     ctx.body = {
-      data: forecast.format()
+      data: forecast.toPublic()
     }
   }
 })

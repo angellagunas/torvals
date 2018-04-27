@@ -16,7 +16,7 @@ module.exports = new Route({
     const chunkData = ctx.request.body
 
     if (!chunkData.fields || Object.keys(chunkData.fields).length === 0) {
-      ctx.throw(400, 'Fields parameter is missing!')
+      ctx.throw(400, 'Falta especificar el campo fields')
     }
 
     var chunkNumber = parseInt(chunkData.fields.resumableChunkNumber)
@@ -31,10 +31,10 @@ module.exports = new Route({
 
     var chunk = await FileChunk.findOne({fileId: identifier})
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
-    ctx.assert(dataset, 404, 'Dataset not found')
+    ctx.assert(dataset, 404, 'Dataset no encontrado')
 
     if (String(dataset.organization) !== String(ctx.state.organization._id)) {
-      ctx.throw(404, 'Dataset not found')
+      ctx.throw(404, 'Dataset no encontrado')
     }
 
     try {
@@ -44,23 +44,25 @@ module.exports = new Route({
     }
 
     if (chunk && !dataset.fileChunk) {
-      dataset.set({
-        fileChunk: chunk,
-        status: chunk.recreated ? 'uploaded' : 'uploading',
-        uploadedBy: ctx.state.user
-      })
-      await dataset.save()
+      if (dataset.status !== 'uploaded') {
+        dataset.set({
+          fileChunk: chunk,
+          status: chunk.recreated ? 'uploaded' : 'uploading',
+          uploadedBy: ctx.state.user
+        })
+        await dataset.save()
 
-      if (chunk.recreated) {
+        if (chunk.recreated) {
         // The File has been already uploaded to Kore
-        finishUpload.add({uuid: dataset.uuid})
+          finishUpload.add({uuid: dataset.uuid})
 
-        ctx.body = 'OK'
-        return
+          ctx.body = 'OK'
+          return
+        }
       }
     }
 
-    const tmpdir = path.join('.', 'media', 'uploads', identifier)
+    const tmpdir = path.resolve('.', 'media', 'uploads', identifier)
 
     if (!chunk && chunkNumber === 1) {
       chunk = await FileChunk.create({
@@ -75,7 +77,7 @@ module.exports = new Route({
       try {
         await fs.mkdir(tmpdir)
       } catch (e) {
-        console.log('Folder already exists!')
+        console.log('El Folder ya existe')
       }
 
       dataset.set({
@@ -103,7 +105,7 @@ module.exports = new Route({
     chunk = dataset.fileChunk
 
     if (chunk.fileId !== identifier) {
-      ctx.throw(404, "Chunk identifier doesn't match")
+      ctx.throw(404, 'El identificador Chunk no coincide')
     }
 
     if (chunk.lastChunk >= chunkNumber) {
@@ -117,7 +119,7 @@ module.exports = new Route({
     }
 
     if (!chunkData.files || chunkData.files.length === 0) {
-      ctx.throw(400, 'Files parameter is missing!')
+      ctx.throw(400, 'Falta el parametro files')
     }
 
     const filePaths = []
@@ -128,7 +130,7 @@ module.exports = new Route({
         const file = files[key]
         const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
         const reader = fs.createReadStream(file.path)
-        const writer = fs.createWriteStream(filePath)
+        const writer = fs.createWriteStream(filePath).on('error', e => console.error(e))
         reader.pipe(writer)
         filePaths.push(filePath)
       }
@@ -139,9 +141,11 @@ module.exports = new Route({
     chunk.lastChunk = chunkNumber
 
     if (chunkNumber === totalChunks) {
-      dataset.set({ status: 'uploaded' })
-      await dataset.save()
-      finishUpload.add({uuid: dataset.uuid})
+      if (dataset.status !== 'uploaded') {
+        dataset.set({ status: 'uploaded' })
+        await dataset.save()
+        finishUpload.add({uuid: dataset.uuid})
+      }
     }
 
     chunk.save()

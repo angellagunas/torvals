@@ -4,7 +4,7 @@ const moment = require('moment')
 const {AdjustmentRequest} = require('models')
 
 module.exports = new Route({
-  method: 'post',
+  method: 'get',
   path: '/reject/:uuid',
   handler: async function (ctx) {
     var adjustmentRequestId = ctx.params.uuid
@@ -14,7 +14,7 @@ module.exports = new Route({
       'isDeleted': false
     })
 
-    ctx.assert(adjustmentRequest, 404, 'AdjustmentRequest not found')
+    ctx.assert(adjustmentRequest, 404, 'AdjustmentRequest no encontrado')
 
     adjustmentRequest.status = 'rejected'
     adjustmentRequest.rejectedBy = ctx.state.user
@@ -22,7 +22,7 @@ module.exports = new Route({
     await adjustmentRequest.save()
 
     ctx.body = {
-      data: adjustmentRequest.format()
+      data: adjustmentRequest.toPublic()
     }
   }
 })

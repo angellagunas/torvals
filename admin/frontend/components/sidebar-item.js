@@ -82,7 +82,7 @@ class SidebarItem extends Component {
           <FontAwesome name={this.state.open ? 'angle-down' : 'angle-right'} />
         </span>
       </a>
-      {dropdownItems} 
+      {dropdownItems}
     </div>)
   }
 

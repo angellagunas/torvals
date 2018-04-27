@@ -6,7 +6,8 @@ import api from '~base/api'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
+import Breadcrumb from '~base/components/base-breadcrumb'
 
 class DeletedProducts extends Component {
   componentWillMount () {
@@ -22,13 +23,13 @@ class DeletedProducts extends Component {
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Organization',
+        'title': 'Organización',
         'property': 'organization',
         'default': '',
         'sortable': true,
@@ -39,7 +40,7 @@ class DeletedProducts extends Component {
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -50,11 +51,11 @@ class DeletedProducts extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.restoreOnClick(row.uuid) }}>
-              Restore
+              Restaurar
             </button>
           )
         }
@@ -73,8 +74,23 @@ class DeletedProducts extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top'>
-            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Products</h1>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/admin/products/deleted',
+                  label: 'Productos eliminados',
+                  current: true
+                }
+              ]}
+              align='left'
+            />
+            <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Productos eliminados</h1>
             <div className='card'>
               <div className='card-content'>
                 <div className='columns'>
@@ -103,7 +119,7 @@ const branchedDeletedProducts = branch({deletedproducts: 'deletedproducts'}, Del
 
 export default Page({
   path: '/products/deleted',
-  title: 'Deleted products',
+  title: 'Productos eliminados',
   icon: 'trash',
   exact: true,
   validate: loggedIn,

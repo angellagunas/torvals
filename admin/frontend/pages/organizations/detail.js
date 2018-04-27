@@ -8,8 +8,10 @@ import Loader from '~base/components/spinner'
 import DeleteButton from '~base/components/base-deleteButton'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import OrganizationForm from './form'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class OrganizationDetail extends Component {
   constructor (props) {
@@ -17,7 +19,8 @@ class OrganizationDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      organization: {}
+      organization: {},
+      isLoading: ''
     }
   }
 
@@ -37,19 +40,27 @@ class OrganizationDetail extends Component {
 
   async load () {
     var url = '/admin/organizations/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      organization: body.data
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        organization: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   getColumns () {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
@@ -61,10 +72,12 @@ class OrganizationDetail extends Component {
         'sortable': true
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button' to={'/manage/users/' + row.uuid}>
-            Detalle
+          return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+            <span className='icon is-small' title='Editar'>
+              <i className='fa fa-pencil' />
+            </span>
           </Link>
         }
       }
@@ -77,7 +90,23 @@ class OrganizationDetail extends Component {
     this.props.history.push('/admin/manage/organizations')
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='esta organización' />
+    }
+
     const { organization } = this.state
 
     if (!organization.uuid) {
@@ -87,7 +116,32 @@ class OrganizationDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/organizations',
+                  label: 'Organizaciones',
+                  current: false
+                },
+                {
+                  path: '/admin/manage/organizations',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/manage/organizations',
+                  label: organization.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
@@ -106,7 +160,7 @@ class OrganizationDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Organization
+                      Organización
                     </p>
                   </header>
                   <div className='card-content'>
@@ -117,10 +171,17 @@ class OrganizationDetail extends Component {
                           url={'/admin/organizations/' + this.props.match.params.uuid}
                           initialState={this.state.organization}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </OrganizationForm>
@@ -133,7 +194,7 @@ class OrganizationDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Users
+                      Usuarios
                     </p>
                   </header>
                   <div className='card-content'>

@@ -1,73 +1,157 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
-const {User, Organization, Role, Group} = require('models')
+const {User, Role, Group} = require('models')
 
 module.exports = new Route({
   method: 'get',
   path: '/',
   handler: async function (ctx) {
-    var filters = {}
+    var sortStatement = {}
+
+    var columns = [
+      {name: 'name', type: 'String'},
+      {name: 'email', type: 'String'},
+      {name: 'infoRole.name', type: 'String'}
+    ]
+    var statement = [
+      { '$match':
+        { 'isDeleted': false }
+      },
+      { '$lookup':
+        { 'localField': 'groups', 'from': 'groups', 'foreignField': '_id', 'as': 'infoGroup' }
+      },
+      { '$lookup':
+        { 'localField': 'organizations.role', 'from': 'roles', 'foreignField': '_id', 'as': 'infoRole' }
+      },
+      {
+        '$unwind': {
+          'path': '$organizations'
+        }
+      },
+      {
+        '$match': {
+          'organizations.organization': ObjectId(ctx.state.organization._id)
+        }
+      },
+      {
+        '$unwind': {
+          'path': '$infoRole'
+        }
+      },
+      {
+        '$project': {
+          'areEqual': {
+            '$eq': [
+              '$organizations.role',
+              '$infoRole._id'
+            ]
+          },
+          'doc': '$$ROOT'
+        }
+      },
+      {
+        '$match': {
+          'areEqual': true
+        }
+      },
+      {
+        '$project': {
+          'group': {
+            '$filter': {
+              'input': '$doc.infoGroup',
+              'as': 'item',
+              'cond': {
+                '$eq': [
+                  '$$item.organization',
+                  ObjectId(ctx.state.organization._id)
+                ]
+              }
+            }
+          },
+          'areEqual': '$areEqual',
+          'doc': '$doc'
+        }
+      }
+    ]
+
+    var statementsGeneral = []
     for (var filter in ctx.request.query) {
-      if (filter === 'limit' || filter === 'start' || filter === 'sort') {
-        continue
-      }
-
-      if (filter === 'role') {
-        const role = await Role.findOne(
-          {'uuid': ctx.request.query[filter]}
-        )
-
-        if (role) {
-          filters['organizations.role'] = { $in: [ObjectId(role._id)] }
+      if (filter === 'general') {
+        for (var column of columns) {
+          var fil = {}
+          if (!isNaN(ctx.request.query[filter]) && column.type === 'Number') {
+            fil['doc.' + column.name] = {
+              '$gt': parseInt(ctx.request.query[filter] - column.limit),
+              '$lt': parseInt(ctx.request.query[filter]) + column.limit
+            }
+            statementsGeneral.push(fil)
+          } else {
+            fil['doc.' + column.name] = {$regex: ctx.request.query[filter], $options: 'i'}
+            statementsGeneral.push(fil)
+          }
         }
-
-        continue
-      }
-
-      if (filter === 'organization') {
-        const organization = await Organization.findOne(
-          {'uuid': ctx.request.query[filter]}
-        )
-
-        if (organization) {
-          filters['organizations.organization'] = { $in: [ObjectId(organization._id)] }
+      } else if (filter === 'sort') {
+        var filterSort = ctx.request.query.sort.split('-')
+        if (ctx.request.query.sort.split('-').length > 1) {
+          if (filterSort[1] === 'role') {
+            sortStatement['doc.infoRole.name'] = -1
+          } else {
+            sortStatement['doc.infoRole.name'] = -1
+          }
+        } else {
+          if (filterSort[0] === 'role') {
+            sortStatement['doc.infoRole.name'] = 1
+          } else {
+            sortStatement['doc.infoRole.name'] = 1
+          }
         }
-
-        continue
-      }
-
-      if (filter === 'group') {
-        const group = await Group.findOne(
-          {'uuid': ctx.request.query[filter]}
-        )
-
-        if (group) {
-          filters['groups'] = { $in: [ObjectId(group._id)] }
-        }
-
-        continue
-      }
-
-      if (!isNaN(parseInt(ctx.request.query[filter]))) {
-        filters[filter] = parseInt(ctx.request.query[filter])
-      } else {
-        filters[filter] = { '$regex': ctx.request.query[filter], '$options': 'i' }
+        statement.push({ '$sort': sortStatement })
+      } else if (filter === 'role') {
+        const role = await Role.findOne({'uuid': ctx.request.query[filter]})
+        statement.push({ '$match': { 'doc.organizations.role': { $in: [ObjectId(role._id)] } } })
+      } else if (filter === 'group') {
+        const group = await Group.findOne({'uuid': ctx.request.query[filter]})
+        statement.push({ '$match': { 'group._id': { $in: [ObjectId(group._id)] } } })
+      } else if (filter === 'groupAsign') {
+        const group = await Group.findOne({'uuid': ctx.request.query[filter]})
+        statement.push({ '$match': { 'group._id': { $nin: [ObjectId(group._id)] } } })
       }
     }
 
-    if (ctx.state.organization) {
-      filters['organizations.organization'] = { $in: [ObjectId(ctx.state.organization._id)] }
+    var statementNoSkip = statement.slice()
+    statement.push({ '$skip': parseInt(ctx.request.query.start) || 0 })
+
+    var general = {}
+    if (statementsGeneral.length > 0) {
+      general = { '$match': { '$or': statementsGeneral } }
+      statement.push(general)
+      statementNoSkip.push(general)
     }
 
-    var users = await User.dataTables({
-      limit: ctx.request.query.limit || 20,
-      skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters},
-      sort: ctx.request.query.sort || '-email'
+    var statementCount = [...statementNoSkip]
+
+    statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
+
+    var users = await User.aggregate(statement)
+    statementCount.push({$count: 'total'})
+    var usersCount = await User.aggregate(statementCount) || 0
+
+    users = users.map((user) => {
+      return {
+        uuid: user.doc.uuid,
+        screenName: user.doc.screenName,
+        displayName: user.doc.displayName,
+        name: user.doc.name,
+        email: user.doc.email,
+        isAdmin: user.doc.isAdmin,
+        validEmail: user.doc.validEmail,
+        organizations: user.doc.organizations,
+        groups: user.group,
+        profileUrl: user.doc.profileUrl,
+        role: user.doc.infoRole ? user.doc.infoRole.name : '',
+        roleDetail: user.doc.infoRole
+      }
     })
-
-    users.data = users.data.map((user) => { return user.toPublic() })
-
-    ctx.body = users
+    ctx.body = {'data': users, 'total': usersCount[0] ? usersCount[0].total : 0}
   }
 })

@@ -1,18 +1,29 @@
 import React, { Component } from 'react'
-import api from '~base/api'
-import Link from '~base/router/link'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import moment from 'moment'
+import { ToastContainer, toast } from 'react-toastify'
 
-import DeleteButton from '~base/components/base-deleteButton'
+import api from '~base/api'
 import Page from '~base/page'
+import { testRoles } from '~base/tools'
+import DeleteButton from '~base/components/base-deleteButton'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
+import Tabs from '~base/components/base-tabs'
+import SidePanel from '~base/side-panel'
+import NotFound from '~base/components/not-found'
+
 import ProjectForm from './create-form'
-import CreateForecast from '../forecasts/create'
-import AddDataset from './add-dataset'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import TabDatasets from './detail-tabs/tab-datasets'
+import TabHistorical from './detail-tabs/tab-historical'
+import TabApprove from './detail-tabs/tab-approve'
+import CreateDataSet from './create-dataset'
+import TabAdjustment from './detail-tabs/tab-adjustments'
+// import Breadcrumb from '~base/components/base-breadcrumb'
+// import TabAnomalies from './detail-tabs/tab-anomalies'
+
+var currentRole
+var user
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -21,165 +32,141 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
+      selectedTab: 'ajustes',
       datasetClassName: '',
-      forecastClassName: '',
-      datasets: []
+      roles: 'admin, orgadmin, analyst',
+      canEdit: false,
+      isLoading: '',
+      counterAdjustments: 0,
+      isConciliating: '',
+      modified: 0,
+      pendingChanges: 0,
+      pending: 0
+    }
+
+    this.interval = null
+    this.intervalCounter = null
+    this.intervalConciliate = null
+  }
+
+  async componentWillMount () {
+    user = this.context.tree.get('user')
+    currentRole = user.currentRole.slug
+
+    if (currentRole === 'manager-level-1' && this.props.match.params.uuid !== user.currentProject.uuid) {
+      this.props.history.replace('/projects/' + user.currentProject.uuid)
+    }
+
+    if (currentRole === 'consultor') {
+      this.setState({
+        selectedTab: 'graficos'
+      })
+    }
+
+    await this.hasSaleCenter()
+    await this.hasChannel()
+    await this.load()
+
+    this.setState({
+      canEdit: testRoles(this.state.roles)
+    })
+
+    this.intervalCounter = setInterval(() => {
+      if (this.state.project.status !== 'adjustment') return
+      this.countAdjustmentRequests()
+    }, 10000)
+
+    if (
+      currentRole !== 'consultor' &&
+      !this.intervalConciliate &&
+      this.state.project.status === 'adjustment'
+    ) {
+      this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
     }
   }
 
-  componentWillMount () {
-    this.load().then(this.loadDatasetsAdd.bind(this))
-  }
-
-  async load () {
+  async load (tab) {
     var url = '/app/projects/' + this.props.match.params.uuid
-    const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      project: body.data
-    })
-  }
+    try {
+      const body = await api.get(url)
 
-  async loadDatasetsList () {
-    var url = '/app/datasets/'
-    const body = await api.get(url, {
-      start: 0,
-      limit: 10,
-      project: this.state.project.uuid
-    })
-
-    var cursor = this.context.tree.select('datasets')
-
-    cursor.set({
-      page: 1,
-      totalItems: body.total,
-      items: body.data,
-      pageLength: 10
-    })
-    this.context.tree.commit()
-  }
-
-  async loadForecasts () {
-    var url = '/app/forecasts/'
-    const body = await api.get(url, {
-      start: 0,
-      limit: 10,
-      project: this.state.project.uuid
-    })
-
-    var cursor = this.context.tree.select('forecasts')
-
-    cursor.set({
-      page: 1,
-      totalItems: body.total,
-      items: body.data,
-      pageLength: 10
-    })
-    this.context.tree.commit()
-  }
-
-  async loadDatasetsAdd () {
-    let { project } = this.state
-    const body = await api.get(
-      '/app/datasets',
-      {
-        start: 0,
-        limit: 10,
-        organization: project.organization.uuid,
-        project__nin: project.uuid,
-        status: 'ready'
+      if (body.data.status === 'empty') {
+        tab = 'datasets'
       }
-    )
 
-    this.setState({
-      datasets: body.data,
-      loaded: true
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        project: body.data,
+        selectedTab: tab || this.state.selectedTab
+      })
+
+      this.countAdjustmentRequests()
+      this.getModifiedCount()
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
+  }
+
+  async countAdjustmentRequests () {
+    if (this.state.project.activeDataset) {
+      var url = '/app/adjustmentRequests/counter/' + this.state.project.activeDataset.uuid
+      try {
+        var body = await api.get(url)
+        if (this.state.counterAdjustments !== body.data.created) {
+          this.setState({
+            counterAdjustments: body.data.created
+          })
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+  }
+
+  async getModifiedCount () {
+    if (this.state.project.activeDataset) {
+      const url = '/app/rows/modified/dataset/'
+      try {
+        let res = await api.get(url + this.state.project.activeDataset.uuid)
+
+        if (
+          res.data.pending !== this.state.pendingChanges ||
+          res.data.modified !== this.state.modified
+      ) {
+          if (res.data.pending > 0) {
+            this.setState({
+              modified: res.data.modified,
+              pendingChanges: res.data.pending,
+              isConciliating: ' is-loading'
+            })
+          } else {
+            this.setState({
+              modified: res.data.modified,
+              pendingChanges: res.data.pending,
+              isConciliating: ''
+            })
+          }
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
   }
 
   async deleteObject () {
     var url = '/app/projects/' + this.props.match.params.uuid
-    await api.del(url)
-    this.props.history.push('/projects')
-  }
-
-  getColumns () {
-    return [
-      {
-        'title': 'Name',
-        'property': 'name',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            <Link to={'/datasets/' + row.uuid}>
-              {row.name}
-            </Link>
-          )
-        }
-      },
-      {
-        'title': 'Status',
-        'property': 'status',
-        'default': 'new',
-        'sortable': true
-      },
-      {
-        'title': 'Actions',
-        formatter: (row) => {
-          return (
-            <Link className='button' to={'/datasets/' + row.uuid}>
-                  Detalle
-                </Link>
-          )
-        }
-      }
-    ]
-  }
-
-  getColumnsForecasts () {
-    return [
-      {
-        'title': 'Status',
-        'property': 'status',
-        'default': 'N/A',
-        'sortable': true
-      },
-      {
-        'title': 'Start date',
-        'property': 'dateStart',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            moment.utc(row.dateStart).local().format('DD/MM/YYYY')
-          )
-        }
-      },
-      {
-        'title': 'End date',
-        'property': 'dateEnd',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
-            moment.utc(row.dateEnd).local().format('DD/MM/YYYY')
-          )
-        }
-      },
-      {
-        'title': 'Actions',
-        formatter: (row) => {
-          return (
-            <Link className='button' to={'/forecasts/' + row.uuid}>
-              Detalle
-            </Link>
-          )
-        }
-      }
-    ]
+    try {
+      await api.del(url)
+      this.props.history.push('/projects')
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   showModalDataset () {
@@ -187,7 +174,6 @@ class ProjectDetail extends Component {
       datasetClassName: ' is-active'
     })
   }
-
   hideModalDataset (e) {
     this.setState({
       datasetClassName: ''
@@ -198,158 +184,421 @@ class ProjectDetail extends Component {
     this.setState({
       datasetClassName: ''
     })
+    this.props.history.push('/datasets/' + object.uuid)
   }
 
-  showModalForecast () {
+  async getProjectStatus () {
+    const url = '/app/projects/' + this.state.project.uuid
+    try {
+      let res = await api.get(url)
+
+      if (res) {
+        this.setState({
+          project: res.data
+        })
+
+        if (res.data.status === 'adjustment') {
+          clearInterval(this.interval)
+          if (!this.intervalConciliate) {
+            this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
+          }
+        } else {
+          clearInterval(this.intervalConciliate)
+        }
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.interval)
+    clearInterval(this.intervalCounter)
+    clearInterval(this.intervalConciliate)
+  }
+
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  setAlert (type, data) {
     this.setState({
-      forecastClassName: ' is-active'
+      alertMsg: data,
+      alertType: type
     })
   }
 
-  hideModalForecast (e) {
-    this.setState({
-      forecastClassName: ''
-    })
+  async hasSaleCenter () {
+    let url = '/app/salesCenters'
+    try {
+      let res = await api.get(url, {
+        start: 0,
+        limit: 0,
+        sort: 'name'
+      })
+      if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
+        this.setState({
+          noSalesCenter: true
+        })
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
-  finishUpForecast (object) {
+  async hasChannel () {
+    let url = '/app/channels'
+    try {
+      let res = await api.get(url, {
+        start: 0,
+        limit: 0,
+        sort: 'name'
+      })
+      if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
+        this.setState({
+          noChannel: true
+        })
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  async conciliateOnClick () {
     this.setState({
-      forecastClassName: ''
+      isConciliating: ' is-loading'
     })
-    this.props.history.push('/forecasts/' + object.uuid)
+
+    var url = '/app/datasets/' + this.state.project.activeDataset.uuid + '/set/conciliate'
+    try {
+      clearInterval(this.interval)
+      await api.post(url)
+      await this.load()
+    } catch (e) {
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+    }
+
+    this.setState({
+      isConciliating: '',
+      modified: 0,
+      dataRows: [],
+      isFiltered: false
+    })
   }
 
   render () {
-    const { project } = this.state
+    if (this.state.notFound) {
+      return <NotFound msg='este proyecto' />
+    }
+
+    if (this.state.noSalesCenter) {
+      return (
+        <div className='card-content'>
+          <div className='columns'>
+            <div className='column'>
+              <article className='message is-warning'>
+                <div className='message-header'>
+                  <p>Atención</p>
+                </div>
+                <div className='message-body has-text-centered is-size-5'>
+                  Necesitas tener asignado al menos un centro de venta para ver esta sección, ponte en contacto con tu supervisor.
+            </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (this.state.noChannel) {
+      return (
+        <div className='card-content'>
+          <div className='columns'>
+            <div className='column'>
+              <article className='message is-warning'>
+                <div className='message-header'>
+                  <p>Atención</p>
+                </div>
+                <div className='message-body has-text-centered is-size-5'>
+                  Necesitas tener asignado al menos un canal para ver esta sección, ponte en contacto con tu supervisor.
+            </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    const { project, canEdit } = this.state
+
+    if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
+      this.interval = setInterval(() => this.getProjectStatus(), 30000)
+    }
 
     if (!this.state.loaded) {
       return <Loader />
     }
+    const tabs = [
+      {
+        name: 'ajustes',
+        title: 'Ajustes',
+        reload: false,
+        hide: project.status === 'empty',
+        content: (
+          <TabAdjustment
+            loadCounters={() => {
+              this.countAdjustmentRequests()
+              this.getModifiedCount()
+            }}
+            load={this.getProjectStatus.bind(this)}
+            project={project}
+            history={this.props.history}
+            canEdit={canEdit}
+            setAlert={(type, data) => this.setAlert(type, data)}
+          />
+        )
+      },
+      {
+        name: 'aprobar',
+        title: 'Aprobar',
+        badge: true,
+        valueBadge: this.state.counterAdjustments,
+        reload: true,
+        hide: (testRoles('manager-level-1') ||
+              project.status === 'processing' ||
+              project.status === 'pendingRows' ||
+              project.status === 'empty'),
+        content: (
+          <TabApprove
+            setAlert={(type, data) => this.setAlert(type, data)}
+            project={project}
+            canEdit={canEdit}
+          />
+        )
+      },
+      {
+        name: 'datasets',
+        title: 'Datasets',
+        hide: testRoles('manager-level-1'),
+        reload: true,
+        content: (
+          <TabDatasets
+            project={project}
+            history={this.props.history}
+            canEdit={canEdit}
+            setAlert={(type, data) => this.setAlert(type, data)}
+            reload={() => this.load()}
+          />
+        )
+      },
+      // {
+      //   name: 'anomalias',
+      //   title: 'Anomalias',
+      //   reload: true,
+      //   hide: (testRoles('manager-level-1') ||
+      //     project.status === 'processing' ||
+      //     project.status === 'pendingRows' ||
+      //     project.status === 'empty'),
+      //   content: (
+      //     <TabAnomalies
+      //       project={project}
+      //       reload={(tab) => this.load(tab)}
+      //     />
+      //   )
+      // },
+      {
+        name: 'graficos',
+        title: 'Gráficos',
+        hide: (project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabHistorical
+            project={project}
+          />
+        )
+      },
+      {
+        name: 'configuracion',
+        title: 'Configuración',
+        hide: testRoles('manager-level-1, manager-level-2, consultor'),
+        reload: true,
+        content: (
+          <div>
+            <div className='section'>
+              <div className='has-text-right'>
+                { canEdit &&
+                  <DeleteButton
+                    objectName='Proyecto'
+                    objectDelete={() => this.deleteObject()}
+                    message={'Estas seguro de querer eliminar este Proyecto?'}
+                  />
+                }
+              </div>
+              <ProjectForm
+                className='is-shadowless'
+                baseUrl='/app/projects'
+                url={'/app/projects/' + this.props.match.params.uuid}
+                initialState={{ ...project, organization: project.organization.uuid }}
+                load={this.load.bind(this)}
+                canEdit={canEdit}
+                editable
+                submitHandler={(data) => this.submitHandler(data)}
+                errorHandler={(data) => this.errorHandler(data)}
+                finishUp={(data) => this.finishUpHandler(data)}
+                setAlert={(type, data) => this.setAlert(type, data)}
+              >
+                <div className='field is-grouped'>
+                  <div className='control'>
+                    <button
+                      className={'button is-primary ' + this.state.isLoading}
+                      disabled={!!this.state.isLoading}
+                      type='submit'
+                    >Guardar</button>
+                  </div>
+                </div>
+              </ProjectForm>
+            </div>
+          </div>
+        )
+      }
+    ]
+
+    let options = (<button className={'button is-primary no-hidden'}
+      onClick={() => this.showModalDataset()}>
+      <span className='icon'>
+        <i className='fa fa-plus-circle' />
+      </span>
+      <span>
+        Agregar Dataset
+      </span>
+    </button>)
+    var consolidarButton
+    if (!testRoles('consultor')) {
+      consolidarButton =
+        <p className='control btn-conciliate'>
+          <a className={'button is-success ' + this.state.isConciliating}
+            disabled={!!this.state.isConciliating}
+            onClick={e => this.conciliateOnClick()}>
+              Consolidar
+          </a>
+        </p>
+    }
 
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section'>
-            <div className='columns'>
-              <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
-                    <DeleteButton
-                      objectName='Project'
-                      objectDelete={this.deleteObject.bind(this)}
-                      message={'Estas seguro de querer eliminar este Project?'}
-                    />
-                  </div>
-                </div>
+      <div>
+        {
+          /* !testRoles('manager-level-1') &&
+          <Breadcrumb
+            path={[
+              {
+                path: '/',
+                label: 'Inicio',
+                current: false
+              },
+              {
+                path: '/projects',
+                label: 'Proyectos',
+                current: false
+              },
+              {
+                path: '/projects/',
+                label: 'Detalle',
+                current: true
+              },
+              {
+                path: '/projects/',
+                label: project.name,
+                current: true
+              }
+            ]}
+            align='left'
+          /> */
+        }
+        <Tabs
+          tabTitle={project.name}
+          tabs={tabs}
+          selectedTab={this.state.selectedTab}
+          className='sticky-tab'
+          extraTab={
+            <div>
+              <div className='field is-grouped'>
+                <p className='control'>
+                  <span className='has-text-weight-semibold'>
+                    <span className='icon is-small is-transparent-text'>
+                      <i className='fa fa-gears' />
+                    </span>
+                    Ajustes
+                  </span>
+                </p>
+                <p className='control'>
+                  <span className='has-text-success has-text-weight-semibold'>
+                    <span className='icon is-small'>
+                      <i className='fa fa-check' />
+                    </span>
+                      Realizados {this.state.modified}
+                  </span>
+
+                </p>
+                <p className='control'>
+                  <span className='has-text-warning has-text-weight-semibold'>
+                    <span className='icon is-small'>
+                      <i className='fa fa-exclamation-triangle' />
+                    </span>
+                      Por aprobar {this.state.counterAdjustments}
+                  </span>
+                </p>
+                {consolidarButton}
               </div>
             </div>
+          }
+        />
+
+        {
+          testRoles('manager-level-1') && project.status === 'empty' &&
+          <div className='card-content'>
             <div className='columns'>
               <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Project
-                        </p>
-                      </header>
-                      <div className='card-content'>
-                        <ProjectForm
-                          baseUrl='/app/projects'
-                          url={'/app/projects/' + this.props.match.params.uuid}
-                          initialState={{...project, organization: project.organization.uuid}}
-                          load={this.load.bind(this)}
-                        >
-                          <div className='field is-grouped'>
-                            <div className='control'>
-                              <button className='button is-primary'>Save</button>
-                            </div>
-                          </div>
-                        </ProjectForm>
-                      </div>
-                    </div>
+                <article className='message is-warning'>
+                  <div className='message-header'>
+                    <p>Atención</p>
                   </div>
+                  <div className='message-body has-text-centered is-size-5'>
+                    Este proyecto aún no contiene datasets, ponte en contacto con tu supervisor.
                 </div>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Datasets
-                        </p>
-                        <div className='card-header-select'>
-                          <button className='button is-primary' onClick={() => this.showModalDataset()}>
-                            Add Dataset
-                          </button>
-                          <AddDataset
-                            className={this.state.datasetClassName}
-                            hideModal={this.hideModalDataset.bind(this)}
-                            finishUp={this.finishUpDataset.bind(this)}
-                            url={`/app/projects/${project.uuid}/add/dataset`}
-                            project={project}
-                            datasets={this.state.datasets}
-                            load={this.loadDatasetsAdd.bind(this)}
-                            loadDatasets={this.loadDatasetsList.bind(this)}
-                          />
-                        </div>
-                      </header>
-                      <div className='card-content'>
-                        <div className='columns'>
-                          <div className='column'>
-                            <BranchedPaginatedTable
-                              branchName='datasets'
-                              baseUrl='/app/datasets/'
-                              columns={this.getColumns()}
-                              filters={{project: project.uuid}}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Forecasts
-                        </p>
-                        <div className='card-header-select'>
-                          <button className='button is-primary' onClick={() => this.showModalForecast()}>
-                            Create Forecast
-                          </button>
-                          <CreateForecast
-                            className={this.state.forecastClassName}
-                            hideModal={this.hideModalForecast.bind(this)}
-                            finishUp={this.finishUpForecast.bind(this)}
-                            url={`/app/projects/${project.uuid}/add/forecast`}
-                            load={this.loadForecasts.bind(this)}
-                            project={project}
-                          />
-                        </div>
-                      </header>
-                      <div className='card-content'>
-                        <div className='columns'>
-                          <div className='column'>
-                            <BranchedPaginatedTable
-                              branchName='forecasts'
-                              baseUrl='/app/forecasts/'
-                              columns={this.getColumnsForecasts()}
-                              filters={{project: project.uuid}}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                </article>
               </div>
             </div>
           </div>
-        </div>
+        }
+
+        { canEdit &&
+          <SidePanel
+            noListPage
+            sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
+            icon={'plus'}
+            title={'Opciones'}
+            content={options}
+          />
+        }
+        <CreateDataSet
+          branchName='datasets'
+          url='/admin/datasets'
+          organization={project.organization.uuid}
+          project={project.uuid}
+          className={this.state.datasetClassName}
+          hideModal={this.hideModalDataset.bind(this)}
+          finishUp={this.finishUpDataset.bind(this)}
+        />
+        <ToastContainer />
       </div>
     )
   }
@@ -367,9 +616,9 @@ const BranchedProjectDetail = branch((props, context) => {
 
 export default Page({
   path: '/projects/:uuid',
-  title: 'Project detail',
+  title: 'Detalle',
   exact: true,
-  roles: 'enterprisemanager, analyst, orgadmin, admin',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-2, manager-level-1',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

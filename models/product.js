@@ -7,20 +7,21 @@ const moment = require('moment')
 const productSchema = new Schema({
   name: { type: String, required: true },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  price: { type: Schema.Types.ObjectId, ref: 'Price', required: false },
   description: { type: String },
   type: { type: String },
   category: { type: String },
   subcategory: { type: String },
   externalId: { type: String },
-
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
+  isNewExternal: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true })
 
 productSchema.plugin(dataTables)
 
-productSchema.methods.format = function () {
+productSchema.methods.toPublic = function () {
   return {
     uuid: this.uuid,
     name: this.name,
@@ -29,6 +30,21 @@ productSchema.methods.format = function () {
     category: this.category,
     subcategory: this.subcategory,
     externalId: this.externalId,
+    price: this.price,
+    dateCreated: this.dateCreated
+  }
+}
+
+productSchema.methods.toAdmin = function () {
+  return {
+    uuid: this.uuid,
+    name: this.name,
+    organization: this.organization.uuid,
+    description: this.description,
+    category: this.category,
+    subcategory: this.subcategory,
+    externalId: this.externalId,
+    price: this.price,
     dateCreated: this.dateCreated
   }
 }

@@ -9,11 +9,18 @@ module.exports = new Route({
     var projectId = ctx.params.uuid
 
     var project = await Project.findOne({'uuid': projectId})
-    ctx.assert(project, 404, 'Project not found')
+    .populate('datasets.dataset')
+
+    ctx.assert(project, 404, 'Proyecto no encontrado')
 
     project.set({
       isDeleted: true
     })
+
+    for (var d of project.datasets) {
+      d.dataset.isDeleted = true
+      await d.dataset.save()
+    }
 
     await project.save()
 

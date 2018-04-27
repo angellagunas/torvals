@@ -1,12 +1,14 @@
 // node tasks/seed-data --file <file>
 require('../config')
-const connection = require('lib/databases/mongo')
+require('lib/databases/mongo')
+const Task = require('lib/task')
 const fs = require('fs')
 const { User, Organization, Role } = require('models')
 const slugify = require('underscore.string/slugify')
 const lov = require('lov')
+const verifyPrices = require('queues/update-prices')
+const getDates = require('./abraxas-date/get-dates')
 
-var argv = require('minimist')(process.argv.slice(2))
 
 var today = new Date()
 var timestamp = today.getTime()
@@ -42,12 +44,20 @@ const schema = lov.object().required().keys({
   roles: lov.array().required().items(
     lov.object().keys({
       name: lov.string().required(),
+      priority: lov.number(),
       isDefault: lov.boolean()
+    })
+  ),
+  relations: lov.array().required().items(
+    lov.object().keys({
+      user: lov.string().required(),
+      organization: lov.string().required(),
+      role: lov.string().required()
     })
   )
 })
 
-var seedData = async function () {
+const task = new Task(async function (argv) {
   if (!argv.file) {
     throw new Error('A JSON file with the data is required!')
   }
@@ -69,7 +79,7 @@ var seedData = async function () {
     console.log('Error when fetching data from Disk ' + e)
     console.log('=========================================================')
 
-    return
+    return false
   }
 
   console.log('Validating data ....')
@@ -81,7 +91,7 @@ var seedData = async function () {
     console.log('Data validation error: ' + result.error)
     console.log('=========================================================')
 
-    return
+    return false
   }
 
   console.log('Validation PASSED!')
@@ -103,14 +113,14 @@ var seedData = async function () {
           console.log("You can't have two default roles!")
           console.log('=========================================================')
 
-          connection.close()
-          return
+          return false
         }
 
         const newRole = await Role.create({
           name: role.name,
           slug: slugify(role.name),
-          isDefault: role.isDefault
+          isDefault: role.isDefault,
+          priority: role.priority
         })
 
 
@@ -174,35 +184,98 @@ var seedData = async function () {
 
     console.log('Saving organizations ....')
     for (var org of data.organizations) {
-      const existingOrg = await Organization.findOne({
+      var existingOrg = await Organization.findOne({
         name: org.name,
         slug: slugify(org.name)
       })
 
       if (!existingOrg) {
-        await Organization.create({
+        existingOrg = await Organization.create({
           name: org.name,
           description: org.description,
           slug: slugify(org.name)
         })
       }
+      
+      verifyPrices.add({uuid: existingOrg.uuid})
 
       delete existingOrg
     }
+
+    console.log('Saving organizations and roles of users ....')
+    for (var rel of data.relations) {
+      const existingOrg = await Organization.findOne({
+        name: rel.organization,
+        slug: slugify(rel.organization)
+      })
+
+      const existingRole = await Role.findOne({
+        name: rel.role,
+        slug: slugify(rel.role)
+      })
+
+      const existingUser = await User.findOne({
+        email: rel.user
+      })
+
+      if (!existingOrg || !existingRole || !existingUser) {
+        console.log('Error!')
+        console.log(`Can't save relation: ${rel.user} - ${rel.organization} - ${rel.role}`)
+        continue
+      }
+
+      var pos = existingUser.organizations.findIndex(e => {
+        return (
+          String(e.organization) === String(existingOrg._id)
+        )
+      })
+
+      if (pos >= 0) {
+        `The user ${rel.user} already has the relation: ${rel.organization} - ${rel.role}`
+        continue
+      }
+
+      pos = existingUser.organizations.findIndex(e => {
+        return (
+          String(e.organization) === String(existingOrg._id) &&
+          String(e.role) === String(existingRole._id)
+        )
+      })
+
+      if (pos >= 0) {
+        console.log(
+          `The user ${rel.user} already has the relation: ${rel.organization} - ${rel.role}`
+        )
+        continue
+      }
+
+      let orgObj = {organization: existingOrg, role: existingRole}
+
+      existingUser.organizations.push(orgObj)
+
+      await existingUser.save()
+
+      delete existingOrg
+      delete existingRole
+      delete existingUser
+    }
+
+    await getDates.run()
   } catch (e) {
     console.log('ERROR!!!!')
     console.log(e)
     output.write('ERROR!!!! \n')
     output.write(e)
-    connection.close()
+    return false
   }
 
   console.log('All done, bye!')
-  connection.close()
-}
+  return true
+})
 
 if (require.main === module) {
-  seedData()
+  task.setCliHandlers()
+  task.run()
 } else {
-  module.exports = seedData
+  module.exports = task
 }

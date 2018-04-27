@@ -1,11 +1,10 @@
-// node tasks/send-for-preprocessing.js
+// node tasks/dataset/send-for-preprocessing.js
 require('../../config')
 require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSet } = require('models')
-const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   if (!argv.uuid) {
@@ -17,45 +16,53 @@ const task = new Task(async function (argv) {
   const dataset = await DataSet.findOne({uuid: argv.uuid})
     .populate('fileChunk')
     .populate('organization')
+    .populate('project')
 
   if (!dataset) {
     throw new Error('Invalid uuid!')
   }
 
-  console.log('Obtaining Abraxas API token ...')
-  await Api.fetch()
-  const apiData = Api.get()
-
-  if (!apiData.token) {
-    throw new Error('There is no API endpoint configured!')
-  }
-
   console.log(`Sending ${dataset.name} dataset for preprocessing ...`)
-  var options = {
-    url: `${apiData.hostname}${apiData.baseUrl}/upload/file/organizations`,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${apiData.token}`
-    },
-    body: {
-      organization: dataset.organization.uuid,
-      path: dataset.url
-    },
-    json: true,
-    persist: true
+
+  try {
+    var res = await Api.uploadDataset(dataset)
+
+    if (res.status === 'error') {
+      dataset.set({
+        error: res.message,
+        status: 'error'
+      })
+
+      await dataset.save()
+
+      console.log(`Error while sending dataset for preprocessing: ${dataset.error}`)
+      return false
+    }
+    if (res._id) {
+      dataset.set({
+        externalId: res._id,
+        status: 'preprocessing'
+      })
+    } else {
+      dataset.set({
+        externalId: 'externalId not received',
+        status: 'error'
+      })
+    }
+    await dataset.save()
+
+    console.log(`Successfully sent for preprocessing dataset ${dataset.name}`)
+    return true
+  } catch (e) {
+    dataset.set({
+      error: e.message,
+      status: 'error'
+    })
+    await dataset.save()
+
+    console.log(`Error sending the dataset`)
+    return false
   }
-
-  var res = await request(options)
-  dataset.set({
-    externalId: res._id,
-    status: 'preprocessing'
-  })
-  await dataset.save()
-
-  console.log(`Successfully sent for preprocessing dataset ${dataset.name}`)
-  return true
 })
 
 if (require.main === module) {

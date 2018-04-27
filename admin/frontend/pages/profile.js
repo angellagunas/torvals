@@ -5,6 +5,7 @@ import {loggedIn} from '~base/middlewares/'
 
 import UpdateProfileForm from '~base/components/update-profile'
 import UpdatePasswordForm from '~base/components/update-password'
+import TokensList from '~base/components/token-list'
 
 export default Page({
   path: '/profile',
@@ -15,41 +16,37 @@ export default Page({
     render () {
       return (<div className='section'>
         <section className='is-fullwidth'>
-          <div className='columns is-multiline'>
-            <div className='column is-one-third'>
+          <div className='columns'>
+            <div className='column is-half'>
 
-              <div className='panel is-bg-white'>
-                <p className='panel-heading'>
-                  Perfil
-                </p>
-                <div className='panel-block panel-body'>
+              <div className='card'>
+                <header className='card-header'>
+                  <div className='card-header-title'>
+                    <p className='margin-text'>Perfil</p>
+                  </div>
+                </header>
+                <div className='card-content'>
                   <UpdateProfileForm />
                 </div>
               </div>
-
-              <div className='panel is-bg-white'>
-                <p className='panel-heading'>
-                  Perfil
-                </p>
-                <div className='panel-block panel-body'>
+            </div>
+            <div className='column is-half'>
+              <div className='card update-pass'>
+                <header className='card-header'>
+                  <div className='card-header-title'>
+                    <p className='margin-text'>Cambiar contraseña</p>
+                  </div>
+                </header>
+                <div className='card-content'>
                   <UpdatePasswordForm />
                 </div>
               </div>
             </div>
+          </div>
+          <div className='columns'>
 
             <div className='column is-two-thirds'>
-              <div className='card'>
-                <header className='card-header'>
-                  <p className='card-header-title'>
-                    Data
-                  </p>
-                </header>
-                <div className='card-content'>
-                  <div className='content'>
-                    Hola mundo
-                  </div>
-                </div>
-              </div>
+              <TokensList />
             </div>
           </div>
         </section>

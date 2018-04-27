@@ -9,7 +9,7 @@ module.exports = new Route({
     var roleId = ctx.params.uuid
 
     const role = await Role.findOne({'uuid': roleId})
-    ctx.assert(role, 404, 'Role not found')
+    ctx.assert(role, 404, 'Rol no encontrado')
 
     const defaultRole = await Role.findOne({isDefault: true})
 
@@ -22,7 +22,7 @@ module.exports = new Route({
     role.save()
 
     ctx.body = {
-      data: role.format()
+      data: role.toAdmin()
     }
   }
 })

@@ -11,15 +11,18 @@ module.exports = new Route({
     var user = await User.findOne({'uuid': userId})
       .populate('organizations.organization')
       .populate('organizations.role')
+      .populate('organizations.defaultProject')
       .populate('groups')
 
-    ctx.assert(user, 404, 'User not found')
+    ctx.assert(user, 404, 'Usuario no encontrado')
 
     user = user.toPublic()
     user.role = user.organizations.find(e => {
       return e.organization.uuid === ctx.state.organization.uuid
     }).role._id
-
+    user.roleDetail = user.organizations.find(e => {
+      return e.organization.uuid === ctx.state.organization.uuid
+    }).role
     let auxGroups = []
     let groups = user.groups
 

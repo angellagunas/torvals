@@ -7,8 +7,10 @@ import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import ProductForm from './create-form'
-import { BranchedPaginatedTable } from '~base/components/base-paginatedTable'
+import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
 
 class ProductDetail extends Component {
   constructor (props) {
@@ -16,7 +18,8 @@ class ProductDetail extends Component {
     this.state = {
       loading: true,
       loaded: false,
-      product: {}
+      product: {},
+      isLoading: ''
     }
   }
 
@@ -26,31 +29,39 @@ class ProductDetail extends Component {
 
   async load () {
     var url = '/admin/products/' + this.props.match.params.uuid
-    const body = await api.get(url)
+    try {
+      const body = await api.get(url)
 
-    this.setState({
-      loading: false,
-      loaded: true,
-      product: body.data
-    })
+      this.setState({
+        loading: false,
+        loaded: true,
+        product: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async deleteObject () {
     var url = '/admin/products/' + this.props.match.params.uuid
     await api.del(url)
-    this.props.history.push('/admin/products')
+    this.props.history.push('/admin/catalogs/products')
   }
 
   getColumns () {
     return [
       {
-        'title': 'Status',
+        'title': 'Estado',
         'property': 'status',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Start date',
+        'title': 'Fecha Inicial',
         'property': 'dateStart',
         'default': 'N/A',
         'sortable': true,
@@ -61,7 +72,7 @@ class ProductDetail extends Component {
         }
       },
       {
-        'title': 'End date',
+        'title': 'Fecha Final',
         'property': 'dateEnd',
         'default': 'N/A',
         'sortable': true,
@@ -72,7 +83,7 @@ class ProductDetail extends Component {
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           return (
             <Link className='button' to={'/forecasts/detail/' + row.uuid}>
@@ -84,7 +95,22 @@ class ProductDetail extends Component {
     ]
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
+  finishUpHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
+    if (this.state.notFound) {
+      return <NotFound msg='este producto' />
+    }
     const { product } = this.state
 
     if (!this.state.loaded) {
@@ -94,16 +120,41 @@ class ProductDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section'>
+          <div className='section is-paddingless-top pad-sides'>
+            <Breadcrumb
+              path={[
+                {
+                  path: '/admin',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/admin/catalogs/products',
+                  label: 'Productos Activos',
+                  current: false
+                },
+                {
+                  path: '/admin/catalogs/products/detail/',
+                  label: 'Detalle',
+                  current: true
+                },
+                {
+                  path: '/admin/catalogs/products/detail/',
+                  label: product.name,
+                  current: true
+                }
+              ]}
+              align='left'
+            />
             <div className='columns'>
               <div className='column has-text-right'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <DeleteButton
-                      titleButton={'Delete'}
-                      objectName='Product'
+                      titleButton={'Eliminar'}
+                      objectName='Producto'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={`Are you sure you want to delete the product ${product.name}?`}
+                      message={`¿Estas seguro de eliminar el producto ${product.name}?`}
                     />
                   </div>
                 </div>
@@ -114,7 +165,7 @@ class ProductDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Product
+                      Productos
                     </p>
                   </header>
                   <div className='card-content'>
@@ -125,38 +176,20 @@ class ProductDetail extends Component {
                           url={'/admin/products/' + this.props.match.params.uuid}
                           initialState={product}
                           load={this.load.bind(this)}
+                          submitHandler={(data) => this.submitHandler(data)}
+                          errorHandler={(data) => this.errorHandler(data)}
+                          finishUp={(data) => this.finishUpHandler(data)}
                         >
                           <div className='field is-grouped'>
                             <div className='control'>
-                              <button className='button is-primary'>Save</button>
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >Guardar</button>
                             </div>
                           </div>
                         </ProductForm>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
-                          Forecasts
-                        </p>
-                      </header>
-                      <div className='card-content'>
-                        <div className='columns'>
-                          <div className='column'>
-                            <BranchedPaginatedTable
-                              branchName='forecasts'
-                              baseUrl='/admin/forecasts/'
-                              columns={this.getColumns()}
-                              filters={{product: product.uuid}}
-                            />
-                          </div>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -171,7 +204,7 @@ class ProductDetail extends Component {
 }
 
 export default Page({
-  path: '/products/detail/:uuid',
+  path: '/catalogs/products/detail/:uuid',
   title: 'Product detail',
   exact: true,
   validate: loggedIn,
