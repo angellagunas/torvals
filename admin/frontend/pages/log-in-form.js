@@ -107,7 +107,7 @@ class LogInButton extends Component {
       resetLink = (
         <p>
           <Link to='/password/forgotten/'>
-            Olvidó su contraseña?
+            ¿Olvidó su contraseña?
           </Link>
         </p>
       )
