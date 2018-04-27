@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import api from '~base/api'
 import { toast } from 'react-toastify'
+import _ from 'lodash'
 import Loader from '~base/components/spinner'
 import Graph from './graph'
 import Select from './select'
@@ -335,11 +336,16 @@ class TabHistorical extends Component {
     })
 
     this.state.filters.dates.map((date) => {
-      if (period.maxSemana === date.week && this.state.formData.year === date.year) {
-        max = date.dateEnd
-      }
-      if (period.minSemana === date.week && this.state.formData.year === date.year) {
-        min = date.dateStart
+      if (period) {
+        if (period.maxSemana === date.week && this.state.formData.year === date.year) {
+          max = date.dateEnd
+        }
+        if (period.minSemana === date.week && this.state.formData.year === date.year) {
+          min = date.dateStart
+        }
+      } else {
+        max = moment(this.state.formData.year, 'Y').endOf('year')
+        min = moment(this.state.formData.year, 'Y').startOf('year')
       }
     })
     let url = '/app/projects/historical/' + this.props.project.uuid
@@ -353,6 +359,26 @@ class TabHistorical extends Component {
         product: this.state.formData.product,
         category: this.state.formData.category
       })
+
+      let historic = res.data
+
+      historic.prediction = _.orderBy(historic.prediction,
+        (e) => {
+          return e.x
+        }
+        , ['asc'])
+
+      historic.adjustment = _.orderBy(historic.adjustment,
+        (e) => {
+          return e.x
+        }
+        , ['asc'])
+
+      historic.prediction = _.orderBy(historic.prediction,
+        (e) => {
+          return e.x
+        }
+        , ['asc'])
 
       this.setState({
         historicData: res.data,
@@ -469,7 +495,7 @@ class TabHistorical extends Component {
                 label='Periodo'
                 name='period'
                 value={this.state.formData.period}
-                placeholder='Seleccionar'
+                placeholder='Todos'
                 optionValue='number'
                 optionName='name'
                 type='integer'
@@ -635,7 +661,6 @@ class TabHistorical extends Component {
             </div>
           </div>
 
-          <br />
           <div className='columns'>
 
             <div className='column'>
@@ -645,7 +670,9 @@ class TabHistorical extends Component {
                 </div>
                 <div className='panel-block'>
                   {
-                  this.state.historicData.prediction && this.state.weekTotalsPredictions &&
+                    this.state.historicData.prediction &&
+                    this.state.weekTotalsPredictions
+                  ? this.state.historicData.prediction && this.state.weekTotalsPredictions &&
                     this.state.predictions.length > 0 &&
                     this.state.adjustments.length > 0
 
@@ -658,6 +685,7 @@ class TabHistorical extends Component {
                   : <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
                         No hay datos que mostrar
                       </div>
+                  : this.loadTable()
                 }
                 </div>
               </div>

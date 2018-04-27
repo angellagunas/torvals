@@ -17,6 +17,9 @@ export default ListPage({
   titleSingular: 'Centro de venta',
   create: true,
   createComponent: CreateSalesCenter,
+  export: true,
+  exportRole: 'consultor',
+  exportUrl: '/app/salesCenters',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [

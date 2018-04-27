@@ -8,7 +8,7 @@ import FontAwesome from 'react-fontawesome'
 import env from '~base/env-variables'
 import classNames from 'classnames'
 import { testRoles } from '~base/tools'
-import { toast, ToastContainer } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -203,16 +203,25 @@ class DataSetDetail extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  En espera de archivo
+                  Subir archivo
                 </p>
               </header>
               <div className='card-content'>
-                <div className='message is-info'>
-                  <div className='message-body is-large has-text-centered'>
-                    <div className='columns'>
-                      <div className='column'>
-                        Aún no se a cargado un archivo!.
-                        Favor de acudir con su supervisor para cualquier aclaración.
+                <div className='columns is-centered'>
+                  <div className='column is-8 is-narrow'>
+                    <div className='message is-info'>
+                      <div className='message-body is-large has-text-centered'>
+                        <div className='media'>
+                          <div className='media-left'>
+                            <span className='icon is-large'>
+                              <FontAwesome className='fa-2x' name='info-circle' />
+                            </span>
+                          </div>
+                          <div className='media-content'>
+                            Aún no se a cargado un archivo. 
+                            Favor de acudir con su supervisor para cualquier aclaración.
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -234,20 +243,22 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon is-large'>
-                        <FontAwesome className='fa-3x fa-spin' name='cog' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      El archivo {dataset.fileChunk.filename} ha sido cargado a
-                      nuestros servidores y se enviará para preprocesamiento.
-                      Favor de regresar en un par de minutos.
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-success'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-2x fa-spin' name='cog' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          El archivo {dataset.fileChunk.filename} ha sido cargado y 
+                          se enviará para preprocesamiento.
+                          Favor de regresar en un par de minutos.
+                          </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -262,22 +273,24 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Archivo enviado a preprocesamiento
+                Dataset enviado a preprocesamiento
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x' name='check-square-o' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      El archivo {dataset.fileChunk.filename} se está preprocesando
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-success'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-2x' name='hourglass-half' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          El dataset {dataset.fileChunk.filename} se está preprocesando
+                          </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -292,33 +305,36 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                Procesando archivo
+                Procesando Dataset
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x fa-spin' name='cog' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      El Dataset se está procesando
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-success'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-2x fa-spin' name='cog' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          El dataset {dataset.fileChunk.filename} se está procesando
+                          </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
               <div className='columns'>
                 <div className='column'>
                   <div className='field is-grouped'>
                     <div className='control'>
                       { canEdit &&
                         <button
-                          className={'button is-black' + this.state.isLoadingConfigure}
+                          className={'button is-info' + this.state.isLoadingConfigure}
                           disabled={!!this.state.isLoadingConfigure}
                           onClick={e => this.cancelOnClick()}
                         >
@@ -369,15 +385,24 @@ class DataSetDetail extends Component {
                 </p>
               </header>
               <div className='card-content'>
-                <div className='message is-info'>
-                  <div className='message-body is-large has-text-centered'>
-                    <div className='columns'>
-                      <div className='column'>
-                        Configuración en proceso!
+                <div className='columns is-centered'>
+                  <div className='column is-8 is-narrow'>
+                  <div className='message is-info'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-2x' name='info-circle' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          Configuración en proceso!
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           </div>
@@ -393,22 +418,16 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='columns'>
-                <div className='column'>
-                  <div className='field is-grouped'>
-                    <b>Fecha mínima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMin}</span>
-                  </div>
-                  <div className='field is-grouped'>
-                    <b>Fecha máxima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMax}</span>
-                  </div>
                   <ConfigureViewDataset
+                    fmin={dataset.dateMin}
+                    fmax={dataset.dateMax}
                     initialState={dataset}
                   />
                   { canEdit &&
                     <div className='field is-grouped'>
                       <div className='control'>
                         <button
-                          className={'button is-black' + this.state.isLoadingConfigure}
+                          className={'button is-info' + this.state.isLoadingConfigure}
                           disabled={!!this.state.isLoadingConfigure}
                           onClick={e => this.configureOnClick()}
                         >
@@ -417,7 +436,7 @@ class DataSetDetail extends Component {
                       </div>
                       <div className='control'>
                         <button
-                          className={'button is-primary' + this.state.isLoadingConsolidate}
+                          className={'button is-success' + this.state.isLoadingConsolidate}
                           disabled={!!this.state.isLoadingConsolidate}
                           onClick={e => this.consolidateOnClick()}
                         >
@@ -426,8 +445,6 @@ class DataSetDetail extends Component {
                       </div>
                     </div>
                   }
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -442,29 +459,11 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x' name='thumbs-up' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      Dataset conciliado
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='field is-grouped'>
-                <b>Fecha mínima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMin}</span>
-              </div>
-              <div className='field is-grouped'>
-                <b>Fecha máxima:</b> <span style={{paddingLeft: '5px'}}>{dataset.dateMax}</span>
-              </div>
               <ConfigureViewDataset
+                fmin={dataset.dateMin}
+                fmax={dataset.dateMax}
+                statusText={'Dataset conciliado'}
+                statusIcon={'fa fa-2x fa-check'}
                 initialState={dataset}
               />
             </div>
@@ -481,18 +480,20 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x fa-spin' name='cog' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      Este Dataset se está procesando para ajuste, en unos momentos más aparecerá su información
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-success'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-2x fa-spin' name='cog' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          Este Dataset se está procesando para ajuste, en unos momentos más aparecerá su información
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -511,23 +512,11 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-success'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon has-text-success is-large'>
-                        <FontAwesome className='fa-3x' name='pencil' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      Se está haciendo ajuste de este Dataset
-                    </div>
-                  </div>
-                </div>
-              </div>
               <ConfigureViewDataset
+                fmin={dataset.dateMin}
+                fmax={dataset.dateMax}
+                statusText={'Se está haciendo ajuste de este Dataset'}
+                statusIcon={'fa fa-2x fa-pencil'}
                 initialState={dataset}
               />
             </div>
@@ -544,23 +533,27 @@ class DataSetDetail extends Component {
               </p>
             </header>
             <div className='card-content'>
-              <div className='message is-danger'>
-                <div className='message-body is-large has-text-centered'>
-                  <div className='columns'>
-                    <div className='column'>
-                      <span className='icon is-large'>
-                        <FontAwesome className='fa-3x' name='warning' />
-                      </span>
-                    </div>
-                  </div>
-                  <div className='columns'>
-                    <div className='column'>
-                      Se ha generado un error! Por favor intenta borrar este dataset y generar otro.
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-danger'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-2x' name='warning' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          Se ha generado un error. Por favor intenta borrar este dataset y generar otro.
                       Si no se soluciona, contacta a un administrador.
+                          </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
+              
             </div>
           </div>
         </div>
@@ -669,7 +662,7 @@ class DataSetDetail extends Component {
   getModalCurrentProduct () {
     if (this.state.currentProduct && this.state.canEdit) {
       return (<BaseModal
-        title='Edit Product'
+        title='Editar Producto'
         className={this.state.className}
         hideModal={() => this.hideModal()}
         >
@@ -691,7 +684,7 @@ class DataSetDetail extends Component {
               >Guardar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModal()} type='button'>Cancel</button>
+              <button className='button' onClick={() => this.hideModal()} type='button'>Cancelar</button>
             </div>
           </div>
         </ProductForm>
@@ -723,7 +716,7 @@ class DataSetDetail extends Component {
               >Guardar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModalChannels()} type='button'>Cancel</button>
+              <button className='button' onClick={() => this.hideModalChannels()} type='button'>Cancelar</button>
             </div>
           </div>
         </ChannelForm>
@@ -734,7 +727,7 @@ class DataSetDetail extends Component {
   getModalSalesCenters () {
     if (this.state.currentSalesCenter && this.state.canEdit) {
       return (<BaseModal
-        title='Edit Sales Center'
+        title='Editar Centro de Venta'
         className={this.state.classNameSC}
         hideModal={() => this.hideModalSalesCenters()}
       >
@@ -756,7 +749,7 @@ class DataSetDetail extends Component {
               >Guardar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModalSalesCenters()} type='button'>Cancel</button>
+              <button className='button' onClick={() => this.hideModalSalesCenters()} type='button'>Cancelar</button>
             </div>
           </div>
         </SalesCenterForm>
@@ -794,9 +787,9 @@ class DataSetDetail extends Component {
       'is-hidden': this.state.isChannelsOpen === false
     })
 
-    const toggleBtnIconClass = classNames('fa', {
-      'fa-angle-down': this.state.isChannelsOpen === false,
-      'fa-angle-up': this.state.isChannelsOpen !== false
+    const toggleBtnIconClass = classNames('fa fa-2x', {
+      'fa-caret-down': this.state.isChannelsOpen === false,
+      'fa-caret-up': this.state.isChannelsOpen !== false
     })
 
     this.newChannels = []
@@ -812,10 +805,10 @@ class DataSetDetail extends Component {
       return ''
     }
 
-    return (<div className='columns'>
+    return (<div className='columns unidentified'>
       <div className='column'>
         <div className='card'>
-          <header className='card-header'>
+          <header className='card-header deep-shadow '>
             <p className='card-header-title'>
                 Canales no identificados: {this.newChannels.length}
             </p>
@@ -825,7 +818,7 @@ class DataSetDetail extends Component {
                 <button
                   onClick={() => this.confirmChannels()}
                   disabled={this.state.disableBtnC || !!this.state.isLoadingBtnC}
-                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnC}
+                  className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnC}
                 >
                   Confirmar ({this.state.selectedChannels.size})
                 </button>
@@ -833,9 +826,9 @@ class DataSetDetail extends Component {
               }
               <div className='control'>
                 <a
-                  className='button is-inverted'
+                  className='button is-info undefined-btn'
                   onClick={() => this.toggleUnidentifiedChannels()}>
-                  <span className='icon is-small'>
+                  <span className='icon is-large'>
                     <i className={toggleBtnIconClass} />
                   </span>
                 </a>
@@ -848,13 +841,8 @@ class DataSetDetail extends Component {
                 <table className='table is-fullwidth'>
                   <thead>
                     <tr>
-                      <th colSpan='2'>Id Externo</th>
-                      <th colSpan='2'>Nombre</th>
-                      { canEdit &&
-                        <th colSpan='2'>Acciones</th>
-                      }
-                      {canEdit && 
-                        <th colSpan='2'>
+                      {canEdit &&
+                        <th className='has-text-centered'>
                           <span title='Seleccionar todos'>
                             <Checkbox
                               label='checkAll'
@@ -865,7 +853,11 @@ class DataSetDetail extends Component {
                           </span>
                         </th>
                       }
-                      
+                      <th>Id Externo</th>
+                      <th>Nombre</th>
+                      { canEdit &&
+                        <th>Acciones</th>
+                      }                      
                     </tr>
                   </thead>
                   <tbody>
@@ -876,20 +868,8 @@ class DataSetDetail extends Component {
                         }
                         return (
                           <tr key={key}>
-                            <td colSpan='2'>{item.externalId}</td>
-                            <td colSpan='2'>{item.name}</td>
-                            { canEdit &&
-                              <td colSpan='2'>
-                                <button
-                                  className='button is-primary'
-                                  onClick={() => this.showModalChannels(item)}
-                                >
-                                  Editar
-                                </button>
-                              </td>
-                            }
-                            {canEdit && 
-                              <td colSpan='2'>
+                            {canEdit &&
+                              <td className='has-text-centered'>
                                 <Checkbox
                                   label={item}
                                   handleCheckboxChange={this.toggleCheckboxChannels}
@@ -898,6 +878,20 @@ class DataSetDetail extends Component {
                                   hideLabel />
                               </td>
                             }
+                            <td>{item.externalId}</td>
+                            <td>{item.name}</td>
+                            { canEdit &&
+                              <td>
+                                <button
+                                  className='button is-primary'
+                                  onClick={() => this.showModalChannels(item)}
+                                >
+                                  <span className='icon' title='Editar'>
+                                  <i className='fa fa-pencil' />
+                                  </span>
+                                </button>
+                              </td>
+                            }                      
                           </tr>
                         )
                       })
@@ -922,9 +916,9 @@ class DataSetDetail extends Component {
       'is-hidden': this.state.isSalesCenterOpen === false
     })
 
-    const toggleBtnIconClass = classNames('fa', {
-      'fa-angle-down': this.state.isSalesCenterOpen === false,
-      'fa-angle-up': this.state.isSalesCenterOpen !== false
+    const toggleBtnIconClass = classNames('fa fa-2x', {
+      'fa-caret-down': this.state.isSalesCenterOpen === false,
+      'fa-caret-up': this.state.isSalesCenterOpen !== false
     })
 
     this.newSalesCenters = []
@@ -940,10 +934,10 @@ class DataSetDetail extends Component {
       return ''
     }
 
-    return (<div className='columns'>
+    return (<div className='columns unidentified'>
       <div className='column'>
         <div className='card'>
-          <header className='card-header'>
+          <header className='card-header deep-shadow'>
             <p className='card-header-title'>
                 Centros de Venta no identificados: {this.newSalesCenters.length}
             </p>
@@ -953,7 +947,7 @@ class DataSetDetail extends Component {
                 <button
                   onClick={() => this.confirmSalesCenters()}
                   disabled={this.state.disableBtnS || !!this.state.isLoadingBtnS}
-                  className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnS}
+                  className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnS}
                 >
                   Confirmar ({this.state.selectedSalesCenters.size})
                 </button>
@@ -961,9 +955,9 @@ class DataSetDetail extends Component {
               }
               <div className='control'>
                 <a
-                  className='button is-inverted'
+                  className='button is-info undefined-btn'
                   onClick={() => this.toggleUnidentifiedSalesCenters()}>
-                  <span className='icon is-small'>
+                  <span className='icon is-large'>
                     <i className={toggleBtnIconClass} />
                   </span>
                 </a>
@@ -976,14 +970,9 @@ class DataSetDetail extends Component {
                 <table className='table is-fullwidth'>
                   <thead>
                     <tr>
-                      <th colSpan='2'>Id Externo</th>
-                      <th colSpan='2'>Nombre</th>
-                      { canEdit &&
-                        <th colSpan='2'>Acciones</th>
-                      }
                       {
                         canEdit &&
-                        <th colSpan='2'>
+                        <th className='has-text-centered'>
                           <span title='Seleccionar todos'>
                             <Checkbox
                               label='checkAll'
@@ -994,6 +983,12 @@ class DataSetDetail extends Component {
                           </span>
                         </th>
                       }
+                      <th>Id Externo</th>
+                      <th>Nombre</th>
+                      { canEdit &&
+                        <th>Acciones</th>
+                      }
+                      
                     </tr>
                   </thead>
                   <tbody>
@@ -1004,26 +999,28 @@ class DataSetDetail extends Component {
                         }
                         return (
                           <tr key={key}>
-                            <td colSpan='2'>{item.externalId}</td>
-                            <td colSpan='2'>{item.name}</td>
-                            { canEdit &&
-                              <td colSpan='2'>
-                                <button
-                                  className='button is-primary'
-                                  onClick={() => this.showModalSalesCenters(item)}
-                                >
-                                  Editar
-                                </button>
-                              </td>
-                            }
                             {canEdit &&
-                              <td colSpan='2'>
+                              <td className='has-text-centered'>
                                 <Checkbox
                                   label={item}
                                   handleCheckboxChange={this.toggleCheckboxSalesCenters}
                                   key={item.externalId}
                                   checked={item.selected}
                                   hideLabel />
+                              </td>
+                            }
+                            <td>{item.externalId}</td>
+                            <td>{item.name}</td>
+                            { canEdit &&
+                              <td>
+                                <button
+                                  className='button is-primary'
+                                  onClick={() => this.showModalSalesCenters(item)}
+                                >
+                                <span className='icon' title='Editar'>
+                                  <i className='fa fa-pencil' />
+                                </span>
+                                </button>
                               </td>
                             }
                           </tr>
@@ -1050,9 +1047,9 @@ class DataSetDetail extends Component {
     const headerProductsClass = classNames('card-content', {
       'is-hidden': this.state.isProductsOpen === false
     })
-    const toggleBtnIconClass = classNames('fa', {
-      'fa-angle-down': this.state.isProductsOpen === false,
-      'fa-angle-up': this.state.isProductsOpen !== false
+    const toggleBtnIconClass = classNames('fa fa-2x', {
+      'fa-caret-down': this.state.isProductsOpen === false,
+      'fa-caret-up': this.state.isProductsOpen !== false
     })
 
     this.newProducts = []
@@ -1069,10 +1066,10 @@ class DataSetDetail extends Component {
     }
 
     return (
-      <div className='columns'>
+      <div className='columns unidentified'>
         <div className='column'>
           <div className='card'>
-            <header className='card-header'>
+            <header className='card-header deep-shadow'>
               <p className='card-header-title'>
                   Productos no identificados: {this.newProducts.length}
               </p>
@@ -1082,7 +1079,7 @@ class DataSetDetail extends Component {
                   <button
                     onClick={() => this.confirmProducts()}
                     disabled={this.state.disableBtnP || !!this.state.isLoadingBtnP}
-                    className={'button is-primary is-outlined is-pulled-right' + this.state.isLoadingBtnP}
+                    className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnP}
                   >
                     Confirmar ({this.state.selectedProducts.size})
                   </button>
@@ -1090,9 +1087,9 @@ class DataSetDetail extends Component {
                 } 
                 <div className='control'>
                   <a
-                    className='button is-inverted'
+                    className='button is-info undefined-btn'
                     onClick={() => this.toggleUnidentifiedProducts()}>
-                    <span className='icon is-small'>
+                    <span className='icon is-large'>
                       <i className={toggleBtnIconClass} />
                     </span>
                   </a>
@@ -1102,16 +1099,11 @@ class DataSetDetail extends Component {
             <div className={headerProductsClass}>
               <div className='columns'>
                 <div className='column'>
-                  <table className='table is-fullwidth'>
+                  <table className='table is-fullwidth is-narrow'>
                     <thead>
                       <tr>
-                        <th colSpan='2'>Id Externo</th>
-                        <th colSpan='2'>Nombre</th>
-                        { canEdit &&
-                          <th colSpan='2'>Acciones</th>
-                        }
                         {canEdit &&
-                          <th colSpan='2'>
+                          <th className='has-text-centered'>
                             <span title='Seleccionar todos'>
                               <Checkbox
                                 label='checkAll'
@@ -1122,7 +1114,11 @@ class DataSetDetail extends Component {
                             </span>
                           </th>
                         }
-                        
+                        <th>Id Externo</th>
+                        <th>Nombre</th>
+                        { canEdit &&
+                          <th>Acciones</th>
+                        }
                       </tr>
                     </thead>
                     <tbody>
@@ -1133,26 +1129,28 @@ class DataSetDetail extends Component {
                           }
                           return (
                             <tr key={key}>
-                              <td colSpan='2'>{item.externalId}</td>
-                              <td colSpan='2'>{item.name}</td>
-                              { canEdit &&
-                                <td colSpan='2'>
-                                  <button
-                                    className='button is-primary'
-                                    onClick={() => this.showModal(item)}
-                                  >
-                                    Editar
-                                  </button>
-                                </td>
-                              }
                               {canEdit &&
-                                <td colSpan='2'>
+                                <td className='has-text-centered'>
                                   <Checkbox
                                     label={item}
                                     handleCheckboxChange={this.toggleCheckboxProducts}
                                     key={item.externalId}
                                     checked={item.selected}
                                     hideLabel />
+                                </td>
+                              }
+                              <td>{item.externalId}</td>
+                              <td>{item.name}</td>
+                              { canEdit &&
+                                <td>
+                                  <button
+                                    className='button is-primary'
+                                    onClick={() => this.showModal(item)}
+                                  >
+                                  <span className='icon' title='Editar'>
+                                    <i className='fa fa-pencil' />
+                                  </span>
+                                  </button>
                                 </td>
                               }
                             </tr>
@@ -1416,6 +1414,7 @@ class DataSetDetail extends Component {
 
     var deleteButton = (
       <DeleteButton
+        hideIcon
         titleButton={'Eliminar'}
         objectName='Dataset'
         objectDelete={this.deleteObject.bind(this)}
@@ -1430,7 +1429,12 @@ class DataSetDetail extends Component {
     return (
       <div className='columns c-flex-1 is-marginless'>
         <div className='column is-paddingless'>
-          <div className='section is-paddingless-top pad-sides'>
+        <div className='section-header'>
+            <h2>{dataset.name}</h2>
+        </div>
+          <div className=' is-paddingless-top pad-sides'>
+            <div className='columns is-marginless'>
+              <div className='column is-paddingless'>
             <Breadcrumb
               path={[
                 {
@@ -1439,13 +1443,18 @@ class DataSetDetail extends Component {
                   current: false
                 },
                 {
-                  path: '/datasets',
-                  label: 'Datasets',
+                  path: '/projects',
+                  label: 'Proyectos',
                   current: false
                 },
                 {
-                  path: '/datasets/',
-                  label: 'Detalle',
+                  path: '/projects/' + dataset.project.uuid,
+                  label: dataset.project.name,
+                  current: false
+                },
+                {
+                  path: '/datasets',
+                  label: 'Datasets',
                   current: true
                 },
                 {
@@ -1456,12 +1465,12 @@ class DataSetDetail extends Component {
               ]}
               align='left'
             />
-            <div className='columns'>
-              <div className='column has-text-right'>
+            </div>
+              <div className='column has-text-right has-20-margin-top is-paddingless'>
                 <div className='field is-grouped is-grouped-right'>
                   <div className='control'>
                     <Link
-                      className='button'
+                      className='button is-info'
                       to={'/projects/' + dataset.project.uuid}
                     >
                       Regresar al proyecto
@@ -1473,10 +1482,13 @@ class DataSetDetail extends Component {
                 </div>
               </div>
             </div>
-            {this.getUnidentifiedProducts()}
-            {this.getUnidentifiedSalesCenters()}
-            {this.getUnidentifiedChannels()}
-            <div className='columns'>
+            </div>
+          {this.getUnidentifiedProducts()}
+          {this.getUnidentifiedSalesCenters()}
+          {this.getUnidentifiedChannels()}
+          <div className='section is-paddingless-top pad-sides'>
+            
+            <div className='columns dataset-detail'>
               <div className='column is-5-tablet'>
                 <div className='card'>
                   <header className='card-header'>
@@ -1524,7 +1536,6 @@ class DataSetDetail extends Component {
         {this.getModalCurrentProduct()}
         {this.getModalSalesCenters()}
         {this.getModalChannels()}
-        <ToastContainer />        
       </div>
     )
   }

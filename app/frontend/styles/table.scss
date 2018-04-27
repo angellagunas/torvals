@@ -18,6 +18,7 @@
         font-size: 0.7rem !important;
         width: 60px;
         background-color: #FFF;
+        text-align: center;
     }
     .md-checkbox {
         line-height: 1;
@@ -116,8 +117,8 @@
 }
 
 .productName {
-    max-width: 200px;
-    width: 200px;
+    max-width: 250px;
+    width: 250px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -125,12 +126,12 @@
 
 .view-btns {
     .button {
-        width: 164px;
+        width: 189px;
         height: 35px;
     }
 }
 
-.btn-lvl-3{
+.btn-lvl-3 {
     width: 148px !important;
 }
 
@@ -320,5 +321,57 @@
     }
     .is-selected {
         background: rgba(227, 228, 235, 0.6) !important;
+    }
+    .editable {
+        .control {
+            font-size: inherit;
+            font-weight: inherit;
+        }
+        .input {
+            width: 100px;
+            height: 1.2rem;
+            padding-top: 0;
+            padding-bottom: 0;
+            font-size: inherit;
+        }
+        &-show {
+            width: 120px;
+        }
+        &-cell {
+            width: 120px;
+        }
+        &-prepend {
+            padding: 0 10px 0 0;
+        }
+    }
+}
+
+.table {
+    font-size: 0.8rem;
+    tr {
+        height: 37px !important;
+        background-color: #FBFBFB;
+    }
+    th,
+    td {
+        padding: 0.2rem 0.4rem;
+        vertical-align: middle;
+    }
+    td {
+        border-bottom: 1px solid #E6E8F6;
+        border-right: 1px solid #E6E8F6;
+    }
+    th {
+        background-color: rgba(233, 233, 233, 1);
+        font-weight: 700;
+        border-right: 1px solid #FBFBFB;
+        border-left: 1px solid #FBFBFB;
+        position: relative;
+        i {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
     }
 }

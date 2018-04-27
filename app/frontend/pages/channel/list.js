@@ -17,6 +17,9 @@ export default ListPage({
   titleSingular: 'Canal',
   create: true,
   createComponent: CreateChannel,
+  export: true,
+  exportRole: 'consultor',
+  exportUrl: '/app/channels',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [

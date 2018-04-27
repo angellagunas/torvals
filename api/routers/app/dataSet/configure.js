@@ -19,6 +19,12 @@ module.exports = new Route({
     var datasetId = ctx.params.uuid
 
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
+      .populate('fileChunk')
+      .populate('project')
+      .populate('organization')
+      .populate('newProducts')
+      .populate('newSalesCenters')
+      .populate('newChannels')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
@@ -71,6 +77,12 @@ module.exports = new Route({
 
     var isPrediction = checkIsPrediction ? checkIsPrediction.name : undefined
 
+    var checkIsSales = body.columns.find((item) => {
+      return item.isSales
+    })
+
+    var isSales = checkIsSales ? checkIsSales.name : undefined
+
     var filterAnalysis = []
     var filterOperations = []
     var groupings = []
@@ -108,6 +120,7 @@ module.exports = new Route({
       is_analysis: isAnalysis,
       is_adjustment: isAdjustment,
       is_prediction: isPrediction,
+      is_sale: isSales,
       filter_analysis: filterAnalysis,
       filter_operations: filterOperations
     })

@@ -233,11 +233,9 @@ pre.json {
 
 .request-log {
     margin-bottom: 0.5rem !important;
-
     .message-header {
         cursor: pointer;
     }
-
     .message-body {
         background-color: white;
     }
@@ -304,27 +302,23 @@ pre.json {
     }
 }
 
-.is-relative{
-  position: relative;
+.is-relative {
+    position: relative;
 }
 
-.is-bottom{
-  position: absolute;
-  right:    12px;
-  bottom:   12px;
+.is-bottom {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
 }
 
-.notification {
-  padding: 0.6em 0.8em !important;
-}
-
-.secret{
-  border-color: #00d1b2 !important;
-  border-style: solid;
-  border-width: 1px;
-  border-radius: 5px;
-  background-color: #d5fff7 !important;
-  padding: 0 2px;
+.secret {
+    border-color: #00d1b2 !important;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    background-color: #d5fff7 !important;
+    padding: 0 2px;
 }
 
 .avatar {
@@ -365,24 +359,6 @@ pre.json {
     margin-right: 10px !important;
 }
 
-.land-side {
-    position: relative !important;
-    background-color: rgba(92, 138, 169, 1) !important;
-    .down {
-        position: absolute !important;
-        bottom: 120px !important;
-    }
-    img {
-        padding: 0px 40px !important;
-        margin-bottom: -10px !important;
-    }
-}
-
-.land-content {
-    margin: auto !important;
-    max-width: 800px !important;
-}
-
 .is-bg-whitesmoke {
     background-color: whitesmoke !important;
 }
@@ -391,43 +367,8 @@ pre.json {
     color: $abraxas-color !important;
 }
 
-.icon-land {
-    height: 7rem !important;
-    width: 7rem !important;
-    background: #28d2eb !important;
-    border-radius: 100px !important;
-    margin: 30px 20px 0px !important;
-}
-
-.card-land {
-    height: 295px !important;
-}
-
 .pad-bottom {
     padding-bottom: 20px !important;
-}
-
-.land-login {
-    width: 800px !important;
-    background-color: rgba(48, 90, 122, 0.7);
-    overflow: hidden !important;
-    text-align: center !important;
-    padding: 40px !important;
-    .input {
-        color: white !important;
-        background-color: rgba(0, 0, 0, 0) !important;
-        border: 0px !important;
-        border-bottom: 1px solid whitesmoke !important;
-    }
-    .input:focus {
-        border: 0px !important;
-        border-bottom: 2px solid white !important;
-        box-shadow: none !important;
-    }
-    .label {
-        text-align: left !important;
-        color: white !important;
-    }
 }
 
 @media screen and (max-width: 1023px) {
@@ -709,22 +650,24 @@ tr {
     z-index: 10;
 }
 
-.notification.is-white {
-    .has-text-info {
-        color: #fff !important;
+.notification {
+    &.is-white {
+        .has-text-info {
+            color: #fff !important;
+        }
     }
+    :not(:last-child) {
+        margin-bottom: 0 !important;
+    }
+    &.editable {
+        padding: 12px 0;
+        cursor: pointer;
+    }
+    
+    padding: 0 !important;
 }
 
-.notification:not(:last-child) {
-    margin-bottom: 0 !important;
-}
-
-.editable {
-    padding: 12px 0;
-    cursor: pointer;
-}
-
-.react-datepicker__day {
+.notification .react-datepicker__day {
     color: #ccc;
 }
 
@@ -850,7 +793,7 @@ tr {
     border-left: 2px solid #e5e5e5;
 }
 
-.productName{
+.productName {
     min-width: 300px;
 }
 
@@ -859,16 +802,16 @@ tr {
         width: 227px;
     }
 }
-.postman-export {
-  margin-bottom: 0px !important;
-  margin-right: 0px;
-  padding-top: .5em;
 
-  .column {
-    padding-bottom: 0px;
-  }
+.postman-export {
+    margin-bottom: 0px !important;
+    margin-right: 0px;
+    padding-top: .5em;
+    .column {
+        padding-bottom: 0px;
+    }
 }
 
-.info-project{
+.info-project {
     height: 2rem;
 }

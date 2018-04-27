@@ -6,6 +6,7 @@ import lov from 'lov'
 class ConfigureDatasetForm extends Component {
   constructor (props) {
     super(props)
+
     const posColumn = this.props.initialState.columns.findIndex(e => {
       return (
         e['isDate'] === true
@@ -26,6 +27,9 @@ class ConfigureDatasetForm extends Component {
       })
       var checkIsPrediction = this.props.initialState.columns.find((item) => {
         return item.isPrediction
+      })
+      var checkSales = this.props.initialState.columns.find((item) => {
+        return item.isSales
       })
 
       this.state = {
@@ -49,6 +53,7 @@ class ConfigureDatasetForm extends Component {
           return item.isSalesCenter
         }).name,
         isSalesCenterName: checkSalesCenterName ? checkSalesCenterName.name : '',
+        isSales: checkSales || '',
         isChannel: this.props.initialState.columns.find((item) => {
           return item.isChannel
         }).name,
@@ -74,6 +79,7 @@ class ConfigureDatasetForm extends Component {
         isProductName: '',
         isSalesCenter: '',
         isSalesCenterName: '',
+        isSales: '',
         isChannel: '',
         isChannelName: '',
         groupingColumn: '',
@@ -198,7 +204,8 @@ class ConfigureDatasetForm extends Component {
       column.isChannel ||
       column.isChannelName ||
       column.isSalesCenter ||
-      column.isSalesCenterName
+      column.isSalesCenterName ||
+      column.isSales
     )
   }
 
@@ -231,6 +238,7 @@ class ConfigureDatasetForm extends Component {
       isProductName: this.state.isProductName,
       isSalesCenter: this.state.isSalesCenter,
       isSalesCenterName: this.state.isSalesCenterName,
+      isSales: this.state.isSales,
       isChannel: this.state.isChannel,
       isChannelName: this.state.isChannelName
     }
@@ -244,6 +252,7 @@ class ConfigureDatasetForm extends Component {
       isProductName: lov.string(),
       isSalesCenter: lov.string().trim().required(),
       isSalesCenterName: lov.string(),
+      isSales: lov.string(),
       isChannel: lov.string().trim().required(),
       isChannelName: lov.string()
     }
@@ -257,6 +266,7 @@ class ConfigureDatasetForm extends Component {
       isProductName: this.state.isProductName,
       isSalesCenter: this.state.isSalesCenter,
       isSalesCenterName: this.state.isSalesCenterName,
+      isSales: this.state.isSales,
       isChannel: this.state.isChannel,
       isChannelName: this.state.isChannelName
     }
@@ -285,87 +295,117 @@ class ConfigureDatasetForm extends Component {
   }
 
   render () {
-    let checkboxLabelwidth = { flexGrow: 4 }
-
     if (this.props.columns.length === 0) {
       return <Loader />
     }
 
     return (
-      <div>
+      <div className='configure-dataset'>
         <form onSubmit={(e) => { this.submitHandler(e) }}>
-          <div className='field'>
-            <label className='label'>Fecha*</label>
-            <div className='control'>
-              <div className='select is-fullwidth'>
-                <select type='text'
-                  name='isDate'
-                  value={this.state.isDate}
-                  onChange={(e) => { this.handleChangeSelect('isDate', e) }}
+          <div className='columns'>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Fecha*</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      name='isDate'
+                      value={this.state.isDate}
+                      onChange={(e) => { this.handleChangeSelect('isDate', e) }}
                 >
-                  <option value=''>Selecciona una opción</option>
-                  {
+                      <option value=''>Selecciona una opción</option>
+                      {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
                         value={item.name}>{item.name}</option>
                     })
                   }
-                </select>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+            <div className='column'>
 
-          <div className='field'>
-            <label className='label'>Análisis*</label>
-            <div className='control'>
-              <div className='select is-fullwidth'>
-                <select type='text'
-                  name='isAnalysis'
-                  value={this.state.isAnalysis}
-                  onChange={(e) => { this.handleChangeSelect('isAnalysis', e) }}
+              <div className='field'>
+                <label className='label'>Análisis*</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      name='isAnalysis'
+                      value={this.state.isAnalysis}
+                      onChange={(e) => { this.handleChangeSelect('isAnalysis', e) }}
                 >
-                  <option value=''>Selecciona una opción</option>
-                  {
+                      <option value=''>Selecciona una opción</option>
+                      {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
                         value={item.name}>{item.name}</option>
                     })
                   }
-                </select>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
+          <div className='columns'>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Ajuste</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='isAdjustment'
+                      value={this.state.isAdjustment}
+                      onChange={(e) => { this.handleChangeSelect('isAdjustment', e) }}>
+                      <option value=''>Selecciona una opción</option>
+                      {
+                    this.state.formData.columns.map(function (item, key) {
+                      return <option key={key}
+                        value={item.name}>{item.name}</option>
+                    })
+                  }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className='column'>
+
+              <div className='field'>
+                <label className='label'>Predicción</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='isPrediction'
+                      value={this.state.isPrediction}
+                      onChange={(e) => { this.handleChangeSelect('isPrediction', e) }}>
+                      <option value=''>Selecciona una opción</option>
+                      {
+                    this.state.formData.columns.map(function (item, key) {
+                      return <option key={key}
+                        value={item.name}>{item.name}</option>
+                    })
+                  }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className='field'>
-            <label className='label'>Ajuste</label>
+            <label className='label'>Venta</label>
             <div className='control'>
               <div className='select is-fullwidth'>
                 <select type='text'
                   className='is-fullwidth'
-                  name='isAdjustment'
-                  value={this.state.isAdjustment}
-                  onChange={(e) => { this.handleChangeSelect('isAdjustment', e) }}>
-                  <option value=''>Selecciona una opción</option>
-                  {
-                    this.state.formData.columns.map(function (item, key) {
-                      return <option key={key}
-                        value={item.name}>{item.name}</option>
-                    })
-                  }
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className='field'>
-            <label className='label'>Predicción</label>
-            <div className='control'>
-              <div className='select is-fullwidth'>
-                <select type='text'
-                  className='is-fullwidth'
-                  name='isPrediction'
-                  value={this.state.isPrediction}
-                  onChange={(e) => { this.handleChangeSelect('isPrediction', e) }}>
+                  name='isSales'
+                  value={this.state.isSales}
+                  onChange={(e) => { this.handleChangeSelect('isSales', e) }}>
                   <option value=''>Selecciona una opción</option>
                   {
                     this.state.formData.columns.map(function (item, key) {
@@ -381,54 +421,7 @@ class ConfigureDatasetForm extends Component {
           <div className='columns'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Producto*</label>
-                <div className='control'>
-                  <div className='select is-fullwidth'>
-                    <select type='text'
-                      className='is-fullwidth'
-                      name='isProduct'
-                      value={this.state.isProduct}
-                      onChange={(e) => { this.handleChangeSelect('isProduct', e) }}>
-                      <option value=''>Selecciona una opción</option>
-                      {
-                        this.state.formData.columns.map(function (item, key) {
-                          return <option key={key}
-                            value={item.name}>{item.name}</option>
-                        })
-                      }
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='column'>
-              <div className='field'>
-                <label className='label'>Producto Nombre</label>
-                <div className='control'>
-                  <div className='select is-fullwidth'>
-                    <select type='text'
-                      className='is-fullwidth'
-                      name='isProductName'
-                      value={this.state.isProductName}
-                      onChange={(e) => { this.handleChangeSelect('isProductName', e) }}>
-                      <option value=''>Selecciona una opción</option>
-                      {
-                        this.state.formData.columns.map(function (item, key) {
-                          return <option key={key}
-                            value={item.name}>{item.name}</option>
-                        })
-                      }
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className='columns'>
-            <div className='column'>
-              <div className='field'>
-                <label className='label'>Centro de venta*</label>
+                <label className='label'>Id Centro de venta*</label>
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
@@ -476,7 +469,54 @@ class ConfigureDatasetForm extends Component {
           <div className='columns'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Canal*</label>
+                <label className='label'>Id Producto*</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='isProduct'
+                      value={this.state.isProduct}
+                      onChange={(e) => { this.handleChangeSelect('isProduct', e) }}>
+                      <option value=''>Selecciona una opción</option>
+                      {
+                        this.state.formData.columns.map(function (item, key) {
+                          return <option key={key}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Producto Nombre</label>
+                <div className='control'>
+                  <div className='select is-fullwidth'>
+                    <select type='text'
+                      className='is-fullwidth'
+                      name='isProductName'
+                      value={this.state.isProductName}
+                      onChange={(e) => { this.handleChangeSelect('isProductName', e) }}>
+                      <option value=''>Selecciona una opción</option>
+                      {
+                        this.state.formData.columns.map(function (item, key) {
+                          return <option key={key}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className='columns'>
+            <div className='column'>
+              <div className='field'>
+                <label className='label'>Id Canal*</label>
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
@@ -520,25 +560,13 @@ class ConfigureDatasetForm extends Component {
             </div>
           </div>
 
-          <div className='field is-horizontal'>
-            <div className='field-label is-normal' style={checkboxLabelwidth}>
-              <label className='label' />
+          <div className='columns has-borders'>
+            <div className='column is-6' />
+            <div className='column is-3 has-text-centered'>
+              <label className='label'>Filtro de Operación</label>
             </div>
-            <div className='field-body'>
-              <div className='field'>
-                <div className='field-label has-text-centered'>
-                  <label className=''>
-                    Filtro de Operación
-                  </label>
-                </div>
-              </div>
-              <div className='field'>
-                <div className='field-label has-text-centered'>
-                  <label className=''>
-                    Filtro de Análisis
-                  </label>
-                </div>
-              </div>
+            <div className='column is-3 has-text-centered'>
+              <label className='label'>Filtro de Análisis</label>
             </div>
           </div>
 
@@ -547,46 +575,41 @@ class ConfigureDatasetForm extends Component {
             if (this.testAllConditions(item)) return null
 
             return (
-              <div key={key} className='field is-horizontal'>
-                <div className='field-label is-normal has-text-left' style={checkboxLabelwidth}>
-                  <label className='label'>{item.name}</label>
+              <div key={key} className='columns has-borders'>
+                <div className='column is-6'>
+                  <label className='label is-capitalized'>{item.name}</label>
                 </div>
-                <div className='field-body'>
-                  <div className='field'>
-                    <div className='control box has-text-centered'>
-                      <label className='checkbox'>
-                        <input
-                          type='checkbox'
-                          checked={this.getValueForColumn(item.name + '|isOperationFilter')}
-                          onChange={(e) => { this.handleChangeCheckbox(item.name + '|isOperationFilter', e) }}
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  <div className='field'>
-                    <div className='control box has-text-centered'>
-                      <label className='checkbox'>
-                        <input
-                          checked={this.getValueForColumn(item.name + '|isAnalysisFilter')}
-                          onChange={(e) => { this.handleChangeCheckbox(item.name + '|isAnalysisFilter', e) }}
-                          type='checkbox'
-                        />
-                      </label>
-                    </div>
-                  </div>
+                <div className='column is-3 has-text-centered'>
+                  <label className='checkbox'>
+                    <input
+                      type='checkbox'
+                      checked={this.getValueForColumn(item.name + '|isOperationFilter')}
+                      onChange={(e) => { this.handleChangeCheckbox(item.name + '|isOperationFilter', e) }}
+                    />
+                  </label>
+                </div>
+                <div className='column is-3 has-text-centered'>
+                  <label className='checkbox'>
+                    <input
+                      checked={this.getValueForColumn(item.name + '|isAnalysisFilter')}
+                      onChange={(e) => { this.handleChangeCheckbox(item.name + '|isAnalysisFilter', e) }}
+                      type='checkbox'
+                    />
+                  </label>
                 </div>
               </div>
+
             )
           })
           }
 
-          <div className='field is-horizontal'>
+          <div className='field is-horizontal has-20-margin-top'>
             <div className='field-body'>
               <div className='field is-narrow'>
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select onChange={(e) => { this.handleChangeGroupings('groupingColumn', e) }}>
-                      <option value='' >Selecciona una opción</option>
+                      <option value='' >Elige una opción</option>
                       {
                     this.state.formData.columns.map(function (item, key) {
                       return <option key={key}
@@ -618,31 +641,31 @@ class ConfigureDatasetForm extends Component {
                 </p>
               </div>
               <div className='field'>
-                <p className='control is-expanded'>
+                <p className='control'>
                   <button
-                    className='button is-primary'
+                    className='button is-light'
                     onClick={(e) => this.handleColumnsValues(e)}
                     type='button'
                   >
-                    Add
+                    Agregar
                   </button>
                 </p>
               </div>
             </div>
           </div>
 
-          <table className='table is-fullwidth'>
+          <table className='table is-fullwidth is-narrow'>
             <thead>
               <tr>
                 <th>Columna</th>
                 <th>Valor 1</th>
-                <th>Valor 2</th>
+                <th colSpan='2'>Valor 2</th>
               </tr>
             </thead>
             <tbody>
               {this.state.formData.groupings.length === 0 ? (
                 <tr>
-                  <td colSpan='3'>No hay agrupaciones que mostrar</td>
+                  <td colSpan='4'>No hay agrupaciones que mostrar</td>
                 </tr>
                 ) : (
                   this.state.formData.groupings.map((item, key) => {
@@ -651,9 +674,9 @@ class ConfigureDatasetForm extends Component {
                         <td>{item.column}</td>
                         <td>{item.inputValue}</td>
                         <td>{item.outputValue}</td>
-                        <td>
+                        <td className='has-text-centered'>
                           <button
-                            className='button is-danger'
+                            className='button is-danger icon-btn'
                             type='button'
                             onClick={() => this.removeColumn(key)}
                           >
@@ -685,7 +708,7 @@ class ConfigureDatasetForm extends Component {
                 className={'button is-primary' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
               >
-                Configurar
+                Procesar
               </button>
             </div>
           </div>

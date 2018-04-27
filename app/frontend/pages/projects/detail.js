@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 import api from '~base/api'
 import Page from '~base/page'
@@ -20,7 +20,7 @@ import TabApprove from './detail-tabs/tab-approve'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 // import Breadcrumb from '~base/components/base-breadcrumb'
-// import TabAnomalies from './detail-tabs/tab-anomalies'
+import TabAnomalies from './detail-tabs/tab-anomalies'
 
 var currentRole
 var user
@@ -41,7 +41,8 @@ class ProjectDetail extends Component {
       isConciliating: '',
       modified: 0,
       pendingChanges: 0,
-      pending: 0
+      pending: 0,
+      pendingDataRows: {}
     }
 
     this.interval = null
@@ -283,7 +284,12 @@ class ProjectDetail extends Component {
       await api.post(url)
       await this.load()
     } catch (e) {
-      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+      toast('Error: ' + e.message, {
+        autoClose: 5000,
+        type: toast.TYPE.ERROR,
+        hideProgressBar: true,
+        closeButton: false
+      })
     }
 
     this.setState({
@@ -291,6 +297,62 @@ class ProjectDetail extends Component {
       modified: 0,
       dataRows: [],
       isFiltered: false
+    })
+  }
+
+  setPendingDataRows = (rows) => {
+    let pendingDataRowsArray = Object.values(rows)
+    let pending = this.state.pendingDataRows
+
+    for (let row in rows) {
+      if (!pending[row]) pending[row] = rows[row]
+    }
+
+    this.setState({
+      pendingDataRows: pending
+    })
+  }
+
+  async handleAllAdjustmentRequest() {
+    this.setState({
+      isConciliating: ' is-loading'
+    })
+    let { pendingDataRows } = this.state
+    let pendingDataRowsArray = Object.values(pendingDataRows)
+
+    await this.handleAdjustmentRequest(pendingDataRowsArray)
+    this.setState({
+      isConciliating: ''
+    })
+  }
+
+  async handleAdjustmentRequest(obj) {
+    let { pendingDataRows } = this.state
+    let productAux = []
+    if (currentRole === 'consultor') {
+      return
+    }
+
+    if (obj instanceof Array) {
+      productAux = obj
+    } else {
+      productAux.push(obj)
+    }
+
+    try {
+      var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment && item.isLimit }))
+    } catch (e) {
+      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
+
+      return
+    }
+
+    for (var product of productAux) {
+      product.adjustmentRequest = res.data[product.uuid]
+      delete pendingDataRows[product.uuid]
+    }
+    this.setState({
+      pendingDataRows: pendingDataRows
     })
   }
 
@@ -363,6 +425,9 @@ class ProjectDetail extends Component {
             history={this.props.history}
             canEdit={canEdit}
             setAlert={(type, data) => this.setAlert(type, data)}
+            pendingDataRows={this.setPendingDataRows}
+            handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
+            handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }}
           />
         )
       },
@@ -399,21 +464,21 @@ class ProjectDetail extends Component {
           />
         )
       },
-      // {
-      //   name: 'anomalias',
-      //   title: 'Anomalias',
-      //   reload: true,
-      //   hide: (testRoles('manager-level-1') ||
-      //     project.status === 'processing' ||
-      //     project.status === 'pendingRows' ||
-      //     project.status === 'empty'),
-      //   content: (
-      //     <TabAnomalies
-      //       project={project}
-      //       reload={(tab) => this.load(tab)}
-      //     />
-      //   )
-      // },
+      {
+        name: 'anomalias',
+        title: 'Anomalias',
+        reload: true,
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabAnomalies
+            project={project}
+            reload={(tab) => this.load(tab)}
+          />
+        )
+      },
       {
         name: 'graficos',
         title: 'Gráficos',
@@ -482,13 +547,23 @@ class ProjectDetail extends Component {
       </span>
     </button>)
     var consolidarButton
-    if (!testRoles('consultor')) {
+    if (!testRoles('consultor, manager-level-1')) {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
             disabled={!!this.state.isConciliating}
             onClick={e => this.conciliateOnClick()}>
               Consolidar
+          </a>
+        </p>
+    }
+    else if (testRoles('manager-level-1')) {
+      consolidarButton =
+        <p className='control btn-conciliate'>
+          <a className={'button is-success ' + this.state.isConciliating}
+            disabled={!!this.state.isConciliating}
+            onClick={e => this.handleAllAdjustmentRequest()}>
+            Finalizar
           </a>
         </p>
     }
@@ -529,36 +604,37 @@ class ProjectDetail extends Component {
           selectedTab={this.state.selectedTab}
           className='sticky-tab'
           extraTab={
-            <div>
-              <div className='field is-grouped'>
-                <p className='control'>
-                  <span className='has-text-weight-semibold'>
-                    <span className='icon is-small is-transparent-text'>
-                      <i className='fa fa-gears' />
-                    </span>
+                project.status !== 'empty' &&
+                <div>
+                  <div className='field is-grouped'>
+                    <p className='control'>
+                      <span className='has-text-weight-semibold'>
+                        <span className='icon is-small is-transparent-text'>
+                          <i className='fa fa-gears' />
+                        </span>
                     Ajustes
                   </span>
-                </p>
-                <p className='control'>
-                  <span className='has-text-success has-text-weight-semibold'>
-                    <span className='icon is-small'>
-                      <i className='fa fa-check' />
-                    </span>
+                    </p>
+                    <p className='control'>
+                      <span className='has-text-success has-text-weight-semibold'>
+                        <span className='icon is-small'>
+                          <i className='fa fa-check' />
+                        </span>
                       Realizados {this.state.modified}
-                  </span>
+                      </span>
 
-                </p>
-                <p className='control'>
-                  <span className='has-text-warning has-text-weight-semibold'>
-                    <span className='icon is-small'>
-                      <i className='fa fa-exclamation-triangle' />
-                    </span>
+                    </p>
+                    <p className='control'>
+                      <span className='has-text-warning has-text-weight-semibold'>
+                        <span className='icon is-small'>
+                          <i className='fa fa-exclamation-triangle' />
+                        </span>
                       Por aprobar {this.state.counterAdjustments}
-                  </span>
-                </p>
-                {consolidarButton}
-              </div>
-            </div>
+                      </span>
+                    </p>
+                    {consolidarButton}
+                  </div>
+                </div>
           }
         />
 
@@ -580,15 +656,6 @@ class ProjectDetail extends Component {
           </div>
         }
 
-        { canEdit &&
-          <SidePanel
-            noListPage
-            sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-            icon={'plus'}
-            title={'Opciones'}
-            content={options}
-          />
-        }
         <CreateDataSet
           branchName='datasets'
           url='/admin/datasets'
@@ -598,7 +665,7 @@ class ProjectDetail extends Component {
           hideModal={this.hideModalDataset.bind(this)}
           finishUp={this.finishUpDataset.bind(this)}
         />
-        <ToastContainer />
+
       </div>
     )
   }

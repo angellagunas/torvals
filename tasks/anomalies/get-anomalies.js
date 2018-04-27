@@ -48,7 +48,7 @@ const task = new Task(async function (argv) {
     })
 
     try {
-      var anomaly = Anomaly.findOne({
+      var anomaly = await Anomaly.findOne({
         externalId: p._id,
         dataset: project.activeDataset._id
       })

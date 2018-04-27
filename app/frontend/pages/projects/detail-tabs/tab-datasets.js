@@ -187,32 +187,49 @@ class TabDatasets extends Component {
         <div>
           Necesitas subir y configurar al menos un
           <strong> dataset </strong> para tener información disponible
-          <br />
-          <br />
-          <a
-            className='button is-large is-primary'
-            onClick={() => this.showModalDataset()}
-                  >
-            <span className='icon is-medium'>
-              <i className='fa fa-plus-circle' />
-            </span>
-            <span>Agregar Dataset</span>
-          </a>
         </div>
     }
     return (
-      <div>
+      <div className='dataset-tab'>
         <div className='card-content'>
-          <div className={this.props.project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
+          <div className='columns'>
             <div className='column'>
-              <article className='message is-warning'>
+              {this.props.project.status === 'empty'
+              ? <article className='message is-warning'>
                 <div className='message-header'>
                   <p>Atención</p>
                 </div>
-                <div className='message-body has-text-centered is-size-5'>
-                  {adviseContent}
+                <div className='message-body is-size-6'>
+                  <div className='level'>
+                    <div className='level-left'>
+                      <div className='level-item'>
+                        <span className='icon is-large has-text-warning'>
+                          <i className='fa fa-exclamation-triangle fa-2x' />
+                        </span>
+                      </div>
+                      <div className='level-item'>
+                        {adviseContent}
+                      </div>
+                    </div>
+                    <div className='level-right'>
+                      <div className='level-item'>
+                        <a
+                          className='button is-info is-pulled-right'
+                          onClick={() => this.showModalDataset()}>
+                          <span>Agregar Dataset</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </article>
+              : this.props.canEdit &&
+              <a
+                className='button is-info is-pulled-right has-20-margin-sides'
+                onClick={() => this.showModalDataset()}>
+                <span>Agregar Dataset</span>
+              </a>
+            }
             </div>
           </div>
           <div className='columns'>

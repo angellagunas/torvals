@@ -10,6 +10,7 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 import { toast } from 'react-toastify'
+import Select from './select'
 
 var currentRole
 
@@ -94,13 +95,13 @@ class TabAnomalies extends Component {
     })
   }
 
-  async filterChangeHandler (e) {
+  async filterChangeHandler(name, value) {
+    let aux = this.state.formData
+    aux[name] = value
     this.setState({
-      formData: {
-        product: e.formData.product,
-        salesCenter: e.formData.salesCenter,
-        category: e.formData.category
-      }
+      formData: aux
+    }, () => {
+      this.getData()
     })
   }
 
@@ -110,7 +111,7 @@ class TabAnomalies extends Component {
     })
   }
 
-  async getData (e) {
+  async getData () {
     this.setState({
       isLoading: ' is-loading'
     })
@@ -118,7 +119,9 @@ class TabAnomalies extends Component {
     let url = '/app/anomalies/list/' + this.props.project.uuid
     try {
       let res = await api.get(url, {
-        ...this.state.formData
+        ...this.state.formData,
+        start: 0,
+        limit: 0
       })
 
       this.setState({
@@ -147,6 +150,39 @@ class TabAnomalies extends Component {
 
   getColumns () {
     let cols = [
+      {
+        'title': 'Seleccionar Todo',
+        'abbreviate': true,
+        'abbr': (() => {
+          if (currentRole !== 'consultor') {
+            return (
+              <Checkbox
+                label='checkAll'
+                handleCheckboxChange={(e) => this.checkAll(!this.state.selectAll)}
+                key='checkAll'
+                checked={this.state.selectAll}
+                hideLabel />
+            )
+          }
+        })(),
+        'property': 'checkbox',
+        'default': '',
+        formatter: (row) => {
+          if (!row.selected) {
+            row.selected = false
+          }
+          if (currentRole !== 'consultor') {
+            return (
+              <Checkbox
+                label={row}
+                handleCheckboxChange={this.toggleCheckbox}
+                key={row}
+                checked={row.selected}
+                hideLabel />
+            )
+          }
+        }
+      },
       {
         'title': 'Id',
         'property': 'productId',
@@ -202,16 +238,17 @@ class TabAnomalies extends Component {
         'property': 'prediction',
         'default': 0,
         'type': 'number',
-        'sortable': true,                                
+        'sortable': true,
+        'className': 'editable-cell',                                
         formatter: (row) => {
           if (currentRole !== 'consultor') {
           return (
             <Editable
               value={row.prediction}
               handleChange={this.changeAdjustment}
-              type='number'
+              type='text'
               obj={row}
-              width={80}
+              width={100}
             />
           )
           }
@@ -219,44 +256,11 @@ class TabAnomalies extends Component {
             return row.prediction
           }
         }
-      },
-      {
-        'title': 'Seleccionar Todo',
-        'abbreviate': true,
-        'abbr': (() => {
-          if (currentRole !== 'consultor') {
-          return (
-            <Checkbox
-              label='checkAll'
-              handleCheckboxChange={(e) => this.checkAll(!this.state.selectAll)}
-              key='checkAll'
-              checked={this.state.selectAll}
-              hideLabel />
-          )
-        }
-        })(),
-        'property': 'checkbox',
-        'default': '',
-        formatter: (row) => {
-          if (!row.selected) {
-            row.selected = false
-          }
-          if (currentRole !== 'consultor') {
-          return (
-            <Checkbox
-              label={row}
-              handleCheckboxChange={this.toggleCheckbox}
-              key={row}
-              checked={row.selected}
-              hideLabel />
-          )
-        }
-        }
       }
     ]
 
     if ( this.state.filters.salesCenters.length > 1){
-      cols.splice(3,0, { 
+      cols.splice(4,0, { 
         'title': 'Centro de venta',
         'abbreviate': true,
         'abbr': 'C. Venta',
@@ -272,12 +276,15 @@ class TabAnomalies extends Component {
   }
 
   changeAdjustment = async (value, row) => {
-    row.prediction = value
-    const res = await this.handleChange(row)
-    if (!res) {
-      return false
+    if (Number(row.prediction) !== Number(value)) {
+      row.prediction = value
+      const res = await this.handleChange(row)
+      if (!res) {
+        return false
+      }
+      return res
     }
-    return res
+    else return false
   }
 
 
@@ -434,90 +441,62 @@ class TabAnomalies extends Component {
     ) {
       return <Loader />
     }
-
-    var schema = {
-      type: 'object',
-      title: '',
-      properties: {}
-    }
-
-    const uiSchema = {
-      salesCenter: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los centros de venta' },
-      product: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los productos' },
-      category: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorias' }
-    }
-
-    if (this.state.filters.products.length > 0) {
-      schema.properties.product = {
-        type: 'string',
-        title: 'Productos',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.product.enum = this.state.filters.products.map(item => { return item.uuid })
-      schema.properties.product.enumNames = this.state.filters.products.map(item => { return item.name })
-    }
-    
-    if (this.state.filters.categories.length > 0) {
-      schema.properties.category = {
-        type: 'string',
-        title: 'Categorias de producto',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.category.enum = this.state.filters.categories
-      schema.properties.category.enumNames = this.state.filters.categories
-    }
-    if (this.state.filters.salesCenters.length > 0) {
-      schema.properties.salesCenter = {
-        type: 'string',
-        title: 'Centros de Venta',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.salesCenter.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
-      schema.properties.salesCenter.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
-      if (this.state.filters.salesCenters.length === 1) {
-        uiSchema.salesCenter['ui:disabled'] = true
-      }
-    }
     
     return (
-      <div className='section'>
-        <div className='columns'>
-          <div className='column is-half'>
-            <BaseForm
-              className='inline-form'
-              schema={schema}
-              uiSchema={uiSchema}
-              formData={this.state.formData}
-              onChange={(e) => { this.filterChangeHandler(e) }}
-              onSubmit={(e) => { this.getData(e) }}
-              onError={(e) => { this.filterErrorHandler(e) }}
-            >
-              <div className='field is-grouped'>
-                <div className='control'>
-                  <button
-                    className={'button is-primary' + this.state.isLoading}
-                    type='submit'
-                    disabled={!!this.state.isLoading}
-                  >
-                    <span className='icon'>
-                        <i className='fa fa-filter' />
-                      </span>
-                      <span>
-                        Filtrar
-                    </span>
-                    </button>
+      <div>
+        <div className='section level selects'>
+          <div className='level-left'>
+            <div className='level-item'>
+              <Select
+                label='Productos'
+                name='product'
+                value={this.state.formData.product}
+                optionValue='uuid'
+                optionName='name'
+                placeholder='Seleccione'
+                options={this.state.filters.products}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            </div>
+
+            <div className='level-item'>
+              <Select
+                label='Categoría'
+                name='category'
+                placeholder='Seleccione'
+                value={this.state.formData.category}
+                options={this.state.filters.categories}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            </div>
+
+            <div className='level-item'>
+              {this.state.filters.salesCenters.length === 1 ?
+                <div className='saleCenter'>
+                  <span>Centro de Venta: </span>
+                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
+                  </span>
                 </div>
-              </div>
-            </BaseForm>
+                :
+                <Select
+                  label='Centro de venta'
+                  name='salesCenter'
+                  value={this.state.formData.salesCenter}
+                  optionValue='uuid'
+                  optionName='name'
+                  placeholder='Seleccione'
+                  options={this.state.filters.salesCenters}
+                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                />
+              }
+            </div>
+
           </div>
-          {currentRole !== 'consultor'  && <div className='column has-text-right'>
-            <div className='field is-grouped is-grouped-right'>
-              <div className='control'>
+          {currentRole !== 'consultor' &&
+            <div className='level-right'>
+              <div className='level-item is-margin-top-20'>
                 <button
-                  className={'button is-info is-medium' + this.state.isRestoring}
+                  className={'button is-info ' + this.state.isRestoring}
                   disabled={!!this.state.isRestoring || this.state.disableButton}
                   type='button'
                   onClick={e => this.restore()}
@@ -526,29 +505,33 @@ class TabAnomalies extends Component {
                   </button>
               </div>
             </div>
-          </div>
           }
         </div>
 
-        <section className='section'>
-          {!this.state.isFiltered
-            ? <article className='message is-primary'>
-              <div className='message-header'>
-                <p>Información</p>
-              </div>
-              <div className='message-body'>
-                No hay anomalias que mostrar
-              </div>
-            </article>
-            : <div>
+        <section>
+          {!this.state.isFiltered ?
+            <section className='section'>
+              <center>
+                <Loader/>
+                <h2 className='has-text-info'>Cargando anomalias</h2>
+              </center>
+            </section>
+          : 
+            this.state.anomalies.length === 0
+              ? <section className='section'>
+                  <center>
+                    <h2 className='has-text-info'>No hay anomalias que mostrar</h2>
+                  </center>
+                </section>
+              : 
               <BaseTable
+                className='aprobe-table is-fullwidth is-margin-top-20'
                 data={this.state.anomalies}
                 columns={this.getColumns()}
                 sortAscending={this.state.sortAscending}
                 sortBy={this.state.sortBy}
-                handleSort={(e) => this.handleSort(e)} 
+                handleSort={(e) => this.handleSort(e)}
               />
-            </div>
           }
         </section>
       </div>

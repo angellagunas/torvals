@@ -162,7 +162,12 @@ class WeekTable extends Component {
         default: 'N/A',
         sortable: true,
         headerClassName: 'table-product table-product-head',
-        className: 'table-product productName'
+        className: 'table-product productName',
+        formatter: (row) => {
+          if (row.weeks[0].productName) {
+            return row.weeks[0].productName
+          }
+        }
       },
       {
         group: ' ',
@@ -191,7 +196,7 @@ class WeekTable extends Component {
     let maxWeeks = data.map(item => {return item.weeks.length})
     maxWeeks = maxWeeks.sort((a,b) => {return b-a})
     
-    for (let j = 0; j < maxWeeks[0]; j++){
+    for (let j = 0; j < this.props.filteredSemanasBimbo.length; j++){
       let semanaBimbo = this.props.filteredSemanasBimbo[j]
       cols.push(
         {
@@ -208,11 +213,9 @@ class WeekTable extends Component {
             if (row.weeks[j]) {
               if (row.weeks[j].prediction) {
                 return row.weeks[j].prediction
-              }
-            } else {
-              return ''
-            }
-          }
+             }
+           }
+         }
         },
         {
           group: ' ',
@@ -237,42 +240,41 @@ class WeekTable extends Component {
         },
         {
           group: ' ',
-          title: 'Ajuste',
-          property: 'adjustmentForDisplay_' + j,
-          default: '',
-          sortable: true,
-          groupClassName: 'table-week',
-          headerClassName: 'table-head',           
-          className: 'table-cell',                      
-          formatter: (row) => {
-            if (row.weeks[j]) {
-              if (!row.weeks[j].adjustmentForDisplay) {
-                row.weeks[j].adjustmentForDisplay = 0
-              }
+           title: 'Ajuste',
+           property: 'adjustmentForDisplay_' + j,
+           default: '',
+           sortable: true,
+           groupClassName: 'table-week',
+           headerClassName: 'table-head',           
+           className: 'table-cell',                      
+           formatter: (row) => {
+             if (!row.weeks[j].adjustmentForDisplay) {
+               row.weeks[j].adjustmentForDisplay = ''
+             }
 
-              row.tabin = row.key * 10 + j
-              row.weeks[j].tabin = row.key * 10 + j
-              if (this.props.currentRole !== 'consultor') {
-                return (
-                  <input
-                    type='number'
-                    className='input'
-                    value={row.weeks[j].adjustmentForDisplay}
-                    onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
-                    onKeyDown={(e) => { this.onEnter(e, row.weeks[j]) }}
-                    onChange={(e) => { this.onChange(e, row.weeks[j]) }}
-                    onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
-                    tabIndex={row.tabin}
-                    ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
-                  />
-                )
+             row.tabin = row.key * 10 + j
+             row.weeks[j].tabin = row.key * 10 + j
+             if (this.props.currentRole !== 'consultor') {
+               return (
+                 <input
+                   type='text'
+                   className='input'
+                   value={row.weeks[j].adjustmentForDisplay}
+                   onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
+                   onKeyDown={(e) => { this.onEnter(e, row.weeks[j]) }}
+                   onChange={(e) => { this.onChange(e, row.weeks[j])}}
+                   onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
+                   tabIndex={row.tabin}
+                   max='99999'
+                   placeholder='0'
+                   ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
+                 />
+               )
               }else{
                 return <span>{row.weeks[j].adjustmentForDisplay}</span>
               }
-            } else {
-              return ''
             }
-          }
+          
         },
         {
           group: ' ',
@@ -284,7 +286,7 @@ class WeekTable extends Component {
           groupClassName: 'table-week table-week-r',
           className: 'col-border table-cell',
           formatter: (row) => {
-            if (row.weeks[j]) {
+            if(row.weeks[j]){
               let percentage 
               if(row.weeks[j].lastAdjustment){
                 percentage = (
@@ -295,16 +297,18 @@ class WeekTable extends Component {
                   ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
                 )  
               }
-
+              
               if(isNaN(percentage) || !isFinite(percentage))
                 percentage = 0
               row.weeks[j].percentage = percentage 
               let status = classNames('has-text-weight-bold', {
                 'has-text-success': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'approved',
                 'has-text-warning': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'created',
-                'has-text-danger': row.weeks[j].isLimit && (!row.weeks[j].adjustmentRequest || row.weeks[j].adjustmentRequest.status === 'rejected'),
+                'has-text-danger': row.weeks[j].isLimit && ((!row.weeks[j].adjustmentRequest || row.weeks[j].adjustmentRequest.status === 'rejected')
+                                                             || this.props.currentRole === 'manager-level-2' )
               })     
               return <span className={status}>{Math.round(percentage) + ' %'}</span>
+            
             } else {
               return ''
             }
@@ -350,36 +354,44 @@ class WeekTable extends Component {
     if (e.target.type === 'number') {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
-
-    if (Number(week.original) !== Number(value)) {
-      row.edited = true
-      let res = await this.props.changeAdjustment(value, week)
-      if (!res) {
-        row.edited = false
-      
+    if (value === '' && week.original !== ''){
         week.adjustmentForDisplay = week.original
+        let aux = this.state.filteredDataByWeek
 
-      let aux = this.state.filteredDataByWeek
+        this.setState({
+          filteredDataByWeek: aux
+        })
 
-      this.setState({
-        filteredDataByWeek: aux
-      }) 
+        return
       }
-      
-    }
+      if(Number(week.original) !== Number(value)) {
+        row.edited = true
+        let res = await this.props.changeAdjustment(value, week)
+        if (!res) {
+          row.edited = false
+
+          week.adjustmentForDisplay = week.original
+
+          let aux = this.state.filteredDataByWeek
+
+          this.setState({
+            filteredDataByWeek: aux
+          })
+        }
+      }
 
   }
 
   onChange = (e, row) => {
-    row.adjustmentForDisplay = e.target.value
-    let aux = this.state.filteredDataByWeek
+    if(e.target.value.length<=5){
+      row.adjustmentForDisplay = Number(e.target.value)
+      let aux = this.state.filteredDataByWeek
 
-    this.setState({
-      filteredDataByWeek: aux
-    })
-
+      this.setState({
+        filteredDataByWeek: aux
+      })  
+    }
   }
-
 
   filterData = async () => {
     if(!this.state.data)

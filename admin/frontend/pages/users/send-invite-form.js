@@ -66,6 +66,8 @@ class InviteUserForm extends Component {
               apiCallErrorMessage: 'message is-danger',
               cannotCreate: true
             })
+          } else {
+            this.setState({cannotCreate: false})
           }
         } else {
           this.setState({cannotCreate: false})
@@ -87,6 +89,8 @@ class InviteUserForm extends Component {
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
+        } else {
+          this.setState({cannotCreate: false})
         }
       } else {
         this.setState({cannotCreate: false})
