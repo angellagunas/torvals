@@ -83,6 +83,7 @@
             overflow-x: hidden;
             overflow-y: auto;
             li {
+                border-bottom: 1px solid rgba(230, 232, 246, 0.5);
                 a {
                     div {
                         display: inline;
@@ -93,6 +94,10 @@
         .menu {
             margin: .5rem;
             background: white;
+            &>div {
+                padding-bottom: .3rem;
+                border-bottom: 1px solid rgba(230, 232, 246, 0.5);
+            }
         }
     }
     .filters {
@@ -106,6 +111,12 @@
             max-height: 200px;
             overflow-x: hidden;
             overflow-y: auto;
+        }
+        .menu {
+            &>div {
+                padding-bottom: .3rem;
+                border-bottom: 1px solid rgba(230, 232, 246, 0.5);
+            }
         }
         &-item {
             a {
@@ -138,6 +149,7 @@
             background-color: #EFF1F9;
             border-color: #E6E8F6;
             border-radius: 0;
+            padding: .5rem;
         }
         .notification {
             padding: 1.5rem 0;
@@ -158,10 +170,13 @@
                 border-radius: 100px;
             }
         }
-        .button.is-static{
+        .button.is-static {
             background-color: #fff;
             border-radius: 0;
             font-size: .9rem;
+        }
+        .level {
+            margin: .7rem 0;
         }
     }
 }

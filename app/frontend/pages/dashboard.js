@@ -412,7 +412,7 @@ class Dashboard extends Component {
                 <div className='column is-3 is-paddingless'>
                   <div className='notification is-info has-text-centered'>
                     <h1 className='title is-2'>6.86%</h1>
-                    <h2 className='subtitle has-text-weight-bold'>PREDICCIÓN MAPE </h2>
+                    <h2 className='subtitle has-text-weight-bold'>MAPE PREDICCIÓN</h2>
                   </div>
                   <div>
                     <p className='subtitle is-6'>Venta total</p>
@@ -421,7 +421,7 @@ class Dashboard extends Component {
                     <p className='subtitle is-6'>Ajuste total</p>
                     <p className='title is-5 has-text-teal'>$1,156,202.94</p>
 
-                    <p className='subtitle is-6'>Predicciòn total</p>
+                    <p className='subtitle is-6'>Predicción total</p>
                     <p className='title is-5 has-text-info'>$1,156,202.94</p>
                   </div>
                 </div>
@@ -435,7 +435,7 @@ class Dashboard extends Component {
                 </div>
               </div>
 
-              <div className='section level selects'>
+              <div className='level'>
                 <div className='level-left'>
                   <div className='level-item'>
 
