@@ -32,7 +32,7 @@
     font-size: .8rem !important;
     .md-checkbox {
         line-height: 1;
-        font-size: inherit;
+        font-size: .8rem;
     }
     .md-checkbox--fake {
         margin: 2px;
@@ -67,5 +67,101 @@
     }
     .md-checkbox>div {
         line-height: 20px;
+    }
+    .card-header {
+        h1 {
+            font-size: 1rem;
+            padding: .5rem;
+        }
+    }
+    .projects {
+        .card-content {
+            padding: 0;
+        }
+        .menu-list {
+            max-height: 200px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            li {
+                a {
+                    div {
+                        display: inline;
+                    }
+                }
+            }
+        }
+        .menu {
+            margin: .5rem;
+            background: white;
+        }
+    }
+    .filters {
+        .card-content {
+            padding: 0;
+        }
+        .card-header {
+            background-color: #fff !important;
+        }
+        .menu-list {
+            max-height: 200px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        &-item {
+            a {
+                margin-left: .5rem;
+                font-size: .9rem;
+                color: $general_text;
+            }
+            .menu {
+                margin: .5rem;
+                background: white;
+            }
+            .collapsable-title {
+                width: 100%;
+                height: 2rem;
+                display: flex;
+                align-items: center;
+                border-color: #E6E8F6;
+                cursor: pointer;
+                &.active {
+                    background-color: #EFF1F9;
+                }
+            }
+        }
+    }
+    .dash-graph {
+        .columns {
+            margin: 0;
+        }
+        .box {
+            background-color: #EFF1F9;
+            border-color: #E6E8F6;
+            border-radius: 0;
+        }
+        .notification {
+            padding: 1.5rem 0;
+            margin: 0 .5rem .5rem 0;
+        }
+        .range-slider {
+            width: 200px;
+            margin: 15px 20px 0 20px;
+            .input-range__label {
+                display: none;
+            }
+            .input-range__track--active {
+                background: $info;
+            }
+            .input-range__slider {
+                background: $info;
+                border-color: #fff;
+                border-radius: 100px;
+            }
+        }
+        .button.is-static{
+            background-color: #fff;
+            border-radius: 0;
+            font-size: .9rem;
+        }
     }
 }
