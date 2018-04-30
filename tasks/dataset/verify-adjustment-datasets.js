@@ -100,7 +100,7 @@ const task = new Task(async function (argv) {
                   existence: dataRow.existencia,
                   prediction: dataRow[predictionColumn.name],
                   sale: dataRow[salesColumn.name] ? dataRow[salesColumn.name] : 0,
-                  forecastDate: moment(dataRow[dateColumn.name]),
+                  forecastDate: moment(dataRow[dateColumn.name], 'YYYY-MM-DD'),
                   semanaBimbo: dataRow.semana_bimbo,
                   adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
                   localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
