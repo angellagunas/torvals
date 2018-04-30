@@ -15,7 +15,7 @@ module.exports = new Route({
       date_end: data.date_end
     }
 
-    var responseData = await Api.comparationOrganization(ctx.state.organization.externalId, requestBody)
+    var responseData = await Api.comparationOrganization(ctx.state.organization.uuid, requestBody)
 
     ctx.body = responseData
   }
