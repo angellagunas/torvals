@@ -4,6 +4,7 @@ require('lib/databases/mongo')
 
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
+const moment = require('moment')
 const { DataSet, DataSetRow, Channel, Product, SalesCenter, Project } = require('models')
 const getAnomalies = require('../anomalies/get-anomalies')
 
@@ -60,6 +61,7 @@ const task = new Task(async function (argv) {
         var adjustmentColumn = dataset.getAdjustmentColumn() || {name: ''}
         var analysisColumn = dataset.getAnalysisColumn() || {name: ''}
         var dateColumn = dataset.getDateColumn() || {name: ''}
+        var salesColumn = dataset.getSalesColumn() || {name: ''}
 
         if (!adjustmentColumn.name) {
           adjustmentColumn = predictionColumn
@@ -97,7 +99,8 @@ const task = new Task(async function (argv) {
                 data: {
                   existence: dataRow.existencia,
                   prediction: dataRow[predictionColumn.name],
-                  forecastDate: dataRow[dateColumn.name],
+                  sale: dataRow[salesColumn.name] ? dataRow[salesColumn.name] : 0,
+                  forecastDate: moment(dataRow[dateColumn.name], 'YYYY-MM-DD'),
                   semanaBimbo: dataRow.semana_bimbo,
                   adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
                   localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],

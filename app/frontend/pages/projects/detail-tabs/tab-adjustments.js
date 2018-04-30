@@ -656,13 +656,18 @@ getProductsSelected () {
             <span className='icon'>
               <i className='fa fa-warning fa-lg' />
             </span>
-            ¡Debes pedir una solicitud de ajuste haciendo clic sobre el ícono rojo!
+            ¡Debes pedir una solicitud de ajuste haciendo clic sobre el ícono rojo o el botón finalizar!
           </p>),
           5000,
           toast.TYPE.WARNING
         )
       } else {
-        this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
+        if(currentRole === 'manager-level-2' && isLimited){
+          this.notify('¡Ajustes fuera de rango guardados!', 5000, toast.TYPE.WARNING)          
+        }
+        else{
+          this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
+        }
       }
       this.props.pendingDataRows(pendingDataRows)
 

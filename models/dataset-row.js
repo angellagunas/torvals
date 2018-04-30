@@ -31,10 +31,11 @@ const datasetRowSchema = new Schema({
     existence: { type: Number },
     prediction: { type: Number },
     adjustment: { type: Number },
+    sale: { type: Number },
     localAdjustment: { type: Number },
     lastAdjustment: { type: Number },
     semanaBimbo: { type: Number },
-    forecastDate: { type: String }
+    forecastDate: { type: Date }
   },
   apiData: { type: Schema.Types.Mixed },
 
