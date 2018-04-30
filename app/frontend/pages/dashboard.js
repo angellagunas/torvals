@@ -23,7 +23,15 @@ class Dashboard extends Component {
       salesCentersCollapsed: true,
       channelsCollapsed: true,
       productsCollapsed: true,
-      value: { min: 2, max: 10 }
+      value: { min: 2, max: 10 },
+      allProjects: false,
+      allChannels: false,
+      allSalesCenters: false,
+      allProducts: false,
+      totalAdjustment: 0,
+      totalPrediction: 0,
+      totalSale: 0,
+      mape: 0
     }
     this.selectedProjects = {}
     this.selectedSalesCenters = []
@@ -32,17 +40,20 @@ class Dashboard extends Component {
   }
 
   componentWillMount () {
-    this.load()
     this.getProjects()
   }
 
-  async load () {
-    var url = '/app/dashboard/'
-    const body = await api.get(url)
+  moveTo (route) {
+    this.props.history.push(route)
+  }
 
+  clear () {
     this.setState({
-      dashboard: body,
-      loading: false
+      filters: undefined,
+      salesCenters: undefined,
+      channels: undefined,
+      products: undefined,
+      graphData: undefined
     })
   }
 
@@ -54,35 +65,74 @@ class Dashboard extends Component {
     let activeProjects = res.data.filter(item => { return item.activeDataset })
 
     this.setState({
-      projects: activeProjects
-    })
+      projects: activeProjects,
+      loading: false
+    }, () => { this.checkAllProjects(true) })
   }
 
-  checkAll (e, value) {
+  checkAllProjects (value) {
     let aux = this.state.projects
     for (const project of aux) {
       project.selected = value
-      if (value) { this.selectedProjects[project.uuid] = project } else { delete this.selectedProjects[project.uuid] }
+      if (value) { this.selectedProjects[project.uuid] = project.activeDataset._id } else { delete this.selectedProjects[project.uuid] }
     }
     this.setState({
-      projects: aux
+      projects: aux,
+      allProjects: value
     })
 
-    if (value) { this.getAll() }
+    if (value) {
+      this.getAll()
+    } else {
+      this.clear()
+    }
+  }
+
+  checkAllSC (value) {
+    let aux = this.state.salesCenters
+    for (const sc of aux) {
+      sc.selected = value
+
+      if (value) { this.selectedSalesCenters[sc.uuid] = sc.externalId } else { delete this.selectedSalesCenters[sc.uuid] }
+    }
+    this.setState({
+      salesCenters: aux,
+      allSalesCenters: value
+    })
+  }
+
+  checkAllChannels (value) {
+    let aux = this.state.channels
+    for (const c of aux) {
+      c.selected = value
+
+      if (value) { this.selectedChannels[c.uuid] = c.externalId } else { delete this.selectedChannels[c.uuid] }
+    }
+    this.setState({
+      channels: aux,
+      allChannels: value
+    })
+  }
+
+  checkAllProducts (value) {
+    let aux = this.state.products
+    for (const p of aux) {
+      p.selected = value
+
+      if (value) { this.selectedProducts[p.uuid] = p.externalId } else { delete this.selectedProductsc[p.uuid] }
+    }
+    this.setState({
+      products: aux,
+      allProducts: value
+    })
   }
 
   async selectProject (e, value, project) {
-    console.log(project)
     if (value) {
       this.selectedProjects[project.uuid] = project.activeDataset._id
     } else {
       delete this.selectedProjects[project.uuid]
-      this.setState({
-        filters: undefined,
-        salesCenters: undefined,
-        channels: undefined,
-        products: undefined
-      })
+      this.clear()
     }
     this.getAll()
   }
@@ -115,14 +165,54 @@ class Dashboard extends Component {
   }
 
   async getAll () {
+    let projects = Object.values(this.selectedProjects)
+
+    if (projects.length <= 0) {
+      return
+    }
+
     let url = '/app/dashboard/projects'
-    let res = await api.post(url, Object.values(this.selectedProjects))
+    let res = await api.get(url, projects)
 
     this.setState({
       filters: res,
       salesCenters: res.salesCenters,
       channels: res.channels,
-      products: res.products
+      products: res.products,
+      reloadGraph: true
+    }, () => {
+      this.checkAllChannels(true)
+      this.checkAllSC(true)
+      this.checkAllProducts(true)
+      this.getGraph()
+      this.setState({
+        reloadGraph: false
+      })
+    })
+  }
+
+  async getGraph () {
+    let url = '/app/projects/local/historical'
+    let res = await api.get(url, Object.values(this.selectedProjects))
+    let totalSale = 0
+    let totalPrediction = 0
+    let totalAdjustment = 0
+    let mape = 0
+
+    res.data.map((item) => {
+      totalAdjustment += item.adjustment
+      totalPrediction += item.prediction
+      totalSale += item.sale
+    })
+
+    mape = Math.abs(((totalAdjustment - totalPrediction) / totalAdjustment) * 100)
+
+    this.setState({
+      graphData: res.data,
+      totalAdjustment,
+      totalPrediction,
+      totalSale,
+      mape
     })
   }
 
@@ -195,11 +285,21 @@ class Dashboard extends Component {
       return <Redirect to={'/projects/' + user.currentProject.uuid} />
     }
 
-    const graphData = [
+    const graph = [
       {
         label: 'Predicción',
         color: '#187FE6',
-        data: this.state.products ? this.state.products.map((item, key) => { return Number(item.externalId) }) : []
+        data: this.state.graphData ? this.state.graphData.map((item, key) => { return item.prediction }) : []
+      },
+      {
+        label: 'Ajuste',
+        color: '#30C6CC',
+        data: this.state.graphData ? this.state.graphData.map((item, key) => { return item.adjustment }) : []
+      },
+      {
+        label: 'Venta',
+        color: '#0CB900',
+        data: this.state.graphData ? this.state.graphData.map((item, key) => { return item.sale }) : []
       }
     ]
     return (
@@ -225,9 +325,9 @@ class Dashboard extends Component {
                       <aside className='menu'>
                         <div>
                           <Checkbox
-                            checked={false}
+                            checked={this.state.allProjects}
                             label={'Seleccionar Todos'}
-                            handleCheckboxChange={(e, value) => this.checkAll(e, value)}
+                            handleCheckboxChange={(e, value) => this.checkAllProjects(value)}
                             key={'project'}
                         />
                         </div>
@@ -245,11 +345,8 @@ class Dashboard extends Component {
                                       key={item.uuid}
                                     />
 
-                                    <span className='icon is-pulled-right '>
-                                      <Link to={'/projects/' + item.uuid}>
-                                        <i className='fa fa-eye has-text-info' />
-                                      </Link>
-
+                                    <span className='icon is-pulled-right' onClick={() => { this.moveTo('/projects/' + item.uuid) }}>
+                                      <i className='fa fa-eye has-text-info' />
                                     </span>
                                   </a>
                                 </li>
@@ -291,9 +388,9 @@ class Dashboard extends Component {
                           ? 'is-hidden' : 'menu'}>
                             <div>
                               <Checkbox
-                                checked={false}
+                                checked={this.state.allChannels}
                                 label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => this.checkAll(e, value)}
+                                handleCheckboxChange={(e, value) => this.checkAllChannels(value)}
                                 key={'project'}
                             />
                             </div>
@@ -307,6 +404,7 @@ class Dashboard extends Component {
                                         label={item.name}
                                         handleCheckboxChange={(e, value) => this.selectChannel(e, value, item)}
                                         key={item.uuid}
+                                        checked={item.selected}
                                       />
                                     </a>
                                   </li>
@@ -332,9 +430,9 @@ class Dashboard extends Component {
                           ? 'is-hidden' : 'menu'}>
                             <div>
                               <Checkbox
-                                checked={false}
+                                checked={this.state.allSalesCenters}
                                 label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => this.checkAll(e, value)}
+                                handleCheckboxChange={(e, value) => this.checkAllSC(value)}
                                 key={'project'}
                             />
                             </div>
@@ -348,6 +446,7 @@ class Dashboard extends Component {
                                         label={item.name}
                                         handleCheckboxChange={(e, value) => this.selectSalesCenter(e, value, item)}
                                         key={item.uuid}
+                                        checked={item.selected}
                                       />
                                     </a>
                                   </li>
@@ -373,9 +472,9 @@ class Dashboard extends Component {
                           ? 'is-hidden' : 'menu'}>
                             <div>
                               <Checkbox
-                                checked={false}
+                                checked={this.state.allProducts}
                                 label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => this.checkAll(e, value)}
+                                handleCheckboxChange={(e, value) => this.checkAllProducts(value)}
                                 key={'project'}
                             />
                             </div>
@@ -389,6 +488,7 @@ class Dashboard extends Component {
                                         label={item.name}
                                         handleCheckboxChange={(e, value) => this.selectProduct(e, value, item)}
                                         key={item.uuid}
+                                        checked={item.selected}
                                       />
                                     </a>
                                   </li>
@@ -411,25 +511,65 @@ class Dashboard extends Component {
               <div className='columns box'>
                 <div className='column is-3 is-paddingless'>
                   <div className='notification is-info has-text-centered'>
-                    <h1 className='title is-2'>6.86%</h1>
+                    <h1 className='title is-2'>{this.state.mape.toFixed(2)}%</h1>
                     <h2 className='subtitle has-text-weight-bold'>MAPE PREDICCIÓN</h2>
                   </div>
                   <div>
                     <p className='subtitle is-6'>Venta total</p>
-                    <p className='title is-5 has-text-success'>$1,156,202.94</p>
+                    <p className='title is-5 has-text-success'>{this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })}</p>
 
                     <p className='subtitle is-6'>Ajuste total</p>
-                    <p className='title is-5 has-text-teal'>$1,156,202.94</p>
+                    <p className='title is-5 has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })}</p>
 
                     <p className='subtitle is-6'>Predicción total</p>
-                    <p className='title is-5 has-text-info'>$1,156,202.94</p>
+                    <p className='title is-5 has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })}</p>
                   </div>
                 </div>
                 <div className='column card'>
-                  {this.state.products &&
+                  {this.state.graphData &&
                   <Graph
-                    data={graphData}
-                    labels={this.state.products.map((item, key) => { return 'Semana ' + item.externalId })}
+                    data={graph}
+                    reloadGraph={this.state.reloadGraph}
+                    legend={{
+                      display: true,
+                      position: 'top',
+                      fontSize: 11,
+                      labels: {
+                        boxWidth: 10,
+                        fontStyle: 'normal',
+                        fontFamily: "'Roboto', sans-serif",
+                        usePointStyle: false,
+                        padding: 12
+                      }
+                    }}
+                    tooltips={{
+                      mode: 'index',
+                      intersect: true,
+                      titleFontFamily: "'Roboto', sans-serif",
+                      bodyFontFamily: "'Roboto', sans-serif",
+                      bodyFontStyle: 'bold',
+                      callbacks: {
+                        label: function (tooltipItem, data) {
+                          let label = ' '
+                          label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+                          if (label) {
+                            label += ': '
+                          }
+                          let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          return label + yVal
+                        }
+                      }
+                    }}
+                    labels={this.state.graphData.map((item, key) => { return item._id.date })}
                     />
                   }
                 </div>
@@ -464,7 +604,7 @@ class Dashboard extends Component {
                   </div>
 
                   <div className='level-item'>
-                    <span class='button is-static has-20-margin-top'>Marzo 2018</span>
+                    <span className='button is-static has-20-margin-top'>Marzo 2018</span>
                   </div>
                   <div className='level-item'>
                     <span className='icon has-20-margin-top'>
@@ -472,7 +612,7 @@ class Dashboard extends Component {
                     </span>
                   </div>
                   <div className='level-item'>
-                    <span class='button is-static has-20-margin-top'>Mayo 2018</span>
+                    <span className='button is-static has-20-margin-top'>Mayo 2018</span>
                   </div>
                 </div>
               </div>

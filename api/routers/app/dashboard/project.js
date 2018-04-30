@@ -1,49 +1,74 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {
-  Channel,
-  Product,
-  SalesCenter,
-  Project,
-  DataSetRow
-} = require('models')
+const { DataSetRow } = require('models')
 
 module.exports = new Route({
-  method: 'post',
+  method: 'get',
   path: '/projects',
   handler: async function (ctx) {
-    var channelsSet = new Set()
-    var salesCentersSet = new Set()
-    var productsSet = new Set()
+    var data = ctx.request.query
+    var projectsUuid = Object.values(data).map(item => { return ObjectId(item) })
 
-    var projectsUuid = ctx.request.body
+    projectsUuid = projectsUuid.map(item => {
+      return ObjectId(item)
+    })
 
-    // const projects = await Project.find({ isDeleted: false, activeDataset: { $ne: null }, uuid: { $in: projectsUuid } }).populate('activeDataset')
-
-    // ctx.assert(projects, 404, 'Proyectos no encontrado')
-
-    for (var project of projectsUuid) {
-      let rows = await DataSetRow.find({ isDeleted: false, dataset: project })
-      for (var row of rows) {
-        channelsSet.add(row.channel)
-        salesCentersSet.add(row.salesCenter)
-        productsSet.add(row.product)
+    var statement = [
+      {
+        '$match': {
+          'dataset': {
+            '$in': projectsUuid
+          },
+          'isDeleted': false
+        }
+      },
+      {
+        '$group': {
+          '_id': null,
+          'channel': {
+            '$addToSet': '$channel'
+          },
+          'salesCenter': {
+            '$addToSet': '$salesCenter'
+          },
+          'product': {
+            '$addToSet': '$product'
+          }
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'channels',
+          'localField': 'channel',
+          'foreignField': '_id',
+          'as': 'channels'
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'salescenters',
+          'localField': 'salesCenter',
+          'foreignField': '_id',
+          'as': 'salesCenters'
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'products',
+          'localField': 'product',
+          'foreignField': '_id',
+          'as': 'products'
+        }
       }
-    }
+    ]
 
-    var channels = Array.from(channelsSet)
-    var salesCenters = Array.from(salesCentersSet)
-    var products = Array.from(productsSet)
-
-    channels = await Channel.find({ _id: { $in: channels } })
-    salesCenters = await SalesCenter.find({ _id: { $in: salesCenters } })
-    products = await Product.find({ _id: { $in: products } })
+    var datasetRow = await DataSetRow.aggregate(statement)
 
     ctx.body = {
-      channels,
-      salesCenters,
-      products
+      channels: datasetRow[0].channels,
+      products: datasetRow[0].products,
+      salesCenters: datasetRow[0].salesCenters
     }
   }
 })
