@@ -124,9 +124,7 @@ module.exports = new Route({
     rows.data = rows.data.map(item => {
       return item.toAdmin()
     })
-
-    ctx.body = {
-      data: rows.data
-    }
+    console.log(rows)
+    ctx.body = rows
   }
 })
