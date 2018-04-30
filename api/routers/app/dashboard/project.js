@@ -10,10 +10,6 @@ module.exports = new Route({
     var data = ctx.request.query
     var projectsUuid = Object.values(data).map(item => { return ObjectId(item) })
 
-    projectsUuid = projectsUuid.map(item => {
-      return ObjectId(item)
-    })
-
     var statement = [
       {
         '$match': {
@@ -64,6 +60,8 @@ module.exports = new Route({
     ]
 
     var datasetRow = await DataSetRow.aggregate(statement)
+
+    ctx.set('Cache-Control', 'max-age=172800')
 
     ctx.body = {
       channels: datasetRow[0].channels,
