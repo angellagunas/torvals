@@ -121,7 +121,7 @@ class TabAnomalies extends Component {
       let res = await api.get(url, {
         ...this.state.formData,
         start: 0,
-        limit: 0
+        limit: 100
       })
 
       this.setState({
@@ -407,6 +407,29 @@ class TabAnomalies extends Component {
     })
   }
 
+  async searchOnChange(e){
+      let url = '/app/anomalies/list/' + this.props.project.uuid
+      try {
+      let res = await api.get(url, {
+        ...this.state.formData,
+        start: 0,
+        limit: 0,
+        general: e.target.value
+      })
+
+      this.setState({
+        anomalies: res.data
+      })
+      
+    } catch (e) {
+    
+    }
+  }
+
+  async requestSearch(url){
+    
+  }
+
   handleSort(e){
     let sorted = this.state.anomalies
 
@@ -490,7 +513,6 @@ class TabAnomalies extends Component {
                 />
               }
             </div>
-
           </div>
           {currentRole !== 'consultor' &&
             <div className='level-right'>
@@ -506,6 +528,23 @@ class TabAnomalies extends Component {
               </div>
             </div>
           }
+        </div>
+        <div className='section level selects'>
+          <div className='level-left'>
+            <div className='level-item'>
+                <input
+                  className='input input-search'
+                  type='text'
+                  value={this.state.searchTerm}
+                  onChange={(e) => {this.searchOnChange (e)}} placeholder='Buscar' />
+
+                <span className='icon is-small is-right'>
+                  <i className='fa fa-search fa-xs'></i>
+                </span>
+                
+                
+              </div>
+            </div>  
         </div>
 
         <section>

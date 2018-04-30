@@ -51,10 +51,65 @@ module.exports = new Route({
         filters['product'] = { $in: products.map(item => { return item._id }) }
         continue
       }
-      if (!isNaN(parseInt(ctx.request.query[filter]))) {
-        filters[filter] = parseInt(ctx.request.query[filter])
+      if (filter === 'general') {
+        let $or = []
+        if (!isNaN(ctx.request.query[filter])) {
+          $or.push({prediction: ctx.request.query[filter]})
+        }
+
+        let channelValues = []
+        let channel = await Channel.find({
+          name: new RegExp(ctx.request.query[filter], 'i'),
+          isDeleted: false,
+          organization: ctx.state.organization
+        })
+        channel.map(channel => {
+          channelValues.push(channel._id)
+        })
+        if (channelValues.length) {
+          $or.push({channel: {$in: channelValues}})
+        }
+
+        let productValues = []
+        let product = await Product.find({
+          '$or': [
+            {name: new RegExp(ctx.request.query[filter], 'i')},
+            {externalId: new RegExp(ctx.request.query[filter], 'i')}
+          ],
+          isDeleted: false,
+          organization: ctx.state.organization
+        })
+
+        product.map(product => {
+          productValues.push(product._id)
+        })
+
+        if (productValues.length) {
+          $or.push({product: {$in: productValues}})
+        }
+
+        let salesCenterValues = []
+        let salesCenter = await Product.find({
+          '$or': [
+            {name: new RegExp(ctx.request.query[filter], 'i')},
+            {externalId: new RegExp(ctx.request.query[filter], 'i')}
+          ],
+          isDeleted: false,
+          organization: ctx.state.organization
+        })
+        salesCenter.map(saleCenter => {
+          salesCenterValues.push(saleCenter._id)
+        })
+        if (salesCenterValues.length) {
+          $or.push({salesCenter: {$in: salesCenterValues}})
+        }
+        if ($or.length) { filters['$or'] = $or }
       } else {
-        filters[filter] = ctx.request.query[filter]
+        if (!isNaN(parseInt(ctx.request.query[filter]))) {
+          filters[filter] = parseInt(ctx.request.query[filter])
+        } else {
+          filters[filter] = ctx.request.query[filter]
+        }
       }
     }
 
