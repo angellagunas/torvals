@@ -67,6 +67,8 @@ module.exports = new Route({
 
     var responseData = await DataSetRow.aggregate(match)
 
+    ctx.set('Cache-Control', 'max-age=172800')
+
     ctx.body = {
       data: responseData
     }
