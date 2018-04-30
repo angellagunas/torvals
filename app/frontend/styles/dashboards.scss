@@ -180,3 +180,41 @@
         }
     }
 }
+
+.dash-table {
+    font-size: 0.8rem;
+    tr {
+        height: 37px !important;
+        background-color: #FBFBFB;
+    }
+    th,
+    td {
+        padding: 0.2rem 0.4rem;
+        vertical-align: middle;
+    }
+    td {
+        border-bottom: 1px solid #E6E8F6;
+        border-right: 1px solid #E6E8F6;
+        text-align: center;
+        &:nth-child(2) {
+            text-align: left;
+        }
+    }
+    th {
+        background-color: rgba(233, 233, 233, 1);
+        font-weight: 700;
+        border-right: 1px solid #FBFBFB;
+        border-left: 1px solid #FBFBFB;
+        position: relative;
+        text-align: center;
+        &:nth-child(2) {
+            text-align: left;
+        }
+        i {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+}

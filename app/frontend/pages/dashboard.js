@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
-
+import _ from 'lodash'
 import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -31,7 +31,8 @@ class Dashboard extends Component {
       totalAdjustment: 0,
       totalPrediction: 0,
       totalSale: 0,
-      mape: 0
+      mape: 0,
+      searchTerm: ''
     }
     this.selectedProjects = {}
     this.selectedSalesCenters = []
@@ -185,6 +186,7 @@ class Dashboard extends Component {
       this.checkAllSC(true)
       this.checkAllProducts(true)
       this.getGraph()
+      this.getProducts()
       this.setState({
         reloadGraph: false
       })
@@ -192,27 +194,68 @@ class Dashboard extends Component {
   }
 
   async getGraph () {
-    let url = '/app/projects/local/historical'
-    let res = await api.get(url, Object.values(this.selectedProjects))
+    let url = '/app/dashboard/graphic/organizations'
+    let res = await api.post(url, {
+      date_start: moment().startOf('year').format('YYYY-MM-DD'),
+      date_end: moment().endOf('year').format('YYYY-MM-DD')
+    })
+    console.log(res)
+
+    let totalPSale = 0
     let totalSale = 0
     let totalPrediction = 0
     let totalAdjustment = 0
     let mape = 0
 
-    res.data.map((item) => {
+    /* res.data.map((item) => {
       totalAdjustment += item.adjustment
       totalPrediction += item.prediction
       totalSale += item.sale
+    }) */
+
+    res.prediction.map((item) => {
+      totalPrediction += item.y
     })
 
-    mape = Math.abs(((totalAdjustment - totalPrediction) / totalAdjustment) * 100)
+    res.adjustment.map((item) => {
+      totalAdjustment += item.y
+    })
+
+    res.previous_sale.map((item) => {
+      totalPSale += item.y
+    })
+
+    res.sale.map((item) => {
+      totalSale += item.y
+    })
+
+    mape = Math.abs(((totalSale - totalPrediction) / totalSale) * 100)
+
+    if(mape === Infinity){
+      mape = 0
+    }
 
     this.setState({
-      graphData: res.data,
+      graphData: res,
       totalAdjustment,
       totalPrediction,
       totalSale,
+      totalPSale,
       mape
+    })
+  }
+
+  async getProducts () {
+    let url = '/app/dashboard/comparation/organization'
+    let res = await api.post(url, {
+      date_start: moment().startOf('year').format('YYYY-MM-DD'),
+      date_end: moment().endOf('year').format('YYYY-MM-DD')
+    })
+    console.log(res)
+    this.setState({
+      productTable: res
+    }, () => {
+      this.searchDatarows()
     })
   }
 
@@ -242,28 +285,119 @@ class Dashboard extends Component {
     let cols = [
       {
         'title': 'Id',
-        'property': 'externalId',
+        'property': 'product',
         'default': 'N/A',
         'sortable': true
       },
       {
         'title': 'Producto',
-        'property': 'name',
+        'property': 'product_name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Fecha',
-        'property': 'dateCreated',
-        'default': 'N/A',
+        'title': 'Predicción',
+        'property': 'prediction',
+        'default': '0',
+        'sortable': true
+      },
+      {
+        'title': 'Ajuste',
+        'property': 'adjustment',
+        'default': '0',
+        'sortable': true
+      },
+      {
+        'title': 'Venta',
+        'property': 'sale',
+        'default': '0',
+        'sortable': true
+      },
+      {
+        'title': 'Venta anterior',
+        'property': 'previus_sale',
+        'default': '0',
+        'sortable': true
+      },
+      {
+        'title': 'MAPE',
+        'property': 'mape',
+        'default': '0.00%',
         'sortable': true,
+        'className': 'has-text-weight-bold',
         formatter: (row) => {
-          return moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
+          let mape = Math.abs(((row.sale - row.prediction) / row.sale) * 100)
+
+          if(mape === Infinity){
+            return '0.00%'
+          }
+          else if (mape <= 7) {
+            return <span className='has-text-success'>{mape.toFixed(2)}%</span>
+          } else if (mape > 7 && mape <= 14) {
+            return <span className='has-text-warning'>{mape.toFixed(2)}%</span>
+          } else if (mape > 14) {
+            return <span className='has-text-danger'>{mape.toFixed(2)}%</span>
+          }
         }
       }
     ]
 
     return cols
+  }
+
+  handleSort (e) {
+    let sorted = this.state.productTable
+
+    if (e === 'product') {
+      if (this.state.sortAscending) {
+        sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
+      } else {
+        sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
+      }
+    } else {
+      if (this.state.sortAscending) {
+        sorted = _.orderBy(sorted, [e], ['asc'])
+      } else {
+        sorted = _.orderBy(sorted, [e], ['desc'])
+      }
+    }
+
+    this.setState({
+      productTable: sorted,
+      sortAscending: !this.state.sortAscending,
+      sortBy: e
+    })
+  }
+
+  async searchDatarows() {
+    console.log(this.state.searchTerm, this.state.productTable)
+    if (this.state.searchTerm === '') {
+      this.setState({
+        filteredData: this.state.productTable
+      })
+
+      return
+    }
+
+    const items = this.state.productTable.filter((item) => {
+      const regEx = new RegExp(this.state.searchTerm, 'gi')
+      const searchStr = `${item.product} ${item.product_name}`
+
+      if (regEx.test(searchStr))
+        return true
+
+      return false
+    })
+
+    await this.setState({
+      filteredData: items
+    })
+  }
+
+  searchOnChange = (e) => {
+    this.setState({
+      searchTerm: e.target.value
+    }, () => this.searchDatarows())
   }
 
   render () {
@@ -289,17 +423,22 @@ class Dashboard extends Component {
       {
         label: 'Predicción',
         color: '#187FE6',
-        data: this.state.graphData ? this.state.graphData.map((item, key) => { return item.prediction }) : []
+        data: this.state.graphData ? this.state.graphData.prediction.map((item) => { return item.y }) : []
       },
       {
         label: 'Ajuste',
         color: '#30C6CC',
-        data: this.state.graphData ? this.state.graphData.map((item, key) => { return item.adjustment }) : []
+        data: this.state.graphData ? this.state.graphData.adjustment.map((item) => { return item.y }) : []
       },
       {
         label: 'Venta',
         color: '#0CB900',
-        data: this.state.graphData ? this.state.graphData.map((item, key) => { return item.sale }) : []
+        data: this.state.graphData ? this.state.graphData.sale.map((item) => { return item.y }) : []
+      },
+      {
+        label: 'Venta Anterior',
+        color: '#EF6950',
+        data: this.state.graphData ? this.state.graphData.previous_sale.map((item) => { return item.y }) : []
       }
     ]
     return (
@@ -569,7 +708,7 @@ class Dashboard extends Component {
                         }
                       }
                     }}
-                    labels={this.state.graphData.map((item, key) => { return item._id.date })}
+                    labels={this.state.graphData.prediction.map((item, key) => { return item.x })}
                     />
                   }
                 </div>
@@ -617,17 +756,25 @@ class Dashboard extends Component {
                 </div>
               </div>
 
-              { !this.state.products
-              ? <section className='section'>
+              { this.state.filteredData
+              ? this.state.filteredData.length > 0
+                  ? <BaseTable
+                    className='dash-table is-fullwidth'
+                    data={this.state.filteredData}
+                    columns={this.getColumns()}
+                    handleSort={(e) => { this.handleSort(e) }}
+                  />
+                  : <section className='section'>
+                    <center>
+                      <h2 className='has-text-info'>No hay productos que mostrar</h2>
+                    </center>
+                  </section>
+              : <section className='section'>
                 <center>
-                  <h2 className='has-text-info'>No hay productos que mostrar</h2>
+                  <h1 className='has-text-info'>Cargando productos</h1>
+                  <Loader />
                 </center>
               </section>
-            : <BaseTable
-              className='aprobe-table is-fullwidth'
-              data={this.state.products}
-              columns={this.getColumns()}
-            />
            }
             </div>
           </div>
