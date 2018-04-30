@@ -75,7 +75,9 @@ module.exports = new Route({
       })
 
       try {
-        await fs.mkdir(tmpdir)
+        await fs.mkdir(tmpdir, (error) => {
+          console.log('El Folder ya existe')
+        })
       } catch (e) {
         console.log('El Folder ya existe')
       }
