@@ -28,7 +28,7 @@ module.exports = new Route({
       createdBy: ctx.state.user
     })
 
-    const res = await Api.postProject(project.uuid)
+    const res = await Api.postProject(project.uuid, org.uuid)
     project.set({
       externalId: res._id,
       etag: res._etag
