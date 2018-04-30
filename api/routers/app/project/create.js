@@ -22,7 +22,7 @@ module.exports = new Route({
       createdBy: ctx.state.user
     })
 
-    var res = await Api.postProject(project.uuid)
+    var res = await Api.postProject(project.uuid, ctx.state.organization.uuid)
 
     project.set({
       externalId: res._id

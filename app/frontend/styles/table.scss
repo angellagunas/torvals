@@ -322,6 +322,28 @@
     .is-selected {
         background: rgba(227, 228, 235, 0.6) !important;
     }
+    .editable {
+        .control {
+            font-size: inherit;
+            font-weight: inherit;
+        }
+        .input {
+            width: 100px;
+            height: 1.2rem;
+            padding-top: 0;
+            padding-bottom: 0;
+            font-size: inherit;
+        }
+        &-show {
+            width: 120px;
+        }
+        &-cell {
+            width: 120px;
+        }
+        &-prepend {
+            padding: 0 10px 0 0;
+        }
+    }
 }
 
 .table {

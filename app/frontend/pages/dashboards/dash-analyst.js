@@ -53,54 +53,65 @@ class DashAnalyst extends Component {
 
   render () {
     return (
-      <div className='section container'>
 
-        <h2 className='is-size-4 is-padding-bottom-small has-text-color'>Proyectos</h2>
-        <div className='card'>
-              <BranchedPaginatedTable
-                branchName='projects'
-                baseUrl='/app/projects'
-                columns={this.getColumns()}
-                sortedBy={'name'}
-              />
+      <div>
+        <div className='columns is-marginless'>
+          <div className='column is-paddingless'>
+            <div className='section-header'>
+              <h2>Proyectos</h2>
+            </div>
+          </div>
         </div>
-        <br />
-        <div className='columns'>
-
-          <div className='column is-3' onClick={() => this.moveTo('/salesCenters')}>
-            <div className='card has-text-centered dash-card'>
-              <header className='card-header'>
-                <p className='card-header-title no-flex is-size-5-touch is-size-4-desktop has-text-white'>
-                  <i className='fa fa-user' />
-                  Centros de Venta
-                </p>
-              </header>
-              <div className='card-content'>
-                <div className='content'>
-                  <p className='is-size-3-touch is-size-1-desktop'>{this.props.dashboard.salesCenterCount || 0}</p>
+        <div className='section'>
+          <div className='columns has-20-margin-top'>
+            <div className='column is-3 is-2-fullhd' onClick={() => this.moveTo('/salesCenters')}>
+              <div className='card has-text-centered dash-card'>
+                <header className='card-header'>
+                  <p className='card-header-title no-flex is-size-5-touch is-size-4-desktop has-text-white'>
+                    <i className='fa fa-credit-card-alt' />
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='content'>
+                    <p className='is-size-3-touch is-size-1-desktop'>{this.props.dashboard.salesCenterCount || 0}</p>
+                    <p className='is-size-6-touch is-size-5-desktop'>Centros de Venta</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className='column is-3' onClick={() => this.moveTo('/products')}>
-            <div className='card has-text-centered dash-card'>
-              <header className='card-header'>
-                <p className='card-header-title no-flex is-size-5-touch is-size-4-desktop has-text-white'>
-                  <i className='fa fa-users' />
-                  Productos
-                </p>
-              </header>
-              <div className='card-content'>
-                <div className='content'>
-                  <p className='is-size-3-touch is-size-1-desktop'>{this.props.dashboard.productCount || 0}</p>
+            <div className='column is-3 is-2-fullhd' onClick={() => this.moveTo('/products')}>
+              <div className='card has-text-centered dash-card'>
+                <header className='card-header'>
+                  <p className='card-header-title no-flex is-size-5-touch is-size-4-desktop has-text-white'>
+                    <i className='fa fa-dropbox' />
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='content'>
+                    <p className='is-size-3-touch is-size-1-desktop'>{this.props.dashboard.productCount || 0}</p>
+                    <p className='is-size-6-touch is-size-5-desktop'>Productos</p>
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
 
         </div>
+        <div className='card has-20-margin-top'>
+          <BranchedPaginatedTable
+            branchName='projects'
+            baseUrl='/app/projects'
+            columns={this.getColumns()}
+            sortedBy={'name'}
+          />
+
+        </div>
+
       </div>
+
+     
 
     )
   }

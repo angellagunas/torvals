@@ -728,7 +728,6 @@ class TabHistorical extends Component {
             </div>
           </div>
 
-          <br />
           <div className='columns'>
 
             <div className='column'>
@@ -738,17 +737,22 @@ class TabHistorical extends Component {
                 </div>
                 <div className='panel-block'>
                   {
-                  this.state.historicData.prediction && this.state.weekTotalsPredictions &&
+                    this.state.historicData.prediction &&
+                    this.state.weekTotalsPredictions
+                  ? this.state.historicData.prediction && this.state.weekTotalsPredictions &&
                     this.state.predictions.length > 0 &&
                     this.state.adjustments.length > 0
 
-                  ? <Graph
-                    data={graphData}
-                    labels={this.state.formatedLabels}
-                    height={50}
-                    reloadGraph={this.state.reloadGraph}
-                  />
-                   : this.loadTable()
+                    ? <Graph
+                      data={graphData}
+                      labels={this.state.formatedLabels}
+                      height={50}
+                      reloadGraph={this.state.reloadGraph}
+                    />
+                    : <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
+                        No hay datos que mostrar
+                      </div>
+                  : this.loadTable()
                 }
                 </div>
               </div>

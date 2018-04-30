@@ -5,6 +5,7 @@ require('lib/databases/mongo')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSet } = require('models')
+const _ = require('lodash')
 
 const task = new Task(async function (argv) {
   console.log('Fetching procesing Datasets...')
@@ -37,9 +38,23 @@ const task = new Task(async function (argv) {
         }
 
         if (res.data) {
-          apiData['products'] = res.data['product']
-          apiData['salesCenters'] = res.data['agency']
-          apiData['channels'] = res.data['channel']
+          for (var prod = 0; prod < res.data['product'].length; prod++) {
+            if (_.findIndex(apiData['products'], { '_id': res.data['product'][prod]._id }) === -1) {
+              apiData['products'].push(res.data['product'][prod])
+            }
+          }
+
+          for (var sales = 0; sales < res.data['agency'].length; sales++) {
+            if (_.findIndex(apiData['salesCenters'], { '_id': res.data['agency'][sales]._id }) === -1) {
+              apiData['salesCenters'].push(res.data['agency'][sales])
+            }
+          }
+
+          for (var channel = 0; channel < res.data['channel'].length; channel++) {
+            if (_.findIndex(apiData['channels'], { '_id': res.data['channel'][channel]._id }) === -1) {
+              apiData['channels'].push(res.data['channel'][channel])
+            }
+          }
         }
 
         dataset.set({
