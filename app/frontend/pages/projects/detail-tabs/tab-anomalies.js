@@ -121,10 +121,11 @@ class TabAnomalies extends Component {
       let res = await api.get(url, {
         ...this.state.formData,
         start: 0,
-        limit: 100
+        limit: 10
       })
-
+      
       this.setState({
+        totalAnomalies: res.total,
         anomalies: res.data,
         isLoading: '',
         isFiltered: true
@@ -513,6 +514,26 @@ class TabAnomalies extends Component {
                 />
               }
             </div>
+
+            <div className='level-item'>
+              <div className='field'>
+                {currentRole !== 'consultor' ?
+                  <label className='label'>Búsqueda general</label> :
+                  null
+                }
+                <div className='control has-icons-right'>
+                  <input
+                    className='input input-search'
+                    type='text'
+                    value={this.state.searchTerm}
+                    onChange={(e) => { this.searchOnChange(e) }} placeholder='Buscar' />
+
+                  <span className='icon is-small is-right'>
+                    <i className='fa fa-search fa-xs'></i>
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
           {currentRole !== 'consultor' &&
             <div className='level-right'>
@@ -528,23 +549,6 @@ class TabAnomalies extends Component {
               </div>
             </div>
           }
-        </div>
-        <div className='section level selects'>
-          <div className='level-left'>
-            <div className='level-item'>
-                <input
-                  className='input input-search'
-                  type='text'
-                  value={this.state.searchTerm}
-                  onChange={(e) => {this.searchOnChange (e)}} placeholder='Buscar' />
-
-                <span className='icon is-small is-right'>
-                  <i className='fa fa-search fa-xs'></i>
-                </span>
-                
-                
-              </div>
-            </div>  
         </div>
 
         <section>
