@@ -64,6 +64,8 @@ module.exports = new Route({
 
     var datasetRow = await DataSetRow.aggregate(statement)
 
+    ctx.set('Cache-Control', 'max-age=172800')
+
     ctx.body = {
       channels: datasetRow[0].channels,
       products: datasetRow[0].products,
