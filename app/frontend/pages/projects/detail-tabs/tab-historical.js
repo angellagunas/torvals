@@ -375,7 +375,7 @@ class TabHistorical extends Component {
   async getData (e) {
     this.setState({
       isLoading: ' is-loading',
-      noHistoricData: '',
+      // noHistoricData: '',
       historicData: []
     })
 
@@ -443,7 +443,8 @@ class TabHistorical extends Component {
         await this.getSales()
         await this.getPrevSales()
         this.setState({
-          reloadGraph: false
+          reloadGraph: false,
+          noHistoricData: ''
         })
       })
 
@@ -457,7 +458,7 @@ class TabHistorical extends Component {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         isLoading: '',
-        noHistoricData: e.message + ', intente más tarde'
+        noHistoricData: 'No hay datos disponibles, intente más tarde'
       })
     }
   }
@@ -535,46 +536,48 @@ class TabHistorical extends Component {
 
     return (
       <div>
-        <div className='section level selects'>
-          <div className='level-left'>
-            <div className='level-item'>
-              <Select
-                label='Año'
-                name='year'
-                value={this.state.formData.year}
-                placeholder='Seleccionar'
-                type='integer'
-                options={this.state.filters.years}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+        {this.state.noHistoricData === ''
+          ? <div>
+            <div className='section level selects'>
+              <div className='level-left'>
+                <div className='level-item'>
+                  <Select
+                    label='Año'
+                    name='year'
+                    value={this.state.formData.year}
+                    placeholder='Seleccionar'
+                    type='integer'
+                    options={this.state.filters.years}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
-            </div>
-            <div className='level-item'>
-              <Select
-                label='Periodo'
-                name='period'
-                value={this.state.formData.period}
-                placeholder='Todos'
-                optionValue='number'
-                optionName='name'
-                type='integer'
-                options={this.state.filters.periods}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                </div>
+                <div className='level-item'>
+                  <Select
+                    label='Periodo'
+                    name='period'
+                    value={this.state.formData.period}
+                    placeholder='Todos'
+                    optionValue='number'
+                    optionName='name'
+                    type='integer'
+                    options={this.state.filters.periods}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
-            </div>
+                </div>
 
-            <div className='level-item'>
-              <Select
-                label='Categoría'
-                name='category'
-                value=''
-                placeholder='Seleccionar'
-                options={this.state.filters.categories}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                <div className='level-item'>
+                  <Select
+                    label='Categoría'
+                    name='category'
+                    value=''
+                    placeholder='Seleccionar'
+                    options={this.state.filters.categories}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
-            </div>
+                </div>
 
-            <div className='level-item'>
-              {this.state.filters.channels.length === 1
+                <div className='level-item'>
+                  {this.state.filters.channels.length === 1
                 ? <div className='channel'>
                   <span>Canal: </span>
                   <span className='has-text-weight-bold is-capitalized'>{this.state.filters.channels[0].name}
@@ -591,10 +594,10 @@ class TabHistorical extends Component {
                   onChange={(name, value) => { this.filterChangeHandler(name, value) }}
                 />
               }
-            </div>
+                </div>
 
-            <div className='level-item'>
-              {this.state.filters.salesCenters.length === 1
+                <div className='level-item'>
+                  {this.state.filters.salesCenters.length === 1
                 ? <div className='saleCenter'>
                   <span>Centro de Venta: </span>
                   <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
@@ -611,19 +614,18 @@ class TabHistorical extends Component {
                   onChange={(name, value) => { this.filterChangeHandler(name, value) }}
                 />
               }
-            </div>
-          </div>
-        </div>
-        <div className='section'>
-          <div className='columns'>
-
-            <div className='column'>
-              <div className='panel historic-table'>
-                <div className='panel-heading'>
-                  <h2 className='is-capitalized'>Totales de Venta</h2>
                 </div>
-                <div className='panel-block'>
-                  {
+              </div>
+            </div>
+            <div className='section'>
+              <div className='columns'>
+                <div className='column'>
+                  <div className='panel historic-table'>
+                    <div className='panel-heading'>
+                      <h2 className='is-capitalized'>Totales de Venta</h2>
+                    </div>
+                    <div className='panel-block'>
+                      {
                     this.state.historicData.prediction &&
                       this.state.weekTotalsPredictions
 
@@ -723,20 +725,20 @@ class TabHistorical extends Component {
                     </div>
                       : this.loadTable()
                   }
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className='columns'>
+              <div className='columns'>
 
-            <div className='column'>
-              <div className='panel historic-graph'>
-                <div className='panel-heading'>
-                  <h2 className='is-capitalized'>Totales de Venta</h2>
-                </div>
-                <div className='panel-block'>
-                  {
+                <div className='column'>
+                  <div className='panel historic-graph'>
+                    <div className='panel-heading'>
+                      <h2 className='is-capitalized'>Totales de Venta</h2>
+                    </div>
+                    <div className='panel-block'>
+                      {
                     this.state.historicData.prediction &&
                     this.state.weekTotalsPredictions
                   ? this.state.historicData.prediction && this.state.weekTotalsPredictions &&
@@ -754,12 +756,30 @@ class TabHistorical extends Component {
                       </div>
                   : this.loadTable()
                 }
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+
+          }
 
         </div>
+
+        : <div className='section columns'>
+          <div className='column'>
+            <article className='message is-danger'>
+              <div className='message-header'>
+                <p>Error</p>
+                <button className='delete' aria-label='delete' />
+              </div>
+              <div className='message-body'>
+                {this.state.noHistoricData}
+              </div>
+            </article>
+          </div>
+        </div>
+        }
       </div>
     )
   }

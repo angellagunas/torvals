@@ -2,7 +2,7 @@ const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 const Api = require('lib/abraxas/api')
 
-const { Project, Channel, SalesCenter, Product } = require('models')
+const { Channel, SalesCenter, Product } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -17,7 +17,7 @@ module.exports = new Route({
 
     if (data.channels) {
       var channels = await Channel.find({'uuid': {$in: data.channels}})
-      var channelsExternal
+      var channelsExternal = []
       if (channels.length > 1) {
         for (let channel of channels) {
           channelsExternal.push(channel.externalId)
@@ -31,7 +31,7 @@ module.exports = new Route({
 
     if (data.salesCenters) {
       var salescenters = await SalesCenter.find({'uuid': {$in: data.salesCenters}})
-      var salescentersExternal
+      var salescentersExternal = []
       if (salescenters.length > 1) {
         for (let salescenter of salescenters) {
           salescentersExternal.push(salescenter.externalId)

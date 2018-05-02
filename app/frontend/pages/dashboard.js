@@ -14,6 +14,7 @@ import { BaseTable } from '~base/components/base-table'
 import InputRange from 'react-input-range'
 import 'react-input-range/lib/css/index.css'
 import Checkbox from '~base/components/base-checkbox'
+import { toast } from 'react-toastify'
 
 class Dashboard extends Component {
   constructor (props) {
@@ -49,12 +50,17 @@ class Dashboard extends Component {
   }
 
   clear () {
+    this.selectedChannels = []
+    this.selectedSalesCenters = []
+    this.selectedProducts = []
     this.setState({
       filters: undefined,
       salesCenters: undefined,
       channels: undefined,
       products: undefined,
-      graphData: undefined
+      graphData: undefined,
+      filteredData: undefined,
+      mape: 0
     })
   }
 
@@ -73,9 +79,10 @@ class Dashboard extends Component {
 
   checkAllProjects (value) {
     let aux = this.state.projects
+    this.selectedProjects = []
     for (const project of aux) {
       project.selected = value
-      if (value) { this.selectedProjects[project.uuid] = project.activeDataset._id } else { delete this.selectedProjects[project.uuid] }
+      if (value) { this.selectedProjects[project.uuid] = project.activeDataset._id }
     }
     this.setState({
       projects: aux,
@@ -89,40 +96,42 @@ class Dashboard extends Component {
     }
   }
 
-  checkAllSC (value) {
+  async checkAllSC (value) {
     let aux = this.state.salesCenters
+    this.selectedSalesCenters = []
     for (const sc of aux) {
       sc.selected = value
 
-      if (value) { this.selectedSalesCenters[sc.uuid] = sc.externalId } else { delete this.selectedSalesCenters[sc.uuid] }
+      if (value) { this.selectedSalesCenters[sc.uuid] = sc.uuid }
     }
-    this.setState({
+    await this.setState({
       salesCenters: aux,
       allSalesCenters: value
     })
   }
 
-  checkAllChannels (value) {
+  async checkAllChannels (value) {
     let aux = this.state.channels
+    this.selectedChannels = []
     for (const c of aux) {
       c.selected = value
-
-      if (value) { this.selectedChannels[c.uuid] = c.externalId } else { delete this.selectedChannels[c.uuid] }
+      if (value) { this.selectedChannels[c.uuid] = c.uuid }
     }
-    this.setState({
+    await this.setState({
       channels: aux,
       allChannels: value
     })
   }
 
-  checkAllProducts (value) {
+  async checkAllProducts (value) {
     let aux = this.state.products
+    this.selectedProducts = []
     for (const p of aux) {
       p.selected = value
 
-      if (value) { this.selectedProducts[p.uuid] = p.externalId } else { delete this.selectedProductsc[p.uuid] }
+      if (value) { this.selectedProducts[p.uuid] = p.uuid }
     }
-    this.setState({
+    await this.setState({
       products: aux,
       allProducts: value
     })
@@ -139,30 +148,43 @@ class Dashboard extends Component {
   }
 
   selectSalesCenter (e, value, project) {
-    console.log(e, value)
     if (value) {
       this.selectedSalesCenters[project.uuid] = project.uuid
     } else {
       delete this.selectedSalesCenters[project.uuid]
     }
+    this.getGraph()
+    this.getProductTable()
+    this.setState({
+      reloadGraph: false
+    })
   }
 
   selectChannel (e, value, project) {
-    console.log(e, value)
     if (value) {
       this.selectedChannels[project.uuid] = project.uuid
     } else {
       delete this.selectedChannels[project.uuid]
     }
+
+    this.getGraph()
+    this.getProductTable()
+    this.setState({
+      reloadGraph: false
+    })
   }
 
   selectProduct (e, value, project) {
-    console.log(e, value)
     if (value) {
       this.selectedProducts[project.uuid] = project.uuid
     } else {
       delete this.selectedProducts[project.uuid]
     }
+    this.getGraph()
+    this.getProductTable()
+    this.setState({
+      reloadGraph: false
+    })
   }
 
   async getAll () {
@@ -181,12 +203,12 @@ class Dashboard extends Component {
       channels: res.channels,
       products: res.products,
       reloadGraph: true
-    }, () => {
-      this.checkAllChannels(true)
-      this.checkAllSC(true)
-      this.checkAllProducts(true)
+    }, async () => {
+      await this.checkAllChannels(true)
+      await this.checkAllSC(true)
+      await this.checkAllProducts(true)
       this.getGraph()
-      this.getProducts()
+      this.getProductTable()
       this.setState({
         reloadGraph: false
       })
@@ -194,69 +216,90 @@ class Dashboard extends Component {
   }
 
   async getGraph () {
-    let url = '/app/dashboard/graphic/organizations'
-    let res = await api.post(url, {
-      date_start: moment().startOf('year').format('YYYY-MM-DD'),
-      date_end: moment().endOf('year').format('YYYY-MM-DD')
-    })
-    console.log(res)
+    try {
+      let url = '/app/organizations/local/historical'
+      let res = await api.post(url, {
+        date_start: moment().startOf('year').format('YYYY-MM-DD'),
+        date_end: moment().endOf('year').format('YYYY-MM-DD'),
+        channels: Object.values(this.selectedChannels),
+        salesCenters: Object.values(this.selectedSalesCenters),
+        products: Object.values(this.selectedProducts)
+      })
 
-    let totalPSale = 0
-    let totalSale = 0
-    let totalPrediction = 0
-    let totalAdjustment = 0
-    let mape = 0
+      let totalPSale = 0
+      let totalSale = 0
+      let totalPrediction = 0
+      let totalAdjustment = 0
+      let mape = 0
 
-    /* res.data.map((item) => {
-      totalAdjustment += item.adjustment
-      totalPrediction += item.prediction
-      totalSale += item.sale
-    }) */
+      res.data.map((item) => {
+        totalAdjustment += item.adjustment
+        totalPrediction += item.prediction
+        totalSale += item.sale
+      })
 
-    res.prediction.map((item) => {
-      totalPrediction += item.y
-    })
+      mape = Math.abs(((totalSale - totalPrediction) / totalSale) * 100)
 
-    res.adjustment.map((item) => {
-      totalAdjustment += item.y
-    })
+      if (isNaN(mape) || mape === Infinity) {
+        mape = 0
+      }
 
-    res.previous_sale.map((item) => {
-      totalPSale += item.y
-    })
-
-    res.sale.map((item) => {
-      totalSale += item.y
-    })
-
-    mape = Math.abs(((totalSale - totalPrediction) / totalSale) * 100)
-
-    if(mape === Infinity){
-      mape = 0
+      this.setState({
+        graphData: res.data,
+        totalAdjustment,
+        totalPrediction,
+        totalSale,
+        totalPSale,
+        mape
+      })
+    } catch (e) {
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+      this.setState({
+        noData: e.message + ', intente más tarde'
+      })
     }
-
-    this.setState({
-      graphData: res,
-      totalAdjustment,
-      totalPrediction,
-      totalSale,
-      totalPSale,
-      mape
-    })
   }
 
-  async getProducts () {
-    let url = '/app/dashboard/comparation/organization'
-    let res = await api.post(url, {
-      date_start: moment().startOf('year').format('YYYY-MM-DD'),
-      date_end: moment().endOf('year').format('YYYY-MM-DD')
-    })
-    console.log(res)
-    this.setState({
-      productTable: res
-    }, () => {
-      this.searchDatarows()
-    })
+  async getProductTable() {
+    try {
+      let url = '/app/organizations/local/table'
+      let res = await api.post(url, {
+        date_start: moment().startOf('year').format('YYYY-MM-DD'),
+        date_end: moment().endOf('year').format('YYYY-MM-DD'),
+        channels: Object.values(this.selectedChannels),
+        salesCenters: Object.values(this.selectedSalesCenters),
+        products: Object.values(this.selectedProducts)
+      })
+      this.setState({
+        productTable: res.data
+      }, () => {
+        this.searchDatarows()
+      })
+    }
+    catch (e) {
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+      this.setState({
+        noData: e.message + ', intente más tarde'
+      })
+    }
+  }
+
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
   }
 
   showFilter (filter) {
@@ -285,15 +328,21 @@ class Dashboard extends Component {
     let cols = [
       {
         'title': 'Id',
-        'property': 'product',
+        'property': 'product.externalId',
         'default': 'N/A',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) =>{
+          return row.product.externalId
+        }
       },
       {
         'title': 'Producto',
-        'property': 'product_name',
+        'property': 'product.name',
         'default': 'N/A',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          return row.product.name
+        }
       },
       {
         'title': 'Predicción',
@@ -370,7 +419,6 @@ class Dashboard extends Component {
   }
 
   async searchDatarows() {
-    console.log(this.state.searchTerm, this.state.productTable)
     if (this.state.searchTerm === '') {
       this.setState({
         filteredData: this.state.productTable
@@ -400,6 +448,30 @@ class Dashboard extends Component {
     }, () => this.searchDatarows())
   }
 
+  loadTable() {
+    if(Object.keys(this.selectedProjects).length === 0){
+      return (
+      <center>
+        <h1 className='has-text-info'>Debes seleccionar al menos un proyecto</h1>
+      </center>
+      )
+    }
+    else if (Object.keys(this.selectedProjects).length !== 0 && !this.state.noData) {
+      return (
+        <center>
+          <h1 className='has-text-info'>Cargando, un momento por favor</h1>
+          <Loader />
+        </center>
+      )
+    } else {
+      return (
+        <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
+          {this.state.noData}
+        </div>
+      )
+    }
+  }
+
   render () {
     const user = this.context.tree.get('user')
 
@@ -423,23 +495,23 @@ class Dashboard extends Component {
       {
         label: 'Predicción',
         color: '#187FE6',
-        data: this.state.graphData ? this.state.graphData.prediction.map((item) => { return item.y }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.prediction }) : []
       },
       {
         label: 'Ajuste',
         color: '#30C6CC',
-        data: this.state.graphData ? this.state.graphData.adjustment.map((item) => { return item.y }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.adjustment }) : []
       },
       {
         label: 'Venta',
         color: '#0CB900',
-        data: this.state.graphData ? this.state.graphData.sale.map((item) => { return item.y }) : []
-      },
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale }) : []
+      }/* ,
       {
         label: 'Venta Anterior',
         color: '#EF6950',
         data: this.state.graphData ? this.state.graphData.previous_sale.map((item) => { return item.y }) : []
-      }
+      } */
     ]
     return (
       <div>
@@ -529,8 +601,15 @@ class Dashboard extends Component {
                               <Checkbox
                                 checked={this.state.allChannels}
                                 label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => this.checkAllChannels(value)}
-                                key={'project'}
+                                handleCheckboxChange={(e, value) => {
+                                  this.checkAllChannels(value)
+                                  this.getGraph()
+                                  this.getProductTable()
+                                  this.setState({
+                                    reloadGraph: false
+                                  })
+                                }}
+                                key={'channel'}
                             />
                             </div>
                             <ul className='menu-list'>
@@ -571,8 +650,15 @@ class Dashboard extends Component {
                               <Checkbox
                                 checked={this.state.allSalesCenters}
                                 label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => this.checkAllSC(value)}
-                                key={'project'}
+                                handleCheckboxChange={(e, value) => {
+                                  this.checkAllSC(value)
+                                  this.getGraph()
+                                  this.getProductTable()
+                                  this.setState({
+                                    reloadGraph: false
+                                  })
+                                }}
+                                key={'salesCenter'}
                             />
                             </div>
                             <ul className='menu-list'>
@@ -613,8 +699,15 @@ class Dashboard extends Component {
                               <Checkbox
                                 checked={this.state.allProducts}
                                 label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => this.checkAllProducts(value)}
-                                key={'project'}
+                                handleCheckboxChange={(e, value) => {
+                                  this.checkAllProducts(value)
+                                  this.getGraph()
+                                  this.getProductTable()
+                                  this.setState({
+                                    reloadGraph: false
+                                  })
+                                }}
+                                key={'product'}
                             />
                             </div>
                             <ul className='menu-list'>
@@ -650,7 +743,7 @@ class Dashboard extends Component {
               <div className='columns box'>
                 <div className='column is-3 is-paddingless'>
                   <div className='notification is-info has-text-centered'>
-                    <h1 className='title is-2'>{this.state.mape.toFixed(2)}%</h1>
+                    <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
                     <h2 className='subtitle has-text-weight-bold'>MAPE PREDICCIÓN</h2>
                   </div>
                   <div>
@@ -671,45 +764,54 @@ class Dashboard extends Component {
                   </div>
                 </div>
                 <div className='column card'>
-                  {this.state.graphData &&
-                  <Graph
-                    data={graph}
-                    reloadGraph={this.state.reloadGraph}
-                    legend={{
-                      display: true,
-                      position: 'top',
-                      fontSize: 11,
-                      labels: {
-                        boxWidth: 10,
-                        fontStyle: 'normal',
-                        fontFamily: "'Roboto', sans-serif",
-                        usePointStyle: false,
-                        padding: 12
-                      }
-                    }}
-                    tooltips={{
-                      mode: 'index',
-                      intersect: true,
-                      titleFontFamily: "'Roboto', sans-serif",
-                      bodyFontFamily: "'Roboto', sans-serif",
-                      bodyFontStyle: 'bold',
-                      callbacks: {
-                        label: function (tooltipItem, data) {
-                          let label = ' '
-                          label += data.datasets[tooltipItem.datasetIndex].label || ''
-
-                          if (label) {
-                            label += ': '
+                  {this.state.graphData ?
+                    this.state.graphData.length > 0 ?
+                      <Graph
+                        data={graph}
+                        reloadGraph={this.state.reloadGraph}
+                        legend={{
+                          display: true,
+                          position: 'top',
+                          fontSize: 11,
+                          labels: {
+                            boxWidth: 10,
+                            fontStyle: 'normal',
+                            fontFamily: "'Roboto', sans-serif",
+                            usePointStyle: false,
+                            padding: 12
                           }
-                          let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                          return label + yVal
-                        }
-                      }
-                    }}
-                    labels={this.state.graphData.prediction.map((item, key) => { return item.x })}
-                    />
+                        }}
+                        tooltips={{
+                          mode: 'index',
+                          intersect: true,
+                          titleFontFamily: "'Roboto', sans-serif",
+                          bodyFontFamily: "'Roboto', sans-serif",
+                          bodyFontStyle: 'bold',
+                          callbacks: {
+                            label: function (tooltipItem, data) {
+                              let label = ' '
+                              label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+                              if (label) {
+                                label += ': '
+                              }
+                              let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                              return label + yVal
+                            }
+                          }
+                        }}
+                        labels={this.state.graphData.map((item) => { return item.date })}
+                      />
+                      : <section className='section has-30-margin-top'>
+                        <center>
+                          <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
+                        </center>
+                      </section>
+                    : <section className='section has-30-margin-top'>
+                      {this.loadTable()}
+                    </section>
                   }
                 </div>
               </div>
@@ -733,7 +835,7 @@ class Dashboard extends Component {
                       </div>
                     </div>
                   </div>
-                  <div className='level-item range-slider'>
+                  {/* <div className='level-item range-slider'>
                     <InputRange
                       formatLabel={value => `Periodo ${value}`}
                       maxValue={12}
@@ -752,7 +854,7 @@ class Dashboard extends Component {
                   </div>
                   <div className='level-item'>
                     <span className='button is-static has-20-margin-top'>Mayo 2018</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -766,14 +868,11 @@ class Dashboard extends Component {
                   />
                   : <section className='section'>
                     <center>
-                      <h2 className='has-text-info'>No hay productos que mostrar</h2>
+                      <h1 className='has-text-info'>No hay productos que mostrar, intente con otro filtro</h1>
                     </center>
                   </section>
               : <section className='section'>
-                <center>
-                  <h1 className='has-text-info'>Cargando productos</h1>
-                  <Loader />
-                </center>
+                {this.loadTable()}
               </section>
            }
             </div>
