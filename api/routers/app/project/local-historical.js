@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { Project, DataSetRow, Channel } = require('models')
+const { Project, DataSetRow } = require('models')
 
 module.exports = new Route({
   method: 'post',
