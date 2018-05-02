@@ -118,6 +118,7 @@ const task = new Task(async function (argv) {
           }
 
           i++
+          if (i > numPages) continue
           resDataset = await Api.rowsDataset(dataset.externalId, i)
         } while (i <= numPages)
 
