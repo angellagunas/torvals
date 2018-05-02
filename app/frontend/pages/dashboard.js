@@ -9,7 +9,7 @@ import api from '~base/api'
 import Loader from '~base/components/spinner'
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
-import Graph from './projects/detail-tabs/graph'
+import Graph from '~base/components/graph'
 import { BaseTable } from '~base/components/base-table'
 import InputRange from 'react-input-range'
 import 'react-input-range/lib/css/index.css'
@@ -232,7 +232,13 @@ class Dashboard extends Component {
       let totalAdjustment = 0
       let mape = 0
 
-      res.data.map((item) => {
+      let data = _.orderBy(res.data,
+        (e) => {
+          return e.date
+        }
+        , ['asc'])
+
+      data.map((item) => {
         totalAdjustment += item.adjustment
         totalPrediction += item.prediction
         totalSale += item.sale
@@ -245,7 +251,7 @@ class Dashboard extends Component {
       }
 
       this.setState({
-        graphData: res.data,
+        graphData: data,
         totalAdjustment,
         totalPrediction,
         totalSale,
@@ -429,7 +435,7 @@ class Dashboard extends Component {
 
     const items = this.state.productTable.filter((item) => {
       const regEx = new RegExp(this.state.searchTerm, 'gi')
-      const searchStr = `${item.product} ${item.product_name}`
+      const searchStr = `${item.product.externalId} ${item.product.name}`
 
       if (regEx.test(searchStr))
         return true
@@ -682,7 +688,7 @@ class Dashboard extends Component {
                           </aside>
                         </li>
 
-                        <li className='filters-item'>
+                        {/* <li className='filters-item'>
                           <div className={this.state.productsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
                             onClick={() => { this.showFilter('products') }}>
                             <a>
@@ -729,7 +735,7 @@ class Dashboard extends Component {
                             }
                             </ul>
                           </aside>
-                        </li>
+                        </li> */}
 
                       </ul>
                     </div>
@@ -746,7 +752,7 @@ class Dashboard extends Component {
                     <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
                     <h2 className='subtitle has-text-weight-bold'>MAPE PREDICCIÓN</h2>
                   </div>
-                  <div>
+                  <div className='indicators'>
                     <p className='subtitle is-6'>Venta total</p>
                     <p className='title is-5 has-text-success'>{this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -771,7 +777,7 @@ class Dashboard extends Component {
                         reloadGraph={this.state.reloadGraph}
                         legend={{
                           display: true,
-                          position: 'top',
+                          position: 'right',
                           fontSize: 11,
                           labels: {
                             boxWidth: 10,

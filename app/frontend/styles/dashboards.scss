@@ -119,6 +119,8 @@
             }
         }
         &-item {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(230, 232, 246, 0.5);
             a {
                 margin-left: .5rem;
                 font-size: .9rem;
@@ -150,6 +152,7 @@
             border-color: #E6E8F6;
             border-radius: 0;
             padding: .5rem;
+            min-height: 288px;
         }
         .notification {
             padding: 1.5rem 0;

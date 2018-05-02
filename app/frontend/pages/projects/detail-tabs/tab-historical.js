@@ -4,7 +4,7 @@ import api from '~base/api'
 import { toast } from 'react-toastify'
 import _ from 'lodash'
 import Loader from '~base/components/spinner'
-import Graph from './graph'
+import Graph from '~base/components/graph'
 import Select from './select'
 
 class TabHistorical extends Component {
