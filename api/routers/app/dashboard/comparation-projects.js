@@ -6,11 +6,15 @@ const { Project, Channel, SalesCenter, Product } = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/comparation/organization',
+  path: '/comparation/projects/:uuid',
   handler: async function (ctx) {
+    const uuid = ctx.params.uuid
     var data = ctx.request.body
 
-    const requestBody = {
+    const project = await Project.findOne({'uuid': uuid})
+    ctx.assert(project, 404, 'Proyecto no encontrado')
+
+    var requestBody = {
       date_start: data.date_start,
       date_end: data.date_end
     }
@@ -56,7 +60,7 @@ module.exports = new Route({
       requestBody['producto_id'] = productsExternal
     }
 
-    var responseData = await Api.comparationOrganization(ctx.state.organization.uuid, requestBody)
+    var responseData = await Api.comparationProject(project.externalId, requestBody)
 
     ctx.body = responseData
   }

@@ -78,6 +78,7 @@
         .card {
             //min-height: 100%;
             .card-content {
+                padding: 1.5rem;
                 position: relative;
                 min-height: 330px;
                 .message {
@@ -238,6 +239,10 @@
                 border-left: 1px solid #FBFBFB;
             }
         }
+    }
+    &-name {
+        font-size: 1.2rem;
+        font-weight: 700;
     }
 }
 
