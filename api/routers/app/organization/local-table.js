@@ -1,4 +1,5 @@
 const Route = require('lib/router/route')
+const moment = require('moment')
 const { Project, DataSetRow, Product, Channel, SalesCenter } = require('models')
 
 module.exports = new Route({
@@ -27,6 +28,17 @@ module.exports = new Route({
         }
       }
     ]
+
+    if (data.date_start && data.date_end) {
+      match.push({
+        '$match': {
+          'data.forecastDate': {
+            $gte: moment.utc(data.date_start, 'YYYY-MM-DD').toDate(),
+            $lte: moment.utc(data.date_end, 'YYYY-MM-DD').toDate()
+          }
+        }
+      })
+    }
 
     if (data.channels) {
       const channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1})
