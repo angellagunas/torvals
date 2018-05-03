@@ -97,8 +97,11 @@ module.exports = new Route({
 
     responseData = responseData.map(item => {
       let previousDate = moment(item._id.date).subtract(1, 'years').format('YYYY-MM-DD')
-      if (item.prediction) { total_prediction += item.prediction }
-      if (item.sale) { total_sale += item.sale }
+      if (item.prediction && item.sale) {
+        total_prediction += item.prediction
+        total_sale += item.sale
+      }
+
       return {
         date: item._id.date,
         prediction: item.prediction,
