@@ -60,7 +60,11 @@ class Dashboard extends Component {
       products: undefined,
       graphData: undefined,
       filteredData: undefined,
-      mape: 0
+      mape: 0,
+      totalAdjustment: 0,
+      totalPrediction: 0,
+      totalSale: 0,
+      totalPSale: 0,
     })
   }
 
@@ -79,10 +83,10 @@ class Dashboard extends Component {
 
   checkAllProjects (value) {
     let aux = this.state.projects
-    this.selectedProjects = []
+    this.selectedProjects = {}
     for (const project of aux) {
       project.selected = value
-      if (value) { this.selectedProjects[project.uuid] = project.activeDataset._id }
+      if (value) { this.selectedProjects[project.uuid] = project.uuid }
     }
     this.setState({
       projects: aux,
@@ -139,11 +143,17 @@ class Dashboard extends Component {
 
   async selectProject (e, value, project) {
     if (value) {
-      this.selectedProjects[project.uuid] = project.activeDataset._id
+      this.selectedProjects[project.uuid] = project.uuid
     } else {
       delete this.selectedProjects[project.uuid]
       this.clear()
     }
+
+    project.selected = value    
+    this.setState({
+      allProjects: Object.keys(this.selectedProjects).length === this.state.projects.length
+    })
+
     this.getAll()
   }
 
@@ -153,10 +163,13 @@ class Dashboard extends Component {
     } else {
       delete this.selectedSalesCenters[project.uuid]
     }
+
+    project.selected = value
+
     this.getGraph()
     this.getProductTable()
     this.setState({
-      reloadGraph: false
+      allSalesCenters: Object.keys(this.selectedSalesCenters).length === this.state.salesCenters.length
     })
   }
 
@@ -167,10 +180,12 @@ class Dashboard extends Component {
       delete this.selectedChannels[project.uuid]
     }
 
+    project.selected = value
+
     this.getGraph()
     this.getProductTable()
     this.setState({
-      reloadGraph: false
+      allChannels: Object.keys(this.selectedChannels).length === this.state.channels.length
     })
   }
 
@@ -180,10 +195,13 @@ class Dashboard extends Component {
     } else {
       delete this.selectedProducts[project.uuid]
     }
+
+    project.selected = value
+    
     this.getGraph()
     this.getProductTable()
     this.setState({
-      reloadGraph: false
+      allProducts: Object.keys(this.selectedProducts).length === this.state.products.length      
     })
   }
 
@@ -202,16 +220,12 @@ class Dashboard extends Component {
       salesCenters: res.salesCenters,
       channels: res.channels,
       products: res.products,
-      reloadGraph: true
     }, async () => {
       await this.checkAllChannels(true)
       await this.checkAllSC(true)
       await this.checkAllProducts(true)
       this.getGraph()
       this.getProductTable()
-      this.setState({
-        reloadGraph: false
-      })
     })
   }
 
@@ -223,7 +237,8 @@ class Dashboard extends Component {
         date_end: moment().endOf('year').format('YYYY-MM-DD'),
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
-        products: Object.values(this.selectedProducts)
+        //products: Object.values(this.selectedProducts),
+        projects: Object.values(this.selectedProjects)
       })
 
       let totalPSale = 0
@@ -244,9 +259,9 @@ class Dashboard extends Component {
         totalSale += item.sale
       })
 
-      mape = Math.abs(((totalSale - totalPrediction) / totalSale) * 100)
+      mape = res.mape
 
-      if (isNaN(mape) || mape === Infinity) {
+      if (isNaN(mape) || mape === Infinity || mape === null) {
         mape = 0
       }
 
@@ -256,8 +271,14 @@ class Dashboard extends Component {
         totalPrediction,
         totalSale,
         totalPSale,
-        mape
+        mape,
+        reloadGraph: true
       })
+      setTimeout( () => {
+        this.setState({
+          reloadGraph: false
+        })
+      }, 10)
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
@@ -274,7 +295,8 @@ class Dashboard extends Component {
         date_end: moment().endOf('year').format('YYYY-MM-DD'),
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
-        products: Object.values(this.selectedProducts)
+       // products: Object.values(this.selectedProducts),
+        projects: Object.values(this.selectedProjects)        
       })
       this.setState({
         productTable: res.data
@@ -381,13 +403,21 @@ class Dashboard extends Component {
         'sortable': true,
         'className': 'has-text-weight-bold',
         formatter: (row) => {
-          let mape = Math.abs(((row.sale - row.prediction) / row.sale) * 100)
-
-          if(mape === Infinity){
-            return '0.00%'
+          let mape = 0
+          if (row.mape) {
+            mape = row.mape.toFixed(2) + '%'
           }
-          else if (mape <= 7) {
-            return <span className='has-text-success'>{mape.toFixed(2)}%</span>
+          else {
+            mape = Math.abs(((row.sale - row.prediction) / row.sale) * 100)
+
+            if (mape === Infinity) {
+              mape = 0
+            }
+          }
+
+          
+          if (mape <= 7) {
+            return <span className='has-text-success'>{mape.toFixed(2)}%</span >
           } else if (mape > 7 && mape <= 14) {
             return <span className='has-text-warning'>{mape.toFixed(2)}%</span>
           } else if (mape > 14) {
@@ -519,6 +549,7 @@ class Dashboard extends Component {
         data: this.state.graphData ? this.state.graphData.previous_sale.map((item) => { return item.y }) : []
       } */
     ]
+
     return (
       <div>
         <div className='section-header'>
@@ -552,6 +583,9 @@ class Dashboard extends Component {
                           {this.state.projects &&
                           this.state.projects.map((item) => {
                             if (item.activeDataset) {
+                              if (!item.selected) {
+                                item.selected = false
+                              }
                               return (
                                 <li key={item.uuid}>
                                   <a>
@@ -611,9 +645,6 @@ class Dashboard extends Component {
                                   this.checkAllChannels(value)
                                   this.getGraph()
                                   this.getProductTable()
-                                  this.setState({
-                                    reloadGraph: false
-                                  })
                                 }}
                                 key={'channel'}
                             />
@@ -621,11 +652,14 @@ class Dashboard extends Component {
                             <ul className='menu-list'>
                               {this.state.channels &&
                               this.state.channels.map((item) => {
+                                if (!item.selected){
+                                  item.selected = false
+                                }
                                 return (
                                   <li key={item.uuid}>
                                     <a>
                                       <Checkbox
-                                        label={item.name}
+                                        label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
                                         handleCheckboxChange={(e, value) => this.selectChannel(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
@@ -660,9 +694,6 @@ class Dashboard extends Component {
                                   this.checkAllSC(value)
                                   this.getGraph()
                                   this.getProductTable()
-                                  this.setState({
-                                    reloadGraph: false
-                                  })
                                 }}
                                 key={'salesCenter'}
                             />
@@ -670,11 +701,14 @@ class Dashboard extends Component {
                             <ul className='menu-list'>
                               {this.state.salesCenters &&
                               this.state.salesCenters.map((item) => {
+                                if (!item.selected) {
+                                  item.selected = false
+                                }
                                 return (
                                   <li key={item.uuid}>
                                     <a>
                                       <Checkbox
-                                        label={item.name}
+                                        label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
                                         handleCheckboxChange={(e, value) => this.selectSalesCenter(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
@@ -719,11 +753,14 @@ class Dashboard extends Component {
                             <ul className='menu-list'>
                               {this.state.products &&
                               this.state.products.map((item) => {
+                                if (!item.selected){
+                                  item.selected = false
+                                }
                                 return (
                                   <li key={item.uuid}>
                                     <a>
                                       <Checkbox
-                                        label={item.name}
+                                        label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
                                         handleCheckboxChange={(e, value) => this.selectProduct(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
@@ -809,6 +846,36 @@ class Dashboard extends Component {
                           }
                         }}
                         labels={this.state.graphData.map((item) => { return item.date })}
+                        scales={
+                          {
+                            xAxes: [
+                              {
+                                ticks: {
+                                  callback: function (label, index, labels) {
+                                    return moment.utc(label).format('DD-MM-YYYY')
+                                  },
+                                  fontSize: 11
+                                }
+                              }
+                            ],
+                            yAxes: [
+                              {
+                                ticks: {
+                                  callback: function (label, index, labels) {
+                                    if (label <= 999) {
+                                      return label
+                                    } else if (label >= 1000 && label <= 999999) {
+                                      return (label / 1000) + 'K'
+                                    } else if (label >= 1000000 && label <= 999999999) {
+                                      return (label / 1000000) + 'M'
+                                    }
+                                  },
+                                  fontSize: 11
+                                },
+                                display: true
+                              }
+                            ]}
+                        }
                       />
                       : <section className='section has-30-margin-top'>
                         <center>

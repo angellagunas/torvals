@@ -1433,7 +1433,7 @@ class DataSetDetail extends Component {
           <div className=' is-paddingless-top pad-sides'>
             <div className='level'>
               <div className='level-left'>
-                <h2 className='dataset-name level-item'>Dataset {dataset.name}</h2>
+                <h2 className='dataset-name level-item'>{dataset.name}</h2>
               </div>
               <div className='level-right has-text-right has-20-margin-top'>
                 <div className='level-item field is-grouped is-grouped-right'>
