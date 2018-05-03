@@ -29,17 +29,6 @@ module.exports = new Route({
       }
     ]
 
-    if (data.date_start && data.date_end) {
-      match.push({
-        '$match': {
-          'data.forecastDate': {
-            $gte: moment.utc(data.date_start, 'YYYY-MM-DD').toDate(),
-            $lte: moment.utc(data.date_end, 'YYYY-MM-DD').toDate()
-          }
-        }
-      })
-    }
-
     if (data.channels) {
       const channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1})
       match.push({'$match': {'channel': {$in: channels.map(item => { return item._id })}}})
@@ -55,6 +44,29 @@ module.exports = new Route({
       match.push({'$match': {'product': {$in: products.map(item => { return item._id })}}})
     }
 
+    var matchAux = Array.from(match)
+
+    if (data.date_start && data.date_end) {
+      match.push({
+        '$match': {
+          'data.forecastDate': {
+            $gte: moment.utc(data.date_start, 'YYYY-MM-DD').toDate(),
+            $lte: moment.utc(data.date_end, 'YYYY-MM-DD').toDate()
+          }
+        }
+      })
+      matchAux.push({
+        '$match': {
+          'data.forecastDate': {
+            $gte: moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').toDate(),
+            $lte: moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').toDate()
+          }
+        }
+      })
+    } else {
+      ctx.throw(400, 'Es necesario filtrarlo por un rango de fechas!')
+    }
+
     match.push({
       '$group': {
         _id: key,
@@ -64,7 +76,20 @@ module.exports = new Route({
       }
     })
 
+    matchAux.push({
+      '$group': {
+        _id: key,
+        prediction: { $sum: '$data.prediction' },
+        adjustment: { $sum: '$data.adjustment' },
+        sale: { $sum: '$data.sale' }
+      }
+    })
+
     var responseData = await DataSetRow.aggregate(match)
+    var responseDataAux = await DataSetRow.aggregate(matchAux)
+
+    var previousSaleDict = {}
+    responseDataAux.map(item => { previousSaleDict[item._id.product] = item })
 
     var products = responseData.map(item => { return item._id.product })
     products = await Product.find({_id: {$in: products}})
@@ -75,12 +100,14 @@ module.exports = new Route({
     })
 
     responseData = responseData.map(item => {
+      let product = item._id.product
       return {
-        product: productsHash[item._id.product],
+        product: productsHash[product],
         prediction: item.prediction,
         adjustment: item.adjustment,
         sale: item.sale,
-        previousSale: 0
+        previousSale: previousSaleDict[product] ? previousSaleDict[product].sale : 0,
+        mape: 0
       }
     })
 
