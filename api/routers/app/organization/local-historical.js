@@ -111,7 +111,7 @@ module.exports = new Route({
       }
     })
 
-    var mape = (total_sale - total_prediction) / total_sale
+    var mape = Math.abs((total_sale - total_prediction) / total_sale)
 
     ctx.set('Cache-Control', 'max-age=172800')
 
