@@ -29,17 +29,6 @@ module.exports = new Route({
       }
     ]
 
-    if (data.date_start && data.date_end) {
-      match.push({
-        '$match': {
-          'data.forecastDate': {
-            $gte: moment.utc(data.date_start, 'YYYY-MM-DD').toDate(),
-            $lte: moment.utc(data.date_end, 'YYYY-MM-DD').toDate()
-          }
-        }
-      })
-    }
-
     if (data.channels) {
       const channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1})
       match.push({'$match': {'channel': {$in: channels.map(item => { return item._id })}}})
@@ -54,6 +43,28 @@ module.exports = new Route({
       const products = await Product.find({ uuid: { $in: data.products } }).select({'_id': 1})
       match.push({'$match': {'product': {$in: products.map(item => { return item._id })}}})
     }
+    var matchAux = Array.from(match)
+
+    if (data.date_start && data.date_end) {
+      match.push({
+        '$match': {
+          'data.forecastDate': {
+            $gte: moment.utc(data.date_start, 'YYYY-MM-DD').toDate(),
+            $lte: moment.utc(data.date_end, 'YYYY-MM-DD').toDate()
+          }
+        }
+      })
+      matchAux.push({
+        '$match': {
+          'data.forecastDate': {
+            $gte: moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').toDate(),
+            $lte: moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').toDate()
+          }
+        }
+      })
+    } else {
+      ctx.throw(400, 'Es necesario filtrarlo por un rango de fechas!')
+    }
 
     match.push({
       '$group': {
@@ -65,15 +76,31 @@ module.exports = new Route({
     })
     match.push({ $sort: { '_id.date': 1 } })
 
+    matchAux.push({
+      '$group': {
+        _id: key,
+        prediction: { $sum: '$data.prediction' },
+        adjustment: { $sum: '$data.adjustment' },
+        sale: { $sum: '$data.sale' }
+      }
+    })
+    matchAux.push({ $sort: { '_id.date': 1 } })
+
     var responseData = await DataSetRow.aggregate(match)
+    var responseDataAux = await DataSetRow.aggregate(matchAux)
+
+    var previousSaleDict = {}
+    responseDataAux.map(item => { previousSaleDict[moment(item._id.date).format('YYYY-MM-DD')] = item })
 
     responseData = responseData.map(item => {
+      let previousDate = moment(item._id.date).subtract(1, 'years').format('YYYY-MM-DD')
+
       return {
         date: item._id.date,
         prediction: item.prediction,
         adjustment: item.adjustment,
         sale: item.sale,
-        previousSale: 0
+        previousSale: previousSaleDict[previousDate] ? previousSaleDict[previousDate].sale : 0
       }
     })
 
