@@ -92,8 +92,15 @@ module.exports = new Route({
     var previousSaleDict = {}
     responseDataAux.map(item => { previousSaleDict[moment(item._id.date).format('YYYY-MM-DD')] = item })
 
+    var total_prediction = 0
+    var total_sale = 0
+
     responseData = responseData.map(item => {
       let previousDate = moment(item._id.date).subtract(1, 'years').format('YYYY-MM-DD')
+      if (item.prediction && item.sale) {
+        total_prediction += item.prediction
+        total_sale += item.sale
+      }
 
       return {
         date: item._id.date,
@@ -104,10 +111,13 @@ module.exports = new Route({
       }
     })
 
+    var mape = (total_sale - total_prediction) / total_sale
+
     ctx.set('Cache-Control', 'max-age=172800')
 
     ctx.body = {
-      data: responseData
+      data: responseData,
+      mape: mape
     }
   }
 })
