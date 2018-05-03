@@ -8,8 +8,10 @@ module.exports = new Route({
   handler: async function (ctx) {
     var filters = {}
     const project = await Project.findOne({uuid: ctx.params.uuid}).populate('activeDataset')
+
     ctx.assert(project, 404, 'Proyecto no encontrado')
     ctx.assert(project.activeDataset, 404, 'No hay DataSet activo')
+
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
@@ -51,8 +53,10 @@ module.exports = new Route({
         filters['product'] = { $in: products.map(item => { return item._id }) }
         continue
       }
+
       if (filter === 'general') {
         let $or = []
+
         if (!isNaN(ctx.request.query[filter])) {
           $or.push({prediction: ctx.request.query[filter]})
         }
@@ -66,6 +70,7 @@ module.exports = new Route({
         channel.map(channel => {
           channelValues.push(channel._id)
         })
+
         if (channelValues.length) {
           $or.push({channel: {$in: channelValues}})
         }
@@ -100,9 +105,11 @@ module.exports = new Route({
         salesCenter.map(saleCenter => {
           salesCenterValues.push(saleCenter._id)
         })
+
         if (salesCenterValues.length) {
           $or.push({salesCenter: {$in: salesCenterValues}})
         }
+
         if ($or.length) { filters['$or'] = $or }
       } else {
         if (!isNaN(parseInt(ctx.request.query[filter]))) {
@@ -116,7 +123,12 @@ module.exports = new Route({
     var rows = await Anomaly.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters, organization: ctx.state.organization},
+      find: {
+        isDeleted: false,
+        ...filters,
+        organization: ctx.state.organization,
+        dataset: project.activeDataset
+      },
       sort: ctx.request.query.sort || '-dateCreated',
       populate: ['salesCenter', 'product', 'channel', 'dataset', 'organization']
     })
