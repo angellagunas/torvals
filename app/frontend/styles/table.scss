@@ -354,7 +354,7 @@
         }
         th,
         td {
-            padding: 0.2rem 0.4rem;
+            padding: 0.2rem 0.6rem;
             vertical-align: middle;
         }
         td {
@@ -367,6 +367,12 @@
             border-right: 1px solid #FBFBFB;
             border-left: 1px solid #FBFBFB;
             position: relative;
+            &:nth-child(1){
+                border-left: none;
+            }
+            &:last-child{
+                border-right: none;
+            }
             i {
                 position: absolute;
                 right: 0;
