@@ -13,7 +13,8 @@ import Checkbox from '~base/components/base-checkbox'
 import WeekTable from './week-table'
 import ProductTable from './product-table'
 import Select from './select'
-import Graph from './graph'
+import Graph from '~base/components/graph'
+
 
 const FileSaver = require('file-saver')
 
