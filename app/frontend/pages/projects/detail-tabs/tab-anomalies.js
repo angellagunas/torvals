@@ -6,7 +6,6 @@ import {
   BaseForm,
   SelectWidget
 } from '~base/components/base-form'
-import { Pagination } from '~base/components/base-pagination'
 import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
@@ -30,12 +29,9 @@ class TabAnomalies extends Component {
       },
       anomalies: [],
       selectAll: false,
-      selected: {},
+      selected: new Set(),
       disableButton: true,
-      sortAscending: true,
-      pageLength: 20,
-      page: 1,
-      search: '' 
+      sortAscending: true      
     }
     currentRole = tree.get('user').currentRole.slug
   }
@@ -115,7 +111,7 @@ class TabAnomalies extends Component {
     })
   }
 
-  async getData (start = 0, limit = this.state.pageLength) {
+  async getData () {
     this.setState({
       isLoading: ' is-loading'
     })
@@ -124,13 +120,11 @@ class TabAnomalies extends Component {
     try {
       let res = await api.get(url, {
         ...this.state.formData,
-        start: start,
-        limit: limit,
-        general: this.state.search
+        start: 0,
+        limit: 100
       })
-      
+
       this.setState({
-        totalAnomalies: res.total,
         anomalies: res.data,
         isLoading: '',
         isFiltered: true
@@ -345,7 +339,7 @@ class TabAnomalies extends Component {
     })
     let url = '/app/anomalies/restore/'
     let res = await api.post(url + this.props.project.uuid, {
-      anomalies: Object.values(this.state.selected)
+      anomalies: this.state.selected
     })
 
     if (res.data.status === 'ok') {
@@ -358,9 +352,9 @@ class TabAnomalies extends Component {
         })
         this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       }
+      this.state.selected.clear()
       this.setState({
-        isRestoring: '',
-        selected: {}
+        isRestoring: ''
       })
     }
 
@@ -370,38 +364,28 @@ class TabAnomalies extends Component {
    
 
   checkAll = (check) => {
-    let selected = {}
+    this.state.selected.clear()
     for (let item of this.state.anomalies) {
       if (check)
-        selected[item.uuid] = item
+        this.state.selected.add(item)
 
       item.selected = check
     }
-    this.setState({ selectAll: check, selected },
-    () => {
-      this.toggleButtons()
-    })
+    this.setState({ selectAll: check })
+    this.toggleButtons()
   }
 
   toggleCheckbox = (item) => {
-    let selected = this.state.selected
-
-    if (selected[item.uuid]) {
-      delete selected[item.uuid]
+    if (this.state.selected.has(item)) {
+      this.state.selected.delete(item)
       item.selected = false
     }
     else {
-      selected[item.uuid] = item   
+      this.state.selected.add(item)
+      
       item.selected = true
     }
-
-    this.setState({
-      selected,
-      selectAll: Object.keys(this.state.selected).length === this.state.anomalies.length
-    }, 
-    () => {
-      this.toggleButtons()
-    })
+    this.toggleButtons()
   }
 
   componentDidMount () {
@@ -411,9 +395,9 @@ class TabAnomalies extends Component {
   toggleButtons() {
     let disable = true
 
-    if (Object.keys(this.state.selected).length > 0)
+    if (this.state.selected.size > 0)
       disable = false
-    else if (Object.keys(this.state.selected).length <= 0) {
+    else if (this.state.selected.size <= 0) {
       this.setState({
         selectAll: false
       })
@@ -424,16 +408,26 @@ class TabAnomalies extends Component {
   }
 
   async searchOnChange(e){
-    let value = e.target.value
-    this.setState({
-      search: value,
-      page: 1,
-      selected: {},
-      selectAll: false
-    }, () => {
-      this.toggleButtons()
-      this.getData()
-    })
+      let url = '/app/anomalies/list/' + this.props.project.uuid
+      try {
+      let res = await api.get(url, {
+        ...this.state.formData,
+        start: 0,
+        limit: 0,
+        general: e.target.value
+      })
+
+      this.setState({
+        anomalies: res.data
+      })
+      
+    } catch (e) {
+    
+    }
+  }
+
+  async requestSearch(url){
+    
   }
 
   handleSort(e){
@@ -462,22 +456,6 @@ class TabAnomalies extends Component {
       sortAscending: !this.state.sortAscending,
       sortBy: e
     })
-  }
-
-  async loadMore(page) {
-    const start = (page - 1) * this.state.pageLength
-    const limit = this.state.pageLength
-
-    await this.getData(start, limit)
-    this.setState({
-      page: page,
-      selected: {},
-      selectAll: false
-    },
-      () => {
-        this.toggleButtons()
-      })
-
   }
 
   render () {
@@ -535,26 +513,6 @@ class TabAnomalies extends Component {
                 />
               }
             </div>
-
-            <div className='level-item'>
-              <div className='field'>
-                {currentRole !== 'consultor' ?
-                  <label className='label'>Búsqueda general</label> :
-                  null
-                }
-                <div className='control has-icons-right'>
-                  <input
-                    className='input input-search'
-                    type='text'
-                    value={this.state.searchTerm}
-                    onChange={(e) => { this.searchOnChange(e) }} placeholder='Buscar' />
-
-                  <span className='icon is-small is-right'>
-                    <i className='fa fa-search fa-xs'></i>
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
           {currentRole !== 'consultor' &&
             <div className='level-right'>
@@ -565,11 +523,28 @@ class TabAnomalies extends Component {
                   type='button'
                   onClick={e => this.restore()}
                 >
-                  Recuperar ({Object.keys(this.state.selected).length})
+                  Recuperar ({this.state.selected.size})
                   </button>
               </div>
             </div>
           }
+        </div>
+        <div className='section level selects'>
+          <div className='level-left'>
+            <div className='level-item'>
+                <input
+                  className='input input-search'
+                  type='text'
+                  value={this.state.searchTerm}
+                  onChange={(e) => {this.searchOnChange (e)}} placeholder='Buscar' />
+
+                <span className='icon is-small is-right'>
+                  <i className='fa fa-search fa-xs'></i>
+                </span>
+                
+                
+              </div>
+            </div>  
         </div>
 
         <section>
@@ -588,7 +563,6 @@ class TabAnomalies extends Component {
                   </center>
                 </section>
               : 
-              <div>
               <BaseTable
                 className='aprobe-table is-fullwidth is-margin-top-20'
                 data={this.state.anomalies}
@@ -597,16 +571,6 @@ class TabAnomalies extends Component {
                 sortBy={this.state.sortBy}
                 handleSort={(e) => this.handleSort(e)}
               />
-                <div className='is-margin-top-20'>
-                <Pagination
-                  loadPage={(page) => this.loadMore(page)}
-                  page={this.state.page}
-                  totalItems={this.state.totalAnomalies}
-                  pageLength={this.state.pageLength}
-              />
-                </div>
-              
-              </div>
           }
         </section>
       </div>
