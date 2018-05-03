@@ -14,7 +14,9 @@ WORKDIR /app
 
 RUN make app-dist
 RUN make admin-dist
-RUN node tasks/build-indexes.js 
+RUN node tasks/build-indexes.js
+RUN chmod node:node media/
+RUN chmod node:node media/uploads
 
 ENV NODE_ENV="production"
 
