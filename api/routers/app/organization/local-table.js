@@ -44,7 +44,7 @@ module.exports = new Route({
       match.push({'$match': {'product': {$in: products.map(item => { return item._id })}}})
     }
 
-    var matchAux = Array.from(match)
+    var matchPreviousSale = Array.from(match)
 
     if (data.date_start && data.date_end) {
       match.push({
@@ -55,7 +55,7 @@ module.exports = new Route({
           }
         }
       })
-      matchAux.push({
+      matchPreviousSale.push({
         '$match': {
           'data.forecastDate': {
             $gte: moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').toDate(),
@@ -67,6 +67,19 @@ module.exports = new Route({
       ctx.throw(400, 'Es necesario filtrarlo por un rango de fechas!')
     }
 
+    var matchSaleOnly = Array.from(match)
+    matchSaleOnly.push({
+      '$match': {
+        'data.sale': {'$gt': 0}
+      }
+    })
+
+    match.push({
+      '$match': {
+        'data.sale': 0
+      }
+    })
+
     match.push({
       '$group': {
         _id: key,
@@ -76,7 +89,7 @@ module.exports = new Route({
       }
     })
 
-    matchAux.push({
+    matchSaleOnly.push({
       '$group': {
         _id: key,
         prediction: { $sum: '$data.prediction' },
@@ -85,13 +98,24 @@ module.exports = new Route({
       }
     })
 
-    var responseData = await DataSetRow.aggregate(match)
-    var responseDataAux = await DataSetRow.aggregate(matchAux)
+    matchPreviousSale.push({
+      '$group': {
+        _id: key,
+        sale: { $sum: '$data.sale' }
+      }
+    })
+
+    var noSales = await DataSetRow.aggregate(match)
+    var sale = await DataSetRow.aggregate(matchSaleOnly)
+    var previousSale = await DataSetRow.aggregate(matchPreviousSale)
 
     var previousSaleDict = {}
-    responseDataAux.map(item => { previousSaleDict[item._id.product] = item })
+    previousSale.map(item => { previousSaleDict[item._id.product] = item })
 
-    var products = responseData.map(item => { return item._id.product })
+    var saleDict = {}
+    sale.map(item => { saleDict[item._id.product] = item })
+
+    var products = noSales.map(item => { return item._id.product })
     products = await Product.find({_id: {$in: products}})
 
     var productsHash = {}
@@ -99,15 +123,29 @@ module.exports = new Route({
       productsHash[item._id] = item.toPublic()
     })
 
-    responseData = responseData.map(item => {
+    var responseData = noSales.map(item => {
       let product = item._id.product
+      let sales = saleDict[product]
+      let mape = 0
+      let prediction = 0
+      let adjustment = 0
+      let sale = 0
+
+      if (sales) {
+        prediction = sales.prediction
+        adjustment = sales.adjustment
+        sale = sales.sale
+
+        mape = Math.abs((sale - prediction) / sale) * 100
+      }
+
       return {
         product: productsHash[product],
-        prediction: item.prediction,
-        adjustment: item.adjustment,
-        sale: item.sale,
+        prediction: item.prediction + prediction,
+        adjustment: item.adjustment + adjustment,
+        sale: item.sale + sale,
         previousSale: previousSaleDict[product] ? previousSaleDict[product].sale : 0,
-        mape: 0
+        mape: mape
       }
     })
 
