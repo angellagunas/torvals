@@ -125,8 +125,6 @@ module.exports = new Route({
       return item.toAdmin()
     })
 
-    ctx.body = {
-      data: rows.data
-    }
+    ctx.body = rows
   }
 })
