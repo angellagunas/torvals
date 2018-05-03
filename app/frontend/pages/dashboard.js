@@ -169,7 +169,6 @@ class Dashboard extends Component {
     this.getGraph()
     this.getProductTable()
     this.setState({
-      reloadGraph: false,
       allSalesCenters: Object.keys(this.selectedSalesCenters).length === this.state.salesCenters.length
     })
   }
@@ -186,7 +185,6 @@ class Dashboard extends Component {
     this.getGraph()
     this.getProductTable()
     this.setState({
-      reloadGraph: false,
       allChannels: Object.keys(this.selectedChannels).length === this.state.channels.length
     })
   }
@@ -203,7 +201,6 @@ class Dashboard extends Component {
     this.getGraph()
     this.getProductTable()
     this.setState({
-      reloadGraph: false,
       allProducts: Object.keys(this.selectedProducts).length === this.state.products.length      
     })
   }
@@ -223,16 +220,12 @@ class Dashboard extends Component {
       salesCenters: res.salesCenters,
       channels: res.channels,
       products: res.products,
-      reloadGraph: true
     }, async () => {
       await this.checkAllChannels(true)
       await this.checkAllSC(true)
       await this.checkAllProducts(true)
       this.getGraph()
       this.getProductTable()
-      this.setState({
-        reloadGraph: false
-      })
     })
   }
 
@@ -278,8 +271,14 @@ class Dashboard extends Component {
         totalPrediction,
         totalSale,
         totalPSale,
-        mape
+        mape,
+        reloadGraph: true
       })
+      setTimeout( () => {
+        this.setState({
+          reloadGraph: false
+        })
+      }, 10)
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
@@ -646,9 +645,6 @@ class Dashboard extends Component {
                                   this.checkAllChannels(value)
                                   this.getGraph()
                                   this.getProductTable()
-                                  this.setState({
-                                    reloadGraph: false
-                                  })
                                 }}
                                 key={'channel'}
                             />
@@ -698,9 +694,6 @@ class Dashboard extends Component {
                                   this.checkAllSC(value)
                                   this.getGraph()
                                   this.getProductTable()
-                                  this.setState({
-                                    reloadGraph: false
-                                  })
                                 }}
                                 key={'salesCenter'}
                             />

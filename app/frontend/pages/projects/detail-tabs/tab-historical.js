@@ -617,6 +617,7 @@ class TabHistorical extends Component {
                 </div>
               </div>
             </div>
+
             <div className='section'>
               <div className='columns'>
                 <div className='column'>
@@ -762,9 +763,7 @@ class TabHistorical extends Component {
               </div>
             </div>
 
-          }
-
-        </div>
+          </div>
 
         : <div className='section columns'>
           <div className='column'>
