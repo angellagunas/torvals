@@ -111,7 +111,11 @@ module.exports = new Route({
       }
     })
 
-    var mape = Math.abs((totalSale - totalPrediction) / totalSale)
+    if (totalSale !== 0) {
+      var mape = Math.abs((totalSale - totalPrediction) / totalSale)
+    } else {
+      var mape = 0
+    }
 
     ctx.set('Cache-Control', 'max-age=172800')
 
