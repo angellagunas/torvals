@@ -5,11 +5,9 @@ require('lib/databases/mongo')
 const Api = require('lib/abraxas/api')
 const Task = require('lib/task')
 const { DataSetRow } = require('models')
-const request = require('lib/request')
 
 const task = new Task(async function (argv) {
   console.log('Fetching DatasetsRows...')
-  var apiData
 
   const datasetRow = await DataSetRow.findOne({
     uuid: argv.uuid
@@ -24,7 +22,11 @@ const task = new Task(async function (argv) {
   console.log(`Sending adjustment of DataSetRow ${datasetRow.externalId}`)
 
   try {
-    var res = await Api.patchDataset(datasetRow)
+    var res = await Api.getDataset(dataset.externalId)
+    dataset.set({etag: res._etag})
+    await dataset.save()
+
+    res = await Api.patchDataset(datasetRow)
 
     if (res._status === 'OK') {
       dataset.etag = res._etag
