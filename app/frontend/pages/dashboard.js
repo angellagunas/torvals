@@ -257,6 +257,7 @@ class Dashboard extends Component {
         totalAdjustment += item.adjustment
         totalPrediction += item.prediction
         totalSale += item.sale
+        totalPSale += item.previousSale
       })
 
       mape = res.mape
@@ -392,7 +393,7 @@ class Dashboard extends Component {
       },
       {
         'title': 'Venta anterior',
-        'property': 'previus_sale',
+        'property': 'previousSale',
         'default': '0',
         'sortable': true
       },
@@ -404,8 +405,9 @@ class Dashboard extends Component {
         'className': 'has-text-weight-bold',
         formatter: (row) => {
           let mape = 0
+
           if (row.mape) {
-            mape = row.mape.toFixed(2) + '%'
+            mape = row.mape
           }
           else {
             mape = Math.abs(((row.sale - row.prediction) / row.sale) * 100)
@@ -417,7 +419,7 @@ class Dashboard extends Component {
 
           
           if (mape <= 7) {
-            return <span className='has-text-success'>{mape.toFixed(2)}%</span >
+            return <span className='has-text-success'>{mape.toFixed(2)}%</span>
           } else if (mape > 7 && mape <= 14) {
             return <span className='has-text-warning'>{mape.toFixed(2)}%</span>
           } else if (mape > 14) {
@@ -542,12 +544,12 @@ class Dashboard extends Component {
         label: 'Venta',
         color: '#0CB900',
         data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale }) : []
-      }/* ,
+      },
       {
         label: 'Venta Anterior',
         color: '#EF6950',
-        data: this.state.graphData ? this.state.graphData.previous_sale.map((item) => { return item.y }) : []
-      } */
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale }) : []
+      } 
     ]
 
     return (

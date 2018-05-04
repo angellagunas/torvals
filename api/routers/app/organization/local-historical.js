@@ -43,7 +43,7 @@ module.exports = new Route({
       const products = await Product.find({ uuid: { $in: data.products } }).select({'_id': 1})
       match.push({'$match': {'product': {$in: products.map(item => { return item._id })}}})
     }
-    var matchAux = Array.from(match)
+    var matchPreviousSale = Array.from(match)
 
     if (data.date_start && data.date_end) {
       match.push({
@@ -54,7 +54,7 @@ module.exports = new Route({
           }
         }
       })
-      matchAux.push({
+      matchPreviousSale.push({
         '$match': {
           'data.forecastDate': {
             $gte: moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').toDate(),
@@ -76,7 +76,7 @@ module.exports = new Route({
     })
     match.push({ $sort: { '_id.date': 1 } })
 
-    matchAux.push({
+    matchPreviousSale.push({
       '$group': {
         _id: key,
         prediction: { $sum: '$data.prediction' },
@@ -84,13 +84,13 @@ module.exports = new Route({
         sale: { $sum: '$data.sale' }
       }
     })
-    matchAux.push({ $sort: { '_id.date': 1 } })
+    matchPreviousSale.push({ $sort: { '_id.date': 1 } })
 
     var responseData = await DataSetRow.aggregate(match)
-    var responseDataAux = await DataSetRow.aggregate(matchAux)
+    var previousSale = await DataSetRow.aggregate(matchPreviousSale)
 
     var previousSaleDict = {}
-    responseDataAux.map(item => { previousSaleDict[moment(item._id.date).format('YYYY-MM-DD')] = item })
+    previousSale.map(item => { previousSaleDict[moment(item._id.date).format('YYYY-MM-DD')] = item })
 
     var totalPrediction = 0
     var totalSale = 0
@@ -111,10 +111,10 @@ module.exports = new Route({
       }
     })
 
+    let mape = 0
+
     if (totalSale !== 0) {
-      var mape = Math.abs((totalSale - totalPrediction) / totalSale)
-    } else {
-      var mape = 0
+      mape = Math.abs((totalSale - totalPrediction) / totalSale)
     }
 
     ctx.set('Cache-Control', 'max-age=172800')
