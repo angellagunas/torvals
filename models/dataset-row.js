@@ -73,4 +73,7 @@ datasetRowSchema.methods.toAdmin = function () {
   }
 }
 
+datasetRowSchema.index({ isDeleted: -1, dataset: 1, status: 1, organization: 1 }, {background: true})
+datasetRowSchema.set('autoIndex', true)
+
 module.exports = mongoose.model('DataSetRow', datasetRowSchema)
