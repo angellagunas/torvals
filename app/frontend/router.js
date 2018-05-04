@@ -37,6 +37,10 @@ import NotFound from '~base/components/not-found'
 import Calendar from './pages/calendar'
 import Prices from './pages/prices/list'
 import PriceDetail from './pages/prices/detail'
+import UsersImport from './pages/import/users'
+import ChannelImport from './pages/import/channels'
+import ProductsImport from './pages/import/products'
+import SalesCentersImport from './pages/import/sales-centers'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -59,6 +63,7 @@ const AppRouter = () => {
 
           {Users.asRouterItem()}
           {UserDetail.asRouterItem()}
+          {UsersImport.asRouterItem()}
 
           {OrganizationDetail.asRouterItem()}
 
@@ -77,6 +82,7 @@ const AppRouter = () => {
 
           {SalesCenters.asRouterItem()}
           {SalesCenterDetail.asRouterItem()}
+          {SalesCentersImport.asRouterItem()}
 
           {Products.asRouterItem()}
           {ProductDetail.asRouterItem()}
@@ -85,6 +91,8 @@ const AppRouter = () => {
           {ForecastDetail.asRouterItem()}
           {Channels.asRouterItem()}
           {ChannelsDetail.asRouterItem()}
+          {ChannelImport.asRouterItem()}
+          {ProductsImport.asRouterItem()}
 
           {Prices.asRouterItem()}
           {PriceDetail.asRouterItem()}
