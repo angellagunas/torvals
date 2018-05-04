@@ -24,7 +24,9 @@ class Dashboard extends Component {
       salesCentersCollapsed: true,
       channelsCollapsed: true,
       productsCollapsed: true,
-      value: { min: 2, max: 10 },
+      yearsCollapsed: true,
+      value: { min: 1, max: 12 },
+      yearSelected: moment().get('year'),
       allProjects: false,
       allChannels: false,
       allSalesCenters: false,
@@ -32,6 +34,7 @@ class Dashboard extends Component {
       totalAdjustment: 0,
       totalPrediction: 0,
       totalSale: 0,
+      totalPSale: 0,
       mape: 0,
       searchTerm: ''
     }
@@ -224,6 +227,7 @@ class Dashboard extends Component {
       await this.checkAllChannels(true)
       await this.checkAllSC(true)
       await this.checkAllProducts(true)
+      await this.getDates()
       this.getGraph()
       this.getProductTable()
     })
@@ -233,8 +237,8 @@ class Dashboard extends Component {
     try {
       let url = '/app/organizations/local/historical'
       let res = await api.post(url, {
-        date_start: moment().startOf('year').format('YYYY-MM-DD'),
-        date_end: moment().endOf('year').format('YYYY-MM-DD'),
+        date_start: moment([this.state.yearSelected, this.state.value.min - 1]).startOf('month').format('YYYY-MM-DD'),
+        date_end: moment([this.state.yearSelected, this.state.value.max - 1]).endOf('month').format('YYYY-MM-DD'),
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
         //products: Object.values(this.selectedProducts),
@@ -292,8 +296,8 @@ class Dashboard extends Component {
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
-        date_start: moment().startOf('year').format('YYYY-MM-DD'),
-        date_end: moment().endOf('year').format('YYYY-MM-DD'),
+        date_start: moment([this.state.yearSelected, this.state.value.min - 1 ]).startOf('month').format('YYYY-MM-DD'),
+        date_end: moment([this.state.yearSelected, this.state.value.max - 1]).endOf('month').format('YYYY-MM-DD'),
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
        // products: Object.values(this.selectedProducts),
@@ -336,19 +340,29 @@ class Dashboard extends Component {
       this.setState({
         salesCentersCollapsed: !this.state.salesCentersCollapsed,
         channelsCollapsed: true,
-        productsCollapsed: true
+        productsCollapsed: true,
+        yearsCollapsed: true
       })
     } else if (filter === 'channels') {
       this.setState({
         salesCentersCollapsed: true,
         channelsCollapsed: !this.state.channelsCollapsed,
-        productsCollapsed: true
+        productsCollapsed: true,
+        yearsCollapsed: true        
       })
     } else if (filter === 'products') {
       this.setState({
         salesCentersCollapsed: true,
         channelsCollapsed: true,
-        productsCollapsed: !this.state.productsCollapsed
+        productsCollapsed: !this.state.productsCollapsed,
+        yearsCollapsed: true        
+      })
+    } else if (filter === 'years') {
+      this.setState({
+        salesCentersCollapsed: true,
+        channelsCollapsed: true,
+        productsCollapsed: true,
+        yearsCollapsed: !this.state.yearsCollapsed,        
       })
     }
   }
@@ -510,6 +524,77 @@ class Dashboard extends Component {
     }
   }
 
+  async getDates() {
+      const url = '/app/dates/'
+
+      try {
+        let res = await api.get(url)
+        var periods = []
+        let years = new Set()
+
+        res.data.map((date) => {
+          years.add(date.year)
+        })
+
+        periods = this.getPeriods(res.data, Array.from(years)[0])
+
+        this.setState({
+          dates: res.data,
+          periods: periods,
+          years: Array.from(years),
+          value: { min: periods[0].number, max: periods[periods.length - 1].number },
+          yearSelected: Array.from(years)[0]
+        })
+      } catch (e) {
+        console.log(e)
+      }
+  }
+
+  getPeriods(data, year) {
+    let periods = []
+    const map = new Map()
+    data.map((date) => {
+      if (date.year === year) {
+        const key = date.month
+        const collection = map.get(key)
+        if (!collection) {
+          map.set(key, [date])
+        } else {
+          collection.push(date)
+        }
+      }
+    })
+
+    for (let i = 0; i < Array.from(map).length; i++) {
+      const element = Array.from(map)[i]
+      periods.push({
+        number: element[0],
+        name: `${moment(element[1][0].month, 'M').format('MMMM')}`,
+        maxSemana: element[1][0].week,
+        minSemana: element[1][element[1].length - 1].week
+      })
+    }
+
+    return periods.reverse()
+  }
+
+  getPeriodDate (period, startOf) {
+    if(startOf){
+      return moment(period, 'M').startOf('month').format('MMMM')
+    }
+    else{
+      return moment(period, 'M').endOf('month').format('MMMM')
+    }
+  }
+
+  selectYear (item) {
+    this.setState({ yearSelected: item },
+      () => {
+        this.getGraph()
+        this.getProductTable()
+      })
+  }
+
   render () {
     const user = this.context.tree.get('user')
 
@@ -549,7 +634,7 @@ class Dashboard extends Component {
         label: 'Venta Anterior',
         color: '#EF6950',
         data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale }) : []
-      } 
+      }
     ]
 
     return (
@@ -627,6 +712,41 @@ class Dashboard extends Component {
 
                       <ul>
                         <li className='filters-item'>
+                          <div className={this.state.yearsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
+                            onClick={() => { this.showFilter('years') }}>
+                            <a>
+                              <span className='icon'>
+                                <i className={this.state.yearsCollapsed
+                                  ? 'fa fa-plus' : 'fa fa-minus'} />
+                              </span>
+                              Años <strong>{this.state.years && this.state.years.length}</strong>
+                            </a>
+                          </div>
+                          <aside className={this.state.yearsCollapsed
+                            ? 'is-hidden' : 'menu'}>
+                            
+                            <ul className='menu-list'>
+                              {this.state.years &&
+                                this.state.years.map((item) => {
+                                  return (
+                                    <li key={item}>
+                                      <a>
+                                        <Checkbox
+                                          label={item}
+                                          handleCheckboxChange={(e, value) => this.selectYear(item)}
+                                          key={item}
+                                          checked={item === this.state.yearSelected}
+                                        />
+                                      </a>
+                                    </li>
+                                  )
+                                })
+                              }
+                            </ul>
+                          </aside>
+                        </li>
+
+                        <li className='filters-item'>
                           <div className={this.state.channelsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
                             onClick={() => { this.showFilter('channels') }}>
                             <a>
@@ -666,6 +786,11 @@ class Dashboard extends Component {
                                         key={item.uuid}
                                         checked={item.selected}
                                       />
+                                      {item.name === 'Not identified' &&
+                                        <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
+                                        <i className='fa fa-eye has-text-info' />
+                                      </span>
+                                      }
                                     </a>
                                   </li>
                                 )
@@ -715,6 +840,11 @@ class Dashboard extends Component {
                                         key={item.uuid}
                                         checked={item.selected}
                                       />
+                                      {item.name === 'Not identified' &&
+                                        <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
+                                          <i className='fa fa-eye has-text-info' />
+                                        </span>
+                                      }
                                     </a>
                                   </li>
                                 )
@@ -767,6 +897,11 @@ class Dashboard extends Component {
                                         key={item.uuid}
                                         checked={item.selected}
                                       />
+                                      {item.name === 'Not identified' &&
+                                        <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/products/' + item.uuid) }}>
+                                          <i className='fa fa-eye has-text-info' />
+                                        </span>
+                                      }
                                     </a>
                                   </li>
                                 )
@@ -806,6 +941,11 @@ class Dashboard extends Component {
                     <p className='title is-5 has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
+
+                    <p className='subtitle is-6'>Venta anterior</p>
+                    <p className='title is-5 has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })}</p>
                   </div>
                 </div>
                 <div className='column card'>
@@ -813,6 +953,8 @@ class Dashboard extends Component {
                     this.state.graphData.length > 0 ?
                       <Graph
                         data={graph}
+                        maintainAspectRatio={false}
+                        responsive={false}
                         reloadGraph={this.state.reloadGraph}
                         legend={{
                           display: true,
@@ -910,26 +1052,40 @@ class Dashboard extends Component {
                       </div>
                     </div>
                   </div>
-                  {/* <div className='level-item range-slider'>
+                 <div className='level-item range-slider'>
                     <InputRange
                       formatLabel={value => `Periodo ${value}`}
                       maxValue={12}
                       minValue={1}
+                      allowSameValues
                       value={this.state.value}
-                      onChange={value => this.setState({ value })} />
+                      onChange={value => this.setState({ value })} 
+                      onChangeComplete={value => {
+                        this.getGraph()
+                        this.getProductTable()
+                        }}/>
                   </div>
-
-                  <div className='level-item'>
-                    <span className='button is-static has-20-margin-top'>Marzo 2018</span>
-                  </div>
-                  <div className='level-item'>
-                    <span className='icon has-20-margin-top'>
-                      <i className='fa fa-minus' />
-                    </span>
-                  </div>
-                  <div className='level-item'>
-                    <span className='button is-static has-20-margin-top'>Mayo 2018</span>
-                  </div> */}
+                  {this.state.yearSelected &&
+                    <div className='level-item'>
+                      <span className='button is-static has-20-margin-top is-capitalized'>
+                        {this.getPeriodDate(this.state.value.min, true) + ' ' + this.state.yearSelected}
+                      </span>
+                    </div>
+                  }
+                  {this.state.yearSelected &&
+                    <div className='level-item'>
+                      <span className='icon has-20-margin-top'>
+                        <i className='fa fa-minus' />
+                      </span>
+                    </div>
+                  }
+                  {this.state.yearSelected &&
+                    <div className='level-item'>
+                      <span className='button is-static has-20-margin-top is-capitalized'>
+                        {this.getPeriodDate(this.state.value.max, false) + ' ' + this.state.yearSelected}
+                      </span>
+                    </div>
+                  }
                 </div>
               </div>
 
