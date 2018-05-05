@@ -68,4 +68,9 @@ adjustmentRequestSchema.methods.toAdmin = function () {
   }
 }
 
+adjustmentRequestSchema.index({ 'dataset': 1,
+  'isDeleted': -1,
+  'status': 1 }, {background: true})
+adjustmentRequestSchema.set('autoIndex', true)
+
 module.exports = mongoose.model('AdjustmentRequest', adjustmentRequestSchema)
