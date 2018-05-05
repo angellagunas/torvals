@@ -247,12 +247,20 @@ class Dashboard extends Component {
       let totalAdjustment = 0
       let mape = 0
 
-      let data = _.orderBy(res.data,
+      let data = res.data
+      let today = {
+        date: moment.utc().format('YYYY-MM-DDT00:00:00.000')
+      }
+      console.log(today)
+      data.push(today)
+
+      data = _.orderBy(res.data,
         (e) => {
           return e.date
         }
         , ['asc'])
 
+        console.log(data)
       data.map((item) => {
         totalAdjustment += item.adjustment
         totalPrediction += item.prediction
@@ -509,6 +517,7 @@ class Dashboard extends Component {
       )
     }
   }
+
 
   render () {
     const user = this.context.tree.get('user')
@@ -878,7 +887,41 @@ class Dashboard extends Component {
                               }
                             ]}
                         }
-                      />
+                        annotation={
+                          {
+                            annotations: [
+                              {
+                                drawTime: 'afterDatasetsDraw',
+                                id: 'vline',
+                                type: 'line',
+                                mode: 'vertical',
+                                scaleID: 'x-axis-0',
+                                value: moment.utc().format('YYYY-MM-DDT00:00:00.000'),
+                                borderColor: 'black',
+                                borderWidth: 5,
+                                label: {
+                                  backgroundColor: 'red',
+                                  content: 'Hoy',
+                                  enabled: true
+                                }
+                              }/* ,
+                              {
+                                  drawTime: 'beforeDatasetsDraw',
+                                type: 'box',
+                                xScaleID: 'x-axis-0',
+                                yScaleID: 'y-axis-0',
+                                xMin: this.props.labels[20],
+                                xMax: this.props.labels[50],
+                                yMin: 200000,
+                                yMax: 800000,
+                                backgroundColor: 'rgba(101, 33, 171, 0.5)',
+                                borderColor: 'rgb(101, 33, 171)',
+                                borderWidth: 1
+                              } */
+                            ]
+                          }
+                        }
+                        />
                       : <section className='section has-30-margin-top'>
                         <center>
                           <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
@@ -888,6 +931,7 @@ class Dashboard extends Component {
                       {this.loadTable()}
                     </section>
                   }
+                  
                 </div>
               </div>
 
