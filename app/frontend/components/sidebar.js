@@ -13,6 +13,10 @@ import Channels from '../pages/channel/list'
 import SelectOrg from '../pages/select-org'
 import Calendar from '../pages/calendar'
 import Prices from '../pages/prices/list'
+import UsersImport from '../pages/import/users'
+import SalesCentersImport from '../pages/import/sales-centers'
+import ChannelsImport from '../pages/import/channels'
+import ProductsImport from '../pages/import/products'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -106,6 +110,17 @@ class Sidebar extends Component {
             SalesCenters.asSidebarItem(),
             Products.asSidebarItem(),
             Channels.asSidebarItem()
+          ]
+        },
+        {
+          title: 'Cargar Datos',
+          icon: 'file-o',
+          to: '/import',
+          dropdown: [
+            UsersImport.asSidebarItem(),
+            SalesCentersImport.asSidebarItem(),
+            ChannelsImport.asSidebarItem(),
+            ProductsImport.asSidebarItem()
           ]
         }
       ]
