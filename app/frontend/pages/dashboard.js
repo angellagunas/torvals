@@ -251,7 +251,11 @@ class Dashboard extends Component {
       let totalAdjustment = 0
       let mape = 0
 
-      let data = _.orderBy(res.data,
+      let data = res.data
+      let activePeriod = []
+      let topValue = 0
+
+      data = _.orderBy(res.data,
         (e) => {
           return e.date
         }
@@ -262,7 +266,13 @@ class Dashboard extends Component {
         totalPrediction += item.prediction
         totalSale += item.sale
         totalPSale += item.previousSale
+
+        if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
+          activePeriod.push(item)
+        }
       })
+
+      topValue = this.getTopValue(res.data)
 
       mape = res.mape
 
@@ -277,7 +287,10 @@ class Dashboard extends Component {
         totalSale,
         totalPSale,
         mape,
-        reloadGraph: true
+        topValue,
+        reloadGraph: true,
+        startPeriod: activePeriod[0],
+        endPeriod: activePeriod[activePeriod.length - 1]
       })
       setTimeout( () => {
         this.setState({
@@ -290,6 +303,15 @@ class Dashboard extends Component {
         noData: e.message + ', intente más tarde'
       })
     }
+  }
+
+  getTopValue (data){
+    let maxPrediction = Math.max.apply(Math, data.map(function (item) { return item.prediction }))
+    let maxAdjustment = Math.max.apply(Math, data.map(function (item) { return item.adjustment }))
+    let maxSale = Math.max.apply(Math, data.map(function (item) { return item.sale }))
+    let maxPrevSale = Math.max.apply(Math, data.map(function (item) { return item.previousSale }))
+
+    return Math.max(maxPrediction, maxAdjustment, maxSale, maxPrevSale)
   }
 
   async getProductTable() {
@@ -546,7 +568,7 @@ class Dashboard extends Component {
           yearSelected: Array.from(years)[0]
         })
       } catch (e) {
-        console.log(e)
+        this.notify('Error: No hay fechas disponíbles, intente más tarde', 5000, toast.TYPE.ERROR)
       }
   }
 
@@ -1020,7 +1042,43 @@ class Dashboard extends Component {
                               }
                             ]}
                         }
-                      />
+                        annotation={this.state.startPeriod && this.state.startPeriod.date &&
+                          {
+                            annotations: [
+                              {
+                                drawTime: 'beforeDatasetsDraw',
+                                type: 'box',
+                                xScaleID: 'x-axis-0',
+                                yScaleID: 'y-axis-0',
+                                xMin: this.state.startPeriod.date,
+                                xMax: this.state.endPeriod.date,
+                                yMin: 0,
+                                yMax: this.state.topValue,
+                                backgroundColor: 'rgba(101, 33, 171, 0.3)',
+                                borderColor: 'rgba(101, 33, 171, 0.5)',
+                                borderWidth: 1
+                              },
+                              {
+                                drawTime: 'afterDatasetsDraw',
+                                id: 'vline',
+                                type: 'line',
+                                mode: 'vertical',
+                                scaleID: 'x-axis-0',
+                                value: this.state.startPeriod.date,
+                                borderColor: 'rgba(101, 33, 171, 0)',
+                                borderWidth: 1,
+                                label: {
+                                  backgroundColor: 'rgb(101, 33, 171)',
+                                  content: 'Periodo actual',
+                                  enabled: true,
+                                  fontSize: 10,
+                                  position: 'top'
+                                }
+                              }
+                            ]
+                          }
+                        }
+                        />
                       : <section className='section has-30-margin-top'>
                         <center>
                           <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
@@ -1030,6 +1088,7 @@ class Dashboard extends Component {
                       {this.loadTable()}
                     </section>
                   }
+                  
                 </div>
               </div>
 
