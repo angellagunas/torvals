@@ -219,7 +219,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'anomalias',
-        title: 'Anomalias',
+        title: 'Anomalías',
         reload: true,
         hide: (project.status === 'processing' ||
           project.status === 'pendingRows' ||

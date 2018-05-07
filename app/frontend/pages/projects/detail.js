@@ -474,7 +474,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'anomalias',
-        title: 'Anomalias',
+        title: 'Anomalías',
         reload: true,
         hide: (testRoles('manager-level-1') ||
           project.status === 'processing' ||
