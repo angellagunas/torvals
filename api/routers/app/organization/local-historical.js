@@ -21,76 +21,80 @@ module.exports = new Route({
 
     const key = {date: '$data.forecastDate'}
 
-    var match = [
-      {
-        '$match': {
-          dataset: { $in: datasets }
-        }
-      }
-    ]
+    var initialMatch = {
+      dataset: { $in: datasets }
+    }
 
     if (data.channels) {
       const channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1})
-      match.push({'$match': {'channel': {$in: channels.map(item => { return item._id })}}})
+      initialMatch['channel'] = {$in: channels.map(item => { return item._id })}
     }
 
     if (data.salesCenters) {
       const salesCenters = await SalesCenter.find({ uuid: { $in: data.salesCenters } }).select({'_id': 1})
-      match.push({'$match': {'salesCenter': {$in: salesCenters.map(item => { return item._id })}}})
+      initialMatch['salesCenter'] = { $in: salesCenters.map(item => { return item._id }) }
     }
 
     if (data.products) {
       const products = await Product.find({ uuid: { $in: data.products } }).select({'_id': 1})
-      match.push({'$match': {'product': {$in: products.map(item => { return item._id })}}})
+      initialMatch['product'] = { $in: products.map(item => { return item._id }) }
     }
-    var matchPreviousSale = Array.from(match)
+    var matchPreviousSale = Array.from(initialMatch)
 
     if (data.date_start && data.date_end) {
-      match.push({
-        '$match': {
-          'data.forecastDate': {
-            $gte: moment.utc(data.date_start, 'YYYY-MM-DD').toDate(),
-            $lte: moment.utc(data.date_end, 'YYYY-MM-DD').toDate()
-          }
-        }
-      })
-      matchPreviousSale.push({
-        '$match': {
-          'data.forecastDate': {
-            $gte: moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').toDate(),
-            $lte: moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').toDate()
-          }
-        }
-      })
+      initialMatch['data.forecastDate'] = {
+        $gte: moment.utc(data.date_start, 'YYYY-MM-DD').toDate(),
+        $lte: moment.utc(data.date_end, 'YYYY-MM-DD').toDate()
+      }
+
+      matchPreviousSale['data.forecastDate'] = {
+        $gte: moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').toDate(),
+        $lte: moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').toDate()
+      }
     } else {
       ctx.throw(400, 'Es necesario filtrarlo por un rango de fechas!')
     }
 
-    match.push({
-      '$group': {
-        _id: key,
-        prediction: { $sum: '$data.prediction' },
-        adjustment: { $sum: '$data.adjustment' },
-        sale: { $sum: '$data.sale' }
+    var match = [
+      {
+        '$match': {
+          ...initialMatch
+        }
+      },
+      {
+        '$group': {
+          _id: key,
+          prediction: { $sum: '$data.prediction' },
+          adjustment: { $sum: '$data.adjustment' },
+          sale: { $sum: '$data.sale' }
+        }
       }
-    })
-    match.push({ $sort: { '_id.date': 1 } })
+    ]
 
-    matchPreviousSale.push({
-      '$group': {
-        _id: key,
-        prediction: { $sum: '$data.prediction' },
-        adjustment: { $sum: '$data.adjustment' },
-        sale: { $sum: '$data.sale' }
+    matchPreviousSale = [
+      {
+        '$match': {
+          ...matchPreviousSale
+        }
+      },
+      {
+        '$group': {
+          _id: key,
+          sale: { $sum: '$data.sale' }
+        }
       }
-    })
+    ]
+
+    match.push({ $sort: { '_id.date': 1 } })
     matchPreviousSale.push({ $sort: { '_id.date': 1 } })
 
     var responseData = await DataSetRow.aggregate(match)
     var previousSale = await DataSetRow.aggregate(matchPreviousSale)
 
     var previousSaleDict = {}
-    previousSale.map(item => { previousSaleDict[moment(item._id.date).format('YYYY-MM-DD')] = item })
+    for (var prev of previousSale) {
+      previousSaleDict[moment(prev._id.date).format('YYYY-MM-DD')] = prev
+    }
 
     var totalPrediction = 0
     var totalSale = 0
@@ -117,7 +121,7 @@ module.exports = new Route({
       mape = Math.abs((totalSale - totalPrediction) / totalSale)
     }
 
-    ctx.set('Cache-Control', 'max-age=172800')
+    ctx.set('Cache-Control', 'max-age=86400')
 
     ctx.body = {
       data: responseData,

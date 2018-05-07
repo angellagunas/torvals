@@ -111,6 +111,13 @@
             max-height: 200px;
             overflow-x: hidden;
             overflow-y: auto;
+            li {
+                a {
+                    div {
+                        display: inline;
+                    }
+                }
+            }
         }
         .menu {
             &>div {
@@ -131,7 +138,7 @@
             }
             .collapsable-title {
                 width: 100%;
-                height: 2.5rem; 
+                height: 2.5rem;
                 display: flex;
                 align-items: center;
                 border-color: #E6E8F6;
@@ -151,7 +158,18 @@
             border-color: #E6E8F6;
             border-radius: 0;
             padding: .5rem;
-            min-height: 288px;
+            min-height: 350px;
+            .chart-container {
+                position: relative;
+                margin: auto;
+                height: 80%;
+                width: 100%;
+            }
+            .indicators {
+                p:nth-child(even) {
+                    margin-bottom: 1.7rem;
+                }
+            }
         }
         .notification {
             padding: 1.5rem 0;
