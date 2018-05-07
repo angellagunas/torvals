@@ -3,6 +3,7 @@ require('../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
 const fs = require('fs')
+const _ = require('lodash')
 
 const Task = require('lib/task')
 const { DataSetRow, AbraxasDate } = require('models')
@@ -24,18 +25,23 @@ const task = new Task(async function (argv) {
   console.log('Retrieving Datasetrows')
   const rows = await DataSetRow.find(filters).cursor()
   var bulkOps = []
+  // var abraxasdate = await AbraxasDate.findOne({$or: [{ dateStart: row.data.forecastDate }, { dateEnd: row.data.forecastDate }]})
+  var abraxasdates = await AbraxasDate.find()
 
   for (let row = await rows.next(); row != null; row = await rows.next()) {
     try {
       console.log('Searching for week...')
-      var abraxasdate = await AbraxasDate.findOne({$or: [{ dateStart: row.data.forecastDate }, { dateEnd: row.data.forecastDate }]})
+      var abraxasdate = _.find(abraxasdates, (date) => {
+        return moment(date.dateStart).diff(moment(row.data.forecastDate), 'minutes') === 0 || moment(date.dateEnd).diff(moment(row.data.forecastDate), 'minutes') === 0
+      })
+      console.log('abraxasdate', abraxasdate)
       if (abraxasdate) {
-        console.log('Date founded!')
+        console.log('Date found!')
         console.log('DataSetRow ' + row.uuid)
         console.log('Date ' + row.data.forecastDate)
         console.log('Week ' + abraxasdate.week)
 
-        output.write('Date founded! ')
+        output.write('Date found! ')
         output.write('DataSetRow ' + row.uuid)
         output.write(' Date ' + row.data.forecastDate)
         output.write(' Week ' + abraxasdate.week + ' \n')
@@ -49,11 +55,11 @@ const task = new Task(async function (argv) {
           }
         )
       } else {
-        console.log('Date not founded!!')
+        console.log('Date not found!!')
         console.log('DataSetRow ' + row.uuid)
         console.log('Date ' + row.data.forecastDate)
 
-        output.write('Date not founded!! ')
+        output.write('Date not found!! ')
         output.write('DataSetRow ' + row.uuid)
         output.write(' Date ' + row.data.forecastDate + ' \n')
       }
@@ -69,6 +75,7 @@ const task = new Task(async function (argv) {
       console.log(e)
       error.write('Error!! \n')
       error.write(e)
+      return false
     }
   }
 
@@ -81,6 +88,7 @@ const task = new Task(async function (argv) {
     console.log(e)
     error.write('Error!! \n')
     error.write(e)
+    return false
   }
 
   return true
