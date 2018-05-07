@@ -253,17 +253,13 @@ class Dashboard extends Component {
 
       let data = res.data
       let activePeriod = []
-      
+      let topValue = 0
 
       data = _.orderBy(res.data,
         (e) => {
           return e.date
         }
         , ['asc'])
-
-        console.log(data)
-
-    
 
       data.map((item) => {
         totalAdjustment += item.adjustment
@@ -272,10 +268,11 @@ class Dashboard extends Component {
         totalPSale += item.previousSale
 
         if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
-          console.log('DATE: ', item)
           activePeriod.push(item)
         }
       })
+
+      topValue = this.getTopValue(res.data)
 
       mape = res.mape
 
@@ -290,6 +287,7 @@ class Dashboard extends Component {
         totalSale,
         totalPSale,
         mape,
+        topValue,
         reloadGraph: true,
         startPeriod: activePeriod[0],
         endPeriod: activePeriod[activePeriod.length - 1]
@@ -305,6 +303,15 @@ class Dashboard extends Component {
         noData: e.message + ', intente más tarde'
       })
     }
+  }
+
+  getTopValue (data){
+    let maxPrediction = Math.max.apply(Math, data.map(function (item) { return item.prediction }))
+    let maxAdjustment = Math.max.apply(Math, data.map(function (item) { return item.adjustment }))
+    let maxSale = Math.max.apply(Math, data.map(function (item) { return item.sale }))
+    let maxPrevSale = Math.max.apply(Math, data.map(function (item) { return item.previousSale }))
+
+    return Math.max(maxPrediction, maxAdjustment, maxSale, maxPrevSale)
   }
 
   async getProductTable() {
@@ -561,7 +568,7 @@ class Dashboard extends Component {
           yearSelected: Array.from(years)[0]
         })
       } catch (e) {
-        console.log(e)
+        this.notify('Error: No hay fechas disponíbles, intente más tarde', 5000, toast.TYPE.ERROR)
       }
   }
 
@@ -1035,7 +1042,7 @@ class Dashboard extends Component {
                               }
                             ]}
                         }
-                        annotation={
+                        annotation={this.state.startPeriod && this.state.startPeriod.date &&
                           {
                             annotations: [
                               {
@@ -1046,7 +1053,7 @@ class Dashboard extends Component {
                                 xMin: this.state.startPeriod.date,
                                 xMax: this.state.endPeriod.date,
                                 yMin: 0,
-                                yMax: 800000,
+                                yMax: this.state.topValue,
                                 backgroundColor: 'rgba(101, 33, 171, 0.3)',
                                 borderColor: 'rgba(101, 33, 171, 0.5)',
                                 borderWidth: 1
