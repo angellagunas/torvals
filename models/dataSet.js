@@ -241,19 +241,34 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
     ACL: 'public-read'
   }
 
-  await this.fileChunk.uploadChunks(s3File, chunkKey)
+  try {
+    await this.fileChunk.uploadChunks(s3File, chunkKey)
+  } catch (e) {
+    this.fileChunk.lastChunk = 0
+    this.fileChunk.recreated = false
+    this.fileChunk.uploaded = false
+    await this.fileChunk.save()
+
+    return false
+  }
+
   s3File['Body'] = await fs.readFile(path.join(this.fileChunk.path, this.fileChunk.filename))
   s3File['Key'] = fileName
 
-  var s3 = new awsService.S3({
-    credentials: {
-      accessKeyId: aws.s3AccessKey,
-      secretAccessKey: aws.s3Secret
-    },
-    region: aws.s3Region
-  })
+  try {
+    var s3 = new awsService.S3({
+      credentials: {
+        accessKeyId: aws.s3AccessKey,
+        secretAccessKey: aws.s3Secret
+      },
+      region: aws.s3Region
+    })
 
-  await s3.putObject(s3File).promise()
+    await s3.putObject(s3File).promise()
+  } catch (e) {
+    return false
+  }
+
   this.set({
     path: {
       url: fileName,

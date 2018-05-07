@@ -15,6 +15,8 @@ WORKDIR /app
 RUN make app-dist
 RUN make admin-dist
 RUN node tasks/build-indexes.js
+
+RUN mkdir -p media/uploads
 RUN chown node:node media/
 RUN chown node:node media/uploads
 
