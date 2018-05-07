@@ -248,11 +248,8 @@ class Dashboard extends Component {
       let mape = 0
 
       let data = res.data
-      let today = {
-        date: moment.utc().format('YYYY-MM-DDT00:00:00.000')
-      }
-      console.log(today)
-      data.push(today)
+      let activePeriod = []
+      
 
       data = _.orderBy(res.data,
         (e) => {
@@ -261,11 +258,19 @@ class Dashboard extends Component {
         , ['asc'])
 
         console.log(data)
+
+    
+
       data.map((item) => {
         totalAdjustment += item.adjustment
         totalPrediction += item.prediction
         totalSale += item.sale
         totalPSale += item.previousSale
+
+        if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
+          console.log('DATE: ', item)
+          activePeriod.push(item)
+        }
       })
 
       mape = res.mape
@@ -281,7 +286,9 @@ class Dashboard extends Component {
         totalSale,
         totalPSale,
         mape,
-        reloadGraph: true
+        reloadGraph: true,
+        startPeriod: activePeriod[0],
+        endPeriod: activePeriod[activePeriod.length - 1]
       })
       setTimeout( () => {
         this.setState({
@@ -891,33 +898,35 @@ class Dashboard extends Component {
                           {
                             annotations: [
                               {
+                                drawTime: 'beforeDatasetsDraw',
+                                type: 'box',
+                                xScaleID: 'x-axis-0',
+                                yScaleID: 'y-axis-0',
+                                xMin: this.state.startPeriod.date,
+                                xMax: this.state.endPeriod.date,
+                                yMin: 0,
+                                yMax: 800000,
+                                backgroundColor: 'rgba(101, 33, 171, 0.3)',
+                                borderColor: 'rgba(101, 33, 171, 0.5)',
+                                borderWidth: 1
+                              },
+                              {
                                 drawTime: 'afterDatasetsDraw',
                                 id: 'vline',
                                 type: 'line',
                                 mode: 'vertical',
                                 scaleID: 'x-axis-0',
-                                value: moment.utc().format('YYYY-MM-DDT00:00:00.000'),
-                                borderColor: 'black',
-                                borderWidth: 5,
+                                value: this.state.startPeriod.date,
+                                borderColor: 'rgba(101, 33, 171, 0)',
+                                borderWidth: 1,
                                 label: {
-                                  backgroundColor: 'red',
-                                  content: 'Hoy',
-                                  enabled: true
+                                  backgroundColor: 'rgb(101, 33, 171)',
+                                  content: 'Periodo actual',
+                                  enabled: true,
+                                  fontSize: 10,
+                                  position: 'top'
                                 }
-                              }/* ,
-                              {
-                                  drawTime: 'beforeDatasetsDraw',
-                                type: 'box',
-                                xScaleID: 'x-axis-0',
-                                yScaleID: 'y-axis-0',
-                                xMin: this.props.labels[20],
-                                xMax: this.props.labels[50],
-                                yMin: 200000,
-                                yMax: 800000,
-                                backgroundColor: 'rgba(101, 33, 171, 0.5)',
-                                borderColor: 'rgb(101, 33, 171)',
-                                borderWidth: 1
-                              } */
+                              }
                             ]
                           }
                         }
