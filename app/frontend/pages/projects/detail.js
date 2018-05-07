@@ -92,7 +92,7 @@ class ProjectDetail extends Component {
     try {
       const body = await api.get(url)
 
-      if (!tab) {
+      if (!tab && currentRole !== 'manager-level-1') {
         if (body.data.status === 'empty') {
           tab = 'datasets'
         }
@@ -102,6 +102,10 @@ class ProjectDetail extends Component {
         else {
           tab = this.state.selectedTab
         }
+      }
+
+      else if (!tab && currentRole === 'manager-level-1') {
+        tab = 'ajustes'
       }
 
     this.setState({
@@ -420,12 +424,14 @@ class ProjectDetail extends Component {
       {
         name: 'graficos',
         title: 'Gráficos',
-        hide: (project.status === 'processing' ||
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'processing' ||
           project.status === 'pendingRows' ||
           project.status === 'empty'),
         content: (
           <TabHistorical
             project={project}
+            history={this.props.history}
           />
         )
       },

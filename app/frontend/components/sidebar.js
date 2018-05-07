@@ -116,6 +116,7 @@ class Sidebar extends Component {
           title: 'Cargar Datos',
           icon: 'file-o',
           to: '/import',
+          roles: 'orgadmin, admin',
           dropdown: [
             UsersImport.asSidebarItem(),
             SalesCentersImport.asSidebarItem(),
