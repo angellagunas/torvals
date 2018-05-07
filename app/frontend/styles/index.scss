@@ -297,6 +297,42 @@ h2 {
     background-color: $warning !important;
 }
 
+pre {
+    font-size: inherit;
+}
+
+.file-cta {
+    white-space: initial;
+}
+
+.file.is-info .file-cta {
+    background-color: rgba($info, 0.05);
+    border-color: $info;
+    color: $general_text;
+    i {
+        color: $info;
+    }
+}
+
+.file.is-info:hover .file-cta {
+    background-color: rgba($info, 0.05);
+    border-color: $info;
+    color: $general_text;
+}
+
+.file.is-info.is-hovered .file-cta .file-label {
+    margin: .5rem;
+    font-size: 1rem;
+}
+
+.file.is-boxed .file-cta {
+    flex-direction: initial;
+}
+
+.file-name{
+    max-width: 17em;
+}
+
 /* @import 'base'; */
 
 @import '../../../lib/frontend/style.css';
