@@ -13,7 +13,8 @@ import Checkbox from '~base/components/base-checkbox'
 import WeekTable from './week-table'
 import ProductTable from './product-table'
 import Select from './select'
-import Graph from './graph'
+import Graph from '~base/components/graph'
+
 
 const FileSaver = require('file-saver')
 
@@ -101,7 +102,9 @@ class TabAdjustment extends Component {
       }
     })
 
-    for (let i = map.size; i > map.size-4; i--) {
+    let mapSize = map.size > 4 ? 4 : map.size
+
+    for (let i = map.size; i > map.size-mapSize; i--) {
       const element = Array.from(map)[i-1]
       let adjustment = adjustments['' + (map.size - i + 1)]
 
@@ -182,6 +185,7 @@ class TabAdjustment extends Component {
           this.getDataRows()
         })
       } catch (e) {
+        console.log(e)
         this.setState({
           error: true,
           errorMessage: 'No se pudieron cargar los filtros!'

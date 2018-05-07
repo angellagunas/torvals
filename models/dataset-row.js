@@ -31,10 +31,11 @@ const datasetRowSchema = new Schema({
     existence: { type: Number },
     prediction: { type: Number },
     adjustment: { type: Number },
+    sale: { type: Number },
     localAdjustment: { type: Number },
     lastAdjustment: { type: Number },
     semanaBimbo: { type: Number },
-    forecastDate: { type: String }
+    forecastDate: { type: Date }
   },
   apiData: { type: Schema.Types.Mixed },
 
@@ -71,5 +72,10 @@ datasetRowSchema.methods.toAdmin = function () {
     data: this.data
   }
 }
+
+datasetRowSchema.index({ isDeleted: -1, dataset: 1, status: 1, organization: 1 }, {background: true})
+datasetRowSchema.index({ product: 1 }, {background: true})
+datasetRowSchema.index({ 'data.forecastDate': 1 }, {background: true})
+datasetRowSchema.set('autoIndex', true)
 
 module.exports = mongoose.model('DataSetRow', datasetRowSchema)

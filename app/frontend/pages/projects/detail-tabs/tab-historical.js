@@ -4,7 +4,7 @@ import api from '~base/api'
 import { toast } from 'react-toastify'
 import _ from 'lodash'
 import Loader from '~base/components/spinner'
-import Graph from './graph'
+import Graph from '~base/components/graph'
 import Select from './select'
 
 class TabHistorical extends Component {
@@ -29,23 +29,77 @@ class TabHistorical extends Component {
       },
       historicData: [],
       reloadGraph: false,
-      noHistoricData: ''
+      noHistoricData: '',
+      weeks: []
     }
   }
 
   getLabels () {
     this.state.labels.clear()
-    for (let label of this.state.historicData.prediction) {
-      if (!this.state.labels.has(label.x)) {
-        this.state.labels.add(label.x)
+    let weeks = {}
+    let data = this.state.historicData
+
+    for (let i = 0; i < data.prediction.length; i++) {
+      this.state.labels.add(data.prediction[i].x)
+      weeks[data.prediction[i].x] = {
+        ...weeks[data.prediction[i].x],
+        week: data.prediction[i].abraxasDate[0].week,
+        prediction: data.prediction[i].y
+      }
+      if (data.adjustment[i]) {
+        this.state.labels.add(data.adjustment[i].x)
+        weeks[data.adjustment[i].x] = {
+          ...weeks[data.adjustment[i].x],
+          week: data.adjustment[i].abraxasDate[0].week,
+          adjustment: data.adjustment[i].y
+        }
+      }
+
+      if (data.sale[i]) {
+        this.state.labels.add(data.sale[i].x)
+        weeks[data.sale[i].x] = {
+          ...weeks[data.sale[i].x],
+          week: data.sale[i].abraxasDate[0].week,
+          sale: data.sale[i].y
+        }
+      }
+
+      if (data.previous_sale[i]) {
+        this.state.labels.add(data.previous_sale[i].x)
+        weeks[data.previous_sale[i].x] = {
+          ...weeks[data.previous_sale[i].x],
+          week: data.previous_sale[i].abraxasDate[0].week,
+          prevSale: data.previous_sale[i].y
+        }
       }
     }
+
+    weeks = Object.keys(weeks).sort().reduce((r, k) => (r[k] = weeks[k], r), {})
+    let formatedLabels = _.sortBy(Array.from(this.state.labels), function (date) {
+      return moment(date)
+    })
+
+    this.setState({
+      formatedLabels,
+      weeks
+    })
   }
 
   getPredictions () {
     let aux = []
-    for (let p of this.state.historicData.prediction) {
-      aux.push(p.y)
+
+    let labels = this.state.formatedLabels
+    let data = this.state.historicData
+
+    for (let i = 0; i < labels.length; i++) {
+      let found = data.prediction.find(function (element) {
+        return element.x === labels[i]
+      })
+      if (found && found.y !== 0) {
+        aux.push(found.y)
+      } else {
+        aux.push(undefined)
+      }
     }
 
     this.setState({
@@ -55,8 +109,18 @@ class TabHistorical extends Component {
 
   getAdjustments () {
     let aux = []
-    for (let a of this.state.historicData.adjustment) {
-      aux.push(a.y)
+    let labels = this.state.formatedLabels
+    let data = this.state.historicData
+
+    for (let i = 0; i < labels.length; i++) {
+      let found = data.adjustment.find(function (element) {
+        return element.x === labels[i]
+      })
+      if (found && found.y !== 0) {
+        aux.push(found.y)
+      } else {
+        aux.push(undefined)
+      }
     }
 
     this.setState({
@@ -66,8 +130,18 @@ class TabHistorical extends Component {
 
   getSales () {
     let aux = []
-    for (let s of this.state.historicData.sale) {
-      aux.push(s.y)
+    let labels = this.state.formatedLabels
+    let data = this.state.historicData
+
+    for (let i = 0; i < labels.length; i++) {
+      let found = data.sale.find(function (element) {
+        return element.x === labels[i]
+      })
+      if (found && found.y !== 0) {
+        aux.push(found.y)
+      } else {
+        aux.push(undefined)
+      }
     }
 
     this.setState({
@@ -77,8 +151,18 @@ class TabHistorical extends Component {
 
   getPrevSales () {
     let aux = []
-    for (let s of this.state.historicData.previous_sale) {
-      aux.push(s.y)
+    let labels = this.state.formatedLabels
+    let data = this.state.historicData
+
+    for (let i = 0; i < labels.length; i++) {
+      let found = data.previous_sale.find(function (element) {
+        return element.x === labels[i]
+      })
+      if (found && found.y !== 0) {
+        aux.push(found.y)
+      } else {
+        aux.push(undefined)
+      }
     }
 
     this.setState({
@@ -87,59 +171,25 @@ class TabHistorical extends Component {
   }
 
   async getWeekTotals (dates) {
-    const wtp = []
-    const wta = []
-    const wts = []
-    const wtl = []
     let tp = 0
     let ta = 0
     let ts = 0
     let tl = 0
 
-    for (const week of this.state.historicData.prediction) {
-      for (let i = 0; i < dates.length; i++) {
-        if (moment(week.x).isBetween(dates[i].dateStart, dates[i].dateEnd, 'days', '[]')) {
-          wtp.push({ week: dates[i].week, total: week.y })
-          tp += week.y
-        }
-      }
-    }
-    wtp.push({ week: '', total: tp })
+    let weeks = Object.values(this.state.weeks)
 
-    for (const week of this.state.historicData.adjustment) {
-      for (let i = 0; i < dates.length; i++) {
-        if (moment(week.x).isBetween(dates[i].dateStart, dates[i].dateEnd, 'days', '[]')) {
-          wta.push({ week: dates[i].week, total: week.y })
-          ta += week.y
-        }
-      }
+    for (let i = 0; i < weeks.length; i++) {
+      if (weeks[i].prediction) { tp += Number(weeks[i].prediction) }
+      if (weeks[i].adjustment) { ta += Number(weeks[i].adjustment) }
+      if (weeks[i].sale) { ts += Number(weeks[i].sale) }
+      if (weeks[i].prevSale) { tl += Number(weeks[i].prevSale) }
     }
-    wta.push({ week: '', total: ta })
 
-    for (const week of this.state.historicData.sale) {
-      for (let i = 0; i < dates.length; i++) {
-        if (moment(week.x).isBetween(dates[i].dateStart, dates[i].dateEnd, 'days', '[]')) {
-          wts.push({ week: dates[i].week, total: week.y })
-          ts += week.y
-        }
-      }
-    }
-    wts.push({ week: '', total: ts })
-
-    for (const week of this.state.historicData.previous_sale) {
-      for (let i = 0; i < dates.length; i++) {
-        if (moment(week.x).isBetween(dates[i].dateStart, dates[i].dateEnd, 'days', '[]')) {
-          wtl.push({ week: dates[i].week, total: week.y })
-          tl += week.y
-        }
-      }
-    }
-    wtl.push({ week: '', total: tl })
     this.setState({
-      weekTotalsPredictions: wtp,
-      weekTotalsAdjustments: wta,
-      weekTotalsSales: wts,
-      weekTotalsLastSales: wtl
+      weekTotalsPredictions: tp,
+      weekTotalsAdjustments: ta,
+      weekTotalsSales: ts,
+      weekTotalsLastSales: tl
     })
   }
 
@@ -325,7 +375,7 @@ class TabHistorical extends Component {
   async getData (e) {
     this.setState({
       isLoading: ' is-loading',
-      noHistoricData: '',
+      // noHistoricData: '',
       historicData: []
     })
 
@@ -385,21 +435,30 @@ class TabHistorical extends Component {
         isLoading: '',
         reloadGraph: true
       }, async () => {
-        await this.getWeekTotals(this.state.filters.dates)
         await this.getLabels()
+
+        await this.getWeekTotals(this.state.filters.dates)
         await this.getPredictions()
         await this.getAdjustments()
         await this.getSales()
         await this.getPrevSales()
         this.setState({
-          reloadGraph: false
+          reloadGraph: false,
+          noHistoricData: ''
         })
       })
+
+      if (res.data.prediction.length === 0) {
+        this.setState({
+          isLoading: '',
+          noHistoricData: 'No hay datos que mostrar'
+        })
+      }
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         isLoading: '',
-        noHistoricData: e.message + ', intente más tarde'
+        noHistoricData: 'No hay datos disponibles, intente más tarde'
       })
     }
   }
@@ -477,46 +536,48 @@ class TabHistorical extends Component {
 
     return (
       <div>
-        <div className='section level selects'>
-          <div className='level-left'>
-            <div className='level-item'>
-              <Select
-                label='Año'
-                name='year'
-                value={this.state.formData.year}
-                placeholder='Seleccionar'
-                type='integer'
-                options={this.state.filters.years}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+        {this.state.noHistoricData === ''
+          ? <div>
+            <div className='section level selects'>
+              <div className='level-left'>
+                <div className='level-item'>
+                  <Select
+                    label='Año'
+                    name='year'
+                    value={this.state.formData.year}
+                    placeholder='Seleccionar'
+                    type='integer'
+                    options={this.state.filters.years}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
-            </div>
-            <div className='level-item'>
-              <Select
-                label='Periodo'
-                name='period'
-                value={this.state.formData.period}
-                placeholder='Todos'
-                optionValue='number'
-                optionName='name'
-                type='integer'
-                options={this.state.filters.periods}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                </div>
+                <div className='level-item'>
+                  <Select
+                    label='Periodo'
+                    name='period'
+                    value={this.state.formData.period}
+                    placeholder='Todos'
+                    optionValue='number'
+                    optionName='name'
+                    type='integer'
+                    options={this.state.filters.periods}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
-            </div>
+                </div>
 
-            <div className='level-item'>
-              <Select
-                label='Categoría'
-                name='category'
-                value=''
-                placeholder='Seleccionar'
-                options={this.state.filters.categories}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                <div className='level-item'>
+                  <Select
+                    label='Categoría'
+                    name='category'
+                    value=''
+                    placeholder='Seleccionar'
+                    options={this.state.filters.categories}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
-            </div>
+                </div>
 
-            <div className='level-item'>
-              {this.state.filters.channels.length === 1
+                <div className='level-item'>
+                  {this.state.filters.channels.length === 1
                 ? <div className='channel'>
                   <span>Canal: </span>
                   <span className='has-text-weight-bold is-capitalized'>{this.state.filters.channels[0].name}
@@ -533,10 +594,10 @@ class TabHistorical extends Component {
                   onChange={(name, value) => { this.filterChangeHandler(name, value) }}
                 />
               }
-            </div>
+                </div>
 
-            <div className='level-item'>
-              {this.state.filters.salesCenters.length === 1
+                <div className='level-item'>
+                  {this.state.filters.salesCenters.length === 1
                 ? <div className='saleCenter'>
                   <span>Centro de Venta: </span>
                   <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
@@ -553,26 +614,25 @@ class TabHistorical extends Component {
                   onChange={(name, value) => { this.filterChangeHandler(name, value) }}
                 />
               }
-            </div>
-          </div>
-        </div>
-        <div className='section'>
-          <div className='columns'>
-
-            <div className='column'>
-              <div className='panel historic-table'>
-                <div className='panel-heading'>
-                  <h2 className='is-capitalized'>Totales de Venta</h2>
                 </div>
-                <div className='panel-block'>
-                  {
+              </div>
+            </div>
+
+            <div className='section'>
+              <div className='columns'>
+                <div className='column'>
+                  <div className='panel historic-table'>
+                    <div className='panel-heading'>
+                      <h2 className='is-capitalized'>Totales de Venta</h2>
+                    </div>
+                    <div className='panel-block'>
+                      {
                     this.state.historicData.prediction &&
                       this.state.weekTotalsPredictions
 
                     ? <div className='is-fullwidth'>
                       {
-                          this.state.historicData.prediction.length > 0 &&
-                            this.state.weekTotalsPredictions.length > 0
+                          this.state.historicData.prediction.length > 0
                             ? <table className='table historical is-fullwidth'>
                               <thead>
                                 <tr>
@@ -584,33 +644,43 @@ class TabHistorical extends Component {
                                 </tr>
                               </thead>
                               <tbody>
-                                {this.state.weekTotalsPredictions.map((item, key) => {
-                                  if (item.week !== '') {
+                                {Object.values(this.state.weeks).map((item, key) => {
+                                  if (item !== '') {
                                     return (
                                       <tr className='has-text-centered' key={key}>
                                         <td>
                                           {item.week}
                                         </td>
                                         <td>
-                                          $ {item.total.toFixed(2).replace(/./g, (c, i, a) => {
-                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                          })}
-                                        </td>
-                                        <td>
-                                          $ {this.state.weekTotalsAdjustments[key].total.toFixed(2).replace(/./g, (c, i, a) => {
-                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                          })}
-                                        </td>
-                                        <td>
-                                          $ {this.state.weekTotalsSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
-                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                          })}
-                                        </td>
-                                        <td>
-                                          $ {this.state.weekTotalsLastSales[key]
-                                            ? this.state.weekTotalsLastSales[key].total.toFixed(2).replace(/./g, (c, i, a) => {
+                                          $ {item.prediction
+                                            ? item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
                                               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                            }) : '0.00'
+                                            })
+                                            : '0.00'
+                                          }
+                                        </td>
+                                        <td>
+                                          $ {item.adjustment
+                                          ? item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                          })
+                                        : '0.00'
+                                        }
+                                        </td>
+                                        <td>
+                                          $ {item.sale
+                                          ? item.sale.toFixed(2).replace(/./g, (c, i, a) => {
+                                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                          })
+                                        : '0.00'
+                                        }
+                                        </td>
+                                        <td>
+                                          $ {item.prevSale
+                                            ? item.prevSale.toFixed(2).replace(/./g, (c, i, a) => {
+                                              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                            })
+                                          : '0.00'
                                           }
                                         </td>
                                       </tr>)
@@ -622,25 +692,25 @@ class TabHistorical extends Component {
                                     Total
                           </th>
                                   <th className='has-text-info'>
-                                    $ {this.state.weekTotalsPredictions[this.state.weekTotalsPredictions.length - 1].total
+                                    $ {this.state.weekTotalsPredictions
                                       .toFixed(2).replace(/./g, (c, i, a) => {
                                         return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                       })}
                                   </th>
                                   <th className='has-text-teal'>
-                                    $ {this.state.weekTotalsAdjustments[this.state.weekTotalsAdjustments.length - 1].total
+                                    $ {this.state.weekTotalsAdjustments
                                       .toFixed(2).replace(/./g, (c, i, a) => {
                                         return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                       })}
                                   </th>
                                   <th className='has-text-success'>
-                                    $ {this.state.weekTotalsSales[this.state.weekTotalsSales.length - 1].total
+                                    $ {this.state.weekTotalsSales
                                       .toFixed(2).replace(/./g, (c, i, a) => {
                                         return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                       })}
                                   </th>
                                   <th className='has-text-danger'>
-                                    $ {this.state.weekTotalsLastSales[this.state.weekTotalsLastSales.length - 1].total
+                                    $ {this.state.weekTotalsLastSales
                                       .toFixed(2).replace(/./g, (c, i, a) => {
                                         return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                       })}
@@ -656,43 +726,59 @@ class TabHistorical extends Component {
                     </div>
                       : this.loadTable()
                   }
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className='columns'>
+              <div className='columns'>
 
-            <div className='column'>
-              <div className='panel historic-graph'>
-                <div className='panel-heading'>
-                  <h2 className='is-capitalized'>Totales de Venta</h2>
-                </div>
-                <div className='panel-block'>
-                  {
+                <div className='column'>
+                  <div className='panel historic-graph'>
+                    <div className='panel-heading'>
+                      <h2 className='is-capitalized'>Totales de Venta</h2>
+                    </div>
+                    <div className='panel-block'>
+                      {
                     this.state.historicData.prediction &&
                     this.state.weekTotalsPredictions
                   ? this.state.historicData.prediction && this.state.weekTotalsPredictions &&
                     this.state.predictions.length > 0 &&
                     this.state.adjustments.length > 0
 
-                  ? <Graph
-                    data={graphData}
-                    labels={Array.from(this.state.labels)}
-                    height={50}
-                    reloadGraph={this.state.reloadGraph}
-                  />
-                  : <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
+                    ? <Graph
+                      data={graphData}
+                      labels={this.state.formatedLabels}
+                      height={50}
+                      reloadGraph={this.state.reloadGraph}
+                    />
+                    : <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
                         No hay datos que mostrar
                       </div>
                   : this.loadTable()
                 }
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
 
+        : <div className='section columns'>
+          <div className='column'>
+            <article className='message is-danger'>
+              <div className='message-header'>
+                <p>Error</p>
+                <button className='delete' aria-label='delete' />
+              </div>
+              <div className='message-body'>
+                {this.state.noHistoricData}
+              </div>
+            </article>
+          </div>
         </div>
+        }
       </div>
     )
   }

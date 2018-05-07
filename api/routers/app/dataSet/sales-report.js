@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { DataSet, SalesCenter, Channel, Product, DataSetRow, Role } = require('models')
+const { DataSet, SalesCenter, Channel, Product, DataSetRow, Role, Price } = require('models')
 const Api = require('lib/abraxas/api')
 
 module.exports = new Route({
@@ -68,6 +68,12 @@ module.exports = new Route({
 
     var res = await Api.revenueDataset(dataset.externalId, whereQuery)
 
+    const AllPrices = await Price.find({'organization': ctx.state.organization._id})
+    var prices = {}
+    for (let price of AllPrices) {
+      prices[price._id] = price.price
+    }
+
     for (var item of res._items) {
       const rows = await DataSetRow.find({
         'data.semanaBimbo': item.week,
@@ -76,10 +82,9 @@ module.exports = new Route({
       let difference = 0
 
       for (var row of rows) {
-        await row.product.populate('price').execPopulate()
-
         if (row.product && row.product.price) {
-          difference += (row.data.localAdjustment - row.data.adjustment) * row.product.price.price
+          let price = prices[row.product.price]
+          difference += (row.data.localAdjustment - row.data.adjustment) * price
         }
       }
 
