@@ -32,7 +32,7 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'ajustes',
+      selectedTab: 'graficos',
       datasetClassName: '',
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
@@ -97,7 +97,7 @@ class ProjectDetail extends Component {
           tab = 'datasets'
         }
         else if (body.data.status === 'pendingRows' || body.data.status === 'adjustment') {
-          tab = 'ajustes'
+          tab = 'graficos'
         }
         else {
           tab = this.state.selectedTab
@@ -418,6 +418,18 @@ class ProjectDetail extends Component {
     }
     const tabs = [
       {
+        name: 'graficos',
+        title: 'Gráficos',
+        hide: (project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabHistorical
+            project={project}
+          />
+        )
+      },
+      {
         name: 'ajustes',
         title: 'Ajustes',
         reload: false,
@@ -484,18 +496,6 @@ class ProjectDetail extends Component {
           <TabAnomalies
             project={project}
             reload={(tab) => this.load(tab)}
-          />
-        )
-      },
-      {
-        name: 'graficos',
-        title: 'Gráficos',
-        hide: (project.status === 'processing' ||
-          project.status === 'pendingRows' ||
-          project.status === 'empty'),
-        content: (
-          <TabHistorical
-            project={project}
           />
         )
       },
