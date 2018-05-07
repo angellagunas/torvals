@@ -10,7 +10,7 @@ const { DataSetRow } = require('models')
 const task = new Task(async function (argv) {
   console.log('Fetching DatasetsRows...')
 
-  const filters = {dataset: ObjectId('5ae7a6bc1f25560012c29f20')}
+  const filters = {}
 
   const size = await DataSetRow.find(filters).count()
 
