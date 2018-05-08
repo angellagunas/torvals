@@ -132,9 +132,24 @@ class ProjectForm extends Component {
           'reviewing'
         ]
       }
+      uiSchema['showOnDashboard'] = {'ui:widget': SelectWidget}
+      schema.properties['showOnDashboard'] = {
+        type: 'boolean',
+        title: 'Primario(Mostrar en dashboard)',
+        enum: [
+          true,
+          false
+        ],
+        enumNames: [
+          'Si',
+          'No'
+        ]
+      }
     } else {
       delete uiSchema['status']
       delete schema.properties['status']
+      delete uiSchema['showOnDashboard']
+      delete schema.properties['showOnDashboard']
     }
     var error
     if (this.state.error) {

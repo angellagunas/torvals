@@ -100,6 +100,12 @@ module.exports = new Route({
       status: data.status
     })
 
+    if (data.showOnDashboard !== undefined) {
+      project.set({
+        showOnDashboard: data.showOnDashboard
+      })
+    }
+
     project.save()
 
     ctx.body = {
