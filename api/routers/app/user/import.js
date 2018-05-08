@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {User} = require('models')
+const {User, Role} = require('models')
 const parse = require('csv-parse/lib/sync')
 const lov = require('lov')
 
@@ -21,7 +21,8 @@ module.exports = new Route({
         email: lov.string().required(),
         password: lov.string().required(),
         name: lov.string().required(),
-        screenName: lov.string().required()
+        screenName: lov.string().required(),
+        roleSlug: lov.string().required()
       })
     )
 
@@ -30,11 +31,25 @@ module.exports = new Route({
     if (result.error) {
       ctx.throw(400, result.error)
     }
-
+    var created = 0
     for (var d of data) {
-      await User.create(d)
+      let user = await User.findOne({'email': d.email})
+      if (!user) {
+        let role = await Role.findOne({'slug': d.roleSlug})
+        console.log(role)
+        if (role) {
+          await User.create({
+            email: d.email,
+            password: d.password,
+            name: d.name,
+            screenName: d.screenName,
+            organizations: [{organization: ctx.state.organization._id, role: role._id}]
+          })
+          created++
+        }
+      }
     }
 
-    ctx.body = {message: `Se han creado ${data.length} usuarios satisfactoriamente!`}
+    ctx.body = {message: `Se han creado ${created} usuarios satisfactoriamente!`}
   }
 })
