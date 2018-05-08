@@ -27,7 +27,7 @@ module.exports = new Route({
       ctx.throw(404, 'Dataset no encontrado')
     }
 
-    identifier = cleanFileIdentifier(identifier)
+    identifier = `${cleanFileIdentifier(identifier)} ${datasetId}`
 
     try {
       validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
