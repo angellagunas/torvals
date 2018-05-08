@@ -222,7 +222,7 @@ class TabAnomalies extends Component {
         }
       },
       {
-        'title': 'Tipo de Anomalia',
+        'title': 'Tipo de Anomalía',
         'property': 'type',
         'default': 'N/A',
         'sortable': true,                                
