@@ -27,7 +27,7 @@ module.exports = new Route({
     var filename = chunkData.fields.resumableFilename
     var fileType = chunkData.fields.resumableType
     var datasetId = chunkData.fields.dataset
-    identifier = cleanFileIdentifier(identifier)
+    identifier = `${cleanFileIdentifier(identifier)} ${datasetId}`
 
     var chunk = await FileChunk.findOne({fileId: identifier})
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
@@ -64,6 +64,12 @@ module.exports = new Route({
 
     const tmpdir = path.resolve('.', 'media', 'uploads', identifier)
 
+    if (chunk && chunk.lastChunk === 0) {
+      fs.mkdir(tmpdir, (err) => {
+        console.log('Folder already exists')
+      })
+    }
+
     if (!chunk && chunkNumber === 1) {
       chunk = await FileChunk.create({
         lastChunk: 0,
@@ -74,13 +80,11 @@ module.exports = new Route({
         totalChunks: totalChunks
       })
 
-      try {
-        await fs.mkdir(tmpdir, (error) => {
+      fs.mkdir(tmpdir, (err) => {
+        if (err) {
           console.log('El Folder ya existe')
-        })
-      } catch (e) {
-        console.log('El Folder ya existe')
-      }
+        }
+      })
 
       dataset.set({
         fileChunk: chunk,
@@ -131,12 +135,38 @@ module.exports = new Route({
       for (let key in files) {
         const file = files[key]
         const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
-        const reader = fs.createReadStream(file.path)
-        const writer = fs.createWriteStream(filePath).on('error', e => console.error(e))
-        reader.pipe(writer)
+        var reader
+        var writer
+
+        await new Promise((resolve, reject) => {
+          reader = fs.createReadStream(file.path).on('open', () => {
+            writer = fs.createWriteStream(filePath).on('open', () => {
+              reader.pipe(writer)
+              resolve()
+            }).on('error', e => {
+              console.error(e)
+              reject(e)
+            })
+          })
+        })
+
         filePaths.push(filePath)
       }
     } catch (e) {
+      dataset.set({
+        status: 'error',
+        error: e.message
+      })
+
+      chunk.set({
+        uploaded: false,
+        recreated: false,
+        lastChunk: 0
+      })
+
+      await dataset.save()
+      await chunk.save()
+
       ctx.throw(500, e.message)
     }
 
