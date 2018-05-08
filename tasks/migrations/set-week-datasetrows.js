@@ -25,7 +25,7 @@ const task = new Task(async function (argv) {
   console.log('Retrieving Datasetrows')
   const rows = await DataSetRow.find(filters).cursor()
   var bulkOps = []
-  // var abraxasdate = await AbraxasDate.findOne({$or: [{ dateStart: row.data.forecastDate }, { dateEnd: row.data.forecastDate }]})
+
   var abraxasdates = await AbraxasDate.find()
 
   for (let row = await rows.next(); row != null; row = await rows.next()) {
