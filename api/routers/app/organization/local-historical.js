@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
-const ObjectId = require('mongodb').ObjectID
 const { Project, DataSetRow, Channel, SalesCenter, Product, AbraxasDate } = require('models')
+const moment = require('moment')
 
 module.exports = new Route({
   method: 'post',
@@ -8,7 +8,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     var data = ctx.request.body
     var filters = {
-      organization: ObjectId('5aeb92fe6895e10214c0266c'), // ctx.state.organization,
+      organization: ctx.state.organization,
       activeDataset: {$ne: undefined}
     }
 
@@ -18,8 +18,6 @@ module.exports = new Route({
 
     const projects = await Project.find(filters)
     const datasets = projects.map(item => { return item.activeDataset })
-
-    const weeks = await AbraxasDate.find({})
 
     const key = {week: '$data.semanaBimbo', date: '$data.forecastDate'}
 
@@ -43,11 +41,19 @@ module.exports = new Route({
     }
     var matchPreviousSale = Array.from(initialMatch)
 
-    if (data.semanaBimbo && data.year) {
-      initialMatch['data.semanaBimbo'] = {$in: data.semanaBimbo}
+    if (data.date_start && data.date_end) {
+      const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
+      data.weeks = []
+      for (let week of weeks) {
+        data.weeks.push(week.week)
+      }
+
+      data.year = moment(data.date_start).year()
+
+      initialMatch['data.semanaBimbo'] = {$in: data.weeks}
 
       var lastYear = data.year - 1
-      matchPreviousSale['data.semanaBimbo'] = {$in: data.semanaBimbo}
+      matchPreviousSale['data.semanaBimbo'] = {$in: data.weeks}
     } else {
       ctx.throw(400, 'Es necesario filtrarlo por un rango de fechas!')
     }
@@ -97,7 +103,7 @@ module.exports = new Route({
 
     var responseData = await DataSetRow.aggregate(match)
     var previousSale = await DataSetRow.aggregate(matchPreviousSale)
-    console.log(JSON.stringify(matchPreviousSale))
+
     var previousSaleDict = {}
     for (var prev of previousSale) {
       previousSaleDict[prev._id.week] = prev
