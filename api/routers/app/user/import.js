@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {User, Role} = require('models')
+const {User, Role, Project} = require('models')
 const parse = require('csv-parse/lib/sync')
 const lov = require('lov')
 
@@ -36,16 +36,29 @@ module.exports = new Route({
       let user = await User.findOne({'email': d.email})
       if (!user) {
         let role = await Role.findOne({'slug': d.roleSlug})
-        console.log(role)
         if (role) {
-          await User.create({
-            email: d.email,
-            password: d.password,
-            name: d.name,
-            screenName: d.screenName,
-            organizations: [{organization: ctx.state.organization._id, role: role._id}]
-          })
-          created++
+          if (d.roleSlug === 'manager-level-1') {
+            let project = await Project.findOne({'externalId': d.projectExternalId})
+            if (project) {
+              await User.create({
+                email: d.email,
+                password: d.password,
+                name: d.name,
+                screenName: d.screenName,
+                organizations: [{organization: ctx.state.organization._id, role: role._id, defaultProject: project._id}]
+              })
+              created++
+            }
+          } else {
+            await User.create({
+              email: d.email,
+              password: d.password,
+              name: d.name,
+              screenName: d.screenName,
+              organizations: [{organization: ctx.state.organization._id, role: role._id}]
+            })
+            created++
+          }
         }
       }
     }

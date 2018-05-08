@@ -11,8 +11,9 @@ class ImportUsers extends Component {
         title='usuarios'
         format={
           <pre style={{ marginTop: '1em' }}>
-            "name","screenName","email","password", "roleSlug"<br />
-            "Juan Perez","Juan","juan@coporation.com","password", "manager-level-2"
+            "name","screenName","email","password", "roleSlug", "projectExternalId"<br />
+            "Juan Perez","Juan","juan@coporation.com","password", "manager-level-2"<br />
+            "Roberto","roberto","roberto@copo.com","password", "manager-level-1", "c74ae49f-7a51-4b11-80f5-5baa2898f022"
           </pre>
         }
       />
