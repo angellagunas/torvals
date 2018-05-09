@@ -32,6 +32,7 @@ module.exports = new Route({
       ctx.throw(400, result.error)
     }
     var created = 0
+    var projectError = 0
     for (var d of data) {
       let user = await User.findOne({'email': d.email})
       if (!user) {
@@ -48,6 +49,8 @@ module.exports = new Route({
                 organizations: [{organization: ctx.state.organization._id, role: role._id, defaultProject: project._id}]
               })
               created++
+            } else {
+              projectError++
             }
           } else {
             await User.create({
@@ -62,7 +65,10 @@ module.exports = new Route({
         }
       }
     }
-
-    ctx.body = {message: `Se han creado ${created} usuarios satisfactoriamente!`}
+    var projectMessage = ''
+    if (projectError) {
+      projectMessage = `, Ha ocurrido un error con ${projectError} usuarios: Proyecto inválido`
+    }
+    ctx.body = {message: `Se han creado ${created} usuarios satisfactoriamente!` + projectMessage}
   }
 })
