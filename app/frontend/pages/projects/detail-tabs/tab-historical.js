@@ -294,7 +294,6 @@ class TabHistorical extends Component {
         date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
-        // products: Object.values(this.selectedProducts),
         projects: Object.values(this.selectedProjects)
       })
       this.setState({
@@ -844,66 +843,6 @@ class TabHistorical extends Component {
                             </ul>
                           </aside>
                         </li>
-
-                        {/* <li className='filters-item'>
-                          <div className={this.state.productsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
-                            onClick={() => { this.showFilter('products') }}>
-                            <a>
-                              <span className='icon'>
-                                <i className={this.state.productsCollapsed
-                                ? 'fa fa-plus' : 'fa fa-minus'} />
-                              </span>
-                            Productos <strong>{this.state.products && this.state.products.length}</strong>
-                            </a>
-                          </div>
-                          <aside className={this.state.productsCollapsed
-                          ? 'is-hidden' : 'menu'}>
-                            <div>
-                              <Checkbox
-                                checked={this.state.allProducts}
-                                label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => {
-                                  this.checkAllProducts(value)
-                                  this.getGraph()
-                                  this.getProductTable()
-                                  this.setState({
-                                    reloadGraph: false
-                                  })
-                                }}
-                                key={'product'}
-                                disabled={this.state.waitingData}
-                            />
-                            </div>
-                            <ul className='menu-list'>
-                              {this.state.products &&
-                              this.state.products.map((item) => {
-                                if (!item.selected){
-                                  item.selected = false
-                                }
-                                return (
-                                  <li key={item.uuid}>
-                                    <a>
-                                      <Checkbox
-                                        label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
-                                        handleCheckboxChange={(e, value) => this.selectProduct(e, value, item)}
-                                        key={item.uuid}
-                                        checked={item.selected}
-                                        disabled={this.state.waitingData}
-                                      />
-                                      {item.name === 'Not identified' &&
-                                        <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/products/' + item.uuid) }}>
-                                          <i className='fa fa-eye has-text-info' />
-                                        </span>
-                                      }
-                                    </a>
-                                  </li>
-                                )
-                              })
-                            }
-                            </ul>
-                          </aside>
-                        </li> */}
-
                       </ul>
                     </div>
                   </div>

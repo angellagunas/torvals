@@ -75,7 +75,9 @@ class Dashboard extends Component {
   async getProjects () {
     let url = '/app/projects'
 
-    let res = await api.get(url)
+    let res = await api.get(url,{
+      showOnDashboard: true
+    })
 
     let activeProjects = res.data.filter(item => { return item.activeDataset })
 

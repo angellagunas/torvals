@@ -23,6 +23,11 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'showOnDashboard') {
+        filters['$or'] = [{showOnDashboard: null}, {showOnDashboard: true}]
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
