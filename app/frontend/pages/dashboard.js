@@ -1062,9 +1062,7 @@ class Dashboard extends Component {
                       <Graph
                         data={graph}
                         maintainAspectRatio={false}
-                        responsive={false}
-                        height={390}
-                        width={700}
+                        responsive={true}
                         reloadGraph={this.state.reloadGraph}
                         legend={{
                           display: true,

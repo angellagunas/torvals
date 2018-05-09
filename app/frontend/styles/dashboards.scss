@@ -184,33 +184,31 @@
         .columns {
             margin: 0;
         }
-        .chart-container {
-            max-height: 430px
-        }
         .box {
             background-color: #EFF1F9;
             border-color: #E6E8F6;
             border-radius: 0;
             padding: .5rem;
-            min-height: 350px;
+            min-height: 325px;
             .chart-container {
+                display: flex;
+                align-items: center;
                 position: relative;
                 margin: auto;
-                height: 80%;
+                height: 100%;
                 width: 100%;
             }
             .indicators {
-                &-title{
+                &-title {
                     font-size: .9rem;
                     margin-bottom: -.3rem;
                     font-weight: 700;
                 }
-                &-number{
+                &-number {
                     font-size: 1.2rem;
                     margin-bottom: .8rem !important;
                     font-weight: 700;
                 }
-                
             }
         }
         .notification {
@@ -235,7 +233,7 @@
         .button.is-static {
             background-color: #fff;
             border-radius: 0;
-            font-size: .9rem;
+            font-size: .75rem;
         }
         .level {
             margin: .7rem 0;
@@ -245,7 +243,6 @@
 
 .dash-table {
     font-size: 0.8rem;
-    
     td {
         padding: 0.2rem 0.4rem;
         vertical-align: middle;
@@ -271,9 +268,14 @@
         }
     }
 }
-.dropdown-menu{
-    min-width: 10rem;
+
+.dropdown-menu {
+    min-width: 8rem;
+    .dropdown-item{
+        font-size: .8rem;
+    }
 }
-.date-drop{
+
+.date-drop {
     margin-top: 20px;
 }
