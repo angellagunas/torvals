@@ -54,6 +54,11 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'requestId') {
+        var requestId = ctx.request.query[filter]
+        continue
+      }
+
       if (filter === 'general') {
         let $or = []
 
@@ -136,6 +141,10 @@ module.exports = new Route({
     rows.data = rows.data.map(item => {
       return item.toAdmin()
     })
+
+    if (requestId) {
+      rows['requestId'] = requestId
+    }
 
     ctx.body = rows
   }
