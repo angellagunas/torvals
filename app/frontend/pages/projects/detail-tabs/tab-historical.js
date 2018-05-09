@@ -677,9 +677,6 @@ class TabHistorical extends Component {
 
     return (
       <div>
-        <div className='section-header'>
-          <h2>Dashboard</h2>
-        </div>
         <div className='section'>
           <div className='columns filters-project '>
             <div className='column is-2-fullhd is-3'>
@@ -708,7 +705,7 @@ class TabHistorical extends Component {
                             </a>
                           </div>
                           <aside className={this.state.yearsCollapsed
-                            ? 'is-hidden' : 'menu'}>
+                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
 
                             <ul className='menu-list'>
                               {this.state.years &&
@@ -744,7 +741,7 @@ class TabHistorical extends Component {
                             </a>
                           </div>
                           <aside className={this.state.channelsCollapsed
-                            ? 'is-hidden' : 'menu'}>
+                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
                             <div>
                               <Checkbox
                                 checked={this.state.allChannels}
@@ -800,7 +797,7 @@ class TabHistorical extends Component {
                             </a>
                           </div>
                           <aside className={this.state.salesCentersCollapsed
-                            ? 'is-hidden' : 'menu'}>
+                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
                             <div>
                               <Checkbox
                                 checked={this.state.allSalesCenters}
@@ -887,6 +884,8 @@ class TabHistorical extends Component {
                         data={graph}
                         maintainAspectRatio={false}
                         responsive={false}
+                        height={390}
+                        width={700}
                         reloadGraph={this.state.reloadGraph}
                         legend={{
                           display: true,
@@ -1023,7 +1022,9 @@ class TabHistorical extends Component {
                       </div>
                     </div>
                   </div>
+                </div>
 
+                <div className='level-right'>
                   {this.state.yearSelected &&
                     <div className='level-item date-drop'>
                       <div className='dropdown is-hoverable'>
