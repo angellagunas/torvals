@@ -25,7 +25,8 @@ class Dashboard extends Component {
       channelsCollapsed: true,
       productsCollapsed: true,
       yearsCollapsed: true,
-      value: { min: 1, max: 12 },
+      minPeriod: 1,
+      maxPeriod: 12,
       yearSelected: moment().get('year'),
       allProjects: false,
       allChannels: false,
@@ -236,11 +237,26 @@ class Dashboard extends Component {
   }
 
   async getGraph () {
+    this.setState({
+      filteredData: undefined,
+      graphData: undefined,
+      mape: 0,
+      totalAdjustment: 0,
+      totalPrediction: 0,
+      totalSale: 0,
+      totalPSale: 0,
+      noData: undefined
+    })
+
+    if(!this.state.waitingData){
     try {
       let url = '/app/organizations/local/historical'
+      this.setState({
+        waitingData: true
+      })
       let res = await api.post(url, {
-        date_start: moment([this.state.yearSelected, this.state.value.min - 1]).startOf('month').format('YYYY-MM-DD'),
-        date_end: moment([this.state.yearSelected, this.state.value.max - 1]).endOf('month').format('YYYY-MM-DD'),
+        date_start: moment([this.state.yearSelected, this.state.minPeriod - 1]).startOf('month').format('YYYY-MM-DD'),
+        date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
         //products: Object.values(this.selectedProducts),
@@ -292,7 +308,8 @@ class Dashboard extends Component {
         topValue,
         reloadGraph: true,
         startPeriod: activePeriod[0],
-        endPeriod: activePeriod[activePeriod.length - 1]
+        endPeriod: activePeriod[activePeriod.length - 1],
+        waitingData: false
       })
       setTimeout( () => {
         this.setState({
@@ -305,6 +322,10 @@ class Dashboard extends Component {
         noData: e.message + ', intente más tarde'
       })
     }
+  }
+  else{
+    console.log('esperando respuesta')
+  }
   }
 
   getTopValue (data){
@@ -320,12 +341,12 @@ class Dashboard extends Component {
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
-        date_start: moment([this.state.yearSelected, this.state.value.min - 1 ]).startOf('month').format('YYYY-MM-DD'),
-        date_end: moment([this.state.yearSelected, this.state.value.max - 1]).endOf('month').format('YYYY-MM-DD'),
+        date_start: moment([this.state.yearSelected, this.state.minPeriod - 1 ]).startOf('month').format('YYYY-MM-DD'),
+        date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
        // products: Object.values(this.selectedProducts),
-        projects: Object.values(this.selectedProjects)        
+        projects: Object.values(this.selectedProjects)
       })
       this.setState({
         productTable: res.data
@@ -473,11 +494,11 @@ class Dashboard extends Component {
   handleSort (e) {
     let sorted = this.state.productTable
 
-    if (e === 'product') {
+    if (e === 'product.externalId') {
       if (this.state.sortAscending) {
-        sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
+        sorted.sort((a, b) => { return parseFloat(a.product.externalId) - parseFloat(b.product.externalId) })
       } else {
-        sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
+        sorted.sort((a, b) => { return parseFloat(b.product.externalId) - parseFloat(a.product.externalId) })
       }
     } else {
       if (this.state.sortAscending) {
@@ -491,7 +512,10 @@ class Dashboard extends Component {
       productTable: sorted,
       sortAscending: !this.state.sortAscending,
       sortBy: e
+    }, () => {
+      this.searchDatarows()      
     })
+
   }
 
   async searchDatarows() {
@@ -611,12 +635,63 @@ class Dashboard extends Component {
     }
   }
 
-  selectYear (item) {
-    this.setState({ yearSelected: item },
+  selectYear (item, value) {
+    console.log(item, value)
+    if(value){
+    this.setState({ yearSelected: item, noData: undefined },
       () => {
         this.getGraph()
         this.getProductTable()
       })
+    }
+    else{
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un año'
+      })      
+    }
+  }
+
+  setMinPeriod(number) {
+    if(number <= this.state.maxPeriod){
+      this.setState({
+        minPeriod: number
+      }, () => {
+        this.getGraph()
+        this.getProductTable()
+      })
+    }
+    else{
+      this.setState({
+        minPeriod: this.state.maxPeriod,
+        maxPeriod: number
+      }, () => {
+        this.getGraph()
+        this.getProductTable()
+      })
+    }
+
+  }
+
+  setMaxPeriod(number) {
+    if (number >= this.state.minPeriod) {
+      this.setState({
+        maxPeriod: number
+      }, () => {
+        this.getGraph()
+        this.getProductTable()
+      })
+    }
+    else {
+      this.setState({
+        maxPeriod: this.state.minPeriod,
+        minPeriod: number
+      }, () => {
+        this.getGraph()
+        this.getProductTable()
+      })
+    }
   }
 
   render () {
@@ -688,6 +763,7 @@ class Dashboard extends Component {
                             label={'Seleccionar Todos'}
                             handleCheckboxChange={(e, value) => this.checkAllProjects(value)}
                             key={'project'}
+                            disabled={this.state.waitingData}
                         />
                         </div>
                         <ul className='menu-list'>
@@ -705,6 +781,7 @@ class Dashboard extends Component {
                                       label={item.name}
                                       handleCheckboxChange={(e, value) => this.selectProject(e, value, item)}
                                       key={item.uuid}
+                                      disabled={this.state.waitingData}                                      
                                     />
 
                                     <span className='icon is-pulled-right' onClick={() => { this.moveTo('/projects/' + item.uuid) }}>
@@ -757,9 +834,10 @@ class Dashboard extends Component {
                                       <a>
                                         <Checkbox
                                           label={item}
-                                          handleCheckboxChange={(e, value) => this.selectYear(item)}
+                                          handleCheckboxChange={(e, value) => this.selectYear(item, value)}
                                           key={item}
                                           checked={item === this.state.yearSelected}
+                                          disabled={this.state.waitingData}                                          
                                         />
                                       </a>
                                     </li>
@@ -793,6 +871,7 @@ class Dashboard extends Component {
                                   this.getProductTable()
                                 }}
                                 key={'channel'}
+                                disabled={this.state.waitingData}                                
                             />
                             </div>
                             <ul className='menu-list'>
@@ -809,6 +888,7 @@ class Dashboard extends Component {
                                         handleCheckboxChange={(e, value) => this.selectChannel(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
+                                        disabled={this.state.waitingData}                                        
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
@@ -847,6 +927,7 @@ class Dashboard extends Component {
                                   this.getProductTable()
                                 }}
                                 key={'salesCenter'}
+                                disabled={this.state.waitingData}                                
                             />
                             </div>
                             <ul className='menu-list'>
@@ -863,6 +944,7 @@ class Dashboard extends Component {
                                         handleCheckboxChange={(e, value) => this.selectSalesCenter(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
+                                        disabled={this.state.waitingData}                                        
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
@@ -904,6 +986,7 @@ class Dashboard extends Component {
                                   })
                                 }}
                                 key={'product'}
+                                disabled={this.state.waitingData}
                             />
                             </div>
                             <ul className='menu-list'>
@@ -920,6 +1003,7 @@ class Dashboard extends Component {
                                         handleCheckboxChange={(e, value) => this.selectProduct(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
+                                        disabled={this.state.waitingData}
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/products/' + item.uuid) }}>
@@ -951,29 +1035,29 @@ class Dashboard extends Component {
                     <h2 className='subtitle has-text-weight-bold'>MAPE PREDICCIÓN</h2>
                   </div>
                   <div className='indicators'>
-                    <p className='subtitle is-6'>Venta total</p>
-                    <p className='title is-5 has-text-success'>{this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                    <p className='indicators-title'>Venta total</p>
+                    <p className='indicators-number has-text-success'>{this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
 
-                    <p className='subtitle is-6'>Ajuste total</p>
-                    <p className='title is-5 has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                    <p className='indicators-title'>Ajuste total</p>
+                    <p className='indicators-number has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
 
-                    <p className='subtitle is-6'>Predicción total</p>
-                    <p className='title is-5 has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                    <p className='indicators-title'>Predicción total</p>
+                    <p className='indicators-number has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
 
-                    <p className='subtitle is-6'>Venta anterior</p>
-                    <p className='title is-5 has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                    <p className='indicators-title'>Venta anterior</p>
+                    <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
                   </div>
                 </div>
                 <div className='column card'>
-                  {this.state.graphData ?
+                  {this.state.graphData && this.state.filteredData ?
                     this.state.graphData.length > 0 ?
                       <Graph
                         data={graph}
@@ -1056,8 +1140,8 @@ class Dashboard extends Component {
                                 xMax: this.state.endPeriod.date,
                                 yMin: 0,
                                 yMax: this.state.topValue,
-                                backgroundColor: 'rgba(101, 33, 171, 0.3)',
-                                borderColor: 'rgba(101, 33, 171, 0.5)',
+                                backgroundColor: 'rgba(233, 238, 255, 0.5)',
+                                borderColor: 'rgba(233, 238, 255, 1)',
                                 borderWidth: 1
                               },
                               {
@@ -1067,14 +1151,15 @@ class Dashboard extends Component {
                                 mode: 'vertical',
                                 scaleID: 'x-axis-0',
                                 value: this.state.startPeriod.date,
-                                borderColor: 'rgba(101, 33, 171, 0)',
+                                borderColor: 'rgba(233, 238, 255, 1)',
                                 borderWidth: 1,
                                 label: {
-                                  backgroundColor: 'rgb(101, 33, 171)',
+                                  backgroundColor: 'rgb(233, 238, 255)',
                                   content: 'Periodo actual',
                                   enabled: true,
                                   fontSize: 10,
-                                  position: 'top'
+                                  position: 'top',
+                                  fontColor: '#424A55'
                                 }
                               }
                             ]
@@ -1113,51 +1198,84 @@ class Dashboard extends Component {
                       </div>
                     </div>
                   </div>
-                 <div className='level-item range-slider'>
-                    <InputRange
-                      formatLabel={value => `Periodo ${value}`}
-                      maxValue={12}
-                      minValue={1}
-                      allowSameValues
-                      value={this.state.value}
-                      onChange={value => this.setState({ value })} 
-                      onChangeComplete={value => {
-                        this.getGraph()
-                        this.getProductTable()
-                        }}/>
-                  </div>
+                 
                   {this.state.yearSelected &&
-                    <div className='level-item'>
-                      <span className='button is-static has-20-margin-top is-capitalized'>
-                        {this.getPeriodDate(this.state.value.min, true) + ' ' + this.state.yearSelected}
-                      </span>
+                    <div className='level-item date-drop'>
+                      <div className='dropdown is-hoverable'>
+                        <div className='dropdown-trigger'>
+                          <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
+                            <span>{this.getPeriodDate(this.state.minPeriod, true) + ' ' + this.state.yearSelected}</span>
+                            <span className='icon is-small'>
+                              <i className='fa fa-angle-down' aria-hidden='true'></i>
+                            </span>
+                          </button>
+                        </div>
+                        <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
+                          <div className='dropdown-content'>
+                            {this.state.periods && this.state.periods.map((item) => {
+                              return (
+                                <a key={item.number} className={this.state.minPeriod === item.number ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                  onClick={() => this.setMinPeriod(item.number)}>
+                                  {item.name + ' ' + this.state.yearSelected}
+                                </a>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   }
                   {this.state.yearSelected &&
-                    <div className='level-item'>
-                      <span className='icon has-20-margin-top'>
+                    <div className='level-item date-drop'>
+                      <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
                     </div>
                   }
                   {this.state.yearSelected &&
-                    <div className='level-item'>
-                      <span className='button is-static has-20-margin-top is-capitalized'>
-                        {this.getPeriodDate(this.state.value.max, false) + ' ' + this.state.yearSelected}
-                      </span>
+                    <div className='level-item date-drop'>
+                      <div className='dropdown is-hoverable'>
+                        <div className='dropdown-trigger'>
+                          <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
+                            <span>{this.getPeriodDate(this.state.maxPeriod, true) + ' ' + this.state.yearSelected}</span>
+                            <span className='icon is-small'>
+                              <i className='fa fa-angle-down' aria-hidden='true'></i>
+                            </span>
+                          </button>
+                        </div>
+                        <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
+                          <div className='dropdown-content'>
+                            {this.state.periods && this.state.periods.map((item) => {
+                              return (
+                                <a key={item.number} className={this.state.maxPeriod === item.number ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                  onClick={() => this.setMaxPeriod(item.number)}>
+                                  {item.name + ' ' + this.state.yearSelected}
+                                </a>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   }
                 </div>
               </div>
 
-              { this.state.filteredData
+              {this.state.filteredData && this.state.graphData
               ? this.state.filteredData.length > 0
-                  ? <BaseTable
-                    className='dash-table is-fullwidth'
-                    data={this.state.filteredData}
-                    columns={this.getColumns()}
-                    handleSort={(e) => { this.handleSort(e) }}
-                  />
+                  ? <div className='scroll-table'> 
+                    <div className='scroll-table-container'>                  
+                                   
+                    <BaseTable
+                      className='dash-table is-fullwidth'
+                      data={this.state.filteredData}
+                      columns={this.getColumns()}
+                      handleSort={(e) => { this.handleSort(e) }}
+                      sortAscending={this.state.sortAscending}
+                      sortBy={this.state.sortBy} 
+                    />
+                    </div>
+                  </div>
                   : <section className='section'>
                     <center>
                       <h1 className='has-text-info'>No hay productos que mostrar, intente con otro filtro</h1>

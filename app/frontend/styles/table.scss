@@ -345,6 +345,7 @@
         }
     }
 }
+
 .list-page {
     .table {
         font-size: 0.8rem;
@@ -367,10 +368,10 @@
             border-right: 1px solid #FBFBFB;
             border-left: 1px solid #FBFBFB;
             position: relative;
-            &:nth-child(1){
+            &:nth-child(1) {
                 border-left: none;
             }
-            &:last-child{
+            &:last-child {
                 border-right: none;
             }
             i {
@@ -381,4 +382,83 @@
             }
         }
     }
+}
+
+.scroll-table-container {
+    margin-top: 37px;
+    max-height: 80vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.scroll-table {
+    border-collapse: collapse;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    background-color: rgba(233, 233, 233, 1) !important;
+    th {
+        height: 0;
+        line-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        color: transparent;
+        border: none;
+        white-space: nowrap;
+        position: inherit;
+    }
+    th .is-hidden {
+        height: 37px;
+        position: absolute;
+        color: $general_text;
+        padding: 9px 25px;
+        top: 0;
+        margin-left: -25px;
+        line-height: normal;
+        display: flex !important;
+        align-items: center;
+        background-color: rgba(233, 233, 233, 1);
+        font-weight: 700;
+        border-left: 1px solid #FBFBFB;
+        text-align: center;
+        &:nth-child(2) {
+            text-align: left;
+        }
+        i {
+            display: inline;
+            margin-left: 15px;
+        }
+    }
+    table {
+        border-spacing: 0;
+        width: 100%;
+    }
+    td,
+    th {
+        padding: 10px 25px;
+    }
+    th {
+        height: 0;
+        line-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        color: transparent;
+        border: none;
+        white-space: nowrap;
+        i {
+            display: none;
+        }
+    }
+    th:first-child .is-hidden {
+        border: none;
+    }
+}
+
+th {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -khtml-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
 }
