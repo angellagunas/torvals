@@ -10,3 +10,6 @@ package-lock.json
 .env.production
 .envrc
 .vscode/
+
+/data
+.env
