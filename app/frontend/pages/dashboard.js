@@ -756,7 +756,7 @@ class Dashboard extends Component {
                       Proyectos</h1>
                     </div>
                     <div className='card-content'>
-                      <aside className='menu'>
+                      <aside className='menu' disabled={this.state.waitingData}>
                         <div>
                           <Checkbox
                             checked={this.state.allProjects}
@@ -824,7 +824,7 @@ class Dashboard extends Component {
                             </a>
                           </div>
                           <aside className={this.state.yearsCollapsed
-                            ? 'is-hidden' : 'menu'}>
+                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
                             
                             <ul className='menu-list'>
                               {this.state.years &&
@@ -860,7 +860,7 @@ class Dashboard extends Component {
                             </a>
                           </div>
                           <aside className={this.state.channelsCollapsed
-                          ? 'is-hidden' : 'menu'}>
+                          ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
                             <div>
                               <Checkbox
                                 checked={this.state.allChannels}
@@ -916,7 +916,7 @@ class Dashboard extends Component {
                             </a>
                           </div>
                           <aside className={this.state.salesCentersCollapsed
-                          ? 'is-hidden' : 'menu'}>
+                          ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
                             <div>
                               <Checkbox
                                 checked={this.state.allSalesCenters}
@@ -1039,6 +1039,11 @@ class Dashboard extends Component {
                     <p className='indicators-number has-text-success'>{this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
+                    
+                    <p className='indicators-title'>Venta anterior</p>
+                    <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })}</p>
 
                     <p className='indicators-title'>Ajuste total</p>
                     <p className='indicators-number has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
@@ -1047,11 +1052,6 @@ class Dashboard extends Component {
 
                     <p className='indicators-title'>Predicción total</p>
                     <p className='indicators-number has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
-
-                    <p className='indicators-title'>Venta anterior</p>
-                    <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
                   </div>
@@ -1063,6 +1063,8 @@ class Dashboard extends Component {
                         data={graph}
                         maintainAspectRatio={false}
                         responsive={false}
+                        height={390}
+                        width={700}
                         reloadGraph={this.state.reloadGraph}
                         legend={{
                           display: true,
@@ -1198,6 +1200,9 @@ class Dashboard extends Component {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <div className='level-right'>
                  
                   {this.state.yearSelected &&
                     <div className='level-item date-drop'>

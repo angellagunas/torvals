@@ -153,6 +153,9 @@
                 border-bottom: 1px solid rgba(230, 232, 246, 0.5);
             }
         }
+        .menu[disabled] {
+            opacity: .5
+        }
         &-item {
             border-bottom: 1px solid rgba(230, 232, 246, 0.5);
             a {
@@ -181,6 +184,9 @@
         .columns {
             margin: 0;
         }
+        .chart-container {
+            max-height: 450px
+        }
         .box {
             background-color: #EFF1F9;
             border-color: #E6E8F6;
@@ -201,7 +207,7 @@
                 }
                 &-number{
                     font-size: 1.2rem;
-                    margin-bottom: 1.1rem;
+                    margin-bottom: .8rem !important;
                     font-weight: 700;
                 }
                 
