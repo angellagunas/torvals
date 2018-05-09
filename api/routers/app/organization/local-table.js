@@ -65,8 +65,12 @@ module.exports = new Route({
         }
       },
       {
-        '$match': {
-          '$expr': { '$eq': [{ '$year': '$data.forecastDate' }, data.year] }
+        '$redact': {
+          '$cond': [
+                { '$eq': [{ '$year': '$data.forecastDate' }, data.year] },
+            '$$KEEP',
+            '$$PRUNE'
+          ]
         }
       },
       {
@@ -97,8 +101,12 @@ module.exports = new Route({
         }
       },
       {
-        '$match': {
-          '$expr': { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] }
+        '$redact': {
+          '$cond': [
+                { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] },
+            '$$KEEP',
+            '$$PRUNE'
+          ]
         }
       },
       {
