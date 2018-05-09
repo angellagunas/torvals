@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
-const { Project, DataSetRow, Product, Channel, SalesCenter, AbraxasDate } = require('models')
+const { Project, DataSetRow, Product, Channel, SalesCenter } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -42,18 +42,15 @@ module.exports = new Route({
     var matchPreviousSale = Array.from(initialMatch)
 
     if (data.date_start && data.date_end) {
-      const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
-      data.weeks = []
-      for (let week of weeks) {
-        data.weeks.push(week.week)
+      initialMatch['data.forecastDate'] = {
+        $gte: moment.utc(data.date_start, 'YYYY-MM-DD').toDate(),
+        $lte: moment.utc(data.date_end, 'YYYY-MM-DD').toDate()
       }
 
-      data.year = moment(data.date_start).year()
-
-      initialMatch['data.semanaBimbo'] = {$in: data.weeks}
-
-      var lastYear = data.year - 1
-      matchPreviousSale['data.semanaBimbo'] = {$in: data.weeks}
+      matchPreviousSale['data.forecastDate'] = {
+        $gte: moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').toDate(),
+        $lte: moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').toDate()
+      }
     } else {
       ctx.throw(400, 'Es necesario filtrarlo por un rango de fechas!')
     }
@@ -62,11 +59,6 @@ module.exports = new Route({
       {
         '$match': {
           ...initialMatch
-        }
-      },
-      {
-        '$match': {
-          '$expr': { '$eq': [{ '$year': '$data.forecastDate' }, data.year] }
         }
       },
       {
@@ -94,11 +86,6 @@ module.exports = new Route({
       {
         '$match': {
           ...matchPreviousSale
-        }
-      },
-      {
-        '$match': {
-          '$expr': { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] }
         }
       },
       {

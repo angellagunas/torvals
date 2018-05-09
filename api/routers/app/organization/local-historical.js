@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
-const { Project, DataSetRow, Channel, SalesCenter, Product, AbraxasDate } = require('models')
 const moment = require('moment')
+const { Project, DataSetRow, Channel, SalesCenter, Product } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -19,7 +19,7 @@ module.exports = new Route({
     const projects = await Project.find(filters)
     const datasets = projects.map(item => { return item.activeDataset })
 
-    const key = {week: '$data.semanaBimbo', date: '$data.forecastDate'}
+    const key = {date: '$data.forecastDate'}
 
     var initialMatch = {
       dataset: { $in: datasets }
@@ -42,18 +42,15 @@ module.exports = new Route({
     var matchPreviousSale = Array.from(initialMatch)
 
     if (data.date_start && data.date_end) {
-      const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
-      data.weeks = []
-      for (let week of weeks) {
-        data.weeks.push(week.week)
+      initialMatch['data.forecastDate'] = {
+        $gte: moment.utc(data.date_start, 'YYYY-MM-DD').toDate(),
+        $lte: moment.utc(data.date_end, 'YYYY-MM-DD').toDate()
       }
 
-      data.year = moment(data.date_start).year()
-
-      initialMatch['data.semanaBimbo'] = {$in: data.weeks}
-
-      var lastYear = data.year - 1
-      matchPreviousSale['data.semanaBimbo'] = {$in: data.weeks}
+      matchPreviousSale['data.forecastDate'] = {
+        $gte: moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').toDate(),
+        $lte: moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').toDate()
+      }
     } else {
       ctx.throw(400, 'Es necesario filtrarlo por un rango de fechas!')
     }
@@ -62,11 +59,6 @@ module.exports = new Route({
       {
         '$match': {
           ...initialMatch
-        }
-      },
-      {
-        '$match': {
-          '$expr': { '$eq': [{ '$year': '$data.forecastDate' }, data.year] }
         }
       },
       {
@@ -86,11 +78,6 @@ module.exports = new Route({
         }
       },
       {
-        '$match': {
-          '$expr': { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] }
-        }
-      },
-      {
         '$group': {
           _id: key,
           sale: { $sum: '$data.sale' }
@@ -106,13 +93,14 @@ module.exports = new Route({
 
     var previousSaleDict = {}
     for (var prev of previousSale) {
-      previousSaleDict[prev._id.week] = prev
+      previousSaleDict[moment(prev._id.date).format('YYYY-MM-DD')] = prev
     }
 
     var totalPrediction = 0
     var totalSale = 0
 
     responseData = responseData.map(item => {
+      let previousDate = moment(item._id.date).subtract(1, 'years').format('YYYY-MM-DD')
       if (item.prediction && item.sale) {
         totalPrediction += item.prediction
         totalSale += item.sale
@@ -120,11 +108,10 @@ module.exports = new Route({
 
       return {
         date: item._id.date,
-        week: item._id.week,
         prediction: item.prediction,
         adjustment: item.adjustment,
         sale: item.sale,
-        previousSale: previousSaleDict[item._id.week] ? previousSaleDict[item._id.week].sale : 0
+        previousSale: previousSaleDict[previousDate] ? previousSaleDict[previousDate].sale : 0
       }
     })
 
