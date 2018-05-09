@@ -254,84 +254,99 @@ class Dashboard extends Component {
       noData: undefined
     })
 
-    if(!this.state.waitingData){
-    try {
-      let url = '/app/organizations/local/historical'
-      this.setState({
-        waitingData: true
-      })
-      let res = await api.post(url, {
-        date_start: moment([this.state.yearSelected, this.state.minPeriod - 1]).startOf('month').format('YYYY-MM-DD'),
-        date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
-        channels: Object.values(this.selectedChannels),
-        salesCenters: Object.values(this.selectedSalesCenters),
-        //products: Object.values(this.selectedProducts),
-        projects: Object.values(this.selectedProjects)
-      })
-
-      let totalPSale = 0
-      let totalSale = 0
-      let totalPrediction = 0
-      let totalAdjustment = 0
-      let mape = 0
-
-      let data = res.data
-      let activePeriod = []
-      let topValue = 0
-
-      data = _.orderBy(res.data,
-        (e) => {
-          return e.date
-        }
-        , ['asc'])
-
-      data.map((item) => {
-        totalAdjustment += item.adjustment
-        totalPrediction += item.prediction
-        totalSale += item.sale
-        totalPSale += item.previousSale
-
-        if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
-          activePeriod.push(item)
-        }
-      })
-
-      topValue = this.getTopValue(res.data)
-
-      mape = res.mape
-
-      if (isNaN(mape) || mape === Infinity || mape === null) {
-        mape = 0
-      }
-
-      this.setState({
-        graphData: data,
-        totalAdjustment,
-        totalPrediction,
-        totalSale,
-        totalPSale,
-        mape,
-        topValue,
-        reloadGraph: true,
-        startPeriod: activePeriod[0],
-        endPeriod: activePeriod[activePeriod.length - 1],
-        waitingData: false
-      })
-      setTimeout( () => {
+    if(Object.keys(this.selectedChannels).length === 0){
         this.setState({
-          reloadGraph: false
+          filteredData: undefined,
+          graphData: undefined,
+          noData: 'Debe seleccionar un canal'
         })
-      }, 10)
-    } catch (e) {
-      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
-      this.setState({
-        noData: e.message + ', intente más tarde'
-      })
+        return
     }
-  }
-  else{
-    console.log('esperando respuesta')
-  }
+
+    else if (Object.keys(this.selectedSalesCenters).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un centro de venta'
+      })
+      return
+    }
+
+    if (!this.state.waitingData) {
+      try {
+        let url = '/app/organizations/local/historical'
+        this.setState({
+          waitingData: true
+        })
+        let res = await api.post(url, {
+          date_start: moment([this.state.yearSelected, this.state.minPeriod - 1]).startOf('month').format('YYYY-MM-DD'),
+          date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
+          channels: Object.values(this.selectedChannels),
+          salesCenters: Object.values(this.selectedSalesCenters),
+          //products: Object.values(this.selectedProducts),
+          projects: Object.values(this.selectedProjects)
+        })
+
+        let totalPSale = 0
+        let totalSale = 0
+        let totalPrediction = 0
+        let totalAdjustment = 0
+        let mape = 0
+
+        let data = res.data
+        let activePeriod = []
+        let topValue = 0
+
+        data = _.orderBy(res.data,
+          (e) => {
+            return e.date
+          }
+          , ['asc'])
+
+        data.map((item) => {
+          totalAdjustment += item.adjustment
+          totalPrediction += item.prediction
+          totalSale += item.sale
+          totalPSale += item.previousSale
+
+          if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
+            activePeriod.push(item)
+          }
+        })
+
+        topValue = this.getTopValue(res.data)
+
+        mape = res.mape
+
+        if (isNaN(mape) || mape === Infinity || mape === null) {
+          mape = 0
+        }
+
+        this.setState({
+          graphData: data,
+          totalAdjustment,
+          totalPrediction,
+          totalSale,
+          totalPSale,
+          mape,
+          topValue,
+          reloadGraph: true,
+          startPeriod: activePeriod[0],
+          endPeriod: activePeriod[activePeriod.length - 1],
+          waitingData: false
+        })
+        setTimeout(() => {
+          this.setState({
+            reloadGraph: false
+          })
+        }, 10)
+      } catch (e) {
+        this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+        this.setState({
+          noData: e.message + ', intente más tarde'
+        })
+      }
+    }
   }
 
   getTopValue (data){
@@ -344,6 +359,24 @@ class Dashboard extends Component {
   }
 
   async getProductTable() {
+    if (Object.keys(this.selectedChannels).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un canal'
+      })
+      return
+    }
+
+    else if (Object.keys(this.selectedSalesCenters).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un centro de venta'
+      })
+      return
+    }
+    
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
@@ -632,7 +665,6 @@ class Dashboard extends Component {
   }
 
   selectYear (item, value) {
-    console.log(item, value)
     if(value){
     this.setState({ yearSelected: item, noData: undefined },
       () => {
