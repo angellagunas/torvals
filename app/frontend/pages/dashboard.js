@@ -38,7 +38,9 @@ class Dashboard extends Component {
       totalSale: 0,
       totalPSale: 0,
       mape: 0,
-      searchTerm: ''
+      searchTerm: '',
+      sortBy: 'sale',
+      sortAscending: true
     }
     this.selectedProjects = {}
     this.selectedSalesCenters = []
@@ -353,9 +355,11 @@ class Dashboard extends Component {
         projects: Object.values(this.selectedProjects)
       })
       this.setState({
-        productTable: res.data
+        productTable: res.data,
+        sortAscending: false
       }, () => {
         this.searchDatarows()
+        this.handleSort(this.state.sortBy)
       })
     }
     catch (e) {
