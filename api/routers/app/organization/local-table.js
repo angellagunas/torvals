@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
-const { Project, DataSetRow, Product, Channel, SalesCenter } = require('models')
+const { Project, DataSetRow, Product, Channel, SalesCenter, AbraxasDate } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -42,15 +42,18 @@ module.exports = new Route({
     var matchPreviousSale = Array.from(initialMatch)
 
     if (data.date_start && data.date_end) {
-      initialMatch['data.forecastDate'] = {
-        $gte: moment.utc(data.date_start, 'YYYY-MM-DD').toDate(),
-        $lte: moment.utc(data.date_end, 'YYYY-MM-DD').toDate()
+      const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
+      data.weeks = []
+      for (let week of weeks) {
+        data.weeks.push(week.week)
       }
 
-      matchPreviousSale['data.forecastDate'] = {
-        $gte: moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').toDate(),
-        $lte: moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').toDate()
-      }
+      data.year = moment(data.date_start).year()
+
+      initialMatch['data.semanaBimbo'] = {$in: data.weeks}
+
+      var lastYear = data.year - 1
+      matchPreviousSale['data.semanaBimbo'] = {$in: data.weeks}
     } else {
       ctx.throw(400, 'Es necesario filtrarlo por un rango de fechas!')
     }
@@ -59,6 +62,15 @@ module.exports = new Route({
       {
         '$match': {
           ...initialMatch
+        }
+      },
+      {
+        '$redact': {
+          '$cond': [
+                { '$eq': [{ '$year': '$data.forecastDate' }, data.year] },
+            '$$KEEP',
+            '$$PRUNE'
+          ]
         }
       },
       {
@@ -86,6 +98,15 @@ module.exports = new Route({
       {
         '$match': {
           ...matchPreviousSale
+        }
+      },
+      {
+        '$redact': {
+          '$cond': [
+                { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] },
+            '$$KEEP',
+            '$$PRUNE'
+          ]
         }
       },
       {
@@ -120,9 +141,7 @@ module.exports = new Route({
     }
 
     for (var prev of previousSale) {
-      if (dataDict[prev._id.product]) {
-        dataDict[prev._id.product]['previousSale'] = prev.sale
-      }
+      dataDict[prev._id.product]['previousSale'] = prev.sale
     }
 
     var responseData = allData.map(item => {
