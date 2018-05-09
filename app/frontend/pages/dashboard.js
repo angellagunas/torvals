@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
+import tree from '~core/tree'
 import _ from 'lodash'
 import Link from '~base/router/link'
 import api from '~base/api'
@@ -43,6 +44,9 @@ class Dashboard extends Component {
     this.selectedSalesCenters = []
     this.selectedChannels = []
     this.selectedProducts = []
+
+    this.currentRole = tree.get('user').currentRole.slug
+    
   }
 
   componentWillMount () {
@@ -384,29 +388,17 @@ class Dashboard extends Component {
     if (filter === 'salesCenters') {
       this.setState({
         salesCentersCollapsed: !this.state.salesCentersCollapsed,
-        channelsCollapsed: true,
-        productsCollapsed: true,
-        yearsCollapsed: true
       })
     } else if (filter === 'channels') {
       this.setState({
-        salesCentersCollapsed: true,
         channelsCollapsed: !this.state.channelsCollapsed,
-        productsCollapsed: true,
-        yearsCollapsed: true        
       })
     } else if (filter === 'products') {
       this.setState({
-        salesCentersCollapsed: true,
-        channelsCollapsed: true,
         productsCollapsed: !this.state.productsCollapsed,
-        yearsCollapsed: true        
       })
     } else if (filter === 'years') {
       this.setState({
-        salesCentersCollapsed: true,
-        channelsCollapsed: true,
-        productsCollapsed: true,
         yearsCollapsed: !this.state.yearsCollapsed,        
       })
     }
@@ -785,7 +777,7 @@ class Dashboard extends Component {
                                     />
 
                                     <span className='icon is-pulled-right' onClick={() => { this.moveTo('/projects/' + item.uuid) }}>
-                                      <i className='fa fa-eye has-text-info' />
+                                      <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>
                                     </span>
                                   </a>
                                 </li>
@@ -820,7 +812,7 @@ class Dashboard extends Component {
                                 <i className={this.state.yearsCollapsed
                                   ? 'fa fa-plus' : 'fa fa-minus'} />
                               </span>
-                              Años <strong>{this.state.years && this.state.years.length}</strong>
+                              Año <strong>{this.state.years && this.state.years.length}</strong>
                             </a>
                           </div>
                           <aside className={this.state.yearsCollapsed
@@ -892,7 +884,7 @@ class Dashboard extends Component {
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
-                                        <i className='fa fa-eye has-text-info' />
+                                        <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                                       </span>
                                       }
                                     </a>
@@ -948,7 +940,7 @@ class Dashboard extends Component {
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
-                                          <i className='fa fa-eye has-text-info' />
+                                          <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                                         </span>
                                       }
                                     </a>
@@ -1007,7 +999,7 @@ class Dashboard extends Component {
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/products/' + item.uuid) }}>
-                                          <i className='fa fa-eye has-text-info' />
+                                          <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                                         </span>
                                       }
                                     </a>
@@ -1029,10 +1021,10 @@ class Dashboard extends Component {
 
             <div className='column dash-graph'>
               <div className='columns box'>
-                <div className='column is-3 is-paddingless'>
+                <div className='column is-3 is-2-widescreen is-paddingless'>
                   <div className='notification is-info has-text-centered'>
                     <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
-                    <h2 className='subtitle has-text-weight-bold'>MAPE PREDICCIÓN</h2>
+                    <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
                   </div>
                   <div className='indicators'>
                     <p className='indicators-title'>Venta total</p>
@@ -1203,7 +1195,11 @@ class Dashboard extends Component {
                 <div className='level-right'>
                  
                   {this.state.yearSelected &&
-                    <div className='level-item date-drop'>
+                    <div className='level-item'>
+                    <div className='field'>
+                      <label className='label'>Periodo inicial</label>
+                      <div className='field is-grouped control'>
+
                       <div className='dropdown is-hoverable'>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
@@ -1226,6 +1222,10 @@ class Dashboard extends Component {
                           </div>
                         </div>
                       </div>
+
+                      </div>
+                    </div>
+
                     </div>
                   }
                   {this.state.yearSelected &&
@@ -1236,7 +1236,11 @@ class Dashboard extends Component {
                     </div>
                   }
                   {this.state.yearSelected &&
-                    <div className='level-item date-drop'>
+                    <div className='level-item'>
+                    <div className='field'>
+                      <label className='label'>Periodo final</label>
+                      <div className='field is-grouped control'>
+
                       <div className='dropdown is-hoverable'>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
@@ -1259,6 +1263,11 @@ class Dashboard extends Component {
                           </div>
                         </div>
                       </div>
+
+                      </div>
+                    </div>
+
+
                     </div>
                   }
                 </div>
