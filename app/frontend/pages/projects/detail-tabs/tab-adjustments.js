@@ -1259,6 +1259,8 @@ getProductsSelected () {
                       this.state.salesTable.length > 0 ?
                       <Graph
                         data={graphData}
+                        maintainAspectRatio={false}
+                        responsive={true}
                         labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
                       />
                       :
