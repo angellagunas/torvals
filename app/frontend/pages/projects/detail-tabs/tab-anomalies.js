@@ -137,7 +137,7 @@ class TabAnomalies extends Component {
       })
 
       if(res.data.length === 0)
-        this.notify('No hay anomalias que mostrar', 5000, toast.TYPE.INFO)      
+        this.notify('No hay anomalías que mostrar', 5000, toast.TYPE.INFO)      
         
     } catch (e) {
       this.setState({
@@ -222,7 +222,7 @@ class TabAnomalies extends Component {
         }
       },
       {
-        'title': 'Tipo de Anomalia',
+        'title': 'Tipo de Anomalía',
         'property': 'type',
         'default': 'N/A',
         'sortable': true,                                
@@ -577,14 +577,14 @@ class TabAnomalies extends Component {
             <section className='section'>
               <center>
                 <Loader/>
-                <h2 className='has-text-info'>Cargando anomalias</h2>
+                <h2 className='has-text-info'>Cargando anomalías</h2>
               </center>
             </section>
           : 
             this.state.anomalies.length === 0
               ? <section className='section'>
                   <center>
-                    <h2 className='has-text-info'>No hay anomalias que mostrar</h2>
+                    <h2 className='has-text-info'>No hay anomalías que mostrar</h2>
                   </center>
                 </section>
               : 

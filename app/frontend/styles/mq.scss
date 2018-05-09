@@ -187,16 +187,20 @@
     .filters-project {
         .dash-graph {
             .box {
+                min-height: 370px;
                 .chart-container {
-                    height: 20%;
-                    width: 80%;
-                }
-                .indicators {
-                    p:nth-child(even) {
-                        margin-bottom: 2.2rem;
-                    }
+                    height: 100%;
+                    width: 100%;
                 }
             }
+        }
+    }
+    .dash-graph {
+        .button.is-static {
+            font-size: .85rem !important;
+        }
+        .date-drop {
+            margin-top: 27px;
         }
     }
 }

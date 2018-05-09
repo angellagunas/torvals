@@ -40,6 +40,7 @@ const projectSchema = new Schema({
     adjustments: { type: Schema.Types.Mixed },
     frequency: { type: Number }
   },
+  showOnDashboard: { type: Boolean, default: true },
   etag: { type: String },
   dateMax: {type: Date},
   dateMin: {type: Date},
@@ -63,7 +64,8 @@ projectSchema.methods.toPublic = function () {
     activeDataset: this.activeDataset,
     businessRules: this.businessRules,
     externalId: this.externalId,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
   }
 }
 
@@ -79,7 +81,8 @@ projectSchema.methods.toAdmin = function () {
     activeDataset: this.activeDataset,
     businessRules: this.businessRules,
     externalId: this.externalId,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
   }
 }
 

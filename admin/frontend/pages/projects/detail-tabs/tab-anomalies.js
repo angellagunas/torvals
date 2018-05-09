@@ -116,7 +116,7 @@ class TabAnomalies extends Component {
       })
 
       if(res.data.length === 0)
-        this.notify('No hay anomalias que mostrar', 5000, toast.TYPE.INFO)      
+        this.notify('No hay anomalías que mostrar', 5000, toast.TYPE.INFO)      
         
     } catch (e) {
       this.setState({
@@ -505,7 +505,7 @@ class TabAnomalies extends Component {
                 <p>Información</p>
               </div>
               <div className='message-body'>
-                No hay anomalias que mostrar
+                No hay anomalías que mostrar
               </div>
             </article>
             : <div>
