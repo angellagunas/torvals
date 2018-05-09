@@ -1147,7 +1147,7 @@ class Dashboard extends Component {
                                 borderWidth: 1,
                                 label: {
                                   backgroundColor: 'rgb(233, 238, 255)',
-                                  content: 'Período actual',
+                                  content: 'Periodo actual',
                                   enabled: true,
                                   fontSize: 10,
                                   position: 'top',
@@ -1197,7 +1197,7 @@ class Dashboard extends Component {
                   {this.state.yearSelected &&
                     <div className='level-item'>
                     <div className='field'>
-                      <label className='label'>Período inicial</label>
+                      <label className='label'>Periodo inicial</label>
                       <div className='field is-grouped control'>
 
                       <div className='dropdown is-hoverable'>
@@ -1238,7 +1238,7 @@ class Dashboard extends Component {
                   {this.state.yearSelected &&
                     <div className='level-item'>
                     <div className='field'>
-                      <label className='label'>Período final</label>
+                      <label className='label'>Periodo final</label>
                       <div className='field is-grouped control'>
 
                       <div className='dropdown is-hoverable'>
