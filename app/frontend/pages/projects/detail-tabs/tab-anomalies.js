@@ -117,10 +117,15 @@ class TabAnomalies extends Component {
   }
 
   async getData (start = 0, limit = this.state.pageLength) {
+   if(this.state.requestId === 1000){
+      var request = 0
+   }else{
+      var request = this.state.requestId
+   }
    this.setState({
       isLoading: ' is-loading',
       anomalies: [],
-      requestId: this.state.requestId + 1 
+      requestId: request + 1 
     }, async () => {
       let url = '/app/anomalies/list/' + this.props.project.uuid
       try {
