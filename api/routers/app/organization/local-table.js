@@ -141,7 +141,9 @@ module.exports = new Route({
     }
 
     for (var prev of previousSale) {
-      dataDict[prev._id.product]['previousSale'] = prev.sale
+      if (dataDict[prev._id.product]) {
+        dataDict[prev._id.product]['previousSale'] = prev.sale
+      }
     }
 
     var responseData = allData.map(item => {
