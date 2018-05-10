@@ -92,7 +92,7 @@ module.exports = new Route({
       {
         '$redact': {
           '$cond': [
-                { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] },
+              { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] },
             '$$KEEP',
             '$$PRUNE'
           ]
