@@ -75,7 +75,7 @@ class SelectOrg extends Component {
     const hostnameSplit = hostname.split('.')
 
     if (env.ENV === 'production') {
-      if (hostname.indexOf('stage') >= 0) {
+      if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
         const newHostname = hostnameSplit.slice(-3).join('.')
         window.location = `//${slug}.${newHostname}/dashboard`
       } else {
