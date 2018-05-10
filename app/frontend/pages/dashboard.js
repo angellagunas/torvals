@@ -1103,6 +1103,9 @@ class Dashboard extends Component {
                                     return moment.utc(label).format('DD-MM-YYYY')
                                   },
                                   fontSize: 11
+                                },
+                                gridLines: {
+                                  display: false
                                 }
                               }
                             ],
@@ -1119,6 +1122,9 @@ class Dashboard extends Component {
                                     }
                                   },
                                   fontSize: 11
+                                },
+                                gridLines: {
+                                  display: false
                                 },
                                 display: true
                               }

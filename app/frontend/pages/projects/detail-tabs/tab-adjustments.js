@@ -1262,6 +1262,31 @@ getProductsSelected () {
                         maintainAspectRatio={false}
                         responsive={true}
                         labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
+                        scales={
+                          {
+                            xAxes:[{
+                              gridLines: {
+                                display: false
+                              }
+                            }],
+                            yAxes: [
+                              {
+                                gridLines: {
+                                  display: false
+                                },
+                                ticks: {
+                                  callback: function (label, index, labels) {
+                                    return '$' + label.toFixed(2).replace(/./g, (c, i, a) => {
+                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                    })
+                                  },
+                                  fontSize: 11
+                                },
+                                display: true
+                              }
+                            ]
+                          }
+                        }
                       />
                       :
                       this.loadTable()
