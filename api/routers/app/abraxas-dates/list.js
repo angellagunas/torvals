@@ -16,7 +16,7 @@ module.exports = new Route({
         if (!isNaN(parseInt(ctx.request.query[filter]))) {
           filters['week'] = parseInt(ctx.request.query[filter])
         } else {
-          ctx.throw(400, 'La semana debe ser un número!')
+          ctx.throw(400, '¡La semana debe ser un número!')
         }
         continue
       }

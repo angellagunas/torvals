@@ -55,7 +55,7 @@ module.exports = new Route({
       var lastYear = data.year - 1
       matchPreviousSale['data.semanaBimbo'] = {$in: data.weeks}
     } else {
-      ctx.throw(400, 'Es necesario filtrarlo por un rango de fechas!')
+      ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
     }
 
     var match = [

@@ -133,7 +133,7 @@ class PredictionsDetail extends Component {
       this.setState({notification: {
         has: true,
         type: 'error',
-        'message': ' No te puedes pasar de los límites establecidos!'
+        'message': ' ¡No te puedes pasar de los límites establecidos!'
       }})
       return false
     }
@@ -150,7 +150,7 @@ class PredictionsDetail extends Component {
       notification: {
         has: true,
         type: 'success',
-        'message': 'Ajuste guardado!'
+        'message': '¡Ajuste guardado!'
       }
     })
 

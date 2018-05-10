@@ -320,7 +320,7 @@ class TabAnomalies extends Component {
         anomalies: aux
       })
 
-      this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
+      this.notify('¡Ajuste guardado!', 5000, toast.TYPE.INFO)
       
     }
     else{
