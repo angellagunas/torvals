@@ -126,7 +126,7 @@ class ProjectForm extends Component {
       uiSchema['showOnDashboard'] = {'ui:widget': SelectWidget}
       schema.properties['showOnDashboard'] = {
         type: 'boolean',
-        title: 'Primario(Mostrar en dashboard)',
+        title: 'Primario (Mostrar en dashboard)',
         enum: [
           true,
           false
@@ -151,6 +151,8 @@ class ProjectForm extends Component {
       delete uiSchema.description['ui:disabled']
       if (uiSchema.status) delete uiSchema.status['ui:disabled']
     }
+
+    uiSchema.status['ui:disabled'] = true
 
     return (
       <div>

@@ -170,9 +170,9 @@ class TabAdjustment extends Component {
 
         this.setState({
           filters: {
-            channels: res.channels,
+            channels: _.orderBy(res.channels, 'name'),
             products: res.products,
-            salesCenters: res.salesCenters,
+            salesCenters: _.orderBy(res.salesCenters, 'name'),
             semanasBimbo: res.semanasBimbo,
             filteredSemanasBimbo: filteredSemanasBimbo,
             dates: res.dates,
@@ -1262,6 +1262,27 @@ getProductsSelected () {
                         maintainAspectRatio={false}
                         responsive={true}
                         labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
+                        tooltips={{
+                          mode: 'index',
+                          intersect: true,
+                          titleFontFamily: "'Roboto', sans-serif",
+                          bodyFontFamily: "'Roboto', sans-serif",
+                          bodyFontStyle: 'bold',
+                          callbacks: {
+                            label: function (tooltipItem, data) {
+                              let label = ' '
+                              label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+                              if (label) {
+                                label += ': '
+                              }
+                              let yVal = '$' + tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                              return label + yVal
+                            }
+                          }
+                        }}
                         scales={
                           {
                             xAxes:[{

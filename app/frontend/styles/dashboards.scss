@@ -83,6 +83,7 @@
             max-height: 200px;
             overflow-x: hidden;
             overflow-y: auto;
+            text-transform: capitalize;
             li {
                 border-bottom: 1px solid rgba(230, 232, 246, 0.5);
                 max-height: 34px;
@@ -127,6 +128,7 @@
             max-height: 200px;
             overflow-x: hidden;
             overflow-y: auto;
+            text-transform: capitalize;
             li {
                 max-height: 34px;
                 a {

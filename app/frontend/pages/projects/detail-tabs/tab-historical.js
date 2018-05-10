@@ -174,8 +174,8 @@ class TabHistorical extends Component {
     this.setState({
       loading: false,
       filters: res,
-      salesCenters: res.salesCenters,
-      channels: res.channels,
+      salesCenters: _.orderBy(res.salesCenters, 'name'),
+      channels: _.orderBy(res.channels, 'name'),
       products: res.products,
     }, async () => {
       await this.checkAllChannels(true)
@@ -408,25 +408,53 @@ class TabHistorical extends Component {
         'title': 'Predicción',
         'property': 'prediction',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.prediction) {
+            return row.prediction.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'Ajuste',
         'property': 'adjustment',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.adjustment) {
+            return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'Venta',
         'property': 'sale',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.sale) {
+            return row.sale.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'Venta anterior',
         'property': 'previousSale',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.previousSale) {
+            return row.previousSale.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'MAPE',
@@ -689,12 +717,12 @@ class TabHistorical extends Component {
       {
         label: 'Venta',
         color: '#0CB900',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale !== 0 ? item.sale : null }) : []
       },
       {
         label: 'Venta Anterior',
         color: '#EF6950',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale !== 0 ? item.previousSale : null}) : []
       }
     ]
 
@@ -784,11 +812,13 @@ class TabHistorical extends Component {
                                   if (!item.selected) {
                                     item.selected = false
                                   }
+                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                                  
                                   return (
                                     <li key={item.uuid}>
                                       <a>
                                         <Checkbox
-                                          label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
+                                          label={<span title={name}>{name}</span>}
                                           handleCheckboxChange={(e, value) => this.selectChannel(e, value, item)}
                                           key={item.uuid}
                                           checked={item.selected}
@@ -840,11 +870,13 @@ class TabHistorical extends Component {
                                   if (!item.selected) {
                                     item.selected = false
                                   }
+                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                                  
                                   return (
                                     <li key={item.uuid}>
                                       <a>
                                         <Checkbox
-                                          label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
+                                          label={<span title={name}>{name}</span>}
                                           handleCheckboxChange={(e, value) => this.selectSalesCenter(e, value, item)}
                                           key={item.uuid}
                                           checked={item.selected}
