@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {User} = require('models')
+const {User, Role, Project} = require('models')
 const parse = require('csv-parse/lib/sync')
 const lov = require('lov')
 
@@ -21,7 +21,8 @@ module.exports = new Route({
         email: lov.string().required(),
         password: lov.string().required(),
         name: lov.string().required(),
-        screenName: lov.string().required()
+        screenName: lov.string().required(),
+        roleSlug: lov.string().required()
       })
     )
 
@@ -30,11 +31,44 @@ module.exports = new Route({
     if (result.error) {
       ctx.throw(400, result.error)
     }
-
+    var created = 0
+    var projectError = 0
     for (var d of data) {
-      await User.create(d)
+      let user = await User.findOne({'email': d.email})
+      if (!user) {
+        let role = await Role.findOne({'slug': d.roleSlug})
+        if (role) {
+          if (d.roleSlug === 'manager-level-1') {
+            let project = await Project.findOne({'externalId': d.projectExternalId})
+            if (project) {
+              await User.create({
+                email: d.email,
+                password: d.password,
+                name: d.name,
+                screenName: d.screenName,
+                organizations: [{organization: ctx.state.organization._id, role: role._id, defaultProject: project._id}]
+              })
+              created++
+            } else {
+              projectError++
+            }
+          } else {
+            await User.create({
+              email: d.email,
+              password: d.password,
+              name: d.name,
+              screenName: d.screenName,
+              organizations: [{organization: ctx.state.organization._id, role: role._id}]
+            })
+            created++
+          }
+        }
+      }
     }
-
-    ctx.body = {message: `Se han creado ${data.length} usuarios satisfactoriamente!`}
+    var projectMessage = ''
+    if (projectError) {
+      projectMessage = `, Ha ocurrido un error con ${projectError} usuarios: Proyecto inválido`
+    }
+    ctx.body = {message: `Se han creado ${created} usuarios satisfactoriamente!` + projectMessage}
   }
 })
