@@ -114,7 +114,9 @@ module.exports = new Route({
 
     var previousSaleDict = {}
     for (var prev of previousSale) {
-      previousSaleDict[prev._id.week] = prev
+      if (previousSaleDict[prev._id.week]) {
+        previousSaleDict[prev._id.week] = prev
+      }
     }
 
     var totalPrediction = 0
