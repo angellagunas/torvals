@@ -90,12 +90,13 @@ class ProjectForm extends Component {
     let { editable } = this.props
 
     if (editable) {
-      uiSchema['status'] = {'ui:widget': SelectWidget}
+      uiSchema['status'] = {'ui:widget': SelectWidget, 'ui:disabled': true}
       schema.properties['status'] = {
         type: 'string',
         title: 'Estado',
         enum: [
           'new',
+          'empty',
           'adjustment',
           'uploading',
           'uploaded',
@@ -110,6 +111,7 @@ class ProjectForm extends Component {
         ],
         enumNames: [
           'Nuevo',
+          'Sin datos',
           'Ajuste',
           'Cargando',
           'Cargado',
@@ -152,7 +154,7 @@ class ProjectForm extends Component {
       if (uiSchema.status) delete uiSchema.status['ui:disabled']
     }
 
-    uiSchema.status['ui:disabled'] = true
+    if (uiSchema.status) uiSchema.status['ui:disabled'] = true
 
     return (
       <div>
