@@ -199,6 +199,24 @@ class TabHistorical extends Component {
       noData: undefined
     })
 
+    if (Object.keys(this.selectedChannels).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un canal'
+      })
+      return
+    }
+
+    else if (Object.keys(this.selectedSalesCenters).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un centro de venta'
+      })
+      return
+    }
+
     if (!this.state.waitingData) {
       try {
         let url = '/app/organizations/local/historical'
@@ -274,9 +292,6 @@ class TabHistorical extends Component {
         })
       }
     }
-    else {
-      console.log('esperando respuesta')
-    }
   }
 
   getTopValue(data) {
@@ -289,6 +304,23 @@ class TabHistorical extends Component {
   }
 
   async getProductTable() {
+    if (Object.keys(this.selectedChannels).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un canal'
+      })
+      return
+    }
+
+    else if (Object.keys(this.selectedSalesCenters).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un centro de venta'
+      })
+      return
+    }
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
@@ -576,7 +608,6 @@ class TabHistorical extends Component {
   }
 
   selectYear(item, value) {
-    console.log(item, value)
     if (value) {
       this.setState({ yearSelected: item, noData: undefined },
         () => {
