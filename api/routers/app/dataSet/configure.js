@@ -118,11 +118,14 @@ module.exports = new Route({
     }
 
     var url
-    if (abraxas.abraxasS3 === 'true') {
-      url = dataset.url
-    } else {
+    var type
+    if (abraxas.sendLocalDataset === 'true') {
       const fileChunk = await FileChunk.findOne({_id: dataset.fileChunk})
       url = fileChunk.path
+      type = 'path'
+    } else {
+      url = dataset.url
+      type = 'url'
     }
 
     dataset.set({
@@ -132,9 +135,10 @@ module.exports = new Route({
     })
     await dataset.save()
 
-    var res = await Api.uploadDataset({
-      project_id: dataset.project.externalId,
+    var res = await Api.uploadDataset(dataset.project.externalId, {
+      dataset_id: dataset.uuid,
       path: url,
+      type: type,
       headers: headers,
       config: {
         is_date: isDate,
