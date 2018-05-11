@@ -7,6 +7,9 @@ services:
       dockerfile: DockerfileNginxAdmin
     ports:
       - "3001:80"
+    cpu_shares: 50
+    mem_limit: 1000M
+    mem_reservation: 500m
   web:
     restart: always
     build: 
@@ -14,6 +17,9 @@ services:
       dockerfile: DockerfileNginxApp
     ports:
       - "3002:80"
+    cpu_shares: 50
+    mem_limit: 1000M
+    mem_reservation: 500m
   api:
     restart: always
     build: .
@@ -27,6 +33,9 @@ services:
     depends_on:
       - mongodb    
       - redisdb
+    cpu_shares: 200
+    mem_limit: 3000M
+    mem_reservation: 1000m
     env_file:
       - .env
   redisdb:
@@ -45,4 +54,7 @@ services:
       - ./data/db:/data/db
     ports:
         - 27017:27017
+    cpu_shares: 200
+    mem_limit: 3000M
+    mem_reservation: 1000m
     command: mongod --smallfiles --logpath=/dev/null # --quiet
