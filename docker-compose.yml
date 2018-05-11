@@ -38,7 +38,7 @@ services:
       - .env
     volumes:
       - ./data/db:/data/db
-      - ~/media/uploads:/app/media/uploads
+      - /www/media/uploads:/app/media/uploads
   redisdb:
     restart: always
     image: "redis:alpine"
