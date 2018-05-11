@@ -69,8 +69,8 @@ class TabAdjustment extends Component {
     this.getFilters()
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.project.status === 'adjustment' && this.props.project.status !== 'adjustment') {
+  componentDidUpdate(prevProps) {
+    if (this.props.project.status === 'adjustment' && prevProps.project.status !== 'adjustment') {
       this.clearSearch()
       this.getFilters()
     }
