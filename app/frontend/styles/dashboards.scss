@@ -79,14 +79,30 @@
             padding: 0;
         }
         .menu-list {
+            min-height: 110px;
             max-height: 200px;
             overflow-x: hidden;
             overflow-y: auto;
+            text-transform: capitalize;
             li {
                 border-bottom: 1px solid rgba(230, 232, 246, 0.5);
+                max-height: 34px;
                 a {
                     div {
                         display: inline;
+                        label {
+                            width: calc(100% - 30px);
+                            max-width: calc(100% - 30px);
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            -webkit-touch-callout: none !important;
+                            -webkit-user-select: none !important;
+                            -khtml-user-select: none !important;
+                            -moz-user-select: none !important;
+                            -ms-user-select: none !important;
+                            user-select: none !important;
+                        }
                     }
                 }
             }
@@ -108,15 +124,41 @@
             background-color: #fff !important;
         }
         .menu-list {
+            min-height: 110px;
             max-height: 200px;
             overflow-x: hidden;
             overflow-y: auto;
+            text-transform: capitalize;
+            li {
+                max-height: 34px;
+                a {
+                    div {
+                        display: inline;
+                        label {
+                            width: calc(100% - 30px);
+                            max-width: calc(100% - 30px);
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            -webkit-touch-callout: none !important;
+                            -webkit-user-select: none !important;
+                            -khtml-user-select: none !important;
+                            -moz-user-select: none !important;
+                            -ms-user-select: none !important;
+                            user-select: none !important;
+                        }
+                    }
+                }
+            }
         }
         .menu {
             &>div {
                 padding-bottom: .3rem;
                 border-bottom: 1px solid rgba(230, 232, 246, 0.5);
             }
+        }
+        .menu[disabled] {
+            opacity: .5
         }
         &-item {
             border-bottom: 1px solid rgba(230, 232, 246, 0.5);
@@ -131,7 +173,7 @@
             }
             .collapsable-title {
                 width: 100%;
-                height: 2.5rem; 
+                height: 2.5rem;
                 display: flex;
                 align-items: center;
                 border-color: #E6E8F6;
@@ -151,10 +193,30 @@
             border-color: #E6E8F6;
             border-radius: 0;
             padding: .5rem;
-            min-height: 288px;
+            min-height: 325px;
+            .chart-container {
+                display: flex;
+                align-items: center;
+                position: relative;
+                margin: auto;
+                height: 100%;
+                width: 100%;
+            }
+            .indicators {
+                &-title {
+                    font-size: .9rem;
+                    margin-bottom: -.3rem;
+                    font-weight: 700;
+                }
+                &-number {
+                    font-size: 1.2rem;
+                    margin-bottom: .8rem !important;
+                    font-weight: 700;
+                }
+            }
         }
         .notification {
-            padding: 1.5rem 0;
+            padding: 1.2rem 0 .8rem 0;
             margin: 0 .5rem .5rem 0;
         }
         .range-slider {
@@ -175,7 +237,9 @@
         .button.is-static {
             background-color: #fff;
             border-radius: 0;
-            font-size: .9rem;
+            font-size: .75rem;
+            width: 112px;
+            justify-content: space-between;
         }
         .level {
             margin: .7rem 0;
@@ -185,16 +249,13 @@
 
 .dash-table {
     font-size: 0.8rem;
-    tr {
-        height: 37px !important;
-        background-color: #FBFBFB;
-    }
-    th,
     td {
         padding: 0.2rem 0.4rem;
         vertical-align: middle;
     }
     td {
+        height: 37px !important;
+        background-color: #FBFBFB;
         border-bottom: 1px solid #E6E8F6;
         border-right: 1px solid #E6E8F6;
         text-align: center;
@@ -207,16 +268,20 @@
         font-weight: 700;
         border-right: 1px solid #FBFBFB;
         border-left: 1px solid #FBFBFB;
-        position: relative;
         text-align: center;
         &:nth-child(2) {
             text-align: left;
         }
-        i {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
     }
+}
+
+.dropdown-menu {
+    min-width: 8rem;
+    .dropdown-item {
+        font-size: .8rem;
+    }
+}
+
+.date-drop {
+    margin-top: 20px;
 }

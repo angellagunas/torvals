@@ -73,7 +73,6 @@ h2 {
         -moz-box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
         box-shadow: -6px 5px 16px -6px rgba(0, 0, 0, 0.3);
         margin-bottom: 1rem;
-        padding-bottom: 1rem;
         min-height: 90vh;
     }
 }
@@ -166,7 +165,7 @@ h2 {
 }
 
 .breadcrumb {
-    margin: 20px 0;
+    margin: 20px;
     font-size: 0.85rem;
     a {
         color: $general_text;
@@ -295,6 +294,42 @@ h2 {
 
 .has-bg-warning {
     background-color: $warning !important;
+}
+
+pre {
+    font-size: inherit;
+}
+
+.file-cta {
+    white-space: initial;
+}
+
+.file.is-info .file-cta {
+    background-color: rgba($info, 0.05);
+    border-color: $info;
+    color: $general_text;
+    i {
+        color: $info;
+    }
+}
+
+.file.is-info:hover .file-cta {
+    background-color: rgba($info, 0.05);
+    border-color: $info;
+    color: $general_text;
+}
+
+.file.is-info.is-hovered .file-cta .file-label {
+    margin: .5rem;
+    font-size: 1rem;
+}
+
+.file.is-boxed .file-cta {
+    flex-direction: initial;
+}
+
+.file-name{
+    max-width: 17em;
 }
 
 /* @import 'base'; */

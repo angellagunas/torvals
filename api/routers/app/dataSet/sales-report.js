@@ -43,7 +43,7 @@ module.exports = new Route({
       if (salesCenters.length > 0) {
         requestQuery['agencia_id'] = salesCenters[0].externalId
       } else {
-        ctx.throw(400, 'Se le debe asignar al menos un centro de venta al usuario!')
+        ctx.throw(400, '¡Se le debe asignar al menos un centro de venta al usuario!')
       }
     }
 

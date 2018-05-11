@@ -184,4 +184,27 @@
         max-width: 300px;
         width: 300px;
     }
+    .filters-project {
+        .dash-graph {
+            .box {
+                min-height: 370px;
+                .chart-container {
+                    height: 100%;
+                    width: 100%;
+                }
+            }
+            .notification{
+                padding: 1.5rem 0;
+            }
+        }
+    }
+    .dash-graph {
+        .button.is-static {
+            font-size: .85rem !important;
+            width: 135px !important;
+        }
+        .date-drop {
+            margin-top: 27px;
+        }
+    }
 }

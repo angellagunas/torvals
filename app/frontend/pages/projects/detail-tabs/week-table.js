@@ -501,7 +501,7 @@ class WeekTable extends Component {
         limit =
           <span
             className='icon has-text-danger'
-            title={'Hay ajustes fuera de rango!'}
+            title={'¡Hay ajustes fuera de rango!'}
             onClick={() => {
               this.props.handleAdjustmentRequest(row.weeks)
             }}>

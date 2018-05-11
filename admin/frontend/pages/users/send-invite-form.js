@@ -85,7 +85,7 @@ class InviteUserForm extends Component {
         if (this.state.projects.length === 0) {
           return this.setState({
             formData,
-            error: 'No existen proyectos!',
+            error: '¡No existen proyectos!',
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })

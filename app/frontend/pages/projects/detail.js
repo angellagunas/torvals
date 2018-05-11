@@ -32,7 +32,7 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'ajustes',
+      selectedTab: 'graficos',
       datasetClassName: '',
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
@@ -92,16 +92,23 @@ class ProjectDetail extends Component {
     try {
       const body = await api.get(url)
 
-      if (!tab) {
+      if (!tab && currentRole !== 'manager-level-1') {
         if (body.data.status === 'empty') {
           tab = 'datasets'
         }
-        else if (body.data.status === 'pendingRows' || body.data.status === 'adjustment') {
+        else if (body.data.status === 'pendingRows') {
           tab = 'ajustes'
+        }
+        else if (body.data.status === 'adjustment') {
+          tab = 'graficos'
         }
         else {
           tab = this.state.selectedTab
         }
+      }
+
+      else if (!tab && currentRole === 'manager-level-1') {
+        tab = 'ajustes'
       }
 
     this.setState({
@@ -418,6 +425,20 @@ class ProjectDetail extends Component {
     }
     const tabs = [
       {
+        name: 'graficos',
+        title: 'Gráficos',
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabHistorical
+            project={project}
+            history={this.props.history}
+          />
+        )
+      },
+      {
         name: 'ajustes',
         title: 'Ajustes',
         reload: false,
@@ -474,7 +495,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'anomalias',
-        title: 'Anomalias',
+        title: 'Anomalías',
         reload: true,
         hide: (testRoles('manager-level-1') ||
           project.status === 'processing' ||
@@ -484,18 +505,6 @@ class ProjectDetail extends Component {
           <TabAnomalies
             project={project}
             reload={(tab) => this.load(tab)}
-          />
-        )
-      },
-      {
-        name: 'graficos',
-        title: 'Gráficos',
-        hide: (project.status === 'processing' ||
-          project.status === 'pendingRows' ||
-          project.status === 'empty'),
-        content: (
-          <TabHistorical
-            project={project}
           />
         )
       },
@@ -620,7 +629,7 @@ class ProjectDetail extends Component {
           selectedTab={this.state.selectedTab}
           className='sticky-tab'
           extraTab={
-                project.status !== 'empty' &&
+                project.status === 'adjustment' &&
                 <div>
                   <div className='field is-grouped'>
                     <p className='control'>

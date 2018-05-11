@@ -29,6 +29,7 @@ class TabAnomalies extends Component {
       formData: {
       },
       anomalies: [],
+      requestId: 0,
       selectAll: false,
       selected: {},
       disableButton: true,
@@ -116,36 +117,45 @@ class TabAnomalies extends Component {
   }
 
   async getData (start = 0, limit = this.state.pageLength) {
-    this.setState({
-      isLoading: ' is-loading'
+   if(this.state.requestId === 1000){
+      var request = 0
+   }else{
+      var request = this.state.requestId
+   }
+   this.setState({
+      isLoading: ' is-loading',
+      anomalies: [],
+      requestId: request + 1 
+    }, async () => {
+      let url = '/app/anomalies/list/' + this.props.project.uuid
+      try {
+        let res = await api.get(url, {
+          ...this.state.formData,
+          start: start,
+          limit: limit,
+          general: this.state.search,
+          requestId: this.state.requestId
+        })
+        if(parseInt(res.requestId) === parseInt(this.state.requestId)){
+          this.setState({
+            totalAnomalies: res.total,
+            anomalies: res.data,
+            isLoading: '',
+            isFiltered: true          
+          })  
+        }      
+
+        if(res.data.length === 0)
+          this.notify('No hay anomalías que mostrar', 5000, toast.TYPE.INFO)      
+          
+      } catch (e) {
+        this.setState({
+          isLoading: '',
+          isFiltered: false
+        })
+        this.notify('Error:Intente de nuevo', 5000, toast.TYPE.ERROR)      
+      }
     })
-
-    let url = '/app/anomalies/list/' + this.props.project.uuid
-    try {
-      let res = await api.get(url, {
-        ...this.state.formData,
-        start: start,
-        limit: limit,
-        general: this.state.search
-      })
-      
-      this.setState({
-        totalAnomalies: res.total,
-        anomalies: res.data,
-        isLoading: '',
-        isFiltered: true
-      })
-
-      if(res.data.length === 0)
-        this.notify('No hay anomalias que mostrar', 5000, toast.TYPE.INFO)      
-        
-    } catch (e) {
-      this.setState({
-        isLoading: '',
-        isFiltered: false
-      })
-      this.notify('Error:Intente de nuevo', 5000, toast.TYPE.ERROR)      
-    }
   }
 
   async getFilters () {
@@ -222,7 +232,7 @@ class TabAnomalies extends Component {
         }
       },
       {
-        'title': 'Tipo de Anomalia',
+        'title': 'Tipo de Anomalía',
         'property': 'type',
         'default': 'N/A',
         'sortable': true,                                
@@ -310,7 +320,7 @@ class TabAnomalies extends Component {
         anomalies: aux
       })
 
-      this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
+      this.notify('¡Ajuste guardado!', 5000, toast.TYPE.INFO)
       
     }
     else{
@@ -547,7 +557,7 @@ class TabAnomalies extends Component {
                     className='input input-search'
                     type='text'
                     value={this.state.searchTerm}
-                    onChange={(e) => { this.searchOnChange(e) }} placeholder='Buscar' />
+                    onKeyUp={(e) => { this.searchOnChange(e) }} placeholder='Buscar'/>
 
                   <span className='icon is-small is-right'>
                     <i className='fa fa-search fa-xs'></i>
@@ -577,14 +587,14 @@ class TabAnomalies extends Component {
             <section className='section'>
               <center>
                 <Loader/>
-                <h2 className='has-text-info'>Cargando anomalias</h2>
+                <h2 className='has-text-info'>Cargando anomalías</h2>
               </center>
             </section>
           : 
             this.state.anomalies.length === 0
               ? <section className='section'>
                   <center>
-                    <h2 className='has-text-info'>No hay anomalias que mostrar</h2>
+                    <h2 className='has-text-info'>No hay anomalías que mostrar</h2>
                   </center>
                 </section>
               : 

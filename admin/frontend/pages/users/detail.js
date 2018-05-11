@@ -196,14 +196,14 @@ class UserDetail extends PageComponent {
       setTimeout(() => {
         this.setState({
           resetLoading: true,
-          resetText: 'Éxito!',
+          resetText: '¡Éxito!',
           resetClass: 'button is-success'
         })
       }, 3000)
     } catch (e) {
       await this.setState({
         resetLoading: true,
-        resetText: 'Error!',
+        resetText: '¡Error!',
         resetClass: 'button is-danger'
       })
     }

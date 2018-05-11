@@ -69,8 +69,8 @@ class TabAdjustment extends Component {
     this.getFilters()
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.project.status === 'adjustment' && this.props.project.status !== 'adjustment') {
+  componentDidUpdate(prevProps) {
+    if (this.props.project.status === 'adjustment' && prevProps.project.status !== 'adjustment') {
       this.clearSearch()
       this.getFilters()
     }
@@ -170,9 +170,9 @@ class TabAdjustment extends Component {
 
         this.setState({
           filters: {
-            channels: res.channels,
+            channels: _.orderBy(res.channels, 'name'),
             products: res.products,
-            salesCenters: res.salesCenters,
+            salesCenters: _.orderBy(res.salesCenters, 'name'),
             semanasBimbo: res.semanasBimbo,
             filteredSemanasBimbo: filteredSemanasBimbo,
             dates: res.dates,
@@ -188,7 +188,7 @@ class TabAdjustment extends Component {
         console.log(e)
         this.setState({
           error: true,
-          errorMessage: 'No se pudieron cargar los filtros!'
+          errorMessage: '¡No se pudieron cargar los filtros!'
         })
 
         this.notify(
@@ -238,7 +238,7 @@ class TabAdjustment extends Component {
 
   async getDataRows () {
     if (!this.state.formData.period) {
-      this.notify('Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
+      this.notify('¡Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
       return
     }
 
@@ -884,7 +884,7 @@ getProductsSelected () {
 
   async downloadReport () {
     if (!this.state.formData.salesCenter) {
-      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
+      this.notify('¡Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
 
       return
     }
@@ -1259,7 +1259,55 @@ getProductsSelected () {
                       this.state.salesTable.length > 0 ?
                       <Graph
                         data={graphData}
+                        maintainAspectRatio={false}
+                        responsive={true}
                         labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
+                        tooltips={{
+                          mode: 'index',
+                          intersect: true,
+                          titleFontFamily: "'Roboto', sans-serif",
+                          bodyFontFamily: "'Roboto', sans-serif",
+                          bodyFontStyle: 'bold',
+                          callbacks: {
+                            label: function (tooltipItem, data) {
+                              let label = ' '
+                              label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+                              if (label) {
+                                label += ': '
+                              }
+                              let yVal = '$' + tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                              return label + yVal
+                            }
+                          }
+                        }}
+                        scales={
+                          {
+                            xAxes:[{
+                              gridLines: {
+                                display: false
+                              }
+                            }],
+                            yAxes: [
+                              {
+                                gridLines: {
+                                  display: false
+                                },
+                                ticks: {
+                                  callback: function (label, index, labels) {
+                                    return '$' + label.toFixed(2).replace(/./g, (c, i, a) => {
+                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                    })
+                                  },
+                                  fontSize: 11
+                                },
+                                display: true
+                              }
+                            ]
+                          }
+                        }
                       />
                       :
                       this.loadTable()

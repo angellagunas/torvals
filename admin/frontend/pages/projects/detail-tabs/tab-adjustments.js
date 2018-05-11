@@ -204,10 +204,10 @@ class TabAdjustment extends Component {
       } catch (e) {
         this.setState({
           error: true,
-          errorMessage: 'No se pudieron cargar los filtros!'
+          errorMessage: '¡No se pudieron cargar los filtros!'
         })
         this.notify(
-          'Ha habido un error al obtener los filtros!',
+          '¡Ha habido un error al obtener los filtros!',
           5000,
           toast.TYPE.ERROR
         )
@@ -293,7 +293,7 @@ class TabAdjustment extends Component {
 
   async getDataRows () {
     if (!this.state.formData.period) {
-      this.notify('Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
+      this.notify('¡Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
       return
     }
 
@@ -526,7 +526,7 @@ class TabAdjustment extends Component {
 
     await this.updateSalesTable(obj)
     
-    this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
+    this.notify('¡Ajuste guardado!', 5000, toast.TYPE.INFO)
 
     return true
   }
@@ -732,7 +732,7 @@ class TabAdjustment extends Component {
 
   async downloadReport () {
     if (!this.state.formData.salesCenters) {
-      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
+      this.notify('¡Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
 
       return
     }
@@ -768,7 +768,7 @@ class TabAdjustment extends Component {
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
       this.setState({isDownloading: ''})
-      this.notify('Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
+      this.notify('¡Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
       console.log('error',e.message)
       

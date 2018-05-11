@@ -182,5 +182,10 @@
 }
 
 .chart-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin: auto;
+    height: 100%;
     width: 100%;
 }
