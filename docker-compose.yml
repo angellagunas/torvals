@@ -43,6 +43,9 @@ services:
     image: "redis:alpine"
     ports:
       - "6379:6379"
+    cpu_shares: 100
+    mem_limit: 3000M
+    mem_reservation: 1000m
   mongodb:
     restart: always
     image: mongo:latest
