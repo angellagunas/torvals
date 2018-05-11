@@ -55,6 +55,6 @@ services:
     ports:
         - 27017:27017
     cpu_shares: 200
-    mem_limit: 3000M
-    mem_reservation: 1000m
+    mem_limit: 6000M
+    mem_reservation: 2000m
     command: mongod --smallfiles --logpath=/dev/null # --quiet
