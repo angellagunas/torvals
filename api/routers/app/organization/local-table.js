@@ -1,12 +1,26 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
-const { Project, DataSetRow, Product, Channel, SalesCenter, AbraxasDate } = require('models')
+const { Project, DataSetRow, Product, Channel, SalesCenter, AbraxasDate, Role } = require('models')
 
 module.exports = new Route({
   method: 'post',
   path: '/local/table',
   handler: async function (ctx) {
     var data = ctx.request.body
+    var user = ctx.state.user
+    var currentRole
+    var currentOrganization
+    if (ctx.state.organization) {
+      currentOrganization = user.organizations.find(orgRel => {
+        return ctx.state.organization._id.equals(orgRel.organization._id)
+      })
+
+      if (currentOrganization) {
+        const role = await Role.findOne({_id: currentOrganization.role})
+
+        currentRole = role.toPublic()
+      }
+    }
     var filters = {
       organization: ctx.state.organization,
       activeDataset: {$ne: undefined}
@@ -25,13 +39,33 @@ module.exports = new Route({
     }
 
     if (data.channels) {
-      const channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1})
-      initialMatch['channel'] = {$in: channels.map(item => { return item._id })}
+      var channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1, 'groups': 1})
+      if (currentRole.slug === 'manager-level-2') {
+        channels = channels.filter(item => {
+          let checkExistence = item.groups.some(function (e) {
+            return user.groups.indexOf(String(e)) >= 0
+          })
+          return checkExistence
+        }).map(item => { return item._id })
+      } else {
+        channels = channels.map(item => { return item._id })
+      }
+      initialMatch['channel'] = { $in: channels }
     }
 
     if (data.salesCenters) {
-      const salesCenters = await SalesCenter.find({ uuid: { $in: data.salesCenters } }).select({'_id': 1})
-      initialMatch['salesCenter'] = { $in: salesCenters.map(item => { return item._id }) }
+      var salesCenters = await SalesCenter.find({ uuid: { $in: data.salesCenters } }).select({'_id': 1, 'groups': 1})
+      if (currentRole.slug === 'manager-level-2') {
+        salesCenters = salesCenters.filter(item => {
+          let checkExistence = item.groups.some(function (e) {
+            return user.groups.indexOf(String(e)) >= 0
+          })
+          return checkExistence
+        }).map(item => { return item._id })
+      } else {
+        salesCenters = salesCenters.map(item => { return item._id })
+      }
+      initialMatch['salesCenter'] = { $in: salesCenters }
     }
 
     if (data.products) {
