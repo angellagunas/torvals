@@ -20,7 +20,7 @@ module.exports = new Route({
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
     if (project.datasets.length === 0) {
-      ctx.throw(401, 'Se necesitan agregar datasets al proyecto primero!')
+      ctx.throw(401, '¡Se necesitan agregar datasets al proyecto primero!')
     }
 
     const forecastData = {

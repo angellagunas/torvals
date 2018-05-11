@@ -129,7 +129,7 @@ class EmailResetLanding extends Component {
 
     if (!user.organizations || user.organizations.length === 0) {
       return this.setState({
-        error: 'El usuario no tiene una organización asignada, No se puede iniciar sesión automáticamente!',
+        error: '¡El usuario no tiene una organización asignada, No se puede iniciar sesión automáticamente!',
         loading: false,
         apiCallErrorMessage: 'message is-danger',
         formData: {

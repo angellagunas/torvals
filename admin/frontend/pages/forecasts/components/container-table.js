@@ -249,7 +249,7 @@ class ContainerTable extends Component {
       (item) => data.uuid === item.uuid ? data : item
     )
 
-    this.notify('Ajuste guardado!', 5000, toast.TYPE.SUCCESS)
+    this.notify('¡Ajuste guardado!', 5000, toast.TYPE.SUCCESS)
 
     this.setState({
       predictionsFormatted,
@@ -452,7 +452,7 @@ class ContainerTable extends Component {
             return (
               <span
                 className='icon'
-                title='No es posible pedir un ajuste más allá al límite!'
+                title='¡No es posible pedir un ajuste más allá al límite!'
                 onClick={() => {
                   this.showModalAdjustmentRequest(row)
                 }}
@@ -466,7 +466,7 @@ class ContainerTable extends Component {
             return (
               <span
                 className='icon has-text-warning'
-                title='Ya se ha pedido un cambio a esta predicción!'
+                title='¡Ya se ha pedido un cambio a esta predicción!'
                 onClick={() => {
                   this.showModalAdjustmentRequest(row)
                 }}

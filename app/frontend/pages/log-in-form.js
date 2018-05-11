@@ -70,7 +70,7 @@ class LogInButton extends Component {
     let user = data.user
     if (!user.organizations || user.organizations.length === 0) {
       return this.setState({
-        error: 'El usuario no tiene una organización asignada!',
+        error: '¡El usuario no tiene una organización asignada!',
         loading: false,
         apiCallErrorMessage: 'message is-danger',
         formData: {

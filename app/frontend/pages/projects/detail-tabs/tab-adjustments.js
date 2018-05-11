@@ -188,7 +188,7 @@ class TabAdjustment extends Component {
         console.log(e)
         this.setState({
           error: true,
-          errorMessage: 'No se pudieron cargar los filtros!'
+          errorMessage: '¡No se pudieron cargar los filtros!'
         })
 
         this.notify(
@@ -238,7 +238,7 @@ class TabAdjustment extends Component {
 
   async getDataRows () {
     if (!this.state.formData.period) {
-      this.notify('Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
+      this.notify('¡Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
       return
     }
 
@@ -884,7 +884,7 @@ getProductsSelected () {
 
   async downloadReport () {
     if (!this.state.formData.salesCenter) {
-      this.notify('Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
+      this.notify('¡Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
 
       return
     }

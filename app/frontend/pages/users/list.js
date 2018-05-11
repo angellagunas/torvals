@@ -7,6 +7,7 @@ import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateUserNoModal from './create-no-modal'
 import DeleteButton from '~base/components/base-deleteButton'
+import CreateUser from './create'
 
 export default ListPage({
   path: '/manage/users',
@@ -16,7 +17,8 @@ export default ListPage({
   roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Usuario',
-  create: false,
+  create: true,
+  createComponent: CreateUser,
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
@@ -33,7 +35,7 @@ export default ListPage({
     ],
     align: 'left'
   },
-  sidePanel: true,
+  sidePanel: false,
   sidePanelIcon: 'user-plus',
   sidePanelComponent: CreateUserNoModal,
   baseUrl: '/app/users',

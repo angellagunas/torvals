@@ -347,6 +347,9 @@
 }
 
 .list-page {
+    .level:not(:last-child) {
+        margin-bottom: -.5rem;
+    }
     .table {
         font-size: 0.8rem;
         tr {

@@ -1293,10 +1293,10 @@ class DataSetDetail extends Component {
       }
 
       if (res.error === 0 && res.success === 0) {
-        this.notify('Error al confirmar productos!', 5000, toast.TYPE.ERROR)
+        this.notify('¡Error al confirmar productos!', 5000, toast.TYPE.ERROR)
       }
     } catch (e) {
-      this.notify('Error al confirmar productos!', 5000, toast.TYPE.ERROR)
+      this.notify('¡Error al confirmar productos!', 5000, toast.TYPE.ERROR)
     }
 
     this.setState({
@@ -1335,10 +1335,10 @@ class DataSetDetail extends Component {
       }
 
       if (res.error === 0 && res.success === 0) {
-        this.notify('Error al confirmar centros de venta!', 5000, toast.TYPE.ERROR)
+        this.notify('¡Error al confirmar centros de venta!', 5000, toast.TYPE.ERROR)
       }
     } catch (e) {
-      this.notify('Error al confirmar centros de venta!', 5000, toast.TYPE.ERROR)
+      this.notify('¡Error al confirmar centros de venta!', 5000, toast.TYPE.ERROR)
     }
 
     this.setState({
@@ -1377,10 +1377,10 @@ class DataSetDetail extends Component {
       }
 
       if (res.error === 0 && res.success === 0) {
-        this.notify('Error al confirmar canales!', 5000, toast.TYPE.ERROR)
+        this.notify('¡Error al confirmar canales!', 5000, toast.TYPE.ERROR)
       }
     } catch (e) {
-      this.notify('Error al confirmar canales!', 5000, toast.TYPE.ERROR)
+      this.notify('¡Error al confirmar canales!', 5000, toast.TYPE.ERROR)
     }
 
     this.setState({
