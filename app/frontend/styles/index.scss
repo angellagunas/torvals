@@ -296,8 +296,16 @@ h2 {
     background-color: $warning !important;
 }
 
-pre {
-    font-size: inherit;
+.importcsv {
+    .column {
+        max-width: 100%;
+        overflow: hidden;
+    }
+    pre {
+        font-size: inherit;
+        width: 100%;
+        overflow: auto;
+    }
 }
 
 .file-cta {
@@ -328,8 +336,54 @@ pre {
     flex-direction: initial;
 }
 
-.file-name{
+.file-name {
     max-width: 17em;
+}
+
+.calendar-view {
+    .md-checkbox {
+        padding-top: 20px; 
+        line-height: 1;
+        font-size: inherit;
+    }
+    .md-checkbox--fake {
+        margin: 5px;
+        width: 20px;
+        height: 20px;
+    }
+    .md-checkbox--fake::after {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        border: 2px solid #ccc;
+    }
+    .md-checkbox--fake::before {
+        border-radius: 5px;
+        border: 0px solid transparent;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::after {
+        border: 2px solid #ccc;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::before {
+        height: 8px;
+        border-radius: 2px;
+        border-color: $success;
+        border-width: 2px;
+        border-top-style: none;
+        border-right-style: none;
+        -webkit-transform: rotate(-45deg);
+        -moz-transform: rotate(-45deg);
+        -ms-transform: rotate(-45deg);
+        -o-transform: rotate(-45deg);
+        transform: rotate(-45deg) translate(0px, 4px);
+    }
+    .md-checkbox>div {
+        line-height: 30px;
+    }
+    .level{
+        margin-top: -20px;
+        margin-left: 10px;
+    }
 }
 
 /* @import 'base'; */

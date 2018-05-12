@@ -86,7 +86,7 @@ class GroupDetail extends Component {
               </span>
             </Link>
           } else {
-            return <Link className='button' to={'/manage/users/' + row.uuid}>
+            return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
               <span className='icon is-small'>
                 <i className='fa fa-eye' />
               </span>

@@ -180,7 +180,7 @@ class SalesCenterDetail extends Component {
         formatter: (row) => {
           if (testRoles('manager-level-2, consultor')) {
             return (
-              <Link className='button' to={'/forecasts/' + row.uuid}>
+              <Link className='button is-primary' to={'/forecasts/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>

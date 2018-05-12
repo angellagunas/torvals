@@ -22,6 +22,14 @@ module.exports = new Route({
       } else {
         filters[filter] = { '$regex': ctx.request.query[filter], '$options': 'i' }
       }
+
+      if (filter === 'general') {
+        delete filters['general']
+        if (ctx.request.query[filter] !== '') {
+          filters['name'] = { '$regex': ctx.request.query[filter], '$options': 'i' }
+        }
+        continue
+      }
     }
 
     var projects = await Project.dataTables({
