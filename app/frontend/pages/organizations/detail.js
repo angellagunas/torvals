@@ -74,7 +74,7 @@ class OrganizationDetail extends Component {
         formatter: (row) => {
           if (testRoles('manager-level-2, consultor')) {
             return (
-              <Link className='button' to={'/manage/users/' + row.uuid}>
+              <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>
@@ -118,9 +118,10 @@ class OrganizationDetail extends Component {
     }
 
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section is-paddingless-top pad-sides'>
+      <div>
+        <div className='section-header'>
+          <h2>{organization.name}</h2>
+      </div>
             <Breadcrumb
               path={[
                 {
@@ -141,13 +142,14 @@ class OrganizationDetail extends Component {
               ]}
               align='left'
             />
-            <br />
+        <div className='section is-paddingless-top pad-sides'>
+
             <div className='columns'>
               <div className='column'>
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Organización
+                      Datos de la organización
                     </p>
                   </header>
                   <div className='card-content'>
@@ -201,7 +203,7 @@ class OrganizationDetail extends Component {
             </div>
           </div>
         </div>
-      </div>
+      
     )
   }
 }

@@ -151,7 +151,7 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: this.splitWords('Centro_de Ventas'),
+        title: 'Centro de Ventas',
         property: 'salesCenter',
         default: 'N/A',
         sortable: true,

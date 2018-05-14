@@ -546,7 +546,7 @@ class TabAnomalies extends Component {
               }
             </div>
 
-            <div className='level-item'>
+            <div className='level-item pad-top-5'>
               <div className='field'>
                 {currentRole !== 'consultor' ?
                   <label className='label'>Búsqueda general</label> :
