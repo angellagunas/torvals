@@ -444,7 +444,7 @@ class TabAnomalies extends Component {
       selectAll: false
     })
 
-    if (e.keyCode === 13 || e.which === 13){
+    if (e.keyCode === 13 || e.which === 13 || value === ''){
       this.toggleButtons()
       this.getData()
     }
