@@ -72,49 +72,69 @@ const task = new Task(async function (argv) {
           predictionColumn = analysisColumn
         }
 
+
+        let products = await Product.find({organization: dataset.organization})
+        let salesCenters = await SalesCenter.find({organization: dataset.organization})
+        let channels = await Channel.find({organization: dataset.organization})
+
+        let productsObj = {}
+        let salesCentersObj = {}
+        let channelsObj = {}
+
+        let bulkOps = []
+
+        for (let prod of products) {
+          productsObj[prod.externalId] = prod._id
+        }
+
+        for (let sc of salesCenters) {
+          salesCentersObj[sc.externalId] = sc._id
+        }
+
+        for (let chan of channels) {
+          channelsObj[chan.externalId] = chan._id
+        }
+
+        delete products
+        delete salesCenters
+        delete channels
+
         var i = 1
 
         do {
+          console.log(`Receiving page ${i} of ${numPages}`)
           for (var dataRow of resDataset._items) {
-            var salesCenter = await SalesCenter.findOne({
-              externalId: dataRow[salesCenterExternalId.name],
-              organization: dataset.organization
-            })
-            var product = await Product.findOne({
-              externalId: dataRow[productExternalId.name],
-              organization: dataset.organization
-            })
+            let salesCenter = dataRow[salesCenterExternalId.name]
+            let product = dataRow[productExternalId.name]
+            let channel = dataRow[channelExternalId.name]
 
-            var channel = await Channel.findOne({
-              externalId: dataRow[channelExternalId.name],
-              organization: dataset.organization
+            bulkOps.push({
+              organization: dataset.organization,
+              project: dataset.project,
+              dataset: dataset,
+              externalId: dataRow._id,
+              data: {
+                existence: dataRow.existencia,
+                prediction: dataRow[predictionColumn.name],
+                sale: dataRow[salesColumn.name] ? dataRow[salesColumn.name] : 0,
+                forecastDate: moment.utc(dataRow[dateColumn.name], 'YYYY-MM-DD'),
+                semanaBimbo: dataRow.semana_bimbo,
+                adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
+                localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
+                lastAdjustment: dataRow[adjustmentColumn.name] || undefined
+              },
+              apiData: dataRow,
+              salesCenter: salesCentersObj[salesCenter],
+              product: productsObj[product],
+              channel: channelsObj[channel]
             })
+          }
 
-            try {
-              await DataSetRow.create({
-                organization: dataset.organization,
-                project: dataset.project,
-                dataset: dataset,
-                externalId: dataRow._id,
-                data: {
-                  existence: dataRow.existencia,
-                  prediction: dataRow[predictionColumn.name],
-                  sale: dataRow[salesColumn.name] ? dataRow[salesColumn.name] : 0,
-                  forecastDate: moment.utc(dataRow[dateColumn.name], 'YYYY-MM-DD'),
-                  semanaBimbo: dataRow.semana_bimbo,
-                  adjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
-                  localAdjustment: dataRow[adjustmentColumn.name] || dataRow[predictionColumn.name],
-                  lastAdjustment: dataRow[adjustmentColumn.name] || undefined
-                },
-                apiData: dataRow,
-                salesCenter: salesCenter,
-                product: product,
-                channel: channel
-              })
-            } catch (e) {
-              console.log('Hubo un error al tratar de guardar la row: ')
-              console.log(dataRow)
-            }
+          try {
+            await DataSetRow.insertMany(bulkOps)
+          } catch (e) {
+            console.log('Hubo un error al tratar de guardar las rows: ')
+            console.log(e.message)
           }
 
           i++

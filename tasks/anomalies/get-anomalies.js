@@ -28,24 +28,44 @@ const task = new Task(async function (argv) {
   if (!project.activeDataset) {
     return false
   }
-  for (var p of res._items) {
-    var salesCenterExternalId = project.activeDataset.getSalesCenterColumn() || {name: ''}
-    var productExternalId = project.activeDataset.getProductColumn() || {name: ''}
-    var channelExternalId = project.activeDataset.getChannelColumn() || {name: ''}
-    var predictionColumn = project.activeDataset.getPredictionColumn() || {name: ''}
 
-    var salesCenter = await SalesCenter.findOne({
-      externalId: p[salesCenterExternalId.name],
-      organization: project.activeDataset.organization
-    })
-    var product = await Product.findOne({
-      externalId: p[productExternalId.name],
-      organization: project.activeDataset.organization
-    })
-    var channel = await Channel.findOne({
-      externalId: p[channelExternalId.name],
-      organization: project.activeDataset.organization
-    })
+  let products = await Product.find({organization: project.activeDataset.organization})
+  let salesCenters = await SalesCenter.find({organization: project.activeDataset.organization})
+  let channels = await Channel.find({organization: project.activeDataset.organization})
+
+  let productsObj = {}
+  let salesCentersObj = {}
+  let channelsObj = {}
+
+  let bulkOps = []
+
+  for (let prod of products) {
+    productsObj[prod.externalId] = prod._id
+  }
+
+  for (let sc of salesCenters) {
+    salesCentersObj[sc.externalId] = sc._id
+  }
+
+  for (let chan of channels) {
+    channelsObj[chan.externalId] = chan._id
+  }
+
+  delete products
+  delete salesCenters
+  delete channels
+
+  var salesCenterExternalId = project.activeDataset.getSalesCenterColumn() || {name: ''}
+  var productExternalId = project.activeDataset.getProductColumn() || {name: ''}
+  var channelExternalId = project.activeDataset.getChannelColumn() || {name: ''}
+  var predictionColumn = project.activeDataset.getPredictionColumn() || {name: ''}
+
+  console.log(`${res._items.length} anomalies to save!`)
+  
+  for (var p of res._items) {
+    let salesCenter = p[salesCenterExternalId.name]
+    let product = p[productExternalId.name]
+    let channel = p[channelExternalId.name]
 
     try {
       var anomaly = await Anomaly.findOne({
@@ -54,11 +74,11 @@ const task = new Task(async function (argv) {
       })
 
       if (!anomaly) {
-        await Anomaly.create({
-          channel: channel,
+        bulkOps.push({
+          salesCenter: salesCentersObj[salesCenter],
+          product: productsObj[product],
+          channel: channelsObj[channel],
           dataset: project.activeDataset._id,
-          product: product,
-          salesCenter: salesCenter,
           externalId: p._id,
           prediction: p[predictionColumn.name],
           semanaBimbo: p.semana_bimbo,
@@ -67,12 +87,40 @@ const task = new Task(async function (argv) {
           date: moment(p.fecha).utc(),
           apiData: p
         })
+
+        // await Anomaly.create({
+        //   salesCenter: salesCentersObj[salesCenter],
+        //   product: productsObj[product],
+        //   channel: channelsObj[channel],
+        //   dataset: project.activeDataset._id,
+        //   externalId: p._id,
+        //   prediction: p[predictionColumn.name],
+        //   semanaBimbo: p.semana_bimbo,
+        //   organization: project.activeDataset.organization,
+        //   type: p.type,
+        //   date: moment(p.fecha).utc(),
+        //   apiData: p
+        // })
+      }
+
+      if (bulkOps.length === 1000) {
+        console.log(`1000 anomalies saved!`)
+        await Anomaly.insertMany(bulkOps)
+        bulkOps = []
       }
     } catch (e) {
       console.log('Error trying to save anomaly: ')
       console.log(p)
       console.log(e)
     }
+  }
+
+  try {
+    if (bulkOps.length > 0) await Anomaly.insertMany(bulkOps)
+  }  catch (e) {
+    console.log('Error trying to save anomaly: ')
+    console.log(p)
+    console.log(e)
   }
 
   console.log(`Received ${res._items.length} anomalies!`)
