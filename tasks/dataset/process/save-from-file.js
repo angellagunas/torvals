@@ -51,7 +51,19 @@ const task = new Task(async function (argv) {
 
   for (var i = 0; i < lineCount; i++) {
     console.log('=>', (i * 1000) + 1, (i * 1000) + 1000)
-    let rawLine = String(execSync(`sed -n '${i * 1000 + 1},${(i * 1000) + 1000}p' ${filepath}`))
+    var rawLine
+
+    if (i === 0) {
+      rawLine = String(execSync(`sed '1d;${(i * 1000) + 1000}q' ${filepath}`))
+    } else {
+      rawLine = String(execSync(`sed '1,${i * 1000}d;${(i * 1000) + 1000}q' ${filepath}`))
+    }
+
+    // if (i === 0) {
+    //   rawLine = String(execSync(`tail -n +1 ${filepath} | head -n ${1000}`))
+    // } else {
+    //   rawLine = String(execSync(`tail -n +${i * 1000} ${filepath} | head -n ${1000}`))
+    // }
 
     let rows = rawLine.split('\n')
 
@@ -97,8 +109,8 @@ const task = new Task(async function (argv) {
     }
 
     await DataSetRow.insertMany(bulkOps)
-    bulkOps = []
     console.log(`1000 ops ==> ${moment().format()}`)
+    bulkOps = []
   }
 
   console.log(`Saved in dataset ${dataset.uuid}`)

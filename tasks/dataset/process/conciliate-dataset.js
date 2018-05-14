@@ -35,9 +35,10 @@ const task = new Task(async function (argv) {
   var channelExternalId = {name: 'canal_id'}
 
   const rows = await DataSetRow.find({dataset: dataset1._id}).cursor()
-  var bulkOps = []
+  var bulkOpsEdit = []
+  var bulkOpsNew = []
   for (let row = await rows.next(); row != null; row = await rows.next()) {
-    let secondRow = await DataSetRow.find({
+    let secondRow = await DataSetRow.findOne({
       'apiData.agencia_id': row.apiData.agencia_id,
       'apiData.fecha': row.apiData.fecha,
       'apiData.producto_id': row.apiData.producto_id,
@@ -45,20 +46,45 @@ const task = new Task(async function (argv) {
       'dataset': dataset2._id
     })
 
-    // bulkOps.push(
-    //   {
-    //     'updateOne': {
-    //       'filter': { '_id': row._id },
-    //       'update': { '$set': { 'data.forecastDate': newDate } }
-    //     }
-    //   }
-    // )
+    if (secondRow) {
+      bulkOpsEdit.push(
+        {
+          'updateOne': {
+            'filter': { '_id': row._id },
+            'update': { '$set': { 'apiData': secondRow.apiData } }
+          }
+        }
+      )
+    } else {
+      bulkOpsNew.push(
+        {
+          'organization': dataset1.organization,
+          'project': dataset1.project,
+          'dataset': dataset1._id,
+          'apiData': secondRow.apiData
+        }
+      )
+    }
 
-    // if (bulkOps.length === 1000) {
-    //   console.log(`1000 ops ==> ${moment().format()}`)
-    //   await DataSetRow.bulkWrite(bulkOps)
-    //   bulkOps = []
-    // }
+    if (bulkOpsEdit.length === 1000) {
+      console.log(`1000 ops edit ==> ${moment().format()}`)
+      await DataSetRow.bulkWrite(bulkOpsEdit)
+      bulkOpsEdit = []
+    }
+
+    if (bulkOpsNew.length === 1000) {
+      console.log(`1000 ops new ==> ${moment().format()}`)
+      await DataSetRow.insertMany(bulkOpsNew)
+      bulkOpsNew = []
+    }
+  }
+
+  if (bulkOpsEdit.length > 0) {
+    await DataSetRow.bulkWrite(bulkOpsEdit)
+  }
+
+  if (bulkOpsNew.length > 0) {
+    await DataSetRow.insertMany(bulkOpsNew)
   }
 
   return true
