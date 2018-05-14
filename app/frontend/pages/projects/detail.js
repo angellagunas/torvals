@@ -33,6 +33,7 @@ class ProjectDetail extends Component {
       loaded: false,
       project: {},
       selectedTab: 'graficos',
+      actualTab: 'graficos',
       datasetClassName: '',
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
@@ -96,7 +97,7 @@ class ProjectDetail extends Component {
         if (body.data.status === 'empty') {
           tab = 'datasets'
         }
-        else if (body.data.status === 'pendingRows') {
+        else if (body.data.status === 'pendingRows' || body.data.status === 'processing') {
           tab = 'ajustes'
         }
         else if (body.data.status === 'adjustment') {
@@ -252,39 +253,43 @@ class ProjectDetail extends Component {
     })
   }
 
-  async hasSaleCenter () {
-    let url = '/app/salesCenters'
-    try {
-      let res = await api.get(url, {
-        start: 0,
-        limit: 0,
-        sort: 'name'
-      })
-      if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
-        this.setState({
-          noSalesCenter: true
+  async hasSaleCenter() {
+    if (testRoles('manager-level-1, manager-level-2')) {
+      let url = '/app/salesCenters'
+      try {
+        let res = await api.get(url, {
+          start: 0,
+          limit: 0,
+          sort: 'name'
         })
+        if (res.total <= 0) {
+          this.setState({
+            noSalesCenter: true
+          })
+        }
+      } catch (e) {
+        console.log(e)
       }
-    } catch (e) {
-      console.log(e)
     }
   }
 
-  async hasChannel () {
-    let url = '/app/channels'
-    try {
-      let res = await api.get(url, {
-        start: 0,
-        limit: 0,
-        sort: 'name'
-      })
-      if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
-        this.setState({
-          noChannel: true
+  async hasChannel() {
+    if (testRoles('manager-level-1, manager-level-2')) {
+      let url = '/app/channels'
+      try {
+        let res = await api.get(url, {
+          start: 0,
+          limit: 0,
+          sort: 'name'
         })
+        if (res.total <= 0) {
+          this.setState({
+            noChannel: true
+          })
+        }
+      } catch (e) {
+        console.log(e)
       }
-    } catch (e) {
-      console.log(e)
     }
   }
 
@@ -457,6 +462,7 @@ class ProjectDetail extends Component {
             pendingDataRows={this.setPendingDataRows}
             handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
             handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }}
+            selectedTab={this.state.actualTab}
           />
         )
       },
@@ -624,6 +630,7 @@ class ProjectDetail extends Component {
           /> */
         }
         <Tabs
+          onChangeTab={(tab) => this.setState({ actualTab: tab})}
           tabTitle={project.name}
           tabs={tabs}
           selectedTab={this.state.selectedTab}
