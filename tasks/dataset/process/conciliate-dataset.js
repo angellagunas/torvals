@@ -2,13 +2,12 @@
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
-const _ = require('lodash')
 
 const Task = require('lib/task')
 const { DataSet, DataSetRow } = require('models')
-const batchSize = 10000
 
 const task = new Task(async function (argv) {
+  var batchSize = 10000
   if (!argv.dataset1) {
     throw new Error('You need to provide an uuid!')
   }
@@ -17,24 +16,23 @@ const task = new Task(async function (argv) {
     throw new Error('You need to provide an uuid!')
   }
 
+  if (argv.batchSize) {
+    try {
+      batchSize = parseInt(argv.batchSize)
+    } catch (e) {
+      console.log('Invalid batch size! Using default of 1000 ...')
+    }
+  }
+
   let i = 0
   console.log('Fetching Datasets...')
 
   const dataset1 = await DataSet.findOne({uuid: argv.dataset1})
   const dataset2 = await DataSet.findOne({uuid: argv.dataset2})
-  var bulkOps = []
 
   if (!dataset1 || !dataset2) {
     throw new Error('Invalid uuid!')
   }
-
-  var predictionColumn = {name: 'prediccion'}
-  var adjustmentColumn = {name: 'ajuste'}
-  var dateColumn = {name: 'fecha'}
-  var salesColumn = {name: 'venta'}
-  var salesCenterExternalId = {name: 'agencia_id'}
-  var productExternalId = {name: 'producto_id'}
-  var channelExternalId = {name: 'canal_id'}
 
   const rows = await DataSetRow.find({dataset: dataset1._id}).cursor()
   var bulkOpsEdit = []

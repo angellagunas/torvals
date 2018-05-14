@@ -8,12 +8,21 @@ const Task = require('lib/task')
 const { Project, DataSet, DataSetRow } = require('models')
 
 const task = new Task(async function (argv) {
+  var batchSize = 10000
   if (!argv.file) {
     throw new Error('You need to provide a file!')
   }
 
   if (!argv.project) {
     throw new Error('You need to provide a project!')
+  }
+
+  if (argv.batchSize) {
+    try {
+      batchSize = parseInt(argv.batchSize)
+    } catch (e) {
+      console.log('Invalid batch size! Using default of 1000 ...')
+    }
   }
 
   console.log('Fetching Dataset...')
@@ -36,27 +45,25 @@ const task = new Task(async function (argv) {
   const filepath = argv.file
 
   const rawLineCount = execSync(`wc -l < ${filepath}`)
-  console.log('line count ===> ', parseInt(String(rawLineCount)))
-  const lineCount = Math.ceil((parseInt(String(rawLineCount)) - 1) / 1000)
+  const lineCount = parseInt(String(rawLineCount)) - 1
+  const pages = Math.ceil(lineCount / batchSize)
 
-  console.log('Reading =>', lineCount * 100, 'from', filepath)
+  console.log('Reading =>', pages * 100, 'from', filepath)
 
   var headers = String(execSync(`sed -n '1p' ${filepath}`))
   headers = headers.split('\n')[0].split(',')
 
-  var predictionColumn = {name: 'prediccion'}
-  var adjustmentColumn = {name: ''}
   var dateColumn = {name: 'fecha'}
-  var salesColumn = {name: 'venta'}
 
-  for (var i = 0; i < lineCount; i++) {
-    console.log('=>', (i * 1000) + 1, (i * 1000) + 1000)
+  for (var i = 0; i < pages; i++) {
+    console.log(`${lineCount} => ${(i * batchSize) + 1} - ${(i * batchSize) + batchSize}`)
+
     var rawLine
 
     if (i === 0) {
-      rawLine = String(execSync(`sed '1d;${(i * 1000) + 1000}q' ${filepath}`))
+      rawLine = String(execSync(`sed '1d;${(i * batchSize) + batchSize}q' ${filepath}`))
     } else {
-      rawLine = String(execSync(`sed '1,${i * 1000}d;${(i * 1000) + 1000}q' ${filepath}`))
+      rawLine = String(execSync(`sed '1,${i * batchSize}d;${(i * batchSize) + batchSize}q' ${filepath}`))
     }
 
     // if (i === 0) {
@@ -96,20 +103,11 @@ const task = new Task(async function (argv) {
         'project': dataset.project,
         'dataset': dataset._id,
         'apiData': obj
-        // 'data': {
-        //   'prediction': obj[predictionColumn.name],
-        //   'sale': obj[salesColumn.name] ? obj[salesColumn.name] : 0,
-        //   'forecastDate': forecastDate,
-        //   'semanaBimbo': obj.semana_bimbo,
-        //   'adjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-        //   'localAdjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-        //   'lastAdjustment': obj[adjustmentColumn.name] || undefined
-        // }
       })
     }
 
     await DataSetRow.insertMany(bulkOps)
-    console.log(`1000 ops ==> ${moment().format()}`)
+    console.log(`${batchSize} ops ==> ${moment().format()}`)
     bulkOps = []
   }
 
