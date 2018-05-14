@@ -259,106 +259,113 @@ class SalesCenterDetail extends Component {
     })
 
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section is-paddingless-top pad-sides'>
-            <Breadcrumb
-              path={[
-                {
-                  path: '/',
-                  label: 'Inicio',
-                  current: false
-                },
-                {
-                  path: '/catalogs/salesCenters',
-                  label: 'Centros de venta',
-                  current: false
-                },
-                {
-                  path: '/catalogs/salesCenters/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/catalogs/salesCenters/',
-                  label: this.state.salesCenter.name,
-                  current: true
-                }
-              ]}
-              align='left'
+      <div className='detail-page'>
+        <div className='section-header'>
+          <h2>{this.state.salesCenter.name}</h2>
+        </div>
+
+        <div className='level'>
+          <div className='level-left'>
+            <div className='level-item'>
+
+              <Breadcrumb
+                path={[
+                  {
+                    path: '/',
+                    label: 'Inicio',
+                    current: false
+                  },
+                  {
+                    path: '/catalogs/salesCenters',
+                    label: 'Centros de venta',
+                    current: false
+                  },
+                  {
+                    path: '/catalogs/salesCenters/',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/catalogs/salesCenters/',
+                    label: this.state.salesCenter.name,
+                    current: true
+                  }
+                ]}
+                align='left'
             />
-            <div className='columns'>
-              <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
-                    { canEdit &&
-                      <DeleteButton
-                        titleButton={'Eliminar'}
-                        objectName='Centro de ventas'
-                        objectDelete={this.deleteObject.bind(this)}
-                        message={`¿Deseas eliminar el centro de ventas ${this.state.salesCenter.name}?`}
-                      />
-                    }
-                  </div>
-                </div>
-              </div>
             </div>
-            <div className='columns'>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Centro de venta
+          </div>
+          <div className='level-right'>
+            <div className='level-item'>
+              {canEdit &&
+                <DeleteButton
+                  titleButton={'Eliminar'}
+                  objectName='Centro de ventas'
+                  objectDelete={this.deleteObject.bind(this)}
+                  message={`¿Deseas eliminar el centro de ventas ${this.state.salesCenter.name}?`}
+                />
+              }
+            </div>
+          </div>
+        </div>
+
+        <div className='section is-paddingless-top pad-sides'>
+
+          <div className='columns'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                      Detalle
                     </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <SalesCenterForm
-                          baseUrl='/app/salesCenters'
-                          url={'/app/salesCenters/' + this.props.match.params.uuid}
-                          initialState={this.state.salesCenter}
-                          load={this.load.bind(this)}
-                          canEdit={canEdit}
-                          submitHandler={(data) => this.submitHandler(data)}
-                          errorHandler={(data) => this.errorHandler(data)}
-                          finishUp={(data) => this.finishUpHandler(data)}
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <SalesCenterForm
+                        baseUrl='/app/salesCenters'
+                        url={'/app/salesCenters/' + this.props.match.params.uuid}
+                        initialState={this.state.salesCenter}
+                        load={this.load.bind(this)}
+                        canEdit={canEdit}
+                        submitHandler={(data) => this.submitHandler(data)}
+                        errorHandler={(data) => this.errorHandler(data)}
+                        finishUp={(data) => this.finishUpHandler(data)}
                         >
-                          <div className='field is-grouped'>
-                            <div className='control'>
-                              <button
-                                className={'button is-primary ' + this.state.isLoading}
-                                disabled={!!this.state.isLoading}
-                                type='submit'
+                        <div className='field is-grouped'>
+                          <div className='control'>
+                            <button
+                              className={'button is-primary ' + this.state.isLoading}
+                              disabled={!!this.state.isLoading}
+                              type='submit'
                               >Guardar</button>
-                            </div>
                           </div>
-                        </SalesCenterForm>
-                      </div>
+                        </div>
+                      </SalesCenterForm>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
                       Grupos
                     </p>
-                  </header>
-                  <div className='card-content'>
-                    <Multiselect
-                      availableTitle='Disponible'
-                      assignedTitle='Asignado'
-                      assignedList={this.state.selectedGroups}
-                      availableList={availableList}
-                      dataFormatter={(item) => { return item.name }}
-                      availableClickHandler={this.availableGroupOnClick.bind(this)}
-                      assignedClickHandler={this.assignedGroupOnClick.bind(this)}
-                      disabled={!canEdit}
+                </header>
+                <div className='card-content'>
+                  <Multiselect
+                    availableTitle='Disponible'
+                    assignedTitle='Asignado'
+                    assignedList={this.state.selectedGroups}
+                    availableList={availableList}
+                    dataFormatter={(item) => { return item.name }}
+                    availableClickHandler={this.availableGroupOnClick.bind(this)}
+                    assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                    disabled={!canEdit}
                     />
-                  </div>
                 </div>
               </div>
             </div>

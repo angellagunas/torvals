@@ -149,7 +149,7 @@ class OrganizationDetail extends Component {
                 <div className='card'>
                   <header className='card-header'>
                     <p className='card-header-title'>
-                      Datos de la organización
+                      Detalle
                     </p>
                   </header>
                   <div className='card-content'>

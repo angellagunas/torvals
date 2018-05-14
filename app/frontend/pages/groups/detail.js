@@ -257,121 +257,135 @@ class GroupDetail extends Component {
         </div>
     }
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section is-paddingless-top pad-sides'>
-            <Breadcrumb
-              path={[
-                {
-                  path: '/',
-                  label: 'Inicio',
-                  current: false
-                },
-                {
-                  path: '/manage/groups',
-                  label: 'Grupos',
-                  current: false
-                },
-                {
-                  path: '/manage/groups/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/manage/groups/',
-                  label: group.name,
-                  current: true
-                }
-              ]}
-              align='left'
-            />
-            {deleteButton}
-            <div className='columns'>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Grupo
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <GroupForm
-                          baseUrl='/app/groups'
-                          url={'/app/groups/' + this.props.match.params.uuid}
-                          initialState={{...this.state.group, organization: this.state.group.organization._id}}
-                          load={this.load.bind(this)}
-                          submitHandler={(data) => this.submitHandler(data)}
-                          errorHandler={(data) => this.errorHandler(data)}
-                          finishUp={(data) => this.finishUpHandler(data)}
+      <div className='detail-page'>
+        <div className='section-header'>
+          <h2>{group.name}</h2>
+        </div>
+
+        <div className='level'>
+          <div className='level-left'>
+            <div className='level-item'>
+              <Breadcrumb
+                path={[
+                  {
+                    path: '/',
+                    label: 'Inicio',
+                    current: false
+                  },
+                  {
+                    path: '/manage/groups',
+                    label: 'Grupos',
+                    current: false
+                  },
+                  {
+                    path: '/manage/groups/',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/manage/groups/',
+                    label: group.name,
+                    current: true
+                  }
+                ]}
+                align='left'
+              />
+            </div>
+          </div>
+          <div className='level-right'>
+            <div className='level-item'>
+              {deleteButton}
+            </div>
+          </div>
+        </div>
+
+        <div className='section is-paddingless-top pad-sides'>
+
+          <div className='columns'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                      Detalle
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <GroupForm
+                        baseUrl='/app/groups'
+                        url={'/app/groups/' + this.props.match.params.uuid}
+                        initialState={{...this.state.group, organization: this.state.group.organization._id}}
+                        load={this.load.bind(this)}
+                        submitHandler={(data) => this.submitHandler(data)}
+                        errorHandler={(data) => this.errorHandler(data)}
+                        finishUp={(data) => this.finishUpHandler(data)}
                         >
-                          <div className='field is-grouped'>
-                            <div className='control'>
-                              <button
-                                className={'button is-primary ' + this.state.isLoading}
-                                disabled={!!this.state.isLoading}
-                                type='submit'
+                        <div className='field is-grouped'>
+                          <div className='control'>
+                            <button
+                              className={'button is-primary ' + this.state.isLoading}
+                              disabled={!!this.state.isLoading}
+                              type='submit'
                               >Guardar</button>
-                            </div>
                           </div>
-                        </GroupForm>
-                      </div>
+                        </div>
+                      </GroupForm>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
+            </div>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
                       Usuarios
                     </p>
-                    <div className='card-header-select'>
-                      <button className='button is-primary' onClick={() => this.showModalList()}>
+                  <div className='card-header-select'>
+                    <button className='button is-primary' onClick={() => this.showModalList()}>
                         Agregar usuario existente
                       </button>
-                      <BaseModal
-                        title='Usuarios para asignar'
-                        className={this.state.classNameList}
-                        finishUp={this.finishUpList.bind(this)}
-                        hideModal={this.hideModalList.bind(this)}
+                    <BaseModal
+                      title='Usuarios para asignar'
+                      className={this.state.classNameList}
+                      finishUp={this.finishUpList.bind(this)}
+                      hideModal={this.hideModalList.bind(this)}
                          >
-                        <BranchedPaginatedTable
-                          branchName='usersAsign'
-                          baseUrl='/app/users'
-                          columns={this.getColumnsUsersToAsign()}
-                          filters={{groupAsign: this.props.match.params.uuid, organization: group.organization.uuid}}
+                      <BranchedPaginatedTable
+                        branchName='usersAsign'
+                        baseUrl='/app/users'
+                        columns={this.getColumnsUsersToAsign()}
+                        filters={{groupAsign: this.props.match.params.uuid, organization: group.organization.uuid}}
                          />
-                      </BaseModal>
+                    </BaseModal>
 
-                    </div>
-                    <div className='card-header-select'>
-                      <button className='button is-primary' onClick={() => this.showModal()}>
+                  </div>
+                  <div className='card-header-select'>
+                    <button className='button is-primary' onClick={() => this.showModal()}>
                         Nuevo usuario
                       </button>
-                      <CreateUser
-                        className={this.state.className}
-                        finishUp={this.finishUp.bind(this)}
-                        hideModal={this.hideModal.bind(this)}
+                    <CreateUser
+                      className={this.state.className}
+                      finishUp={this.finishUp.bind(this)}
+                      hideModal={this.hideModal.bind(this)}
+                      branchName='users'
+                      baseUrl='/app/users'
+                      url='/app/users/'
+                      filters={{group: this.props.match.params.uuid}}
+                      organization={group.organization._id}
+                      />
+                  </div>
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <BranchedPaginatedTable
                         branchName='users'
                         baseUrl='/app/users'
-                        url='/app/users/'
+                        columns={this.getColumns()}
                         filters={{group: this.props.match.params.uuid}}
-                        organization={group.organization._id}
-                      />
-                    </div>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <BranchedPaginatedTable
-                          branchName='users'
-                          baseUrl='/app/users'
-                          columns={this.getColumns()}
-                          filters={{group: this.props.match.params.uuid}}
                          />
-                      </div>
                     </div>
                   </div>
                 </div>

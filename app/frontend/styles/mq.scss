@@ -8,9 +8,6 @@
 }
 
 @include desktop-only {
-    .pad-sides {
-        padding: 0 0.5rem !important;
-    }
     .section {
         padding: 0.8rem 0.5rem;
     }
@@ -52,9 +49,6 @@
 }
 
 @include widescreen-only {
-    .pad-sides {
-        padding: 0 1em !important;
-    }
     .section {
         padding: 1.2rem 0.6rem;
     }
