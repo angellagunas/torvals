@@ -213,6 +213,10 @@ h2 {
     margin: 0 20px;
 }
 
+.has-20-margin-right {
+    margin-right: 20px;
+}
+
 .section-header {
     background-color: #EFF1F9;
     border-color: #E6E8F6;
@@ -224,6 +228,7 @@ h2 {
         font-size: 1.25rem;
         font-weight: 700;
         padding: 0.8rem 1rem;
+        text-transform: capitalize;
     }
 }
 
@@ -342,7 +347,7 @@ h2 {
 
 .calendar-view {
     .md-checkbox {
-        padding-top: 20px; 
+        padding-top: 20px;
         line-height: 1;
         font-size: inherit;
     }
@@ -380,12 +385,22 @@ h2 {
     .md-checkbox>div {
         line-height: 30px;
     }
-    .level{
+    .level {
         margin-top: -20px;
         margin-left: 10px;
     }
 }
-
+.detail-page{
+    .level{
+        margin-bottom: 0;
+    }
+    .level-right{
+        margin-right: 20px;
+    }
+    .card-header-select {
+        padding: 0.65em;
+    }
+}
 /* @import 'base'; */
 
 @import '../../../lib/frontend/style.css';

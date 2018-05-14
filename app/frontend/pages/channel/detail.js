@@ -269,87 +269,94 @@ class ChannelDetail extends Component {
     }
 
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section is-paddingless-top pad-sides'>
-            <Breadcrumb
-              path={[
-                {
-                  path: '/',
-                  label: 'Inicio',
-                  current: false
-                },
-                {
-                  path: '/catalogs/channels',
-                  label: 'Canales',
-                  current: false
-                },
-                {
-                  path: '/catalogs/channels/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/catalogs/channels/',
-                  label: channel.name,
-                  current: true
-                }
-              ]}
-              align='left'
+      <div className='detail-page'>
+        <div className='section-header'>
+          <h2>{channel.name}</h2>
+        </div>
+
+        <div className='level'>
+          <div className='level-left'>
+            <div className='level-item'>
+
+              <Breadcrumb
+                path={[
+                  {
+                    path: '/',
+                    label: 'Inicio',
+                    current: false
+                  },
+                  {
+                    path: '/catalogs/channels',
+                    label: 'Canales',
+                    current: false
+                  },
+                  {
+                    path: '/catalogs/channels/',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/catalogs/channels/',
+                    label: channel.name,
+                    current: true
+                  }
+                ]}
+                align='left'
             />
-            <div className='columns'>
-              <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
-                    { canEdit &&
-                      <DeleteButton titleButton={'Borrar'}
-                        objectName='Canal'
-                        objectDelete={this.deleteObject.bind(this)}
-                        message={`Estas seguro de quieres borrar el canal ${channel.name}?`}
-                      />
-                    }
-                  </div>
-                </div>
-              </div>
             </div>
-            <div className='columns'>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Canal
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <ChannelForm
-                          baseUrl='/app/channels'
-                          url={'/app/channels/' + this.props.match.params.uuid}
-                          initialState={channel}
-                          load={this.load.bind(this)}
-                          canEdit={canEdit}
-                          submitHandler={(data) => this.submitHandler(data)}
-                          errorHandler={(data) => this.errorHandler(data)}
-                          finishUp={(data) => this.finishUpHandler(data)}
+          </div>
+          <div className='level-right'>
+            <div className='level-item'>
+              {canEdit &&
+                <DeleteButton titleButton={'Eliminar'}
+                  objectName='Canal'
+                  objectDelete={this.deleteObject.bind(this)}
+                  message={`Estas seguro de quieres borrar el canal ${channel.name}?`}
+                />
+              }
+            </div>
+          </div>
+        </div>
+
+        <div className='section is-paddingless-top pad-sides'>
+
+          <div className='columns'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                      Detalle
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <ChannelForm
+                        baseUrl='/app/channels'
+                        url={'/app/channels/' + this.props.match.params.uuid}
+                        initialState={channel}
+                        load={this.load.bind(this)}
+                        canEdit={canEdit}
+                        submitHandler={(data) => this.submitHandler(data)}
+                        errorHandler={(data) => this.errorHandler(data)}
+                        finishUp={(data) => this.finishUpHandler(data)}
                         >
-                          <div className='field is-grouped'>
-                            <div className='control'>
-                              <button
-                                className={'button is-primary ' + this.state.isLoading}
-                                disabled={!!this.state.isLoading}
-                                type='submit'
+                        <div className='field is-grouped'>
+                          <div className='control'>
+                            <button
+                              className={'button is-primary ' + this.state.isLoading}
+                              disabled={!!this.state.isLoading}
+                              type='submit'
                               >Guardar</button>
-                            </div>
                           </div>
-                        </ChannelForm>
-                      </div>
+                        </div>
+                      </ChannelForm>
                     </div>
                   </div>
                 </div>
               </div>
-              {groupField}
             </div>
+            {groupField}
           </div>
         </div>
       </div>

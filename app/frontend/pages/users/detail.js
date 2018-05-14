@@ -329,111 +329,115 @@ class UserDetail extends Component {
     }
 
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section is-paddingless-top pad-sides'>
-            <Breadcrumb
-              path={[
-                {
-                  path: '/',
-                  label: 'Inicio',
-                  current: false
-                },
-                {
-                  path: '/manage/users',
-                  label: 'Usuarios',
-                  current: false
-                },
-                {
-                  path: '/manage/users/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/manage/users/',
-                  label: user.name,
-                  current: true
-                }
-              ]}
-              align='left'
-            />
+      <div className='detail-page'>
+        <div className='section-header'>
+          <h2>{user.name}</h2>
+        </div>
 
-            <div className='columns'>
-              <div className='column'>
-                <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>
-                  {user.name}
-                </h1>
-              </div>
+        <div className='level'>
+          <div className='level-left'>
+            <div className='level-item'>
+              <Breadcrumb
+                path={[
+                  {
+                    path: '/',
+                    label: 'Inicio',
+                    current: false
+                  },
+                  {
+                    path: '/manage/users',
+                    label: 'Usuarios',
+                    current: false
+                  },
+                  {
+                    path: '/manage/users/',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/manage/users/',
+                    label: user.name,
+                    current: true
+                  }
+                ]}
+                align='left'
+            />
+            </div>
+          </div>
+          <div className='level-right'>
+            <div className='level-item'>
               {!disabledForm && resetButton}
             </div>
+          </div>
+        </div>
+        <div className='section is-paddingless-top pad-sides'>
 
-            <div className='columns is-mobile'>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
+          <div className='columns is-mobile'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
                       Detalle
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <UserForm
-                          baseUrl='/app/users'
-                          url={'/app/users/' + this.props.match.params.uuid}
-                          initialState={this.state.user}
-                          load={this.load.bind(this)}
-                          roles={this.state.roles || []}
-                          projects={this.state.projects}
-                          submitHandler={(data) => this.submitHandler(data)}
-                          errorHandler={(data) => this.errorHandler(data)}
-                          finishUp={(data) => this.finishUpHandler(data)}
-                          disabled={disabledForm}
-                          disabledRoles={disabledRoles}
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <UserForm
+                        baseUrl='/app/users'
+                        url={'/app/users/' + this.props.match.params.uuid}
+                        initialState={this.state.user}
+                        load={this.load.bind(this)}
+                        roles={this.state.roles || []}
+                        projects={this.state.projects}
+                        submitHandler={(data) => this.submitHandler(data)}
+                        errorHandler={(data) => this.errorHandler(data)}
+                        finishUp={(data) => this.finishUpHandler(data)}
+                        disabled={disabledForm}
+                        disabledRoles={disabledRoles}
                         >
-                          <div className='field is-grouped'>
-                            <div className='control'>
-                              {!disabledForm &&
-                                <button
-                                  className={'button is-primary ' + this.state.isLoading}
-                                  disabled={!!this.state.isLoading}
-                                  type='submit'
+                        <div className='field is-grouped'>
+                          <div className='control'>
+                            {!disabledForm &&
+                            <button
+                              className={'button is-primary ' + this.state.isLoading}
+                              disabled={!!this.state.isLoading}
+                              type='submit'
                                 >
                                   Guardar
                                 </button>
                               }
-                            </div>
                           </div>
-                        </UserForm>
-                      </div>
+                        </div>
+                      </UserForm>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className='column'>
-                <div className='columns'>
-                  <div className='column'>
-                    <div className='card'>
-                      <header className='card-header'>
-                        <p className='card-header-title'>
+            </div>
+            <div className='column'>
+              <div className='columns'>
+                <div className='column'>
+                  <div className='card'>
+                    <header className='card-header'>
+                      <p className='card-header-title'>
                           Grupos
                         </p>
-                        <div>
-                          {this.getSavingMessage()}
-                        </div>
-                      </header>
-                      <div className='card-content'>
-                        <Multiselect
-                          availableTitle='Disponible'
-                          assignedTitle='Asignado'
-                          assignedList={this.state.selectedGroups}
-                          availableList={availableList}
-                          dataFormatter={(item) => { return item.name || 'N/A' }}
-                          availableClickHandler={this.availableGroupOnClick.bind(this)}
-                          assignedClickHandler={this.assignedGroupOnClick.bind(this)}
-                          disabled={disabledForm}
-                        />
+                      <div>
+                        {this.getSavingMessage()}
                       </div>
+                    </header>
+                    <div className='card-content'>
+                      <Multiselect
+                        availableTitle='Disponible'
+                        assignedTitle='Asignado'
+                        assignedList={this.state.selectedGroups}
+                        availableList={availableList}
+                        dataFormatter={(item) => { return item.name || 'N/A' }}
+                        availableClickHandler={this.availableGroupOnClick.bind(this)}
+                        assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                        disabled={disabledForm}
+                        />
                     </div>
                   </div>
                 </div>

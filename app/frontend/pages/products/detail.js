@@ -122,82 +122,89 @@ class ProductDetail extends Component {
     }
 
     return (
-      <div className='columns c-flex-1 is-marginless'>
-        <div className='column is-paddingless'>
-          <div className='section is-paddingless-top pad-sides'>
-            <Breadcrumb
-              path={[
-                {
-                  path: '/',
-                  label: 'Inicio',
-                  current: false
-                },
-                {
-                  path: '/catalogs/products',
-                  label: 'Productos',
-                  current: false
-                },
-                {
-                  path: '/catalogs/products/detail/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/catalogs/products/detail/',
-                  label: product.name,
-                  current: true
-                }
-              ]}
-              align='left'
+      <div className='detail-page'>
+        <div className='section-header'>
+          <h2>{product.name}</h2>
+        </div>
+
+        <div className='level'>
+          <div className='level-left'>
+            <div className='level-item'>
+
+              <Breadcrumb
+                path={[
+                  {
+                    path: '/',
+                    label: 'Inicio',
+                    current: false
+                  },
+                  {
+                    path: '/catalogs/products',
+                    label: 'Productos',
+                    current: false
+                  },
+                  {
+                    path: '/catalogs/products/detail/',
+                    label: 'Detalle',
+                    current: true
+                  },
+                  {
+                    path: '/catalogs/products/detail/',
+                    label: product.name,
+                    current: true
+                  }
+                ]}
+                align='left'
             />
-            <div className='columns'>
-              <div className='column has-text-right'>
-                <div className='field is-grouped is-grouped-right'>
-                  <div className='control'>
-                    { canEdit &&
-                      <DeleteButton
-                        titleButton={'Eliminar'}
-                        objectName='Producto'
-                        objectDelete={this.deleteObject.bind(this)}
-                        message={`¿Eliminar el producto ${this.state.product.name}?`}
-                      />
-                    }
-                  </div>
-                </div>
-              </div>
             </div>
-            <div className='columns'>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Producto
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <ProductForm
-                          baseUrl='/app/products'
-                          url={'/app/products/' + this.props.match.params.uuid}
-                          initialState={this.state.product}
-                          load={this.load.bind(this)}
-                          canEdit={canEdit}
-                          submitHandler={(data) => this.submitHandler(data)}
-                          errorHandler={(data) => this.errorHandler(data)}
-                          finishUp={(data) => this.finishUpHandler(data)}
+          </div>
+          <div className='level-right'>
+            <div className='level-item'>
+              {canEdit &&
+                <DeleteButton
+                  titleButton={'Eliminar'}
+                  objectName='Producto'
+                  objectDelete={this.deleteObject.bind(this)}
+                  message={`¿Eliminar el producto ${this.state.product.name}?`}
+                />
+              }
+            </div>
+          </div>
+        </div>
+
+        <div className='section is-paddingless-top pad-sides'>
+
+          <div className='columns'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                      Detalle
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <ProductForm
+                        baseUrl='/app/products'
+                        url={'/app/products/' + this.props.match.params.uuid}
+                        initialState={this.state.product}
+                        load={this.load.bind(this)}
+                        canEdit={canEdit}
+                        submitHandler={(data) => this.submitHandler(data)}
+                        errorHandler={(data) => this.errorHandler(data)}
+                        finishUp={(data) => this.finishUpHandler(data)}
                         >
-                          <div className='field is-grouped'>
-                            <div className='control'>
-                              <button
-                                className={'button is-primary ' + this.state.isLoading}
-                                disabled={!!this.state.isLoading}
-                                type='submit'
+                        <div className='field is-grouped'>
+                          <div className='control'>
+                            <button
+                              className={'button is-primary ' + this.state.isLoading}
+                              disabled={!!this.state.isLoading}
+                              type='submit'
                               >Guardar</button>
-                            </div>
                           </div>
-                        </ProductForm>
-                      </div>
+                        </div>
+                      </ProductForm>
                     </div>
                   </div>
                 </div>
