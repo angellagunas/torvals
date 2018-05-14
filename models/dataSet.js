@@ -254,7 +254,7 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
   let chunkKey = `datasets/${this.uuid}/`
 
   var s3File = {
-    ContentType: contentType,
+    ContentType: 'text/csv',
     Bucket: bucket,
     ACL: 'public-read'
   }
