@@ -162,6 +162,19 @@ class TabAdjustment extends Component {
         }
 
         let periods = this.getPeriods(res.dates)
+        if(periods.length === 0){
+          this.notify(
+            'No se puede hacer ajustes de años anteriores',        
+            5000,
+            toast.TYPE.ERROR
+          ) 
+
+          this.setState({
+            error: true,
+            errorMessage: 'No se puede hacer ajustes de años anteriores.'
+          })
+          return
+        }
         let formData = this.state.formData
         formData.period = periods[0].number
 
