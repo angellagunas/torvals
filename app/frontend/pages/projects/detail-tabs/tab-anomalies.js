@@ -125,7 +125,8 @@ class TabAnomalies extends Component {
    this.setState({
       isLoading: ' is-loading',
       anomalies: [],
-      requestId: request + 1 
+      requestId: request + 1 ,
+      isFiltered: false
     }, async () => {
       let url = '/app/anomalies/list/' + this.props.project.uuid
       try {
@@ -435,15 +436,19 @@ class TabAnomalies extends Component {
 
   async searchOnChange(e){
     let value = e.target.value
+    
     this.setState({
       search: value,
       page: 1,
       selected: {},
       selectAll: false
-    }, () => {
+    })
+
+    if (e.keyCode === 13 || e.which === 13 || value === ''){
       this.toggleButtons()
       this.getData()
-    })
+    }
+    
   }
 
   handleSort(e){
