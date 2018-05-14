@@ -1117,7 +1117,7 @@ getProductsSelected () {
                 </div>  
             :
               <Select
-                label='Centros de Venta'
+                label='Centro de Venta'
                 name='salesCenter'
                 value={this.state.formData.salesCenter}
                 optionValue='uuid'
