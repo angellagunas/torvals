@@ -6,6 +6,7 @@ const _ = require('lodash')
 
 const Task = require('lib/task')
 const { DataSet, DataSetRow } = require('models')
+const batchSize = 10000
 
 const task = new Task(async function (argv) {
   if (!argv.dataset1) {
@@ -16,6 +17,7 @@ const task = new Task(async function (argv) {
     throw new Error('You need to provide an uuid!')
   }
 
+  let i = 0
   console.log('Fetching Datasets...')
 
   const dataset1 = await DataSet.findOne({uuid: argv.dataset1})
@@ -66,16 +68,18 @@ const task = new Task(async function (argv) {
       )
     }
 
-    if (bulkOpsEdit.length === 1000) {
-      console.log(`1000 ops edit ==> ${moment().format()}`)
+    if (bulkOpsEdit.length === batchSize) {
+      console.log(`${i} => ${batchSize} ops edit => ${moment().format()}`)
       await DataSetRow.bulkWrite(bulkOpsEdit)
       bulkOpsEdit = []
+      i++
     }
 
-    if (bulkOpsNew.length === 1000) {
-      console.log(`1000 ops new ==> ${moment().format()}`)
+    if (bulkOpsNew.length === batchSize) {
+      console.log(`${i} => ${batchSize} ops new => ${moment().format()}`)
       await DataSetRow.insertMany(bulkOpsNew)
       bulkOpsNew = []
+      i++
     }
   }
 
