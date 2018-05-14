@@ -183,14 +183,32 @@ dataSetSchema.methods.getProductColumn = function () {
   return obj
 }
 
+dataSetSchema.methods.getProductNameColumn = function () {
+  var obj = this.columns.find(item => { return item.isProductName })
+
+  return obj
+}
+
 dataSetSchema.methods.getSalesCenterColumn = function () {
   var obj = this.columns.find(item => { return item.isSalesCenter })
 
   return obj
 }
 
+dataSetSchema.methods.getSalesCenterNameColumn = function () {
+  var obj = this.columns.find(item => { return item.isSalesCenterName })
+
+  return obj
+}
+
 dataSetSchema.methods.getChannelColumn = function () {
   var obj = this.columns.find(item => { return item.isChannel })
+
+  return obj
+}
+
+dataSetSchema.methods.getChannelNameColumn = function () {
+  var obj = this.columns.find(item => { return item.isChannelName })
 
   return obj
 }
