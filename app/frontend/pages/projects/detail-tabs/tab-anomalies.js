@@ -508,7 +508,7 @@ class TabAnomalies extends Component {
           <div className='level-left'>
             <div className='level-item'>
               <Select
-                label='Productos'
+                label='Producto'
                 name='product'
                 value={this.state.formData.product}
                 optionValue='uuid'

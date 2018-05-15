@@ -65,8 +65,16 @@ class TabAdjustment extends Component {
     this.toastId = null
   }
 
-  componentWillMount () {
-    this.getFilters()
+  componentWillMount () {    
+    if(this.props.selectedTab === 'ajustes'){
+      this.getFilters()
+    }
+  }
+  
+  componentWillReceiveProps(nextProps){    
+    if(nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded){
+      this.getFilters()      
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -154,6 +162,19 @@ class TabAdjustment extends Component {
         }
 
         let periods = this.getPeriods(res.dates)
+        if(periods.length === 0){
+          this.notify(
+            'No se puede hacer ajustes de años anteriores',        
+            5000,
+            toast.TYPE.ERROR
+          ) 
+
+          this.setState({
+            error: true,
+            errorMessage: 'No se puede hacer ajustes de años anteriores.'
+          })
+          return
+        }
         let formData = this.state.formData
         formData.period = periods[0].number
 
@@ -1117,7 +1138,7 @@ getProductsSelected () {
                 </div>  
             :
               <Select
-                label='Centros de Venta'
+                label='Centro de Venta'
                 name='salesCenter'
                 value={this.state.formData.salesCenter}
                 optionValue='uuid'

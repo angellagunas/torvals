@@ -7,20 +7,20 @@ const jwt = require('lib/jwt')
 module.exports = async function (ctx, next) {
   ctx.state.appHost = server.appHost
   ctx.state.apiHost = server.apiHost
-  var pathname = url.parse(ctx.request.url).pathname
+  let pathname = url.parse(ctx.request.url).pathname
 
   if (ctx.req.headers.authorization) {
     const [ method, token ] = ctx.req.headers.authorization.split(' ')
 
     if (method === 'Bearer') {
-      var data
+      let data
       try {
         data = await jwt.verify(token)
       } catch (e) {
         ctx.throw(401, 'Invalid JWT')
       }
 
-      var userToken = await UserToken.findOne({
+      let userToken = await UserToken.findOne({
         key: data.key,
         secret: data.secret,
         isDeleted: {$ne: true}
@@ -38,7 +38,7 @@ module.exports = async function (ctx, next) {
         return ctx.throw(401, 'Invalid User')
       }
 
-      var user = userToken.user
+      let user = userToken.user
       user = await User.populate(
         user,
         ['organizations.role', 'organizations.organization']

@@ -1276,7 +1276,7 @@ class Dashboard extends Component {
                       <label className='label'>Periodo inicial</label>
                       <div className='field is-grouped control'>
 
-                      <div className='dropdown is-hoverable'>
+                        <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
                             <span>{this.getPeriodDate(this.state.minPeriod, true) + ' ' + this.state.yearSelected}</span>
@@ -1317,7 +1317,7 @@ class Dashboard extends Component {
                       <label className='label'>Periodo final</label>
                       <div className='field is-grouped control'>
 
-                      <div className='dropdown is-hoverable'>
+                        <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
                             <span>{this.getPeriodDate(this.state.maxPeriod, true) + ' ' + this.state.yearSelected}</span>

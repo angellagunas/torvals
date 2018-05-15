@@ -6,10 +6,11 @@ module.exports = new Route({
   method: 'post',
   path: '/local/table',
   handler: async function (ctx) {
-    var data = ctx.request.body
-    var user = ctx.state.user
-    var currentRole
-    var currentOrganization
+    const data = ctx.request.body
+    const user = ctx.state.user
+    let currentRole
+    let currentOrganization
+
     if (ctx.state.organization) {
       currentOrganization = user.organizations.find(orgRel => {
         return ctx.state.organization._id.equals(orgRel.organization._id)
@@ -21,7 +22,8 @@ module.exports = new Route({
         currentRole = role.toPublic()
       }
     }
-    var filters = {
+
+    let filters = {
       organization: ctx.state.organization,
       activeDataset: {$ne: undefined}
     }
@@ -34,12 +36,12 @@ module.exports = new Route({
     const datasets = projects.map(item => { return item.activeDataset })
 
     const key = {product: '$product'}
-    var initialMatch = {
+    let initialMatch = {
       dataset: { $in: datasets }
     }
 
     if (data.channels) {
-      var channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1, 'groups': 1})
+      let channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1, 'groups': 1})
       if (currentRole.slug === 'manager-level-2') {
         channels = channels.filter(item => {
           let checkExistence = item.groups.some(function (e) {
@@ -54,7 +56,7 @@ module.exports = new Route({
     }
 
     if (data.salesCenters) {
-      var salesCenters = await SalesCenter.find({ uuid: { $in: data.salesCenters } }).select({'_id': 1, 'groups': 1})
+      let salesCenters = await SalesCenter.find({ uuid: { $in: data.salesCenters } }).select({'_id': 1, 'groups': 1})
       if (currentRole.slug === 'manager-level-2') {
         salesCenters = salesCenters.filter(item => {
           let checkExistence = item.groups.some(function (e) {
@@ -73,7 +75,7 @@ module.exports = new Route({
       initialMatch['product'] = { $in: products.map(item => { return item._id }) }
     }
 
-    var matchPreviousSale = Array.from(initialMatch)
+    let matchPreviousSale = Array.from(initialMatch)
 
     if (data.date_start && data.date_end) {
       const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
@@ -92,7 +94,7 @@ module.exports = new Route({
       ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
     }
 
-    var match = [
+    let match = [
       {
         '$match': {
           ...initialMatch
@@ -151,14 +153,14 @@ module.exports = new Route({
       }
     ]
 
-    var allData = await DataSetRow.aggregate(match)
-    var previousSale = await DataSetRow.aggregate(matchPreviousSale)
-    var products = allData.map(item => { return item._id.product })
+    let allData = await DataSetRow.aggregate(match)
+    let previousSale = await DataSetRow.aggregate(matchPreviousSale)
+    let products = allData.map(item => { return item._id.product })
     products = await Product.find({_id: {$in: products}})
 
-    var dataDict = {}
+    let dataDict = {}
 
-    for (var prod of products) {
+    for (let prod of products) {
       if (!dataDict[prod._id]) {
         dataDict[prod._id] = {
           product: prod.toPublic(),
@@ -174,13 +176,13 @@ module.exports = new Route({
       }
     }
 
-    for (var prev of previousSale) {
+    for (let prev of previousSale) {
       if (dataDict[prev._id.product]) {
         dataDict[prev._id.product]['previousSale'] = prev.sale
       }
     }
 
-    var responseData = allData.map(item => {
+    let responseData = allData.map(item => {
       let product = item._id.product
       let data = dataDict[product]
       let mape = 0
