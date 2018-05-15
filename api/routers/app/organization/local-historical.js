@@ -2,6 +2,7 @@ const Route = require('lib/router/route')
 const { Project, DataSetRow, Channel, SalesCenter, Product, AbraxasDate, Role } = require('models')
 const ObjectId = require('mongodb').ObjectID
 const moment = require('moment')
+const _ = require('lodash')
 
 module.exports = new Route({
   method: 'post',
@@ -74,13 +75,15 @@ module.exports = new Route({
       const products = await Product.find({ uuid: { $in: data.products } }).select({'_id': 1})
       initialMatch['product'] = { $in: products.map(item => { return item._id }) }
     }
-    var matchPreviousSale = Array.from(initialMatch)
+    var matchPreviousSale = _.cloneDeep(initialMatch)
 
     if (data.date_start && data.date_end) {
       const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
       data.weeks = []
+      data.dates = []
       for (let week of weeks) {
         data.weeks.push(week.week)
+        data.dates[week.week] = week.dateStart
       }
 
       data.year = moment(data.date_start).year()
@@ -146,8 +149,8 @@ module.exports = new Route({
 
     var responseData = await DataSetRow.aggregate(match)
     var previousSale = await DataSetRow.aggregate(matchPreviousSale)
-
     var previousSaleDict = {}
+
     for (var prev of previousSale) {
       previousSaleDict[prev._id.week] = prev
     }
@@ -161,6 +164,10 @@ module.exports = new Route({
         totalSale += item.sale
       }
 
+      if (previousSaleDict[item._id.week]) {
+        _.pull(data.weeks, item._id.week)
+      }
+
       return {
         date: item._id.date,
         week: item._id.week,
@@ -170,6 +177,19 @@ module.exports = new Route({
         previousSale: previousSaleDict[item._id.week] ? previousSaleDict[item._id.week].sale : 0
       }
     })
+
+    for (let week of data.weeks) {
+      if (previousSaleDict[week]) {
+        responseData.push({
+          date: data.dates[week],
+          week: 0,
+          prediction: 0,
+          adjustment: 0,
+          sale: 0,
+          previousSale: previousSaleDict[week].sale
+        })
+      }
+    }
 
     let mape = 0
 
