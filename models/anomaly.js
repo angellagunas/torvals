@@ -54,4 +54,7 @@ anomalySchema.methods.toAdmin = function () {
   }
 }
 
+anomalySchema.index({ externalId: 1, dataset: 1}, {background: true})
+anomalySchema.set('autoIndex', true)
+
 module.exports = mongoose.model('Anomaly', anomalySchema)

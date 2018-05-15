@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node runner.js",
+    "start": "node --max-old-space-size=4096 runner.js",
     "test": "mocha",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
