@@ -3,5 +3,5 @@ module.exports = {
   abraxasBaseUrl: process.env.ABRAXAS_BASE_URL || '',
   abraxasUser: process.env.ABRAXAS_USER || '',
   abraxasSecret: process.env.ABRAXAS_SECRET || '',
-  abraxasS3: process.env.S3_DATASET || true
+  sendLocalDataset: process.env.SEND_LOCAL_DATASET || 'true'
 }
