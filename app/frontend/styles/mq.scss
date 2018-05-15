@@ -8,9 +8,6 @@
 }
 
 @include desktop-only {
-    .pad-sides {
-        padding: 0 0.5rem !important;
-    }
     .section {
         padding: 0.8rem 0.5rem;
     }
@@ -46,16 +43,12 @@
             }
         }
     }
-    .breadcrumb,
     .has-20-margin-top {
-        margin: 20px 0 10px;
+        margin: 20px 0;
     }
 }
 
 @include widescreen-only {
-    .pad-sides {
-        padding: 0 1em !important;
-    }
     .section {
         padding: 1.2rem 0.6rem;
     }
@@ -87,7 +80,6 @@
             }
         }
     }
-    .breadcrumb,
     .has-20-margin-top {
         margin: 20px 0 10px;
     }
@@ -144,6 +136,7 @@
         margin-top: 0.3rem;
         h1 {
             font-size: 1.25rem;
+            max-width: 325px;
         }
     }
     .view-btns {
@@ -193,7 +186,7 @@
                     width: 100%;
                 }
             }
-            .notification{
+            .notification {
                 padding: 1.5rem 0;
             }
         }
@@ -206,5 +199,20 @@
         .date-drop {
             margin-top: 27px;
         }
+    }
+    .control.has-icons-left .icon,
+    .control.has-icons-right .icon {
+        top: 3px;
+    }
+    .calendar-view {
+        .md-checkbox {
+            padding-top: 30px;
+        }
+        .level {
+            margin-left: 5px;
+        }
+    }
+    .pad-top-5 {
+        padding-top: 5px;
     }
 }

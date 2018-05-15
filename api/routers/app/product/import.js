@@ -9,7 +9,13 @@ module.exports = new Route({
   handler: async function (ctx) {
     const dataType = ctx.request.body.file.split(',')[0].split(';')[0]
 
-    if (dataType !== 'data:text/csv') {
+    if (dataType === 'data:') {
+      const fileName = ctx.request.body.file.split(',')[0].split(';')[1]
+      const ext = fileName.slice((fileName.lastIndexOf('.') - 1 >>> 0) + 2)
+      if (ext !== 'csv') {
+        ctx.throw(400, '¡El archivo tiene que ser en formato csv!')
+      }
+    } else if (dataType !== 'data:text/csv') {
       ctx.throw(400, '¡El archivo tiene que ser en formato csv!')
     }
 

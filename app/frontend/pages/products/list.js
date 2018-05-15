@@ -101,7 +101,7 @@ export default ListPage({
         formatter: (row) => {
           if (testRoles('consultor')) {
             return (
-              <Link className='button' to={'/catalogs/products/' + row.uuid}>
+              <Link className='button is-primary' to={'/catalogs/products/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>

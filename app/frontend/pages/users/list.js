@@ -143,7 +143,7 @@ export default ListPage({
             <div className='field is-grouped'>
               <div className='control'>
                 {disabledActions
-                  ? <Link className='button' to={'/manage/users/' + row.uuid}>
+                  ? <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
                     <span className='icon is-small' title='Visualizar'>
                       <i className='fa fa-eye' />
                     </span>

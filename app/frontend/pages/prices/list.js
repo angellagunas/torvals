@@ -106,17 +106,26 @@ export default ListPage({
                 obj={row}
                 width={100}
                 prepend='$'
+                moneyInput
                 handleChange={async (value, row) => {
                   try {
-                    const res = await api.post('/app/prices/' + row.uuid, {
-                      price: value,
-                      channel: row.channel.name,
-                      product: row.product.name
-                    })
-                    if (!res) {
-                      return false
+                    if (Number(value) !== Number(row.price)) {
+                      const res = await api.post('/app/prices/' + row.uuid, {
+                        price: value,
+                        channel: row.channel.name,
+                        product: row.product.name
+                      })
+                      if (!res) {
+                        return false
+                      }
+                      toast('¡Precio guardado!: ', {
+                        autoClose: 5000,
+                        type: toast.TYPE.INFO,
+                        hideProgressBar: true,
+                        closeButton: false
+                      })
+                      return res
                     }
-                    return res
                   } catch (e) {
                     toast('Error: ' + e.message, {
                       autoClose: 5000,
@@ -145,28 +154,6 @@ export default ListPage({
           return (
             moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
           )
-        }
-      },
-      {
-        'title': 'Acciones',
-        formatter: (row) => {
-          if (testRoles('consultor')) {
-            return (
-              <Link className='button' to={'/catalogs/prices/' + row.uuid}>
-                <span className='icon is-small' title='Visualizar'>
-                  <i className='fa fa-eye' />
-                </span>
-              </Link>
-            )
-          } else {
-            return (
-              <Link className='button is-primary' to={'/catalogs/prices/' + row.uuid}>
-                <span className='icon is-small' title='Editar'>
-                  <i className='fa fa-pencil' />
-                </span>
-              </Link>
-            )
-          }
         }
       }
     ]

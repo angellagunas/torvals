@@ -1,9 +1,12 @@
 .tabs-title {
-    max-width: 400px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     margin-top: 0.5rem;
+    overflow: hidden;
+    h1 {
+        max-width: 165px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 .tabs {
@@ -16,7 +19,7 @@
     -moz-box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
     box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
     h1 {
-        padding: 0.5rem 2.5rem 0.5rem 1rem;
+        padding: 0.5rem 1rem 0.5rem 1rem;
         font-weight: 700;
     }
     li.is-active a {
@@ -51,7 +54,7 @@
         margin-bottom: 0px;
         margin-right: 0;
     }
-    p{
+    p {
         padding: 0.5rem 0.25rem;
     }
     a {

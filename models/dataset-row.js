@@ -77,6 +77,16 @@ datasetRowSchema.index({ isDeleted: -1, dataset: 1, status: 1, organization: 1 }
 datasetRowSchema.index({ isDeleted: -1, uuid: 1 }, {background: true})
 datasetRowSchema.index({ product: 1 }, {background: true})
 datasetRowSchema.index({ 'data.forecastDate': 1 }, {background: true})
+datasetRowSchema.index(
+  {
+    'apiData.producto_id': 1,
+    'apiData.agencia_id': 1,
+    'apiData.canal_id': 1,
+    'apiData.fecha': 1,
+    'dataset': 1
+  },
+  {background: true}
+)
 datasetRowSchema.set('autoIndex', true)
 
 module.exports = mongoose.model('DataSetRow', datasetRowSchema)
