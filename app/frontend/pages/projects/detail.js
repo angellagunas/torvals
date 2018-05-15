@@ -96,7 +96,10 @@ class ProjectDetail extends Component {
         if (body.data.status === 'empty') {
           tab = 'datasets'
         }
-        else if (body.data.status === 'pendingRows' || body.data.status === 'adjustment') {
+        else if (body.data.status === 'pendingRows') {
+          tab = 'ajustes'
+        }
+        else if (body.data.status === 'adjustment') {
           tab = 'graficos'
         }
         else {
@@ -626,7 +629,7 @@ class ProjectDetail extends Component {
           selectedTab={this.state.selectedTab}
           className='sticky-tab'
           extraTab={
-                project.status !== 'empty' &&
+                project.status === 'adjustment' &&
                 <div>
                   <div className='field is-grouped'>
                     <p className='control'>

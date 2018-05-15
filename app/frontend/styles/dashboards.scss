@@ -79,9 +79,11 @@
             padding: 0;
         }
         .menu-list {
+            min-height: 110px;
             max-height: 200px;
             overflow-x: hidden;
             overflow-y: auto;
+            text-transform: capitalize;
             li {
                 border-bottom: 1px solid rgba(230, 232, 246, 0.5);
                 max-height: 34px;
@@ -122,9 +124,11 @@
             background-color: #fff !important;
         }
         .menu-list {
+            min-height: 110px;
             max-height: 200px;
             overflow-x: hidden;
             overflow-y: auto;
+            text-transform: capitalize;
             li {
                 max-height: 34px;
                 a {
@@ -212,7 +216,7 @@
             }
         }
         .notification {
-            padding: 1.5rem 0;
+            padding: 1.2rem 0 .8rem 0;
             margin: 0 .5rem .5rem 0;
         }
         .range-slider {
@@ -234,6 +238,8 @@
             background-color: #fff;
             border-radius: 0;
             font-size: .75rem;
+            width: 112px;
+            justify-content: space-between;
         }
         .level {
             margin: .7rem 0;
@@ -271,7 +277,7 @@
 
 .dropdown-menu {
     min-width: 8rem;
-    .dropdown-item{
+    .dropdown-item {
         font-size: .8rem;
     }
 }

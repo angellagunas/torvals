@@ -70,7 +70,7 @@ class LogInButton extends Component {
     let user = data.user
     if (!user.organizations || user.organizations.length === 0) {
       return this.setState({
-        error: 'El usuario no tiene una organización asignada!',
+        error: '¡El usuario no tiene una organización asignada!',
         loading: false,
         apiCallErrorMessage: 'message is-danger',
         formData: {
@@ -95,7 +95,7 @@ class LogInButton extends Component {
       cookies.set('organization', organization.slug)
 
       if (env.ENV === 'production') {
-        if (hostname.indexOf('stage') >= 0) {
+        if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
           const newHostname = hostnameSplit.slice(-3).join('.')
           window.location = `//${organization.slug}.${newHostname}/dashboard`
         } else {
@@ -115,7 +115,7 @@ class LogInButton extends Component {
     cookies.set('jwt', this.state.jwt)
 
     if (env.ENV === 'production') {
-      if (hostname.indexOf('stage') >= 0) {
+      if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
         const newHostname = hostnameSplit.slice(-3).join('.')
         window.location = `//${slug}.${newHostname}/dashboard`
       } else {
@@ -215,7 +215,7 @@ class LogInButton extends Component {
       resetLink = (
         <p>
           <Link to='/password/forgotten/'>
-            Olvidó su contraseña?
+            ¿Olvidó su contraseña?
           </Link>
         </p>
       )

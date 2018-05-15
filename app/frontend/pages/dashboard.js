@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
+import tree from '~core/tree'
 import _ from 'lodash'
 import Link from '~base/router/link'
 import api from '~base/api'
@@ -37,12 +38,17 @@ class Dashboard extends Component {
       totalSale: 0,
       totalPSale: 0,
       mape: 0,
-      searchTerm: ''
+      searchTerm: '',
+      sortBy: 'sale',
+      sortAscending: true
     }
     this.selectedProjects = {}
     this.selectedSalesCenters = []
     this.selectedChannels = []
     this.selectedProducts = []
+
+    this.currentRole = tree.get('user').currentRole.slug
+    
   }
 
   componentWillMount () {
@@ -223,8 +229,8 @@ class Dashboard extends Component {
 
     this.setState({
       filters: res,
-      salesCenters: res.salesCenters,
-      channels: res.channels,
+      salesCenters: _.orderBy(res.salesCenters, 'name'),
+      channels: _.orderBy(res.channels, 'name'),
       products: res.products,
     }, async () => {
       await this.checkAllChannels(true)
@@ -248,84 +254,99 @@ class Dashboard extends Component {
       noData: undefined
     })
 
-    if(!this.state.waitingData){
-    try {
-      let url = '/app/organizations/local/historical'
-      this.setState({
-        waitingData: true
-      })
-      let res = await api.post(url, {
-        date_start: moment([this.state.yearSelected, this.state.minPeriod - 1]).startOf('month').format('YYYY-MM-DD'),
-        date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
-        channels: Object.values(this.selectedChannels),
-        salesCenters: Object.values(this.selectedSalesCenters),
-        //products: Object.values(this.selectedProducts),
-        projects: Object.values(this.selectedProjects)
-      })
-
-      let totalPSale = 0
-      let totalSale = 0
-      let totalPrediction = 0
-      let totalAdjustment = 0
-      let mape = 0
-
-      let data = res.data
-      let activePeriod = []
-      let topValue = 0
-
-      data = _.orderBy(res.data,
-        (e) => {
-          return e.date
-        }
-        , ['asc'])
-
-      data.map((item) => {
-        totalAdjustment += item.adjustment
-        totalPrediction += item.prediction
-        totalSale += item.sale
-        totalPSale += item.previousSale
-
-        if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
-          activePeriod.push(item)
-        }
-      })
-
-      topValue = this.getTopValue(res.data)
-
-      mape = res.mape
-
-      if (isNaN(mape) || mape === Infinity || mape === null) {
-        mape = 0
-      }
-
-      this.setState({
-        graphData: data,
-        totalAdjustment,
-        totalPrediction,
-        totalSale,
-        totalPSale,
-        mape,
-        topValue,
-        reloadGraph: true,
-        startPeriod: activePeriod[0],
-        endPeriod: activePeriod[activePeriod.length - 1],
-        waitingData: false
-      })
-      setTimeout( () => {
+    if(Object.keys(this.selectedChannels).length === 0){
         this.setState({
-          reloadGraph: false
+          filteredData: undefined,
+          graphData: undefined,
+          noData: 'Debe seleccionar un canal'
         })
-      }, 10)
-    } catch (e) {
-      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
-      this.setState({
-        noData: e.message + ', intente más tarde'
-      })
+        return
     }
-  }
-  else{
-    console.log('esperando respuesta')
-  }
+
+    else if (Object.keys(this.selectedSalesCenters).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un centro de venta'
+      })
+      return
+    }
+
+    if (!this.state.waitingData) {
+      try {
+        let url = '/app/organizations/local/historical'
+        this.setState({
+          waitingData: true
+        })
+        let res = await api.post(url, {
+          date_start: moment([this.state.yearSelected, this.state.minPeriod - 1]).startOf('month').format('YYYY-MM-DD'),
+          date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
+          channels: Object.values(this.selectedChannels),
+          salesCenters: Object.values(this.selectedSalesCenters),
+          //products: Object.values(this.selectedProducts),
+          projects: Object.values(this.selectedProjects)
+        })
+
+        let totalPSale = 0
+        let totalSale = 0
+        let totalPrediction = 0
+        let totalAdjustment = 0
+        let mape = 0
+
+        let data = res.data
+        let activePeriod = []
+        let topValue = 0
+
+        data = _.orderBy(res.data,
+          (e) => {
+            return e.date
+          }
+          , ['asc'])
+
+        data.map((item) => {
+          totalAdjustment += item.adjustment
+          totalPrediction += item.prediction
+          totalSale += item.sale
+          totalPSale += item.previousSale
+
+          if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
+            activePeriod.push(item)
+          }
+        })
+
+        topValue = this.getTopValue(res.data)
+
+        mape = res.mape
+
+        if (isNaN(mape) || mape === Infinity || mape === null) {
+          mape = 0
+        }
+
+        this.setState({
+          graphData: data,
+          totalAdjustment,
+          totalPrediction,
+          totalSale,
+          totalPSale,
+          mape,
+          topValue,
+          reloadGraph: true,
+          startPeriod: activePeriod[0],
+          endPeriod: activePeriod[activePeriod.length - 1],
+          waitingData: false
+        })
+        setTimeout(() => {
+          this.setState({
+            reloadGraph: false
+          })
+        }, 10)
+      } catch (e) {
+        this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+        this.setState({
+          noData: e.message + ', intente más tarde'
+        })
+      }
+    }
   }
 
   getTopValue (data){
@@ -338,6 +359,24 @@ class Dashboard extends Component {
   }
 
   async getProductTable() {
+    if (Object.keys(this.selectedChannels).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un canal'
+      })
+      return
+    }
+
+    else if (Object.keys(this.selectedSalesCenters).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un centro de venta'
+      })
+      return
+    }
+    
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
@@ -349,9 +388,11 @@ class Dashboard extends Component {
         projects: Object.values(this.selectedProjects)
       })
       this.setState({
-        productTable: res.data
+        productTable: res.data,
+        sortAscending: false
       }, () => {
         this.searchDatarows()
+        this.handleSort(this.state.sortBy)
       })
     }
     catch (e) {
@@ -384,29 +425,17 @@ class Dashboard extends Component {
     if (filter === 'salesCenters') {
       this.setState({
         salesCentersCollapsed: !this.state.salesCentersCollapsed,
-        channelsCollapsed: true,
-        productsCollapsed: true,
-        yearsCollapsed: true
       })
     } else if (filter === 'channels') {
       this.setState({
-        salesCentersCollapsed: true,
         channelsCollapsed: !this.state.channelsCollapsed,
-        productsCollapsed: true,
-        yearsCollapsed: true        
       })
     } else if (filter === 'products') {
       this.setState({
-        salesCentersCollapsed: true,
-        channelsCollapsed: true,
         productsCollapsed: !this.state.productsCollapsed,
-        yearsCollapsed: true        
       })
     } else if (filter === 'years') {
       this.setState({
-        salesCentersCollapsed: true,
-        channelsCollapsed: true,
-        productsCollapsed: true,
         yearsCollapsed: !this.state.yearsCollapsed,        
       })
     }
@@ -436,25 +465,53 @@ class Dashboard extends Component {
         'title': 'Predicción',
         'property': 'prediction',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.prediction) {
+            return row.prediction.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'Ajuste',
         'property': 'adjustment',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.adjustment) {
+            return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'Venta',
         'property': 'sale',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.sale) {
+            return row.sale.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'Venta anterior',
         'property': 'previousSale',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if(row.previousSale){
+            return row.previousSale.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'MAPE',
@@ -636,7 +693,6 @@ class Dashboard extends Component {
   }
 
   selectYear (item, value) {
-    console.log(item, value)
     if(value){
     this.setState({ yearSelected: item, noData: undefined },
       () => {
@@ -727,12 +783,12 @@ class Dashboard extends Component {
       {
         label: 'Venta',
         color: '#0CB900',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale !== 0 ? item.sale : null}) : []
       },
       {
         label: 'Venta Anterior',
         color: '#EF6950',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale !== 0 ? item.previousSale : null }) : []
       }
     ]
 
@@ -778,14 +834,14 @@ class Dashboard extends Component {
                                   <a>
                                     <Checkbox
                                       checked={item.selected}
-                                      label={item.name}
+                                      label={<span title={item.name}>{item.name}</span>}
                                       handleCheckboxChange={(e, value) => this.selectProject(e, value, item)}
                                       key={item.uuid}
                                       disabled={this.state.waitingData}                                      
                                     />
 
                                     <span className='icon is-pulled-right' onClick={() => { this.moveTo('/projects/' + item.uuid) }}>
-                                      <i className='fa fa-eye has-text-info' />
+                                      <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>
                                     </span>
                                   </a>
                                 </li>
@@ -820,7 +876,7 @@ class Dashboard extends Component {
                                 <i className={this.state.yearsCollapsed
                                   ? 'fa fa-plus' : 'fa fa-minus'} />
                               </span>
-                              Años <strong>{this.state.years && this.state.years.length}</strong>
+                              Año <strong>{this.state.years && this.state.years.length}</strong>
                             </a>
                           </div>
                           <aside className={this.state.yearsCollapsed
@@ -880,11 +936,13 @@ class Dashboard extends Component {
                                 if (!item.selected){
                                   item.selected = false
                                 }
+                                let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                                  
                                 return (
                                   <li key={item.uuid}>
                                     <a>
                                       <Checkbox
-                                        label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
+                                        label={<span title={name}>{name}</span>}
                                         handleCheckboxChange={(e, value) => this.selectChannel(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
@@ -892,7 +950,7 @@ class Dashboard extends Component {
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
-                                        <i className='fa fa-eye has-text-info' />
+                                        <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                                       </span>
                                       }
                                     </a>
@@ -936,11 +994,13 @@ class Dashboard extends Component {
                                 if (!item.selected) {
                                   item.selected = false
                                 }
+                                let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                                
                                 return (
                                   <li key={item.uuid}>
                                     <a>
                                       <Checkbox
-                                        label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
+                                        label={<span title={name}>{name}</span>}
                                         handleCheckboxChange={(e, value) => this.selectSalesCenter(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
@@ -948,7 +1008,7 @@ class Dashboard extends Component {
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
-                                          <i className='fa fa-eye has-text-info' />
+                                          <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                                         </span>
                                       }
                                     </a>
@@ -995,11 +1055,13 @@ class Dashboard extends Component {
                                 if (!item.selected){
                                   item.selected = false
                                 }
+                                let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+
                                 return (
                                   <li key={item.uuid}>
                                     <a>
                                       <Checkbox
-                                        label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
+                                        label={<span title={name}>{name}</span>}
                                         handleCheckboxChange={(e, value) => this.selectProduct(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
@@ -1007,7 +1069,7 @@ class Dashboard extends Component {
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/products/' + item.uuid) }}>
-                                          <i className='fa fa-eye has-text-info' />
+                                          <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                                         </span>
                                       }
                                     </a>
@@ -1029,10 +1091,10 @@ class Dashboard extends Component {
 
             <div className='column dash-graph'>
               <div className='columns box'>
-                <div className='column is-3 is-paddingless'>
+                <div className='column is-3 is-2-widescreen is-paddingless'>
                   <div className='notification is-info has-text-centered'>
                     <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
-                    <h2 className='subtitle has-text-weight-bold'>MAPE PREDICCIÓN</h2>
+                    <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
                   </div>
                   <div className='indicators'>
                     <p className='indicators-title'>Venta total</p>
@@ -1107,6 +1169,9 @@ class Dashboard extends Component {
                                     return moment.utc(label).format('DD-MM-YYYY')
                                   },
                                   fontSize: 11
+                                },
+                                gridLines: {
+                                  display: false
                                 }
                               }
                             ],
@@ -1123,6 +1188,9 @@ class Dashboard extends Component {
                                     }
                                   },
                                   fontSize: 11
+                                },
+                                gridLines: {
+                                  display: false
                                 },
                                 display: true
                               }
@@ -1203,7 +1271,11 @@ class Dashboard extends Component {
                 <div className='level-right'>
                  
                   {this.state.yearSelected &&
-                    <div className='level-item date-drop'>
+                    <div className='level-item'>
+                    <div className='field'>
+                      <label className='label'>Periodo inicial</label>
+                      <div className='field is-grouped control'>
+
                       <div className='dropdown is-hoverable'>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
@@ -1226,6 +1298,10 @@ class Dashboard extends Component {
                           </div>
                         </div>
                       </div>
+
+                      </div>
+                    </div>
+
                     </div>
                   }
                   {this.state.yearSelected &&
@@ -1236,7 +1312,11 @@ class Dashboard extends Component {
                     </div>
                   }
                   {this.state.yearSelected &&
-                    <div className='level-item date-drop'>
+                    <div className='level-item'>
+                    <div className='field'>
+                      <label className='label'>Periodo final</label>
+                      <div className='field is-grouped control'>
+
                       <div className='dropdown is-hoverable'>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
@@ -1259,6 +1339,11 @@ class Dashboard extends Component {
                           </div>
                         </div>
                       </div>
+
+                      </div>
+                    </div>
+
+
                     </div>
                   }
                 </div>

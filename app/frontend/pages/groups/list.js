@@ -18,7 +18,7 @@ export default ListPage({
   roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Grupo',
-  create: false,
+  create: true,
   createComponent: CreateGroup,
   breadcrumbs: true,
   breadcrumbConfig: {
@@ -36,7 +36,7 @@ export default ListPage({
     ],
     align: 'left'
   },
-  sidePanel: true,
+  sidePanel: false,
   sidePanelIcon: 'plus',
   sidePanelComponent: CreateGroupNoModal,
   baseUrl: '/app/groups',

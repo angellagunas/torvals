@@ -33,7 +33,9 @@ class TabHistorical extends Component {
       totalSale: 0,
       totalPSale: 0,
       mape: 0,
-      searchTerm: ''
+      searchTerm: '',
+      sortBy: 'sale',
+      sortAscending: true
     }
     this.selectedProjects = {}
     this.selectedSalesCenters = []
@@ -172,8 +174,8 @@ class TabHistorical extends Component {
     this.setState({
       loading: false,
       filters: res,
-      salesCenters: res.salesCenters,
-      channels: res.channels,
+      salesCenters: _.orderBy(res.salesCenters, 'name'),
+      channels: _.orderBy(res.channels, 'name'),
       products: res.products,
     }, async () => {
       await this.checkAllChannels(true)
@@ -196,6 +198,24 @@ class TabHistorical extends Component {
       totalPSale: 0,
       noData: undefined
     })
+
+    if (Object.keys(this.selectedChannels).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un canal'
+      })
+      return
+    }
+
+    else if (Object.keys(this.selectedSalesCenters).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un centro de venta'
+      })
+      return
+    }
 
     if (!this.state.waitingData) {
       try {
@@ -272,9 +292,6 @@ class TabHistorical extends Component {
         })
       }
     }
-    else {
-      console.log('esperando respuesta')
-    }
   }
 
   getTopValue(data) {
@@ -287,6 +304,23 @@ class TabHistorical extends Component {
   }
 
   async getProductTable() {
+    if (Object.keys(this.selectedChannels).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un canal'
+      })
+      return
+    }
+
+    else if (Object.keys(this.selectedSalesCenters).length === 0) {
+      this.setState({
+        filteredData: undefined,
+        graphData: undefined,
+        noData: 'Debe seleccionar un centro de venta'
+      })
+      return
+    }
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
@@ -297,9 +331,11 @@ class TabHistorical extends Component {
         projects: Object.values(this.selectedProjects)
       })
       this.setState({
-        productTable: res.data
+        productTable: res.data,
+        sortAscending: false
       }, () => {
         this.searchDatarows()
+        this.handleSort(this.state.sortBy)
       })
     }
     catch (e) {
@@ -332,29 +368,17 @@ class TabHistorical extends Component {
     if (filter === 'salesCenters') {
       this.setState({
         salesCentersCollapsed: !this.state.salesCentersCollapsed,
-        channelsCollapsed: true,
-        productsCollapsed: true,
-        yearsCollapsed: true
       })
     } else if (filter === 'channels') {
       this.setState({
-        salesCentersCollapsed: true,
         channelsCollapsed: !this.state.channelsCollapsed,
-        productsCollapsed: true,
-        yearsCollapsed: true
       })
     } else if (filter === 'products') {
       this.setState({
-        salesCentersCollapsed: true,
-        channelsCollapsed: true,
         productsCollapsed: !this.state.productsCollapsed,
-        yearsCollapsed: true
       })
     } else if (filter === 'years') {
       this.setState({
-        salesCentersCollapsed: true,
-        channelsCollapsed: true,
-        productsCollapsed: true,
         yearsCollapsed: !this.state.yearsCollapsed,
       })
     }
@@ -384,25 +408,53 @@ class TabHistorical extends Component {
         'title': 'Predicción',
         'property': 'prediction',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.prediction) {
+            return row.prediction.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'Ajuste',
         'property': 'adjustment',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.adjustment) {
+            return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'Venta',
         'property': 'sale',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.sale) {
+            return row.sale.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'Venta anterior',
         'property': 'previousSale',
         'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          if (row.previousSale) {
+            return row.previousSale.toFixed().replace(/./g, (c, i, a) => {
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
+          }
+        }
       },
       {
         'title': 'MAPE',
@@ -584,7 +636,6 @@ class TabHistorical extends Component {
   }
 
   selectYear(item, value) {
-    console.log(item, value)
     if (value) {
       this.setState({ yearSelected: item, noData: undefined },
         () => {
@@ -666,12 +717,12 @@ class TabHistorical extends Component {
       {
         label: 'Venta',
         color: '#0CB900',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale !== 0 ? item.sale : null }) : []
       },
       {
         label: 'Venta Anterior',
         color: '#EF6950',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale !== 0 ? item.previousSale : null}) : []
       }
     ]
 
@@ -701,7 +752,7 @@ class TabHistorical extends Component {
                                 <i className={this.state.yearsCollapsed
                                   ? 'fa fa-plus' : 'fa fa-minus'} />
                               </span>
-                              Años <strong>{this.state.years && this.state.years.length}</strong>
+                              Año <strong>{this.state.years && this.state.years.length}</strong>
                             </a>
                           </div>
                           <aside className={this.state.yearsCollapsed
@@ -761,11 +812,13 @@ class TabHistorical extends Component {
                                   if (!item.selected) {
                                     item.selected = false
                                   }
+                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                                  
                                   return (
                                     <li key={item.uuid}>
                                       <a>
                                         <Checkbox
-                                          label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
+                                          label={<span title={name}>{name}</span>}
                                           handleCheckboxChange={(e, value) => this.selectChannel(e, value, item)}
                                           key={item.uuid}
                                           checked={item.selected}
@@ -817,11 +870,13 @@ class TabHistorical extends Component {
                                   if (!item.selected) {
                                     item.selected = false
                                   }
+                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                                  
                                   return (
                                     <li key={item.uuid}>
                                       <a>
                                         <Checkbox
-                                          label={item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name}
+                                          label={<span title={name}>{name}</span>}
                                           handleCheckboxChange={(e, value) => this.selectSalesCenter(e, value, item)}
                                           key={item.uuid}
                                           checked={item.selected}
@@ -850,10 +905,10 @@ class TabHistorical extends Component {
 
             <div className='column dash-graph'>
               <div className='columns box'>
-                <div className='column is-3 is-paddingless'>
+                <div className='column is-3 is-2-widescreen is-paddingless'>
                   <div className='notification is-info has-text-centered'>
                     <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
-                    <h2 className='subtitle has-text-weight-bold'>MAPE PREDICCIÓN</h2>
+                    <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
                   </div>
                   <div className='indicators'>
                     <p className='indicators-title'>Venta total</p>
@@ -861,6 +916,11 @@ class TabHistorical extends Component {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
 
+                    <p className='indicators-title'>Venta anterior</p>
+                    <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })}</p>
+                    
                     <p className='indicators-title'>Ajuste total</p>
                     <p className='indicators-number has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -870,11 +930,7 @@ class TabHistorical extends Component {
                     <p className='indicators-number has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
-
-                    <p className='indicators-title'>Venta anterior</p>
-                    <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                   
                   </div>
                 </div>
                 <div className='column card'>
@@ -883,9 +939,7 @@ class TabHistorical extends Component {
                       <Graph
                         data={graph}
                         maintainAspectRatio={false}
-                        responsive={false}
-                        height={390}
-                        width={700}
+                        responsive={true}
                         reloadGraph={this.state.reloadGraph}
                         legend={{
                           display: true,
@@ -930,6 +984,9 @@ class TabHistorical extends Component {
                                     return moment.utc(label).format('DD-MM-YYYY')
                                   },
                                   fontSize: 11
+                                },
+                                gridLines: {
+                                  display: false
                                 }
                               }
                             ],
@@ -946,6 +1003,9 @@ class TabHistorical extends Component {
                                     }
                                   },
                                   fontSize: 11
+                                },
+                                gridLines: {
+                                  display: false
                                 },
                                 display: true
                               }
@@ -1026,7 +1086,10 @@ class TabHistorical extends Component {
 
                 <div className='level-right'>
                   {this.state.yearSelected &&
-                    <div className='level-item date-drop'>
+                    <div className='level-item'>
+                    <div className='field'>
+                      <label className='label'>Periodo inicial</label>
+                      <div className='field is-grouped control'>
                       <div className='dropdown is-hoverable'>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
@@ -1048,6 +1111,8 @@ class TabHistorical extends Component {
                             })}
                           </div>
                         </div>
+                        </div>
+                      </div>
                       </div>
                     </div>
                   }
@@ -1059,7 +1124,10 @@ class TabHistorical extends Component {
                     </div>
                   }
                   {this.state.yearSelected &&
-                    <div className='level-item date-drop'>
+                    <div className='level-item'>
+                     <div className='field'>
+                        <label className='label'>Periodo final</label>
+                        <div className='field is-grouped control'>
                       <div className='dropdown is-hoverable'>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
@@ -1081,6 +1149,8 @@ class TabHistorical extends Component {
                             })}
                           </div>
                         </div>
+                        </div>
+                      </div>
                       </div>
                     </div>
                   }

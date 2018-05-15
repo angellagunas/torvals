@@ -79,7 +79,7 @@ export default ListPage({
         formatter: (row) => {
           if (testRoles('manager-level-2, consultor')) {
             return (
-              <Link className='button' to={'/projects/' + row.uuid}>
+              <Link className='button is-primary' to={'/projects/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>
