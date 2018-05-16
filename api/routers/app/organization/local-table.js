@@ -3,6 +3,8 @@ const moment = require('moment')
 const { Project, DataSetRow, Product, Channel, SalesCenter, AbraxasDate, Role } = require('models')
 const redis = require('lib/redis')
 const crypto = require('crypto')
+const _ = require('lodash')
+
 
 module.exports = new Route({
   method: 'post',
@@ -99,7 +101,7 @@ module.exports = new Route({
       initialMatch['product'] = { $in: products.map(item => { return item._id }) }
     }
 
-    let matchPreviousSale = Array.from(initialMatch)
+    let matchPreviousSale = _.cloneDeep(initialMatch)
 
     if (data.date_start && data.date_end) {
       const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
