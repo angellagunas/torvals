@@ -32,8 +32,8 @@ services:
       - mongodb    
       - redisdb
     cpu_shares: 200
-    mem_limit: 4500M
-    mem_reservation: 1000m
+    mem_limit: 6000M
+    mem_reservation: 2000m
     env_file:
       - .env
     volumes:
@@ -59,6 +59,6 @@ services:
     ports:
         - 27017:27017
     cpu_shares: 300
-    mem_limit: 17000M
-    mem_reservation: 6000m
+    mem_limit: 20000M
+    mem_reservation: 8000m
     command: mongod --smallfiles --logpath=/dev/null # --quiet
