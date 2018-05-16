@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
 const { Project, DataSetRow, Product, Channel, SalesCenter, AbraxasDate, Role } = require('models')
+const _ = require('lodash')
 
 module.exports = new Route({
   method: 'post',
@@ -75,7 +76,7 @@ module.exports = new Route({
       initialMatch['product'] = { $in: products.map(item => { return item._id }) }
     }
 
-    let matchPreviousSale = Array.from(initialMatch)
+    let matchPreviousSale = _.cloneDeep(initialMatch)
 
     if (data.date_start && data.date_end) {
       const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
@@ -156,8 +157,9 @@ module.exports = new Route({
     let allData = await DataSetRow.aggregate(match)
     let previousSale = await DataSetRow.aggregate(matchPreviousSale)
     let products = allData.map(item => { return item._id.product })
+    let previousProducts = previousSale.map(item => { return item._id.product })
+    products = _.concat(products, previousProducts)
     products = await Product.find({_id: {$in: products}})
-
     let dataDict = {}
 
     for (let prod of products) {
@@ -181,6 +183,22 @@ module.exports = new Route({
         dataDict[prev._id.product]['previousSale'] = prev.sale
       }
     }
+
+    previousSale = previousSale.filter(item => {
+      if (!_.find(allData, {_id: { product: item._id.product }})) {
+        return true
+      } else {
+        return false
+      }
+    }).map(item => {
+      return { _id: { product: item._id.product },
+        prediction: 0,
+        predictionSale: 0,
+        adjustment: 0,
+        sale: 0 }
+    })
+
+    allData = _.concat(allData, previousSale)
 
     let responseData = allData.map(item => {
       let product = item._id.product
