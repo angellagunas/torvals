@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 const config = require('config')
+const path = require('path')
 const abraxas = config.abraxas
 const { DataSet, FileChunk } = require('models')
 const Api = require('lib/abraxas/api')
@@ -121,7 +122,7 @@ module.exports = new Route({
     var type
     if (abraxas.sendLocalDataset === 'true') {
       const fileChunk = await FileChunk.findOne({_id: dataset.fileChunk})
-      url = fileChunk.path
+      url = path.join(fileChunk.path, fileChunk.filename)
       type = 'path'
     } else {
       url = dataset.url
