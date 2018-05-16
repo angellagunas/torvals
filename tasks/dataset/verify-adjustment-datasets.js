@@ -137,6 +137,8 @@ const task = new Task(async function (argv) {
             console.log(e.message)
           }
 
+          bulkOps = []
+
           i++
           if (i > numPages) continue
           resDataset = await Api.rowsDataset(dataset.externalId, i)
