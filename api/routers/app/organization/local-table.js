@@ -1,8 +1,7 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
 const { Project, DataSetRow, Product, Channel, SalesCenter, AbraxasDate, Role } = require('models')
-const redis = require('redis')
-const {promisify} = require('util')
+const redis = require('lib/redis')
 const crypto = require('crypto')
 
 module.exports = new Route({
@@ -38,12 +37,13 @@ module.exports = new Route({
     const projects = await Project.find(filters)
     const datasets = projects.map(item => { return item.activeDataset })
 
-    var client = redis.createClient()
-    const hGetAll = promisify(client.hgetall).bind(client)
-    const hSet = promisify(client.hset).bind(client)
+    data.channels = data.channels.sort()
+    data.projects = data.projects.sort()
+    data.salesCenters = data.salesCenters.sort()
+
     const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'table').digest('hex')
     try {
-      const cacheData = await hGetAll(parameterHash)
+      const cacheData = await redis.hGetAll(parameterHash)
       if (cacheData) {
         var cacheResponse = []
         for (let cacheItem in cacheData) {
@@ -230,7 +230,7 @@ module.exports = new Route({
     ctx.set('Cache-Control', 'max-age=86400')
     try {
       for (let item in responseData) {
-        await hSet(parameterHash, item, JSON.stringify(responseData[item]))
+        await redis.hSet(parameterHash, item, JSON.stringify(responseData[item]))
       }
     } catch (e) {
       console.log('Error setting the cache')
