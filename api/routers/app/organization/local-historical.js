@@ -1,7 +1,9 @@
 const Route = require('lib/router/route')
 const { Project, DataSetRow, Channel, SalesCenter, Product, AbraxasDate, Role } = require('models')
-const ObjectId = require('mongodb').ObjectID
 const moment = require('moment')
+const redis = require('redis')
+const {promisify} = require('util')
+const crypto = require('crypto')
 
 module.exports = new Route({
   method: 'post',
@@ -35,6 +37,33 @@ module.exports = new Route({
 
     const projects = await Project.find(filters)
     const datasets = projects.map(item => { return item.activeDataset })
+
+    var client = redis.createClient()
+    const hGetAll = promisify(client.hgetall).bind(client)
+    const hSet = promisify(client.hset).bind(client)
+    const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
+    try {
+      const cacheData = await hGetAll(parameterHash)
+      if (cacheData) {
+        var cacheResponse = []
+        var cacheMape
+        for (let cacheItem in cacheData) {
+          if (cacheItem !== 'mape') {
+            cacheResponse.push(JSON.parse(cacheData[cacheItem]))
+          } else {
+            cacheMape = Number(cacheData[cacheItem])
+          }
+        }
+
+        ctx.body = {
+          data: cacheResponse,
+          mape: cacheMape
+        }
+        return
+      }
+    } catch (e) {
+      console.log('Error retrieving the cache')
+    }
 
     const key = {week: '$data.semanaBimbo', date: '$data.forecastDate'}
 
@@ -181,6 +210,14 @@ module.exports = new Route({
     }
 
     ctx.set('Cache-Control', 'max-age=86400')
+    try {
+      for (let item in responseData) {
+        await hSet(parameterHash, item, JSON.stringify(responseData[item]))
+      }
+      await hSet(parameterHash, 'mape', mape)
+    } catch (e) {
+      console.log('Error setting the cache')
+    }
 
     ctx.body = {
       data: responseData,
