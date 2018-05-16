@@ -707,12 +707,12 @@ class TabHistorical extends Component {
       {
         label: 'Predicción',
         color: '#187FE6',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.prediction }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.prediction !== 0 ? item.prediction : null }) : []
       },
       {
         label: 'Ajuste',
         color: '#30C6CC',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.adjustment }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.adjustment !== 0 ? item.adjustment : null }) : []
       },
       {
         label: 'Venta',
