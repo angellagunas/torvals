@@ -2,29 +2,29 @@
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
-const fs = require('fs')
-const _ = require('lodash')
+const path = require('path')
 const { execSync } = require('child_process')
 
 const Task = require('lib/task')
 const { DataSet, DataSetRow } = require('models')
 
 const task = new Task(async function (argv) {
+  var batchSize = 10000
   if (!argv.uuid) {
     throw new Error('You need to provide an uuid!')
   }
 
-  console.log('Fetching Dataset...')
+  if (argv.batchSize) {
+    try {
+      batchSize = parseInt(argv.batchSize)
+    } catch (e) {
+      console.log('Invalid batch size!')
+    }
+  }
 
-  var today = new Date()
-  var timestamp = today.getTime()
-
-  const output = fs.createWriteStream(
-    './tasks/logs/process-dataset-' + timestamp + '.txt'
-  )
-  const error = fs.createWriteStream(
-    './tasks/logs/error-process-dataset-' + timestamp + '.txt'
-  )
+  console.log(`Fetching Dataset ${argv.uuid} ...`)
+  console.log(`Using batch size of ${batchSize}`)
+  console.log(`Start ==>  ${moment().format()}`)
 
   const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk')
   var bulkOps = []
@@ -35,14 +35,14 @@ const task = new Task(async function (argv) {
 
   await DataSetRow.deleteMany({dataset: dataset._id})
 
-  console.log(dataset.fileChunk)
-  const filepath = `${dataset.fileChunk.path}/${dataset.fileChunk.filename}`
+  let fileChunk = dataset.fileChunk
+  const filepath = path.join(fileChunk.path, fileChunk.filename)
 
   const rawLineCount = execSync(`wc -l < ${filepath}`)
-  console.log('line count ===> ', parseInt(String(rawLineCount)))
-  const lineCount = Math.ceil((parseInt(String(rawLineCount)) - 1) / 1000)
+  console.log('Line count ===> ', parseInt(String(rawLineCount)))
 
-  console.log('Reading =>', lineCount * 100, 'from', filepath)
+  const lineCount = parseInt(String(rawLineCount)) - 1
+  const pages = Math.ceil(lineCount / batchSize)
 
   var headers = String(execSync(`sed -n '1p' ${filepath}`))
   headers = headers.split('\n')[0].split(',')
@@ -52,9 +52,16 @@ const task = new Task(async function (argv) {
   var dateColumn = dataset.getDateColumn() || {name: ''}
   var salesColumn = dataset.getSalesColumn() || {name: ''}
 
-  for (var i = 0; i < lineCount; i++) {
-    console.log('=>', (i * 1000) + 1, (i * 1000) + 1000)
-    let rawLine = String(execSync(`sed -n '${i * 1000 + 1},${(i * 1000) + 1000}p' ${filepath}`))
+  for (var i = 0; i < pages; i++) {
+    console.log(`${lineCount} => ${(i * batchSize) + 1} - ${(i * batchSize) + batchSize}`)
+
+    let rawLine
+
+    if (i === 0) {
+      rawLine = String(execSync(`sed '1d;${(i * batchSize) + batchSize}q' ${filepath}`))
+    } else {
+      rawLine = String(execSync(`sed '1,${i * batchSize}d;${(i * batchSize) + batchSize}q' ${filepath}`))
+    }
 
     let rows = rawLine.split('\n')
 
@@ -88,7 +95,6 @@ const task = new Task(async function (argv) {
         'dataset': dataset._id,
         'apiData': obj,
         'data': {
-          'existence': obj.existencia,
           'prediction': obj[predictionColumn.name],
           'sale': obj[salesColumn.name] ? obj[salesColumn.name] : 0,
           'forecastDate': forecastDate,
@@ -102,8 +108,17 @@ const task = new Task(async function (argv) {
 
     await DataSetRow.insertMany(bulkOps)
     bulkOps = []
-    console.log(`1000 ops ==> ${moment().format()}`)
+    console.log(`${batchSize} ops ==> ${moment().format()}`)
   }
+
+  console.log(`Success! loaded ${lineCount} rows`)
+  dataset.set({
+    status: 'reviewing'
+  })
+
+  await dataset.save()
+
+  console.log(`End ==> ${moment().format()}`)
 
   return true
 })

@@ -16,6 +16,7 @@ const projectSchema = new Schema({
       name_project: { type: String }
     }]
   }],
+  mainDataset: { type: Schema.Types.ObjectId, ref: 'DataSet' },
 
   status: {
     type: String,
@@ -59,6 +60,7 @@ projectSchema.methods.toPublic = function () {
     description: this.description,
     organization: this.organization,
     datasets: this.datasets,
+    mainDataset: this.mainDataset,
     adjustment: this.adjustment,
     status: this.status,
     activeDataset: this.activeDataset,
@@ -76,6 +78,7 @@ projectSchema.methods.toAdmin = function () {
     description: this.description,
     organization: this.organization,
     datasets: this.datasets,
+    mainDataset: this.mainDataset,
     adjustment: this.adjustment,
     status: this.status,
     activeDataset: this.activeDataset,
