@@ -85,6 +85,7 @@
     "react-spinkit": "^3.0.0",
     "react-sticky-table": "^2.0.0",
     "react-toastify": "^3.2.2",
+    "redis": "^2.8.0",
     "replace": "^0.3.0",
     "request-promise-native": "^1.0.5",
     "resumablejs": "^1.0.2",

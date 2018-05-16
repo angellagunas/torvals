@@ -1,7 +1,10 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
 const { Project, DataSetRow, Product, Channel, SalesCenter, AbraxasDate, Role } = require('models')
+const redis = require('lib/redis')
+const crypto = require('crypto')
 const _ = require('lodash')
+
 
 module.exports = new Route({
   method: 'post',
@@ -35,6 +38,28 @@ module.exports = new Route({
 
     const projects = await Project.find(filters)
     const datasets = projects.map(item => { return item.activeDataset })
+
+    data.channels = data.channels.sort()
+    data.projects = data.projects.sort()
+    data.salesCenters = data.salesCenters.sort()
+
+    const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'table').digest('hex')
+    try {
+      const cacheData = await redis.hGetAll(parameterHash)
+      if (cacheData) {
+        var cacheResponse = []
+        for (let cacheItem in cacheData) {
+          cacheResponse.push(JSON.parse(cacheData[cacheItem]))
+        }
+
+        ctx.body = {
+          data: cacheResponse
+        }
+        return
+      }
+    } catch (e) {
+      console.log('Error retrieving the cache')
+    }
 
     const key = {product: '$product'}
     let initialMatch = {
@@ -222,6 +247,13 @@ module.exports = new Route({
     })
 
     ctx.set('Cache-Control', 'max-age=86400')
+    try {
+      for (let item in responseData) {
+        await redis.hSet(parameterHash, item, JSON.stringify(responseData[item]))
+      }
+    } catch (e) {
+      console.log('Error setting the cache')
+    }
 
     ctx.body = {
       data: responseData
