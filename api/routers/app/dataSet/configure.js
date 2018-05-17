@@ -116,19 +116,14 @@ module.exports = new Route({
       })
     }
 
-    if (res._id) {
-      dataset.set({
-        externalId: res._id,
-        status: 'processing'
-      })
-    } else {
-      dataset.set({
-        externalId: 'externalId not received',
-        status: 'error'
-      })
-    }
+    dataset.set({
+      columns: body.columns,
+      groupings: body.groupings,
+      status: 'processing'
+    })
     await dataset.save()
 
+    saveDataset.add({uuid: dataset.uuid})
     ctx.body = {
       data: dataset
     }
