@@ -4,14 +4,15 @@ require('lib/databases/mongo')
 
 const Queue = require('lib/queue')
 const saveDataset = require('tasks/dataset/process/save-dataset')
+const processDataset = require('tasks/dataset/process/process-dataset')
 
 const queue = new Queue({
   name: 'save-dataset',
   task: async function (argv) {
-    let a
+    let a, b
     a = await saveDataset.run(argv)
-
-    return a
+    b = await processDataset.run(argv)
+    return a && b
   }
 })
 

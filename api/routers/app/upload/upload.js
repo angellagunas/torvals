@@ -30,6 +30,7 @@ module.exports = new Route({
     identifier = `${cleanFileIdentifier(identifier)}-${datasetId}`
 
     var chunk = await FileChunk.findOne({fileId: identifier})
+
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
     ctx.assert(dataset, 404, 'Dataset no encontrado')
 
@@ -94,8 +95,7 @@ module.exports = new Route({
     if (chunk.fileId !== identifier) {
       ctx.throw(404, 'El identificador Chunk no coincide')
     }
-    console.log(chunk.lastChunk)
-    console.log(chunkNumber)
+
     if (chunk.lastChunk >= chunkNumber) {
       ctx.status = 200
       return
@@ -153,6 +153,7 @@ module.exports = new Route({
     }
 
     chunk.lastChunk = chunkNumber
+    chunk.save()
 
     if (chunkNumber === 1) {
       const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
@@ -167,7 +168,7 @@ module.exports = new Route({
           lines = lines.slice(0, 1)
           var headers = lines[0].split(',')
           dataset.set({
-            status: 'configuring',
+            status: 'uploading',
             columns: headers.map(item => {
               return {
                 name: item,
@@ -178,19 +179,28 @@ module.exports = new Route({
               }
             })
           })
+          await dataset.save()
         }
-        await dataset.save()
-      })
-          .on('error', function (err) {
-            console.log(err)
+        if (chunkNumber === totalChunks) {
+          dataset.set({
+            status: 'configuring'
           })
-    }
+          await dataset.save()
+          finishUpload.add({uuid: dataset.uuid})
+        }
+      })
+      .on('error', function (err) {
+        console.log(err)
+      })
+    } else if (chunkNumber === totalChunks) {
+      dataset.set({
+        status: 'configuring'
+      })
 
-    if (chunkNumber === totalChunks) {
+      await dataset.save()
       finishUpload.add({uuid: dataset.uuid})
     }
 
-    chunk.save()
     ctx.body = 'OK'
   }
 })

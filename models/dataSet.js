@@ -449,16 +449,6 @@ dataSetSchema.methods.processData = async function () {
 }
 
 dataSetSchema.methods.processReady = async function (res) {
-  if (res.status === 'error') {
-    this.set({
-      error: res.message,
-      status: 'error'
-    })
-
-    await this.save()
-    return
-  }
-
   let apiData = {
     products: [],
     salesCenters: [],
@@ -472,107 +462,6 @@ dataSetSchema.methods.processReady = async function (res) {
   }
 
   this.set({
-    columns: res.headers.map(item => {
-      var isDate = false
-      var isAnalysis = false
-      var isPrediction = false
-      var isAdjustment = false
-      var isSales = false
-      var isOperationFilter = false
-      var isAnalysisFilter = false
-      var isProductName = false
-      var isProduct = false
-      var isSalesCenterName = false
-      var isSalesCenter = false
-      var isChannel = false
-      var isChannelName = false
-
-      if (res.config['is_date'] === item) {
-        isDate = true
-      }
-
-      if (res.config['is_analysis'] === item) {
-        isAnalysis = true
-      }
-
-      if (res.config['is_adjustment'] === item) {
-        isAdjustment = true
-      }
-
-      if (res.config['is_prediction'] === item) {
-        isPrediction = true
-      }
-
-      if (res.config['is_sale'] === item) {
-        isSales = true
-      }
-
-      if (res.config['filter_operations'].find(col => { return col === item })) {
-        isOperationFilter = true
-      }
-
-      var product = res.config.filter_analysis.find(col => {
-        return col.product || false
-      })
-
-      if (product) {
-        product = product.product
-        if (product._id === item) {
-          isProduct = true
-        }
-
-        if (product.name && product.name === item) {
-          isProductName = true
-        }
-      }
-
-      var salesCenter = res.config.filter_analysis.find(col => {
-        return col.agency || false
-      })
-
-      if (salesCenter) {
-        salesCenter = salesCenter.agency
-        if (salesCenter._id === item) {
-          isSalesCenter = true
-        }
-
-        if (salesCenter.name && salesCenter.name === item) {
-          isSalesCenterName = true
-        }
-      }
-
-      var channel = res.config.filter_analysis.find(col => {
-        return col.channel || false
-      })
-
-      if (channel) {
-        channel = channel.channel
-        if (channel._id === item) {
-          isChannel = true
-        }
-
-        if (channel.name && channel.name === item) {
-          isChannelName = true
-        }
-      }
-
-      return {
-        name: item,
-        isDate: isDate,
-        isAnalysis: isAnalysis,
-        isPrediction: isPrediction,
-        isAdjustment: isAdjustment,
-        isSales: isSales,
-        isOperationFilter: isOperationFilter,
-        isAnalysisFilter: isAnalysisFilter,
-        isProduct: isProduct,
-        isProductName: isProductName,
-        isSalesCenter: isSalesCenter,
-        isSalesCenterName: isSalesCenterName,
-        isChannel: isChannel,
-        isChannelName: isChannelName
-      }
-    }),
     dateMax: res.date_max,
     dateMin: res.date_min,
     apiData: apiData,

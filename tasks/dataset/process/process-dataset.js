@@ -67,8 +67,6 @@ const task = new Task(async function (argv) {
     channelsObj['name'] = `$apiData.${channelName.name}`
   }
 
-  console.log(productsObj)
-
   var statement = [
     {
       '$match': {
@@ -92,61 +90,75 @@ const task = new Task(async function (argv) {
   ]
 
   let rows = await DataSetRow.aggregate(statement)
-  // let rows = await DataSetRow.distinct(productsStr, {dataset: dataset})
-  console.log(JSON.stringify(rows))
+  let rowData = {
+    product: [],
+    agency: [],
+    channel: []
+  }
 
-  // for (var i = 0; i < lineCount; i++) {
-  //   console.log('=>', (i * 1000) + 1, (i * 1000) + 1000)
-  //   let rawLine = String(execSync(`sed -n '${i * 1000 + 1},${(i * 1000) + 1000}p' ${filepath}`))
+  for (let product of rows[0].products) {
+    let productIndex = _.findIndex(rowData['product'], { '_id': product._id })
+    if (productIndex === -1) {
+      rowData['product'].push(product)
+    } else {
+      if (!rowData['product'][productIndex].name && product.name) {
+        rowData['product'][productIndex].name = product.name
+      }
+    }
+  }
 
-  //   let rows = rawLine.split('\n')
+  for (let salesCenter of rows[0].salesCenters) {
+    let salesIndex = _.findIndex(rowData['agency'], { '_id': salesCenter._id })
+    if (salesIndex === -1) {
+      rowData['agency'].push(salesCenter)
+    } else {
+      if (!rowData['agency'][salesIndex].name && salesCenter.name) {
+        rowData['agency'][salesIndex].name = salesCenter.name
+      }
+    }
+  }
 
-  //   for (let row of rows) {
-  //     let obj = {}
-  //     let itemSplit = row.split(',')
+  for (let channel of rows[0].channels) {
+    let channelIndex = _.findIndex(rowData['channel'], { '_id': channel._id })
+    if (channelIndex === -1) {
+      rowData['channel'].push(channel)
+    } else {
+      if (!rowData['channel'][channelIndex].name && channel.name) {
+        rowData['channel'][channelIndex].name = channel.name
+      }
+    }
+  }
 
-  //     for (var j = 0; j < headers.length; j++) {
-  //       obj[headers[j]] = itemSplit[j]
-  //     }
+  statement = [
+    {
+      '$match': {
+        'dataset': dataset._id
+      }
+    },
+    {
+      '$group': {
+        '_id': null,
+        'max': { '$max': '$data.forecastDate' },
+        'min': { '$min': '$data.forecastDate' }
+      }
+    }
+  ]
 
-  //     if (!obj[dateColumn.name]) {
-  //       continue
-  //     }
+  rows = await DataSetRow.aggregate(statement)
+  maxDate = rows[0].max
+  minDate = rows[0].min
 
-  //     let forecastDate
+  const sendData = {
+    data: rowData,
+    date_max: moment(maxDate).format('YYYY-MM-DD'),
+    date_min: moment(minDate).format('YYYY-MM-DD'),
+    config: {
+      groupings: []
+    }
+  }
+  dataset.processReady(sendData)
 
-  //     try {
-  //       forecastDate = moment.utc(obj[dateColumn.name], 'YYYY-MM-DD')
-  //     } catch (e) {
-  //       continue
-  //     }
-
-  //     if (!forecastDate.isValid()) {
-  //       continue
-  //     }
-
-  //     bulkOps.push({
-  //       'organization': dataset.organization,
-  //       'project': dataset.project,
-  //       'dataset': dataset._id,
-  //       'apiData': obj,
-  //       'data': {
-  //         'existence': obj.existencia,
-  //         'prediction': obj[predictionColumn.name],
-  //         'sale': obj[salesColumn.name] ? obj[salesColumn.name] : 0,
-  //         'forecastDate': forecastDate,
-  //         'semanaBimbo': obj.semana_bimbo,
-  //         'adjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-  //         'localAdjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-  //         'lastAdjustment': obj[adjustmentColumn.name] || undefined
-  //       }
-  //     })
-  //   }
-
-  //   await DataSetRow.insertMany(bulkOps)
-  //   bulkOps = []
-  //   console.log(`1000 ops ==> ${moment().format()}`)
-  // }
+  console.log('Success! Dataset processed')
 
   return true
 })
