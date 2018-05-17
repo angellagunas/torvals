@@ -54,7 +54,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'ID',
+        'title': 'Id',
         'property': 'productExternalId',
         'default': 'N/A',
         'sortable': true
