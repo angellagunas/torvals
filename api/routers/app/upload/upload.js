@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
 const path = require('path')
 const fs = require('fs')
+const fsExtra = require('fs-extra')
 
 const finishUpload = require('queues/finish-upload')
 const { FileChunk, DataSet } = require('models')
@@ -28,7 +29,6 @@ module.exports = new Route({
     var fileType = chunkData.fields.resumableType
     var datasetId = chunkData.fields.dataset
     identifier = `${cleanFileIdentifier(identifier)}-${datasetId}`
-
     var chunk = await FileChunk.findOne({fileId: identifier})
 
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
@@ -117,6 +117,7 @@ module.exports = new Route({
       for (let key in files) {
         const file = files[key]
         const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
+        const completeFilePath = path.join(tmpdir, filename)
         var reader
         var writer
 
@@ -131,6 +132,9 @@ module.exports = new Route({
             })
           })
         })
+
+        let input = await fsExtra.readFile(file.path)
+        await fsExtra.appendFile(completeFilePath, input)
 
         filePaths.push(filePath)
       }
@@ -160,8 +164,8 @@ module.exports = new Route({
       reader = fs.createReadStream(filePath)
       let data = ''
       let lines = []
-      reader.on('data', async (chunk) => {
-        data += chunk
+      reader.on('data', async (chunkItem) => {
+        data += chunkItem
         lines = data.split('\n')
         if (lines.length > 2) {
           reader.destroy()
@@ -186,6 +190,10 @@ module.exports = new Route({
             status: 'configuring'
           })
           await dataset.save()
+          chunk.set({
+            recreated: true
+          })
+          await chunk.save()
           finishUpload.add({uuid: dataset.uuid})
         }
       })
@@ -196,8 +204,11 @@ module.exports = new Route({
       dataset.set({
         status: 'configuring'
       })
-
       await dataset.save()
+      chunk.set({
+        recreated: true
+      })
+      await chunk.save()
       finishUpload.add({uuid: dataset.uuid})
     }
 

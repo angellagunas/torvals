@@ -241,8 +241,6 @@ dataSetSchema.methods.recreateAndSaveFileToDisk = async function () {
 }
 
 dataSetSchema.methods.recreateAndUploadFile = async function () {
-  await this.fileChunk.recreateFile()
-
   if (!this.fileChunk.recreated) return false
 
   if (this.uploaded) return true
