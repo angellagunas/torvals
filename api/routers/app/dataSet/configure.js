@@ -1,7 +1,9 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
-
-const { DataSet } = require('models')
+const config = require('config')
+const path = require('path')
+const abraxas = config.abraxas
+const { DataSet, FileChunk } = require('models')
 const Api = require('lib/abraxas/api')
 
 module.exports = new Route({
@@ -86,8 +88,9 @@ module.exports = new Route({
     var filterAnalysis = []
     var filterOperations = []
     var groupings = []
-
+    var headers = []
     for (var col of body.columns) {
+      headers.push(col.name)
       if (col.isAnalysisFilter) filterAnalysis.push(col.name)
       if (col.isOperationFilter) filterOperations.push(col.name)
     }
@@ -115,20 +118,51 @@ module.exports = new Route({
       })
     }
 
-    await Api.processDataset(dataset.externalId, {
-      is_date: isDate,
-      is_analysis: isAnalysis,
-      is_adjustment: isAdjustment,
-      is_prediction: isPrediction,
-      is_sale: isSales,
-      filter_analysis: filterAnalysis,
-      filter_operations: filterOperations
-    })
+    var url
+    var type
+    if (abraxas.sendLocalDataset === 'true') {
+      const fileChunk = await FileChunk.findOne({_id: dataset.fileChunk})
+      url = path.join(fileChunk.path, fileChunk.filename)
+      type = 'path'
+    } else {
+      url = dataset.url
+      type = 'url'
+    }
+
     dataset.set({
       columns: body.columns,
       groupings: body.groupings,
       status: 'processing'
     })
+    await dataset.save()
+
+    var res = await Api.uploadDataset(dataset.project.externalId, {
+      dataset_id: dataset.uuid,
+      path: url,
+      type: type,
+      headers: headers,
+      config: {
+        is_date: isDate,
+        is_analysis: isAnalysis,
+        is_adjustment: isAdjustment,
+        is_prediction: isPrediction,
+        is_sale: isSales,
+        filter_analysis: filterAnalysis,
+        filter_operations: filterOperations
+      }
+    })
+
+    if (res._id) {
+      dataset.set({
+        externalId: res._id,
+        status: 'processing'
+      })
+    } else {
+      dataset.set({
+        externalId: 'externalId not received',
+        status: 'error'
+      })
+    }
     await dataset.save()
 
     ctx.body = {

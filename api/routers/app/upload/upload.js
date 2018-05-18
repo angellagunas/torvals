@@ -27,7 +27,7 @@ module.exports = new Route({
     var filename = chunkData.fields.resumableFilename
     var fileType = chunkData.fields.resumableType
     var datasetId = chunkData.fields.dataset
-    identifier = `${cleanFileIdentifier(identifier)} ${datasetId}`
+    identifier = `${cleanFileIdentifier(identifier)}-${datasetId}`
 
     var chunk = await FileChunk.findOne({fileId: identifier})
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
@@ -41,25 +41,6 @@ module.exports = new Route({
       validateResumableRequest(chunkNumber, chunkSize, totalSize, identifier, filename)
     } catch (e) {
       ctx.throw(400, e.message)
-    }
-
-    if (chunk && !dataset.fileChunk) {
-      if (dataset.status !== 'uploaded') {
-        dataset.set({
-          fileChunk: chunk,
-          status: chunk.recreated ? 'uploaded' : 'uploading',
-          uploadedBy: ctx.state.user
-        })
-        await dataset.save()
-
-        if (chunk.recreated) {
-        // The File has been already uploaded to Kore
-          finishUpload.add({uuid: dataset.uuid})
-
-          ctx.body = 'OK'
-          return
-        }
-      }
     }
 
     const tmpdir = path.resolve('.', 'media', 'uploads', identifier)
@@ -113,7 +94,8 @@ module.exports = new Route({
     if (chunk.fileId !== identifier) {
       ctx.throw(404, 'El identificador Chunk no coincide')
     }
-
+    console.log(chunk.lastChunk)
+    console.log(chunkNumber)
     if (chunk.lastChunk >= chunkNumber) {
       ctx.status = 200
       return
@@ -172,12 +154,40 @@ module.exports = new Route({
 
     chunk.lastChunk = chunkNumber
 
-    if (chunkNumber === totalChunks) {
-      if (dataset.status !== 'uploaded') {
-        dataset.set({ status: 'uploaded' })
+    if (chunkNumber === 1) {
+      const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
+      reader = fs.createReadStream(filePath)
+      let data = ''
+      let lines = []
+      reader.on('data', async (chunk) => {
+        data += chunk
+        lines = data.split('\n')
+        if (lines.length > 2) {
+          reader.destroy()
+          lines = lines.slice(0, 1)
+          var headers = lines[0].split(',')
+          dataset.set({
+            status: 'configuring',
+            columns: headers.map(item => {
+              return {
+                name: item,
+                isDate: false,
+                isAnalysis: false,
+                isOperationFilter: false,
+                isAnalysisFilter: false
+              }
+            })
+          })
+        }
         await dataset.save()
-        finishUpload.add({uuid: dataset.uuid})
-      }
+      })
+          .on('error', function (err) {
+            console.log(err)
+          })
+    }
+
+    if (chunkNumber === totalChunks) {
+      finishUpload.add({uuid: dataset.uuid})
     }
 
     chunk.save()
