@@ -85,7 +85,7 @@ class Dashboard extends Component {
       showOnDashboard: true
     })
 
-    let activeProjects = res.data.filter(item => { return item.activeDataset })
+    let activeProjects = res.data.filter(item => { return item.mainDataset })
 
     this.setState({
       projects: activeProjects,

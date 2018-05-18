@@ -48,6 +48,7 @@ const dataSetSchema = new Schema({
       'processing',
       'reviewing',
       'ready',
+      'conciliating',
       'conciliated',
       'pendingRows',
       'adjustment',
@@ -63,6 +64,7 @@ const dataSetSchema = new Schema({
       'uploaded',
       'forecast',
       'adjustment',
+      'conciliation',
       'external'
     ],
     default: 'uploaded'
@@ -292,7 +294,8 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
       region: aws.s3Region,
       savedToDisk: false
     },
-    uploaded: true
+    uploaded: true,
+    status: 'configuring'
   })
 
   await this.save()

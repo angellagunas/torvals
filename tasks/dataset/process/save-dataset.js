@@ -112,12 +112,6 @@ const task = new Task(async function (argv) {
   }
 
   console.log(`Success! loaded ${lineCount} rows`)
-  dataset.set({
-    status: 'reviewing'
-  })
-
-  await dataset.save()
-
   console.log(`End ==> ${moment().format()}`)
 
   return true

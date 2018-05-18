@@ -76,6 +76,11 @@ module.exports = new Route({
       await dataset.save()
     }
 
+    if (!chunk) {
+      ctx.status = 203
+      return
+    }
+
     if (chunk && chunk.fileId !== dataset.fileChunk.fileId) {
       dataset.set({
         fileChunk: chunk,
@@ -83,11 +88,6 @@ module.exports = new Route({
         uploadedBy: ctx.state.user
       })
       await dataset.save()
-    }
-
-    if (!chunk) {
-      ctx.status = 203
-      return
     }
 
     chunk = dataset.fileChunk
@@ -185,6 +185,7 @@ module.exports = new Route({
           })
           await dataset.save()
         }
+
         if (chunkNumber === totalChunks) {
           dataset.set({
             status: 'configuring'
@@ -196,6 +197,7 @@ module.exports = new Route({
           await chunk.save()
           finishUpload.add({uuid: dataset.uuid})
         }
+        await dataset.save()
       })
       .on('error', function (err) {
         console.log(err)
@@ -210,6 +212,8 @@ module.exports = new Route({
       })
       await chunk.save()
       finishUpload.add({uuid: dataset.uuid})
+      dataset.set({status: 'preprocessing'})
+      await dataset.save()
     }
 
     ctx.body = 'OK'

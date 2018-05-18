@@ -4,16 +4,16 @@ require('lib/databases/mongo')
 const moment = require('moment')
 
 const Task = require('lib/task')
-const { DataSet, DataSetRow } = require('models')
+const { Project, DataSet, DataSetRow } = require('models')
 
 const task = new Task(async function (argv) {
   var batchSize = 10000
-  if (!argv.dataset1) {
-    throw new Error('You need to provide an uuid!')
+  if (!argv.project) {
+    throw new Error('You need to provide a project!')
   }
 
-  if (!argv.dataset2) {
-    throw new Error('You need to provide an uuid!')
+  if (!argv.dataset) {
+    throw new Error('You need to provide a dataset!')
   }
 
   if (argv.batchSize) {
@@ -25,69 +25,194 @@ const task = new Task(async function (argv) {
   }
 
   let i = 0
-  console.log('Fetching Datasets...')
+  console.log('Fetching Dataset and project...')
+  console.log(`Using batch size of ${batchSize}`)
+  console.log(`Start ==>  ${moment().format()}`)
 
-  const dataset1 = await DataSet.findOne({uuid: argv.dataset1})
-  const dataset2 = await DataSet.findOne({uuid: argv.dataset2})
+  const project = await Project.findOne({uuid: argv.project}).populate('mainDataset')
+  const dataset = await DataSet.findOne({uuid: argv.dataset})
 
-  if (!dataset1 || !dataset2) {
-    throw new Error('Invalid uuid!')
+  if (!project || !dataset) {
+    throw new Error('Invalid project or dataset!')
   }
 
-  const rows = await DataSetRow.find({dataset: dataset1._id}).cursor()
-  var bulkOpsEdit = []
-  var bulkOpsNew = []
-  for (let row = await rows.next(); row != null; row = await rows.next()) {
-    let secondRow = await DataSetRow.findOne({
-      'apiData.agencia_id': row.apiData.agencia_id,
-      'apiData.fecha': row.apiData.fecha,
-      'apiData.producto_id': row.apiData.producto_id,
-      'apiData.canal_id': row.apiData.canal_id,
-      'dataset': dataset2._id
+  if (!project.mainDataset) {
+    project.set({
+      mainDataset: dataset._id
     })
 
-    if (secondRow) {
-      bulkOpsEdit.push(
-        {
-          'updateOne': {
-            'filter': { '_id': row._id },
-            'update': { '$set': { 'apiData': secondRow.apiData } }
-          }
-        }
-      )
-    } else {
+    await project.save()
+    console.log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
+    console.log(`End ==> ${moment().format()}`)
+
+    return true
+  }
+
+  let match = {
+    '$match': {
+      dataset: {$in: [project.mainDataset._id, dataset._id]}
+    }
+  }
+
+  console.log([project.mainDataset._id, dataset._id])
+
+  // const key = {
+  //   date: '$data.forecastDate',
+  //   product: '$product',
+  //   salesCenter: '$salesCenter',
+  //   channel: '$channel',
+  //   week: '$data.semanaBimbo'
+  // }
+
+  const key = {
+    date: '$apiData.fecha',
+    product: '$apiData.producto_id',
+    salesCenter: '$apiData.agencia_id',
+    channel: '$apiData.canal_id',
+    week: '$apiData.semana_bimbo'
+  }
+
+  // match = [
+  //   match,
+  //   { $sort: { 'apiData.semana_bimbo': 1 } },
+  //   {
+  //     '$group': {
+  //       _id: key,
+  //       rows: { $push: '$$ROOT' },
+  //       mergedRows: { $mergeObjects: '$$ROOT' }
+  //     }
+  //   },
+  //   { '$limit': 1 }
+  // ]
+
+  match = [
+    match,
+    {
+      '$group': {
+        _id: key,
+        mergedRows: { $mergeObjects: '$$ROOT' }
+      }
+    },
+    // {
+    //   '$match': {
+    //     'rows': {'$gt': 1}
+    //   }
+    // },
+    { '$replaceRoot': { newRoot: '$mergedRows' } }
+    // { '$project': { _id: 0, rows: 1, mergedRows: 1 } }
+  ]
+
+  console.log('Obtaining aggregate ...')
+
+  try {
+    const rows = await DataSetRow.aggregate(match).allowDiskUse(true).cursor({batchSize: batchSize * 10}).exec()
+
+    let newDataset = await DataSet.create({
+      name: 'Main Dataset',
+      project: project,
+      organization: project.organization,
+      createdBy: dataset.createdBy,
+      uploadedBy: dataset.uploadedBy,
+      conciliatedBy: dataset.conciliatedBy,
+      dateMax: dataset.dateMax,
+      dateMin: dataset.dateMin,
+      columns: dataset.columns,
+      salesCenters: dataset.salesCenters,
+      products: dataset.products,
+      channels: dataset.channels,
+      newSalesCenters: dataset.newSalesCenters,
+      newProducts: dataset.newProducts,
+      newChannels: dataset.newChannels,
+      groupings: dataset.groupings,
+      apiData: dataset.apiData,
+      source: 'conciliation',
+      status: 'conciliated'
+    })
+
+    console.log('Aggregate ready, transversing ...')
+
+    var bulkOpsEdit = []
+    var bulkOpsNew = []
+    for (let row = await rows.next(); row != null; row = await rows.next()) {
       bulkOpsNew.push(
         {
-          'organization': dataset1.organization,
-          'project': dataset1.project,
-          'dataset': dataset1._id,
-          'apiData': secondRow.apiData
+          ...row,
+          _id: undefined,
+          'organization': project.organization,
+          'project': project,
+          'dataset': newDataset._id
         }
       )
+
+      if (bulkOpsNew.length === batchSize) {
+        console.log(`${i} => ${batchSize} ops new => ${moment().format()}`)
+        await DataSetRow.insertMany(bulkOpsNew)
+        bulkOpsNew = []
+        i++
+      }
     }
 
-    if (bulkOpsEdit.length === batchSize) {
-      console.log(`${i} => ${batchSize} ops edit => ${moment().format()}`)
+    if (bulkOpsEdit.length > 0) {
       await DataSetRow.bulkWrite(bulkOpsEdit)
-      bulkOpsEdit = []
-      i++
     }
 
-    if (bulkOpsNew.length === batchSize) {
-      console.log(`${i} => ${batchSize} ops new => ${moment().format()}`)
+    if (bulkOpsNew.length > 0) {
       await DataSetRow.insertMany(bulkOpsNew)
-      bulkOpsNew = []
-      i++
     }
+
+    console.log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
+
+    let statement = [
+      {
+        '$match': {
+          'dataset': dataset._id
+        }
+      },
+      {
+        '$group': {
+          '_id': null,
+          'max': { '$max': '$data.forecastDate' },
+          'min': { '$min': '$data.forecastDate' }
+        }
+      }
+    ]
+
+    let maxDate = moment.utc(dataset.dateMax, 'YYYY-MM-DD')
+    let minDate = moment.utc(dataset.dateMin, 'YYYY-MM-DD')
+
+    if (moment.utc(project.mainDataset.dateMin, 'YYYY-MM-DD').isBefore(minDate)) {
+      minDate = moment.utc(project.mainDataset.dateMin, 'YYYY-MM-DD')
+    }
+
+    if (moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD').isAfter(maxDate)) {
+      minDate = moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD')
+    }
+
+    newDataset.set({
+      dateMax: maxDate.format('YYYY-MM-DD'),
+      dateMin: minDate.format('YYYY-MM-DD')
+    })
+
+    await newDataset.save()
+
+    project.set({
+      mainDataset: newDataset
+    })
+
+    project.save()
+  } catch (e) {
+    console.log(e)
+    dataset.set({
+      status: 'error',
+      error: e.message
+    })
+
+    await dataset.save()
+
+    return false
   }
 
-  if (bulkOpsEdit.length > 0) {
-    await DataSetRow.bulkWrite(bulkOpsEdit)
-  }
-
-  if (bulkOpsNew.length > 0) {
-    await DataSetRow.insertMany(bulkOpsNew)
-  }
+  console.log(`End ==> ${moment().format()}`)
 
   return true
 })

@@ -1506,7 +1506,7 @@ class DataSetDetail extends Component {
                             name: this.state.dataset.name,
                             description: this.state.dataset.description,
                             organization: this.state.dataset.organization.uuid,
-                            status: datasetStatus[dataset.status]
+                            status: datasetStatus[dataset.status] || 'status'
                           }}
                           load={this.load.bind(this)}
                           canEdit={canEdit}

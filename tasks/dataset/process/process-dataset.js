@@ -2,9 +2,7 @@
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
-const fs = require('fs')
 const _ = require('lodash')
-const { execSync } = require('child_process')
 
 const Task = require('lib/task')
 const { DataSet, DataSetRow } = require('models')
@@ -14,20 +12,10 @@ const task = new Task(async function (argv) {
     throw new Error('You need to provide an uuid!')
   }
 
-  console.log('Fetching Dataset...')
+  console.log('Processing Dataset...')
+  console.log(`Start ==>  ${moment().format()}`)
 
-  var today = new Date()
-  var timestamp = today.getTime()
-
-  const output = fs.createWriteStream(
-    './tasks/logs/process-dataset-' + timestamp + '.txt'
-  )
-  const error = fs.createWriteStream(
-    './tasks/logs/error-process-dataset-' + timestamp + '.txt'
-  )
-
-  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk')
-  var bulkOps = []
+  const dataset = await DataSet.findOne({uuid: argv.uuid})
 
   if (!dataset) {
     throw new Error('Invalid uuid!')
@@ -89,6 +77,8 @@ const task = new Task(async function (argv) {
     }
   ]
 
+  console.log('Obtaining uniques ...')
+
   let rows = await DataSetRow.aggregate(statement)
   let rowData = {
     product: [],
@@ -129,6 +119,8 @@ const task = new Task(async function (argv) {
     }
   }
 
+  console.log('Obtaining max and min dates ...')
+
   statement = [
     {
       '$match': {
@@ -156,9 +148,16 @@ const task = new Task(async function (argv) {
       groupings: []
     }
   }
-  dataset.processReady(sendData)
+
+  console.log('Obtaining new products/sales centers/channels  ...')
+
+  await dataset.processReady(sendData)
+
+  dataset.set({ status: 'reviewing' })
+  await dataset.save()
 
   console.log('Success! Dataset processed')
+  console.log(`End ==>  ${moment().format()}`)
 
   return true
 })

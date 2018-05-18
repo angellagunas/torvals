@@ -174,11 +174,10 @@ class TabDatasets extends Component {
   }
 
   async setDatasetDetail (dataset, tab) {
-    await this.props.reload(tab)
-
     this.setState({
       datasetDetail: dataset
     })
+    await this.props.reload(tab)
   }
 
   render () {
