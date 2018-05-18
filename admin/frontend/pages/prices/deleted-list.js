@@ -27,7 +27,7 @@ class DeletedPrices extends Component {
   getColumns () {
     return [
       {
-        'title': 'ID',
+        'title': 'Id',
         'property': 'product.externaId',
         'default': 'N/A',
         'sortable': true,
