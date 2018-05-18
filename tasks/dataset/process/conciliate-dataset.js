@@ -40,8 +40,12 @@ const task = new Task(async function (argv) {
     project.set({
       mainDataset: dataset._id
     })
+    dataset.set({
+      isMain: true
+    })
 
     await project.save()
+    await dataset.save()
     console.log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
     console.log(`End ==> ${moment().format()}`)
 
@@ -56,34 +60,21 @@ const task = new Task(async function (argv) {
 
   console.log([project.mainDataset._id, dataset._id])
 
-  // const key = {
-  //   date: '$data.forecastDate',
-  //   product: '$product',
-  //   salesCenter: '$salesCenter',
-  //   channel: '$channel',
-  //   week: '$data.semanaBimbo'
-  // }
-
   const key = {
-    date: '$apiData.fecha',
-    product: '$apiData.producto_id',
-    salesCenter: '$apiData.agencia_id',
-    channel: '$apiData.canal_id',
-    week: '$apiData.semana_bimbo'
+    date: '$data.forecastDate',
+    product: '$product',
+    salesCenter: '$salesCenter',
+    channel: '$channel',
+    week: '$data.semanaBimbo'
   }
 
-  // match = [
-  //   match,
-  //   { $sort: { 'apiData.semana_bimbo': 1 } },
-  //   {
-  //     '$group': {
-  //       _id: key,
-  //       rows: { $push: '$$ROOT' },
-  //       mergedRows: { $mergeObjects: '$$ROOT' }
-  //     }
-  //   },
-  //   { '$limit': 1 }
-  // ]
+  // const key = {
+  //   date: '$apiData.fecha',
+  //   product: '$apiData.producto_id',
+  //   salesCenter: '$apiData.agencia_id',
+  //   channel: '$apiData.canal_id',
+  //   week: '$apiData.semana_bimbo'
+  // }
 
   match = [
     match,
@@ -93,11 +84,6 @@ const task = new Task(async function (argv) {
         mergedRows: { $mergeObjects: '$$ROOT' }
       }
     },
-    // {
-    //   '$match': {
-    //     'rows': {'$gt': 1}
-    //   }
-    // },
     { '$replaceRoot': { newRoot: '$mergedRows' } }
     // { '$project': { _id: 0, rows: 1, mergedRows: 1 } }
   ]
@@ -122,6 +108,7 @@ const task = new Task(async function (argv) {
       channels: dataset.channels,
       newSalesCenters: dataset.newSalesCenters,
       newProducts: dataset.newProducts,
+      isMain: true,
       newChannels: dataset.newChannels,
       groupings: dataset.groupings,
       apiData: dataset.apiData,
@@ -160,22 +147,7 @@ const task = new Task(async function (argv) {
       await DataSetRow.insertMany(bulkOpsNew)
     }
 
-    console.log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
-
-    let statement = [
-      {
-        '$match': {
-          'dataset': dataset._id
-        }
-      },
-      {
-        '$group': {
-          '_id': null,
-          'max': { '$max': '$data.forecastDate' },
-          'min': { '$min': '$data.forecastDate' }
-        }
-      }
-    ]
+    console.log('Obtaining max and min dates ...')
 
     let maxDate = moment.utc(dataset.dateMax, 'YYYY-MM-DD')
     let minDate = moment.utc(dataset.dateMin, 'YYYY-MM-DD')
@@ -185,7 +157,7 @@ const task = new Task(async function (argv) {
     }
 
     if (moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD').isAfter(maxDate)) {
-      minDate = moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD')
+      maxDate = moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD')
     }
 
     newDataset.set({
@@ -200,6 +172,8 @@ const task = new Task(async function (argv) {
     })
 
     project.save()
+
+    console.log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
   } catch (e) {
     console.log(e)
     dataset.set({

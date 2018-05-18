@@ -1,7 +1,6 @@
 // node tasks/dataset/process/save-datasetrows.js
 require('../../../config')
 require('lib/databases/mongo')
-const fs = require('fs')
 const moment = require('moment')
 
 const Task = require('lib/task')
@@ -12,20 +11,12 @@ const task = new Task(async function (argv) {
     throw new Error('You need to provide an uuid!')
   }
 
-  console.log('Fetching DatasetRows...')
+  console.log('Saving products/sales centers/channels from catalog ...')
+  console.log(`Start ==>  ${moment().format()}`)
 
   var batchSize = 10000
-  var today = new Date()
-  var timestamp = today.getTime()
 
-  const output = fs.createWriteStream(
-    './tasks/logs/save-datasetrows-' + timestamp + '.txt'
-  )
-  const error = fs.createWriteStream(
-    './tasks/logs/error-save-datasetrows-' + timestamp + '.txt'
-  )
-
-  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk')
+  const dataset = await DataSet.findOne({uuid: argv.uuid})
   if (!dataset) {
     throw new Error('Invalid uuid!')
   }
@@ -82,13 +73,10 @@ const task = new Task(async function (argv) {
         console.log(`${batchSize} ops ==> ${moment().format()}`)
         await DataSetRow.bulkWrite(bulkOps)
         bulkOps = []
-        output.write(` \n ${batchSize} ops ==> ${moment().format()} \n`)
       }
     } catch (e) {
       console.log('Error!!')
       console.log(e)
-      error.write('Error!! \n')
-      error.write(e)
       return false
     }
   }
@@ -96,12 +84,10 @@ const task = new Task(async function (argv) {
   try {
     if (bulkOps.length > 0) await DataSetRow.bulkWrite(bulkOps)
     console.log(`Data saved ==> ${moment().format()}`)
-    output.write(`Data saved ==> ${moment().format()}`)
   } catch (e) {
     console.log('Error!!')
     console.log(e)
-    error.write('Error!! \n')
-    error.write(e)
+
     return false
   }
 
@@ -109,6 +95,7 @@ const task = new Task(async function (argv) {
   await dataset.save()
 
   console.log('Success! DatasetRows processed!')
+  console.log(`End ==>  ${moment().format()}`)
 
   return true
 })
