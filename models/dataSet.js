@@ -487,31 +487,31 @@ dataSetSchema.methods.processReady = async function (res) {
       var isChannel = false
       var isChannelName = false
 
-      if (res.columns['is_date'] === item) {
+      if (res.config['is_date'] === item) {
         isDate = true
       }
 
-      if (res.columns['is_analysis'] === item) {
+      if (res.config['is_analysis'] === item) {
         isAnalysis = true
       }
 
-      if (res.columns['is_adjustment'] === item) {
+      if (res.config['is_adjustment'] === item) {
         isAdjustment = true
       }
 
-      if (res.columns['is_prediction'] === item) {
+      if (res.config['is_prediction'] === item) {
         isPrediction = true
       }
 
-      if (res.columns['is_sale'] === item) {
+      if (res.config['is_sale'] === item) {
         isSales = true
       }
 
-      if (res.columns['filter_operations'].find(col => { return col === item })) {
+      if (res.config['filter_operations'].find(col => { return col === item })) {
         isOperationFilter = true
       }
 
-      var product = res.columns.filter_analysis.find(col => {
+      var product = res.config.filter_analysis.find(col => {
         return col.product || false
       })
 
@@ -526,7 +526,7 @@ dataSetSchema.methods.processReady = async function (res) {
         }
       }
 
-      var salesCenter = res.columns.filter_analysis.find(col => {
+      var salesCenter = res.config.filter_analysis.find(col => {
         return col.agency || false
       })
 
@@ -541,7 +541,7 @@ dataSetSchema.methods.processReady = async function (res) {
         }
       }
 
-      var channel = res.columns.filter_analysis.find(col => {
+      var channel = res.config.filter_analysis.find(col => {
         return col.channel || false
       })
 
@@ -576,7 +576,7 @@ dataSetSchema.methods.processReady = async function (res) {
     dateMax: res.date_max,
     dateMin: res.date_min,
     apiData: apiData,
-    groupings: res.columns.groupings
+    groupings: res.config.groupings
   })
 
   await this.save()
