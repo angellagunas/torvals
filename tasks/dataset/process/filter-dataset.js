@@ -58,12 +58,16 @@ const task = new Task(async function (argv) {
   }
 
   console.log('Obtaining rows to copy ...')
+  console.log({
+    dataset: project.mainDataset,
+    'data.forecastDate': { $gte: dateStart, $lte: dateEnd }
+  })
 
   try {
     const rows = await DataSetRow.find({
       dataset: project.mainDataset,
-      forecastDate: { $gte: dateStart, $lte: dateEnd }
-    }).cursor({batchSize: batchSize * 10})
+      'data.forecastDate': { $gte: dateStart, $lte: dateEnd }
+    }).cursor()
 
     console.log('rows ready, transversing ...')
 
@@ -71,11 +75,14 @@ const task = new Task(async function (argv) {
     for (let row = await rows.next(); row != null; row = await rows.next()) {
       bulkOpsNew.push(
         {
-          ...row,
-          _id: undefined,
           'organization': project.organization,
           'project': project,
-          'dataset': dataset._id
+          'dataset': dataset._id,
+          'channel': row.channel,
+          'salesCenter': row.salesCenter,
+          'product': row.product,
+          'data': row.data,
+          'apiData': row.apiData
         }
       )
 
@@ -87,6 +94,7 @@ const task = new Task(async function (argv) {
       }
     }
 
+    console.log(bulkOpsNew.length)
     if (bulkOpsNew.length > 0) {
       await DataSetRow.insertMany(bulkOpsNew)
     }

@@ -48,10 +48,14 @@ module.exports = new Route({
       filters['organization'] = currentOrganization.organization._id
     }
 
+    console.log(dataset)
+
     var products = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('product')
     var channels = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('channel')
     var salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
     var semanasBimbo = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('data.semanaBimbo')
+
+    console.log(semanasBimbo)
 
     semanasBimbo.sort((a, b) => {
       return a - b
