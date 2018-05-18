@@ -67,7 +67,6 @@ module.exports = new Route({
           console.log('El Folder ya existe')
         }
       })
-
       dataset.set({
         fileChunk: chunk,
         status: 'uploading',
@@ -76,7 +75,7 @@ module.exports = new Route({
       await dataset.save()
     }
 
-    if (!chunk) {
+    if (!chunk || !dataset.fileChunk) {
       ctx.status = 203
       return
     }
@@ -157,7 +156,7 @@ module.exports = new Route({
     }
 
     chunk.lastChunk = chunkNumber
-    chunk.save()
+    await chunk.save()
 
     if (chunkNumber === 1) {
       const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
@@ -212,8 +211,6 @@ module.exports = new Route({
       })
       await chunk.save()
       finishUpload.add({uuid: dataset.uuid})
-      dataset.set({status: 'preprocessing'})
-      await dataset.save()
     }
 
     ctx.body = 'OK'
