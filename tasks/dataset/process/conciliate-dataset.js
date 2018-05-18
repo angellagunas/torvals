@@ -38,14 +38,16 @@ const task = new Task(async function (argv) {
 
   if (!project.mainDataset) {
     project.set({
-      mainDataset: dataset._id
+      mainDataset: dataset._id,
+      status: 'pendingRows'
     })
     dataset.set({
-      isMain: true
+      isMain: true,
+      status: 'ready'
     })
 
-    await project.save()
     await dataset.save()
+    await project.save()
     console.log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
     console.log(`End ==> ${moment().format()}`)
 
@@ -68,14 +70,6 @@ const task = new Task(async function (argv) {
     week: '$data.semanaBimbo'
   }
 
-  // const key = {
-  //   date: '$apiData.fecha',
-  //   product: '$apiData.producto_id',
-  //   salesCenter: '$apiData.agencia_id',
-  //   channel: '$apiData.canal_id',
-  //   week: '$apiData.semana_bimbo'
-  // }
-
   match = [
     match,
     {
@@ -85,7 +79,6 @@ const task = new Task(async function (argv) {
       }
     },
     { '$replaceRoot': { newRoot: '$mergedRows' } }
-    // { '$project': { _id: 0, rows: 1, mergedRows: 1 } }
   ]
 
   console.log('Obtaining aggregate ...')
@@ -162,13 +155,19 @@ const task = new Task(async function (argv) {
 
     newDataset.set({
       dateMax: maxDate.format('YYYY-MM-DD'),
-      dateMin: minDate.format('YYYY-MM-DD')
+      dateMin: minDate.format('YYYY-MM-DD'),
+      status: 'ready'
+    })
+    dataset.set({
+      status: 'conciliated'
     })
 
     await newDataset.save()
+    await dataset.save()
 
     project.set({
-      mainDataset: newDataset
+      mainDataset: newDataset,
+      status: 'pendingRows'
     })
 
     project.save()
