@@ -59,9 +59,10 @@ class ProjectDetail extends Component {
       this.props.history.replace('/projects/' + user.currentProject.uuid)
     }
 
-    if (currentRole === 'consultor') {
+    if (currentRole === 'manager-level-1') {
       this.setState({
-        selectedTab: 'graficos'
+        selectedTab: 'ajustes',
+        actualTab: 'ajustes'
       })
     }
 
@@ -112,7 +113,7 @@ class ProjectDetail extends Component {
         tab = 'ajustes'
       }
 
-    this.setState({
+      this.setState({
         loading: false,
         loaded: true,
         project: body.data,
