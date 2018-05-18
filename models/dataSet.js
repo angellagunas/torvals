@@ -36,6 +36,7 @@ const dataSetSchema = new Schema({
   dateMin: String,
   error: String,
   etag: String,
+  isMain: { type: Boolean, default: false },
 
   status: {
     type: String,

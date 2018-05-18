@@ -825,7 +825,7 @@ class Dashboard extends Component {
                         <ul className='menu-list'>
                           {this.state.projects &&
                           this.state.projects.map((item) => {
-                            if (item.activeDataset) {
+                            if (item.mainDataset) {
                               if (!item.selected) {
                                 item.selected = false
                               }

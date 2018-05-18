@@ -1,7 +1,7 @@
 // node tasks/migrations/set-week-datasetrows.js
 require('../../../config')
 require('lib/databases/mongo')
-const fs = require('fs')
+const moment = require('moment')
 
 const Task = require('lib/task')
 const { DataSetRow, Product, DataSet, SalesCenter, Channel } = require('models')
@@ -11,23 +11,17 @@ const task = new Task(async function (argv) {
     throw new Error('You need to provide an uuid!')
   }
 
-  console.log('Fetching DatasetRows...')
+  console.log('Saving products/sales centers/channels from catalog ...')
+  console.log(`Start ==>  ${moment().format()}`)
 
-  var today = new Date()
-  var timestamp = today.getTime()
+  const dataset = await DataSet.findOne({uuid: argv.uuid})
 
-  const output = fs.createWriteStream(
-    './tasks/logs/save-datasetrows-' + timestamp + '.txt'
-  )
-  const error = fs.createWriteStream(
-    './tasks/logs/error-save-datasetrows-' + timestamp + '.txt'
-  )
-
-  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk')
   if (!dataset) {
     throw new Error('Invalid uuid!')
   }
+
   const datasetrows = await DataSetRow.find({dataset: dataset._id})
+
   if (!datasetrows) {
     throw new Error('No datasetrows to process')
   }
@@ -80,6 +74,7 @@ const task = new Task(async function (argv) {
   await DataSetRow.bulkWrite(bulkOps)
 
   console.log('Success! DatasetRows processed!')
+  console.log(`End ==>  ${moment().format()}`)
 
   return true
 })

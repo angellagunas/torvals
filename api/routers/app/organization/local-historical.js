@@ -229,7 +229,6 @@ module.exports = new Route({
       mape = Math.abs((totalSale - totalPrediction) / totalSale)
     }
 
-    ctx.set('Cache-Control', 'max-age=86400')
     try {
       for (let item in responseData) {
         await redis.hSet(parameterHash, item, JSON.stringify(responseData[item]))
