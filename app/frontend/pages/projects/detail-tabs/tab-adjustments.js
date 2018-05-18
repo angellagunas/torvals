@@ -825,18 +825,18 @@ getProductsSelected () {
         semana_bimbo: this.state.filters.filteredSemanasBimbo
       })
 
-      if (res.data._items) {
+      if (res.data) {
         let totalPrediction = 0
         let totalAdjustment = 0
 
-        for (let i = 0; i < res.data._items.length; i++) {
-          const element = res.data._items[i];
+        for (let i = 0; i < res.data.length; i++) {
+          const element = res.data[i];
           totalAdjustment += element.adjustment
           totalPrediction += element.prediction
         }
 
         this.setState({
-          salesTable: res.data._items,
+          salesTable: res.data,
           totalAdjustment: totalAdjustment,
           totalPrediction: totalPrediction
         })
