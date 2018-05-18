@@ -1,7 +1,8 @@
-// node tasks/migrations/set-week-datasetrows.js
+// node tasks/dataset/process/save-datasetrows.js
 require('../../../config')
 require('lib/databases/mongo')
 const fs = require('fs')
+const moment = require('moment')
 
 const Task = require('lib/task')
 const { DataSetRow, Product, DataSet, SalesCenter, Channel } = require('models')
@@ -13,6 +14,7 @@ const task = new Task(async function (argv) {
 
   console.log('Fetching DatasetRows...')
 
+  var batchSize = 10000
   var today = new Date()
   var timestamp = today.getTime()
 
@@ -27,7 +29,7 @@ const task = new Task(async function (argv) {
   if (!dataset) {
     throw new Error('Invalid uuid!')
   }
-  const datasetrows = await DataSetRow.find({dataset: dataset._id})
+  const datasetrows = await DataSetRow.find({dataset: dataset._id}).cursor()
   if (!datasetrows) {
     throw new Error('No datasetrows to process')
   }
@@ -57,27 +59,54 @@ const task = new Task(async function (argv) {
   for (let chan of channels) {
     channelsObj[chan.externalId] = chan._id
   }
+  for (let dataRow = await datasetrows.next(); dataRow != null; dataRow = await datasetrows.next()) {
+    try {
+      let salesCenter = dataRow['apiData'][salesCenterExternalId.name]
+      let product = dataRow['apiData'][productExternalId.name]
+      let channel = dataRow['apiData'][channelExternalId.name]
 
-  for (let dataRow of datasetrows) {
-    let salesCenter = dataRow['apiData'][salesCenterExternalId.name]
-    let product = dataRow['apiData'][productExternalId.name]
-    let channel = dataRow['apiData'][channelExternalId.name]
-
-    bulkOps.push(
-      {
-        'updateOne': {
-          'filter': { '_id': dataRow._id },
-          'update': { '$set': {
-            salesCenter: salesCentersObj[salesCenter],
-            product: productsObj[product],
-            channel: channelsObj[channel]
-          }}
+      bulkOps.push(
+        {
+          'updateOne': {
+            'filter': { '_id': dataRow._id },
+            'update': { '$set': {
+              salesCenter: salesCentersObj[salesCenter],
+              product: productsObj[product],
+              channel: channelsObj[channel]
+            }}
+          }
         }
+      )
+
+      if (bulkOps.length === batchSize) {
+        console.log(`${batchSize} ops ==> ${moment().format()}`)
+        await DataSetRow.bulkWrite(bulkOps)
+        bulkOps = []
+        output.write(` \n ${batchSize} ops ==> ${moment().format()} \n`)
       }
-    )
+    } catch (e) {
+      console.log('Error!!')
+      console.log(e)
+      error.write('Error!! \n')
+      error.write(e)
+      return false
+    }
   }
 
-  await DataSetRow.bulkWrite(bulkOps)
+  try {
+    if (bulkOps.length > 0) await DataSetRow.bulkWrite(bulkOps)
+    console.log(`Data saved ==> ${moment().format()}`)
+    output.write(`Data saved ==> ${moment().format()}`)
+  } catch (e) {
+    console.log('Error!!')
+    console.log(e)
+    error.write('Error!! \n')
+    error.write(e)
+    return false
+  }
+
+  dataset.set({ status: 'reviewing' })
+  await dataset.save()
 
   console.log('Success! DatasetRows processed!')
 
