@@ -153,9 +153,6 @@ const task = new Task(async function (argv) {
 
   await dataset.processReady(sendData)
 
-  dataset.set({ status: 'reviewing' })
-  await dataset.save()
-
   console.log('Success! Dataset processed')
   console.log(`End ==>  ${moment().format()}`)
 
