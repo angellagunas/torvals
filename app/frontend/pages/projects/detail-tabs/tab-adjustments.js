@@ -65,13 +65,13 @@ class TabAdjustment extends Component {
     this.toastId = null
   }
 
-  componentWillMount () {    
+  componentWillMount () {
     if(this.props.selectedTab === 'ajustes'){
       this.getFilters()
     }
   }
   
-  componentWillReceiveProps(nextProps){    
+  componentWillReceiveProps(nextProps){
     if(nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded){
       this.getFilters()      
     }
