@@ -5,6 +5,7 @@ const moment = require('moment')
 
 const Task = require('lib/task')
 const { DataSetRow, Product, DataSet, SalesCenter, Channel } = require('models')
+const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
 const task = new Task(async function (argv) {
   if (!argv.uuid) {
@@ -96,6 +97,11 @@ const task = new Task(async function (argv) {
 
   console.log('Success! DatasetRows processed!')
   console.log(`End ==>  ${moment().format()}`)
+
+  await sendSlackNotificacion.run({
+    channel: 'opskamino',
+    message: `El dataset *${dataset.name}* ha sido procesado y esta listo para conciliarse :pika:`
+  })
 
   return true
 })

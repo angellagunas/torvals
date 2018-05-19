@@ -7,6 +7,7 @@ const { execSync } = require('child_process')
 
 const Task = require('lib/task')
 const { DataSet, DataSetRow } = require('models')
+const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
 const task = new Task(async function (argv) {
   var batchSize = 10000
@@ -26,7 +27,7 @@ const task = new Task(async function (argv) {
   console.log(`Using batch size of ${batchSize}`)
   console.log(`Start ==>  ${moment().format()}`)
 
-  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk')
+  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk').populate('uploadedBy')
   var bulkOps = []
 
   if (!dataset) {
@@ -113,6 +114,13 @@ const task = new Task(async function (argv) {
 
   console.log(`Success! loaded ${lineCount} rows`)
   console.log(`End ==> ${moment().format()}`)
+
+  await sendSlackNotificacion.run({
+    channel: 'opskamino',
+    message: `
+El dataset *${dataset.name}* ha sido cargado a la base de datos
+y se procederá a procesarse. Fue cargado por *${dataset.uploadedBy.name}*`
+  })
 
   return true
 })

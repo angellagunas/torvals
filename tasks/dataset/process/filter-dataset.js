@@ -5,6 +5,7 @@ const moment = require('moment')
 
 const Task = require('lib/task')
 const { Project, DataSet, DataSetRow } = require('models')
+const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
 const task = new Task(async function (argv) {
   var batchSize = 10000
@@ -129,6 +130,10 @@ const task = new Task(async function (argv) {
   }
 
   console.log(`End ==> ${moment().format()}`)
+  await sendSlackNotificacion.run({
+    channel: 'opskamino',
+    message: `El dataset de ajuste del proyecto *${project.name}* se encuentra listo!`
+  })
 
   return true
 })

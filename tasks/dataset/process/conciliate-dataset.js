@@ -5,6 +5,7 @@ const moment = require('moment')
 
 const Task = require('lib/task')
 const { Project, DataSet, DataSetRow } = require('models')
+const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
 const task = new Task(async function (argv) {
   var batchSize = 10000
@@ -50,6 +51,13 @@ const task = new Task(async function (argv) {
     await project.save()
     console.log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
     console.log(`End ==> ${moment().format()}`)
+
+    await sendSlackNotificacion.run({
+      channel: 'opskamino',
+      message: `
+El dataset *${dataset.name}* se ha conciliado al proyecto
+*${project.name}*`
+    })
 
     return true
   }
@@ -186,6 +194,12 @@ const task = new Task(async function (argv) {
   }
 
   console.log(`End ==> ${moment().format()}`)
+  await sendSlackNotificacion.run({
+    channel: 'opskamino',
+    message: `
+El dataset *${dataset.name}* se ha conciliado al proyecto
+*${project.name}*`
+  })
 
   return true
 })
