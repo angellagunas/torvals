@@ -13,7 +13,7 @@ const task = new Task(async function (argv) {
   const projects = await Project.find({
     status: 'pendingRows',
     isDeleted: false
-  }).populate('mainDataset')
+  }).populate('mainDataset activeDataset')
 
   if (projects.length === 0) {
     console.log('No projects to verify ...')
@@ -28,6 +28,10 @@ const task = new Task(async function (argv) {
     if (!projectDataset) {
       await project.populate('datasets.dataset').execPopulate()
       projectDataset = project.datasets[0].dataset
+    }
+
+    if (!projectDataset.conciliatedBy || !projectDataset.createdBy) {
+      var projectDataset = project.mainDataset
     }
 
     if (project.mainDataset && project.mainDataset.status === 'ready') {
