@@ -117,7 +117,8 @@ class ProjectDetail extends Component {
         loading: false,
         loaded: true,
         project: body.data,
-        selectedTab: tab 
+        selectedTab: tab,
+        actualTab: tab 
       })
 
       this.countAdjustmentRequests()
