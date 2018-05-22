@@ -482,7 +482,7 @@ class DataSetDetail extends Component {
           </div>
         </div>
       )
-    } else if (dataset.status === 'conciliated' || dataset.status === 'ready')) {
+    } else if (dataset.status === 'conciliated' || dataset.status === 'ready') {
       return (
         <div className='column'>
           <div className='card'>
