@@ -28,7 +28,7 @@ const task = new Task(async function (argv) {
     try {
       batchSize = parseInt(argv.batchSize)
     } catch (e) {
-      console.log('Invalid batch size! Using default of 1000 ...')
+      console.log('Invalid batch size! Using default of 10000 ...')
     }
   }
 
@@ -59,10 +59,6 @@ const task = new Task(async function (argv) {
   }
 
   console.log('Obtaining rows to copy ...')
-  console.log({
-    dataset: project.mainDataset,
-    'data.forecastDate': { $gte: dateStart, $lte: dateEnd }
-  })
 
   try {
     const rows = await DataSetRow.find({
