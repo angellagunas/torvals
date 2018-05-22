@@ -36,11 +36,6 @@ const task = new Task(
       let channelColumn = 'apiData.' + channelExternalId.name
       await DataSetRow.update({dataset: dataset._id, [channelColumn]: channel.externalId}, {channel: channel._id}, {multi: true})
     }
-
-    for (let channel of dataset.newChannels) {
-      let channelColumn = 'apiData.' + channelExternalId.name
-      await DataSetRow.update({dataset: dataset._id, [channelColumn]: channel.externalId}, {channel: channel._id}, {multi: true})
-    }
     log('Channels successfully saved!')
 
     log('Saving products ...')
@@ -48,20 +43,10 @@ const task = new Task(
       let productColumn = 'apiData.' + productExternalId.name
       await DataSetRow.update({dataset: dataset._id, [productColumn]: product.externalId}, {product: product._id}, {multi: true})
     }
-
-    for (let product of dataset.newProducts) {
-      let productColumn = 'apiData.' + productExternalId.name
-      await DataSetRow.update({dataset: dataset._id, [productColumn]: product.externalId}, {product: product._id}, {multi: true})
-    }
     log('Products successfully saved!')
 
     log('Saving sales centers ...')
     for (let salesCenter of dataset.salesCenters) {
-      let salesCenterColumn = 'apiData.' + salesCenterExternalId.name
-      await DataSetRow.update({dataset: dataset._id, [salesCenterColumn]: salesCenter.externalId}, {salesCenter: salesCenter._id}, {multi: true})
-    }
-
-    for (let salesCenter of dataset.newSalesCenters) {
       let salesCenterColumn = 'apiData.' + salesCenterExternalId.name
       await DataSetRow.update({dataset: dataset._id, [salesCenterColumn]: salesCenter.externalId}, {salesCenter: salesCenter._id}, {multi: true})
     }
