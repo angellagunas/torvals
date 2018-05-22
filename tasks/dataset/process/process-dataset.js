@@ -6,6 +6,7 @@ const _ = require('lodash')
 
 const Task = require('lib/task')
 const { DataSet, DataSetRow } = require('models')
+const saveDatasetRows = require('queues/save-datasetrows')
 
 const task = new Task(async function (argv) {
   if (!argv.uuid) {
@@ -155,6 +156,8 @@ const task = new Task(async function (argv) {
 
   console.log('Success! Dataset processed')
   console.log(`End ==>  ${moment().format()}`)
+
+  saveDatasetRows.add({uuid: dataset.uuid})
 
   return true
 })
