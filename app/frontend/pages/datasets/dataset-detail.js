@@ -1285,11 +1285,11 @@ class DataSetDetail extends Component {
       let res = await api.post(url, products)
 
       if (res.success > 0) {
-        this.notify(`Se confirmaron exitosamente ${res.success} productos!`, 5000, toast.TYPE.SUCCESS)
+        this.notify(`¡Se confirmaron exitosamente ${res.success} productos!`, 5000, toast.TYPE.SUCCESS)
       }
 
       if (res.error > 0) {
-        this.notify(`No se pudieron confirmar ${res.error} productos!`, 5000, toast.TYPE.ERROR)
+        this.notify(`¡No se pudieron confirmar ${res.error} productos!`, 5000, toast.TYPE.ERROR)
       }
 
       if (res.error === 0 && res.success === 0) {
@@ -1320,7 +1320,7 @@ class DataSetDetail extends Component {
 
       if (res.success > 0) {
         this.notify(
-          `Se confirmaron exitosamente ${res.success} centros de venta!`,
+          `¡Se confirmaron exitosamente ${res.success} centros de venta!`,
           5000,
           toast.TYPE.SUCCESS
         )
@@ -1328,7 +1328,7 @@ class DataSetDetail extends Component {
 
       if (res.error > 0) {
         this.notify(
-          `No se pudieron confirmar ${res.error} centros de venta!`,
+          `¡No se pudieron confirmar ${res.error} centros de venta!`,
           5000,
           toast.TYPE.ERROR
         )
@@ -1362,7 +1362,7 @@ class DataSetDetail extends Component {
 
       if (res.success > 0) {
         this.notify(
-          `Se confirmaron exitosamente ${res.success} canales!`,
+          `¡Se confirmaron exitosamente ${res.success} canales!`,
           5000,
           toast.TYPE.SUCCESS
         )
@@ -1370,7 +1370,7 @@ class DataSetDetail extends Component {
 
       if (res.error > 0) {
         this.notify(
-          `No se pudieron confirmar ${res.error} canales!`,
+          `¡No se pudieron confirmar ${res.error} canales!`,
           5000,
           toast.TYPE.ERROR
         )
@@ -1419,7 +1419,7 @@ class DataSetDetail extends Component {
         titleButton={'Eliminar'}
         objectName='Dataset'
         objectDelete={this.deleteObject.bind(this)}
-        message={`Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
+        message={`¿Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
       />
     )
 

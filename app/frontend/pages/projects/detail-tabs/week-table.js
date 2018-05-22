@@ -173,7 +173,7 @@ class WeekTable extends Component {
         group: ' ',
         title: <span
                 className='icon'
-                title={`Hay ${this.props.adjustmentRequestCount} productos fuera de rango!`}
+                title={`¡Hay ${this.props.adjustmentRequestCount} productos fuera de rango!`}
                 onClick={() => {
                   this.props.handleAllAdjustmentRequest()
                 }}
