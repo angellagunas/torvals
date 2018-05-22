@@ -59,6 +59,6 @@ module.exports = new Route({
       }
     }
 
-    ctx.body = {message: `Se han creado ${created} Centros de venta y modificado ${modified} satisfactoriamente!`}
+    ctx.body = {message: `¡Se han creado ${created} Centros de venta y modificado ${modified} satisfactoriamente!`}
   }
 })

@@ -289,7 +289,7 @@ class GroupDetail extends Component {
                       titleButton={'Eliminar Grupo'}
                       objectName='Grupo'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={`Está seguro que quiere eliminar el grupo ${group.name}?`}
+                      message={`¿Está seguro que quiere eliminar el grupo ${group.name}?`}
                     />
                   </div>
                 </div>

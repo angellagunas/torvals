@@ -75,6 +75,6 @@ module.exports = new Route({
     if (projectError) {
       projectMessage = `, Ha ocurrido un error con ${projectError} usuarios: Proyecto inválido`
     }
-    ctx.body = {message: `Se han creado ${created} usuarios satisfactoriamente!` + projectMessage}
+    ctx.body = {message: `¡Se han creado ${created} usuarios satisfactoriamente!` + projectMessage}
   }
 })

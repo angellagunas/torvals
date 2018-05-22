@@ -311,7 +311,7 @@ class ChannelDetail extends Component {
                 <DeleteButton titleButton={'Eliminar'}
                   objectName='Canal'
                   objectDelete={this.deleteObject.bind(this)}
-                  message={`Estas seguro de quieres borrar el canal ${channel.name}?`}
+                  message={`¿Estas seguro de quieres borrar el canal ${channel.name}?`}
                 />
               }
             </div>
