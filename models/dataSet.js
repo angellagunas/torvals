@@ -95,11 +95,8 @@ const dataSetSchema = new Schema({
   }],
 
   salesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
-  newSalesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
-  newProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
-  newChannels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
 
   apiData: { type: Schema.Types.Mixed },
   dateCreated: { type: Date, default: moment.utc },
@@ -131,9 +128,9 @@ dataSetSchema.methods.toPublic = function () {
     groupings: this.groupings,
     dateMax: this.dateMax,
     dateMin: this.dateMin,
-    newSalesCenters: this.newSalesCenters,
-    newProducts: this.newProducts,
-    newChannels: this.newChannels
+    salesCenters: this.salesCenters,
+    products: this.products,
+    channels: this.channels
   }
 }
 
@@ -156,9 +153,9 @@ dataSetSchema.methods.format = function () {
     groupings: this.groupings,
     dateMax: this.dateMax,
     dateMin: this.dateMin,
-    newSalesCenters: this.newSalesCenters,
-    newProducts: this.newProducts,
-    newChannels: this.newChannels
+    salesCenters: this.salesCenters,
+    products: this.products,
+    channels: this.channels
   }
 }
 
@@ -330,31 +327,18 @@ dataSetSchema.methods.processData = async function () {
           organization: this.organization,
           isNewExternal: true
         })
-
-        this.newProducts.push(product)
       } else if (product.isNewExternal) {
         product.set({name: p['name'] ? p['name'] : 'Not identified'})
         await product.save()
-
-        var posNew = this.newProducts.findIndex(item => {
-          return String(item.externalId) === String(product.externalId)
-        })
-        if (posNew < 0) {
-          this.newProducts.push(product)
-        }
-      } else {
-        product.set({isDeleted: false})
-        await product.save()
-        var pos = this.products.findIndex(item => {
-          return String(item.externalId) === String(product.externalId)
-        })
-
-        posNew = this.newProducts.findIndex(item => {
-          return String(item.externalId) === String(product.externalId)
-        })
-
-        if (pos < 0 && posNew < 0) this.products.push(product)
       }
+
+      product.set({isDeleted: false})
+      await product.save()
+      var pos = this.products.findIndex(item => {
+        return String(item.externalId) === String(product.externalId)
+      })
+
+      if (pos < 0) this.products.push(product)
     }
   }
 
@@ -372,30 +356,18 @@ dataSetSchema.methods.processData = async function () {
           organization: this.organization,
           isNewExternal: true
         })
-
-        this.newSalesCenters.push(salesCenter)
       } else if (salesCenter.isNewExternal) {
         salesCenter.set({name: a['name'] ? a['name'] : 'Not identified'})
         await salesCenter.save()
-        posNew = this.newSalesCenters.findIndex(item => {
-          return String(item.externalId) === String(salesCenter.externalId)
-        })
-        if (posNew < 0) {
-          this.newSalesCenters.push(salesCenter)
-        }
-      } else {
-        salesCenter.set({isDeleted: false})
-        await salesCenter.save()
-        pos = this.salesCenters.findIndex(item => {
-          return String(item.externalId) === String(salesCenter.externalId)
-        })
-
-        posNew = this.newSalesCenters.findIndex(item => {
-          return String(item.externalId) === String(salesCenter.externalId)
-        })
-
-        if (pos < 0 && posNew < 0) this.salesCenters.push(salesCenter)
       }
+
+      salesCenter.set({isDeleted: false})
+      await salesCenter.save()
+      pos = this.salesCenters.findIndex(item => {
+        return String(item.externalId) === String(salesCenter.externalId)
+      })
+
+      if (pos < 0) this.salesCenters.push(salesCenter)
     }
   }
 
@@ -413,39 +385,20 @@ dataSetSchema.methods.processData = async function () {
           organization: this.organization,
           isNewExternal: true
         })
-
-        posNew = this.newChannels.findIndex(item => {
-          return String(item.externalId) === String(channel.externalId)
-        })
-
-        if (posNew < 0) {
-          this.newChannels.push(channel)
-        }
       } else if (channel.isNewExternal) {
         channel.set({name: c['name'] ? c['name'] : 'Not identified'})
         await channel.save()
-        this.newChannels.push(channel)
-      } else {
-        channel.set({isDeleted: false})
-        await channel.save()
-
-        pos = this.channels.findIndex(item => {
-          return String(item.externalId) === String(channel.externalId)
-        })
-
-        posNew = this.newChannels.findIndex(item => {
-          return String(item.externalId) === String(channel.externalId)
-        })
-
-        if (pos < 0 && posNew < 0) this.channels.push(channel)
       }
+      channel.set({isDeleted: false})
+      await channel.save()
+
+      pos = this.channels.findIndex(item => {
+        return String(item.externalId) === String(channel.externalId)
+      })
+
+      if (pos < 0) this.channels.push(channel)
     }
   }
-
-  this.markModified(
-    'products', 'newProducts',
-    'salesCenters', 'newSalesCenters',
-    'channels', 'newChannels')
 
   await this.save()
 }

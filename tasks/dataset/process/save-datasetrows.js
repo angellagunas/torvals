@@ -42,10 +42,6 @@ const task = new Task(async function (argv) {
     await DataSetRow.update({dataset: dataset._id, [productColumn]: product.externalId}, {product: product._id}, {multi: true})
   }
 
-  for (let product of dataset.newProducts) {
-    let productColumn = 'apiData.' + productExternalId.name
-    await DataSetRow.update({dataset: dataset._id, [productColumn]: product.externalId}, {product: product._id}, {multi: true})
-  }
   console.log('Products successfully saved!')
 
   console.log('Saving sales centers ...')

@@ -793,7 +793,7 @@ class DataSetDetail extends Component {
     })
 
     this.newChannels = []
-    dataset.newChannels.map((item, key) => {
+    dataset.channels.map((item, key) => {
       if (item.isNewExternal) {
         this.newChannels.push(item)
       }
@@ -922,7 +922,7 @@ class DataSetDetail extends Component {
     })
 
     this.newSalesCenters = []
-    dataset.newSalesCenters.map((item, key) => {
+    dataset.salesCenters.map((item, key) => {
       if (item.isNewExternal) {
         this.newSalesCenters.push(item)
       }
@@ -1053,7 +1053,7 @@ class DataSetDetail extends Component {
     })
 
     this.newProducts = []
-    dataset.newProducts.map((item, key) => {
+    dataset.products.map((item, key) => {
       if (item.isNewExternal) {
         this.newProducts.push(item)
       }
