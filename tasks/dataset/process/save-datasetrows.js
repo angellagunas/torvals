@@ -30,10 +30,6 @@ const task = new Task(async function (argv) {
     await DataSetRow.update({dataset: dataset._id, [channelColumn]: channel.externalId}, {channel: channel._id}, {multi: true})
   }
 
-  for (let channel of dataset.newChannels) {
-    let channelColumn = 'apiData.' + channelExternalId.name
-    await DataSetRow.update({dataset: dataset._id, [channelColumn]: channel.externalId}, {channel: channel._id}, {multi: true})
-  }
   console.log('Channels successfully saved!')
 
   console.log('Saving products ...')
@@ -50,10 +46,6 @@ const task = new Task(async function (argv) {
     await DataSetRow.update({dataset: dataset._id, [salesCenterColumn]: salesCenter.externalId}, {salesCenter: salesCenter._id}, {multi: true})
   }
 
-  for (let salesCenter of dataset.newSalesCenters) {
-    let salesCenterColumn = 'apiData.' + salesCenterExternalId.name
-    await DataSetRow.update({dataset: dataset._id, [salesCenterColumn]: salesCenter.externalId}, {salesCenter: salesCenter._id}, {multi: true})
-  }
   console.log('Sales Centers successfully saved!')
 
   dataset.set({ status: 'reviewing' })
