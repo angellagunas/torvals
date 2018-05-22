@@ -15,7 +15,7 @@ const task = new Task(async function (argv) {
   console.log('Saving products/sales centers/channels from catalog ...')
   console.log(`Start ==>  ${moment().format()}`)
 
-  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('channels products salesCenters')
+  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('channels products salesCenters newChannels newProducts newSalesCenters')
   if (!dataset) {
     throw new Error('Invalid uuid!')
   }
@@ -29,6 +29,11 @@ const task = new Task(async function (argv) {
     let channelColumn = 'apiData.' + channelExternalId.name
     await DataSetRow.update({dataset: dataset._id, [channelColumn]: channel.externalId}, {channel: channel._id}, {multi: true})
   }
+
+  for (let channel of dataset.newChannels) {
+    let channelColumn = 'apiData.' + channelExternalId.name
+    await DataSetRow.update({dataset: dataset._id, [channelColumn]: channel.externalId}, {channel: channel._id}, {multi: true})
+  }
   console.log('Channels successfully saved!')
 
   console.log('Saving products ...')
@@ -36,10 +41,20 @@ const task = new Task(async function (argv) {
     let productColumn = 'apiData.' + productExternalId.name
     await DataSetRow.update({dataset: dataset._id, [productColumn]: product.externalId}, {product: product._id}, {multi: true})
   }
+
+  for (let product of dataset.newProducts) {
+    let productColumn = 'apiData.' + productExternalId.name
+    await DataSetRow.update({dataset: dataset._id, [productColumn]: product.externalId}, {product: product._id}, {multi: true})
+  }
   console.log('Products successfully saved!')
 
   console.log('Saving sales centers ...')
   for (let salesCenter of dataset.salesCenters) {
+    let salesCenterColumn = 'apiData.' + salesCenterExternalId.name
+    await DataSetRow.update({dataset: dataset._id, [salesCenterColumn]: salesCenter.externalId}, {salesCenter: salesCenter._id}, {multi: true})
+  }
+
+  for (let salesCenter of dataset.newSalesCenters) {
     let salesCenterColumn = 'apiData.' + salesCenterExternalId.name
     await DataSetRow.update({dataset: dataset._id, [salesCenterColumn]: salesCenter.externalId}, {salesCenter: salesCenter._id}, {multi: true})
   }
