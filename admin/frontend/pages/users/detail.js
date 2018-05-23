@@ -48,9 +48,11 @@ class UserDetail extends PageComponent {
 
   async onPageEnter () {
     const data = await this.loadCurrentUser()
+    const groups = await this.loadGroups()
 
     return {
       user: data,
+      groups: groups,
       selectedGroups: data.groups,
       selectedOrgs: data.organizations
     }
