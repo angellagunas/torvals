@@ -19,7 +19,8 @@ const organizationSchema = new Schema({
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  rules: {type: Schema.Types.Mixed}
 }, { usePushEach: true })
 
 organizationSchema.plugin(dataTables)
@@ -31,7 +32,8 @@ organizationSchema.methods.toPublic = function () {
     description: this.description,
     slug: this.slug,
     dateCreated: this.dateCreated,
-    profileUrl: this.profileUrl
+    profileUrl: this.profileUrl,
+    rules: this.rules
   }
 }
 
@@ -42,7 +44,8 @@ organizationSchema.methods.toAdmin = function () {
     slug: this.slug,
     description: this.description,
     dateCreated: this.dateCreated,
-    profileUrl: this.profileUrl
+    profileUrl: this.profileUrl,
+    rules: this.rules
   }
 }
 
