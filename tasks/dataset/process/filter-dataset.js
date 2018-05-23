@@ -70,7 +70,8 @@ const task = new Task(
     try {
       const rows = await DataSetRow.find({
         dataset: project.mainDataset,
-        'data.forecastDate': { $gte: dateStart, $lte: dateEnd }
+        'data.forecastDate': { $gte: dateStart, $lte: dateEnd },
+        isAnomaly: false
       }).cursor()
 
       log('rows ready, transversing ...')
