@@ -18,7 +18,6 @@ module.exports = new Route({
     for (var anomaly of data.anomalies) {
       try {
         anomaly = await Anomaly.findOne({uuid: anomaly.uuid})
-        console.log(anomaly)
         if (anomaly) {
           bulkOps.push({
             updateOne: {
