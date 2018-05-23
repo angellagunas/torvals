@@ -149,7 +149,7 @@ class OrganizationDetail extends Component {
                     <DeleteButton
                       objectName='Organization'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={`Estas seguro de querer eliminar la organización ${organization.name}?`}
+                      message={`¿Estas seguro de querer eliminar la organización ${organization.name}?`}
                     />
                   </div>
                 </div>

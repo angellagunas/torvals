@@ -326,7 +326,7 @@ class ProjectDetail extends Component {
                     <DeleteButton
                       objectName='Proyecto'
                       objectDelete={() => this.deleteObject()}
-                      message={'Estas seguro de querer eliminar este Proyecto?'}
+                      message={'¿Estas seguro de querer eliminar este Proyecto?'}
                     />
                   }
                 />

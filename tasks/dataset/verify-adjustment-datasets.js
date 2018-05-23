@@ -29,7 +29,7 @@ const task = new Task(async function (argv) {
       var res = await Api.getDataset(dataset.externalId)
     } catch (e) {
       dataset.set({
-        error: 'Hubo un problema al obtener el dataset de Abraxas!',
+        error: '¡Hubo un problema al obtener el dataset de Abraxas!',
         status: 'error'
       })
 
@@ -168,7 +168,7 @@ const task = new Task(async function (argv) {
 
       if (!res) {
         dataset.set({
-          error: 'No se pudieron obtener las anomalías!',
+          error: '¡No se pudieron obtener las anomalías!',
           status: 'error'
         })
 
