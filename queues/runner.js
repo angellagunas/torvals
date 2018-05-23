@@ -1,3 +1,6 @@
+const config = require('./config')
+require('lib/databases/mongo')
+
 const queues = require('./')
 const { each } = require('lodash')
 const { multiple, numWorkers } = require('config/queue-workers')
