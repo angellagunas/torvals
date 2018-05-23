@@ -175,6 +175,12 @@ const task = new Task(
       await newDataset.save()
       await dataset.save()
 
+      project.mainDataset.set({
+        isMain: false,
+        status: 'conciliated'
+      })
+      await project.mainDataset.save()
+
       project.set({
         mainDataset: newDataset,
         status: 'pendingRows',

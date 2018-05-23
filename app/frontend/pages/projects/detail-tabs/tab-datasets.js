@@ -71,7 +71,7 @@ class TabDatasets extends Component {
                   testRoles('manager-level-2, consultor')
                     ? <a onClick={() => { this.setDatasetDetail(row) }}
                       className={
-                        row.status === 'conciliated' || row.status === 'adjustment'
+                        row.status === 'conciliated' || row.status === 'adjustment' || row.status === 'ready'
                           ? 'button'
                           : 'is-hidden'
                       }
@@ -82,7 +82,7 @@ class TabDatasets extends Component {
                     </a>
                     : <a onClick={() => { this.setDatasetDetail(row) }}
                       className={
-                        row.status === 'conciliated' || row.status === 'adjustment'
+                        row.status === 'conciliated' || row.status === 'adjustment' || row.status === 'ready'
                           ? 'button is-primary'
                           : 'is-hidden'
                       }
@@ -96,7 +96,7 @@ class TabDatasets extends Component {
 
                 <a onClick={() => { this.setDatasetDetail(row) }}
                   className={
-                    row.status !== 'conciliated' && row.status !== 'adjustment'
+                    row.status !== 'conciliated' && row.status !== 'adjustment' && row.status !== 'ready'
                     ? 'button is-info'
                     : 'is-hidden'
                   }
@@ -105,7 +105,7 @@ class TabDatasets extends Component {
                 </a>
               </div>
               <div className='control'>
-                { this.props.canEdit &&
+                { this.props.canEdit && !row.isMain &&
                   <DeleteButton
                     iconOnly
                     icon='fa fa-trash'
