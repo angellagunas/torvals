@@ -12,9 +12,9 @@ module.exports = new Route({
       .populate('fileChunk')
       .populate('project')
       .populate('organization')
-      .populate('newProducts')
-      .populate('newSalesCenters')
-      .populate('newChannels')
+      .populate('products')
+      .populate('salesCenters')
+      .populate('channels')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 

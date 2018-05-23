@@ -46,10 +46,7 @@ const task = new Task(
     }
     log('Sales Centers successfully saved!')
 
-    dataset.set({ status: 'reviewing' })
-    await dataset.save()
-
-    getAnomalies.add({uuid: dataset.uuid})
+    if (!argv.noNextStep) getAnomalies.add({uuid: dataset.uuid})
 
     log('Success! DatasetRows processed!')
     log(`End ==>  ${moment().format()}`)
@@ -80,7 +77,7 @@ const task = new Task(
     sendSlackNotificacion.run({
       channel: 'opskamino',
       message: `El dataset *${dataset.name}* ha terminado de asignarsele los ` +
-        `productos/centros de venta/canales y esta listo para ser conciliado.`
+        `productos/centros de venta/canales y ahora se obtendrán las anomalías.`
     })
   }
 )

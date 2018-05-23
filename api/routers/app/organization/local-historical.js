@@ -226,7 +226,7 @@ module.exports = new Route({
     let mape = 0
 
     if (totalSale !== 0) {
-      mape = Math.abs((totalSale - totalPrediction) / totalSale)
+      mape = Math.abs((totalSale - totalPrediction) / totalSale) * 100
     }
 
     try {
