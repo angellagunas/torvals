@@ -67,6 +67,8 @@ projectSchema.methods.toPublic = function () {
     businessRules: this.businessRules,
     externalId: this.externalId,
     dateCreated: this.dateCreated,
+    dateMin: this.dateMin,
+    dateMax: this.dateMax,
     showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
   }
 }
@@ -85,6 +87,8 @@ projectSchema.methods.toAdmin = function () {
     businessRules: this.businessRules,
     externalId: this.externalId,
     dateCreated: this.dateCreated,
+    dateMin: this.dateMin,
+    dateMax: this.dateMax,
     showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
   }
 }

@@ -47,7 +47,9 @@ const task = new Task(
     if (!project.mainDataset) {
       project.set({
         mainDataset: dataset._id,
-        status: 'pendingRows'
+        status: 'pendingRows',
+        dateMin: moment.utc(dataset.dateMin, 'YYYY-MM-DD'),
+        dateMax: moment.utc(dataset.dateMax, 'YYYY-MM-DD')
       })
       dataset.set({
         isMain: true,
@@ -175,7 +177,9 @@ const task = new Task(
 
       project.set({
         mainDataset: newDataset,
-        status: 'pendingRows'
+        status: 'pendingRows',
+        dateMax: maxDate,
+        dateMin: minDate
       })
 
       project.save()
