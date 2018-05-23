@@ -440,6 +440,7 @@ class ProjectDetail extends Component {
           <TabHistorical
             project={project}
             history={this.props.history}
+            currentRole={currentRole}
           />
         )
       },
@@ -578,7 +579,7 @@ class ProjectDetail extends Component {
       </span>
     </button>)
     var consolidarButton
-    if (!testRoles('consultor, manager-level-1')) {
+    if (!testRoles('consultor, manager-level-1') && this.state.actualTab === 'aprobar') {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
