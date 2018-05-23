@@ -133,10 +133,6 @@ const task = new Task(
     }
 
     log(`End ==> ${moment().format()}`)
-    await sendSlackNotificacion.run({
-      channel: 'opskamino',
-      message: `El dataset de ajuste del proyecto *${project.name}* se encuentra listo!`
-    })
 
     return true
   },

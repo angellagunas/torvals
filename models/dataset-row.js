@@ -35,7 +35,10 @@ const datasetRowSchema = new Schema({
     localAdjustment: { type: Number },
     lastAdjustment: { type: Number },
     semanaBimbo: { type: Number },
-    forecastDate: { type: Date }
+    forecastDate: { type: Date },
+    productExternalId: { type: String },
+    channelExternalId: { type: String },
+    salesCenterExternalId: { type: String }
   },
   apiData: { type: Schema.Types.Mixed },
 
@@ -76,6 +79,10 @@ datasetRowSchema.methods.toAdmin = function () {
 datasetRowSchema.index({ isDeleted: -1, dataset: 1, status: 1, organization: 1 }, {background: true})
 datasetRowSchema.index({ isDeleted: -1, uuid: 1 }, {background: true})
 datasetRowSchema.index({ product: 1 }, {background: true})
+datasetRowSchema.index({ dataset: 1 }, {background: true})
+datasetRowSchema.index({ dataset: 1, 'data.productExternalId': 1 }, {background: true})
+datasetRowSchema.index({ dataset: 1, 'data.channelExternalId': 1 }, {background: true})
+datasetRowSchema.index({ dataset: 1, 'data.salesCenterExternalId': 1 }, {background: true})
 datasetRowSchema.index({ 'data.forecastDate': 1 }, {background: true})
 datasetRowSchema.index(
   {

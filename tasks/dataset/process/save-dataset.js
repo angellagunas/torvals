@@ -61,6 +61,9 @@ const task = new Task(
       var adjustmentColumn = dataset.getAdjustmentColumn() || {name: ''}
       var dateColumn = dataset.getDateColumn() || {name: ''}
       var salesColumn = dataset.getSalesColumn() || {name: ''}
+      var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
+      var productExternalId = dataset.getProductColumn() || {name: ''}
+      var channelExternalId = dataset.getChannelColumn() || {name: ''}
 
       for (var i = 0; i < pages; i++) {
         log(`${lineCount} => ${(i * batchSize) + 1} - ${(i * batchSize) + batchSize}`)
@@ -111,7 +114,10 @@ const task = new Task(
               'semanaBimbo': obj.semana_bimbo,
               'adjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
               'localAdjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-              'lastAdjustment': obj[adjustmentColumn.name] || undefined
+              'lastAdjustment': obj[adjustmentColumn.name] || undefined,
+              'productExternalId': obj[productExternalId.name],
+              'salesCenterExternalId': obj[salesCenterExternalId.name],
+              'channelExternalId': obj[channelExternalId.name]
             }
           })
         }

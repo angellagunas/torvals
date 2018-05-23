@@ -6,7 +6,7 @@ const Slack = require('node-slack')
 const config = require('config').slack
 
 const task = new Task(async function (argv) {
-  if (!config.useSlack) return false
+  if (!config.active) return false
 
   const hookUrl = config.channels[argv.channel]
 
@@ -23,7 +23,7 @@ const task = new Task(async function (argv) {
   }
 
   const slack = new Slack(hookUrl)
-  await slack.send({ text: argv.message })
+  await slack.send({ text: `*[${config.name}]* ${argv.message}` })
 })
 
 if (require.main === module) {
