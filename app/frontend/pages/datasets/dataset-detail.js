@@ -450,7 +450,39 @@ class DataSetDetail extends Component {
           </div>
         </div>
       )
-    } else if (dataset.status === 'conciliated') {
+    } else if (dataset.status === 'conciliating') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                Dataset enviado a conciliación
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-success'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-2x' name='hourglass-half' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          Este dataset está en proceso de conciliación
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'conciliated' || dataset.status === 'ready') {
       return (
         <div className='column'>
           <div className='card'>
@@ -794,7 +826,7 @@ class DataSetDetail extends Component {
     })
 
     this.newChannels = []
-    dataset.newChannels.map((item, key) => {
+    dataset.channels.map((item, key) => {
       if (item.isNewExternal) {
         this.newChannels.push(item)
       }
@@ -923,7 +955,7 @@ class DataSetDetail extends Component {
     })
 
     this.newSalesCenters = []
-    dataset.newSalesCenters.map((item, key) => {
+    dataset.salesCenters.map((item, key) => {
       if (item.isNewExternal) {
         this.newSalesCenters.push(item)
       }
@@ -1054,7 +1086,7 @@ class DataSetDetail extends Component {
     })
 
     this.newProducts = []
-    dataset.newProducts.map((item, key) => {
+    dataset.products.map((item, key) => {
       if (item.isNewExternal) {
         this.newProducts.push(item)
       }
@@ -1285,11 +1317,11 @@ class DataSetDetail extends Component {
       let res = await api.post(url, products)
 
       if (res.success > 0) {
-        this.notify(`Se confirmaron exitosamente ${res.success} productos!`, 5000, toast.TYPE.SUCCESS)
+        this.notify(`¡Se confirmaron exitosamente ${res.success} productos!`, 5000, toast.TYPE.SUCCESS)
       }
 
       if (res.error > 0) {
-        this.notify(`No se pudieron confirmar ${res.error} productos!`, 5000, toast.TYPE.ERROR)
+        this.notify(`¡No se pudieron confirmar ${res.error} productos!`, 5000, toast.TYPE.ERROR)
       }
 
       if (res.error === 0 && res.success === 0) {
@@ -1320,7 +1352,7 @@ class DataSetDetail extends Component {
 
       if (res.success > 0) {
         this.notify(
-          `Se confirmaron exitosamente ${res.success} centros de venta!`,
+          `¡Se confirmaron exitosamente ${res.success} centros de venta!`,
           5000,
           toast.TYPE.SUCCESS
         )
@@ -1328,7 +1360,7 @@ class DataSetDetail extends Component {
 
       if (res.error > 0) {
         this.notify(
-          `No se pudieron confirmar ${res.error} centros de venta!`,
+          `¡No se pudieron confirmar ${res.error} centros de venta!`,
           5000,
           toast.TYPE.ERROR
         )
@@ -1362,7 +1394,7 @@ class DataSetDetail extends Component {
 
       if (res.success > 0) {
         this.notify(
-          `Se confirmaron exitosamente ${res.success} canales!`,
+          `¡Se confirmaron exitosamente ${res.success} canales!`,
           5000,
           toast.TYPE.SUCCESS
         )
@@ -1370,7 +1402,7 @@ class DataSetDetail extends Component {
 
       if (res.error > 0) {
         this.notify(
-          `No se pudieron confirmar ${res.error} canales!`,
+          `¡No se pudieron confirmar ${res.error} canales!`,
           5000,
           toast.TYPE.ERROR
         )
@@ -1419,11 +1451,11 @@ class DataSetDetail extends Component {
         titleButton={'Eliminar'}
         objectName='Dataset'
         objectDelete={this.deleteObject.bind(this)}
-        message={`Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
+        message={`¿Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
       />
     )
 
-    if (!canEdit || dataset.status === 'conciliated') {
+    if (!canEdit || dataset.status === 'conciliated' || dataset.isMain) {
       deleteButton = null
     }
 
@@ -1433,7 +1465,7 @@ class DataSetDetail extends Component {
           <div className=' is-paddingless-top pad-sides'>
             <div className='level'>
               <div className='level-left'>
-                <h2 className='dataset-name level-item'>{dataset.name}</h2>
+                <h2 className='dataset-name level-item'>{dataset.name} {dataset.isMain && '*'}</h2>
               </div>
               <div className='level-right has-text-right has-20-margin-top'>
                 <div className='level-item field is-grouped is-grouped-right'>

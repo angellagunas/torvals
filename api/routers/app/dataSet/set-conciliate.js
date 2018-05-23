@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const moment = require('moment')
 
 const { DataSet } = require('models')
-const Api = require('lib/abraxas/api')
+const conciliateDataset = require('queues/conciliate-dataset')
 
 module.exports = new Route({
   method: 'post',
@@ -15,35 +15,15 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    const res = await Api.conciliateProject(dataset.project.externalId, dataset.externalId)
-
-    if (res.status === 'error') {
-      dataset.set({
-        status: 'error',
-        error: res.message
-      })
-
-      await dataset.save()
-
-      ctx.body = {
-        data: dataset
-      }
-
-      return
-    }
-
     dataset.set({
-      status: 'conciliated',
+      status: 'conciliating',
       conciliatedBy: ctx.state.user,
       dateConciliated: moment.utc()
     })
 
     await dataset.save()
 
-    let project = dataset.project
-
-    project.status = 'pendingRows'
-    await project.save()
+    conciliateDataset.add({project: dataset.project.uuid, dataset: dataset.uuid})
 
     ctx.body = {
       data: dataset

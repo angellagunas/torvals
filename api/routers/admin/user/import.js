@@ -45,6 +45,6 @@ module.exports = new Route({
       }
     }
 
-    ctx.body = {message: `Se han creado ${created} usuarios satisfactoriamente!`}
+    ctx.body = {message: `¡Se han creado ${created} usuarios satisfactoriamente!`}
   }
 })

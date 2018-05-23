@@ -36,6 +36,7 @@ const dataSetSchema = new Schema({
   dateMin: String,
   error: String,
   etag: String,
+  isMain: { type: Boolean, default: false },
 
   status: {
     type: String,
@@ -48,6 +49,7 @@ const dataSetSchema = new Schema({
       'processing',
       'reviewing',
       'ready',
+      'conciliating',
       'conciliated',
       'pendingRows',
       'adjustment',
@@ -63,6 +65,7 @@ const dataSetSchema = new Schema({
       'uploaded',
       'forecast',
       'adjustment',
+      'conciliation',
       'external'
     ],
     default: 'uploaded'
@@ -92,11 +95,8 @@ const dataSetSchema = new Schema({
   }],
 
   salesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
-  newSalesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
-  newProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
-  newChannels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
 
   apiData: { type: Schema.Types.Mixed },
   dateCreated: { type: Date, default: moment.utc },
@@ -128,9 +128,10 @@ dataSetSchema.methods.toPublic = function () {
     groupings: this.groupings,
     dateMax: this.dateMax,
     dateMin: this.dateMin,
-    newSalesCenters: this.newSalesCenters,
-    newProducts: this.newProducts,
-    newChannels: this.newChannels
+    isMain: this.isMain,
+    salesCenters: this.salesCenters,
+    products: this.products,
+    channels: this.channels
   }
 }
 
@@ -153,9 +154,10 @@ dataSetSchema.methods.format = function () {
     groupings: this.groupings,
     dateMax: this.dateMax,
     dateMin: this.dateMin,
-    newSalesCenters: this.newSalesCenters,
-    newProducts: this.newProducts,
-    newChannels: this.newChannels
+    isMain: this.isMain,
+    salesCenters: this.salesCenters,
+    products: this.products,
+    channels: this.channels
   }
 }
 
@@ -241,8 +243,6 @@ dataSetSchema.methods.recreateAndSaveFileToDisk = async function () {
 }
 
 dataSetSchema.methods.recreateAndUploadFile = async function () {
-  await this.fileChunk.recreateFile()
-
   if (!this.fileChunk.recreated) return false
 
   if (this.uploaded) return true
@@ -294,7 +294,8 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
       region: aws.s3Region,
       savedToDisk: false
     },
-    uploaded: true
+    uploaded: true,
+    status: 'configuring'
   })
 
   await this.save()
@@ -328,31 +329,18 @@ dataSetSchema.methods.processData = async function () {
           organization: this.organization,
           isNewExternal: true
         })
-
-        this.newProducts.push(product)
       } else if (product.isNewExternal) {
         product.set({name: p['name'] ? p['name'] : 'Not identified'})
         await product.save()
-
-        var posNew = this.newProducts.findIndex(item => {
-          return String(item.externalId) === String(product.externalId)
-        })
-        if (posNew < 0) {
-          this.newProducts.push(product)
-        }
-      } else {
-        product.set({isDeleted: false})
-        await product.save()
-        var pos = this.products.findIndex(item => {
-          return String(item.externalId) === String(product.externalId)
-        })
-
-        posNew = this.newProducts.findIndex(item => {
-          return String(item.externalId) === String(product.externalId)
-        })
-
-        if (pos < 0 && posNew < 0) this.products.push(product)
       }
+
+      product.set({isDeleted: false})
+      await product.save()
+      var pos = this.products.findIndex(item => {
+        return String(item.externalId) === String(product.externalId)
+      })
+
+      if (pos < 0) this.products.push(product)
     }
   }
 
@@ -370,30 +358,18 @@ dataSetSchema.methods.processData = async function () {
           organization: this.organization,
           isNewExternal: true
         })
-
-        this.newSalesCenters.push(salesCenter)
       } else if (salesCenter.isNewExternal) {
         salesCenter.set({name: a['name'] ? a['name'] : 'Not identified'})
         await salesCenter.save()
-        posNew = this.newSalesCenters.findIndex(item => {
-          return String(item.externalId) === String(salesCenter.externalId)
-        })
-        if (posNew < 0) {
-          this.newSalesCenters.push(salesCenter)
-        }
-      } else {
-        salesCenter.set({isDeleted: false})
-        await salesCenter.save()
-        pos = this.salesCenters.findIndex(item => {
-          return String(item.externalId) === String(salesCenter.externalId)
-        })
-
-        posNew = this.newSalesCenters.findIndex(item => {
-          return String(item.externalId) === String(salesCenter.externalId)
-        })
-
-        if (pos < 0 && posNew < 0) this.salesCenters.push(salesCenter)
       }
+
+      salesCenter.set({isDeleted: false})
+      await salesCenter.save()
+      pos = this.salesCenters.findIndex(item => {
+        return String(item.externalId) === String(salesCenter.externalId)
+      })
+
+      if (pos < 0) this.salesCenters.push(salesCenter)
     }
   }
 
@@ -411,54 +387,25 @@ dataSetSchema.methods.processData = async function () {
           organization: this.organization,
           isNewExternal: true
         })
-
-        posNew = this.newChannels.findIndex(item => {
-          return String(item.externalId) === String(channel.externalId)
-        })
-
-        if (posNew < 0) {
-          this.newChannels.push(channel)
-        }
       } else if (channel.isNewExternal) {
         channel.set({name: c['name'] ? c['name'] : 'Not identified'})
         await channel.save()
-        this.newChannels.push(channel)
-      } else {
-        channel.set({isDeleted: false})
-        await channel.save()
-
-        pos = this.channels.findIndex(item => {
-          return String(item.externalId) === String(channel.externalId)
-        })
-
-        posNew = this.newChannels.findIndex(item => {
-          return String(item.externalId) === String(channel.externalId)
-        })
-
-        if (pos < 0 && posNew < 0) this.channels.push(channel)
       }
+      channel.set({isDeleted: false})
+      await channel.save()
+
+      pos = this.channels.findIndex(item => {
+        return String(item.externalId) === String(channel.externalId)
+      })
+
+      if (pos < 0) this.channels.push(channel)
     }
   }
-
-  this.markModified(
-    'products', 'newProducts',
-    'salesCenters', 'newSalesCenters',
-    'channels', 'newChannels')
 
   await this.save()
 }
 
 dataSetSchema.methods.processReady = async function (res) {
-  if (res.status === 'error') {
-    this.set({
-      error: res.message,
-      status: 'error'
-    })
-
-    await this.save()
-    return
-  }
-
   let apiData = {
     products: [],
     salesCenters: [],
@@ -472,107 +419,6 @@ dataSetSchema.methods.processReady = async function (res) {
   }
 
   this.set({
-    columns: res.headers.map(item => {
-      var isDate = false
-      var isAnalysis = false
-      var isPrediction = false
-      var isAdjustment = false
-      var isSales = false
-      var isOperationFilter = false
-      var isAnalysisFilter = false
-      var isProductName = false
-      var isProduct = false
-      var isSalesCenterName = false
-      var isSalesCenter = false
-      var isChannel = false
-      var isChannelName = false
-
-      if (res.config['is_date'] === item) {
-        isDate = true
-      }
-
-      if (res.config['is_analysis'] === item) {
-        isAnalysis = true
-      }
-
-      if (res.config['is_adjustment'] === item) {
-        isAdjustment = true
-      }
-
-      if (res.config['is_prediction'] === item) {
-        isPrediction = true
-      }
-
-      if (res.config['is_sale'] === item) {
-        isSales = true
-      }
-
-      if (res.config['filter_operations'].find(col => { return col === item })) {
-        isOperationFilter = true
-      }
-
-      var product = res.config.filter_analysis.find(col => {
-        return col.product || false
-      })
-
-      if (product) {
-        product = product.product
-        if (product._id === item) {
-          isProduct = true
-        }
-
-        if (product.name && product.name === item) {
-          isProductName = true
-        }
-      }
-
-      var salesCenter = res.config.filter_analysis.find(col => {
-        return col.agency || false
-      })
-
-      if (salesCenter) {
-        salesCenter = salesCenter.agency
-        if (salesCenter._id === item) {
-          isSalesCenter = true
-        }
-
-        if (salesCenter.name && salesCenter.name === item) {
-          isSalesCenterName = true
-        }
-      }
-
-      var channel = res.config.filter_analysis.find(col => {
-        return col.channel || false
-      })
-
-      if (channel) {
-        channel = channel.channel
-        if (channel._id === item) {
-          isChannel = true
-        }
-
-        if (channel.name && channel.name === item) {
-          isChannelName = true
-        }
-      }
-
-      return {
-        name: item,
-        isDate: isDate,
-        isAnalysis: isAnalysis,
-        isPrediction: isPrediction,
-        isAdjustment: isAdjustment,
-        isSales: isSales,
-        isOperationFilter: isOperationFilter,
-        isAnalysisFilter: isAnalysisFilter,
-        isProduct: isProduct,
-        isProductName: isProductName,
-        isSalesCenter: isSalesCenter,
-        isSalesCenterName: isSalesCenterName,
-        isChannel: isChannel,
-        isChannelName: isChannelName
-      }
-    }),
     dateMax: res.date_max,
     dateMin: res.date_min,
     apiData: apiData,

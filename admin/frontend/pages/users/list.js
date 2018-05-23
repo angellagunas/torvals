@@ -146,7 +146,7 @@ class UserList extends ListPageComponent {
                     icon='fa fa-trash'
                     objectName='Usuario'
                     objectDelete={() => this.deleteObject(row)}
-                    message={`Está seguro de querer desactivar a ${row.email} ?`}
+                    message={`¿Está seguro de querer desactivar a ${row.email} ?`}
                   />
                 )}
               </div>

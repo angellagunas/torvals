@@ -146,7 +146,7 @@ export default ListPage({
                   icon='fa fa-trash'
                   objectName='Grupo'
                   objectDelete={deleteObject}
-                  message={`Está seguro de querer eliminar el grupo ${row.name} ?`}
+                  message={`¿Está seguro de querer eliminar el grupo ${row.name} ?`}
                 />
               </div>
             </div>

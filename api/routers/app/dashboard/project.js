@@ -14,7 +14,7 @@ module.exports = new Route({
 
     var filters = {
       organization: ctx.state.organization,
-      activeDataset: { $ne: undefined }
+      mainDataset: { $ne: undefined }
     }
 
     if (projectsUuid && projectsUuid.length > 0) {
@@ -23,7 +23,7 @@ module.exports = new Route({
 
     const projects = await Project.find(filters)
 
-    const datasets = projects.map(item => { return item.activeDataset })
+    const datasets = projects.map(item => { return item.mainDataset })
 
     var currentRole
     var currentOrganization
@@ -120,8 +120,6 @@ module.exports = new Route({
     ]
 
     var datasetRow = await DataSetRow.aggregate(statement)
-
-    ctx.set('Cache-Control', 'max-age=86400')
 
     ctx.body = {
       channels: datasetRow[0].channels,
