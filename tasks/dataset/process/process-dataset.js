@@ -165,7 +165,7 @@ const task = new Task(
     log('Success! Dataset processed')
     log(`End ==>  ${moment().format()}`)
 
-    saveDatasetRows.add({uuid: dataset.uuid})
+    if (!argv.noNextStep) saveDatasetRows.add({uuid: dataset.uuid})
 
     return true
   },

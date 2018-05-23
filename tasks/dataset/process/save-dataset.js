@@ -141,7 +141,7 @@ const task = new Task(
 
     log(`End ==> ${moment().format()}`)
 
-    processDataset.add({uuid: dataset.uuid})
+    if (!argv.noNextStep) processDataset.add({uuid: dataset.uuid})
 
     return true
   },
