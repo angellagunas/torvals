@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
 const path = require('path')
 const fs = require('fs')
+const fsExtra = require('fs-extra')
 
 const finishUpload = require('queues/finish-upload')
 const { FileChunk, DataSet } = require('models')
@@ -24,12 +25,12 @@ module.exports = new Route({
     var totalSize = parseInt(chunkData.fields.resumableTotalSize)
     var totalChunks = parseInt(chunkData.fields.resumableTotalChunks)
     var identifier = chunkData.fields.resumableIdentifier
-    var filename = chunkData.fields.resumableFilename
+    var filename = chunkData.fields.resumableFilename.replace(/\(|\)/g, '')
     var fileType = chunkData.fields.resumableType
     var datasetId = chunkData.fields.dataset
     identifier = `${cleanFileIdentifier(identifier)}-${datasetId}`
-
     var chunk = await FileChunk.findOne({fileId: identifier})
+
     const dataset = await DataSet.findOne({uuid: datasetId}).populate('fileChunk')
     ctx.assert(dataset, 404, 'Dataset no encontrado')
 
@@ -66,13 +67,17 @@ module.exports = new Route({
           console.log('El Folder ya existe')
         }
       })
-
       dataset.set({
         fileChunk: chunk,
         status: 'uploading',
         uploadedBy: ctx.state.user
       })
       await dataset.save()
+    }
+
+    if (!chunk || !dataset.fileChunk) {
+      ctx.status = 203
+      return
     }
 
     if (chunk && chunk.fileId !== dataset.fileChunk.fileId) {
@@ -84,18 +89,12 @@ module.exports = new Route({
       await dataset.save()
     }
 
-    if (!chunk) {
-      ctx.status = 203
-      return
-    }
-
     chunk = dataset.fileChunk
 
     if (chunk.fileId !== identifier) {
       ctx.throw(404, 'El identificador Chunk no coincide')
     }
-    console.log(chunk.lastChunk)
-    console.log(chunkNumber)
+
     if (chunk.lastChunk >= chunkNumber) {
       ctx.status = 200
       return
@@ -117,6 +116,7 @@ module.exports = new Route({
       for (let key in files) {
         const file = files[key]
         const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
+        const completeFilePath = path.join(tmpdir, filename)
         var reader
         var writer
 
@@ -131,6 +131,9 @@ module.exports = new Route({
             })
           })
         })
+
+        let input = await fsExtra.readFile(file.path)
+        await fsExtra.appendFile(completeFilePath, input)
 
         filePaths.push(filePath)
       }
@@ -153,21 +156,22 @@ module.exports = new Route({
     }
 
     chunk.lastChunk = chunkNumber
+    await chunk.save()
 
     if (chunkNumber === 1) {
       const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
       reader = fs.createReadStream(filePath)
       let data = ''
       let lines = []
-      reader.on('data', async (chunk) => {
-        data += chunk
+      reader.on('data', async (chunkItem) => {
+        data += chunkItem
         lines = data.split('\n')
         if (lines.length > 2) {
           reader.destroy()
           lines = lines.slice(0, 1)
           var headers = lines[0].split(',')
           dataset.set({
-            status: 'configuring',
+            status: 'uploading',
             columns: headers.map(item => {
               return {
                 name: item,
@@ -178,19 +182,37 @@ module.exports = new Route({
               }
             })
           })
+          await dataset.save()
+        }
+
+        if (chunkNumber === totalChunks) {
+          dataset.set({
+            status: 'configuring'
+          })
+          await dataset.save()
+          chunk.set({
+            recreated: true
+          })
+          await chunk.save()
+          finishUpload.add({uuid: dataset.uuid})
         }
         await dataset.save()
       })
-          .on('error', function (err) {
-            console.log(err)
-          })
-    }
-
-    if (chunkNumber === totalChunks) {
+      .on('error', function (err) {
+        console.log(err)
+      })
+    } else if (chunkNumber === totalChunks) {
+      dataset.set({
+        status: 'configuring'
+      })
+      await dataset.save()
+      chunk.set({
+        recreated: true
+      })
+      await chunk.save()
       finishUpload.add({uuid: dataset.uuid})
     }
 
-    chunk.save()
     ctx.body = 'OK'
   }
 })

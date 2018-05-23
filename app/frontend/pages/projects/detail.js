@@ -435,8 +435,6 @@ class ProjectDetail extends Component {
         name: 'graficos',
         title: 'Gráficos',
         hide: (testRoles('manager-level-1') ||
-          project.status === 'processing' ||
-          project.status === 'pendingRows' ||
           project.status === 'empty'),
         content: (
           <TabHistorical

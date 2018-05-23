@@ -450,7 +450,39 @@ class DataSetDetail extends Component {
           </div>
         </div>
       )
-    } else if (dataset.status === 'conciliated') {
+    } else if (dataset.status === 'conciliating') {
+      return (
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header'>
+              <p className='card-header-title'>
+                Dataset enviado a conciliación
+              </p>
+            </header>
+            <div className='card-content'>
+              <div className='columns is-centered'>
+                <div className='column is-8 is-narrow'>
+                  <div className='message is-success'>
+                    <div className='message-body is-large has-text-centered'>
+                      <div className='media'>
+                        <div className='media-left'>
+                          <span className='icon is-large'>
+                            <FontAwesome className='fa-2x' name='hourglass-half' />
+                          </span>
+                        </div>
+                        <div className='media-content'>
+                          Este dataset está en proceso de conciliación
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    } else if (dataset.status === 'conciliated' || dataset.status === 'ready') {
       return (
         <div className='column'>
           <div className='card'>
@@ -794,7 +826,7 @@ class DataSetDetail extends Component {
     })
 
     this.newChannels = []
-    dataset.newChannels.map((item, key) => {
+    dataset.channels.map((item, key) => {
       if (item.isNewExternal) {
         this.newChannels.push(item)
       }
@@ -923,7 +955,7 @@ class DataSetDetail extends Component {
     })
 
     this.newSalesCenters = []
-    dataset.newSalesCenters.map((item, key) => {
+    dataset.salesCenters.map((item, key) => {
       if (item.isNewExternal) {
         this.newSalesCenters.push(item)
       }
@@ -1054,7 +1086,7 @@ class DataSetDetail extends Component {
     })
 
     this.newProducts = []
-    dataset.newProducts.map((item, key) => {
+    dataset.products.map((item, key) => {
       if (item.isNewExternal) {
         this.newProducts.push(item)
       }

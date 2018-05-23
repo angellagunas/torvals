@@ -2,7 +2,7 @@ require('../config')
 require('lib/databases/mongo')
 
 const { apiPort, apiHost } = require('config/server')
-const { multiple, numWorkers } = require('config/multiple-workers')
+const { multiple, numWorkers } = require('config/api-workers')
 const app = require('./')
 
 if (multiple) {

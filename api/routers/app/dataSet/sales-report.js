@@ -24,10 +24,23 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
+    var match = {
+      'dataset': dataset._id,
+      'data.adjustment': {
+        '$ne': null
+      },
+      'data.prediction': {
+        '$ne': null
+      },
+      'data.semanaBimbo': {
+        '$in': data.semana_bimbo
+      }
+    }
+
     if (data.salesCenter) {
       const salesCenter = await SalesCenter.findOne({uuid: data.salesCenter})
       ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
-      requestQuery['agencia_id'] = salesCenter.externalId
+      match['salesCenter'] = salesCenter._id
     }
 
     if (
@@ -38,10 +51,10 @@ module.exports = new Route({
       var groups = user.groups
       var salesCenters = []
 
-      salesCenters = await SalesCenter.find({groups: {$in: groups}})
+      salesCenters = await SalesCenter.findOne({groups: {$in: groups}})
 
-      if (salesCenters.length > 0) {
-        requestQuery['agencia_id'] = salesCenters[0].externalId
+      if (salesCenters) {
+        match['salesCenter'] = salesCenters._id
       } else {
         ctx.throw(400, '¡Se le debe asignar al menos un centro de venta al usuario!')
       }
@@ -50,46 +63,85 @@ module.exports = new Route({
     if (data.channel) {
       const channel = await Channel.findOne({uuid: data.channel})
       ctx.assert(channel, 404, 'Canal no encontrado')
-      requestQuery['canal_id'] = channel.externalId
+      match['channel'] = channel._id
     }
 
     if (data.product) {
       const product = await Product.findOne({uuid: data.product})
       ctx.assert(product, 404, 'Producto no encontrado')
-      requestQuery['producto_id'] = data.product
+      match['product'] = product._id
     }
 
-    if (data.semana_bimbo) {
-      requestQuery['semana_bimbo'] = data.semana_bimbo
-    }
-
-    var whereQuery = ''
-    if (requestQuery) { whereQuery = '?where=' + JSON.stringify(requestQuery) }
-
-    var res = await Api.revenueDataset(dataset.externalId, whereQuery)
-
-    const AllPrices = await Price.find({'organization': ctx.state.organization._id})
-    var prices = {}
-    for (let price of AllPrices) {
-      prices[price._id] = price.price
-    }
-
-    for (var item of res._items) {
-      const rows = await DataSetRow.find({
-        'data.semanaBimbo': item.week,
-        dataset: dataset
-      }).populate('product')
-      let difference = 0
-
-      for (var row of rows) {
-        if (row.product && row.product.price) {
-          let price = prices[row.product.price]
-          difference += (row.data.localAdjustment - row.data.adjustment) * price
+    var statement = [
+      {
+        '$match': match
+      },
+      {
+        '$lookup': {
+          'from': 'products',
+          'localField': 'product',
+          'foreignField': '_id',
+          'as': 'products'
+        }
+      },
+      {
+        '$unwind': {
+          'path': '$products',
+          'includeArrayIndex': 'arrayIndex',
+          'preserveNullAndEmptyArrays': false
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'prices',
+          'localField': 'products.price',
+          'foreignField': '_id',
+          'as': 'prices'
+        }
+      },
+      {
+        '$unwind': {
+          'path': '$prices',
+          'includeArrayIndex': 'arrayIndex',
+          'preserveNullAndEmptyArrays': false
+        }
+      },
+      {
+        '$group': {
+          '_id': '$data.semanaBimbo',
+          'prediction': {
+            '$sum': {
+              '$multiply': [
+                '$data.prediction',
+                '$prices.price'
+              ]
+            }
+          },
+          'adjustment': {
+            '$sum': {
+              '$multiply': [
+                '$data.adjustment',
+                '$prices.price'
+              ]
+            }
+          }
+        }
+      },
+      {
+        '$project': {
+          'week': '$_id',
+          'prediction': 1,
+          'adjustment': 1
+        }
+      },
+      {
+        '$sort': {
+          'week': 1
         }
       }
+    ]
 
-      item.adjustment += difference
-    }
+    var res = await DataSetRow.aggregate(statement)
 
     ctx.body = {
       data: res

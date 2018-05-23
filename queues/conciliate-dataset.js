@@ -3,13 +3,13 @@ require('../config')
 require('lib/databases/mongo')
 
 const Queue = require('lib/queue')
-const recreateAndUpload = require('tasks/dataset/recreate-and-upload-dataset')
+const conciliateDataset = require('tasks/dataset/process/conciliate-dataset')
 
 const queue = new Queue({
-  name: 'finish-upload',
+  name: 'conciliate-dataset',
   task: async function (argv) {
-    var a
-    a = await recreateAndUpload.run(argv)
+    let a
+    a = await conciliateDataset.run(argv)
 
     return a
   }

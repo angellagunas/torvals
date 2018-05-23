@@ -5,7 +5,6 @@ const redis = require('lib/redis')
 const crypto = require('crypto')
 const _ = require('lodash')
 
-
 module.exports = new Route({
   method: 'post',
   path: '/local/historical',
@@ -29,7 +28,7 @@ module.exports = new Route({
 
     let filters = {
       organization: ctx.state.organization,
-      activeDataset: {$ne: undefined}
+      mainDataset: {$ne: undefined}
     }
 
     if (data.projects && data.projects.length > 0) {
@@ -37,7 +36,7 @@ module.exports = new Route({
     }
 
     const projects = await Project.find(filters)
-    const datasets = projects.map(item => { return item.activeDataset })
+    const datasets = projects.map(item => { return item.mainDataset })
 
     data.channels = data.channels.sort()
     data.projects = data.projects.sort()
@@ -230,7 +229,6 @@ module.exports = new Route({
       mape = Math.abs((totalSale - totalPrediction) / totalSale)
     }
 
-    ctx.set('Cache-Control', 'max-age=86400')
     try {
       for (let item in responseData) {
         await redis.hSet(parameterHash, item, JSON.stringify(responseData[item]))

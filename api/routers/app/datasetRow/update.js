@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
-const verifyDatasetrows = require('queues/update-datasetrows')
 
 const {DataSetRow, AdjustmentRequest, Role} = require('models')
 
@@ -51,10 +50,10 @@ module.exports = new Route({
 
     for (let row of datasetRows) {
       let auxData = hashTable[row.uuid]
-      if (parseFloat(row.data.adjustmentForDisplay) !== parseFloat(auxData.localAdjustment)) {
+      if (parseFloat(auxData.adjustmentForDisplay) !== parseFloat(auxData.localAdjustment)) {
         row.data.localAdjustment = auxData.adjustmentForDisplay
         row.data.updatedBy = ctx.state.user
-        row.status = 'sendingChanges'
+        row.status = 'adjusted'
         row.markModified('data')
         await row.save()
 
@@ -65,8 +64,6 @@ module.exports = new Route({
         uuidsAux.push({uuid: row.uuid})
       }
     }
-
-    verifyDatasetrows.addList(uuidsAux)
 
     ctx.body = {
       data: 'OK'
