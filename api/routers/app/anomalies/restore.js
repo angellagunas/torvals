@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
-const { Anomaly, Project } = require('models')
-const Api = require('lib/abraxas/api')
+const { Anomaly, Project, DataSetRow } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -8,30 +7,59 @@ module.exports = new Route({
   handler: async function (ctx) {
     var data = ctx.request.body
 
-    const project = await Project.findOne({uuid: ctx.params.uuid}).populate('activeDataset')
+    const project = await Project.findOne({uuid: ctx.params.uuid})
     ctx.assert(project, 404, 'Proyecto no encontrado')
-    if (!project.activeDataset) {
-      ctx.throw(404, 'No hay DataSet activo para el proyecto')
-    }
 
-    const requestBody = []
+    var batchSize = 1000
+
+    var bulkOps = []
+    var updateBulk = []
+
     for (var anomaly of data.anomalies) {
-      anomaly = await Anomaly.findOne({uuid: anomaly.uuid})
-      if (anomaly) {
-        requestBody.push({data_rows_id: anomaly.externalId, prediction: anomaly.prediction})
+      try {
+        anomaly = await Anomaly.findOne({uuid: anomaly.uuid})
+        console.log(anomaly)
+        if (anomaly) {
+          bulkOps.push({
+            updateOne: {
+              'filter': {_id: anomaly._id},
+              'update': {$set: {isDeleted: true}}
+            }
+          })
+          updateBulk.push({
+            updateOne: {
+              'filter': {_id: anomaly.datasetRow},
+              'update': {$set: { isAnomaly: false, 'data.prediction': anomaly.prediction }}
+            }
+          })
+        }
+
+        if (bulkOps.length === batchSize) {
+          console.log(`${batchSize} anomalies saved!`)
+          await Anomaly.bulkWrite(bulkOps)
+          bulkOps = []
+          await DataSetRow.bulkWrite(updateBulk)
+          updateBulk = []
+        }
+      } catch (e) {
+        ctx.throw(500, 'Error recuperando las anomalías')
       }
     }
 
-    // check project etag
-    var etag = project.etag || ''
-    let res = await Api.getProject(project.externalId)
-    project.set({etag: res._etag})
-    await project.save()
-    etag = res._etag
-    var responseData = await Api.restoreAnomalies(project.externalId, etag, requestBody)
+    try {
+      if (bulkOps.length > 0) {
+        await Anomaly.bulkWrite(bulkOps)
+        await DataSetRow.bulkWrite(updateBulk)
+      }
+    } catch (e) {
+      ctx.throw(500, 'Error recuperando las anomalías')
+    }
+
+    project.set({status: 'pendingRows'})
+    project.save()
 
     ctx.body = {
-      data: responseData
+      data: 'ok'
     }
   }
 })

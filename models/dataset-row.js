@@ -42,7 +42,8 @@ const datasetRowSchema = new Schema({
   updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  isAnomaly: { type: Boolean, default: false }
 }, { usePushEach: true })
 
 datasetRowSchema.plugin(dataTables)

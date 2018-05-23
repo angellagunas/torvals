@@ -6,6 +6,7 @@ const moment = require('moment')
 const Task = require('lib/task')
 const { DataSetRow, DataSet } = require('models')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
+const getAnomalies = require('queues/get-anomalies')
 
 const task = new Task(async function (argv) {
   if (!argv.uuid) {
@@ -15,7 +16,7 @@ const task = new Task(async function (argv) {
   console.log('Saving products/sales centers/channels from catalog ...')
   console.log(`Start ==>  ${moment().format()}`)
 
-  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('channels products salesCenters newChannels newProducts newSalesCenters')
+  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('channels products salesCenters newChannels newProducts newSalesCenters project')
   if (!dataset) {
     throw new Error('Invalid uuid!')
   }
@@ -47,9 +48,7 @@ const task = new Task(async function (argv) {
   }
 
   console.log('Sales Centers successfully saved!')
-
-  dataset.set({ status: 'reviewing' })
-  await dataset.save()
+  getAnomalies.add({uuid: dataset.uuid})
 
   console.log('Success! DatasetRows processed!')
   console.log(`End ==>  ${moment().format()}`)
