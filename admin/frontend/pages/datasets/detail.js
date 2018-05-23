@@ -57,9 +57,9 @@ class DataSetDetail extends Component {
       isLoadingBtnS: ''
     }
 
-    this.newProducts = []
-    this.newChannels = []
-    this.newSalesCenters = []
+    this.products = []
+    this.channels = []
+    this.salesCenters = []
   }
 
   componentWillMount () {
@@ -744,16 +744,16 @@ class DataSetDetail extends Component {
       'fa-angle-up': this.state.isChannelsOpen !== false
     })
 
-    this.newChannels = []
-    dataset.newChannels.map((item, key) => {
+    this.channels = []
+    dataset.channels.map((item, key) => {
       if (item.isNewExternal) {
-        this.newChannels.push(item)
+        this.channels.push(item)
       }
     })
 
     if ((dataset.status !== 'reviewing' &&
       dataset.status !== 'conciliated') ||
-      this.newChannels.length === 0) {
+      this.channels.length === 0) {
       return ''
     }
 
@@ -762,7 +762,7 @@ class DataSetDetail extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-                Canales no identificados: {this.newChannels.length}
+                Canales no identificados: {this.channels.length}
             </p>
             <div className='field is-grouped is-grouped-right card-header-select'>
               <div className={this.state.isChannelsOpen ? 'control' : 'is-hidden'}>
@@ -808,7 +808,7 @@ class DataSetDetail extends Component {
                   </thead>
                   <tbody>
                     {
-                      this.newChannels.map((item, key) => {
+                      this.channels.map((item, key) => {
                         if (!item.selected) {
                           item.selected = false
                         }
@@ -858,16 +858,16 @@ class DataSetDetail extends Component {
       'fa-angle-up': this.state.isSalesCenterOpen !== false
     })
 
-    this.newSalesCenters = []
-    dataset.newSalesCenters.map((item, key) => {
+    this.salesCenters = []
+    dataset.salesCenters.map((item, key) => {
       if (item.isNewExternal) {
-        this.newSalesCenters.push(item)
+        this.salesCenters.push(item)
       }
     })
 
     if ((dataset.status !== 'reviewing' &&
       dataset.status !== 'conciliated') ||
-      this.newSalesCenters.length === 0) {
+      this.salesCenters.length === 0) {
       return ''
     }
 
@@ -876,7 +876,7 @@ class DataSetDetail extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-                Centros de Venta no identificados: {this.newSalesCenters.length}
+                Centros de Venta no identificados: {this.salesCenters.length}
             </p>
             <div className='field is-grouped is-grouped-right card-header-select'>
               <div className={this.state.isSalesCenterOpen ? 'control' : 'is-hidden'}>
@@ -922,7 +922,7 @@ class DataSetDetail extends Component {
                   </thead>
                   <tbody>
                     {
-                      this.newSalesCenters.map((item, key) => {
+                      this.salesCenters.map((item, key) => {
                         if (!item.selected) {
                           item.selected = false
                         }
@@ -972,16 +972,16 @@ class DataSetDetail extends Component {
       'fa-angle-up': this.state.isProductsOpen !== false
     })
 
-    this.newProducts = []
-    dataset.newProducts.map((item, key) => {
+    this.products = []
+    dataset.products.map((item, key) => {
       if (item.isNewExternal) {
-        this.newProducts.push(item)
+        this.products.push(item)
       }
     })
 
     if ((dataset.status !== 'reviewing' &&
       dataset.status !== 'conciliated') ||
-      this.newProducts.length === 0) {
+      this.products.length === 0) {
       return ''
     }
 
@@ -991,7 +991,7 @@ class DataSetDetail extends Component {
           <div className='card'>
             <header className='card-header'>
               <p className='card-header-title'>
-                  Productos no identificados: {this.newProducts.length}
+                  Productos no identificados: {this.products.length}
               </p>
               <div className='field is-grouped is-grouped-right card-header-select'>
                 <div className={this.state.isProductsOpen ? 'control' : 'is-hidden'}>
@@ -1040,7 +1040,7 @@ class DataSetDetail extends Component {
                     </thead>
                     <tbody>
                       {
-                        this.newProducts.map((item, key) => {
+                        this.products.map((item, key) => {
                           if(!item.selected){
                             item.selected = false
                           }
@@ -1078,7 +1078,7 @@ class DataSetDetail extends Component {
 
   checkAllProducts = (check) => {
     this.state.selectedProducts.clear()
-    for (let item of this.newProducts) {
+    for (let item of this.products) {
       if (check)
         this.state.selectedProducts.add(item)
       
@@ -1104,7 +1104,7 @@ class DataSetDetail extends Component {
 
   checkAllSalesCenters = (check) => {
     this.state.selectedSalesCenters.clear()
-    for (let item of this.newSalesCenters) {
+    for (let item of this.salesCenters) {
       if (check)
         this.state.selectedSalesCenters.add(item)
 
@@ -1130,7 +1130,7 @@ class DataSetDetail extends Component {
 
   checkAllChannels = (check) => {
     this.state.selectedChannels.clear()
-    for (let item of this.newChannels) {
+    for (let item of this.channels) {
       if (check)
         this.state.selectedChannels.add(item)
 
