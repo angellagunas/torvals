@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node --max-old-space-size=4096 runner.js",
+    "start-queues": "node --max-old-space-size=4096 queues/runner.js",
     "test": "mocha",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"

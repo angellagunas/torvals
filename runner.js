@@ -2,7 +2,7 @@ const config = require('./config')
 require('lib/databases/mongo')
 
 const { apiPort } = require('config/server')
-const { multiple, numWorkers } = require('config/multiple-workers')
+const { multiple, numWorkers } = require('config/api-workers')
 const api = require('./api')
 const { each } = require('lodash')
 
@@ -37,7 +37,7 @@ if (multiple) {
     execCrons()
 
     // Queue
-    execQueues()
+    // execQueues()
   } else {
     // Worker:
     // (Workers can share any TCP connection.

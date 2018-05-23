@@ -40,6 +40,26 @@ services:
     volumes:
       - /www/data/db:/data/db
       - /www/media/uploads:/app/media/uploads
+  queues:
+    restart: always
+    build:
+      context: .
+      dockerfile: DockerfileQueues
+    links:
+      - mongodb
+      - redisdb
+    depends_on:
+      - mongodb    
+      - redisdb
+    cpu_shares: 200
+    cpus: 2
+    mem_limit: 6000M
+    mem_reservation: 2000m
+    env_file:
+      - .env
+    volumes:
+      - /www/data/db:/data/db
+      - /www/media/uploads:/app/media/uploads
   redisdb:
     restart: always
     image: "redis:alpine"
@@ -62,4 +82,4 @@ services:
     cpu_shares: 300
     mem_limit: 30000M
     mem_reservation: 8000m
-    command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 22 # --quiet
+    command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 24 # --quiet
