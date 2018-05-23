@@ -3,6 +3,7 @@ require('../../config')
 
 const Task = require('lib/task')
 const Slack = require('node-slack')
+const moment = require('moment')
 const config = require('config').slack
 
 const task = new Task(async function (argv) {
@@ -23,7 +24,7 @@ const task = new Task(async function (argv) {
   }
 
   const slack = new Slack(hookUrl)
-  await slack.send({ text: `*[${config.name}]* ${argv.message}` })
+  await slack.send({ text: `*[${config.name}]* ${argv.message} (_${moment().format()}_)` })
 })
 
 if (require.main === module) {
