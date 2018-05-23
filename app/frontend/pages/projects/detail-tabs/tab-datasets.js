@@ -111,7 +111,7 @@ class TabDatasets extends Component {
                     icon='fa fa-trash'
                     objectName='Dataset'
                     objectDelete={() => this.removeDatasetOnClick(row.uuid)}
-                    message={'Estas seguro de querer eliminar este dataset?'}
+                    message={'¿Estas seguro de querer eliminar este dataset?'}
                   />
                 }
               </div>

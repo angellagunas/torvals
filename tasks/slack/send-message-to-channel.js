@@ -6,6 +6,8 @@ const Slack = require('node-slack')
 const config = require('config').slack
 
 const task = new Task(async function (argv) {
+  if (!config.useSlack) return false
+
   const hookUrl = config.channels[argv.channel]
 
   if (!argv.channel) {

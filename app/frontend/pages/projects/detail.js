@@ -435,8 +435,6 @@ class ProjectDetail extends Component {
         name: 'graficos',
         title: 'Gráficos',
         hide: (testRoles('manager-level-1') ||
-          project.status === 'processing' ||
-          project.status === 'pendingRows' ||
           project.status === 'empty'),
         content: (
           <TabHistorical
@@ -532,7 +530,7 @@ class ProjectDetail extends Component {
                       <DeleteButton
                         objectName='Proyecto'
                         objectDelete={() => this.deleteObject()}
-                        message={'Estas seguro de querer eliminar este Proyecto?'}
+                        message={'¿Estas seguro de querer eliminar este Proyecto?'}
                         hideIcon
                         titleButton={'Eliminar'}
                       />

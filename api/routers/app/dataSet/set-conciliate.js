@@ -15,8 +15,6 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    conciliateDataset.add({project: dataset.project.uuid, dataset: dataset.uuid})
-
     dataset.set({
       status: 'conciliating',
       conciliatedBy: ctx.state.user,
@@ -25,10 +23,7 @@ module.exports = new Route({
 
     await dataset.save()
 
-    // let project = dataset.project
-
-    // project.status = 'pendingRows'
-    // await project.save()
+    conciliateDataset.add({project: dataset.project.uuid, dataset: dataset.uuid})
 
     ctx.body = {
       data: dataset

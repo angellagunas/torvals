@@ -280,7 +280,7 @@ class SalesCenterDetail extends Component {
                       titleButton={'Eliminar'}
                       objectName='Sales Centers'
                       objectDelete={this.deleteObject.bind(this)}
-                      message={`Estas seguro de eliminar el centro de ventas ${this.state.salesCenter.name}?`}
+                      message={`¿Estas seguro de eliminar el centro de ventas ${this.state.salesCenter.name}?`}
                     />
                   </div>
                 </div>
