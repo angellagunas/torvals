@@ -124,11 +124,19 @@ const task = new Task(
       log(`Success! loaded ${lineCount} rows`)
     } catch (e) {
       log('Error! ' + e.message)
+      dataset.set({
+        status: 'error',
+        error: e.message
+      })
+      await dataset.save()
+
       await sendSlackNotificacion.run({
         channel: 'opskamino',
         message: `Error al cargar el dataset *${dataset.name}* a la base de datos! ` +
         `*${e.message}*`
       })
+
+      return false
     }
 
     log(`End ==> ${moment().format()}`)
