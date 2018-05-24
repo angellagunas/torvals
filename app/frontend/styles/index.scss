@@ -390,17 +390,20 @@ h2 {
         margin-left: 10px;
     }
 }
-.detail-page{
-    .level{
+
+.detail-page {
+    .level {
         margin-bottom: 0;
     }
-    .level-right{
+    .level-right {
         margin-right: 20px;
     }
     .card-header-select {
         padding: 0.65em;
     }
 }
+
+@import 'wizard';
 /* @import 'base'; */
 
 @import '../../../lib/frontend/style.css';
