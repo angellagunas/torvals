@@ -13,6 +13,7 @@ module.exports = new Route({
     const user = ctx.state.user
     let currentRole
     let currentOrganization
+    let previousWeeks
 
     if (ctx.state.organization) {
       currentOrganization = user.organizations.find(orgRel => {
@@ -124,9 +125,16 @@ module.exports = new Route({
       }
 
       initialMatch['data.forecastDate'] = {$lte: end.toDate(), $gte: start.toDate()}
+      start = moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years')
+      end = moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years')
+
+      previousWeeks = await AbraxasDate.find({
+        $and: [{dateStart: {$gte: start.toDate()}}, {dateEnd: {$lte: end.toDate()}}]
+      })
+
       matchPreviousSale['data.forecastDate'] = {
-        $lte: moment(end).subtract(1, 'years').toDate(),
-        $gte: moment(start).subtract(1, 'years').toDate()
+        $lte: end.toDate(),
+        $gte: start.toDate()
       }
     } else {
       ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
@@ -203,7 +211,7 @@ module.exports = new Route({
         totalSale += item.sale
       }
 
-      let lastDate = data.dates.find(item => item.year === date.year - 1 && item.week === date.week)
+      let lastDate = previousWeeks.find(item => { return item.year === date.year - 1 && item.week === date.week })
 
       if (lastDate && previousSaleDict[lastDate.dateStart]) {
         item.previousSale = previousSaleDict[lastDate.dateStart].sale

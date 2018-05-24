@@ -118,7 +118,6 @@ module.exports = new Route({
       weeks = await AbraxasDate.find({
         $and: [{dateStart: {$gte: start.toDate()}}, {dateEnd: {$lte: end.toDate()}}]
       })
-      console.log(start, end)
 
       matchPreviousSale['data.forecastDate'] = { $in: weeks.map(item => { return item.dateStart }) }
     } else {
