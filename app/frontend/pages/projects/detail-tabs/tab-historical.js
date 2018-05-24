@@ -1080,7 +1080,9 @@ class TabHistorical extends Component {
                         </div>
                         <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
                           <div className='dropdown-content'>
-                            {this.state.periods && this.state.periods.map((item, key) => {
+                            {this.state.periods &&
+                                this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
+                            .map((item, key) => {
                               return (
                                 <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
                                   onClick={() => this.setMaxPeriod(item)}>
