@@ -25,10 +25,6 @@ class Dashboard extends Component {
       salesCentersCollapsed: true,
       channelsCollapsed: true,
       productsCollapsed: true,
-      yearsCollapsed: true,
-      minPeriod: 1,
-      maxPeriod: 12,
-      yearSelected: moment().get('year'),
       allProjects: false,
       allChannels: false,
       allSalesCenters: false,
@@ -85,7 +81,7 @@ class Dashboard extends Component {
       showOnDashboard: true
     })
 
-    let activeProjects = res.data.filter(item => { return item.mainDataset })
+    let activeProjects = res.data.filter(item => { return item.mainDataset })   
 
     this.setState({
       projects: activeProjects,
@@ -98,7 +94,7 @@ class Dashboard extends Component {
     this.selectedProjects = {}
     for (const project of aux) {
       project.selected = value
-      if (value) { this.selectedProjects[project.uuid] = project.uuid }
+      if (value) { this.selectedProjects[project.uuid] = project }
     }
     this.setState({
       projects: aux,
@@ -155,7 +151,7 @@ class Dashboard extends Component {
 
   async selectProject (e, value, project) {
     if (value) {
-      this.selectedProjects[project.uuid] = project.uuid
+      this.selectedProjects[project.uuid] = project
     } else {
       delete this.selectedProjects[project.uuid]
       this.clear()
@@ -224,14 +220,19 @@ class Dashboard extends Component {
       return
     }
 
+    let maxD = projects.map(d => moment.utc(d.dateMax))
+    let minD = projects.map(d => moment.utc(d.dateMin))
+
     let url = '/app/dashboard/projects'
-    let res = await api.get(url, projects)
+    let res = await api.get(url, projects.map(p => p.uuid))
 
     this.setState({
       filters: res,
       salesCenters: _.orderBy(res.salesCenters, 'name'),
       channels: _.orderBy(res.channels, 'name'),
       products: res.products,
+      dateMin: moment.min(minD),
+      dateMax: moment.max(maxD)
     }, async () => {
       await this.checkAllChannels(true)
       await this.checkAllSC(true)
@@ -279,12 +280,12 @@ class Dashboard extends Component {
           waitingData: true
         })
         let res = await api.post(url, {
-          date_start: moment([this.state.yearSelected, this.state.minPeriod - 1]).startOf('month').format('YYYY-MM-DD'),
-          date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
+          date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
+          date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
           channels: Object.values(this.selectedChannels),
           salesCenters: Object.values(this.selectedSalesCenters),
           //products: Object.values(this.selectedProducts),
-          projects: Object.values(this.selectedProjects)
+          projects: Object.values(this.selectedProjects).map(p => p.uuid)
         })
 
         let totalPSale = 0
@@ -380,12 +381,12 @@ class Dashboard extends Component {
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
-        date_start: moment([this.state.yearSelected, this.state.minPeriod - 1 ]).startOf('month').format('YYYY-MM-DD'),
-        date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
+        date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1 ]).startOf('month').format('YYYY-MM-DD'),
+        date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
        // products: Object.values(this.selectedProducts),
-        projects: Object.values(this.selectedProjects)
+        projects: Object.values(this.selectedProjects).map(p => p.uuid)
       })
       this.setState({
         productTable: res.data,
@@ -629,99 +630,54 @@ class Dashboard extends Component {
     }
   }
 
-  async getDates() {
-      const url = '/app/dates/'
+async getDates() {
+    let d = []
+    let p = []
+    let dateMin = moment.utc(this.state.dateMin)
+    let dateMax = moment.utc(this.state.dateMax)
+    
+    if (dateMin.isBefore(moment.utc('2017-01-01'))) {
+      dateMin = moment.utc('2017-01-01')
+    }
+  
+    while (dateMin.format('MMMM YYYY') !== dateMax.format('MMMM YYYY')){
+      d.push(dateMin)
+      dateMin = moment.utc(dateMin).add(1, 'month')
+    }
+    
+    d.push(dateMin)
 
-      try {
-        let res = await api.get(url)
-        var periods = []
-        let years = new Set()
+    for (let i = 0; i < d.length; i++) {
+      p.push({
+        number: d[i].get('month') + 1,
+        name: `${d[i].format('MMMM')}`,
+        year: d[i].get('year')
+      })
+    }
 
-        res.data.map((date) => {
-          years.add(date.year)
-        })
-
-        periods = this.getPeriods(res.data, Array.from(years)[0])
-
-        this.setState({
-          dates: res.data,
-          periods: periods,
-          years: Array.from(years),
-          value: { min: periods[0].number, max: periods[periods.length - 1].number },
-          yearSelected: Array.from(years)[0]
-        })
-      } catch (e) {
-        this.notify('Error: No hay fechas disponíbles, intente más tarde', 5000, toast.TYPE.ERROR)
-      }
-  }
-
-  getPeriods(data, year) {
-    let periods = []
-    const map = new Map()
-    data.map((date) => {
-      if (date.year === year) {
-        const key = date.month
-        const collection = map.get(key)
-        if (!collection) {
-          map.set(key, [date])
-        } else {
-          collection.push(date)
-        }
-      }
+    this.setState({
+      periods: p,
+      minPeriod: p[0],
+      maxPeriod: p[p.length - 1]
     })
-
-    for (let i = 0; i < Array.from(map).length; i++) {
-      const element = Array.from(map)[i]
-      periods.push({
-        number: element[0],
-        name: `${moment(element[1][0].month, 'M').format('MMMM')}`,
-        maxSemana: element[1][0].week,
-        minSemana: element[1][element[1].length - 1].week
-      })
-    }
-
-    return periods.reverse()
   }
 
-  getPeriodDate (period, startOf) {
-    if(startOf){
-      return moment(period, 'M').startOf('month').format('MMMM')
-    }
-    else{
-      return moment(period, 'M').endOf('month').format('MMMM')
-    }
-  }
 
-  selectYear (item, value) {
-    if(value){
-    this.setState({ yearSelected: item, noData: undefined },
-      () => {
-        this.getGraph()
-        this.getProductTable()
-      })
-    }
-    else{
+setMinPeriod(item) {
+    let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
+    let min = moment.utc([item.year, item.number - 1])
+    if (min.isBefore(max)) {
       this.setState({
-        filteredData: undefined,
-        graphData: undefined,
-        noData: 'Debe seleccionar un año'
-      })      
-    }
-  }
-
-  setMinPeriod(number) {
-    if(number <= this.state.maxPeriod){
-      this.setState({
-        minPeriod: number
+        minPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
       })
     }
-    else{
+    else {
       this.setState({
         minPeriod: this.state.maxPeriod,
-        maxPeriod: number
+        maxPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
@@ -730,10 +686,12 @@ class Dashboard extends Component {
 
   }
 
-  setMaxPeriod(number) {
-    if (number >= this.state.minPeriod) {
+  setMaxPeriod(item) {
+    let min = moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1])
+    let max = moment.utc([item.year, item.number - 1])
+    if (max.isAfter(min)){
       this.setState({
-        maxPeriod: number
+        maxPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
@@ -742,7 +700,7 @@ class Dashboard extends Component {
     else {
       this.setState({
         maxPeriod: this.state.minPeriod,
-        minPeriod: number
+        minPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
@@ -767,6 +725,23 @@ class Dashboard extends Component {
 
     if (user.currentRole.slug === 'manager-level-1') {
       return <Redirect to={'/projects/' + user.currentProject.uuid} />
+    }
+
+    if(this.state.noFilters){
+      return (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-danger">
+              <div className="message-header">
+                <p>Error</p>
+              </div>
+              <div className="message-body">
+                {this.state.noFilters}
+              </div>
+            </article>
+          </div>
+        </div>
+      )
     }
 
     const graph = [
@@ -868,42 +843,7 @@ class Dashboard extends Component {
                     <div className='card-content'>
 
                       <ul>
-                        <li className='filters-item'>
-                          <div className={this.state.yearsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
-                            onClick={() => { this.showFilter('years') }}>
-                            <a>
-                              <span className='icon'>
-                                <i className={this.state.yearsCollapsed
-                                  ? 'fa fa-plus' : 'fa fa-minus'} />
-                              </span>
-                              Año <strong>{this.state.years && this.state.years.length}</strong>
-                            </a>
-                          </div>
-                          <aside className={this.state.yearsCollapsed
-                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
-                            
-                            <ul className='menu-list'>
-                              {this.state.years &&
-                                this.state.years.map((item) => {
-                                  return (
-                                    <li key={item}>
-                                      <a>
-                                        <Checkbox
-                                          label={item}
-                                          handleCheckboxChange={(e, value) => this.selectYear(item, value)}
-                                          key={item}
-                                          checked={item === this.state.yearSelected}
-                                          disabled={this.state.waitingData}                                          
-                                        />
-                                      </a>
-                                    </li>
-                                  )
-                                })
-                              }
-                            </ul>
-                          </aside>
-                        </li>
-
+                        
                         <li className='filters-item'>
                           <div className={this.state.channelsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
                             onClick={() => { this.showFilter('channels') }}>
@@ -936,7 +876,7 @@ class Dashboard extends Component {
                                 if (!item.selected){
                                   item.selected = false
                                 }
-                                let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                                let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
                                   
                                 return (
                                   <li key={item.uuid}>
@@ -994,7 +934,7 @@ class Dashboard extends Component {
                                 if (!item.selected) {
                                   item.selected = false
                                 }
-                                let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                                let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
                                 
                                 return (
                                   <li key={item.uuid}>
@@ -1270,16 +1210,15 @@ class Dashboard extends Component {
 
                 <div className='level-right'>
                  
-                  {this.state.yearSelected &&
+                  {this.state.minPeriod &&
                     <div className='level-item'>
                     <div className='field'>
                       <label className='label'>Periodo inicial</label>
                       <div className='field is-grouped control'>
-
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
-                            <span>{this.getPeriodDate(this.state.minPeriod, true) + ' ' + this.state.yearSelected}</span>
+                            <span>{this.state.minPeriod.name + ' ' + this.state.minPeriod.year}</span>
                             <span className='icon is-small'>
                               <i className='fa fa-angle-down' aria-hidden='true'></i>
                             </span>
@@ -1287,40 +1226,37 @@ class Dashboard extends Component {
                         </div>
                         <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
                           <div className='dropdown-content'>
-                            {this.state.periods && this.state.periods.map((item) => {
+                            {this.state.periods && this.state.periods.map((item, key) => {
                               return (
-                                <a key={item.number} className={this.state.minPeriod === item.number ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
-                                  onClick={() => this.setMinPeriod(item.number)}>
-                                  {item.name + ' ' + this.state.yearSelected}
+                                <a key={key} className={this.state.minPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                  onClick={() => this.setMinPeriod(item)}>
+                                  {item.name + ' ' + item.year}
                                 </a>
                               )
                             })}
                           </div>
                         </div>
+                        </div>
                       </div>
-
                       </div>
-                    </div>
-
                     </div>
                   }
-                  {this.state.yearSelected &&
+                  
                     <div className='level-item date-drop'>
                       <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
                     </div>
-                  }
-                  {this.state.yearSelected &&
+                  
+                  {this.state.maxPeriod && 
                     <div className='level-item'>
-                    <div className='field'>
-                      <label className='label'>Periodo final</label>
-                      <div className='field is-grouped control'>
-
+                     <div className='field'>
+                        <label className='label'>Periodo final</label>
+                        <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
-                            <span>{this.getPeriodDate(this.state.maxPeriod, true) + ' ' + this.state.yearSelected}</span>
+                            <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
                             <span className='icon is-small'>
                               <i className='fa fa-angle-down' aria-hidden='true'></i>
                             </span>
@@ -1328,22 +1264,21 @@ class Dashboard extends Component {
                         </div>
                         <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
                           <div className='dropdown-content'>
-                            {this.state.periods && this.state.periods.map((item) => {
+                            {this.state.periods &&
+                                this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
+                            .map((item, key) => {
                               return (
-                                <a key={item.number} className={this.state.maxPeriod === item.number ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
-                                  onClick={() => this.setMaxPeriod(item.number)}>
-                                  {item.name + ' ' + this.state.yearSelected}
+                                <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                  onClick={() => this.setMaxPeriod(item)}>
+                                  {item.name + ' ' + item.year}
                                 </a>
                               )
                             })}
                           </div>
                         </div>
+                        </div>
                       </div>
-
                       </div>
-                    </div>
-
-
                     </div>
                   }
                 </div>

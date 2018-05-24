@@ -42,23 +42,23 @@ module.exports = new Route({
     data.projects = data.projects.sort()
     data.salesCenters = data.salesCenters.sort()
 
-    const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'table').digest('hex')
-    try {
-      const cacheData = await redis.hGetAll(parameterHash)
-      if (cacheData) {
-        var cacheResponse = []
-        for (let cacheItem in cacheData) {
-          cacheResponse.push(JSON.parse(cacheData[cacheItem]))
-        }
+    // const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'table').digest('hex')
+    // try {
+    //   const cacheData = await redis.hGetAll(parameterHash)
+    //   if (cacheData) {
+    //     var cacheResponse = []
+    //     for (let cacheItem in cacheData) {
+    //       cacheResponse.push(JSON.parse(cacheData[cacheItem]))
+    //     }
 
-        ctx.body = {
-          data: cacheResponse
-        }
-        return
-      }
-    } catch (e) {
-      console.log('Error retrieving the cache')
-    }
+    //     ctx.body = {
+    //       data: cacheResponse
+    //     }
+    //     return
+    //   }
+    // } catch (e) {
+    //   console.log('Error retrieving the cache')
+    // }
 
     const key = {product: '$product'}
     let initialMatch = {
@@ -103,18 +103,23 @@ module.exports = new Route({
     let matchPreviousSale = _.cloneDeep(initialMatch)
 
     if (data.date_start && data.date_end) {
-      const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
-      data.weeks = []
-      for (let week of weeks) {
-        data.weeks.push(week.week)
-      }
+      let start = moment.utc(data.date_start, 'YYYY-MM-DD')
+      let end = moment.utc(data.date_end, 'YYYY-MM-DD')
 
-      data.year = moment(data.date_start).year()
+      let weeks = await AbraxasDate.find({
+        $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}]
+      })
 
-      initialMatch['data.semanaBimbo'] = {$in: data.weeks}
+      initialMatch['data.forecastDate'] = {$in: weeks.map(item => { return item.dateStart })}
 
-      var lastYear = data.year - 1
-      matchPreviousSale['data.semanaBimbo'] = {$in: data.weeks}
+      start = moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years')
+      end = moment.utc(data.date_start, 'YYYY-MM-DD')
+
+      weeks = await AbraxasDate.find({
+        $and: [{dateStart: {$gte: start.toDate()}}, {dateEnd: {$lte: end.toDate()}}]
+      })
+
+      matchPreviousSale['data.forecastDate'] = { $in: weeks.map(item => { return item.dateStart }) }
     } else {
       ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
     }
@@ -123,15 +128,6 @@ module.exports = new Route({
       {
         '$match': {
           ...initialMatch
-        }
-      },
-      {
-        '$redact': {
-          '$cond': [
-                { '$eq': [{ '$year': '$data.forecastDate' }, data.year] },
-            '$$KEEP',
-            '$$PRUNE'
-          ]
         }
       },
       {
@@ -159,15 +155,6 @@ module.exports = new Route({
       {
         '$match': {
           ...matchPreviousSale
-        }
-      },
-      {
-        '$redact': {
-          '$cond': [
-                { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] },
-            '$$KEEP',
-            '$$PRUNE'
-          ]
         }
       },
       {
