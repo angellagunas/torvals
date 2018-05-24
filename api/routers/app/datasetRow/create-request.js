@@ -66,7 +66,6 @@ module.exports = new Route({
       if (currentRole.slug !== 'manager-level-1') {
         adjustmentRequest.approvedBy = ctx.state.user._id
         adjustmentRequest.dateApproved = moment.utc()
-        datasetRow.data.lastAdjustment = datasetRow.data.adjustment
         datasetRow.data.adjustment = adjustmentRequest.newAdjustment
         datasetRow.status = 'adjusted'
         datasetRow.data.updatedBy = ctx.state.user
