@@ -763,7 +763,7 @@ class Dashboard extends Component {
     const user = this.context.tree.get('user')
 
     if(this.state.launchWizard){
-      return <Wizard/>
+      return <Wizard org={user.currentOrganization}/>
     }
 
     const {

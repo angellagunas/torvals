@@ -59,12 +59,22 @@ class Periods extends Component {
     return values
   }
 
-  handleChange = (date) => {
+  handleDateChange = (date) => {
     this.setState({
       timesSelected: {
         ...this.state.timesSelected,
         startDate: date
       }
+    })
+  }
+
+  handleInputChange (name, value) {
+    let aux = this.state.timesSelected
+    aux[name] = value
+    aux['seasonDuration'] = aux.ciclesAvailable * 2
+
+    this.setState({
+      timesSelected: aux
     })
   }
 
@@ -85,7 +95,9 @@ class Periods extends Component {
           <label className='label'>Duración de ciclo</label>
           <div className='control'>
             <input className='input' type='text' placeholder='Text input'
-              value={this.state.timesSelected.cicleDuration} />
+              name='cicleDuration'
+              value={this.state.timesSelected.cicleDuration} 
+              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />              
           </div>
         </div>
 
@@ -102,32 +114,21 @@ class Periods extends Component {
           <label className='label'>Duración de periodo</label>
           <div className='control'>
             <input className='input' type='text' placeholder='Text input'
-              value={this.state.timesSelected.periodDuration} />
+              name='periodDuration'
+              value={this.state.timesSelected.periodDuration}
+              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
           </div>
         </div>
 
-        <Select
-          label='Temporada'
-          name='season'
-          value={this.state.timesSelected.season}
-          optionValue='value'
-          optionName='name'
-          options={this.times}
-          onChange={(name, value) => { this.selectChangeHandler(name, value) }}
-        />
-        <div className='field'>
-          <label className='label'>Duración de temporada</label>
-          <div className='control'>
-            <input className='input' type='text' placeholder='Text input'
-              value={this.state.timesSelected.seasonDuration} />
-          </div>
-        </div>
+        
 
         <div className='field'>
-          <label className='label'>Ciclos disponibles por temporada</label>
+          <label className='label'>Ciclos disponibles </label>
           <div className='control'>
             <input className='input' type='text' placeholder='Text input'
-              value={this.state.timesSelected.ciclesAvailable} />
+              name='ciclesAvailable'
+              value={this.state.timesSelected.ciclesAvailable}
+              onChange={(e) => {this.handleInputChange(e.target.name, e.target.value) }} />
           </div>
         </div>
 
@@ -136,7 +137,7 @@ class Periods extends Component {
           <div className='control'>
             <DatePicker
               selected={this.state.timesSelected.startDate}
-              onChange={this.handleChange}
+              onChange={this.handleDateChange}
             />
           </div>
         </div>
@@ -162,6 +163,23 @@ class Periods extends Component {
               })} />
                Tomar Final de periodo
           </label>
+        </div>
+
+        <Select
+          label='Temporada'
+          name='season'
+          value={this.state.timesSelected.season}
+          optionValue='value'
+          optionName='name'
+          options={this.times}
+          onChange={(name, value) => { this.selectChangeHandler(name, value) }}
+        />
+        <div className='field'>
+          <label className='label'>Duración de temporada</label>
+          <div className='control'>
+            <input className='input' type='text' placeholder='Text input'
+              value={this.state.timesSelected.seasonDuration} disabled/>
+          </div>
         </div>
         
         <br />
