@@ -48,7 +48,7 @@ module.exports = new Route({
           project: datasetRow.project,
           dataset: datasetRow.dataset,
           datasetRow: datasetRow._id,
-          lastAdjustment: datasetRow.data.localAdjustment,
+          lastAdjustment: datasetRow.data.adjustment,
           newAdjustment: row.newAdjustment,
           requestedBy: ctx.state.user._id,
           status: status
@@ -58,7 +58,7 @@ module.exports = new Route({
         await datasetRow.save()
       } else {
         adjustmentRequest.status = status
-        adjustmentRequest.lastAdjustment = datasetRow.data.localAdjustment
+        adjustmentRequest.lastAdjustment = datasetRow.data.adjustment
         adjustmentRequest.newAdjustment = row.newAdjustment
         adjustmentRequest.requestedBy = ctx.state.user
       }
@@ -66,7 +66,9 @@ module.exports = new Route({
       if (currentRole.slug !== 'manager-level-1') {
         adjustmentRequest.approvedBy = ctx.state.user._id
         adjustmentRequest.dateApproved = moment.utc()
-        datasetRow.data.localAdjustment = adjustmentRequest.newAdjustment
+        datasetRow.data.lastAdjustment = datasetRow.data.adjustment
+        datasetRow.data.adjustment = adjustmentRequest.newAdjustment
+        datasetRow.status = 'adjusted'
         datasetRow.data.updatedBy = ctx.state.user
         datasetRow.markModified('data')
         await datasetRow.save()

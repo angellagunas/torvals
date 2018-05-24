@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 const moment = require('moment')
 
 const Task = require('lib/task')
-const { Project, DataSet, DataSetRow } = require('models')
+const { Project, DataSet, DataSetRow, AdjustmentRequest } = require('models')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
 const task = new Task(
@@ -124,6 +124,17 @@ const task = new Task(
       var bulkOpsEdit = []
       var bulkOpsNew = []
       for (let row = await rows.next(); row != null; row = await rows.next()) {
+        if (row.status === 'adjusted') {
+          row.data.lastAdjustment = row.data.adjustment
+        }
+
+        delete row.adjustmentRequest
+        delete row.isAnomaly
+        delete row.isDeleted
+        delete row.uuid
+        delete row.status
+        delete row.dateCreated
+
         bulkOpsNew.push(
           {
             ...row,

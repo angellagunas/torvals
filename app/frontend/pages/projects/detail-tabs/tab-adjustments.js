@@ -297,12 +297,12 @@ class TabAdjustment extends Component {
 
   getEditedRows(data) {
     for (let row of data) {
-      row.adjustmentForDisplay = row.localAdjustment
+      row.adjustmentForDisplay = row.adjustment
       if (row.adjustmentRequest && row.adjustmentRequest.status !== 'rejected') {
         row.adjustmentForDisplay = row.adjustmentRequest.newAdjustment
       }
 
-      if (row.localAdjustment != row.adjustment || row.adjustmentRequest) {
+      if (row.adjustment != row.adjustment || row.adjustmentRequest) {
         row.wasEdited = true
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
@@ -543,7 +543,7 @@ getProductsSelected () {
         !isNaN(this.state.percentage) &&
         parseInt(this.state.percentage) !== 0 
       ){
-        toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
+        toAdd = row.lastAdjustment * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
       } else if (
         type === 'quantity' &&
@@ -584,7 +584,7 @@ getProductsSelected () {
         parseInt(this.state.percentage) !== 0 && 
         !isNaN(this.state.percentage)
       ) {
-        toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
+        toAdd = row.lastAdjustment * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
       } else if (
         type === 'quantity' &&
@@ -674,7 +674,6 @@ getProductsSelected () {
       if (rowAux.length > 0) {
         const res = await api.post(url, rowAux)
       }
-
       if (isLimited && currentRole === 'manager-level-1') {
         this.notify(
           (<p>
@@ -1036,6 +1035,15 @@ getProductsSelected () {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           Se están obteniendo las filas para ajuste, en un momento más las podrá consultar.
+          <Loader />
+        </div>
+      )
+    }
+
+    if (this.props.project.status === 'conciliating') {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Se está conciliando el dataset, espere por favor.
           <Loader />
         </div>
       )
