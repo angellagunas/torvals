@@ -636,6 +636,10 @@ async getDates() {
     let dateMin = moment.utc(this.state.dateMin)
     let dateMax = moment.utc(this.state.dateMax)
     
+    if (dateMin.isBefore(moment.utc('2017-01-01'))) {
+      dateMin = moment.utc('2017-01-01')
+    }
+  
     while (dateMin.format('MMMM YYYY') !== dateMax.format('MMMM YYYY')){
       d.push(dateMin)
       dateMin = moment.utc(dateMin).add(1, 'month')
@@ -1260,7 +1264,9 @@ setMinPeriod(item) {
                         </div>
                         <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
                           <div className='dropdown-content'>
-                            {this.state.periods && this.state.periods.map((item, key) => {
+                            {this.state.periods &&
+                                this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
+                            .map((item, key) => {
                               return (
                                 <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
                                   onClick={() => this.setMaxPeriod(item)}>
