@@ -42,29 +42,29 @@ module.exports = new Route({
     data.projects = data.projects.sort()
     data.salesCenters = data.salesCenters.sort()
 
-    const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
-    try {
-      const cacheData = await redis.hGetAll(parameterHash)
-      if (cacheData) {
-        var cacheResponse = []
-        var cacheMape
-        for (let cacheItem in cacheData) {
-          if (cacheItem !== 'mape') {
-            cacheResponse.push(JSON.parse(cacheData[cacheItem]))
-          } else {
-            cacheMape = Number(cacheData[cacheItem])
-          }
-        }
+    // const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
+    // try {
+    //   const cacheData = await redis.hGetAll(parameterHash)
+    //   if (cacheData) {
+    //     var cacheResponse = []
+    //     var cacheMape
+    //     for (let cacheItem in cacheData) {
+    //       if (cacheItem !== 'mape') {
+    //         cacheResponse.push(JSON.parse(cacheData[cacheItem]))
+    //       } else {
+    //         cacheMape = Number(cacheData[cacheItem])
+    //       }
+    //     }
 
-        ctx.body = {
-          data: cacheResponse,
-          mape: cacheMape
-        }
-        return
-      }
-    } catch (e) {
-      console.log('Error retrieving the cache')
-    }
+    //     ctx.body = {
+    //       data: cacheResponse,
+    //       mape: cacheMape
+    //     }
+    //     return
+    //   }
+    // } catch (e) {
+    //   console.log('Error retrieving the cache')
+    // }
 
     const key = {week: '$data.semanaBimbo', date: '$data.forecastDate'}
 
@@ -110,20 +110,24 @@ module.exports = new Route({
     let matchPreviousSale = _.cloneDeep(initialMatch)
 
     if (data.date_start && data.date_end) {
-      const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
-      data.weeks = []
+      let start = moment.utc(data.date_start, 'YYYY-MM-DD')
+      let end = moment.utc(data.date_end, 'YYYY-MM-DD')
+
+      const weeks = await AbraxasDate.find({
+        $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}]
+      })
+
       data.dates = []
+
       for (let week of weeks) {
-        data.weeks.push(week.week)
-        data.dates[week.week] = week.dateStart
+        data.dates.push(week)
       }
 
-      data.year = moment(data.date_start).year()
-
-      initialMatch['data.semanaBimbo'] = {$in: data.weeks}
-
-      var lastYear = data.year - 1
-      matchPreviousSale['data.semanaBimbo'] = {$in: data.weeks}
+      initialMatch['data.forecastDate'] = {$lte: end.toDate(), $gte: start.toDate()}
+      matchPreviousSale['data.forecastDate'] = {
+        $lte: moment(end).subtract(1, 'years').toDate(),
+        $gte: moment(start).subtract(1, 'years').toDate()
+      }
     } else {
       ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
     }
@@ -132,15 +136,6 @@ module.exports = new Route({
       {
         '$match': {
           ...initialMatch
-        }
-      },
-      {
-        '$redact': {
-          '$cond': [
-                { '$eq': [{ '$year': '$data.forecastDate' }, data.year] },
-            '$$KEEP',
-            '$$PRUNE'
-          ]
         }
       },
       {
@@ -160,15 +155,6 @@ module.exports = new Route({
         }
       },
       {
-        '$redact': {
-          '$cond': [
-              { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] },
-            '$$KEEP',
-            '$$PRUNE'
-          ]
-        }
-      },
-      {
         '$group': {
           _id: key,
           sale: { $sum: '$data.sale' }
@@ -184,43 +170,46 @@ module.exports = new Route({
 
     let previousSaleDict = {}
     for (let prev of previousSale) {
-      previousSaleDict[prev._id.week] = prev
+      previousSaleDict[prev._id.date] = prev
+    }
+
+    let saleDict = {}
+    for (let res of responseData) {
+      saleDict[res._id.date] = res
     }
 
     let totalPrediction = 0
     let totalSale = 0
+    let response = []
 
-    responseData = responseData.map(item => {
+    for (let date of data.dates) {
+      let dateStart = date.dateStart
+      let item = {
+        date: date.dateStart,
+        prediction: 0,
+        adjustment: 0,
+        sale: 0,
+        previousSale: 0
+      }
+
+      if (saleDict[dateStart]) {
+        item.prediction = saleDict[dateStart].prediction
+        item.adjustment = saleDict[dateStart].adjustment
+        item.sale = saleDict[dateStart].sale
+      }
+
       if (item.prediction && item.sale) {
         totalPrediction += item.prediction
         totalSale += item.sale
       }
 
-      if (previousSaleDict[item._id.week]) {
-        _.pull(data.weeks, item._id.week)
+      let lastDate = data.dates.find(item => item.year === date.year - 1 && item.week === date.week)
+
+      if (lastDate && previousSaleDict[lastDate.dateStart]) {
+        item.previousSale = previousSaleDict[lastDate.dateStart].sale
       }
 
-      return {
-        date: item._id.date,
-        week: item._id.week,
-        prediction: item.prediction,
-        adjustment: item.adjustment,
-        sale: item.sale,
-        previousSale: previousSaleDict[item._id.week] ? previousSaleDict[item._id.week].sale : 0
-      }
-    })
-
-    for (let week of data.weeks) {
-      if (previousSaleDict[week]) {
-        responseData.push({
-          date: data.dates[week],
-          week: 0,
-          prediction: 0,
-          adjustment: 0,
-          sale: 0,
-          previousSale: previousSaleDict[week].sale
-        })
-      }
+      response.push(item)
     }
 
     let mape = 0
@@ -230,8 +219,8 @@ module.exports = new Route({
     }
 
     try {
-      for (let item in responseData) {
-        await redis.hSet(parameterHash, item, JSON.stringify(responseData[item]))
+      for (let item in response) {
+        await redis.hSet(parameterHash, item, JSON.stringify(response[item]))
       }
       await redis.hSet(parameterHash, 'mape', mape)
     } catch (e) {
@@ -239,7 +228,7 @@ module.exports = new Route({
     }
 
     ctx.body = {
-      data: responseData,
+      data: response,
       mape: mape
     }
   }
