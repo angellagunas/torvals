@@ -1,7 +1,8 @@
 const Route = require('lib/router/route')
-const { Project, SalesCenter, Channel, Product } = require('models')
+const { Project, SalesCenter, Channel, Product, DataSetRow } = require('models')
 const Api = require('lib/abraxas/api')
 const lov = require('lov')
+const moment = require('moment')
 
 module.exports = new Route({
   method: 'post',
@@ -20,44 +21,48 @@ module.exports = new Route({
       ctx.throw(400, 'No hay DataSet activo para el proyecto')
     }
 
-    const requestBody = {
-      date_start: data.start_date,
-      date_end: data.end_date
+    const filters = {
+      date_start: moment.utc(data.start_date, 'YYYY-MM-DD'),
+      date_end: moment.utc(data.end_date, 'YYYY-MM-DD')
     }
 
     if (data.salesCenter) {
-      const agenciaName = project.activeDataset.getSalesCenterColumn() || {name: 'agencia_id'}
       const salesCenter = await SalesCenter.findOne({uuid: data.salesCenter})
       ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
 
-      requestBody[agenciaName.name] = salesCenter.externalId
+      filters['salesCenter'] = salesCenter._id
     }
 
     if (data.channel) {
-      const channelName = project.activeDataset.getChannelColumn() || {name: 'canal_id'}
       const channel = await Channel.findOne({uuid: data.channel})
       ctx.assert(channel, 404, 'Canal no encontrado')
 
-      requestBody[channelName.name] = channel.externalId
+      filters['channel'] = channel._id
     }
 
     if (data.product) {
-      const productName = project.activeDataset.getProductColumn() || {name: 'producto_id'}
       const product = await Product.findOne({uuid: data.product})
       ctx.assert(product, 404, 'Producto no encontrado')
 
-      requestBody[productName.name] = product.externalId
+      filters['product'] = product._id
     }
 
-    if (data.period) {
-      requestBody.periodo = data.period
-    }
+    let rows = await DataSetRow.find({
+      ...filters,
+      isDeleted: false
+    }).populate('product channel salesCenter')
 
-    var res = await Api.downloadProject(project.externalId, requestBody)
+    var rowsCsv = 'fecha,producto,producto_nombre,prediccion,ajuste,agencia,agencia_nombre,canal,canal_nombre\r\n'
+
+    for (let i = 0; i < rows.length; i++) {
+      rowsCsv += rows[i].data.forecastDate + ',' + rows[i].product.externalId + ',' + rows[i].product.name + ',' +
+        rows[i].data.prediction + ',' + rows[i].data.adjustment + ',' + rows[i].salesCenter.externalId + ',' +
+        rows[i].salesCenter.name + ',' + rows[i].channel.externalId + ',' + rows[i].channel.name + ',' + '\r\n'
+    }
 
     ctx.set('Content-disposition', `attachment; filename=datasetrow.csv`)
     ctx.set('Content-type', `text/csv`)
 
-    ctx.body = res
+    ctx.body = rowsCsv
   }
 })
