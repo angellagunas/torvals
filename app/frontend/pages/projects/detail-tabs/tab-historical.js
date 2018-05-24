@@ -582,6 +582,10 @@ class TabHistorical extends Component {
     let dateMin = moment.utc(this.props.project.dateMin)
     let dateMax = moment.utc(this.props.project.dateMax)
     
+    if(dateMin.isBefore(moment.utc('2017-01-01'))){
+      dateMin = moment.utc('2017-01-01')
+    }
+
     while (dateMin.format('MMMM YYYY') !== dateMax.format('MMMM YYYY')){
       d.push(dateMin)
       dateMin = moment.utc(dateMin).add(1, 'month')

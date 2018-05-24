@@ -636,6 +636,10 @@ async getDates() {
     let dateMin = moment.utc(this.state.dateMin)
     let dateMax = moment.utc(this.state.dateMax)
     
+    if (dateMin.isBefore(moment.utc('2017-01-01'))) {
+      dateMin = moment.utc('2017-01-01')
+    }
+  
     while (dateMin.format('MMMM YYYY') !== dateMax.format('MMMM YYYY')){
       d.push(dateMin)
       dateMin = moment.utc(dateMin).add(1, 'month')
