@@ -23,8 +23,8 @@ module.exports = new Route({
 
     const filters = {
       'data.forecastDate': {
-        $gte: moment.utc(data.start_date, 'YYYY-MM-DD'),
-        $lte: moment.utc(data.end_date, 'YYYY-MM-DD')
+        $gte: moment.utc(data.start_date, 'YYYY-MM-DD').toDate(),
+        $lte: moment.utc(data.end_date, 'YYYY-MM-DD').toDate()
       }
     }
 
@@ -81,7 +81,11 @@ module.exports = new Route({
           continue
         }
 
-        rowsString += row.apiData[col] + ','
+        if (row.apiData[col]) {
+          rowsString += row.apiData[col] + ','
+        } else {
+          rowsString += ','
+        }
       }
 
       rowsString = rowsString.substring(0, rowsString.length - 1) + '\r\n'
