@@ -277,27 +277,30 @@ class TabAdjustment extends Component {
 
     const url = '/app/rows/dataset/'
     try{
-    let data = await api.get(
-      url + this.props.project.activeDataset.uuid,
-      this.state.formData
-    )
+      let data = await api.get(
+        url + this.props.project.activeDataset.uuid,
+        this.state.formData
+      )
 
-    this.setState({
-      dataRows: this.getEditedRows(data.data),
-      isFiltered: true,
-      isLoading: '',
-      selectedCheckboxes: new Set()
-    })
-    this.clearSearch()
-    this.getSalesTable()    
-  }catch(e){
-    console.log(e)
-  }
+      this.setState({
+        dataRows: this.getEditedRows(data.data),
+        isFiltered: true,
+        isLoading: '',
+        selectedCheckboxes: new Set()
+      })
+      this.clearSearch()
+      this.getSalesTable()    
+    }catch(e){
+      console.log(e)
+    }
   }
 
   getEditedRows(data) {
     for (let row of data) {
       row.adjustmentForDisplay = row.adjustment
+
+      if (!row.lastAdjustment) row.lastAdjustment = row.prediction
+
       if (row.adjustmentRequest && row.adjustmentRequest.status !== 'rejected') {
         row.adjustmentForDisplay = row.adjustmentRequest.newAdjustment
       }
@@ -531,6 +534,7 @@ getProductsSelected () {
       this.notify('No tienes productos seleccionados', 3000, toast.TYPE.INFO)
       return
     }
+
     this.setState({isLoadingButtons: ' is-loading'})
     let { selectedCheckboxes } = this.state
     selectedCheckboxes = Array.from(selectedCheckboxes)

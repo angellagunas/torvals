@@ -1,5 +1,4 @@
 const Route = require('lib/router/route')
-const lov = require('lov')
 const moment = require('moment')
 
 const {DataSetRow, AdjustmentRequest, Role} = require('models')
@@ -7,18 +6,16 @@ const {DataSetRow, AdjustmentRequest, Role} = require('models')
 module.exports = new Route({
   method: 'post',
   path: '/request',
-  validator: lov.array().items([
-    lov.object().keys({
-      uuid: lov.string().required(),
-      newAdjustment: lov.string().required()
-    }).required()
-  ]),
   handler: async function (ctx) {
     var data = ctx.request.body
     var returnData = {}
     var uuidsAux = []
 
     for (let row of data) {
+      if (!row.uuid || !row.newAdjustment) {
+        continue
+      }
+
       const datasetRow = await DataSetRow.findOne({'uuid': row.uuid, 'isDeleted': false})
         .populate('adjustmentRequest')
       ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
