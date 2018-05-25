@@ -12,7 +12,8 @@ module.exports = new Route({
   }),
   handler: async function (ctx) {
     var data = ctx.request.body
-    const project = await Project.findOne({uuid: ctx.params.uuid}).populate('activeDataset')
+    const project = await Project.findOne({uuid: ctx.params.uuid})
+      .populate('activeDataset mainDataset')
 
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
@@ -53,12 +54,39 @@ module.exports = new Route({
       isDeleted: false
     }).populate('product channel salesCenter')
 
-    var rowsCsv = 'fecha,producto,producto_nombre,prediccion,ajuste,agencia,agencia_nombre,canal,canal_nombre\r\n'
+    let rowsCsv = ''
+    let names = []
 
-    for (let i = 0; i < rows.length; i++) {
-      rowsCsv += rows[i].data.forecastDate + ',' + rows[i].product.externalId + ',' + rows[i].product.name + ',' +
-        rows[i].data.prediction + ',' + rows[i].data.adjustment + ',' + rows[i].salesCenter.externalId + ',' +
-        rows[i].salesCenter.name + ',' + rows[i].channel.externalId + ',' + rows[i].channel.name + ',' + '\r\n'
+    for (let head of project.activeDataset.columns) {
+      rowsCsv += head.name + ','
+      names.append()
+    }
+
+    rowsCsv = rowsCsv.substring(0, rowsCsv.length - 1) + '\r\n'
+
+    for (let row of rows) {
+      let rowsString = ''
+
+      for (let col of Object.keys(row.apiData)) {
+        var predictionColumn = project.activeDataset.getPredictionColumn() || {name: ''}
+        var adjustmentColumn = project.activeDataset.getAdjustmentColumn() || {name: ''}
+
+        if (col === adjustmentColumn.name) {
+          rowsString += row.data.adjustment + ','
+          continue
+        }
+
+        if (col === predictionColumn.name) {
+          rowsString += row.data.prediction + ','
+          continue
+        }
+
+        rowsString += row.apiData[col] + ','
+      }
+
+      rowsString = rowsString.substring(0, rowsString.length - 1) + '\r\n'
+
+      rowsCsv += rowsString
     }
 
     ctx.set('Content-disposition', `attachment; filename=datasetrow.csv`)
