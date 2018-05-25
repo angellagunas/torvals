@@ -7,17 +7,18 @@ import 'react-datepicker/dist/react-datepicker.css'
 class Periods extends Component {
   constructor (props) {
     super(props)
+    let rules = this.props.rules
     this.state = {
       timesSelected: {
-        period: 'w',
-        cicle: 'm',
-        periodDuration: 1,
-        cicleDuration: 1,
-        takeStart: true,
-        ciclesAvailable: 6,
-        season: 'y',
-        seasonDuration: 1,
-        startDate: moment()
+        period: rules.period || 'w',
+        cicle: rules.cicle || 'm',
+        periodDuration: rules.periodDuration || 1,
+        cicleDuration: rules.cicleDuration || 1,
+        takeStart: rules.takeStart || true,
+        ciclesAvailable: rules.ciclesAvailable || 6,
+        season: rules.season || 'y',
+        seasonDuration: rules.seasonDuration || 1,
+        startDate: moment(rules.startDate) || moment()
       }
     }
     this.times = [

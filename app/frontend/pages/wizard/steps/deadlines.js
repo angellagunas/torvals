@@ -5,11 +5,11 @@ class DeadLines extends Component {
     super(props)
     this.state = {
       data: {
-        sales_upload: 0,
-        forecast_creation: 0,
-        range_adjustment: 0,
-        range_adjustmentRequest: 0,
-        consolidation: 0
+        sales_upload: this.props.rules.sales_upload || 0,
+        forecast_creation: this.props.rules.forecast_creation || 0,
+        range_adjustment: this.props.rules.range_adjustment || 0,
+        range_adjustmentRequest: this.props.rules.range_adjustmentRequest || 0,
+        consolidation: this.props.rules.consolidation || 0
       }
     }
   }
@@ -63,7 +63,7 @@ class DeadLines extends Component {
                 </p>
                 <p className='control'>
                   <input className='input' type='text' placeholder='dias' name={item.name}
-                    value={this.state[item.name]}
+                    value={this.state.data[item.name]}
                     onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }}
                    />
                 </p>
