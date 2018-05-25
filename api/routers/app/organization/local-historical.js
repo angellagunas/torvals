@@ -5,6 +5,8 @@ const redis = require('lib/redis')
 const crypto = require('crypto')
 const _ = require('lodash')
 
+const EXPIRATION = 60 * 60 * 24 * 4
+
 module.exports = new Route({
   method: 'post',
   path: '/local/historical',
@@ -14,6 +16,7 @@ module.exports = new Route({
     let currentRole
     let currentOrganization
     let previousWeeks
+    let weeks
 
     if (ctx.state.organization) {
       currentOrganization = user.organizations.find(orgRel => {
@@ -43,29 +46,29 @@ module.exports = new Route({
     data.projects = data.projects.sort()
     data.salesCenters = data.salesCenters.sort()
 
-    // const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
-    // try {
-    //   const cacheData = await redis.hGetAll(parameterHash)
-    //   if (cacheData) {
-    //     var cacheResponse = []
-    //     var cacheMape
-    //     for (let cacheItem in cacheData) {
-    //       if (cacheItem !== 'mape') {
-    //         cacheResponse.push(JSON.parse(cacheData[cacheItem]))
-    //       } else {
-    //         cacheMape = Number(cacheData[cacheItem])
-    //       }
-    //     }
+    const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
+    try {
+      const cacheData = await redis.hGetAll(parameterHash)
+      if (cacheData) {
+        var cacheResponse = []
+        var cacheMape
+        for (let cacheItem in cacheData) {
+          if (cacheItem !== 'mape') {
+            cacheResponse.push(JSON.parse(cacheData[cacheItem]))
+          } else {
+            cacheMape = Number(cacheData[cacheItem])
+          }
+        }
 
-    //     ctx.body = {
-    //       data: cacheResponse,
-    //       mape: cacheMape
-    //     }
-    //     return
-    //   }
-    // } catch (e) {
-    //   console.log('Error retrieving the cache')
-    // }
+        // ctx.body = {
+        //   data: cacheResponse,
+        //   mape: cacheMape
+        // }
+        // return
+      }
+    } catch (e) {
+      console.log('Error retrieving the cache')
+    }
 
     const key = {week: '$data.semanaBimbo', date: '$data.forecastDate'}
 
@@ -114,15 +117,9 @@ module.exports = new Route({
       let start = moment.utc(data.date_start, 'YYYY-MM-DD')
       let end = moment.utc(data.date_end, 'YYYY-MM-DD')
 
-      const weeks = await AbraxasDate.find({
+      weeks = await AbraxasDate.find({
         $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}]
       })
-
-      data.dates = []
-
-      for (let week of weeks) {
-        data.dates.push(week)
-      }
 
       initialMatch['data.forecastDate'] = {$lte: end.toDate(), $gte: start.toDate()}
       start = moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years')
@@ -190,7 +187,7 @@ module.exports = new Route({
     let totalSale = 0
     let response = []
 
-    for (let date of data.dates) {
+    for (let date of weeks) {
       let dateStart = date.dateStart
       let item = {
         date: date.dateStart,
@@ -231,6 +228,7 @@ module.exports = new Route({
         await redis.hSet(parameterHash, item, JSON.stringify(response[item]))
       }
       await redis.hSet(parameterHash, 'mape', mape)
+      await redis.expire(parameterHash, EXPIRATION)
     } catch (e) {
       console.log('Error setting the cache')
     }
