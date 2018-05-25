@@ -46,7 +46,7 @@ module.exports = new Route({
     data.projects = data.projects.sort()
     data.salesCenters = data.salesCenters.sort()
 
-    const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
+    const parameterHash = 'api:' + crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
     try {
       const cacheData = await redis.hGetAll(parameterHash)
       if (cacheData) {
