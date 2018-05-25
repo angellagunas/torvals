@@ -55,6 +55,12 @@ module.exports = new Route({
       ctx.throw(500, 'Error recuperando las anomalías')
     }
 
+    project.activeDataset.set({status: 'conciliating'})
+    await project.activeDataset.save()
+
+    project.set({status: 'conciliating'})
+    await project.save()
+
     conciliateDataset.add({project: project.uuid, dataset: project.activeDataset.uuid})
 
     ctx.body = {

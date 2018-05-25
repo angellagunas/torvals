@@ -182,8 +182,7 @@ const task = new Task(
       await dataset.save()
 
       project.mainDataset.set({
-        isMain: false,
-        status: 'conciliated'
+        status: 'ready'
       })
       await project.mainDataset.save()
 
