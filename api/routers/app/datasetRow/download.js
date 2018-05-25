@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
 const { Project, SalesCenter, Channel, Product, DataSetRow } = require('models')
-const Api = require('lib/abraxas/api')
 const lov = require('lov')
 const moment = require('moment')
 
@@ -22,8 +21,10 @@ module.exports = new Route({
     }
 
     const filters = {
-      date_start: moment.utc(data.start_date, 'YYYY-MM-DD'),
-      date_end: moment.utc(data.end_date, 'YYYY-MM-DD')
+      'data.forecastDate': {
+        $gte: moment.utc(data.start_date, 'YYYY-MM-DD'),
+        $lte: moment.utc(data.end_date, 'YYYY-MM-DD')
+      }
     }
 
     if (data.salesCenter) {
