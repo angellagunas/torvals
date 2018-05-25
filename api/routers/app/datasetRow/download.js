@@ -57,9 +57,9 @@ module.exports = new Route({
     let rowsCsv = ''
     let names = []
 
-    for (let head of project.activeDataset.columns) {
+    for (let head of project.mainDataset.columns) {
       rowsCsv += head.name + ','
-      names.append()
+      names.push(head.name)
     }
 
     rowsCsv = rowsCsv.substring(0, rowsCsv.length - 1) + '\r\n'
@@ -67,9 +67,9 @@ module.exports = new Route({
     for (let row of rows) {
       let rowsString = ''
 
-      for (let col of Object.keys(row.apiData)) {
-        var predictionColumn = project.activeDataset.getPredictionColumn() || {name: ''}
-        var adjustmentColumn = project.activeDataset.getAdjustmentColumn() || {name: ''}
+      for (let col of names) {
+        var predictionColumn = project.mainDataset.getPredictionColumn() || {name: ''}
+        var adjustmentColumn = project.mainDataset.getAdjustmentColumn() || {name: ''}
 
         if (col === adjustmentColumn.name) {
           rowsString += row.data.adjustment + ','
