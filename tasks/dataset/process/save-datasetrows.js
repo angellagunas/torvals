@@ -46,7 +46,8 @@ const task = new Task(
     }
     log('Sales Centers successfully saved!')
 
-    if (!argv.noNextStep) getAnomalies.add({uuid: dataset.uuid})
+    dataset.set({ status: 'reviewing' })
+    await dataset.save()
 
     log('Success! DatasetRows processed!')
     log(`End ==>  ${moment().format()}`)
