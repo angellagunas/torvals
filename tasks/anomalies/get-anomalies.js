@@ -3,7 +3,7 @@ require('../../config')
 require('lib/databases/mongo')
 
 const Task = require('lib/task')
-const { Anomaly, DataSetRow, DataSet } = require('models')
+const { Anomaly, DataSetRow, DataSet, Project } = require('models')
 
 const task = new Task(async function (argv) {
   if (!argv.uuid) {
@@ -11,14 +11,15 @@ const task = new Task(async function (argv) {
   }
   console.log('Fetching Anomalies ...')
 
-  const dataset = await DataSet.findOne({uuid: argv.uuid})
-  if (!dataset) {
+  const project = await Project.findOne({uuid: argv.uuid}).populate('mainDataset activeDataset')
+
+  if (!project) {
     throw new Error('Project not found')
   }
 
   var batchSize = 10000
   const datasetrows = await DataSetRow.find({
-    dataset: dataset._id,
+    dataset: project.activeDataset._id,
     'data.prediction': {$ne: null},
     $or: [{'data.prediction': 0}, {'data.prediction': {$lt: 0}}] })
 
@@ -27,14 +28,15 @@ const task = new Task(async function (argv) {
   for (let dataRow of datasetrows) {
     try {
       bulkOps.push({
+        dataset: project.activeDataset._id,
         datasetRow: dataRow._id,
         salesCenter: dataRow.salesCenter,
         product: dataRow.product,
         channel: dataRow.channel,
-        project: dataset.project,
+        project: project._id,
         prediction: dataRow.data.prediction,
         semanaBimbo: dataRow.data.semanaBimbo,
-        organization: dataset.organization,
+        organization: project.organization,
         type: 'zero_sales',
         date: dataRow.data.forecastDate
       })
@@ -67,8 +69,7 @@ const task = new Task(async function (argv) {
     console.log('Error trying to save anomaly: ')
     console.log(e)
   }
-  dataset.set({ status: 'reviewing' })
-  await dataset.save()
+
   console.log(`Received ${datasetrows.length} anomalies!`)
   return true
 })

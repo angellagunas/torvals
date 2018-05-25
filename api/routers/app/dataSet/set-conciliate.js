@@ -29,7 +29,7 @@ module.exports = new Route({
 
     await dataset.project.save()
 
-    conciliateDataset.add({project: dataset.project.uuid, dataset: dataset.uuid})
+    conciliateDataset.add({project: dataset.project.uuid, dataset: dataset.uuid, anomalies: true})
 
     ctx.body = {
       data: dataset
