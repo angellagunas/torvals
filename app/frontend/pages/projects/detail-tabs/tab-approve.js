@@ -166,7 +166,7 @@ class TabApprove extends Component {
         'sortable': true,
         formatter: (row) => {
           let percentage = (
-            ((row.newAdjustment - row.datasetRow.data.lastAdjustment) / row.datasetRow.data.lastAdjustment) * 100
+            ((row.newAdjustment - row.lastAdjustment) / row.lastAdjustment) * 100
           )
           row.percentage = percentage
           return Math.round(percentage) + ' %'

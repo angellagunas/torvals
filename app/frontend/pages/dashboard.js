@@ -657,7 +657,7 @@ async getDates() {
 
     this.setState({
       periods: p,
-      minPeriod: p[0],
+      minPeriod: {number: 1, name: "enero", year: 2018},
       maxPeriod: p[p.length - 1]
     })
   }
@@ -1228,7 +1228,9 @@ setMinPeriod(item) {
                           <div className='dropdown-content'>
                             {this.state.periods && this.state.periods.map((item, key) => {
                               return (
-                                <a key={key} className={this.state.minPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                <a key={key} className={this.state.minPeriod.number === item.number &&
+                                  this.state.minPeriod.name === item.name &&
+                                  this.state.minPeriod.year === item.year ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
                                   onClick={() => this.setMinPeriod(item)}>
                                   {item.name + ' ' + item.year}
                                 </a>
