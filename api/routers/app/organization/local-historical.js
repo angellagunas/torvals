@@ -60,11 +60,11 @@ module.exports = new Route({
           }
         }
 
-        // ctx.body = {
-        //   data: cacheResponse,
-        //   mape: cacheMape
-        // }
-        // return
+        ctx.body = {
+          data: cacheResponse,
+          mape: cacheMape
+        }
+        return
       }
     } catch (e) {
       console.log('Error retrieving the cache')
