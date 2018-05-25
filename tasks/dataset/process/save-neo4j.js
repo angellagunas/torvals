@@ -3,7 +3,7 @@ require('../../../config')
 const { v4 } = require('uuid')
 const neo4j = require('lib/databases/neo4j')
 const Task = require('lib/task')
-var model = require('seraph-model');
+const Organization = require("models/neo4j/organization")
 
 
 const task = new Task(
@@ -11,13 +11,21 @@ const task = new Task(
     let log = (args) => {
       args = ('[save_dataset neo4j] ') + args
     }
-    var Dataset = model(neo4j, 'Datasets');
     try {
-      Dataset.save({ name: 'Jon', city: 'Bergen', uuid: v4() }, function(err, saved) {
-        console.log('SAVED!')
-        console.log(saved)
-        console.log(err)
+      const session = neo4j.session();
+      await Organization.create(session, {
+        "uuid": v4(),
+        "name": "Barcel"
       })
+        .then(org => {
+          session.close()
+          return true
+        })
+        .catch(function(error) {
+          console.log(error)
+          session.close()
+          return false
+        })
     } catch(error) {
       console.log(error)
     }
