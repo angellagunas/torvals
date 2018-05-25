@@ -1,10 +1,15 @@
 module.exports = {
-	"name" : "dataset_with_3_productos",
-	"description" : "dataset for testing",
-	"uploaded" : true,
+	"__v" : 1,
+	"name" : "Dataset with configuring as status",
+	"description" : "This dataset have the configuration for forecasts_3-prods_2017-2018.csv",
+	"uploaded" : false,
 	"isDeleted" : false,
-	"dateConciliated" : "2018-05-24T01:18:46.969Z",
-	"dateCreated" : "2018-05-24T01:12:41.730Z",
+	"uuid" : "15ca178f-ce7e-4e44-9502-02b7e08c7732",
+	"dateConciliated" : "2018-05-24T22:58:41.143Z",
+	"dateCreated" : "2018-05-24T22:58:41.143Z",
+	"channels" : [ ],
+	"products" : [ ],
+	"salesCenters" : [ ],
 	"groupings" : [ ],
 	"columns" : [
 		{
@@ -12,7 +17,7 @@ module.exports = {
 			"isChannelName" : false,
 			"isChannel" : false,
 			"isSalesCenterName" : false,
-			"isSalesCenter" : true,
+			"isSalesCenter" : false,
 			"isProductName" : false,
 			"isProduct" : false,
 			"isAnalysisFilter" : false,
@@ -25,7 +30,7 @@ module.exports = {
 		},
 		{
 			"name" : "ajuste",
-            "isChannelName" : false,
+			"isChannelName" : false,
 			"isChannel" : false,
 			"isSalesCenterName" : false,
 			"isSalesCenter" : false,
@@ -35,14 +40,14 @@ module.exports = {
 			"isOperationFilter" : false,
 			"isSales" : false,
 			"isPrediction" : false,
-			"isAdjustment" : true,
+			"isAdjustment" : false,
 			"isAnalysis" : false,
 			"isDate" : false
 		},
 		{
 			"name" : "canal_id",
 			"isChannelName" : false,
-			"isChannel" : true,
+			"isChannel" : false,
 			"isSalesCenterName" : false,
 			"isSalesCenter" : false,
 			"isProductName" : false,
@@ -57,7 +62,7 @@ module.exports = {
 		},
 		{
 			"name" : "canal_nombre",
-			"isChannelName" : true,
+			"isChannelName" : false,
 			"isChannel" : false,
 			"isSalesCenterName" : false,
 			"isSalesCenter" : false,
@@ -101,7 +106,7 @@ module.exports = {
 			"isPrediction" : false,
 			"isAdjustment" : false,
 			"isAnalysis" : false,
-			"isDate" : true
+			"isDate" : false
 		},
 		{
 			"name" : "modelo",
@@ -146,7 +151,7 @@ module.exports = {
 			"isAnalysisFilter" : false,
 			"isOperationFilter" : false,
 			"isSales" : false,
-			"isPrediction" : true,
+			"isPrediction" : false,
 			"isAdjustment" : false,
 			"isAnalysis" : false,
 			"isDate" : false
@@ -158,7 +163,7 @@ module.exports = {
 			"isSalesCenterName" : false,
 			"isSalesCenter" : false,
 			"isProductName" : false,
-			"isProduct" : true,
+			"isProduct" : false,
 			"isAnalysisFilter" : false,
 			"isOperationFilter" : false,
 			"isSales" : false,
@@ -173,7 +178,7 @@ module.exports = {
 			"isChannel" : false,
 			"isSalesCenterName" : false,
 			"isSalesCenter" : false,
-			"isProductName" : true,
+			"isProductName" : false,
 			"isProduct" : false,
 			"isAnalysisFilter" : false,
 			"isOperationFilter" : false,
@@ -209,7 +214,7 @@ module.exports = {
 			"isProduct" : false,
 			"isAnalysisFilter" : false,
 			"isOperationFilter" : false,
-			"isSales" : true,
+			"isSales" : false,
 			"isPrediction" : false,
 			"isAdjustment" : false,
 			"isAnalysis" : false,
@@ -228,7 +233,7 @@ module.exports = {
 			"isSales" : false,
 			"isPrediction" : false,
 			"isAdjustment" : false,
-			"isAnalysis" : true,
+			"isAnalysis" : false,
 			"isDate" : false
 		},
 		{
@@ -249,111 +254,10 @@ module.exports = {
 		}
 	],
 	"source" : "uploaded",
-	"status" : "conciliated",
+	"status" : "configuring",
 	"isMain" : false,
 	"type" : "univariable-time-series",
-	"apiData" : {
-		"products" : [
-			{
-				"_id" : "122928",
-				"name" : "Pecositas 70P 9 8G Ric"
-			},
-			{
-				"_id" : "123109",
-				"name" : "Takis Fuego 62G Co2 Bar"
-			},
-			{
-				"_id" : "123110",
-				"name" : "Runners 58G Co2 Bar"
-			}
-		],
-		"salesCenters" : [
-			{
-				"_id" : "12717"
-			},
-			{
-				"_id" : "12837"
-			},
-			{
-				"_id" : "12853"
-			},
-			{
-				"_id" : "12811"
-			},
-			{
-				"_id" : "12780"
-			},
-			{
-				"_id" : "12773"
-			},
-			{
-				"_id" : "12806"
-			},
-			{
-				"_id" : "12758"
-			},
-			{
-				"_id" : "12712"
-			},
-			{
-				"_id" : "12636"
-			},
-			{
-				"_id" : "12604"
-			},
-			{
-				"_id" : "12720"
-			},
-			{
-				"_id" : "12838"
-			},
-			{
-				"_id" : "12681"
-			},
-			{
-				"_id" : "12862"
-			},
-			{
-				"_id" : "12728"
-			},
-			{
-				"_id" : "12854"
-			},
-			{
-				"_id" : "12640"
-			},
-			{
-				"_id" : "12704"
-			},
-			{
-				"_id" : "12631"
-			},
-			{
-				"_id" : "12731"
-			},
-			{
-				"_id" : "12737"
-			}
-		],
-		"channels" : [
-			{
-				"_id" : "2",
-				"name" : "autoservicios"
-			},
-			{
-				"_id" : "0",
-				"name" : ""
-			},
-			{
-				"_id" : "4",
-				"name" : "conveniencia"
-			},
-			{
-				"_id" : "1",
-				"name" : "detalle"
-			}
-		]
-	},
-	"dateMax" : "2018-09-26",
-	"dateMin" : "2015-01-01"
-} 
+	"path" : {
+		"savedToDisk" : false
+	}
+}

@@ -1,6 +1,6 @@
 const { DataSet } = require('models')
-const { datasetFixture } = require('../fixtures')
+const { processingDatasetFixture } = require('../fixtures')
 
 module.exports = function createDataset (opts = {}) {
-  return DataSet.create(Object.assign({}, datasetFixture, opts))
+  return DataSet.create(Object.assign({}, processingDatasetFixture, opts))
 }

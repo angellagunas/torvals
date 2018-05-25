@@ -1,28 +1,29 @@
 /* global describe, beforeEach, it */
 require('co-mocha')
 
-const { DataSetRow, Anomaly } = require('models')
 const { assert, expect } = require('chai')
-const saveDataset = require('tasks/dataset/process/save-dataset')
+const { Channel, Product, SalesCenter } = require('models')
 const {
   clearDatabase,
   createUser,
   createDataset,
   createOrganization,
   createProject,
-  createFileChunk
+  createFileChunk,
+  createDatasetRows
 } = require('../utils')
 
+const processDataset = require('tasks/dataset/process/process-dataset')
 
-describe('Configure datasets', () => {
+
+describe('Process datasets', () => {
   beforeEach(async function () {
     await clearDatabase()
   })
 
   describe('with csv file with 3 products', () => {
-    it('should be add rows successfully', async function () {
-      this.timeout(1000 * 20);
-
+    it('should process dataset successfully', async function () {
+      this.timeout(1000 * 30);
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
@@ -50,14 +51,21 @@ describe('Configure datasets', () => {
 
       await dataset.save()
 
-      taskResult = await saveDataset.run({uuid: dataset.uuid})
+      datarows = await createDatasetRows({
+        organization: org._id,
+        project: project._id,
+        dataset: dataset._id
+      })
 
-      totalRows = await DataSetRow.find({dataset:dataset._id}).count()
-      totalAnomalies = await Anomaly.find().count()
+      processingResult = await processDataset.run({uuid: dataset.uuid})
 
-      expect(dataset.name).equal('Dataset with processing as status')
-      expect(totalRows).equal(12)
-      expect(totalAnomalies).equal(0)
+      channels = await Channel.find().count()
+      products = await Product.find().count()
+      saleCenters = await SalesCenter.find().count()
+
+      expect(channels).equal(3)
+      expect(products).equal(3)
+      expect(saleCenters).equal(2)
     })
   })
 })
