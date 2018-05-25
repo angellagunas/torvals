@@ -1001,6 +1001,23 @@ getProductsSelected () {
       )
     }
 
+    if (this.props.adjustmentML1){
+      return (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-primary">
+              <div className="message-header">
+                <p>Información</p>
+              </div>
+              <div className="message-body">
+                ¡Sus ajustes se han guardado con éxito!
+              </div>
+            </article>
+          </div>
+        </div>
+      )
+    }
+
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
     if (dataSetsNumber) {
