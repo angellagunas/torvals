@@ -388,7 +388,7 @@ class ProjectDetail extends Component {
     try {
       var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment && item.isLimit }))
       if (currentRole === 'manager-level-1') {
-        this.notify('Sus ajustes de han guardado', 5000, toast.TYPE.INFO)
+        this.notify('Sus ajustes se han guardado', 5000, toast.TYPE.INFO)
         this.setState({
           adjustmentML1: true
         })
