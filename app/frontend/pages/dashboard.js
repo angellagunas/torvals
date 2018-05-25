@@ -53,15 +53,15 @@ class Dashboard extends Component {
   }
 
   componentWillMount () {
-    let org = tree.get('user').currentOrganization
-    if(!org.configured){
+    /* let org = tree.get('user').currentOrganization
+    if(!org.rules){
       this.setState({
         launchWizard: true
       })
     }
-    else{
+    else{ */
       this.getProjects()
-    }
+    //}
   }
 
   moveTo (route) {

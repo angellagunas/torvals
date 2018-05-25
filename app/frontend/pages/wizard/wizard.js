@@ -26,7 +26,7 @@ class Wizard extends Component {
     let tab = '1'
 
     let org = this.props.org
-    if (org) {
+    if (org.rules) {
       if (!org.rules.cicle || !org.rules.period) {
         step = 0
         tab = '1'
