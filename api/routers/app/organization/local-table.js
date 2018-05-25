@@ -5,6 +5,8 @@ const redis = require('lib/redis')
 const crypto = require('crypto')
 const _ = require('lodash')
 
+const EXPIRATION = 60 * 60 * 24 * 4
+
 module.exports = new Route({
   method: 'post',
   path: '/local/table',
@@ -42,23 +44,23 @@ module.exports = new Route({
     data.projects = data.projects.sort()
     data.salesCenters = data.salesCenters.sort()
 
-    // const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'table').digest('hex')
-    // try {
-    //   const cacheData = await redis.hGetAll(parameterHash)
-    //   if (cacheData) {
-    //     var cacheResponse = []
-    //     for (let cacheItem in cacheData) {
-    //       cacheResponse.push(JSON.parse(cacheData[cacheItem]))
-    //     }
+    const parameterHash = 'api:' + crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'table').digest('hex')
+    try {
+      const cacheData = await redis.hGetAll(parameterHash)
+      if (cacheData) {
+        var cacheResponse = []
+        for (let cacheItem in cacheData) {
+          cacheResponse.push(JSON.parse(cacheData[cacheItem]))
+        }
 
-    //     ctx.body = {
-    //       data: cacheResponse
-    //     }
-    //     return
-    //   }
-    // } catch (e) {
-    //   console.log('Error retrieving the cache')
-    // }
+        ctx.body = {
+          data: cacheResponse
+        }
+        return
+      }
+    } catch (e) {
+      console.log('Error retrieving the cache')
+    }
 
     const key = {product: '$product'}
     let initialMatch = {
@@ -235,6 +237,7 @@ module.exports = new Route({
     try {
       for (let item in responseData) {
         await redis.hSet(parameterHash, item, JSON.stringify(responseData[item]))
+        await redis.expire(parameterHash, EXPIRATION)
       }
     } catch (e) {
       console.log('Error setting the cache')
