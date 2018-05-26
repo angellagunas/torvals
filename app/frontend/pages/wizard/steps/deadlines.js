@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-
+import CalendarRules from './calendar-rules'
+import moment from 'moment'
 class DeadLines extends Component {
   constructor (props) {
     super(props)
@@ -48,37 +49,50 @@ class DeadLines extends Component {
     ]
 
     return (
-      <div>
-        Debes definir el fechas para el ciclo de operación a partir de la fecha de inicio.
+      <div className='section'>
+
+        <h1 className='title is-4'> Debes definir el fechas para el ciclo de operación a partir de la fecha de inicio.</h1>
+
+        <br />
+        <div className='columns'>
+          <div className='column'>
+            {
+              deadlines.map((item) => {
+                return (
+                  <div className='field has-addons' key={item.name}>
+                    <p className='control'>
+                      <a className='button is-capitalized'>
+                        {item.title}
+                      </a>
+                    </p>
+                    <p className='control'>
+                      <input className='input' type='text' placeholder='dias' name={item.name}
+                        value={this.state.data[item.name]}
+                        onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }}
+                      />
+                    </p>
+                    <p className='control'>
+                      <a className='button is-static'>
+                        Días
+                  </a>
+                    </p>
+                  </div>
+                )
+              })
+            }
+          </div>
+          <div className='column'>
+            <CalendarRules
+              disabled
+              date={moment(this.props.startDate)}
+              limits={this.state.data}
+              />
+          </div>
+        </div>
+
         <br />
 
-        {
-          deadlines.map((item) => {
-            return (
-              <div className='field has-addons' key={item.name}>
-                <p className='control'>
-                  <a className='button is-capitalized'>
-                    {item.title}
-                  </a>
-                </p>
-                <p className='control'>
-                  <input className='input' type='text' placeholder='dias' name={item.name}
-                    value={this.state.data[item.name]}
-                    onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }}
-                   />
-                </p>
-                <p className='control'>
-                  <a className='button is-static'>
-                    Días
-                  </a>
-                </p>
-              </div>
-            )
-          })
-        }
-        <br />
-
-        <button onClick={() => this.props.nextStep({ ...this.state.data })} className='button is-primary'>Continuar</button>
+        <button onClick={() => this.props.nextStep({ ...this.state.data })} className='button is-primary is-pulled-right'>Continuar</button>
       </div>
     )
   }

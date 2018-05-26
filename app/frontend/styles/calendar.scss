@@ -87,3 +87,59 @@
     color: #ccc;
     background-color: transparent;
 }
+
+.calendar {
+    box-shadow: 0 0 15px 0 #ccc;
+}
+
+.sales {
+    &.calendar .calendar-range::before {
+        background: rgba(76, 175, 80, .2) !important;
+    }
+}
+
+.calendar .calendar-nav .calendar-month {
+    font-size: .9rem !important;
+}
+
+.calendar .calendar-date .date-item:focus {
+    background: transparent !important;
+    border-color: #187FE6 !important;
+    color: #187FE6 !important;
+}
+
+.calendar-not {
+    pointer-events: none;
+}
+
+.radio {
+    margin-left: 10px;
+    span {
+        padding-left: 10px;
+    }
+}
+
+.sales-limit {
+    background: rgba(76, 175, 80, .8) !important;
+    border-color: rgba(76, 175, 80, .8) !important;
+}
+
+.forecast-limit {
+    background: rgba(33, 150, 243, 1) !important;
+    border-color: rgba(33, 150, 243, 1) !important;
+}
+
+.adjustments-limit {
+    background: #673AB7 !important;
+    border-color: #673AB7 !important;
+}
+
+.approve-limit {
+    background: #FFC107 !important;
+    border-color: #FFC107 !important;
+}
+
+.consolidate-limit {
+    background: #F44336 !important;
+    border-color: #F44336 !important;
+}

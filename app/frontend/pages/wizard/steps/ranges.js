@@ -33,13 +33,22 @@ class Ranges extends Component {
 
     for (let i = 0; i < this.props.rules.ciclesAvailable; i++) {
       inputs.push(
-        <div className='field' key={i}>
-          <label className='label'>Ciclo {i + 1}</label>
-          <div className='control'>
-            <input className='input' type='text' placeholder='Text input'
+        <div className='field has-addons' key={i}>
+          <p className='control'>
+            <a className='button is-capitalized'>
+              Ciclo {i + 1}
+            </a>
+          </p>
+          <p className='control'>
+            <input className='input' type='text' placeholder='dias'
               value={this.state.ranges[i]}
               onChange={(e) => { this.handleInputChange(i, e.target.value) }} />
-          </div>
+          </p>
+          <p className='control'>
+            <a className='button is-static'>
+              % de ajuste
+                  </a>
+          </p>
         </div>
       )
     }
@@ -49,9 +58,10 @@ class Ranges extends Component {
   render () {
     let rules = this.props.rules
     return (
-      <div>
-        Debe asignar el porcentaje de ajuste de cada ciclo disponible.
-        0 - No permitido, -1 - Ilimitado
+      <div className='section'>
+        <h1 className='title is-4'> Debe asignar el porcentaje de ajuste de cada ciclo disponible.</h1>
+
+        <h1 className='title is-5'> 0  No permitido <br /> -1  Ilimitado</h1>
         <br />
         {rules && rules.ciclesAvailable &&
           this.createInputs()

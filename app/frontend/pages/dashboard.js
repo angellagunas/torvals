@@ -54,7 +54,7 @@ class Dashboard extends Component {
 
   componentWillMount () {
     let org = tree.get('user').currentOrganization
-    if(!org.confirg){
+    if(!org.confir){ 
       this.setState({
         launchWizard: true
       })

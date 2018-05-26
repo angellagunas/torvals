@@ -6,6 +6,8 @@ import OrgInfo from './steps/org-info'
 import Periods from './steps/periods'
 import Ranges from './steps/ranges'
 import DeadLines from './steps/deadlines'
+import CalendarRules from './steps/calendar-rules'
+import Catalogs from './steps/catalogs'
 
 class Wizard extends Component {
   constructor (props) {
@@ -26,7 +28,7 @@ class Wizard extends Component {
     let tab = '1'
 
     let org = this.props.org
-    if (org.rules) {
+    /* if (org.rules) {
       if (!org.rules.cicle || !org.rules.period) {
         step = 0
         tab = '1'
@@ -36,13 +38,16 @@ class Wizard extends Component {
       } else if (!org.rules.range_adjustment) {
         step = 3
         tab = '4'
+      } else if (org.rules.consolidation) {
+        step = 4
+        tab = '5'
       }
 
       this.setState({
         currentStep: step,
         selectedTab: tab
       })
-    }
+    } */
   }
   hideModal () {
     this.setState({
@@ -134,7 +139,7 @@ class Wizard extends Component {
         hide: false,
         disabled: !(Number(this.state.currentStep) > 3),
         content: (
-          <DeadLines rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+          <DeadLines startDate={this.state.rules.startDate} rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
           )
       },
       {
@@ -144,7 +149,7 @@ class Wizard extends Component {
         disabled: !(Number(this.state.currentStep) > 4),
         content: (
           <div>
-            <OrgInfo />
+            <CalendarRules />
             <button onClick={() => this.nextStep()} className='button is-primary'>Continuar</button>
           </div>
           )
@@ -155,10 +160,7 @@ class Wizard extends Component {
         hide: false,
         disabled: !(Number(this.state.currentStep) > 5),
         content: (
-          <div>
-            <OrgInfo />
-            <button onClick={() => this.nextStep()} className='button is-primary'>Continuar</button>
-          </div>
+          <Catalogs nextStep={(data) => this.nextStep(data)} />
           )
       },
       {
@@ -167,9 +169,12 @@ class Wizard extends Component {
         hide: false,
         disabled: !(Number(this.state.currentStep) > 6),
         content: (
-          <div>
-            <OrgInfo />
-            <button onClick={() => this.nextStep()} className='button is-primary'>Continuar</button>
+          <div className='section'>
+            <center>
+              <h1 className='title is-4'> Haz tarminado la configuración, ya puedes crear un proyecto</h1>
+
+              <button className='button is-primary'>Crear Proyecto</button>
+            </center>
           </div>
           )
       }
