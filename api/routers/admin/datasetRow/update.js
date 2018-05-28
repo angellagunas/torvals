@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
-const verifyDatasetrows = require('queues/update-datasetrows')
 
 const {DataSetRow} = require('models')
 
@@ -23,7 +22,6 @@ module.exports = new Route({
       datasetRow.status = 'sendingChanges'
       datasetRow.markModified('data')
       await datasetRow.save()
-      verifyDatasetrows.add({uuid: datasetRowId})
     }
     ctx.body = {
       data: datasetRow.toAdmin()

@@ -20,7 +20,6 @@ import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
 import ResetPassword from './pages/reset-password'
 import DataSets from './pages/datasets/list'
-import DataSetDetail from './pages/datasets/detail'
 import ReadyDataSets from './pages/datasets/list-ready'
 import Projects from './pages/projects/list'
 import ProjectDetail from './pages/projects/detail'
@@ -72,7 +71,6 @@ const AppRouter = () => {
 
           {DataSets.asRouterItem()}
           {ReadyDataSets.asRouterItem()}
-          {DataSetDetail.asRouterItem()}
 
           {Projects.asRouterItem()}
 
