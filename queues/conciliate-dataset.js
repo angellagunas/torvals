@@ -1,18 +1,14 @@
 // node queues/finish-upload.js
 require('../config')
 require('lib/databases/mongo')
+const path = require('path')
 
 const Queue = require('lib/queue')
-const conciliateDataset = require('tasks/dataset/process/conciliate-dataset')
 
 const queue = new Queue({
   name: 'conciliate-dataset',
-  task: async function (argv) {
-    let a
-    a = await conciliateDataset.run(argv)
-
-    return a
-  }
+  isFile: true,
+  task: path.join(__dirname, 'tasks-wrappers/conciliate-dataset.js')
 })
 
 if (require.main === module) {
