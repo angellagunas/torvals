@@ -63,9 +63,35 @@ describe('Process datasets', () => {
       products = await Product.find().count()
       saleCenters = await SalesCenter.find().count()
 
+      detalleChannel = await Channel.findOne({externalId: 1})
+      autoServicioChannel = await Channel.findOne({externalId: 2})
+      convenienciaChannel = await Channel.findOne({externalId: 4})
+
+      product1 = await Product.findOne({externalId: "123109", name:"Takis Fuego 62G Co2 Bar"})
+      product2 = await Product.findOne({externalId: "123110", name:"Runners 58G Co2 Bar"})
+      product3 = await Product.findOne({externalId: "122928", name:"Pecositas 70P 9 8G Ric"})
+
+      saleCenter1 = await SalesCenter.findOne({externalId: "12604", name: "Not identified"})
+      saleCenter2 = await SalesCenter.findOne({externalId: "12837", name: "Not identified"})
+
       expect(channels).equal(3)
       expect(products).equal(3)
       expect(saleCenters).equal(2)
+
+      assert.exists(detalleChannel)
+      assert.exists(autoServicioChannel)
+      assert.exists(convenienciaChannel)
+
+      expect(detalleChannel.name).equal("detalle")
+      expect(autoServicioChannel.name).equal("autoservicio")
+      expect(convenienciaChannel.name).equal("conveniencia")
+
+      assert.exists(product1)
+      assert.exists(product2)
+      assert.exists(product3)
+
+      assert.exists(saleCenter1)
+      assert.exists(saleCenter2)
     })
   })
 })
