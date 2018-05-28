@@ -19,7 +19,7 @@ describe('/datasets', () => {
     // await clearDatabase()
   })
 
-  describe('[post] / Create dataSets', () => {
+  describe.skip('[post] / Create dataSets', () => {
     it('should return a 200 then the dataset created', async function () {
       await clearDatabase()
       const user = await createUser({ password })

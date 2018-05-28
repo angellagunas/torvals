@@ -6,6 +6,7 @@ const moment = require('moment')
 const Task = require('lib/task')
 const { Project, DataSet, DataSetRow } = require('models')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
+const getAnomalies = require('queues/get-anomalies')
 
 const task = new Task(
   async function (argv) {
@@ -121,6 +122,7 @@ const task = new Task(
       await project.save()
 
       log(`Successfully generated dataset ${dataset.name} for adjustment`)
+      getAnomalies.add({uuid: project.uuid})
     } catch (e) {
       log(e)
       dataset.set({
