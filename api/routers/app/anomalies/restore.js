@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
 const { Anomaly, Project, DataSetRow } = require('models')
+const conciliateDataset = require('queues/conciliate-dataset')
 
 module.exports = new Route({
   method: 'post',
@@ -7,7 +8,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     var data = ctx.request.body
 
-    const project = await Project.findOne({uuid: ctx.params.uuid})
+    const project = await Project.findOne({uuid: ctx.params.uuid}).populate('activeDataset')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
     var batchSize = 1000
@@ -54,8 +55,13 @@ module.exports = new Route({
       ctx.throw(500, 'Error recuperando las anomalías')
     }
 
-    project.set({status: 'pendingRows'})
-    project.save()
+    project.activeDataset.set({status: 'conciliating'})
+    await project.activeDataset.save()
+
+    project.set({status: 'conciliating'})
+    await project.save()
+
+    conciliateDataset.add({project: project.uuid, dataset: project.activeDataset.uuid})
 
     ctx.body = {
       data: 'ok'
