@@ -21,7 +21,8 @@ const task = new Task(
     var startDate = moment(moment(organization.rules.startDate).format('YYYY-MM-DD'))
     var endDate = moment(moment(cycles[cycles.length - 1].dateEnd).format('YYYY-MM-DD'))
     var currentEndDate
-    var periodNumber = 1
+    var periodNumber
+    var lastCycle
     do {
       currentEndDate = moment(startDate).add(periodDuration, period)
       currentEndDate = moment(currentEndDate).subtract(1, 'd')
@@ -40,6 +41,10 @@ const task = new Task(
           cycle = cyclesBetween[0]._id
         }
 
+        if (String(lastCycle) !== String(cycle)) {
+          periodNumber = 1
+        }
+
         await Period.create({
           organization: organization._id,
           dateStart: startDate,
@@ -47,6 +52,8 @@ const task = new Task(
           cycle: cycle,
           period: periodNumber++
         })
+
+        lastCycle = cycle
       }
 
       startDate = moment(currentEndDate).add(1, 'd')
