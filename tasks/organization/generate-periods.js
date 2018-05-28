@@ -13,7 +13,7 @@ const task = new Task(
       throw new Error('You need to provide an organization')
     }
     const organization = await Organization.findOne({uuid: argv.uuid})
-    const cycles = await Cycle.find({organization: organization._id})
+    const cycles = await Cycle.find({organization: organization._id}).sort({dateStart: 1})
     const periodDuration = organization.rules.periodDuration
     const period = organization.rules.period
     const takeStart = organization.rules.takeStart
