@@ -20,6 +20,7 @@ const Price = require('./price')
 const Anomaly = require('./anomaly')
 const Token = require('./token')
 const Cycle = require('./cycle')
+const Period = require('./period')
 // #Import
 
 module.exports = {
@@ -44,5 +45,6 @@ module.exports = {
   Price,
   Anomaly,
   Token,
-  Cycle// #Exports
+  Cycle,
+  Period// #Exports
 }

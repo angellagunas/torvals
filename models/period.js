@@ -3,38 +3,41 @@ const { Schema } = require('mongoose')
 const { v4 } = require('uuid')
 const moment = require('moment')
 
-const cycleSchema = new Schema({
+const periodSchema = new Schema({
   organization: {type: Schema.Types.ObjectId, ref: 'Organization', required: true},
   dateStart: { type: Date },
   dateEnd: { type: Date },
-  cycle: { type: Number },
+  cycle: { type: Schema.Types.ObjectId, ref: 'Cycle', required: true },
+  period: {type: Number},
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true })
 
-cycleSchema.methods.toPublic = function () {
+periodSchema.methods.toPublic = function () {
   return {
     organization: this.organization,
     dateStart: this.dateStart,
     dateEnd: this.dateEnd,
     cycle: this.cycle,
+    period: this.period,
     dateCreated: this.dateCreated,
     uuid: this.uuid,
     isDeleted: this.isDeleted
   }
 }
 
-cycleSchema.methods.toAdmin = function () {
+periodSchema.methods.toAdmin = function () {
   return {
     organization: this.organization,
     dateStart: this.dateStart,
     dateEnd: this.dateEnd,
     cycle: this.cycle,
+    period: this.period,
     dateCreated: this.dateCreated,
     uuid: this.uuid,
     isDeleted: this.isDeleted
   }
 }
 
-module.exports = mongoose.model('Cycle', cycleSchema)
+module.exports = mongoose.model('Period', periodSchema)

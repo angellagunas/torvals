@@ -49,7 +49,7 @@ module.exports = new Route({
 
     await org.save()
 
-    generateCycles.run()
+    generateCycles.run({uuid: org.uuid})
 
     ctx.body = {
       data: org.toPublic()
