@@ -28,7 +28,9 @@ const task = new Task(
 
       let cyclesBetween = await Cycle.find({ $or: [
         {dateStart: {$lte: startDate}, dateEnd: {$gte: startDate}},
-        {dateStart: {$lte: currentEndDate}, dateEnd: {$gte: currentEndDate}}]})
+        {dateStart: {$lte: currentEndDate}, dateEnd: {$gte: currentEndDate}}],
+        organization: organization._id
+      })
 
       if (cyclesBetween.length > 0) {
         let cycle
