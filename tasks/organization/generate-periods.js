@@ -17,7 +17,7 @@ const task = new Task(
     const periodDuration = organization.rules.periodDuration
     const period = organization.rules.period
     const takeStart = organization.rules.takeStart
-
+    await Period.deleteMany({organization: organization._id})
     var startDate = moment(moment(organization.rules.startDate).format('YYYY-MM-DD'))
     var endDate = moment(moment(cycles[cycles.length - 1].dateEnd).format('YYYY-MM-DD'))
     var currentEndDate

@@ -20,8 +20,7 @@ cycleSchema.methods.toPublic = function () {
     dateEnd: this.dateEnd,
     cycle: this.cycle,
     dateCreated: this.dateCreated,
-    uuid: this.uuid,
-    isDeleted: this.isDeleted
+    uuid: this.uuid
   }
 }
 

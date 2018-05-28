@@ -15,9 +15,10 @@ const task = new Task(
       throw new Error('You need to provide an organization')
     }
     const organization = await Organization.findOne({uuid: argv.uuid})
-    var season = organization.rules.season
     const cycleDuration = organization.rules.cycleDuration
     const cycle = organization.rules.cycle
+
+    await Cycle.deleteMany({organization: organization._id})
 
     var startDate = moment(organization.rules.startDate).format('YYYY-MM-DD')
 

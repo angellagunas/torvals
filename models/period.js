@@ -15,29 +15,30 @@ const periodSchema = new Schema({
 }, { usePushEach: true })
 
 periodSchema.methods.toPublic = function () {
-  return {
+  var data = {
     organization: this.organization,
     dateStart: this.dateStart,
     dateEnd: this.dateEnd,
-    cycle: this.cycle,
     period: this.period,
     dateCreated: this.dateCreated,
-    uuid: this.uuid,
-    isDeleted: this.isDeleted
+    uuid: this.uuid
   }
 }
 
 periodSchema.methods.toAdmin = function () {
-  return {
+  var data = {
     organization: this.organization,
     dateStart: this.dateStart,
     dateEnd: this.dateEnd,
-    cycle: this.cycle,
     period: this.period,
     dateCreated: this.dateCreated,
     uuid: this.uuid,
     isDeleted: this.isDeleted
   }
+
+  if (this.cycle) { data.cycle = this.cycle.toPublic() }
+
+  return data
 }
 
 module.exports = mongoose.model('Period', periodSchema)
