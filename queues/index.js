@@ -5,6 +5,7 @@ const processDataset = require('./process-dataset')
 const saveDatasetRows = require('./save-datasetrows')
 const conciliateDataset = require('./conciliate-dataset')
 const filterDataset = require('./filter-dataset')
+const cloneProject = require('./clone-project')
 const getAnomalies = require('./get-anomalies')
 // #Requires
 
@@ -13,6 +14,7 @@ module.exports = {
   'update-prices': updatePrices,
   'conciliate-dataset': conciliateDataset,
   'filter-dataset': filterDataset,
+  'clone-project': cloneProject,
   'save-dataset': saveDataset,
   'process-dataset': processDataset,
   'save-datasetrows': saveDatasetRows,
