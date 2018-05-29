@@ -1,4 +1,4 @@
-// node tasks/migrations/set-week-datasetrows.js
+// node tasks/dataset/process/filter-dataset.js --project uuid --dataset uuid --dateStart 'YYYY-MM-DD' --dateEnd 'YYYY-MM-DD' [--batchSize batchSize --noNextStep]
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')

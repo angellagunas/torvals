@@ -1,4 +1,4 @@
-// node tasks/dataset/process/save-datasetrows.js
+// node tasks/dataset/process/save-datasetrows.js --uuid uuid
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
@@ -6,7 +6,6 @@ const moment = require('moment')
 const Task = require('lib/task')
 const { DataSetRow, DataSet } = require('models')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
-const getAnomalies = require('queues/get-anomalies')
 
 const task = new Task(
   async function (argv) {
