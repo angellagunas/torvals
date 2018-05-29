@@ -3,7 +3,7 @@ const lov = require('lov')
 const moment = require('moment')
 const generateCycles = require('tasks/organization/generate-cycles')
 
-const {Organization} = require('models')
+const {Organization, Period} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -43,6 +43,10 @@ module.exports = new Route({
       var periodDiff = moment.duration(periodDate.diff(startDate)).asDays()
 
       if (cycleDiff < periodDiff) { ctx.throw(400, 'El ciclo no puede tener menor duración que el periodo') }
+
+      if (data.periodDuration <= 0 || data.cyclesDuration <= 0) {
+        ctx.throw(400, 'Las duraciones del periodo y el ciclo tienen que ser mayores a 0')
+      }
     }
 
     org.set({
@@ -66,11 +70,18 @@ module.exports = new Route({
     await org.save()
 
     if (data.step === 1) {
-      generateCycles.run({uuid: org.uuid})
+      await generateCycles.run({uuid: org.uuid})
     }
 
+    const periods = await Period.find({ organization: org._id, isDeleted: false }).populate('cycle')
+    periods.data = periods.map(item => {
+      return item.toPublic()
+    })
+
     ctx.body = {
-      data: org.toPublic()
+      data: { ...org.toPublic(),
+        periods: periods.data
+      }
     }
   }
 })

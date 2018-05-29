@@ -23,6 +23,10 @@ periodSchema.methods.toPublic = function () {
     dateCreated: this.dateCreated,
     uuid: this.uuid
   }
+
+  if (this.cycle) { data.cycle = this.cycle.toPublic() }
+
+  return data
 }
 
 periodSchema.methods.toAdmin = function () {
@@ -36,7 +40,7 @@ periodSchema.methods.toAdmin = function () {
     isDeleted: this.isDeleted
   }
 
-  if (this.cycle) { data.cycle = this.cycle.toPublic() }
+  if (this.cycle) { data.cycle = this.cycle.toAdmin() }
 
   return data
 }

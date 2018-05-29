@@ -17,6 +17,8 @@ const task = new Task(
     const organization = await Organization.findOne({uuid: argv.uuid})
     const cycleDuration = organization.rules.cycleDuration
     const cycle = organization.rules.cycle
+    const season = organization.rules.season
+    const cyclesAvailable = organization.rules.cyclesAvailable
 
     await Cycle.deleteMany({organization: organization._id})
 
@@ -24,12 +26,17 @@ const task = new Task(
 
     var currentDateDiff
     if (cycle === 'M') {
-      currentDateDiff = Math.ceil(moment.duration(moment(startDate).add(1, 'y').diff(startDate)).asMonths() / cycleDuration)
+      startDate = moment(startDate).subtract(season, 'M')
+      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asMonths())
     } else if (cycle === 'w') {
-      currentDateDiff = Math.ceil(moment.duration(moment(startDate).add(1, 'y').diff(startDate)).asWeeks() / cycleDuration)
+      startDate = moment(startDate).subtract(season, 'w')
+      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asWeeks())
     } else if (cycle === 'd') {
-      currentDateDiff = Math.ceil(moment.duration(moment(startDate).add(1, 'y').diff(startDate)).asDays() / cycleDuration)
+      startDate = moment(startDate).subtract(season, 'd')
+      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asDays())
     }
+
+    currentDateDiff += cyclesAvailable
 
     for (let i = 1; i <= currentDateDiff; i++) {
       let endDate = moment(startDate).add(cycleDuration, cycle)
@@ -44,7 +51,7 @@ const task = new Task(
 
       startDate = moment(endDate).add(1, 'd')
     }
-    generatePeriods.run({uuid: organization.uuid})
+    await generatePeriods.run({uuid: organization.uuid})
     return true
   }
 )
