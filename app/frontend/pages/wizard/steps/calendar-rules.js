@@ -11,7 +11,6 @@ class CalendarRules extends Component {
       maxDate: this.props.maxDate || undefined,
       weekDayHeader: this.weekHeader(),
       dateSelected: this.props.date || moment(),
-      datesSelected: [],
       startDate: this.props.startDate || moment(),
       salesDate: this.props.salesDate || moment(),
       forecastDate: this.props.forecastDate || moment(),
@@ -114,8 +113,25 @@ class CalendarRules extends Component {
     }
   }
 
+  getTooltip (item) {
+    if (!this.props.limits) {
+      return
+    }
+
+    if (item === Number(this.props.limits.sales_upload)) {
+      return 'Límite para subir ventas'
+    } else if (item === Number(this.props.limits.forecast_creation)) {
+      return 'Límite para crear y aprobar forecast'
+    } else if (item === Number(this.props.limits.range_adjustment)) {
+      return 'Límite para realizar ajustes'
+    } else if (item === Number(this.props.limits.range_adjustmentRequest)) {
+      return 'Límite para aprobar ajustes'
+    } else if (item === Number(this.props.limits.consolidation)) {
+      return 'Límite para conciliar'
+    }
+  }
+
   render () {
-    console.log(this.props)
     return (
       <div>
         <div className='calendar'>
@@ -149,26 +165,111 @@ class CalendarRules extends Component {
               {
               this.state.calendarDays && this.state.calendarDays.map((item, key) => {
                 if (item.value !== 0) {
+                  if (this.props.limits) {
+                    // console.log('date', this.dateFromNum(item.value, this.state.date).format('DD-MM-YYYY'))
+                    // console.log('dates', this.props.limits)
+                    // console.log(this.props.limits.startDates.indexOf(this.dateFromNum(item.value, this.state.date).format('DD-MM-YYYY')))
+                    console.log(this.props.limits)
+                  }
+                  let date = this.dateFromNum(item.value, this.state.date).format('YYYY-MM-DD')
+                  let isStart = this.props.limits &&
+                  this.props.limits.startDates.indexOf(date) !== -1
+
+                  let isEnd = this.props.limits &&
+                    this.props.limits.endDates.indexOf(date) !== -1
+
+                  let isSalesLimit = this.props.limits &&
+                    this.props.limits.sales_upload.indexOf(date) !== -1
+
+                  let isForecastLimit = this.props.limits &&
+                    this.props.limits.forecast_creation.indexOf(date) !== -1
+
+                  let isAdjustmentLimit = this.props.limits &&
+                    this.props.limits.range_adjustment.indexOf(date) !== -1
+
+                  let isApproveLimit = this.props.limits &&
+                    this.props.limits.range_adjustmentRequest.indexOf(date) !== -1
+
+                  let date2 = this.dateFromNum(item.value, this.state.date)
+                  console.log(date)
                   return (
-                    <div className={
+                    <div key={key} className={
                       classNames('calendar-date', {
                         'is-disabled': !item.available,
-                        'sales calendar-range': this.props.limits && item.value < Number(this.props.limits.sales_upload),
-                        'calendar-range calendar-range-end': this.props.limits && item.value === Number(this.props.limits.sales_upload)
+
+                        'calendar-range calendar-range-sales':
+                          this.props.limits &&
+                          date2
+                          .isBetween(
+                            this.props.limits.startDates[this.state.date.get('month')],
+                            this.props.limits.sales_upload[this.state.date.get('month')],
+                            'days', '()'),
+
+                        'calendar-range calendar-range-sales calendar-range-end': isSalesLimit,
+
+                        'calendar-range calendar-range-forecast':
+                          this.props.limits &&
+                          date2
+                            .isBetween(
+                            this.props.limits.sales_upload[this.state.date.get('month')],
+                              this.props.limits.forecast_creation[this.state.date.get('month')],
+                              'days', '()'),
+
+                        'calendar-range calendar-range-forecast calendar-range-end': isForecastLimit,
+
+                        'calendar-range calendar-range-adjustments':
+                          this.props.limits &&
+                          date2
+                            .isBetween(
+                            this.props.limits.forecast_creation[this.state.date.get('month')],
+                              this.props.limits.range_adjustment[this.state.date.get('month')],
+                              'days', '()'),
+
+                        'calendar-range calendar-range-adjustments calendar-range-end': isAdjustmentLimit,
+
+                        'calendar-range calendar-range-approve':
+                          this.props.limits &&
+                          date2
+                            .isBetween(
+                            this.props.limits.range_adjustment[this.state.date.get('month')],
+                              this.props.limits.range_adjustmentRequest[this.state.date.get('month')],
+                              'days', '()'),
+
+                        'calendar-range calendar-range-approve calendar-range-end': isApproveLimit,
+
+                        'calendar-range calendar-range-consolidate':
+                          this.props.limits &&
+                          date2
+                            .isBetween(
+                              this.props.limits.range_adjustmentRequest[this.state.date.get('month')],
+                              this.props.limits.endDates[this.state.date.get('month')],
+                              'days', '()'),
+
+                        'calendar-range calendar-range-consolidate calendar-range-end': isEnd
+
                       })
-                      }>
+                      }
+                      >
                       <button onClick={() => { this.selectDay(item, 'inicio') }}
                         className={
                           classNames('date-item', {
-                            'is-today':
-                              this.state.dateSelected && this.state.dateSelected.format('DD-MM-YYYY') === this.dateFromNum(item.value, this.state.date).format('DD-MM-YYYY'),
-                            'is-active sales-limit': this.props.limits && item.value === Number(this.props.limits.sales_upload),
-                            'is-active forecast-limit': this.props.limits && item.value === Number(this.props.limits.forecast_creation),
-                            'is-active adjustments-limit': this.props.limits && item.value === Number(this.props.limits.range_adjustment),
-                            'is-active approve-limit': this.props.limits && item.value === Number(this.props.limits.range_adjustmentRequest),
-                            'is-active consolidate-limit': this.props.limits && item.value === Number(this.props.limits.consolidation)
+                            'is-today tooltip': isStart,
+                            'is-active limit-sales tooltip': isSalesLimit,
+                            'is-active limit-forecast tooltip': isForecastLimit,
+                            'is-active limit-adjustments tooltip': isAdjustmentLimit,
+                            'is-active limit-approve tooltip': isApproveLimit,
+                            'is-active limit-consolidate tooltip': isEnd
                           })
-                          }>{item.value}</button>
+                          }
+                        data-tooltip={classNames({
+                          'Inicio de ciclo': isStart,
+                          'Límite para subir ventas': isSalesLimit,
+                          'Límite para crear y aprobar forecast': isForecastLimit,
+                          'Límite para realizar ajustes': isAdjustmentLimit,
+                          'Límite para aprobar ajustes': isApproveLimit,
+                          'Fin de ciclo límite para conciliar': isEnd
+                        })}
+                          >{item.value}</button>
                     </div>
                   )
                 } else {

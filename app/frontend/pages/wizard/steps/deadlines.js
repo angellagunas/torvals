@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import CalendarRules from './calendar-rules'
-import moment from 'moment'
+import Moment from 'moment'
+import { extendMoment } from 'moment-range'
+const moment = extendMoment(Moment)
+
 class DeadLines extends Component {
   constructor (props) {
     super(props)
@@ -10,9 +13,72 @@ class DeadLines extends Component {
         forecast_creation: this.props.rules.forecast_creation || 0,
         range_adjustment: this.props.rules.range_adjustment || 0,
         range_adjustmentRequest: this.props.rules.range_adjustmentRequest || 0,
-        consolidation: this.props.rules.consolidation || 0
+        consolidation: this.props.rules.cicleDuration * 31
+      },
+      dates: {
+        startDates: [],
+        endDates: [],
+        sales_upload: [],
+        forecast_creation: [],
+        range_adjustment: [],
+        range_adjustmentRequest: []
+      },
+      ranges: {
+        sales_upload: [],
+        forecast_creation: [],
+        range_adjustment: [],
+        range_adjustmentRequest: [],
+        consolidation: []
       }
     }
+  }
+
+  componentWillMount () {
+    this.getStartDates()
+  }
+
+  getStartDates () {
+    let start = []
+    let end = []
+
+    for (let i = 0; i < 12; i++) {
+      let date = moment(this.props.startDate).add(i, 'month')
+      start.push(date.format('YYYY-MM-DD'))
+      if (i > 0) { end.push(date.add(-1, 'day').format('YYYY-MM-DD')) }
+    }
+
+    this.setState({
+      dates: {
+        ...this.state.dates,
+        startDates: start,
+        endDates: end
+      }
+    }, () => {
+      Object.keys(this.state.data).map(e => {
+        this.getDates(e, this.state.data[e])
+      })
+    })
+  }
+
+  getDates (name, num) {
+    if (num === 0) { return }
+    let dates = []
+    let r = []
+    for (let i = 0; i < 12; i++) {
+      let date = moment(this.props.startDate).add(i, 'month')
+      dates.push(date.add(num, 'day').format('YYYY-MM-DD'))
+      r.push(moment.range(moment(this.props.startDate), date.add(num, 'day')))
+    }
+
+    let aux = this.state.dates
+    aux[name] = dates
+    let ranges = this.state.ranges
+    ranges[name] = ranges[name].concat(r)
+    console.log(name, ranges[name])
+    this.setState({
+      dates: aux,
+      ranges: ranges
+    })
   }
 
   handleInputChange (name, value) {
@@ -22,6 +88,8 @@ class DeadLines extends Component {
     this.setState({
       data: aux
     })
+
+    this.getDates(name, value)
   }
 
   render () {
@@ -85,7 +153,7 @@ class DeadLines extends Component {
             <CalendarRules
               disabled
               date={moment(this.props.startDate)}
-              limits={this.state.data}
+              limits={this.state.dates}
               />
           </div>
         </div>

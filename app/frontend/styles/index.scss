@@ -1,6 +1,7 @@
 @import 'colors';
 @import '~bulma';
 @import '~font-awesome/css/font-awesome.css';
+@import '~bulma-calendar';
 @import 'navbar';
 @import 'sidenav';
 @import 'table';
@@ -13,7 +14,6 @@
 @import 'datasets';
 @import 'prices';
 @import 'dashboards';
-@import '~bulma-calendar';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html,
 body {
