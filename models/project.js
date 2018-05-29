@@ -27,7 +27,8 @@ const projectSchema = new Schema({
       'reviewing',
       'pendingRows',
       'adjustment',
-      'conciliating'
+      'conciliating',
+      'cloning'
     ],
     default: 'empty'
   },

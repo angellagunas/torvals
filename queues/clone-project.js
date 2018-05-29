@@ -1,18 +1,14 @@
 // node queues/clone-project.js
 require('../config')
 require('lib/databases/mongo')
+const path = require('path')
 
 const Queue = require('lib/queue')
-const cloneProject = require('tasks/project/clone')
 
 const queue = new Queue({
   name: 'clone-project',
-  task: async function (argv) {
-    var a
-    a = await cloneProject.run(argv)
-
-    return a
-  }
+  isFile: true,
+  task: path.join(__dirname, 'tasks-wrappers/clone-project.js')
 })
 
 if (require.main === module) {

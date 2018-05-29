@@ -48,6 +48,7 @@ const task = new Task(
 
     var bulkOps = []
     var updateBulk = []
+    let count = 0
     for (let dataRow = await datasetrows.next(); dataRow != null; dataRow = await datasetrows.next()) {
       try {
         bulkOps.push({
@@ -78,6 +79,7 @@ const task = new Task(
           await DataSetRow.bulkWrite(updateBulk)
           updateBulk = []
         }
+        count++
       } catch (e) {
         log('Error trying to save anomalies: ')
         log(e)
@@ -94,9 +96,7 @@ const task = new Task(
       log(e)
     }
 
-    let length = await datasetrows.count()
-
-    log(`Received ${length} anomalies!`)
+    log(`Received ${count} anomalies!`)
 
     return true
   },

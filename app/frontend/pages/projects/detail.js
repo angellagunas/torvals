@@ -21,6 +21,7 @@ import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 // import Breadcrumb from '~base/components/base-breadcrumb'
 import TabAnomalies from './detail-tabs/tab-anomalies'
+import CreateProject from './create'
 
 var currentRole
 var user
@@ -35,6 +36,7 @@ class ProjectDetail extends Component {
       selectedTab: 'graficos',
       actualTab: 'graficos',
       datasetClassName: '',
+      cloneClassName: '',
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
       isLoading: '',
@@ -204,6 +206,25 @@ class ProjectDetail extends Component {
       datasetClassName: ''
     })
     this.props.history.push('/datasets/' + object.uuid)
+  }
+
+  showModalClone () {
+    this.setState({
+      cloneClassName: ' is-active'
+    })
+  }
+  hideModalClone (e) {
+    this.setState({
+      cloneClassName: ''
+    })
+  }
+
+  finishUpClone (object) {
+    this.setState({
+      cloneClassName: ''
+    })
+    this.props.history.push('/projects/' + object.uuid)
+    this.load('ajustes')
   }
 
   async getProjectStatus () {
@@ -460,12 +481,15 @@ class ProjectDetail extends Component {
     if (!this.state.loaded) {
       return <Loader />
     }
+
     const tabs = [
       {
         name: 'graficos',
         title: 'Gráficos',
         hide: (testRoles('manager-level-1') ||
-          project.status === 'empty'),
+          project.status === 'empty' ||
+          project.status === 'conciliating' ||
+          project.status === 'cloning'),
         content: (
           <TabHistorical
             project={project}
@@ -507,7 +531,8 @@ class ProjectDetail extends Component {
         hide: (testRoles('manager-level-1') ||
               project.status === 'processing' ||
               project.status === 'pendingRows' ||
-              project.status === 'empty'),
+              project.status === 'empty' ||
+              project.status === 'cloning'),
         content: (
           <TabApprove
             setAlert={(type, data) => this.setAlert(type, data)}
@@ -538,7 +563,8 @@ class ProjectDetail extends Component {
         hide: (testRoles('manager-level-1') ||
           project.status === 'processing' ||
           project.status === 'pendingRows' ||
-          project.status === 'empty'),
+          project.status === 'empty' ||
+          project.status === 'cloning'),
         content: (
           <TabAnomalies
             project={project}
@@ -554,20 +580,46 @@ class ProjectDetail extends Component {
         content: (
           <div>
             <div className='section'>
+              {testRoles('orgadmin') &&
+                <CreateProject
+                  url='/app/projects/clone'
+                  initialState={{ ...project, organization: project.organization.uuid, clone: project.uuid }}
+                  className={this.state.cloneClassName}
+                  hideModal={this.hideModalClone.bind(this)}
+                  finishUp={this.finishUpClone.bind(this)}
+                  canEdit={canEdit}
+                  title='Clonar Proyecto'
+                  buttonText='Clonar'
+                />
+              }
               {canEdit &&
                 <div className='columns is-marginless'>
-                    <div className='column'>
-                  <div className='is-pulled-right'>
-
-                      <DeleteButton
-                        objectName='Proyecto'
-                        objectDelete={() => this.deleteObject()}
-                        message={'¿Estas seguro de querer eliminar este Proyecto?'}
-                        hideIcon
-                        titleButton={'Eliminar'}
-                      />
-                  </div>
+                  <div className='column'>
+                    <div className='is-pulled-right'>
+                      <div className='field is-grouped'>
+                        <div className='control'>
+                          {testRoles('orgadmin') && project.mainDataset &&
+                            <button
+                              className='button'
+                              type='button'
+                              onClick={this.showModalClone.bind(this)}
+                            >
+                              Clonar
+                            </button>
+                          }
+                        </div>
+                        <div className='control'>
+                          <DeleteButton
+                            objectName='Proyecto'
+                            objectDelete={() => this.deleteObject()}
+                            message={'¿Estas seguro de querer eliminar este Proyecto?'}
+                            hideIcon
+                            titleButton={'Eliminar'}
+                          />
+                        </div>
+                      </div>
                     </div>
+                  </div>
                 </div>
               }
               

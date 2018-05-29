@@ -72,6 +72,7 @@ class TabAdjustment extends Component {
   }
   
   componentWillReceiveProps(nextProps){
+    if (nextProps.project.uuid !== this.props.uuid) return
     if(nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded){
       this.getFilters()      
     }
@@ -98,7 +99,7 @@ class TabAdjustment extends Component {
       adjustments = this.props.project.businessRules.adjustments
     }
 
-    data.map((date) => {     
+    data.map((date) => {
       if(date.year === moment().get('year')){
         const key = date.month
         const collection = map.get(key)
@@ -1055,6 +1056,15 @@ getProductsSelected () {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           Se están obteniendo las filas para ajuste, en un momento más las podrá consultar.
+          <Loader />
+        </div>
+      )
+    }
+
+    if (this.props.project.status === 'cloning') {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Se esta procesando el clon, favor de esperar...
           <Loader />
         </div>
       )
