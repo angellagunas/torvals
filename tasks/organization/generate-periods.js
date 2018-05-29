@@ -14,12 +14,13 @@ const task = new Task(
     }
     const organization = await Organization.findOne({uuid: argv.uuid})
     const cycles = await Cycle.find({organization: organization._id}).sort({dateStart: 1})
+    if (cycles.length === 0) { throw new Error('No hay ciclos disponibles') }
     const periodDuration = organization.rules.periodDuration
     const period = organization.rules.period
     const takeStart = organization.rules.takeStart
     await Period.deleteMany({organization: organization._id})
-    var startDate = moment(moment(organization.rules.startDate).format('YYYY-MM-DD'))
-    var endDate = moment(moment(cycles[cycles.length - 1].dateEnd).format('YYYY-MM-DD'))
+    var startDate = moment(moment(cycles[0].dateStart).utc().format('YYYY-MM-DD'))
+    var endDate = moment(moment(cycles[cycles.length - 1].dateEnd).utc().format('YYYY-MM-DD'))
     var currentEndDate
     var periodNumber
     var lastCycle

@@ -22,18 +22,20 @@ const task = new Task(
 
     await Cycle.deleteMany({organization: organization._id})
 
-    var startDate = moment(organization.rules.startDate).format('YYYY-MM-DD')
-
+    var startDate = moment(organization.rules.startDate).utc().format('YYYY-MM-DD')
     var currentDateDiff
     if (cycle === 'M') {
       startDate = moment(startDate).subtract(season, 'M')
-      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asMonths())
+      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asMonths() / cycleDuration)
     } else if (cycle === 'w') {
       startDate = moment(startDate).subtract(season, 'w')
-      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asWeeks())
+      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asWeeks() / cycleDuration)
     } else if (cycle === 'd') {
       startDate = moment(startDate).subtract(season, 'd')
-      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asDays())
+      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asDays() / cycleDuration)
+    } else if (cycle === 'y') {
+      startDate = moment(startDate).subtract(season, 'y')
+      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asYears() / cycleDuration)
     }
 
     currentDateDiff += cyclesAvailable
