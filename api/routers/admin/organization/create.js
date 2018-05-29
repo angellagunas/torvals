@@ -45,7 +45,7 @@ module.exports = new Route({
           periodDuration: 1,
           season: 12,
           cyclesAvailable: 6,
-          takeStart: false,
+          takeStart: true,
           consolidation: 30,
           forecastCreation: 12,
           rangeAdjustmentRequest: 24,
