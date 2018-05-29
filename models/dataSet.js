@@ -54,6 +54,7 @@ const dataSetSchema = new Schema({
       'pendingRows',
       'adjustment',
       'receiving',
+      'cloning',
       'error'
     ],
     default: 'new'

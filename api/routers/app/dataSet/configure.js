@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
-const config = require('config')
 const { DataSet } = require('models')
 const saveDataset = require('queues/save-dataset')
 
