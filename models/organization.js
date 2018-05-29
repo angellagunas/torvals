@@ -19,7 +19,22 @@ const organizationSchema = new Schema({
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  rules: {
+    startDate: { type: Date },
+    cycleDuration: {type: Number},
+    cycle: {type: String},
+    periodDuration: {type: Number},
+    period: {type: String},
+    season: {type: Number},
+    cyclesAvailable: {type: Number},
+    takeStart: {type: Boolean, default: false},
+    consolidation: {type: Number},
+    forecastCreation: {type: Number},
+    rangeAdjustmentRequest: {type: Number},
+    salesUpload: {type: Number},
+    ranges: [{type: Number}]
+  }
 }, { usePushEach: true })
 
 organizationSchema.plugin(dataTables)
@@ -31,7 +46,8 @@ organizationSchema.methods.toPublic = function () {
     description: this.description,
     slug: this.slug,
     dateCreated: this.dateCreated,
-    profileUrl: this.profileUrl
+    profileUrl: this.profileUrl,
+    rules: this.rules
   }
 }
 
@@ -42,7 +58,8 @@ organizationSchema.methods.toAdmin = function () {
     slug: this.slug,
     description: this.description,
     dateCreated: this.dateCreated,
-    profileUrl: this.profileUrl
+    profileUrl: this.profileUrl,
+    rules: this.rules
   }
 }
 
