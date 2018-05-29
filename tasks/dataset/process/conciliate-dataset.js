@@ -1,7 +1,8 @@
-// node tasks/migrations/set-week-datasetrows.js
+// node tasks/dataset/process/conciliate-dataset.js --project uuid --dataset uuid [--batchSize batchSize]
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
+const _ = require('lodash')
 
 const Task = require('lib/task')
 const { Project, DataSet, DataSetRow } = require('models')
@@ -60,7 +61,6 @@ const task = new Task(
       await project.save()
       log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
       log(`End ==> ${moment().format()}`)
-
       return true
     }
 
@@ -85,10 +85,10 @@ const task = new Task(
       {
         '$group': {
           _id: key,
-          mergedRows: { $mergeObjects: '$$ROOT' }
+          mergedRows: { $mergeObjects: '$$ROOT' },
+          rows: { $push: '$$ROOT' }
         }
-      },
-    { '$replaceRoot': { newRoot: '$mergedRows' } }
+      }
     ]
 
     log('Obtaining aggregate ...')
@@ -96,48 +96,60 @@ const task = new Task(
     try {
       const rows = await DataSetRow.aggregate(match).allowDiskUse(true).cursor({batchSize: batchSize * 10}).exec()
 
-      let newDataset = await DataSet.create({
-        name: 'Main Dataset',
-        project: project,
-        organization: project.organization,
-        createdBy: dataset.createdBy,
-        uploadedBy: dataset.uploadedBy,
-        conciliatedBy: dataset.conciliatedBy,
-        dateMax: dataset.dateMax,
-        dateMin: dataset.dateMin,
-        columns: dataset.columns,
-        salesCenters: dataset.salesCenters,
-        products: dataset.products,
-        channels: dataset.channels,
-        newSalesCenters: dataset.newSalesCenters,
-        newProducts: dataset.newProducts,
-        isMain: true,
-        newChannels: dataset.newChannels,
-        groupings: dataset.groupings,
-        apiData: dataset.apiData,
-        source: 'conciliation',
-        status: 'conciliated'
-      })
-
       log('Aggregate ready, transversing ...')
 
       var bulkOpsEdit = []
       var bulkOpsNew = []
       for (let row = await rows.next(); row != null; row = await rows.next()) {
-        bulkOpsNew.push(
-          {
-            ...row,
-            _id: undefined,
-            'organization': project.organization,
-            'project': project,
-            'dataset': newDataset._id
+        if (row.rows.length === 1) {
+          if (row.rows[0].dataset !== project.mainDataset._id) {
+            if (row.rows[0].status === 'adjusted') {
+              row.rows[0].data.lastAdjustment = row.data.adjustment
+            }
+
+            delete row.rows[0].adjustmentRequest
+            delete row.rows[0].isAnomaly
+            delete row.rows[0].isDeleted
+            delete row.rows[0].uuid
+            delete row.rows[0].status
+            delete row.rows[0].dateCreated
+
+            bulkOpsNew.push(
+              {
+                ...row.rows[0],
+                _id: undefined,
+                'organization': project.organization,
+                'project': project,
+                'dataset': project.mainDataset._id
+              })
           }
-      )
+        } else {
+          let mainRow = _.findIndex(row.rows, {dataset: project.mainDataset._id})
+          let activeRow = (mainRow) ? 0 : 1
+          bulkOpsEdit.push({
+            updateOne: {
+              'filter': {_id: row.rows[mainRow]._id},
+              'update': {$set: {
+                'data.prediction': row.rows[activeRow].data.prediction,
+                'data.lastAdjustment': row.rows[activeRow].data.adjustment,
+                'data.adjustment': row.rows[activeRow].data.adjustment,
+                'isAnomaly': false
+              }}
+            }
+          })
+        }
 
         if (bulkOpsNew.length === batchSize) {
           log(`${i} => ${batchSize} ops new => ${moment().format()}`)
           await DataSetRow.insertMany(bulkOpsNew)
           bulkOpsNew = []
+          i++
+        }
+
+        if (bulkOpsEdit.length === batchSize) {
+          log(`${i} => ${batchSize} ops update => ${moment().format()}`)
+          await DataSetRow.bulkWrite(bulkOpsEdit)
+          bulkOpsEdit = []
           i++
         }
       }
@@ -163,20 +175,18 @@ const task = new Task(
         maxDate = moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD')
       }
 
-      newDataset.set({
-        dateMax: maxDate.format('YYYY-MM-DD'),
-        dateMin: minDate.format('YYYY-MM-DD'),
-        status: 'ready'
-      })
       dataset.set({
         status: 'conciliated'
       })
 
-      await newDataset.save()
       await dataset.save()
 
+      project.mainDataset.set({
+        status: 'ready'
+      })
+      await project.mainDataset.save()
+
       project.set({
-        mainDataset: newDataset,
         status: 'pendingRows',
         dateMax: maxDate,
         dateMin: minDate

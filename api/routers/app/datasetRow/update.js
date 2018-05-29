@@ -50,8 +50,8 @@ module.exports = new Route({
 
     for (let row of datasetRows) {
       let auxData = hashTable[row.uuid]
-      if (parseFloat(auxData.adjustmentForDisplay) !== parseFloat(auxData.localAdjustment)) {
-        row.data.localAdjustment = auxData.adjustmentForDisplay
+      if (parseFloat(auxData.adjustmentForDisplay) !== parseFloat(auxData.adjustment)) {
+        row.data.adjustment = auxData.adjustmentForDisplay
         row.data.updatedBy = ctx.state.user
         row.status = 'adjusted'
         row.markModified('data')

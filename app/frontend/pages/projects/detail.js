@@ -348,6 +348,30 @@ class ProjectDetail extends Component {
     })
   }
 
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if (type === toast.TYPE.WARNING) {
+      className = 'has-bg-warning'
+    }
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false,
+        className: className
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false,
+        className: className
+      })
+    }
+  }
+
   async handleAdjustmentRequest(obj) {
     let { pendingDataRows } = this.state
     let productAux = []
@@ -363,6 +387,12 @@ class ProjectDetail extends Component {
 
     try {
       var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment && item.isLimit }))
+      if (currentRole === 'manager-level-1') {
+        this.notify('Sus ajustes se han guardado', 5000, toast.TYPE.INFO)
+        this.setState({
+          adjustmentML1: true
+        })
+      }
     } catch (e) {
       this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
 
@@ -440,6 +470,7 @@ class ProjectDetail extends Component {
           <TabHistorical
             project={project}
             history={this.props.history}
+            currentRole={currentRole}
           />
         )
       },
@@ -463,6 +494,7 @@ class ProjectDetail extends Component {
             handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
             handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }}
             selectedTab={this.state.actualTab}
+            adjustmentML1={this.state.adjustmentML1}
           />
         )
       },
@@ -578,7 +610,7 @@ class ProjectDetail extends Component {
       </span>
     </button>)
     var consolidarButton
-    if (!testRoles('consultor, manager-level-1')) {
+    if (!testRoles('consultor, manager-level-1') && this.state.actualTab === 'aprobar') {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
@@ -590,7 +622,7 @@ class ProjectDetail extends Component {
     }
     else if (testRoles('manager-level-1')) {
       consolidarButton =
-        <p className='control btn-conciliate'>
+        <p className={this.state.adjustmentML1 ? 'control btn-conciliate is-hidden' : 'control btn-conciliate'}>
           <a className={'button is-success ' + this.state.isConciliating}
             disabled={!!this.state.isConciliating}
             onClick={e => this.handleAllAdjustmentRequest()}>

@@ -1,4 +1,4 @@
-// node tasks/migrations/set-week-datasetrows.js
+// node tasks/dataset/process/save-dataset.js --uuid uuid [--batchSize batchSize --noNextStep]
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
@@ -7,13 +7,13 @@ const { execSync } = require('child_process')
 
 const Task = require('lib/task')
 const { DataSet, DataSetRow } = require('models')
-const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
+const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 const processDataset = require('queues/process-dataset')
 
 const task = new Task(
   async function (argv) {
     let log = (args) => {
-      args = ('[save_dataset] ') + args
+      args = ('[save-dataset] ') + args
 
       console.log(args)
     }
@@ -136,7 +136,7 @@ const task = new Task(
       })
       await dataset.save()
 
-      await sendSlackNotificacion.run({
+      await sendSlackNotification.run({
         channel: 'opskamino',
         message: `Error al cargar el dataset *${dataset.name}* a la base de datos! ` +
         `*${e.message}*`
@@ -159,7 +159,7 @@ const task = new Task(
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
-    sendSlackNotificacion.run({
+    sendSlackNotification.run({
       channel: 'opskamino',
       message: `El dataset *${dataset.name}* ha empezado a guardarse en base de datos.` +
       ` Fue cargado por *${dataset.uploadedBy.name}*`
@@ -173,7 +173,7 @@ const task = new Task(
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
-    sendSlackNotificacion.run({
+    sendSlackNotification.run({
       channel: 'opskamino',
       message: `El dataset *${dataset.name}* ha sido cargado a la base de datos` +
       ` y se procederá a procesarse.`

@@ -14,7 +14,7 @@ function test () {
 
 describe('/projects', () => {
   describe('[post] / Create Project', () => {
-    it('should return a 200 then the project created', async function () {
+    it.skip('should return a 200 then the project created', async function () {
       await clearDatabase()
       const org = await Organization.create({
         name: 'Una org',
@@ -45,7 +45,7 @@ describe('/projects', () => {
         .expect(200)
       })
 
-      it('should return list of projects', async function () {
+      it.skip('should return list of projects', async function () {
         const res = await test()
         .get('/api/admin/projects')
         .set('Accept', 'application/json')
@@ -57,7 +57,7 @@ describe('/projects', () => {
     })
 
     describe('[delete] / Soft Delete project', () => {
-      it('should return true for deleted', async function () {
+      it.skip('should return true for deleted', async function () {
         const project = await Project.findOne({name: 'Un proyecto'})
         const res = await test()
         .delete('/api/admin/projects/' + project.uuid)

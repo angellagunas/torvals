@@ -128,6 +128,7 @@ dataSetSchema.methods.toPublic = function () {
     groupings: this.groupings,
     dateMax: this.dateMax,
     dateMin: this.dateMin,
+    isMain: this.isMain,
     salesCenters: this.salesCenters,
     products: this.products,
     channels: this.channels
@@ -153,6 +154,7 @@ dataSetSchema.methods.format = function () {
     groupings: this.groupings,
     dateMax: this.dateMax,
     dateMin: this.dateMin,
+    isMain: this.isMain,
     salesCenters: this.salesCenters,
     products: this.products,
     channels: this.channels

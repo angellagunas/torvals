@@ -5,6 +5,8 @@ const redis = require('lib/redis')
 const crypto = require('crypto')
 const _ = require('lodash')
 
+const EXPIRATION = 60 * 60 * 24 * 4
+
 module.exports = new Route({
   method: 'post',
   path: '/local/historical',
@@ -13,6 +15,8 @@ module.exports = new Route({
     const user = ctx.state.user
     let currentRole
     let currentOrganization
+    let previousWeeks
+    let weeks
 
     if (ctx.state.organization) {
       currentOrganization = user.organizations.find(orgRel => {
@@ -42,7 +46,7 @@ module.exports = new Route({
     data.projects = data.projects.sort()
     data.salesCenters = data.salesCenters.sort()
 
-    const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
+    const parameterHash = 'api:' + crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
     try {
       const cacheData = await redis.hGetAll(parameterHash)
       if (cacheData) {
@@ -110,20 +114,25 @@ module.exports = new Route({
     let matchPreviousSale = _.cloneDeep(initialMatch)
 
     if (data.date_start && data.date_end) {
-      const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
-      data.weeks = []
-      data.dates = []
-      for (let week of weeks) {
-        data.weeks.push(week.week)
-        data.dates[week.week] = week.dateStart
+      let start = moment.utc(data.date_start, 'YYYY-MM-DD')
+      let end = moment.utc(data.date_end, 'YYYY-MM-DD')
+
+      weeks = await AbraxasDate.find({
+        $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}]
+      })
+
+      initialMatch['data.forecastDate'] = {$lte: end.toDate(), $gte: start.toDate()}
+      start = moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years')
+      end = moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years')
+
+      previousWeeks = await AbraxasDate.find({
+        $and: [{dateStart: {$gte: start.toDate()}}, {dateEnd: {$lte: end.toDate()}}]
+      })
+
+      matchPreviousSale['data.forecastDate'] = {
+        $lte: end.toDate(),
+        $gte: start.toDate()
       }
-
-      data.year = moment(data.date_start).year()
-
-      initialMatch['data.semanaBimbo'] = {$in: data.weeks}
-
-      var lastYear = data.year - 1
-      matchPreviousSale['data.semanaBimbo'] = {$in: data.weeks}
     } else {
       ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
     }
@@ -132,15 +141,6 @@ module.exports = new Route({
       {
         '$match': {
           ...initialMatch
-        }
-      },
-      {
-        '$redact': {
-          '$cond': [
-                { '$eq': [{ '$year': '$data.forecastDate' }, data.year] },
-            '$$KEEP',
-            '$$PRUNE'
-          ]
         }
       },
       {
@@ -160,15 +160,6 @@ module.exports = new Route({
         }
       },
       {
-        '$redact': {
-          '$cond': [
-              { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] },
-            '$$KEEP',
-            '$$PRUNE'
-          ]
-        }
-      },
-      {
         '$group': {
           _id: key,
           sale: { $sum: '$data.sale' }
@@ -184,62 +175,66 @@ module.exports = new Route({
 
     let previousSaleDict = {}
     for (let prev of previousSale) {
-      previousSaleDict[prev._id.week] = prev
+      previousSaleDict[prev._id.date] = prev
+    }
+
+    let saleDict = {}
+    for (let res of responseData) {
+      saleDict[res._id.date] = res
     }
 
     let totalPrediction = 0
     let totalSale = 0
+    let response = []
 
-    responseData = responseData.map(item => {
+    for (let date of weeks) {
+      let dateStart = date.dateStart
+      let item = {
+        date: date.dateStart,
+        prediction: 0,
+        adjustment: 0,
+        sale: 0,
+        previousSale: 0
+      }
+
+      if (saleDict[dateStart]) {
+        item.prediction = saleDict[dateStart].prediction
+        item.adjustment = saleDict[dateStart].adjustment
+        item.sale = saleDict[dateStart].sale
+      }
+
       if (item.prediction && item.sale) {
         totalPrediction += item.prediction
         totalSale += item.sale
       }
 
-      if (previousSaleDict[item._id.week]) {
-        _.pull(data.weeks, item._id.week)
+      let lastDate = previousWeeks.find(item => { return item.year === date.year - 1 && item.week === date.week })
+
+      if (lastDate && previousSaleDict[lastDate.dateStart]) {
+        item.previousSale = previousSaleDict[lastDate.dateStart].sale
       }
 
-      return {
-        date: item._id.date,
-        week: item._id.week,
-        prediction: item.prediction,
-        adjustment: item.adjustment,
-        sale: item.sale,
-        previousSale: previousSaleDict[item._id.week] ? previousSaleDict[item._id.week].sale : 0
-      }
-    })
-
-    for (let week of data.weeks) {
-      if (previousSaleDict[week]) {
-        responseData.push({
-          date: data.dates[week],
-          week: 0,
-          prediction: 0,
-          adjustment: 0,
-          sale: 0,
-          previousSale: previousSaleDict[week].sale
-        })
-      }
+      response.push(item)
     }
 
     let mape = 0
 
     if (totalSale !== 0) {
-      mape = Math.abs((totalSale - totalPrediction) / totalSale)
+      mape = Math.abs((totalSale - totalPrediction) / totalSale) * 100
     }
 
     try {
-      for (let item in responseData) {
-        await redis.hSet(parameterHash, item, JSON.stringify(responseData[item]))
+      for (let item in response) {
+        await redis.hSet(parameterHash, item, JSON.stringify(response[item]))
       }
       await redis.hSet(parameterHash, 'mape', mape)
+      await redis.expire(parameterHash, EXPIRATION)
     } catch (e) {
       console.log('Error setting the cache')
     }
 
     ctx.body = {
-      data: responseData,
+      data: response,
       mape: mape
     }
   }

@@ -23,6 +23,12 @@ module.exports = new Route({
 
     await dataset.save()
 
+    dataset.project.set({
+      status: 'conciliating'
+    })
+
+    await dataset.project.save()
+
     conciliateDataset.add({project: dataset.project.uuid, dataset: dataset.uuid})
 
     ctx.body = {
