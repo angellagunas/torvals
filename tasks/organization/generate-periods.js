@@ -25,8 +25,8 @@ const task = new Task(
     var periodNumber
     var lastCycle
     do {
-      currentEndDate = moment(startDate).add(periodDuration, period)
-      currentEndDate = moment(currentEndDate).subtract(1, 'd')
+      currentEndDate = moment(startDate).utc().add(periodDuration, period)
+      currentEndDate = moment(currentEndDate).utc().subtract(1, 'd')
 
       let cyclesBetween = await Cycle.find({ $or: [
         {dateStart: {$lte: startDate}, dateEnd: {$gte: startDate}},
@@ -57,7 +57,7 @@ const task = new Task(
         lastCycle = cycle
       }
 
-      startDate = moment(currentEndDate).add(1, 'd')
+      startDate = moment(currentEndDate).utc().add(1, 'd')
     } while (currentEndDate <= endDate)
 
     return true

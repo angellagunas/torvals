@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const lov = require('lov')
+const _ = require('lodash')
 const moment = require('moment')
 const generateCycles = require('tasks/organization/generate-cycles')
 
@@ -33,10 +33,8 @@ module.exports = new Route({
       if (data.cycle !== 'M' && data.cycle !== 'd' && data.cycle !== 'y' && data.cycle !== 'w') { ctx.throw(422, 'Valor incorrecto para el ciclo') }
 
       var startDate = moment(data.startDate).utc().format('YYYY-MM-DD')
-
-      var cycleDate = moment(startDate).add(data.cycleDuration, data.cycle)
-      var periodDate = moment(startDate).add(data.periodDuration, data.period)
-
+      var cycleDate = moment(startDate).utc().add(data.cycleDuration, data.cycle)
+      var periodDate = moment(startDate).utc().add(data.periodDuration, data.period)
       var cycleDiff = moment.duration(cycleDate.diff(startDate)).asDays()
       var periodDiff = moment.duration(periodDate.diff(startDate)).asDays()
 
@@ -61,6 +59,7 @@ module.exports = new Route({
     }
 
     if (data.step === 2) {
+      if (!Array.isArray(data.ranges)) { ctx.throw(422, 'Rangos tiene tipo inválido') }
       let validRanges = data.ranges.every(item => {
         return typeof item === 'number' && item > 0
       })
@@ -88,6 +87,19 @@ module.exports = new Route({
           rangeAdjustmentRequest: data.rangeAdjustmentRequest,
           rangeAdjustment: data.rangeAdjustment,
           salesUpload: data.salesUpload
+        }
+      })
+    }
+
+    if (data.step === 4) {
+      if (!Array.isArray(data.catalogs)) { ctx.throw(422, 'Catálogos tiene tipo inválido') }
+
+      let findProductsCatalog = data.catalogs.find(item => { return item === 'products' })
+      if (findProductsCatalog === undefined) { ctx.throw(422, 'Se debe de agregar un catálogo de productos') }
+
+      org.set({
+        rules: {
+          catalogs: data.catalogs
         }
       })
     }

@@ -41,8 +41,8 @@ const task = new Task(
     currentDateDiff += cyclesAvailable
 
     for (let i = 1; i <= currentDateDiff; i++) {
-      let endDate = moment(startDate).add(cycleDuration, cycle)
-      endDate = moment(endDate).subtract(1, 'd')
+      let endDate = moment(startDate).utc().add(cycleDuration, cycle)
+      endDate = moment(endDate).utc().subtract(1, 'd')
 
       await Cycle.create({
         organization: organization._id,
@@ -51,7 +51,7 @@ const task = new Task(
         cycle: i
       })
 
-      startDate = moment(endDate).add(1, 'd')
+      startDate = moment(endDate).utc().add(1, 'd')
     }
     await generatePeriods.run({uuid: organization.uuid})
     return true
