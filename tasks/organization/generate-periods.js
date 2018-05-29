@@ -13,7 +13,7 @@ const task = new Task(
       throw new Error('You need to provide an organization')
     }
     const organization = await Organization.findOne({uuid: argv.uuid})
-    const cycles = await Cycle.find({organization: organization._id}).sort({dateStart: 1})
+    const cycles = await Cycle.find({organization: organization._id, isDeleted: false}).sort({dateStart: 1})
     if (cycles.length === 0) { throw new Error('No hay ciclos disponibles') }
     const periodDuration = organization.rules.periodDuration
     const period = organization.rules.period
@@ -31,7 +31,8 @@ const task = new Task(
       let cyclesBetween = await Cycle.find({ $or: [
         {dateStart: {$lte: startDate}, dateEnd: {$gte: startDate}},
         {dateStart: {$lte: currentEndDate}, dateEnd: {$gte: currentEndDate}}],
-        organization: organization._id
+        organization: organization._id,
+        isDeleted: false
       })
 
       if (cyclesBetween.length > 0) {
