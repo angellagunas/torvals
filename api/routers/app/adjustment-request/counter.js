@@ -7,7 +7,7 @@ module.exports = new Route({
   method: 'get',
   path: '/counter/:uuid/',
   handler: async function (ctx) {
-    var datasetId = ctx.params.uuid
+    let datasetId = ctx.params.uuid
 
     const dataset = await DataSet.findOne({
       'uuid': datasetId,
@@ -16,7 +16,7 @@ module.exports = new Route({
     })
 
     ctx.assert(dataset, 404, 'DataSet not found')
-    const adjustmentRequests = await AdjustmentRequest.find({
+    let adjustmentRequests = await AdjustmentRequest.find({
       'dataset': ObjectId(dataset._id),
       'isDeleted': false,
       'status': 'created'

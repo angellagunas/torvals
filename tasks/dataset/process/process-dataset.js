@@ -1,155 +1,201 @@
-// node tasks/migrations/set-week-datasetrows.js
+// node tasks/dataset/process/process-dataset.js --uuid uuid [--batchSize batchSize --noNextStep]
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
-const fs = require('fs')
 const _ = require('lodash')
-const { execSync } = require('child_process')
 
 const Task = require('lib/task')
 const { DataSet, DataSetRow } = require('models')
+const saveDatasetRows = require('queues/save-datasetrows')
+const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
-const task = new Task(async function (argv) {
-  if (!argv.uuid) {
-    throw new Error('You need to provide an uuid!')
-  }
+const task = new Task(
+  async function (argv) {
+    let log = (args) => {
+      args = ('[process-dataset] ') + args
 
-  console.log('Fetching Dataset...')
+      console.log(args)
+    }
 
-  var today = new Date()
-  var timestamp = today.getTime()
+    if (!argv.uuid) {
+      throw new Error('You need to provide an uuid!')
+    }
 
-  const output = fs.createWriteStream(
-    './tasks/logs/process-dataset-' + timestamp + '.txt'
-  )
-  const error = fs.createWriteStream(
-    './tasks/logs/error-process-dataset-' + timestamp + '.txt'
-  )
+    log('Processing Dataset...')
+    log(`Start ==>  ${moment().format()}`)
 
-  const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk')
-  var bulkOps = []
+    const dataset = await DataSet.findOne({uuid: argv.uuid})
 
-  if (!dataset) {
-    throw new Error('Invalid uuid!')
-  }
+    if (!dataset) {
+      throw new Error('Invalid uuid!')
+    }
 
-  var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
-  var salesCenterName = dataset.getSalesCenterNameColumn() || {name: ''}
-  var productExternalId = dataset.getProductColumn() || {name: ''}
-  var productName = dataset.getProductNameColumn() || {name: ''}
-  var channelExternalId = dataset.getChannelColumn() || {name: ''}
-  var channelName = dataset.getChannelNameColumn() || {name: ''}
+    var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
+    var salesCenterName = dataset.getSalesCenterNameColumn() || {name: ''}
+    var productExternalId = dataset.getProductColumn() || {name: ''}
+    var productName = dataset.getProductNameColumn() || {name: ''}
+    var channelExternalId = dataset.getChannelColumn() || {name: ''}
+    var channelName = dataset.getChannelNameColumn() || {name: ''}
 
-  let maxDate
-  let minDate
+    let maxDate
+    let minDate
 
-  let productsObj = {
-    _id: `$apiData.${productExternalId.name}`
-  }
+    let productsObj = {
+      _id: `$apiData.${productExternalId.name}`
+    }
 
-  if (productName.name) {
-    productsObj['name'] = `$apiData.${productName.name}`
-  }
+    if (productName.name) {
+      productsObj['name'] = `$apiData.${productName.name}`
+    }
 
-  let salesCentersObj = {
-    _id: `$apiData.${salesCenterExternalId.name}`
-  }
+    let salesCentersObj = {
+      _id: `$apiData.${salesCenterExternalId.name}`
+    }
 
-  if (salesCenterName.name) {
-    salesCentersObj['name'] = `$apiData.${salesCenterName.name}`
-  }
+    if (salesCenterName.name) {
+      salesCentersObj['name'] = `$apiData.${salesCenterName.name}`
+    }
 
-  let channelsObj = {
-    _id: `$apiData.${channelExternalId.name}`
-  }
+    let channelsObj = {
+      _id: `$apiData.${channelExternalId.name}`
+    }
 
-  if (channelName.name) {
-    channelsObj['name'] = `$apiData.${channelName.name}`
-  }
+    if (channelName.name) {
+      channelsObj['name'] = `$apiData.${channelName.name}`
+    }
 
-  console.log(productsObj)
-
-  var statement = [
-    {
-      '$match': {
-        'dataset': dataset._id
+    var statement = [
+      {
+        '$match': {
+          'dataset': dataset._id
+        }
+      },
+      {
+        '$group': {
+          '_id': null,
+          'channels': {
+            '$addToSet': channelsObj
+          },
+          'salesCenters': {
+            '$addToSet': salesCentersObj
+          },
+          'products': {
+            '$addToSet': productsObj
+          }
+        }
       }
-    },
-    {
-      '$group': {
-        '_id': null,
-        'channels': {
-          '$addToSet': channelsObj
-        },
-        'salesCenters': {
-          '$addToSet': salesCentersObj
-        },
-        'products': {
-          '$addToSet': productsObj
+    ]
+
+    log('Obtaining uniques ...')
+
+    let rows = await DataSetRow.aggregate(statement)
+    let rowData = {
+      product: [],
+      agency: [],
+      channel: []
+    }
+
+    for (let product of rows[0].products) {
+      let productIndex = _.findIndex(rowData['product'], { '_id': product._id })
+      if (productIndex === -1) {
+        rowData['product'].push(product)
+      } else {
+        if (!rowData['product'][productIndex].name && product.name) {
+          rowData['product'][productIndex].name = product.name
         }
       }
     }
-  ]
 
-  let rows = await DataSetRow.aggregate(statement)
-  // let rows = await DataSetRow.distinct(productsStr, {dataset: dataset})
-  console.log(JSON.stringify(rows))
+    for (let salesCenter of rows[0].salesCenters) {
+      let salesIndex = _.findIndex(rowData['agency'], { '_id': salesCenter._id })
+      if (salesIndex === -1) {
+        rowData['agency'].push(salesCenter)
+      } else {
+        if (!rowData['agency'][salesIndex].name && salesCenter.name) {
+          rowData['agency'][salesIndex].name = salesCenter.name
+        }
+      }
+    }
 
-  // for (var i = 0; i < lineCount; i++) {
-  //   console.log('=>', (i * 1000) + 1, (i * 1000) + 1000)
-  //   let rawLine = String(execSync(`sed -n '${i * 1000 + 1},${(i * 1000) + 1000}p' ${filepath}`))
+    for (let channel of rows[0].channels) {
+      let channelIndex = _.findIndex(rowData['channel'], { '_id': channel._id })
+      if (channelIndex === -1) {
+        rowData['channel'].push(channel)
+      } else {
+        if (!rowData['channel'][channelIndex].name && channel.name) {
+          rowData['channel'][channelIndex].name = channel.name
+        }
+      }
+    }
 
-  //   let rows = rawLine.split('\n')
+    log('Obtaining max and min dates ...')
 
-  //   for (let row of rows) {
-  //     let obj = {}
-  //     let itemSplit = row.split(',')
+    statement = [
+      {
+        '$match': {
+          'dataset': dataset._id
+        }
+      },
+      {
+        '$group': {
+          '_id': null,
+          'max': { '$max': '$data.forecastDate' },
+          'min': { '$min': '$data.forecastDate' }
+        }
+      }
+    ]
 
-  //     for (var j = 0; j < headers.length; j++) {
-  //       obj[headers[j]] = itemSplit[j]
-  //     }
+    rows = await DataSetRow.aggregate(statement)
+    maxDate = rows[0].max
+    minDate = rows[0].min
 
-  //     if (!obj[dateColumn.name]) {
-  //       continue
-  //     }
+    const sendData = {
+      data: rowData,
+      date_max: moment(maxDate).format('YYYY-MM-DD'),
+      date_min: moment(minDate).format('YYYY-MM-DD'),
+      config: {
+        groupings: []
+      }
+    }
 
-  //     let forecastDate
+    log('Obtaining new products/sales centers/channels  ...')
 
-  //     try {
-  //       forecastDate = moment.utc(obj[dateColumn.name], 'YYYY-MM-DD')
-  //     } catch (e) {
-  //       continue
-  //     }
+    await dataset.processReady(sendData)
 
-  //     if (!forecastDate.isValid()) {
-  //       continue
-  //     }
+    log('Success! Dataset processed')
+    log(`End ==>  ${moment().format()}`)
 
-  //     bulkOps.push({
-  //       'organization': dataset.organization,
-  //       'project': dataset.project,
-  //       'dataset': dataset._id,
-  //       'apiData': obj,
-  //       'data': {
-  //         'existence': obj.existencia,
-  //         'prediction': obj[predictionColumn.name],
-  //         'sale': obj[salesColumn.name] ? obj[salesColumn.name] : 0,
-  //         'forecastDate': forecastDate,
-  //         'semanaBimbo': obj.semana_bimbo,
-  //         'adjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-  //         'localAdjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-  //         'lastAdjustment': obj[adjustmentColumn.name] || undefined
-  //       }
-  //     })
-  //   }
+    if (!argv.noNextStep) saveDatasetRows.add({uuid: dataset.uuid})
 
-  //   await DataSetRow.insertMany(bulkOps)
-  //   bulkOps = []
-  //   console.log(`1000 ops ==> ${moment().format()}`)
-  // }
-
-  return true
-})
+    return true
+  },
+  async (argv) => {
+    if (!argv.uuid) {
+      throw new Error('You need to provide an uuid!')
+    }
+    const dataset = await DataSet.findOne({uuid: argv.uuid})
+    if (!dataset) {
+      throw new Error('Invalid uuid!')
+    }
+    sendSlackNotificacion.run({
+      channel: 'opskamino',
+      message: `El dataset *${dataset.name}* ha empezado a procesarse.`
+    })
+  },
+  async (argv) => {
+    if (!argv.uuid) {
+      throw new Error('You need to provide an uuid!')
+    }
+    const dataset = await DataSet.findOne({uuid: argv.uuid})
+    if (!dataset) {
+      throw new Error('Invalid uuid!')
+    }
+    sendSlackNotificacion.run({
+      channel: 'opskamino',
+      message: `El dataset *${dataset.name}* ha terminado de procesarse.`
+    })
+  }
+)
 
 if (require.main === module) {
   task.setCliHandlers()

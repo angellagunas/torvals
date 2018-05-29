@@ -6,3 +6,4 @@ each(queues, queue => {
   queue.setCliLogger()
   queue.setCleanUp()
 })
+console.log(`Queues started`)

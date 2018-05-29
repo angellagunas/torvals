@@ -8,16 +8,18 @@ const moment = require('moment')
 const anomalySchema = new Schema({
   channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
   dateCreated: { type: Date, default: moment.utc },
-  date: { type: Date},
+  date: { type: Date },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
   dataset: { type: Schema.Types.ObjectId, ref: 'DataSet', required: true },
+  project: { type: Schema.Types.ObjectId, ref: 'Project' },
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
   salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
   externalId: { type: String },
   prediction: { type: Number },
   semanaBimbo: { type: Number },
+  datasetRow: {type: Schema.Types.ObjectId, ref: 'DataSetRow', required: true},
   type: { type: String },
   apiData: {type: Schema.Types.Mixed}
 }, { usePushEach: true })

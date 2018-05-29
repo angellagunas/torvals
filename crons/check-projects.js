@@ -3,16 +3,14 @@ require('../config')
 require('lib/databases/mongo')
 
 const Cron = require('lib/cron')
-const verifyProjects = require('tasks/project/verify-and-generate-dataset-for-adjustment')
-const verifyDatasets = require('tasks/dataset/verify-adjustment-datasets')
+const verifyProjects = require('tasks/project/verify-and-generate-dataset-for-adjustment-noAPI')
 
 const cron = new Cron({
   tick: '* * * * *',
   task: async function () {
-    var a, b
+    var a
     a = await verifyProjects.run()
-    b = await verifyDatasets.run()
-    return a && b
+    return a
   }
 })
 

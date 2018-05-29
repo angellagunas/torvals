@@ -1,16 +1,23 @@
 const Route = require('lib/router/route')
 const { Project, DataSetRow, Channel, SalesCenter, Product, AbraxasDate, Role } = require('models')
-const ObjectId = require('mongodb').ObjectID
 const moment = require('moment')
+const redis = require('lib/redis')
+const crypto = require('crypto')
+const _ = require('lodash')
+
+const EXPIRATION = 60 * 60 * 24 * 4
 
 module.exports = new Route({
   method: 'post',
   path: '/local/historical',
   handler: async function (ctx) {
-    var data = ctx.request.body
-    var user = ctx.state.user
-    var currentRole
-    var currentOrganization
+    const data = ctx.request.body
+    const user = ctx.state.user
+    let currentRole
+    let currentOrganization
+    let previousWeeks
+    let weeks
+
     if (ctx.state.organization) {
       currentOrganization = user.organizations.find(orgRel => {
         return ctx.state.organization._id.equals(orgRel.organization._id)
@@ -22,9 +29,10 @@ module.exports = new Route({
         currentRole = role.toPublic()
       }
     }
-    var filters = {
+
+    let filters = {
       organization: ctx.state.organization,
-      activeDataset: {$ne: undefined}
+      mainDataset: {$ne: undefined}
     }
 
     if (data.projects && data.projects.length > 0) {
@@ -32,16 +40,44 @@ module.exports = new Route({
     }
 
     const projects = await Project.find(filters)
-    const datasets = projects.map(item => { return item.activeDataset })
+    const datasets = projects.map(item => { return item.mainDataset })
+
+    data.channels = data.channels.sort()
+    data.projects = data.projects.sort()
+    data.salesCenters = data.salesCenters.sort()
+
+    const parameterHash = 'api:' + crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
+    try {
+      const cacheData = await redis.hGetAll(parameterHash)
+      if (cacheData) {
+        var cacheResponse = []
+        var cacheMape
+        for (let cacheItem in cacheData) {
+          if (cacheItem !== 'mape') {
+            cacheResponse.push(JSON.parse(cacheData[cacheItem]))
+          } else {
+            cacheMape = Number(cacheData[cacheItem])
+          }
+        }
+
+        ctx.body = {
+          data: cacheResponse,
+          mape: cacheMape
+        }
+        return
+      }
+    } catch (e) {
+      console.log('Error retrieving the cache')
+    }
 
     const key = {week: '$data.semanaBimbo', date: '$data.forecastDate'}
 
-    var initialMatch = {
+    let initialMatch = {
       dataset: { $in: datasets }
     }
 
     if (data.channels) {
-      var channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1, 'groups': 1})
+      let channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1, 'groups': 1})
       if (currentRole.slug === 'manager-level-2') {
         channels = channels.filter(item => {
           let checkExistence = item.groups.some(function (e) {
@@ -56,7 +92,7 @@ module.exports = new Route({
     }
 
     if (data.salesCenters) {
-      var salesCenters = await SalesCenter.find({ uuid: { $in: data.salesCenters } }).select({'_id': 1, 'groups': 1})
+      let salesCenters = await SalesCenter.find({ uuid: { $in: data.salesCenters } }).select({'_id': 1, 'groups': 1})
       if (currentRole.slug === 'manager-level-2') {
         salesCenters = salesCenters.filter(item => {
           let checkExistence = item.groups.some(function (e) {
@@ -74,38 +110,37 @@ module.exports = new Route({
       const products = await Product.find({ uuid: { $in: data.products } }).select({'_id': 1})
       initialMatch['product'] = { $in: products.map(item => { return item._id }) }
     }
-    var matchPreviousSale = Array.from(initialMatch)
+
+    let matchPreviousSale = _.cloneDeep(initialMatch)
 
     if (data.date_start && data.date_end) {
-      const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
-      data.weeks = []
-      for (let week of weeks) {
-        data.weeks.push(week.week)
+      let start = moment.utc(data.date_start, 'YYYY-MM-DD')
+      let end = moment.utc(data.date_end, 'YYYY-MM-DD')
+
+      weeks = await AbraxasDate.find({
+        $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}]
+      })
+
+      initialMatch['data.forecastDate'] = {$lte: end.toDate(), $gte: start.toDate()}
+      start = moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years')
+      end = moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years')
+
+      previousWeeks = await AbraxasDate.find({
+        $and: [{dateStart: {$gte: start.toDate()}}, {dateEnd: {$lte: end.toDate()}}]
+      })
+
+      matchPreviousSale['data.forecastDate'] = {
+        $lte: end.toDate(),
+        $gte: start.toDate()
       }
-
-      data.year = moment(data.date_start).year()
-
-      initialMatch['data.semanaBimbo'] = {$in: data.weeks}
-
-      var lastYear = data.year - 1
-      matchPreviousSale['data.semanaBimbo'] = {$in: data.weeks}
     } else {
       ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
     }
 
-    var match = [
+    let match = [
       {
         '$match': {
           ...initialMatch
-        }
-      },
-      {
-        '$redact': {
-          '$cond': [
-                { '$eq': [{ '$year': '$data.forecastDate' }, data.year] },
-            '$$KEEP',
-            '$$PRUNE'
-          ]
         }
       },
       {
@@ -125,15 +160,6 @@ module.exports = new Route({
         }
       },
       {
-        '$redact': {
-          '$cond': [
-              { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] },
-            '$$KEEP',
-            '$$PRUNE'
-          ]
-        }
-      },
-      {
         '$group': {
           _id: key,
           sale: { $sum: '$data.sale' }
@@ -144,43 +170,71 @@ module.exports = new Route({
     match.push({ $sort: { '_id.date': 1 } })
     matchPreviousSale.push({ $sort: { '_id.date': 1 } })
 
-    var responseData = await DataSetRow.aggregate(match)
-    var previousSale = await DataSetRow.aggregate(matchPreviousSale)
+    let responseData = await DataSetRow.aggregate(match)
+    let previousSale = await DataSetRow.aggregate(matchPreviousSale)
 
-    var previousSaleDict = {}
-    for (var prev of previousSale) {
-      previousSaleDict[prev._id.week] = prev
+    let previousSaleDict = {}
+    for (let prev of previousSale) {
+      previousSaleDict[prev._id.date] = prev
     }
 
-    var totalPrediction = 0
-    var totalSale = 0
+    let saleDict = {}
+    for (let res of responseData) {
+      saleDict[res._id.date] = res
+    }
 
-    responseData = responseData.map(item => {
+    let totalPrediction = 0
+    let totalSale = 0
+    let response = []
+
+    for (let date of weeks) {
+      let dateStart = date.dateStart
+      let item = {
+        date: date.dateStart,
+        prediction: 0,
+        adjustment: 0,
+        sale: 0,
+        previousSale: 0
+      }
+
+      if (saleDict[dateStart]) {
+        item.prediction = saleDict[dateStart].prediction
+        item.adjustment = saleDict[dateStart].adjustment
+        item.sale = saleDict[dateStart].sale
+      }
+
       if (item.prediction && item.sale) {
         totalPrediction += item.prediction
         totalSale += item.sale
       }
 
-      return {
-        date: item._id.date,
-        week: item._id.week,
-        prediction: item.prediction,
-        adjustment: item.adjustment,
-        sale: item.sale,
-        previousSale: previousSaleDict[item._id.week] ? previousSaleDict[item._id.week].sale : 0
+      let lastDate = previousWeeks.find(item => { return item.year === date.year - 1 && item.week === date.week })
+
+      if (lastDate && previousSaleDict[lastDate.dateStart]) {
+        item.previousSale = previousSaleDict[lastDate.dateStart].sale
       }
-    })
+
+      response.push(item)
+    }
 
     let mape = 0
 
     if (totalSale !== 0) {
-      mape = Math.abs((totalSale - totalPrediction) / totalSale)
+      mape = Math.abs((totalSale - totalPrediction) / totalSale) * 100
     }
 
-    ctx.set('Cache-Control', 'max-age=86400')
+    try {
+      for (let item in response) {
+        await redis.hSet(parameterHash, item, JSON.stringify(response[item]))
+      }
+      await redis.hSet(parameterHash, 'mape', mape)
+      await redis.expire(parameterHash, EXPIRATION)
+    } catch (e) {
+      console.log('Error setting the cache')
+    }
 
     ctx.body = {
-      data: responseData,
+      data: response,
       mape: mape
     }
   }

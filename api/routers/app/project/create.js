@@ -2,7 +2,6 @@ const Route = require('lib/router/route')
 const lov = require('lov')
 
 const { Project } = require('models')
-const Api = require('lib/abraxas/api')
 
 module.exports = new Route({
   method: 'post',
@@ -21,14 +20,6 @@ module.exports = new Route({
       adjustment: data.adjustment,
       createdBy: ctx.state.user
     })
-
-    var res = await Api.postProject(project.uuid, ctx.state.organization.uuid)
-
-    project.set({
-      externalId: res._id
-    })
-
-    await project.save()
 
     ctx.body = {
       data: project

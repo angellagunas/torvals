@@ -2,7 +2,6 @@ const Route = require('lib/router/route')
 const moment = require('moment')
 
 const {AdjustmentRequest} = require('models')
-const verifyDatasetrows = require('queues/update-datasetrows')
 
 module.exports = new Route({
   method: 'get',
@@ -19,11 +18,12 @@ module.exports = new Route({
 
     const datasetRow = adjustmentRequest.datasetRow
 
-    datasetRow.data.localAdjustment = adjustmentRequest.newAdjustment
+    datasetRow.data.lastAdjustment = datasetRow.data.adjustment
+    datasetRow.data.adjustment = adjustmentRequest.newAdjustment
+    datasetRow.status = 'adjusted'
     datasetRow.updatedBy = ctx.state.user
     datasetRow.markModified('data')
     await datasetRow.save()
-    verifyDatasetrows.add({uuid: datasetRow.uuid})
 
     adjustmentRequest.status = 'approved'
     adjustmentRequest.approvedBy = ctx.state.user

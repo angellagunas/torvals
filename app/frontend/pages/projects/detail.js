@@ -21,6 +21,7 @@ import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 // import Breadcrumb from '~base/components/base-breadcrumb'
 import TabAnomalies from './detail-tabs/tab-anomalies'
+import CreateProject from './create'
 
 var currentRole
 var user
@@ -35,6 +36,7 @@ class ProjectDetail extends Component {
       selectedTab: 'graficos',
       actualTab: 'graficos',
       datasetClassName: '',
+      cloneClassName: '',
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
       isLoading: '',
@@ -59,9 +61,10 @@ class ProjectDetail extends Component {
       this.props.history.replace('/projects/' + user.currentProject.uuid)
     }
 
-    if (currentRole === 'consultor') {
+    if (currentRole === 'manager-level-1') {
       this.setState({
-        selectedTab: 'graficos'
+        selectedTab: 'ajustes',
+        actualTab: 'ajustes'
       })
     }
 
@@ -112,11 +115,12 @@ class ProjectDetail extends Component {
         tab = 'ajustes'
       }
 
-    this.setState({
+      this.setState({
         loading: false,
         loaded: true,
         project: body.data,
-        selectedTab: tab 
+        selectedTab: tab,
+        actualTab: tab 
       })
 
       this.countAdjustmentRequests()
@@ -202,6 +206,25 @@ class ProjectDetail extends Component {
       datasetClassName: ''
     })
     this.props.history.push('/datasets/' + object.uuid)
+  }
+
+  showModalClone () {
+    this.setState({
+      cloneClassName: ' is-active'
+    })
+  }
+  hideModalClone (e) {
+    this.setState({
+      cloneClassName: ''
+    })
+  }
+
+  finishUpClone (object) {
+    this.setState({
+      cloneClassName: ''
+    })
+    this.props.history.push('/projects/' + object.uuid)
+    this.load('ajustes')
   }
 
   async getProjectStatus () {
@@ -346,6 +369,30 @@ class ProjectDetail extends Component {
     })
   }
 
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if (type === toast.TYPE.WARNING) {
+      className = 'has-bg-warning'
+    }
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false,
+        className: className
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false,
+        className: className
+      })
+    }
+  }
+
   async handleAdjustmentRequest(obj) {
     let { pendingDataRows } = this.state
     let productAux = []
@@ -361,6 +408,12 @@ class ProjectDetail extends Component {
 
     try {
       var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment && item.isLimit }))
+      if (currentRole === 'manager-level-1') {
+        this.notify('Sus ajustes se han guardado', 5000, toast.TYPE.INFO)
+        this.setState({
+          adjustmentML1: true
+        })
+      }
     } catch (e) {
       this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
 
@@ -420,26 +473,33 @@ class ProjectDetail extends Component {
     }
 
     const { project, canEdit } = this.state
+    console.log(project.status)
 
-    if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
+    if (this.interval === null && (
+        project.status === 'processing' ||
+        project.status === 'pendingRows' ||
+        project.status === 'cloning'
+    )) {
       this.interval = setInterval(() => this.getProjectStatus(), 30000)
     }
 
     if (!this.state.loaded) {
       return <Loader />
     }
+
     const tabs = [
       {
         name: 'graficos',
         title: 'Gráficos',
         hide: (testRoles('manager-level-1') ||
-          project.status === 'processing' ||
-          project.status === 'pendingRows' ||
-          project.status === 'empty'),
+          project.status === 'empty' ||
+          project.status === 'conciliating' ||
+          project.status === 'cloning'),
         content: (
           <TabHistorical
             project={project}
             history={this.props.history}
+            currentRole={currentRole}
           />
         )
       },
@@ -463,6 +523,7 @@ class ProjectDetail extends Component {
             handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
             handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }}
             selectedTab={this.state.actualTab}
+            adjustmentML1={this.state.adjustmentML1}
           />
         )
       },
@@ -475,7 +536,8 @@ class ProjectDetail extends Component {
         hide: (testRoles('manager-level-1') ||
               project.status === 'processing' ||
               project.status === 'pendingRows' ||
-              project.status === 'empty'),
+              project.status === 'empty' ||
+              project.status === 'cloning'),
         content: (
           <TabApprove
             setAlert={(type, data) => this.setAlert(type, data)}
@@ -506,7 +568,8 @@ class ProjectDetail extends Component {
         hide: (testRoles('manager-level-1') ||
           project.status === 'processing' ||
           project.status === 'pendingRows' ||
-          project.status === 'empty'),
+          project.status === 'empty' ||
+          project.status === 'cloning'),
         content: (
           <TabAnomalies
             project={project}
@@ -522,20 +585,46 @@ class ProjectDetail extends Component {
         content: (
           <div>
             <div className='section'>
+              {testRoles('orgadmin') &&
+                <CreateProject
+                  url='/app/projects/clone'
+                  initialState={{ ...project, organization: project.organization.uuid, clone: project.uuid }}
+                  className={this.state.cloneClassName}
+                  hideModal={this.hideModalClone.bind(this)}
+                  finishUp={this.finishUpClone.bind(this)}
+                  canEdit={canEdit}
+                  title='Clonar Proyecto'
+                  buttonText='Clonar'
+                />
+              }
               {canEdit &&
                 <div className='columns is-marginless'>
-                    <div className='column'>
-                  <div className='is-pulled-right'>
-
-                      <DeleteButton
-                        objectName='Proyecto'
-                        objectDelete={() => this.deleteObject()}
-                        message={'Estas seguro de querer eliminar este Proyecto?'}
-                        hideIcon
-                        titleButton={'Eliminar'}
-                      />
-                  </div>
+                  <div className='column'>
+                    <div className='is-pulled-right'>
+                      <div className='field is-grouped'>
+                        <div className='control'>
+                          {testRoles('orgadmin') && project.mainDataset &&
+                            <button
+                              className='button'
+                              type='button'
+                              onClick={this.showModalClone.bind(this)}
+                            >
+                              Clonar
+                            </button>
+                          }
+                        </div>
+                        <div className='control'>
+                          <DeleteButton
+                            objectName='Proyecto'
+                            objectDelete={() => this.deleteObject()}
+                            message={'¿Estas seguro de querer eliminar este Proyecto?'}
+                            hideIcon
+                            titleButton={'Eliminar'}
+                          />
+                        </div>
+                      </div>
                     </div>
+                  </div>
                 </div>
               }
               
@@ -578,7 +667,7 @@ class ProjectDetail extends Component {
       </span>
     </button>)
     var consolidarButton
-    if (!testRoles('consultor, manager-level-1')) {
+    if (!testRoles('consultor, manager-level-1') && this.state.actualTab === 'aprobar') {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
@@ -590,7 +679,7 @@ class ProjectDetail extends Component {
     }
     else if (testRoles('manager-level-1')) {
       consolidarButton =
-        <p className='control btn-conciliate'>
+        <p className={this.state.adjustmentML1 ? 'control btn-conciliate is-hidden' : 'control btn-conciliate'}>
           <a className={'button is-success ' + this.state.isConciliating}
             disabled={!!this.state.isConciliating}
             onClick={e => this.handleAllAdjustmentRequest()}>

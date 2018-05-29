@@ -48,6 +48,7 @@ class AdminLayout extends Component {
       } catch (err) {
         if (err.status === 401) {
           cookies.remove('jwt')
+          cookies.remove('organization')
           tree.set('jwt', null)
           tree.set('user', null)
           tree.set('organization', null)
@@ -66,6 +67,7 @@ class AdminLayout extends Component {
 
       if (!me.user.currentOrganization) {
         cookies.remove('jwt')
+        cookies.remove('organization')
         tree.set('jwt', null)
         tree.set('user', null)
         tree.set('organization', null)

@@ -612,7 +612,7 @@ class ForecastDetail extends Component {
                 <DeleteButton
                   objectName='Forecast'
                   objectDelete={this.deleteObject.bind(this)}
-                  message={`Estas seguro de querer eliminar el objeto`}
+                  message={`¿Estas seguro de querer eliminar el objeto`}
                 />
               </div>
             </div>

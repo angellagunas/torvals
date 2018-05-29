@@ -65,13 +65,14 @@ class TabAdjustment extends Component {
     this.toastId = null
   }
 
-  componentWillMount () {    
+  componentWillMount () {
     if(this.props.selectedTab === 'ajustes'){
       this.getFilters()
     }
   }
   
-  componentWillReceiveProps(nextProps){    
+  componentWillReceiveProps(nextProps){
+    if (nextProps.project.uuid !== this.props.uuid) return
     if(nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded){
       this.getFilters()      
     }
@@ -98,7 +99,7 @@ class TabAdjustment extends Component {
       adjustments = this.props.project.businessRules.adjustments
     }
 
-    data.map((date) => {     
+    data.map((date) => {
       if(date.year === moment().get('year')){
         const key = date.month
         const collection = map.get(key)
@@ -277,32 +278,35 @@ class TabAdjustment extends Component {
 
     const url = '/app/rows/dataset/'
     try{
-    let data = await api.get(
-      url + this.props.project.activeDataset.uuid,
-      this.state.formData
-    )
+      let data = await api.get(
+        url + this.props.project.activeDataset.uuid,
+        this.state.formData
+      )
 
-    this.setState({
-      dataRows: this.getEditedRows(data.data),
-      isFiltered: true,
-      isLoading: '',
-      selectedCheckboxes: new Set()
-    })
-    this.clearSearch()
-    this.getSalesTable()    
-  }catch(e){
-    console.log(e)
-  }
+      this.setState({
+        dataRows: this.getEditedRows(data.data),
+        isFiltered: true,
+        isLoading: '',
+        selectedCheckboxes: new Set()
+      })
+      this.clearSearch()
+      this.getSalesTable()    
+    }catch(e){
+      console.log(e)
+    }
   }
 
   getEditedRows(data) {
     for (let row of data) {
-      row.adjustmentForDisplay = row.localAdjustment
+      row.adjustmentForDisplay = row.adjustment
+
+      if (!row.lastAdjustment) row.lastAdjustment = row.prediction
+
       if (row.adjustmentRequest && row.adjustmentRequest.status !== 'rejected') {
         row.adjustmentForDisplay = row.adjustmentRequest.newAdjustment
       }
 
-      if (row.localAdjustment != row.adjustment || row.adjustmentRequest) {
+      if (row.adjustment != row.adjustment || row.adjustmentRequest) {
         row.wasEdited = true
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
@@ -531,6 +535,7 @@ getProductsSelected () {
       this.notify('No tienes productos seleccionados', 3000, toast.TYPE.INFO)
       return
     }
+
     this.setState({isLoadingButtons: ' is-loading'})
     let { selectedCheckboxes } = this.state
     selectedCheckboxes = Array.from(selectedCheckboxes)
@@ -543,7 +548,7 @@ getProductsSelected () {
         !isNaN(this.state.percentage) &&
         parseInt(this.state.percentage) !== 0 
       ){
-        toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
+        toAdd = row.lastAdjustment * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
       } else if (
         type === 'quantity' &&
@@ -584,7 +589,7 @@ getProductsSelected () {
         parseInt(this.state.percentage) !== 0 && 
         !isNaN(this.state.percentage)
       ) {
-        toAdd = row.prediction * 0.01 * parseInt(this.state.percentage)
+        toAdd = row.lastAdjustment * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
       } else if (
         type === 'quantity' &&
@@ -674,7 +679,6 @@ getProductsSelected () {
       if (rowAux.length > 0) {
         const res = await api.post(url, rowAux)
       }
-
       if (isLimited && currentRole === 'manager-level-1') {
         this.notify(
           (<p>
@@ -825,18 +829,18 @@ getProductsSelected () {
         semana_bimbo: this.state.filters.filteredSemanasBimbo
       })
 
-      if (res.data._items) {
+      if (res.data) {
         let totalPrediction = 0
         let totalAdjustment = 0
 
-        for (let i = 0; i < res.data._items.length; i++) {
-          const element = res.data._items[i];
+        for (let i = 0; i < res.data.length; i++) {
+          const element = res.data[i];
           totalAdjustment += element.adjustment
           totalPrediction += element.prediction
         }
 
         this.setState({
-          salesTable: res.data._items,
+          salesTable: res.data,
           totalAdjustment: totalAdjustment,
           totalPrediction: totalPrediction
         })
@@ -988,10 +992,26 @@ getProductsSelected () {
             <article className="message is-danger">
               <div className="message-header">
                 <p>Error</p>
-                <button className="delete" aria-label="delete"></button>
               </div>
               <div className="message-body">
                 {this.state.errorMessage}
+              </div>
+            </article>
+          </div>
+        </div>
+      )
+    }
+
+    if (this.props.adjustmentML1){
+      return (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-primary">
+              <div className="message-header">
+                <p>Información</p>
+              </div>
+              <div className="message-body">
+                ¡Sus ajustes se han guardado con éxito!
               </div>
             </article>
           </div>
@@ -1036,6 +1056,24 @@ getProductsSelected () {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           Se están obteniendo las filas para ajuste, en un momento más las podrá consultar.
+          <Loader />
+        </div>
+      )
+    }
+
+    if (this.props.project.status === 'cloning') {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Se esta procesando el clon, favor de esperar...
+          <Loader />
+        </div>
+      )
+    }
+
+    if (this.props.project.status === 'conciliating') {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Se está conciliando el dataset, espere por favor.
           <Loader />
         </div>
       )

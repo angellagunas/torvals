@@ -21,9 +21,6 @@ class TabHistorical extends Component {
       channelsCollapsed: true,
       productsCollapsed: true,
       yearsCollapsed: true,
-      minPeriod: 1,
-      maxPeriod: 12,
-      yearSelected: moment().get('year'),
       allProjects: false,
       allChannels: false,
       allSalesCenters: false,
@@ -167,7 +164,7 @@ class TabHistorical extends Component {
     if (projects.length <= 0) {
       return
     }
-
+    try{
     let url = '/app/dashboard/projects'
     let res = await api.get(url, projects)
 
@@ -185,6 +182,13 @@ class TabHistorical extends Component {
       this.getGraph()
       this.getProductTable()
     })
+    }catch(e){
+      this.notify('Error al obtener los filtros ' + e.message, 5000, toast.TYPE.ERROR)
+        this.setState({
+          loading: false,
+          noFilters: 'Error al obtener los filtros, contacte a un administrador'
+        })
+    }
   }
 
   async getGraph() {
@@ -224,8 +228,8 @@ class TabHistorical extends Component {
           waitingData: true
         })
         let res = await api.post(url, {
-          date_start: moment([this.state.yearSelected, this.state.minPeriod - 1]).startOf('month').format('YYYY-MM-DD'),
-          date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
+          date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
+          date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
           channels: Object.values(this.selectedChannels),
           salesCenters: Object.values(this.selectedSalesCenters),
           //products: Object.values(this.selectedProducts),
@@ -324,8 +328,8 @@ class TabHistorical extends Component {
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
-        date_start: moment([this.state.yearSelected, this.state.minPeriod - 1]).startOf('month').format('YYYY-MM-DD'),
-        date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
+        date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
+        date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
         projects: Object.values(this.selectedProjects)
@@ -573,89 +577,45 @@ class TabHistorical extends Component {
   }
 
   async getDates() {
-    const url = '/app/dates/'
-
-    try {
-      let res = await api.get(url)
-      var periods = []
-      let years = new Set()
-
-      res.data.map((date) => {
-        years.add(date.year)
-      })
-
-      periods = this.getPeriods(res.data, Array.from(years)[0])
-
-      this.setState({
-        dates: res.data,
-        periods: periods,
-        years: Array.from(years),
-        value: { min: periods[0].number, max: periods[periods.length - 1].number },
-        yearSelected: Array.from(years)[0]
-      })
-    } catch (e) {
-      this.notify('Error: No hay fechas disponíbles, intente más tarde', 5000, toast.TYPE.ERROR)
+    let d = []
+    let p = []
+    let dateMin = moment.utc(this.props.project.dateMin)
+    let dateMax = moment.utc(this.props.project.dateMax)
+    
+    if(dateMin.isBefore(moment.utc('2017-01-01'))){
+      dateMin = moment.utc('2017-01-01')
     }
-  }
 
-  getPeriods(data, year) {
-    let periods = []
-    const map = new Map()
-    data.map((date) => {
-      if (date.year === year) {
-        const key = date.month
-        const collection = map.get(key)
-        if (!collection) {
-          map.set(key, [date])
-        } else {
-          collection.push(date)
-        }
-      }
+    while (dateMin.format('MMMM YYYY') !== dateMax.format('MMMM YYYY')){
+      d.push(dateMin)
+      dateMin = moment.utc(dateMin).add(1, 'month')
+    }
+    
+    d.push(dateMin)
+
+
+    for (let i = 0; i < d.length; i++) {
+      p.push({
+        number: d[i].get('month') + 1,
+        name: `${d[i].format('MMMM')}`,
+        year: d[i].get('year')
+      })
+    }
+
+    this.setState({
+      periods: p,
+      minPeriod: {number: 1, name: "enero", year: 2018},
+      maxPeriod: p[p.length - 1]
     })
-
-    for (let i = 0; i < Array.from(map).length; i++) {
-      const element = Array.from(map)[i]
-      periods.push({
-        number: element[0],
-        name: `${moment(element[1][0].month, 'M').format('MMMM')}`,
-        maxSemana: element[1][0].week,
-        minSemana: element[1][element[1].length - 1].week
-      })
-    }
-
-    return periods.reverse()
   }
+  
 
-  getPeriodDate(period, startOf) {
-    if (startOf) {
-      return moment(period, 'M').startOf('month').format('MMMM')
-    }
-    else {
-      return moment(period, 'M').endOf('month').format('MMMM')
-    }
-  }
-
-  selectYear(item, value) {
-    if (value) {
-      this.setState({ yearSelected: item, noData: undefined },
-        () => {
-          this.getGraph()
-          this.getProductTable()
-        })
-    }
-    else {
+  setMinPeriod(item) {
+    let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
+    let min = moment.utc([item.year, item.number - 1])
+    if (min.isBefore(max)) {
       this.setState({
-        filteredData: undefined,
-        graphData: undefined,
-        noData: 'Debe seleccionar un año'
-      })
-    }
-  }
-
-  setMinPeriod(number) {
-    if (number <= this.state.maxPeriod) {
-      this.setState({
-        minPeriod: number
+        minPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
@@ -664,7 +624,7 @@ class TabHistorical extends Component {
     else {
       this.setState({
         minPeriod: this.state.maxPeriod,
-        maxPeriod: number
+        maxPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
@@ -673,10 +633,12 @@ class TabHistorical extends Component {
 
   }
 
-  setMaxPeriod(number) {
-    if (number >= this.state.minPeriod) {
+  setMaxPeriod(item) {
+    let min = moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1])
+    let max = moment.utc([item.year, item.number - 1])
+    if (max.isAfter(min)){
       this.setState({
-        maxPeriod: number
+        maxPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
@@ -685,7 +647,7 @@ class TabHistorical extends Component {
     else {
       this.setState({
         maxPeriod: this.state.minPeriod,
-        minPeriod: number
+        minPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
@@ -703,16 +665,33 @@ class TabHistorical extends Component {
       return <Loader />
     }
 
+    if(this.state.noFilters){
+      return (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-danger">
+              <div className="message-header">
+                <p>Error</p>
+              </div>
+              <div className="message-body">
+                {this.state.noFilters}
+              </div>
+            </article>
+          </div>
+        </div>
+      )
+    }
+
     const graph = [
       {
         label: 'Predicción',
         color: '#187FE6',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.prediction }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.prediction !== 0 ? item.prediction : null }) : []
       },
       {
         label: 'Ajuste',
         color: '#30C6CC',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.adjustment }) : []
+        data: this.state.graphData ? this.state.graphData.map((item) => { return item.adjustment !== 0 ? item.adjustment : null }) : []
       },
       {
         label: 'Venta',
@@ -744,41 +723,7 @@ class TabHistorical extends Component {
                     <div className='card-content'>
 
                       <ul>
-                        <li className='filters-item'>
-                          <div className={this.state.yearsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
-                            onClick={() => { this.showFilter('years') }}>
-                            <a>
-                              <span className='icon'>
-                                <i className={this.state.yearsCollapsed
-                                  ? 'fa fa-plus' : 'fa fa-minus'} />
-                              </span>
-                              Año <strong>{this.state.years && this.state.years.length}</strong>
-                            </a>
-                          </div>
-                          <aside className={this.state.yearsCollapsed
-                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
-
-                            <ul className='menu-list'>
-                              {this.state.years &&
-                                this.state.years.map((item) => {
-                                  return (
-                                    <li key={item}>
-                                      <a>
-                                        <Checkbox
-                                          label={item}
-                                          handleCheckboxChange={(e, value) => this.selectYear(item, value)}
-                                          key={item}
-                                          checked={item === this.state.yearSelected}
-                                          disabled={this.state.waitingData}
-                                        />
-                                      </a>
-                                    </li>
-                                  )
-                                })
-                              }
-                            </ul>
-                          </aside>
-                        </li>
+                        
 
                         <li className='filters-item'>
                           <div className={this.state.channelsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
@@ -812,7 +757,7 @@ class TabHistorical extends Component {
                                   if (!item.selected) {
                                     item.selected = false
                                   }
-                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
                                   
                                   return (
                                     <li key={item.uuid}>
@@ -826,7 +771,7 @@ class TabHistorical extends Component {
                                         />
                                         {item.name === 'Not identified' &&
                                           <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
-                                            <i className='fa fa-eye has-text-info' />
+                                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>                                          
                                           </span>
                                         }
                                       </a>
@@ -870,7 +815,7 @@ class TabHistorical extends Component {
                                   if (!item.selected) {
                                     item.selected = false
                                   }
-                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
                                   
                                   return (
                                     <li key={item.uuid}>
@@ -884,7 +829,7 @@ class TabHistorical extends Component {
                                         />
                                         {item.name === 'Not identified' &&
                                           <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
-                                            <i className='fa fa-eye has-text-info' />
+                                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>                                                                                      
                                           </span>
                                         }
                                       </a>
@@ -1085,7 +1030,7 @@ class TabHistorical extends Component {
                 </div>
 
                 <div className='level-right'>
-                  {this.state.yearSelected &&
+                  {this.state.minPeriod &&
                     <div className='level-item'>
                     <div className='field'>
                       <label className='label'>Periodo inicial</label>
@@ -1093,7 +1038,7 @@ class TabHistorical extends Component {
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
-                            <span>{this.getPeriodDate(this.state.minPeriod, true) + ' ' + this.state.yearSelected}</span>
+                            <span>{this.state.minPeriod.name + ' ' + this.state.minPeriod.year}</span>
                             <span className='icon is-small'>
                               <i className='fa fa-angle-down' aria-hidden='true'></i>
                             </span>
@@ -1101,11 +1046,13 @@ class TabHistorical extends Component {
                         </div>
                         <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
                           <div className='dropdown-content'>
-                            {this.state.periods && this.state.periods.map((item) => {
+                            {this.state.periods && this.state.periods.map((item, key) => {
                               return (
-                                <a key={item.number} className={this.state.minPeriod === item.number ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
-                                  onClick={() => this.setMinPeriod(item.number)}>
-                                  {item.name + ' ' + this.state.yearSelected}
+                                <a key={key} className={this.state.minPeriod.number === item.number &&
+                                  this.state.minPeriod.name === item.name &&
+                                  this.state.minPeriod.year === item.year ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                  onClick={() => this.setMinPeriod(item)}>
+                                  {item.name + ' ' + item.year}
                                 </a>
                               )
                             })}
@@ -1116,14 +1063,14 @@ class TabHistorical extends Component {
                       </div>
                     </div>
                   }
-                  {this.state.yearSelected &&
+                  
                     <div className='level-item date-drop'>
                       <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
                     </div>
-                  }
-                  {this.state.yearSelected &&
+                  
+                  {this.state.maxPeriod && 
                     <div className='level-item'>
                      <div className='field'>
                         <label className='label'>Periodo final</label>
@@ -1131,7 +1078,7 @@ class TabHistorical extends Component {
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
-                            <span>{this.getPeriodDate(this.state.maxPeriod, true) + ' ' + this.state.yearSelected}</span>
+                            <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
                             <span className='icon is-small'>
                               <i className='fa fa-angle-down' aria-hidden='true'></i>
                             </span>
@@ -1139,11 +1086,13 @@ class TabHistorical extends Component {
                         </div>
                         <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
                           <div className='dropdown-content'>
-                            {this.state.periods && this.state.periods.map((item) => {
+                            {this.state.periods &&
+                                this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
+                            .map((item, key) => {
                               return (
-                                <a key={item.number} className={this.state.maxPeriod === item.number ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
-                                  onClick={() => this.setMaxPeriod(item.number)}>
-                                  {item.name + ' ' + this.state.yearSelected}
+                                <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                  onClick={() => this.setMaxPeriod(item)}>
+                                  {item.name + ' ' + item.year}
                                 </a>
                               )
                             })}
