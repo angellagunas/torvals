@@ -1,5 +1,4 @@
 const Route = require('lib/router/route')
-const _ = require('lodash')
 const moment = require('moment')
 const generateCycles = require('tasks/organization/generate-cycles')
 
