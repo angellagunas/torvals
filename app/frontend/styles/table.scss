@@ -75,6 +75,9 @@
         border-top: 1.5px solid #E3E4EB !important;
         background-color: rgba(227, 228, 235, 0.6) !important;
     }
+    &.row-was-edited {
+        background-color: rgba(227, 228, 235, 0.6) !important;
+    }
 }
 
 .sticky-table .sticky-table-corner,
