@@ -77,8 +77,29 @@ var getById = function (session, organizationId) {
   });
 };
 
+var addRelationship = function(session, organizationId, node) {
+  var query = `
+    MERGE (org:Organization {uuid: "${organizationId}"})
+    WITH org
+    MATCH (ci:${node.label} {_id: "${node._id}"})
+    MERGE (org)-[:HAS]->(ci)
+    RETURN org.uuid
+  `
+
+  return session.run(query)
+    .then(result => {
+      if (!_.isEmpty(result.records)) {
+        return true
+      }
+      else {
+        throw {message: 'organization not found', status: 404}
+      }
+    });
+};
+
 module.exports = {
   getAll: getAll,
   getById: getById,
-  create: create
+  create: create,
+  addRelationship: addRelationship
 };

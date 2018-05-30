@@ -2,7 +2,7 @@ version: '2.3'
 services:
   admin:
     restart: always
-    build: 
+    build:
       context: .
       dockerfile: DockerfileNginxAdmin
     ports:
@@ -12,7 +12,7 @@ services:
     mem_reservation: 500m
   web:
     restart: always
-    build: 
+    build:
       context: .
       dockerfile: DockerfileNginxApp
     ports:
@@ -29,7 +29,7 @@ services:
       - mongodb
       - redisdb
     depends_on:
-      - mongodb    
+      - mongodb
       - redisdb
     cpu_shares: 200
     cpus: 2
@@ -49,7 +49,7 @@ services:
       - mongodb
       - redisdb
     depends_on:
-      - mongodb    
+      - mongodb
       - redisdb
     cpu_shares: 200
     cpus: 2
@@ -83,3 +83,16 @@ services:
     mem_limit: 30000M
     mem_reservation: 8000m
     command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 24 # --quiet
+  neo4j:
+    image: 'neo4j:3.2.1'
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    restart:
+      always
+    volumes:
+      - $HOME/neo4j/data:/data
+      - $HOME/neo4j/logs:/logs
+    cpu_shares: 300
+    mem_limit: 30000M
+    mem_reservation: 30000M

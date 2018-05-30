@@ -109,6 +109,7 @@
     "nodemon": "^1.11.0",
     "redbird": "^0.7.0",
     "standard": "^10.0.3",
-    "supertest": "^1.0"
+    "supertest": "^1.0",
+    "webpack-cli": "^2.1.4"
   }
 }

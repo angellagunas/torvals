@@ -14,8 +14,8 @@ const task = new Task(
     try {
       const session = neo4j.session();
       await Organization.create(session, {
-        "uuid": v4(),
-        "name": "Barcel"
+        'uuid': v4(),
+        'name': 'Barcel'
       })
         .then(org => {
           session.close()
