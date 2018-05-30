@@ -45,6 +45,22 @@ const task = new Task(
     }
     log('Sales Centers successfully saved!')
 
+    log('Saving cycles...')
+    if (!dataset.cycles == null) {
+      for (let cycle of dataset.cycles) {
+        await DataSetRow.update({dataset: dataset._id, 'data.forecastDate': { $range: [cycle.dateStart, cycle.dateEnd]}}, {cycle: cycle._id}, {multi: true})
+      }
+    }
+    log('Cycles successfully saved!')
+
+    log('Saving periods...')
+    if (!dataset.periods == null) {
+      for (let period of dataset.periods) {
+        await DataSetRow.update({dataset: dataset._id, 'data.forecastDate': { $range: [period.dateStart, period.dateEnd]}}, {period: period._id}, {multi: true})
+      }
+    }
+    log('Periods successfully saved!')
+
     dataset.set({ status: 'reviewing' })
     await dataset.save()
 
