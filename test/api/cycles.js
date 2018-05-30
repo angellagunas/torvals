@@ -21,11 +21,12 @@ describe('organizations/rules/:uuid', () => {
 
   describe('with extra data', () => {
     it('should not save a extra fields', async function () {
+      const org = await Organization.create({rules: {}, slug:'test-org'})
+
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}})
       rules = Object.assign(organizationFixture.rules, {extraField: 'random value'})
 
       const response = await test()
@@ -33,6 +34,7 @@ describe('organizations/rules/:uuid', () => {
         .send(organizationFixture.rules)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(200)
 
       const newOrg = await Organization.findOne({_id: org._id})
@@ -43,6 +45,7 @@ describe('organizations/rules/:uuid', () => {
 
   describe('with invalid organization', () => {
     it('should return a 404 status code', async function () {
+      const org = await Organization.create({rules: {}, slug:'test-org'})
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
@@ -52,6 +55,7 @@ describe('organizations/rules/:uuid', () => {
         .send(organizationFixture.rules)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(404)
     })
   })
@@ -62,13 +66,14 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
 
       const response = await test()
         .post(`/api/app/organizations/rules/${org.uuid}` )
         .send(organizationFixture.rules)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(200)
 
       assert.exists(response.body.data.rules)
@@ -77,12 +82,13 @@ describe('organizations/rules/:uuid', () => {
 
   describe('without Authorization header', () => {
     it('should return a 401 http status code', async function(){
-      const org = await Organization.create({rules: {}})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
 
       const response = await test()
         .post(`/api/app/organizations/rules/${org.uuid}` )
         .send(organizationFixture.rules)
         .set('Accept', 'application/json')
+        .set('Referer', 'http://test-org.orax.com')
         .expect(401)
     })
   })
@@ -93,7 +99,7 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
       const data = organizationFixture.rules
       data.periodDuration = "aString"
 
@@ -102,6 +108,7 @@ describe('organizations/rules/:uuid', () => {
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(422)
     })
 
@@ -110,7 +117,7 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
       const data = organizationFixture.rules
       data.periodDuration = -1
 
@@ -119,6 +126,7 @@ describe('organizations/rules/:uuid', () => {
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(422)
     })
 
@@ -127,7 +135,7 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
       const data = organizationFixture.rules
       data.cycleDuration = "aString"
 
@@ -136,6 +144,7 @@ describe('organizations/rules/:uuid', () => {
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(422)
     })
 
@@ -144,7 +153,7 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
       const data = organizationFixture.rules
       data.cycleDuration = -1
 
@@ -153,6 +162,7 @@ describe('organizations/rules/:uuid', () => {
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(422)
     })
 
@@ -161,7 +171,7 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
       const data = organizationFixture.rules
       data.season = "aString"
 
@@ -170,6 +180,7 @@ describe('organizations/rules/:uuid', () => {
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(422)
     })
 
@@ -178,7 +189,7 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
       const data = organizationFixture.rules
       data.season = -1
 
@@ -187,6 +198,7 @@ describe('organizations/rules/:uuid', () => {
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(422)
     })
 
@@ -195,7 +207,7 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
       const data = organizationFixture.rules
       data.startDate = "01-01-2018"
 
@@ -204,6 +216,7 @@ describe('organizations/rules/:uuid', () => {
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(422)
     })
 
@@ -212,7 +225,7 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
       const data = organizationFixture.rules
       data.startDate = "01-01-2018"
 
@@ -221,6 +234,7 @@ describe('organizations/rules/:uuid', () => {
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(422)
     })
   })
