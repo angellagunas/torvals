@@ -47,7 +47,7 @@ describe('Generate periods task', () => {
       expect(new Date(lastCycle.dateEnd).toISOString()).equal(lastCycleEndDate.toISOString())
     })
 
-    it.only('without organization uuid', async function () {
+    it('without organization uuid', async function () {
       this.timeout(1000 * 10);
 
       const org = await createOrganization()
@@ -81,7 +81,7 @@ describe('Generate periods task', () => {
       expect(errorMsg).equal('Organization not found')
     })
 
-    it.only('with invalid organization uuid', async function () {
+    it('with invalid organization uuid', async function () {
       this.timeout(1000 * 10);
 
       let data = organizationFixture
