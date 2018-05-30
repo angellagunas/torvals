@@ -1,17 +1,14 @@
 // node queues/finish-upload.js
 require('../config')
 require('lib/databases/mongo')
+const path = require('path')
 
 const Queue = require('lib/queue')
-const getAnomalies = require('tasks/anomalies/get-anomalies')
 
 const queue = new Queue({
   name: 'get-anomalies',
-  task: async function (argv) {
-    let a
-    a = await getAnomalies.run(argv)
-    return a
-  }
+  isFile: true,
+  task: path.join(__dirname, 'tasks-wrappers/get-anomalies.js')
 })
 
 if (require.main === module) {

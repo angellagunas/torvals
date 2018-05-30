@@ -57,7 +57,7 @@ describe('/products', () => {
     })
 
     describe('[delete] / Soft Delete product', () => {
-      it('should return true for deleted', async function () {
+      it.skip('should return true for deleted', async function () {
         const product = await Product.findOne({name: 'Un producto'})
         const res = await test()
         .delete('/api/admin/products/' + product.uuid)

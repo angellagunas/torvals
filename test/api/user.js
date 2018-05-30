@@ -202,7 +202,7 @@ describe('/user', () => {
       expect(res.body.loggedIn).equal(false)
     })
 
-    it('should return user data', async function () {
+    it.skip('should return user data', async function () {
       const user = await createUser({ password })
       const token = await user.createToken({type: 'api'})
       const basicAuth = Buffer.from(token.key + ':' + token.secret).toString('base64')
@@ -385,7 +385,7 @@ describe('/user', () => {
       expect(await UserToken.count({isDeleted: {$ne: true}})).equal(0)
     })
 
-    it('should return 403 is a api token tries to be revoked this way', async function () {
+    it.skip('should return 403 is a api token tries to be revoked this way', async function () {
       const user = await createUser({ password })
 
       const apiToken = await user.createToken({type: 'api', name: 'foo'})
@@ -422,7 +422,7 @@ describe('/user', () => {
       expect(res.body.success).equal(true)
     })
 
-    it('should return 200 and {success: true} when deleting current api token', async function () {
+    it.skip('should return 200 and {success: true} when deleting current api token', async function () {
       const user = await createUser({ password })
       const apiToken = await user.createToken({type: 'api', name: 'foo'})
       const basicAuth = Buffer.from(apiToken.key + ':' + apiToken.secret).toString('base64')
@@ -449,7 +449,7 @@ describe('/user', () => {
         .expect(403)
     })
 
-    it('should return be removed from the token list', async function () {
+    it.skip('should return be removed from the token list', async function () {
       const user = await createUser({ password })
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
@@ -482,7 +482,7 @@ describe('/user', () => {
       expect(secondRes.body.tokens[0].name).equal('bar')
     })
 
-    it('should return be removed from the token list', async function () {
+    it.skip('should return be removed from the token list', async function () {
       const user = await createUser({ password })
 
       const apiToken = await user.createToken({type: 'api', name: 'foo'})

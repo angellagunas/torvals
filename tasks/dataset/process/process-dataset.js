@@ -1,4 +1,4 @@
-// node tasks/migrations/set-week-datasetrows.js
+// node tasks/dataset/process/process-dataset.js --uuid uuid [--batchSize batchSize --noNextStep]
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')

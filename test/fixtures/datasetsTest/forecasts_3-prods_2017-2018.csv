@@ -1,0 +1,13 @@
+agencia_id,ajuste,canal_id,canal_nombre,clasificacion,fecha,modelo,month,prediccion,producto_id,producto_nombre,semana_bimbo,venta,venta_uni,year
+12604,8250,1,detalle,AA,2017-10-05,tbats,10,8250,123109,Takis Fuego 62G Co2 Bar,41,4,31.12,2017
+12604,7749,1,detalle,AA,2017-10-12,tbats,10,7749,123109,Takis Fuego 62G Co2 Bar,42,3,18.66,2017
+12604,7344,1,detalle,AA,2017-10-19,tbats,10,7344,123109,Takis Fuego 62G Co2 Bar,43,15,116.7,2017
+12604,4137,1,detalle,AA,2018-03-15,snaive,3,4137,123110,Runners 58G Co2 Bar,12,6,46.68,2018
+12604,3851,1,detalle,AA,2018-03-22,snaive,3,3851,123110,Runners 58G Co2 Bar,13,6,37.32,2018
+12604,3598,1,detalle,AA,2018-03-29,snaive,3,3598,123110,Runners 58G Co2 Bar,14,2,12.44,2018
+12604,7166,1,detalle,AA,2017-10-26,tbats,11,7166,123109,Takis Fuego 62G Co2 Bar,44,4,31.12,2017
+12837,0,4,conveniencia,F,2018-04-19,cero,4,0,122928,Pecositas 70P 9 8G Ric,17,70,50.4,2018
+12837,0,4,conveniencia,F,2018-04-26,cero,4,0,122928,Pecositas 70P 9 8G Ric,18,70,50.4,2018
+12837,1106,2,autoservicio,A,2018-05-03,mean,5,1106,123109,Takis Fuego 62G Co2 Bar,19,70,50.4,2018
+12837,1106,2,autoservicio,A,2018-05-10,mean,5,1106,123109,Takis Fuego 62G Co2 Bar,20,70,50.4,2018
+12837,1106,2,autoservicio,A,2018-05-17,mean,5,1106,123109,Takis Fuego 62G Co2 Bar,21,5,37,2018

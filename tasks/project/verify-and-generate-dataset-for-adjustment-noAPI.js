@@ -70,6 +70,7 @@ const task = new Task(async function (argv) {
       })
 
       await project.save()
+
       filterDataset.add({
         project: project.uuid,
         dataset: dataset.uuid,

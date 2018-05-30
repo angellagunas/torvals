@@ -292,6 +292,11 @@
     }
 }
 
+.dropdown-content{
+    max-height: 30vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
 .dropdown-menu {
     min-width: 8rem;
     .dropdown-item {

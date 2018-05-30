@@ -19,6 +19,8 @@ const AbraxasDate = require('./abraxas-date')
 const Price = require('./price')
 const Anomaly = require('./anomaly')
 const Token = require('./token')
+const Cycle = require('./cycle')
+const Period = require('./period')
 // #Import
 
 module.exports = {
@@ -42,5 +44,7 @@ module.exports = {
   Channel,
   Price,
   Anomaly,
-  Token// #Exports
+  Token,
+  Cycle,
+  Period// #Exports
 }

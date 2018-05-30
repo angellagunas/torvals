@@ -21,8 +21,6 @@ module.exports = new Route({
       createdBy: ctx.state.user
     })
 
-    // await project.save()
-
     ctx.body = {
       data: project
     }

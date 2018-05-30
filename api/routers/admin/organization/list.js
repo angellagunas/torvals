@@ -23,6 +23,14 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'general') {
+        delete filters['general']
+        if (ctx.request.query[filter] !== '') {
+          filters['name'] = { '$regex': ctx.request.query[filter], '$options': 'i' }
+        }
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {

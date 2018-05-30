@@ -1,4 +1,4 @@
-// node tasks/dataset/process/save-datasetrows.js
+// node tasks/dataset/process/save-datasetrows.js --uuid uuid
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
@@ -6,7 +6,6 @@ const moment = require('moment')
 const Task = require('lib/task')
 const { DataSetRow, DataSet } = require('models')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
-const getAnomalies = require('queues/get-anomalies')
 
 const task = new Task(
   async function (argv) {
@@ -49,8 +48,6 @@ const task = new Task(
     dataset.set({ status: 'reviewing' })
     await dataset.save()
 
-    getAnomalies.add({uuid: dataset.uuid})
-
     log('Success! DatasetRows processed!')
     log(`End ==>  ${moment().format()}`)
 
@@ -80,7 +77,7 @@ const task = new Task(
     sendSlackNotificacion.run({
       channel: 'opskamino',
       message: `El dataset *${dataset.name}* ha terminado de asignarsele los ` +
-        `productos/centros de venta/canales y esta listo para ser conciliado.`
+        `productos/centros de venta/canales y ahora se obtendrán las anomalías.`
     })
   }
 )

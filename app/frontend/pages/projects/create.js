@@ -1,14 +1,7 @@
 import React, { Component } from 'react'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
 
 import BaseModal from '~base/components/base-modal'
 import ProjectForm from './create-form'
-
-var initialState = {
-  name: '',
-  description: ''
-}
 
 class CreateProject extends Component {
   constructor (props) {
@@ -18,10 +11,14 @@ class CreateProject extends Component {
       organizations: [],
       isLoading: ''
     }
-  }
+    this.initialState = {
+      name: '',
+      description: ''
+    }
 
-  componentWillMount () {
-    this.cursor = this.context.tree.select(this.props.branchName)
+    if (props.initialState) {
+      this.initialState = props.initialState
+    }
   }
 
   submitHandler () {
@@ -35,7 +32,7 @@ class CreateProject extends Component {
   render () {
     return (
       <BaseModal
-        title='Crear Proyecto'
+        title={this.props.title || 'Crear Proyecto'}
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -43,7 +40,7 @@ class CreateProject extends Component {
           baseUrl='/admin/projects'
           url={this.props.url}
           finishUp={this.props.finishUp}
-          initialState={initialState}
+          initialState={this.initialState}
           canEdit={this.props.canEdit}
           submitHandler={(data) => this.submitHandler(data)}
           errorHandler={(data) => this.errorHandler(data)}
@@ -54,7 +51,7 @@ class CreateProject extends Component {
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
                 type='submit'
-              >Crear</button>
+              >{this.props.buttonText || 'Crear'}</button>
             </div>
             <div className='control'>
               <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
@@ -66,14 +63,4 @@ class CreateProject extends Component {
   }
 }
 
-CreateProject.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const BranchedCreateProject = branch((props, context) => {
-  return {
-    data: props.branchName
-  }
-}, CreateProject)
-
-export default BranchedCreateProject
+export default CreateProject
