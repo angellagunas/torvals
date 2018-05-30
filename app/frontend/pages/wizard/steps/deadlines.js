@@ -9,32 +9,38 @@ class DeadLines extends Component {
     super(props)
     this.state = {
       data: {
-        sales_upload: this.props.rules.sales_upload || 0,
-        forecast_creation: this.props.rules.forecast_creation || 0,
-        range_adjustment: this.props.rules.range_adjustment || 0,
-        range_adjustmentRequest: this.props.rules.range_adjustmentRequest || 0,
-        consolidation: this.props.rules.cicleDuration * 31
+        salesUpload: this.props.rules.salesUpload || 0,
+        forecastCreation: this.props.rules.forecastCreation || 0,
+        rangeAdjustment: this.props.rules.rangeAdjustment || 0,
+        rangeAdjustmentRequest: this.props.rules.rangeAdjustmentRequest || 0,
+        consolidation: this.props.rules.cycleDuration * 31
       },
       dates: {
         startDates: [],
         endDates: [],
-        sales_upload: [],
-        forecast_creation: [],
-        range_adjustment: [],
-        range_adjustmentRequest: []
+        salesUpload: [],
+        forecastCreation: [],
+        rangeAdjustment: [],
+        rangeAdjustmentRequest: []
       },
-      ranges: {
-        sales_upload: [],
-        forecast_creation: [],
-        range_adjustment: [],
-        range_adjustmentRequest: [],
-        consolidation: []
-      }
+      startDate: this.props.startDate
     }
   }
 
   componentWillMount () {
-    this.getStartDates()
+    let aux = this.state.data
+    aux.consolidation =
+      moment(this.props.startDate).daysInMonth() - 1 -
+      aux.salesUpload -
+      aux.forecastCreation -
+      aux.rangeAdjustment -
+      aux.rangeAdjustmentRequest
+
+    this.setState({
+      data: aux
+    }, () => {
+      this.getStartDates()
+    })
   }
 
   getStartDates () {
@@ -54,8 +60,19 @@ class DeadLines extends Component {
         endDates: end
       }
     }, () => {
-      Object.keys(this.state.data).map(e => {
-        this.getDates(e, this.state.data[e])
+      let aux = this.state.data
+      Object.keys(this.state.data).map(name => {
+        let num = this.state.data[name]
+
+        if (name === 'forecastCreation') {
+          num = num + aux.salesUpload
+        } else if (name === 'rangeAdjustment') {
+          num = num + aux.salesUpload + aux.forecastCreation
+        } else if (name === 'rangeAdjustmentRequest') {
+          num = num + aux.salesUpload + aux.forecastCreation + aux.rangeAdjustment
+        }
+
+        this.getDates(name, num)
       })
     })
   }
@@ -63,104 +80,157 @@ class DeadLines extends Component {
   getDates (name, num) {
     if (num === 0) { return }
     let dates = []
-    let r = []
     for (let i = 0; i < 12; i++) {
       let date = moment(this.props.startDate).add(i, 'month')
       dates.push(date.add(num, 'day').format('YYYY-MM-DD'))
-      r.push(moment.range(moment(this.props.startDate), date.add(num, 'day')))
     }
 
     let aux = this.state.dates
     aux[name] = dates
-    let ranges = this.state.ranges
-    ranges[name] = ranges[name].concat(r)
-    console.log(name, ranges[name])
+
     this.setState({
-      dates: aux,
-      ranges: ranges
+      dates: aux
     })
   }
 
   handleInputChange (name, value) {
     let aux = this.state.data
+    value = value.replace(/\D/, '')
+    value = Number(value)
     aux[name] = value
+
+    aux.consolidation =
+    moment(this.props.startDate).daysInMonth() - 1 -
+    aux.salesUpload -
+    aux.forecastCreation -
+    aux.rangeAdjustment -
+    aux.rangeAdjustmentRequest
 
     this.setState({
       data: aux
     })
 
-    this.getDates(name, value)
+    let num = value
+
+    if (name === 'forecastCreation') {
+      num = value + aux.salesUpload
+    } else if (name === 'rangeAdjustment') {
+      num = value + aux.salesUpload + aux.forecastCreation
+    } else if (name === 'rangeAdjustmentRequest') {
+      num = value + aux.salesUpload + aux.forecastCreation + aux.rangeAdjustment
+    }
+
+    this.getDates(name, num)
+  }
+
+  componentWillReceiveProps (next) {
+    if (this.state.startDate !== next.startDate) {
+      this.setState({
+        startDate: next.startDate
+      }, () => {
+        let aux = this.state.data
+        aux.consolidation =
+          moment(this.props.startDate).daysInMonth() - 1 -
+          aux.salesUpload -
+          aux.forecastCreation -
+          aux.rangeAdjustment -
+          aux.rangeAdjustmentRequest
+
+        this.setState({
+          data: aux
+        }, () => {
+          this.getStartDates()
+        })
+      })
+    }
   }
 
   render () {
     const deadlines = [
       {
         title: 'ventas',
-        name: 'sales_upload'
+        name: 'salesUpload',
+        color: 'deadline-sales'
       },
       {
         title: 'forecast',
-        name: 'forecast_creation'
+        name: 'forecastCreation',
+        color: 'deadline-forecast'
       },
       {
         title: 'ajustes',
-        name: 'range_adjustment'
+        name: 'rangeAdjustment',
+        color: 'deadline-adjustments'
       },
       {
         title: 'aprobar',
-        name: 'range_adjustmentRequest'
+        name: 'rangeAdjustmentRequest',
+        color: 'deadline-approve'
       },
       {
         title: 'consolidar',
-        name: 'consolidation'
+        name: 'consolidation',
+        color: 'deadline-consolidate'
       }
     ]
 
     return (
-      <div className='section'>
-
-        <h1 className='title is-4'> Debes definir el fechas para el ciclo de operación a partir de la fecha de inicio.</h1>
-
-        <br />
-        <div className='columns'>
-          <div className='column'>
-            {
-              deadlines.map((item) => {
-                return (
-                  <div className='field has-addons' key={item.name}>
-                    <p className='control'>
-                      <a className='button is-capitalized'>
-                        {item.title}
-                      </a>
-                    </p>
-                    <p className='control'>
-                      <input className='input' type='text' placeholder='dias' name={item.name}
-                        value={this.state.data[item.name]}
-                        onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }}
-                      />
-                    </p>
-                    <p className='control'>
-                      <a className='button is-static'>
-                        Días
-                  </a>
-                    </p>
-                  </div>
-                )
-              })
-            }
+      <div className='section pad-sides has-20-margin-top'>
+        <h1 className='title is-5'> Ciclos de operación</h1>
+        <p className='subtitle is-6'>Define las fechas para el ciclo de operación a partir de la fecha de inicio.</p>
+        <div className='columns is-centered'>
+          <div className='column is-6'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  Fechas para operar
+                </p>
+              </header>
+              <div className='card-content'>
+                <div>
+                  {
+                    deadlines.map((item) => {
+                      return (
+                        <div className='field has-addons' key={item.name}>
+                          <p className='control'>
+                            <a className={'button is-capitalized ' + item.color}>
+                              {item.title}
+                            </a>
+                          </p>
+                          <p className='control'>
+                            <input className='input' type='text' placeholder='dias' name={item.name}
+                              value={this.state.data[item.name]}
+                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }}
+                            />
+                          </p>
+                          <p className='control'>
+                            <a className='button is-static'>
+                              Días
+                            </a>
+                          </p>
+                        </div>
+                      )
+                    })
+                  }
+                </div>
+              </div>
+            </div>
           </div>
-          <div className='column'>
+
+          <div className='column is-offset-1'>
             <CalendarRules
               disabled
-              date={moment(this.props.startDate)}
+              date={moment(this.state.startDate)}
               limits={this.state.dates}
-              />
+            />
           </div>
+
         </div>
 
-        <br />
+        <center>
+          <button onClick={() => this.props.nextStep({ ...this.state.data, dates: this.state.dates })} className='button is-primary'>Siguiente</button>
+        </center>
 
-        <button onClick={() => this.props.nextStep({ ...this.state.data })} className='button is-primary is-pulled-right'>Continuar</button>
       </div>
     )
   }

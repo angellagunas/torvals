@@ -16,7 +16,6 @@ import InputRange from 'react-input-range'
 import 'react-input-range/lib/css/index.css'
 import Checkbox from '~base/components/base-checkbox'
 import { toast } from 'react-toastify'
-import Wizard from './wizard/wizard'
 
 class Dashboard extends Component {
   constructor (props) {
@@ -53,15 +52,7 @@ class Dashboard extends Component {
   }
 
   componentWillMount () {
-    let org = tree.get('user').currentOrganization
-    if(!org.confir){ 
-      this.setState({
-        launchWizard: true
-      })
-    }
-    else{
       this.getProjects()
-    }
   }
 
   moveTo (route) {
@@ -762,9 +753,7 @@ class Dashboard extends Component {
   render () {
     const user = this.context.tree.get('user')
 
-    if(this.state.launchWizard){
-      return <Wizard org={user.currentOrganization}/>
-    }
+   
 
     const {
       loading

@@ -8,6 +8,7 @@ import Ranges from './steps/ranges'
 import DeadLines from './steps/deadlines'
 import CalendarRules from './steps/calendar-rules'
 import Catalogs from './steps/catalogs'
+import Rules from './steps/rules'
 
 class Wizard extends Component {
   constructor (props) {
@@ -60,27 +61,30 @@ class Wizard extends Component {
       this.setState({
         rules: {
           ...this.state.rules,
-          ...data
+          ...data,
+          step: this.state.currentStep
         }
       }, async () => {
         console.log('Rules', this.state.rules)
-        let res = await this.saveData()
-        if (res) {
-          let step = this.state.currentStep + 1
-          if (step >= this.tabs.length) {
-            step = 0
-          }
-          this.setState({
-            currentStep: step,
-            stepsCompleted: this.state.stepsCompleted.concat(this.state.currentStep)
-          })
-        }
+        await this.saveData()
+      })
+    }
+    let step = this.state.currentStep + 1
+    if (step >= this.tabs.length) {
+      step = this.tabs.length
+    }
+    this.stepCompleted(step)
+  }
+
+  stepCompleted (step) {
+    let steps = this.state.stepsCompleted
+    if (steps.indexOf(step) === -1) {
+      steps.push(step)
+      this.setState({
+        currentStep: step,
+        stepsCompleted: steps
       })
     } else {
-      let step = this.state.currentStep + 1
-      if (step >= this.tabs.length) {
-        step = 0
-      }
       this.setState({
         currentStep: step
       })
@@ -104,12 +108,20 @@ class Wizard extends Component {
     }
   }
 
+  actualTab (tab) {
+    console.log(tab)
+    this.setState({
+      actualTab: tab,
+      currentStep: Number(tab) - 1
+    })
+  }
+
   render () {
     console.log(this.state.stepsCompleted)
     this.tabs = [
       {
         name: '1',
-        title: 'Paso 1 Organización',
+        title: 'Organización',
         hide: false,
         content: (
           <OrgInfo org={this.props.org} nextStep={() => this.nextStep()} />
@@ -117,64 +129,49 @@ class Wizard extends Component {
       },
       {
         name: '2',
-        title: 'Paso 2 Periodos',
+        title: 'Periodos',
         hide: false,
-        disabled: !(Number(this.state.currentStep) > 1),
+        disabled: !(this.state.stepsCompleted.length >= 1),
         content: (
           <Periods rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
           )
       }, {
         name: '3',
-        title: 'Paso 3 Rangos',
+        title: 'Rangos',
         hide: false,
         reload: true,
-        disabled: !(Number(this.state.currentStep) > 2),
+        disabled: !(this.state.stepsCompleted.length >= 2),
         content: (
           <Ranges rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
           )
       },
       {
         name: '4',
-        title: 'Paso 4 Ciclos de operación',
+        title: 'Ciclos de operación',
         hide: false,
-        disabled: !(Number(this.state.currentStep) > 3),
+        disabled: !(this.state.stepsCompleted.length >= 3),
         content: (
           <DeadLines startDate={this.state.rules.startDate} rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
           )
       },
       {
         name: '5',
-        title: 'Paso 5 Resumen información',
+        title: 'Catálogos de Ventas',
         hide: false,
-        disabled: !(Number(this.state.currentStep) > 4),
-        content: (
-          <div>
-            <CalendarRules />
-            <button onClick={() => this.nextStep()} className='button is-primary'>Continuar</button>
-          </div>
-          )
-      },
-      {
-        name: '6',
-        title: 'Paso 6 Info de Ventas',
-        hide: false,
-        disabled: !(Number(this.state.currentStep) > 5),
+        disabled: !(this.state.stepsCompleted.length >= 4),
         content: (
           <Catalogs nextStep={(data) => this.nextStep(data)} />
           )
       },
       {
-        name: '7',
-        title: 'Paso 7 Finalizar',
+        name: '6',
+        title: 'Finalizar',
         hide: false,
-        disabled: !(Number(this.state.currentStep) > 6),
+        disabled: !(this.state.stepsCompleted.length >= 5),
         content: (
           <div className='section'>
-            <center>
-              <h1 className='title is-4'> Haz tarminado la configuración, ya puedes crear un proyecto</h1>
+            <Rules rules={this.state.rules} />
 
-              <button className='button is-primary'>Crear Proyecto</button>
-            </center>
           </div>
           )
       }
@@ -191,7 +188,7 @@ class Wizard extends Component {
           </div>
           <div className='container'>
             <Tabs
-              onChangeTab={(tab) => this.setState({ actualTab: tab })}
+              onChangeTab={(tab) => this.actualTab(tab)}
               tabs={this.tabs}
               selectedTab={this.tabs[this.state.currentStep].name}
               className='is-fullwidth'

@@ -12,14 +12,16 @@ class Periods extends Component {
     this.state = {
       timesSelected: {
         period: rules.period || 'w',
-        cicle: rules.cicle || 'm',
+        cycle: rules.cycle || 'm',
         periodDuration: rules.periodDuration || 1,
-        cicleDuration: rules.cicleDuration || 1,
+        cycleDuration: rules.cycleDuration || 1,
         takeStart: rules.takeStart || true,
-        ciclesAvailable: rules.ciclesAvailable || 6,
-        season: rules.season || 'y',
-        seasonDuration: rules.seasonDuration || 1,
+        cyclesAvailable: rules.cyclesAvailable || 2,
+        season: rules.season || 4,
         startDate: moment(rules.startDate) || moment()
+      },
+      help: {
+        cyclesAvailable: 'is-hidden'
       }
     }
     this.times = [
@@ -72,8 +74,31 @@ class Periods extends Component {
 
   handleInputChange(name, value) {
     let aux = this.state.timesSelected
+    value = value.replace(/\D/, '')
+    
+    if (name === 'cyclesAvailable'){
+      if(Number(value) < 2) {
+      this.setState({
+        help: {
+          ...this.state.help,
+          cyclesAvailable: 'help is-danger'
+        },
+        disableBtn: true
+      })
+    }
+    else{
+        this.setState({
+          help: {
+            ...this.state.help,
+            cyclesAvailable: 'is-hidden'
+          },
+          disableBtn: false
+        })
+    }
+  }
+
     aux[name] = value
-    aux['seasonDuration'] = aux.ciclesAvailable * 2
+    aux['season'] = aux.cyclesAvailable * 2
 
     this.setState({
       timesSelected: aux
@@ -82,144 +107,173 @@ class Periods extends Component {
 
   render() {
     return (
-      <div className='section'>
-        <h1 className='title is-4'> Debe seleccionar su ciclo y periodos de negocio</h1>
+      <div className='section pad-sides has-20-margin-top'>
+        <h1 className='title is-5'> Ciclo y periodos</h1>
+        <p className='subtitle is-6'>Completa los campos  con la duración  y ciclos acorde a tus necesidades.</p>
+        <div className='columns is-centered'>
+          <div className='column is-6'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  Elige tu duración
+                </p>
+              </header>
+              <div className='card-content'>
+                <div className='columns'>
+                  <div className='column'>
+                    <div className='field has-addons'>
+                      <div className='control'>
+                        <div className='field'>
+                          <label className='label'>Duración de ciclo</label>
+                          <div className='control'>
+                            <input className='input' type='text' placeholder='Ejem. 1'
+                              name='cycleDuration'
+                              value={this.state.timesSelected.cycleDuration}
+                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
+                          </div>
+                        </div>
+                      </div>
 
-<div className='columns'>
-<div className='column'>
-            <div className='field has-addons'>
-              <p className='control'>
-                <div className='field'>
-                  <label className='label'>Duración de ciclo</label>
-                  <div className='control'>
-                    <input className='input' type='text' placeholder='Text input'
-                      name='cicleDuration'
-                      value={this.state.timesSelected.cicleDuration}
-                      onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
+                      <div className='control'>
+
+                        <Select
+                          label='Ciclo'
+                          name='cycle'
+                          value={this.state.timesSelected.cycle}
+                          optionValue='value'
+                          optionName='name'
+                          options={this.times}
+                          onChange={(name, value) => { this.selectChangeHandler(name, value) }}
+                        />
+
+                      </div>
+                    </div>
+
+                    <div className='field has-addons'>
+                      <div className='control'>
+                        <div className='field'>
+                          <label className='label'>Duración de periodo</label>
+                          <div className='control'>
+                            <input className='input' type='text' placeholder='Ejem. 1'
+                              name='periodDuration'
+                              value={this.state.timesSelected.periodDuration}
+                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
+                          </div>
+                        </div>
+
+                      </div>
+                      <div className='control'>
+                        <Select
+                          label='Periodo'
+                          name='period'
+                          value={this.state.timesSelected.period}
+                          optionValue='value'
+                          optionName='name'
+                          options={this.getTimes(this.state.timesSelected.cycle)}
+                          onChange={(name, value) => { this.selectChangeHandler(name, value) }}
+                        />
+                      </div>
+                    </div>
+
+
+                    <div className='field has-addons'>
+                      <div className='control'>
+                        <div className='field'>
+                          <label className='label'>Ciclos disponibles </label>
+                          <div className='control'>
+                            <input className='input' type='text' placeholder='Text input'
+                              name='cyclesAvailable'
+                              value={this.state.timesSelected.cyclesAvailable}
+                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
+                          </div>
+                          
+
+                          <p class={this.state.help.cyclesAvailable}>Deben ser al menos 2 ciclos disponibles</p>
+
+                        </div>
+                      </div>
+                      <div className='control'>
+                        <div className='field'>
+                          <label className='label'>Temporada</label>
+                          <div className='control'>
+                            <a class="button is-static">
+                              {this.state.timesSelected.season} ciclos
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                      {/* <div className='control'>
+                        <p>El primer ciclo disponible siempre será el actual</p>
+                      </div> */}
+                    </div>
+
+                    <div className='field has-addons'>
+                      <div className='control'>
+                        <label className='label'>Inicio del ciclo</label>
+                        <div className='control'>
+                          <input className='input' type='text' placeholder='Text input'
+                            value={moment(this.state.timesSelected.startDate).format('DD-MMM-YYYY')} readonly />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='field has-addons'>
+                      <p className='control'>
+                        <label className='radio'>
+                          <input type='radio' name='takeStart' checked={this.state.timesSelected.takeStart}
+                            onChange={(e) => this.setState({
+                              timesSelected: {
+                                ...this.state.timesSelected,
+                                takeStart: true
+                              }
+                            })} />
+                          <span>Inicio de periodo</span>
+                        </label>
+                      </p>
+
+                      <p className='control'>
+
+                        <label className='radio'>
+                          <input type='radio' name='takeStart' checked={!this.state.timesSelected.takeStart}
+                            onChange={(e) => this.setState({
+                              timesSelected: {
+                                ...this.state.timesSelected,
+                                takeStart: false
+                              }
+                            })} />
+                          <span>Final de periodo</span>
+                        </label>
+                      </p>
+                    </div>
+
                   </div>
                 </div>
-              </p>
-
-              <p className='control'>
-
-                <Select
-                  label='Ciclo'
-                  name='cicle'
-                  value={this.state.timesSelected.cicle}
-                  optionValue='value'
-                  optionName='name'
-                  options={this.times}
-                  onChange={(name, value) => { this.selectChangeHandler(name, value) }}
-                />
-
-              </p>
-            </div>
-
-            <div className='field has-addons'>
-              <p className='control'>
-                <div className='field'>
-                  <label className='label'>Duración de periodo</label>
-                  <div className='control'>
-                    <input className='input' type='text' placeholder='Text input'
-                      name='periodDuration'
-                      value={this.state.timesSelected.periodDuration}
-                      onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
-                  </div>
-                </div>
-
-              </p>
-              <p className='control'>
-                <Select
-                  label='Periodo'
-                  name='period'
-                  value={this.state.timesSelected.period}
-                  optionValue='value'
-                  optionName='name'
-                  options={this.getTimes(this.state.timesSelected.cicle)}
-                  onChange={(name, value) => { this.selectChangeHandler(name, value) }}
-                />
-              </p>
-            </div>
-
-
-            <div className='field has-addons'>
-              <p className='control'>
-                <div className='field'>
-                  <label className='label'>Ciclos disponibles </label>
-                  <div className='control'>
-                    <input className='input' type='text' placeholder='Text input'
-                      name='ciclesAvailable'
-                      value={this.state.timesSelected.ciclesAvailable}
-                      onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
-                  </div>
-                </div>
-              </p>
-              <p className='control'>
-                <div className='field'>
-                  <label className='label'>Temporada</label>
-                  <div className='control'>
-                    <input className='input' type='text' placeholder='Text input'
-                      value={this.state.timesSelected.seasonDuration} disabled />
-                  </div>
-                </div>
-              </p>
-
-
-            </div>
-
-            <div className='field has-addons'>
-              <div className='control'>
-              <label className='label'>Inicio del ciclo</label>
-              <div className='control'>
-                <input className='input' type='text' placeholder='Text input'
-                    value={moment(this.state.timesSelected.startDate).format('DD-MMM-YYYY')} readonly />
               </div>
-              </div>
             </div>
+          </div>
 
-            <div className='field has-addons'>
-              <p className='control'>
-                <label className='radio'>
-                  <input type='radio' name='takeStart' checked={this.state.timesSelected.takeStart}
-                    onChange={(e) => this.setState({
-                      timesSelected: {
-                        ...this.state.timesSelected,
-                        takeStart: true
-                      }
-                    })} />
-                  <span>Inicio de periodo</span>
-                </label>
-              </p>
+    
 
-              <p className='control'>
+          
+          <div className='column is-offset-1'>
 
-                <label className='radio'>
-                  <input type='radio' name='takeStart' checked={!this.state.timesSelected.takeStart}
-                    onChange={(e) => this.setState({
-                      timesSelected: {
-                        ...this.state.timesSelected,
-                        takeStart: false
-                      }
-                    })} />
-                  <span>Final de periodo</span>
-                </label>
-              </p>
-            </div>
-
-</div>
-          <div className='column'>
-
-            <CalendarRules 
+            <CalendarRules
               date={moment(this.state.timesSelected.startDate)}
+              today={moment(this.state.timesSelected.startDate)}
               onChange={this.handleDateChange} />
           </div>
-</div>
-        
+          </div>
+
 
 
 
         <br />
-        <button onClick={() => this.props.nextStep(this.state.timesSelected)} className='button is-primary is-pulled-right'>Continuar</button>
+        <center>
+        
+        <button disabled={this.state.disableBtn} onClick={() => this.props.nextStep(this.state.timesSelected)} 
+        className='button is-primary'>Siguiente</button>
+          </center>
+      
       </div>
     )
   }

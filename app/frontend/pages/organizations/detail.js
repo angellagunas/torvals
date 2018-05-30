@@ -13,6 +13,14 @@ import OrganizationForm from './form'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
 
+import Tabs from '~base/components/base-tabs'
+import Periods from '../wizard/steps/periods'
+import Ranges from '../wizard/steps/ranges'
+import DeadLines from '../wizard/steps/deadlines'
+import CalendarRules from '../wizard/steps/calendar-rules'
+import Catalogs from '../wizard/steps/catalogs'
+import Rules from '../wizard/steps/rules'
+
 class OrganizationDetail extends Component {
   constructor (props) {
     super(props)
@@ -20,8 +28,13 @@ class OrganizationDetail extends Component {
       loading: true,
       loaded: false,
       organization: {},
-      isLoading: ''      
+      isLoading: '',    
+      currentStep: 0,
+      selectedTab: '1',
+      rules: {},
+      stepsCompleted: []
     }
+    this.tabs = []
   }
 
   componentWillMount () {
@@ -44,7 +57,8 @@ class OrganizationDetail extends Component {
       this.setState({
         loading: false,
         loaded: true,
-        organization: body.data
+        organization: body.data,
+        rules: body.data.rules
       })
     } catch (e) {
       await this.setState({
@@ -106,104 +120,236 @@ class OrganizationDetail extends Component {
     this.setState({ isLoading: '' })
   }
 
+
+  nextStep(data) {
+    if (data) {
+      this.setState({
+        rules: {
+          ...this.state.rules,
+          ...data,
+          step: this.state.currentStep
+        }
+      }, async () => {
+        console.log('Rules', this.state.rules)
+        await this.saveData()
+      })
+    }
+    let step = this.state.currentStep + 1
+    if (step >= this.tabs.length) {
+      step = this.tabs.length
+    }
+    this.stepCompleted(step)
+  }
+
+  stepCompleted(step) {
+    let steps = this.state.stepsCompleted
+    if (steps.indexOf(step) === -1) {
+      steps.push(step)
+      this.setState({
+        currentStep: step,
+        stepsCompleted: steps
+      })
+    } else {
+      this.setState({
+        currentStep: step
+      })
+    }
+  }
+
+  async saveData() {
+    try {
+      let url = '/app/organizations/rules/' + this.props.match.params.uuid
+      let res = api.post(url, {
+        ...this.state.rules
+      })
+      if (res) {
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+  }
+
+  actualTab(tab) {
+    console.log(tab)
+    this.setState({
+      actualTab: tab,
+      currentStep: Number(tab) - 1
+    })
+  }
+
   render () {
+    const { organization } = this.state
+
+    this.tabs = [
+      {
+        name: '1',
+        title: 'Organización',
+        hide: false,
+        content: (
+          <div>
+            
+            <div className='section pad-sides has-20-margin-top'>
+
+              <div className='columns'>
+                <div className='column'>
+                  <div className='card'>
+                    <header className='card-header'>
+                      <p className='card-header-title'>
+                        Detalle
+                    </p>
+                    </header>
+                    <div className='card-content'>
+                      <div className='columns'>
+                        <div className='column'>
+                          <OrganizationForm
+                            baseUrl='/app/organizations'
+                            url={'/app/organizations/' + this.props.match.params.uuid}
+                            initialState={this.state.organization}
+                            load={this.load.bind(this)}
+                            submitHandler={(data) => this.submitHandler(data)}
+                            errorHandler={(data) => this.errorHandler(data)}
+                            finishUp={(data) => this.finishUpHandler(data)}
+                          >
+                            <div className='field is-grouped'>
+                              <div className='control'>
+                                <button
+                                  className={'button is-primary ' + this.state.isLoading}
+                                  disabled={!!this.state.isLoading}
+                                  type='submit'
+                                >Guardar</button>
+                              </div>
+                            </div>
+                          </OrganizationForm>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className='column'>
+                  <div className='card'>
+                    <header className='card-header'>
+                      <p className='card-header-title'>
+                        Usuarios
+                    </p>
+                    </header>
+                    <div className='card-content'>
+                      <div className='columns'>
+                        <div className='column'>
+                          <BranchedPaginatedTable
+                            branchName='users'
+                            baseUrl='/app/users'
+                            columns={this.getColumns()}
+                            filters={{ organization: this.props.match.params.uuid }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <center>
+                <button onClick={() => this.nextStep()} className='button is-primary'>Siguiente</button>
+              </center>
+            </div>
+           
+          </div>
+        )
+      },
+      {
+        name: '2',
+        title: 'Periodos',
+        hide: false,
+        disabled: !(this.state.stepsCompleted.length >= 1),
+        content: (
+          <Periods rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+        )
+      }, {
+        name: '3',
+        title: 'Rangos',
+        hide: false,
+        reload: true,
+        disabled: !(this.state.stepsCompleted.length >= 2),
+        content: (
+          <Ranges rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+        )
+      },
+      {
+        name: '4',
+        title: 'Ciclos de operación',
+        hide: false,
+        disabled: !(this.state.stepsCompleted.length >= 3),
+        content: (
+          <DeadLines startDate={this.state.rules.startDate} rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+        )
+      },
+      {
+        name: '5',
+        title: 'Catálogos de Ventas',
+        hide: false,
+        disabled: !(this.state.stepsCompleted.length >= 4),
+        content: (
+          <Catalogs rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+        )
+      },
+      {
+        name: '6',
+        title: 'Resumen',
+        hide: false,
+        disabled: !(this.state.stepsCompleted.length >= 5),
+        content: (
+          <Rules rules={this.state.rules} />
+        )
+      }
+    ]
+
     if (this.state.notFound) {
       return <NotFound msg='esta organización' />
     }
 
-    const { organization } = this.state
+    
 
     if (!organization.uuid) {
       return <Loader />
     }
 
     return (
-      <div>
+     
+      <div className='wizard'>
         <div className='section-header'>
           <h2>{organization.name}</h2>
-      </div>
-            <Breadcrumb
-              path={[
-                {
-                  path: '/',
-                  label: 'Inicio',
-                  current: false
-                },
-                {
-                  path: '/organizations/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/organizations/',
-                  label: organization.name,
-                  current: true
-                }
-              ]}
-              align='left'
-            />
-        <div className='section is-paddingless-top pad-sides'>
-
-            <div className='columns'>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Detalle
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <OrganizationForm
-                          baseUrl='/app/organizations'
-                          url={'/app/organizations/' + this.props.match.params.uuid}
-                          initialState={this.state.organization}
-                          load={this.load.bind(this)}
-                          submitHandler={(data) => this.submitHandler(data)}
-                          errorHandler={(data) => this.errorHandler(data)}
-                          finishUp={(data) => this.finishUpHandler(data)}
-                        >
-                          <div className='field is-grouped'>
-                            <div className='control'>
-                              <button
-                                className={'button is-primary ' + this.state.isLoading}
-                                disabled={!!this.state.isLoading}
-                                type='submit'
-                              >Guardar</button>
-                            </div>
-                          </div>
-                        </OrganizationForm>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Usuarios
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <BranchedPaginatedTable
-                          branchName='users'
-                          baseUrl='/app/users'
-                          columns={this.getColumns()}
-                          filters={{organization: this.props.match.params.uuid}}
-                         />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-      
+        <Breadcrumb
+          path={[
+            {
+              path: '/',
+              label: 'Inicio',
+              current: false
+            },
+            {
+              path: '/organizations/',
+              label: 'Detalle',
+              current: true
+            },
+            {
+              path: '/organizations/',
+              label: organization.name,
+              current: true
+            }
+          ]}
+          align='left'
+        />
+          <Tabs
+            onChangeTab={(tab) => this.actualTab(tab)}
+            tabs={this.tabs}
+            selectedTab={this.tabs[this.state.currentStep].name}
+            className='is-fullwidth'
+          />
+
+      </div>
     )
   }
 }

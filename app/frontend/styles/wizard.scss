@@ -13,10 +13,9 @@
             }
             &-body {
                 padding: 0;
-                .container{
-                  margin-top: 1rem;
+                .container {
+                    margin-top: 1rem;
                 }
-                 
                 .tabs {
                     &-title {
                         display: none;
@@ -25,8 +24,24 @@
             }
         }
     }
-
-    .input, .select select{
+    .tabs {
+        &-title {
+            display: none;
+        }
+    }
+    .input,
+    .select select {
         font-size: .9rem !important;
+    }
+    .section.pad-sides.has-20-margin-top {
+        min-height: 50vh;
+    }
+    .field.has-addons .control:first-child .button.is-capitalized {
+        width: 120px;
+    }
+    .column ul {
+        li {
+            margin-left: 1rem;
+        }
     }
 }

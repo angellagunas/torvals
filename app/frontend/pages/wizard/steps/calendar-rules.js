@@ -118,19 +118,29 @@ class CalendarRules extends Component {
       return
     }
 
-    if (item === Number(this.props.limits.sales_upload)) {
+    if (item === Number(this.props.limits.salesUpload)) {
       return 'Límite para subir ventas'
-    } else if (item === Number(this.props.limits.forecast_creation)) {
+    } else if (item === Number(this.props.limits.forecastCreation)) {
       return 'Límite para crear y aprobar forecast'
-    } else if (item === Number(this.props.limits.range_adjustment)) {
+    } else if (item === Number(this.props.limits.rangeAdjustment)) {
       return 'Límite para realizar ajustes'
-    } else if (item === Number(this.props.limits.range_adjustmentRequest)) {
+    } else if (item === Number(this.props.limits.rangeAdjustmentRequest)) {
       return 'Límite para aprobar ajustes'
     } else if (item === Number(this.props.limits.consolidation)) {
       return 'Límite para conciliar'
     }
   }
 
+  componentWillReceiveProps (next) {
+    if (this.state.date !== next.date) {
+      console.log('diif')
+      this.setState({
+        date: next.date
+      }, () => {
+        this.makeGrid()
+      })
+    }
+  }
   render () {
     return (
       <div>
@@ -169,7 +179,7 @@ class CalendarRules extends Component {
                     // console.log('date', this.dateFromNum(item.value, this.state.date).format('DD-MM-YYYY'))
                     // console.log('dates', this.props.limits)
                     // console.log(this.props.limits.startDates.indexOf(this.dateFromNum(item.value, this.state.date).format('DD-MM-YYYY')))
-                    console.log(this.props.limits)
+                    // console.log(this.props.limits)
                   }
                   let date = this.dateFromNum(item.value, this.state.date).format('YYYY-MM-DD')
                   let isStart = this.props.limits &&
@@ -179,19 +189,19 @@ class CalendarRules extends Component {
                     this.props.limits.endDates.indexOf(date) !== -1
 
                   let isSalesLimit = this.props.limits &&
-                    this.props.limits.sales_upload.indexOf(date) !== -1
+                    this.props.limits.salesUpload.indexOf(date) !== -1
 
                   let isForecastLimit = this.props.limits &&
-                    this.props.limits.forecast_creation.indexOf(date) !== -1
+                    this.props.limits.forecastCreation.indexOf(date) !== -1
 
                   let isAdjustmentLimit = this.props.limits &&
-                    this.props.limits.range_adjustment.indexOf(date) !== -1
+                    this.props.limits.rangeAdjustment.indexOf(date) !== -1
 
                   let isApproveLimit = this.props.limits &&
-                    this.props.limits.range_adjustmentRequest.indexOf(date) !== -1
+                    this.props.limits.rangeAdjustmentRequest.indexOf(date) !== -1
 
                   let date2 = this.dateFromNum(item.value, this.state.date)
-                  console.log(date)
+
                   return (
                     <div key={key} className={
                       classNames('calendar-date', {
@@ -202,7 +212,7 @@ class CalendarRules extends Component {
                           date2
                           .isBetween(
                             this.props.limits.startDates[this.state.date.get('month')],
-                            this.props.limits.sales_upload[this.state.date.get('month')],
+                            this.props.limits.salesUpload[this.state.date.get('month')],
                             'days', '()'),
 
                         'calendar-range calendar-range-sales calendar-range-end': isSalesLimit,
@@ -211,8 +221,8 @@ class CalendarRules extends Component {
                           this.props.limits &&
                           date2
                             .isBetween(
-                            this.props.limits.sales_upload[this.state.date.get('month')],
-                              this.props.limits.forecast_creation[this.state.date.get('month')],
+                            this.props.limits.salesUpload[this.state.date.get('month')],
+                              this.props.limits.forecastCreation[this.state.date.get('month')],
                               'days', '()'),
 
                         'calendar-range calendar-range-forecast calendar-range-end': isForecastLimit,
@@ -221,8 +231,8 @@ class CalendarRules extends Component {
                           this.props.limits &&
                           date2
                             .isBetween(
-                            this.props.limits.forecast_creation[this.state.date.get('month')],
-                              this.props.limits.range_adjustment[this.state.date.get('month')],
+                            this.props.limits.forecastCreation[this.state.date.get('month')],
+                              this.props.limits.rangeAdjustment[this.state.date.get('month')],
                               'days', '()'),
 
                         'calendar-range calendar-range-adjustments calendar-range-end': isAdjustmentLimit,
@@ -231,8 +241,8 @@ class CalendarRules extends Component {
                           this.props.limits &&
                           date2
                             .isBetween(
-                            this.props.limits.range_adjustment[this.state.date.get('month')],
-                              this.props.limits.range_adjustmentRequest[this.state.date.get('month')],
+                            this.props.limits.rangeAdjustment[this.state.date.get('month')],
+                              this.props.limits.rangeAdjustmentRequest[this.state.date.get('month')],
                               'days', '()'),
 
                         'calendar-range calendar-range-approve calendar-range-end': isApproveLimit,
@@ -241,7 +251,7 @@ class CalendarRules extends Component {
                           this.props.limits &&
                           date2
                             .isBetween(
-                              this.props.limits.range_adjustmentRequest[this.state.date.get('month')],
+                              this.props.limits.rangeAdjustmentRequest[this.state.date.get('month')],
                               this.props.limits.endDates[this.state.date.get('month')],
                               'days', '()'),
 
@@ -253,6 +263,7 @@ class CalendarRules extends Component {
                       <button onClick={() => { this.selectDay(item, 'inicio') }}
                         className={
                           classNames('date-item', {
+                            'is-today': this.props.today && this.props.today.format('YYYY-MM-DD') === date,
                             'is-today tooltip': isStart,
                             'is-active limit-sales tooltip': isSalesLimit,
                             'is-active limit-forecast tooltip': isForecastLimit,

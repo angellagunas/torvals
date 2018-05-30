@@ -103,7 +103,6 @@
         border-color: #187FE6 !important;
         color: #187FE6 !important;
     }
-    
 }
 
 .calendar-not {
@@ -118,6 +117,24 @@
 }
 
 $range-alpha: .2;
+.deadline {
+    &-sales {
+        background: rgba(76, 175, 80, $range-alpha) !important;
+    }
+    &-forecast {
+        background: rgba(33, 150, 243, $range-alpha) !important;
+    }
+    &-adjustments {
+        background: rgba(103, 58, 183, $range-alpha) !important;
+    }
+    &-approve {
+        background: rgba(255, 193, 7, $range-alpha) !important;
+    }
+    &-consolidate {
+        background: rgba(244, 67, 54, $range-alpha) !important;
+    }
+}
+
 .calendar-range {
     &-sales::before {
         background: rgba(76, 175, 80, $range-alpha) !important;
