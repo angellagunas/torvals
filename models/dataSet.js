@@ -324,12 +324,6 @@ dataSetSchema.methods.processData = async function () {
         organization: this.organization
       })
 
-      var productAux = await CatalogItem.findOne({
-        externalId: p._id,
-        organization: this.organization,
-        type: 'Producto'
-      })
-
       if (!product) {
         product = await Product.create({
           name: p['name'] ? p['name'] : 'Not identified',
@@ -342,34 +336,13 @@ dataSetSchema.methods.processData = async function () {
         await product.save()
       }
 
-      if (!productAux) {
-        productAux = await CatalogItem.create({
-          name: p['name'] ? p['name'] : 'Not identified',
-          externalId: p._id,
-          organization: this.organization,
-          isNewExternal: true,
-          type: 'Producto'
-        })
-      } else if (productAux.isNewExternal) {
-        productAux.set({name: p['name'] ? p['name'] : 'Not identified'})
-        await productAux.save()
-      }
-
       product.set({isDeleted: false})
-      productAux.set({isDeleted: false})
       await product.save()
-      await productAux.save()
       var pos = this.products.findIndex(item => {
         return String(item.externalId) === String(product.externalId)
       })
 
       if (pos < 0) this.products.push(product)
-
-      pos = this.catalogItems.findIndex(item => {
-        return String(item.externalId) === String(productAux.externalId) && item.type === 'Producto'
-      })
-
-      if (pos < 0) this.catalogItems.push(productAux)
     }
   }
 
@@ -378,12 +351,6 @@ dataSetSchema.methods.processData = async function () {
       var salesCenter = await SalesCenter.findOne({
         externalId: a._id,
         organization: this.organization
-      })
-
-      var salesCenterAux = await CatalogItem.findOne({
-        externalId: a._id,
-        organization: this.organization,
-        type: 'Centro de venta'
       })
 
       if (!salesCenter) {
@@ -398,34 +365,14 @@ dataSetSchema.methods.processData = async function () {
         await salesCenter.save()
       }
 
-      if (!salesCenterAux) {
-        salesCenterAux = await CatalogItem.create({
-          name: a['name'] ? a['name'] : 'Not identified',
-          externalId: a._id,
-          organization: this.organization,
-          isNewExternal: true,
-          type: 'Centro de venta'
-        })
-      } else if (salesCenterAux.isNewExternal) {
-        salesCenterAux.set({name: a['name'] ? a['name'] : 'Not identified'})
-        await salesCenterAux.save()
-      }
-
       salesCenter.set({isDeleted: false})
       await salesCenter.save()
-      salesCenterAux.set({isDeleted: false})
-      await salesCenterAux.save()
+
       pos = this.salesCenters.findIndex(item => {
         return String(item.externalId) === String(salesCenter.externalId)
       })
 
       if (pos < 0) this.salesCenters.push(salesCenter)
-
-      pos = this.catalogItems.findIndex(item => {
-        return String(item.externalId) === String(salesCenterAux.externalId) && item.type === 'Centro de venta'
-      })
-
-      if (pos < 0) this.catalogItems.push(salesCenterAux)
     }
   }
 
@@ -434,12 +381,6 @@ dataSetSchema.methods.processData = async function () {
       var channel = await Channel.findOne({
         externalId: c._id,
         organization: this.organization
-      })
-
-      var channelAux = await CatalogItem.findOne({
-        externalId: c._id,
-        organization: this.organization,
-        type: 'Canal'
       })
 
       if (!channel) {
@@ -454,35 +395,55 @@ dataSetSchema.methods.processData = async function () {
         await channel.save()
       }
 
-      if (!channelAux) {
-        channelAux = await CatalogItem.create({
-          name: c['name'] ? c['name'] : 'Not identified',
-          externalId: c._id,
-          organization: this.organization,
-          isNewExternal: true,
-          type: 'Canal'
-        })
-      } else if (channelAux.isNewExternal) {
-        channelAux.set({name: c['name'] ? c['name'] : 'Not identified'})
-        await channelAux.save()
-      }
-
       channel.set({isDeleted: false})
       await channel.save()
-      channelAux.set({isDeleted: false})
-      await channelAux.save()
 
       pos = this.channels.findIndex(item => {
         return String(item.externalId) === String(channel.externalId)
       })
 
       if (pos < 0) this.channels.push(channel)
+    }
+  }
 
-      pos = this.catalogItems.findIndex(item => {
-        return String(item.externalId) === String(channelAux.externalId) && item.type === 'Canal'
-      })
+  for (let catalog of this.organization.rules.catalogs) {
+    if (this.apiData[catalog]) {
+      for (let data of this.apiData[catalog]) {
+        pos = this.catalogItems.findIndex(item => {
+          return (
+            String(item.externalId) === String(data._id) &&
+            item.type === catalog
+          )
+        })
 
-      if (pos < 0) this.catalogItems.push(channelAux)
+        console.log(pos)
+
+        if (pos < 0) {
+          let cItem = await CatalogItem.findOne({
+            externalId: data._id,
+            organization: this.organization._id,
+            type: catalog
+          })
+
+          if (!cItem) {
+            cItem = await CatalogItem.create({
+              name: data['name'] ? data['name'] : 'Not identified',
+              externalId: data._id,
+              organization: this.organization,
+              isNewExternal: true,
+              type: 'Canal'
+            })
+          } else if (cItem.isNewExternal && data['name']) {
+            cItem.set({ name: data['name'] })
+            await cItem.save()
+          }
+
+          cItem.set({isDeleted: false})
+          await cItem.save()
+
+          this.catalogItems.push(cItem)
+        }
+      }
     }
   }
 
@@ -491,15 +452,7 @@ dataSetSchema.methods.processData = async function () {
 
 dataSetSchema.methods.processReady = async function (res) {
   let apiData = {
-    products: [],
-    salesCenters: [],
-    channels: []
-  }
-
-  if (res.data) {
-    apiData['products'] = res.data['product']
-    apiData['salesCenters'] = res.data['agency']
-    apiData['channels'] = res.data['channel']
+    ...res.data
   }
 
   this.set({

@@ -51,7 +51,7 @@ module.exports = new Route({
           rangeAdjustmentRequest: 24,
           rangeAdjustment: 18,
           salesUpload: 6,
-          catalogs: ['products', 'sales']
+          catalogs: ['Producto', 'Centro de venta', 'Canal']
         }
       })
 
