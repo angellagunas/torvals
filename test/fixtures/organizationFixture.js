@@ -4,7 +4,7 @@ module.exports = {
   rules: {
     startDate:"2018-01-01T00:00:00",
     cycleDuration: 1,
-    cycle: "m",
+    cycle: "M",
     period:"w",
     periodDuration:1,
     season: 6,
