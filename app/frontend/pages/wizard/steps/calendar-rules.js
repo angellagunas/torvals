@@ -133,7 +133,6 @@ class CalendarRules extends Component {
 
   componentWillReceiveProps (next) {
     if (this.state.date !== next.date) {
-      console.log('diif')
       this.setState({
         date: next.date
       }, () => {
@@ -175,12 +174,6 @@ class CalendarRules extends Component {
               {
               this.state.calendarDays && this.state.calendarDays.map((item, key) => {
                 if (item.value !== 0) {
-                  if (this.props.limits) {
-                    // console.log('date', this.dateFromNum(item.value, this.state.date).format('DD-MM-YYYY'))
-                    // console.log('dates', this.props.limits)
-                    // console.log(this.props.limits.startDates.indexOf(this.dateFromNum(item.value, this.state.date).format('DD-MM-YYYY')))
-                    // console.log(this.props.limits)
-                  }
                   let date = this.dateFromNum(item.value, this.state.date).format('YYYY-MM-DD')
                   let isStart = this.props.limits &&
                   this.props.limits.startDates.indexOf(date) !== -1

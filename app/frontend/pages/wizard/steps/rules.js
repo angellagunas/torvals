@@ -59,7 +59,7 @@ class Rules extends Component {
                     <hr />
                     {rules.ranges.map((item, key) => {
                       return (
-                        <p>
+                        <p key={key}>
                           Rango de ajuste permitido ciclo {key + 1}:
                           <span className='has-text-weight-bold is-capitalized'> {item !== '' ? item + '%' : 'ilimitado'}</span>
                         </p>

@@ -64,7 +64,6 @@ class Catalogs extends Component {
   }
 
   handleCheckboxChange (value, item) {
-    console.log(value, item)
     let catalogs = this.state.catalogs
     let index = catalogs.indexOf(item)
     if (index !== -1) {

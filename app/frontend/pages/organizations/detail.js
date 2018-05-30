@@ -130,7 +130,6 @@ class OrganizationDetail extends Component {
           step: this.state.currentStep
         }
       }, async () => {
-        console.log('Rules', this.state.rules)
         await this.saveData()
       })
     }
@@ -174,7 +173,6 @@ class OrganizationDetail extends Component {
   }
 
   actualTab(tab) {
-    console.log(tab)
     this.setState({
       actualTab: tab,
       currentStep: Number(tab) - 1

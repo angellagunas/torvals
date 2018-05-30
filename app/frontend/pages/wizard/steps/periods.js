@@ -75,7 +75,7 @@ class Periods extends Component {
   handleInputChange(name, value) {
     let aux = this.state.timesSelected
     value = value.replace(/\D/, '')
-    
+
     if (name === 'cyclesAvailable'){
       if(Number(value) < 2) {
       this.setState({
@@ -188,7 +188,7 @@ class Periods extends Component {
                           </div>
                           
 
-                          <p class={this.state.help.cyclesAvailable}>Deben ser al menos 2 ciclos disponibles</p>
+                          <p className={this.state.help.cyclesAvailable}>Deben ser al menos 2 ciclos disponibles</p>
 
                         </div>
                       </div>
@@ -196,7 +196,7 @@ class Periods extends Component {
                         <div className='field'>
                           <label className='label'>Temporada</label>
                           <div className='control'>
-                            <a class="button is-static">
+                            <a className="button is-static">
                               {this.state.timesSelected.season} ciclos
                             </a>
                           </div>
@@ -212,7 +212,7 @@ class Periods extends Component {
                         <label className='label'>Inicio del ciclo</label>
                         <div className='control'>
                           <input className='input' type='text' placeholder='Text input'
-                            value={moment(this.state.timesSelected.startDate).format('DD-MMM-YYYY')} readonly />
+                            value={moment(this.state.timesSelected.startDate).format('DD-MMM-YYYY')} readOnly />
                         </div>
                       </div>
                     </div>

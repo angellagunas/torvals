@@ -23,6 +23,7 @@ class Ranges extends Component {
   handleInputChange (index, value) {
     let ranges = this.state.ranges
     value = value.replace(/\D/, '')
+    value = Number(value)
     ranges[index] = value
     this.setState({
       ranges: ranges
