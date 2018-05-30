@@ -22,8 +22,14 @@ class Ranges extends Component {
 
   handleInputChange (index, value) {
     let ranges = this.state.ranges
-    value = value.replace(/\D/, '')
-    value = Number(value)
+
+    console.log('val', value)
+    if (value === '') {
+      value = null
+    } else {
+      value = Number(value.replace(/\D/, ''))
+    }
+
     ranges[index] = value
     this.setState({
       ranges: ranges
@@ -92,7 +98,7 @@ class Ranges extends Component {
         </div>
 
         <center>
-          <button onClick={() => this.props.nextStep({ ranges: this.state.ranges })} className='button is-primary'>Siguiente</button>
+          <button onClick={() => this.props.nextStep({ ranges: this.state.ranges })} className='button is-primary'>Guardar</button>
         </center>
 
       </div>

@@ -228,7 +228,7 @@ class DeadLines extends Component {
         </div>
 
         <center>
-          <button onClick={() => this.props.nextStep({ ...this.state.data, dates: this.state.dates })} className='button is-primary'>Siguiente</button>
+          <button onClick={() => this.props.nextStep({ ...this.state.data, dates: this.state.dates })} className='button is-primary'>Guardar</button>
         </center>
 
       </div>

@@ -169,7 +169,7 @@ class Catalogs extends Component {
           </div>
         </div>
         <center>
-          <button onClick={() => this.sendCatalogs()} className='button is-primary'>Siguiente</button>
+          <button onClick={() => this.sendCatalogs()} className='button is-primary'>Guardar</button>
         </center>
       </div>
     )

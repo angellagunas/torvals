@@ -139,6 +139,9 @@ class CalendarRules extends Component {
         this.makeGrid()
       })
     }
+    if (this.props.limits !== next.limits) {
+      this.makeGrid()
+    }
   }
   render () {
     return (
@@ -285,38 +288,6 @@ class CalendarRules extends Component {
                 }
               })
             }
-              {/* <div className='calendar-date'><button className='date-item'>1</button></div>
-              <div className='calendar-date'><button className='date-item'>2</button></div>
-              <div className='calendar-date'><button className='date-item'>3</button></div>
-              <div className='calendar-date tooltip' data-tooltip='Today'><button className='date-item is-today'>4</button></div>
-              <div className='calendar-date tooltip' data-tooltip='Not available' disabled=''><button className='date-item'>5</button></div>
-              <div className='calendar-date'><button className='date-item'>6</button></div>
-              <div className='calendar-date'><button className='date-item'>7</button></div>
-              <div className='calendar-date tooltip' data-tooltip='You have appointments'><button className='date-item'>8</button></div>
-              <div className='calendar-date'><button className='date-item'>9</button></div>
-              <div className='calendar-date'><button className='date-item'>10</button></div>
-              <div className='calendar-date'><button className='date-item'>11</button></div>
-              <div className='calendar-date'><button className='date-item'>12</button></div>
-              <div className='calendar-date'><button className='date-item'>13</button></div>
-              <div className='calendar-date'><button className='date-item'>14</button></div>
-              <div className='calendar-date'><button className='date-item'>15</button></div>
-              <div className='calendar-date calendar-range calendar-range-start'><button className='date-item is-active'>16</button></div>
-              <div className='calendar-date calendar-range'><button className='date-item'>17</button></div>
-              <div className='calendar-date calendar-range'><button className='date-item'>18</button></div>
-              <div className='calendar-date calendar-range'><button className='date-item'>19</button></div>
-              <div className='calendar-date calendar-range calendar-range-end'><button className='date-item is-active'>20</button></div>
-              <div className='calendar-date'><button className='date-item'>21</button></div>
-              <div className='calendar-date'><button className='date-item'>22</button></div>
-              <div className='calendar-date'><button className='date-item'>23</button></div>
-              <div className='calendar-date'><button className='date-item'>24</button></div>
-              <div className='calendar-date'><button className='date-item'>25</button></div>
-              <div className='calendar-date'><button className='date-item'>26</button></div>
-              <div className='calendar-date'><button className='date-item'>27</button></div>
-              <div className='calendar-date'><button className='date-item'>28</button></div>
-              <div className='calendar-date'><button className='date-item'>29</button></div>
-              <div className='calendar-date'><button className='date-item'>30</button></div>
-              <div className='calendar-date'><button className='date-item'>31</button></div>
-              <div className='calendar-date is-disabled'><button className='date-item'>1</button></div> */}
             </div>
           </div>
         </div >

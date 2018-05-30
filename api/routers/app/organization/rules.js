@@ -93,7 +93,7 @@ module.exports = new Route({
     if (data.step === 4) {
       if (!Array.isArray(data.catalogs)) { ctx.throw(422, 'Catálogos tiene tipo inválido') }
 
-      let findProductsCatalog = data.catalogs.find(item => { return item === 'products' })
+      let findProductsCatalog = data.catalogs.find(item => { return item === 'producto' })
       if (findProductsCatalog === undefined) { ctx.throw(422, 'Se debe de agregar un catálogo de productos') }
 
       org.set({

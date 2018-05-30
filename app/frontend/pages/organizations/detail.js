@@ -29,7 +29,7 @@ class OrganizationDetail extends Component {
       loaded: false,
       organization: {},
       isLoading: '',    
-      currentStep: 0,
+      currentStep: 1,
       selectedTab: '1',
       rules: {},
       stepsCompleted: []
@@ -121,23 +121,19 @@ class OrganizationDetail extends Component {
   }
 
 
-  nextStep(data) {
+  nextStep(data, step) {
     if (data) {
       this.setState({
         rules: {
           ...this.state.rules,
           ...data,
-          step: this.state.currentStep
-        }
+          step: step
+        },
+        currentStep: 1
       }, async () => {
         await this.saveData()
       })
     }
-    let step = this.state.currentStep + 1
-    if (step >= this.tabs.length) {
-      step = this.tabs.length
-    }
-    this.stepCompleted(step)
   }
 
   stepCompleted(step) {
@@ -175,8 +171,11 @@ class OrganizationDetail extends Component {
   actualTab(tab) {
     this.setState({
       actualTab: tab,
-      currentStep: Number(tab) - 1
     })
+  }
+
+  setStep(step){
+    this.setState({currentStep: step})
   }
 
   render () {
@@ -184,7 +183,7 @@ class OrganizationDetail extends Component {
 
     this.tabs = [
       {
-        name: '1',
+        name: '0',
         title: 'Organización',
         hide: false,
         content: (
@@ -249,59 +248,59 @@ class OrganizationDetail extends Component {
                   </div>
                 </div>
               </div>
-              <center>
-                <button onClick={() => this.nextStep()} className='button is-primary'>Siguiente</button>
-              </center>
+              
             </div>
            
           </div>
         )
       },
       {
+        name: '1',
+        title: 'Reglas de negocio',
+        hide: !(this.state.currentStep === 1),
+        reload: true,
+        disabled: !(this.state.currentStep === 1),
+        content: (
+          <Rules rules={this.state.rules} setStep={(step) => this.setStep(step)}/>
+        )
+      }, 
+      {
         name: '2',
         title: 'Periodos',
-        hide: false,
-        disabled: !(this.state.stepsCompleted.length >= 1),
+        hide: !(this.state.currentStep === 2),
+        disabled: !(this.state.currentStep === 2),
         content: (
-          <Periods rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+          <Periods rules={this.state.rules} nextStep={(data) => this.nextStep(data,1)} />
         )
       }, {
         name: '3',
         title: 'Rangos',
-        hide: false,
+        hide: !(this.state.currentStep === 3),
         reload: true,
-        disabled: !(this.state.stepsCompleted.length >= 2),
+        disabled: !(this.state.currentStep === 3),
         content: (
-          <Ranges rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+          <Ranges rules={this.state.rules} nextStep={(data) => this.nextStep(data,2)} />
         )
       },
       {
         name: '4',
         title: 'Ciclos de operación',
-        hide: false,
-        disabled: !(this.state.stepsCompleted.length >= 3),
+        hide: !(this.state.currentStep === 4),
+        disabled: !(this.state.currentStep === 4),
         content: (
-          <DeadLines startDate={this.state.rules.startDate} rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+          <DeadLines startDate={this.state.rules.startDate} rules={this.state.rules} nextStep={(data) => this.nextStep(data,3)} />
         )
       },
       {
         name: '5',
         title: 'Catálogos de Ventas',
-        hide: false,
-        disabled: !(this.state.stepsCompleted.length >= 4),
+        hide: !(this.state.currentStep === 5),
+        disabled: !(this.state.currentStep === 5),
         content: (
-          <Catalogs rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
-        )
-      },
-      {
-        name: '6',
-        title: 'Resumen',
-        hide: false,
-        disabled: !(this.state.stepsCompleted.length >= 5),
-        content: (
-          <Rules rules={this.state.rules} />
+          <Catalogs rules={this.state.rules} nextStep={(data) => this.nextStep(data,4)} />
         )
       }
+      
     ]
 
     if (this.state.notFound) {

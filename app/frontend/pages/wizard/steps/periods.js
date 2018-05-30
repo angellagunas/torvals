@@ -12,7 +12,7 @@ class Periods extends Component {
     this.state = {
       timesSelected: {
         period: rules.period || 'w',
-        cycle: rules.cycle || 'm',
+        cycle: rules.cycle || 'M',
         periodDuration: rules.periodDuration || 1,
         cycleDuration: rules.cycleDuration || 1,
         takeStart: rules.takeStart || true,
@@ -35,7 +35,7 @@ class Periods extends Component {
       },
       {
         name: 'Mes',
-        value: 'm'
+        value: 'M'
       },
       {
         name: 'Año',
@@ -271,7 +271,7 @@ class Periods extends Component {
         <center>
         
         <button disabled={this.state.disableBtn} onClick={() => this.props.nextStep(this.state.timesSelected)} 
-        className='button is-primary'>Siguiente</button>
+        className='button is-primary'>Guardar</button>
           </center>
       
       </div>
