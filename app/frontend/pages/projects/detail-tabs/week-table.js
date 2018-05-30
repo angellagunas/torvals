@@ -77,8 +77,10 @@ class WeekTable extends Component {
       for (const week of row.weeks) {
         if (week.edited) {
           row.edited = true          
-          break
-       }
+        }
+        if(week.wasEdited){
+          row.wasEdited = true
+        }
       }
     })
     
