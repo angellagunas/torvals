@@ -60,7 +60,7 @@ module.exports = new Route({
     if (data.step === 2) {
       if (!Array.isArray(data.ranges)) { ctx.throw(422, 'Rangos tiene tipo inválido') }
       let validRanges = data.ranges.every(item => {
-        return typeof item === 'number' && item > 0
+        return (typeof item === 'number' && item >= 0) || item === null
       })
 
       if (!validRanges) { ctx.throw(422, 'El valor de los rangos debe de ser númerico y mayor a 0') }
