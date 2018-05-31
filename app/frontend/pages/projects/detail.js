@@ -476,6 +476,7 @@ class ProjectDetail extends Component {
 
     if (this.interval === null && (
         project.status === 'processing' ||
+        project.status === 'conciliating' ||
         project.status === 'pendingRows' ||
         project.status === 'cloning'
     )) {
