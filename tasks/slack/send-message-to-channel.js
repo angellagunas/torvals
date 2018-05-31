@@ -7,24 +7,48 @@ const moment = require('moment')
 const config = require('config').slack
 
 const task = new Task(async function (argv) {
+  let hookUrl
   if (!config.active) return false
-
-  const hookUrl = config.channels[argv.channel]
 
   if (!argv.channel) {
     throw new Error('channel is required')
   }
 
-  if (!argv.message) {
+  if (!argv.message && !argv.attachment) {
     throw new Error('message is required')
   }
 
-  if (!hookUrl) {
-    throw new Error('hook url is required')
+  let message = {}
+
+  if (argv.message) {
+    message.text = `*[${config.name}]* ${argv.message} (_${moment().format()}_)`
   }
 
-  const slack = new Slack(hookUrl)
-  await slack.send({ text: `*[${config.name}]* ${argv.message} (_${moment().format()}_)` })
+  if (argv.attachment) {
+    message.attachments = [argv.attachment]
+  }
+
+  console.log(config.channels)
+
+  if (argv.channel === 'all') {
+    for (let channel of Object.keys(config.channels)) {
+      if (!channel) {
+        throw new Error('hook url is required')
+      }
+
+      const slack = new Slack(config.channels[channel])
+      await slack.send(message)
+    }
+  } else {
+    hookUrl = config.channels[argv.channel]
+
+    if (!hookUrl) {
+      throw new Error('hook url is required')
+    }
+
+    const slack = new Slack(hookUrl)
+    await slack.send(message)
+  }
 })
 
 if (require.main === module) {

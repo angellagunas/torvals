@@ -228,7 +228,7 @@ const task = new Task(
     }
 
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha iniciado el proceso de conciliacion ` +
       `al proyecto *${project.name}*`
     })
@@ -250,7 +250,7 @@ const task = new Task(
     }
 
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* se ha conciliado al proyecto *${project.name}*`
     })
   }
