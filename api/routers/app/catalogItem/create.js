@@ -3,16 +3,12 @@ const {Organization, CatalogItem} = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/:uuid',
+  path: '/',
   handler: async function (ctx) {
-    var organizationId = ctx.params.uuid
     var data = ctx.request.body
+    var organization = ctx.state.organization._id
 
-    if (organizationId !== ctx.state.organization.uuid) {
-      ctx.throw(404, 'Organización no encontrada')
-    }
-
-    const org = await Organization.findOne({'uuid': organizationId, 'isDeleted': false})
+    const org = await Organization.findOne({'_id': organization, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
 
     const findCatalog = org.rules.catalogs.find(item => { return item === data.type })
@@ -21,12 +17,14 @@ module.exports = new Route({
       ctx.throw(404, 'Catálogo no encontrado')
     }
 
-    const catalogItem = await CatalogItem.create({
+    var catalogItem = await CatalogItem.create({
       type: data.type,
       name: data.name,
       externalId: data.externalId,
       organization: org._id
     })
+
+    catalogItem = await CatalogItem.findOne({_id: catalogItem._id}).populate('organization')
 
     ctx.body = {
       data: catalogItem.toPublic()
