@@ -1,0 +1,47 @@
+.wizard {
+    .modal {
+        &-background {
+            background-color: #FBFBFB;
+        }
+        &-card {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-height: 80vh;
+            height: 80vh;
+            &-head {
+                display: none;
+            }
+            &-body {
+                padding: 0;
+                .container {
+                    margin-top: 1rem;
+                }
+                .tabs {
+                    &-title {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+    .tabs {
+        &-title {
+            display: none;
+        }
+    }
+    .input,
+    .select select {
+        font-size: .9rem !important;
+    }
+    .section.pad-sides.has-20-margin-top {
+        min-height: 50vh;
+    }
+    .field.has-addons .control:first-child .button.is-capitalized {
+        width: 120px;
+    }
+    .column ul {
+        li {
+            margin-left: 1rem;
+        }
+    }
+}

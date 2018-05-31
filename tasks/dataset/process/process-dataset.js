@@ -3,6 +3,7 @@ require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
 const _ = require('lodash')
+const slugify = require('underscore.string/slugify')
 
 const Task = require('lib/task')
 const { DataSet, DataSetRow } = require('models')
@@ -131,16 +132,16 @@ const task = new Task(
     for (let catalog of dataset.organization.rules.catalogs) {
       rowData[catalog] = []
 
-      if (catalog === 'Producto') {
-        rowData[catalog] = rowData.product.map(item => { return item })
+      if (slugify(catalog) === 'producto' || slugify(catalog) === 'productos') {
+        rowData[catalog] = rowData.products.map(item => { return item })
       }
 
-      if (catalog === 'Centro de venta') {
-        rowData[catalog] = rowData.agency.map(item => { return item })
+      if (slugify(catalog) === 'centro-de-venta' || slugify(catalog) === 'centros-de-venta') {
+        rowData[catalog] = rowData.salesCenters.map(item => { return item })
       }
 
-      if (catalog === 'Canal') {
-        rowData[catalog] = rowData.channel.map(item => { return item })
+      if (slugify(catalog) === 'canal' || slugify(catalog) === 'canales') {
+        rowData[catalog] = rowData.channels.map(item => { return item })
       }
     }
 

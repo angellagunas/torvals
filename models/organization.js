@@ -34,7 +34,7 @@ const organizationSchema = new Schema({
     rangeAdjustmentRequest: {type: Number},
     salesUpload: {type: Number},
     ranges: [{type: Number}],
-    catalogs: [{type: String}]
+    catalogs: [{ type: String }]
   }
 }, { usePushEach: true })
 
