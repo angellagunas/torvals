@@ -2,9 +2,10 @@
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
+const _ = require('lodash')
 
 const Task = require('lib/task')
-const { Project, DataSet, DataSetRow } = require('models')
+const { Organization, Project, DataSet, DataSetRow, Cycle } = require('models')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 const getAnomalies = require('queues/get-anomalies')
 
@@ -25,13 +26,6 @@ const task = new Task(
       throw new Error('You need to provide a dataset!')
     }
 
-    if (!argv.dateStart || !argv.dateEnd) {
-      throw new Error('You need to provide a start and end date!')
-    }
-
-    let dateStart = moment.utc(argv.dateStart, 'YYYY-MM-DD')
-    let dateEnd = moment.utc(argv.dateEnd, 'YYYY-MM-DD')
-
     if (argv.batchSize) {
       try {
         batchSize = parseInt(argv.batchSize)
@@ -49,8 +43,10 @@ const task = new Task(
 
     const dataset = await DataSet.findOne({uuid: argv.dataset})
 
-    if (!project || !dataset) {
-      throw new Error('Invalid project or dataset!')
+    const organization = await Organization.findOne({_id: project.organization})
+
+    if (!project || !dataset || !organization) {
+      throw new Error('Invalid organization, project or dataset!')
     }
 
     if (!project.mainDataset) {
@@ -66,12 +62,22 @@ const task = new Task(
       return true
     }
 
+    let today = moment().format()
+    const current_cycle = await Cycle.findOne({
+      dateStart: { $lte: today },
+      dateEnd: { $gte: today }
+    })
+
+    if (!current_cycle) {
+      throw new Error('Current cycle not available!')
+    }
+
     log('Obtaining rows to copy ...')
 
     try {
       const rows = await DataSetRow.find({
         dataset: project.mainDataset,
-        'data.forecastDate': { $gte: dateStart, $lte: dateEnd },
+        'cycles': { $in: _.range(current_cycle.cycle, current_cycle.cycle + organization.rules.cyclesAvailable) },
         isAnomaly: false
       }).cursor()
 
@@ -87,6 +93,8 @@ const task = new Task(
             'channel': row.channel,
             'salesCenter': row.salesCenter,
             'product': row.product,
+            'cycle': row.cycle,
+            'period': row.period,
             'data': row.data,
             'apiData': row.apiData
           }
