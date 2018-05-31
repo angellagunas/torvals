@@ -200,7 +200,7 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha empezado a procesarse.`
     })
   },
@@ -213,7 +213,7 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha terminado de procesarse.`
     })
   }
