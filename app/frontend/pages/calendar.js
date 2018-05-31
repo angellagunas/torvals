@@ -11,6 +11,30 @@ import Checkbox from '~base/components/base-checkbox'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import Select from './projects/detail-tabs/select'
 import _ from 'lodash'
+import Cal from './cal'
+
+const colors = {
+  1: {
+    rangeClass: 'calendar-range-forecast',
+    rangeClassStart: 'limit-forecast'
+  },
+  2: {
+    rangeClass: 'calendar-range-sales',
+    rangeClassStart: 'limit-sales'
+  },
+  3: {
+    rangeClass: 'calendar-range-adjustments',
+    rangeClassStart: 'limit-adjustments'
+  },
+  4: {
+    rangeClass: 'calendar-range-approve',
+    rangeClassStart: 'limit-approve'
+  },
+  5: {
+    rangeClass: 'calendar-range-consolidate',
+    rangeClassStart: 'limit-consolidate'
+  }
+}
 
 class Calendar extends Component {
   constructor (props) {
@@ -87,6 +111,7 @@ class Calendar extends Component {
 
   componentWillMount () {
     this.getYears()
+    this.getPeriods()
   }
 
   getCarouselItems () {
@@ -121,12 +146,128 @@ class Calendar extends Component {
     })
   }
 
+  async getPeriods () {
+    let org = '7828a985-7731-4ebb-83ff-2ce0e109fd8c'
+    let url = '/app/periods/' + org
+
+    let res = await api.get(url)
+
+    if (res) {
+      console.log(res.data)
+      let cycles = _(res.data)
+        .groupBy(x => x.cycle.cycle)
+        .map((value, key) => ({ cycle: key, periods: value }))
+        .value()
+
+      console.log(cycles)
+
+      this.setState({
+        cycles: cycles
+      })
+    }
+  }
+
+  makeStartDate (date) {
+    let d = {}
+    d[moment.utc(date).format('YYYY-MM-DD')] = {
+      date: moment.utc(date),
+      isRange: false,
+      isRangeEnd: false,
+      isRangeStart: false,
+      isToday: true,
+      isActive: false,
+      isTooltip: true,
+      tooltipText: 'Inicio del ciclo'
+    }
+    return d
+  }
+
+  makeEndDate (date) {
+    let d = {}
+    d[moment.utc(date).format('YYYY-MM-DD')] = {
+      date: moment.utc(date),
+      isRange: false,
+      isRangeEnd: false,
+      isRangeStart: false,
+      isToday: true,
+      isActive: false,
+      isTooltip: true,
+      tooltipText: 'Fin del ciclo'
+    }
+    return d
+  }
+
+  makeRange (start, end, key) {
+    let s = moment.utc(start)
+    let e = moment.utc(end)
+    let range = {}
+    range[s.format('YYYY-MM-DD')] = {
+      date: s,
+      isRange: true,
+      isRangeEnd: false,
+      isRangeStart: true,
+      isToday: false,
+      isActive: true,
+      isTooltip: true,
+      tooltipText: 'Inicio de periodo ' + key,
+      rangeClass: colors[key].rangeClass,
+      rangeClassStart: colors[key].rangeClassStart
+    }
+
+    while (s.format() !== e.format()) {
+      s = s.add(1, 'day')
+      range[s.format('YYYY-MM-DD')] = {
+        date: s,
+        isRange: true,
+        isRangeEnd: false,
+        isRangeStart: false,
+        isToday: false,
+        isActive: false,
+        isTooltip: true,
+        tooltipText: 'Periodo ' + key,
+        rangeClass: colors[key].rangeClass
+      }
+    }
+
+    range[e.format('YYYY-MM-DD')] = {
+      date: s,
+      isRange: true,
+      isRangeEnd: true,
+      isRangeStart: false,
+      isToday: false,
+      isActive: true,
+      isTooltip: true,
+      rangeClass: colors[key].rangeClass,
+      rangeClassEnd: colors[key].rangeClassStart,
+      tooltipText: 'Fin de periodo ' + key
+    }
+    return range
+  }
+
+  makeDates (cycle, periods) {
+    let dates = {}
+
+    periods.map((item, key) => {
+      dates = {
+        ...dates,
+        ...this.makeRange(item.dateStart, item.dateEnd, key + 1)
+      }
+    })
+    let start = this.makeStartDate(cycle.dateStart)
+    dates[Object.keys(start)[0]] = Object.values(start)[0]
+    let end = this.makeEndDate(cycle.dateEnd)
+    dates[Object.keys(end)[0]] = Object.values(end)[0]
+    console.log(dates)
+    return dates
+  }
+
   render () {
     if (!this.state.periods) {
       return <Loader />
     }
 
     return (
+
       <div className='calendar-view'>
         <div className='section-header'>
           <h2>Calendario</h2>
@@ -146,7 +287,7 @@ class Calendar extends Component {
             }
           ]}
           align='left'
-        />
+          />
 
         <div className='section level selects'>
           <div className='level-left'>
@@ -159,7 +300,7 @@ class Calendar extends Component {
                 placeholder='Seleccionar'
                 options={this.state.years}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
+                />
             </div>
             <div className='level-item'>
               <Checkbox
@@ -167,25 +308,27 @@ class Calendar extends Component {
                 handleCheckboxChange={(e) => this.showWeeks()}
                 key='showWeeks'
                 checked={this.state.showWeekNumbers}
-              />
+                />
             </div>
 
           </div>
         </div>
 
-        <div className='container is-margin-top'>
-          <div className='columns is-padding-top-small is-centered'>
-            <div className='column is-three-quarters-fullhd is-9-widescreen is-11-desktop calendar'>
+        <div className='columns is-multiline is-centered'>
 
-              <br />
-              <Carousel
-                title=''
-                initialPosition={this.state.currentMonth}
-            >
-                {this.getCarouselItems()}
-              </Carousel>
-            </div>
-          </div>
+          {this.state.cycles && this.state.cycles.map((item, key) => {
+            let cycle = item.periods[0].cycle
+            return (
+              <div key={key} className='column is-narrow'>
+                <Cal
+                  date={moment.utc(cycle.dateStart)}
+                  minDate={moment.utc(cycle.dateStart)}
+                  maxDate={moment.utc(cycle.dateStart)}
+                  dates={this.makeDates(cycle, item.periods)} />
+              </div>
+
+            )
+          })}
         </div>
       </div>
     )
