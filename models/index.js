@@ -14,6 +14,7 @@ const Prediction = require('./prediction')
 const PredictionHistoric = require('./prediction-historic')
 const AdjustmentRequest = require('./adjustment-request')
 const Channel = require('./channel')
+const CatalogItem = require('./catalog-item')
 const DataSetRow = require('./dataset-row')
 const AbraxasDate = require('./abraxas-date')
 const Price = require('./price')
@@ -42,6 +43,7 @@ module.exports = {
   DataSetRow,
   AbraxasDate,
   Channel,
+  CatalogItem,
   Price,
   Anomaly,
   Token,

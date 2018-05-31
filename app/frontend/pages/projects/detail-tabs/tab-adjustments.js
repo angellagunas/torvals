@@ -72,10 +72,12 @@ class TabAdjustment extends Component {
   }
   
   componentWillReceiveProps(nextProps){
-    if (nextProps.project.uuid !== this.props.uuid) return
-    if(nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded){
-      this.getFilters()      
+    if (this.props.project.uuid && nextProps.project.uuid !== this.props.project.uuid) return
+    
+    if (nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded) {
+      this.getFilters()
     }
+    
   }
 
   componentDidUpdate(prevProps) {
@@ -306,7 +308,7 @@ class TabAdjustment extends Component {
         row.adjustmentForDisplay = row.adjustmentRequest.newAdjustment
       }
 
-      if (row.adjustment != row.adjustment || row.adjustmentRequest) {
+      if (row.adjustment !== row.lastAdjustment || row.adjustmentRequest) {
         row.wasEdited = true
         if (this.state.generalAdjustment > 0) {
           var maxAdjustment = Math.ceil(row.prediction * (1 + this.state.generalAdjustment))
@@ -319,6 +321,7 @@ class TabAdjustment extends Component {
       }
 
     }
+
     return data
   }
 
@@ -771,7 +774,6 @@ getProductsSelected () {
       this.setState({
         filteredData: this.state.dataRows
       })
-
       return
     }
 

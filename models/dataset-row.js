@@ -13,6 +13,8 @@ const datasetRowSchema = new Schema({
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
   channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
   adjustmentRequest: { type: Schema.Types.ObjectId, ref: 'AdjustmentRequest' },
+  cycle: { type: Schema.Types.ObjectId, ref: 'Cycle' },
+  period: { type: Schema.Types.ObjectId, ref: 'Period' },
   externalId: { type: String },
   status: {
     type: String,
@@ -59,7 +61,9 @@ datasetRowSchema.methods.toPublic = function () {
     product: this.product,
     salesCenter: this.salesCenter,
     status: this.status,
-    data: this.data
+    data: this.data,
+    cycle: this.cycle,
+    period: this.period
   }
 }
 
@@ -72,7 +76,9 @@ datasetRowSchema.methods.toAdmin = function () {
     product: this.product,
     salesCenter: this.salesCenter,
     status: this.status,
-    data: this.data
+    data: this.data,
+    cycle: this.cycle,
+    period: this.period
   }
 }
 
