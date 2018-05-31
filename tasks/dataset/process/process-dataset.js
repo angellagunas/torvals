@@ -5,7 +5,7 @@ const moment = require('moment')
 const _ = require('lodash')
 
 const Task = require('lib/task')
-const { DataSet, DataSetRow } = require('models')
+const { DataSet, DataSetRow, Cycle } = require('models')
 const saveDatasetRows = require('queues/save-datasetrows')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
@@ -162,16 +162,29 @@ const task = new Task(
     ]
 
     rows = await DataSetRow.aggregate(statement)
-    maxDate = rows[0].max
-    minDate = rows[0].min
+    maxDate = moment(rows[0].max).utc().format('YYYY-MM-DD')
+    minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
+
+    log('Obtaining cycles  ...')
+
+    var cycles = await Cycle.find({
+      organization: dataset.organization._id,
+      isDeleted: false,
+      dateStart: {$gte: minDate, $lte: maxDate}
+    })
+
+    cycles = cycles.map(item => {
+      return item._id
+    })
 
     const sendData = {
       data: rowData,
-      date_max: moment(maxDate).format('YYYY-MM-DD'),
-      date_min: moment(minDate).format('YYYY-MM-DD'),
+      date_max: maxDate,
+      date_min: minDate,
       config: {
         groupings: []
-      }
+      },
+      cycles: cycles
     }
 
     log('Obtaining new products/sales centers/channels  ...')
