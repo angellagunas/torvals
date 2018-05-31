@@ -6,12 +6,12 @@ class Cal extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      date: this.props.date || moment(),
+      date: this.props.date || moment.utc(),
       minDate: this.props.minDate || undefined,
       maxDate: this.props.maxDate || undefined,
       weekDayHeader: this.weekHeader(),
-      dateSelected: this.props.date || moment(),
-      startDate: this.props.startDate || moment(),
+      dateSelected: this.props.date || moment.utc(),
+      startDate: this.props.startDate || moment.utc(),
       dates: this.props.dates || []
     }
     moment.locale(this.props.locale || 'es')
@@ -33,7 +33,7 @@ class Cal extends Component {
   }
 
   canChange (num) {
-    const clonedDate = moment(this.state.date)
+    const clonedDate = moment.utc(this.state.date)
     clonedDate.add(num, 'month')
 
     if (this.state.minDate && this.state.maxDate) {
@@ -49,8 +49,9 @@ class Cal extends Component {
 
   weekHeader () {
     let weekDays = []
+    // weekDays.push('#')
     for (let i = 0; i < 7; i++) {
-      weekDays.push(moment().weekday(i).format('ddd'))
+      weekDays.push(moment.utc().weekday(i).format('ddd'))
     }
     return weekDays
   }
@@ -58,9 +59,9 @@ class Cal extends Component {
   makeGrid () {
     let gridArr = []
 
-    const firstDayDate = moment(this.state.date).startOf('month')
+    const firstDayDate = moment.utc(this.state.date).startOf('month')
     const initialEmptyCells = firstDayDate.weekday()
-    const lastDayDate = moment(this.state.date).endOf('month')
+    const lastDayDate = moment.utc(this.state.date).endOf('month')
     const lastEmptyCells = 6 - lastDayDate.weekday()
     const daysInMonth = this.state.date.daysInMonth()
     const arrayLength = initialEmptyCells + lastEmptyCells + daysInMonth
@@ -84,7 +85,7 @@ class Cal extends Component {
 
   isAvailable (num) {
     let dateToCheck = this.dateFromNum(num, this.navDate)
-    if (dateToCheck.isBefore(moment(), 'day')) {
+    if (dateToCheck.isBefore(moment.utc(), 'day')) {
       return false
     } else {
       return true
@@ -92,7 +93,7 @@ class Cal extends Component {
   }
 
   dateFromNum (num) {
-    let returnDate = moment(this.state.date)
+    let returnDate = moment.utc(this.state.date)
     return returnDate.date(num)
   }
 
@@ -122,6 +123,91 @@ class Cal extends Component {
     }
   }
 
+  makeWeekNumber () {
+    let weeks = {}
+    let numbers = []
+    this.state.calendarDays.map((item, key) => {
+      if (item.available && item.value !== 0) {
+        let w = this.dateFromNum(item.value).format('W')
+        numbers.push(Number(w))
+        weeks[w] =
+          <div className='calendar-date'>
+            <button className='date-item week-number tooltip'
+              data-tooltip={'Semana ' + w}>
+              {w}
+            </button>
+          </div>
+      }
+    })
+
+    if (numbers.find((element) => { return element > 50 }) !== undefined &&
+      numbers.find((element) => { return element === 1 }) !== undefined) {
+      let val = Object.values(weeks)
+      val.unshift(val[val.length - 1])
+      val.pop()
+      return val
+    }
+
+    return Object.values(weeks)
+  }
+  makeCalendar () {
+    let calendar = []
+
+    this.state.calendarDays.map((item, key) => {
+      if (item.value !== 0) {
+        let dayDate = this.dateFromNum(item.value).format('YYYY-MM-DD')
+
+        let calDate = this.state.dates[dayDate]
+        if (calDate) {
+          calendar.push(
+            <div key={key} className={
+              classNames('calendar-date', {
+                'is-disabled': !item.available,
+                'calendar-range': calDate.isRange,
+                [`${calDate.rangeClass}`]: calDate.isRange,
+                'calendar-range-start': calDate.isRangeStart,
+                'calendar-range-end': calDate.isRangeEnd
+              })
+            }
+            >
+              <button onClick={() => { this.selectDay(item, 'inicio') }}
+                className={
+                  classNames('date-item', {
+                    'is-today': calDate.isToday,
+                    'tooltip': calDate.isTooltip,
+                    'is-active': calDate.isActive,
+                    [`${calDate.rangeClassStart}`]: calDate.isRangeStart,
+                    [`${calDate.rangeClassEnd}`]: calDate.isRangeEnd
+                  })
+                }
+                data-tooltip={calDate.tooltipText}
+              >{item.value}</button>
+            </div>
+          )
+        } else if (!calDate) {
+          calendar.push(
+            <div key={key} className={
+              classNames('calendar-date', {
+                'is-disabled': !item.available
+              })
+            }
+            >
+              <button onClick={() => { this.selectDay(item, 'inicio') }}
+                className='date-item'
+              >{item.value}</button>
+            </div>
+          )
+        }
+      } else {
+        calendar.push(
+          <div className='calendar-date'>
+            <button className='date-item calendar-not' />
+          </div>
+        )
+      }
+    })
+    return calendar
+  }
   render () {
     return (
       <div>
@@ -145,79 +231,35 @@ class Cal extends Component {
             </div>
           </div>
           <div className='calendar-container'>
-            <div className='calendar-header'>
-              {this.state.weekDayHeader.map((item, key) => {
-                return (
-                  <div key={key} className='calendar-date'>{item}</div>
-                )
-              })}
-            </div>
-            <div className='calendar-body'>
-              {
-                this.state.calendarDays && this.state.calendarDays.map((item, key) => {
-                  if (item.value !== 0) {
-                    let dayDate = this.dateFromNum(item.value).format('YYYY-MM-DD')
 
-                    let calDate = this.state.dates[dayDate]
-                    if (calDate) {
-                      return (
-                        <div key={key} className={
-                          classNames('calendar-date', {
-                            'is-disabled': !item.available,
-                            'calendar-range': calDate.isRange,
-                            [`${calDate.rangeClass}`]: calDate.isRange,
-                            'calendar-range-start': calDate.isRangeStart,
-                            'calendar-range-end': calDate.isRangeEnd
-                          })
-                        }
-                        >
-                          <button onClick={() => { this.selectDay(item, 'inicio') }}
-                            className={
-                              classNames('date-item', {
-                                'is-today': calDate.isToday,
-                                'tooltip': calDate.isTooltip,
-                                'is-active': calDate.isActive,
-                                [`${calDate.rangeClassStart}`]: calDate.isRangeStart,
-                                [`${calDate.rangeClassEnd}`]: calDate.isRangeEnd
-                              })
-                            }
-                            data-tooltip={calDate.tooltipText}
-                          >{item.value}</button>
-                        </div>
-                      )
-                    } else if (!calDate) {
-                      return (
-                        <div key={key} className={
-                          classNames('calendar-date', {
-                            'is-disabled': !item.available
-                          })
-                        }
-                        >
-                          <button onClick={() => { this.selectDay(item, 'inicio') }}
-                            className={
-                              classNames('date-item')
-                            }
-                          /* data-tooltip={classNames({
-                            'Inicio de ciclo': isStart,
-                            'Límite para subir ventas': isSalesLimit,
-                            'Límite para crear y aprobar forecast': isForecastLimit,
-                            'Límite para realizar ajustes': isAdjustmentLimit,
-                            'Límite para aprobar ajustes': isApproveLimit,
-                            'Fin de ciclo límite para conciliar': isEnd
-                          })} */
-                          >{item.value}</button>
-                        </div>
-                      )
-                    }
-                  } else {
+            <div className='columns is-gapless'>
+              {this.props.showWeekNumber &&
+              <div className='column is-narrow week-column'>
+                <div className='calendar-header'>
+                  <div className='calendar-date'>#</div>
+                </div>
+                {
+                  this.state.calendarDays &&
+                  this.makeWeekNumber()
+                }
+              </div>}
+              <div className='column'>
+                <div className='calendar-header'>
+                  {this.state.weekDayHeader.map((item, key) => {
                     return (
-                      <div className='calendar-date'>
-                        <button className='date-item calendar-not' />
-                      </div>
+                      <div key={key} className='calendar-date'>{item}</div>
                     )
+                  })}
+                </div>
+                <div className='calendar-body'>
+
+                  {
+                    this.state.calendarDays &&
+                    this.makeCalendar()
                   }
-                })
-              }
+                </div>
+              </div>
+
             </div>
           </div>
         </div >

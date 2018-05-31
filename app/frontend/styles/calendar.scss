@@ -90,6 +90,8 @@
 
 .calendar {
     box-shadow: 0 0 15px 0 #ccc;
+    /* min-height: 295px;
+    max-height: 295px; */
 }
 
 .calendar .calendar-nav .calendar-month {
@@ -272,6 +274,49 @@ $range-alpha: .2;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent;
 }
 
-.calendar .calendar-range .date-item{
+.calendar .calendar-range .date-item {
     color: $general_text;
+}
+
+.calendar .calendar-header {
+    padding: .5rem .5rem 0 .5rem;
+}
+
+/* .calendar .calendar-header .calendar-date,
+.calendar .calendar-body .calendar-date {
+    flex: 0 0 12.28%;
+    max-width: 12.28%;
+} */
+
+.calendar .calendar-date {
+    padding: .3rem 0;
+}
+
+.calendar .calendar-body {
+    padding: 0 1em 1em 0;
+}
+
+.calendar .calendar-date .date-item {
+    height: 2rem;
+    line-height: 1.2rem;
+    padding: .2rem;
+    width: 2rem;
+    &.week-number {
+        background: #eff1f9 !important;
+        border-radius: 0;
+    }
+}
+
+/* .calendar .calendar-container {
+    min-height: 250px;
+} */
+
+.week-column {
+    background: #eff1f9 !important;
+    
+    .calendar-date .date-item:focus {
+        border: none;
+        color: $general_text !important;
+        user-select: none;
+    }
 }

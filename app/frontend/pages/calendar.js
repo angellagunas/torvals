@@ -43,7 +43,8 @@ class Calendar extends Component {
       startWeekDate: moment().utc(),
       highlightDates: [],
       showWeekNumbers: true,
-      selectedYear: moment().utc().get('year')
+      selectedYear: moment().utc().get('year'),
+      selectedCycle: ''
     }
   }
   async getDates () {
@@ -139,11 +140,21 @@ class Calendar extends Component {
   }
 
   async filterChangeHandler (name, value) {
-    this.setState({
-      selectedYear: value
-    }, () => {
-      this.getDates()
-    })
+    if (name === 'year') {
+      this.setState({
+        selectedYear: value
+      }, () => {
+        this.getDates()
+        this.getPeriods()
+      })
+    } else if (name === 'cycle') {
+      this.setState({
+        selectedCycle: value
+      }/* , () => {
+        this.getDates()
+        this.getPeriods()
+      } */)
+    }
   }
 
   async getPeriods () {
@@ -153,11 +164,11 @@ class Calendar extends Component {
     let res = await api.get(url)
 
     if (res) {
-      console.log(res.data)
       let cycles = _(res.data)
         .groupBy(x => x.cycle.cycle)
         .map((value, key) => ({ cycle: key, periods: value }))
         .value()
+        .filter((item) => { return moment.utc(item.periods[0].dateEnd).get('year') === this.state.selectedYear })
 
       console.log(cycles)
 
@@ -257,8 +268,30 @@ class Calendar extends Component {
     dates[Object.keys(start)[0]] = Object.values(start)[0]
     let end = this.makeEndDate(cycle.dateEnd)
     dates[Object.keys(end)[0]] = Object.values(end)[0]
-    console.log(dates)
     return dates
+  }
+
+  async changePeriod (item, value, type) {
+    let org = '7828a985-7731-4ebb-83ff-2ce0e109fd8c'
+    let url = '/app/periods/' + org
+
+    let res = await api.post(url, {
+      startDate: type === 'start' ? moment.utc(value).format() : item.dateStart,
+      endDate: type === 'start' ? item.dateEnd : moment.utc(value).format()
+    })
+
+    if (res) {
+      console.log(res)
+    }
+  }
+
+  changeCycle (item, value) {
+    let cycles = this.state.cycles
+    for (const c of cycles) {
+      if (c.cycle === item.cycle) {
+        console.log('find', value)
+      }
+    }
   }
 
   render () {
@@ -303,6 +336,17 @@ class Calendar extends Component {
                 />
             </div>
             <div className='level-item'>
+              {this.state.cycles &&
+              <Select
+                label='Ciclo'
+                name='cycle'
+                value={this.state.selectedCycle}
+                placeholder='Todos los ciclos'
+                options={this.state.cycles.map(item => { return item.cycle })}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />}
+            </div>
+            <div className='level-item'>
               <Checkbox
                 label='Mostrar número de semana'
                 handleCheckboxChange={(e) => this.showWeeks()}
@@ -318,16 +362,84 @@ class Calendar extends Component {
 
           {this.state.cycles && this.state.cycles.map((item, key) => {
             let cycle = item.periods[0].cycle
-            return (
-              <div key={key} className='column is-narrow'>
-                <Cal
-                  date={moment.utc(cycle.dateStart)}
-                  minDate={moment.utc(cycle.dateStart)}
-                  maxDate={moment.utc(cycle.dateStart)}
-                  dates={this.makeDates(cycle, item.periods)} />
-              </div>
+            let date = moment.utc(cycle.dateStart)
+            if (this.state.selectedYear === date.get('year')) {
+              if (!this.state.selectedCycle) {
+                return (
+                  <div key={key} className='column is-narrow'>
+                    <Cal
+                      showWeekNumber={this.state.showWeekNumbers}
+                      date={date}
+                      minDate={date}
+                      maxDate={date}
+                      dates={this.makeDates(cycle, item.periods)} />
+                  </div>
+                )
+              } else if (item.cycle === this.state.selectedCycle) {
+                let single = Object.create(item)
+                return (
+                  <div className='columns'>
+                    <div className='column'>
+                      <div className='field'>
+                        <label className='label'>Inicio de ciclo</label>
+                        <div className='control'>
+                          <input className='input' type='date'
+                            value={moment.utc(single.periods[0].cycle.dateStart).format('YYYY-MM-DD')} />
+                        </div>
+                      </div>
+                      <div className='field'>
+                        <label className='label'>Fin de ciclo</label>
+                        <div className='control'>
+                          <input className='input' type='date'
+                            value={moment.utc(single.periods[0].cycle.dateEnd).format('YYYY-MM-DD')} />
+                        </div>
+                      </div>
+                      <hr />
+                      {single.periods.map((item, key) => {
+                        return (
+                          <div key={key} className='field'>
+                            <label className='label'>Periodo {key + 1}</label>
+                            <div className='control'>
+                              <div className='field is-grouped'>
+                                <div className='control'>
+                                  <div className='field'>
+                                    <label className='label'>Inicio</label>
+                                    <div className='control'>
+                                      <input className='input' type='date'
+                                        value={moment.utc(item.dateStart).format('YYYY-MM-DD')}
+                                        onChange={(e) => this.changePeriod(item, e.target.value, 'start')} />
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class='control'>
+                                  <div className='field'>
+                                    <label className='label'>Fin</label>
+                                    <div className='control'>
+                                      <input className='input' type='date'
+                                        value={moment.utc(item.dateEnd).format('YYYY-MM-DD')}
+                                        onChange={(e) => this.changePeriod(item, e.target.value, 'end')} />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <div className='column is-narrow'>
+                      <Cal
+                        showWeekNumber={this.state.showWeekNumbers}
+                        date={date}
+                        minDate={date}
+                        maxDate={date}
+                        dates={this.makeDates(single.periods[0].cycle, single.periods)} />
+                    </div>
+                  </div>
 
-            )
+                )
+              }
+            }
           })}
         </div>
       </div>
