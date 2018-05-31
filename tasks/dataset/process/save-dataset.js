@@ -137,7 +137,7 @@ const task = new Task(
       await dataset.save()
 
       await sendSlackNotification.run({
-        channel: 'opskamino',
+        channel: 'all',
         message: `Error al cargar el dataset *${dataset.name}* a la base de datos! ` +
         `*${e.message}*`
       })
@@ -160,7 +160,7 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotification.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha empezado a guardarse en base de datos.` +
       ` Fue cargado por *${dataset.uploadedBy.name}*`
     })
@@ -174,7 +174,7 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotification.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha sido cargado a la base de datos` +
       ` y se procederá a procesarse.`
     })
