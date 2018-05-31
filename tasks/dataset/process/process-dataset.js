@@ -5,7 +5,7 @@ const moment = require('moment')
 const _ = require('lodash')
 
 const Task = require('lib/task')
-const { DataSet, DataSetRow, Cycle } = require('models')
+const { DataSet, DataSetRow, Cycle, Period } = require('models')
 const saveDatasetRows = require('queues/save-datasetrows')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
@@ -177,6 +177,18 @@ const task = new Task(
       return item._id
     })
 
+    log('Obtaining periods  ...')
+
+    var periods = await Period.find({
+      organization: dataset.organization._id,
+      isDeleted: false,
+      dateStart: {$gte: minDate, $lte: maxDate}
+    })
+
+    periods = periods.map(item => {
+      return item._id
+    })
+
     const sendData = {
       data: rowData,
       date_max: maxDate,
@@ -184,7 +196,8 @@ const task = new Task(
       config: {
         groupings: []
       },
-      cycles: cycles
+      cycles: cycles,
+      periods: periods
     }
 
     log('Obtaining new products/sales centers/channels  ...')
