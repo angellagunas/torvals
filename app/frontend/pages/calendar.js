@@ -12,6 +12,7 @@ import Breadcrumb from '~base/components/base-breadcrumb'
 import Select from './projects/detail-tabs/select'
 import _ from 'lodash'
 import Cal from './cal'
+import tree from '~core/tree'
 
 const colors = {
   1: {
@@ -158,8 +159,8 @@ class Calendar extends Component {
   }
 
   async getPeriods () {
-    let org = '7828a985-7731-4ebb-83ff-2ce0e109fd8c'
-    let url = '/app/periods/' + org
+    let org = tree.get('user').currentOrganization
+    let url = '/app/periods/' + org.uuid
 
     let res = await api.get(url)
 
@@ -169,8 +170,6 @@ class Calendar extends Component {
         .map((value, key) => ({ cycle: key, periods: value }))
         .value()
         .filter((item) => { return moment.utc(item.periods[0].dateEnd).get('year') === this.state.selectedYear })
-
-      console.log(cycles)
 
       this.setState({
         cycles: cycles
@@ -271,9 +270,8 @@ class Calendar extends Component {
     return dates
   }
 
-  async changePeriod (item, value, type) {
-    let org = '7828a985-7731-4ebb-83ff-2ce0e109fd8c'
-    let url = '/app/periods/' + org
+  async changePeriod (item, value, type, key) {
+    let url = '/app/periods/' + item.uuid
 
     let res = await api.post(url, {
       startDate: type === 'start' ? moment.utc(value).format() : item.dateStart,
@@ -281,16 +279,40 @@ class Calendar extends Component {
     })
 
     if (res) {
-      console.log(res)
+      let cycles = this.state.cycles
+      for (const c of cycles) {
+        if (Number(c.cycle) === Number(item.cycle.cycle)) {
+          c.periods[key] = res.data
+          break
+        }
+      }
+      this.setState({
+        cycles: cycles
+      })
     }
   }
 
-  changeCycle (item, value) {
-    let cycles = this.state.cycles
-    for (const c of cycles) {
-      if (c.cycle === item.cycle) {
-        console.log('find', value)
+  async changeCycle (item, value, type) {
+    let cycle = item.periods[0].cycle
+
+    let url = '/app/cycles/' + cycle.uuid
+
+    let res = await api.post(url, {
+      startDate: type === 'start' ? moment.utc(value).format() : cycle.dateStart,
+      endDate: type === 'start' ? cycle.dateEnd : moment.utc(value).format()
+    })
+
+    if (res) {
+      let cycles = this.state.cycles
+      for (const c of cycles) {
+        if (Number(c.cycle) === Number(cycle.cycle)) {
+          c.periods[0].cycle = res.data
+          break
+        }
       }
+      this.setState({
+        cycles: cycles
+      })
     }
   }
 
@@ -342,7 +364,9 @@ class Calendar extends Component {
                 name='cycle'
                 value={this.state.selectedCycle}
                 placeholder='Todos los ciclos'
-                options={this.state.cycles.map(item => { return item.cycle })}
+                optionValue='cycle'
+                optionName='name'
+                options={this.state.cycles.map(item => { return {cycle: item.cycle, name: moment.utc(item.periods[0].cycle.dateStart).format('MMMM')} })}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />}
             </div>
@@ -376,7 +400,6 @@ class Calendar extends Component {
                   </div>
                 )
               } else if (item.cycle === this.state.selectedCycle) {
-                let single = Object.create(item)
                 return (
                   <div className='columns'>
                     <div className='column'>
@@ -384,18 +407,20 @@ class Calendar extends Component {
                         <label className='label'>Inicio de ciclo</label>
                         <div className='control'>
                           <input className='input' type='date'
-                            value={moment.utc(single.periods[0].cycle.dateStart).format('YYYY-MM-DD')} />
+                            value={moment.utc(cycle.dateStart).format('YYYY-MM-DD')}
+                            onChange={(e) => this.changeCycle(item, e.target.value, 'start')} />
                         </div>
                       </div>
                       <div className='field'>
                         <label className='label'>Fin de ciclo</label>
                         <div className='control'>
                           <input className='input' type='date'
-                            value={moment.utc(single.periods[0].cycle.dateEnd).format('YYYY-MM-DD')} />
+                            value={moment.utc(cycle.dateEnd).format('YYYY-MM-DD')}
+                            onChange={(e) => this.changeCycle(item, e.target.value, 'end')} />
                         </div>
                       </div>
                       <hr />
-                      {single.periods.map((item, key) => {
+                      {item.periods.map((item, key) => {
                         return (
                           <div key={key} className='field'>
                             <label className='label'>Periodo {key + 1}</label>
@@ -407,17 +432,17 @@ class Calendar extends Component {
                                     <div className='control'>
                                       <input className='input' type='date'
                                         value={moment.utc(item.dateStart).format('YYYY-MM-DD')}
-                                        onChange={(e) => this.changePeriod(item, e.target.value, 'start')} />
+                                        onChange={(e) => this.changePeriod(item, e.target.value, 'start', key)} />
                                     </div>
                                   </div>
                                 </div>
-                                <div class='control'>
+                                <div className='control'>
                                   <div className='field'>
                                     <label className='label'>Fin</label>
                                     <div className='control'>
                                       <input className='input' type='date'
                                         value={moment.utc(item.dateEnd).format('YYYY-MM-DD')}
-                                        onChange={(e) => this.changePeriod(item, e.target.value, 'end')} />
+                                        onChange={(e) => this.changePeriod(item, e.target.value, 'end', key)} />
                                     </div>
                                   </div>
                                 </div>
@@ -431,9 +456,9 @@ class Calendar extends Component {
                       <Cal
                         showWeekNumber={this.state.showWeekNumbers}
                         date={date}
-                        minDate={date}
-                        maxDate={date}
-                        dates={this.makeDates(single.periods[0].cycle, single.periods)} />
+                        // minDate={date}
+                        // maxDate={date}
+                        dates={this.makeDates(cycle, item.periods)} />
                     </div>
                   </div>
 
@@ -442,6 +467,7 @@ class Calendar extends Component {
             }
           })}
         </div>
+        <br />
       </div>
     )
   }

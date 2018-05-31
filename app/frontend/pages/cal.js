@@ -118,8 +118,13 @@ class Cal extends Component {
         this.makeGrid()
       })
     }
-    if (this.props.limits !== next.limits) {
-      this.makeGrid()
+
+    if (this.state.dates !== next.dates) {
+      this.setState({
+        dates: next.dates
+      }, () => {
+        this.makeGrid()
+      })
     }
   }
 
@@ -131,7 +136,7 @@ class Cal extends Component {
         let w = this.dateFromNum(item.value).format('W')
         numbers.push(Number(w))
         weeks[w] =
-          <div className='calendar-date'>
+          <div key={key} className='calendar-date'>
             <button className='date-item week-number tooltip'
               data-tooltip={'Semana ' + w}>
               {w}

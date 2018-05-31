@@ -90,8 +90,6 @@
 
 .calendar {
     box-shadow: 0 0 15px 0 #ccc;
-    /* min-height: 295px;
-    max-height: 295px; */
 }
 
 .calendar .calendar-nav .calendar-month {
@@ -282,18 +280,12 @@ $range-alpha: .2;
     padding: .5rem .5rem 0 .5rem;
 }
 
-/* .calendar .calendar-header .calendar-date,
-.calendar .calendar-body .calendar-date {
-    flex: 0 0 12.28%;
-    max-width: 12.28%;
-} */
-
 .calendar .calendar-date {
     padding: .3rem 0;
 }
 
 .calendar .calendar-body {
-    padding: 0 1em 1em 0;
+    padding: 0 .5rem .3rem;
 }
 
 .calendar .calendar-date .date-item {
@@ -306,10 +298,6 @@ $range-alpha: .2;
         border-radius: 0;
     }
 }
-
-/* .calendar .calendar-container {
-    min-height: 250px;
-} */
 
 .week-column {
     background: #eff1f9 !important;
