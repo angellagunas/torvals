@@ -23,7 +23,6 @@ class Ranges extends Component {
   handleInputChange (index, value) {
     let ranges = this.state.ranges
 
-    console.log('val', value)
     if (value === '') {
       value = null
     } else {
