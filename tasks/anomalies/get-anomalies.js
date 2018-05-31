@@ -112,7 +112,7 @@ const task = new Task(
     }
 
     sendSlackNotification.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `Se estan obteniendo las anomalias del proyecto *${project.name}*`
     })
   },
@@ -128,7 +128,7 @@ const task = new Task(
     }
 
     sendSlackNotification.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `Se obtuvieron correctamente todas las anomalias del proyecto *${project.name}*!`
     })
   }
