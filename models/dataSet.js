@@ -311,11 +311,9 @@ dataSetSchema.methods.processData = async function () {
   if (!this.apiData) return
 
   this.products = []
-  this.newProducts = []
   this.channels = []
   this.salesCenters = []
-  this.newSalesCenters = []
-  this.newChannels = []
+  this.catalogItems = []
 
   if (this.apiData.products) {
     for (var p of this.apiData.products) {
@@ -407,8 +405,10 @@ dataSetSchema.methods.processData = async function () {
   }
 
   for (let catalog of this.organization.rules.catalogs) {
+    console.log(catalog)
     if (this.apiData[catalog]) {
       for (let data of this.apiData[catalog]) {
+        console.log(data)
         pos = this.catalogItems.findIndex(item => {
           return (
             String(item.externalId) === String(data._id) &&
@@ -431,7 +431,7 @@ dataSetSchema.methods.processData = async function () {
               externalId: data._id,
               organization: this.organization,
               isNewExternal: true,
-              type: 'Canal'
+              type: catalog
             })
           } else if (cItem.isNewExternal && data['name']) {
             cItem.set({ name: data['name'] })

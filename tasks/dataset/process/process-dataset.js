@@ -133,15 +133,15 @@ const task = new Task(
       rowData[catalog] = []
 
       if (slugify(catalog) === 'producto' || slugify(catalog) === 'productos') {
-        rowData[catalog] = rowData.product.map(item => { return item })
+        rowData[catalog] = rowData.products.map(item => { return item })
       }
 
       if (slugify(catalog) === 'centro-de-venta' || slugify(catalog) === 'centros-de-venta') {
-        rowData[catalog] = rowData.agency.map(item => { return item })
+        rowData[catalog] = rowData.salesCenters.map(item => { return item })
       }
 
       if (slugify(catalog) === 'canal' || slugify(catalog) === 'canales') {
-        rowData[catalog] = rowData.channel.map(item => { return item })
+        rowData[catalog] = rowData.channels.map(item => { return item })
       }
     }
 
