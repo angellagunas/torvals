@@ -28,12 +28,10 @@ const task = new Task(async function (argv) {
     message.attachments = [argv.attachment]
   }
 
-  console.log(config.channels)
-
   if (argv.channel === 'all') {
     for (let channel of Object.keys(config.channels)) {
-      if (!channel) {
-        throw new Error('hook url is required')
+      if (!config.channels[channel]) {
+        continue
       }
 
       const slack = new Slack(config.channels[channel])
