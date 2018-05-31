@@ -98,6 +98,7 @@ const dataSetSchema = new Schema({
   salesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
+  catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
 
   apiData: { type: Schema.Types.Mixed },
   dateCreated: { type: Date, default: moment.utc },
@@ -305,16 +306,14 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
 }
 
 dataSetSchema.methods.processData = async function () {
-  const { Product, SalesCenter, Channel } = require('models')
+  const { Product, SalesCenter, Channel, CatalogItem } = require('models')
 
   if (!this.apiData) return
 
   this.products = []
-  this.newProducts = []
   this.channels = []
   this.salesCenters = []
-  this.newSalesCenters = []
-  this.newChannels = []
+  this.catalogItems = []
 
   if (this.apiData.products) {
     for (var p of this.apiData.products) {
@@ -366,6 +365,7 @@ dataSetSchema.methods.processData = async function () {
 
       salesCenter.set({isDeleted: false})
       await salesCenter.save()
+
       pos = this.salesCenters.findIndex(item => {
         return String(item.externalId) === String(salesCenter.externalId)
       })
@@ -392,6 +392,7 @@ dataSetSchema.methods.processData = async function () {
         channel.set({name: c['name'] ? c['name'] : 'Not identified'})
         await channel.save()
       }
+
       channel.set({isDeleted: false})
       await channel.save()
 
@@ -403,20 +404,55 @@ dataSetSchema.methods.processData = async function () {
     }
   }
 
+  for (let catalog of this.organization.rules.catalogs) {
+    console.log(catalog)
+    if (this.apiData[catalog]) {
+      for (let data of this.apiData[catalog]) {
+        console.log(data)
+        pos = this.catalogItems.findIndex(item => {
+          return (
+            String(item.externalId) === String(data._id) &&
+            item.type === catalog
+          )
+        })
+
+        console.log(pos)
+
+        if (pos < 0) {
+          let cItem = await CatalogItem.findOne({
+            externalId: data._id,
+            organization: this.organization._id,
+            type: catalog
+          })
+
+          if (!cItem) {
+            cItem = await CatalogItem.create({
+              name: data['name'] ? data['name'] : 'Not identified',
+              externalId: data._id,
+              organization: this.organization,
+              isNewExternal: true,
+              type: catalog
+            })
+          } else if (cItem.isNewExternal && data['name']) {
+            cItem.set({ name: data['name'] })
+            await cItem.save()
+          }
+
+          cItem.set({isDeleted: false})
+          await cItem.save()
+
+          this.catalogItems.push(cItem)
+        }
+      }
+    }
+  }
+
   await this.save()
 }
 
 dataSetSchema.methods.processReady = async function (res) {
   let apiData = {
-    products: [],
-    salesCenters: [],
-    channels: []
-  }
-
-  if (res.data) {
-    apiData['products'] = res.data['product']
-    apiData['salesCenters'] = res.data['agency']
-    apiData['channels'] = res.data['channel']
+    ...res.data
   }
 
   this.set({

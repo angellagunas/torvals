@@ -45,6 +45,22 @@ const task = new Task(
     }
     log('Sales Centers successfully saved!')
 
+    log('Saving cycles...')
+    if (!dataset.cycles == null) {
+      for (let cycle of dataset.cycles) {
+        await DataSetRow.update({dataset: dataset._id, 'data.forecastDate': { $gte: cycle.dateStart, $lte: cycle.dateEnd}}, {cycle: cycle._id}, {multi: true})
+      }
+    }
+    log('Cycles successfully saved!')
+
+    log('Saving periods...')
+    if (!dataset.periods == null) {
+      for (let period of dataset.periods) {
+        await DataSetRow.update({dataset: dataset._id, 'data.forecastDate': { $gte: period.dateStart, $lte: period.dateEnd}}, {period: period._id}, {multi: true})
+      }
+    }
+    log('Periods successfully saved!')
+
     dataset.set({ status: 'reviewing' })
     await dataset.save()
 
@@ -62,7 +78,7 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha empezado a asignarsele los productos/centros de venta/canales.`
     })
   },
@@ -75,9 +91,13 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha terminado de asignarsele los ` +
-        `productos/centros de venta/canales y ahora se obtendrán las anomalías.`
+        `productos/centros de venta/canales y esta listo para conciliarse!.`,
+      attachment: {
+        title: 'Exito!',
+        image_url: 'https://i.imgur.com/GfHWtUx.gif'
+      }
     })
   }
 )

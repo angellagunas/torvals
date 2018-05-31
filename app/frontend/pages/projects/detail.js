@@ -473,10 +473,10 @@ class ProjectDetail extends Component {
     }
 
     const { project, canEdit } = this.state
-    console.log(project.status)
 
     if (this.interval === null && (
         project.status === 'processing' ||
+        project.status === 'conciliating' ||
         project.status === 'pendingRows' ||
         project.status === 'cloning'
     )) {

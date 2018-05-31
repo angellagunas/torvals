@@ -151,7 +151,7 @@ const task = new Task(
     }
 
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `Se esta generando el dataset de ajuste del proyecto *${project.name}*`
     })
   },
@@ -167,7 +167,7 @@ const task = new Task(
     }
 
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset de ajuste del proyecto *${project.name}* se encuentra listo!`
     })
   }

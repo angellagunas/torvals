@@ -6,7 +6,6 @@ import OrgInfo from './steps/org-info'
 import Periods from './steps/periods'
 import Ranges from './steps/ranges'
 import DeadLines from './steps/deadlines'
-import CalendarRules from './steps/calendar-rules'
 import Catalogs from './steps/catalogs'
 import Rules from './steps/rules'
 
@@ -24,7 +23,6 @@ class Wizard extends Component {
   }
 
   componentWillMount () {
-    console.log(this.props.org)
     let step = 0
     let tab = '1'
 
@@ -65,8 +63,6 @@ class Wizard extends Component {
           step: this.state.currentStep
         }
       }, async () => {
-        console.log('Rules', this.state.rules)
-        await this.saveData()
       })
     }
     let step = this.state.currentStep + 1
@@ -109,7 +105,6 @@ class Wizard extends Component {
   }
 
   actualTab (tab) {
-    console.log(tab)
     this.setState({
       actualTab: tab,
       currentStep: Number(tab) - 1
@@ -117,7 +112,6 @@ class Wizard extends Component {
   }
 
   render () {
-    console.log(this.state.stepsCompleted)
     this.tabs = [
       {
         name: '1',
