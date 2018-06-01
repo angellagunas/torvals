@@ -105,7 +105,9 @@ const dataSetSchema = new Schema({
   dateConciliated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
-  uploaded: { type: Boolean, default: false }
+  uploaded: { type: Boolean, default: false },
+  cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
+  periods: [{type: Schema.Types.ObjectId, ref: 'Period'}]
 }, { usePushEach: true })
 
 dataSetSchema.plugin(dataTables)
@@ -459,7 +461,9 @@ dataSetSchema.methods.processReady = async function (res) {
     dateMax: res.date_max,
     dateMin: res.date_min,
     apiData: apiData,
-    groupings: res.config.groupings
+    groupings: res.config.groupings,
+    cycles: res.cycles,
+    periods: res.periods
   })
 
   await this.save()
