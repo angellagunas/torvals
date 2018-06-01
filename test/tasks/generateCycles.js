@@ -20,9 +20,17 @@ describe('Generate cycles task', () => {
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
-      const org = await createOrganization()
+      const org = await createOrganization({rules: {
+        startDate:"2018-01-01T00:00:00",
+        cycleDuration: 1,
+        cycle: "M",
+        period:"M",
+        periodDuration:1,
+        season: 6,
+        cyclesAvailable:4
+      }})
 
-      await generateCycles.run({uuid: org.uuid})
+      await generateCycles.run({uuid: org.uuid, isTest: true})
 
       const cyclesGenerated = await Cycle.find({organization: org._id}).count()
       const firstCycle = await Cycle.findOne({organization: org._id, cycle: 1})
@@ -60,7 +68,7 @@ describe('Generate cycles task', () => {
       let failed = false
 
       try{
-        const wasGenerated = await generateCycles.run({})
+        const wasGenerated = await generateCycles.run({isTest: true})
       } catch(error) {
           failed = true;
       }
@@ -76,7 +84,7 @@ describe('Generate cycles task', () => {
       let failed = false
 
       try{
-        const wasGenerated = await generateCycles.run({uuid: org.uuid})
+        const wasGenerated = await generateCycles.run({uuid: org.uuid, isTest: true})
       } catch(error) {
           failed = true;
       }
@@ -92,7 +100,7 @@ describe('Generate cycles task', () => {
       let failed = false
 
       try{
-        const wasGenerated = await generateCycles.run({uuid: org.uuid})
+        const wasGenerated = await generateCycles.run({uuid: org.uuid, isTest: true})
       } catch(error) {
           failed = true;
       }
