@@ -28,8 +28,7 @@ describe('Conciliate datasets', () => {
   })
 
   describe('with csv file with 3 products', () => {
-    it('should conciliate dataset successfully', async function () {
-      this.timeout(1000 * 30);
+    it('should conciliate a new dataset with 2 records successfully', async function () {
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
@@ -111,5 +110,246 @@ describe('Conciliate datasets', () => {
       expect(totalDatasets).equal(3)
       expect(totalNewDatasetRows).equal(13)
     })
+
+    it('should conciliate this dataset as main', async function () {
+      const user = await createUser()
+      const token = await user.createToken({type: 'session'})
+      const jwt = token.getJwt()
+
+      const org = await createOrganization()
+
+      const project = await createProject({
+        organization: org._id,
+        createdBy: user._id
+      })
+
+      const dataset = await createDataset({
+        organization: org._id,
+        createdBy: user._id,
+        project: project._id,
+        dateMax: "2018-05-16",
+        dateMin: "2017-10-04"
+      })
+
+      const chunk = await createFileChunk()
+
+      dataset.set({
+        fileChunk: chunk,
+        status: 'ready',
+        uploadedBy: user._id
+      })
+
+      await dataset.save() 
+
+      datarows = await createDatasetRows({
+        organization: org._id,
+        project: project._id,
+        dataset: dataset._id
+      })
+
+      const channels = await createChannels({organization: org._id})
+      const products = await createProducts({organization: org._id})
+      const saleCenters = await createSaleCenters({organization: org._id})
+      const totalOriginalRows = await DataSetRow.find({organization: org._id}).count()
+
+      let wasFailed = false
+      let errorMsg = ''
+
+      try{
+        conciliateResult = await conciliateDataset.run({
+          dataset: dataset.uuid,
+          project: project.uuid
+        })
+      }catch(error){
+        wasFailed = true
+        errorMsg = error.message
+      }
+
+      const projectConciliate = await Project.findOne({_id:project._id}).populate('mainDataset')
+      const totalDatasets = await DataSet.find({}).count()
+      const totalDatasetRows = await DataSetRow.find().count()
+      const conciliatedDataset = await DataSet.findOne({_id: dataset._id})
+
+      expect(wasFailed).equal(false)
+      expect(errorMsg).equal(errorMsg)
+      expect(String(dataset._id)).equal(String(projectConciliate.mainDataset._id))
+      expect(totalDatasets).equal(1)
+      expect(totalDatasetRows).equal(totalOriginalRows)
+      expect(conciliatedDataset.isMain).equal(true)
+    })
+
+    it('without dateMax or dateMin should return an exception', async function () {
+      const user = await createUser()
+      const token = await user.createToken({type: 'session'})
+      const jwt = token.getJwt()
+
+      const org = await createOrganization()
+
+      const project = await createProject({
+        organization: org._id,
+        createdBy: user._id
+      })
+
+      const dataset = await createDataset({
+        organization: org._id,
+        createdBy: user._id,
+        project: project._id,
+      })
+
+      const chunk = await createFileChunk()
+
+      dataset.set({
+        fileChunk: chunk,
+        status: 'ready',
+        uploadedBy: user._id
+      })
+
+      await dataset.save() 
+
+      datarows = await createDatasetRows({
+        organization: org._id,
+        project: project._id,
+        dataset: dataset._id
+      })
+
+      const channels = await createChannels({organization: org._id})
+      const products = await createProducts({organization: org._id})
+      const saleCenters = await createSaleCenters({organization: org._id})
+      const totalOriginalRows = await DataSetRow.find({organization: org._id}).count()
+
+      let wasFailed = false
+      let errorMsg = ''
+
+      try{
+        conciliateResult = await conciliateDataset.run({
+          dataset: dataset.uuid,
+          project: project.uuid
+        })
+      }catch(error){
+        wasFailed = true
+        errorMsg = error.message
+      }
+
+      expect(wasFailed).equal(true)
+      expect(errorMsg).equal('Invalid dateMax or dateMin')
+    })
+
+    it('with invalid dataset uuid should return an exception', async function () {
+      const user = await createUser()
+      const org = await createOrganization()
+
+      const project = await createProject({
+        organization: org._id,
+        createdBy: user._id
+      })
+
+      let wasFailed = false
+      let errorMsg = ''
+
+      try{
+        conciliateResult = await conciliateDataset.run({
+          dataset: 'invalid-uuid',
+          project: project.uuid
+        })
+      }catch(error){
+        wasFailed = true
+        errorMsg = error.message
+      }
+
+      expect(wasFailed).equal(true)
+      expect(errorMsg).equal('Invalid project or dataset!')
+    })
+
+    it('with invalid project uuid should return an exception', async function () {
+      const user = await createUser()
+
+      const org = await createOrganization()
+
+      const project = await createProject({
+        organization: org._id,
+        createdBy: user._id
+      })
+
+      const dataset = await createDataset({
+        organization: org._id,
+        createdBy: user._id,
+        project: project._id,
+      })
+
+      let wasFailed = false
+      let errorMsg = ''
+
+      try{
+        conciliateResult = await conciliateDataset.run({
+          dataset: dataset.uuid,
+          project: 'invalid-uuid-for-project'
+        })
+      }catch(error){
+        wasFailed = true
+        errorMsg = error.message
+      }
+
+      expect(wasFailed).equal(true)
+      expect(errorMsg).equal('Invalid project or dataset!')
+    })
+
+    it('with differents projects in a same conciliate in should return an exception', async function () {
+      const user = await createUser()
+
+      const org = await createOrganization()
+
+      const project_one = await createProject({
+        organization: org._id,
+        createdBy: user._id
+      })
+
+      const project_two = await createProject({
+        organization: org._id,
+        createdBy: user._id
+      })
+
+      const dataset = await createDataset({
+        organization: org._id,
+        createdBy: user._id,
+        project: project_one._id,
+      })
+
+      const chunk = await createFileChunk()
+
+      dataset.set({
+        fileChunk: chunk,
+        status: 'ready',
+        uploadedBy: user._id
+      })
+
+      await dataset.save() 
+
+      datarows = await createDatasetRows({
+        organization: org._id,
+        project: project_one._id,
+        dataset: dataset._id,
+        dateMax: "2018-05-16",
+        dateMin: "2017-10-04"
+      })
+
+      const totalOriginalRows = await DataSetRow.find({organization: org._id}).count()
+
+      let wasFailed = false
+      let errorMsg = ''
+
+      try{
+        conciliateResult = await conciliateDataset.run({
+          dataset: dataset.uuid,
+          project: project_two.uuid
+        })
+      }catch(error){
+        wasFailed = true
+        errorMsg = error.message
+      }
+
+      expect(wasFailed).equal(true)
+      expect(errorMsg).equal('The given project does not match with dataset project.')
+    })
+
   })
 })
