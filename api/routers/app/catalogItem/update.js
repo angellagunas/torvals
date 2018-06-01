@@ -12,17 +12,10 @@ module.exports = new Route({
     const org = await Organization.findOne({'_id': organization, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
 
-    const findCatalog = org.rules.catalogs.find(item => { return item === data.type })
-
-    if (!findCatalog) {
-      ctx.throw(404, 'Catálogo no encontrado')
-    }
-
     var catalogItem = await CatalogItem.findOne({uuid: uuidItem}).populate('organization')
     ctx.assert(catalogItem, 'Item no encontrado')
 
     catalogItem.set({
-      type: data.type,
       name: data.name,
       externalId: data.externalId
     })

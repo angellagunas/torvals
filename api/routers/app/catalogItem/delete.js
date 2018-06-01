@@ -7,9 +7,9 @@ module.exports = new Route({
   handler: async function (ctx) {
     var uuidItem = ctx.params.uuid
 
-   /* var organization = ctx.state.organization._id
+    var organization = ctx.state.organization._id
     const org = await Organization.findOne({'_id': organization, 'isDeleted': false})
-    ctx.assert(org, 404, 'Organización no encontrada') */
+    ctx.assert(org, 404, 'Organización no encontrada')
 
     var catalogItem = await CatalogItem.findOne({uuid: uuidItem}).populate('organization')
     ctx.assert(catalogItem, 'Item no encontrado')
