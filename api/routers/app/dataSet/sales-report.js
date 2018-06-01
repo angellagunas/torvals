@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
-const { DataSet, SalesCenter, Channel, Product, DataSetRow, Role, Price } = require('models')
-const Api = require('lib/abraxas/api')
+const { DataSet, SalesCenter, Channel, Product, DataSetRow, Role, Cycle, Period } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -9,8 +8,6 @@ module.exports = new Route({
     var data = ctx.request.body
     const dataset = await DataSet.findOne({uuid: ctx.params.uuid})
     ctx.assert(dataset, 404, 'Dataset no encontrado')
-
-    const requestQuery = {}
 
     const user = ctx.state.user
     var currentRole
@@ -24,6 +21,13 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
+    var cycle = await Cycle.findOne({organization: currentOrganization._id, cycle: data.cycle})
+    var periods = await Period.find({organization: currentOrganization._id, period: {$in: data.periods}, cycle: cycle._id})
+
+    periods.ids = periods.map(item => {
+      return item._id
+    })
+
     var match = {
       'dataset': dataset._id,
       'data.adjustment': {
@@ -32,8 +36,9 @@ module.exports = new Route({
       'data.prediction': {
         '$ne': null
       },
-      'data.semanaBimbo': {
-        '$in': data.semana_bimbo
+      'cycle': cycle._id,
+      'period': {
+        '$in': periods.ids
       }
     }
 
@@ -100,6 +105,14 @@ module.exports = new Route({
         }
       },
       {
+        '$lookup': {
+          'from': 'periods',
+          'localField': 'period',
+          'foreignField': '_id',
+          'as': 'period'
+        }
+      },
+      {
         '$unwind': {
           'path': '$prices',
           'includeArrayIndex': 'arrayIndex',
@@ -108,7 +121,7 @@ module.exports = new Route({
       },
       {
         '$group': {
-          '_id': '$data.semanaBimbo',
+          '_id': '$period.period',
           'prediction': {
             '$sum': {
               '$multiply': [
@@ -129,14 +142,14 @@ module.exports = new Route({
       },
       {
         '$project': {
-          'week': '$_id',
+          'period': '$_id',
           'prediction': 1,
           'adjustment': 1
         }
       },
       {
         '$sort': {
-          'week': 1
+          'period': 1
         }
       }
     ]

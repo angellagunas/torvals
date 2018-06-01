@@ -88,7 +88,9 @@ const task = new Task(
             'salesCenter': row.salesCenter,
             'product': row.product,
             'data': row.data,
-            'apiData': row.apiData
+            'apiData': row.apiData,
+            'cycle': row.cycle,
+            'period': row.period
           }
       )
 
