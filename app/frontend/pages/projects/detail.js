@@ -325,7 +325,7 @@ class ProjectDetail extends Component {
     try {
       clearInterval(this.interval)
       await api.post(url)
-      await this.load()
+      await this.load('ajustes')
     } catch (e) {
       toast('Error: ' + e.message, {
         autoClose: 5000,

@@ -55,7 +55,7 @@ const task = new Task(
 
     let newProjectData = {
       status: 'cloning',
-      showOnDashboard: project.showOnDashboard,
+      showOnDashboard: false,
       etag: project.etag,
       dateMin: project.dateMin,
       dateMax: project.dateMax
