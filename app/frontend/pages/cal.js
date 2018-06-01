@@ -73,7 +73,7 @@ class Cal extends Component {
         obj.available = false
       } else {
         obj.value = i - initialEmptyCells + 1
-        obj.available = true // this.isAvailable(i - initialEmptyCells + 1)
+        obj.available = true
       }
       gridArr.push(obj)
     }
