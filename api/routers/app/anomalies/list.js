@@ -134,7 +134,7 @@ module.exports = new Route({
         project: project._id
       },
       sort: ctx.request.query.sort || '-dateCreated',
-      populate: ['salesCenter', 'product', 'channel', 'dataset', 'organization']
+      populate: ['salesCenter', 'product', 'channel', 'organization']
     })
 
     rows.data = rows.data.map(item => {

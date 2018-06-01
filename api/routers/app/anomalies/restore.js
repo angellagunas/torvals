@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
 const { Anomaly, Project, DataSetRow } = require('models')
-const conciliateDataset = require('queues/conciliate-dataset')
 
 module.exports = new Route({
   method: 'post',
@@ -68,14 +67,6 @@ module.exports = new Route({
     } catch (e) {
       ctx.throw(500, 'Error recuperando las anomalías')
     }
-
-    // project.activeDataset.set({status: 'conciliating'})
-    // await project.activeDataset.save()
-
-    // project.set({status: 'conciliating'})
-    // await project.save()
-
-    // conciliateDataset.add({project: project.uuid, dataset: project.activeDataset.uuid})
 
     ctx.body = {
       data: 'ok'

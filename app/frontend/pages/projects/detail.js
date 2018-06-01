@@ -430,7 +430,6 @@ class ProjectDetail extends Component {
   }
 
   render () {
-    console.log(this.state.actualTab)
     if (this.state.notFound) {
       return <NotFound msg='este proyecto' />
     }
