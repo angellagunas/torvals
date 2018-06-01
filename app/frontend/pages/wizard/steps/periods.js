@@ -47,6 +47,7 @@ class Periods extends Component {
   async selectChangeHandler(name, value) {
     let aux = this.state.timesSelected
     aux.periodDuration = 1
+    aux.cycleDuration = 1
     if(name === 'cycle'){
       if(value === 'd'){
         aux.period = 'd'
@@ -97,6 +98,9 @@ class Periods extends Component {
           disableBtn: true
         })
       }
+      else if (Number(value) > 12) {
+        value = 12
+      }
       else {
         this.setState({
           help: {
@@ -107,13 +111,32 @@ class Periods extends Component {
         })
       }
     }
-    
+    else if (name === 'cycleDuration') {
+      if (this.state.timesSelected.cycle === 'y') {
+        if(Number(value) > 12){
+          value = 12
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'M') {
+        if (Number(value) > 144) {
+          value = 144
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'w') {
+        if (Number(value) > 624) {
+          value = 624
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'd') {
+        if (Number(value) > 4380) {
+          value = 4380
+        }
+      }
+    }
     else if (name === 'periodDuration') {
-      console.log(this.state.timesSelected.cycle,this.state.timesSelected.period)
       if (this.state.timesSelected.cycle === this.state.timesSelected.period) {
         if (Number(value) > Number(this.state.timesSelected.cycleDuration)) {
           value = Number(this.state.timesSelected.cycleDuration)
-          console.log(value)
         }
       }
       else if (this.state.timesSelected.cycle === 'y') {
@@ -123,7 +146,7 @@ class Periods extends Component {
           }
         }
         else if (this.state.timesSelected.period === 'w') {
-          if (Number(value) > 53) {
+          if (Number(value) > 52) {
             value = 53
           }
         }
@@ -278,8 +301,8 @@ class Periods extends Component {
                         </div>
                       </div>
                     </div>
-
-                    <div className='field has-addons'>
+                    <br/>
+                    
                       <p className='control'>
                         <label className='radio'>
                           <input type='radio' name='takeStart' checked={this.state.timesSelected.takeStart}
@@ -289,7 +312,7 @@ class Periods extends Component {
                                 takeStart: true
                               }
                             })} />
-                          <span>Inicio de periodo</span>
+                        <span>Usar la fecha de <strong className='has-text-info'>inicio</strong> del periodo para determinar el ciclo al que pertenece</span>
                         </label>
                       </p>
 
@@ -303,10 +326,10 @@ class Periods extends Component {
                                 takeStart: false
                               }
                             })} />
-                          <span>Final de periodo</span>
+                        <span>Usar la fecha <strong className='has-text-info'>final</strong> del periodo para determinar el ciclo al que pertenece</span>
                         </label>
                       </p>
-                    </div>
+                    
 
                   </div>
                 </div>

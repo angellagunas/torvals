@@ -56,6 +56,11 @@ class Catalogs extends Component {
           title: 'Ruta',
           value: 'is_route',
           checked: false
+        },
+        {
+          title: 'Precios',
+          value: 'is_route',
+          checked: false
         }
 
       ],

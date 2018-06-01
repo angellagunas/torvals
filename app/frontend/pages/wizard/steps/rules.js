@@ -203,12 +203,12 @@ class Rules extends Component {
                     </button>
                       <br />
                       <p>Ciclos de operación:</p>
-                      <ul className='has-text-weight-bold'>
-                        <li>Ventas {rules.salesUpload} días</li>
-                        <li>Forecast {rules.forecastCreation} días</li>
-                        <li>Ajustes {rules.rangeAdjustment} días</li>
-                        <li>Aprobar {rules.rangeAdjustmentRequest} días</li>
-                        <li>Consolidar {rules.consolidation} días</li>
+                      <ul>
+                        <li>Ventas: <strong>{rules.salesUpload} días</strong></li>
+                        <li>Forecast: <strong>{rules.forecastCreation} días</strong></li>
+                        <li>Ajustes: <strong>{rules.rangeAdjustment} días</strong></li>
+                        <li>Aprobar: <strong>{rules.rangeAdjustmentRequest} días</strong></li>
+                        <li>Consolidar: <strong>{rules.consolidation} días</strong></li>
                       </ul>
                     </div>
 

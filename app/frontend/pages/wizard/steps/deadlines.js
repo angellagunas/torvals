@@ -96,7 +96,7 @@ class DeadLines extends Component {
   handleInputChange (name, value) {
     let aux = this.state.data
     value = value.replace(/\D/, '')
-    value = Number(value)
+
     aux[name] = value
 
     aux.consolidation =
@@ -142,6 +142,12 @@ class DeadLines extends Component {
           this.getStartDates()
         })
       })
+    }
+  }
+
+  blurDefault (name, value) {
+    if (value === '') {
+      this.handleInputChange(name, '1')
     }
   }
 
@@ -201,6 +207,7 @@ class DeadLines extends Component {
                             <input className='input' type='text' placeholder='dias' name={item.name}
                               value={this.state.data[item.name]}
                               onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }}
+                              onBlur={(e) => { this.blurDefault(e.target.name, e.target.value) }}
                             />
                           </p>
                           <p className='control'>

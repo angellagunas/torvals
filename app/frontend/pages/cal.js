@@ -49,7 +49,6 @@ class Cal extends Component {
 
   weekHeader () {
     let weekDays = []
-    // weekDays.push('#')
     for (let i = 0; i < 7; i++) {
       weekDays.push(moment.utc().weekday(i).format('ddd'))
     }
@@ -73,7 +72,7 @@ class Cal extends Component {
         obj.available = false
       } else {
         obj.value = i - initialEmptyCells + 1
-        obj.available = true // this.isAvailable(i - initialEmptyCells + 1)
+        obj.available = true
       }
       gridArr.push(obj)
     }
