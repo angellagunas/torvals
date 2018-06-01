@@ -271,3 +271,40 @@ $range-alpha: .2;
     margin-top: -0.5rem;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent;
 }
+
+.calendar .calendar-range .date-item {
+    color: $general_text;
+}
+
+.calendar .calendar-header {
+    padding: .5rem .5rem 0 .5rem;
+}
+
+.calendar .calendar-date {
+    padding: .3rem 0;
+}
+
+.calendar .calendar-body {
+    padding: 0 .5rem .3rem;
+}
+
+.calendar .calendar-date .date-item {
+    height: 2rem;
+    line-height: 1.2rem;
+    padding: .2rem;
+    width: 2rem;
+    &.week-number {
+        background: #eff1f9 !important;
+        border-radius: 0;
+    }
+}
+
+.week-column {
+    background: #eff1f9 !important;
+    
+    .calendar-date .date-item:focus {
+        border: none;
+        color: $general_text !important;
+        user-select: none;
+    }
+}
