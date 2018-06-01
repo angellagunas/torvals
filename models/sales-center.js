@@ -54,4 +54,23 @@ salesCenterSchema.methods.toAdmin = function () {
   }
 }
 
+// This is similar to the one in channel, maybe it can be joined...
+salesCenterSchema.statics.filterByUserRole = async function(filters, role, user) {
+  let channels = await this.find(filters).select({'_id': 1, 'groups': 1})
+
+  if (role === 'manager-level-2') {
+    channels = channels
+      .filter(item => {
+        let checkExistence = item.groups.some(function (e) {
+          return user.groups.indexOf(String(e)) >= 0
+        })
+        return checkExistence
+      })
+      .map(item => { return item._id })
+  } else {
+    channels = channels.map(item => { return item._id })
+  }
+  return channels
+}
+
 module.exports = mongoose.model('SalesCenter', salesCenterSchema)

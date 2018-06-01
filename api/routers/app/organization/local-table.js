@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
-const { Project, DataSetRow, Product, Channel, SalesCenter, AbraxasDate, Role } = require('models')
+const { Project, DataSetRow, Product, Channel, SalesCenter, Role, Cycle } = require('models')
 const redis = require('lib/redis')
 const crypto = require('crypto')
 const _ = require('lodash')
@@ -16,6 +16,10 @@ module.exports = new Route({
     let currentRole
     let currentOrganization
 
+    if (!data.date_start || !data.date_end) {
+      ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
+    }
+
     if (ctx.state.organization) {
       currentOrganization = user.organizations.find(orgRel => {
         return ctx.state.organization._id.equals(orgRel.organization._id)
@@ -30,11 +34,11 @@ module.exports = new Route({
 
     let filters = {
       organization: ctx.state.organization,
-      mainDataset: {$ne: undefined}
+      mainDataset: { $ne: undefined }
     }
 
     if (data.projects && data.projects.length > 0) {
-      filters['uuid'] = {$in: data.projects}
+      filters['uuid'] = { $in: data.projects }
     }
 
     const projects = await Project.find(filters)
@@ -68,32 +72,20 @@ module.exports = new Route({
     }
 
     if (data.channels) {
-      let channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1, 'groups': 1})
-      if (currentRole.slug === 'manager-level-2') {
-        channels = channels.filter(item => {
-          let checkExistence = item.groups.some(function (e) {
-            return user.groups.indexOf(String(e)) >= 0
-          })
-          return checkExistence
-        }).map(item => { return item._id })
-      } else {
-        channels = channels.map(item => { return item._id })
-      }
+      const channels = await Channel.filterByUserRole(
+        { uuid: { $in: data.channels } },
+        currentRole.slug,
+        user
+      )
       initialMatch['channel'] = { $in: channels }
     }
 
     if (data.salesCenters) {
-      let salesCenters = await SalesCenter.find({ uuid: { $in: data.salesCenters } }).select({'_id': 1, 'groups': 1})
-      if (currentRole.slug === 'manager-level-2') {
-        salesCenters = salesCenters.filter(item => {
-          let checkExistence = item.groups.some(function (e) {
-            return user.groups.indexOf(String(e)) >= 0
-          })
-          return checkExistence
-        }).map(item => { return item._id })
-      } else {
-        salesCenters = salesCenters.map(item => { return item._id })
-      }
+      const salesCenters = await SalesCenter.filterByUserRole(
+        { uuid: { $in: data.salesCenters } },
+        currentRole.slug,
+        user
+      )
       initialMatch['salesCenter'] = { $in: salesCenters }
     }
 
@@ -104,35 +96,39 @@ module.exports = new Route({
 
     let matchPreviousSale = _.cloneDeep(initialMatch)
 
-    if (data.date_start && data.date_end) {
-      let start = moment.utc(data.date_start, 'YYYY-MM-DD')
-      let end = moment.utc(data.date_end, 'YYYY-MM-DD')
+    let start = moment.utc(data.date_start, 'YYYY-MM-DD')
+    let end = moment.utc(data.date_end, 'YYYY-MM-DD')
 
-      let weeks = await AbraxasDate.find({
-        $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}]
-      })
-
-      initialMatch['data.forecastDate'] = {$in: weeks.map(item => { return item.dateStart })}
-
-      start = moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years')
-      end = moment.utc(data.date_start, 'YYYY-MM-DD')
-
-      weeks = await AbraxasDate.find({
-        $and: [{dateStart: {$gte: start.toDate()}}, {dateEnd: {$lte: end.toDate()}}]
-      })
-
-      matchPreviousSale['data.forecastDate'] = { $in: weeks.map(item => { return item.dateStart }) }
-    } else {
-      ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
+    let weeks = await Cycle.find({
+      $and: [{
+        dateStart: { $gte: data.date_start }
+      }, {
+          dateEnd: { $lte: data.date_end }
+      }]
+    })
+    initialMatch['data.forecastDate'] = {
+      $in: weeks.map(item => { return item.dateStart })
     }
 
-    let match = [
-      {
+    start = moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years')
+    end = moment.utc(data.date_start, 'YYYY-MM-DD')
+
+    weeks = await Cycle.find({
+      $and: [{
+        dateStart: { $gte: start.toDate() }
+      }, {
+        dateEnd: { $lte: end.toDate() }
+      }]
+    })
+    matchPreviousSale['data.forecastDate'] = {
+      $in: weeks.map(item => { return item.dateStart })
+    }
+
+    let match = [{
         '$match': {
           ...initialMatch
         }
-      },
-      {
+      }, {
         '$group': {
           _id: key,
           prediction: { $sum: '$data.prediction' },
@@ -153,13 +149,11 @@ module.exports = new Route({
       }
     ]
 
-    matchPreviousSale = [
-      {
+    matchPreviousSale = [{
         '$match': {
           ...matchPreviousSale
         }
-      },
-      {
+      }, {
         '$group': {
           _id: key,
           sale: { $sum: '$data.sale' }
