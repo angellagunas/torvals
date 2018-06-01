@@ -46,6 +46,16 @@ class Periods extends Component {
 
   async selectChangeHandler(name, value) {
     let aux = this.state.timesSelected
+    aux.periodDuration = 1
+    if(name === 'cycle'){
+      if(value === 'd'){
+        aux.period = 'd'
+      }
+      else{
+      let times = this.getTimes(value)
+        aux.period = times[times.length - 2].value
+      }
+    }
     aux[name] = value
     this.setState({
       timesSelected: aux
@@ -55,10 +65,11 @@ class Periods extends Component {
   getTimes(value) {
     let values = []
     for (let i = 0; i < this.times.length; i++) {
+      values.push(this.times[i])
       if (this.times[i].value === value) {
         break
       }
-      values.push(this.times[i])
+      
     }
     return values
   }
@@ -76,17 +87,17 @@ class Periods extends Component {
     let aux = this.state.timesSelected
     value = value.replace(/\D/, '')
 
-    if (name === 'cyclesAvailable'){
-      if(Number(value) < 2) {
-      this.setState({
-        help: {
-          ...this.state.help,
-          cyclesAvailable: 'help is-danger'
-        },
-        disableBtn: true
-      })
-    }
-    else{
+    if (name === 'cyclesAvailable') {
+      if (Number(value) < 2) {
+        this.setState({
+          help: {
+            ...this.state.help,
+            cyclesAvailable: 'help is-danger'
+          },
+          disableBtn: true
+        })
+      }
+      else {
         this.setState({
           help: {
             ...this.state.help,
@@ -94,8 +105,54 @@ class Periods extends Component {
           },
           disableBtn: false
         })
+      }
     }
-  }
+    
+    else if (name === 'periodDuration') {
+      console.log(this.state.timesSelected.cycle,this.state.timesSelected.period)
+      if (this.state.timesSelected.cycle === this.state.timesSelected.period) {
+        if (Number(value) > Number(this.state.timesSelected.cycleDuration)) {
+          value = Number(this.state.timesSelected.cycleDuration)
+          console.log(value)
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'y') {
+        if (this.state.timesSelected.period === 'M') {
+          if (Number(value) > 12) {
+            value = 12
+          }
+        }
+        else if (this.state.timesSelected.period === 'w') {
+          if (Number(value) > 53) {
+            value = 53
+          }
+        }
+        else if (this.state.timesSelected.period === 'd') {
+          if (Number(value) > 365) {
+            value = 365
+          }
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'M') {
+        if (this.state.timesSelected.period === 'w') {
+          if (Number(value) > 5) {
+            value = 5
+          }
+        }
+        else if (this.state.timesSelected.period === 'd') {
+          if (Number(value) > 31) {
+            value = 31
+          }
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'w') {
+        if (this.state.timesSelected.period === 'd') {
+          if (Number(value) > 7) {
+            value = 7
+          }
+        }
+      }
+    }
 
     aux[name] = value
     aux['season'] = aux.cyclesAvailable * 2
@@ -103,6 +160,12 @@ class Periods extends Component {
     this.setState({
       timesSelected: aux
     })
+  }
+
+  blurDefault (name, value){
+    if(value === ''){
+      this.handleInputChange(name, '1')
+    }
   }
 
   render() {
@@ -129,7 +192,8 @@ class Periods extends Component {
                             <input className='input' type='text' placeholder='Ejem. 1'
                               name='cycleDuration'
                               value={this.state.timesSelected.cycleDuration}
-                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
+                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }}
+                              onBlur={(e) => { this.blurDefault(e.target.name, e.target.value) }} />
                           </div>
                         </div>
                       </div>
@@ -157,7 +221,8 @@ class Periods extends Component {
                             <input className='input' type='text' placeholder='Ejem. 1'
                               name='periodDuration'
                               value={this.state.timesSelected.periodDuration}
-                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
+                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} 
+                              onBlur={(e) => { this.blurDefault(e.target.name, e.target.value) }}/>
                           </div>
                         </div>
 
@@ -202,9 +267,6 @@ class Periods extends Component {
                           </div>
                         </div>
                       </div>
-                      {/* <div className='control'>
-                        <p>El primer ciclo disponible siempre será el actual</p>
-                      </div> */}
                     </div>
 
                     <div className='field has-addons'>
