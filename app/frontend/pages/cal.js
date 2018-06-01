@@ -136,7 +136,7 @@ class Cal extends Component {
         let w = this.dateFromNum(item.value).format('W')
         numbers.push(Number(w))
         weeks[w] =
-          <div key={key} className='calendar-date'>
+          <div key={'week' + w} className='calendar-date'>
             <button className='date-item week-number tooltip'
               data-tooltip={'Semana ' + w}>
               {w}
@@ -165,7 +165,7 @@ class Cal extends Component {
         let calDate = this.state.dates[dayDate]
         if (calDate) {
           calendar.push(
-            <div key={key} className={
+            <div key={dayDate} className={
               classNames('calendar-date', {
                 'is-disabled': !item.available,
                 'calendar-range': calDate.isRange,
@@ -205,7 +205,7 @@ class Cal extends Component {
         }
       } else {
         calendar.push(
-          <div className='calendar-date'>
+          <div key={key} className='calendar-date'>
             <button className='date-item calendar-not' />
           </div>
         )
@@ -252,7 +252,7 @@ class Cal extends Component {
                 <div className='calendar-header'>
                   {this.state.weekDayHeader.map((item, key) => {
                     return (
-                      <div key={key} className='calendar-date'>{item}</div>
+                      <div key={item} className='calendar-date'>{item}</div>
                     )
                   })}
                 </div>

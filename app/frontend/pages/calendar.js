@@ -4,9 +4,7 @@ import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
 import api from '~base/api'
 import moment from 'moment'
-import CalendarItem from './calendar-item'
 import Loader from '~base/components/spinner'
-import Carousel from './carousel'
 import Checkbox from '~base/components/base-checkbox'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import Select from './projects/detail-tabs/select'
@@ -48,90 +46,9 @@ class Calendar extends Component {
       selectedCycle: ''
     }
   }
-  async getDates () {
-    const map = new Map()
-    this.state.data.map((date) => {
-      if (date.year === this.state.selectedYear) {
-        const key = date.month
-        const collection = map.get(key)
-        if (!collection) {
-          map.set(key, [date])
-        } else {
-          collection.push(date)
-        }
-      }
-    })
-
-    var periods = []
-
-    for (let i = 0; i < Array.from(map).length; i++) {
-      const element = Array.from(map)[i]
-      periods.push({
-        name: `Periodo ${moment.utc(element[1][0].month, 'M').format('MMMM')}`,
-        month: element[1][0].month,
-        weeks: element[1]
-      })
-    }
-
-    let currentMonth = 0
-    let month = moment.utc().month()
-    for (let i = 0; i < Array.from(map).length; i++) {
-      const element = Array.from(map)[i]
-      if (element[0] === month) {
-        currentMonth = i
-      }
-    }
-
-    periods = _.orderBy(periods, ['month'], ['asc'])
-
-    this.setState({
-      periods: periods,
-      currentMonth: currentMonth
-    })
-  }
-
-  async getYears () {
-    let url = '/app/dates'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'year'
-    })
-    let years = new Set()
-
-    res.data.map((date) => {
-      years.add(date.year)
-    })
-
-    this.setState({
-      years: Array.from(years),
-      data: res.data
-    }, () => {
-      this.getDates()
-    })
-  }
 
   componentWillMount () {
-    this.getYears()
     this.getPeriods()
-  }
-
-  getCarouselItems () {
-    let items = this.state.periods.map((item, key) => {
-      let min = moment.utc(item.weeks[1].dateStart)
-      return (
-        <CalendarItem
-          key={key}
-          showWeekNumbers={this.state.showWeekNumbers}
-          weeks={item.weeks}
-          openToDate={min}
-        />
-      )
-    })
-
-    items.push(<div key={this.state.periods.length + 1} className='notification vertical'>No hay más información que mostrar</div>)
-
-    return items
   }
 
   showWeeks () {
@@ -145,16 +62,12 @@ class Calendar extends Component {
       this.setState({
         selectedYear: value
       }, () => {
-        this.getDates()
         this.getPeriods()
       })
     } else if (name === 'cycle') {
       this.setState({
         selectedCycle: value
-      }/* , () => {
-        this.getDates()
-        this.getPeriods()
-      } */)
+      })
     }
   }
 
@@ -172,7 +85,8 @@ class Calendar extends Component {
         .filter((item) => { return moment.utc(item.periods[0].dateEnd).get('year') === this.state.selectedYear })
 
       this.setState({
-        cycles: cycles
+        cycles: cycles,
+        years: res.years
       })
     }
   }
@@ -224,7 +138,7 @@ class Calendar extends Component {
       rangeClassStart: colors[key].rangeClassStart
     }
 
-    while (s.format() !== e.format()) {
+    while (s.format('YYYY-MM-DD') !== e.format('YYYY-MM-DD')) {
       s = s.add(1, 'day')
       range[s.format('YYYY-MM-DD')] = {
         date: s,
@@ -279,16 +193,7 @@ class Calendar extends Component {
     })
 
     if (res) {
-      let cycles = this.state.cycles
-      for (const c of cycles) {
-        if (Number(c.cycle) === Number(item.cycle.cycle)) {
-          c.periods[key] = res.data
-          break
-        }
-      }
-      this.setState({
-        cycles: cycles
-      })
+      this.getPeriods()
     }
   }
 
@@ -303,21 +208,12 @@ class Calendar extends Component {
     })
 
     if (res) {
-      let cycles = this.state.cycles
-      for (const c of cycles) {
-        if (Number(c.cycle) === Number(cycle.cycle)) {
-          c.periods[0].cycle = res.data
-          break
-        }
-      }
-      this.setState({
-        cycles: cycles
-      })
+      this.getPeriods()
     }
   }
 
   render () {
-    if (!this.state.periods) {
+    if (!this.state.cycles) {
       return <Loader />
     }
 
@@ -392,6 +288,7 @@ class Calendar extends Component {
                 return (
                   <div key={key} className='column is-narrow'>
                     <Cal
+                      key={key}
                       showWeekNumber={this.state.showWeekNumbers}
                       date={date}
                       minDate={date}
@@ -401,7 +298,7 @@ class Calendar extends Component {
                 )
               } else if (item.cycle === this.state.selectedCycle) {
                 return (
-                  <div className='columns'>
+                  <div key={key} className='columns'>
                     <div className='column'>
                       <div className='field'>
                         <label className='label'>Inicio de ciclo</label>
@@ -422,7 +319,7 @@ class Calendar extends Component {
                       <hr />
                       {item.periods.map((item, key) => {
                         return (
-                          <div key={key} className='field'>
+                          <div key={moment.utc(item.dateStart).format('YYYY-MM-DD')} className='field'>
                             <label className='label'>Periodo {key + 1}</label>
                             <div className='control'>
                               <div className='field is-grouped'>
@@ -454,6 +351,7 @@ class Calendar extends Component {
                     </div>
                     <div className='column is-narrow'>
                       <Cal
+                        key={key}
                         showWeekNumber={this.state.showWeekNumbers}
                         date={date}
                         // minDate={date}
