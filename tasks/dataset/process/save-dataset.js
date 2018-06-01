@@ -102,19 +102,35 @@ const task = new Task(
             continue
           }
 
+          let adjustment = obj[adjustmentColumn.name] || '0'
+          let prediction = obj[predictionColumn.name] || '0'
+
+          if (adjustment === 'NA') adjustment = 0
+          if (prediction === 'NA') prediction = 0
+
+          try {
+            adjustment = parseInt(adjustment)
+            prediction = parseInt(prediction)
+          } catch (e) {
+            console.log('Error!')
+            console.log(e)
+
+            continue
+          }
+
           bulkOps.push({
             'organization': dataset.organization,
             'project': dataset.project,
             'dataset': dataset._id,
             'apiData': obj,
             'data': {
-              'prediction': obj[predictionColumn.name],
+              'prediction': prediction,
               'sale': obj[salesColumn.name] ? obj[salesColumn.name] : 0,
               'forecastDate': forecastDate,
               'semanaBimbo': obj.semana_bimbo,
-              'adjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-              'localAdjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-              'lastAdjustment': obj[adjustmentColumn.name] || undefined,
+              'adjustment': adjustment || prediction,
+              'localAdjustment': adjustment || prediction,
+              'lastAdjustment': adjustment || undefined,
               'productExternalId': obj[productExternalId.name],
               'salesCenterExternalId': obj[salesCenterExternalId.name],
               'channelExternalId': obj[channelExternalId.name]

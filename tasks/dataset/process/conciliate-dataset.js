@@ -2,7 +2,6 @@
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
-const _ = require('lodash')
 
 const Task = require('lib/task')
 const { DataSet, DataSetRow } = require('models')
@@ -46,11 +45,11 @@ const task = new Task(
 
     let match = {
       '$match': {
-        dataset: {$in: [dataset1._id, dataset1._id]}
+        dataset: {$in: [dataset1._id, dataset2._id]}
       }
     }
 
-    log([dataset1._id, dataset1._id])
+    log([dataset1._id, dataset2._id])
 
     const key = {
       date: '$data.forecastDate',
@@ -100,7 +99,6 @@ const task = new Task(
         status: 'conciliating'
       })
 
-      var bulkOpsEdit = []
       var bulkOpsNew = []
       for (let row = await rows.next(); row != null; row = await rows.next()) {
         if (row.status === 'adjusted') {
@@ -130,17 +128,6 @@ const task = new Task(
           bulkOpsNew = []
           i++
         }
-
-        if (bulkOpsEdit.length === batchSize) {
-          log(`${i} => ${batchSize} ops update => ${moment().format()}`)
-          await DataSetRow.bulkWrite(bulkOpsEdit)
-          bulkOpsEdit = []
-          i++
-        }
-      }
-
-      if (bulkOpsEdit.length > 0) {
-        await DataSetRow.bulkWrite(bulkOpsEdit)
       }
 
       if (bulkOpsNew.length > 0) {
@@ -180,6 +167,8 @@ const task = new Task(
 
       log(`Successfully conciliated datasets ${dataset1.name} & ${dataset2.name}`)
 
+      log(`End ==> ${moment().format()}`)
+
       return newDataset.uuid
     } catch (e) {
       console.log(e)
@@ -192,10 +181,6 @@ const task = new Task(
 
       return false
     }
-
-    log(`End ==> ${moment().format()}`)
-
-    return true
   }
 )
 

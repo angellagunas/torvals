@@ -36,6 +36,10 @@ const task = new Task(
       throw new Error('Invalid project or dataset!')
     }
 
+    if (String(dataset.project) !== String(project._id)) {
+      throw new Error('Cannot conciliate a dataset from another project!')
+    }
+
     if (!project.mainDataset) {
       project.set({
         mainDataset: dataset._id,
@@ -62,7 +66,14 @@ const task = new Task(
         dataset2: dataset.uuid
       })
 
-      console.log(newDataset)
+      newDataset = await DataSet.findOne({uuid: newDataset})
+      project.set({
+        mainDataset: newDataset._id,
+        dateMin: moment.utc(newDataset.dateMin, 'YYYY-MM-DD'),
+        dateMax: moment.utc(newDataset.dateMax, 'YYYY-MM-DD')
+      })
+
+      await project.save()
 
       log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
     } catch (e) {
