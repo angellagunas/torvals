@@ -19,6 +19,7 @@ const task = new Task(
     const cycle = organization.rules.cycle
     const season = organization.rules.season
     const cyclesAvailable = organization.rules.cyclesAvailable
+    const takeStart = organization.rules.takeStart
 
     await Cycle.deleteMany({organization: organization._id})
 
@@ -39,18 +40,34 @@ const task = new Task(
     }
 
     currentDateDiff += cyclesAvailable
-
+    var previousYear
+    var cycleNumber
     for (let i = 1; i <= currentDateDiff; i++) {
       let endDate = moment(startDate).utc().add(cycleDuration, cycle)
       endDate = moment(endDate).utc().subtract(1, 'd')
+      let startYear = moment(startDate).format('YYYY')
+      let endYear = moment(endDate).format('YYYY')
+
+      if (startYear !== endYear) {
+        if (takeStart) {
+          cycleNumber = 1
+        } else {
+          cycleNumber++
+        }
+      } else if (previousYear !== endYear) {
+        cycleNumber = 1
+      } else {
+        cycleNumber++
+      }
 
       await Cycle.create({
         organization: organization._id,
         dateStart: startDate,
         dateEnd: endDate,
-        cycle: i
+        cycle: cycleNumber
       })
 
+      previousYear = endYear
       startDate = moment(endDate).utc().add(1, 'd')
     }
     await generatePeriods.run({uuid: organization.uuid})
