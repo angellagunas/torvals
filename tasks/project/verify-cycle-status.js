@@ -20,8 +20,7 @@ const task = new Task(async function (argv) {
   }
 
   for (var project of projects) {
-    if (project.organization.rules && project.organization.rules.salesUpload && project.organization.rules.forecastCreation &&
-      project.organization.rules.rangeAdjustment && project.organization.rules.rangeAdjustmentRequest && project.organization.rules.consolidation) {
+    if (project.organization.rules) {
       let sales = project.organization.rules.salesUpload
       let forecast = project.organization.rules.forecastCreation + sales
       let adjustment = project.organization.rules.rangeAdjustment + forecast
