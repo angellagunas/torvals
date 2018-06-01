@@ -35,6 +35,7 @@ const projectSchema = new Schema({
   cycleStatus: {
     type: String,
     enum: [
+      'empty',
       'consolidation',
       'forecastCreation',
       'rangeAdjustmentRequest',
