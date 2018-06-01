@@ -122,7 +122,7 @@ const task = new Task(
       await project.save()
 
       log(`Successfully generated dataset ${dataset.name} for adjustment`)
-      getAnomalies.add({uuid: project.uuid})
+      // getAnomalies.add({uuid: project.uuid})
     } catch (e) {
       log(e)
       dataset.set({

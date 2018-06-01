@@ -99,6 +99,8 @@ const dataSetSchema = new Schema({
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
   catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
+  cycles: [{ type: Schema.Types.ObjectId, ref: 'Cycle' }],
+  periods: [{ type: Schema.Types.ObjectId, ref: 'Period' }],
 
   apiData: { type: Schema.Types.Mixed },
   dateCreated: { type: Date, default: moment.utc },
@@ -405,18 +407,14 @@ dataSetSchema.methods.processData = async function () {
   }
 
   for (let catalog of this.organization.rules.catalogs) {
-    console.log(catalog)
     if (this.apiData[catalog]) {
       for (let data of this.apiData[catalog]) {
-        console.log(data)
         pos = this.catalogItems.findIndex(item => {
           return (
             String(item.externalId) === String(data._id) &&
             item.type === catalog
           )
         })
-
-        console.log(pos)
 
         if (pos < 0) {
           let cItem = await CatalogItem.findOne({

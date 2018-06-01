@@ -27,9 +27,23 @@ module.exports = new Route({
             }
           })
           updateBulk.push({
-            updateOne: {
-              'filter': {_id: anomaly.datasetRow},
-              'update': {$set: { isAnomaly: false, 'data.prediction': anomaly.prediction }}
+            'organization': anomaly.organization,
+            'project': anomaly.project,
+            'dataset': project.activeDataset._id,
+            'apiData': anomaly.apiData,
+            'product': anomaly.product,
+            'salesCenter': anomaly.salesCenter,
+            'channel': anomaly.channel,
+            'cycle': anomaly.cycle,
+            'period': anomaly.period,
+            'data': {
+              ...anomaly.data,
+              'prediction': anomaly.prediction,
+              'sale': anomaly.data.sale,
+              'forecastDate': anomaly.date,
+              'semanaBimbo': anomaly.data.semanaBimbo,
+              'adjustment': anomaly.prediction,
+              'localAdjustment': anomaly.prediction
             }
           })
         }
@@ -38,7 +52,7 @@ module.exports = new Route({
           console.log(`${batchSize} anomalies saved!`)
           await Anomaly.bulkWrite(bulkOps)
           bulkOps = []
-          await DataSetRow.bulkWrite(updateBulk)
+          await DataSetRow.insertMany(updateBulk)
           updateBulk = []
         }
       } catch (e) {
@@ -49,19 +63,19 @@ module.exports = new Route({
     try {
       if (bulkOps.length > 0) {
         await Anomaly.bulkWrite(bulkOps)
-        await DataSetRow.bulkWrite(updateBulk)
+        await DataSetRow.insertMany(updateBulk)
       }
     } catch (e) {
       ctx.throw(500, 'Error recuperando las anomalías')
     }
 
-    project.activeDataset.set({status: 'conciliating'})
-    await project.activeDataset.save()
+    // project.activeDataset.set({status: 'conciliating'})
+    // await project.activeDataset.save()
 
-    project.set({status: 'conciliating'})
-    await project.save()
+    // project.set({status: 'conciliating'})
+    // await project.save()
 
-    conciliateDataset.add({project: project.uuid, dataset: project.activeDataset.uuid})
+    // conciliateDataset.add({project: project.uuid, dataset: project.activeDataset.uuid})
 
     ctx.body = {
       data: 'ok'

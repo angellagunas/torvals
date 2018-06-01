@@ -1,16 +1,15 @@
 const Route = require('lib/router/route')
 
-const { Product, Channel, DataSet, Anomaly, SalesCenter, Project } = require('models')
+const { Product, Channel, Anomaly, SalesCenter, Project } = require('models')
 
 module.exports = new Route({
   method: 'get',
   path: '/list/:uuid',
   handler: async function (ctx) {
     var filters = {}
-    const project = await Project.findOne({uuid: ctx.params.uuid}).populate('activeDataset')
+    const project = await Project.findOne({uuid: ctx.params.uuid})
 
     ctx.assert(project, 404, 'Proyecto no encontrado')
-    ctx.assert(project.mainDataset, 404, 'No hay DataSet activo')
 
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
@@ -132,8 +131,7 @@ module.exports = new Route({
         isDeleted: false,
         ...filters,
         organization: ctx.state.organization._id,
-        project: project._id,
-        dataset: project.activeDataset._id
+        project: project._id
       },
       sort: ctx.request.query.sort || '-dateCreated',
       populate: ['salesCenter', 'product', 'channel', 'dataset', 'organization']
