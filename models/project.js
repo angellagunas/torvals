@@ -32,7 +32,17 @@ const projectSchema = new Schema({
     ],
     default: 'empty'
   },
-
+  cycleStatus: {
+    type: String,
+    enum: [
+      'consolidation',
+      'forecastCreation',
+      'rangeAdjustmentRequest',
+      'rangeAdjustment',
+      'salesUpload'
+    ],
+    default: 'empty'
+  },
   description: { type: String },
   externalId: { type: String },
   adjustment: { type: Number },
