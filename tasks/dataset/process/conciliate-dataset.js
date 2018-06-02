@@ -56,7 +56,7 @@ const task = new Task(
       product: '$product',
       salesCenter: '$salesCenter',
       channel: '$channel',
-      week: '$data.semanaBimbo'
+      period: '$period'
     }
 
     match = [
