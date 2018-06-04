@@ -192,7 +192,7 @@ class GroupDetail extends Component {
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.addToGroup(row.uuid) }}>
-              Agregar al grupo
+              Agregar
             </button>
           )
         }
