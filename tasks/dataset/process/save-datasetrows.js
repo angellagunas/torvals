@@ -22,7 +22,7 @@ const task = new Task(
     log('Saving products/sales centers/channels from catalog ...')
     log(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('channels products salesCenters newChannels newProducts newSalesCenters')
+    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('channels products salesCenters newChannels newProducts newSalesCenters cycles periods')
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
@@ -46,17 +46,27 @@ const task = new Task(
     log('Sales Centers successfully saved!')
 
     log('Saving cycles...')
-    if (!dataset.cycles == null) {
+    if (dataset.cycles) {
       for (let cycle of dataset.cycles) {
-        await DataSetRow.update({dataset: dataset._id, 'data.forecastDate': { $gte: cycle.dateStart, $lte: cycle.dateEnd}}, {cycle: cycle._id}, {multi: true})
+        await DataSetRow.update({
+          dataset: dataset._id,
+          'data.forecastDate': { $gte: moment(cycle.dateStart).utc().format('YYYY-MM-DD'), $lte: moment(cycle.dateEnd).utc().format('YYYY-MM-DD') }
+        },
+        {cycle: cycle._id},
+        {multi: true})
       }
     }
     log('Cycles successfully saved!')
 
     log('Saving periods...')
-    if (!dataset.periods == null) {
+    if (dataset.periods) {
       for (let period of dataset.periods) {
-        await DataSetRow.update({dataset: dataset._id, 'data.forecastDate': { $gte: period.dateStart, $lte: period.dateEnd}}, {period: period._id}, {multi: true})
+        await DataSetRow.update({
+          dataset: dataset._id,
+          'data.forecastDate': { $gte: moment(period.dateStart).utc().format('YYYY-MM-DD'), $lte: moment(period.dateEnd).utc().format('YYYY-MM-DD') }
+        },
+        {period: period._id},
+        {multi: true})
       }
     }
     log('Periods successfully saved!')

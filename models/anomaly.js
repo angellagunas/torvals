@@ -11,7 +11,6 @@ const anomalySchema = new Schema({
   date: { type: Date },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
-  dataset: { type: Schema.Types.ObjectId, ref: 'DataSet', required: true },
   project: { type: Schema.Types.ObjectId, ref: 'Project' },
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
   salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
@@ -19,9 +18,11 @@ const anomalySchema = new Schema({
   externalId: { type: String },
   prediction: { type: Number },
   semanaBimbo: { type: Number },
-  datasetRow: {type: Schema.Types.ObjectId, ref: 'DataSetRow', required: true},
   type: { type: String },
-  apiData: {type: Schema.Types.Mixed}
+  apiData: {type: Schema.Types.Mixed},
+  data: {type: Schema.Types.Mixed},
+  cycle: { type: Schema.Types.ObjectId, ref: 'Cycle' },
+  period: { type: Schema.Types.ObjectId, ref: 'Period' }
 }, { usePushEach: true })
 
 anomalySchema.plugin(dataTables)
@@ -32,11 +33,11 @@ anomalySchema.methods.toPublic = function () {
     dateCreated: this.dateCreated,
     product: this.product,
     salesCenter: this.salesCenter,
-    status: this.status,
     prediction: this.prediction,
     channel: this.channel,
     organization: this.organization,
     semanaBimbo: this.semanaBimbo,
+    date: this.date,
     type: this.type
   }
 }
@@ -47,11 +48,11 @@ anomalySchema.methods.toAdmin = function () {
     dateCreated: this.dateCreated,
     product: this.product,
     salesCenter: this.salesCenter,
-    status: this.status,
     prediction: this.prediction,
     channel: this.channel,
     organization: this.organization,
     semanaBimbo: this.semanaBimbo,
+    date: this.date,
     type: this.type
   }
 }

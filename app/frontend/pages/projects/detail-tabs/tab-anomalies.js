@@ -243,11 +243,11 @@ class TabAnomalies extends Component {
       },
       {
         'title': 'Fecha',
-        'property': 'dateCreated',
+        'property': 'date',
         'default': 'N/A',
         'sortable': true,                                
         formatter: (row) => {
-          return moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
+          return moment.utc(row.date, 'YYYY-MM-DD').local().format('DD/MM/YYYY')
         }
       },
       {
