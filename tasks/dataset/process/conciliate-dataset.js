@@ -1,12 +1,10 @@
-// node tasks/dataset/process/conciliate-dataset.js --project uuid --dataset uuid [--batchSize batchSize]
+// node tasks/dataset/process/conciliate-dataset.js --dataset1 uuid --dataset2 uuid [--batchSize batchSize]
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
-const _ = require('lodash')
 
 const Task = require('lib/task')
-const { Project, DataSet, DataSetRow } = require('models')
-const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
+const { DataSet, DataSetRow } = require('models')
 
 const task = new Task(
   async function (argv) {
@@ -17,12 +15,12 @@ const task = new Task(
     }
 
     var batchSize = 10000
-    if (!argv.project) {
-      throw new Error('You need to provide a project!')
+    if (!argv.dataset1) {
+      throw new Error('You need to provide two datasets!')
     }
 
-    if (!argv.dataset) {
-      throw new Error('You need to provide a dataset!')
+    if (!argv.dataset2) {
+      throw new Error('You need to provide two datasets!')
     }
 
     if (argv.batchSize) {
@@ -34,50 +32,31 @@ const task = new Task(
     }
 
     let i = 0
-    log('Fetching Dataset and project...')
+    log('Fetching Datasets ...')
     log(`Using batch size of ${batchSize}`)
     log(`Start ==>  ${moment().format()}`)
 
-    const project = await Project.findOne({uuid: argv.project}).populate('mainDataset')
-    const dataset = await DataSet.findOne({uuid: argv.dataset})
+    const dataset1 = await DataSet.findOne({uuid: argv.dataset1}).populate('project')
+    const dataset2 = await DataSet.findOne({uuid: argv.dataset2})
 
-    if (!project || !dataset) {
-      throw new Error('Invalid project or dataset!')
-    }
-
-    if (!project.mainDataset) {
-      project.set({
-        mainDataset: dataset._id,
-        status: 'pendingRows',
-        dateMin: moment.utc(dataset.dateMin, 'YYYY-MM-DD'),
-        dateMax: moment.utc(dataset.dateMax, 'YYYY-MM-DD')
-      })
-      dataset.set({
-        isMain: true,
-        status: 'ready'
-      })
-
-      await dataset.save()
-      await project.save()
-      log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
-      log(`End ==> ${moment().format()}`)
-      return true
+    if (!dataset1 || !dataset2) {
+      throw new Error('Invalid dataset!')
     }
 
     let match = {
       '$match': {
-        dataset: {$in: [project.mainDataset._id, dataset._id]}
+        dataset: {$in: [dataset1._id, dataset2._id]}
       }
     }
 
-    log([project.mainDataset._id, dataset._id])
+    log([dataset1._id, dataset2._id])
 
     const key = {
       date: '$data.forecastDate',
       product: '$product',
       salesCenter: '$salesCenter',
       channel: '$channel',
-      week: '$data.semanaBimbo'
+      period: '$period'
     }
 
     match = [
@@ -85,59 +64,63 @@ const task = new Task(
       {
         '$group': {
           _id: key,
-          mergedRows: { $mergeObjects: '$$ROOT' },
-          rows: { $push: '$$ROOT' }
+          mergedRows: { $mergeObjects: '$$ROOT' }
+          // rows: { $push: '$$ROOT' }
         }
-      }
+      },
+      { '$replaceRoot': { newRoot: '$mergedRows' } }
     ]
 
     log('Obtaining aggregate ...')
 
     try {
-      const rows = await DataSetRow.aggregate(match).allowDiskUse(true).cursor({batchSize: batchSize * 10}).exec()
+      const rows = await DataSetRow.aggregate(match).allowDiskUse(true)
+        .cursor({batchSize: batchSize * 10}).exec()
 
       log('Aggregate ready, transversing ...')
 
-      var bulkOpsEdit = []
+      let newDataset = await DataSet.create({
+        name: 'Main Dataset',
+        project: dataset1.project,
+        organization: dataset1.project.organization,
+        createdBy: dataset2.createdBy,
+        uploadedBy: dataset2.uploadedBy,
+        conciliatedBy: dataset2.conciliatedBy,
+        dateMax: dataset1.dateMax,
+        dateMin: dataset1.dateMin,
+        columns: dataset1.columns,
+        salesCenters: dataset1.salesCenters,
+        products: dataset1.products,
+        channels: dataset1.channels,
+        isMain: true,
+        groupings: dataset1.groupings,
+        apiData: dataset1.apiData,
+        source: 'conciliation',
+        status: 'conciliating'
+      })
+
       var bulkOpsNew = []
       for (let row = await rows.next(); row != null; row = await rows.next()) {
-        if (row.rows.length === 1) {
-          if (row.rows[0].dataset !== project.mainDataset._id) {
-            if (row.rows[0].status === 'adjusted') {
-              row.rows[0].data.lastAdjustment = row.data.adjustment
-            }
-
-            delete row.rows[0].adjustmentRequest
-            delete row.rows[0].isAnomaly
-            delete row.rows[0].isDeleted
-            delete row.rows[0].uuid
-            delete row.rows[0].status
-            delete row.rows[0].dateCreated
-
-            bulkOpsNew.push(
-              {
-                ...row.rows[0],
-                _id: undefined,
-                'organization': project.organization,
-                'project': project,
-                'dataset': project.mainDataset._id
-              })
-          }
-        } else {
-          let mainRow = _.findIndex(row.rows, {dataset: project.mainDataset._id})
-          let activeRow = (mainRow) ? 0 : 1
-          bulkOpsEdit.push({
-            updateOne: {
-              'filter': {_id: row.rows[mainRow]._id},
-              'update': {$set: {
-                'data.prediction': row.rows[activeRow].data.prediction,
-                'data.lastAdjustment': row.rows[activeRow].data.adjustment,
-                'data.adjustment': row.rows[activeRow].data.adjustment,
-                'isAnomaly': false
-              }}
-            }
-          })
+        if (row.status === 'adjusted') {
+          row.data.lastAdjustment = row.data.adjustment
         }
+
+        delete row.adjustmentRequest
+        delete row.isAnomaly
+        delete row.isDeleted
+        delete row.uuid
+        delete row.status
+        delete row.dateCreated
+
+        bulkOpsNew.push(
+          {
+            ...row,
+            _id: undefined,
+            'organization': dataset1.project.organization,
+            'project': dataset1.project,
+            'dataset': newDataset._id
+          }
+        )
 
         if (bulkOpsNew.length === batchSize) {
           log(`${i} => ${batchSize} ops new => ${moment().format()}`)
@@ -145,17 +128,6 @@ const task = new Task(
           bulkOpsNew = []
           i++
         }
-
-        if (bulkOpsEdit.length === batchSize) {
-          log(`${i} => ${batchSize} ops update => ${moment().format()}`)
-          await DataSetRow.bulkWrite(bulkOpsEdit)
-          bulkOpsEdit = []
-          i++
-        }
-      }
-
-      if (bulkOpsEdit.length > 0) {
-        await DataSetRow.bulkWrite(bulkOpsEdit)
       }
 
       if (bulkOpsNew.length > 0) {
@@ -164,95 +136,51 @@ const task = new Task(
 
       log('Obtaining max and min dates ...')
 
-      let maxDate = moment.utc(dataset.dateMax, 'YYYY-MM-DD')
-      let minDate = moment.utc(dataset.dateMin, 'YYYY-MM-DD')
+      let maxDate = moment.utc(dataset2.dateMax, 'YYYY-MM-DD')
+      let minDate = moment.utc(dataset2.dateMin, 'YYYY-MM-DD')
 
-      if (moment.utc(project.mainDataset.dateMin, 'YYYY-MM-DD').isBefore(minDate)) {
-        minDate = moment.utc(project.mainDataset.dateMin, 'YYYY-MM-DD')
+      if (moment.utc(dataset1.dateMin, 'YYYY-MM-DD').isBefore(minDate)) {
+        minDate = moment.utc(dataset1.dateMin, 'YYYY-MM-DD')
       }
 
-      if (moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD').isAfter(maxDate)) {
-        maxDate = moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD')
+      if (moment.utc(dataset1.dateMax, 'YYYY-MM-DD').isAfter(maxDate)) {
+        maxDate = moment.utc(dataset1.dateMax, 'YYYY-MM-DD')
       }
 
-      dataset.set({
+      newDataset.set({
+        dateMax: maxDate.format('YYYY-MM-DD'),
+        dateMin: minDate.format('YYYY-MM-DD'),
+        status: 'ready'
+      })
+
+      dataset2.set({
         status: 'conciliated'
       })
 
-      await dataset.save()
+      await dataset2.save()
+      await newDataset.save()
 
-      project.mainDataset.set({
+      dataset1.set({
         status: 'ready'
       })
-      await project.mainDataset.save()
+      await dataset1.save()
 
-      project.set({
-        status: 'pendingRows',
-        dateMax: maxDate,
-        dateMin: minDate
-      })
+      log(`Successfully conciliated datasets ${dataset1.name} & ${dataset2.name}`)
 
-      project.save()
+      log(`End ==> ${moment().format()}`)
 
-      log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
+      return newDataset.uuid
     } catch (e) {
       console.log(e)
-      dataset.set({
+      dataset2.set({
         status: 'error',
         error: e.message
       })
 
-      await dataset.save()
+      await dataset2.save()
 
       return false
     }
-
-    log(`End ==> ${moment().format()}`)
-
-    return true
-  },
-  async (argv) => {
-    if (!argv.project) {
-      throw new Error('You need to provide a project!')
-    }
-
-    if (!argv.dataset) {
-      throw new Error('You need to provide a dataset!')
-    }
-
-    const project = await Project.findOne({uuid: argv.project})
-    const dataset = await DataSet.findOne({uuid: argv.dataset})
-
-    if (!project || !dataset) {
-      throw new Error('Invalid project or dataset!')
-    }
-
-    sendSlackNotificacion.run({
-      channel: 'all',
-      message: `El dataset *${dataset.name}* ha iniciado el proceso de conciliacion ` +
-      `al proyecto *${project.name}*`
-    })
-  },
-  async (argv) => {
-    if (!argv.project) {
-      throw new Error('You need to provide a project!')
-    }
-
-    if (!argv.dataset) {
-      throw new Error('You need to provide a dataset!')
-    }
-
-    const project = await Project.findOne({uuid: argv.project})
-    const dataset = await DataSet.findOne({uuid: argv.dataset})
-
-    if (!project || !dataset) {
-      throw new Error('Invalid project or dataset!')
-    }
-
-    sendSlackNotificacion.run({
-      channel: 'all',
-      message: `El dataset *${dataset.name}* se ha conciliado al proyecto *${project.name}*`
-    })
   }
 )
 

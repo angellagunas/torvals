@@ -16,29 +16,32 @@ const catalogItemSchema = new Schema({
 catalogItemSchema.plugin(dataTables)
 
 catalogItemSchema.methods.toPublic = function () {
-  return {
+  let data = {
     uuid: this.uuid,
-    dateCreated: this.dateCreated,
-    week: this.week,
-    month: this.month,
-    year: this.year,
+    type: this.type,
+    name: this.name,
     externalId: this.externalId,
-    dateStart: this.dateStart,
-    dateEnd: this.dateEnd
+    isNewExternal: this.isNewExternal
   }
+
+  if (this.organization) { data.organization = this.organization.toPublic() }
+
+  return data
 }
 
 catalogItemSchema.methods.toAdmin = function () {
-  return {
+  let data = {
     uuid: this.uuid,
-    dateCreated: this.dateCreated,
-    week: this.week,
-    month: this.month,
-    year: this.year,
+    type: this.type,
+    name: this.name,
     externalId: this.externalId,
-    dateStart: this.dateStart,
-    dateEnd: this.dateEnd
+    isNewExternal: this.isNewExternal,
+    isDeleted: this.isDeleted
   }
+
+  if (this.organization) { data.organization = this.organization.toPublic() }
+
+  return data
 }
 
 catalogItemSchema.index({ isDeleted: -1, uuid: 1, organization: 1 }, {background: true})
