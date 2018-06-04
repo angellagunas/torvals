@@ -53,7 +53,7 @@ class ConfigureDatasetForm extends Component {
           return item.isSalesCenter
         }).name,
         isSalesCenterName: checkSalesCenterName ? checkSalesCenterName.name : '',
-        isSales: checkSales || '',
+        isSales: checkSales ? checkSales.name : '',
         isChannel: this.props.initialState.columns.find((item) => {
           return item.isChannel
         }).name,

@@ -7,7 +7,6 @@ const _ = require('lodash')
 const Task = require('lib/task')
 const { Organization, Project, DataSet, DataSetRow, Cycle } = require('models')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
-const getAnomalies = require('queues/get-anomalies')
 
 const task = new Task(
   async function (argv) {
@@ -96,7 +95,9 @@ const task = new Task(
             'cycle': row.cycle,
             'period': row.period,
             'data': row.data,
-            'apiData': row.apiData
+            'apiData': row.apiData,
+            'period': row.period,
+            'cycle': row.cycle
           }
       )
 
@@ -130,7 +131,6 @@ const task = new Task(
       await project.save()
 
       log(`Successfully generated dataset ${dataset.name} for adjustment`)
-      getAnomalies.add({uuid: project.uuid})
     } catch (e) {
       log(e)
       dataset.set({
@@ -159,7 +159,7 @@ const task = new Task(
     }
 
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `Se esta generando el dataset de ajuste del proyecto *${project.name}*`
     })
   },
@@ -175,7 +175,7 @@ const task = new Task(
     }
 
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset de ajuste del proyecto *${project.name}* se encuentra listo!`
     })
   }

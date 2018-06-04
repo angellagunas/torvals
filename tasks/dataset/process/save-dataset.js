@@ -102,19 +102,35 @@ const task = new Task(
             continue
           }
 
+          let adjustment = obj[adjustmentColumn.name] || '0'
+          let prediction = obj[predictionColumn.name] || '0'
+
+          if (adjustment === 'NA') adjustment = 0
+          if (prediction === 'NA') prediction = 0
+
+          try {
+            adjustment = parseInt(adjustment)
+            prediction = parseInt(prediction)
+          } catch (e) {
+            console.log('Error!')
+            console.log(e)
+
+            continue
+          }
+
           bulkOps.push({
             'organization': dataset.organization,
             'project': dataset.project,
             'dataset': dataset._id,
             'apiData': obj,
             'data': {
-              'prediction': obj[predictionColumn.name],
+              'prediction': prediction,
               'sale': obj[salesColumn.name] ? obj[salesColumn.name] : 0,
               'forecastDate': forecastDate,
               'semanaBimbo': obj.semana_bimbo,
-              'adjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-              'localAdjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-              'lastAdjustment': obj[adjustmentColumn.name] || undefined,
+              'adjustment': adjustment || prediction,
+              'localAdjustment': adjustment || prediction,
+              'lastAdjustment': adjustment || undefined,
               'productExternalId': obj[productExternalId.name],
               'salesCenterExternalId': obj[salesCenterExternalId.name],
               'channelExternalId': obj[channelExternalId.name]
@@ -137,7 +153,7 @@ const task = new Task(
       await dataset.save()
 
       await sendSlackNotification.run({
-        channel: 'opskamino',
+        channel: 'all',
         message: `Error al cargar el dataset *${dataset.name}* a la base de datos! ` +
         `*${e.message}*`
       })
@@ -160,7 +176,7 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotification.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha empezado a guardarse en base de datos.` +
       ` Fue cargado por *${dataset.uploadedBy.name}*`
     })
@@ -174,7 +190,7 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotification.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha sido cargado a la base de datos` +
       ` y se procederá a procesarse.`
     })

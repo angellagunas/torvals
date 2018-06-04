@@ -55,7 +55,7 @@ const task = new Task(
 
     let newProjectData = {
       status: 'cloning',
-      showOnDashboard: project.showOnDashboard,
+      showOnDashboard: false,
       etag: project.etag,
       dateMin: project.dateMin,
       dateMax: project.dateMax
@@ -181,7 +181,7 @@ const task = new Task(
     }
 
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `Se ha iniciado el proceso para generar un clon del proyecto *${project.name}*`
     })
   },
@@ -201,8 +201,13 @@ const task = new Task(
     }
 
     sendSlackNotificacion.run({
-      channel: 'opskamino',
-      message: `Se ha finalizado correctamente el proceso para generar un clon del proyecto *${project.name}*`
+      channel: 'all',
+      message: `Se ha finalizado correctamente el proceso para generar un ` +
+      `clon del proyecto *${project.name}* `,
+      attachment: {
+        title: 'Exito!',
+        image_url: 'https://i.imgur.com/GfHWtUx.gif'
+      }
     })
   }
 )

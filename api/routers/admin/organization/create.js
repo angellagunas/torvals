@@ -46,12 +46,12 @@ module.exports = new Route({
           season: 12,
           cyclesAvailable: 6,
           takeStart: true,
-          consolidation: 30,
-          forecastCreation: 12,
-          rangeAdjustmentRequest: 24,
-          rangeAdjustment: 18,
-          salesUpload: 6,
-          catalogs: ['products', 'sales']
+          consolidation: 6,
+          forecastCreation: 3,
+          rangeAdjustmentRequest: 6,
+          rangeAdjustment: 12,
+          salesUpload: 3,
+          catalogs: ['Producto', 'Centro de venta', 'Canal']
         }
       })
 

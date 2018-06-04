@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
+const slugify = require('underscore.string/slugify')
 const generateCycles = require('tasks/organization/generate-cycles')
 
 const {Organization, Period} = require('models')
@@ -76,7 +77,7 @@ module.exports = new Route({
       if (isNaN(data.consolidation) || data.consolidation <= 0) { ctx.throw(422, 'El valor de consolidar debe de ser númerico y mayor a 0') }
       if (isNaN(data.forecastCreation) || data.forecastCreation <= 0) { ctx.throw(422, 'El valor de forecast debe de ser númerico y mayor a 0') }
       if (isNaN(data.rangeAdjustmentRequest) || data.rangeAdjustmentRequest <= 0) { ctx.throw(422, 'El valor de ajuste debe de ser númerico y mayor a 0') }
-      if (isNaN(data.rangeAdjustmentRequest) || data.rangeAdjustmentRequest <= 0) { ctx.throw(422, 'El valor de aprobación debe de ser númerico y mayor a 0') }
+      if (isNaN(data.rangeAdjustment) || data.rangeAdjustment <= 0) { ctx.throw(422, 'El valor de aprobación debe de ser númerico y mayor a 0') }
       if (isNaN(data.salesUpload) || data.salesUpload <= 0) { ctx.throw(422, 'El valor de ventas debe de ser númerico y mayor a 0') }
 
       org.set({
@@ -93,7 +94,7 @@ module.exports = new Route({
     if (data.step === 4) {
       if (!Array.isArray(data.catalogs)) { ctx.throw(422, 'Catálogos tiene tipo inválido') }
 
-      let findProductsCatalog = data.catalogs.find(item => { return item === 'products' })
+      let findProductsCatalog = data.catalogs.find(item => { return slugify(item) === 'producto' || slugify(item) === 'productos' })
       if (findProductsCatalog === undefined) { ctx.throw(422, 'Se debe de agregar un catálogo de productos') }
 
       org.set({

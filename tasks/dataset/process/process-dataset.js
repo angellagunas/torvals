@@ -3,9 +3,10 @@ require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
 const _ = require('lodash')
+const slugify = require('underscore.string/slugify')
 
 const Task = require('lib/task')
-const { DataSet, DataSetRow } = require('models')
+const { DataSet, DataSetRow, Cycle, Period } = require('models')
 const saveDatasetRows = require('queues/save-datasetrows')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
@@ -24,7 +25,7 @@ const task = new Task(
     log('Processing Dataset...')
     log(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid})
+    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('organization')
 
     if (!dataset) {
       throw new Error('Invalid uuid!')
@@ -90,41 +91,57 @@ const task = new Task(
 
     let rows = await DataSetRow.aggregate(statement)
     let rowData = {
-      product: [],
-      agency: [],
-      channel: []
+      products: [],
+      salesCenters: [],
+      channels: []
     }
 
     for (let product of rows[0].products) {
-      let productIndex = _.findIndex(rowData['product'], { '_id': product._id })
+      let productIndex = _.findIndex(rowData['products'], { '_id': product._id })
       if (productIndex === -1) {
-        rowData['product'].push(product)
+        rowData['products'].push(product)
       } else {
-        if (!rowData['product'][productIndex].name && product.name) {
-          rowData['product'][productIndex].name = product.name
+        if (!rowData['products'][productIndex].name && product.name) {
+          rowData['products'][productIndex].name = product.name
         }
       }
     }
 
     for (let salesCenter of rows[0].salesCenters) {
-      let salesIndex = _.findIndex(rowData['agency'], { '_id': salesCenter._id })
+      let salesIndex = _.findIndex(rowData['salesCenters'], { '_id': salesCenter._id })
       if (salesIndex === -1) {
-        rowData['agency'].push(salesCenter)
+        rowData['salesCenters'].push(salesCenter)
       } else {
-        if (!rowData['agency'][salesIndex].name && salesCenter.name) {
-          rowData['agency'][salesIndex].name = salesCenter.name
+        if (!rowData['salesCenters'][salesIndex].name && salesCenter.name) {
+          rowData['salesCenters'][salesIndex].name = salesCenter.name
         }
       }
     }
 
     for (let channel of rows[0].channels) {
-      let channelIndex = _.findIndex(rowData['channel'], { '_id': channel._id })
+      let channelIndex = _.findIndex(rowData['channels'], { '_id': channel._id })
       if (channelIndex === -1) {
-        rowData['channel'].push(channel)
+        rowData['channels'].push(channel)
       } else {
-        if (!rowData['channel'][channelIndex].name && channel.name) {
-          rowData['channel'][channelIndex].name = channel.name
+        if (!rowData['channels'][channelIndex].name && channel.name) {
+          rowData['channels'][channelIndex].name = channel.name
         }
+      }
+    }
+
+    for (let catalog of dataset.organization.rules.catalogs) {
+      rowData[catalog] = []
+
+      if (slugify(catalog) === 'producto' || slugify(catalog) === 'productos') {
+        rowData[catalog] = rowData.products.map(item => { return item })
+      }
+
+      if (slugify(catalog) === 'centro-de-venta' || slugify(catalog) === 'centros-de-venta') {
+        rowData[catalog] = rowData.salesCenters.map(item => { return item })
+      }
+
+      if (slugify(catalog) === 'canal' || slugify(catalog) === 'canales') {
+        rowData[catalog] = rowData.channels.map(item => { return item })
       }
     }
 
@@ -146,21 +163,53 @@ const task = new Task(
     ]
 
     rows = await DataSetRow.aggregate(statement)
-    maxDate = rows[0].max
-    minDate = rows[0].min
+    maxDate = moment(rows[0].max).utc().format('YYYY-MM-DD')
+    minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
+
+    log('Obtaining cycles  ...')
+
+    var cycles = await Cycle.find({
+      organization: dataset.organization._id,
+      isDeleted: false,
+      dateStart: {$gte: minDate, $lte: maxDate}
+    })
+
+    cycles = cycles.map(item => {
+      return item._id
+    })
+
+    log('Obtaining periods  ...')
+
+    var periods = await Period.find({
+      organization: dataset.organization._id,
+      isDeleted: false,
+      dateStart: {$gte: minDate, $lte: maxDate}
+    })
+
+    periods = periods.map(item => {
+      return item._id
+    })
 
     const sendData = {
       data: rowData,
-      date_max: moment(maxDate).format('YYYY-MM-DD'),
-      date_min: moment(minDate).format('YYYY-MM-DD'),
+      date_max: maxDate,
+      date_min: minDate,
       config: {
         groupings: []
-      }
+      },
+      cycles: cycles,
+      periods: periods
     }
 
     log('Obtaining new products/sales centers/channels  ...')
 
-    await dataset.processReady(sendData)
+    try {
+      await dataset.processReady(sendData)
+    } catch (e) {
+      console.log(e)
+
+      return false
+    }
 
     log('Success! Dataset processed')
     log(`End ==>  ${moment().format()}`)
@@ -178,7 +227,7 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha empezado a procesarse.`
     })
   },
@@ -191,7 +240,7 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha terminado de procesarse.`
     })
   }
