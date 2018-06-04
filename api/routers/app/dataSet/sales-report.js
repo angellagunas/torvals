@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
 const { DataSet, SalesCenter, Channel, Product, DataSetRow, Role, Cycle, Period } = require('models')
-const ObjectId = require('mongodb').ObjectID
 
 module.exports = new Route({
   method: 'post',
