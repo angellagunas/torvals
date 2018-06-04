@@ -84,7 +84,8 @@ class Catalogs extends Component {
           {
             title: value,
             value: value.replace(/ /g, '_'),
-            checked: true
+            checked: true,
+            delete: true
           }),
         addCatalog: ''
       })
@@ -126,6 +127,18 @@ class Catalogs extends Component {
       }
     })
   }
+
+  removeItem (item) {
+    let catalogs = this.state.catalogs
+    let index = catalogs.indexOf(item)
+    if (index !== -1) {
+      delete catalogs[index]
+    }
+    this.setState({
+      catalogs
+    })
+  }
+
   render () {
     return (
       <div className='section pad-sides has-20-margin-top'>
@@ -157,13 +170,23 @@ class Catalogs extends Component {
                     this.state.catalogs.map((item, key) => {
                       return (
                         <div className='column is-3 is-capitalized' key={key}>
-                          <Checkbox
-                            key={key}
-                            label={item.title.replace(/_/g, ' ')}
-                            handleCheckboxChange={(e, value) => this.handleCheckboxChange(value, item)}
-                            checked={item.checked}
-                            disabled={item.disabled}
-                          />
+                          <div className='field is-grouped'>
+                            <div className='control'>
+                              <Checkbox
+                                key={key}
+                                label={item.title.replace(/_/g, ' ')}
+                                handleCheckboxChange={(e, value) => this.handleCheckboxChange(value, item)}
+                                checked={item.checked}
+                                disabled={item.disabled}
+                              />
+                            </div>
+                            <div className='control'>
+                              {item.delete &&
+                              <button className='delete is-small' onClick={() => { this.removeItem(item) }} />
+                              }
+                            </div>
+                          </div>
+
                         </div>
                       )
                     })

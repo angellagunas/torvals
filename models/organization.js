@@ -31,7 +31,8 @@ const organizationSchema = new Schema({
     takeStart: {type: Boolean, default: false},
     consolidation: {type: Number},
     forecastCreation: {type: Number},
-    rangeAdjustmentRequest: {type: Number},
+    rangeAdjustmentRequest: { type: Number },
+    rangeAdjustment: {type: Number},
     salesUpload: {type: Number},
     ranges: [{type: Number}],
     catalogs: [{ type: String }]

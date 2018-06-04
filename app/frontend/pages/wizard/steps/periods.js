@@ -4,6 +4,8 @@ import DatePicker from 'react-datepicker'
 import moment from 'moment'
 import 'react-datepicker/dist/react-datepicker.css'
 import CalendarRules from './calendar-rules';
+import { toast } from 'react-toastify'
+import Cal from '../../cal';
 
 class Periods extends Component {
   constructor(props) {
@@ -102,6 +104,14 @@ class Periods extends Component {
         value = 12
       }
       else {
+        if (value !== '' && Number(value) !== Number(this.props.rules.cycleDuration)) {
+          this.notify(
+            'El número de ciclos disponibles cambio, debe establecer los rangos de ajuste nuevamente.',
+            5000,
+            toast.TYPE.INFO
+          )
+        }
+
         this.setState({
           help: {
             ...this.state.help,
@@ -112,6 +122,13 @@ class Periods extends Component {
       }
     }
     else if (name === 'cycleDuration') {
+      if(value !== '' && Number(value) !== Number(this.props.rules.cycleDuration)){
+        this.notify(
+          'El ciclo cambio debe establecer los ciclos de operación nuevamente.',
+          5000,
+          toast.TYPE.INFO
+        )
+      }
       if (this.state.timesSelected.cycle === 'y') {
         if(Number(value) > 12){
           value = 12
@@ -189,6 +206,50 @@ class Periods extends Component {
     if(value === ''){
       this.handleInputChange(name, '1')
     }
+  }
+
+
+  next(){
+    this.props.nextStep(this.state.timesSelected)
+  }
+
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if (type === toast.TYPE.WARNING) {
+      className = 'has-bg-warning'
+    }
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false,
+        className: className
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false,
+        className: className
+      })
+    }
+  }
+
+  makeStartDate(date) {
+    let d = {}
+    d[moment.utc(date).format('YYYY-MM-DD')] = {
+      date: moment.utc(date),
+      isRange: false,
+      isRangeEnd: false,
+      isRangeStart: false,
+      isToday: true,
+      isActive: false,
+      isTooltip: true,
+      tooltipText: 'Inicio del ciclo'
+    }
+    return d
   }
 
   render() {
@@ -274,10 +335,7 @@ class Periods extends Component {
                               value={this.state.timesSelected.cyclesAvailable}
                               onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
                           </div>
-                          
-
                           <p className={this.state.help.cyclesAvailable}>Deben ser al menos 2 ciclos disponibles</p>
-
                         </div>
                       </div>
                       <div className='control'>
@@ -301,64 +359,59 @@ class Periods extends Component {
                         </div>
                       </div>
                     </div>
-                    <br/>
-                    
-                      <p className='control'>
+                    <br />
+
+                      <p>
                         <label className='radio'>
                           <input type='radio' name='takeStart' checked={this.state.timesSelected.takeStart}
-                            onChange={(e) => this.setState({
-                              timesSelected: {
-                                ...this.state.timesSelected,
-                                takeStart: true
-                              }
-                            })} />
+                          onChange={(e) => this.setState({
+                            timesSelected: {
+                              ...this.state.timesSelected,
+                              takeStart: true
+                            }
+                          })} />
                         <span>Usar la fecha de <strong className='has-text-info'>inicio</strong> del periodo para determinar el ciclo al que pertenece</span>
-                        </label>
-                      </p>
+                      </label>
+                    </p>
+                    <br />
 
-                      <p className='control'>
-
-                        <label className='radio'>
-                          <input type='radio' name='takeStart' checked={!this.state.timesSelected.takeStart}
-                            onChange={(e) => this.setState({
-                              timesSelected: {
-                                ...this.state.timesSelected,
-                                takeStart: false
-                              }
-                            })} />
+                    <p>
+                      <label className='radio'>
+                        <input type='radio' name='takeStart' checked={!this.state.timesSelected.takeStart}
+                          onChange={(e) => this.setState({
+                            timesSelected: {
+                              ...this.state.timesSelected,
+                              takeStart: false
+                            }
+                          })} />
                         <span>Usar la fecha <strong className='has-text-info'>final</strong> del periodo para determinar el ciclo al que pertenece</span>
-                        </label>
-                      </p>
-                    
-
+                      </label>
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-    
-
-          
           <div className='column is-offset-1'>
 
-            <CalendarRules
+            <Cal
+              showWeekNumber
               date={moment(this.state.timesSelected.startDate)}
-              today={moment(this.state.timesSelected.startDate)}
-              onChange={this.handleDateChange} />
+              dates={this.makeStartDate(this.state.timesSelected.startDate)}
+              onChange={this.handleDateChange}
+            />
+
           </div>
-          </div>
-
-
-
+        </div>
 
         <br />
         <center>
-        
-        <button disabled={this.state.disableBtn} onClick={() => this.props.nextStep(this.state.timesSelected)} 
-        className='button is-primary'>Guardar</button>
-          </center>
-      
+
+          <button disabled={this.state.disableBtn} onClick={() => this.next()}
+            className='button is-primary'>Guardar</button>
+        </center>
+
       </div>
     )
   }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import moment from 'moment'
-import CalendarRules from './calendar-rules'
+import DeadLines from './deadlines'
 
 const times = {
   'd': 'Día',
@@ -23,96 +23,8 @@ class Rules extends Component {
         rangeAdjustment: this.props.rules.rangeAdjustment || 0,
         rangeAdjustmentRequest: this.props.rules.rangeAdjustmentRequest || 0,
         consolidation: this.props.rules.cycleDuration * 31
-      },
-      dates: {
-        startDates: [],
-        endDates: [],
-        salesUpload: [],
-        forecastCreation: [],
-        rangeAdjustment: [],
-        rangeAdjustmentRequest: []
       }
     }
-  }
-
-  getStartDates () {
-    let start = []
-    let end = []
-
-    for (let i = 0; i < 12; i++) {
-      let date = moment(this.props.rules.startDate).add(i, 'month')
-      start.push(date.format('YYYY-MM-DD'))
-      if (i > 0) { end.push(date.add(-1, 'day').format('YYYY-MM-DD')) }
-    }
-
-    this.setState({
-      dates: {
-        ...this.state.dates,
-        startDates: start,
-        endDates: end
-      }
-    }, () => {
-      let aux = this.state.data
-      Object.keys(this.state.data).map(name => {
-        let num = this.state.data[name]
-
-        if (name === 'forecastCreation') {
-          num = num + aux.salesUpload
-        } else if (name === 'rangeAdjustment') {
-          num = num + aux.salesUpload + aux.forecastCreation
-        } else if (name === 'rangeAdjustmentRequest') {
-          num = num + aux.salesUpload + aux.forecastCreation + aux.rangeAdjustment
-        }
-
-        this.getDates(name, num)
-      })
-    })
-  }
-
-  getDates (name, num) {
-    if (num === 0) { return }
-    let dates = []
-    for (let i = 0; i < 12; i++) {
-      let date = moment(this.props.rules.startDate).add(i, 'month')
-      dates.push(date.add(num, 'day').format('YYYY-MM-DD'))
-    }
-
-    let aux = this.state.dates
-    aux[name] = dates
-
-    this.setState({
-      dates: aux
-    })
-  }
-
-  componentWillMount () {
-    this.setCalendar()
-  }
-
-  componentWillReceiveProps (next) {
-    if (this.props.rules.startDate !== next.rules.startDate ||
-      this.props.rules.salesUpload !== next.rules.salesUpload ||
-      this.props.rules.forecastCreation !== next.rules.forecastCreation ||
-      this.props.rules.rangeAdjustment !== next.rules.rangeAdjustment ||
-      this.props.rules.rangeAdjustmentRequest !== next.rules.rangeAdjustmentRequest) {
-      this.setCalendar()
-    }
-  }
-
-  setCalendar () {
-    let aux = this.state.data
-    aux.consolidation =
-      moment(this.props.rules.startDate).daysInMonth() - 1 -
-      aux.salesUpload -
-      aux.forecastCreation -
-      aux.rangeAdjustment -
-      aux.rangeAdjustmentRequest
-
-    this.setState({
-      data: aux
-    }, () => {
-      this.getStartDates()
-    })
   }
 
   render () {
@@ -168,12 +80,14 @@ class Rules extends Component {
                       Editar
                     </button>
                     {rules.ranges.map((item, key) => {
-                      return (
-                        <p key={key}>
+                      if (key < rules.cyclesAvailable) {
+                        return (
+                          <p key={key}>
                           Rango de ajuste permitido ciclo {key + 1}:
                           <span className='has-text-weight-bold is-capitalized'> {item !== null ? item + '%' : 'ilimitado'}</span>
-                        </p>
-                      )
+                          </p>
+                        )
+                      }
                     })}
 
                   </div>
@@ -214,11 +128,7 @@ class Rules extends Component {
 
                   </div>
                   <div className='column is-offset-1'>
-                    <CalendarRules
-                      disabled
-                      date={moment(rules.startDate)}
-                      limits={this.state.dates}
-                    />
+                    <DeadLines rules={rules} hideInputs />
                   </div>
                 </div>
               </div>

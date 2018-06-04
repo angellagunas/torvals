@@ -37,10 +37,10 @@ class Cal extends Component {
     clonedDate.add(num, 'month')
 
     if (this.state.minDate && this.state.maxDate) {
-      return clonedDate.isBetween(this.state.minDate, this.state.maxDate)
-    } else if (this.state.minDate && !this.state.maxDate) {
-      return clonedDate.isBefore(this.state.minDate)
+      return clonedDate.isBetween(this.state.minDate.clone().add(-1, 'M'), this.state.maxDate)
     } else if (!this.state.minDate && this.state.maxDate) {
+      return clonedDate.isBefore(this.state.minDate)
+    } else if (this.state.minDate && !this.state.maxDate) {
       return clonedDate.isAfter(this.state.maxDate)
     } else {
       return true
@@ -217,7 +217,7 @@ class Cal extends Component {
       <div>
         <div className='calendar'>
           <div className='calendar-nav'>
-            <div className={this.canChange(-1) ? 'calendar-nav-previous-month' : 'is-hidden'}>
+            <div className={this.canChange(-1) ? 'calendar-nav-previous-month' : 'is-invisible'}>
               <button className='button is-small is-primary'
                 onClick={() => { this.changeMonth(-1) }}>
                 <svg viewBox='0 0 50 80' space='preserve'>
@@ -226,7 +226,7 @@ class Cal extends Component {
               </button>
             </div>
             <div className='calendar-month is-capitalized'>{this.state.date.format('MMMM YYYY')}</div>
-            <div className={this.canChange(1) ? 'calendar-nav-next-month' : 'is-hidden'}>
+            <div className={this.canChange(1) ? 'calendar-nav-next-month' : 'is-invisible'}>
               <button className='button is-small is-primary' onClick={() => { this.changeMonth(1) }}>
                 <svg viewBox='0 0 50 80' space='preserve'>
                   <polyline fill='none' strokeWidth='.5em' strokeLinecap='round' strokeLinejoin='round' points='0.375,0.375 45.63,38.087 0.375,75.8 ' />
