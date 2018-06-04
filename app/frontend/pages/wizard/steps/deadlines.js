@@ -1,148 +1,315 @@
 import React, { Component } from 'react'
-import CalendarRules from './calendar-rules'
-import Moment from 'moment'
-import { extendMoment } from 'moment-range'
-const moment = extendMoment(Moment)
+import moment from 'moment'
+import Cal from '../../cal'
+import { toast } from 'react-toastify'
+
+const colors = {
+  1: {
+    rangeClass: 'calendar-range-forecast',
+    rangeClassStart: 'limit-forecast',
+    tooltip: 'crear y aprobar forecast'
+  },
+  2: {
+    rangeClass: 'calendar-range-sales',
+    rangeClassStart: 'limit-sales',
+    tooltip: 'subir ventas'
+  },
+  3: {
+    rangeClass: 'calendar-range-adjustments',
+    rangeClassStart: 'limit-adjustments',
+    tooltip: 'realizar ajustes'
+  },
+  4: {
+    rangeClass: 'calendar-range-approve',
+    rangeClassStart: 'limit-approve',
+    tooltip: 'aprobar ajustes'
+  },
+  5: {
+    rangeClass: 'calendar-range-consolidate',
+    rangeClassStart: 'limit-consolidate',
+    tooltip: 'consolidar'
+  }
+}
 
 class DeadLines extends Component {
   constructor (props) {
     super(props)
     this.state = {
       data: {
-        salesUpload: this.props.rules.salesUpload || 0,
-        forecastCreation: this.props.rules.forecastCreation || 0,
-        rangeAdjustment: this.props.rules.rangeAdjustment || 0,
-        rangeAdjustmentRequest: this.props.rules.rangeAdjustmentRequest || 0,
-        consolidation: this.props.rules.cycleDuration * 31
+        salesUpload: this.props.rules.salesUpload || 1,
+        forecastCreation: this.props.rules.forecastCreation || 1,
+        rangeAdjustment: this.props.rules.rangeAdjustment || 1,
+        rangeAdjustmentRequest: this.props.rules.rangeAdjustmentRequest || 1,
+        consolidation:
+          moment.utc(this.props.rules.startDate)
+            .add(this.props.rules.cycleDuration, this.props.rules.cycle)
+            .add(-1, 'days').diff(moment.utc(this.props.rules.startDate), 'days')
       },
-      dates: {
-        startDates: [],
-        endDates: [],
-        salesUpload: [],
-        forecastCreation: [],
-        rangeAdjustment: [],
-        rangeAdjustmentRequest: []
-      },
-      startDate: this.props.startDate
+      startDate: moment.utc(this.props.rules.startDate) || moment.utc(),
+      endDate: moment.utc(this.props.rules.startDate)
+      .add(this.props.rules.cycleDuration, this.props.rules.cycle)
+      .add(-1, 'days') || moment.utc().add(1, 'M')
     }
   }
 
   componentWillMount () {
-    let aux = this.state.data
-    aux.consolidation =
-      moment(this.props.startDate).daysInMonth() - 1 -
-      aux.salesUpload -
-      aux.forecastCreation -
-      aux.rangeAdjustment -
-      aux.rangeAdjustmentRequest
-
-    this.setState({
-      data: aux
-    }, () => {
-      this.getStartDates()
-    })
+    this.verifyCycle()
   }
 
-  getStartDates () {
-    let start = []
-    let end = []
+  verifyCycle () {
+    let cycleDays = moment.utc(this.props.rules.startDate)
+      .add(this.props.rules.cycleDuration, this.props.rules.cycle)
+      .add(-1, 'days').diff(moment.utc(this.props.rules.startDate), 'days')
 
-    for (let i = 0; i < 12; i++) {
-      let date = moment(this.props.startDate).add(i, 'month')
-      start.push(date.format('YYYY-MM-DD'))
-      if (i > 0) { end.push(date.add(-1, 'day').format('YYYY-MM-DD')) }
-    }
+    let d = this.state.data
 
-    this.setState({
-      dates: {
-        ...this.state.dates,
-        startDates: start,
-        endDates: end
-      }
-    }, () => {
-      let aux = this.state.data
-      Object.keys(this.state.data).map(name => {
-        let num = this.state.data[name]
+    let totalDays = d.salesUpload + d.forecastCreation + d.rangeAdjustment + d.rangeAdjustmentRequest
 
-        if (name === 'forecastCreation') {
-          num = num + aux.salesUpload
-        } else if (name === 'rangeAdjustment') {
-          num = num + aux.salesUpload + aux.forecastCreation
-        } else if (name === 'rangeAdjustmentRequest') {
-          num = num + aux.salesUpload + aux.forecastCreation + aux.rangeAdjustment
+    if (totalDays > cycleDays) {
+      this.notify(
+        'El ciclo cambió, debe establecer los ciclos de operación.',
+        5000,
+        toast.TYPE.INFO
+      )
+      this.setState({
+        data: {
+          step: 3,
+          salesUpload: 1,
+          forecastCreation: 1,
+          rangeAdjustment: 1,
+          rangeAdjustmentRequest: 1,
+          consolidation:
+            moment.utc(this.props.rules.startDate)
+              .add(this.props.rules.cycleDuration, this.props.rules.cycle)
+              .add(-5, 'days').diff(moment.utc(this.props.rules.startDate), 'days')
         }
-
-        this.getDates(name, num)
+      }, () => {
+        this.daysLeft()
       })
-    })
-  }
-
-  getDates (name, num) {
-    if (num === 0) { return }
-    let dates = []
-    for (let i = 0; i < 12; i++) {
-      let date = moment(this.props.startDate).add(i, 'month')
-      dates.push(date.add(num, 'day').format('YYYY-MM-DD'))
+    } else {
+      this.daysLeft()
     }
-
-    let aux = this.state.dates
-    aux[name] = dates
-
-    this.setState({
-      dates: aux
-    })
   }
 
   handleInputChange (name, value) {
     let aux = this.state.data
     value = value.replace(/\D/, '')
-    value = Number(value)
-    aux[name] = value
 
-    aux.consolidation =
-    moment(this.props.startDate).daysInMonth() - 1 -
-    aux.salesUpload -
-    aux.forecastCreation -
-    aux.rangeAdjustment -
-    aux.rangeAdjustmentRequest
+    aux[name] = Number(value)
 
     this.setState({
       data: aux
+    }, () => {
+      this.daysLeft()
     })
-
-    let num = value
-
-    if (name === 'forecastCreation') {
-      num = value + aux.salesUpload
-    } else if (name === 'rangeAdjustment') {
-      num = value + aux.salesUpload + aux.forecastCreation
-    } else if (name === 'rangeAdjustmentRequest') {
-      num = value + aux.salesUpload + aux.forecastCreation + aux.rangeAdjustment
-    }
-
-    this.getDates(name, num)
   }
 
   componentWillReceiveProps (next) {
-    if (this.state.startDate !== next.startDate) {
+    if (next.rules !== this.state.rules) {
       this.setState({
-        startDate: next.startDate
-      }, () => {
-        let aux = this.state.data
-        aux.consolidation =
-          moment(this.props.startDate).daysInMonth() - 1 -
-          aux.salesUpload -
-          aux.forecastCreation -
-          aux.rangeAdjustment -
-          aux.rangeAdjustmentRequest
+        data: {
+          salesUpload: next.rules.salesUpload || 1,
+          forecastCreation: next.rules.forecastCreation || 1,
+          rangeAdjustment: next.rules.rangeAdjustment || 1,
+          rangeAdjustmentRequest: next.rules.rangeAdjustmentRequest || 1,
+          consolidation:
+            moment.utc(next.rules.startDate)
+              .add(next.rules.cycleDuration, next.rules.cycle)
+              .add(-1, 'days').diff(moment.utc(next.rules.startDate), 'days')
+        },
+        startDate: moment.utc(next.rules.startDate) || moment.utc(),
+        endDate: moment.utc(next.rules.startDate)
+          .add(next.rules.cycleDuration, next.rules.cycle)
+          .add(-1, 'days') || moment.utc().add(1, 'M')
 
-        this.setState({
-          data: aux
-        }, () => {
-          this.getStartDates()
-        })
+      }, () => {
+        this.verifyCycle()
       })
     }
+  }
+
+  blurDefault (name, value) {
+    if (value === '') {
+      this.handleInputChange(name, '1')
+    }
+  }
+
+  makeStartDate (date) {
+    let d = {}
+    d[moment.utc(date).format('YYYY-MM-DD')] = {
+      date: moment.utc(date),
+      isRange: false,
+      isRangeEnd: false,
+      isRangeStart: false,
+      isToday: true,
+      isActive: false,
+      isTooltip: true,
+      tooltipText: 'Inicio del ciclo'
+    }
+    return d
+  }
+
+  makeEndDate (date) {
+    let d = {}
+    d[moment.utc(date).format('YYYY-MM-DD')] = {
+      date: moment.utc(date),
+      isRange: false,
+      isRangeEnd: false,
+      isRangeStart: false,
+      isToday: true,
+      isActive: false,
+      isTooltip: true,
+      tooltipText: 'Fin del ciclo'
+    }
+    return d
+  }
+
+  makeRange (start, end, key) {
+    let s = moment.utc(start)
+    let e = moment.utc(end)
+    let range = {}
+
+    while (s.format('YYYY-MM-DD') !== e.format('YYYY-MM-DD')) {
+      s = s.add(1, 'day')
+      range[s.format('YYYY-MM-DD')] = {
+        date: s,
+        isRange: true,
+        isRangeEnd: false,
+        isRangeStart: false,
+        isToday: false,
+        isActive: false,
+        isTooltip: true,
+        tooltipText: colors[key].tooltip,
+        rangeClass: colors[key].rangeClass
+      }
+    }
+
+    range[e.format('YYYY-MM-DD')] = {
+      date: s,
+      isRange: true,
+      isRangeEnd: true,
+      isRangeStart: false,
+      isToday: false,
+      isActive: true,
+      isTooltip: true,
+      rangeClass: colors[key].rangeClass,
+      rangeClassEnd: colors[key].rangeClassStart,
+      tooltipText: 'Límite para ' + colors[key].tooltip
+    }
+    return range
+  }
+
+  makeDates () {
+    let data = this.state.data
+    let dates = {}
+
+    let start = this.makeStartDate(this.state.startDate)
+    dates[Object.keys(start)[0]] = Object.values(start)[0]
+    let end = this.makeEndDate(this.state.endDate)
+    dates[Object.keys(end)[0]] = Object.values(end)[0]
+
+    let saleDate = this.state.startDate.clone()
+      .add(Number(data.salesUpload), 'days')
+    let forecastDate = this.state.startDate.clone()
+      .add(Number(data.salesUpload) + Number(data.forecastCreation), 'days')
+    let adjusmentDate = this.state.startDate.clone()
+      .add(Number(data.salesUpload) + Number(data.forecastCreation) + Number(data.rangeAdjustment), 'days')
+
+    let approveDate = this.state.startDate.clone()
+      .add(Number(data.salesUpload) + Number(data.forecastCreation) +
+      Number(data.rangeAdjustment) + Number(data.rangeAdjustmentRequest), 'days')
+
+    let sales = this.makeRange(this.state.startDate, saleDate, 2)
+    let forecast = this.makeRange(saleDate, forecastDate, 1)
+    let adjusment = this.makeRange(forecastDate, adjusmentDate, 3)
+    let approve = this.makeRange(adjusmentDate, approveDate, 4)
+    let consolidation = this.makeRange(approveDate, this.state.endDate.clone(), 5)
+
+    dates = {
+      ...dates,
+      ...consolidation,
+      ...approve,
+      ...adjusment,
+      ...forecast,
+      ...sales
+    }
+
+    this.setState({
+      dates
+    })
+  }
+
+  daysLeft () {
+    let data = this.state.data
+    let c = moment.utc(this.props.rules.startDate)
+      .add(this.props.rules.cycleDuration, this.props.rules.cycle)
+      .add(-1, 'days').diff(moment.utc(this.props.rules.startDate), 'days')
+
+    data.consolidation = c - data.salesUpload -
+    data.forecastCreation - data.rangeAdjustment -
+    data.rangeAdjustmentRequest
+
+    this.setState({ data }, () => {
+      if (data.consolidation > 0) {
+        this.setState({
+          disableBtn: false
+        })
+        this.makeDates()
+      } else {
+        this.notify(
+          'Error: No puedes tomar más días de los que dura el ciclo.',
+          5000,
+          toast.TYPE.ERROR
+        )
+        this.setState({
+          disableBtn: true
+        })
+      }
+    })
+  }
+
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if (type === toast.TYPE.WARNING) {
+      className = 'has-bg-warning'
+    }
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false,
+        className: className
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false,
+        className: className
+      })
+    }
+  }
+
+  makeCalendar () {
+    let cal = {}
+    for (let i = 1; i <= 12; i++) {
+      for (const key in this.state.dates) {
+        const element = this.state.dates[key]
+        let obj = {
+          ...element,
+          date: moment.utc(key).add(this.props.rules.cycleDuration * i, this.props.rules.cycle)
+        }
+        cal[obj.date.format('YYYY-MM-DD')] = obj
+      }
+    }
+    this.setState({
+      dates: {
+        ...this.state.dates,
+        ...cal
+      }
+    })
   }
 
   render () {
@@ -174,11 +341,23 @@ class DeadLines extends Component {
       }
     ]
 
+    if (this.props.hideInputs && this.state.dates) {
+      return (
+        <Cal
+          showWeekNumber={this.state.showWeekNumbers}
+          date={this.state.startDate.clone()}
+          minDate={this.state.startDate.clone().startOf('month')}
+          maxDate={this.state.endDate.clone().endOf('month')}
+          dates={this.state.dates} />
+      )
+    }
+
     return (
       <div className='section pad-sides has-20-margin-top'>
         <h1 className='title is-5'> Ciclos de operación</h1>
         <p className='subtitle is-6'>Define las fechas para el ciclo de operación a partir de la fecha de inicio.</p>
         <div className='columns is-centered'>
+
           <div className='column is-6'>
             <div className='card'>
               <header className='card-header'>
@@ -201,6 +380,7 @@ class DeadLines extends Component {
                             <input className='input' type='text' placeholder='dias' name={item.name}
                               value={this.state.data[item.name]}
                               onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }}
+                              onBlur={(e) => { this.blurDefault(e.target.name, e.target.value) }}
                             />
                           </p>
                           <p className='control'>
@@ -218,17 +398,25 @@ class DeadLines extends Component {
           </div>
 
           <div className='column is-offset-1'>
-            <CalendarRules
-              disabled
-              date={moment(this.state.startDate)}
-              limits={this.state.dates}
-            />
+            {this.state.dates &&
+            <Cal
+              showWeekNumber={this.state.showWeekNumbers}
+              date={this.state.startDate.clone()}
+              minDate={this.state.startDate.clone().startOf('month')}
+              maxDate={this.state.endDate.clone().endOf('month')}
+              dates={this.state.dates} />
+          }
           </div>
 
         </div>
 
         <center>
-          <button onClick={() => this.props.nextStep({ ...this.state.data, dates: this.state.dates })} className='button is-primary'>Guardar</button>
+          <button
+            disabled={this.state.disableBtn}
+            onClick={() => this.props.nextStep({ ...this.state.data, dates: this.state.dates })}
+            className='button is-primary'>
+            Guardar
+          </button>
         </center>
 
       </div>
