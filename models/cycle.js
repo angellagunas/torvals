@@ -36,4 +36,26 @@ cycleSchema.methods.toAdmin = function () {
   }
 }
 
+cycleSchema.statics.getCurrent = async function(organization) {
+  const today = moment().format()
+  return this.findOne({
+    organization: organization,
+    dateStart: { $lte: today },
+    dateEnd: { $gte: today },
+    isDeleted: false
+  })
+}
+
+cycleSchema.statics.getAvailable = async function(organization, cyclesAvailable) {
+  const currentCycle = await this.getCurrent(organization)
+  const cycles = await this.find({
+    organization: organization,
+    dateStart: { $gte: currentCycle.dateStart },
+    isDeleted: false
+  }).sort({
+    dateStart: 1
+  }).limit(cyclesAvailable)
+  return cycles
+}
+
 module.exports = mongoose.model('Cycle', cycleSchema)

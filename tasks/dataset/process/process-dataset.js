@@ -65,13 +65,11 @@ const task = new Task(
       channelsObj['name'] = `$apiData.${channelName.name}`
     }
 
-    var statement = [
-      {
+    var statement = [{
         '$match': {
           'dataset': dataset._id
         }
-      },
-      {
+      }, {
         '$group': {
           '_id': null,
           'channels': {
@@ -146,14 +144,11 @@ const task = new Task(
     }
 
     log('Obtaining max and min dates ...')
-
-    statement = [
-      {
+    statement = [{
         '$match': {
           'dataset': dataset._id
         }
-      },
-      {
+      }, {
         '$group': {
           '_id': null,
           'max': { '$max': '$data.forecastDate' },
@@ -167,11 +162,13 @@ const task = new Task(
     minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
 
     log('Obtaining cycles  ...')
-
     var cycles = await Cycle.find({
       organization: dataset.organization._id,
       isDeleted: false,
-      dateStart: {$gte: minDate, $lte: maxDate}
+      dateStart: {
+        $gte: minDate,
+        $lte: maxDate
+      }
     })
 
     cycles = cycles.map(item => {
@@ -179,7 +176,6 @@ const task = new Task(
     })
 
     log('Obtaining periods  ...')
-
     var periods = await Period.find({
       organization: dataset.organization._id,
       isDeleted: false,
