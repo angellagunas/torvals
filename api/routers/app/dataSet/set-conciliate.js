@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const moment = require('moment')
 
 const { DataSet } = require('models')
-const conciliateDataset = require('queues/conciliate-dataset')
+const conciliateToProject = require('queues/conciliate-to-project')
 
 module.exports = new Route({
   method: 'post',
@@ -29,7 +29,7 @@ module.exports = new Route({
 
     await dataset.project.save()
 
-    conciliateDataset.add({project: dataset.project.uuid, dataset: dataset.uuid})
+    conciliateToProject.add({project: dataset.project.uuid, dataset: dataset.uuid})
 
     ctx.body = {
       data: dataset

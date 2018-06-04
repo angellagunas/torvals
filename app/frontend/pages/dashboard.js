@@ -48,7 +48,7 @@ class Dashboard extends Component {
   }
 
   componentWillMount () {
-    this.getProjects()
+      this.getProjects()
   }
 
   moveTo (route) {
@@ -710,6 +710,8 @@ setMinPeriod(item) {
 
   render () {
     const user = this.context.tree.get('user')
+
+   
 
     const {
       loading
