@@ -88,7 +88,7 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha empezado a asignarsele los productos/centros de venta/canales.`
     })
   },
@@ -101,9 +101,13 @@ const task = new Task(
       throw new Error('Invalid uuid!')
     }
     sendSlackNotificacion.run({
-      channel: 'opskamino',
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha terminado de asignarsele los ` +
-        `productos/centros de venta/canales y ahora se obtendrán las anomalías.`
+        `productos/centros de venta/canales y esta listo para conciliarse!.`,
+      attachment: {
+        title: 'Exito!',
+        image_url: 'https://i.imgur.com/GfHWtUx.gif'
+      }
     })
   }
 )

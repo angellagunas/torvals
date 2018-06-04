@@ -99,6 +99,8 @@ const dataSetSchema = new Schema({
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
   catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
+  cycles: [{ type: Schema.Types.ObjectId, ref: 'Cycle' }],
+  periods: [{ type: Schema.Types.ObjectId, ref: 'Period' }],
 
   apiData: { type: Schema.Types.Mixed },
   dateCreated: { type: Date, default: moment.utc },
@@ -313,11 +315,9 @@ dataSetSchema.methods.processData = async function () {
   if (!this.apiData) return
 
   this.products = []
-  this.newProducts = []
   this.channels = []
   this.salesCenters = []
-  this.newSalesCenters = []
-  this.newChannels = []
+  this.catalogItems = []
 
   if (this.apiData.products) {
     for (var p of this.apiData.products) {
@@ -418,8 +418,6 @@ dataSetSchema.methods.processData = async function () {
           )
         })
 
-        console.log(pos)
-
         if (pos < 0) {
           let cItem = await CatalogItem.findOne({
             externalId: data._id,
@@ -433,7 +431,7 @@ dataSetSchema.methods.processData = async function () {
               externalId: data._id,
               organization: this.organization,
               isNewExternal: true,
-              type: 'Canal'
+              type: catalog
             })
           } else if (cItem.isNewExternal && data['name']) {
             cItem.set({ name: data['name'] })

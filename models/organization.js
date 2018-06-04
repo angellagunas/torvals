@@ -32,9 +32,10 @@ const organizationSchema = new Schema({
     consolidation: {type: Number},
     forecastCreation: {type: Number},
     rangeAdjustmentRequest: {type: Number},
+    rangeAdjustment: {type: Number},
     salesUpload: {type: Number},
     ranges: [{type: Number}],
-    catalogs: [{type: String}]
+    catalogs: [{ type: String }]
   }
 }, { usePushEach: true })
 
