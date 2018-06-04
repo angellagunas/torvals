@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
 const { DataSet, SalesCenter, Channel, Product, DataSetRow, Role, Cycle, Period } = require('models')
+const ObjectId = require('mongodb').ObjectID
 
 module.exports = new Route({
   method: 'post',
@@ -21,8 +22,8 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
-    var cycle = await Cycle.findOne({organization: currentOrganization._id, cycle: data.cycle})
-    var periods = await Period.find({organization: currentOrganization._id, period: {$in: data.periods}, cycle: cycle._id})
+    var cycle = await Cycle.findOne({organization: currentOrganization._id, uuid: data.cycle})
+    var periods = await Period.find({cycle: cycle._id})
 
     periods.ids = periods.map(item => {
       return item._id
@@ -36,7 +37,6 @@ module.exports = new Route({
       'data.prediction': {
         '$ne': null
       },
-      'cycle': cycle._id,
       'period': {
         '$in': periods.ids
       }

@@ -45,31 +45,19 @@ const task = new Task(
     }
     log('Sales Centers successfully saved!')
 
-    log('Saving cycles...')
-    if (dataset.cycles) {
-      for (let cycle of dataset.cycles) {
-        await DataSetRow.update({
-          dataset: dataset._id,
-          'data.forecastDate': { $gte: moment(cycle.dateStart).utc().format('YYYY-MM-DD'), $lte: moment(cycle.dateEnd).utc().format('YYYY-MM-DD') }
-        },
-        {cycle: cycle._id},
-        {multi: true})
-      }
-    }
-    log('Cycles successfully saved!')
-
-    log('Saving periods...')
+    log('Saving cycles and periods...')
     if (dataset.periods) {
       for (let period of dataset.periods) {
         await DataSetRow.update({
           dataset: dataset._id,
           'data.forecastDate': { $gte: moment(period.dateStart).utc().format('YYYY-MM-DD'), $lte: moment(period.dateEnd).utc().format('YYYY-MM-DD') }
         },
-        {period: period._id},
+          {period: period._id,
+            cycle: period.cycle},
         {multi: true})
       }
     }
-    log('Periods successfully saved!')
+    log('Cycles and periods successfully saved!')
 
     dataset.set({ status: 'reviewing' })
     await dataset.save()
