@@ -17,7 +17,7 @@ class Periods extends Component {
         cycle: rules.cycle || 'M',
         periodDuration: rules.periodDuration || 1,
         cycleDuration: rules.cycleDuration || 1,
-        takeStart: rules.takeStart || true,
+        takeStart: rules.takeStart !== undefined ? rules.takeStart : true,
         cyclesAvailable: rules.cyclesAvailable || 2,
         season: rules.season || 4,
         startDate: moment(rules.startDate) || moment()
@@ -106,7 +106,7 @@ class Periods extends Component {
       else {
         if (value !== '' && Number(value) !== Number(this.props.rules.cycleDuration)) {
           this.notify(
-            'El número de ciclos disponibles cambio, debe establecer los rangos de ajuste nuevamente.',
+            'El número de ciclos disponibles cambió, debe establecer los rangos de ajuste nuevamente.',
             5000,
             toast.TYPE.INFO
           )
@@ -124,7 +124,7 @@ class Periods extends Component {
     else if (name === 'cycleDuration') {
       if(value !== '' && Number(value) !== Number(this.props.rules.cycleDuration)){
         this.notify(
-          'El ciclo cambio debe establecer los ciclos de operación nuevamente.',
+          'El ciclo cambió, debe establecer los ciclos de operación nuevamente.',
           5000,
           toast.TYPE.INFO
         )
@@ -363,13 +363,16 @@ class Periods extends Component {
 
                       <p>
                         <label className='radio'>
-                          <input type='radio' name='takeStart' checked={this.state.timesSelected.takeStart}
-                          onChange={(e) => this.setState({
-                            timesSelected: {
-                              ...this.state.timesSelected,
-                              takeStart: true
-                            }
-                          })} />
+                          <input 
+                            type='radio' 
+                            name='takeStart' 
+                            checked={this.state.timesSelected.takeStart === true}
+                            onChange={(e) => this.setState({
+                              timesSelected: {
+                                ...this.state.timesSelected,
+                                takeStart: true
+                              }
+                            })} />
                         <span>Usar la fecha de <strong className='has-text-info'>inicio</strong> del periodo para determinar el ciclo al que pertenece</span>
                       </label>
                     </p>
@@ -377,7 +380,10 @@ class Periods extends Component {
 
                     <p>
                       <label className='radio'>
-                        <input type='radio' name='takeStart' checked={!this.state.timesSelected.takeStart}
+                        <input 
+                          type='radio' 
+                          name='takeStart' 
+                          checked={this.state.timesSelected.takeStart === false}
                           onChange={(e) => this.setState({
                             timesSelected: {
                               ...this.state.timesSelected,
@@ -408,8 +414,12 @@ class Periods extends Component {
         <br />
         <center>
 
-          <button disabled={this.state.disableBtn} onClick={() => this.next()}
-            className='button is-primary'>Guardar</button>
+          <button 
+            disabled={this.state.disableBtn} 
+            onClick={() => this.next()}
+            className='button is-primary'>
+            Guardar
+          </button>
         </center>
 
       </div>

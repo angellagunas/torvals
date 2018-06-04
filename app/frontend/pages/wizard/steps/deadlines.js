@@ -67,7 +67,7 @@ class DeadLines extends Component {
 
     if (totalDays > cycleDays) {
       this.notify(
-        'El ciclo cambio debe establecer los ciclos de operación.',
+        'El ciclo cambió, debe establecer los ciclos de operación.',
         5000,
         toast.TYPE.INFO
       )
@@ -236,9 +236,7 @@ class DeadLines extends Component {
 
     this.setState({
       dates
-    }/* , () => {
-      this.makeCalendar()
-    } */)
+    })
   }
 
   daysLeft () {
@@ -413,8 +411,12 @@ class DeadLines extends Component {
         </div>
 
         <center>
-          <button disabled={this.state.disableBtn}
-            onClick={() => this.props.nextStep({ ...this.state.data, dates: this.state.dates })} className='button is-primary'>Guardar</button>
+          <button
+            disabled={this.state.disableBtn}
+            onClick={() => this.props.nextStep({ ...this.state.data, dates: this.state.dates })}
+            className='button is-primary'>
+            Guardar
+          </button>
         </center>
 
       </div>
