@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
 const { Rule, Organization, Period } = require('models')
-const ObjectId = require('mongodb').ObjectID
 const moment = require('moment')
 const slugify = require('underscore.string/slugify')
 const generateCycles = require('tasks/organization/generate-cycles')
@@ -10,9 +9,8 @@ module.exports = new Route({
   path: '/',
   handler: async function (ctx) {
     var data = ctx.request.body
-    ctx.state.organization = {_id: ObjectId('5ae22fc26f556e0022546354')}
-
     var organizationId = ctx.state.organization._id
+
     const org = await Organization.findOne({'_id': organizationId, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
 
@@ -61,10 +59,21 @@ module.exports = new Route({
     })
     await generateCycles.run({uuid: org.uuid, rule: rule.uuid})
 
-    const periods = await Period.find({ organization: org._id, isDeleted: false }).populate('cycle')
+    const periods = await Period.find({ organization: org._id, isDeleted: false, rule: rule._id }).populate('cycle')
+    var periodsArray = new Set()
+    var cyclesArray = new Set()
     periods.data = periods.map(item => {
+      periodsArray.add(item._id)
+      cyclesArray.add(item.cycle._id)
       return item.toPublic()
     })
+
+    rule.set({
+      periods: Array.from(periodsArray),
+      cycles: Array.from(cyclesArray)
+    })
+
+    await rule.save()
 
     ctx.body = {
       rules: rule,

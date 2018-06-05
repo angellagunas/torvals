@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 const { Rule } = require('models')
-const ObjectId = require('mongodb').ObjectID
+
 module.exports = new Route({
   method: 'get',
   path: '/',
@@ -18,8 +18,7 @@ module.exports = new Route({
       }
     }
 
-    filters['organization'] = ObjectId('5ae22fc26f556e0022546354')// ctx.state.organization._id
-    console.log(filters)
+    filters['organization'] = ctx.state.organization._id
     var rule = await Rule.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
