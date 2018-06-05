@@ -129,7 +129,7 @@ class DeadLines extends Component {
   }
 
   blurDefault (name, value) {
-    if (value === '') {
+    if (value === '' || value === '0') {
       this.handleInputChange(name, '1')
     }
   }

@@ -31,8 +31,7 @@ class Rules extends Component {
     let rules = this.props.rules
     return (
       <div className='section pad-sides has-20-margin-top'>
-        <h1 className='title is-5'>Resumen</h1>
-        <p className='subtitle is-6'>Revisa la información de tu organización.</p>
+        <h1 className='title is-5'>Reglas de la organizacion</h1>
         <div className='columns is-centered'>
           <div className='column'>
             <div className='card'>
