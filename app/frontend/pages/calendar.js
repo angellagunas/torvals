@@ -328,8 +328,8 @@ class Calendar extends Component {
                       key={key}
                       showWeekNumber={this.state.showWeekNumbers}
                       date={date}
-                      minDate={moment.utc(cycle.dateStart)}
-                      maxDate={moment.utc(cycle.dateEnd)}
+                      minDate={moment.utc(cycle.dateStart).startOf('month')}
+                      maxDate={moment.utc(cycle.dateEnd).endOf('month')}
                       dates={this.makeDates(cycle, item.periods)} />
                   </div>
                 )
@@ -391,8 +391,8 @@ class Calendar extends Component {
                         key={key}
                         showWeekNumber={this.state.showWeekNumbers}
                         date={date}
-                        minDate={moment.utc(cycle.dateStart)}
-                        maxDate={moment.utc(cycle.dateEnd)}
+                        minDate={moment.utc(cycle.dateStart).startOf('month')}
+                        maxDate={moment.utc(cycle.dateEnd).endOf('month')}
                         dates={this.makeDates(cycle, item.periods)} />
                     </div>
                   </div>

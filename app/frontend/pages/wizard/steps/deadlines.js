@@ -7,7 +7,7 @@ const colors = {
   1: {
     rangeClass: 'calendar-range-forecast',
     rangeClassStart: 'limit-forecast',
-    tooltip: 'crear y aprobar forecast'
+    tooltip: 'generar predicción'
   },
   2: {
     rangeClass: 'calendar-range-sales',
@@ -27,7 +27,7 @@ const colors = {
   5: {
     rangeClass: 'calendar-range-consolidate',
     rangeClassStart: 'limit-consolidate',
-    tooltip: 'consolidar'
+    tooltip: 'concentrar información'
   }
 }
 
@@ -315,27 +315,27 @@ class DeadLines extends Component {
   render () {
     const deadlines = [
       {
-        title: 'ventas',
+        title: 'Actualizar datos de ventas',
         name: 'salesUpload',
         color: 'deadline-sales'
       },
       {
-        title: 'forecast',
+        title: 'Generar Prediccion',
         name: 'forecastCreation',
         color: 'deadline-forecast'
       },
       {
-        title: 'ajustes',
+        title: 'Realizar Ajustes',
         name: 'rangeAdjustment',
         color: 'deadline-adjustments'
       },
       {
-        title: 'aprobar',
+        title: 'Aprobar Ajustes',
         name: 'rangeAdjustmentRequest',
         color: 'deadline-approve'
       },
       {
-        title: 'consolidar',
+        title: 'Concentrar Información',
         name: 'consolidation',
         color: 'deadline-consolidate'
       }
@@ -410,15 +410,15 @@ class DeadLines extends Component {
 
         </div>
 
-        <center>
+        <div className='buttons wizard-steps'>
+          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
           <button
             disabled={this.state.disableBtn}
             onClick={() => this.props.nextStep({ ...this.state.data, dates: this.state.dates })}
             className='button is-primary'>
             Guardar
           </button>
-        </center>
-
+        </div>
       </div>
     )
   }
