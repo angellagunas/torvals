@@ -132,7 +132,13 @@ class Cal extends Component {
     let numbers = []
     this.state.calendarDays.map((item, key) => {
       if (item.available && item.value !== 0) {
-        if (item.value === 1 || item.value === 8 || item.value === 15 || item.value === 22 || item.value === 29 || item.value === 30 || item.value === 31) {
+        if (item.value === 1 ||
+          item.value === 8 ||
+          item.value === 15 ||
+          item.value === 22 ||
+          item.value === 29 ||
+          item.value === 30 ||
+          item.value === 31) {
           let w = this.dateFromNum(item.value).format('W')
           numbers.push(Number(w))
           weeks[w] =

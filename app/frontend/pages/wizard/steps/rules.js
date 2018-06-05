@@ -151,13 +151,6 @@ class Rules extends Component {
                           )
                         })}
                       </div>
-                      {/* <ul className='has-text-weight-bold is-capitalized'>
-                        {this.props.rules.catalogs.map((item, key) => {
-                          return (
-                            <li key={key}>{item.replace(/_/g, ' ')}</li>
-                          )
-                        })}
-                      </ul> */}
                     </div>
 
                   </div>
