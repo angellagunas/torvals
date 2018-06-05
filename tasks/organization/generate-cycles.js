@@ -7,23 +7,24 @@ const moment = require('moment')
 const Task = require('lib/task')
 const generatePeriods = require('tasks/organization/generate-periods')
 
-const { Organization, Cycle } = require('models')
+const { Organization, Cycle, Rule } = require('models')
 
 const task = new Task(
   async function (argv) {
-    if (!argv.uuid) {
+    if (!argv.uuid || !argv.rule) {
       throw new Error('You need to provide an organization')
     }
+
     const organization = await Organization.findOne({uuid: argv.uuid})
-    const cycleDuration = organization.rules.cycleDuration
-    const cycle = organization.rules.cycle
-    const season = organization.rules.season
-    const cyclesAvailable = organization.rules.cyclesAvailable
-    const takeStart = organization.rules.takeStart
+    const rule = await Rule.findOne({uuid: argv.rule})
 
-    await Cycle.deleteMany({organization: organization._id})
+    const cycleDuration = rule.cycleDuration
+    const cycle = rule.cycle
+    const season = rule.season
+    const cyclesAvailable = rule.cyclesAvailable
+    const takeStart = rule.takeStart
 
-    var startDate = moment(organization.rules.startDate).utc().format('YYYY-MM-DD')
+    var startDate = moment(rule.startDate).utc().format('YYYY-MM-DD')
     var currentDateDiff
     if (cycle === 'M') {
       startDate = moment(startDate).subtract(season, 'M')
@@ -64,13 +65,14 @@ const task = new Task(
         organization: organization._id,
         dateStart: startDate,
         dateEnd: endDate,
-        cycle: cycleNumber
+        cycle: cycleNumber,
+        rule: rule._id
       })
 
       previousYear = endYear
       startDate = moment(endDate).utc().add(1, 'd')
     }
-    await generatePeriods.run({uuid: organization.uuid})
+    await generatePeriods.run({uuid: organization.uuid, rule: rule.uuid})
     return true
   }
 )
