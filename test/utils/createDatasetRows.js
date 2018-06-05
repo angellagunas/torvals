@@ -1,7 +1,7 @@
 const { DataSetRow } = require('models')
 const { datasetRowsFixture } = require('../fixtures')
 
-module.exports = function createDataset (opts = {}) {
+module.exports = function createDatasetRow (opts = {}) {
 
   for (var i in datasetRowsFixture) {
     const row = datasetRowsFixture[i]
