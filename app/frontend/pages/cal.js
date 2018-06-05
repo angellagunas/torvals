@@ -136,9 +136,7 @@ class Cal extends Component {
           item.value === 8 ||
           item.value === 15 ||
           item.value === 22 ||
-          item.value === 29 ||
-          item.value === 30 ||
-          item.value === 31) {
+          item.value >= 28) {
           let w = this.dateFromNum(item.value).format('W')
           numbers.push(Number(w))
           weeks[w] =
