@@ -46,6 +46,19 @@
     .has-20-margin-top {
         margin: 20px 0;
     }
+    .wizard {
+        .column ul {
+            li {
+                margin-bottom: .5rem;
+                .tag:first-child {
+                    width: 160px;
+                }
+                .tag {
+                    font-size: .85rem;
+                }
+            }
+        }
+    }
 }
 
 @include widescreen-only {

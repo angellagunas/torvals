@@ -13,7 +13,7 @@ module.exports = new Route({
     ctx.assert(anomaly, 404, 'Anomalía no encontrada')
 
     ctx.body = {
-      data: anomaly.toAdmin()
+      data: anomaly.toPublic()
     }
   }
 })
