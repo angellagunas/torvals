@@ -23,7 +23,9 @@ const rulesSchema = new Schema({
   salesUpload: {type: Number},
   ranges: [{type: Number}],
   catalogs: [{ type: String }],
-  organization: {type: Schema.Types.ObjectId, ref: 'Organization'}
+  organization: {type: Schema.Types.ObjectId, ref: 'Organization'},
+  cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
+  periods: [{type: Schema.Types.ObjectId, ref: 'Period'}]
 }, { usePushEach: true })
 
 rulesSchema.plugin(dataTables)
