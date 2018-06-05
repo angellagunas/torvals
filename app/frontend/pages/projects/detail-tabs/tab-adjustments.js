@@ -93,51 +93,12 @@ class TabAdjustment extends Component {
       const url = '/app/rows/filters/dataset/'
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
-
-        /* if (res.dates.length === 0) {
-          this.notify(
-            'Error! No hay fechas disponibles. Por favor contacta a un administrador.',
-            5000,
-            toast.TYPE.ERROR
-          )
-
-          this.setState({
-            error: true,
-            errorMessage: 'No hay fechas disponibles. Por favor contacta a un administrador.'
-          })
-          return
-        }
-
-        if (res.dates.length < res.semanasBimbo.length) {
-          this.notify(
-            'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
-            ' correctamente. Por favor contacta a un administrador.',
-            5000,
-            toast.TYPE.ERROR
-          )
-        } */
-
-        /* let periods = this.getCycleNames(res.dates)
-        if(periods.length === 0){
-          this.notify(
-            'No se puede hacer ajustes de años anteriores',        
-            5000,
-            toast.TYPE.ERROR
-          ) 
-
-          this.setState({
-            error: true,
-            errorMessage: 'No se puede hacer ajustes de años anteriores.'
-          })
-          return
-        } */
-        console.log(this.rules)
         
         let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
         cycles = cycles.map((item, key) => {
           return item = { ...item, adjustmentRange: this.rules.ranges[key], name: moment.utc(item.dateStart).format('MMMM') }
         })
-        console.log(cycles)
+
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
 
@@ -149,7 +110,6 @@ class TabAdjustment extends Component {
           formData.channel = res.channels[0].uuid
         }
         
-
         this.setState({
           filters: {
             channels: _.orderBy(res.channels, 'name'),
@@ -211,6 +171,18 @@ class TabAdjustment extends Component {
     })
   }
 
+  getAdjustment(adjustment){
+    if(adjustment === null){
+      return -1
+    }
+    else if(adjustment !== undefined){
+      return Number(adjustment) / 100
+    }
+    else{
+      return 0
+    }
+  }
+
   async getDataRows () {
     if (!this.state.formData.cycle) {
       this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
@@ -224,7 +196,7 @@ class TabAdjustment extends Component {
     this.setState({
       isLoading: ' is-loading',
       isFiltered: false,
-      generalAdjustment: cycle.adjustmentRange,
+      generalAdjustment: this.getAdjustment(cycle.adjustmentRange),
       salesTable: [],
       noSalesData: ''      
     })
@@ -1215,7 +1187,7 @@ getProductsSelected () {
                       <table className='table is-fullwidth is-hoverable'>
                         <thead>
                           <tr>
-                            <th className='has-text-centered'>Semana</th>
+                            <th className='has-text-centered'>Periodo</th>
                             <th className='has-text-info has-text-centered'>Predicción</th>
                             <th className='has-text-teal has-text-centered'>Ajuste</th>
                           </tr>
@@ -1225,7 +1197,7 @@ getProductsSelected () {
                             return (
                               <tr key={key}>
                                 <td className='has-text-centered'>
-                                  {item.week}
+                                  {item.period[0]}
                                 </td>
                                 <td className='has-text-centered'>
                                   $ {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
@@ -1279,7 +1251,7 @@ getProductsSelected () {
                         data={graphData}
                         maintainAspectRatio={false}
                         responsive={true}
-                        labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
+                        labels={this.state.salesTable.map((item, key) => { return 'Periodo ' + item.period[0] })}
                         tooltips={{
                           mode: 'index',
                           intersect: true,
@@ -1375,7 +1347,6 @@ getProductsSelected () {
                       currentRole={currentRole}                    
                       data={this.state.filteredData}
                       checkAll={this.checkAll}
-                      filteredSemanasBimbo={this.state.filters.filteredSemanasBimbo}
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
