@@ -14,7 +14,7 @@ module.exports = new Route({
       'isDeleted': false
     }).populate('datasetRow')
 
-    ctx.assert(adjustmentRequest, 404, 'Predicción colaborativa no encontrada')
+    ctx.assert(adjustmentRequest, 404, 'Ajuste no encontrado')
 
     const datasetRow = adjustmentRequest.datasetRow
 

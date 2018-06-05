@@ -476,7 +476,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Predicción colaborativa',
+        'title': 'Ajuste',
         'property': 'adjustment',
         'default': '0',
         'sortable': true,
@@ -1047,7 +1047,7 @@ setMinPeriod(item) {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
 
-                    <p className='indicators-title'>Predicción colaborativa total</p>
+                    <p className='indicators-title'>Ajuste total</p>
                     <p className='indicators-number has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
