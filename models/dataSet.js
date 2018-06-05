@@ -234,7 +234,7 @@ dataSetSchema.methods.getSalesColumn = function () {
 }
 
 dataSetSchema.methods.getCatalogItemColumn = function (type) {
-  var obj = this.columns.find(item => { return item[`is_${type}_id`] })
+  var obj = this.columns.find(item => { return item[type] })
 
   return obj
 }
