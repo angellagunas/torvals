@@ -15,7 +15,7 @@ module.exports = new Route({
     dataset.save()
 
     ctx.body = {
-      data: dataset
+      data: 'OK'
     }
   }
 })
