@@ -38,13 +38,11 @@ class TabAdjustment extends Component {
         channels: [],
         products: [],
         salesCenters: [],
-        semanasBimbo: [],
         categories: [],
-        filteredSemanasBimbo: [],
-        periods: []
+        cycles: []
       },
       formData: {
-        period: 1
+        cycle: 1
       },
       disableButtons: true,
       selectedCheckboxes: new Set(),
@@ -62,6 +60,7 @@ class TabAdjustment extends Component {
     }
 
     currentRole = tree.get('user').currentRole.slug
+    this.rules = tree.get('user').currentOrganization.rules
     this.toastId = null
   }
 
@@ -87,53 +86,7 @@ class TabAdjustment extends Component {
     }
   }
 
-  getPeriods(data) {
-    let periods = []
-    let adjustments = {
-      '1': 10,
-      '2': 20,
-      '3': 30,
-      '4': -1
-    }
-    const map = new Map()
-
-    if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
-      adjustments = this.props.project.businessRules.adjustments
-    }
-
-    data.map((date) => {
-      if(date.year === moment().get('year')){
-        const key = date.month
-        const collection = map.get(key)
-        if (!collection) {
-          map.set(key, [date])
-        } else {
-          collection.push(date)
-        }
-      }
-    })
-
-    let mapSize = map.size > 4 ? 4 : map.size
-
-    for (let i = map.size; i > map.size-mapSize; i--) {
-      const element = Array.from(map)[i-1]
-      let adjustment = adjustments['' + (map.size - i + 1)]
-
-      if(adjustment !== -1){
-        adjustment = adjustment/100
-      }
-
-      periods.push({
-        number: element[0],
-        name: `${moment(element[1][0].month, 'M').format('MMMM')}`,
-        maxSemana: element[1][0].week,
-        minSemana: element[1][element[1].length - 1].week,
-        adjustment: adjustment
-      })
-    }
-
-    return periods
-  }
+  
 
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
@@ -141,7 +94,7 @@ class TabAdjustment extends Component {
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
 
-        if (res.dates.length === 0) {
+        /* if (res.dates.length === 0) {
           this.notify(
             'Error! No hay fechas disponibles. Por favor contacta a un administrador.',
             5000,
@@ -162,9 +115,9 @@ class TabAdjustment extends Component {
             5000,
             toast.TYPE.ERROR
           )
-        }
+        } */
 
-        let periods = this.getPeriods(res.dates)
+        /* let periods = this.getCycleNames(res.dates)
         if(periods.length === 0){
           this.notify(
             'No se puede hacer ajustes de años anteriores',        
@@ -177,9 +130,16 @@ class TabAdjustment extends Component {
             errorMessage: 'No se puede hacer ajustes de años anteriores.'
           })
           return
-        }
+        } */
+        console.log(this.rules)
+        
+        let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
+        cycles = cycles.map((item, key) => {
+          return item = { ...item, adjustmentRange: this.rules.ranges[key], name: moment.utc(item.dateStart).format('MMMM') }
+        })
+        console.log(cycles)
         let formData = this.state.formData
-        formData.period = periods[0].number
+        formData.cycle = cycles[0].cycle
 
         if (res.salesCenters.length > 0) {
           formData.salesCenter = res.salesCenters[0].uuid
@@ -188,20 +148,15 @@ class TabAdjustment extends Component {
         if (res.channels.length === 1) {
           formData.channel = res.channels[0].uuid
         }
-
-        let days = periods[0].maxSemana - periods[0].minSemana
-        let filteredSemanasBimbo = Array.from(Array(days + 1), (_, x) => periods[0].maxSemana - x).reverse()
+        
 
         this.setState({
           filters: {
             channels: _.orderBy(res.channels, 'name'),
             products: res.products,
             salesCenters: _.orderBy(res.salesCenters, 'name'),
-            semanasBimbo: res.semanasBimbo,
-            filteredSemanasBimbo: filteredSemanasBimbo,
-            dates: res.dates,
             categories: this.getCategory(res.products),
-            periods: periods
+            cycles: cycles
           },
           formData: formData,
           filtersLoaded: true
@@ -235,18 +190,14 @@ class TabAdjustment extends Component {
   }
 
   async filterChangeHandler (name, value) { 
-    if(name === 'period'){
-      var period = this.state.filters.periods.find(item => {
+    if(name === 'cycle'){
+      var cycle = this.state.filters.cycles.find(item => {
         return item.number === value
       })
 
-      var days = period.maxSemana - period.minSemana
-      var filteredSemanasBimbo = Array.from(Array(days+1), (_,x) => period.maxSemana - x).reverse()
-
       this.setState({
         filters: {
-          ...this.state.filters,
-          filteredSemanasBimbo: filteredSemanasBimbo
+          ...this.state.filters
         }
       })
     }
@@ -261,19 +212,19 @@ class TabAdjustment extends Component {
   }
 
   async getDataRows () {
-    if (!this.state.formData.period) {
-      this.notify('¡Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
+    if (!this.state.formData.cycle) {
+      this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
     }
 
-    var period = this.state.filters.periods.find(item => {
-      return item.number === this.state.formData.period
+    var cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === this.state.formData.cycle
     })
 
     this.setState({
       isLoading: ' is-loading',
       isFiltered: false,
-      generalAdjustment: period.adjustment,
+      generalAdjustment: cycle.adjustmentRange,
       salesTable: [],
       noSalesData: ''      
     })
@@ -282,7 +233,10 @@ class TabAdjustment extends Component {
     try{
       let data = await api.get(
         url + this.props.project.activeDataset.uuid,
-        this.state.formData
+        {
+          ...this.state.formData,
+          cycle: cycle.uuid
+        }
       )
 
       this.setState({
@@ -824,11 +778,14 @@ getProductsSelected () {
 
   async getSalesTable() {
     let url = '/app/datasets/sales/' + this.props.project.activeDataset.uuid
-
+    let cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === this.state.formData.cycle
+    })
+    
     try {
       let res = await api.post(url, {
         ...this.state.formData,
-        semana_bimbo: this.state.filters.filteredSemanasBimbo
+        cycle: cycle.uuid
       })
 
       if (res.data) {
@@ -979,11 +936,11 @@ getProductsSelected () {
     })
   }
 
-  getPeriod() {
-    var period = this.state.filters.periods.find(item => {
-      return item.number === this.state.formData.period
+  getCycleName() {
+    let cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === this.state.formData.cycle
     })
-    return period.name
+    return moment.utc(cycle.dateStart).format('MMMM')
   }
 
   render () {
@@ -1090,7 +1047,7 @@ getProductsSelected () {
       )
     }
 
-    if (!this.state.filters.periods.length > 0 && this.state.filtersLoaded) {
+    if (!this.state.filters.cycles.length > 0 && this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           El proyecto no continene data rows
@@ -1098,7 +1055,7 @@ getProductsSelected () {
       )
     }
 
-    if (!this.state.filters.periods.length > 0 && !this.state.filtersLoaded) {
+    if (!this.state.filters.cycles.length > 0 && !this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           Cargando, un momento por favor
@@ -1126,13 +1083,13 @@ getProductsSelected () {
           <div className='level-left'>
             <div className='level-item'>
               <Select
-                label='Periodo'
-                name='period'
-                value={this.state.formData.period}
-                optionValue='number'
+                label='Ciclo'
+                name='cycle'
+                value={this.state.formData.cycle}
+                optionValue='cycle'
                 optionName='name'
                 type='integer'
-                options={this.state.filters.periods}
+                options={this.state.filters.cycles}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
@@ -1249,7 +1206,7 @@ getProductsSelected () {
             <div className='column is-5-desktop is-4-widescreen is-4-fullhd is-offset-1-fullhd is-offset-1-desktop'>
               <div className='panel sales-table'>
                 <div className='panel-heading'>
-                  <h2 className='is-capitalized'>Totales {this.getPeriod()}</h2>
+                  <h2 className='is-capitalized'>Totales {this.getCycleName()}</h2>
                 </div>
                 <div className='panel-block'>
                   {
@@ -1312,7 +1269,7 @@ getProductsSelected () {
             <div className='column is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
               <div className='panel sales-graph'>
                 <div className='panel-heading'>
-                  <h2 className='is-capitalized'>Reporte {this.getPeriod()}</h2>
+                  <h2 className='is-capitalized'>Reporte {this.getCycleName()}</h2>
                 </div>
                 <div className='panel-block'>
                   {
@@ -1391,7 +1348,7 @@ getProductsSelected () {
                 <div>
                   <section className='section'>
                   <h1 className='period-info'>
-                    <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getPeriod()} - </span> 
+                    <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getCycleName()} - </span> 
                     <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
                   </h1>
                   {this.getModifyButtons()}

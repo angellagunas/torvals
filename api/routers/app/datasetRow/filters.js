@@ -55,7 +55,7 @@ module.exports = new Route({
     var salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
     var cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
 
-    var cycles = await Cycle.find({
+    cycles = await Cycle.find({
       organization: ctx.state.organization,
       dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
     }).sort('-dateStart')
