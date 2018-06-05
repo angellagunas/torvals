@@ -2,11 +2,13 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import lov from 'lov'
+import s from 'underscore.string'
 
 class ConfigureDatasetForm extends Component {
   constructor (props) {
     super(props)
 
+    this.getValue = this.getValue.bind(this)
     const posColumn = this.props.initialState.columns.findIndex(e => {
       return (
         e['isDate'] === true
@@ -33,6 +35,7 @@ class ConfigureDatasetForm extends Component {
       })
 
       this.state = {
+        dataset: this.props.initialState,
         formData: {
           columns: this.props.initialState.columns,
           groupings: this.props.initialState.groupings
@@ -63,10 +66,12 @@ class ConfigureDatasetForm extends Component {
         groupingColumn: '',
         groupingInput: '',
         groupingOutput: '',
-        isLoading: ''
+        isLoading: '',
+        catalogsColumns: []
       }
     } else {
       this.state = {
+        dataset: this.props.initialState,
         formData: {
           columns: this.props.columns,
           groupings: []
@@ -87,12 +92,15 @@ class ConfigureDatasetForm extends Component {
         groupingOutput: '',
         apiCallMessage: 'is-hidden',
         apiCallErrorMessage: 'is-hidden',
-        isLoading: ''
+        isLoading: '',
+        catalogColumns: []
       }
     }
   }
 
-  errorHandler (e) {}
+  componentWillMount () {
+    this.getCatalogColumns()
+  }
 
   changeHandler ({formData}) {
     this.setState({
@@ -177,6 +185,14 @@ class ConfigureDatasetForm extends Component {
     this.setState(state)
   }
 
+  getValue (type) {
+    let item = this.state.formData.columns.find((item) => { return item[type] })
+
+    if (!item) return ''
+
+    return item.name
+  }
+
   clearState () {
     this.setState({
       apiCallMessage: 'is-hidden',
@@ -194,19 +210,12 @@ class ConfigureDatasetForm extends Component {
   }
 
   testAllConditions (column) {
-    return (
-      column.isDate ||
-      column.isAnalysis ||
-      column.isAdjustment ||
-      column.isPrediction ||
-      column.isProduct ||
-      column.isProductName ||
-      column.isChannel ||
-      column.isChannelName ||
-      column.isSalesCenter ||
-      column.isSalesCenterName ||
-      column.isSales
-    )
+    for (let key of Object.keys(column)) {
+      if (key === 'name' || key === '_id') continue
+      if (column[key]) return true
+    }
+
+    return false
   }
 
   getValueForColumn (type) {
@@ -224,23 +233,44 @@ class ConfigureDatasetForm extends Component {
     }
   }
 
+  getCatalogColumns () {
+    let cols = []
+    let dataset = this.state.dataset
+    let org = dataset.organization
+
+    for (let col of org.rules.catalogs) {
+      cols.push({
+        id: {
+          label: `${s(col).replaceAll('-', ' ').capitalize().value()} Id *`,
+          name: `is_${col}_id`
+        },
+        name: {
+          label: `${s(col).replaceAll('-', ' ').capitalize().value()} Nombre`,
+          name: `is_${col}_name`
+        }
+      })
+    }
+
+    this.setState({catalogColumns: cols})
+  }
+
   async submitHandler (event) {
     event.preventDefault()
     this.setState({isLoading: ' is-loading'})
 
     const formData = {
       ...this.state.formData,
-      isDate: this.state.isDate,
-      isAnalysis: this.state.isAnalysis,
-      isAdjustment: this.state.isAdjustment,
-      isPrediction: this.state.isPrediction,
-      isProduct: this.state.isProduct,
-      isProductName: this.state.isProductName,
-      isSalesCenter: this.state.isSalesCenter,
-      isSalesCenterName: this.state.isSalesCenterName,
-      isSales: this.state.isSales,
-      isChannel: this.state.isChannel,
-      isChannelName: this.state.isChannelName
+      isDate: this.getValueForColumn('isDate'),
+      isAnalysis: this.getValueForColumn('isAnalysis'),
+      isAdjustment: this.getValueForColumn('isAdjustment'),
+      isPrediction: this.getValueForColumn('isPrediction'),
+      isProduct: this.getValueForColumn('isProduct'),
+      isProductName: this.getValueForColumn('isProductName'),
+      isSalesCenter: this.getValueForColumn('isSalesCenter'),
+      isSalesCenterName: this.getValueForColumn('isSalesCenterName'),
+      isSales: this.getValueForColumn('isSales'),
+      isChannel: this.getValueForColumn('isChannel'),
+      isChannelName: this.getValueForColumn('isChannelName')
     }
 
     const schema = {
@@ -258,17 +288,17 @@ class ConfigureDatasetForm extends Component {
     }
 
     let values = {
-      isDate: this.state.isDate,
-      isAnalysis: this.state.isAnalysis,
-      isAdjustment: this.state.isAdjustment,
-      isPrediction: this.state.isPrediction,
-      isProduct: this.state.isProduct,
-      isProductName: this.state.isProductName,
-      isSalesCenter: this.state.isSalesCenter,
-      isSalesCenterName: this.state.isSalesCenterName,
-      isSales: this.state.isSales,
-      isChannel: this.state.isChannel,
-      isChannelName: this.state.isChannelName
+      isDate: this.getValueForColumn('isDate'),
+      isAnalysis: this.getValueForColumn('isAnalysis'),
+      isAdjustment: this.getValueForColumn('isAdjustment'),
+      isPrediction: this.getValueForColumn('isPrediction'),
+      isProduct: this.getValueForColumn('isProduct'),
+      isProductName: this.getValueForColumn('isProductName'),
+      isSalesCenter: this.getValueForColumn('isSalesCenter'),
+      isSalesCenterName: this.getValueForColumn('isSalesCenterName'),
+      isSales: this.getValueForColumn('isSales'),
+      isChannel: this.getValueForColumn('isChannel'),
+      isChannelName: this.getValueForColumn('isChannelName')
     }
 
     let result = lov.validate(values, schema)
@@ -305,7 +335,7 @@ class ConfigureDatasetForm extends Component {
           <div className='columns'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Fecha*</label>
+                <label className='label'>Fecha *</label>
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
@@ -328,7 +358,7 @@ class ConfigureDatasetForm extends Component {
             <div className='column'>
 
               <div className='field'>
-                <label className='label'>Análisis*</label>
+                <label className='label'>Análisis *</label>
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
@@ -559,6 +589,58 @@ class ConfigureDatasetForm extends Component {
               </div>
             </div>
           </div>
+
+          {this.state.catalogColumns.map((item, index) => {
+            return (
+              <div className='columns' key={index}>
+                <div className='column'>
+                  <div className='field'>
+                    <label className='label'>{item.id.label}</label>
+                    <div className='control'>
+                      <div className='select is-fullwidth'>
+                        <select type='text'
+                          className='is-fullwidth'
+                          name={item.id.name}
+                          value={this.getValue(item.id.name)}
+                          onChange={(e) => { this.handleChangeSelect(item.id.name, e) }}>
+                          <option value=''>Selecciona una opción</option>
+                          {
+                            this.state.formData.columns.map(function (item, key) {
+                              return <option key={key}
+                                value={item.name}>{item.name}</option>
+                            })
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='column'>
+                  <div className='field'>
+                    <label className='label'>{item.name.label}</label>
+                    <div className='control'>
+                      <div className='select is-fullwidth'>
+                        <select type='text'
+                          className='is-fullwidth'
+                          name={item.name.name}
+                          value={this.getValue(item.name.name)}
+                          onChange={(e) => { this.handleChangeSelect(item.name.name, e) }}>
+                          <option value=''>Selecciona una opción</option>
+                          {
+                            this.state.formData.columns.map(function (item, key) {
+                              return <option key={key}
+                                value={item.name}>{item.name}</option>
+                            })
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
 
           <div className='columns has-borders'>
             <div className='column is-6' />

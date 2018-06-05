@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import Loader from '~base/components/spinner'
+import s from 'underscore.string'
 
 class ConfigureViewDataset extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
+      dataset: this.props.initialState,
       formData: {
         columns: this.props.initialState.columns,
         groupings: this.props.initialState.groupings
@@ -26,6 +28,27 @@ class ConfigureViewDataset extends Component {
       return this.state.formData.columns[posColumn].name
     }
   }
+
+  // getCatalogColumns() {
+  //   let cols = []
+  //   let dataset = this.state.dataset
+  //   let org = datase.organization
+
+  //   for (let col of org.rules.catalogs) {
+  //     cols.push({
+  //       <div className='columns has-borders'>
+  //         <div className='column'>
+  //           <p className='title is-7'>Id {s(col).replaceAll('-', ' ').capitalize()}*</p>
+  //           <p className='subtitle is-7'>{this.getColumnForValue('isProduct')}</p>
+  //         </div>
+  //         <div className='column'>
+  //           <p className='title is-7'>Nombre {s(col).replaceAll('-', ' ').capitalize()}</p>
+  //           <p className='subtitle is-7'>{this.getColumnForValue('isProductName')}</p>
+  //         </div>
+  //       </div>
+  //     })
+  //   }
+  // }
 
   render () {
     if (this.state.formData.columns.length === 0) {
