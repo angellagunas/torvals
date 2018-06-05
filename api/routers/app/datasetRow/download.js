@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { Project, SalesCenter, Channel, Product, DataSetRow } = require('models')
+const { Project, SalesCenter, Channel, Product, DataSetRow, Cycle } = require('models')
 const lov = require('lov')
 const moment = require('moment')
 
@@ -21,10 +21,16 @@ module.exports = new Route({
       ctx.throw(400, 'No hay DataSet activo para el proyecto')
     }
 
-    const filters = {
+    let weeks = await Cycle.find({
+      $and: [{
+        dateStart: { $gte: moment.utc(data.start_date, 'YYYY-MM-DD').toDate() }
+      }, {
+        dateEnd: { $lte: moment.utc(data.end_date, 'YYYY-MM-DD').toDate() }
+      }]
+    })
+    let filters = {
       'data.forecastDate': {
-        $gte: moment.utc(data.start_date, 'YYYY-MM-DD').toDate(),
-        $lte: moment.utc(data.end_date, 'YYYY-MM-DD').toDate()
+        $in: weeks.map(item => { return item.dateStart })
       }
     }
 

@@ -103,7 +103,7 @@ module.exports = new Route({
       $and: [{
         dateStart: { $gte: data.date_start }
       }, {
-          dateEnd: { $lte: data.date_end }
+        dateEnd: { $lte: data.date_end }
       }]
     })
     initialMatch['data.forecastDate'] = {

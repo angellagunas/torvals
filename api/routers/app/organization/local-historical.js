@@ -124,7 +124,7 @@ module.exports = new Route({
     previousWeeks = await Cycle.find({
       $and: [{
         dateStart: { $gte: start.toDate() }
-      },{
+      }, {
         dateEnd: { $lte: end.toDate() }
       }]
     })

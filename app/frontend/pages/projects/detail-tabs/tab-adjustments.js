@@ -70,14 +70,14 @@ class TabAdjustment extends Component {
       this.getFilters()
     }
   }
-  
+
   componentWillReceiveProps(nextProps){
     if (this.props.project.uuid && nextProps.project.uuid !== this.props.project.uuid) return
-    
+
     if (nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded) {
       this.getFilters()
     }
-    
+
   }
 
   componentDidUpdate(prevProps) {
@@ -167,10 +167,10 @@ class TabAdjustment extends Component {
         let periods = this.getPeriods(res.dates)
         if(periods.length === 0){
           this.notify(
-            'No se puede hacer ajustes de años anteriores',        
+            'No se puede hacer ajustes de años anteriores',
             5000,
             toast.TYPE.ERROR
-          ) 
+          )
 
           this.setState({
             error: true,
@@ -220,7 +220,7 @@ class TabAdjustment extends Component {
           5000,
           toast.TYPE.ERROR
         )
-      }            
+      }
     }
   }
 
@@ -234,7 +234,7 @@ class TabAdjustment extends Component {
     return Array.from(categories)
   }
 
-  async filterChangeHandler (name, value) { 
+  async filterChangeHandler (name, value) {
     if(name === 'period'){
       var period = this.state.filters.periods.find(item => {
         return item.number === value
@@ -275,7 +275,7 @@ class TabAdjustment extends Component {
       isFiltered: false,
       generalAdjustment: period.adjustment,
       salesTable: [],
-      noSalesData: ''      
+      noSalesData: ''
     })
 
     const url = '/app/rows/dataset/'
@@ -292,7 +292,7 @@ class TabAdjustment extends Component {
         selectedCheckboxes: new Set()
       })
       this.clearSearch()
-      this.getSalesTable()    
+      this.getSalesTable()
     }catch(e){
       console.log(e)
     }
@@ -348,7 +348,7 @@ class TabAdjustment extends Component {
   }
 
   changeAdjustment = async (value, row) => {
-    row.lastLocalAdjustment = row.adjustmentForDisplay    
+    row.lastLocalAdjustment = row.adjustmentForDisplay
     row.newAdjustment = value
     const res = await this.handleChange(row)
     if (!res) {
@@ -392,13 +392,13 @@ class TabAdjustment extends Component {
   getModifyButtons () {
     return (
       <div className='columns'>
-            
+
         <div className='column is-narrow'>
           <div className='field'>
             {currentRole !== 'consultor' ?
               <label className='label'>Búsqueda general</label>:
-              null   
-            }           
+              null
+            }
             <div className='control has-icons-right'>
               <input
                 className='input input-search'
@@ -498,7 +498,7 @@ class TabAdjustment extends Component {
         <div className='column is-narrow'>
           <p style={{color: 'grey', paddingTop: '1.7rem', width: '.8rem'}}>
           {
-            this.state.isLoadingButtons && 
+            this.state.isLoadingButtons &&
             <span><FontAwesome className='fa-spin' name='spinner' /></span>
           }
           </p>
@@ -510,7 +510,7 @@ class TabAdjustment extends Component {
             <span>{this.state.byWeek ? this.getProductsSelected() : this.state.selectedCheckboxes.size} </span>
             Productos Seleccionados
             </p>
-          </div> 
+          </div>
         }
 
         <div className='column download-btn'>
@@ -522,8 +522,8 @@ class TabAdjustment extends Component {
               <i className='fa fa-download' />
             </span>
           </button>
-        </div> 
-       
+        </div>
+
       </div>
     )
   }
@@ -545,11 +545,11 @@ getProductsSelected () {
 
     for (const row of selectedCheckboxes) {
       let toAdd = 0
-      
+
       if (
-        type === 'percent' && 
+        type === 'percent' &&
         !isNaN(this.state.percentage) &&
-        parseInt(this.state.percentage) !== 0 
+        parseInt(this.state.percentage) !== 0
       ){
         toAdd = row.lastAdjustment * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
@@ -565,7 +565,7 @@ getProductsSelected () {
 
       let adjustmentForDisplayAux = Math.round(row.adjustmentForDisplay)
       let newAdjustment = adjustmentForDisplayAux + toAdd
-      
+
       row.lastLocalAdjustment = row.adjustmentForDisplay
       row.newAdjustment = newAdjustment
     }
@@ -586,10 +586,10 @@ getProductsSelected () {
 
     for (const row of selectedCheckboxes) {
       let toAdd = 0
-      
+
       if (
-        type === 'percent' && 
-        parseInt(this.state.percentage) !== 0 && 
+        type === 'percent' &&
+        parseInt(this.state.percentage) !== 0 &&
         !isNaN(this.state.percentage)
       ) {
         toAdd = row.lastAdjustment * 0.01 * parseInt(this.state.percentage)
@@ -609,7 +609,7 @@ getProductsSelected () {
       row.lastLocalAdjustment = row.adjustmentForDisplay
       row.newAdjustment = newAdjustment
     }
-    
+
     await this.handleChange(selectedCheckboxes)
     this.setState({isLoadingButtons: ''})
   }
@@ -695,7 +695,7 @@ getProductsSelected () {
         )
       } else {
         if(currentRole === 'manager-level-2' && isLimited){
-          this.notify('¡Ajustes fuera de rango guardados!', 5000, toast.TYPE.WARNING)          
+          this.notify('¡Ajustes fuera de rango guardados!', 5000, toast.TYPE.WARNING)
         }
         else{
           this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
@@ -783,7 +783,7 @@ getProductsSelected () {
 
       if (regEx.test(searchStr))
         return true
-      
+
       return false
     })
     // .filter(function(item){ return item != null });
@@ -933,7 +933,7 @@ getProductsSelected () {
         min = date.dateStart
       }
     })
-    
+
     try {
       let res = await api.post(url, {
         start_date: moment(min).format('YYYY-MM-DD'),
@@ -945,12 +945,12 @@ getProductsSelected () {
       })
 
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
-      FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
+      FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}.csv`);
       this.setState({isDownloading: ''})
       this.notify('¡Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
-    
+
       this.setState({
         isLoading: '',
         noSalesData: e.message + ', intente más tarde',
@@ -1175,7 +1175,7 @@ getProductsSelected () {
                   <span>Centro de Venta: </span>
                   <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
                   </span>
-                </div>  
+                </div>
             :
               <Select
                 label='Centro de Venta'
@@ -1197,14 +1197,14 @@ getProductsSelected () {
               <h1>Indicadores</h1>
             </div>
           </div>
-          <div className={this.state.indicators === 'indicators-hide' ? 
-          'level-item has-text-centered has-text-info' : 
-          'level-item has-text-centered has-text-info disapear'} 
+          <div className={this.state.indicators === 'indicators-hide' ?
+          'level-item has-text-centered has-text-info' :
+          'level-item has-text-centered has-text-info disapear'}
           >
             <div>
               <p className='has-text-weight-semibold'>Predicción</p>
               <h1 className='num has-text-weight-bold'>
-                {this.state.totalPrediction ? 
+                {this.state.totalPrediction ?
                 '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                   return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                 })
@@ -1213,13 +1213,13 @@ getProductsSelected () {
               </h1>
             </div>
           </div>
-          <div className={this.state.indicators === 'indicators-hide' ? 
-          'level-item has-text-centered has-text-teal' : 
+          <div className={this.state.indicators === 'indicators-hide' ?
+          'level-item has-text-centered has-text-teal' :
           'level-item has-text-centered has-text-teal disapear'}>
             <div>
               <p className='has-text-weight-semibold'>Ajuste</p>
               <h1 className='num has-text-weight-bold'>
-                {this.state.totalAdjustment ? 
+                {this.state.totalAdjustment ?
                 '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
                   return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                 })
@@ -1231,8 +1231,8 @@ getProductsSelected () {
           <div className={this.state.indicators === 'indicators-hide' ?
             'level-item has-text-centered' : ' level-item has-text-centered no-border'}>
             <div>
-              <img src='/app/public/img/grafica.png' 
-              className={this.state.indicators === 'indicators-hide' ? 
+              <img src='/app/public/img/grafica.png'
+              className={this.state.indicators === 'indicators-hide' ?
               '' : 'disapear'}/>
               <a className='collapse-btn' onClick={this.toggleIndicators}>
                 <span className='icon is-large'>
@@ -1379,7 +1379,7 @@ getProductsSelected () {
 
           </div>
         </div>
-          
+
         <section>
           {!this.state.isFiltered || this.state.isLoading
             ? <div className='section has-text-centered subtitle has-text-primary'>
@@ -1391,7 +1391,7 @@ getProductsSelected () {
                 <div>
                   <section className='section'>
                   <h1 className='period-info'>
-                    <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getPeriod()} - </span> 
+                    <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getPeriod()} - </span>
                     <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
                   </h1>
                   {this.getModifyButtons()}
@@ -1408,14 +1408,14 @@ getProductsSelected () {
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }} 
-                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
+                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
+                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
                     />
                     :
 
                     <WeekTable
                       show={this.showByProduct}
-                      currentRole={currentRole}                    
+                      currentRole={currentRole}
                       data={this.state.filteredData}
                       checkAll={this.checkAll}
                       filteredSemanasBimbo={this.state.filters.filteredSemanasBimbo}
@@ -1424,7 +1424,7 @@ getProductsSelected () {
                       generalAdjustment={this.state.generalAdjustment}
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
                       handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
-                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
+                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
                     />
                 }
               </div>
