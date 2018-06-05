@@ -109,7 +109,7 @@ class Calendar extends Component {
 
     if (res) {
       let cycles = _(res.data)
-        .groupBy(x => x.cycle.cycle)
+        .groupBy(x => x.cycle.uuid)
         .map((value, key) => ({ cycle: key, periods: value }))
         .value()
         .filter((item) => { return moment.utc(item.periods[0].dateEnd).get('year') === this.state.selectedYear })
