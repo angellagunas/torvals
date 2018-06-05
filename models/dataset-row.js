@@ -39,7 +39,8 @@ const datasetRowSchema = new Schema({
     forecastDate: { type: Date },
     productExternalId: { type: String },
     channelExternalId: { type: String },
-    salesCenterExternalId: { type: String }
+    salesCenterExternalId: { type: String },
+    catalogItemExternalId: { type: String }
   },
   apiData: { type: Schema.Types.Mixed },
 
