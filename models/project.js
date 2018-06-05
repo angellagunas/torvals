@@ -81,6 +81,7 @@ projectSchema.methods.toPublic = function () {
     dateCreated: this.dateCreated,
     dateMin: this.dateMin,
     dateMax: this.dateMax,
+    cycleStatus: this.cycleStatus,
     showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
   }
 }
@@ -101,6 +102,7 @@ projectSchema.methods.toAdmin = function () {
     dateCreated: this.dateCreated,
     dateMin: this.dateMin,
     dateMax: this.dateMax,
+    cycleStatus: this.cycleStatus,
     showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
   }
 }

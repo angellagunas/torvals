@@ -27,6 +27,14 @@ class Select extends Component {
     this.props.onChange(this.props.name, val)
   }
 
+  componentWillReceiveProps(next){
+    if(next.value !== this.state.value){
+      this.setState({
+        value: next.value
+      })
+    }
+  }
+
   render () {
     if(this.props.options){
       return (

@@ -138,7 +138,7 @@ module.exports = new Route({
     })
 
     rows.data = rows.data.map(item => {
-      return item.toAdmin()
+      return item.toPublic()
     })
 
     if (requestId) {
