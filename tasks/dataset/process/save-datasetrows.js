@@ -2,7 +2,6 @@
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
-
 const Task = require('lib/task')
 const { DataSetRow, DataSet } = require('models')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
@@ -70,9 +69,11 @@ const task = new Task(
     for (let catalogItems of dataset.catalogItems) {
       await DataSetRow.update({
         dataset: dataset._id,
-        'data.catalogItemExternalId': catalogItems.externalId
+        `catalogData.is_${catalogItems.type}_id`: catalogItems.externalId
       }, {
-        catalogItems: catalogItems._id
+        $push: {
+          catalogItems: catalogItems._id,
+        }
       }, {
         multi: true
       })

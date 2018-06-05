@@ -233,6 +233,12 @@ dataSetSchema.methods.getSalesColumn = function () {
   return obj
 }
 
+dataSetSchema.methods.getCatalogItemColumn = function (type) {
+  var obj = this.columns.find(item => { return item[`is_${type}_id`] })
+
+  return obj
+}
+
 dataSetSchema.methods.recreateAndSaveFileToDisk = async function () {
   await this.fileChunk.recreateFile()
 
