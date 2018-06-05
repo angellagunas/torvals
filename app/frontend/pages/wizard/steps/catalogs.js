@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Checkbox from '~base/components/base-checkbox'
+import DeleteButton from '~base/components/base-deleteButton'
 
 class Catalogs extends Component {
   constructor (props) {
@@ -141,7 +142,7 @@ class Catalogs extends Component {
 
   render () {
     return (
-      <div className='section pad-sides has-20-margin-top'>
+      <div className='section pad-sides has-20-margin-top catalogs'>
         <h1 className='title is-5'> Catálogos de ventas</h1>
         <p className='subtitle is-6'>Selecciona los campos con los que cuentan tus ventas o catálogos.</p>
         <div className='columns is-centered'>
@@ -182,7 +183,12 @@ class Catalogs extends Component {
                             </div>
                             <div className='control'>
                               {item.delete &&
-                              <button className='delete is-small' onClick={() => { this.removeItem(item) }} />
+                                <DeleteButton
+                                  objectName='Catálogo'
+                                  objectDelete={() => this.removeItem(item)}
+                                  message={<span>¿Estas seguro de querer eliminar este Catálogo?<br /> Los elementos de éste catálogo ya no estarán disponibles</span>}
+                                  small
+                                />
                               }
                             </div>
                           </div>
@@ -196,9 +202,10 @@ class Catalogs extends Component {
             </div>
           </div>
         </div>
-        <center>
+        <div className='buttons wizard-steps'>
+          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
           <button onClick={() => this.sendCatalogs()} className='button is-primary'>Guardar</button>
-        </center>
+        </div>
       </div>
     )
   }
