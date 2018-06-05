@@ -26,15 +26,11 @@ describe('Generate cycles task', () => {
         cycle: "M",
         period:"M",
         periodDuration:1,
-        season: 1,
+        season: 12,
         cyclesAvailable: 6
       }})
 
       await generateCycles.run({uuid: org.uuid, isTest: true})
-
-      const cyclesGenerated = await Cycle.find({organization: org._id}).count()
-      const firstCycle = await Cycle.findOne({organization: org._id, cycle: 1})
-      const lastCycle = await Cycle.findOne({organization: org._id, cycle: 23})
 
       const today = new Date()
 
@@ -50,13 +46,23 @@ describe('Generate cycles task', () => {
       )
 
       const expectedCycles = 12 + (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
+      const cyclesForThisYear = (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
+
+      const cyclesGenerated = await Cycle.find({organization: org._id}).count()
+
+      const firstCycle = await Cycle.findOne({
+        organization: org._id,
+        dateStart: new Date("2017-01-01T06:00:00Z").toISOString()
+      })
+
+      const lastCycle = await Cycle.findOne({
+        organization: org._id,
+        dateStart: lastCycleStartDate.toISOString()
+      })
 
       expect(cyclesGenerated).equal(expectedCycles)
 
-      expect(new Date(firstCycle.dateStart).toISOString()).equal(new Date("2017-01-01T00:00:00Z").toISOString())
-      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2017-01-31T00:00:00Z").toISOString())
-
-      expect(new Date(lastCycle.dateStart).toISOString()).equal(lastCycleStartDate.toISOString())
+      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2017-01-31T06:00:00Z").toISOString())
       expect(new Date(lastCycle.dateEnd).toISOString()).equal(lastCycleEndDate.toISOString())
     })
   })

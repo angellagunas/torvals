@@ -23,8 +23,8 @@ describe('Generate periods task', () => {
         cycle: "M",
         period:"M",
         periodDuration:1,
-        season: 6,
-        cyclesAvailable:4
+        season: 12,
+        cyclesAvailable:6
       }})
 
       await createCycles({organization: org._id})
@@ -33,9 +33,6 @@ describe('Generate periods task', () => {
 
       const wasGenerated = await generatePeriods.run({uuid: org.uuid})
       const periodsGenerated = await Period.find({organization: org._id}).count()
-
-      const firstPeriod = await Period.findOne({organization: org._id, period: 1})
-      const lastPeriod = await Period.findOne({organization: org._id, period: 23})
 
       const today = new Date()
 
@@ -51,6 +48,46 @@ describe('Generate periods task', () => {
       )
 
       const expectedPeriods = 12 + (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
+      const periodsForThisYear = (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
+
+      let firstPeriod = await Period.aggregate([
+        {
+          "$redact": {
+            "$cond": [
+              {
+                "$and": [
+                  {"$eq": [{"$year": "$dateStart"}, 2017]},
+                  {"$eq": [{"$month": "$dateStart"}, 1]},
+                  {"$eq": [{"$dayOfMonth": "$dateStart"}, 1]}
+                ]
+              },
+              "$$KEEP", 
+              "$$PRUNE" 
+            ]
+          }
+        }
+      ])
+
+      let lastPeriod = await Period.aggregate([
+        {
+          "$redact": {
+            "$cond": [
+              {
+                "$and": [
+                  {"$eq": [{"$year": "$dateStart"}, lastPeriodStartDate.getFullYear()]},
+                  {"$eq": [{"$month": "$dateStart"}, (lastPeriodStartDate.getMonth() + 1)]},
+                  {"$eq": [{"$dayOfMonth": "$dateStart"}, lastPeriodStartDate.getDate()]}
+                ]
+              },
+              "$$KEEP", 
+              "$$PRUNE" 
+            ]
+          }
+        }
+      ])
+
+      firstPeriod = firstPeriod[0]
+      lastPeriod = lastPeriod[0]
 
       assert.exists(firstPeriod)
       assert.exists(lastPeriod)
@@ -58,21 +95,9 @@ describe('Generate periods task', () => {
       expect(periodsGenerated).equal(expectedPeriods)
 
       expect(
-        new Date(firstPeriod.dateStart).toISOString().slice(0, 10)
-      ).equal(
-        new Date("2017-01-01").toISOString().slice(0, 10)
-      )
-
-      expect(
         new Date(firstPeriod.dateEnd).toISOString().slice(0, 10)
       ).equal(
         new Date("2017-01-31").toISOString().slice(0, 10)
-      )
-
-      expect(
-        new Date(lastPeriod.dateStart).toISOString().slice(0, 10)
-      ).equal(
-        lastPeriodStartDate.toISOString().slice(0, 10)
       )
 
       expect(
