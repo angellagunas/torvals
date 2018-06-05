@@ -67,7 +67,8 @@ class ConfigureDatasetForm extends Component {
         groupingInput: '',
         groupingOutput: '',
         isLoading: '',
-        catalogsColumns: []
+        catalogsColumns: [],
+        errors: {}
       }
     } else {
       this.state = {
@@ -93,7 +94,8 @@ class ConfigureDatasetForm extends Component {
         apiCallMessage: 'is-hidden',
         apiCallErrorMessage: 'is-hidden',
         isLoading: '',
-        catalogColumns: []
+        catalogColumns: [],
+        errors: {}
       }
     }
   }
@@ -257,68 +259,63 @@ class ConfigureDatasetForm extends Component {
   async submitHandler (event) {
     event.preventDefault()
     this.setState({isLoading: ' is-loading'})
+    let dataset = this.state.dataset
+    let org = dataset.organization
 
     const formData = {
       ...this.state.formData,
-      isDate: this.getValueForColumn('isDate'),
-      isAnalysis: this.getValueForColumn('isAnalysis'),
-      isAdjustment: this.getValueForColumn('isAdjustment'),
-      isPrediction: this.getValueForColumn('isPrediction'),
-      isProduct: this.getValueForColumn('isProduct'),
-      isProductName: this.getValueForColumn('isProductName'),
-      isSalesCenter: this.getValueForColumn('isSalesCenter'),
-      isSalesCenterName: this.getValueForColumn('isSalesCenterName'),
-      isSales: this.getValueForColumn('isSales'),
-      isChannel: this.getValueForColumn('isChannel'),
-      isChannelName: this.getValueForColumn('isChannelName')
+      isDate: this.getValue('isDate'),
+      isAnalysis: this.getValue('isAnalysis'),
+      isProduct: this.getValue('isProduct'),
+      isSalesCenter: this.getValue('isSalesCenter'),
+      isChannel: this.getValue('isChannel')
     }
 
     const schema = {
-      isDate: lov.string().trim().required(),
-      isAnalysis: lov.string().trim().required(),
-      isAdjustment: lov.string().trim(),
-      isPrediction: lov.string().trim(),
-      isProduct: lov.string().trim().required(),
-      isProductName: lov.string(),
-      isSalesCenter: lov.string().trim().required(),
-      isSalesCenterName: lov.string(),
-      isSales: lov.string(),
-      isChannel: lov.string().trim().required(),
-      isChannelName: lov.string()
+      isDate: true,
+      isAnalysis: true,
+      isProduct: true,
+      isSalesCenter: true,
+      isChannel: true
     }
 
     let values = {
-      isDate: this.getValueForColumn('isDate'),
-      isAnalysis: this.getValueForColumn('isAnalysis'),
-      isAdjustment: this.getValueForColumn('isAdjustment'),
-      isPrediction: this.getValueForColumn('isPrediction'),
-      isProduct: this.getValueForColumn('isProduct'),
-      isProductName: this.getValueForColumn('isProductName'),
-      isSalesCenter: this.getValueForColumn('isSalesCenter'),
-      isSalesCenterName: this.getValueForColumn('isSalesCenterName'),
-      isSales: this.getValueForColumn('isSales'),
-      isChannel: this.getValueForColumn('isChannel'),
-      isChannelName: this.getValueForColumn('isChannelName')
+      isDate: this.getValue('isDate'),
+      isAnalysis: this.getValue('isAnalysis'),
+      isProduct: this.getValue('isProduct'),
+      isSalesCenter: this.getValue('isSalesCenter'),
+      isChannel: this.getValue('isChannel')
     }
 
-    let result = lov.validate(values, schema)
+    for (let col of org.rules.catalogs) {
+      let idStr = `is_${col}_id`
+      let nameStr = `is_${col}_name`
+      schema[idStr] = true
 
-    if (result.error === null) {
-      try {
-        var response = await api.post(this.props.url, formData)
-        this.props.changeHandler(response.data)
-        this.setState({isLoading: ''})
-      } catch (e) {
+      values[idStr] = this.getValue(idStr)
+    }
+
+    for (let key of Object.keys(schema)) {
+      if (!values[key] || typeof values[key] !== 'string' || values[key].trim() === '') {
         this.setState({isLoading: ''})
         return this.setState({
-          error: e.message,
-          apiCallErrorMessage: 'message is-danger'
+          error: `¡Ha habido errores al procesar el formulario!`,
+          apiCallErrorMessage: 'message is-danger',
+          errors: {
+            [key]: '¡Valor requerido!'
+          }
         })
       }
-    } else {
+    }
+
+    try {
+      var response = await api.post(this.props.url, formData)
+      this.props.changeHandler(response.data)
+      this.setState({isLoading: ''})
+    } catch (e) {
       this.setState({isLoading: ''})
       return this.setState({
-        error: result.error.message,
+        error: e.message,
         apiCallErrorMessage: 'message is-danger'
       })
     }
@@ -341,18 +338,22 @@ class ConfigureDatasetForm extends Component {
                     <select type='text'
                       name='isDate'
                       value={this.state.isDate}
+                      className={this.state.errors['isDate'] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
                       onChange={(e) => { this.handleChangeSelect('isDate', e) }}
-                >
+                    >
                       <option value=''>Selecciona una opción</option>
                       {
-                    this.state.formData.columns.map(function (item, key) {
-                      return <option key={key}
-                        value={item.name}>{item.name}</option>
-                    })
-                  }
+                        this.state.formData.columns.map(function (item, key) {
+                          return <option key={key}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
                     </select>
                   </div>
                 </div>
+                { this.state.errors['isDate'] &&
+                  <p className='help is-danger'>{this.state.errors['isDate']}</p>
+                }
               </div>
             </div>
             <div className='column'>
@@ -364,18 +365,22 @@ class ConfigureDatasetForm extends Component {
                     <select type='text'
                       name='isAnalysis'
                       value={this.state.isAnalysis}
+                      className={this.state.errors['isAnalysis'] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
                       onChange={(e) => { this.handleChangeSelect('isAnalysis', e) }}
-                >
+                    >
                       <option value=''>Selecciona una opción</option>
                       {
-                    this.state.formData.columns.map(function (item, key) {
-                      return <option key={key}
-                        value={item.name}>{item.name}</option>
-                    })
-                  }
+                        this.state.formData.columns.map(function (item, key) {
+                          return <option key={key}
+                            value={item.name}>{item.name}</option>
+                        })
+                      }
                     </select>
                   </div>
                 </div>
+                { this.state.errors['isAnalysis'] &&
+                  <p className='help is-danger'>{this.state.errors['isAnalysis']}</p>
+                }
               </div>
             </div>
           </div>
@@ -455,7 +460,7 @@ class ConfigureDatasetForm extends Component {
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
-                      className='is-fullwidth'
+                      className={this.state.errors['isSalesCenter'] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
                       name='isSalesCenter'
                       value={this.state.isSalesCenter}
                       onChange={(e) => { this.handleChangeSelect('isSalesCenter', e) }}>
@@ -469,6 +474,9 @@ class ConfigureDatasetForm extends Component {
                     </select>
                   </div>
                 </div>
+                { this.state.errors['isSalesCenter'] &&
+                  <p className='help is-danger'>{this.state.errors['isSalesCenter']}</p>
+                }
               </div>
             </div>
 
@@ -503,7 +511,7 @@ class ConfigureDatasetForm extends Component {
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
-                      className='is-fullwidth'
+                      className={this.state.errors['isProduct'] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
                       name='isProduct'
                       value={this.state.isProduct}
                       onChange={(e) => { this.handleChangeSelect('isProduct', e) }}>
@@ -517,6 +525,9 @@ class ConfigureDatasetForm extends Component {
                     </select>
                   </div>
                 </div>
+                { this.state.errors['isProduct'] &&
+                  <p className='help is-danger'>{this.state.errors['isProduct']}</p>
+                }
               </div>
             </div>
             <div className='column'>
@@ -550,7 +561,7 @@ class ConfigureDatasetForm extends Component {
                 <div className='control'>
                   <div className='select is-fullwidth'>
                     <select type='text'
-                      className='is-fullwidth'
+                      className={this.state.errors['isChannel'] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
                       name='isChannel'
                       value={this.state.isChannel}
                       onChange={(e) => { this.handleChangeSelect('isChannel', e) }}>
@@ -564,6 +575,9 @@ class ConfigureDatasetForm extends Component {
                     </select>
                   </div>
                 </div>
+                { this.state.errors['isChannel'] &&
+                  <p className='help is-danger'>{this.state.errors['isChannel']}</p>
+                }
               </div>
             </div>
             <div className='column'>
@@ -599,7 +613,7 @@ class ConfigureDatasetForm extends Component {
                     <div className='control'>
                       <div className='select is-fullwidth'>
                         <select type='text'
-                          className='is-fullwidth'
+                          className={this.state.errors[item.id.name] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
                           name={item.id.name}
                           value={this.getValue(item.id.name)}
                           onChange={(e) => { this.handleChangeSelect(item.id.name, e) }}>
@@ -613,6 +627,9 @@ class ConfigureDatasetForm extends Component {
                         </select>
                       </div>
                     </div>
+                    { this.state.errors[item.id.name] &&
+                      <p className='help is-danger'>{this.state.errors[item.id.name]}</p>
+                    }
                   </div>
                 </div>
 
