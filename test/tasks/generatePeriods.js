@@ -41,19 +41,21 @@ describe('Generate periods task', () => {
 
       lastPeriodStartDate = new Date(
         today.getFullYear(),
-        today.getMonth() + parseInt(org.cyclesAvailable)
+        today.getMonth() + parseInt(org.rules.cyclesAvailable)
       )
 
       lastPeriodEndDate = new Date(
         today.getFullYear(),
-        today.getMonth() + 1 + parseInt(org.cyclesAvailable),
+        today.getMonth() + 1 + parseInt(org.rules.cyclesAvailable),
         0
       )
+
+      const expectedPeriods = 12 + (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
 
       assert.exists(firstPeriod)
       assert.exists(lastPeriod)
 
-      expect(periodsGenerated).equal(23)
+      expect(periodsGenerated).equal(expectedPeriods)
 
       expect(
         new Date(firstPeriod.dateStart).toISOString().slice(0, 10)
@@ -82,37 +84,22 @@ describe('Generate periods task', () => {
   })
 
   describe('with a organization with invalid rules', () => {
-    it('or without rules should return a exception', async function () {
-      const org = await createOrganization({})
-      await createCycles({organization: org._id})
-
-      const wasFailed = true
-      const errorMsg = ''
-      try{
-        const wasGenerated = await generatePeriods.run({uuid: org.uuid})
-      }catch(error){
-          wasFailed = true
-          errorMsg = error.message
-      }
-
-      expect(wasFailed).equal(true)
-      expect(errorMsg).equal('The given organization do not has rules assigned')
-    })
-
-   it('with a negative cycle duration', async function () {
+    it('with invalid period', async function () {
       const org = await createOrganization({rules: {
         startDate:"2018-01-01T00:00:00",
-        cycleDuration: -1,
+        cycleDuration: 1,
         cycle: "M",
-        period:"M",
-        periodDuration:1,
+        period:"invalidString",
+        periodDuration: 1,
         season: 6,
         cyclesAvailable:4
       }})
+
       await createCycles({organization: org._id})
 
-      const wasFailed = true
-      const errorMsg = ''
+      let wasFailed = true
+      let errorMsg = ''
+
       try{
         const wasGenerated = await generatePeriods.run({uuid: org.uuid})
       }catch(error){
@@ -121,7 +108,7 @@ describe('Generate periods task', () => {
       }
 
       expect(wasFailed).equal(true)
-      expect(errorMsg).equal('The cycleDuration should be a positive integer')
+      expect(errorMsg).equal('The given period has a invalid format')
     })
 
     it('with a negative period duration', async function () {
@@ -136,8 +123,8 @@ describe('Generate periods task', () => {
       }})
       await createCycles({organization: org._id})
 
-      const wasFailed = true
-      const errorMsg = ''
+      let wasFailed = true
+      let errorMsg = ''
       try{
         const wasGenerated = await generatePeriods.run({uuid: org.uuid})
       }catch(error){
@@ -147,56 +134,6 @@ describe('Generate periods task', () => {
 
       expect(wasFailed).equal(true)
       expect(errorMsg).equal('The periodDuration should be a positive integer')
-    })
-
-    it('with a negative season', async function () {
-      const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
-        cycleDuration: 1,
-        cycle: "M",
-        period:"M",
-        periodDuration: 1,
-        season: -6,
-        cyclesAvailable:4
-      }})
-      await createCycles({organization: org._id})
-
-      const wasFailed = true
-      const errorMsg = ''
-      try{
-        const wasGenerated = await generatePeriods.run({uuid: org.uuid})
-      }catch(error){
-          wasFailed = true
-          errorMsg = error.message
-      }
-
-      expect(wasFailed).equal(true)
-      expect(errorMsg).equal('The season should be a positive integer')
-    })
-
-    it('with a negative season', async function () {
-      const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
-        cycleDuration: 1,
-        cycle: "M",
-        period:"M",
-        periodDuration: 1,
-        season: 6,
-        cyclesAvailable: -4
-      }})
-      await createCycles({organization: org._id})
-
-      const wasFailed = true
-      const errorMsg = ''
-      try{
-        const wasGenerated = await generatePeriods.run({uuid: org.uuid})
-      }catch(error){
-          wasFailed = true
-          errorMsg = error.message
-      }
-
-      expect(wasFailed).equal(true)
-      expect(errorMsg).equal('The cyclesAvailable should be a positive integer')
     })
   })
 })
