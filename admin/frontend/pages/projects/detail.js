@@ -18,7 +18,6 @@ import TabAdjustment from './detail-tabs/tab-adjustments'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import TabAnomalies from './detail-tabs/tab-anomalies'
 import NotFound from '~base/components/not-found'
-import tree from '~core/tree'
 
 class ProjectDetail extends Component {
   constructor (props) {
@@ -158,10 +157,6 @@ class ProjectDetail extends Component {
     if (!this.state.loaded) {
       return <Loader />
     }
-    const currentUser = tree.get('user')
-    const userOrg = (currentUser.organizations || []).find(org => org.organization.uuid === project.organization.uuid)
-    const slug = userOrg ? userOrg.role.slug : 1
-    const slugFlag = slug !== 'manager-level-2' && slug !== 'consultor'
 
     const tabs = [
       {
@@ -195,7 +190,7 @@ class ProjectDetail extends Component {
             setAlert={(type, data) => this.setAlert(type, data)} />
         )
       },
-      slugFlag && {
+      {
         name: 'datasets',
         title: 'Datasets',
         icon: 'fa-signal',
@@ -237,7 +232,7 @@ class ProjectDetail extends Component {
           />
         )
       },
-      slugFlag && {
+      {
         name: 'configuracion',
         title: 'Configuración',
         icon: 'fa-tasks',
@@ -270,7 +265,7 @@ class ProjectDetail extends Component {
             </div>
           </div>
       )}
-    ].filter(tab => !!tab)
+    ]
 
     let options = (<button className={'button is-primary no-hidden'}
       onClick={() => this.showModalDataset()}>
