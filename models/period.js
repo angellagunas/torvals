@@ -45,4 +45,24 @@ periodSchema.methods.toAdmin = function () {
   return data
 }
 
+periodSchema.statics.getBetweenDates = async function(organization, minDate, maxDate) {
+  const firstPeriod = await this.findOne({
+    organization: organization,
+    isDeleted: false,
+    dateStart: { $lte: minDate },
+    dateEnd: { $gte: minDate }
+  })
+  const periods = await this.find({
+    organization: organization,
+    dateStart: {
+      $gte: firstPeriod.dateStart,
+      $lte: maxDate
+    },
+    isDeleted: false
+  }).sort({
+    dateStart: 1
+  })
+  return periods
+}
+
 module.exports = mongoose.model('Period', periodSchema)

@@ -169,11 +169,7 @@ const task = new Task(
     })
 
     log('Obtaining periods  ...')
-    var periods = await Period.find({
-      organization: dataset.organization._id,
-      isDeleted: false,
-      dateStart: {$gte: minDate, $lte: maxDate}
-    })
+    var periods = await Period.getBetweenDates(dataset.organization._id, minDate, maxDate)
 
     periods = periods.map(item => {
       return item._id
