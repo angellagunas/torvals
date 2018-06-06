@@ -60,7 +60,8 @@ const projectSchema = new Schema({
   dateCreated: { type: Date, default: moment.utc },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  rule: {type: Schema.Types.ObjectId, ref: 'Rule'}
 }, { usePushEach: true })
 
 projectSchema.plugin(dataTables)
