@@ -247,7 +247,7 @@ class Periods extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del ciclo'
+      tooltipText: 'Inicio del primer ciclo'
     }
     return d
   }
@@ -367,7 +367,7 @@ class Periods extends Component {
 
                     <div className='field has-addons'>
                       <div className='control'>
-                        <label className='label'>Inicio del ciclo</label>
+                        <label className='label'>Fecha de inicio del primer ciclo</label>
                         <div className='control'>
                           <input className='input' type='text' placeholder='Text input'
                             value={moment.utc(this.state.timesSelected.startDate).format('DD-MMM-YYYY')} readOnly />

@@ -144,7 +144,7 @@ class DeadLines extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del ciclo'
+      tooltipText: 'Inicio del primer ciclo'
     }
     return d
   }
