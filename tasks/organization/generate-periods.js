@@ -5,7 +5,7 @@ require('lib/databases/mongo')
 const moment = require('moment')
 
 const Task = require('lib/task')
-const { Organization, Cycle, Period } = require('models')
+const { Organization, Cycle, Period, Rule } = require('models')
 
 const task = new Task(
   async function (argv) {
@@ -13,12 +13,14 @@ const task = new Task(
       throw new Error('You need to provide an organization')
     }
     const organization = await Organization.findOne({uuid: argv.uuid})
-    const cycles = await Cycle.find({organization: organization._id, isDeleted: false}).sort({dateStart: 1})
+    const rule = await Rule.findOne({organization: organization._id, isCurrent: true})
+
+    const cycles = await Cycle.find({organization: organization._id, isDeleted: false, rule: rule._id}).sort({dateStart: 1})
     if (cycles.length === 0) { throw new Error('No hay ciclos disponibles') }
-    const periodDuration = organization.rules.periodDuration
-    const period = organization.rules.period
-    const takeStart = organization.rules.takeStart
-    await Period.deleteMany({organization: organization._id})
+    const periodDuration = rule.periodDuration
+    const period = rule.period
+    const takeStart = rule.takeStart
+
     var startDate = moment(moment(cycles[0].dateStart).utc().format('YYYY-MM-DD'))
     var endDate = moment(moment(cycles[cycles.length - 1].dateEnd).utc().format('YYYY-MM-DD'))
     var currentEndDate
@@ -32,6 +34,7 @@ const task = new Task(
         {dateStart: {$lte: startDate}, dateEnd: {$gte: startDate}},
         {dateStart: {$lte: currentEndDate}, dateEnd: {$gte: currentEndDate}}],
         organization: organization._id,
+        rule: rule._id,
         isDeleted: false
       })
 
@@ -52,7 +55,8 @@ const task = new Task(
           dateStart: startDate,
           dateEnd: currentEndDate,
           cycle: cycle,
-          period: periodNumber++
+          period: periodNumber++,
+          rule: rule._id
         })
 
         lastCycle = cycle

@@ -5,7 +5,7 @@ require('lib/databases/mongo')
 const moment = require('moment')
 
 const Task = require('lib/task')
-const { Organization, Cycle, Period } = require('models')
+const { Organization, Cycle, Period, Rule } = require('models')
 
 const task = new Task(
   async function (argv) {
@@ -13,13 +13,15 @@ const task = new Task(
       throw new Error('You need to provide an organization')
     }
     const organization = await Organization.findOne({uuid: argv.uuid})
-    const cycleDuration = organization.rules.cycleDuration
-    const cycle = organization.rules.cycle
-    const takeStart = organization.rules.takeStart
-    const periodDuration = organization.rules.periodDuration
-    const period = organization.rules.period
+    const rule = await Rule.findOne({organization: organization._id, isCurrent: true})
 
-    const cycles = await Cycle.findOne({organization: organization._id, isDeleted: false}).sort({dateStart: -1})
+    const cycleDuration = rule.cycleDuration
+    const cycle = rule.cycle
+    const takeStart = rule.takeStart
+    const periodDuration = rule.periodDuration
+    const period = rule.period
+
+    const cycles = await Cycle.findOne({organization: organization._id, isDeleted: false, rule: rule._id}).sort({dateStart: -1})
     if (!cycles) { throw new Error('Cycles unavailable') }
     var startDate = moment(cycles.dateEnd).utc().add(1, 'd')
     const totalToAdd = argv.cycles
@@ -49,7 +51,8 @@ const task = new Task(
         organization: organization._id,
         dateStart: startDate,
         dateEnd: endDate,
-        cycle: cycleNumber
+        cycle: cycleNumber,
+        rule: rule._id
       })
 
       previousYear = endYear
@@ -69,7 +72,8 @@ const task = new Task(
         {dateStart: {$lte: startDate}, dateEnd: {$gte: startDate}},
         {dateStart: {$lte: currentEndDate}, dateEnd: {$gte: currentEndDate}}],
         organization: organization._id,
-        isDeleted: false
+        isDeleted: false,
+        rule: rule._id
       })
 
       if (cyclesBetween.length > 0) {
@@ -89,7 +93,8 @@ const task = new Task(
           dateStart: startDate,
           dateEnd: currentEndDate,
           cycle: cycle,
-          period: periodNumber++
+          period: periodNumber++,
+          rule: rule._id
         })
 
         lastCycle = cycle

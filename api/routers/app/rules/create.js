@@ -53,15 +53,25 @@ module.exports = new Route({
 
     let findProductsCatalog = data.catalogs.find(item => { return slugify(item) === 'producto' || slugify(item) === 'productos' })
     if (findProductsCatalog === undefined) { ctx.throw(422, 'Se debe de agregar un catálogo de productos') }
+
+    var previousRule = await Rule.findOne({isCurrent: true, organization: organizationId})
+
+    let version = (previousRule) ? previousRule.version + 1 : 1
+
+    await Rule.update({organization: organizationId}, {isCurrent: false}, {multi: true})
+
     var rule = await Rule.create({
       ...data,
-      organization: organizationId
+      organization: organizationId,
+      isCurrent: true,
+      version: version
     })
-    await generateCycles.run({uuid: org.uuid, rule: rule.uuid})
+
+    await generateCycles.run({uuid: org.uuid})
 
     const periods = await Period.find({ organization: org._id, isDeleted: false, rule: rule._id }).populate('cycle')
-    var periodsArray = new Set()
-    var cyclesArray = new Set()
+    let periodsArray = new Set()
+    let cyclesArray = new Set()
     periods.data = periods.map(item => {
       periodsArray.add(item._id)
       cyclesArray.add(item.cycle._id)
