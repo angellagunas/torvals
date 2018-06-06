@@ -121,7 +121,8 @@ dataSetSchema.methods.toPublic = function () {
     isMain: this.isMain,
     salesCenters: this.salesCenters,
     products: this.products,
-    channels: this.channels
+    channels: this.channels,
+    catalogItems: this.catalogItems
   }
 }
 
@@ -147,7 +148,8 @@ dataSetSchema.methods.format = function () {
     isMain: this.isMain,
     salesCenters: this.salesCenters,
     products: this.products,
-    channels: this.channels
+    channels: this.channels,
+    catalogItems: this.catalogItems
   }
 }
 
