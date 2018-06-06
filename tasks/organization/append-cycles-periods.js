@@ -3,7 +3,6 @@ require('../../config')
 require('lib/databases/mongo')
 
 const moment = require('moment')
-
 const Task = require('lib/task')
 const { Organization, Cycle, Period } = require('models')
 
@@ -13,20 +12,28 @@ const task = new Task(
       throw new Error('You need to provide an organization')
     }
     const organization = await Organization.findOne({uuid: argv.uuid})
-    const cycleDuration = organization.rules.cycleDuration
-    const cycle = organization.rules.cycle
-    const takeStart = organization.rules.takeStart
-    const periodDuration = organization.rules.periodDuration
-    const period = organization.rules.period
+    const {
+      cycleDuration,
+      cycle,
+      takeStart,
+      periodDuration,
+      period
+    } = organization.rules
 
-    const cycles = await Cycle.findOne({organization: organization._id, isDeleted: false}).sort({dateStart: -1})
-    if (!cycles) { throw new Error('Cycles unavailable') }
-    var startDate = moment(cycles.dateEnd).utc().add(1, 'd')
+    const cycles = await Cycle
+      .findOne({
+        organization: organization._id,
+        isDeleted: false
+      })
+      .sort({ dateStart: -1 })
+    if (!cycles) throw new Error('Cycles unavailable')
+
     const totalToAdd = argv.cycles
+    let cycleNumber = cycles.cycle
+    let startDate = moment(cycles.dateEnd).utc().add(1, 'd')
+    let previousYear = moment(cycles.dateStart).utc().format('YYYY')
 
-    var previousYear = moment(cycles.dateStart).utc().format('YYYY')
-    var cycleNumber = cycles.cycle
-    var endDate
+    let endDate
     for (let i = 1; i <= totalToAdd; i++) {
       endDate = moment(startDate).utc().add(cycleDuration, cycle)
       endDate = moment(endDate).utc().subtract(1, 'd')
@@ -56,18 +63,28 @@ const task = new Task(
       startDate = moment(endDate).utc().add(1, 'd')
     }
 
-    const periods = await Period.findOne({organization: organization._id, isDeleted: false}).sort({dateStart: -1})
+    const periods = await Period
+      .findOne({
+        organization: organization._id,
+        isDeleted: false
+      })
+      .sort({ dateStart: -1 })
     startDate = moment(periods.dateEnd).utc().add(1, 'd')
-    var periodNumber
-    var lastCycle
-    var currentEndDate
+    let periodNumber
+    let lastCycle
+    let currentEndDate
     do {
       currentEndDate = moment(startDate).utc().add(periodDuration, period)
       currentEndDate = moment(currentEndDate).utc().subtract(1, 'd')
 
-      let cyclesBetween = await Cycle.find({ $or: [
-        {dateStart: {$lte: startDate}, dateEnd: {$gte: startDate}},
-        {dateStart: {$lte: currentEndDate}, dateEnd: {$gte: currentEndDate}}],
+      let cyclesBetween = await Cycle.find({
+        $or: [{
+          dateStart: { $lte: startDate },
+          dateEnd: { $gte: startDate }
+        }, {
+          dateStart: { $lte: currentEndDate },
+          dateEnd: { $gte: currentEndDate }
+        }],
         organization: organization._id,
         isDeleted: false
       })
@@ -75,7 +92,9 @@ const task = new Task(
       if (cyclesBetween.length > 0) {
         let cycle
         if (cyclesBetween.length > 1) {
-          cycle = (takeStart) ? cyclesBetween[cyclesBetween.length - 1]._id : cyclesBetween[0]._id
+          cycle = (takeStart)
+            ? cyclesBetween[cyclesBetween.length - 1]._id
+            : cyclesBetween[0]._id
         } else {
           cycle = cyclesBetween[0]._id
         }

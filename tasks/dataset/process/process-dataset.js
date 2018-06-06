@@ -1,29 +1,26 @@
 // node tasks/dataset/process/process-dataset.js --uuid uuid [--batchSize batchSize --noNextStep]
 require('../../../config')
 require('lib/databases/mongo')
-const moment = require('moment')
 const _ = require('lodash')
+const fillCyclesPeriods = require('tasks/organization/fill-cycles-periods')
+const Logger = require('lib/utils/logger')
+const moment = require('moment')
 const slugify = require('underscore.string/slugify')
-
-const Task = require('lib/task')
-const { DataSet, DataSetRow, Cycle, Period } = require('models')
 const saveDatasetRows = require('queues/save-datasetrows')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
+const Task = require('lib/task')
+const { DataSet, DataSetRow, Cycle, Period } = require('models')
 
 const task = new Task(
   async function (argv) {
-    let log = (args) => {
-      args = ('[process-dataset] ') + args
-
-      console.log(args)
-    }
+    const log = new Logger('process-dataset')
 
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
     }
 
-    log('Processing Dataset...')
-    log(`Start ==>  ${moment().format()}`)
+    log.call('Processing Dataset...')
+    log.call(`Start ==>  ${moment().format()}`)
 
     const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('organization')
 
@@ -65,13 +62,11 @@ const task = new Task(
       channelsObj['name'] = `$apiData.${channelName.name}`
     }
 
-    var statement = [
-      {
+    var statement = [{
         '$match': {
           'dataset': dataset._id
         }
-      },
-      {
+      }, {
         '$group': {
           '_id': null,
           'channels': {
@@ -87,7 +82,7 @@ const task = new Task(
       }
     ]
 
-    log('Obtaining uniques ...')
+    log.call('Obtaining uniques ...')
 
     let rows = await DataSetRow.aggregate(statement)
     let rowData = {
@@ -145,15 +140,12 @@ const task = new Task(
       }
     }
 
-    log('Obtaining max and min dates ...')
-
-    statement = [
-      {
+    log.call('Obtaining max and min dates ...')
+    statement = [{
         '$match': {
           'dataset': dataset._id
         }
-      },
-      {
+      }, {
         '$group': {
           '_id': null,
           'max': { '$max': '$data.forecastDate' },
@@ -166,25 +158,21 @@ const task = new Task(
     maxDate = moment(rows[0].max).utc().format('YYYY-MM-DD')
     minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
 
-    log('Obtaining cycles  ...')
-
-    var cycles = await Cycle.find({
-      organization: dataset.organization._id,
-      isDeleted: false,
-      dateStart: {$gte: minDate, $lte: maxDate}
+    await fillCyclesPeriods.run({
+      uuid: dataset.organization.uuid,
+      dateMin: minDate,
+      dateMax: maxDate
     })
+
+    log.call('Obtaining cycles ...')
+    let cycles = await Cycle.getBetweenDates(dataset.organization._id, minDate, maxDate)
 
     cycles = cycles.map(item => {
       return item._id
     })
 
-    log('Obtaining periods  ...')
-
-    var periods = await Period.find({
-      organization: dataset.organization._id,
-      isDeleted: false,
-      dateStart: {$gte: minDate, $lte: maxDate}
-    })
+    log.call('Obtaining periods...')
+    let periods = await Period.getBetweenDates(dataset.organization._id, minDate, maxDate)
 
     periods = periods.map(item => {
       return item._id
@@ -201,7 +189,7 @@ const task = new Task(
       periods: periods
     }
 
-    log('Obtaining new products/sales centers/channels  ...')
+    log.call('Obtaining new products/sales centers/channels  ...')
 
     try {
       await dataset.processReady(sendData)
@@ -211,8 +199,8 @@ const task = new Task(
       return false
     }
 
-    log('Success! Dataset processed')
-    log(`End ==>  ${moment().format()}`)
+    log.call('Success! Dataset processed')
+    log.call(`End ==>  ${moment().format()}`)
 
     if (!argv.noNextStep) saveDatasetRows.add({uuid: dataset.uuid})
 
