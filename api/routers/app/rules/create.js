@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { Rule, Organization, Period } = require('models')
+const { Rule, Organization, Period, Project } = require('models')
 const moment = require('moment')
 const slugify = require('underscore.string/slugify')
 const generateCycles = require('tasks/organization/generate-cycles')
@@ -74,6 +74,8 @@ module.exports = new Route({
     })
 
     await rule.save()
+
+    await Project.update({organization: org._id}, {outdated: true}, {multi: true})
 
     ctx.body = {
       rules: rule,
