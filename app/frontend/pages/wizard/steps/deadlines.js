@@ -320,7 +320,7 @@ class DeadLines extends Component {
         color: 'deadline-sales'
       },
       {
-        title: 'Generar Prediccion',
+        title: 'Generar Predicción',
         name: 'forecastCreation',
         color: 'deadline-forecast'
       },

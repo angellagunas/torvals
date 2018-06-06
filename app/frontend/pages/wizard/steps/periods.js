@@ -350,15 +350,18 @@ class Periods extends Component {
                         <div className='field'>
                           <label className='label'>Temporada</label>
                           <div className='control'>
-                            <a className="button is-static">
-                              {this.state.timesSelected.season} ciclos
+                            <div className='field has-addons'>
+                              <div className='control'>
+                                <a className="button is-static">
+                                  {this.state.timesSelected.season} ciclos
                             </a>
+                              </div>
+                              <div className='control help-btn'>
+                                <button className='button is-static tooltip' data-tooltip='Ciclos de ajuste, el primero siempre es el actual'> ? </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-
-                      <div className='control help'>
-                        <button className='button is-static tooltip' data-tooltip='Ciclos de ajuste, el primero siempre es el actual'> ? </button>
                       </div>
                     </div>
 
