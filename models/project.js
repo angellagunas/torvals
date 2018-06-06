@@ -60,7 +60,9 @@ const projectSchema = new Schema({
   dateCreated: { type: Date, default: moment.utc },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  rule: {type: Schema.Types.ObjectId, ref: 'Rule'},
+  outdated: {type: Boolean, default: false}
 }, { usePushEach: true })
 
 projectSchema.plugin(dataTables)
@@ -81,8 +83,9 @@ projectSchema.methods.toPublic = function () {
     dateCreated: this.dateCreated,
     dateMin: this.dateMin,
     dateMax: this.dateMax,
+    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard,
+    outdated: this.outdated,
     cycleStatus: this.cycleStatus,
-    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
   }
 }
 
@@ -102,8 +105,9 @@ projectSchema.methods.toAdmin = function () {
     dateCreated: this.dateCreated,
     dateMin: this.dateMin,
     dateMax: this.dateMax,
-    cycleStatus: this.cycleStatus,
-    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
+    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard,
+    outdated: this.outdated,
+    cycleStatus: this.cycleStatus
   }
 }
 

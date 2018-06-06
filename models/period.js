@@ -11,7 +11,8 @@ const periodSchema = new Schema({
   period: {type: Number},
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  rule: {type: Schema.Types.ObjectId, ref: 'Rule'}
 }, { usePushEach: true })
 
 periodSchema.methods.toPublic = function () {
@@ -21,7 +22,8 @@ periodSchema.methods.toPublic = function () {
     dateEnd: this.dateEnd,
     period: this.period,
     dateCreated: this.dateCreated,
-    uuid: this.uuid
+    uuid: this.uuid,
+    rule: this.rule
   }
 
   if (this.cycle) { data.cycle = this.cycle.toPublic() }
@@ -37,7 +39,8 @@ periodSchema.methods.toAdmin = function () {
     period: this.period,
     dateCreated: this.dateCreated,
     uuid: this.uuid,
-    isDeleted: this.isDeleted
+    isDeleted: this.isDeleted,
+    rule: this.rule
   }
 
   if (this.cycle) { data.cycle = this.cycle.toAdmin() }

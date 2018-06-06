@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Checkbox from '~base/components/base-checkbox'
+import slugify from 'underscore.string/slugify'
 import DeleteButton from '~base/components/base-deleteButton'
 
 class Catalogs extends Component {
@@ -96,7 +97,7 @@ class Catalogs extends Component {
   sendCatalogs () {
     let catalogs = this.state.catalogs.map((item) => {
       if (item.checked) {
-        return item.title.replace(/ /g, '_').toLowerCase()
+        return slugify(item.title)
       }
     }).filter((item) => { return item })
     this.props.nextStep({catalogs})

@@ -170,19 +170,7 @@ module.exports = new Route({
           reader.destroy()
           lines = lines.slice(0, 1)
           var headers = lines[0].split(',')
-          dataset.set({
-            status: 'uploading',
-            columns: headers.map(item => {
-              return {
-                name: item,
-                isDate: false,
-                isAnalysis: false,
-                isOperationFilter: false,
-                isAnalysisFilter: false
-              }
-            })
-          })
-          await dataset.save()
+          await dataset.setColumns(headers)
         }
 
         if (chunkNumber === totalChunks) {
