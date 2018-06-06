@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 const ObjectId = require('mongodb').ObjectID
-const {SalesCenter, Role, Forecast, Prediction} = require('models')
+const {SalesCenter, Role, Forecast, Prediction, Group} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -71,6 +71,14 @@ module.exports = new Route({
       var salesCentersList = []
 
       salesCentersList = await SalesCenter.find({groups: {$in: groups}})
+      statement.push({ '$match': { '_id': { $in: salesCentersList.map(item => { return item._id }) } } })
+    }
+
+    if (filter === 'group') {
+      let group = await Group.findOne({uuid: ctx.request.query[filter]})
+      let salesCentersList = []
+
+      salesCentersList = await SalesCenter.find({ groups: group._id })
       statement.push({ '$match': { '_id': { $in: salesCentersList.map(item => { return item._id }) } } })
     }
 
