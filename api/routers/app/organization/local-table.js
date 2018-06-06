@@ -69,7 +69,12 @@ module.exports = new Route({
 
     if (data.channels) {
       let channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1, 'groups': 1})
-      if (currentRole.slug === 'manager-level-2') {
+
+      if (
+        currentRole.slug === 'manager-level-1' ||
+        currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'consultor'
+      ) {
         channels = channels.filter(item => {
           let checkExistence = item.groups.some(function (e) {
             return user.groups.indexOf(String(e)) >= 0
@@ -79,12 +84,18 @@ module.exports = new Route({
       } else {
         channels = channels.map(item => { return item._id })
       }
+
       initialMatch['channel'] = { $in: channels }
     }
 
     if (data.salesCenters) {
       let salesCenters = await SalesCenter.find({ uuid: { $in: data.salesCenters } }).select({'_id': 1, 'groups': 1})
-      if (currentRole.slug === 'manager-level-2') {
+
+      if (
+        currentRole.slug === 'manager-level-1' ||
+        currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'consultor'
+      ) {
         salesCenters = salesCenters.filter(item => {
           let checkExistence = item.groups.some(function (e) {
             return user.groups.indexOf(String(e)) >= 0
@@ -94,6 +105,7 @@ module.exports = new Route({
       } else {
         salesCenters = salesCenters.map(item => { return item._id })
       }
+
       initialMatch['salesCenter'] = { $in: salesCenters }
     }
 

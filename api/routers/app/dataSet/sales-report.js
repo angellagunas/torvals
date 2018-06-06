@@ -44,9 +44,11 @@ module.exports = new Route({
     }
 
     if (
-      (currentRole.slug === 'manager-level-1' ||
-      currentRole.slug === 'manager-level-2') &&
-      !data.salesCenters
+      (
+        currentRole.slug === 'manager-level-1' ||
+        currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'consultor'
+      ) && !data.salesCenters
     ) {
       var groups = user.groups
       var salesCenters = []
