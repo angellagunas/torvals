@@ -279,11 +279,6 @@ class GroupDetail extends Component {
                   },
                   {
                     path: '/manage/groups/',
-                    label: 'Detalle',
-                    current: true
-                  },
-                  {
-                    path: '/manage/groups/',
                     label: group.name,
                     current: true
                   }

@@ -305,11 +305,6 @@ class ProjectDetail extends Component {
                   },
                   {
                     path: '/admin/projects/detail/',
-                    label: 'Detalle',
-                    current: true
-                  },
-                  {
-                    path: '/admin/projects/detail/',
                     label: project.name,
                     current: true
                   }
