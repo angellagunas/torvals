@@ -31,8 +31,7 @@ class Rules extends Component {
     let rules = this.props.rules
     return (
       <div className='section pad-sides has-20-margin-top'>
-        <h1 className='title is-5'>Resumen</h1>
-        <p className='subtitle is-6'>Revisa la información de tu organización.</p>
+        <h1 className='title is-5'>Reglas de la organizacion</h1>
         <div className='columns is-centered'>
           <div className='column'>
             <div className='card'>
@@ -43,14 +42,14 @@ class Rules extends Component {
               </header>
               <div className='card-content'>
                 <div className='columns'>
-                  <div className='column'>
+                  <div className='column is-4'>
                     <button className='button is-primary is-small is-pulled-right'
                       onClick={() => this.props.setStep(2)}>
                       Editar
                     </button>
                     <p>
                       Inicio del ciclo:
-                    <span className='has-text-weight-bold is-capitalized'> {moment(rules.startDate).format('DD-MMM-YYYY')}</span>
+                    <span className='has-text-weight-bold is-capitalized'> {moment.utc(rules.startDate).format('DD-MMM-YYYY')}</span>
                     </p>
                     <p>
                       Duración de ciclo:
@@ -69,9 +68,8 @@ class Rules extends Component {
                       <span className='has-text-weight-bold is-capitalized'> {rules.periodDuration + ' ' + times[rules.period]}</span>
                     </p>
                     <p>
-                      Se usará la fecha de
-                      <span className='has-text-weight-bold'> {rules.takeStart ? 'inicio' : 'fin'} </span>
-                      del periodo para determinar el ciclo al que pertenece
+                      Los periodos pertenecen al ciclo donde
+                      <span className='has-text-weight-bold'> {rules.takeStart ? 'inician.' : 'terminan.'} </span>
                     </p>
 
                     <hr />
@@ -92,7 +90,50 @@ class Rules extends Component {
 
                   </div>
 
-                  <div className='column'>
+                  <div className='column is-4'>
+
+                    <div>
+                      <button className='button is-primary is-small is-pulled-right'
+                        onClick={() => this.props.setStep(4)}>
+                        Editar
+                    </button>
+
+                      <p>Ciclos de operación:</p>
+                      <ul>
+                        <li>
+                          <div className='tags has-addons'>
+                            <span className='tag deadline-sales has-text-weight-semibold'> Actualizar datos de ventas</span>
+                            <span className='tag has-text-weight-semibold'>{rules.salesUpload} días</span>
+                          </div>
+                        </li>
+                        <li>
+                          <div className='tags has-addons'>
+                            <span className='tag deadline-forecast has-text-weight-semibold'> Generar Prediccion</span>
+                            <span className='tag has-text-weight-semibold'>{rules.forecastCreation} días</span>
+                          </div>
+                        </li>
+                        <li>
+                          <div className='tags has-addons'>
+                            <span className='tag deadline-adjustments has-text-weight-semibold'> Realizar Ajustes</span>
+                            <span className='tag has-text-weight-semibold'>{rules.rangeAdjustment} días</span>
+                          </div>
+                        </li>
+                        <li>
+                          <div className='tags has-addons'>
+                            <span className='tag deadline-approve has-text-weight-semibold'> Aprobar Ajustes</span>
+                            <span className='tag has-text-weight-semibold'>{rules.rangeAdjustmentRequest} días</span>
+                          </div>
+                        </li>
+                        <li>
+                          <div className='tags has-addons'>
+                            <span className='tag deadline-consolidate has-text-weight-semibold'> Concentrar Información</span>
+                            <span className='tag has-text-weight-semibold'>{rules.consolidation} días</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <hr />
 
                     <div>
                       <button className='button is-primary is-small is-pulled-right'
@@ -100,35 +141,23 @@ class Rules extends Component {
                         Editar
                     </button>
                       <p>Catálogos:</p>
-                      <ul className='has-text-weight-bold is-capitalized'>
+                      <br />
+                      <div className='tags'>
                         {this.props.rules.catalogs.map((item, key) => {
                           return (
-                            <li key={key}>{item.replace(/_/g, ' ')}</li>
+                            <div key={key} className='tag is-capitalized has-text-weight-semibold'>
+                              {item.replace(/_/g, ' ')}
+                            </div>
                           )
                         })}
-                      </ul>
-                    </div>
-
-                    <hr />
-                    <div>
-                      <button className='button is-primary is-small is-pulled-right'
-                        onClick={() => this.props.setStep(4)}>
-                        Editar
-                    </button>
-                      <br />
-                      <p>Ciclos de operación:</p>
-                      <ul>
-                        <li>Ventas: <strong>{rules.salesUpload} días</strong></li>
-                        <li>Forecast: <strong>{rules.forecastCreation} días</strong></li>
-                        <li>Ajustes: <strong>{rules.rangeAdjustment} días</strong></li>
-                        <li>Aprobar: <strong>{rules.rangeAdjustmentRequest} días</strong></li>
-                        <li>Consolidar: <strong>{rules.consolidation} días</strong></li>
-                      </ul>
+                      </div>
                     </div>
 
                   </div>
-                  <div className='column is-offset-1'>
-                    <DeadLines rules={rules} hideInputs />
+                  <div className='column'>
+                    <div className='is-centered-content'>
+                      <DeadLines rules={rules} hideInputs />
+                    </div>
                   </div>
                 </div>
               </div>

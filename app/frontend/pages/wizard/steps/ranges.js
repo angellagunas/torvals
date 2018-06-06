@@ -96,9 +96,10 @@ class Ranges extends Component {
 
         </div>
 
-        <center>
+        <div className='buttons wizard-steps'>
+          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
           <button onClick={() => this.props.nextStep({ ranges: this.state.ranges })} className='button is-primary'>Guardar</button>
-        </center>
+        </div>
 
       </div>
     )
