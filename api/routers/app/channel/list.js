@@ -43,6 +43,12 @@ module.exports = new Route({
           sortStatement[filterSort[0]] = 1
         }
         statement.push({ '$sort': sortStatement })
+      } else if (filter === 'group') {
+        let group = await Group.findOne({ uuid: ctx.request.query[filter] })
+        let channelsList = []
+
+        channelsList = await Channel.find({ groups: group._id })
+        statement.push({ '$match': { '_id': { $in: channelsList.map(item => { return item._id }) } } })
       }
     }
 
@@ -71,14 +77,6 @@ module.exports = new Route({
       var channelsList = []
 
       channelsList = await Channel.find({groups: {$in: groups}})
-      statement.push({ '$match': { '_id': { $in: channelsList.map(item => { return item._id }) } } })
-    }
-
-    if (filter === 'group') {
-      let group = await Group.findOne({uuid: ctx.request.query[filter]})
-      let channelsList = []
-
-      channelsList = await Channel.find({ groups: group._id })
       statement.push({ '$match': { '_id': { $in: channelsList.map(item => { return item._id }) } } })
     }
 

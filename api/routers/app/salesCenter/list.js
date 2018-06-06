@@ -47,6 +47,12 @@ module.exports = new Route({
           const predictions = await Prediction.find({'forecast': ObjectId(forecast._id)}).populate('salesCenter')
           statement.push({'$match': { '_id': { $in: predictions.map(item => { return item.salesCenter._id }) } }})
         }
+      } else if (filter === 'group') {
+        let group = await Group.findOne({ uuid: ctx.request.query[filter] })
+        let salesCentersList = []
+
+        salesCentersList = await SalesCenter.find({ groups: group._id })
+        statement.push({ '$match': { '_id': { $in: salesCentersList.map(item => { return item._id }) } } })
       }
     }
 
@@ -71,14 +77,6 @@ module.exports = new Route({
       var salesCentersList = []
 
       salesCentersList = await SalesCenter.find({groups: {$in: groups}})
-      statement.push({ '$match': { '_id': { $in: salesCentersList.map(item => { return item._id }) } } })
-    }
-
-    if (filter === 'group') {
-      let group = await Group.findOne({uuid: ctx.request.query[filter]})
-      let salesCentersList = []
-
-      salesCentersList = await SalesCenter.find({ groups: group._id })
       statement.push({ '$match': { '_id': { $in: salesCentersList.map(item => { return item._id }) } } })
     }
 
