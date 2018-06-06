@@ -108,8 +108,7 @@ const dataSetSchema = new Schema({
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
   uploaded: { type: Boolean, default: false },
-  cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
-  periods: [{type: Schema.Types.ObjectId, ref: 'Period'}]
+  rule: {type: Schema.Types.ObjectId, ref: 'Rule'}
 }, { usePushEach: true })
 
 dataSetSchema.plugin(dataTables)

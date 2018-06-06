@@ -37,7 +37,8 @@ const task = new Task(async function (argv) {
     name: 'prueba cargar dataset',
     project: project._id,
     createdBy: project.createdBy,
-    organization: project.organization
+    organization: project.organization,
+    rule: project.rule
   })
 
   var bulkOps = []

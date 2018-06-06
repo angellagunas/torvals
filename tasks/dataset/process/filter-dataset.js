@@ -111,7 +111,8 @@ const task = new Task(
       dataset.set({
         dateMax: dateEnd.format('YYYY-MM-DD'),
         dateMin: dateStart.format('YYYY-MM-DD'),
-        status: 'adjustment'
+        status: 'adjustment',
+        rule: project.rule
       })
 
       await dataset.save()
