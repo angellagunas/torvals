@@ -44,7 +44,7 @@ module.exports = new Route({
     ) {
       var groups = user.groups
 
-      filters['groups'] = groups
+      filters['groups'] = {$all: groups}
       filters['organization'] = currentOrganization.organization._id
     }
 
