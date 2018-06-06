@@ -1,16 +1,23 @@
 import React, { Component } from 'react'
 import Loader from '~base/components/spinner'
+import s from 'underscore.string'
 
 class ConfigureViewDataset extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
+      dataset: this.props.initialState,
       formData: {
         columns: this.props.initialState.columns,
         groupings: this.props.initialState.groupings
-      }
+      },
+      catalogColumns: []
     }
+  }
+
+  componentWillMount () {
+    this.getCatalogColumns()
   }
 
   getColumnForValue (type) {
@@ -25,6 +32,27 @@ class ConfigureViewDataset extends Component {
     } else {
       return this.state.formData.columns[posColumn].name
     }
+  }
+
+  getCatalogColumns () {
+    let cols = []
+    let dataset = this.state.dataset
+    let org = dataset.organization
+
+    for (let col of org.rules.catalogs) {
+      cols.push({
+        id: {
+          label: `${s(col).replaceAll('-', ' ').capitalize().value()} Id *`,
+          name: `is_${col}_id`
+        },
+        name: {
+          label: `${s(col).replaceAll('-', ' ').capitalize().value()} Nombre`,
+          name: `is_${col}_name`
+        }
+      })
+    }
+
+    this.setState({catalogColumns: cols})
   }
 
   render () {
@@ -147,6 +175,21 @@ class ConfigureViewDataset extends Component {
             <p className='subtitle is-7'>{this.getColumnForValue('isChannelName')}</p>
           </div>
         </div>
+
+        {this.state.catalogColumns.map((item, index) => {
+          return (
+            <div className='columns has-borders' key={index}>
+              <div className='column'>
+                <p className='title is-7'>{item.id.label}</p>
+                <p className='subtitle is-7'>{this.getColumnForValue(item.id.name)}</p>
+              </div>
+              <div className='column'>
+                <p className='title is-7'>{item.name.label}</p>
+                <p className='subtitle is-7'>{this.getColumnForValue(item.name.name)}</p>
+              </div>
+            </div>
+          )
+        })}
 
         <div className='columns has-20-margin-top'>
           <div className='column is-paddingless'>
