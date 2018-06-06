@@ -20,7 +20,7 @@ class Periods extends Component {
         takeStart: rules.takeStart !== undefined ? rules.takeStart : true,
         cyclesAvailable: rules.cyclesAvailable || 2,
         season: rules.season || 4,
-        startDate: moment(rules.startDate) || moment()
+        startDate: moment.utc(rules.startDate) || moment.utc()
       },
       help: {
         cyclesAvailable: 'is-hidden'
@@ -164,7 +164,7 @@ class Periods extends Component {
         }
         else if (this.state.timesSelected.period === 'w') {
           if (Number(value) > 52) {
-            value = 53
+            value = 52
           }
         }
         else if (this.state.timesSelected.period === 'd') {
@@ -175,8 +175,8 @@ class Periods extends Component {
       }
       else if (this.state.timesSelected.cycle === 'M') {
         if (this.state.timesSelected.period === 'w') {
-          if (Number(value) > 5) {
-            value = 5
+          if (Number(value) > 4) {
+            value = 4
           }
         }
         else if (this.state.timesSelected.period === 'd') {
@@ -295,6 +295,10 @@ class Periods extends Component {
                         />
 
                       </div>
+                      <div className='control help'>
+                        <button className='button is-static tooltip' data-tooltip='Agrupador de periodos'> ? </button>
+                      </div>
+                          
                     </div>
 
                     <div className='field has-addons'>
@@ -322,13 +326,17 @@ class Periods extends Component {
                           onChange={(name, value) => { this.selectChangeHandler(name, value) }}
                         />
                       </div>
+
+                      <div className='control help'>
+                        <button className='button is-static tooltip' data-tooltip='Unidad mínima de predicción'> ? </button>
+                      </div>
                     </div>
 
 
                     <div className='field has-addons'>
                       <div className='control'>
                         <div className='field'>
-                          <label className='label'>Ciclos disponibles </label>
+                          <label className='label'>Ciclos disponibles para ajuste </label>
                           <div className='control'>
                             <input className='input' type='text' placeholder='Text input'
                               name='cyclesAvailable'
@@ -348,6 +356,10 @@ class Periods extends Component {
                           </div>
                         </div>
                       </div>
+
+                      <div className='control help'>
+                        <button className='button is-static tooltip' data-tooltip='Ciclos de ajuste, el primero siempre es el actual'> ? </button>
+                      </div>
                     </div>
 
                     <div className='field has-addons'>
@@ -355,7 +367,7 @@ class Periods extends Component {
                         <label className='label'>Inicio del ciclo</label>
                         <div className='control'>
                           <input className='input' type='text' placeholder='Text input'
-                            value={moment(this.state.timesSelected.startDate).format('DD-MMM-YYYY')} readOnly />
+                            value={moment.utc(this.state.timesSelected.startDate).format('DD-MMM-YYYY')} readOnly />
                         </div>
                       </div>
                     </div>
@@ -403,7 +415,7 @@ class Periods extends Component {
 
             <Cal
               showWeekNumber
-              date={moment(this.state.timesSelected.startDate)}
+              date={moment.utc(this.state.timesSelected.startDate)}
               dates={this.makeStartDate(this.state.timesSelected.startDate)}
               onChange={this.handleDateChange}
             />
@@ -412,16 +424,16 @@ class Periods extends Component {
         </div>
 
         <br />
-        <center>
-
-          <button 
-            disabled={this.state.disableBtn} 
+        <div className='buttons wizard-steps'>
+          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+          <button
+            disabled={this.state.disableBtn}
             onClick={() => this.next()}
             className='button is-primary'>
             Guardar
           </button>
-        </center>
-
+        </div>
+  
       </div>
     )
   }

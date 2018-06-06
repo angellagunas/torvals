@@ -65,6 +65,7 @@ class NavBar extends Component {
     }
 
     cookies.remove('jwt')
+    cookies.remove('organization')
     tree.set('jwt', null)
     tree.set('user', null)
     tree.set('role', null)

@@ -37,7 +37,7 @@ class Cal extends Component {
     clonedDate.add(num, 'month')
 
     if (this.state.minDate && this.state.maxDate) {
-      return clonedDate.isBetween(this.state.minDate.clone().add(-1, 'M'), this.state.maxDate)
+      return clonedDate.isBetween(this.state.minDate, this.state.maxDate, 'days', '[]')
     } else if (!this.state.minDate && this.state.maxDate) {
       return clonedDate.isBefore(this.state.minDate)
     } else if (this.state.minDate && !this.state.maxDate) {
@@ -132,23 +132,37 @@ class Cal extends Component {
     let numbers = []
     this.state.calendarDays.map((item, key) => {
       if (item.available && item.value !== 0) {
-        let w = this.dateFromNum(item.value).format('W')
-        numbers.push(Number(w))
-        weeks[w] =
-          <div key={'week' + w} className='calendar-date'>
-            <button className='date-item week-number tooltip'
-              data-tooltip={'Semana ' + w}>
-              {w}
-            </button>
-          </div>
+        if (item.value === 1 ||
+          item.value === 8 ||
+          item.value === 15 ||
+          item.value === 22 ||
+          item.value >= 28) {
+          let w = this.dateFromNum(item.value).format('W')
+          numbers.push(Number(w))
+          weeks[w] =
+            <div key={'week' + w} className='calendar-date'>
+              <button className='date-item week-number tooltip'
+                data-tooltip={'Semana ' + w}>
+                {w}
+              </button>
+            </div>
+        }
       }
     })
 
     if (numbers.find((element) => { return element > 50 }) !== undefined &&
-      numbers.find((element) => { return element === 1 }) !== undefined) {
+      numbers.find((element) => { return element === 1 }) !== undefined &&
+      numbers.find((element) => { return element === 49 }) === undefined) {
       let val = Object.values(weeks)
       val.unshift(val[val.length - 1])
       val.pop()
+      return val
+    } else if (numbers.find((element) => { return element > 50 }) !== undefined &&
+      numbers.find((element) => { return element === 1 }) !== undefined &&
+      numbers.find((element) => { return element === 49 }) !== undefined) {
+      let val = Object.values(weeks)
+      let item = val.shift()
+      val.push(item)
       return val
     }
 
