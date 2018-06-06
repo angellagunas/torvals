@@ -58,4 +58,24 @@ cycleSchema.statics.getAvailable = async function(organization, cyclesAvailable)
   return cycles
 }
 
+cycleSchema.statics.getBetweenDates = async function(organization, minDate, maxDate) {
+  const firstCycle = await this.findOne({
+    organization: organization,
+    isDeleted: false,
+    dateStart: { $lte: minDate },
+    dateEnd: { $gte: minDate }
+  })
+  const cycles = await this.find({
+    organization: organization,
+    dateStart: {
+      $gte: firstCycle.dateStart,
+      $lte: maxDate
+    },
+    isDeleted: false
+  }).sort({
+    dateStart: 1
+  })
+  return cycles
+}
+
 module.exports = mongoose.model('Cycle', cycleSchema)

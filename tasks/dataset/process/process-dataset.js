@@ -162,14 +162,7 @@ const task = new Task(
     minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
 
     log('Obtaining cycles  ...')
-    var cycles = await Cycle.find({
-      organization: dataset.organization._id,
-      isDeleted: false,
-      dateStart: {
-        $gte: minDate,
-        $lte: maxDate
-      }
-    })
+    var cycles = await Cycle.getBetweenDates(dataset.organization._id, minDate, maxDate)
 
     cycles = cycles.map(item => {
       return item._id
