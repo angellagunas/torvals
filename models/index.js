@@ -22,6 +22,7 @@ const Anomaly = require('./anomaly')
 const Token = require('./token')
 const Cycle = require('./cycle')
 const Period = require('./period')
+const Rule = require('./rule')
 // #Import
 
 module.exports = {
@@ -48,5 +49,6 @@ module.exports = {
   Anomaly,
   Token,
   Cycle,
-  Period// #Exports
+  Period,
+  Rule// #Exports
 }

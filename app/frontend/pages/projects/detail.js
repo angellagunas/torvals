@@ -120,7 +120,7 @@ class ProjectDetail extends Component {
         loaded: true,
         project: body.data,
         selectedTab: tab,
-        actualTab: tab 
+        actualTab: tab
       })
 
       this.countAdjustmentRequests()
@@ -195,6 +195,7 @@ class ProjectDetail extends Component {
       datasetClassName: ' is-active'
     })
   }
+
   hideModalDataset (e) {
     this.setState({
       datasetClassName: ''
@@ -213,6 +214,7 @@ class ProjectDetail extends Component {
       cloneClassName: ' is-active'
     })
   }
+
   hideModalClone (e) {
     this.setState({
       cloneClassName: ''
@@ -549,7 +551,7 @@ class ProjectDetail extends Component {
       {
         name: 'datasets',
         title: 'Datasets',
-        hide: testRoles('manager-level-1'),
+        hide: testRoles('manager-level-1, manager-level-2, consultor'),
         reload: true,
         content: (
           <TabDatasets
@@ -627,7 +629,7 @@ class ProjectDetail extends Component {
                   </div>
                 </div>
               }
-              
+
               <ProjectForm
                 className='is-shadowless'
                 baseUrl='/app/projects'

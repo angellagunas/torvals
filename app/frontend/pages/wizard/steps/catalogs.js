@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Checkbox from '~base/components/base-checkbox'
 import slugify from 'underscore.string/slugify'
+import DeleteButton from '~base/components/base-deleteButton'
 
 class Catalogs extends Component {
   constructor (props) {
@@ -57,6 +58,11 @@ class Catalogs extends Component {
           title: 'Ruta',
           value: 'is_route',
           checked: false
+        },
+        {
+          title: 'Precios',
+          value: 'is_route',
+          checked: false
         }
 
       ],
@@ -80,7 +86,8 @@ class Catalogs extends Component {
           {
             title: value,
             value: value.replace(/ /g, '_'),
-            checked: true
+            checked: true,
+            delete: true
           }),
         addCatalog: ''
       })
@@ -122,9 +129,21 @@ class Catalogs extends Component {
       }
     })
   }
+
+  removeItem (item) {
+    let catalogs = this.state.catalogs
+    let index = catalogs.indexOf(item)
+    if (index !== -1) {
+      delete catalogs[index]
+    }
+    this.setState({
+      catalogs
+    })
+  }
+
   render () {
     return (
-      <div className='section pad-sides has-20-margin-top'>
+      <div className='section pad-sides has-20-margin-top catalogs'>
         <h1 className='title is-5'> Catálogos de ventas</h1>
         <p className='subtitle is-6'>Selecciona los campos con los que cuentan tus ventas o catálogos.</p>
         <div className='columns is-centered'>
@@ -153,13 +172,28 @@ class Catalogs extends Component {
                     this.state.catalogs.map((item, key) => {
                       return (
                         <div className='column is-3 is-capitalized' key={key}>
-                          <Checkbox
-                            key={key}
-                            label={item.title.replace(/_/g, ' ')}
-                            handleCheckboxChange={(e, value) => this.handleCheckboxChange(value, item)}
-                            checked={item.checked}
-                            disabled={item.disabled}
-                          />
+                          <div className='field is-grouped'>
+                            <div className='control'>
+                              <Checkbox
+                                key={key}
+                                label={item.title.replace(/_/g, ' ')}
+                                handleCheckboxChange={(e, value) => this.handleCheckboxChange(value, item)}
+                                checked={item.checked}
+                                disabled={item.disabled}
+                              />
+                            </div>
+                            <div className='control'>
+                              {item.delete &&
+                                <DeleteButton
+                                  objectName='Catálogo'
+                                  objectDelete={() => this.removeItem(item)}
+                                  message={<span>¿Estas seguro de querer eliminar este Catálogo?<br /> Los elementos de éste catálogo ya no estarán disponibles</span>}
+                                  small
+                                />
+                              }
+                            </div>
+                          </div>
+
                         </div>
                       )
                     })
@@ -169,9 +203,10 @@ class Catalogs extends Component {
             </div>
           </div>
         </div>
-        <center>
+        <div className='buttons wizard-steps'>
+          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
           <button onClick={() => this.sendCatalogs()} className='button is-primary'>Guardar</button>
-        </center>
+        </div>
       </div>
     )
   }

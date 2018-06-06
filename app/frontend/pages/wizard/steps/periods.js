@@ -4,6 +4,8 @@ import DatePicker from 'react-datepicker'
 import moment from 'moment'
 import 'react-datepicker/dist/react-datepicker.css'
 import CalendarRules from './calendar-rules';
+import { toast } from 'react-toastify'
+import Cal from '../../cal';
 
 class Periods extends Component {
   constructor(props) {
@@ -15,10 +17,10 @@ class Periods extends Component {
         cycle: rules.cycle || 'M',
         periodDuration: rules.periodDuration || 1,
         cycleDuration: rules.cycleDuration || 1,
-        takeStart: rules.takeStart || true,
+        takeStart: rules.takeStart !== undefined ? rules.takeStart : true,
         cyclesAvailable: rules.cyclesAvailable || 2,
         season: rules.season || 4,
-        startDate: moment(rules.startDate) || moment()
+        startDate: moment.utc(rules.startDate) || moment.utc()
       },
       help: {
         cyclesAvailable: 'is-hidden'
@@ -46,6 +48,17 @@ class Periods extends Component {
 
   async selectChangeHandler(name, value) {
     let aux = this.state.timesSelected
+    aux.periodDuration = 1
+    aux.cycleDuration = 1
+    if(name === 'cycle'){
+      if(value === 'd'){
+        aux.period = 'd'
+      }
+      else{
+      let times = this.getTimes(value)
+        aux.period = times[times.length - 2].value
+      }
+    }
     aux[name] = value
     this.setState({
       timesSelected: aux
@@ -55,10 +68,11 @@ class Periods extends Component {
   getTimes(value) {
     let values = []
     for (let i = 0; i < this.times.length; i++) {
+      values.push(this.times[i])
       if (this.times[i].value === value) {
         break
       }
-      values.push(this.times[i])
+      
     }
     return values
   }
@@ -76,17 +90,28 @@ class Periods extends Component {
     let aux = this.state.timesSelected
     value = value.replace(/\D/, '')
 
-    if (name === 'cyclesAvailable'){
-      if(Number(value) < 2) {
-      this.setState({
-        help: {
-          ...this.state.help,
-          cyclesAvailable: 'help is-danger'
-        },
-        disableBtn: true
-      })
-    }
-    else{
+    if (name === 'cyclesAvailable') {
+      if (Number(value) < 2) {
+        this.setState({
+          help: {
+            ...this.state.help,
+            cyclesAvailable: 'help is-danger'
+          },
+          disableBtn: true
+        })
+      }
+      else if (Number(value) > 12) {
+        value = 12
+      }
+      else {
+        if (value !== '' && Number(value) !== Number(this.props.rules.cycleDuration)) {
+          this.notify(
+            'El número de ciclos disponibles cambió, debe establecer los rangos de ajuste nuevamente.',
+            5000,
+            toast.TYPE.INFO
+          )
+        }
+
         this.setState({
           help: {
             ...this.state.help,
@@ -94,8 +119,80 @@ class Periods extends Component {
           },
           disableBtn: false
         })
+      }
     }
-  }
+    else if (name === 'cycleDuration') {
+      if(value !== '' && Number(value) !== Number(this.props.rules.cycleDuration)){
+        this.notify(
+          'El ciclo cambió, debe establecer los ciclos de operación nuevamente.',
+          5000,
+          toast.TYPE.INFO
+        )
+      }
+      if (this.state.timesSelected.cycle === 'y') {
+        if(Number(value) > 12){
+          value = 12
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'M') {
+        if (Number(value) > 144) {
+          value = 144
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'w') {
+        if (Number(value) > 624) {
+          value = 624
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'd') {
+        if (Number(value) > 4380) {
+          value = 4380
+        }
+      }
+    }
+    else if (name === 'periodDuration') {
+      if (this.state.timesSelected.cycle === this.state.timesSelected.period) {
+        if (Number(value) > Number(this.state.timesSelected.cycleDuration)) {
+          value = Number(this.state.timesSelected.cycleDuration)
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'y') {
+        if (this.state.timesSelected.period === 'M') {
+          if (Number(value) > 12) {
+            value = 12
+          }
+        }
+        else if (this.state.timesSelected.period === 'w') {
+          if (Number(value) > 52) {
+            value = 52
+          }
+        }
+        else if (this.state.timesSelected.period === 'd') {
+          if (Number(value) > 365) {
+            value = 365
+          }
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'M') {
+        if (this.state.timesSelected.period === 'w') {
+          if (Number(value) > 4) {
+            value = 4
+          }
+        }
+        else if (this.state.timesSelected.period === 'd') {
+          if (Number(value) > 31) {
+            value = 31
+          }
+        }
+      }
+      else if (this.state.timesSelected.cycle === 'w') {
+        if (this.state.timesSelected.period === 'd') {
+          if (Number(value) > 7) {
+            value = 7
+          }
+        }
+      }
+    }
 
     aux[name] = value
     aux['season'] = aux.cyclesAvailable * 2
@@ -103,6 +200,56 @@ class Periods extends Component {
     this.setState({
       timesSelected: aux
     })
+  }
+
+  blurDefault (name, value){
+    if(value === ''){
+      this.handleInputChange(name, '1')
+    }
+  }
+
+
+  next(){
+    this.props.nextStep(this.state.timesSelected)
+  }
+
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if (type === toast.TYPE.WARNING) {
+      className = 'has-bg-warning'
+    }
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false,
+        className: className
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false,
+        className: className
+      })
+    }
+  }
+
+  makeStartDate(date) {
+    let d = {}
+    d[moment.utc(date).format('YYYY-MM-DD')] = {
+      date: moment.utc(date),
+      isRange: false,
+      isRangeEnd: false,
+      isRangeStart: false,
+      isToday: true,
+      isActive: false,
+      isTooltip: true,
+      tooltipText: 'Inicio del ciclo'
+    }
+    return d
   }
 
   render() {
@@ -129,7 +276,8 @@ class Periods extends Component {
                             <input className='input' type='text' placeholder='Ejem. 1'
                               name='cycleDuration'
                               value={this.state.timesSelected.cycleDuration}
-                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
+                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }}
+                              onBlur={(e) => { this.blurDefault(e.target.name, e.target.value) }} />
                           </div>
                         </div>
                       </div>
@@ -147,6 +295,10 @@ class Periods extends Component {
                         />
 
                       </div>
+                      <div className='control help'>
+                        <button className='button is-static tooltip' data-tooltip='Agrupador de periodos'> ? </button>
+                      </div>
+                          
                     </div>
 
                     <div className='field has-addons'>
@@ -157,7 +309,8 @@ class Periods extends Component {
                             <input className='input' type='text' placeholder='Ejem. 1'
                               name='periodDuration'
                               value={this.state.timesSelected.periodDuration}
-                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
+                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} 
+                              onBlur={(e) => { this.blurDefault(e.target.name, e.target.value) }}/>
                           </div>
                         </div>
 
@@ -173,23 +326,24 @@ class Periods extends Component {
                           onChange={(name, value) => { this.selectChangeHandler(name, value) }}
                         />
                       </div>
+
+                      <div className='control help'>
+                        <button className='button is-static tooltip' data-tooltip='Unidad mínima de predicción'> ? </button>
+                      </div>
                     </div>
 
 
                     <div className='field has-addons'>
                       <div className='control'>
                         <div className='field'>
-                          <label className='label'>Ciclos disponibles </label>
+                          <label className='label'>Ciclos disponibles para ajuste </label>
                           <div className='control'>
                             <input className='input' type='text' placeholder='Text input'
                               name='cyclesAvailable'
                               value={this.state.timesSelected.cyclesAvailable}
                               onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
                           </div>
-                          
-
                           <p className={this.state.help.cyclesAvailable}>Deben ser al menos 2 ciclos disponibles</p>
-
                         </div>
                       </div>
                       <div className='control'>
@@ -202,9 +356,10 @@ class Periods extends Component {
                           </div>
                         </div>
                       </div>
-                      {/* <div className='control'>
-                        <p>El primer ciclo disponible siempre será el actual</p>
-                      </div> */}
+
+                      <div className='control help'>
+                        <button className='button is-static tooltip' data-tooltip='Ciclos de ajuste, el primero siempre es el actual'> ? </button>
+                      </div>
                     </div>
 
                     <div className='field has-addons'>
@@ -212,68 +367,73 @@ class Periods extends Component {
                         <label className='label'>Inicio del ciclo</label>
                         <div className='control'>
                           <input className='input' type='text' placeholder='Text input'
-                            value={moment(this.state.timesSelected.startDate).format('DD-MMM-YYYY')} readOnly />
+                            value={moment.utc(this.state.timesSelected.startDate).format('DD-MMM-YYYY')} readOnly />
                         </div>
                       </div>
                     </div>
+                    <br />
 
-                    <div className='field has-addons'>
-                      <p className='control'>
+                      <p>
                         <label className='radio'>
-                          <input type='radio' name='takeStart' checked={this.state.timesSelected.takeStart}
+                          <input 
+                            type='radio' 
+                            name='takeStart' 
+                            checked={this.state.timesSelected.takeStart === true}
                             onChange={(e) => this.setState({
                               timesSelected: {
                                 ...this.state.timesSelected,
                                 takeStart: true
                               }
                             })} />
-                          <span>Inicio de periodo</span>
-                        </label>
-                      </p>
+                        <span>Usar la fecha de <strong className='has-text-info'>inicio</strong> del periodo para determinar el ciclo al que pertenece</span>
+                      </label>
+                    </p>
+                    <br />
 
-                      <p className='control'>
-
-                        <label className='radio'>
-                          <input type='radio' name='takeStart' checked={!this.state.timesSelected.takeStart}
-                            onChange={(e) => this.setState({
-                              timesSelected: {
-                                ...this.state.timesSelected,
-                                takeStart: false
-                              }
-                            })} />
-                          <span>Final de periodo</span>
-                        </label>
-                      </p>
-                    </div>
-
+                    <p>
+                      <label className='radio'>
+                        <input 
+                          type='radio' 
+                          name='takeStart' 
+                          checked={this.state.timesSelected.takeStart === false}
+                          onChange={(e) => this.setState({
+                            timesSelected: {
+                              ...this.state.timesSelected,
+                              takeStart: false
+                            }
+                          })} />
+                        <span>Usar la fecha <strong className='has-text-info'>final</strong> del periodo para determinar el ciclo al que pertenece</span>
+                      </label>
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-    
-
-          
           <div className='column is-offset-1'>
 
-            <CalendarRules
-              date={moment(this.state.timesSelected.startDate)}
-              today={moment(this.state.timesSelected.startDate)}
-              onChange={this.handleDateChange} />
+            <Cal
+              showWeekNumber
+              date={moment.utc(this.state.timesSelected.startDate)}
+              dates={this.makeStartDate(this.state.timesSelected.startDate)}
+              onChange={this.handleDateChange}
+            />
+
           </div>
-          </div>
-
-
-
+        </div>
 
         <br />
-        <center>
-        
-        <button disabled={this.state.disableBtn} onClick={() => this.props.nextStep(this.state.timesSelected)} 
-        className='button is-primary'>Guardar</button>
-          </center>
-      
+        <div className='buttons wizard-steps'>
+          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+          <button
+            disabled={this.state.disableBtn}
+            onClick={() => this.next()}
+            className='button is-primary'>
+            Guardar
+          </button>
+        </div>
+  
       </div>
     )
   }

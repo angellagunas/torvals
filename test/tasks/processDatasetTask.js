@@ -23,7 +23,6 @@ describe('Process datasets', () => {
 
   describe('with csv file with 3 products', () => {
     it('should process dataset successfully', async function () {
-      this.timeout(1000 * 30);
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
