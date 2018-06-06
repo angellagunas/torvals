@@ -9,8 +9,14 @@ module.exports = new Route({
   handler: async function (ctx) {
     const dataType = ctx.request.body.file.split(',')[0].split(';')[0]
 
-    if (dataType !== 'data:text/csv') {
-      ctx.throw(400, 'The file should be a CSV file!')
+    if (dataType === 'data:') {
+      const fileName = ctx.request.body.file.split(',')[0].split(';')[1]
+      const ext = fileName.slice((fileName.lastIndexOf('.') - 1 >>> 0) + 2)
+      if (ext !== 'csv') {
+        ctx.throw(400, '¡El archivo tiene que ser en formato csv!')
+      }
+    } else if (dataType !== 'data:text/csv') {
+      ctx.throw(400, '¡El archivo tiene que ser en formato csv!')
     }
 
     var buf = Buffer.from(ctx.request.body.file.split(',')[1], 'base64')
@@ -49,6 +55,6 @@ module.exports = new Route({
       }
     }
 
-    ctx.body = {message: `Se han creado ${created} Canales y modificado ${modified} satisfactoriamente!`}
+    ctx.body = {message: `¡Se han creado ${created} Canales y modificado ${modified} satisfactoriamente!`}
   }
 })

@@ -17,10 +17,6 @@ module.exports = new Route({
   handler: async function (ctx) {
     var datasetId = ctx.params.uuid
     var filters = {}
-    var semanasBimboSet = new Set()
-    var channelsSet = new Set()
-    var salesCentersSet = new Set()
-    var productsSet = new Set()
 
     const dataset = await DataSet.findOne({
       'uuid': datasetId,
@@ -29,20 +25,6 @@ module.exports = new Route({
     })
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
-
-    var rows = await DataSetRow.find({isDeleted: false, dataset: dataset})
-
-    for (var row of rows) {
-      semanasBimboSet.add(row.data.semanaBimbo)
-      channelsSet.add(row.channel)
-      salesCentersSet.add(row.salesCenter)
-      productsSet.add(row.product)
-    }
-
-    var semanasBimbo = Array.from(semanasBimboSet)
-    var channels = Array.from(channelsSet)
-    var salesCenters = Array.from(salesCentersSet)
-    var products = Array.from(productsSet)
 
     const user = ctx.state.user
     var currentRole
@@ -65,6 +47,11 @@ module.exports = new Route({
       filters['groups'] = groups
       filters['organization'] = currentOrganization.organization._id
     }
+
+    var products = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('product')
+    var channels = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('channel')
+    var salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
+    var semanasBimbo = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('data.semanaBimbo')
 
     semanasBimbo.sort((a, b) => {
       return a - b

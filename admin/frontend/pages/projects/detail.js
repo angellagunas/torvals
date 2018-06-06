@@ -218,6 +218,20 @@ class ProjectDetail extends Component {
         )
       },
       {
+        name: 'anomalias',
+        title: 'Anomalías',
+        reload: true,
+        hide: (project.status === 'processing' ||
+          project.status === 'pendingRows' ||
+          project.status === 'empty'),
+        content: (
+          <TabAnomalies
+            project={project}
+            reload={(tab) => this.load(tab)}
+          />
+        )
+      },
+      {
         name: 'configuracion',
         title: 'Configuración',
         icon: 'fa-tasks',
@@ -276,7 +290,7 @@ class ProjectDetail extends Component {
             </div>
           }
             <div className='section pad-sides'>
-            
+
               <Breadcrumb
                 path={[
                   {
@@ -312,7 +326,7 @@ class ProjectDetail extends Component {
                     <DeleteButton
                       objectName='Proyecto'
                       objectDelete={() => this.deleteObject()}
-                      message={'Estas seguro de querer eliminar este Proyecto?'}
+                      message={'¿Estas seguro de querer eliminar este Proyecto?'}
                     />
                   }
                 />

@@ -129,7 +129,7 @@ class EmailResetLanding extends Component {
 
     if (!user.organizations || user.organizations.length === 0) {
       return this.setState({
-        error: 'El usuario no tiene una organización asignada, No se puede iniciar sesión automáticamente!',
+        error: '¡El usuario no tiene una organización asignada, No se puede iniciar sesión automáticamente!',
         loading: false,
         apiCallErrorMessage: 'message is-danger',
         formData: {
@@ -154,7 +154,7 @@ class EmailResetLanding extends Component {
       cookies.set('organization', organization.slug)
 
       if (env.ENV === 'production') {
-        if (hostname.indexOf('stage') >= 0) {
+        if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
           const newHostname = hostnameSplit.slice(-3).join('.')
           window.location = `//${organization.slug}.${newHostname}/dashboard`
         } else {
@@ -174,7 +174,7 @@ class EmailResetLanding extends Component {
 
     cookies.set('jwt', this.state.jwt)
     if (env.ENV === 'production') {
-      if (hostname.indexOf('stage') >= 0) {
+      if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
         const newHostname = hostnameSplit.slice(-3).join('.')
         window.location = `//${slug}.${newHostname}/dashboard`
       } else {

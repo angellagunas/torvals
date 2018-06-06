@@ -1,37 +1,70 @@
 const Route = require('lib/router/route')
-const { Anomaly, Project } = require('models')
-const Api = require('lib/abraxas/api')
+const { Anomaly, Project, DataSetRow } = require('models')
+const conciliateDataset = require('queues/conciliate-dataset')
 
 module.exports = new Route({
   method: 'post',
   path: '/restore/:uuid',
   handler: async function (ctx) {
     var data = ctx.request.body
+
     const project = await Project.findOne({uuid: ctx.params.uuid}).populate('activeDataset')
     ctx.assert(project, 404, 'Proyecto no encontrado')
-    if (!project.activeDataset) {
-      ctx.throw(404, 'No hay DataSet activo para el proyecto')
-    }
 
-    const requestBody = {}
-    for (var anomaly in data.anomalies) {
-      anomaly = await Anomaly.findOne({uuid: anomaly.uuid})
-      if (anomaly) {
-        requestBody.push({data_rows_id: anomaly.externalId, prediction: anomaly.prediction})
+    var batchSize = 1000
+
+    var bulkOps = []
+    var updateBulk = []
+
+    for (var anomaly of data.anomalies) {
+      try {
+        anomaly = await Anomaly.findOne({uuid: anomaly.uuid})
+        if (anomaly) {
+          bulkOps.push({
+            updateOne: {
+              'filter': {_id: anomaly._id},
+              'update': {$set: {isDeleted: true}}
+            }
+          })
+          updateBulk.push({
+            updateOne: {
+              'filter': {_id: anomaly.datasetRow},
+              'update': {$set: { isAnomaly: false, 'data.prediction': anomaly.prediction }}
+            }
+          })
+        }
+
+        if (bulkOps.length === batchSize) {
+          console.log(`${batchSize} anomalies saved!`)
+          await Anomaly.bulkWrite(bulkOps)
+          bulkOps = []
+          await DataSetRow.bulkWrite(updateBulk)
+          updateBulk = []
+        }
+      } catch (e) {
+        ctx.throw(500, 'Error recuperando las anomalías')
       }
     }
 
-    // check project etag
-    var etag = project.etag || ''
-    let res = await Api.getProject(project.externalId)
-    project.set({etag: res._etag})
-    await project.save()
-    etag = res._etag
+    try {
+      if (bulkOps.length > 0) {
+        await Anomaly.bulkWrite(bulkOps)
+        await DataSetRow.bulkWrite(updateBulk)
+      }
+    } catch (e) {
+      ctx.throw(500, 'Error recuperando las anomalías')
+    }
 
-    var responseData = await Api.restoreAnomalies(project.externalId, etag, requestBody)
+    project.activeDataset.set({status: 'conciliating'})
+    await project.activeDataset.save()
+
+    project.set({status: 'conciliating'})
+    await project.save()
+
+    conciliateDataset.add({project: project.uuid, dataset: project.activeDataset.uuid})
 
     ctx.body = {
-      data: responseData
+      data: 'ok'
     }
   }
 })

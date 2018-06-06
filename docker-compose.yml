@@ -1,43 +1,84 @@
-version: '3'
+version: '2.3'
 services:
   admin:
+    restart: always
     build: 
       context: .
       dockerfile: DockerfileNginxAdmin
     ports:
       - "3001:80"
+    cpu_shares: 50
+    mem_limit: 1000M
+    mem_reservation: 500m
   web:
+    restart: always
     build: 
       context: .
       dockerfile: DockerfileNginxApp
     ports:
       - "3002:80"
+    cpu_shares: 50
+    mem_limit: 1000M
+    mem_reservation: 500m
   api:
+    restart: always
     build: .
     ports:
      - "3000:3000"
-     - "4000:4000"
-     - "5001:5000"
     links:
       - mongodb
       - redisdb
     depends_on:
       - mongodb    
       - redisdb
+    cpu_shares: 200
+    cpus: 2
+    mem_limit: 6000M
+    mem_reservation: 2000m
     env_file:
       - .env
+    volumes:
+      - /www/data/db:/data/db
+      - /www/media/uploads:/app/media/uploads
+  queues:
+    restart: always
+    build:
+      context: .
+      dockerfile: DockerfileQueues
+    links:
+      - mongodb
+      - redisdb
+    depends_on:
+      - mongodb    
+      - redisdb
+    cpu_shares: 200
+    cpus: 2
+    mem_limit: 6000M
+    mem_reservation: 2000m
+    env_file:
+      - .env
+    volumes:
+      - /www/data/db:/data/db
+      - /www/media/uploads:/app/media/uploads
   redisdb:
+    restart: always
     image: "redis:alpine"
     ports:
       - "6379:6379"
+    cpu_shares: 100
+    mem_limit: 3000M
+    mem_reservation: 1000m
   mongodb:
-      image: mongo:latest
-      container_name: "mongodb"
-      environment:
-        - MONGO_DATA_DIR=/data/db
-        - MONGO_LOG_DIR=/dev/null
-      volumes:
-        - ./data/db:/data/db
-      ports:
-          - 27017:27017
-      command: mongod --smallfiles --logpath=/dev/null # --quiet
+    restart: always
+    image: mongo:latest
+    container_name: "mongodb"
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - /www/data/db:/data/db
+    ports:
+        - 27017:27017
+    mem_limit: 30000M
+    mem_reservation: 8000m
+    command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 24 # --quiet

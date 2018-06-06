@@ -31,17 +31,21 @@ const datasetRowSchema = new Schema({
     existence: { type: Number },
     prediction: { type: Number },
     adjustment: { type: Number },
-    localAdjustment: { type: Number },
+    sale: { type: Number },
     lastAdjustment: { type: Number },
     semanaBimbo: { type: Number },
-    forecastDate: { type: String }
+    forecastDate: { type: Date },
+    productExternalId: { type: String },
+    channelExternalId: { type: String },
+    salesCenterExternalId: { type: String }
   },
   apiData: { type: Schema.Types.Mixed },
 
   updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  isAnomaly: { type: Boolean, default: false }
 }, { usePushEach: true })
 
 datasetRowSchema.plugin(dataTables)
@@ -71,5 +75,25 @@ datasetRowSchema.methods.toAdmin = function () {
     data: this.data
   }
 }
+
+datasetRowSchema.index({ isDeleted: -1, dataset: 1, status: 1, organization: 1 }, {background: true})
+datasetRowSchema.index({ isDeleted: -1, uuid: 1 }, {background: true})
+datasetRowSchema.index({ product: 1 }, {background: true})
+datasetRowSchema.index({ dataset: 1 }, {background: true})
+datasetRowSchema.index({ dataset: 1, 'data.productExternalId': 1 }, {background: true})
+datasetRowSchema.index({ dataset: 1, 'data.channelExternalId': 1 }, {background: true})
+datasetRowSchema.index({ dataset: 1, 'data.salesCenterExternalId': 1 }, {background: true})
+datasetRowSchema.index({ 'data.forecastDate': 1 }, {background: true})
+datasetRowSchema.index(
+  {
+    'apiData.producto_id': 1,
+    'apiData.agencia_id': 1,
+    'apiData.canal_id': 1,
+    'apiData.fecha': 1,
+    'dataset': 1
+  },
+  {background: true}
+)
+datasetRowSchema.set('autoIndex', true)
 
 module.exports = mongoose.model('DataSetRow', datasetRowSchema)

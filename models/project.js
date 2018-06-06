@@ -16,6 +16,7 @@ const projectSchema = new Schema({
       name_project: { type: String }
     }]
   }],
+  mainDataset: { type: Schema.Types.ObjectId, ref: 'DataSet' },
 
   status: {
     type: String,
@@ -26,7 +27,8 @@ const projectSchema = new Schema({
       'reviewing',
       'pendingRows',
       'adjustment',
-      'conciliating'
+      'conciliating',
+      'cloning'
     ],
     default: 'empty'
   },
@@ -40,6 +42,7 @@ const projectSchema = new Schema({
     adjustments: { type: Schema.Types.Mixed },
     frequency: { type: Number }
   },
+  showOnDashboard: { type: Boolean, default: true },
   etag: { type: String },
   dateMax: {type: Date},
   dateMin: {type: Date},
@@ -58,12 +61,16 @@ projectSchema.methods.toPublic = function () {
     description: this.description,
     organization: this.organization,
     datasets: this.datasets,
+    mainDataset: this.mainDataset,
     adjustment: this.adjustment,
     status: this.status,
     activeDataset: this.activeDataset,
     businessRules: this.businessRules,
     externalId: this.externalId,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    dateMin: this.dateMin,
+    dateMax: this.dateMax,
+    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
   }
 }
 
@@ -74,12 +81,16 @@ projectSchema.methods.toAdmin = function () {
     description: this.description,
     organization: this.organization,
     datasets: this.datasets,
+    mainDataset: this.mainDataset,
     adjustment: this.adjustment,
     status: this.status,
     activeDataset: this.activeDataset,
     businessRules: this.businessRules,
     externalId: this.externalId,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    dateMin: this.dateMin,
+    dateMax: this.dateMax,
+    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
   }
 }
 

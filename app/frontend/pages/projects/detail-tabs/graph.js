@@ -85,9 +85,13 @@ class Graph extends PureComponent {
                 {
                   ticks: {
                     callback: function (label, index, labels) {
-                      return '$' + label.toFixed(2).replace(/./g, (c, i, a) => {
-                        return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                      })
+                      if (label <= 999) {
+                        return label
+                      } else if (label >= 1000 && label <= 999999) {
+                        return (label / 1000) + 'K'
+                      } else if (label >= 1000000 && label <= 999999999) {
+                        return (label / 1000000) + 'M'
+                      }
                     },
                     fontSize: 11
                   },
@@ -95,7 +99,7 @@ class Graph extends PureComponent {
                 }
               ]
             },
-            tooltips: {
+            tooltips: this.props.tooltips || {
               mode: 'point',
               intersect: true,
               titleFontFamily: "'Roboto', sans-serif",
@@ -109,14 +113,14 @@ class Graph extends PureComponent {
                   if (label) {
                     label += ': '
                   }
-                  let yVal = '$' + tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+                  let yVal = tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                   })
                   return label + yVal
                 }
               }
             },
-            legend: {
+            legend: this.props.legend || {
               display: true,
               position: 'top',
               fontSize: 11,

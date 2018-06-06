@@ -15,6 +15,8 @@ export default ListPage({
   validate: loggedIn,
   create: false,
   createComponent: CreatePrice,
+  export: true,
+  exportUrl: '/admin/prices',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
@@ -48,7 +50,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'ID',
+        'title': 'Id',
         'property': 'productExternalId',
         'default': 'N/A',
         'sortable': true

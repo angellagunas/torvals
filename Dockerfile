@@ -12,9 +12,13 @@ RUN mkdir -p /app && cp -a /tmp/node_modules /app/
 ADD . /app
 WORKDIR /app
 
-RUN make app-dist
-RUN make admin-dist
-RUN node tasks/build-indexes.js 
+# RUN make app-dist
+# RUN make admin-dist
+# RUN node tasks/build-indexes.js
+
+# RUN mkdir -p media/uploads
+# RUN chown node:node media/
+# RUN chown node:node media/uploads
 
 ENV NODE_ENV="production"
 

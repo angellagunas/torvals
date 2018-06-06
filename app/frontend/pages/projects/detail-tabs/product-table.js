@@ -125,7 +125,7 @@ class ProductTable extends Component {
         group: ' ',
         title: <span
           className='icon'
-          title={`Hay ${this.props.adjustmentRequestCount} productos fuera de rango!`}
+          title={`¡Hay ${this.props.adjustmentRequestCount} productos fuera de rango!`}
           onClick={() => {
             this.props.handleAllAdjustmentRequest()
           }}
@@ -151,7 +151,7 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: this.splitWords('Centro_de Ventas'),
+        title: 'Centro de Ventas',
         property: 'salesCenter',
         default: 'N/A',
         sortable: true,
@@ -205,21 +205,21 @@ class ProductTable extends Component {
         group: ' ',
         title: 'Ajuste',
         property: 'adjustmentForDisplay',
-        default: 0,
+        default: '',
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
         className: 'table-cell', 
         formatter: (row) => {
           if (!row.adjustmentForDisplay) {
-            row.adjustmentForDisplay = 0
+            row.adjustmentForDisplay = ''
           }
 
           row.tabin = row.key * 10
           if (this.props.currentRole !== 'consultor') {
             return (
               <input
-                type='number'
+                type='text'
                 className='input'
                 value={row.adjustmentForDisplay}
                 onBlur={(e) => { this.onBlur(e, row) }}
@@ -227,6 +227,8 @@ class ProductTable extends Component {
                 onChange={(e) => { this.onChange(e, row) }}
                 onFocus={(e) => { this.onFocus(e, row) }}
                 tabIndex={row.tabin}
+                max='99999'
+                placeholder='0'
                 ref={(el) => { this.inputs[row.tabin] = el }}
               />
             )
@@ -263,7 +265,8 @@ class ProductTable extends Component {
           let status = classNames('has-text-weight-bold', {
             'has-text-success': row.isLimit && row.adjustmentRequest && row.adjustmentRequest.status === 'approved',
             'has-text-warning': row.isLimit && row.adjustmentRequest && row.adjustmentRequest.status === 'created',
-            'has-text-danger': row.isLimit && (!row.adjustmentRequest || row.adjustmentRequest.status === 'rejected')
+            'has-text-danger': row.isLimit && ((!row.adjustmentRequest || row.adjustmentRequest.status === 'rejected')
+                                                || this.props.currentRole  === 'manager-level-2')
           })
           return <span className={status}>{Math.round(percentage) + ' %'}</span>
         }
@@ -363,18 +366,30 @@ class ProductTable extends Component {
       value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
 
+    if (value === '' && row.original !== '') {
+      row.adjustmentForDisplay = row.original
+      let aux = this.state.filteredData
+
+      this.setState({
+        filteredData: aux
+      })
+
+      return
+    }
+
     if (Number(row.original) !== Number(value)) {
       this.props.changeAdjustment(value, row)
     }
   }
 
   onChange = (e, row) => {
-    row.adjustmentForDisplay = e.target.value
-    let aux = this.state.filteredData
-    this.setState({
-      filteredData: aux
-    })
-
+    if(e.target.value.length<=5){
+      row.adjustmentForDisplay = Number(e.target.value)
+      let aux = this.state.filteredData
+      this.setState({
+        filteredData: aux
+      })
+    }
   }
 
   componentWillReceiveProps (nextProps) {

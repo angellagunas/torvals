@@ -64,6 +64,8 @@ fileChunkSchema.methods.recreateFile = async function () {
     return true
   } catch (e) {
     this.lastChunk = 0
+    this.recreated = false
+    this.uploaded = false
     await this.save()
   }
 }

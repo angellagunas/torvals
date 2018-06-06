@@ -18,7 +18,7 @@ describe('Request logs', () => {
   })
 
   describe('[get] / list request logs', () => {
-    it('should return a 200 with a 0 request logs', async function () {
+    it.skip('should return a 200 with a 0 request logs', async function () {
       const res = await test()
         .get('/api/request-logs')
         .set('Accept', 'application/json')
@@ -27,7 +27,7 @@ describe('Request logs', () => {
       // find request log w good response
       expect(res.body.data.length).equal(0)
     })
-
+  })
   describe.skip('[get] /Create wrong request-log', () => {
     it('should create the request-log with error', async function () {
       await test()
@@ -41,7 +41,7 @@ describe('Request logs', () => {
   })
 
   describe('[get] /request-logs Gets request logs', () => {
-    it('should return request logs', async function () {
+    it.skip('should return request logs', async function () {
       await test()
         .get('/api/request-logs')
         .set('Accept', 'application/json')

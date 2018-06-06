@@ -17,13 +17,11 @@ module.exports = new Route({
     const price = await Price.findOne({'uuid': priceId, 'isDeleted': false}).populate('organization')
     ctx.assert(price, 404, 'Price not found')
 
-    price.set({price: data.price})
-
-    await price.save()
-
     var res = await Api.updatePrices(price.etag, price.externalId, data.price)
     if (res.status === 'ok') {
       verifyPrices.add({uuid: price.organization.uuid})
+      price.set({ price: data.price })
+      await price.save()
     } else {
       ctx.throw(401, 'Error al actualizar precio (Abraxas)')
     }

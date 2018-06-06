@@ -127,7 +127,11 @@ class Calendar extends Component {
     }
 
     return (
-      <div className='section is-paddingless-top pad-sides'>
+      <div className='calendar-view'>
+        <div className='section-header'>
+          <h2>Calendario</h2>
+        </div>
+
         <Breadcrumb
           path={[
             {
@@ -143,25 +147,36 @@ class Calendar extends Component {
           ]}
           align='left'
         />
-        <h1 className='is-size-3 is-padding-top-small is-padding-bottom-small'>Calendario</h1>
-        <Select
-          label='Año'
-          name='year'
-          value={this.state.selectedYear}
-          type='integer'
-          placeholder='Seleccionar'
-          options={this.state.years}
-          onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-        />
-        <div className='container is-margin-top'>
-          <div className='columns is-padding-top-small'>
-            <div className='column is-three-quarters-fullhd is-10-widescreen is-12-desktop calendar'>
+
+        <div className='section level selects'>
+          <div className='level-left'>
+            <div className='level-item'>
+              <Select
+                label='Año'
+                name='year'
+                value={this.state.selectedYear}
+                type='integer'
+                placeholder='Seleccionar'
+                options={this.state.years}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            </div>
+            <div className='level-item'>
               <Checkbox
                 label='Mostrar número de semana'
                 handleCheckboxChange={(e) => this.showWeeks()}
                 key='showWeeks'
                 checked={this.state.showWeekNumbers}
-            />
+              />
+            </div>
+
+          </div>
+        </div>
+
+        <div className='container is-margin-top'>
+          <div className='columns is-padding-top-small is-centered'>
+            <div className='column is-three-quarters-fullhd is-9-widescreen is-11-desktop calendar'>
+
               <br />
               <Carousel
                 title=''

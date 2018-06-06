@@ -12,11 +12,14 @@ export default ListPage({
   title: 'Productos',
   icon: 'dropbox',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
+  roles: 'analyst, orgadmin, admin, manager-level-2, consultor',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Producto',
   create: true,
   createComponent: CreateProduct,
+  export: true,
+  exportRole: 'consultor',
+  exportUrl: '/app/products',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
@@ -98,7 +101,7 @@ export default ListPage({
         formatter: (row) => {
           if (testRoles('consultor')) {
             return (
-              <Link className='button' to={'/catalogs/products/' + row.uuid}>
+              <Link className='button is-primary' to={'/catalogs/products/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>

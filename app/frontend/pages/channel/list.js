@@ -17,6 +17,9 @@ export default ListPage({
   titleSingular: 'Canal',
   create: true,
   createComponent: CreateChannel,
+  export: true,
+  exportRole: 'consultor',
+  exportUrl: '/app/channels',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
@@ -79,7 +82,7 @@ export default ListPage({
         formatter: (row) => {
           if (testRoles('consultor')) {
             return (
-              <Link className='button' to={'/catalogs/channels/' + row.uuid}>
+              <Link className='button is-primary' to={'/catalogs/channels/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>

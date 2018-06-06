@@ -12,10 +12,23 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'showOnDashboard') {
+        filters['$or'] = [{showOnDashboard: null}, {showOnDashboard: true}]
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
         filters[filter] = { '$regex': ctx.request.query[filter], '$options': 'i' }
+      }
+
+      if (filter === 'general') {
+        delete filters['general']
+        if (ctx.request.query[filter] !== '') {
+          filters['name'] = { '$regex': ctx.request.query[filter], '$options': 'i' }
+        }
+        continue
       }
     }
 
@@ -24,7 +37,7 @@ module.exports = new Route({
       skip: ctx.request.query.start,
       find: {...filters, isDeleted: false, organization: ctx.state.organization._id},
       sort: ctx.request.query.sort || '-dateCreated',
-      populate: 'organization'
+      populate: ['organization', 'mainDataset']
     })
 
     ctx.body = projects

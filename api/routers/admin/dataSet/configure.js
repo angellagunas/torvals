@@ -1,7 +1,8 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
-
-const { DataSet } = require('models')
+const config = require('config')
+const abraxas = config.abraxas
+const { DataSet, FileChunk } = require('models')
 const Api = require('lib/abraxas/api')
 
 module.exports = new Route({
@@ -18,6 +19,12 @@ module.exports = new Route({
     const body = ctx.request.body
     var datasetId = ctx.params.uuid
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
+      .populate('fileChunk')
+      .populate('project')
+      .populate('organization')
+      .populate('newProducts')
+      .populate('newSalesCenters')
+      .populate('newChannels')
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     var isDate = body.columns.find((item) => {
@@ -72,8 +79,10 @@ module.exports = new Route({
     var filterAnalysis = []
     var filterOperations = []
     var groupings = []
+    var headers = []
 
     for (var col of body.columns) {
+      headers.push(col.name)
       if (col.isAnalysisFilter) filterAnalysis.push(col.name)
       if (col.isOperationFilter) filterOperations.push(col.name)
     }
@@ -100,20 +109,47 @@ module.exports = new Route({
         output: group.outputValue
       })
     }
-    await Api.processDataset(dataset.externalId, {
-      is_date: isDate,
-      is_analysis: isAnalysis,
-      is_adjustment: isAdjustment,
-      is_prediction: isPrediction,
-      filter_analysis: filterAnalysis,
-      filter_operations: filterOperations,
-      groupings: groupings
-    })
+
+    var url
+    if (abraxas.abraxasS3 === 'true') {
+      url = dataset.url
+    } else {
+      const fileChunk = await FileChunk.findOne({_id: dataset.fileChunk})
+      url = fileChunk.path
+    }
+
     dataset.set({
       columns: body.columns,
       groupings: body.groupings,
       status: 'processing'
     })
+    await dataset.save()
+
+    var res = await Api.uploadDataset({
+      project_id: dataset.project.externalId,
+      path: url,
+      headers: headers,
+      config: {
+        is_date: isDate,
+        is_analysis: isAnalysis,
+        is_adjustment: isAdjustment,
+        is_prediction: isPrediction,
+        filter_analysis: filterAnalysis,
+        filter_operations: filterOperations
+      }
+    })
+
+    if (res._id) {
+      dataset.set({
+        externalId: res._id,
+        status: 'processing'
+      })
+    } else {
+      dataset.set({
+        externalId: 'externalId not received',
+        status: 'error'
+      })
+    }
     await dataset.save()
 
     ctx.body = {

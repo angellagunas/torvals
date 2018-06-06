@@ -48,9 +48,11 @@ class UserDetail extends PageComponent {
 
   async onPageEnter () {
     const data = await this.loadCurrentUser()
+    const groups = await this.loadGroups()
 
     return {
       user: data,
+      groups: groups,
       selectedGroups: data.groups,
       selectedOrgs: data.organizations
     }
@@ -196,14 +198,14 @@ class UserDetail extends PageComponent {
       setTimeout(() => {
         this.setState({
           resetLoading: true,
-          resetText: 'Éxito!',
+          resetText: '¡Éxito!',
           resetClass: 'button is-success'
         })
       }, 3000)
     } catch (e) {
       await this.setState({
         resetLoading: true,
-        resetText: 'Error!',
+        resetText: '¡Error!',
         resetClass: 'button is-danger'
       })
     }

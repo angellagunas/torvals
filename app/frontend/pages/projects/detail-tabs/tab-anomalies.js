@@ -6,10 +6,12 @@ import {
   BaseForm,
   SelectWidget
 } from '~base/components/base-form'
+import { Pagination } from '~base/components/base-pagination'
 import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import Editable from '~base/components/base-editable'
 import { toast } from 'react-toastify'
+import Select from './select'
 
 var currentRole
 
@@ -27,10 +29,14 @@ class TabAnomalies extends Component {
       formData: {
       },
       anomalies: [],
+      requestId: 0,
       selectAll: false,
-      selected: new Set(),
+      selected: {},
       disableButton: true,
-      sortAscending: true      
+      sortAscending: true,
+      pageLength: 20,
+      page: 1,
+      search: '' 
     }
     currentRole = tree.get('user').currentRole.slug
   }
@@ -94,13 +100,13 @@ class TabAnomalies extends Component {
     })
   }
 
-  async filterChangeHandler (e) {
+  async filterChangeHandler(name, value) {
+    let aux = this.state.formData
+    aux[name] = value
     this.setState({
-      formData: {
-        product: e.formData.product,
-        salesCenter: e.formData.salesCenter,
-        category: e.formData.category
-      }
+      formData: aux
+    }, () => {
+      this.getData()
     })
   }
 
@@ -110,33 +116,47 @@ class TabAnomalies extends Component {
     })
   }
 
-  async getData (e) {
-    this.setState({
-      isLoading: ' is-loading'
+  async getData (start = 0, limit = this.state.pageLength) {
+   if(this.state.requestId === 1000){
+      var request = 0
+   }else{
+      var request = this.state.requestId
+   }
+   this.setState({
+      isLoading: ' is-loading',
+      anomalies: [],
+      requestId: request + 1 ,
+      isFiltered: false
+    }, async () => {
+      let url = '/app/anomalies/list/' + this.props.project.uuid
+      try {
+        let res = await api.get(url, {
+          ...this.state.formData,
+          start: start,
+          limit: limit,
+          general: this.state.search,
+          requestId: this.state.requestId
+        })
+        if(parseInt(res.requestId) === parseInt(this.state.requestId)){
+          this.setState({
+            totalAnomalies: res.total,
+            anomalies: res.data,
+            isLoading: '',
+            isFiltered: true          
+          })  
+        }      
+
+        if(res.data.length === 0)
+          this.notify('No hay anomalías que mostrar', 5000, toast.TYPE.INFO)      
+          
+      } catch (e) {
+        this.setState({
+          isLoading: '',
+          isFiltered: false
+        })
+        this.notify('Error:Intente de nuevo', 5000, toast.TYPE.ERROR)      
+      }
     })
-
-    let url = '/app/anomalies/list/' + this.props.project.uuid
-    try {
-      let res = await api.get(url, {
-        ...this.state.formData
-      })
-
-      this.setState({
-        anomalies: res.data,
-        isLoading: '',
-        isFiltered: true
-      })
-
-      if(res.data.length === 0)
-        this.notify('No hay anomalias que mostrar', 5000, toast.TYPE.INFO)      
-        
-    } catch (e) {
-      this.setState({
-        isLoading: '',
-        isFiltered: false
-      })
-      this.notify('Error:Intente de nuevo', 5000, toast.TYPE.ERROR)      
-    }
   }
 
   async getFilters () {
@@ -147,6 +167,39 @@ class TabAnomalies extends Component {
 
   getColumns () {
     let cols = [
+      {
+        'title': 'Seleccionar Todo',
+        'abbreviate': true,
+        'abbr': (() => {
+          if (currentRole !== 'consultor') {
+            return (
+              <Checkbox
+                label='checkAll'
+                handleCheckboxChange={(e) => this.checkAll(!this.state.selectAll)}
+                key='checkAll'
+                checked={this.state.selectAll}
+                hideLabel />
+            )
+          }
+        })(),
+        'property': 'checkbox',
+        'default': '',
+        formatter: (row) => {
+          if (!row.selected) {
+            row.selected = false
+          }
+          if (currentRole !== 'consultor') {
+            return (
+              <Checkbox
+                label={row}
+                handleCheckboxChange={this.toggleCheckbox}
+                key={row}
+                checked={row.selected}
+                hideLabel />
+            )
+          }
+        }
+      },
       {
         'title': 'Id',
         'property': 'productId',
@@ -180,7 +233,7 @@ class TabAnomalies extends Component {
         }
       },
       {
-        'title': 'Tipo de Anomalia',
+        'title': 'Tipo de Anomalía',
         'property': 'type',
         'default': 'N/A',
         'sortable': true,                                
@@ -202,16 +255,17 @@ class TabAnomalies extends Component {
         'property': 'prediction',
         'default': 0,
         'type': 'number',
-        'sortable': true,                                
+        'sortable': true,
+        'className': 'editable-cell',                                
         formatter: (row) => {
           if (currentRole !== 'consultor') {
           return (
             <Editable
               value={row.prediction}
               handleChange={this.changeAdjustment}
-              type='number'
+              type='text'
               obj={row}
-              width={80}
+              width={100}
             />
           )
           }
@@ -219,44 +273,11 @@ class TabAnomalies extends Component {
             return row.prediction
           }
         }
-      },
-      {
-        'title': 'Seleccionar Todo',
-        'abbreviate': true,
-        'abbr': (() => {
-          if (currentRole !== 'consultor') {
-          return (
-            <Checkbox
-              label='checkAll'
-              handleCheckboxChange={(e) => this.checkAll(!this.state.selectAll)}
-              key='checkAll'
-              checked={this.state.selectAll}
-              hideLabel />
-          )
-        }
-        })(),
-        'property': 'checkbox',
-        'default': '',
-        formatter: (row) => {
-          if (!row.selected) {
-            row.selected = false
-          }
-          if (currentRole !== 'consultor') {
-          return (
-            <Checkbox
-              label={row}
-              handleCheckboxChange={this.toggleCheckbox}
-              key={row}
-              checked={row.selected}
-              hideLabel />
-          )
-        }
-        }
       }
     ]
 
     if ( this.state.filters.salesCenters.length > 1){
-      cols.splice(3,0, { 
+      cols.splice(4,0, { 
         'title': 'Centro de venta',
         'abbreviate': true,
         'abbr': 'C. Venta',
@@ -272,12 +293,15 @@ class TabAnomalies extends Component {
   }
 
   changeAdjustment = async (value, row) => {
-    row.prediction = value
-    const res = await this.handleChange(row)
-    if (!res) {
-      return false
+    if (Number(row.prediction) !== Number(value)) {
+      row.prediction = value
+      const res = await this.handleChange(row)
+      if (!res) {
+        return false
+      }
+      return res
     }
-    return res
+    else return false
   }
 
 
@@ -297,7 +321,7 @@ class TabAnomalies extends Component {
         anomalies: aux
       })
 
-      this.notify('Ajuste guardado!', 5000, toast.TYPE.INFO)
+      this.notify('¡Ajuste guardado!', 5000, toast.TYPE.INFO)
       
     }
     else{
@@ -332,7 +356,7 @@ class TabAnomalies extends Component {
     })
     let url = '/app/anomalies/restore/'
     let res = await api.post(url + this.props.project.uuid, {
-      anomalies: this.state.selected
+      anomalies: Object.values(this.state.selected)
     })
 
     if (res.data.status === 'ok') {
@@ -345,9 +369,9 @@ class TabAnomalies extends Component {
         })
         this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       }
-      this.state.selected.clear()
       this.setState({
-        isRestoring: ''
+        isRestoring: '',
+        selected: {}
       })
     }
 
@@ -357,28 +381,38 @@ class TabAnomalies extends Component {
    
 
   checkAll = (check) => {
-    this.state.selected.clear()
+    let selected = {}
     for (let item of this.state.anomalies) {
       if (check)
-        this.state.selected.add(item)
+        selected[item.uuid] = item
 
       item.selected = check
     }
-    this.setState({ selectAll: check })
-    this.toggleButtons()
+    this.setState({ selectAll: check, selected },
+    () => {
+      this.toggleButtons()
+    })
   }
 
   toggleCheckbox = (item) => {
-    if (this.state.selected.has(item)) {
-      this.state.selected.delete(item)
+    let selected = this.state.selected
+
+    if (selected[item.uuid]) {
+      delete selected[item.uuid]
       item.selected = false
     }
     else {
-      this.state.selected.add(item)
-      
+      selected[item.uuid] = item   
       item.selected = true
     }
-    this.toggleButtons()
+
+    this.setState({
+      selected,
+      selectAll: Object.keys(this.state.selected).length === this.state.anomalies.length
+    }, 
+    () => {
+      this.toggleButtons()
+    })
   }
 
   componentDidMount () {
@@ -388,9 +422,9 @@ class TabAnomalies extends Component {
   toggleButtons() {
     let disable = true
 
-    if (this.state.selected.size > 0)
+    if (Object.keys(this.state.selected).length > 0)
       disable = false
-    else if (this.state.selected.size <= 0) {
+    else if (Object.keys(this.state.selected).length <= 0) {
       this.setState({
         selectAll: false
       })
@@ -398,6 +432,23 @@ class TabAnomalies extends Component {
     this.setState({
       disableButton: disable
     })
+  }
+
+  async searchOnChange(e){
+    let value = e.target.value
+    
+    this.setState({
+      search: value,
+      page: 1,
+      selected: {},
+      selectAll: false
+    })
+
+    if (e.keyCode === 13 || e.which === 13 || value === ''){
+      this.toggleButtons()
+      this.getData()
+    }
+    
   }
 
   handleSort(e){
@@ -428,127 +479,149 @@ class TabAnomalies extends Component {
     })
   }
 
+  async loadMore(page) {
+    const start = (page - 1) * this.state.pageLength
+    const limit = this.state.pageLength
+
+    await this.getData(start, limit)
+    this.setState({
+      page: page,
+      selected: {},
+      selectAll: false
+    },
+      () => {
+        this.toggleButtons()
+      })
+
+  }
+
   render () {
     if (this.state.filters.products.length === 0 ||
       this.state.filters.salesCenters.length === 0
     ) {
       return <Loader />
     }
-
-    var schema = {
-      type: 'object',
-      title: '',
-      properties: {}
-    }
-
-    const uiSchema = {
-      salesCenter: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los centros de venta' },
-      product: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todos los productos' },
-      category: { 'ui:widget': SelectWidget, 'ui:placeholder': 'Todas las categorias' }
-    }
-
-    if (this.state.filters.products.length > 0) {
-      schema.properties.product = {
-        type: 'string',
-        title: 'Productos',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.product.enum = this.state.filters.products.map(item => { return item.uuid })
-      schema.properties.product.enumNames = this.state.filters.products.map(item => { return item.name })
-    }
-    
-    if (this.state.filters.categories.length > 0) {
-      schema.properties.category = {
-        type: 'string',
-        title: 'Categorias de producto',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.category.enum = this.state.filters.categories
-      schema.properties.category.enumNames = this.state.filters.categories
-    }
-    if (this.state.filters.salesCenters.length > 0) {
-      schema.properties.salesCenter = {
-        type: 'string',
-        title: 'Centros de Venta',
-        enum: [],
-        enumNames: []
-      }
-      schema.properties.salesCenter.enum = this.state.filters.salesCenters.map(item => { return item.uuid })
-      schema.properties.salesCenter.enumNames = this.state.filters.salesCenters.map(item => { return 'Centro de Venta ' + item.name })
-      if (this.state.filters.salesCenters.length === 1) {
-        uiSchema.salesCenter['ui:disabled'] = true
-      }
-    }
     
     return (
-      <div className='section'>
-        <div className='columns'>
-          <div className='column is-half'>
-            <BaseForm
-              className='inline-form'
-              schema={schema}
-              uiSchema={uiSchema}
-              formData={this.state.formData}
-              onChange={(e) => { this.filterChangeHandler(e) }}
-              onSubmit={(e) => { this.getData(e) }}
-              onError={(e) => { this.filterErrorHandler(e) }}
-            >
-              <div className='field is-grouped'>
-                <div className='control'>
-                  <button
-                    className={'button is-primary' + this.state.isLoading}
-                    type='submit'
-                    disabled={!!this.state.isLoading}
-                  >
-                    <span className='icon'>
-                        <i className='fa fa-filter' />
-                      </span>
-                      <span>
-                        Filtrar
-                    </span>
-                    </button>
+      <div>
+        <div className='section level selects'>
+          <div className='level-left'>
+            <div className='level-item'>
+              <Select
+                label='Producto'
+                name='product'
+                value={this.state.formData.product}
+                optionValue='uuid'
+                optionName='name'
+                placeholder='Seleccione'
+                options={this.state.filters.products}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            </div>
+
+            <div className='level-item'>
+              <Select
+                label='Categoría'
+                name='category'
+                placeholder='Seleccione'
+                value={this.state.formData.category}
+                options={this.state.filters.categories}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />
+            </div>
+
+            <div className='level-item'>
+              {this.state.filters.salesCenters.length === 1 ?
+                <div className='saleCenter'>
+                  <span>Centro de Venta: </span>
+                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
+                  </span>
+                </div>
+                :
+                <Select
+                  label='Centro de venta'
+                  name='salesCenter'
+                  value={this.state.formData.salesCenter}
+                  optionValue='uuid'
+                  optionName='name'
+                  placeholder='Seleccione'
+                  options={this.state.filters.salesCenters}
+                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                />
+              }
+            </div>
+
+            <div className='level-item pad-top-5'>
+              <div className='field'>
+                {currentRole !== 'consultor' ?
+                  <label className='label'>Búsqueda general</label> :
+                  null
+                }
+                <div className='control has-icons-right'>
+                  <input
+                    className='input input-search'
+                    type='text'
+                    value={this.state.searchTerm}
+                    onKeyUp={(e) => { this.searchOnChange(e) }} placeholder='Buscar'/>
+
+                  <span className='icon is-small is-right'>
+                    <i className='fa fa-search fa-xs'></i>
+                  </span>
                 </div>
               </div>
-            </BaseForm>
+            </div>
           </div>
-          {currentRole !== 'consultor'  && <div className='column has-text-right'>
-            <div className='field is-grouped is-grouped-right'>
-              <div className='control'>
+          {currentRole !== 'consultor' &&
+            <div className='level-right'>
+              <div className='level-item is-margin-top-20'>
                 <button
-                  className={'button is-info is-medium' + this.state.isRestoring}
+                  className={'button is-info ' + this.state.isRestoring}
                   disabled={!!this.state.isRestoring || this.state.disableButton}
                   type='button'
                   onClick={e => this.restore()}
                 >
-                  Recuperar ({this.state.selected.size})
+                  Recuperar ({Object.keys(this.state.selected).length})
                   </button>
               </div>
             </div>
-          </div>
           }
         </div>
 
-        <section className='section'>
-          {!this.state.isFiltered
-            ? <article className='message is-primary'>
-              <div className='message-header'>
-                <p>Información</p>
-              </div>
-              <div className='message-body'>
-                No hay anomalias que mostrar
-              </div>
-            </article>
-            : <div>
+        <section>
+          {!this.state.isFiltered ?
+            <section className='section'>
+              <center>
+                <Loader/>
+                <h2 className='has-text-info'>Cargando anomalías</h2>
+              </center>
+            </section>
+          : 
+            this.state.anomalies.length === 0
+              ? <section className='section'>
+                  <center>
+                    <h2 className='has-text-info'>No hay anomalías que mostrar</h2>
+                  </center>
+                </section>
+              : 
+              <div>
               <BaseTable
+                className='aprobe-table is-fullwidth is-margin-top-20'
                 data={this.state.anomalies}
                 columns={this.getColumns()}
                 sortAscending={this.state.sortAscending}
                 sortBy={this.state.sortBy}
-                handleSort={(e) => this.handleSort(e)} 
+                handleSort={(e) => this.handleSort(e)}
               />
-            </div>
+                <div className='is-margin-top-20'>
+                <Pagination
+                  loadPage={(page) => this.loadMore(page)}
+                  page={this.state.page}
+                  totalItems={this.state.totalAnomalies}
+                  pageLength={this.state.pageLength}
+              />
+                </div>
+              
+              </div>
           }
         </section>
       </div>

@@ -1,10 +1,9 @@
 .searchbox {
     position: absolute;
-    top: 20px;
-    right: 0px;
+    top: 12px;
+    right: 15px;
     padding: 0px;
-    background-color: #5d5d5d;
-    color: white;
+    color: $general_text !important;
     border-radius: 5px 0px 0px 5px;
     cursor: pointer;
     text-align: center;
@@ -13,16 +12,13 @@
 }
 
 .side-filters {
+    margin-top: .5rem;
     width: 250px;
     background-color: #FBFBFB;
     height: 100vh;
-    .panel-block {
-        .control {
-            .input {
-                width: 225px !important;
-            }
-        }
-    }
+    -webkit-box-shadow: -3px 0px 16px -6px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: -3px 0px 16px -6px rgba(0, 0, 0, 0.3);
+    box-shadow: -3px 0px 16px -6px rgba(0, 0, 0, 0.3);
 }
 
 .sidepanel {
@@ -56,5 +52,5 @@
 }
 
 .pad-sides {
-    padding: 0 3em !important;
+    padding: 0 20px !important;
 }

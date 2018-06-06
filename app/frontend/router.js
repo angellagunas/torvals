@@ -20,7 +20,6 @@ import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
 import ResetPassword from './pages/reset-password'
 import DataSets from './pages/datasets/list'
-import DataSetDetail from './pages/datasets/detail'
 import ReadyDataSets from './pages/datasets/list-ready'
 import Projects from './pages/projects/list'
 import ProjectDetail from './pages/projects/detail'
@@ -37,6 +36,10 @@ import NotFound from '~base/components/not-found'
 import Calendar from './pages/calendar'
 import Prices from './pages/prices/list'
 import PriceDetail from './pages/prices/detail'
+import UsersImport from './pages/import/users'
+import ChannelImport from './pages/import/channels'
+import ProductsImport from './pages/import/products'
+import SalesCentersImport from './pages/import/sales-centers'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -59,6 +62,7 @@ const AppRouter = () => {
 
           {Users.asRouterItem()}
           {UserDetail.asRouterItem()}
+          {UsersImport.asRouterItem()}
 
           {OrganizationDetail.asRouterItem()}
 
@@ -67,7 +71,6 @@ const AppRouter = () => {
 
           {DataSets.asRouterItem()}
           {ReadyDataSets.asRouterItem()}
-          {DataSetDetail.asRouterItem()}
 
           {Projects.asRouterItem()}
 
@@ -77,6 +80,7 @@ const AppRouter = () => {
 
           {SalesCenters.asRouterItem()}
           {SalesCenterDetail.asRouterItem()}
+          {SalesCentersImport.asRouterItem()}
 
           {Products.asRouterItem()}
           {ProductDetail.asRouterItem()}
@@ -85,6 +89,8 @@ const AppRouter = () => {
           {ForecastDetail.asRouterItem()}
           {Channels.asRouterItem()}
           {ChannelsDetail.asRouterItem()}
+          {ChannelImport.asRouterItem()}
+          {ProductsImport.asRouterItem()}
 
           {Prices.asRouterItem()}
           {PriceDetail.asRouterItem()}

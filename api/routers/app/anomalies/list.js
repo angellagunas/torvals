@@ -8,8 +8,10 @@ module.exports = new Route({
   handler: async function (ctx) {
     var filters = {}
     const project = await Project.findOne({uuid: ctx.params.uuid}).populate('activeDataset')
+
     ctx.assert(project, 404, 'Proyecto no encontrado')
-    ctx.assert(project.activeDataset, 404, 'No hay DataSet activo')
+    ctx.assert(project.mainDataset, 404, 'No hay DataSet activo')
+
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
@@ -51,17 +53,88 @@ module.exports = new Route({
         filters['product'] = { $in: products.map(item => { return item._id }) }
         continue
       }
-      if (!isNaN(parseInt(ctx.request.query[filter]))) {
-        filters[filter] = parseInt(ctx.request.query[filter])
+
+      if (filter === 'requestId') {
+        var requestId = ctx.request.query[filter]
+        continue
+      }
+
+      if (filter === 'general') {
+        let $or = []
+
+        if (!isNaN(ctx.request.query[filter])) {
+          $or.push({prediction: ctx.request.query[filter]})
+        }
+
+        let channelValues = []
+        let channel = await Channel.find({
+          name: new RegExp(ctx.request.query[filter], 'i'),
+          isDeleted: false,
+          organization: ctx.state.organization
+        })
+        channel.map(channel => {
+          channelValues.push(channel._id)
+        })
+
+        if (channelValues.length) {
+          $or.push({channel: {$in: channelValues}})
+        }
+
+        let productValues = []
+        let product = await Product.find({
+          '$or': [
+            {name: new RegExp(ctx.request.query[filter], 'i')},
+            {externalId: new RegExp(ctx.request.query[filter], 'i')}
+          ],
+          isDeleted: false,
+          organization: ctx.state.organization
+        })
+
+        product.map(product => {
+          productValues.push(product._id)
+        })
+
+        if (productValues.length) {
+          $or.push({product: {$in: productValues}})
+        }
+
+        let salesCenterValues = []
+        let salesCenter = await Product.find({
+          '$or': [
+            {name: new RegExp(ctx.request.query[filter], 'i')},
+            {externalId: new RegExp(ctx.request.query[filter], 'i')}
+          ],
+          isDeleted: false,
+          organization: ctx.state.organization
+        })
+        salesCenter.map(saleCenter => {
+          salesCenterValues.push(saleCenter._id)
+        })
+
+        if (salesCenterValues.length) {
+          $or.push({salesCenter: {$in: salesCenterValues}})
+        }
+
+        if ($or.length) { filters['$or'] = $or }
       } else {
-        filters[filter] = ctx.request.query[filter]
+        if (!isNaN(parseInt(ctx.request.query[filter]))) {
+          filters[filter] = parseInt(ctx.request.query[filter])
+        } else {
+          filters[filter] = ctx.request.query[filter]
+        }
       }
     }
 
     var rows = await Anomaly.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters, organization: ctx.state.organization},
+      find: {
+        isDeleted: false,
+        ...filters,
+        organization: ctx.state.organization._id,
+        project: project._id,
+        dataset: project.activeDataset._id
+      },
       sort: ctx.request.query.sort || '-dateCreated',
       populate: ['salesCenter', 'product', 'channel', 'dataset', 'organization']
     })
@@ -70,8 +143,10 @@ module.exports = new Route({
       return item.toAdmin()
     })
 
-    ctx.body = {
-      data: rows.data
+    if (requestId) {
+      rows['requestId'] = requestId
     }
+
+    ctx.body = rows
   }
 })

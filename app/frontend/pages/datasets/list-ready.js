@@ -57,7 +57,7 @@ class ReadyDataSets extends Component {
         formatter: (row) => {
           if (testRoles('manager-level-2, consultor')) {
             return (
-              <Link className='button' to={'/datasets/' + row.uuid}>
+              <Link className='button is-primary' to={'/datasets/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>

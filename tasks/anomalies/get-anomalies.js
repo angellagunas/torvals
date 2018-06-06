@@ -1,83 +1,138 @@
-// node tasks/anomalies/get-anomalies.js --uuid uuid
+// node tasks/anomalies/get-anomalies.js --uuid uuid [--batchSize batchize]
 require('../../config')
 require('lib/databases/mongo')
-
-const Api = require('lib/abraxas/api')
-const Task = require('lib/task')
-const { Product, Channel, Anomaly, SalesCenter, Project } = require('models')
 const moment = require('moment')
 
-const task = new Task(async function (argv) {
-  if (!argv.uuid) {
-    throw new Error('You need to provide an uuid!')
-  }
-  console.log('Fetching Anomalies ...')
+const Task = require('lib/task')
+const { Anomaly, DataSetRow, Project } = require('models')
+const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 
-  const project = await Project.findOne({uuid: argv.uuid}).populate('activeDataset')
-  if (!project) {
-    throw new Error('Project not found')
-  }
+const task = new Task(
+  async function (argv) {
+    let log = (args) => {
+      args = ('[get-anomalies] ') + args
 
-  try {
-    var res = await Api.getAnomalies(project.externalId)
-  } catch (e) {
-    console.log(e.message)
-    return false
-  }
+      console.log(args)
+    }
 
-  if (!project.activeDataset) {
-    return false
-  }
-  for (var p of res._items) {
-    var salesCenterExternalId = project.activeDataset.getSalesCenterColumn() || {name: ''}
-    var productExternalId = project.activeDataset.getProductColumn() || {name: ''}
-    var channelExternalId = project.activeDataset.getChannelColumn() || {name: ''}
-    var predictionColumn = project.activeDataset.getPredictionColumn() || {name: ''}
+    if (!argv.uuid) {
+      throw new Error('You need to provide an uuid!')
+    }
 
-    var salesCenter = await SalesCenter.findOne({
-      externalId: p[salesCenterExternalId.name],
-      organization: project.activeDataset.organization
-    })
-    var product = await Product.findOne({
-      externalId: p[productExternalId.name],
-      organization: project.activeDataset.organization
-    })
-    var channel = await Channel.findOne({
-      externalId: p[channelExternalId.name],
-      organization: project.activeDataset.organization
-    })
+    var batchSize = 10000
+    if (argv.batchSize) {
+      try {
+        batchSize = parseInt(argv.batchSize)
+      } catch (e) {
+        log('Invalid batch size!')
+      }
+    }
+
+    log('Finding Anomalies ...')
+    log(`Using batch size of ${batchSize}`)
+    log(`Start ==>  ${moment().format()}`)
+
+    const project = await Project.findOne({uuid: argv.uuid}).populate('mainDataset activeDataset')
+
+    if (!project) {
+      throw new Error('Project not found')
+    }
+
+    const datasetrows = await DataSetRow.find({
+      dataset: project.activeDataset._id,
+      'data.prediction': {$ne: null},
+      $or: [{'data.prediction': 0}, {'data.prediction': {$lt: 0}}]
+    }).cursor()
+
+    log('Rows ready, transversing ...')
+
+    var bulkOps = []
+    var updateBulk = []
+    let count = 0
+    for (let dataRow = await datasetrows.next(); dataRow != null; dataRow = await datasetrows.next()) {
+      try {
+        bulkOps.push({
+          dataset: project.activeDataset._id,
+          datasetRow: dataRow._id,
+          salesCenter: dataRow.salesCenter,
+          product: dataRow.product,
+          channel: dataRow.channel,
+          project: project._id,
+          prediction: dataRow.data.prediction,
+          semanaBimbo: dataRow.data.semanaBimbo,
+          organization: project.organization,
+          type: 'zero_sales',
+          date: dataRow.data.forecastDate
+        })
+
+        updateBulk.push({
+          updateOne: {
+            'filter': {_id: dataRow._id},
+            'update': {$set: {isAnomaly: true}}
+          }
+        })
+
+        if (bulkOps.length === batchSize) {
+          log(`${batchSize} anomalies saved! => ${moment().format()}`)
+          await Anomaly.insertMany(bulkOps)
+          bulkOps = []
+          await DataSetRow.bulkWrite(updateBulk)
+          updateBulk = []
+        }
+        count++
+      } catch (e) {
+        log('Error trying to save anomalies: ')
+        log(e)
+      }
+    }
 
     try {
-      var anomaly = Anomaly.findOne({
-        externalId: p._id,
-        dataset: project.activeDataset._id
-      })
-
-      if (!anomaly) {
-        await Anomaly.create({
-          channel: channel,
-          dataset: project.activeDataset._id,
-          product: product,
-          salesCenter: salesCenter,
-          externalId: p._id,
-          prediction: p[predictionColumn.name],
-          semanaBimbo: p.semana_bimbo,
-          organization: project.activeDataset.organization,
-          type: p.type,
-          date: moment(p.fecha).utc(),
-          apiData: p
-        })
+      if (bulkOps.length > 0) {
+        await Anomaly.insertMany(bulkOps)
+        await DataSetRow.bulkWrite(updateBulk)
       }
     } catch (e) {
-      console.log('Error trying to save anomaly: ')
-      console.log(p)
-      console.log(e)
+      log('Error trying to save anomalies: ')
+      log(e)
     }
-  }
 
-  console.log(`Received ${res._items.length} anomalies!`)
-  return true
-})
+    log(`Received ${count} anomalies!`)
+
+    return true
+  },
+  async (argv) => {
+    if (!argv.uuid) {
+      throw new Error('You need to provide a project!')
+    }
+
+    const project = await Project.findOne({uuid: argv.uuid})
+
+    if (!project) {
+      throw new Error('Invalid project!')
+    }
+
+    sendSlackNotification.run({
+      channel: 'all',
+      message: `Se estan obteniendo las anomalias del proyecto *${project.name}*`
+    })
+  },
+  async (argv) => {
+    if (!argv.uuid) {
+      throw new Error('You need to provide a project!')
+    }
+
+    const project = await Project.findOne({uuid: argv.uuid})
+
+    if (!project) {
+      throw new Error('Invalid project!')
+    }
+
+    sendSlackNotification.run({
+      channel: 'all',
+      message: `Se obtuvieron correctamente todas las anomalias del proyecto *${project.name}*!`
+    })
+  }
+)
 
 if (require.main === module) {
   task.setCliHandlers()

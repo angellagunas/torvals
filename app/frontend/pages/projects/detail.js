@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 import api from '~base/api'
 import Page from '~base/page'
@@ -20,7 +20,8 @@ import TabApprove from './detail-tabs/tab-approve'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
 // import Breadcrumb from '~base/components/base-breadcrumb'
-// import TabAnomalies from './detail-tabs/tab-anomalies'
+import TabAnomalies from './detail-tabs/tab-anomalies'
+import CreateProject from './create'
 
 var currentRole
 var user
@@ -32,8 +33,10 @@ class ProjectDetail extends Component {
       loading: true,
       loaded: false,
       project: {},
-      selectedTab: 'ajustes',
+      selectedTab: 'graficos',
+      actualTab: 'graficos',
       datasetClassName: '',
+      cloneClassName: '',
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
       isLoading: '',
@@ -41,7 +44,8 @@ class ProjectDetail extends Component {
       isConciliating: '',
       modified: 0,
       pendingChanges: 0,
-      pending: 0
+      pending: 0,
+      pendingDataRows: {}
     }
 
     this.interval = null
@@ -57,9 +61,10 @@ class ProjectDetail extends Component {
       this.props.history.replace('/projects/' + user.currentProject.uuid)
     }
 
-    if (currentRole === 'consultor') {
+    if (currentRole === 'manager-level-1') {
       this.setState({
-        selectedTab: 'graficos'
+        selectedTab: 'ajustes',
+        actualTab: 'ajustes'
       })
     }
 
@@ -91,15 +96,31 @@ class ProjectDetail extends Component {
     try {
       const body = await api.get(url)
 
-      if (body.data.status === 'empty') {
-        tab = 'datasets'
+      if (!tab && currentRole !== 'manager-level-1') {
+        if (body.data.status === 'empty') {
+          tab = 'datasets'
+        }
+        else if (body.data.status === 'pendingRows' || body.data.status === 'processing') {
+          tab = 'ajustes'
+        }
+        else if (body.data.status === 'adjustment') {
+          tab = 'graficos'
+        }
+        else {
+          tab = this.state.selectedTab
+        }
+      }
+
+      else if (!tab && currentRole === 'manager-level-1') {
+        tab = 'ajustes'
       }
 
       this.setState({
         loading: false,
         loaded: true,
         project: body.data,
-        selectedTab: tab || this.state.selectedTab
+        selectedTab: tab,
+        actualTab: tab 
       })
 
       this.countAdjustmentRequests()
@@ -187,6 +208,25 @@ class ProjectDetail extends Component {
     this.props.history.push('/datasets/' + object.uuid)
   }
 
+  showModalClone () {
+    this.setState({
+      cloneClassName: ' is-active'
+    })
+  }
+  hideModalClone (e) {
+    this.setState({
+      cloneClassName: ''
+    })
+  }
+
+  finishUpClone (object) {
+    this.setState({
+      cloneClassName: ''
+    })
+    this.props.history.push('/projects/' + object.uuid)
+    this.load('ajustes')
+  }
+
   async getProjectStatus () {
     const url = '/app/projects/' + this.state.project.uuid
     try {
@@ -236,39 +276,43 @@ class ProjectDetail extends Component {
     })
   }
 
-  async hasSaleCenter () {
-    let url = '/app/salesCenters'
-    try {
-      let res = await api.get(url, {
-        start: 0,
-        limit: 0,
-        sort: 'name'
-      })
-      if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
-        this.setState({
-          noSalesCenter: true
+  async hasSaleCenter() {
+    if (testRoles('manager-level-1, manager-level-2')) {
+      let url = '/app/salesCenters'
+      try {
+        let res = await api.get(url, {
+          start: 0,
+          limit: 0,
+          sort: 'name'
         })
+        if (res.total <= 0) {
+          this.setState({
+            noSalesCenter: true
+          })
+        }
+      } catch (e) {
+        console.log(e)
       }
-    } catch (e) {
-      console.log(e)
     }
   }
 
-  async hasChannel () {
-    let url = '/app/channels'
-    try {
-      let res = await api.get(url, {
-        start: 0,
-        limit: 0,
-        sort: 'name'
-      })
-      if (res.total <= 0 && testRoles('manager-level-1, manager-level-2')) {
-        this.setState({
-          noChannel: true
+  async hasChannel() {
+    if (testRoles('manager-level-1, manager-level-2')) {
+      let url = '/app/channels'
+      try {
+        let res = await api.get(url, {
+          start: 0,
+          limit: 0,
+          sort: 'name'
         })
+        if (res.total <= 0) {
+          this.setState({
+            noChannel: true
+          })
+        }
+      } catch (e) {
+        console.log(e)
       }
-    } catch (e) {
-      console.log(e)
     }
   }
 
@@ -283,7 +327,12 @@ class ProjectDetail extends Component {
       await api.post(url)
       await this.load()
     } catch (e) {
-      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+      toast('Error: ' + e.message, {
+        autoClose: 5000,
+        type: toast.TYPE.ERROR,
+        hideProgressBar: true,
+        closeButton: false
+      })
     }
 
     this.setState({
@@ -291,6 +340,99 @@ class ProjectDetail extends Component {
       modified: 0,
       dataRows: [],
       isFiltered: false
+    })
+  }
+
+  setPendingDataRows = (rows) => {
+    let pendingDataRowsArray = Object.values(rows)
+    let pending = this.state.pendingDataRows
+
+    for (let row in rows) {
+      if (!pending[row]) pending[row] = rows[row]
+    }
+
+    this.setState({
+      pendingDataRows: pending
+    })
+  }
+
+  async handleAllAdjustmentRequest(showMessage=true) {
+    this.setState({
+      isConciliating: ' is-loading'
+    })
+    let { pendingDataRows } = this.state
+    let pendingDataRowsArray = Object.values(pendingDataRows)
+    console.log(showMessage)
+
+    await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage)
+    this.setState({
+      isConciliating: ''
+    })
+  }
+
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if (type === toast.TYPE.WARNING) {
+      className = 'has-bg-warning'
+    }
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false,
+        className: className
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false,
+        className: className
+      })
+    }
+  }
+
+  async handleAdjustmentRequest(obj, showMessage) {
+    let { pendingDataRows } = this.state
+    let productAux = []
+    if (currentRole === 'consultor') {
+      return
+    }
+
+    if (obj instanceof Array) {
+      productAux = obj
+    } else {
+      productAux.push(obj)
+    }
+
+    try {
+      var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment && item.isLimit }))
+      if (currentRole === 'manager-level-1') {
+        this.notify('Sus ajustes se han guardado', 5000, toast.TYPE.INFO)
+        if (showMessage) {
+          this.setState({
+            adjustmentML1: true
+          })
+
+          setTimeout(() => {this.setState({
+            adjustmentML1: false
+          })}, 5000)
+        }
+      }
+    } catch (e) {
+      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
+
+      return
+    }
+
+    for (var product of productAux) {
+      product.adjustmentRequest = res.data[product.uuid]
+      delete pendingDataRows[product.uuid]
+    }
+    this.setState({
+      pendingDataRows: pendingDataRows
     })
   }
 
@@ -339,14 +481,35 @@ class ProjectDetail extends Component {
 
     const { project, canEdit } = this.state
 
-    if (this.interval === null && (project.status === 'processing' || project.status === 'pendingRows')) {
+    if (this.interval === null && (
+        project.status === 'processing' ||
+        project.status === 'conciliating' ||
+        project.status === 'pendingRows' ||
+        project.status === 'cloning'
+    )) {
       this.interval = setInterval(() => this.getProjectStatus(), 30000)
     }
 
     if (!this.state.loaded) {
       return <Loader />
     }
+
     const tabs = [
+      {
+        name: 'graficos',
+        title: 'Gráficos',
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'empty' ||
+          project.status === 'conciliating' ||
+          project.status === 'cloning'),
+        content: (
+          <TabHistorical
+            project={project}
+            history={this.props.history}
+            currentRole={currentRole}
+          />
+        )
+      },
       {
         name: 'ajustes',
         title: 'Ajustes',
@@ -363,6 +526,11 @@ class ProjectDetail extends Component {
             history={this.props.history}
             canEdit={canEdit}
             setAlert={(type, data) => this.setAlert(type, data)}
+            pendingDataRows={this.setPendingDataRows}
+            handleAdjustmentRequest={(row) => { this.handleAdjustmentRequest(row) }}
+            handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }}
+            selectedTab={this.state.actualTab}
+            adjustmentML1={this.state.adjustmentML1}
           />
         )
       },
@@ -375,7 +543,8 @@ class ProjectDetail extends Component {
         hide: (testRoles('manager-level-1') ||
               project.status === 'processing' ||
               project.status === 'pendingRows' ||
-              project.status === 'empty'),
+              project.status === 'empty' ||
+              project.status === 'cloning'),
         content: (
           <TabApprove
             setAlert={(type, data) => this.setAlert(type, data)}
@@ -395,34 +564,23 @@ class ProjectDetail extends Component {
             history={this.props.history}
             canEdit={canEdit}
             setAlert={(type, data) => this.setAlert(type, data)}
-            reload={() => this.load()}
+            reload={(tab) => this.load(tab)}
           />
         )
       },
-      // {
-      //   name: 'anomalias',
-      //   title: 'Anomalias',
-      //   reload: true,
-      //   hide: (testRoles('manager-level-1') ||
-      //     project.status === 'processing' ||
-      //     project.status === 'pendingRows' ||
-      //     project.status === 'empty'),
-      //   content: (
-      //     <TabAnomalies
-      //       project={project}
-      //       reload={(tab) => this.load(tab)}
-      //     />
-      //   )
-      // },
       {
-        name: 'graficos',
-        title: 'Gráficos',
-        hide: (project.status === 'processing' ||
+        name: 'anomalias',
+        title: 'Anomalías',
+        reload: true,
+        hide: (testRoles('manager-level-1') ||
+          project.status === 'processing' ||
           project.status === 'pendingRows' ||
-          project.status === 'empty'),
+          project.status === 'empty' ||
+          project.status === 'cloning'),
         content: (
-          <TabHistorical
+          <TabAnomalies
             project={project}
+            reload={(tab) => this.load(tab)}
           />
         )
       },
@@ -434,15 +592,49 @@ class ProjectDetail extends Component {
         content: (
           <div>
             <div className='section'>
-              <div className='has-text-right'>
-                { canEdit &&
-                  <DeleteButton
-                    objectName='Proyecto'
-                    objectDelete={() => this.deleteObject()}
-                    message={'Estas seguro de querer eliminar este Proyecto?'}
-                  />
-                }
-              </div>
+              {testRoles('orgadmin') &&
+                <CreateProject
+                  url='/app/projects/clone'
+                  initialState={{ ...project, organization: project.organization.uuid, clone: project.uuid }}
+                  className={this.state.cloneClassName}
+                  hideModal={this.hideModalClone.bind(this)}
+                  finishUp={this.finishUpClone.bind(this)}
+                  canEdit={canEdit}
+                  title='Clonar Proyecto'
+                  buttonText='Clonar'
+                />
+              }
+              {canEdit &&
+                <div className='columns is-marginless'>
+                  <div className='column'>
+                    <div className='is-pulled-right'>
+                      <div className='field is-grouped'>
+                        <div className='control'>
+                          {testRoles('orgadmin') && project.mainDataset &&
+                            <button
+                              className='button'
+                              type='button'
+                              onClick={this.showModalClone.bind(this)}
+                            >
+                              Clonar
+                            </button>
+                          }
+                        </div>
+                        <div className='control'>
+                          <DeleteButton
+                            objectName='Proyecto'
+                            objectDelete={() => this.deleteObject()}
+                            message={'¿Estas seguro de querer eliminar este Proyecto?'}
+                            hideIcon
+                            titleButton={'Eliminar'}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+              
               <ProjectForm
                 className='is-shadowless'
                 baseUrl='/app/projects'
@@ -482,13 +674,23 @@ class ProjectDetail extends Component {
       </span>
     </button>)
     var consolidarButton
-    if (!testRoles('consultor')) {
+    if (!testRoles('consultor, manager-level-1') && this.state.actualTab === 'aprobar') {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
             disabled={!!this.state.isConciliating}
             onClick={e => this.conciliateOnClick()}>
               Consolidar
+          </a>
+        </p>
+    }
+    else if (testRoles('manager-level-1')) {
+      consolidarButton =
+        <p className='control btn-conciliate'>
+          <a className={'button is-success ' + this.state.isConciliating}
+            disabled={!!this.state.isConciliating}
+            onClick={e => this.handleAllAdjustmentRequest()}>
+            Finalizar
           </a>
         </p>
     }
@@ -524,41 +726,43 @@ class ProjectDetail extends Component {
           /> */
         }
         <Tabs
+          onChangeTab={(tab) => this.setState({ actualTab: tab})}
           tabTitle={project.name}
           tabs={tabs}
           selectedTab={this.state.selectedTab}
           className='sticky-tab'
           extraTab={
-            <div>
-              <div className='field is-grouped'>
-                <p className='control'>
-                  <span className='has-text-weight-semibold'>
-                    <span className='icon is-small is-transparent-text'>
-                      <i className='fa fa-gears' />
-                    </span>
+                project.status === 'adjustment' &&
+                <div>
+                  <div className='field is-grouped'>
+                    <p className='control'>
+                      <span className='has-text-weight-semibold'>
+                        <span className='icon is-small is-transparent-text'>
+                          <i className='fa fa-gears' />
+                        </span>
                     Ajustes
                   </span>
-                </p>
-                <p className='control'>
-                  <span className='has-text-success has-text-weight-semibold'>
-                    <span className='icon is-small'>
-                      <i className='fa fa-check' />
-                    </span>
+                    </p>
+                    <p className='control'>
+                      <span className='has-text-success has-text-weight-semibold'>
+                        <span className='icon is-small'>
+                          <i className='fa fa-check' />
+                        </span>
                       Realizados {this.state.modified}
-                  </span>
+                      </span>
 
-                </p>
-                <p className='control'>
-                  <span className='has-text-warning has-text-weight-semibold'>
-                    <span className='icon is-small'>
-                      <i className='fa fa-exclamation-triangle' />
-                    </span>
+                    </p>
+                    <p className='control'>
+                      <span className='has-text-warning has-text-weight-semibold'>
+                        <span className='icon is-small'>
+                          <i className='fa fa-exclamation-triangle' />
+                        </span>
                       Por aprobar {this.state.counterAdjustments}
-                  </span>
-                </p>
-                {consolidarButton}
-              </div>
-            </div>
+                      </span>
+                    </p>
+                    {consolidarButton}
+                  </div>
+                </div>
           }
         />
 
@@ -580,15 +784,6 @@ class ProjectDetail extends Component {
           </div>
         }
 
-        { canEdit &&
-          <SidePanel
-            noListPage
-            sidePanelClassName={project.status !== 'empty' ? 'sidepanel' : 'is-hidden'}
-            icon={'plus'}
-            title={'Opciones'}
-            content={options}
-          />
-        }
         <CreateDataSet
           branchName='datasets'
           url='/admin/datasets'
@@ -598,7 +793,7 @@ class ProjectDetail extends Component {
           hideModal={this.hideModalDataset.bind(this)}
           finishUp={this.finishUpDataset.bind(this)}
         />
-        <ToastContainer />
+
       </div>
     )
   }

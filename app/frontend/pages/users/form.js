@@ -43,7 +43,7 @@ class UserForm extends Component {
   async submitHandler ({formData}) {
     if (!formData.role) {
       return this.setState({
-        error: 'Se debe seleccionar un rol!',
+        error: '¡Se debe seleccionar un rol!',
         apiCallErrorMessage: 'message is-danger'
       })
     }

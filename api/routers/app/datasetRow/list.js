@@ -7,7 +7,8 @@ const {
   SalesCenter,
   Channel,
   Role,
-  AbraxasDate
+  AbraxasDate,
+  Price
 } = require('models')
 
 module.exports = new Route({
@@ -128,19 +129,29 @@ module.exports = new Route({
     }
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
-      .populate(['salesCenter', 'product', 'adjustmentRequest', 'channel'])
-      .sort(ctx.request.query.sort || '-dateCreated')
+    .populate(['salesCenter', 'adjustmentRequest', 'channel'])
+    .sort(ctx.request.query.sort || '-dateCreated')
+
+    const AllPrices = await Price.find({'organization': ctx.state.organization._id})
+    var prices = {}
+    for (let price of AllPrices) {
+      prices[price._id] = price.price
+    }
+
+    const AllProducts = await Product.find({'organization': ctx.state.organization._id})
+    var productsArr = []
+    for (let product of AllProducts) {
+      productsArr[product._id] = {'name': product.name, 'externalId': product.externalId}
+    }
 
     var auxRows = []
     for (var item of rows) {
-      await item.product.populate('price').execPopulate()
-
       auxRows.push({
         uuid: item.uuid,
         salesCenter: item.salesCenter ? item.salesCenter.name : '',
-        productId: item.product ? item.product.externalId : '',
-        productName: item.product ? item.product.name : '',
-        productPrice: item.product && item.product.price ? item.product.price.price : 10.00,
+        productId: productsArr[item.product] ? productsArr[item.product].externalId : '',
+        productName: productsArr[item.product] ? productsArr[item.product].name : '',
+        productPrice: prices[item.product.price] || '',
         channel: item.channel ? item.channel.name : '',
         channelId: item.channel ? item.channel.externalId : '',
         semanaBimbo: item.data.semanaBimbo,

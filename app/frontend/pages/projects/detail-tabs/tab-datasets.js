@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
-import Link from '~base/router/link'
 import CreateDataSet from '../create-dataset'
 import api from '~base/api'
 import PropTypes from 'baobab-react/prop-types'
 import DeleteButton from '~base/components/base-deleteButton'
 import moment from 'moment'
 import {datasetStatus, testRoles} from '~base/tools'
+import DataSetDetail from '../../datasets/dataset-detail'
 
 class TabDatasets extends Component {
   constructor (props) {
@@ -24,9 +24,9 @@ class TabDatasets extends Component {
         'sortable': true,
         formatter: (row) => {
           return (
-            <Link to={'/datasets/' + row.uuid}>
+            <a onClick={() => { this.setDatasetDetail(row) }}>
               {row.name}
-            </Link>
+            </a>
           )
         }
       },
@@ -69,51 +69,49 @@ class TabDatasets extends Component {
               <div className='control'>
                 {
                   testRoles('manager-level-2, consultor')
-                    ? <Link
+                    ? <a onClick={() => { this.setDatasetDetail(row) }}
                       className={
-                        row.status === 'conciliated' || row.status === 'adjustment'
+                        row.status === 'conciliated' || row.status === 'adjustment' || row.status === 'ready'
                           ? 'button'
                           : 'is-hidden'
                       }
-                      to={'/datasets/' + row.uuid}
                     >
                       <span className='icon is-small' title='Visualizar'>
                         <i className='fa fa-eye' />
                       </span>
-                    </Link>
-                    : <Link
+                    </a>
+                    : <a onClick={() => { this.setDatasetDetail(row) }}
                       className={
-                        row.status === 'conciliated' || row.status === 'adjustment'
+                        row.status === 'conciliated' || row.status === 'adjustment' || row.status === 'ready'
                           ? 'button is-primary'
                           : 'is-hidden'
                       }
-                      to={'/datasets/' + row.uuid}
+
                     >
                       <span className='icon is-small' title='Editar'>
                         <i className='fa fa-pencil' />
                       </span>
-                    </Link>
+                    </a>
                 }
 
-                <Link
+                <a onClick={() => { this.setDatasetDetail(row) }}
                   className={
-                    row.status !== 'conciliated' && row.status !== 'adjustment'
+                    row.status !== 'conciliated' && row.status !== 'adjustment' && row.status !== 'ready'
                     ? 'button is-info'
                     : 'is-hidden'
                   }
-                  to={'/datasets/' + row.uuid}
                 >
                   Fin. Configuración
-                </Link>
+                </a>
               </div>
               <div className='control'>
-                { this.props.canEdit &&
+                { this.props.canEdit && !row.isMain &&
                   <DeleteButton
                     iconOnly
                     icon='fa fa-trash'
                     objectName='Dataset'
                     objectDelete={() => this.removeDatasetOnClick(row.uuid)}
-                    message={'Estas seguro de querer eliminar este dataset?'}
+                    message={'¿Estas seguro de querer eliminar este dataset?'}
                   />
                 }
               </div>
@@ -167,12 +165,22 @@ class TabDatasets extends Component {
     this.setState({
       datasetClassName: ''
     })
-    this.props.history.push('/datasets/' + object.uuid)
+
+    this.setDatasetDetail(object)
   }
 
   componentWillMount () {
     this.props.setAlert('is-white', ' ')
   }
+
+  async setDatasetDetail (dataset, tab) {
+    await this.props.reload(tab)
+
+    this.setState({
+      datasetDetail: dataset
+    })
+  }
+
   render () {
     const dataSetsNumber = this.props.project.datasets.length
     let adviseContent = null
@@ -187,32 +195,50 @@ class TabDatasets extends Component {
         <div>
           Necesitas subir y configurar al menos un
           <strong> dataset </strong> para tener información disponible
-          <br />
-          <br />
-          <a
-            className='button is-large is-primary'
-            onClick={() => this.showModalDataset()}
-                  >
-            <span className='icon is-medium'>
-              <i className='fa fa-plus-circle' />
-            </span>
-            <span>Agregar Dataset</span>
-          </a>
         </div>
     }
     return (
-      <div>
-        <div className='card-content'>
-          <div className={this.props.project.status === 'empty' ? 'columns no-hidden' : 'is-hidden'}>
+      <div className='dataset-tab'>
+        {!this.state.datasetDetail
+        ? <div className='card-content'>
+          <div className='columns'>
             <div className='column'>
-              <article className='message is-warning'>
+              {this.props.project.status === 'empty'
+              ? <article className='message is-warning'>
                 <div className='message-header'>
                   <p>Atención</p>
                 </div>
-                <div className='message-body has-text-centered is-size-5'>
-                  {adviseContent}
+                <div className='message-body is-size-6'>
+                  <div className='level'>
+                    <div className='level-left'>
+                      <div className='level-item'>
+                        <span className='icon is-large has-text-warning'>
+                          <i className='fa fa-exclamation-triangle fa-2x' />
+                        </span>
+                      </div>
+                      <div className='level-item'>
+                        {adviseContent}
+                      </div>
+                    </div>
+                    <div className='level-right'>
+                      <div className='level-item'>
+                        <a
+                          className='button is-info is-pulled-right'
+                          onClick={() => this.showModalDataset()}>
+                          <span>Agregar Dataset</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </article>
+              : this.props.canEdit &&
+              <a
+                className='button is-info is-pulled-right has-20-margin-sides'
+                onClick={() => this.showModalDataset()}>
+                <span>Agregar Dataset</span>
+              </a>
+            }
             </div>
           </div>
           <div className='columns'>
@@ -235,6 +261,12 @@ class TabDatasets extends Component {
             finishUp={this.finishUpDataset.bind(this)}
           />
         </div>
+
+            : <DataSetDetail
+              dataset={this.state.datasetDetail}
+              setDataset={this.setDatasetDetail.bind(this)}
+              history={this.props.history} />
+          }
       </div>
     )
   }

@@ -10,11 +10,14 @@
 @import 'adjustments';
 @import 'sidepanel';
 @import 'calendar';
+@import 'datasets';
+@import 'prices';
+@import 'dashboards';
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 html,
 body {
     background-color: #FBFBFB;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif !important;
     font-size: 0.87rem;
 }
 
@@ -70,9 +73,12 @@ h2 {
         -moz-box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
         box-shadow: -6px 5px 16px -6px rgba(0, 0, 0, 0.3);
         margin-bottom: 1rem;
-        padding-bottom: 1rem;
         min-height: 90vh;
     }
+}
+
+.main-wrapper-lvl-1 {
+    margin-left: 10px !important;
 }
 
 .sidenav-open {
@@ -80,7 +86,7 @@ h2 {
 }
 
 .is-hamburguer {
-    position: absolute;
+    position: fixed;
     top: 52px;
 }
 
@@ -127,6 +133,13 @@ h2 {
     padding: .30em
 }
 
+.card {
+    border-color: #E6E8F6;
+    box-shadow: none;
+    border-width: 1px;
+    border-style: solid;
+}
+
 .card-header {
     &-title {
         font-size: 0.9rem;
@@ -151,19 +164,25 @@ h2 {
     }
 }
 
-.breadcrumb{
-    margin: 10px 0;
+.breadcrumb {
+    margin: 20px;
+    font-size: 0.85rem;
+    a {
+        color: $general_text;
+        padding: 0.5em;
+    }
     &.has-succeeds-separator li+li::before {
         content: '/';
         font-weight: 300;
-        font-size: 1.2rem;
+        font-size: 1rem;
+        color: $info;
     }
 }
 
 .single-form {
     max-width: 400px;
     margin: 100px auto;
-    .input{
+    .input {
         width: 100%;
     }
 }
@@ -182,6 +201,206 @@ h2 {
     }
 }
 
+.has-20-margin-top {
+    margin: 20px 0;
+}
+
+.has-30-margin-top {
+    margin: 30px 0;
+}
+
+.has-20-margin-sides {
+    margin: 0 20px;
+}
+
+.has-20-margin-right {
+    margin-right: 20px;
+}
+
+.section-header {
+    background-color: #EFF1F9;
+    border-color: #E6E8F6;
+    height: 50px;
+    -webkit-box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 3px 8px -2px rgba(0, 0, 0, 0.2);
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        padding: 0.8rem 1rem;
+        text-transform: capitalize;
+    }
+}
+
+.progress.is-small {
+    height: 0.5rem;
+}
+
+.modal {
+    .modal-card {
+        width: 540px;
+        .modal-card-head {
+            border-radius: 0;
+            padding: 10px 15px;
+            background-color: #EFF1F9;
+            border-color: #E6E8F6;
+            .modal-card-title {
+                font-size: 1.2rem;
+            }
+            .delete {
+                border-radius: 0;
+                background-color: $info;
+            }
+        }
+        .modal-card-body {
+            font-size: .9rem;
+            .field.is-grouped {
+                justify-content: flex-end;
+            }
+            .button {
+                width: 80px;
+                height: 2rem;
+            }
+            .buttons {
+                margin-top: 20px;
+                margin-bottom: -10px;
+            }
+        }
+        .modal-card-foot {
+            .field.is-grouped {
+                justify-content: flex-end;
+            }
+            background-color: #EFF1F9 !important;
+            border-color: #E6E8F6 !important;
+            padding: 10px 15px;
+            border-radius: 0;
+        }
+        .modal-card-foot {
+            .field.is-grouped {
+                justify-content: flex-end;
+            }
+            background-color: #EFF1F9 !important;
+            border-color: #E6E8F6 !important;
+            padding: 10px 15px;
+            border-radius: 0;
+        }
+    }
+}
+
+.disabled-btn {
+    color: rgb(206, 206, 206) !important;
+    border-color: rgb(206, 206, 206) !important;
+    cursor: not-allowed;
+    :hover {
+        color: rgb(206, 206, 206) !important;
+        border-color: rgb(206, 206, 206) !important;
+    }
+}
+
+.has-bg-warning {
+    background-color: $warning !important;
+}
+
+.importcsv {
+    .column {
+        max-width: 100%;
+        overflow: hidden;
+    }
+    pre {
+        font-size: inherit;
+        width: 100%;
+        overflow: auto;
+    }
+}
+
+.file-cta {
+    white-space: initial;
+}
+
+.file.is-info .file-cta {
+    background-color: rgba($info, 0.05);
+    border-color: $info;
+    color: $general_text;
+    i {
+        color: $info;
+    }
+}
+
+.file.is-info:hover .file-cta {
+    background-color: rgba($info, 0.05);
+    border-color: $info;
+    color: $general_text;
+}
+
+.file.is-info.is-hovered .file-cta .file-label {
+    margin: .5rem;
+    font-size: 1rem;
+}
+
+.file.is-boxed .file-cta {
+    flex-direction: initial;
+}
+
+.file-name {
+    max-width: 17em;
+}
+
+.calendar-view {
+    .md-checkbox {
+        padding-top: 20px;
+        line-height: 1;
+        font-size: inherit;
+    }
+    .md-checkbox--fake {
+        margin: 5px;
+        width: 20px;
+        height: 20px;
+    }
+    .md-checkbox--fake::after {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+        border: 2px solid #ccc;
+    }
+    .md-checkbox--fake::before {
+        border-radius: 5px;
+        border: 0px solid transparent;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::after {
+        border: 2px solid #ccc;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::before {
+        height: 8px;
+        border-radius: 2px;
+        border-color: $success;
+        border-width: 2px;
+        border-top-style: none;
+        border-right-style: none;
+        -webkit-transform: rotate(-45deg);
+        -moz-transform: rotate(-45deg);
+        -ms-transform: rotate(-45deg);
+        -o-transform: rotate(-45deg);
+        transform: rotate(-45deg) translate(0px, 4px);
+    }
+    .md-checkbox>div {
+        line-height: 30px;
+    }
+    .level {
+        margin-top: -20px;
+        margin-left: 10px;
+    }
+}
+.detail-page{
+    .level{
+        margin-bottom: 0;
+    }
+    .level-right{
+        margin-right: 20px;
+    }
+    .card-header-select {
+        padding: 0.65em;
+    }
+}
 /* @import 'base'; */
 
 @import '../../../lib/frontend/style.css';

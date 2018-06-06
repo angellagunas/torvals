@@ -11,6 +11,8 @@ import Loader from '~base/components/spinner'
 
 import Sidebar from '~components/sidebar'
 import AdminNavBar from '~components/admin-navbar'
+import { ToastContainer } from 'react-toastify'
+
 
 class AdminLayout extends Component {
   constructor (props) {
@@ -46,6 +48,7 @@ class AdminLayout extends Component {
       } catch (err) {
         if (err.status === 401) {
           cookies.remove('jwt')
+          cookies.remove('organization')
           tree.set('jwt', null)
           tree.set('user', null)
           tree.set('organization', null)
@@ -64,6 +67,7 @@ class AdminLayout extends Component {
 
       if (!me.user.currentOrganization) {
         cookies.remove('jwt')
+        cookies.remove('organization')
         tree.set('jwt', null)
         tree.set('user', null)
         tree.set('organization', null)
@@ -105,6 +109,7 @@ class AdminLayout extends Component {
     if (!this.state.loaded) {
       return <Loader />
     }
+
     if (!isEmpty(this.state.user)) {
       return (
         <div className='is-wrapper'>
@@ -126,9 +131,10 @@ class AdminLayout extends Component {
            </div> 
           }
 
-          <div className={mainClass}>
+          <div className={this.state.user.currentRole.slug === 'manager-level-1' ? mainClass + ' main-wrapper-lvl-1' : mainClass}>
             <section className='card main'>
               {this.props.children}
+              <ToastContainer />
             </section>
           </div>
         </div>)

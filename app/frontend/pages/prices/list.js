@@ -2,9 +2,12 @@ import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
 import { testRoles } from '~base/tools'
+import api from '~base/api'
+import { toast } from 'react-toastify'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
+import Editable from '~base/components/base-editable'
 
 export default ListPage({
   path: '/catalogs/prices',
@@ -15,6 +18,9 @@ export default ListPage({
   exact: true,
   validate: [loggedIn, verifyRole],
   create: false,
+  export: true,
+  exportRole: 'consultor',
+  exportUrl: '/app/prices',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
@@ -48,7 +54,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'ID',
+        'title': 'Id',
         'property': 'productExternalId',
         'default': 'N/A',
         'sortable': true
@@ -86,12 +92,53 @@ export default ListPage({
         'property': 'price',
         'default': 'N/A',
         'sortable': true,
-        'className': 'has-text-left',
+        'className': 'editable-cell',
         formatter: (row) => {
           if (row && row.price) {
-            return '$ ' + row.price.toFixed(2).replace(/./g, (c, i, a) => {
+            let price = row.price.toFixed(2).replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+            return (
+
+              <Editable
+                value={price}
+                type='text'
+                obj={row}
+                width={100}
+                prepend='$'
+                moneyInput
+                handleChange={async (value, row) => {
+                  try {
+                    if (Number(value) !== Number(row.price)) {
+                      const res = await api.post('/app/prices/' + row.uuid, {
+                        price: value,
+                        channel: row.channel.name,
+                        product: row.product.name
+                      })
+                      if (!res) {
+                        return false
+                      }
+                      toast('¡Precio guardado!: ', {
+                        autoClose: 5000,
+                        type: toast.TYPE.INFO,
+                        hideProgressBar: true,
+                        closeButton: false
+                      })
+                      return res
+                    }
+                  } catch (e) {
+                    toast('Error: ' + e.message, {
+                      autoClose: 5000,
+                      type: toast.TYPE.ERROR,
+                      hideProgressBar: true,
+                      closeButton: false
+                    })
+                    return false
+                  }
+                }
+              }
+              />
+            )
           }
 
           return 'N/A'
@@ -107,28 +154,6 @@ export default ListPage({
           return (
             moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
           )
-        }
-      },
-      {
-        'title': 'Acciones',
-        formatter: (row) => {
-          if (testRoles('consultor')) {
-            return (
-              <Link className='button' to={'/catalogs/prices/' + row.uuid}>
-                <span className='icon is-small' title='Visualizar'>
-                  <i className='fa fa-eye' />
-                </span>
-              </Link>
-            )
-          } else {
-            return (
-              <Link className='button is-primary' to={'/catalogs/prices/' + row.uuid}>
-                <span className='icon is-small' title='Editar'>
-                  <i className='fa fa-pencil' />
-                </span>
-              </Link>
-            )
-          }
         }
       }
     ]

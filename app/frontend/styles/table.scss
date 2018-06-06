@@ -18,6 +18,7 @@
         font-size: 0.7rem !important;
         width: 60px;
         background-color: #FFF;
+        text-align: center;
     }
     .md-checkbox {
         line-height: 1;
@@ -74,6 +75,9 @@
         border-top: 1.5px solid #E3E4EB !important;
         background-color: rgba(227, 228, 235, 0.6) !important;
     }
+    &.row-was-edited {
+        background-color: rgba(227, 228, 235, 0.6) !important;
+    }
 }
 
 .sticky-table .sticky-table-corner,
@@ -116,8 +120,8 @@
 }
 
 .productName {
-    max-width: 200px;
-    width: 200px;
+    max-width: 250px;
+    width: 250px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -125,12 +129,12 @@
 
 .view-btns {
     .button {
-        width: 164px;
+        width: 189px;
         height: 35px;
     }
 }
 
-.btn-lvl-3{
+.btn-lvl-3 {
     width: 148px !important;
 }
 
@@ -321,4 +325,146 @@
     .is-selected {
         background: rgba(227, 228, 235, 0.6) !important;
     }
+    .editable {
+        .control {
+            font-size: inherit;
+            font-weight: inherit;
+        }
+        .input {
+            width: 100px;
+            height: 1.2rem;
+            padding-top: 0;
+            padding-bottom: 0;
+            font-size: inherit;
+        }
+        &-show {
+            width: 120px;
+        }
+        &-cell {
+            width: 120px;
+        }
+        &-prepend {
+            padding: 0 10px 0 0;
+        }
+    }
+}
+
+.list-page {
+    .level:not(:last-child) {
+        margin-bottom: -.5rem;
+    }
+    .table {
+        font-size: 0.8rem;
+        tr {
+            height: 37px !important;
+            background-color: #FBFBFB;
+        }
+        th,
+        td {
+            padding: 0.2rem 0.6rem;
+            vertical-align: middle;
+        }
+        td {
+            border-bottom: 1px solid #E6E8F6;
+            border-right: 1px solid #E6E8F6;
+        }
+        th {
+            background-color: rgba(233, 233, 233, 1);
+            font-weight: 700;
+            border-right: 1px solid #FBFBFB;
+            border-left: 1px solid #FBFBFB;
+            position: relative;
+            &:nth-child(1) {
+                border-left: none;
+            }
+            &:last-child {
+                border-right: none;
+            }
+            i {
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
+    }
+}
+
+.scroll-table-container {
+    margin-top: 37px;
+    max-height: 80vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.scroll-table {
+    border-collapse: collapse;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    background-color: rgba(233, 233, 233, 1) !important;
+    th {
+        height: 0;
+        line-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        color: transparent;
+        border: none;
+        white-space: nowrap;
+        position: inherit;
+    }
+    th .is-hidden {
+        height: 37px;
+        position: absolute;
+        color: $general_text;
+        padding: 9px 25px;
+        top: 0;
+        margin-left: -25px;
+        line-height: normal;
+        display: flex !important;
+        align-items: center;
+        background-color: rgba(233, 233, 233, 1);
+        font-weight: 700;
+        border-left: 1px solid #FBFBFB;
+        text-align: center;
+        &:nth-child(2) {
+            text-align: left;
+        }
+        i {
+            display: inline;
+            margin-left: 15px;
+        }
+    }
+    table {
+        border-spacing: 0;
+        width: 100%;
+    }
+    td,
+    th {
+        padding: 10px 25px;
+    }
+    th {
+        height: 0;
+        line-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        color: transparent;
+        border: none;
+        white-space: nowrap;
+        i {
+            display: none;
+        }
+    }
+    th:first-child .is-hidden {
+        border: none;
+    }
+}
+
+th {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -khtml-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
 }

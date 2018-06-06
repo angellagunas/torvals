@@ -45,7 +45,7 @@ class PasswordUserForm extends Component {
         if (role && role.slug === 'manager-level-1') {
           if (this.state.projects.length === 0) {
             this.setState({
-              error: 'No existen proyectos!',
+              error: '¡No existen proyectos!',
               apiCallErrorMessage: 'message is-danger',
               cannotCreate: true
             })
@@ -71,7 +71,7 @@ class PasswordUserForm extends Component {
           if (this.state.projects.length === 0) {
             return this.setState({
               formData,
-              error: 'No existen proyectos!',
+              error: '¡No existen proyectos!',
               apiCallErrorMessage: 'message is-danger',
               cannotCreate: true
             })
@@ -94,7 +94,7 @@ class PasswordUserForm extends Component {
         if (this.state.projects.length === 0) {
           return this.setState({
             formData,
-            error: 'No existen proyectos!',
+            error: '¡No existen proyectos!',
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -197,7 +197,7 @@ class PasswordUserForm extends Component {
         email: {type: 'string', title: 'Email'},
         password_1: {type: 'string', title: 'Contraseña'},
         password_2: {type: 'string', title: 'Confirmar Contraseña'},
-        isAdmin: {type: 'boolean', title: 'Es Admin?', default: false},
+        isAdmin: {type: 'boolean', title: '¿Es Admin?', default: false},
         role: {
           type: 'string',
           title: 'Rol',

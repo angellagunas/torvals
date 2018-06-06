@@ -19,7 +19,17 @@ const task = new Task(async function (argv) {
   }
 
   console.log(`Recreating ${dataset.name} Dataset and uploading to AWS ...`)
-  await dataset.recreateAndUploadFile()
+  var res = await dataset.recreateAndUploadFile()
+
+  if (!res) {
+    dataset.set({
+      status: 'error',
+      error: 'Hubo un error al subir el dataset!'
+    })
+    dataset.save()
+
+    return false
+  }
 
   if (argv.deleteChunks) {
     console.log('Deleting chunks ...')

@@ -17,6 +17,9 @@ export default ListPage({
   titleSingular: 'Centro de venta',
   create: true,
   createComponent: CreateSalesCenter,
+  export: true,
+  exportRole: 'consultor',
+  exportUrl: '/app/salesCenters',
   breadcrumbs: true,
   breadcrumbConfig: {
     path: [
@@ -51,7 +54,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Name',
+        'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -64,7 +67,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Created',
+        'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -75,11 +78,11 @@ export default ListPage({
         }
       },
       {
-        'title': 'Actions',
+        'title': 'Acciones',
         formatter: (row) => {
           if (testRoles('consultor')) {
             return (
-              <Link className='button' to={'/catalogs/salesCenters/' + row.uuid}>
+              <Link className='button is-primary' to={'/catalogs/salesCenters/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>

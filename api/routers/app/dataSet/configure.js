@@ -1,8 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
-
 const { DataSet } = require('models')
-const Api = require('lib/abraxas/api')
+const saveDataset = require('queues/save-dataset')
 
 module.exports = new Route({
   method: 'post',
@@ -19,6 +18,12 @@ module.exports = new Route({
     var datasetId = ctx.params.uuid
 
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
+      .populate('fileChunk')
+      .populate('project')
+      .populate('organization')
+      .populate('newProducts')
+      .populate('newSalesCenters')
+      .populate('newChannels')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
@@ -71,11 +76,18 @@ module.exports = new Route({
 
     var isPrediction = checkIsPrediction ? checkIsPrediction.name : undefined
 
+    var checkIsSales = body.columns.find((item) => {
+      return item.isSales
+    })
+
+    var isSales = checkIsSales ? checkIsSales.name : undefined
+
     var filterAnalysis = []
     var filterOperations = []
     var groupings = []
-
+    var headers = []
     for (var col of body.columns) {
+      headers.push(col.name)
       if (col.isAnalysisFilter) filterAnalysis.push(col.name)
       if (col.isOperationFilter) filterOperations.push(col.name)
     }
@@ -103,14 +115,6 @@ module.exports = new Route({
       })
     }
 
-    await Api.processDataset(dataset.externalId, {
-      is_date: isDate,
-      is_analysis: isAnalysis,
-      is_adjustment: isAdjustment,
-      is_prediction: isPrediction,
-      filter_analysis: filterAnalysis,
-      filter_operations: filterOperations
-    })
     dataset.set({
       columns: body.columns,
       groupings: body.groupings,
@@ -118,6 +122,7 @@ module.exports = new Route({
     })
     await dataset.save()
 
+    saveDataset.add({uuid: dataset.uuid})
     ctx.body = {
       data: dataset
     }
