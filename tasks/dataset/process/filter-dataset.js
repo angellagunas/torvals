@@ -2,6 +2,7 @@
 require('../../../config')
 require('lib/databases/mongo')
 const _ = require('lodash')
+const appendCyclesPeriods = require('tasks/organization/append-cycles-periods')
 const Logger = require('lib/utils/logger')
 const moment = require('moment')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
@@ -55,9 +56,15 @@ const task = new Task(
       return true
     }
 
-    const cyclesAvailable = await Cycle.getAvailable(organization._id, organization.rules.cyclesAvailable)
-    if (!cyclesAvailable) {
-      throw new Error('There are not cycles available!')
+    const cycles = organization.rules.cyclesAvailable
+    let cyclesAvailable = await Cycle.getAvailable(organization._id, cycles)
+    if (cyclesAvailable.length < cycles) {
+      log.call('Creating missing cycles.')
+      await appendCyclesPeriods.run({
+        uuid: organization.uuid,
+        cycles: cyclesAvailable.length - cycles
+      })
+      cyclesAvailable = await Cycle.getAvailable(organization._id, cycles)
     }
 
     log.call('Obtaining rows to copy...')
@@ -104,9 +111,10 @@ const task = new Task(
       const dateMax = _.maxBy(rows, 'data.forecastDate')
       const dateMin = _.minBy(rows, 'data.forecastDate')
       dataset.set({
-        dateMax: dateMax,
-        dateMin: dateMin,
-        status: 'adjustment'
+        dateMax: dateEnd.format('YYYY-MM-DD'),
+        dateMin: dateStart.format('YYYY-MM-DD'),
+        status: 'adjustment',
+        rule: project.rule
       })
       await dataset.save()
 
