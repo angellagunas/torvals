@@ -96,32 +96,28 @@ module.exports = new Route({
 
     let matchPreviousSale = _.cloneDeep(initialMatch)
 
-    let start = moment.utc(data.date_start, 'YYYY-MM-DD')
-    let end = moment.utc(data.date_end, 'YYYY-MM-DD')
+    let start = moment(data.date_start, 'YYYY-MM-DD').utc()
+    let end = moment(data.date_end, 'YYYY-MM-DD').utc()
 
-    let weeks = await Cycle.find({
-      $and: [{
-        dateStart: { $gte: data.date_start }
-      }, {
-        dateEnd: { $lte: data.date_end }
-      }]
-    })
-    initialMatch['data.forecastDate'] = {
-      $in: weeks.map(item => { return item.dateStart })
+    let cycles = await Cycle.getBetweenDates(
+      currentOrganization.organization._id,
+      start.toDate(),
+      end.toDate()
+    )
+    initialMatch['cycle'] = {
+      $in: cycles.map(item => { return item._id })
     }
 
-    start = moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years')
-    end = moment.utc(data.date_start, 'YYYY-MM-DD')
+    start = moment(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').utc()
+    end = moment(data.date_start, 'YYYY-MM-DD').subtract(1, 'd').utc()
 
-    weeks = await Cycle.find({
-      $and: [{
-        dateStart: { $gte: start.toDate() }
-      }, {
-        dateEnd: { $lte: end.toDate() }
-      }]
-    })
-    matchPreviousSale['data.forecastDate'] = {
-      $in: weeks.map(item => { return item.dateStart })
+    cycles = await Cycle.getBetweenDates(
+      currentOrganization.organization._id,
+      start.toDate(),
+      end.toDate()
+    )
+    matchPreviousSale['cycle'] = {
+      $in: cycles.map(item => { return item._id })
     }
 
     let match = [{

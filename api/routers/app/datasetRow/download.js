@@ -21,16 +21,14 @@ module.exports = new Route({
       ctx.throw(400, 'No hay DataSet activo para el proyecto')
     }
 
-    let weeks = await Cycle.find({
-      $and: [{
-        dateStart: { $gte: moment.utc(data.start_date, 'YYYY-MM-DD').toDate() }
-      }, {
-        dateEnd: { $lte: moment.utc(data.end_date, 'YYYY-MM-DD').toDate() }
-      }]
-    })
+    let cycles = await Cycle.getBetweenDates(
+      project.organization._id,
+      moment.utc(data.start_date, 'YYYY-MM-DD').toDate(),
+      moment.utc(data.end_date, 'YYYY-MM-DD').toDate()
+    )
     let filters = {
-      'data.forecastDate': {
-        $in: weeks.map(item => { return item.dateStart })
+      'cycle': {
+        $in: cycles.map(item => { return item.dateStart })
       }
     }
 

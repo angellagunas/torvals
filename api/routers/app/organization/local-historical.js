@@ -1,9 +1,18 @@
-const Route = require('lib/router/route')
-const { Project, DataSetRow, Channel, SalesCenter, Product, Role, Cycle } = require('models')
+const _ = require('lodash')
+const crypto = require('crypto')
 const moment = require('moment')
 const redis = require('lib/redis')
-const crypto = require('crypto')
-const _ = require('lodash')
+const Route = require('lib/router/route')
+const {
+  Project,
+  DataSetRow,
+  Channel,
+  SalesCenter,
+  Product,
+  Role,
+  Cycle,
+  Period
+} = require('models')
 
 const EXPIRATION = 60 * 60 * 24 * 4
 
@@ -15,8 +24,8 @@ module.exports = new Route({
     const user = ctx.state.user
     let currentRole
     let currentOrganization
-    let previousWeeks
-    let weeks
+    let previousCycles
+    let cycles
 
     if (!data.date_start || !data.date_end) {
       ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
@@ -103,39 +112,39 @@ module.exports = new Route({
 
     let matchPreviousSale = _.cloneDeep(initialMatch)
 
-    let start = moment.utc(data.date_start, 'YYYY-MM-DD')
-    let end = moment.utc(data.date_end, 'YYYY-MM-DD')
+    let start = moment(data.date_start, 'YYYY-MM-DD').utc()
+    let end = moment(data.date_end, 'YYYY-MM-DD').utc()
 
-    weeks = await Cycle.find({
-      $and: [{
-        dateStart: { $gte: start }
-      }, {
-        dateEnd: { $lte: end }
-      }]
-    })
-    initialMatch['data.forecastDate'] = {
-      $lte: end.toDate(),
-      $gte: start.toDate()
+    const periods = await Period.getBetweenDates(
+      currentOrganization.organization._id,
+      start.toDate(),
+      end.toDate()
+    )
+
+    cycles = await Cycle.getBetweenDates(
+      currentOrganization.organization._id,
+      start.toDate(),
+      end.toDate()
+    )
+    initialMatch['cycle'] = {
+      $in: cycles.map(item => { return item._id })
     }
 
-    start = moment.utc(data.date_start, 'YYYY-MM-DD').subtract(1, 'years')
-    end = moment.utc(data.date_end, 'YYYY-MM-DD').subtract(1, 'years')
+    start = moment(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').utc()
+    end = moment(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').utc()
 
-    previousWeeks = await Cycle.find({
-      $and: [{
-        dateStart: { $gte: start.toDate() }
-      }, {
-        dateEnd: { $lte: end.toDate() }
-      }]
-    })
-    matchPreviousSale['data.forecastDate'] = {
-      $lte: end.toDate(),
-      $gte: start.toDate()
+    previousCycles = await Cycle.getBetweenDates(
+      currentOrganization.organization._id,
+      start.toDate(),
+      end.toDate()
+    )
+    matchPreviousSale['cycle'] = {
+      $in: previousCycles.map(item => { return item._id })
     }
 
     const key = {
-      week: '$period',
-      date: '$data.forecastDate'
+      cycle: '$cycle',
+      period: '$period'
     }
     let match = [{
         '$match': {
@@ -172,20 +181,20 @@ module.exports = new Route({
 
     let previousSaleDict = {}
     for (let prev of previousSale) {
-      previousSaleDict[prev._id.date] = prev
+      previousSaleDict[prev._id.period] = prev
     }
 
     let saleDict = {}
     for (let res of responseData) {
-      saleDict[res._id.date] = res
+      saleDict[res._id.period] = res
     }
 
     let totalPrediction = 0
     let totalSale = 0
     let response = []
 
-    for (let date of weeks) {
-      let dateStart = date.dateStart
+    for (let date of periods) {
+      let dateStart = moment(date.dateStart).utc().format('YYYY-MM-DD')
       let item = {
         date: dateStart,
         prediction: 0,
@@ -194,10 +203,10 @@ module.exports = new Route({
         previousSale: 0
       }
 
-      if (saleDict[dateStart]) {
-        item.prediction = saleDict[dateStart].prediction
-        item.adjustment = saleDict[dateStart].adjustment
-        item.sale = saleDict[dateStart].sale
+      if (saleDict[date._id]) {
+        item.prediction = saleDict[date._id].prediction
+        item.adjustment = saleDict[date._id].adjustment
+        item.sale = saleDict[date._id].sale
       }
 
       if (item.prediction && item.sale) {
@@ -205,8 +214,8 @@ module.exports = new Route({
         totalSale += item.sale
       }
 
-      let lastDate = previousWeeks.find(cycle => {
-        return moment(cycle.dateStart, 'YYYY-MM-DD') === moment(date.dateStart, 'YYYY-MM-DD').subtract(1, 'years')
+      let lastDate = previousCycles.find(cycle => {
+        return moment(cycle.dateStart, 'YYYY-MM-DD').utc() === moment(date.dateStart, 'YYYY-MM-DD').subtract(1, 'years').utc()
       })
 
       if (lastDate && previousSaleDict[lastDate.dateStart]) {
