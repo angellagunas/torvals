@@ -17,14 +17,24 @@ class WeekTable extends Component {
     }
     this.inputs = new Set()
     this.lastRow = null
+
+
+    this.canEdit = true
+
+    if (this.props.currentRole === 'consultor' || this.props.generalAdjustment === 0) {
+      this.canEdit = false
+    }
   }
 
   setRange () {
     let range
-    if (this.props.generalAdjustment < 0)
+    if (this.props.generalAdjustment < 0) {
       range = 'Ilimitado'
-    else
+    } else if (this.props.generalAdjustment === 0) {
+      range = 'N/A'
+    } else {
       range = this.props.generalAdjustment * 100 + ' %'
+    }
 
     this.setState({
       range: range
@@ -111,7 +121,7 @@ class WeekTable extends Component {
       {
         group: this.getBtns(),
         title: (() => {
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
             return (
               <Checkbox
                 label='checkAll'
@@ -128,7 +138,7 @@ class WeekTable extends Component {
         property: 'checkbox',
         default: '',
         formatter: (row) => {
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
             if (!row.selected) {
               row.selected = false
             }
@@ -263,7 +273,7 @@ class WeekTable extends Component {
 
              row.tabin = row.key * 10 + j
              row.weeks[j].tabin = row.key * 10 + j
-             if (this.props.currentRole !== 'consultor') {
+             if (this.canEdit) {
                return (
                  <input
                    type='text'

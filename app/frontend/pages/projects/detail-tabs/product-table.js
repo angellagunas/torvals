@@ -13,6 +13,12 @@ class ProductTable extends Component {
       data: this.props.data
     }
     this.inputs = {}
+
+    this.canEdit = true
+
+    if (this.props.currentRole === 'consultor' || this.props.generalAdjustment === 0) {
+      this.canEdit = false
+    }
   }
 
   splitWords (words) {
@@ -66,7 +72,7 @@ class ProductTable extends Component {
       {
         group: this.getBtns(),
         title: (() => {
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
           return (
             <Checkbox
               label='checkAll'
@@ -83,7 +89,7 @@ class ProductTable extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
           if (!row.selected) {
             row.selected = false
           }
@@ -221,7 +227,7 @@ class ProductTable extends Component {
           }
 
           row.tabin = row.key * 10
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
             return (
               <input
                 type='text'
