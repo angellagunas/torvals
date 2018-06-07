@@ -12,7 +12,7 @@ const datasetRowSchema = new Schema({
   salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
   channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
-  catalogItem: [{ type: Schema.Types.ObjectId, ref: 'CatalogItems' }],
+  catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
   adjustmentRequest: { type: Schema.Types.ObjectId, ref: 'AdjustmentRequest' },
   cycle: { type: Schema.Types.ObjectId, ref: 'Cycle' },
   period: { type: Schema.Types.ObjectId, ref: 'Period' },
