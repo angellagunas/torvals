@@ -35,7 +35,7 @@ const task = new Task(
     log.call(`Using batch size of ${batchSize}`)
     log.call(`Start ==>  ${moment().format()}`)
 
-    const project = await Project.findOne({uuid: argv.project})
+    const project = await Project.findOne({uuid: argv.project}).populate('mainDataset')
     const dataset = await DataSet.findOne({uuid: argv.dataset})
     const organization = await Organization.findOne({_id: project.organization})
 
@@ -72,7 +72,7 @@ const task = new Task(
       const rows = await DataSetRow.find({
         dataset: project.mainDataset,
         'cycle': {
-          $in: _.map(cyclesAvailable, function(val) { return val._id })
+          $in: cyclesAvailable.map(val => { return val._id })
         },
         isAnomaly: false
       }).cursor()
@@ -81,17 +81,17 @@ const task = new Task(
       let bulkOpsNew = []
       for (let row = await rows.next(); row != null; row = await rows.next()) {
         bulkOpsNew.push({
-            'organization': project.organization,
-            'project': project,
-            'dataset': dataset._id,
-            'channel': row.channel,
-            'salesCenter': row.salesCenter,
-            'product': row.product,
-            'cycle': row.cycle,
-            'period': row.period,
-            'data': row.data,
-            'apiData': row.apiData
-          }
+          'organization': project.organization,
+          'project': project,
+          'dataset': dataset._id,
+          'channel': row.channel,
+          'salesCenter': row.salesCenter,
+          'product': row.product,
+          'cycle': row.cycle,
+          'period': row.period,
+          'data': row.data,
+          'apiData': row.apiData
+        }
         )
 
         if (bulkOpsNew.length === batchSize) {
@@ -108,11 +108,16 @@ const task = new Task(
       }
 
       log.call('Obtaining max and min dates...')
-      const dateMax = _.maxBy(rows, 'data.forecastDate')
-      const dateMin = _.minBy(rows, 'data.forecastDate')
+      const dateMin = moment.utc(cyclesAvailable[0].dateStart)
+      const dateMax = moment.utc(cyclesAvailable[cyclesAvailable.length - 1].dateStart)
+
+      if (dateMax.diff(moment.utc(project.mainDataset.dateMax)) < 0) {
+        dateMax = moment.utc(project.mainDataset.dateMax))
+      }
+
       dataset.set({
-        dateMax: dateEnd.format('YYYY-MM-DD'),
-        dateMin: dateStart.format('YYYY-MM-DD'),
+        dateMax: dateMax.format('YYYY-MM-DD'),
+        dateMin: dateMin.format('YYYY-MM-DD'),
         status: 'adjustment',
         rule: project.rule
       })

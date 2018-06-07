@@ -78,7 +78,8 @@ const task = new Task(
         isDeleted: false,
         organization: organization._id
       }, {}, {
-        upsert: true
+        upsert: true,
+        setDefaultsOnInsert: true
       })
 
       previousYear = endYear

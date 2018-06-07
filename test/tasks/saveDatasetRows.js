@@ -24,19 +24,19 @@ describe('Save datasets rows', () => {
   })
 
   describe('with csv file with 3 products', () => {
-    it.only('should add catalogItems on each row', async function () {
+    it('should add catalogItems on each row', async function () {
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
       const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
+        startDate: '2018-01-01T00:00:00',
         cycleDuration: 1,
-        cycle: "M",
-        period:"M",
-        periodDuration:1,
+        cycle: 'M',
+        period: 'M',
+        periodDuration: 1,
         season: 12,
-        cyclesAvailable:6
+        cyclesAvailable: 6
       }})
 
       await createCycles({organization: org._id})
@@ -72,9 +72,9 @@ describe('Save datasets rows', () => {
       processingResult = await processDataset.run({uuid: dataset.uuid})
       savingDatasetRows = await saveDatasetrows.run({uuid: dataset.uuid})
 
-      const rows = await DataSetRow.find({dataset:dataset._id})
+      const rows = await DataSetRow.find({dataset: dataset._id})
 
-      for(row of rows){
+      for (row of rows) {
         assert.exists(row.cycle)
         assert.exists(row.period)
       }
