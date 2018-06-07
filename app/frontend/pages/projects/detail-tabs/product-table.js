@@ -49,7 +49,7 @@ class ProductTable extends Component {
       <div className="field has-addons view-btns">
         <span className="control">
           <a className={this.props.currentRole === 'consultor' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
-            Vista Semana
+            Vista Periodo
           </a>
         </span>
         <span className="control">
@@ -141,13 +141,18 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: 'Semana',
-        property: 'semanaBimbo',
+        title: 'Periodo',
+        property: 'period',
         default: 'N/A',
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
+        formatter: (row) => {
+          if(row.period){
+            return row.period.period
+          }
+        } 
       },
       {
         group: ' ',
@@ -323,7 +328,7 @@ class ProductTable extends Component {
       limit =
         <span
           className='icon has-text-danger'
-          title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
+          title={'Periodo ' + product.period.period + ' fuera de rango'}
           onClick={() => {
               this.props.handleAdjustmentRequest(product)
             }}>

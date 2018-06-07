@@ -550,11 +550,6 @@ class UserDetail extends PageComponent {
                 },
                 {
                   path: '/admin/manage/users/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/admin/manage/users/',
                   label: user.name,
                   current: true
                 }

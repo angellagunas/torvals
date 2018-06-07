@@ -17,7 +17,10 @@ const task = new Task(
       dateMax
     } = argv
     if (!argv.uuid) {
-      throw new Error('You need to provide an organization')
+      throw new Error('You need to provide an organization.')
+    }
+    if (!dateMin || !dateMax) {
+      throw new Error('You need to provide a range of dates.')
     }
 
     const organization = await Organization.findOne({ uuid: uuid })

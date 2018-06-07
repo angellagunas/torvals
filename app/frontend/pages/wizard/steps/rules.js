@@ -31,13 +31,13 @@ class Rules extends Component {
     let rules = this.props.rules
     return (
       <div className='section pad-sides has-20-margin-top'>
-        <h1 className='title is-5'>Reglas de la organizacion</h1>
+        <h1 className='title is-5'>Reglas de la organización</h1>
         <div className='columns is-centered'>
           <div className='column'>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Reglas de organización
+                  Configuración
                 </p>
               </header>
               <div className='card-content'>
@@ -108,7 +108,7 @@ class Rules extends Component {
                         </li>
                         <li>
                           <div className='tags has-addons'>
-                            <span className='tag deadline-forecast has-text-weight-semibold'> Generar Prediccion</span>
+                            <span className='tag deadline-forecast has-text-weight-semibold'> Generar Predicción</span>
                             <span className='tag has-text-weight-semibold'>{rules.forecastCreation} días</span>
                           </div>
                         </li>
@@ -146,7 +146,7 @@ class Rules extends Component {
                         {this.props.rules.catalogs.map((item, key) => {
                           return (
                             <div key={key} className='tag is-capitalized has-text-weight-semibold'>
-                              {item.replace(/_/g, ' ')}
+                              {item.replace(/-/g, ' ')}
                             </div>
                           )
                         })}
