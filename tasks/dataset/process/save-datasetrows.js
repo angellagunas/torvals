@@ -25,41 +25,59 @@ const task = new Task(
 
     log.call('Saving channels ...')
     for (let channel of dataset.channels) {
-      await DataSetRow.update({dataset: dataset._id, 'data.channelExternalId': channel.externalId}, {channel: channel._id}, {multi: true})
+      await DataSetRow.update({
+        dataset: dataset._id,
+        'data.channelExternalId': channel.externalId
+      }, {
+        channel: channel._id
+      }, {
+        multi: true
+      })
     }
     log.call('Channels successfully saved!')
 
     log.call('Saving products ...')
     for (let product of dataset.products) {
-      await DataSetRow.update({dataset: dataset._id, 'data.productExternalId': product.externalId}, {product: product._id}, {multi: true})
+      await DataSetRow.update({
+        dataset: dataset._id,
+        'data.productExternalId': product.externalId
+      }, {
+        product: product._id
+      }, {
+        multi: true
+      })
     }
     log.call('Products successfully saved!')
 
     log.call('Saving sales centers ...')
     for (let salesCenter of dataset.salesCenters) {
-      await DataSetRow.update({dataset: dataset._id, 'data.salesCenterExternalId': salesCenter.externalId}, {salesCenter: salesCenter._id}, {multi: true})
+      await DataSetRow.update({
+        dataset: dataset._id,
+        'data.salesCenterExternalId': salesCenter.externalId
+      }, {
+        salesCenter: salesCenter._id
+      }, {
+        multi: true
+      })
     }
-    log.call('Sales Centers successfully saved!')
+    log.call('Sales centers successfully saved!')
 
-    log.call('Saving cycles...')
-    if (dataset.cycles) {
-      for (let cycle of dataset.cycles) {
-        await DataSetRow.update({
-          dataset: dataset._id,
-          'data.forecastDate': {
-            $gte: moment(cycle.dateStart).utc().format('YYYY-MM-DD'),
-            $lte: moment(cycle.dateEnd).utc().format('YYYY-MM-DD')
-          }
-        }, {
-          cycle: cycle._id
-        }, {
-          multi: true
-        })
-      }
+    log.call('Saving catalog items ...')
+    for (let catalogItems of dataset.catalogItems) {
+      await DataSetRow.update({
+        dataset: dataset._id,
+        `catalogData.is_${catalogItems.type}_id`: catalogItems.externalId
+      }, {
+        $push: {
+          catalogItems: catalogItems._id,
+        }
+      }, {
+        multi: true
+      })
     }
-    log.call('Cycles successfully saved!')
+    log.call('Catalog items successfully saved!')
 
-    log.call('Saving periods...')
+    log.call('Saving cycles and periods...')
     if (dataset.periods) {
       for (let period of dataset.periods) {
         await DataSetRow.update({
@@ -68,14 +86,15 @@ const task = new Task(
             $gte: moment(period.dateStart).utc().format('YYYY-MM-DD'),
             $lte: moment(period.dateEnd).utc().format('YYYY-MM-DD')
           }
-        }, {
-          period: period._id
-        }, {
+        },{
+          period: period._id,
+          cycle: period.cycle
+        },{
           multi: true
         })
       }
     }
-    log.call('Periods successfully saved!')
+    log.call('Cycles and periods successfully saved!')
 
     dataset.set({ status: 'reviewing' })
     await dataset.save()

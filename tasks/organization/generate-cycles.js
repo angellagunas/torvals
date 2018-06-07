@@ -14,7 +14,8 @@ const task = new Task(
     if (!argv.uuid) {
       throw new Error('You need to provide an organization')
     }
-    const organization = await Organization.findOne({uuid: argv.uuid})
+
+    const organization = await Organization.findOne({ uuid: argv.uuid })
 
     const cycleDuration = organization.rules.cycleDuration
     if (isNaN(parseInt(cycleDuration)) || parseInt(cycleDuration) < 1){
@@ -38,7 +39,7 @@ const task = new Task(
 
     const takeStart = organization.rules.takeStart
 
-    await Cycle.deleteMany({organization: organization._id})
+    await Cycle.deleteMany({ organization: organization._id })
 
     var startDate = moment(organization.rules.startDate).utc().format('YYYY-MM-DD')
     var currentDateDiff

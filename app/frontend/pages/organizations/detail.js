@@ -188,9 +188,7 @@ class OrganizationDetail extends Component {
         hide: false,
         content: (
           <div>
-            
             <div className='section pad-sides has-20-margin-top'>
-
               <div className='columns'>
                 <div className='column'>
                   <div className='card'>
@@ -248,15 +246,13 @@ class OrganizationDetail extends Component {
                   </div>
                 </div>
               </div>
-              
             </div>
-           
           </div>
         )
       },
       {
         name: '1',
-        title: 'Reglas de negocio',
+        title: 'Reglas de la organización',
         hide: !(this.state.currentStep === 1),
         reload: true,
         disabled: !(this.state.currentStep === 1),
@@ -344,24 +340,18 @@ class OrganizationDetail extends Component {
             },
             {
               path: '/organizations/',
-              label: 'Detalle',
-              current: true
-            },
-            {
-              path: '/organizations/',
               label: organization.name,
               current: true
             }
           ]}
           align='left'
         />
-          <Tabs
-            onChangeTab={(tab) => this.actualTab(tab)}
-            tabs={this.tabs}
-            selectedTab={this.tabs[this.state.currentStep].name}
-            className='is-fullwidth'
-          />
-
+        <Tabs
+          onChangeTab={(tab) => this.actualTab(tab)}
+          tabs={this.tabs}
+          selectedTab={this.tabs[this.state.currentStep].name}
+          className='is-fullwidth'
+        />
       </div>
     )
   }

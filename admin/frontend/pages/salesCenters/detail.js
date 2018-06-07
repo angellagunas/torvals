@@ -261,11 +261,6 @@ class SalesCenterDetail extends Component {
                 },
                 {
                   path: '/admin/catalogs/salesCenters/detail/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/admin/catalogs/salesCenters/detail/',
                   label: this.state.salesCenter.name,
                   current: true
                 }

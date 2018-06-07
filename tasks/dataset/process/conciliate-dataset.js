@@ -96,7 +96,8 @@ const task = new Task(
         groupings: dataset1.groupings,
         apiData: dataset1.apiData,
         source: 'conciliation',
-        status: 'conciliating'
+        status: 'conciliating',
+        rule: dataset1.rule
       })
 
       var bulkOpsNew = []

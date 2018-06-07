@@ -10,7 +10,8 @@ const cycleSchema = new Schema({
   cycle: { type: Number },
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  rule: {type: Schema.Types.ObjectId, ref: 'Rule'}
 }, { usePushEach: true })
 
 cycleSchema.methods.toPublic = function () {
@@ -20,7 +21,8 @@ cycleSchema.methods.toPublic = function () {
     dateEnd: this.dateEnd,
     cycle: this.cycle,
     dateCreated: this.dateCreated,
-    uuid: this.uuid
+    uuid: this.uuid,
+    rule: this.rule
   }
 }
 
@@ -32,7 +34,8 @@ cycleSchema.methods.toAdmin = function () {
     cycle: this.cycle,
     dateCreated: this.dateCreated,
     uuid: this.uuid,
-    isDeleted: this.isDeleted
+    isDeleted: this.isDeleted,
+    rule: this.rule
   }
 }
 
@@ -55,6 +58,26 @@ cycleSchema.statics.getAvailable = async function(organization, cyclesAvailable)
   }).sort({
     dateStart: 1
   }).limit(cyclesAvailable)
+  return cycles
+}
+
+cycleSchema.statics.getBetweenDates = async function(organization, minDate, maxDate) {
+  const firstCycle = await this.findOne({
+    organization: organization,
+    isDeleted: false,
+    dateStart: { $lte: minDate },
+    dateEnd: { $gte: minDate }
+  })
+  const cycles = await this.find({
+    organization: organization,
+    dateStart: {
+      $gte: firstCycle.dateStart,
+      $lte: maxDate
+    },
+    isDeleted: false
+  }).sort({
+    dateStart: 1
+  })
   return cycles
 }
 

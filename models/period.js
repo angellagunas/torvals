@@ -11,7 +11,8 @@ const periodSchema = new Schema({
   period: {type: Number},
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  rule: {type: Schema.Types.ObjectId, ref: 'Rule'}
 }, { usePushEach: true })
 
 periodSchema.methods.toPublic = function () {
@@ -21,7 +22,8 @@ periodSchema.methods.toPublic = function () {
     dateEnd: this.dateEnd,
     period: this.period,
     dateCreated: this.dateCreated,
-    uuid: this.uuid
+    uuid: this.uuid,
+    rule: this.rule
   }
 
   if (this.cycle) { data.cycle = this.cycle.toPublic() }
@@ -37,12 +39,33 @@ periodSchema.methods.toAdmin = function () {
     period: this.period,
     dateCreated: this.dateCreated,
     uuid: this.uuid,
-    isDeleted: this.isDeleted
+    isDeleted: this.isDeleted,
+    rule: this.rule
   }
 
   if (this.cycle) { data.cycle = this.cycle.toAdmin() }
 
   return data
+}
+
+periodSchema.statics.getBetweenDates = async function(organization, minDate, maxDate) {
+  const firstPeriod = await this.findOne({
+    organization: organization,
+    isDeleted: false,
+    dateStart: { $lte: minDate },
+    dateEnd: { $gte: minDate }
+  })
+  const periods = await this.find({
+    organization: organization,
+    dateStart: {
+      $gte: firstPeriod.dateStart,
+      $lte: maxDate
+    },
+    isDeleted: false
+  }).sort({
+    dateStart: 1
+  })
+  return periods
 }
 
 module.exports = mongoose.model('Period', periodSchema)
