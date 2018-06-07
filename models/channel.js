@@ -43,7 +43,11 @@ channelSchema.methods.toAdmin = function () {
 channelSchema.statics.filterByUserRole = async function(filters, role, user) {
   let channels = await this.find(filters).select({'_id': 1, 'groups': 1})
 
-  if (role === 'manager-level-2') {
+  if (
+    role === 'manager-level-1' ||
+    role === 'manager-level-2' ||
+    role === 'consultor'
+  ) {
     channels = channels
       .filter(item => {
         let checkExistence = item.groups.some(function (e) {
