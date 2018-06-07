@@ -292,11 +292,6 @@ class ChannelDetail extends Component {
                   },
                   {
                     path: '/catalogs/channels/',
-                    label: 'Detalle',
-                    current: true
-                  },
-                  {
-                    path: '/catalogs/channels/',
                     label: channel.name,
                     current: true
                   }
