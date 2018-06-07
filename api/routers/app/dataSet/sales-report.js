@@ -20,8 +20,7 @@ module.exports = new Route({
 
       currentRole = role.toPublic()
     }
-
-    var cycle = await Cycle.findOne({organization: currentOrganization._id, uuid: data.cycle})
+    var cycle = await Cycle.findOne({organization: ctx.state.organization, uuid: data.cycle})
     var periods = await Period.find({cycle: cycle._id})
 
     periods.ids = periods.map(item => {
