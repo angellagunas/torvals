@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const { Product, Channel, DataSet, Anomaly, SalesCenter, Project } = require('models')
+const { Product, Channel, DataSet, Anomaly, SalesCenter, Project, Role } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -122,6 +122,45 @@ module.exports = new Route({
         } else {
           filters[filter] = ctx.request.query[filter]
         }
+      }
+    }
+
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
+    if (
+      currentRole.slug === 'consultor'
+    ) {
+      var groups = user.groups
+      if (!filters['salesCenter']) {
+        var salesCenters = []
+
+        salesCenters = await SalesCenter.find({
+          groups: {$in: groups},
+          organization: ctx.state.organization._id
+        })
+
+        filters['salesCenter'] = {$in: salesCenters}
+      }
+
+      if (!filters['channel']) {
+        var channels = []
+
+        channels = await Channel.find({
+          groups: { $in: groups },
+          organization: ctx.state.organization._id
+        })
+
+        filters['channel'] = {$in: channels}
       }
     }
 
