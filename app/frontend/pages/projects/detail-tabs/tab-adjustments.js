@@ -744,11 +744,7 @@ getProductsSelected () {
       return <span>Modo Ajuste Ilimitado</span>
     }
 
-    if (currentRole === 'consultor') {
-      return <span>Modo Visualización</span>
-    }
-
-    if (ajuste === 0) {
+    if (currentRole === 'consultor' || ajuste === 0) {
       return <span>Modo Visualización</span>
     } else {
       return <span>Modo Ajuste {this.state.generalAdjustment * 100} % permitido</span>
