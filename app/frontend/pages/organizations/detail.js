@@ -256,7 +256,7 @@ class OrganizationDetail extends Component {
       },
       {
         name: '1',
-        title: 'Reglas de negocio',
+        title: 'Reglas de la organización',
         hide: !(this.state.currentStep === 1),
         reload: true,
         disabled: !(this.state.currentStep === 1),
@@ -270,7 +270,11 @@ class OrganizationDetail extends Component {
         hide: !(this.state.currentStep === 2),
         disabled: !(this.state.currentStep === 2),
         content: (
-          <Periods rules={this.state.rules} nextStep={(data) => this.nextStep(data,1)} />
+          <Periods 
+            rules={this.state.rules} 
+            nextStep={(data) => this.nextStep(data,1)}
+            setStep={(step) => this.setStep(step)}
+             />
         )
       }, {
         name: '3',
@@ -279,7 +283,11 @@ class OrganizationDetail extends Component {
         reload: true,
         disabled: !(this.state.currentStep === 3),
         content: (
-          <Ranges rules={this.state.rules} nextStep={(data) => this.nextStep(data,2)} />
+          <Ranges 
+            rules={this.state.rules} 
+            nextStep={(data) => this.nextStep(data,2)} 
+            setStep={(step) => this.setStep(step)}
+          />
         )
       },
       {
@@ -288,7 +296,11 @@ class OrganizationDetail extends Component {
         hide: !(this.state.currentStep === 4),
         disabled: !(this.state.currentStep === 4),
         content: (
-          <DeadLines startDate={this.state.rules.startDate} rules={this.state.rules} nextStep={(data) => this.nextStep(data,3)} />
+          <DeadLines 
+            startDate={this.state.rules.startDate} 
+            rules={this.state.rules} 
+            nextStep={(data) => this.nextStep(data,3)}
+            setStep={(step) => this.setStep(step)} />
         )
       },
       {
@@ -297,7 +309,11 @@ class OrganizationDetail extends Component {
         hide: !(this.state.currentStep === 5),
         disabled: !(this.state.currentStep === 5),
         content: (
-          <Catalogs rules={this.state.rules} nextStep={(data) => this.nextStep(data,4)} />
+          <Catalogs 
+            rules={this.state.rules}
+            nextStep={(data) => this.nextStep(data,4)} 
+            setStep={(step) => this.setStep(step)}
+            />
         )
       }
       

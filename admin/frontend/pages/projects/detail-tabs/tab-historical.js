@@ -393,12 +393,12 @@ class TabHistorical extends Component {
         data: this.state.adjustments
       },
       {
-        label: 'Venta Registrada',
+        label: 'Venta registrada',
         color: '#8BC34A',
         data: this.state.sales
       },
       {
-        label: 'Venta Anterior',
+        label: 'Venta año anterior',
         color: 'red',
         data: this.state.prevSales
       }

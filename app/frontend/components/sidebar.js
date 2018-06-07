@@ -75,6 +75,35 @@ class Sidebar extends Component {
     return item
   }
 
+  getCatalogs () {
+    const org = tree.get('organization') || {}
+    return (org.rules || {}).catalogs || []
+  }
+
+  catalogItems () {
+    const catalogs = this.getCatalogs()
+    const items = []
+
+    if (catalogs.includes('precio')) items.push(Prices.asSidebarItem())
+    if (catalogs.includes('centro_de_venta')) items.push(SalesCenters.asSidebarItem())
+    if (catalogs.includes('producto')) items.push(Products.asSidebarItem())
+    if (catalogs.includes('canal')) items.push(Channels.asSidebarItem())
+
+    return items
+  }
+
+  importItems () {
+    const catalogs = this.getCatalogs()
+    const items = []
+
+    if (catalogs.includes('usuario')) items.push(UsersImport.asSidebarItem())
+    if (catalogs.includes('centro_de_venta')) items.push(SalesCentersImport.asSidebarItem())
+    if (catalogs.includes('producto')) items.push(ProductsImport.asSidebarItem())
+    if (catalogs.includes('canal')) items.push(ChannelsImport.asSidebarItem())
+
+    return items
+  }
+
   getMenuItems () {
     if (tree.get('organization')) {
       return [
@@ -105,24 +134,14 @@ class Sidebar extends Component {
           to: '/catalogs',
           roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
           opened: false,
-          dropdown: [
-            Prices.asSidebarItem(),
-            SalesCenters.asSidebarItem(),
-            Products.asSidebarItem(),
-            Channels.asSidebarItem()
-          ]
+          dropdown: this.catalogItems()
         },
         {
           title: 'Cargar Datos',
           icon: 'file-o',
           to: '/import',
           roles: 'orgadmin, admin',
-          dropdown: [
-            UsersImport.asSidebarItem(),
-            SalesCentersImport.asSidebarItem(),
-            ChannelsImport.asSidebarItem(),
-            ProductsImport.asSidebarItem()
-          ]
+          dropdown: this.importItems()
         }
       ]
     }

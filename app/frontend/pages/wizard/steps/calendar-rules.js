@@ -281,7 +281,7 @@ class CalendarRules extends Component {
                   )
                 } else {
                   return (
-                    <div className='calendar-date'>
+                    <div key={key} className='calendar-date'>
                       <button className='date-item calendar-not' />
                     </div>
                   )
@@ -290,8 +290,7 @@ class CalendarRules extends Component {
             }
             </div>
           </div>
-        </div >
-
+        </div>
       </div>
     )
   }

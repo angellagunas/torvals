@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const { DataSet, Project } = require('models')
+const { DataSet, Project, Rule } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -17,6 +17,8 @@ module.exports = new Route({
 
     project = await Project.findOne({uuid: body.project})
 
+    const rule = await Rule.findOne({organization: ctx.state.organization._id}).sort({dateCreated: -1})
+
     if (!project) {
       ctx.throw(404, 'Proyecto no encontrado')
     }
@@ -27,6 +29,7 @@ module.exports = new Route({
       organization: ctx.state.organization._id,
       createdBy: ctx.state.user,
       project: project._id
+      // rule: rule._id
     })
 
     project.datasets.push({

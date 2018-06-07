@@ -32,7 +32,36 @@ const colors = {
   5: {
     rangeClass: 'calendar-range-consolidate',
     rangeClassStart: 'limit-consolidate'
+  },
+  6: {
+    rangeClass: 'calendar-range-lime',
+    rangeClassStart: 'limit-lime'
+  },
+  7: {
+    rangeClass: 'calendar-range-orange',
+    rangeClassStart: 'limit-orange'
+  },
+  8: {
+    rangeClass: 'calendar-range-teal',
+    rangeClassStart: 'limit-teal'
+  },
+  9: {
+    rangeClass: 'calendar-range-pink',
+    rangeClassStart: 'limit-pink'
+  },
+  10: {
+    rangeClass: 'calendar-range-grey',
+    rangeClassStart: 'limit-grey'
+  },
+  11: {
+    rangeClass: 'calendar-range-yellow',
+    rangeClassStart: 'limit-yellow'
+  },
+  12: {
+    rangeClass: 'calendar-range-cyan',
+    rangeClassStart: 'limit-cyan'
   }
+
 }
 
 class Calendar extends Component {
@@ -45,6 +74,7 @@ class Calendar extends Component {
       selectedYear: moment().utc().get('year'),
       selectedCycle: ''
     }
+    this.color = 0
   }
 
   componentWillMount () {
@@ -79,7 +109,7 @@ class Calendar extends Component {
 
     if (res) {
       let cycles = _(res.data)
-        .groupBy(x => x.cycle.cycle)
+        .groupBy(x => x.cycle.uuid)
         .map((value, key) => ({ cycle: key, periods: value }))
         .value()
         .filter((item) => { return moment.utc(item.periods[0].dateEnd).get('year') === this.state.selectedYear })
@@ -124,6 +154,13 @@ class Calendar extends Component {
   makeRange (start, end, key) {
     let s = moment.utc(start)
     let e = moment.utc(end)
+
+    if (this.color === 12) {
+      this.color = 1
+    } else {
+      this.color++
+    }
+
     let range = {}
     range[s.format('YYYY-MM-DD')] = {
       date: s,
@@ -134,8 +171,8 @@ class Calendar extends Component {
       isActive: true,
       isTooltip: true,
       tooltipText: 'Inicio de periodo ' + key,
-      rangeClass: colors[key].rangeClass,
-      rangeClassStart: colors[key].rangeClassStart
+      rangeClass: colors[this.color].rangeClass,
+      rangeClassStart: colors[this.color].rangeClassStart
     }
 
     while (s.format('YYYY-MM-DD') !== e.format('YYYY-MM-DD')) {
@@ -149,7 +186,7 @@ class Calendar extends Component {
         isActive: false,
         isTooltip: true,
         tooltipText: 'Periodo ' + key,
-        rangeClass: colors[key].rangeClass
+        rangeClass: colors[this.color].rangeClass
       }
     }
 
@@ -161,8 +198,8 @@ class Calendar extends Component {
       isToday: false,
       isActive: true,
       isTooltip: true,
-      rangeClass: colors[key].rangeClass,
-      rangeClassEnd: colors[key].rangeClassStart,
+      rangeClass: colors[this.color].rangeClass,
+      rangeClassEnd: colors[this.color].rangeClassStart,
       tooltipText: 'Fin de periodo ' + key
     }
     return range
@@ -291,8 +328,8 @@ class Calendar extends Component {
                       key={key}
                       showWeekNumber={this.state.showWeekNumbers}
                       date={date}
-                      minDate={date}
-                      maxDate={date}
+                      minDate={moment.utc(cycle.dateStart).startOf('month')}
+                      maxDate={moment.utc(cycle.dateEnd).endOf('month')}
                       dates={this.makeDates(cycle, item.periods)} />
                   </div>
                 )
@@ -354,8 +391,8 @@ class Calendar extends Component {
                         key={key}
                         showWeekNumber={this.state.showWeekNumbers}
                         date={date}
-                        // minDate={date}
-                        // maxDate={date}
+                        minDate={moment.utc(cycle.dateStart).startOf('month')}
+                        maxDate={moment.utc(cycle.dateEnd).endOf('month')}
                         dates={this.makeDates(cycle, item.periods)} />
                     </div>
                   </div>

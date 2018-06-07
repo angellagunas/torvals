@@ -37,10 +37,10 @@ class Cal extends Component {
     clonedDate.add(num, 'month')
 
     if (this.state.minDate && this.state.maxDate) {
-      return clonedDate.isBetween(this.state.minDate, this.state.maxDate)
-    } else if (this.state.minDate && !this.state.maxDate) {
-      return clonedDate.isBefore(this.state.minDate)
+      return clonedDate.isBetween(this.state.minDate, this.state.maxDate, 'days', '[]')
     } else if (!this.state.minDate && this.state.maxDate) {
+      return clonedDate.isBefore(this.state.minDate)
+    } else if (this.state.minDate && !this.state.maxDate) {
       return clonedDate.isAfter(this.state.maxDate)
     } else {
       return true
@@ -49,7 +49,6 @@ class Cal extends Component {
 
   weekHeader () {
     let weekDays = []
-    // weekDays.push('#')
     for (let i = 0; i < 7; i++) {
       weekDays.push(moment.utc().weekday(i).format('ddd'))
     }
@@ -133,23 +132,37 @@ class Cal extends Component {
     let numbers = []
     this.state.calendarDays.map((item, key) => {
       if (item.available && item.value !== 0) {
-        let w = this.dateFromNum(item.value).format('W')
-        numbers.push(Number(w))
-        weeks[w] =
-          <div key={'week' + w} className='calendar-date'>
-            <button className='date-item week-number tooltip'
-              data-tooltip={'Semana ' + w}>
-              {w}
-            </button>
-          </div>
+        if (item.value === 1 ||
+          item.value === 8 ||
+          item.value === 15 ||
+          item.value === 22 ||
+          item.value >= 28) {
+          let w = this.dateFromNum(item.value).format('W')
+          numbers.push(Number(w))
+          weeks[w] =
+            <div key={'week' + w} className='calendar-date'>
+              <button className='date-item week-number tooltip'
+                data-tooltip={'Semana ' + w}>
+                {w}
+              </button>
+            </div>
+        }
       }
     })
 
     if (numbers.find((element) => { return element > 50 }) !== undefined &&
-      numbers.find((element) => { return element === 1 }) !== undefined) {
+      numbers.find((element) => { return element === 1 }) !== undefined &&
+      numbers.find((element) => { return element === 49 }) === undefined) {
       let val = Object.values(weeks)
       val.unshift(val[val.length - 1])
       val.pop()
+      return val
+    } else if (numbers.find((element) => { return element > 50 }) !== undefined &&
+      numbers.find((element) => { return element === 1 }) !== undefined &&
+      numbers.find((element) => { return element === 49 }) !== undefined) {
+      let val = Object.values(weeks)
+      let item = val.shift()
+      val.push(item)
       return val
     }
 
@@ -218,7 +231,7 @@ class Cal extends Component {
       <div>
         <div className='calendar'>
           <div className='calendar-nav'>
-            <div className={this.canChange(-1) ? 'calendar-nav-previous-month' : 'is-hidden'}>
+            <div className={this.canChange(-1) ? 'calendar-nav-previous-month' : 'is-invisible'}>
               <button className='button is-small is-primary'
                 onClick={() => { this.changeMonth(-1) }}>
                 <svg viewBox='0 0 50 80' space='preserve'>
@@ -227,7 +240,7 @@ class Cal extends Component {
               </button>
             </div>
             <div className='calendar-month is-capitalized'>{this.state.date.format('MMMM YYYY')}</div>
-            <div className={this.canChange(1) ? 'calendar-nav-next-month' : 'is-hidden'}>
+            <div className={this.canChange(1) ? 'calendar-nav-next-month' : 'is-invisible'}>
               <button className='button is-small is-primary' onClick={() => { this.changeMonth(1) }}>
                 <svg viewBox='0 0 50 80' space='preserve'>
                   <polyline fill='none' strokeWidth='.5em' strokeLinecap='round' strokeLinejoin='round' points='0.375,0.375 45.63,38.087 0.375,75.8 ' />

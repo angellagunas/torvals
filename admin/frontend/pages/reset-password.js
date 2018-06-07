@@ -96,7 +96,7 @@ class ResetPassword extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Reset Password
+              Restabler contraseña
             </p>
             <a className='card-header-icon'>
               <span className='icon'>
@@ -107,7 +107,7 @@ class ResetPassword extends Component {
           <div className='card-content'>
             <div className='content'>
               <p>
-                Necesitamos tu dirección de correo para enviarte un link de reestablecimiento de la contraseña:
+                Necesitamos tu dirección de correo para enviarte un link de restablecimiento de la contraseña:
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}

@@ -72,22 +72,7 @@ const dataSetSchema = new Schema({
     default: 'uploaded'
   },
 
-  columns: [{
-    name: { type: String },
-    isDate: { type: Boolean, default: false },
-    isAnalysis: { type: Boolean, default: false },
-    isAdjustment: { type: Boolean, default: false },
-    isPrediction: { type: Boolean, default: false },
-    isSales: { type: Boolean, default: false },
-    isOperationFilter: { type: Boolean, default: false },
-    isAnalysisFilter: { type: Boolean, default: false },
-    isProduct: { type: Boolean, default: false },
-    isProductName: { type: Boolean, default: false },
-    isSalesCenter: { type: Boolean, default: false },
-    isSalesCenterName: { type: Boolean, default: false },
-    isChannel: { type: Boolean, default: false },
-    isChannelName: { type: Boolean, default: false }
-  }],
+  columns: [{ type: Schema.Types.Mixed }],
 
   groupings: [{
     column: { type: String },
@@ -108,8 +93,7 @@ const dataSetSchema = new Schema({
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
   uploaded: { type: Boolean, default: false },
-  cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
-  periods: [{type: Schema.Types.ObjectId, ref: 'Period'}]
+  rule: {type: Schema.Types.ObjectId, ref: 'Rule'}
 }, { usePushEach: true })
 
 dataSetSchema.plugin(dataTables)
@@ -229,6 +213,12 @@ dataSetSchema.methods.getAnalysisColumn = function () {
 
 dataSetSchema.methods.getSalesColumn = function () {
   var obj = this.columns.find(item => { return item.isSales })
+
+  return obj
+}
+
+dataSetSchema.methods.getCatalogItemColumn = function (type) {
+  var obj = this.columns.find(item => { return item[type] })
 
   return obj
 }
@@ -466,6 +456,45 @@ dataSetSchema.methods.processReady = async function (res) {
 
   await this.save()
   await this.processData()
+}
+
+dataSetSchema.methods.setColumns = async function (headers) {
+  if (!this.organization.rules) {
+    await this.populate('organization').execPopulate()
+  }
+
+  let catalogs = {}
+
+  for (let col of this.organization.rules.catalogs) {
+    catalogs[`is_${col}_id`] = false
+    catalogs[`is_${col}_name`] = false
+  }
+
+  this.set({
+    status: 'uploading',
+    columns: headers.map(item => {
+      return {
+        name: item,
+        isDate: false,
+        isAnalysis: false,
+        isAdjustment: false,
+        isPrediction: false,
+        isSales: false,
+        isOperationFilter: false,
+        isAnalysisFilter: false,
+        isProduct: false,
+        isProductName: false,
+        isSalesCenter: false,
+        isSalesCenterName: false,
+        isChannel: false,
+        isChannelName: false,
+        ...catalogs
+      }
+    })
+  })
+  this.markModified('columns')
+
+  await this.save()
 }
 
 dataSetSchema.methods.process = async function (res) {

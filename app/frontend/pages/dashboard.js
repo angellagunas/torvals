@@ -44,7 +44,7 @@ class Dashboard extends Component {
     this.selectedProducts = []
 
     this.currentRole = tree.get('user').currentRole.slug
-    
+
   }
 
   componentWillMount () {
@@ -81,7 +81,7 @@ class Dashboard extends Component {
       showOnDashboard: true
     })
 
-    let activeProjects = res.data.filter(item => { return item.mainDataset })   
+    let activeProjects = res.data.filter(item => { return item.mainDataset })
 
     this.setState({
       projects: activeProjects,
@@ -157,7 +157,7 @@ class Dashboard extends Component {
       this.clear()
     }
 
-    project.selected = value    
+    project.selected = value
     this.setState({
       allProjects: Object.keys(this.selectedProjects).length === this.state.projects.length
     })
@@ -205,11 +205,11 @@ class Dashboard extends Component {
     }
 
     project.selected = value
-    
+
     this.getGraph()
     this.getProductTable()
     this.setState({
-      allProducts: Object.keys(this.selectedProducts).length === this.state.products.length      
+      allProducts: Object.keys(this.selectedProducts).length === this.state.products.length
     })
   }
 
@@ -377,7 +377,7 @@ class Dashboard extends Component {
       })
       return
     }
-    
+
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
@@ -437,7 +437,7 @@ class Dashboard extends Component {
       })
     } else if (filter === 'years') {
       this.setState({
-        yearsCollapsed: !this.state.yearsCollapsed,        
+        yearsCollapsed: !this.state.yearsCollapsed,
       })
     }
   }
@@ -502,7 +502,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Venta anterior',
+        'title': 'Venta año anterior',
         'property': 'previousSale',
         'default': '0',
         'sortable': true,
@@ -534,7 +534,7 @@ class Dashboard extends Component {
             }
           }
 
-          
+
           if (mape <= 7) {
             return <span className='has-text-success'>{mape.toFixed(2)}%</span>
           } else if (mape > 7 && mape <= 14) {
@@ -571,7 +571,7 @@ class Dashboard extends Component {
       sortAscending: !this.state.sortAscending,
       sortBy: e
     }, () => {
-      this.searchDatarows()      
+      this.searchDatarows()
     })
 
   }
@@ -630,21 +630,21 @@ class Dashboard extends Component {
     }
   }
 
-async getDates() {
+  async getDates() {
     let d = []
     let p = []
     let dateMin = moment.utc(this.state.dateMin)
     let dateMax = moment.utc(this.state.dateMax)
-    
+
     if (dateMin.isBefore(moment.utc('2017-01-01'))) {
       dateMin = moment.utc('2017-01-01')
     }
-  
+
     while (dateMin.format('MMMM YYYY') !== dateMax.format('MMMM YYYY')){
       d.push(dateMin)
       dateMin = moment.utc(dateMin).add(1, 'month')
     }
-    
+
     d.push(dateMin)
 
     for (let i = 0; i < d.length; i++) {
@@ -663,7 +663,7 @@ async getDates() {
   }
 
 
-setMinPeriod(item) {
+  setMinPeriod(item) {
     let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
     let min = moment.utc([item.year, item.number - 1])
     if (min.isBefore(max)) {
@@ -711,7 +711,7 @@ setMinPeriod(item) {
   render () {
     const user = this.context.tree.get('user')
 
-   
+
 
     const {
       loading
@@ -763,11 +763,20 @@ setMinPeriod(item) {
         data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale !== 0 ? item.sale : null}) : []
       },
       {
-        label: 'Venta Anterior',
+        label: 'Venta año anterior',
         color: '#EF6950',
         data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale !== 0 ? item.previousSale : null }) : []
       }
     ]
+
+    const vLines = (this.state.graphData || []).map(item => ({
+      type: 'line',
+      mode: 'vertical',
+      scaleID: 'x-axis-0',
+      value: item.date,
+      borderColor: 'rgba(233, 238, 255, 1)',
+      borderWidth: 1
+    }))
 
     return (
       <div>
@@ -814,7 +823,7 @@ setMinPeriod(item) {
                                       label={<span title={item.name}>{item.name}</span>}
                                       handleCheckboxChange={(e, value) => this.selectProject(e, value, item)}
                                       key={item.uuid}
-                                      disabled={this.state.waitingData}                                      
+                                      disabled={this.state.waitingData}
                                     />
 
                                     <span className='icon is-pulled-right' onClick={() => { this.moveTo('/projects/' + item.uuid) }}>
@@ -845,7 +854,7 @@ setMinPeriod(item) {
                     <div className='card-content'>
 
                       <ul>
-                        
+
                         <li className='filters-item'>
                           <div className={this.state.channelsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
                             onClick={() => { this.showFilter('channels') }}>
@@ -869,7 +878,7 @@ setMinPeriod(item) {
                                   this.getProductTable()
                                 }}
                                 key={'channel'}
-                                disabled={this.state.waitingData}                                
+                                disabled={this.state.waitingData}
                             />
                             </div>
                             <ul className='menu-list'>
@@ -879,7 +888,7 @@ setMinPeriod(item) {
                                   item.selected = false
                                 }
                                 let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
-                                  
+
                                 return (
                                   <li key={item.uuid}>
                                     <a>
@@ -888,7 +897,7 @@ setMinPeriod(item) {
                                         handleCheckboxChange={(e, value) => this.selectChannel(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
-                                        disabled={this.state.waitingData}                                        
+                                        disabled={this.state.waitingData}
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
@@ -927,7 +936,7 @@ setMinPeriod(item) {
                                   this.getProductTable()
                                 }}
                                 key={'salesCenter'}
-                                disabled={this.state.waitingData}                                
+                                disabled={this.state.waitingData}
                             />
                             </div>
                             <ul className='menu-list'>
@@ -937,7 +946,7 @@ setMinPeriod(item) {
                                   item.selected = false
                                 }
                                 let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
-                                
+
                                 return (
                                   <li key={item.uuid}>
                                     <a>
@@ -946,7 +955,7 @@ setMinPeriod(item) {
                                         handleCheckboxChange={(e, value) => this.selectSalesCenter(e, value, item)}
                                         key={item.uuid}
                                         checked={item.selected}
-                                        disabled={this.state.waitingData}                                        
+                                        disabled={this.state.waitingData}
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
@@ -1043,8 +1052,7 @@ setMinPeriod(item) {
                     <p className='indicators-number has-text-success'>{this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
-                    
-                    <p className='indicators-title'>Venta anterior</p>
+                    <p className='indicators-title'>Venta año anterior</p>
                     <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
@@ -1136,7 +1144,8 @@ setMinPeriod(item) {
                                 },
                                 display: true
                               }
-                            ]}
+                            ]
+                          }
                         }
                         annotation={this.state.startPeriod && this.state.startPeriod.date &&
                           {
@@ -1171,7 +1180,8 @@ setMinPeriod(item) {
                                   position: 'top',
                                   fontColor: '#424A55'
                                 }
-                              }
+                              },
+                              ...vLines
                             ]
                           }
                         }
@@ -1185,7 +1195,7 @@ setMinPeriod(item) {
                       {this.loadTable()}
                     </section>
                   }
-                  
+
                 </div>
               </div>
 
@@ -1211,7 +1221,7 @@ setMinPeriod(item) {
                 </div>
 
                 <div className='level-right'>
-                 
+
                   {this.state.minPeriod &&
                     <div className='level-item'>
                     <div className='field'>
@@ -1245,14 +1255,14 @@ setMinPeriod(item) {
                       </div>
                     </div>
                   }
-                  
+
                     <div className='level-item date-drop'>
                       <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
                     </div>
-                  
-                  {this.state.maxPeriod && 
+
+                  {this.state.maxPeriod &&
                     <div className='level-item'>
                      <div className='field'>
                         <label className='label'>Periodo final</label>
@@ -1290,16 +1300,16 @@ setMinPeriod(item) {
 
               {this.state.filteredData && this.state.graphData
               ? this.state.filteredData.length > 0
-                  ? <div className='scroll-table'> 
-                    <div className='scroll-table-container'>                  
-                                   
+                  ? <div className='scroll-table'>
+                    <div className='scroll-table-container'>
+
                     <BaseTable
                       className='dash-table is-fullwidth'
                       data={this.state.filteredData}
                       columns={this.getColumns()}
                       handleSort={(e) => { this.handleSort(e) }}
                       sortAscending={this.state.sortAscending}
-                      sortBy={this.state.sortBy} 
+                      sortBy={this.state.sortBy}
                     />
                     </div>
                   </div>

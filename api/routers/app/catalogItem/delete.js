@@ -21,7 +21,7 @@ module.exports = new Route({
     await catalogItem.save()
 
     ctx.body = {
-      data: catalogItem.toPublic()
+      data: 'OK'
     }
   }
 })

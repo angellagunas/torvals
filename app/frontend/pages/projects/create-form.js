@@ -131,6 +131,7 @@ class ProjectForm extends Component {
       this.schema.properties['showOnDashboard'] = {
         type: 'boolean',
         title: 'Primario (Mostrar en dashboard)',
+        default: false,
         enum: [
           true,
           false
@@ -157,7 +158,13 @@ class ProjectForm extends Component {
     }
 
     if (this.uiSchema.status) this.uiSchema.status['ui:disabled'] = true
-
+    if (this.state.formData.cycleStatus) {
+      this.uiSchema['cycleStatus'] = {'ui:widget': TextWidget, 'ui:disabled': true}
+      this.schema.properties['cycleStatus'] = {
+        type: 'string',
+        title: 'Etapa actual del ciclo'
+      }
+    }
     return (
       <div>
         <BaseForm schema={this.schema}

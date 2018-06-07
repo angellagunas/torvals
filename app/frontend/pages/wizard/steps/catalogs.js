@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import Checkbox from '~base/components/base-checkbox'
+import slugify from 'underscore.string/slugify'
+import DeleteButton from '~base/components/base-deleteButton'
 
 class Catalogs extends Component {
   constructor (props) {
@@ -8,53 +10,58 @@ class Catalogs extends Component {
       catalogs: [
         {
           title: 'Producto',
-          value: 'is_product',
+          value: 'producto',
           checked: true,
           disabled: true
         },
         {
           title: 'Centro de venta',
-          value: 'is_saleCenter',
+          value: 'centro-de-venta',
           checked: false
         },
         {
           title: 'Canal',
-          value: 'is_channel',
+          value: 'canal',
           checked: false
         },
         {
           title: 'Distrito',
-          value: 'is_district',
+          value: 'distrito',
           checked: false
         },
         {
           title: 'División',
-          value: 'is_division',
+          value: 'division',
           checked: false
         },
         {
           title: 'Gerencia',
-          value: 'is_management',
+          value: 'gerencia',
           checked: false
         },
         {
           title: 'Región',
-          value: 'is_region',
+          value: 'region',
           checked: false
         },
         {
           title: 'Marca',
-          value: 'is_brand',
+          value: 'marca',
           checked: false
         },
         {
           title: 'Categoría',
-          value: 'is_category',
+          value: 'categoria',
           checked: false
         },
         {
           title: 'Ruta',
-          value: 'is_route',
+          value: 'ruta',
+          checked: false
+        },
+        {
+          title: 'Precio',
+          value: 'precio',
           checked: false
         }
 
@@ -78,8 +85,9 @@ class Catalogs extends Component {
         catalogs: this.state.catalogs.concat(
           {
             title: value,
-            value: value.replace(/ /g, '_'),
-            checked: true
+            value: slugify(value),
+            checked: true,
+            delete: true
           }),
         addCatalog: ''
       })
@@ -89,7 +97,7 @@ class Catalogs extends Component {
   sendCatalogs () {
     let catalogs = this.state.catalogs.map((item) => {
       if (item.checked) {
-        return item.title.replace(/ /g, '_').toLowerCase()
+        return slugify(item.value)
       }
     }).filter((item) => { return item })
     this.props.nextStep({catalogs})
@@ -97,12 +105,13 @@ class Catalogs extends Component {
 
   componentWillMount () {
     let rules = this.props.rules.catalogs
+    console.log(rules)
     let catalog = this.state.catalogs
     rules.map((item) => {
       let findIt = false
 
       for (const c of catalog) {
-        if (item === c.title.replace(/ /g, '_').toLowerCase()) {
+        if (item === c.value) {
           c.checked = true
           findIt = true
           break
@@ -114,16 +123,29 @@ class Catalogs extends Component {
           catalogs: this.state.catalogs.concat(
             {
               title: item,
-              value: item,
-              checked: true
+              value: slugify(item),
+              checked: true,
+              delete: true
             })
         })
       }
     })
   }
+
+  removeItem (item) {
+    let catalogs = this.state.catalogs
+    let index = catalogs.indexOf(item)
+    if (index !== -1) {
+      delete catalogs[index]
+    }
+    this.setState({
+      catalogs
+    })
+  }
+
   render () {
     return (
-      <div className='section pad-sides has-20-margin-top'>
+      <div className='section pad-sides has-20-margin-top catalogs'>
         <h1 className='title is-5'> Catálogos de ventas</h1>
         <p className='subtitle is-6'>Selecciona los campos con los que cuentan tus ventas o catálogos.</p>
         <div className='columns is-centered'>
@@ -152,13 +174,28 @@ class Catalogs extends Component {
                     this.state.catalogs.map((item, key) => {
                       return (
                         <div className='column is-3 is-capitalized' key={key}>
-                          <Checkbox
-                            key={key}
-                            label={item.title.replace(/_/g, ' ')}
-                            handleCheckboxChange={(e, value) => this.handleCheckboxChange(value, item)}
-                            checked={item.checked}
-                            disabled={item.disabled}
-                          />
+                          <div className='field is-grouped'>
+                            <div className='control'>
+                              <Checkbox
+                                key={key}
+                                label={item.title.replace(/-/g, ' ')}
+                                handleCheckboxChange={(e, value) => this.handleCheckboxChange(value, item)}
+                                checked={item.checked}
+                                disabled={item.disabled}
+                              />
+                            </div>
+                            <div className='control'>
+                              {item.delete &&
+                                <DeleteButton
+                                  objectName='Catálogo'
+                                  objectDelete={() => this.removeItem(item)}
+                                  message={<span>¿Estas seguro de querer eliminar este Catálogo?<br /> Los elementos de éste catálogo ya no estarán disponibles</span>}
+                                  small
+                                />
+                              }
+                            </div>
+                          </div>
+
                         </div>
                       )
                     })
@@ -168,9 +205,10 @@ class Catalogs extends Component {
             </div>
           </div>
         </div>
-        <center>
+        <div className='buttons wizard-steps'>
+          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
           <button onClick={() => this.sendCatalogs()} className='button is-primary'>Guardar</button>
-        </center>
+        </div>
       </div>
     )
   }

@@ -24,7 +24,7 @@ module.exports = new Route({
     await anomaly.save()
 
     ctx.body = {
-      data: anomaly.toAdmin()
+      data: anomaly.toPublic()
     }
   }
 })
