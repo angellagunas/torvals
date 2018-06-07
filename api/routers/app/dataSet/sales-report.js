@@ -1,6 +1,5 @@
 const Route = require('lib/router/route')
 const { DataSet, SalesCenter, Channel, Product, DataSetRow, Role, Cycle, Period } = require('models')
-const ObjectId = require('mongodb').ObjectID
 
 module.exports = new Route({
   method: 'post',
@@ -49,9 +48,11 @@ module.exports = new Route({
     }
 
     if (
-      (currentRole.slug === 'manager-level-1' ||
-      currentRole.slug === 'manager-level-2') &&
-      !data.salesCenters
+      (
+        currentRole.slug === 'manager-level-1' ||
+        currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'consultor'
+      ) && !data.salesCenters
     ) {
       var groups = user.groups
       var salesCenters = []

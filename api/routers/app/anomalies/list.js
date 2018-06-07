@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const { Product, Channel, Anomaly, SalesCenter, Project } = require('models')
+const { Product, Channel, DataSet, Anomaly, SalesCenter, Project, Role } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -124,6 +124,45 @@ module.exports = new Route({
       }
     }
 
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
+    if (
+      currentRole.slug === 'consultor'
+    ) {
+      var groups = user.groups
+      if (!filters['salesCenter']) {
+        var salesCenters = []
+
+        salesCenters = await SalesCenter.find({
+          groups: {$in: groups},
+          organization: ctx.state.organization._id
+        })
+
+        filters['salesCenter'] = {$in: salesCenters}
+      }
+
+      if (!filters['channel']) {
+        var channels = []
+
+        channels = await Channel.find({
+          groups: { $in: groups },
+          organization: ctx.state.organization._id
+        })
+
+        filters['channel'] = {$in: channels}
+      }
+    }
+
     var rows = await Anomaly.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
@@ -138,7 +177,7 @@ module.exports = new Route({
     })
 
     rows.data = rows.data.map(item => {
-      return item.toAdmin()
+      return item.toPublic()
     })
 
     if (requestId) {

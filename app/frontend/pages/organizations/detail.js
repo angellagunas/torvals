@@ -188,9 +188,7 @@ class OrganizationDetail extends Component {
         hide: false,
         content: (
           <div>
-            
             <div className='section pad-sides has-20-margin-top'>
-
               <div className='columns'>
                 <div className='column'>
                   <div className='card'>
@@ -248,15 +246,13 @@ class OrganizationDetail extends Component {
                   </div>
                 </div>
               </div>
-              
             </div>
-           
           </div>
         )
       },
       {
         name: '1',
-        title: 'Reglas de negocio',
+        title: 'Reglas de la organización',
         hide: !(this.state.currentStep === 1),
         reload: true,
         disabled: !(this.state.currentStep === 1),
@@ -270,7 +266,11 @@ class OrganizationDetail extends Component {
         hide: !(this.state.currentStep === 2),
         disabled: !(this.state.currentStep === 2),
         content: (
-          <Periods rules={this.state.rules} nextStep={(data) => this.nextStep(data,1)} />
+          <Periods 
+            rules={this.state.rules} 
+            nextStep={(data) => this.nextStep(data,1)}
+            setStep={(step) => this.setStep(step)}
+             />
         )
       }, {
         name: '3',
@@ -279,7 +279,11 @@ class OrganizationDetail extends Component {
         reload: true,
         disabled: !(this.state.currentStep === 3),
         content: (
-          <Ranges rules={this.state.rules} nextStep={(data) => this.nextStep(data,2)} />
+          <Ranges 
+            rules={this.state.rules} 
+            nextStep={(data) => this.nextStep(data,2)} 
+            setStep={(step) => this.setStep(step)}
+          />
         )
       },
       {
@@ -288,7 +292,11 @@ class OrganizationDetail extends Component {
         hide: !(this.state.currentStep === 4),
         disabled: !(this.state.currentStep === 4),
         content: (
-          <DeadLines startDate={this.state.rules.startDate} rules={this.state.rules} nextStep={(data) => this.nextStep(data,3)} />
+          <DeadLines 
+            startDate={this.state.rules.startDate} 
+            rules={this.state.rules} 
+            nextStep={(data) => this.nextStep(data,3)}
+            setStep={(step) => this.setStep(step)} />
         )
       },
       {
@@ -297,7 +305,11 @@ class OrganizationDetail extends Component {
         hide: !(this.state.currentStep === 5),
         disabled: !(this.state.currentStep === 5),
         content: (
-          <Catalogs rules={this.state.rules} nextStep={(data) => this.nextStep(data,4)} />
+          <Catalogs 
+            rules={this.state.rules}
+            nextStep={(data) => this.nextStep(data,4)} 
+            setStep={(step) => this.setStep(step)}
+            />
         )
       }
       
@@ -328,24 +340,18 @@ class OrganizationDetail extends Component {
             },
             {
               path: '/organizations/',
-              label: 'Detalle',
-              current: true
-            },
-            {
-              path: '/organizations/',
               label: organization.name,
               current: true
             }
           ]}
           align='left'
         />
-          <Tabs
-            onChangeTab={(tab) => this.actualTab(tab)}
-            tabs={this.tabs}
-            selectedTab={this.tabs[this.state.currentStep].name}
-            className='is-fullwidth'
-          />
-
+        <Tabs
+          onChangeTab={(tab) => this.actualTab(tab)}
+          tabs={this.tabs}
+          selectedTab={this.tabs[this.state.currentStep].name}
+          className='is-fullwidth'
+        />
       </div>
     )
   }

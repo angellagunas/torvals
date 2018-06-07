@@ -14,14 +14,14 @@ const task = new Task(
     if (!argv.uuid) {
       throw new Error('You need to provide an organization')
     }
-    const organization = await Organization.findOne({uuid: argv.uuid})
+    const organization = await Organization.findOne({ uuid: argv.uuid })
     const cycleDuration = organization.rules.cycleDuration
     const cycle = organization.rules.cycle
     const season = organization.rules.season
     const cyclesAvailable = organization.rules.cyclesAvailable
     const takeStart = organization.rules.takeStart
 
-    await Cycle.deleteMany({organization: organization._id})
+    await Cycle.deleteMany({ organization: organization._id })
 
     var startDate = moment(organization.rules.startDate).utc().format('YYYY-MM-DD')
     var currentDateDiff

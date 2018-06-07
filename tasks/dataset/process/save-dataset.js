@@ -118,6 +118,14 @@ const task = new Task(
             continue
           }
 
+          let catalogData = {}
+          for (let column of dataset.columns) {
+            catalogColumns = Object.keys(column).filter(x => column[x] === true && x.startsWith("is_"))
+            for (let catalogColumnName of catalogColumns) {
+              catalogData[catalogColumnName] = obj[column.name]
+            }
+          }
+
           bulkOps.push({
             'organization': dataset.organization,
             'project': dataset.project,
@@ -134,7 +142,8 @@ const task = new Task(
               'productExternalId': obj[productExternalId.name],
               'salesCenterExternalId': obj[salesCenterExternalId.name],
               'channelExternalId': obj[channelExternalId.name]
-            }
+            },
+            'catalogData': catalogData
           })
         }
 

@@ -157,6 +157,7 @@ class ProjectDetail extends Component {
     if (!this.state.loaded) {
       return <Loader />
     }
+
     const tabs = [
       {
         name: 'ajustes',
@@ -302,11 +303,6 @@ class ProjectDetail extends Component {
                     path: '/admin/projects',
                     label: 'Proyectos',
                     current: false
-                  },
-                  {
-                    path: '/admin/projects/detail/',
-                    label: 'Detalle',
-                    current: true
                   },
                   {
                     path: '/admin/projects/detail/',

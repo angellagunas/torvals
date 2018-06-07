@@ -14,33 +14,53 @@ describe('Generate cycles task', () => {
     await clearDatabase()
   })
 
-  describe('with one cycle by month and one week as period', () => {
+  describe('with one cycle by month and one month as period', () => {
     it('should generate the cycles successfully', async function () {
-      this.timeout(1000 * 10);
 
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
-      const org = await createOrganization()
+      const org = await createOrganization({rules: {
+        startDate:"2018-01-01T00:00:00",
+        cycleDuration: 1,
+        cycle: "M",
+        period:"M",
+        periodDuration:1,
+        season: 6,
+        cyclesAvailable:4
+      }})
 
-      const wasGenerated = await generateCycles.run({uuid: org.uuid})
+      await generateCycles.run({uuid: org.uuid, isTest: true})
+
       const cyclesGenerated = await Cycle.find({organization: org._id}).count()
       const firstCycle = await Cycle.findOne({organization: org._id, cycle: 1})
-      const lastCycle = await Cycle.findOne({organization: org._id, cycle: 9})
+      const lastCycle = await Cycle.findOne({organization: org._id, cycle: 23})
 
-      expect(cyclesGenerated).equal(9)
+      const today = new Date()
 
-      expect(new Date(firstCycle.dateStart).toISOString()).equal(new Date("2018-01-01T00:00:00Z").toISOString())
-      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2018-01-31T00:00:00Z").toISOString())
+      lastCycleStartDate = new Date(
+        today.getFullYear(),
+        today.getMonth() + parseInt(org.cyclesAvailable)
+      )
 
-      expect(new Date(lastCycle.dateStart).toISOString()).equal(new Date("2018-09-01T00:00:00Z").toISOString())
-      expect(new Date(lastCycle.dateEnd).toISOString()).equal(new Date("2018-09-30T00:00:00Z").toISOString())
+      lastCycleEndDate = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1 + parseInt(org.cyclesAvailable),
+        0
+      )
+
+      expect(cyclesGenerated).equal(23)
+
+      expect(new Date(firstCycle.dateStart).toISOString()).equal(new Date("2017-01-01T00:00:00Z").toISOString())
+      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2017-01-31T00:00:00Z").toISOString())
+
+      expect(new Date(lastCycle.dateStart).toISOString()).equal(lastCycleStartDate.toISOString())
+      expect(new Date(lastCycle.dateEnd).toISOString()).equal(lastCycleEndDate.toISOString())
     })
   })
 
   describe('with invalid data in organization', () => {
     it('send a undefined uuid should launch a exception', async function () {
-      this.timeout(1000 * 10);
 
       data = organizationFixture
       data.rules.cycle = 'aString'
@@ -48,7 +68,7 @@ describe('Generate cycles task', () => {
       let failed = false
 
       try{
-        const wasGenerated = await generateCycles.run({})
+        const wasGenerated = await generateCycles.run({isTest: true})
       } catch(error) {
           failed = true;
       }
@@ -57,7 +77,6 @@ describe('Generate cycles task', () => {
     })
 
     it('send a invalid cycle should launch a exception', async function () {
-      this.timeout(1000 * 10);
 
       data = organizationFixture
       data.rules.cycle = 'aString'
@@ -65,7 +84,7 @@ describe('Generate cycles task', () => {
       let failed = false
 
       try{
-        const wasGenerated = await generateCycles.run({uuid: org.uuid})
+        const wasGenerated = await generateCycles.run({uuid: org.uuid, isTest: true})
       } catch(error) {
           failed = true;
       }
@@ -74,7 +93,6 @@ describe('Generate cycles task', () => {
    })
 
    it('try generate the cycles with a organization without rules', async function () {
-      this.timeout(1000 * 10);
 
       data = organizationFixture
       data.rules = {}
@@ -82,7 +100,7 @@ describe('Generate cycles task', () => {
       let failed = false
 
       try{
-        const wasGenerated = await generateCycles.run({uuid: org.uuid})
+        const wasGenerated = await generateCycles.run({uuid: org.uuid, isTest: true})
       } catch(error) {
           failed = true;
       }

@@ -30,6 +30,7 @@ class TabAdjustment extends Component {
       pendingDataRows: {},
       isFiltered: false,
       filtersLoaded: false,
+      filtersLoading: false,
       isLoading: '',
       isLoadingButtons: '',
       modified: 0,
@@ -73,7 +74,7 @@ class TabAdjustment extends Component {
   componentWillReceiveProps(nextProps){
     if (this.props.project.uuid && nextProps.project.uuid !== this.props.project.uuid) return
     
-    if (nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded) {
+    if (nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded && !this.state.filtersLoading) {
       this.getFilters()
     }
     
@@ -90,6 +91,7 @@ class TabAdjustment extends Component {
 
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
+      this.setState({ filtersLoading:true })
       const url = '/app/rows/filters/dataset/'
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
@@ -119,6 +121,7 @@ class TabAdjustment extends Component {
             cycles: cycles
           },
           formData: formData,
+          filtersLoading: false,
           filtersLoaded: true
         }, () => {
           this.getDataRows()
@@ -127,6 +130,7 @@ class TabAdjustment extends Component {
         console.log(e)
         this.setState({
           error: true,
+          filtersLoading: false,
           errorMessage: '¡No se pudieron cargar los filtros!'
         })
 
@@ -916,6 +920,7 @@ getProductsSelected () {
   }
 
   render () {
+    let banner
     if (this.state.error) {
       return (
         <div className='section columns'>
@@ -934,7 +939,7 @@ getProductsSelected () {
     }
 
     if (this.props.adjustmentML1){
-      return (
+      banner =  (
         <div className='section columns'>
           <div className='column'>
             <article className="message is-primary">
@@ -1051,6 +1056,7 @@ getProductsSelected () {
 
     return (
       <div>
+        {banner}
         <div className='section level selects'>
           <div className='level-left'>
             <div className='level-item'>

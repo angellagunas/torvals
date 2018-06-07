@@ -186,6 +186,76 @@ $range-alpha: .2;
         top: 50%;
         transform: translateY(-50%);
     }
+    &-lime::before {
+        background: rgba(205, 220, 57, $range-alpha) !important;
+        content: "";
+        height: 2.2rem;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    &-orange::before {
+        background: rgba(255, 152, 0, $range-alpha) !important;
+        content: "";
+        height: 2.2rem;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    &-teal::before {
+        background: rgba(0, 150, 136, $range-alpha) !important;
+        content: "";
+        height: 2.2rem;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    &-pink::before {
+        background: rgba(255, 64, 129, $range-alpha) !important;
+        content: "";
+        height: 2.2rem;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    &-grey::before {
+        background: rgba(96, 125, 139, $range-alpha) !important;
+        content: "";
+        height: 2.2rem;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    &-yellow::before {
+        background: rgba(255, 235, 59, $range-alpha) !important;
+        content: "";
+        height: 2.2rem;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    &-cyan::before {
+        background: rgba(0, 188, 212, $range-alpha) !important;
+        content: "";
+        height: 2.2rem;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
 }
 
 .limit {
@@ -208,6 +278,34 @@ $range-alpha: .2;
     &-consolidate {
         background: #F44336 !important;
         border-color: #F44336 !important;
+    }
+    &-lime {
+        background: #CDDC39 !important;
+        border-color: #CDDC39 !important;
+    }
+    &-orange {
+        background: #FF9800 !important;
+        border-color: #FF9800 !important;
+    }
+    &-teal {
+        background: #009688 !important;
+        border-color: #009688 !important;
+    }
+    &-pink {
+        background: #FF4081 !important;
+        border-color: #FF4081 !important;
+    }
+    &-grey {
+        background: #607D8B !important;
+        border-color: #607D8B !important;
+    }
+    &-yellow {
+        background: #FFEB3B !important;
+        border-color: #FFEB3B !important;
+    }
+    &-cyan {
+        background: #00BCD4 !important;
+        border-color: #00BCD4 !important;
     }
 }
 
@@ -301,7 +399,6 @@ $range-alpha: .2;
 
 .week-column {
     background: #eff1f9 !important;
-    
     .calendar-date .date-item:focus {
         border: none;
         color: $general_text !important;
