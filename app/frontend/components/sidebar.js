@@ -10,13 +10,18 @@ import Projects from '../pages/projects/list'
 import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
 import Channels from '../pages/channel/list'
-import SelectOrg from '../pages/select-org'
 import Calendar from '../pages/calendar'
 import Prices from '../pages/prices/list'
 import UsersImport from '../pages/import/users'
 import SalesCentersImport from '../pages/import/sales-centers'
 import ChannelsImport from '../pages/import/channels'
 import ProductsImport from '../pages/import/products'
+import Catalogs from '../pages/catalog/list'
+
+const cleanName = (item) => {
+  let c = item.replace(/-/g, ' ')
+  return c.charAt(0).toUpperCase() + c.slice(1)
+}
 
 class Sidebar extends Component {
   constructor (props) {
@@ -29,6 +34,7 @@ class Sidebar extends Component {
       menuItems: []
     }
     this.handleActiveLink = this.handleActiveLink.bind(this)
+    this.rules = tree.get('user').currentOrganization.rules
   }
 
   componentWillMount () {
@@ -75,6 +81,39 @@ class Sidebar extends Component {
     return item
   }
 
+  catalogs () {
+    return this.rules.catalogs.map(item => {
+      let config =
+        {
+          name: cleanName(item),
+          path: '/catalogs/' + item,
+          title: cleanName(item),
+          breadcrumbs: true,
+          breadcrumbConfig: {
+            path: [
+              {
+                path: '/',
+                label: 'Inicio',
+                current: false
+              },
+              {
+                path: '/catalogs/' + item,
+                label: 'Catalogos',
+                current: true
+              }
+            ],
+            align: 'left'
+          },
+          branchName: item,
+          titleSingular: cleanName(item),
+          baseUrl: '/app/catalogItems/' + item,
+          detailUrl: '/catalogs/' + item
+        }
+
+      return Catalogs.opts(config).asSidebarItem()
+    })
+  }
+
   getMenuItems () {
     if (tree.get('organization')) {
       return [
@@ -109,7 +148,8 @@ class Sidebar extends Component {
             Prices.asSidebarItem(),
             SalesCenters.asSidebarItem(),
             Products.asSidebarItem(),
-            Channels.asSidebarItem()
+            Channels.asSidebarItem(),
+            ...this.catalogs()
           ]
         },
         {

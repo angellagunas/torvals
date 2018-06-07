@@ -40,6 +40,8 @@ import UsersImport from './pages/import/users'
 import ChannelImport from './pages/import/channels'
 import ProductsImport from './pages/import/products'
 import SalesCentersImport from './pages/import/sales-centers'
+import CatalogRouter from './pages/catalog/router'
+import CatalogDetail from './pages/catalog/detail'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -94,6 +96,8 @@ const AppRouter = () => {
 
           {Prices.asRouterItem()}
           {PriceDetail.asRouterItem()}
+          {CatalogDetail.asRouterItem()}
+          <CatalogRouter />
 
           <Route component={NoMatch} />
         </Switch>
