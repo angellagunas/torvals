@@ -358,14 +358,15 @@ class ProjectDetail extends Component {
     })
   }
 
-  async handleAllAdjustmentRequest() {
+  async handleAllAdjustmentRequest(showMessage=true) {
     this.setState({
       isConciliating: ' is-loading'
     })
     let { pendingDataRows } = this.state
     let pendingDataRowsArray = Object.values(pendingDataRows)
+    console.log(showMessage)
 
-    await this.handleAdjustmentRequest(pendingDataRowsArray)
+    await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage)
     this.setState({
       isConciliating: ''
     })
@@ -395,7 +396,7 @@ class ProjectDetail extends Component {
     }
   }
 
-  async handleAdjustmentRequest(obj) {
+  async handleAdjustmentRequest(obj, showMessage) {
     let { pendingDataRows } = this.state
     let productAux = []
     if (currentRole === 'consultor') {
@@ -412,9 +413,15 @@ class ProjectDetail extends Component {
       var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment && item.isLimit }))
       if (currentRole === 'manager-level-1') {
         this.notify('Sus ajustes se han guardado', 5000, toast.TYPE.INFO)
-        this.setState({
-          adjustmentML1: true
-        })
+        if (showMessage) {
+          this.setState({
+            adjustmentML1: true
+          })
+
+          setTimeout(() => {this.setState({
+            adjustmentML1: false
+          })}, 5000)
+        }
       }
     } catch (e) {
       this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
@@ -681,7 +688,7 @@ class ProjectDetail extends Component {
     }
     else if (testRoles('manager-level-1')) {
       consolidarButton =
-        <p className={this.state.adjustmentML1 ? 'control btn-conciliate is-hidden' : 'control btn-conciliate'}>
+        <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
             disabled={!!this.state.isConciliating}
             onClick={e => this.handleAllAdjustmentRequest()}>

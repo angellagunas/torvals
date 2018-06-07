@@ -24,7 +24,8 @@ groupSchema.methods.toPublic = function () {
     description: this.description,
     slug: this.slug,
     organization: this.organization,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    channels: this.channels
   }
 }
 

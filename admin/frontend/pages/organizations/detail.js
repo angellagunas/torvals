@@ -131,11 +131,6 @@ class OrganizationDetail extends Component {
                 },
                 {
                   path: '/admin/manage/organizations',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/admin/manage/organizations',
                   label: organization.name,
                   current: true
                 }

@@ -135,11 +135,6 @@ class ProductDetail extends Component {
                 },
                 {
                   path: '/admin/catalogs/products/detail/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/admin/catalogs/products/detail/',
                   label: product.name,
                   current: true
                 }
