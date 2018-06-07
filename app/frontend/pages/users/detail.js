@@ -351,11 +351,6 @@ class UserDetail extends Component {
                   },
                   {
                     path: '/manage/users/',
-                    label: 'Detalle',
-                    current: true
-                  },
-                  {
-                    path: '/manage/users/',
                     label: user.name,
                     current: true
                   }
