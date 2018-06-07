@@ -22,7 +22,10 @@ const task = new Task(
     log.call('Processing Dataset...')
     log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('organization')
+    const dataset = await DataSet
+      .findOne({uuid: argv.uuid})
+      .populate('organization')
+      .populate('project')
 
     if (!dataset) {
       throw new Error('Invalid uuid!')
@@ -161,7 +164,8 @@ const task = new Task(
     await fillCyclesPeriods.run({
       uuid: dataset.organization.uuid,
       dateMin: minDate,
-      dateMax: maxDate
+      dateMax: maxDate,
+      rule: dataset.project.rule || undefined
     })
 
     log.call('Obtaining cycles ...')

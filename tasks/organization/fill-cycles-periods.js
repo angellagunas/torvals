@@ -1,18 +1,18 @@
-// node tasks/organization/generate-cycles.js --uuid --dateMin --dateMax
+// node tasks/organization/generate-cycles.js --uuid --rule: ID --dateMin --dateMax
 require('../../config')
 require('lib/databases/mongo')
 
-const moment = require('moment')
-
-const Task = require('lib/task')
 const generatePeriods = require('tasks/organization/generate-periods')
+const moment = require('moment')
+const Task = require('lib/task')
 
-const { Organization, Cycle } = require('models')
+const { Organization, Rule, Cycle } = require('models')
 
 const task = new Task(
   async function (argv) {
     const {
       uuid,
+      rule,
       dateMin,
       dateMax
     } = argv
@@ -24,13 +24,21 @@ const task = new Task(
     }
 
     const organization = await Organization.findOne({ uuid: uuid })
-    const {
+    let {
       cycle,
       cycleDuration,
       season,
       startDate,
       takeStart
     } = organization.rules
+    if (rule) {
+      const rules = await Rule.findOne({ _id: rule })
+      cycle = rules.cycle
+      cycleDuration = rules.cycleDuration
+      season = rules.season
+      startDate = rules.startDate
+      takeStart = rules.takeStart
+    }
 
     const dateDiff = moment(startDate).utc().diff(moment(dateMin).utc(), 'years')
     const newEndDate = moment(dateMax).add(1, cycle)
@@ -76,7 +84,8 @@ const task = new Task(
         dateStart: newStartDate,
         dateEnd: endDate,
         isDeleted: false,
-        organization: organization._id
+        organization: organization._id,
+        rule: rule._id || undefined
       }, {}, {
         upsert: true
       })
