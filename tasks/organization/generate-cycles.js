@@ -14,11 +14,29 @@ const task = new Task(
     if (!argv.uuid) {
       throw new Error('You need to provide an organization')
     }
+
     const organization = await Organization.findOne({ uuid: argv.uuid })
+
     const cycleDuration = organization.rules.cycleDuration
+    if (isNaN(parseInt(cycleDuration)) || parseInt(cycleDuration) < 1){
+      throw new Error('The cycleDuration should be a positive integer')
+    }
+
     const cycle = organization.rules.cycle
+    if (!(['M', 'w', 'd', 'y'].indexOf(cycle) >= 0)){
+      throw new Error('The given cycle has a invalid format')
+    }
+
     const season = organization.rules.season
+    if (isNaN(parseInt(season)) || parseInt(season) < 1){
+      throw new Error('The season should be a positive integer')
+    }
+
     const cyclesAvailable = organization.rules.cyclesAvailable
+    if (isNaN(parseInt(cyclesAvailable)) || parseInt(cyclesAvailable) < 1){
+      throw new Error('The cyclesAvailable should be a positive integer')
+    }
+
     const takeStart = organization.rules.takeStart
 
     await Cycle.deleteMany({ organization: organization._id })

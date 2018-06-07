@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { Price, Channel, Product } = require('models')
+const { Price, Channel, Product, Role } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -45,6 +45,37 @@ module.exports = new Route({
         }
 
         filters['$or'] = $or
+      }
+    }
+
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
+    if (
+      currentRole.slug === 'manager-level-1' ||
+      currentRole.slug === 'manager-level-2' ||
+      currentRole.slug === 'consultor'
+    ) {
+      var groups = user.groups
+
+      if (!filters['channel']) {
+        var channels = []
+
+        channels = await Channel.find({
+          groups: { $in: groups },
+          organization: ctx.state.organization._id
+        })
+
+        filters['channel'] = {$in: channels}
       }
     }
 

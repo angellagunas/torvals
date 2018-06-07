@@ -54,6 +54,7 @@ class DataSetDetail extends Component {
       selectedSalesCenters: new Set(),
       selectAllChannels: false,
       selectedChannels: new Set(),
+      selectedUnidentified: new Set(),
       disableBtnC: true,
       isLoadingBtnC: '',
       disableBtnP: true,
@@ -85,6 +86,7 @@ class DataSetDetail extends Component {
       }
     }, 30000)
     this.setState({ canEdit: testRoles(this.state.roles) })
+    
   }
 
   componentWillUnmount() {
@@ -109,6 +111,8 @@ class DataSetDetail extends Component {
         notFound: true
       })
     }
+    this.getUnidentified()
+    
   }
 
   getColumns() {
@@ -826,6 +830,7 @@ class DataSetDetail extends Component {
     })
 
     this.newChannels = []
+
     dataset.channels.map((item, key) => {
       if (item.isNewExternal) {
         this.newChannels.push(item)
@@ -1434,6 +1439,242 @@ class DataSetDetail extends Component {
     })
   }
 
+  toggleUnidentified(key, item) {
+    let uni = this.state.unidentified
+
+    uni[key].headerClass = classNames('card-content', {
+      'is-hidden': item.isOpen
+    })
+    uni[key].iconClass = classNames('fa fa-2x', {
+      'fa-caret-down': item.isOpen,
+      'fa-caret-up': !item.isOpen
+    })
+    uni[key].isOpen = !item.isOpen
+
+    this.setState({
+      unidentified: uni
+    }) 
+  }
+
+  checkUnidentified = (item, check) => {
+    if (check) {
+      this.state.selectedUnidentified.add(item)
+      item.selected = true
+    }
+    else {
+      this.state.selectedUnidentified.delete(item)
+      item.selected = false
+    }
+
+    this.toggleButtons()
+  }
+
+  checkAllUnidentified = (check, key, type) => {
+    let uni = this.state.unidentified
+    for (let item of uni[key].objects) {
+
+      if (check){
+        this.state.selectedUnidentified.add(item)
+      }else if(!check && item.type === type){
+        this.state.selectedUnidentified.delete(item)
+      }
+
+      item.selected = check
+    }
+    uni[key].selectAll = check
+    this.setState({
+      unidentified: uni
+    }) 
+  }
+
+  countUnidentified(type){
+    let count = 0
+    for (const item of this.state.selectedUnidentified) {
+      if(type === item.type){
+        count++
+      }
+    }
+    return count
+  }
+
+  async confirmUnidentified(type) {
+    this.setState({
+      isLoadingBtnC: ' is-loading'
+    })
+
+    const url = '/app/catalogItems/approve'
+    try {
+      let res = await api.post(url, Array.from(this.state.selectedUnidentified).map(item => {
+        if(item.type === type)
+          return { uuid: item.uuid }
+      }))
+
+      if (res.success > 0) {
+        this.notify(
+          `¡Se confirmaron exitosamente ${res.success} ${type}!`,
+          5000,
+          toast.TYPE.SUCCESS
+        )
+      }
+
+      if (res.error > 0) {
+        this.notify(
+          `¡No se pudieron confirmar ${res.error} ${type}!`,
+          5000,
+          toast.TYPE.ERROR
+        )
+      }
+
+      if (res.error === 0 && res.success === 0) {
+        this.notify(`¡Error al confirmar ${type}!`, 5000, toast.TYPE.ERROR)
+      }
+    } catch (e) {
+      this.notify(`¡Error al confirmar ${type}!`, 5000, toast.TYPE.ERROR)
+    }
+
+
+    this.setState({
+      selectedUnidentified: new Set(),
+      isLoadingBtnC: ''
+    }, function () {
+      this.toggleButtons()
+      this.load()
+    })
+  }
+
+  getUnidentified() {
+    const { dataset, canEdit } = this.state
+    if (!dataset.uuid) {
+      return <Loader />
+    }
+
+    this.newCatalogs = dataset.catalogItems.map((item) => {
+      if (item.isNewExternal) {
+        return item
+      }
+    }).filter(item => item)
+
+
+    this.newCatalogs = _(this.newCatalogs)
+    .groupBy(x => x.type)
+    .map((value, key) => ({ 
+      type: key, 
+      objects: value, 
+      headerClass: 'is-hidden',
+      iconClass: 'fa fa-2x fa-caret-down',
+      isOpen: false,
+      selectAll: false
+    }))
+    .value()
+
+    
+    this.setState({
+      unidentified: this.newCatalogs
+    })
+
+  }
+
+renderUnidentified(){
+  const { dataset, canEdit } = this.state
+
+  if ((dataset.status !== 'reviewing' &&
+    dataset.status !== 'conciliated') ||
+    this.state.unidentified.length === 0) {
+    return ''
+  } 
+
+  let unidentified = this.state.unidentified.map((item, key) => {
+    return (
+      <div key={key} className='columns unidentified'>
+        <div className='column'>
+          <div className='card'>
+            <header className='card-header deep-shadow '>
+              <p className='card-header-title'>
+                <span className='is-capitalized'>{item.type.replace(/-/g, ' ')}</span>&nbsp;no identificados: {item.objects.length}
+              </p>
+              <div className='field is-grouped is-grouped-right card-header-select'>
+                {canEdit &&
+                  <div className={item.isOpen ? 'control' : 'is-hidden'}>
+                    <button
+                    onClick={() => this.confirmUnidentified(item.type)}
+                    disabled={this.countUnidentified(item.type) === 0 || !!this.state.isLoadingBtnC}
+                      className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnC}
+                    >
+                    Confirmar ({this.countUnidentified(item.type)})
+                </button>
+                  </div>
+                }
+                <div className='control'>
+                  <a
+                    className='button is-info undefined-btn'
+                    onClick={() => this.toggleUnidentified(key,item)}>
+                    <span className='icon is-large'>
+                      <i className={item.iconClass} />
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </header>
+            <div className={item.headerClass}>
+              <div className='columns'>
+                <div className='column'>
+                  <table className='table is-fullwidth'>
+                    <thead>
+                      <tr>
+                        {canEdit &&
+                          <th className='has-text-centered'>
+                            <span title='Seleccionar todos'>
+                              <Checkbox
+                                label='checkAll'
+                                handleCheckboxChange={(e, value) => this.checkAllUnidentified(value, key, item.type)}
+                                key='checkAll'
+                                checked={item.selectAll}
+                                hideLabel />
+                            </span>
+                          </th>
+                        }
+                        <th>Id Externo</th>
+                        <th>Nombre</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {
+                        item.objects.map((item, key) => {
+                          if (!item.selected) {
+                            item.selected = false
+                          }
+                          return (
+                            <tr key={key}>
+                              {canEdit &&
+                                <td className='has-text-centered'>
+                                  <Checkbox
+                                    label={item}
+                                    handleCheckboxChange={(e, value) => this.checkUnidentified(item,value)}
+                                    key={item.externalId}
+                                    checked={item.selected}
+                                    hideLabel />
+                                </td>
+                              }
+                              <td>{item.externalId}</td>
+                              <td>{item.name}</td>
+                            </tr>
+                          )
+                        })
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>)
+
+  })
+
+  return unidentified
+}
+
   render() {
     if (this.state.notFound) {
       return <NotFound msg='este dataset' />
@@ -1487,6 +1728,10 @@ class DataSetDetail extends Component {
           {this.getUnidentifiedProducts()}
           {this.getUnidentifiedSalesCenters()}
           {this.getUnidentifiedChannels()}
+          {
+            this.state.unidentified &&
+              this.renderUnidentified()
+          }
           <div className='section is-paddingless-top pad-sides'>
 
             <div className='columns dataset-detail'>

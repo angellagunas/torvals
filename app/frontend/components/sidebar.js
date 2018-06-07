@@ -112,6 +112,22 @@ class Sidebar extends Component {
 
       return Catalogs.opts(config).asSidebarItem()
     })
+
+  getCatalogs () {
+    const org = tree.get('organization') || {}
+    return (org.rules || {}).catalogs || []
+  }
+
+  importItems () {
+    const catalogs = this.getCatalogs()
+    const items = []
+
+    if (catalogs.includes('usuario')) items.push(UsersImport.asSidebarItem())
+    if (catalogs.includes('centro_de_venta')) items.push(SalesCentersImport.asSidebarItem())
+    if (catalogs.includes('producto')) items.push(ProductsImport.asSidebarItem())
+    if (catalogs.includes('canal')) items.push(ChannelsImport.asSidebarItem())
+
+    return items
   }
 
   getMenuItems () {
@@ -157,12 +173,7 @@ class Sidebar extends Component {
           icon: 'file-o',
           to: '/import',
           roles: 'orgadmin, admin',
-          dropdown: [
-            UsersImport.asSidebarItem(),
-            SalesCentersImport.asSidebarItem(),
-            ChannelsImport.asSidebarItem(),
-            ProductsImport.asSidebarItem()
-          ]
+          dropdown: this.importItems()
         }
       ]
     }

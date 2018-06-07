@@ -40,6 +40,10 @@ const task = new Task(
       throw new Error('Cannot conciliate a dataset from another project!')
     }
 
+    if(!dataset.dateMin || !dataset.dateMax){
+      throw new Error('Invalid dateMax or dateMin')
+    }
+
     if (!project.mainDataset) {
       project.set({
         mainDataset: dataset._id,

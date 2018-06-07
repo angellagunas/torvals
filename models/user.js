@@ -275,7 +275,7 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
       email: this.email,
       name: this.name
     },
-    title: 'Reestablecer contraseña en Orax'
+    title: 'Restablecer contraseña en Orax'
   })
 }
 
