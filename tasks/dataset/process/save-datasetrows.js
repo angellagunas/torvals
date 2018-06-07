@@ -25,21 +25,57 @@ const task = new Task(
 
     log.call('Saving channels ...')
     for (let channel of dataset.channels) {
-      await DataSetRow.update({dataset: dataset._id, 'data.channelExternalId': channel.externalId}, {channel: channel._id}, {multi: true})
+      await DataSetRow.update({
+        dataset: dataset._id,
+        'data.channelExternalId': channel.externalId
+      }, {
+        channel: channel._id
+      }, {
+        multi: true
+      })
     }
     log.call('Channels successfully saved!')
 
     log.call('Saving products ...')
     for (let product of dataset.products) {
-      await DataSetRow.update({dataset: dataset._id, 'data.productExternalId': product.externalId}, {product: product._id}, {multi: true})
+      await DataSetRow.update({
+        dataset: dataset._id,
+        'data.productExternalId': product.externalId
+      }, {
+        product: product._id
+      }, {
+        multi: true
+      })
     }
     log.call('Products successfully saved!')
 
     log.call('Saving sales centers ...')
     for (let salesCenter of dataset.salesCenters) {
-      await DataSetRow.update({dataset: dataset._id, 'data.salesCenterExternalId': salesCenter.externalId}, {salesCenter: salesCenter._id}, {multi: true})
+      await DataSetRow.update({
+        dataset: dataset._id,
+        'data.salesCenterExternalId': salesCenter.externalId
+      }, {
+        salesCenter: salesCenter._id
+      }, {
+        multi: true
+      })
     }
-    log.call('Sales Centers successfully saved!')
+    log('Sales centers successfully saved!')
+
+    log('Saving catalog items ...')
+    for (let catalogItems of dataset.catalogItems) {
+      await DataSetRow.update({
+        dataset: dataset._id,
+        `catalogData.is_${catalogItems.type}_id`: catalogItems.externalId
+      }, {
+        $push: {
+          catalogItems: catalogItems._id,
+        }
+      }, {
+        multi: true
+      })
+    }
+    log('Catalog items successfully saved!')
 
     log.call('Saving cycles...')
     if (dataset.cycles) {
