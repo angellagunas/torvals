@@ -256,7 +256,7 @@ class OrganizationDetail extends Component {
       },
       {
         name: '1',
-        title: 'Reglas de negocio',
+        title: 'Reglas de la organización',
         hide: !(this.state.currentStep === 1),
         reload: true,
         disabled: !(this.state.currentStep === 1),

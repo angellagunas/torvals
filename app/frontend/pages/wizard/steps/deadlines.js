@@ -144,7 +144,7 @@ class DeadLines extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del ciclo'
+      tooltipText: 'Inicio del primer ciclo'
     }
     return d
   }
@@ -320,7 +320,7 @@ class DeadLines extends Component {
         color: 'deadline-sales'
       },
       {
-        title: 'Generar Prediccion',
+        title: 'Generar Predicción',
         name: 'forecastCreation',
         color: 'deadline-forecast'
       },
