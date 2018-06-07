@@ -18,22 +18,22 @@ const task = new Task(
     const organization = await Organization.findOne({ uuid: argv.uuid })
 
     const cycleDuration = organization.rules.cycleDuration
-    if (isNaN(parseInt(cycleDuration)) || parseInt(cycleDuration) < 1){
+    if (isNaN(parseInt(cycleDuration)) || parseInt(cycleDuration) < 1) {
       throw new Error('The cycleDuration should be a positive integer')
     }
 
     const cycle = organization.rules.cycle
-    if (!(['M', 'w', 'd', 'y'].indexOf(cycle) >= 0)){
+    if (!(['M', 'w', 'd', 'y'].indexOf(cycle) >= 0)) {
       throw new Error('The given cycle has a invalid format')
     }
 
     const season = organization.rules.season
-    if (isNaN(parseInt(season)) || parseInt(season) < 1){
+    if (isNaN(parseInt(season)) || parseInt(season) < 1) {
       throw new Error('The season should be a positive integer')
     }
 
     const cyclesAvailable = organization.rules.cyclesAvailable
-    if (isNaN(parseInt(cyclesAvailable)) || parseInt(cyclesAvailable) < 1){
+    if (isNaN(parseInt(cyclesAvailable)) || parseInt(cyclesAvailable) < 1) {
       throw new Error('The cyclesAvailable should be a positive integer')
     }
 
@@ -44,17 +44,17 @@ const task = new Task(
     var startDate = moment(organization.rules.startDate).utc().format('YYYY-MM-DD')
     var currentDateDiff
     if (cycle === 'M') {
-      startDate = moment(startDate).subtract(season, 'M')
-      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asMonths() / cycleDuration)
+      startDate = moment.utc(startDate, 'YYYY-MM-DD').subtract(season, 'M')
+      currentDateDiff = Math.ceil(moment.duration(moment.utc().diff(startDate)).asMonths() / cycleDuration)
     } else if (cycle === 'w') {
-      startDate = moment(startDate).subtract(season, 'w')
-      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asWeeks() / cycleDuration)
+      startDate = moment.utc(startDate, 'YYYY-MM-DD').subtract(season, 'w')
+      currentDateDiff = Math.ceil(moment.duration(moment.utc().diff(startDate)).asWeeks() / cycleDuration)
     } else if (cycle === 'd') {
-      startDate = moment(startDate).subtract(season, 'd')
-      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asDays() / cycleDuration)
+      startDate = moment.utc(startDate, 'YYYY-MM-DD').subtract(season, 'd')
+      currentDateDiff = Math.ceil(moment.duration(moment.utc().diff(startDate)).asDays() / cycleDuration)
     } else if (cycle === 'y') {
-      startDate = moment(startDate).subtract(season, 'y')
-      currentDateDiff = Math.ceil(moment.duration(moment().diff(startDate)).asYears() / cycleDuration)
+      startDate = moment.utc(startDate, 'YYYY-MM-DD').subtract(season, 'y')
+      currentDateDiff = Math.ceil(moment.duration(moment.utc().diff(startDate)).asYears() / cycleDuration)
     }
 
     currentDateDiff += cyclesAvailable
