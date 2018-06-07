@@ -9,16 +9,14 @@ module.exports = new Route({
     var cycleUuid = ctx.params.uuid
     var data = ctx.request.body
 
-    const cycle = await Cycle.findOne({uuid: cycleUuid, isDeleted: false}).populate('organization')
-
+    const cycle = await Cycle.findOne({uuid: cycleUuid, isDeleted: false}).populate('organization rule')
     ctx.assert(cycle, 404, 'Ciclo no encontrado')
     var startDate = moment(data.startDate).utc().format('YYYY-MM-DD 00:00')
     var endDate = moment(data.endDate).utc().format('YYYY-MM-DD 00:00')
     var cycleStartDate = moment(cycle.dateStart).utc().format('YYYY-MM-DD 00:00')
     var cycleEndDate = moment(cycle.dateEnd).utc().format('YYYY-MM-DD 00:00')
-    const takeStart = cycle.organization.rules.takeStart
-
-    const cycleString = cycle.organization.rules.cycle
+    const takeStart = cycle.rule.takeStart
+    const cycleString = cycle.rule.cycle
 
     let halfCycle
     let halfCycleDuration
@@ -38,13 +36,26 @@ module.exports = new Route({
 
     const startLimitDown = moment(cycle.dateStart).utc().subtract(halfCycleDuration, halfCycle).format('YYYY-MM-DD 00:00')
     const startLimitUp = moment(cycle.dateStart).utc().add(halfCycleDuration, halfCycle).format('YYYY-MM-DD 00:00')
-
     const endLimitDown = moment(cycle.dateEnd).utc().subtract(halfCycleDuration, halfCycle).format('YYYY-MM-DD 00:00')
     const endLimitUp = moment(cycle.dateEnd).utc().add(halfCycleDuration, halfCycle).format('YYYY-MM-DD 00:00')
 
     if (startDate < startLimitDown || startDate > startLimitUp || endDate < endLimitDown || endDate > endLimitUp) {
       ctx.throw(422, 'La fechas no se pueden recorrer más de la mitad del ciclo')
     }
+
+    let nextCycle = await Cycle.findOne({
+      rule: cycle.rule._id,
+      dateStart: {$gte: cycleEndDate},
+      organization: cycle.organization._id,
+      isDeleted: false
+    }).sort({dateEnd: 1})
+
+    let previousCycle = await Cycle.findOne({
+      rule: cycle.rule._id,
+      dateEnd: {$lte: cycleStartDate},
+      organization: cycle.organization._id,
+      isDeleted: false
+    }).sort({dateEnd: -1})
 
     cycle.set({
       dateStart: startDate,
@@ -56,32 +67,29 @@ module.exports = new Route({
 
     if (startDate !== cycleStartDate) {
       let newEndPreviousCycle = moment(startDate).utc().subtract(1, 'd').format('YYYY-MM-DD 00:00')
-      const previousCycle = await Cycle.findOneAndUpdate({
-        cycle: cycle.cycle - 1,
-        organization: cycle.organization._id,
-        isDeleted: false
-      }, {
-        dateEnd: newEndPreviousCycle
-      })
 
       if (previousCycle) {
+        previousCycle.set({
+          dateEnd: newEndPreviousCycle
+        })
+        previousCycle.save()
         modifiedCycles.add(previousCycle._id)
       }
+
       modifiedCycles.add(cycle._id)
     }
 
     if (endDate !== cycleEndDate) {
       let newStartNextCycle = moment(endDate).utc().add(1, 'd').format('YYYY-MM-DD 00:00')
-      const nextCycle = await Cycle.findOneAndUpdate({
-        cycle: cycle.cycle + 1,
-        organization: cycle.organization._id,
-        isDeleted: false
-      }, {
-        dateStart: newStartNextCycle
-      })
+
       if (nextCycle) {
+        nextCycle.set({
+          dateStart: newStartNextCycle
+        })
+        nextCycle.save()
         modifiedCycles.add(nextCycle._id)
       }
+
       modifiedCycles.add(cycle._id)
     }
 
@@ -103,6 +111,7 @@ module.exports = new Route({
         {dateStart: {$lte: periodStartDate}, dateEnd: {$gte: periodStartDate}},
         {dateStart: {$lte: periodEndDate}, dateEnd: {$gte: periodEndDate}}],
           organization: cycle.organization._id,
+          rule: cycle.rule._id
           isDeleted: false
         })
 

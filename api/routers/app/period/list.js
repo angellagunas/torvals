@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
 
-const {Organization, Period} = require('models')
+const {Organization, Period, Rule} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -16,9 +16,10 @@ module.exports = new Route({
     const org = await Organization.findOne({'uuid': organizationId, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
 
-    var periods = await Period.find({organization: org._id, isDeleted: false}).populate('cycle')
-    var years = new Set()
+    let rule = await Rule.findOne({organization: org._id, isCurrent: true})
 
+    var periods = await Period.find({organization: org._id, isDeleted: false, rule: rule._id}).populate('cycle')
+    var years = new Set()
     periods.data = periods.map(item => {
       years.add(moment(item.cycle.dateStart).utc().format('YYYY'))
       years.add(moment(item.cycle.dateEnd).utc().format('YYYY'))
