@@ -53,6 +53,12 @@ module.exports = new Route({
 
     let findProductsCatalog = data.catalogs.find(item => { return slugify(item) === 'producto' || slugify(item) === 'productos' })
     if (findProductsCatalog === undefined) { ctx.throw(422, 'Se debe de agregar un catálogo de productos') }
+    data.catalogs = data.catalogs.map(item => {
+      return {
+        name: item,
+        slug: slugify(item)
+      }
+    })
 
     var previousRule = await Rule.findOne({isCurrent: true, organization: organizationId})
 

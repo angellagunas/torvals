@@ -25,7 +25,7 @@ const task = new Task(
     log('Processing Dataset...')
     log(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('organization')
+    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('organization rule')
 
     if (!dataset) {
       throw new Error('Invalid uuid!')
@@ -129,7 +129,7 @@ const task = new Task(
       }
     }
 
-    for (let catalog of dataset.organization.rules.catalogs) {
+    for (let catalog of dataset.rule.catalogs) {
       rowData[catalog] = []
 
       if (slugify(catalog) === 'producto' || slugify(catalog) === 'productos') {
@@ -171,7 +171,8 @@ const task = new Task(
     var cycles = await Cycle.find({
       organization: dataset.organization._id,
       isDeleted: false,
-      dateStart: {$gte: minDate, $lte: maxDate}
+      dateStart: {$gte: minDate, $lte: maxDate},
+      rule: dataset.rule._id
     })
 
     cycles = cycles.map(item => {
@@ -183,7 +184,21 @@ const task = new Task(
     var periods = await Period.find({
       organization: dataset.organization._id,
       isDeleted: false,
-      dateStart: {$gte: minDate, $lte: maxDate}
+      $or: [
+        {
+          dateStart: {
+            $lte: minDate
+          },
+          dateEnd: {
+            $gte: minDate
+          }},
+        {
+          dateStart: {
+            $gte: minDate,
+            $lte: maxDate
+          }
+        }],
+      rule: dataset.rule._id
     })
 
     periods = periods.map(item => {

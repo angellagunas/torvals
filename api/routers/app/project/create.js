@@ -14,6 +14,7 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const rule = await Rule.findOne({organization: ctx.state.organization._id}).sort({dateCreated: -1})
+    ctx.assert(rule, 422, 'No hay Reglas de negocio definidas')
 
     const project = await Project.create({
       name: data.name,

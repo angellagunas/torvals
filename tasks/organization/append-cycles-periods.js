@@ -59,7 +59,7 @@ const task = new Task(
       startDate = moment(endDate).utc().add(1, 'd')
     }
 
-    const periods = await Period.findOne({organization: organization._id, isDeleted: false}).sort({dateStart: -1})
+    const periods = await Period.findOne({organization: organization._id, isDeleted: false, rule: rule._id}).sort({dateStart: -1})
     startDate = moment(periods.dateEnd).utc().add(1, 'd')
     var periodNumber
     var lastCycle

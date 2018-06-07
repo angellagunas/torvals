@@ -392,7 +392,7 @@ dataSetSchema.methods.processData = async function () {
     }
   }
 
-  for (let catalog of this.organization.rules.catalogs) {
+  for (let catalog of this.rule.catalogs) {
     if (this.apiData[catalog]) {
       for (let data of this.apiData[catalog]) {
         pos = this.catalogItems.findIndex(item => {
@@ -453,15 +453,12 @@ dataSetSchema.methods.processReady = async function (res) {
 }
 
 dataSetSchema.methods.setColumns = async function (headers) {
-  if (!this.organization.rules) {
-    await this.populate('organization').execPopulate()
-  }
+  await this.populate('rule').execPopulate()
 
   let catalogs = {}
-
-  for (let col of this.organization.rules.catalogs) {
-    catalogs[`is_${col}_id`] = false
-    catalogs[`is_${col}_name`] = false
+  for (let i = 0; i < this.rule.catalogs.length; i++) {
+    catalogs[`is_${this.rule.catalogs[i].slug}_id`] = false
+    catalogs[`is_${this.rule.catalogs[i].slug}_name`] = false
   }
 
   this.set({

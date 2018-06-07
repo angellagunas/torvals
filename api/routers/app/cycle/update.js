@@ -111,7 +111,7 @@ module.exports = new Route({
         {dateStart: {$lte: periodStartDate}, dateEnd: {$gte: periodStartDate}},
         {dateStart: {$lte: periodEndDate}, dateEnd: {$gte: periodEndDate}}],
           organization: cycle.organization._id,
-          rule: cycle.rule._id
+          rule: cycle.rule._id,
           isDeleted: false
         })
 

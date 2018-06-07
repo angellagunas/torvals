@@ -22,7 +22,10 @@ const rulesSchema = new Schema({
   rangeAdjustment: {type: Number},
   salesUpload: {type: Number},
   ranges: [{type: Number}],
-  catalogs: [{ type: String }],
+  catalogs: [{
+    name: { type: String },
+    slug: { type: String }
+  }],
   organization: {type: Schema.Types.ObjectId, ref: 'Organization'},
   cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
   periods: [{type: Schema.Types.ObjectId, ref: 'Period'}],
