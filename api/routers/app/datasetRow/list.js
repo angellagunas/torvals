@@ -1,5 +1,4 @@
 const Route = require('lib/router/route')
-const moment = require('moment')
 const {
   DataSetRow,
   DataSet,
@@ -7,8 +6,9 @@ const {
   SalesCenter,
   Channel,
   Role,
-  AbraxasDate,
-  Price
+  Price,
+  Period,
+  Cycle
 } = require('models')
 
 module.exports = new Route({
@@ -30,11 +30,6 @@ module.exports = new Route({
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
       }
-
-      /* if (filter === 'semanaBimbo') {
-        filters['data.semanaBimbo'] = ctx.request.query[filter]
-        continue
-      } */
 
       if (filter === 'product') {
         filters[filter] = await Product.findOne({
@@ -70,12 +65,14 @@ module.exports = new Route({
       }
 
       if (filter === 'period') {
-        const weeks = await AbraxasDate.find({
-          month: ctx.request.query[filter],
-          dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
-        }).sort('dateStart')
+        const periods = await Period.find({uuid: {$in: ctx.request.query[filter]}})
+        filters['period'] = { $in: periods.map(item => { return item._id }) }
+        continue
+      }
 
-        filters['data.semanaBimbo'] = { $in: weeks.map(item => { return item.week }) }
+      if (filter === 'cycle') {
+        const cycles = await Cycle.find({uuid: {$in: ctx.request.query[filter]}})
+        filters['cycle'] = { $in: cycles.map(item => { return item._id }) }
         continue
       }
 
@@ -90,6 +87,7 @@ module.exports = new Route({
 
     const user = ctx.state.user
     var currentRole
+
     const currentOrganization = user.organizations.find(orgRel => {
       return ctx.state.organization._id.equals(orgRel.organization._id)
     })
@@ -102,7 +100,8 @@ module.exports = new Route({
 
     if (
       currentRole.slug === 'manager-level-1' ||
-      currentRole.slug === 'manager-level-2'
+      currentRole.slug === 'manager-level-2' ||
+      currentRole.slug === 'consultor'
     ) {
       var groups = user.groups
       if (!filters['salesCenter']) {
@@ -129,7 +128,7 @@ module.exports = new Route({
     }
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
-    .populate(['salesCenter', 'adjustmentRequest', 'channel'])
+    .populate(['salesCenter', 'adjustmentRequest', 'channel', 'period'])
     .sort(ctx.request.query.sort || '-dateCreated')
 
     const AllPrices = await Price.find({'organization': ctx.state.organization._id})
@@ -154,7 +153,7 @@ module.exports = new Route({
         productPrice: prices[item.product.price] || '',
         channel: item.channel ? item.channel.name : '',
         channelId: item.channel ? item.channel.externalId : '',
-        semanaBimbo: item.data.semanaBimbo,
+        period: item.period,
         prediction: item.data.prediction,
         adjustment: item.data.adjustment,
         localAdjustment: item.data.localAdjustment,

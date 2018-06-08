@@ -1,71 +1,107 @@
 // node tasks/dataset/process/save-datasetrows.js --uuid uuid
 require('../../../config')
 require('lib/databases/mongo')
+const Logger = require('lib/utils/logger')
 const moment = require('moment')
-
+const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 const Task = require('lib/task')
 const { DataSetRow, DataSet } = require('models')
-const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
 const task = new Task(
   async function (argv) {
-    let log = (args) => {
-      args = ('[save-datasetrows] ') + args
-
-      console.log(args)
-    }
+    const log = new Logger('save-datasetrows')
 
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
     }
 
-    log('Saving products/sales centers/channels from catalog ...')
-    log(`Start ==>  ${moment().format()}`)
+    log.call('Saving products/sales centers/channels from catalog ...')
+    log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('channels products salesCenters newChannels newProducts newSalesCenters cycles periods')
+    const dataset = await DataSet.findOne({uuid: argv.uuid})
+    .populate('channels products salesCenters cycles periods catalogItems')
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
 
-    log('Saving channels ...')
+    log.call('Saving channels ...')
     for (let channel of dataset.channels) {
-      await DataSetRow.update({dataset: dataset._id, 'data.channelExternalId': channel.externalId}, {channel: channel._id}, {multi: true})
+      await DataSetRow.update({
+        dataset: dataset._id,
+        'data.channelExternalId': channel.externalId
+      }, {
+        channel: channel._id
+      }, {
+        multi: true
+      })
     }
-    log('Channels successfully saved!')
+    log.call('Channels successfully saved!')
 
-    log('Saving products ...')
+    log.call('Saving products ...')
     for (let product of dataset.products) {
-      await DataSetRow.update({dataset: dataset._id, 'data.productExternalId': product.externalId}, {product: product._id}, {multi: true})
+      await DataSetRow.update({
+        dataset: dataset._id,
+        'data.productExternalId': product.externalId
+      }, {
+        product: product._id
+      }, {
+        multi: true
+      })
     }
-    log('Products successfully saved!')
+    log.call('Products successfully saved!')
 
-    log('Saving sales centers ...')
+    log.call('Saving sales centers ...')
     for (let salesCenter of dataset.salesCenters) {
-      await DataSetRow.update({dataset: dataset._id, 'data.salesCenterExternalId': salesCenter.externalId}, {salesCenter: salesCenter._id}, {multi: true})
+      await DataSetRow.update({
+        dataset: dataset._id,
+        'data.salesCenterExternalId': salesCenter.externalId
+      }, {
+        salesCenter: salesCenter._id
+      }, {
+        multi: true
+      })
     }
-    log('Sales Centers successfully saved!')
+    log.call('Sales centers successfully saved!')
 
-    log('Saving periods...')
+    log.call('Saving catalog items ...')
+    for (let cItem of dataset.catalogItems) {
+      await DataSetRow.update({
+        dataset: dataset._id,
+        [`catalogData.is_${cItem.type}_id`]: String(cItem.externalId)
+      }, {
+        $push: {
+          catalogItems: cItem._id
+        }
+      }, {
+        multi: true
+      })
+    }
+    log.call('Catalog items successfully saved!')
+
+    log.call('Saving cycles and periods...')
     if (dataset.periods) {
       for (let period of dataset.periods) {
         await DataSetRow.update({
           dataset: dataset._id,
-          'data.forecastDate': { $gte: moment(period.dateStart).utc().format('YYYY-MM-DD'), $lte: moment(period.dateEnd).utc().format('YYYY-MM-DD') }
-        },
-          {
-            period: period._id,
-            cycle: period.cycle
-          },
-        {multi: true})
+          'data.forecastDate': {
+            $gte: moment(period.dateStart).utc().format('YYYY-MM-DD'),
+            $lte: moment(period.dateEnd).utc().format('YYYY-MM-DD')
+          }
+        }, {
+          period: period._id,
+          cycle: period.cycle
+        }, {
+          multi: true
+        })
       }
     }
-    log('Periods successfully saved!')
+    log.call('Cycles and periods successfully saved!')
 
     dataset.set({ status: 'reviewing' })
     await dataset.save()
 
-    log('Success! DatasetRows processed!')
-    log(`End ==>  ${moment().format()}`)
+    log.call('Success! DatasetRows processed!')
+    log.call(`End ==>  ${moment().format()}`)
 
     return true
   },

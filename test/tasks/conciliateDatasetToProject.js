@@ -19,10 +19,10 @@ const {
   createDatasetRowsUnConciliate
 } = require('../utils')
 
-const conciliateDataset = require('tasks/dataset/process/conciliate-dataset')
+const conciliateDataset = require('tasks/project/conciliate-to-project')
 
 
-describe('Conciliate datasets', () => {
+describe('Conciliate dataset to project', () => {
   beforeEach(async function () {
     await clearDatabase()
   })
@@ -348,7 +348,7 @@ describe('Conciliate datasets', () => {
       }
 
       expect(wasFailed).equal(true)
-      expect(errorMsg).equal('The given project does not match with dataset project.')
+      expect(errorMsg).equal('Cannot conciliate a dataset from another project!')
     })
 
   })

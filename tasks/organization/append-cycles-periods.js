@@ -3,7 +3,6 @@ require('../../config')
 require('lib/databases/mongo')
 
 const moment = require('moment')
-
 const Task = require('lib/task')
 const { Organization, Cycle, Period, Rule } = require('models')
 
@@ -25,10 +24,11 @@ const task = new Task(
     if (!cycles) { throw new Error('Cycles unavailable') }
     var startDate = moment(cycles.dateEnd).utc().add(1, 'd')
     const totalToAdd = argv.cycles
+    let cycleNumber = cycles.cycle
+    let startDate = moment(cycles.dateEnd).utc().add(1, 'd')
+    let previousYear = moment(cycles.dateStart).utc().format('YYYY')
 
-    var previousYear = moment(cycles.dateStart).utc().format('YYYY')
-    var cycleNumber = cycles.cycle
-    var endDate
+    let endDate
     for (let i = 1; i <= totalToAdd; i++) {
       endDate = moment(startDate).utc().add(cycleDuration, cycle)
       endDate = moment(endDate).utc().subtract(1, 'd')
@@ -61,16 +61,21 @@ const task = new Task(
 
     const periods = await Period.findOne({organization: organization._id, isDeleted: false, rule: rule._id}).sort({dateStart: -1})
     startDate = moment(periods.dateEnd).utc().add(1, 'd')
-    var periodNumber
-    var lastCycle
-    var currentEndDate
+    let periodNumber
+    let lastCycle
+    let currentEndDate
     do {
       currentEndDate = moment(startDate).utc().add(periodDuration, period)
       currentEndDate = moment(currentEndDate).utc().subtract(1, 'd')
 
-      let cyclesBetween = await Cycle.find({ $or: [
-        {dateStart: {$lte: startDate}, dateEnd: {$gte: startDate}},
-        {dateStart: {$lte: currentEndDate}, dateEnd: {$gte: currentEndDate}}],
+      let cyclesBetween = await Cycle.find({
+        $or: [{
+          dateStart: { $lte: startDate },
+          dateEnd: { $gte: startDate }
+        }, {
+          dateStart: { $lte: currentEndDate },
+          dateEnd: { $gte: currentEndDate }
+        }],
         organization: organization._id,
         isDeleted: false,
         rule: rule._id
@@ -79,7 +84,9 @@ const task = new Task(
       if (cyclesBetween.length > 0) {
         let cycle
         if (cyclesBetween.length > 1) {
-          cycle = (takeStart) ? cyclesBetween[cyclesBetween.length - 1]._id : cyclesBetween[0]._id
+          cycle = (takeStart)
+            ? cyclesBetween[cyclesBetween.length - 1]._id
+            : cyclesBetween[0]._id
         } else {
           cycle = cyclesBetween[0]._id
         }

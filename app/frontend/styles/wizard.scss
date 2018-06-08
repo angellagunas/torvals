@@ -41,6 +41,11 @@
             pointer-events: inherit;
         }
     }
+    .help-btn {
+        .button.is-static {
+            pointer-events: inherit;
+        }
+    }
     .is-centered-content {
         display: flex;
         justify-content: center;

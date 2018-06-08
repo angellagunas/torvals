@@ -21,8 +21,8 @@ module.exports = new Route({
       description: data.description,
       organization: ctx.state.organization._id,
       adjustment: data.adjustment,
-      createdBy: ctx.state.user,
-      rule: rule._id
+      createdBy: ctx.state.user
+      // rule: rule._id
     })
 
     ctx.body = {

@@ -72,9 +72,7 @@ const task = new Task(async function (argv) {
 
       filterDataset.add({
         project: project.uuid,
-        dataset: dataset.uuid,
-        dateStart: dateStart.format('YYYY-MM-DD'),
-        dateEnd: dateEnd.format('YYYY-MM-DD')
+        dataset: dataset.uuid
       })
     } else {
       console.log(`Project ${project.name} is still conciliating!`)

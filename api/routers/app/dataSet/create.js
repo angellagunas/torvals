@@ -28,8 +28,8 @@ module.exports = new Route({
       description: body.description,
       organization: ctx.state.organization._id,
       createdBy: ctx.state.user,
-      project: project._id,
-      rule: rule._id
+      project: project._id
+      // rule: rule._id
     })
 
     project.datasets.push({

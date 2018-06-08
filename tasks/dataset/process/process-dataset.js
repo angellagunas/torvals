@@ -1,31 +1,29 @@
 // node tasks/dataset/process/process-dataset.js --uuid uuid [--batchSize batchSize --noNextStep]
 require('../../../config')
 require('lib/databases/mongo')
-const moment = require('moment')
 const _ = require('lodash')
+const fillCyclesPeriods = require('tasks/organization/fill-cycles-periods')
+const Logger = require('lib/utils/logger')
+const moment = require('moment')
 const slugify = require('underscore.string/slugify')
-
-const Task = require('lib/task')
-const { DataSet, DataSetRow, Cycle, Period } = require('models')
 const saveDatasetRows = require('queues/save-datasetrows')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
+const Task = require('lib/task')
+const { DataSet, DataSetRow, Cycle, Period } = require('models')
 
 const task = new Task(
   async function (argv) {
-    let log = (args) => {
-      args = ('[process-dataset] ') + args
-
-      console.log(args)
-    }
+    const log = new Logger('process-dataset')
 
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
     }
 
-    log('Processing Dataset...')
-    log(`Start ==>  ${moment().format()}`)
+    log.call('Processing Dataset...')
+    log.call(`Start ==>  ${moment().format()}`)
 
     const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('organization rule')
+    const organization = dataset.organization
 
     if (!dataset) {
       throw new Error('Invalid uuid!')
@@ -40,6 +38,7 @@ const task = new Task(
 
     let maxDate
     let minDate
+    let catalogsObj = {}
 
     let productsObj = {
       _id: `$apiData.${productExternalId.name}`
@@ -65,13 +64,29 @@ const task = new Task(
       channelsObj['name'] = `$apiData.${channelName.name}`
     }
 
+    for (let catalog of organization.rules.catalogs) {
+      name = dataset.getCatalogItemColumn(`is_${catalog}_name`)
+      idStr = dataset.getCatalogItemColumn(`is_${catalog}_id`)
+
+      catalogObj = {
+        _id: `$apiData.${idStr.name}`
+      }
+
+      if (name && name.name) {
+        catalogObj['name'] = `$apiData.${name.name}`
+      }
+
+      catalogsObj[catalog] = {
+        '$addToSet': catalogObj
+      }
+    }
+
     var statement = [
       {
         '$match': {
           'dataset': dataset._id
         }
-      },
-      {
+      }, {
         '$group': {
           '_id': null,
           'channels': {
@@ -82,12 +97,13 @@ const task = new Task(
           },
           'products': {
             '$addToSet': productsObj
-          }
+          },
+          ...catalogsObj
         }
       }
     ]
 
-    log('Obtaining uniques ...')
+    log.call('Obtaining uniques ...')
 
     let rows = await DataSetRow.aggregate(statement)
     let rowData = {
@@ -129,31 +145,17 @@ const task = new Task(
       }
     }
 
-    for (let catalog of dataset.rule.catalogs) {
-      rowData[catalog] = []
-
-      if (slugify(catalog) === 'producto' || slugify(catalog) === 'productos') {
-        rowData[catalog] = rowData.products.map(item => { return item })
-      }
-
-      if (slugify(catalog) === 'centro-de-venta' || slugify(catalog) === 'centros-de-venta') {
-        rowData[catalog] = rowData.salesCenters.map(item => { return item })
-      }
-
-      if (slugify(catalog) === 'canal' || slugify(catalog) === 'canales') {
-        rowData[catalog] = rowData.channels.map(item => { return item })
-      }
+    for (let catalog of organization.rules.catalogs) {
+      rowData[catalog] = rows[0][catalog]
     }
 
-    log('Obtaining max and min dates ...')
-
+    log.call('Obtaining max and min dates ...')
     statement = [
       {
         '$match': {
           'dataset': dataset._id
         }
-      },
-      {
+      }, {
         '$group': {
           '_id': null,
           'max': { '$max': '$data.forecastDate' },
@@ -166,20 +168,21 @@ const task = new Task(
     maxDate = moment(rows[0].max).utc().format('YYYY-MM-DD')
     minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
 
-    log('Obtaining cycles  ...')
-
-    var cycles = await Cycle.find({
-      organization: dataset.organization._id,
-      isDeleted: false,
-      dateStart: {$gte: minDate, $lte: maxDate},
-      rule: dataset.rule._id
+    await fillCyclesPeriods.run({
+      uuid: dataset.organization.uuid,
+      dateMin: minDate,
+      dateMax: maxDate
     })
+
+    log.call('Obtaining cycles ...')
+    let cycles = await Cycle.getBetweenDates(dataset.organization._id, minDate, maxDate)
 
     cycles = cycles.map(item => {
       return item._id
     })
 
-    log('Obtaining periods  ...')
+    log.call('Obtaining periods...')
+    let periods = await Period.getBetweenDates(dataset.organization._id, minDate, maxDate)
 
     var periods = await Period.find({
       organization: dataset.organization._id,
@@ -216,7 +219,7 @@ const task = new Task(
       periods: periods
     }
 
-    log('Obtaining new products/sales centers/channels  ...')
+    log.call('Obtaining new products/sales centers/channels  ...')
 
     try {
       await dataset.processReady(sendData)
@@ -226,8 +229,8 @@ const task = new Task(
       return false
     }
 
-    log('Success! Dataset processed')
-    log(`End ==>  ${moment().format()}`)
+    log.call('Success! Dataset processed')
+    log.call(`End ==>  ${moment().format()}`)
 
     if (!argv.noNextStep) saveDatasetRows.add({uuid: dataset.uuid})
 
