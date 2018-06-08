@@ -58,7 +58,7 @@ class CreateGroup extends Component {
               <button className='button is-primary' type='submit'>Crear</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>
           </div>
         </GroupForm>
