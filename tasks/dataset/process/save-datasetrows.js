@@ -19,7 +19,7 @@ const task = new Task(
     log.call(`Start ==>  ${moment().format()}`)
 
     const dataset = await DataSet.findOne({uuid: argv.uuid})
-    .populate('channels products salesCenters cycles periods catalogItems')
+    .populate('channels products salesCenters newChannels newProducts newSalesCenters cycles periods catalogItems')
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
@@ -64,11 +64,13 @@ const task = new Task(
     log.call('Sales centers successfully saved!')
 
     log.call('Saving catalog items ...')
-    for (let cItem of dataset.catalogItems) {
-      await DataSetRow.update({
-        dataset: dataset._id,
-        [`catalogData.is_${cItem.type}_id`]: String(cItem.externalId)
-      }, {
+    for (let catalogItems of dataset.catalogItems) {
+      const filters = {dataset: dataset._id}
+      filters['catalogData.is_'+ catalogItems.type + '_id'] = catalogItems.externalId.toString()
+
+      await DataSetRow.update(
+      filters,
+      {
         $push: {
           catalogItems: cItem._id
         }
