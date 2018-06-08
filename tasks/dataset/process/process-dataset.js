@@ -167,8 +167,8 @@ const task = new Task(
     ]
 
     rows = await DataSetRow.aggregate(statement)
-    maxDate = moment(rows[0].max).utc().format('YYYY-MM-DD')
-    minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
+    maxDate = moment(rows[0].max).utc().add(6, 'h').format()
+    minDate = moment(rows[0].min).utc().add(6, 'h').format()
 
     await fillCyclesPeriods.run({
       uuid: dataset.organization.uuid,
@@ -178,14 +178,14 @@ const task = new Task(
     })
 
     log.call('Obtaining cycles ...')
-    let cycles = await Cycle.getBetweenDates(dataset.organization._id, minDate, maxDate)
+    let cycles = await Cycle.getBetweenDates(dataset.project.rule, minDate, maxDate)
 
     cycles = cycles.map(item => {
       return item._id
     })
 
     log.call('Obtaining periods...')
-    let periods = await Period.getBetweenDates(dataset.organization._id, minDate, maxDate)
+    let periods = await Period.getBetweenDates(dataset.project.rule, minDate, maxDate)
 
     periods = periods.map(item => {
       return item._id

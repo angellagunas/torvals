@@ -61,15 +61,15 @@ cycleSchema.statics.getAvailable = async function(organization, cyclesAvailable)
   return cycles
 }
 
-cycleSchema.statics.getBetweenDates = async function(organization, minDate, maxDate) {
+cycleSchema.statics.getBetweenDates = async function(rule, minDate, maxDate) {
   const firstCycle = await this.findOne({
-    organization: organization,
+    rule: rule,
     isDeleted: false,
     dateStart: { $lte: minDate },
     dateEnd: { $gte: minDate }
   })
   const cycles = await this.find({
-    organization: organization,
+    rule: rule,
     dateStart: {
       $gte: firstCycle.dateStart,
       $lte: maxDate
