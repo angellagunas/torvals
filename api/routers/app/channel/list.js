@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const ObjectId = require('mongodb').ObjectID
 
-const {Channel, Role} = require('models')
+const {Channel, Role, Group} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -43,6 +43,12 @@ module.exports = new Route({
           sortStatement[filterSort[0]] = 1
         }
         statement.push({ '$sort': sortStatement })
+      } else if (filter === 'group') {
+        let group = await Group.findOne({ uuid: ctx.request.query[filter] })
+        let channelsList = []
+
+        channelsList = await Channel.find({ groups: group._id })
+        statement.push({ '$match': { '_id': { $in: channelsList.map(item => { return item._id }) } } })
       }
     }
 
@@ -66,7 +72,11 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
-    if (currentRole.slug === 'manager-level-1' || currentRole.slug === 'manager-level-2') {
+    if (
+        currentRole.slug === 'manager-level-1' ||
+        currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'consultor'
+    ) {
       var groups = user.groups
       var channelsList = []
 

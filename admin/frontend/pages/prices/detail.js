@@ -85,11 +85,6 @@ class PriceDetail extends Component {
                 },
                 {
                   path: '/admin/catalogs/prices/detail/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/admin/catalogs/prices/detail/',
                   label: price.product.name,
                   current: true
                 }

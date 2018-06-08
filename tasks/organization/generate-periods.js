@@ -14,7 +14,17 @@ const task = new Task(
     }
     const organization = await Organization.findOne({uuid: argv.uuid})
     const cycles = await Cycle.find({organization: organization._id, isDeleted: false}).sort({dateStart: 1})
+
     if (cycles.length === 0) { throw new Error('No hay ciclos disponibles') }
+
+    if (isNaN(organization.rules.periodDuration) || parseInt(organization.rules.periodDuration) < 1) {
+      throw new Error('The periodDuration should be a positive integer')
+    }
+
+    if (!(['M', 'w', 'd', 'y'].indexOf(organization.rules.period) >= 0)){
+      throw new Error('The given period has a invalid format')
+    }
+
     const periodDuration = organization.rules.periodDuration
     const period = organization.rules.period
     const takeStart = organization.rules.takeStart

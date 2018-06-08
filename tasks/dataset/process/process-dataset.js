@@ -24,8 +24,8 @@ const task = new Task(
 
     const dataset = await DataSet
       .findOne({uuid: argv.uuid})
-      .populate('organization')
-      .populate('project')
+      .populate('organization project')
+    const organization = dataset.organization
 
     if (!dataset) {
       throw new Error('Invalid uuid!')
@@ -40,6 +40,7 @@ const task = new Task(
 
     let maxDate
     let minDate
+    let catalogsObj = {}
 
     let productsObj = {
       _id: `$apiData.${productExternalId.name}`
@@ -65,7 +66,25 @@ const task = new Task(
       channelsObj['name'] = `$apiData.${channelName.name}`
     }
 
-    var statement = [{
+    for (let catalog of organization.rules.catalogs) {
+      name = dataset.getCatalogItemColumn(`is_${catalog}_name`)
+      idStr = dataset.getCatalogItemColumn(`is_${catalog}_id`)
+
+      catalogObj = {
+        _id: `$apiData.${idStr.name}`
+      }
+
+      if (name && name.name) {
+        catalogObj['name'] = `$apiData.${name.name}`
+      }
+
+      catalogsObj[catalog] = {
+        '$addToSet': catalogObj
+      }
+    }
+
+    var statement = [
+      {
         '$match': {
           'dataset': dataset._id
         }
@@ -80,7 +99,8 @@ const task = new Task(
           },
           'products': {
             '$addToSet': productsObj
-          }
+          },
+          ...catalogsObj
         }
       }
     ]
@@ -127,24 +147,13 @@ const task = new Task(
       }
     }
 
-    for (let catalog of dataset.organization.rules.catalogs) {
-      rowData[catalog] = []
-
-      if (slugify(catalog) === 'producto' || slugify(catalog) === 'productos') {
-        rowData[catalog] = rowData.products.map(item => { return item })
-      }
-
-      if (slugify(catalog) === 'centro-de-venta' || slugify(catalog) === 'centros-de-venta') {
-        rowData[catalog] = rowData.salesCenters.map(item => { return item })
-      }
-
-      if (slugify(catalog) === 'canal' || slugify(catalog) === 'canales') {
-        rowData[catalog] = rowData.channels.map(item => { return item })
-      }
+    for (let catalog of organization.rules.catalogs) {
+      rowData[catalog] = rows[0][catalog]
     }
 
     log.call('Obtaining max and min dates ...')
-    statement = [{
+    statement = [
+      {
         '$match': {
           'dataset': dataset._id
         }

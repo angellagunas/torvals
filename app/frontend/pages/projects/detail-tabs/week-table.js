@@ -17,14 +17,24 @@ class WeekTable extends Component {
     }
     this.inputs = new Set()
     this.lastRow = null
+
+
+    this.canEdit = true
+
+    if (this.props.currentRole === 'consultor' || this.props.generalAdjustment === 0) {
+      this.canEdit = false
+    }
   }
 
   setRange () {
     let range
-    if (this.props.generalAdjustment < 0)
+    if (this.props.generalAdjustment < 0) {
       range = 'Ilimitado'
-    else
+    } else if (this.props.generalAdjustment === 0) {
+      range = 'N/A'
+    } else {
       range = this.props.generalAdjustment * 100 + ' %'
+    }
 
     this.setState({
       range: range
@@ -111,7 +121,7 @@ class WeekTable extends Component {
       {
         group: this.getBtns(),
         title: (() => {
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
             return (
               <Checkbox
                 label='checkAll'
@@ -128,7 +138,7 @@ class WeekTable extends Component {
         property: 'checkbox',
         default: '',
         formatter: (row) => {
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
             if (!row.selected) {
               row.selected = false
             }
@@ -198,11 +208,17 @@ class WeekTable extends Component {
     let maxWeeks = data.map(item => {return item.weeks.length})
     maxWeeks = maxWeeks.sort((a,b) => {return b-a})
 
-    for (let j = 0; j < this.props.filteredSemanasBimbo.length; j++){
-      let semanaBimbo = this.props.filteredSemanasBimbo[j]
+    let periods = _(this.props.data)
+      .groupBy(x => x.period.period)
+      .map((value, key) => ({ period: key, products: value }))
+      .value()
+      
+
+    for (let j = 0; j < periods.length; j++){
+      let period = periods[j].period
       cols.push(
         {
-          group: <strong>{this.splitWords('Semana ' + semanaBimbo
+          group: <strong>{this.splitWords('Periodo ' + period
           + '_Ajuste permitido ' + this.state.range)}</strong>,
           title: 'Predicción',
           property: 'prediction_' + j,
@@ -257,7 +273,7 @@ class WeekTable extends Component {
 
              row.tabin = row.key * 10 + j
              row.weeks[j].tabin = row.key * 10 + j
-             if (this.props.currentRole !== 'consultor') {
+             if (this.canEdit) {
                return (
                  <input
                    type='text'
@@ -421,7 +437,7 @@ class WeekTable extends Component {
     rw = rw.map((item) => {
       let weeks = _.orderBy(data.filter((element, index) => {
           return element.productId + ' (' + element.channel + ')' === item
-        }), function (e) { return e.semanaBimbo }, ['asc'])
+        }), function (e) { return e.period.period }, ['asc'])
 
       let product = weeks[0].productName
       return {

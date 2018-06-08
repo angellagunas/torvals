@@ -502,7 +502,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Venta anterior',
+        'title': 'Venta año anterior',
         'property': 'previousSale',
         'default': '0',
         'sortable': true,
@@ -763,7 +763,7 @@ class Dashboard extends Component {
         data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale !== 0 ? item.sale : null}) : []
       },
       {
-        label: 'Venta Anterior',
+        label: 'Venta año anterior',
         color: '#EF6950',
         data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale !== 0 ? item.previousSale : null }) : []
       }
@@ -1052,8 +1052,7 @@ class Dashboard extends Component {
                     <p className='indicators-number has-text-success'>{this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
-
-                    <p className='indicators-title'>Venta anterior</p>
+                    <p className='indicators-title'>Venta año anterior</p>
                     <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>

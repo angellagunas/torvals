@@ -15,6 +15,9 @@ const adjustmentRequestSchema = new Schema({
   requestedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   rejectedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  product: { type: Schema.Types.ObjectId, ref: 'Product' },
+  salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
+  channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
   status: {
     type: String,
     enum: ['created', 'approved', 'rejected'],
