@@ -18,6 +18,7 @@ module.exports = new Route({
     project = await Project.findOne({uuid: body.project})
 
     const rule = await Rule.findOne({organization: ctx.state.organization._id}).sort({dateCreated: -1})
+    if (!rule) { ctx.throw(404, 'Reglas de negocio no definidas') }
 
     if (!project) {
       ctx.throw(404, 'Proyecto no encontrado')
@@ -28,8 +29,8 @@ module.exports = new Route({
       description: body.description,
       organization: ctx.state.organization._id,
       createdBy: ctx.state.user,
-      project: project._id
-      // rule: rule._id
+      project: project._id,
+      rule: rule._id
     })
 
     project.datasets.push({
