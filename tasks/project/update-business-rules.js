@@ -4,7 +4,6 @@ require('lib/databases/mongo')
 const Logger = require('lib/utils/logger')
 const moment = require('moment')
 const path = require('path')
-const processDataset = require('tasks/dataset/process/process-dataset')
 const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 const Task = require('lib/task')
 const { v4 } = require('uuid')
@@ -106,9 +105,6 @@ const task = new Task(
     })
     project.save()
 
-    await processDataset.run({
-      uuid: auxDataset.uuid
-    })
     return true
   },
   async (argv) => {

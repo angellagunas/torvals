@@ -3,6 +3,7 @@ require('../../config')
 require('lib/databases/mongo')
 
 const generatePeriods = require('tasks/organization/generate-periods')
+const generateRulesPeriods = require('tasks/organization/generate-rules-periods')
 const moment = require('moment')
 const Task = require('lib/task')
 
@@ -85,7 +86,7 @@ const task = new Task(
         dateEnd: endDate,
         isDeleted: false,
         organization: organization._id,
-        rule: rule ? rule._id : undefined
+        rule: rule ? rule : undefined
       }, {}, {
         upsert: true,
         setDefaultsOnInsert: true
@@ -94,7 +95,11 @@ const task = new Task(
       previousYear = endYear
       newStartDate = moment(endDate).utc().add(1, 'd')
     }
-    await generatePeriods.run({uuid: organization.uuid})
+    if (rule !== null) {
+      await generateRulesPeriods.run({ id: rule })
+    } else {
+      await generatePeriods.run({ uuid: organization.uuid })
+    }
     return true
   }
 )

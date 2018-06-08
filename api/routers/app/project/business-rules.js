@@ -1,26 +1,34 @@
-const Route = require('lib/router/route')
 const lov = require('lov')
+const processDataset = require('tasks/dataset/process/process-dataset')
+const Route = require('lib/router/route')
 
 const { Project } = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/update/businessRules/:uuid',
+  path: '/update/businessRules',
   validator: lov.object().keys({
     name: lov.string().required()
   }),
   handler: async function (ctx) {
-    const projectId = ctx.params.uuid
     const data = ctx.request.body
 
+    if (!data.uuid) {
+      throw new Error('You need to provide an uuid!')
+    }
     const project = await Project.findOne({
-      'uuid': projectId,
-      'isDeleted': false
-    }).populate('organization')
+      'uuid': data.uuid,
+      'isDeleted': false,
+      status: 'updating-rules'
+    }).populate('mainDataset')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
+    await processDataset.run({
+      uuid: project.mainDataset.uuid
+    })
+
     project.set({
-      status: 'updating-rules'
+      status: 'ready'
     })
     project.save()
 
