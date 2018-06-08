@@ -35,7 +35,7 @@ const task = new Task(
     log.call(`Using batch size of ${batchSize}`)
     log.call(`Start ==>  ${moment().format()}`)
 
-    const project = await Project.findOne({uuid: argv.project}).populate('mainDataset')
+    const project = await Project.findOne({uuid: argv.project}).populate('mainDataset rule')
     const dataset = await DataSet.findOne({uuid: argv.dataset})
     const organization = await Organization.findOne({_id: project.organization})
 
@@ -56,7 +56,7 @@ const task = new Task(
       return true
     }
 
-    const cycles = organization.rules.cyclesAvailable
+    const cycles = project.rule.cyclesAvailable
     let cyclesAvailable = await Cycle.getAvailable(organization._id, cycles)
     if (cyclesAvailable.length < cycles) {
       log.call('Creating missing cycles.')

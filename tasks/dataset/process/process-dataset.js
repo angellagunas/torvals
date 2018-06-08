@@ -64,7 +64,7 @@ const task = new Task(
       channelsObj['name'] = `$apiData.${channelName.name}`
     }
 
-    for (let catalog of organization.rules.catalogs) {
+    for (let catalog of dataset.rule.catalogs) {
       name = dataset.getCatalogItemColumn(`is_${catalog}_name`)
       idStr = dataset.getCatalogItemColumn(`is_${catalog}_id`)
 
@@ -145,7 +145,7 @@ const task = new Task(
       }
     }
 
-    for (let catalog of organization.rules.catalogs) {
+    for (let catalog of dataset.rule.catalogs) {
       rowData[catalog] = rows[0][catalog]
     }
 

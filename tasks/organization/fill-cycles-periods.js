@@ -7,7 +7,7 @@ const moment = require('moment')
 const Task = require('lib/task')
 const generatePeriods = require('tasks/organization/generate-periods')
 
-const { Organization, Cycle } = require('models')
+const { Organization, Cycle, Rule } = require('models')
 
 const task = new Task(
   async function (argv) {
@@ -24,13 +24,18 @@ const task = new Task(
     }
 
     const organization = await Organization.findOne({ uuid: uuid })
+    const rule = await Rule.findOne({organization: organization._id, isCurrent: true})
+    if (!rule) {
+      throw new Error('Business rules not found')
+    }
+
     const {
       cycle,
       cycleDuration,
       season,
       startDate,
       takeStart
-    } = organization.rules
+    } = rule
 
     const dateDiff = moment(startDate).utc().diff(moment(dateMin).utc(), 'years')
     const newEndDate = moment(dateMax).add(1, cycle)
