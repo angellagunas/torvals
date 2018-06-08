@@ -31,10 +31,10 @@ class Sidebar extends Component {
       active: '',
       activePath: '',
       collapsed: false,
-      menuItems: []
+      menuItems: [],
+      rules: tree.get('user').currentOrganization.rules || []
     }
     this.handleActiveLink = this.handleActiveLink.bind(this)
-    this.rules = tree.get('user').currentOrganization.rules
   }
 
   componentWillMount () {
@@ -46,6 +46,16 @@ class Sidebar extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
+    if (this.state.rules !== tree.get('user').currentOrganization.rules) {
+      const activeItem = window.location.pathname.split('/').filter(String).join('')
+      this.setState({
+        rules: tree.get('user').currentOrganization.rules
+      }, () => {
+        this.setState({
+          menuItems: this.handleOpenDropdown(this.getMenuItems(), activeItem)
+        })
+      })
+    }
     if (this.state.collapsed !== nextProps.collapsed) {
       this.setState({
         collapsed: !this.state.collapsed
@@ -82,7 +92,8 @@ class Sidebar extends Component {
   }
 
   catalogs () {
-    return this.rules.catalogs.map(item => {
+    let rules = this.state.rules
+    return rules.catalogs.map(item => {
       let config =
         {
           name: cleanName(item),
@@ -112,6 +123,7 @@ class Sidebar extends Component {
 
       return Catalogs.opts(config).asSidebarItem()
     })
+  }
 
   getCatalogs () {
     const org = tree.get('organization') || {}
@@ -209,6 +221,7 @@ class Sidebar extends Component {
       })
     })
   }
+
   handleToggle (index) {
     const menuItems = [...this.state.menuItems]
     menuItems[index].opened = !menuItems[index].opened
@@ -219,30 +232,7 @@ class Sidebar extends Component {
     const menuClass = classNames({
       'menu-collapsed': this.state.collapsed
     })
-    /* return (<div className='offcanvas column is-narrow is-paddingless'>
-      <aside className={menuClass}>
-        <ul className='menu-list'>
-          <SelectOrg collapsed={this.state.collapsed} />
-          {this.state.menuItems.map((item, index) => {
-            if (item) {
-              return <SidebarItem
-                title={item.title}
-                index={index}
-                status={item.opened}
-                collapsed={this.state.collapsed}
-                icon={item.icon}
-                to={item.to}
-                dropdown={item.dropdown}
-                roles={item.roles}
-                onClick={this.handleActiveLink}
-                dropdownOnClick={(i) => this.handleToggle(i)}
-                activeItem={this.state.active}
-                key={item.title.toLowerCase().replace(/\s/g, '')} />
-            }
-          })}
-        </ul>
-      </aside>
-    </div>) */
+
     return (
       <div className={'sidenav menu ' + menuClass}>
         <ul className='menu-list'>

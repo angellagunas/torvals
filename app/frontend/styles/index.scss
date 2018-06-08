@@ -286,6 +286,11 @@ h2 {
             border-radius: 0;
         }
     }
+    &.import-modal{
+        .modal-card {
+            width: 650px;
+        }
+    }
 }
 
 .disabled-btn {

@@ -1,21 +1,31 @@
 import React, { Component } from 'react'
 import tree from '~core/tree'
 import Catalogs from './list'
+import NotFound from '~base/components/not-found'
+import env from '~base/env-variables'
+import {
+  Route,
+  Redirect
+} from 'react-router-dom'
+
+const NoMatch = () => {
+  if (window.location.pathname === '/') {
+    return <Redirect to={{ pathname: env.PREFIX + 'dashboard' }} />
+  }
+  return (<NotFound />)
+}
 
 class CatalogRouter extends Component {
   constructor(props){
     super(props)
-    this.state = {
-      rules: tree.get('user').currentOrganization.rules
-    }
   }
   cleanName = (item) => {
     let c = item.replace(/-/g, ' ')
     return c.charAt(0).toUpperCase() + c.slice(1)
   }
 
-  catalogs = () => {
-    return this.state.rules.catalogs.map(item => {
+  catalogs = (rules) => {
+    return rules.catalogs.map(item => {
       let config =
       {
         name: this.cleanName(item),
@@ -48,16 +58,19 @@ class CatalogRouter extends Component {
         detailUrl: '/catalogs/' + item
       }
 
-      return Catalogs.opts(config).asRouterItem()
+      return Catalogs.opts(config).asRouterItemList(item)
     })
   }
   render () {
-    if(!this.state.rules){
-      return 'cargando'
+    let user = tree.get('user')
+    if(user && user.currentOrganization){
+      return (
+        this.catalogs(user.currentOrganization.rules)
+      )
     }
-    return (
-      this.catalogs()
-    )
+    else return <Route component={NoMatch} />
+       
+    
   }
 }
 

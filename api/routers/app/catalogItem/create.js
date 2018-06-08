@@ -3,7 +3,7 @@ const {Organization, CatalogItem} = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/',
+  path: '/create',
   handler: async function (ctx) {
     var data = ctx.request.body
     var organization = ctx.state.organization._id

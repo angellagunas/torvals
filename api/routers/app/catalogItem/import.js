@@ -21,7 +21,7 @@ module.exports = new Route({
     })
     ctx.assert(org, 404, 'Organización no encontrada')
 
-    const findCatalog = org.rules.catalogs.find(item => { return item === data.type })
+    const findCatalog = org.rules.catalogs.find(item => { return item === type })
 
     if (!findCatalog) {
       ctx.throw(404, 'Catálogo no encontrado')

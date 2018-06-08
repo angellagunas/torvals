@@ -3,6 +3,8 @@ import ListPage from '~base/list-page'
 import { loggedIn, verifyRole } from '~base/middlewares/'
 import { testRoles } from '~base/tools'
 import Link from '~base/router/link'
+import ImportCatalog from './import'
+import CreateCatalog from './create'
 
 class Catalog extends ListPage {
 
@@ -19,8 +21,12 @@ Catalog.opts = (opt) => {
     breadcrumbConfig: opt.breadcrumbConfig,
     branchName: opt.branchName,
     titleSingular: opt.titleSingular,
-    detailUrl: opt.detailUrl,
+    detailUrl: opt.detailUrl + '/',
     filters: opt.filters,
+    create: true,
+    createComponent: CreateCatalog,
+    import: true,
+    importComponent: ImportCatalog,
     exact: true,
     roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
     validate: [loggedIn, verifyRole],

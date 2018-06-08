@@ -233,7 +233,7 @@ class CatalogDetail extends Component {
 export default Page({
   path: '/catalogs/:catalog/:uuid',
   title: 'Catalog Detail',
-  exact: false,
+  exact: true,
   roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
   validate: [loggedIn, verifyRole],
   component: CatalogDetail
