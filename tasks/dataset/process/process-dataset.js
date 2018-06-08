@@ -165,7 +165,7 @@ const task = new Task(
       uuid: dataset.organization.uuid,
       dateMin: minDate,
       dateMax: maxDate,
-      rule: dataset.project.rule || undefined
+      rule: dataset.project.rule || null
     })
 
     log.call('Obtaining cycles ...')

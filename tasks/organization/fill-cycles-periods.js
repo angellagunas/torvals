@@ -31,7 +31,7 @@ const task = new Task(
       startDate,
       takeStart
     } = organization.rules
-    if (rule) {
+    if (rule !== null) {
       const rules = await Rule.findOne({ _id: rule })
       cycle = rules.cycle
       cycleDuration = rules.cycleDuration
@@ -85,9 +85,10 @@ const task = new Task(
         dateEnd: endDate,
         isDeleted: false,
         organization: organization._id,
-        rule: rule._id || undefined
+        rule: rule ? rule._id : undefined
       }, {}, {
-        upsert: true
+        upsert: true,
+        setDefaultsOnInsert: true
       })
 
       previousYear = endYear

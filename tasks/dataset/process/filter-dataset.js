@@ -111,8 +111,8 @@ const task = new Task(
       const dateMax = _.maxBy(rows, 'data.forecastDate')
       const dateMin = _.minBy(rows, 'data.forecastDate')
       dataset.set({
-        dateMax: dateEnd.format('YYYY-MM-DD'),
-        dateMin: dateStart.format('YYYY-MM-DD'),
+        dateMax: dateMax.format('YYYY-MM-DD'),
+        dateMin: dateMin.format('YYYY-MM-DD'),
         status: 'adjustment',
         rule: project.rule
       })

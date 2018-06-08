@@ -60,13 +60,14 @@ const task = new Task(
         multi: true
       })
     }
-    log('Sales centers successfully saved!')
+    log.call('Sales centers successfully saved!')
 
-    log('Saving catalog items ...')
+    log.call('Saving catalog items ...')
     for (let catalogItems of dataset.catalogItems) {
+      const catalogName = `catalogData.is_${catalogItems.type}_id`
       await DataSetRow.update({
         dataset: dataset._id,
-        `catalogData.is_${catalogItems.type}_id`: catalogItems.externalId
+        catalogName: catalogItems.externalId
       }, {
         $push: {
           catalogItems: catalogItems._id,
@@ -75,7 +76,7 @@ const task = new Task(
         multi: true
       })
     }
-    log('Catalog items successfully saved!')
+    log.call('Catalog items successfully saved!')
 
     log.call('Saving cycles...')
     if (dataset.cycles) {
