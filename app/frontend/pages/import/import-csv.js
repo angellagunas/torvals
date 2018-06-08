@@ -49,10 +49,22 @@ class ImportCSV extends Component {
         apiCallErrorMessage: 'message is-danger'
       })
     }
-    if (this.props.finishUp) {
-      this.props.finishUp()
-    }
     this.setState({ apiCallMessage: 'message is-success', message: data.message })
+    if (this.props.finishUp) {
+      setTimeout(() => {
+        console.log('clear')
+        this.setState({
+          apiCallMessage: 'is-hidden',
+          apiCallErrorMessage: 'is-hidden',
+          message: '',
+          formData: {
+            file: undefined,
+            type: this.props.type
+          }
+        })
+        this.props.finishUp()
+      }, 3000)
+    }
   }
 
   render () {
@@ -69,7 +81,7 @@ class ImportCSV extends Component {
           <div className='section is-paddingless-top'>
 
             <div className='columns'>
-              <div className='column is-7'>
+              <div className='column is-6'>
                 <BaseForm schema={schema}
                   uiSchema={uiSchema}
                   formData={this.state.formData}

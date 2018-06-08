@@ -288,7 +288,10 @@ h2 {
     }
     &.import-modal{
         .modal-card {
-            width: 650px;
+            width: 750px;
+        }
+        .file-label{
+            font-size: 1.2rem;
         }
     }
 }
