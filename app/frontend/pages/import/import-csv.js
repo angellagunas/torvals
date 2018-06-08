@@ -52,7 +52,6 @@ class ImportCSV extends Component {
     this.setState({ apiCallMessage: 'message is-success', message: data.message })
     if (this.props.finishUp) {
       setTimeout(() => {
-        console.log('clear')
         this.setState({
           apiCallMessage: 'is-hidden',
           apiCallErrorMessage: 'is-hidden',
