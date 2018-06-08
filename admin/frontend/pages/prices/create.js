@@ -39,10 +39,10 @@ class CreatePrice extends Component {
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary'>Create</button>
+              <button className='button is-primary'>Crear</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal}>Cancel</button>
+              <button className='button' onClick={this.hideModal}>Cancelar</button>
             </div>
           </div>
         </PriceForm>

@@ -40,10 +40,10 @@ class AddDataset extends Component {
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Add</button>
+              <button className='button is-primary' type='submit'>Agregar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>
           </div>
         </DatasetForm>
