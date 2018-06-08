@@ -73,7 +73,7 @@ module.exports = new Route({
       if (
         currentRole.slug === 'manager-level-1' ||
         currentRole.slug === 'manager-level-2' ||
-        currentRole.slug === 'consultor'
+        currentRole.slug === 'supervisor'
       ) {
         channels = channels.filter(item => {
           let checkExistence = item.groups.some(function (e) {
@@ -94,7 +94,7 @@ module.exports = new Route({
       if (
         currentRole.slug === 'manager-level-1' ||
         currentRole.slug === 'manager-level-2' ||
-        currentRole.slug === 'consultor'
+        currentRole.slug === 'supervisor'
       ) {
         salesCenters = salesCenters.filter(item => {
           let checkExistence = item.groups.some(function (e) {
