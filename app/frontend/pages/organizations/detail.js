@@ -32,7 +32,8 @@ class OrganizationDetail extends Component {
       currentStep: 1,
       selectedTab: '1',
       rules: {},
-      stepsCompleted: []
+      stepsCompleted: [],
+      unsaved: false
     }
     this.tabs = []
   }
@@ -55,10 +56,30 @@ class OrganizationDetail extends Component {
       const body = await api.get(url)
 
       this.setState({
+        organization: body.data,
+      })
+    } catch (e) {
+      await this.setState({
         loading: false,
         loaded: true,
-        organization: body.data,
-        rules: body.data.rules
+        notFound: true
+      })
+    }
+
+    await this.loadRules()
+  }
+
+  async loadRules () {
+    var url = '/app/rules/active'
+    
+    try {
+      const body = await api.get(url)
+      console.log(body)
+
+      this.setState({
+        loading: false,
+        loaded: true,
+        rules: body.data
       })
     } catch (e) {
       await this.setState({
@@ -129,9 +150,8 @@ class OrganizationDetail extends Component {
           ...data,
           step: step
         },
+        unsaved: true,
         currentStep: 1
-      }, async () => {
-        await this.saveData()
       })
     }
   }
@@ -153,11 +173,12 @@ class OrganizationDetail extends Component {
 
   async saveData() {
     try {
-      let url = '/app/organizations/rules/' + this.props.match.params.uuid
+      let url = '/app/rules'
       let res = api.post(url, {
         ...this.state.rules
       })
       if (res) {
+        this.setState({unsaved: false})
         return true
       } else {
         return false
@@ -180,6 +201,14 @@ class OrganizationDetail extends Component {
 
   render () {
     const { organization } = this.state
+
+    if (this.state.notFound) {
+      return <NotFound msg='esta organización' />
+    }
+
+    if (!organization.uuid || !this.state.loaded) {
+      return <Loader />
+    }
 
     this.tabs = [
       {
@@ -257,7 +286,12 @@ class OrganizationDetail extends Component {
         reload: true,
         disabled: !(this.state.currentStep === 1),
         content: (
-          <Rules rules={this.state.rules} setStep={(step) => this.setStep(step)}/>
+          <Rules
+            rules={this.state.rules}
+            setStep={(step) => this.setStep(step)}
+            save={() => { this.saveData() }}
+            unsaved={this.state.unsaved}
+          />
         )
       }, 
       {
@@ -312,18 +346,7 @@ class OrganizationDetail extends Component {
             />
         )
       }
-      
     ]
-
-    if (this.state.notFound) {
-      return <NotFound msg='esta organización' />
-    }
-
-    
-
-    if (!organization.uuid) {
-      return <Loader />
-    }
 
     return (
      

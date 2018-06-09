@@ -59,7 +59,7 @@ rulesSchema.methods.toPublic = function () {
     periods: this.periods,
     isCurrent: this.isCurrent
   }
-  if (this.organization) { data.organization = this.organization.toPublic() }
+  // if (this.organization) { data.organization = this.organization.toPublic() }
   return data
 }
 
@@ -87,7 +87,7 @@ rulesSchema.methods.toAdmin = function () {
     periods: this.periods,
     isCurrent: this.isCurrent
   }
-  if (this.organization) { data.organization = this.organization.toPublic() }
+  // if (this.organization) { data.organization = this.organization.toPublic() }
   return data
 }
 
