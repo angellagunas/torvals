@@ -10,6 +10,7 @@ const {
   Period,
   Cycle
 } = require('models')
+const ObjectId = require('mongodb').ObjectID
 
 module.exports = new Route({
   method: 'get',
@@ -53,7 +54,7 @@ module.exports = new Route({
     }]
 
     let catalogs = await DataSet.aggregate(statement)
-    catalogs = catalogs[0].catalogs
+    if (catalogs) { catalogs = catalogs[0].catalogs }
 
     var filters = {}
     for (var filter in ctx.request.query) {
@@ -111,7 +112,7 @@ module.exports = new Route({
       })
 
       if (isCatalog) {
-        filters['apiData.' + filter + '_id'] = ctx.request.query[filter]
+        filters['catalogItems'] = ObjectId(ctx.request.query[filter])
         continue
       }
 
