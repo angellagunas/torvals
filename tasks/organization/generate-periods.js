@@ -21,7 +21,7 @@ const task = new Task(
       throw new Error('The periodDuration should be a positive integer')
     }
 
-    if (!(['M', 'w', 'd', 'y'].indexOf(organization.rules.period) >= 0)){
+    if (!(['M', 'w', 'd', 'y'].indexOf(organization.rules.period) >= 0)) {
       throw new Error('The given period has a invalid format')
     }
 
@@ -29,8 +29,8 @@ const task = new Task(
     const period = organization.rules.period
     const takeStart = organization.rules.takeStart
     await Period.deleteMany({organization: organization._id})
-    var startDate = moment(moment(cycles[0].dateStart).utc().format('YYYY-MM-DD'))
-    var endDate = moment(moment(cycles[cycles.length - 1].dateEnd).utc().format('YYYY-MM-DD'))
+    var startDate = moment.utc(moment(cycles[0].dateStart).utc())
+    var endDate = moment.utc(moment(cycles[cycles.length - 1].dateEnd).utc())
     var currentEndDate
     var periodNumber
     var lastCycle

@@ -53,7 +53,7 @@ module.exports = new Route({
     }
 
     if (
-      currentRole.slug === 'consultor'
+      currentRole.slug === 'supervisor'
     ) {
       var groups = user.groups
       if (!filters['salesCenter']) {
