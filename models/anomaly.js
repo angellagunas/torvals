@@ -22,7 +22,8 @@ const anomalySchema = new Schema({
   apiData: {type: Schema.Types.Mixed},
   data: {type: Schema.Types.Mixed},
   cycle: { type: Schema.Types.ObjectId, ref: 'Cycle' },
-  period: { type: Schema.Types.ObjectId, ref: 'Period' }
+  period: { type: Schema.Types.ObjectId, ref: 'Period' },
+  catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }]
 }, { usePushEach: true })
 
 anomalySchema.plugin(dataTables)
@@ -38,7 +39,8 @@ anomalySchema.methods.toPublic = function () {
     organization: this.organization,
     semanaBimbo: this.semanaBimbo,
     date: this.date,
-    type: this.type
+    type: this.type,
+    catalogItems: this.catalogItems
   }
 }
 
@@ -53,11 +55,12 @@ anomalySchema.methods.toAdmin = function () {
     organization: this.organization,
     semanaBimbo: this.semanaBimbo,
     date: this.date,
-    type: this.type
+    type: this.type,
+    catalogItems: this.catalogItems
   }
 }
 
-anomalySchema.index({ externalId: 1, dataset: 1}, {background: true})
+anomalySchema.index({ externalId: 1, dataset: 1 }, { background: true })
 anomalySchema.set('autoIndex', true)
 
 module.exports = mongoose.model('Anomaly', anomalySchema)

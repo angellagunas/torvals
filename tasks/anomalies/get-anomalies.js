@@ -66,7 +66,8 @@ const task = new Task(
           apiData: dataRow.apiData,
           period: dataRow.period,
           cycle: dataRow.cycle,
-          data: dataRow.data
+          data: dataRow.data,
+          catalogItems: dataRow.catalogItems
         })
 
         deleteBulk.push({
