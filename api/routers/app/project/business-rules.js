@@ -18,8 +18,7 @@ module.exports = new Route({
     }
     const project = await Project.findOne({
       'uuid': data.uuid,
-      'isDeleted': false,
-      status: 'updating-rules'
+      'isDeleted': false
     }).populate('mainDataset')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
