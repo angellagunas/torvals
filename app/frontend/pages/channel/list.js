@@ -12,7 +12,7 @@ export default ListPage({
   title: 'Canales',
   icon: 'filter',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor, supervisor',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Canal',
   create: true,
