@@ -1,32 +1,37 @@
-// node tasks/organization/append-cycles-periods.js --uuid --cycles
+// node tasks/organization/append-cycles-periods.js --uuid --cycles --rule
 require('../../config')
 require('lib/databases/mongo')
 
 const moment = require('moment')
 const Task = require('lib/task')
-const { Organization, Cycle, Period } = require('models')
+const { Organization, Cycle, Period, Rule } = require('models')
 
 const task = new Task(
   async function (argv) {
     if (!argv.uuid || !argv.cycles) {
       throw new Error('You need to provide an organization')
     }
-    const organization = await Organization.findOne({uuid: argv.uuid})
-    const {
-      cycleDuration,
-      cycle,
-      takeStart,
-      periodDuration,
-      period
-    } = organization.rules
 
-    const cycles = await Cycle
-      .findOne({
-        organization: organization._id,
-        isDeleted: false
-      })
-      .sort({ dateStart: -1 })
-    if (!cycles) throw new Error('Cycles unavailable')
+    const organization = await Organization.findOne({uuid: argv.uuid})
+
+    let rule = await Rule.findOne({uuid: argv.rule})
+    if (!rule) {
+      throw new Error('Business rules not found')
+    }
+
+    const cycleDuration = rule.cycleDuration
+    const cycle = rule.cycle
+    const takeStart = rule.takeStart
+    const periodDuration = rule.periodDuration
+    const period = rule.period
+
+    const cycles = await Cycle.findOne({
+      organization: organization._id,
+      isDeleted: false,
+      rule: rule._id
+    }).sort({dateStart: -1})
+
+    if (!cycles) { throw new Error('Cycles unavailable') }
 
     const totalToAdd = argv.cycles
     let cycleNumber = cycles.cycle
@@ -56,23 +61,25 @@ const task = new Task(
         organization: organization._id,
         dateStart: startDate,
         dateEnd: endDate,
-        cycle: cycleNumber
+        cycle: cycleNumber,
+        rule: rule._id
       })
 
       previousYear = endYear
       startDate = moment(endDate).utc().add(1, 'd')
     }
 
-    const periods = await Period
-      .findOne({
-        organization: organization._id,
-        isDeleted: false
-      })
-      .sort({ dateStart: -1 })
+    const periods = await Period.findOne({
+      organization: organization._id,
+      isDeleted: false,
+      rule: rule._id
+    }).sort({dateStart: -1})
+
     startDate = moment(periods.dateEnd).utc().add(1, 'd')
     let periodNumber
     let lastCycle
     let currentEndDate
+
     do {
       currentEndDate = moment(startDate).utc().add(periodDuration, period)
       currentEndDate = moment(currentEndDate).utc().subtract(1, 'd')
@@ -86,7 +93,8 @@ const task = new Task(
           dateEnd: { $gte: currentEndDate }
         }],
         organization: organization._id,
-        isDeleted: false
+        isDeleted: false,
+        rule: rule._id
       })
 
       if (cyclesBetween.length > 0) {
@@ -108,7 +116,8 @@ const task = new Task(
           dateStart: startDate,
           dateEnd: currentEndDate,
           cycle: cycle,
-          period: periodNumber++
+          period: periodNumber++,
+          rule: rule._id
         })
 
         lastCycle = cycle

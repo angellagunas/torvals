@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
-const { Period, Cycle } = require('models')
+const { Period, Cycle, Rule } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -10,15 +10,18 @@ module.exports = new Route({
     var data = ctx.request.body
 
     const period = await Period.findOne({uuid: periodUuid, isDeleted: false}).populate('organization cycle')
-
     ctx.assert(period, 404, 'Periodo no encontrado')
+
+    const rule = await Rule.findOne({_id: period.rule})
+    ctx.assert(rule, 404, 'Regla de negocios no encontrada')
+
     var startDate = moment(data.startDate).utc().format('YYYY-MM-DD 00:00')
     var endDate = moment(data.endDate).utc().format('YYYY-MM-DD 00:00')
     var periodStartDate = moment(period.dateStart).utc().format('YYYY-MM-DD 00:00')
     var periodEndDate = moment(period.dateEnd).utc().format('YYYY-MM-DD 00:00')
-    const takeStart = period.organization.rules.takeStart
+    const takeStart = rule.takeStart
 
-    const periodString = period.organization.rules.period
+    const periodString = rule.period
 
     let halfPeriod
     let halfPeriodDuration
@@ -43,6 +46,20 @@ module.exports = new Route({
       ctx.throw(422, 'La fechas no se pueden recorrer más de la mitad del periodo')
     }
 
+    let previousPeriod = await Period.findOne({
+      rule: rule._id,
+      dateEnd: {$lte: periodStartDate},
+      organization: period.organization._id,
+      isDeleted: false
+    }).sort({dateEnd: -1})
+
+    let nextPeriod = await Period.findOne({
+      rule: rule._id,
+      dateStart: {$gte: periodEndDate},
+      organization: period.organization._id,
+      isDeleted: false
+    }).sort({dateEnd: 1})
+
     period.set({
       dateStart: startDate,
       dateEnd: endDate
@@ -53,28 +70,21 @@ module.exports = new Route({
 
     if (startDate !== periodStartDate) {
       let newEndPreviousPeriod = moment(startDate).utc().subtract(1, 'd').format('YYYY-MM-DD 00:00')
-      const previousPeriod = await Period.findOneAndUpdate({
-        period: period.period - 1,
-        cycle: period.cycle,
-        organization: period.organization._id,
-        isDeleted: false
-      }, {
+      previousPeriod.set({
         dateEnd: newEndPreviousPeriod
       })
+      previousPeriod.save()
+
       if (previousPeriod) { modifiedCycles.add(previousPeriod.cycle) }
       modifiedCycles.add(period.cycle)
     }
 
     if (endDate !== periodEndDate) {
       let newStartNextPeriod = moment(endDate).utc().add(1, 'd').format('YYYY-MM-DD 00:00')
-      const nextPeriod = await Period.findOneAndUpdate({
-        period: period.period + 1,
-        cycle: period.cycle,
-        organization: period.organization._id,
-        isDeleted: false
-      }, {
+      nextPeriod.set({
         dateStart: newStartNextPeriod
       })
+      nextPeriod.save()
 
       if (nextPeriod) { modifiedCycles.add(nextPeriod._id) }
       modifiedCycles.add(period.cycle)
@@ -86,7 +96,8 @@ module.exports = new Route({
       const periodsCycles = await Period.find({
         cycle: {$in: modifiedCycles},
         organization: period.organization._id,
-        isDeleted: false
+        isDeleted: false,
+        rule: rule._id
       }).populate('cycle').sort({dateStart: 1})
 
       var lastCycle, periodNumber
@@ -98,7 +109,8 @@ module.exports = new Route({
         {dateStart: {$lte: periodStartDate}, dateEnd: {$gte: periodStartDate}},
         {dateStart: {$lte: periodEndDate}, dateEnd: {$gte: periodEndDate}}],
           organization: periodCycle.organization._id,
-          isDeleted: false
+          isDeleted: false,
+          rule: rule._id
         })
 
         if (cyclesBetween.length > 0) {

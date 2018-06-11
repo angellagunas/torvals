@@ -58,6 +58,7 @@ module.exports = new Route({
 
     cycles = await Cycle.find({
       organization: ctx.state.organization,
+      rule: dataset.rule,
       dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
     }).sort('-dateStart')
 

@@ -13,16 +13,23 @@ module.exports = new Route({
   handler: async function (ctx) {
     var data = ctx.request.body
 
-    const rule = await Rule.findOne({organization: ctx.state.organization._id}).sort({dateCreated: -1})
+    const rule = await Rule.findOne({
+      organization: ctx.state.organization._id,
+      isCurrent: true,
+      isDeleted: false
+    })
+    ctx.assert(rule, 422, 'No hay Reglas de negocio definidas')
 
     const project = await Project.create({
       name: data.name,
       description: data.description,
       organization: ctx.state.organization._id,
       adjustment: data.adjustment,
-      createdBy: ctx.state.user
-      // rule: rule._id
+      createdBy: ctx.state.user,
+      rule: rule
     })
+
+    project.rule = rule
 
     ctx.body = {
       data: project

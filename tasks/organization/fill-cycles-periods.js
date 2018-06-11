@@ -7,12 +7,13 @@ const moment = require('moment')
 const Task = require('lib/task')
 const generatePeriods = require('tasks/organization/generate-periods')
 
-const { Organization, Cycle } = require('models')
+const { Organization, Cycle, Rule } = require('models')
 
 const task = new Task(
   async function (argv) {
-    const {
+    let {
       uuid,
+      rule,
       dateMin,
       dateMax
     } = argv
@@ -24,13 +25,18 @@ const task = new Task(
     }
 
     const organization = await Organization.findOne({ uuid: uuid })
+    rule = await Rule.findOne({uuid: rule})
+    if (!rule) {
+      throw new Error('Business rules not found')
+    }
+
     const {
       cycle,
       cycleDuration,
       season,
       startDate,
       takeStart
-    } = organization.rules
+    } = rule
 
     const dateDiff = moment(startDate).utc().diff(moment(dateMin).utc(), 'years')
     const newEndDate = moment(dateMax).add(1, cycle)
@@ -71,21 +77,35 @@ const task = new Task(
         cycleNumber++
       }
 
-      await Cycle.update({
-        cycle: cycleNumber,
+      let cycleObj = await Cycle.findOne({
         dateStart: newStartDate,
         dateEnd: endDate,
         isDeleted: false,
-        organization: organization._id
-      }, {}, {
-        upsert: true,
-        setDefaultsOnInsert: true
+        organization: organization._id,
+        rule: rule._id
       })
+
+      if (cycleObj) {
+        cycleObj.set({
+          cycle: cycleNumber
+        })
+
+        await cycleObj.save()
+      } else {
+        await Cycle.create({
+          cycle: cycleNumber,
+          dateStart: newStartDate,
+          dateEnd: endDate,
+          isDeleted: false,
+          organization: organization._id,
+          rule: rule._id
+        })
+      }
 
       previousYear = endYear
       newStartDate = moment(endDate).utc().add(1, 'd')
     }
-    await generatePeriods.run({uuid: organization.uuid})
+    await generatePeriods.run({uuid: organization.uuid, rule: rule.uuid})
     return true
   }
 )

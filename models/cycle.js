@@ -39,20 +39,22 @@ cycleSchema.methods.toAdmin = function () {
   }
 }
 
-cycleSchema.statics.getCurrent = async function(organization) {
+cycleSchema.statics.getCurrent = async function (organization, rule) {
   const today = moment().format()
   return this.findOne({
     organization: organization,
+    rule: rule,
     dateStart: { $lte: today },
     dateEnd: { $gte: today },
     isDeleted: false
   })
 }
 
-cycleSchema.statics.getAvailable = async function(organization, cyclesAvailable) {
-  const currentCycle = await this.getCurrent(organization)
+cycleSchema.statics.getAvailable = async function (organization, rule, cyclesAvailable) {
+  const currentCycle = await this.getCurrent(organization, rule)
   const cycles = await this.find({
     organization: organization,
+    rule: rule,
     dateStart: { $gte: currentCycle.dateStart },
     isDeleted: false
   }).sort({
@@ -61,15 +63,18 @@ cycleSchema.statics.getAvailable = async function(organization, cyclesAvailable)
   return cycles
 }
 
-cycleSchema.statics.getBetweenDates = async function(organization, minDate, maxDate) {
+cycleSchema.statics.getBetweenDates = async function (organization, rule, minDate, maxDate) {
   const firstCycle = await this.findOne({
     organization: organization,
+    rule: rule,
     isDeleted: false,
     dateStart: { $lte: minDate },
     dateEnd: { $gte: minDate }
   })
+
   const cycles = await this.find({
     organization: organization,
+    rule: rule,
     dateStart: {
       $gte: firstCycle.dateStart,
       $lte: maxDate

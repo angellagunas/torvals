@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 const moment = require('moment')
 
 const Task = require('lib/task')
-const { Organization } = require('models')
+const { Organization, Rule } = require('models')
 
 const task = new Task(async function (argv) {
   console.log(`Start ==>  ${moment().format()}`)
@@ -13,30 +13,43 @@ const task = new Task(async function (argv) {
   console.log('Fetching Organizations...')
   const organizations = await Organization.find({})
 
-  for (let org of organizations) {
-    org.set({
-      rules: {
-        startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),
-        cycleDuration: 1,
-        cycle: 'M',
-        period: 'w',
-        periodDuration: 1,
-        season: 12,
-        cyclesAvailable: 6,
-        takeStart: true,
-        consolidation: 30,
-        forecastCreation: 12,
-        rangeAdjustmentRequest: 24,
-        rangeAdjustment: 18,
-        salesUpload: 6,
-        catalogs: ['Producto', 'Centro de venta', 'Canal']
+  let rules = {
+    startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),
+    cycleDuration: 1,
+    cycle: 'M',
+    period: 'w',
+    periodDuration: 1,
+    season: 12,
+    cyclesAvailable: 6,
+    takeStart: true,
+    consolidation: 30,
+    forecastCreation: 12,
+    rangeAdjustmentRequest: 24,
+    rangeAdjustment: 18,
+    salesUpload: 6,
+    catalogs: [
+      {
+        name: 'Producto',
+        slug: 'producto'
+      }, {
+        name: 'Centro de venta',
+        slug: 'centro-de-venta'
+      }, {
+        name: 'Canal',
+        slug: 'canal'
       }
-    })
-
-    await org.save()
+    ],
+    ranges: []
   }
 
-  console.log(`${bulkOps.length} ops ==> ${moment().format()}`)
+  for (let org of organizations) {
+    await Rule.create({
+      ...rules,
+      organization: org._id,
+      isCurrent: true
+    })
+  }
+
   console.log(`End ==>  ${moment().format()}`)
 
   return true

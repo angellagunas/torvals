@@ -42,7 +42,7 @@ const datasetRowSchema = new Schema({
     channelExternalId: { type: String },
     salesCenterExternalId: { type: String }
   },
-  catalogData: { type: Schema.Types. Mixed },
+  catalogData: { type: Schema.Types.Mixed },
   apiData: { type: Schema.Types.Mixed },
 
   updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },

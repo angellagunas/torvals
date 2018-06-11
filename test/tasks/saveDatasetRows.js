@@ -2,7 +2,7 @@
 require('co-mocha')
 
 const { assert, expect } = require('chai')
-const { Channel, Product, SalesCenter, DataSetRow } = require('models')
+const { Channel, Product, SalesCenter, DataSetRow, CatalogItem } = require('models')
 const {
   clearDatabase,
   createCycles,
@@ -36,7 +36,19 @@ describe('Save datasets rows', () => {
         period: 'M',
         periodDuration: 1,
         season: 12,
-        cyclesAvailable: 6
+        cyclesAvailable:6,
+        catalogs: [
+          "producto",
+          "marca",
+          "modelo"
+        ],
+        ranges: [0, 0, 0, 0, 0, 0],
+        takeStart: true,
+        consolidation: 26,
+        forecastCreation: 1,
+        rangeAdjustment: 1,
+        rangeAdjustmentRequest: 1,
+        salesUpload : 1
       }})
 
       await createCycles({organization: org._id})
@@ -74,9 +86,9 @@ describe('Save datasets rows', () => {
 
       const rows = await DataSetRow.find({dataset: dataset._id})
 
-      for (row of rows) {
-        assert.exists(row.cycle)
-        assert.exists(row.period)
+      for(row of rows){
+        assert.exists(row.catalogItems)
+        expect(row.catalogItems.length).to.be.greaterThan(0);
       }
     })
   })

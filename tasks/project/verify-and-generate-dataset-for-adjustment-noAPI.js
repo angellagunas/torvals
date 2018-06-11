@@ -24,9 +24,8 @@ const task = new Task(async function (argv) {
   for (var project of projects) {
     console.log(`Verifying status of project ${project.name} ...`)
     var projectDataset = project.activeDataset
-
     if (!projectDataset) {
-      await project.populate('datasets.dataset').execPopulate()
+      await project.populate('datasets[0].dataset').execPopulate()
       projectDataset = project.datasets[0].dataset
     }
 
