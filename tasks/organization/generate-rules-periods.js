@@ -32,8 +32,8 @@ const task = new Task(
     const period = rules.period
     const takeStart = rules.takeStart
     await Period.deleteMany({ rule: rules._id})
-    let startDate = moment(moment(cycles[0].dateStart).utc().format('YYYY-MM-DD'))
-    let endDate = moment(moment(cycles[cycles.length - 1].dateEnd).utc().format('YYYY-MM-DD'))
+    let startDate = moment(cycles[0].dateStart).utc()
+    let endDate = moment(cycles[cycles.length - 1].dateEnd).utc()
     let currentEndDate
     let periodNumber
     let lastCycle
@@ -56,7 +56,9 @@ const task = new Task(
       if (cyclesBetween.length > 0) {
         let cycle
         if (cyclesBetween.length > 1) {
-          cycle = (takeStart) ? cyclesBetween[cyclesBetween.length - 1]._id : cyclesBetween[0]._id
+          cycle = (takeStart)
+            ? cyclesBetween[cyclesBetween.length - 1]._id
+            : cyclesBetween[0]._id
         } else {
           cycle = cyclesBetween[0]._id
         }

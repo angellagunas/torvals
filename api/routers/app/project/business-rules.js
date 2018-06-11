@@ -1,5 +1,5 @@
 const lov = require('lov')
-const processDataset = require('tasks/dataset/process/process-dataset')
+const cloneMainDataset = require('tasks/project/clone-main-dataset')
 const Route = require('lib/router/route')
 
 const { Project } = require('models')
@@ -23,14 +23,9 @@ module.exports = new Route({
     }).populate('mainDataset')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
-    await processDataset.run({
-      uuid: project.mainDataset.uuid
+    await cloneMainDataset.run({
+      uuid: project.uuid
     })
-
-    project.set({
-      status: 'ready'
-    })
-    project.save()
 
     ctx.body = {
       data: project

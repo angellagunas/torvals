@@ -1,4 +1,4 @@
-// node tasks/project/update-business-rules.js --uuid uuid
+// node tasks/project/update-business-rules.js --uuid uuid --batchSize
 require('../../config')
 require('lib/databases/mongo')
 const Logger = require('lib/utils/logger')
@@ -12,7 +12,7 @@ const { Project, DataSet, DataSetRow } = require('models')
 
 const task = new Task(
   async function (argv) {
-    const log = new Logger('update-business-rules')
+    const log = new Logger('clone-main-dataset')
 
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
@@ -88,22 +88,26 @@ const task = new Task(
     }
 
     auxDataset.set({
-      status: 'ready',
+      status: 'configuring',
       isMain: true
     })
-    auxDataset.save()
+    await auxDataset.save()
 
     project.mainDataset.set({
       status: 'ready',
       isMain: false
     })
-    project.mainDataset.save()
+    await project.mainDataset.save()
 
     project.set({
       mainDataset: auxDataset._id,
       status: 'updating-rules'
     })
-    project.save()
+    project.datasets.push({
+      dataset: auxDataset,
+      columns: []
+    })
+    await project.save()
 
     return true
   },

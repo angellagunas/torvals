@@ -1,4 +1,4 @@
-// node tasks/organization/generate-cycles.js --uuid --rule: ID --dateMin --dateMax
+// node tasks/organization/generate-cycles.js --uuid uuid --rule uuid --dateMin --dateMax
 require('../../config')
 require('lib/databases/mongo')
 
@@ -37,16 +37,6 @@ const task = new Task(
       startDate,
       takeStart
     } = rule
-
-    // STILL WORKING?
-    if (rule !== null) {
-      const rules = await Rule.findOne({ _id: rule })
-      cycle = rules.cycle
-      cycleDuration = rules.cycleDuration
-      season = rules.season
-      startDate = rules.startDate
-      takeStart = rules.takeStart
-    }
 
     const dateDiff = moment(startDate).utc().diff(moment(dateMin).utc(), 'years')
     const newEndDate = moment(dateMax).add(1, cycle)
@@ -93,9 +83,6 @@ const task = new Task(
         isDeleted: false,
         organization: organization._id,
         rule: rule._id
-      }, {}, {
-        upsert: true,
-        setDefaultsOnInsert: true
       })
 
       if (cycleObj) {
@@ -119,11 +106,7 @@ const task = new Task(
       newStartDate = moment(endDate).utc().add(1, 'd')
     }
 
-    if (rule !== null) {
-      await generateRulesPeriods.run({ id: rule })
-    } else {
-      await generatePeriods.run({ uuid: organization.uuid })
-    }
+    await generateRulesPeriods.run({ id: rule })
     return true
   }
 )
