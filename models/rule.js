@@ -22,10 +22,15 @@ const rulesSchema = new Schema({
   rangeAdjustment: {type: Number},
   salesUpload: {type: Number},
   ranges: [{type: Number}],
-  catalogs: [{ type: String }],
+  catalogs: [{
+    name: { type: String },
+    slug: { type: String }
+  }],
   organization: {type: Schema.Types.ObjectId, ref: 'Organization'},
   cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
-  periods: [{type: Schema.Types.ObjectId, ref: 'Period'}]
+  periods: [{type: Schema.Types.ObjectId, ref: 'Period'}],
+  isCurrent: {type: Boolean, default: true},
+  version: {type: Number}
 }, { usePushEach: true })
 
 rulesSchema.plugin(dataTables)
@@ -49,9 +54,12 @@ rulesSchema.methods.toPublic = function () {
     rangeAdjustment: this.rangeAdjustment,
     salesUpload: this.salesUpload,
     ranges: this.ranges,
-    catalogs: this.catalogs
+    catalogs: this.catalogs,
+    cycles: this.cycles,
+    periods: this.periods,
+    isCurrent: this.isCurrent
   }
-  if (this.organization) { data.organization = this.organization.toPublic() }
+  // if (this.organization) { data.organization = this.organization.toPublic() }
   return data
 }
 
@@ -74,9 +82,12 @@ rulesSchema.methods.toAdmin = function () {
     rangeAdjustment: this.rangeAdjustment,
     salesUpload: this.salesUpload,
     ranges: this.ranges,
-    catalogs: this.catalogs
+    catalogs: this.catalogs,
+    cycles: this.cycles,
+    periods: this.periods,
+    isCurrent: this.isCurrent
   }
-  if (this.organization) { data.organization = this.organization.toPublic() }
+  // if (this.organization) { data.organization = this.organization.toPublic() }
   return data
 }
 

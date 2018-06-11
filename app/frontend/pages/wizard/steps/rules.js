@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import moment from 'moment'
+import { Prompt } from 'react-router-dom'
+
 import DeadLines from './deadlines'
 
 const times = {
@@ -31,6 +33,12 @@ class Rules extends Component {
     let rules = this.props.rules
     return (
       <div className='section pad-sides has-20-margin-top'>
+        <Prompt
+          when={this.props.unsaved}
+          message={location => (
+            `Hay cambios a las reglas de negocio sin aplicar, ¿estás seguro de querer salir de esta página?`
+          )}
+        />
         <h1 className='title is-5'>Reglas de la organización</h1>
         <div className='columns is-centered'>
           <div className='column'>
@@ -146,7 +154,7 @@ class Rules extends Component {
                         {this.props.rules.catalogs.map((item, key) => {
                           return (
                             <div key={key} className='tag is-capitalized has-text-weight-semibold'>
-                              {item.replace(/-/g, ' ')}
+                              {item.name}
                             </div>
                           )
                         })}
@@ -157,6 +165,18 @@ class Rules extends Component {
                   <div className='column'>
                     <div className='is-centered-content'>
                       <DeadLines rules={rules} hideInputs />
+                    </div>
+                  </div>
+                </div>
+                <div className={this.props.unsaved ? 'columns' : 'columns is-hidden'}>
+                  <div className='column'>
+                    <div className='has-text-centered' style={{marginTop: '2rem'}}>
+                      <button
+                        className='button is-medium is-success'
+                        onClick={this.props.save}
+                      >
+                        Aplicar cambios
+                      </button>
                     </div>
                   </div>
                 </div>

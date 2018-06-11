@@ -22,7 +22,9 @@ const task = new Task(
     log.call('Processing Dataset...')
     log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('organization')
+    const dataset = await DataSet
+      .findOne({uuid: argv.uuid})
+      .populate('organization rule')
     const organization = dataset.organization
 
     if (!dataset) {
@@ -64,9 +66,9 @@ const task = new Task(
       channelsObj['name'] = `$apiData.${channelName.name}`
     }
 
-    for (let catalog of organization.rules.catalogs) {
-      name = dataset.getCatalogItemColumn(`is_${catalog}_name`)
-      idStr = dataset.getCatalogItemColumn(`is_${catalog}_id`)
+    for (let catalog of dataset.rule.catalogs) {
+      name = dataset.getCatalogItemColumn(`is_${catalog.slug}_name`)
+      idStr = dataset.getCatalogItemColumn(`is_${catalog.slug}_id`)
 
       catalogObj = {
         _id: `$apiData.${idStr.name}`
@@ -76,7 +78,7 @@ const task = new Task(
         catalogObj['name'] = `$apiData.${name.name}`
       }
 
-      catalogsObj[catalog] = {
+      catalogsObj[catalog.slug] = {
         '$addToSet': catalogObj
       }
     }
@@ -145,8 +147,8 @@ const task = new Task(
       }
     }
 
-    for (let catalog of organization.rules.catalogs) {
-      rowData[catalog] = rows[0][catalog]
+    for (let catalog of dataset.rule.catalogs) {
+      rowData[catalog.slug] = rows[0][catalog.slug]
     }
 
     log.call('Obtaining max and min dates ...')
@@ -165,24 +167,36 @@ const task = new Task(
     ]
 
     rows = await DataSetRow.aggregate(statement)
+
     maxDate = moment(rows[0].max).utc().format('YYYY-MM-DD')
     minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
 
     await fillCyclesPeriods.run({
       uuid: dataset.organization.uuid,
+      rule: dataset.rule.uuid,
       dateMin: minDate,
       dateMax: maxDate
     })
 
     log.call('Obtaining cycles ...')
-    let cycles = await Cycle.getBetweenDates(dataset.organization._id, minDate, maxDate)
+    let cycles = await Cycle.getBetweenDates(
+      dataset.organization._id,
+      dataset.rule._id,
+      minDate,
+      maxDate
+    )
 
     cycles = cycles.map(item => {
       return item._id
     })
 
     log.call('Obtaining periods...')
-    let periods = await Period.getBetweenDates(dataset.organization._id, minDate, maxDate)
+    let periods = await Period.getBetweenDates(
+      dataset.organization._id,
+      dataset.rule._id,
+      minDate,
+      maxDate
+    )
 
     periods = periods.map(item => {
       return item._id

@@ -10,6 +10,7 @@ const {
   Period,
   Cycle
 } = require('models')
+const ObjectId = require('mongodb').ObjectID
 
 module.exports = new Route({
   method: 'get',
@@ -21,9 +22,39 @@ module.exports = new Route({
       'uuid': datasetId,
       'isDeleted': false,
       organization: ctx.state.organization
-    })
+    }).populate('catalogItems')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
+
+    let statement = [{
+      $match: {
+        uuid: dataset.uuid
+      }
+    },
+    {
+      $lookup: {
+        from: 'catalogitems',
+        localField: 'catalogItems',
+        foreignField: '_id',
+        as: 'catalogs'
+      }
+    },
+    {
+      $unwind: {
+        path: '$catalogs'
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        catalogs: {
+          $addToSet: '$catalogs.type'
+        }
+      }
+    }]
+
+    let catalogs = await DataSet.aggregate(statement)
+    if (catalogs) { catalogs = catalogs[0].catalogs }
 
     var filters = {}
     for (var filter in ctx.request.query) {
@@ -73,6 +104,15 @@ module.exports = new Route({
       if (filter === 'cycle') {
         const cycles = await Cycle.find({uuid: {$in: ctx.request.query[filter]}})
         filters['cycle'] = { $in: cycles.map(item => { return item._id }) }
+        continue
+      }
+
+      var isCatalog = catalogs.find(item => {
+        return item === filter
+      })
+
+      if (isCatalog) {
+        filters['catalogItems'] = ObjectId(ctx.request.query[filter])
         continue
       }
 

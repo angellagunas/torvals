@@ -187,7 +187,7 @@ module.exports = new Route({
         await dataset.save()
       })
       .on('error', function (err) {
-        console.log(err)
+        console.log('ERROR', err)
       })
     } else if (chunkNumber === totalChunks) {
       dataset.set({

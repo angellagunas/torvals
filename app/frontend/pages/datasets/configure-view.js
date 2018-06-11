@@ -8,6 +8,7 @@ class ConfigureViewDataset extends Component {
 
     this.state = {
       dataset: this.props.initialState,
+      rules: this.props.initialState.rule,
       formData: {
         columns: this.props.initialState.columns,
         groupings: this.props.initialState.groupings
@@ -36,18 +37,17 @@ class ConfigureViewDataset extends Component {
 
   getCatalogColumns () {
     let cols = []
-    let dataset = this.state.dataset
-    let org = dataset.organization
+    let rules = this.state.rules
 
-    for (let col of org.rules.catalogs) {
+    for (let col of rules.catalogs) {
       cols.push({
         id: {
-          label: `${s(col).replaceAll('-', ' ').capitalize().value()} Id *`,
-          name: `is_${col}_id`
+          label: `${col.name} Id *`,
+          name: `is_${col.slug}_id`
         },
         name: {
-          label: `${s(col).replaceAll('-', ' ').capitalize().value()} Nombre`,
-          name: `is_${col}_name`
+          label: `${col.name} Nombre`,
+          name: `is_${col.slug}_name`
         }
       })
     }

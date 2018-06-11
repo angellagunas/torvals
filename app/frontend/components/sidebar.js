@@ -32,7 +32,7 @@ class Sidebar extends Component {
       activePath: '',
       collapsed: false,
       menuItems: [],
-      rules: tree.get('user').currentOrganization.rules || []
+      rules: tree.get('rule') || []
     }
     this.handleActiveLink = this.handleActiveLink.bind(this)
   }
@@ -43,19 +43,28 @@ class Sidebar extends Component {
     this.setState({ menuItems }, function () {
       this.handleActiveLink(activeItem)
     })
-  }
 
-  componentWillReceiveProps (nextProps) {
-    if (this.state.rules !== tree.get('user').currentOrganization.rules) {
+    var ruleCursor = tree.select('rule')
+
+    ruleCursor.on('update', () => {
       const activeItem = window.location.pathname.split('/').filter(String).join('')
       this.setState({
-        rules: tree.get('user').currentOrganization.rules
+        rules: tree.get('rule')
       }, () => {
         this.setState({
           menuItems: this.handleOpenDropdown(this.getMenuItems(), activeItem)
         })
       })
-    }
+    })
+  }
+
+  componentWillUnmount () {
+    var ruleCursor = tree.select('rule')
+
+    ruleCursor.on('update', () => {})
+  }
+
+  componentWillReceiveProps (nextProps) {
     if (this.state.collapsed !== nextProps.collapsed) {
       this.setState({
         collapsed: !this.state.collapsed
@@ -96,9 +105,9 @@ class Sidebar extends Component {
     return rules.catalogs.map(item => {
       let config =
         {
-          name: cleanName(item),
-          path: '/catalogs/' + item,
-          title: cleanName(item),
+          name: item.name,
+          path: '/catalogs/' + item.slug,
+          title: item.name,
           breadcrumbs: true,
           breadcrumbConfig: {
             path: [
@@ -108,38 +117,21 @@ class Sidebar extends Component {
                 current: false
               },
               {
-                path: '/catalogs/' + item,
+                path: '/catalogs/' + item.slug,
                 label: 'Catalogos',
                 current: true
               }
             ],
             align: 'left'
           },
-          branchName: item,
-          titleSingular: cleanName(item),
-          baseUrl: '/app/catalogItems/' + item,
-          detailUrl: '/catalogs/' + item
+          branchName: item.slug,
+          titleSingular: item.name,
+          baseUrl: '/app/catalogItems/' + item.slug,
+          detailUrl: '/catalogs/' + item.slug
         }
 
       return Catalogs.opts(config).asSidebarItem()
     })
-  }
-
-  getCatalogs () {
-    const org = tree.get('organization') || {}
-    return (org.rules || {}).catalogs || []
-  }
-
-  importItems () {
-    const catalogs = this.getCatalogs()
-    const items = []
-
-    if (catalogs.includes('usuario')) items.push(UsersImport.asSidebarItem())
-    if (catalogs.includes('centro_de_venta')) items.push(SalesCentersImport.asSidebarItem())
-    if (catalogs.includes('producto')) items.push(ProductsImport.asSidebarItem())
-    if (catalogs.includes('canal')) items.push(ChannelsImport.asSidebarItem())
-
-    return items
   }
 
   getMenuItems () {
@@ -185,7 +177,12 @@ class Sidebar extends Component {
           icon: 'file-o',
           to: '/import',
           roles: 'orgadmin, admin',
-          dropdown: this.importItems()
+          dropdown: [
+            UsersImport.asSidebarItem(),
+            SalesCentersImport.asSidebarItem(),
+            ProductsImport.asSidebarItem(),
+            ChannelsImport.asSidebarItem()
+          ]
         }
       ]
     }
