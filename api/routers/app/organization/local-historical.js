@@ -147,13 +147,13 @@ module.exports = new Route({
     start = moment(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').utc()
     end = moment(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').utc()
 
-    previousCycles = await Cycle.getBetweenDates(
+    previousPeriods = await Period.getBetweenDates(
       currentOrganization.organization._id,
       start.toDate(),
       end.toDate()
     )
-    matchPreviousSale['cycle'] = {
-      $in: previousCycles.map(item => { return item._id })
+    matchPreviousSale['period'] = {
+      $in: previousPeriods.map(item => { return item._id })
     }
 
     const key = {
@@ -192,10 +192,16 @@ module.exports = new Route({
 
     let responseData = await DataSetRow.aggregate(match)
     let previousSale = await DataSetRow.aggregate(matchPreviousSale)
+    previousSale = await Cycle.populate(previousSale, {
+      path: '_id.cycle'
+    })
+    previousSale = await Period.populate(previousSale, {
+      path: '_id.period'
+    })
 
     let previousSaleDict = {}
     for (let prev of previousSale) {
-      previousSaleDict[prev._id.period] = prev
+      previousSaleDict[`${prev._id.cycle.cycle}-${prev._id.period.period}`] = prev
     }
 
     let saleDict = {}
@@ -228,12 +234,12 @@ module.exports = new Route({
         totalSale += item.sale
       }
 
-      let lastDate = previousCycles.find(cycle => {
-        return moment(cycle.dateStart, 'YYYY-MM-DD').utc() === moment(date.dateStart, 'YYYY-MM-DD').subtract(1, 'years').utc()
+      let lastDate = previousPeriods.find(cycle => {
+        return cycle.period === date.period && cycle.cycle.cycle === date.cycle.cycle
       })
 
-      if (lastDate && previousSaleDict[lastDate.dateStart]) {
-        item.previousSale = previousSaleDict[lastDate.dateStart].sale
+      if (lastDate && previousSaleDict[`${lastDate.cycle.cycle}-${lastDate.period}`]) {
+        item.previousSale = previousSaleDict[`${lastDate.cycle.cycle}-${lastDate.period}`].sale
       }
 
       response.push(item)

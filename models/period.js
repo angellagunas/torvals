@@ -64,7 +64,7 @@ periodSchema.statics.getBetweenDates = async function(organization, minDate, max
     isDeleted: false
   }).sort({
     dateStart: 1
-  })
+  }).populate('cycle')
   return periods
 }
 
