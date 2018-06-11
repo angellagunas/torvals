@@ -64,7 +64,8 @@ const task = new Task(
           type: 'zero_sales',
           date: dataRow.data.forecastDate,
           apiData: dataRow.apiData,
-          data: dataRow.data
+          data: dataRow.data,
+          catalogItems: dataRow.catalogItems
         })
 
         deleteBulk.push({
