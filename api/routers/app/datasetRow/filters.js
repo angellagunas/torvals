@@ -75,11 +75,56 @@ module.exports = new Route({
     salesCenters = await SalesCenter.find({ _id: { $in: salesCenters }, ...filters })
     products = await Product.find({ _id: { $in: products } })
 
+    let statement = [
+      {
+        '$match': {
+          'uuid': dataset.uuid
+        }
+      },
+      {
+        '$unwind': {
+          'path': '$catalogItems'
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'catalogitems',
+          'localField': 'catalogItems',
+          'foreignField': '_id',
+          'as': 'catalogItem'
+        }
+      },
+      {
+        '$unwind': {
+          'path': '$catalogItem'
+        }
+      },
+      {
+        '$group': {
+          '_id': '$catalogItem.type',
+          'items': {
+            '$push': '$catalogItem'
+          }
+        }
+      }
+    ]
+
+    let catalogs = await DataSet.aggregate(statement)
+    let catalogsResponse = []
+
+    for (let catalog of catalogs) {
+      catalogsResponse[catalog._id] = []
+      for (let item of catalog.items) {
+        catalogsResponse[catalog._id].push(item)
+      }
+    }
+
     ctx.body = {
       cycles,
       channels,
       salesCenters,
-      products
+      products,
+      ...catalogsResponse
     }
   }
 })
