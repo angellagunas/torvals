@@ -10,6 +10,7 @@ const catalogItemSchema = new Schema({
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   isNewExternal: { type: Boolean, default: false },
   uuid: { type: String, default: v4 },
+  groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true, timestamps: { updatedAt: 'dateUpdated', createdAt: 'dateCreated' } })
 
@@ -21,7 +22,8 @@ catalogItemSchema.methods.toPublic = function () {
     type: this.type,
     name: this.name,
     externalId: this.externalId,
-    isNewExternal: this.isNewExternal
+    isNewExternal: this.isNewExternal,
+    groups: this.groups
   }
 
   if (this.organization) { data.organization = this.organization.toPublic() }
@@ -36,7 +38,8 @@ catalogItemSchema.methods.toAdmin = function () {
     name: this.name,
     externalId: this.externalId,
     isNewExternal: this.isNewExternal,
-    isDeleted: this.isDeleted
+    isDeleted: this.isDeleted,
+    groups: this.groups
   }
 
   if (this.organization) { data.organization = this.organization.toPublic() }
