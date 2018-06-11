@@ -1,6 +1,8 @@
 /* global describe, beforeEach, it */
 require('co-mocha')
 
+const moment = require('moment')
+
 const { Cycle } = require('models')
 const { assert, expect } = require('chai')
 const { clearDatabase, createUser, createOrganization } = require('../utils')
@@ -21,29 +23,43 @@ describe('Generate cycles task', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
       const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
+        startDate: '2018-01-01T00:00:00',
         cycleDuration: 1,
-        cycle: "M",
-        period:"M",
-        periodDuration:1,
+        cycle: 'M',
+        period: 'M',
+        periodDuration: 1,
         season: 12,
-        cyclesAvailable: 6
+        cyclesAvailable:6,
+        catalogs: [
+          "producto"
+        ],
+        ranges: [0, 0, 0, 0, 0, 0],
+        takeStart: true,
+        consolidation: 26,
+        forecastCreation: 1,
+        rangeAdjustment: 1,
+        rangeAdjustmentRequest: 1,
+        salesUpload : 1
       }})
 
       await generateCycles.run({uuid: org.uuid, isTest: true})
 
       const today = new Date()
 
-      lastCycleStartDate = new Date(
-        today.getFullYear(),
-        today.getMonth() + parseInt(org.rules.cyclesAvailable)
-      )
+      lastCycleStartDate = moment(
+        new Date(
+          today.getFullYear(),
+          today.getMonth() + parseInt(org.rules.cyclesAvailable)
+        )
+      ).utc().set({hour:0,minute:0,second:0,millisecond:0})
 
-      lastCycleEndDate = new Date(
-        today.getFullYear(),
-        today.getMonth() + 1 + parseInt(org.rules.cyclesAvailable),
-        0
-      )
+      lastCycleEndDate = moment(
+        new Date(
+          today.getFullYear(),
+          today.getMonth() + 1 + parseInt(org.rules.cyclesAvailable),
+          0
+        )
+      ).utc().set({hour:0,minute:0,second:0,millisecond:0})
 
       const expectedCycles = 12 + (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
       const cyclesForThisYear = (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
@@ -52,18 +68,20 @@ describe('Generate cycles task', () => {
 
       const firstCycle = await Cycle.findOne({
         organization: org._id,
-        dateStart: new Date("2017-01-01T06:00:00Z").toISOString()
+        dateStart: new Date("2017-01-01T00:00:00Z").toISOString()
       })
 
       const lastCycle = await Cycle.findOne({
         organization: org._id,
-        dateStart: lastCycleStartDate.toISOString()
+        dateStart: lastCycleStartDate.format()
       })
 
       expect(cyclesGenerated).equal(expectedCycles)
 
-      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2017-01-31T06:00:00Z").toISOString())
-      expect(new Date(lastCycle.dateEnd).toISOString()).equal(lastCycleEndDate.toISOString())
+      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2017-01-31T00:00:00Z").toISOString())
+      expect(
+        moment(new Date(lastCycle.dateEnd).toISOString()).utc().format()
+      ).equal(lastCycleEndDate.format())
     })
   })
 

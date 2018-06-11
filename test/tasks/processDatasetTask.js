@@ -29,7 +29,28 @@ describe('Process datasets', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await createOrganization()
+      const org = await createOrganization({rules: {
+        startDate: '2018-01-01T00:00:00',
+        cycleDuration: 1,
+        cycle: 'M',
+        period: 'M',
+        periodDuration: 1,
+        season: 12,
+        cyclesAvailable:6,
+        catalogs: [
+          "producto"
+        ],
+        ranges: [0, 0, 0, 0, 0, 0],
+        takeStart: true,
+        consolidation: 26,
+        forecastCreation: 1,
+        rangeAdjustment: 1,
+        rangeAdjustmentRequest: 1,
+        salesUpload : 1
+      }})
+
+      await createCycles({organization: org._id})
+      await generatePeriods.run({uuid: org.uuid})
 
       const project = await createProject({
         organization: org._id,
