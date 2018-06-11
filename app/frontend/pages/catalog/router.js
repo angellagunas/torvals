@@ -28,9 +28,9 @@ class CatalogRouter extends Component {
     return rules.catalogs.map(item => {
       let config =
       {
-        name: this.cleanName(item),
-        path: '/catalogs/' + item,
-        title: this.cleanName(item),
+        name: item.name,
+        path: '/catalogs/' + item.slug,
+        title: item.name,
         breadcrumbs: true,
         breadcrumbConfig: {
           path: [
@@ -40,32 +40,32 @@ class CatalogRouter extends Component {
               current: false
             },
             {
-              path: '/catalogs/' + item,
+              path: '/catalogs/' + item.slug,
               label: 'Catalogos',
               current: true
             },
             {
-              path: '/catalogs/' + item,
-              label: this.cleanName(item),
+              path: '/catalogs/' + item.slug,
+              label: item.name,
               current: true
             }
           ],
           align: 'left'
         },
-        branchName: item,
-        titleSingular: this.cleanName(item),
-        baseUrl: '/app/catalogItems/' + item,
-        detailUrl: '/catalogs/' + item
+        branchName: item.slug,
+        titleSingular: item.name,
+        baseUrl: '/app/catalogItems/' + item.slug,
+        detailUrl: '/catalogs/' + item.slug
       }
 
-      return Catalogs.opts(config).asRouterItemList(item)
+      return Catalogs.opts(config).asRouterItemList(item.slug)
     })
   }
   render () {
-    let user = tree.get('user')
-    if(user && user.currentOrganization){
+    let rule = tree.get('rule')
+    if(rule){
       return (
-        this.catalogs(user.currentOrganization.rules)
+        this.catalogs(rule)
       )
     }
     else return <Route component={NoMatch} />

@@ -585,8 +585,8 @@ class DataSetDetail extends Component {
                         </div>
                         <div className='media-content'>
                           Se ha generado un error. Por favor intenta borrar este dataset y generar otro.
-                      Si no se soluciona, contacta a un administrador.
-                          </div>
+                          Si no se soluciona, contacta a un administrador.
+                        </div>
                       </div>
                     </div>
                   </div>
