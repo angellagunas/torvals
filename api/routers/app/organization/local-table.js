@@ -1,6 +1,15 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
-const { Project, DataSetRow, Product, Channel, SalesCenter, Role, Cycle } = require('models')
+const {
+  CatalogItem,
+  Channel,
+  Cycle,
+  DataSetRow,
+  Product,
+  Project,
+  Role,
+  SalesCenter
+} = require('models')
 const redis = require('lib/redis')
 const crypto = require('crypto')
 const _ = require('lodash')
@@ -66,7 +75,7 @@ module.exports = new Route({
       console.log('Error retrieving the cache')
     }
 
-    const key = {product: '$product'}
+    const key = { product: '$product' }
     let initialMatch = {
       dataset: { $in: datasets }
     }
@@ -90,8 +99,19 @@ module.exports = new Route({
     }
 
     if (data.products) {
-      const products = await Product.find({ uuid: { $in: data.products } }).select({'_id': 1})
+      const products = await Product.find({
+        uuid: { $in: data.products }
+      }).select({'_id': 1})
       initialMatch['product'] = { $in: products.map(item => { return item._id }) }
+    }
+
+    if (data.catalogItems) {
+      const catalogItems = await CatalogItem.find({
+        uuid: { $in: data.catalogItems }
+      }).select({ '_id': 1 })
+      initialMatch['catalogItems'] = {
+        $in: catalogItems.map(item => { return item._id })
+      }
     }
 
     let matchPreviousSale = _.cloneDeep(initialMatch)

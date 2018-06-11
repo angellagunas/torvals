@@ -4,14 +4,15 @@ const moment = require('moment')
 const redis = require('lib/redis')
 const Route = require('lib/router/route')
 const {
-  Project,
-  DataSetRow,
+  CatalogItem,
   Channel,
-  SalesCenter,
-  Product,
-  Role,
   Cycle,
-  Period
+  DataSetRow,
+  Period,
+  Product,
+  Project,
+  Role,
+  SalesCenter
 } = require('models')
 
 const EXPIRATION = 60 * 60 * 24 * 4
@@ -106,8 +107,21 @@ module.exports = new Route({
     }
 
     if (data.products) {
-      const products = await Product.find({ uuid: { $in: data.products } }).select({'_id': 1})
-      initialMatch['product'] = { $in: products.map(item => { return item._id }) }
+      const products = await Product.find({
+        uuid: { $in: data.products }
+      }).select({'_id': 1})
+      initialMatch['product'] = {
+        $in: products.map(item => { return item._id })
+      }
+    }
+
+    if (data.catalogItems) {
+      const catalogItems = await CatalogItem.find({
+        uuid: { $in: data.catalogItems }
+      }).select({ '_id': 1 })
+      initialMatch['catalogItems'] = {
+        $in: catalogItems.map(item => { return item._id })
+      }
     }
 
     let matchPreviousSale = _.cloneDeep(initialMatch)
