@@ -22,7 +22,9 @@ const task = new Task(
     log.call('Processing Dataset...')
     log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('organization rule')
+    const dataset = await DataSet
+      .findOne({uuid: argv.uuid})
+      .populate('organization rule')
     const organization = dataset.organization
 
     if (!dataset) {

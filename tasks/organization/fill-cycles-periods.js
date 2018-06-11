@@ -1,11 +1,11 @@
-// node tasks/organization/generate-cycles.js --uuid --dateMin --dateMax
+// node tasks/organization/generate-cycles.js --uuid uuid --rule uuid --dateMin --dateMax
 require('../../config')
 require('lib/databases/mongo')
 
-const moment = require('moment')
-
-const Task = require('lib/task')
 const generatePeriods = require('tasks/organization/generate-periods')
+const generateRulesPeriods = require('tasks/organization/generate-rules-periods')
+const moment = require('moment')
+const Task = require('lib/task')
 
 const { Organization, Cycle, Rule } = require('models')
 
@@ -105,7 +105,8 @@ const task = new Task(
       previousYear = endYear
       newStartDate = moment(endDate).utc().add(1, 'd')
     }
-    await generatePeriods.run({uuid: organization.uuid, rule: rule.uuid})
+
+    await generateRulesPeriods.run({ id: rule })
     return true
   }
 )
