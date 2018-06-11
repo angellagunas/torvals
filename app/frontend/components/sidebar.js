@@ -10,13 +10,18 @@ import Projects from '../pages/projects/list'
 import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
 import Channels from '../pages/channel/list'
-import SelectOrg from '../pages/select-org'
 import Calendar from '../pages/calendar'
 import Prices from '../pages/prices/list'
 import UsersImport from '../pages/import/users'
 import SalesCentersImport from '../pages/import/sales-centers'
 import ChannelsImport from '../pages/import/channels'
 import ProductsImport from '../pages/import/products'
+import Catalogs from '../pages/catalog/list'
+
+const cleanName = (item) => {
+  let c = item.replace(/-/g, ' ')
+  return c.charAt(0).toUpperCase() + c.slice(1)
+}
 
 class Sidebar extends Component {
   constructor (props) {
@@ -26,7 +31,8 @@ class Sidebar extends Component {
       active: '',
       activePath: '',
       collapsed: false,
-      menuItems: []
+      menuItems: [],
+      rules: tree.get('user').currentOrganization.rules || []
     }
     this.handleActiveLink = this.handleActiveLink.bind(this)
   }
@@ -40,6 +46,16 @@ class Sidebar extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
+    if (this.state.rules !== tree.get('user').currentOrganization.rules) {
+      const activeItem = window.location.pathname.split('/').filter(String).join('')
+      this.setState({
+        rules: tree.get('user').currentOrganization.rules
+      }, () => {
+        this.setState({
+          menuItems: this.handleOpenDropdown(this.getMenuItems(), activeItem)
+        })
+      })
+    }
     if (this.state.collapsed !== nextProps.collapsed) {
       this.setState({
         collapsed: !this.state.collapsed
@@ -75,21 +91,43 @@ class Sidebar extends Component {
     return item
   }
 
+  catalogs () {
+    let rules = this.state.rules
+    return rules.catalogs.map(item => {
+      let config =
+        {
+          name: cleanName(item),
+          path: '/catalogs/' + item,
+          title: cleanName(item),
+          breadcrumbs: true,
+          breadcrumbConfig: {
+            path: [
+              {
+                path: '/',
+                label: 'Inicio',
+                current: false
+              },
+              {
+                path: '/catalogs/' + item,
+                label: 'Catalogos',
+                current: true
+              }
+            ],
+            align: 'left'
+          },
+          branchName: item,
+          titleSingular: cleanName(item),
+          baseUrl: '/app/catalogItems/' + item,
+          detailUrl: '/catalogs/' + item
+        }
+
+      return Catalogs.opts(config).asSidebarItem()
+    })
+  }
+
   getCatalogs () {
     const org = tree.get('organization') || {}
     return (org.rules || {}).catalogs || []
-  }
-
-  catalogItems () {
-    const catalogs = this.getCatalogs()
-    const items = []
-
-    if (catalogs.includes('precio')) items.push(Prices.asSidebarItem())
-    if (catalogs.includes('centro_de_venta')) items.push(SalesCenters.asSidebarItem())
-    if (catalogs.includes('producto')) items.push(Products.asSidebarItem())
-    if (catalogs.includes('canal')) items.push(Channels.asSidebarItem())
-
-    return items
   }
 
   importItems () {
@@ -134,7 +172,13 @@ class Sidebar extends Component {
           to: '/catalogs',
           roles: 'consultor, analyst, orgadmin, admin, manager-level-2, supervisor',
           opened: false,
-          dropdown: this.catalogItems()
+          dropdown: [
+            Prices.asSidebarItem(),
+            SalesCenters.asSidebarItem(),
+            Products.asSidebarItem(),
+            Channels.asSidebarItem(),
+            ...this.catalogs()
+          ]
         },
         {
           title: 'Cargar Datos',
@@ -177,6 +221,7 @@ class Sidebar extends Component {
       })
     })
   }
+
   handleToggle (index) {
     const menuItems = [...this.state.menuItems]
     menuItems[index].opened = !menuItems[index].opened
@@ -187,30 +232,7 @@ class Sidebar extends Component {
     const menuClass = classNames({
       'menu-collapsed': this.state.collapsed
     })
-    /* return (<div className='offcanvas column is-narrow is-paddingless'>
-      <aside className={menuClass}>
-        <ul className='menu-list'>
-          <SelectOrg collapsed={this.state.collapsed} />
-          {this.state.menuItems.map((item, index) => {
-            if (item) {
-              return <SidebarItem
-                title={item.title}
-                index={index}
-                status={item.opened}
-                collapsed={this.state.collapsed}
-                icon={item.icon}
-                to={item.to}
-                dropdown={item.dropdown}
-                roles={item.roles}
-                onClick={this.handleActiveLink}
-                dropdownOnClick={(i) => this.handleToggle(i)}
-                activeItem={this.state.active}
-                key={item.title.toLowerCase().replace(/\s/g, '')} />
-            }
-          })}
-        </ul>
-      </aside>
-    </div>) */
+
     return (
       <div className={'sidenav menu ' + menuClass}>
         <ul className='menu-list'>

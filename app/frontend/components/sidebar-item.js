@@ -119,7 +119,6 @@ class SidebarItem extends Component {
       dropdownItems = (<ul className={this.state.open ? '' : 'is-hidden'}>
         {dropdown.map((e, i) => {
           if (!this.testRoles(e.roles)) return null
-
           return (<li key={e.title.toLowerCase().replace(/\s/g, '')}>
             {this.getItemLink(e.to, e.icon, e.title, onClick, e.exact)}
           </li>)

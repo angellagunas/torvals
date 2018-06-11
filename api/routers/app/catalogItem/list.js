@@ -7,6 +7,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     const type = ctx.params.type
     var filters = {}
+
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
@@ -14,6 +15,8 @@ module.exports = new Route({
 
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
+      } else if (filter === 'general') {
+        continue
       } else {
         filters[filter] = ctx.request.query[filter]
       }
@@ -33,6 +36,6 @@ module.exports = new Route({
       return item.toPublic()
     })
 
-    ctx.body = catalogItem.data
+    ctx.body = catalogItem
   }
 })
