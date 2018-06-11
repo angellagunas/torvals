@@ -422,7 +422,7 @@ dataSetSchema.methods.processData = async function () {
           if (!cItem) {
             cItem = await CatalogItem.create({
               name: data['name'] ? data['name'] : 'Not identified',
-              externalId: data._id,
+              externalId: String(data._id),
               organization: this.organization,
               isNewExternal: true,
               type: catalog.slug

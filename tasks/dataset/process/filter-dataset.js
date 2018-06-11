@@ -91,7 +91,8 @@ const task = new Task(
           'cycle': row.cycle,
           'period': row.period,
           'data': row.data,
-          'apiData': row.apiData
+          'apiData': row.apiData,
+          'catalogItems': row.catalogItems
         }
         )
 
