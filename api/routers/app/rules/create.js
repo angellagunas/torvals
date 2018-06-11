@@ -8,8 +8,8 @@ module.exports = new Route({
   method: 'post',
   path: '/',
   handler: async function (ctx) {
-    var data = ctx.request.body
-    var organizationId = ctx.state.organization._id
+    let data = ctx.request.body
+    let organizationId = ctx.state.organization._id
 
     const org = await Organization.findOne({'_id': organizationId, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
@@ -24,11 +24,11 @@ module.exports = new Route({
 
     if (data.cycle !== 'M' && data.cycle !== 'd' && data.cycle !== 'y' && data.cycle !== 'w') { ctx.throw(422, 'Valor incorrecto para el ciclo') }
 
-    var startDate = moment(data.startDate).utc().format('YYYY-MM-DD')
-    var cycleDate = moment(startDate).utc().add(data.cycleDuration, data.cycle)
-    var periodDate = moment(startDate).utc().add(data.periodDuration, data.period)
-    var cycleDiff = moment.duration(cycleDate.diff(startDate)).asDays()
-    var periodDiff = moment.duration(periodDate.diff(startDate)).asDays()
+    let startDate = moment(data.startDate).utc().format('YYYY-MM-DD')
+    let cycleDate = moment(startDate).utc().add(data.cycleDuration, data.cycle)
+    let periodDate = moment(startDate).utc().add(data.periodDuration, data.period)
+    let cycleDiff = moment.duration(cycleDate.diff(startDate)).asDays()
+    let periodDiff = moment.duration(periodDate.diff(startDate)).asDays()
 
     if (cycleDiff < periodDiff) { ctx.throw(400, 'El ciclo no puede tener menor duración que el periodo') }
 
@@ -54,7 +54,7 @@ module.exports = new Route({
     let findProductsCatalog = data.catalogs.find(item => { return item.slug === 'producto' || item.slug === 'productos' })
     if (findProductsCatalog === undefined) { ctx.throw(422, 'Se debe de agregar un catálogo de productos') }
 
-    var previousRule = await Rule.findOne({isCurrent: true, organization: organizationId})
+    let previousRule = await Rule.findOne({isCurrent: true, organization: organizationId})
 
     let version = (previousRule) ? previousRule.version + 1 : 1
 
@@ -64,7 +64,7 @@ module.exports = new Route({
     data.uuid = undefined
     data.isDeleted = undefined
 
-    var rule = await Rule.create({
+    let rule = await Rule.create({
       ...data,
       organization: organizationId,
       isCurrent: true,

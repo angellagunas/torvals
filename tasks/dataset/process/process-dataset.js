@@ -146,7 +146,6 @@ const task = new Task(
     }
 
     for (let catalog of dataset.rule.catalogs) {
-      console.log(rows[0][catalog.slug])
       rowData[catalog.slug] = rows[0][catalog.slug]
     }
 
@@ -167,8 +166,6 @@ const task = new Task(
 
     rows = await DataSetRow.aggregate(statement)
 
-    console.log(rows[0].max)
-    console.log(rows[0].min)
     maxDate = moment(rows[0].max).utc().format('YYYY-MM-DD')
     minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
 

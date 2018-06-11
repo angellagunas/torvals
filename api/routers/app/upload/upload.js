@@ -164,17 +164,13 @@ module.exports = new Route({
       let data = ''
       let lines = []
       reader.on('data', async (chunkItem) => {
-        console.log('reader')
-
         data += chunkItem
         lines = data.split('\n')
         if (lines.length > 2) {
           reader.destroy()
           lines = lines.slice(0, 1)
           var headers = lines[0].split(',')
-          console.log('entra')
           await dataset.setColumns(headers)
-          console.log('end')
         }
 
         if (chunkNumber === totalChunks) {

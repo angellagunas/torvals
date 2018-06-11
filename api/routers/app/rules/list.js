@@ -5,8 +5,8 @@ module.exports = new Route({
   method: 'get',
   path: '/',
   handler: async function (ctx) {
-    var filters = {}
-    for (var filter in ctx.request.query) {
+    let filters = {}
+    for (let filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
       }
@@ -19,7 +19,7 @@ module.exports = new Route({
     }
 
     filters['organization'] = ctx.state.organization._id
-    var rule = await Rule.dataTables({
+    let rule = await Rule.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},

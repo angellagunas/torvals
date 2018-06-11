@@ -6,7 +6,7 @@ module.exports = new Route({
   method: 'get',
   path: '/:uuid',
   handler: async function (ctx) {
-    var ruleId = ctx.params.uuid
+    let ruleId = ctx.params.uuid
 
     const rule = await Rule.findOne({
       'uuid': ruleId,
