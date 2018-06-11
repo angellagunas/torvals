@@ -57,14 +57,15 @@ const task = new Task(
     }
 
     const cycles = project.rule.cyclesAvailable
-    let cyclesAvailable = await Cycle.getAvailable(organization._id, cycles)
+    let cyclesAvailable = await Cycle.getAvailable(organization._id, project.rule._id, cycles)
     if (cyclesAvailable.length < cycles) {
       log.call('Creating missing cycles.')
       await appendCyclesPeriods.run({
         uuid: organization.uuid,
+        rule: project.rule.uuid,
         cycles: cyclesAvailable.length - cycles
       })
-      cyclesAvailable = await Cycle.getAvailable(organization._id, cycles)
+      cyclesAvailable = await Cycle.getAvailable(organization._id, project.rule._id, cycles)
     }
 
     log.call('Obtaining rows to copy...')
@@ -119,7 +120,7 @@ const task = new Task(
         dateMax: dateMax.format('YYYY-MM-DD'),
         dateMin: dateMin.format('YYYY-MM-DD'),
         status: 'adjustment',
-        rule: project.rule
+        rule: project.rule._id
       })
       await dataset.save()
 

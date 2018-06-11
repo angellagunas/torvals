@@ -19,7 +19,6 @@ class Rules extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      unsaved: this.props.unsaved,
       data: {
         salesUpload: this.props.rules.salesUpload || 0,
         forecastCreation: this.props.rules.forecastCreation || 0,
@@ -32,11 +31,10 @@ class Rules extends Component {
 
   render () {
     let rules = this.props.rules
-    console.log(rules)
     return (
       <div className='section pad-sides has-20-margin-top'>
         <Prompt
-          when={this.state.unsaved}
+          when={this.props.unsaved}
           message={location => (
             `Hay cambios a las reglas de negocio sin aplicar, ¿estás seguro de querer salir de esta página?`
           )}
@@ -170,7 +168,7 @@ class Rules extends Component {
                     </div>
                   </div>
                 </div>
-                <div className='columns'>
+                <div className={this.props.unsaved ? 'columns' : 'columns is-hidden'}>
                   <div className='column'>
                     <div className='has-text-centered' style={{marginTop: '2rem'}}>
                       <button

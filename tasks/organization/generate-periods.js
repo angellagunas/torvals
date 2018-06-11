@@ -12,8 +12,13 @@ const task = new Task(
     if (!argv.uuid) {
       throw new Error('You need to provide an organization')
     }
+
+    if (!argv.rule) {
+      throw new Error('You need to provide an business rule')
+    }
+
     const organization = await Organization.findOne({uuid: argv.uuid})
-    const rule = await Rule.findOne({organization: organization._id, isCurrent: true})
+    const rule = await Rule.findOne({uuid: argv.rule})
     if (!rule) {
       throw new Error('Business rules not found')
     }

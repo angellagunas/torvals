@@ -60,6 +60,10 @@ module.exports = new Route({
 
     await Rule.update({organization: organizationId}, {isCurrent: false}, {multi: true})
 
+    data._id = undefined
+    data.uuid = undefined
+    data.isDeleted = undefined
+
     var rule = await Rule.create({
       ...data,
       organization: organizationId,
@@ -67,7 +71,7 @@ module.exports = new Route({
       version: version
     })
 
-    await generateCycles.run({uuid: org.uuid})
+    await generateCycles.run({uuid: org.uuid, rule: rule.uuid})
 
     const periods = await Period.find({ organization: org._id, isDeleted: false, rule: rule._id }).populate('cycle')
     let periodsArray = new Set()

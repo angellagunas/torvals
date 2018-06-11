@@ -36,6 +36,7 @@ class ConfigureDatasetForm extends Component {
 
       this.state = {
         dataset: this.props.initialState,
+        rules: this.props.initialState.rule,
         formData: {
           columns: this.props.initialState.columns,
           groupings: this.props.initialState.groupings
@@ -73,6 +74,7 @@ class ConfigureDatasetForm extends Component {
     } else {
       this.state = {
         dataset: this.props.initialState,
+        rules: this.props.initialState.rule,
         formData: {
           columns: this.props.columns,
           groupings: []
@@ -237,18 +239,17 @@ class ConfigureDatasetForm extends Component {
 
   getCatalogColumns () {
     let cols = []
-    let dataset = this.state.dataset
-    let org = dataset.organization
+    let rules = this.state.rules
 
-    for (let col of org.rules.catalogs) {
+    for (let col of rules.catalogs) {
       cols.push({
         id: {
-          label: `${s(col).replaceAll('-', ' ').capitalize().value()} Id *`,
-          name: `is_${col}_id`
+          label: `${col.name} Id *`,
+          name: `is_${col.slug}_id`
         },
         name: {
-          label: `${s(col).replaceAll('-', ' ').capitalize().value()} Nombre`,
-          name: `is_${col}_name`
+          label: `${col.name} Nombre`,
+          name: `is_${col.slug}_name`
         }
       })
     }
@@ -259,8 +260,7 @@ class ConfigureDatasetForm extends Component {
   async submitHandler (event) {
     event.preventDefault()
     this.setState({isLoading: ' is-loading'})
-    let dataset = this.state.dataset
-    let org = dataset.organization
+    let rules = this.state.rules
 
     const formData = {
       ...this.state.formData,
@@ -287,9 +287,9 @@ class ConfigureDatasetForm extends Component {
       isChannel: this.getValue('isChannel')
     }
 
-    for (let col of org.rules.catalogs) {
-      let idStr = `is_${col}_id`
-      let nameStr = `is_${col}_name`
+    for (let col of rules.catalogs) {
+      let idStr = `is_${col.slug}_id`
+      let nameStr = `is_${col.slug}_name`
       schema[idStr] = true
 
       values[idStr] = this.getValue(idStr)

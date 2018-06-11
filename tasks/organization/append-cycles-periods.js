@@ -1,4 +1,4 @@
-// node tasks/organization/append-cycles-periods.js --uuid --cycles
+// node tasks/organization/append-cycles-periods.js --uuid --cycles --rule
 require('../../config')
 require('lib/databases/mongo')
 
@@ -11,8 +11,13 @@ const task = new Task(
     if (!argv.uuid || !argv.cycles) {
       throw new Error('You need to provide an organization')
     }
+
     const organization = await Organization.findOne({uuid: argv.uuid})
-    const rule = await Rule.findOne({organization: organization._id, isCurrent: true})
+
+    let rule = await Rule.findOne({uuid: argv.rule})
+    if (!rule) {
+      throw new Error('Business rules not found')
+    }
 
     const cycleDuration = rule.cycleDuration
     const cycle = rule.cycle
@@ -20,9 +25,14 @@ const task = new Task(
     const periodDuration = rule.periodDuration
     const period = rule.period
 
-    const cycles = await Cycle.findOne({organization: organization._id, isDeleted: false, rule: rule._id}).sort({dateStart: -1})
+    const cycles = await Cycle.findOne({
+      organization: organization._id,
+      isDeleted: false,
+      rule: rule._id
+    }).sort({dateStart: -1})
+
     if (!cycles) { throw new Error('Cycles unavailable') }
-    var startDate = moment(cycles.dateEnd).utc().add(1, 'd')
+
     const totalToAdd = argv.cycles
     let cycleNumber = cycles.cycle
     let startDate = moment(cycles.dateEnd).utc().add(1, 'd')
@@ -59,11 +69,17 @@ const task = new Task(
       startDate = moment(endDate).utc().add(1, 'd')
     }
 
-    const periods = await Period.findOne({organization: organization._id, isDeleted: false, rule: rule._id}).sort({dateStart: -1})
+    const periods = await Period.findOne({
+      organization: organization._id,
+      isDeleted: false,
+      rule: rule._id
+    }).sort({dateStart: -1})
+
     startDate = moment(periods.dateEnd).utc().add(1, 'd')
     let periodNumber
     let lastCycle
     let currentEndDate
+
     do {
       currentEndDate = moment(startDate).utc().add(periodDuration, period)
       currentEndDate = moment(currentEndDate).utc().subtract(1, 'd')

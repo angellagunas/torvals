@@ -16,7 +16,7 @@ const task = new Task(
     }
 
     const organization = await Organization.findOne({uuid: argv.uuid})
-    const rule = await Rule.findOne({organization: organization._id, isCurrent: true})
+    const rule = await Rule.findOne({uuid: argv.rule})
     if (!rule) {
       throw new Error('Business rules not found')
     }
@@ -91,7 +91,7 @@ const task = new Task(
       previousYear = endYear
       startDate = moment(endDate).utc().add(1, 'd')
     }
-    await generatePeriods.run({uuid: organization.uuid})
+    await generatePeriods.run({uuid: organization.uuid, rule: rule.uuid})
     return true
   }
 )
