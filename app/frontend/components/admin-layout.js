@@ -51,6 +51,7 @@ class AdminLayout extends Component {
           cookies.remove('organization')
           tree.set('jwt', null)
           tree.set('user', null)
+          tree.set('rule', null)
           tree.set('organization', null)
           tree.set('role', null)
           tree.commit()
@@ -62,6 +63,7 @@ class AdminLayout extends Component {
       tree.set('user', me.user)
       tree.set('organization', me.user.currentOrganization)
       tree.set('role', me.user.currentRole)
+      tree.set('rule', me.rule)
       tree.set('loggedIn', me.loggedIn)
       tree.commit()
 
@@ -72,6 +74,7 @@ class AdminLayout extends Component {
         tree.set('user', null)
         tree.set('organization', null)
         tree.set('role', null)
+        tree.set('rule', null)
         tree.set('loggedIn', false)
         await tree.commit()
       }

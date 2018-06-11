@@ -97,7 +97,10 @@ class Catalogs extends Component {
   sendCatalogs () {
     let catalogs = this.state.catalogs.map((item) => {
       if (item.checked) {
-        return slugify(item.value)
+        return {
+          name: item.title,
+          slug: slugify(item.value)
+        }
       }
     }).filter((item) => { return item })
     this.props.nextStep({catalogs})
@@ -110,7 +113,7 @@ class Catalogs extends Component {
       let findIt = false
 
       for (const c of catalog) {
-        if (item === c.value) {
+        if (item.slug === c.value) {
           c.checked = true
           findIt = true
           break
@@ -121,8 +124,8 @@ class Catalogs extends Component {
         this.setState({
           catalogs: this.state.catalogs.concat(
             {
-              title: item,
-              value: slugify(item),
+              title: item.name,
+              value: item.slug,
               checked: true,
               delete: true
             })

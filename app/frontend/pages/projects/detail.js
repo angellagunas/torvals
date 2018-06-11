@@ -533,6 +533,7 @@ class ProjectDetail extends Component {
             handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }}
             selectedTab={this.state.actualTab}
             adjustmentML1={this.state.adjustmentML1}
+            rules={project.rule}
           />
         )
       },

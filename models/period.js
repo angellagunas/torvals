@@ -48,15 +48,17 @@ periodSchema.methods.toAdmin = function () {
   return data
 }
 
-periodSchema.statics.getBetweenDates = async function(organization, minDate, maxDate) {
+periodSchema.statics.getBetweenDates = async function (organization, rule, minDate, maxDate) {
   const firstPeriod = await this.findOne({
     organization: organization,
+    rule: rule,
     isDeleted: false,
     dateStart: { $lte: minDate },
     dateEnd: { $gte: minDate }
   })
   const periods = await this.find({
     organization: organization,
+    rule: rule,
     dateStart: {
       $gte: firstPeriod.dateStart,
       $lte: maxDate

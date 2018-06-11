@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import tree from '~core/tree'
+import { toast } from 'react-toastify'
 import api from '~base/api'
 import BaseModal from '~base/components/base-modal'
 import Tabs from '~base/components/base-tabs'
@@ -16,7 +18,7 @@ class Wizard extends Component {
       modalClass: 'is-active',
       currentStep: 0,
       selectedTab: '1',
-      rules: this.props.org.rules || {},
+      rules: this.props.rules || {},
       stepsCompleted: []
     }
     this.tabs = []
@@ -25,19 +27,19 @@ class Wizard extends Component {
   componentWillMount () {
     let step = 0
     let tab = '1'
+    let rules = this.state.rules
 
-    let org = this.props.org
-    if (org.rules) {
-      if (!org.rules.cicle || !org.rules.period) {
+    if (rules) {
+      if (!rules.cicle || !rules.period) {
         step = 0
         tab = '1'
-      } else if (!org.rules.ranges) {
+      } else if (!rules.ranges) {
         step = 2
         tab = '3'
-      } else if (!org.rules.range_adjustment) {
+      } else if (!rules.range_adjustment) {
         step = 3
         tab = '4'
-      } else if (org.rules.consolidation) {
+      } else if (rules.consolidation) {
         step = 4
         tab = '5'
       }
@@ -87,13 +89,48 @@ class Wizard extends Component {
     }
   }
 
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if (type === toast.TYPE.WARNING) {
+      className = 'has-bg-warning'
+    }
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false,
+        className: className
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false,
+        className: className
+      })
+    }
+  }
+
   async saveData () {
     try {
-      let url = '/app/organizations/rules/' + this.props.org.uuid
-      let res = api.post(url, {
+      let url = '/app/rules'
+
+      let res = await api.post(url, {
         ...this.state.rules
       })
+
       if (res) {
+        this.notify(
+          '¡Las nuevas reglas de negocio se han guardado exitosamente!',
+          5000,
+          toast.TYPE.SUCCESS
+        )
+
+        this.setState({unsaved: false})
+        tree.set('rule', res.rules)
+        tree.commit()
         return true
       } else {
         return false

@@ -122,6 +122,7 @@ dataSetSchema.methods.toPublic = function () {
     salesCenters: this.salesCenters,
     products: this.products,
     channels: this.channels,
+    rule: this.rule,
     catalogItems: this.catalogItems
   }
 }
@@ -149,6 +150,7 @@ dataSetSchema.methods.format = function () {
     salesCenters: this.salesCenters,
     products: this.products,
     channels: this.channels,
+    rule: this.rule,
     catalogItems: this.catalogItems
   }
 }
@@ -400,13 +402,13 @@ dataSetSchema.methods.processData = async function () {
     }
   }
 
-  for (let catalog of this.organization.rules.catalogs) {
-    if (this.apiData[catalog]) {
-      for (let data of this.apiData[catalog]) {
+  for (let catalog of this.rule.catalogs) {
+    if (this.apiData[catalog.slug]) {
+      for (let data of this.apiData[catalog.slug]) {
         pos = this.catalogItems.findIndex(item => {
           return (
             String(item.externalId) === String(data._id) &&
-            item.type === catalog
+            item.type === catalog.slug
           )
         })
 
@@ -414,7 +416,7 @@ dataSetSchema.methods.processData = async function () {
           let cItem = await CatalogItem.findOne({
             externalId: data._id,
             organization: this.organization._id,
-            type: catalog
+            type: catalog.slug
           })
 
           if (!cItem) {
@@ -423,7 +425,7 @@ dataSetSchema.methods.processData = async function () {
               externalId: data._id,
               organization: this.organization,
               isNewExternal: true,
-              type: catalog
+              type: catalog.slug
             })
           } else if (cItem.isNewExternal && data['name']) {
             cItem.set({ name: data['name'] })
@@ -461,15 +463,12 @@ dataSetSchema.methods.processReady = async function (res) {
 }
 
 dataSetSchema.methods.setColumns = async function (headers) {
-  if (!this.organization.rules) {
-    await this.populate('organization').execPopulate()
-  }
+  await this.populate('rule').execPopulate()
 
   let catalogs = {}
-
-  for (let col of this.organization.rules.catalogs) {
-    catalogs[`is_${col}_id`] = false
-    catalogs[`is_${col}_name`] = false
+  for (let i = 0; i < this.rule.catalogs.length; i++) {
+    catalogs[`is_${this.rule.catalogs[i].slug}_id`] = false
+    catalogs[`is_${this.rule.catalogs[i].slug}_name`] = false
   }
 
   this.set({

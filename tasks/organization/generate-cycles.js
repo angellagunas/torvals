@@ -7,7 +7,7 @@ const moment = require('moment')
 const Task = require('lib/task')
 const generatePeriods = require('tasks/organization/generate-periods')
 
-const { Organization, Cycle } = require('models')
+const { Organization, Cycle, Rule } = require('models')
 
 const task = new Task(
   async function (argv) {
@@ -15,33 +15,35 @@ const task = new Task(
       throw new Error('You need to provide an organization')
     }
 
-    const organization = await Organization.findOne({ uuid: argv.uuid })
+    const organization = await Organization.findOne({uuid: argv.uuid})
+    const rule = await Rule.findOne({uuid: argv.rule})
+    if (!rule) {
+      throw new Error('Business rules not found')
+    }
 
-    const cycleDuration = organization.rules.cycleDuration
+    const cycleDuration = rule.cycleDuration
     if (isNaN(parseInt(cycleDuration)) || parseInt(cycleDuration) < 1) {
       throw new Error('The cycleDuration should be a positive integer')
     }
 
-    const cycle = organization.rules.cycle
+    const cycle = rule.cycle
     if (!(['M', 'w', 'd', 'y'].indexOf(cycle) >= 0)) {
       throw new Error('The given cycle has a invalid format')
     }
 
-    const season = organization.rules.season
+    const season = rule.season
     if (isNaN(parseInt(season)) || parseInt(season) < 1) {
       throw new Error('The season should be a positive integer')
     }
 
-    const cyclesAvailable = organization.rules.cyclesAvailable
+    const cyclesAvailable = rule.cyclesAvailable
     if (isNaN(parseInt(cyclesAvailable)) || parseInt(cyclesAvailable) < 1) {
       throw new Error('The cyclesAvailable should be a positive integer')
     }
 
-    const takeStart = organization.rules.takeStart
+    const takeStart = rule.takeStart
 
-    await Cycle.deleteMany({ organization: organization._id })
-
-    var startDate = moment(organization.rules.startDate).utc().format('YYYY-MM-DD')
+    var startDate = moment(rule.startDate).utc().format('YYYY-MM-DD')
     var currentDateDiff
     if (cycle === 'M') {
       startDate = moment.utc(startDate, 'YYYY-MM-DD').subtract(season, 'M')
@@ -82,13 +84,14 @@ const task = new Task(
         organization: organization._id,
         dateStart: startDate,
         dateEnd: endDate,
-        cycle: cycleNumber
+        cycle: cycleNumber,
+        rule: rule._id
       })
 
       previousYear = endYear
       startDate = moment(endDate).utc().add(1, 'd')
     }
-    await generatePeriods.run({uuid: organization.uuid})
+    await generatePeriods.run({uuid: organization.uuid, rule: rule.uuid})
     return true
   }
 )
