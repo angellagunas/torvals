@@ -1,4 +1,4 @@
-// node tasks/datasetsRows/send-adjustment-datasetrows.js
+// node tasks/dmigrations/migrate-organization-businessrules.js
 require('../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
@@ -22,11 +22,11 @@ const task = new Task(async function (argv) {
     season: 12,
     cyclesAvailable: 6,
     takeStart: true,
-    consolidation: 30,
-    forecastCreation: 12,
-    rangeAdjustmentRequest: 24,
-    rangeAdjustment: 18,
-    salesUpload: 6,
+    consolidation: 8,
+    forecastCreation: 3,
+    rangeAdjustmentRequest: 6,
+    rangeAdjustment: 10,
+    salesUpload: 3,
     catalogs: [
       {
         name: 'Producto',
@@ -39,7 +39,7 @@ const task = new Task(async function (argv) {
         slug: 'canal'
       }
     ],
-    ranges: []
+    ranges: [0, 0, 10, 20, 30, null]
   }
 
   for (let org of organizations) {
