@@ -3,7 +3,7 @@ const {Organization, CatalogItem} = require('models')
 
 module.exports = new Route({
   method: 'get',
-  path: '/:uuid',
+  path: '/detail/:uuid',
   handler: async function (ctx) {
     var uuidItem = ctx.params.uuid
 

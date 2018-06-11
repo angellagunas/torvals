@@ -88,17 +88,21 @@
             "name": "Consultor",
             "isDefault": false,
             "priority": 3
-
         },
         {
-            "name": "Manager Level 2",
+            "name": "Supervisor",
             "isDefault": false,
             "priority": 4
         },
         {
+            "name": "Manager Level 2",
+            "isDefault": false,
+            "priority": 5
+        },
+        {
             "name": "Manager Level 1",
             "isDefault": true,
-            "priority": 5
+            "priority": 6
         }
     ],
     "relations": [

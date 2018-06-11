@@ -17,7 +17,8 @@ module.exports = new Route({
 
     catalogItem.set({
       name: data.name,
-      externalId: data.externalId
+      externalId: data.externalId,
+      isNewExternal: false
     })
 
     await catalogItem.save()

@@ -86,7 +86,6 @@ module.exports = new Route({
         currentRole.slug,
         user
       )
-
       initialMatch['salesCenter'] = { $in: salesCenters }
     }
 

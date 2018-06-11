@@ -42,6 +42,7 @@ class DataSetDetail extends Component {
       dataset: {},
       currentProduct: null,
       currentSalesCenter: null,
+      currentUnidentified: null,
       columns: [],
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
@@ -60,7 +61,9 @@ class DataSetDetail extends Component {
       disableBtnP: true,
       isLoadingBtnP: '',
       disableBtnS: true,
-      isLoadingBtnS: ''
+      isLoadingBtnS: '',
+      disableBtnUn: true,
+      isLoadingBtnUn: ''
     }
     this.newProducts = []
     this.newChannels = []
@@ -1542,6 +1545,61 @@ class DataSetDetail extends Component {
     })
   }
 
+  getModalUnidentified() {
+    if (this.state.currentUnidentified && this.state.canEdit) {
+      let currentUnidentified = this.state.currentUnidentified
+      currentUnidentified.externalId = String(currentUnidentified.externalId)
+      return (<BaseModal
+        title={'Editar ' + currentUnidentified.type.replace(/-/g, ' ')}
+        className={this.state.classNameUn}
+        hideModal={() => this.hideModalUnidentified()} >
+        <ChannelForm
+          baseUrl='/app/catalogItems'
+          url={'/app/catalogItems/' + currentUnidentified.uuid}
+          initialState={currentUnidentified}
+          load={this.deleteUnidentified.bind(this)}
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
+          finishUp={(data) => this.finishUpHandler(data)}
+        >
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'
+              >Guardar</button>
+            </div>
+            <div className='control'>
+              <button className='button' onClick={() => this.hideModalUnidentified()} type='button'>Cancelar</button>
+            </div>
+          </div>
+        </ChannelForm>
+      </BaseModal>)
+    }
+  }
+
+  async deleteUnidentified() {
+    this.load()
+    setTimeout(() => {
+      this.hideModalUnidentified()
+    }, 1000)
+  }
+
+  showModalUnidentified(item) {
+    this.setState({
+      classNameUn: ' is-active',
+      currentUnidentified: item
+    })
+  }
+
+  hideModalUnidentified() {
+    this.setState({
+      classNameUn: '',
+      currentUnidentified: null
+    })
+  }
+
   getUnidentified() {
     const { dataset, canEdit } = this.state
     if (!dataset.uuid) {
@@ -1597,8 +1655,8 @@ renderUnidentified(){
                   <div className={item.isOpen ? 'control' : 'is-hidden'}>
                     <button
                     onClick={() => this.confirmUnidentified(item.type)}
-                    disabled={this.countUnidentified(item.type) === 0 || !!this.state.isLoadingBtnC}
-                      className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnC}
+                    disabled={this.countUnidentified(item.type) === 0 || !!this.state.isLoadingBtnUn}
+                      className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnUn}
                     >
                     Confirmar ({this.countUnidentified(item.type)})
                 </button>
@@ -1635,28 +1693,43 @@ renderUnidentified(){
                         }
                         <th>Id Externo</th>
                         <th>Nombre</th>
+                        {canEdit &&
+                          <th>Acciones</th>
+                        }
                       </tr>
                     </thead>
                     <tbody>
                       {
-                        item.objects.map((item, key) => {
-                          if (!item.selected) {
-                            item.selected = false
+                        item.objects.map((ob, key) => {
+                          if (!ob.selected) {
+                            ob.selected = false
                           }
                           return (
                             <tr key={key}>
                               {canEdit &&
                                 <td className='has-text-centered'>
                                   <Checkbox
-                                    label={item}
-                                    handleCheckboxChange={(e, value) => this.checkUnidentified(item,value)}
-                                    key={item.externalId}
-                                    checked={item.selected}
+                                    label={ob}
+                                    handleCheckboxChange={(e, value) => this.checkUnidentified(ob,value)}
+                                    key={ob.externalId}
+                                    checked={ob.selected}
                                     hideLabel />
                                 </td>
                               }
-                              <td>{item.externalId}</td>
-                              <td>{item.name}</td>
+                              <td>{ob.externalId}</td>
+                              <td>{ob.name}</td>
+                              {canEdit &&
+                                <td>
+                                  <button
+                                    className='button is-primary'
+                                    onClick={() => this.showModalUnidentified(ob)}
+                                  >
+                                    <span className='icon' title='Editar'>
+                                      <i className='fa fa-pencil' />
+                                    </span>
+                                  </button>
+                                </td>
+                              }
                             </tr>
                           )
                         })
@@ -1782,6 +1855,7 @@ renderUnidentified(){
         {this.getModalCurrentProduct()}
         {this.getModalSalesCenters()}
         {this.getModalChannels()}
+        {this.getModalUnidentified()}
       </div>
     )
   }

@@ -46,7 +46,7 @@ channelSchema.statics.filterByUserRole = async function(filters, role, user) {
   if (
     role === 'manager-level-1' ||
     role === 'manager-level-2' ||
-    role === 'consultor'
+    role === 'supervisor'
   ) {
     channels = channels
       .filter(item => {

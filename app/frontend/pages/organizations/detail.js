@@ -5,6 +5,7 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import { testRoles } from '~base/tools'
+import tree from '~core/tree'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -154,10 +155,14 @@ class OrganizationDetail extends Component {
   async saveData() {
     try {
       let url = '/app/organizations/rules/' + this.props.match.params.uuid
-      let res = api.post(url, {
+      let res = await api.post(url, {
         ...this.state.rules
       })
       if (res) {
+        let user = Object.assign({}, tree.get('user'))
+        user['currentOrganization'] = res.data        
+        tree.set('user', user)
+        tree.commit()
         return true
       } else {
         return false
