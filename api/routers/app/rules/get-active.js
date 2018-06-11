@@ -12,7 +12,6 @@ module.exports = new Route({
       'organization': ctx.state.organization._id
     })
 
-    console.log(rule)
     ctx.assert(rule, 404, 'Reglas no encontradas')
 
     ctx.body = {

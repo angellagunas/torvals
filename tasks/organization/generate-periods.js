@@ -32,8 +32,8 @@ const task = new Task(
     const period = rule.period
     const takeStart = rule.takeStart
     await Period.deleteMany({organization: organization._id})
-    var startDate = moment(moment(cycles[0].dateStart).utc().format('YYYY-MM-DD'))
-    var endDate = moment(moment(cycles[cycles.length - 1].dateEnd).utc().format('YYYY-MM-DD'))
+    var startDate = moment.utc(moment(cycles[0].dateStart).utc())
+    var endDate = moment.utc(moment(cycles[cycles.length - 1].dateEnd).utc())
     var currentEndDate
     var periodNumber
     var lastCycle

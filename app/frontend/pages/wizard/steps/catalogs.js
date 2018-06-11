@@ -108,7 +108,6 @@ class Catalogs extends Component {
 
   componentWillMount () {
     let rules = this.props.rules.catalogs
-    console.log(rules)
     let catalog = this.state.catalogs
     rules.map((item) => {
       let findIt = false

@@ -109,10 +109,10 @@ const task = new Task(
 
       log.call('Obtaining max and min dates...')
       const dateMin = moment.utc(cyclesAvailable[0].dateStart)
-      const dateMax = moment.utc(cyclesAvailable[cyclesAvailable.length - 1].dateStart)
+      let dateMax = moment.utc(cyclesAvailable[cyclesAvailable.length - 1].dateStart)
 
       if (dateMax.diff(moment.utc(project.mainDataset.dateMax)) < 0) {
-        dateMax = moment.utc(project.mainDataset.dateMax))
+        dateMax = moment.utc(project.mainDataset.dateMax)
       }
 
       dataset.set({

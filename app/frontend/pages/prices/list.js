@@ -14,7 +14,7 @@ export default ListPage({
   title: 'Precios',
   titleSingular: 'Precio',
   icon: 'money',
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2, supervisor',
   exact: true,
   validate: [loggedIn, verifyRole],
   create: false,

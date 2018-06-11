@@ -5,6 +5,8 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import { testRoles } from '~base/tools'
+import tree from '~core/tree'
+import { toast } from 'react-toastify'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -74,7 +76,6 @@ class OrganizationDetail extends Component {
     
     try {
       const body = await api.get(url)
-      console.log(body)
 
       this.setState({
         loading: false,
@@ -86,6 +87,30 @@ class OrganizationDetail extends Component {
         loading: false,
         loaded: true,
         notFound: true
+      })
+    }
+  }
+
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if (type === toast.TYPE.WARNING) {
+      className = 'has-bg-warning'
+    }
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false,
+        className: className
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false,
+        className: className
       })
     }
   }
@@ -174,11 +199,21 @@ class OrganizationDetail extends Component {
   async saveData() {
     try {
       let url = '/app/rules'
-      let res = api.post(url, {
+
+      let res = await api.post(url, {
         ...this.state.rules
       })
+
       if (res) {
+        this.notify(
+          '¡Las nuevas reglas de negocio se han guardado exitosamente!',
+          5000,
+          toast.TYPE.SUCCESS
+        )
+
         this.setState({unsaved: false})
+        tree.set('rule', res.rules)
+        tree.commit()
         return true
       } else {
         return false
