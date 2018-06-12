@@ -12,6 +12,7 @@ import Loader from '~base/components/spinner'
 import Tabs from '~base/components/base-tabs'
 import SidePanel from '~base/side-panel'
 import NotFound from '~base/components/not-found'
+import tree from '~core/tree'
 
 import ProjectForm from './create-form'
 import TabDatasets from './detail-tabs/tab-datasets'
@@ -51,6 +52,7 @@ class ProjectDetail extends Component {
     this.interval = null
     this.intervalCounter = null
     this.intervalConciliate = null
+    this.rules = tree.get('rule')
   }
 
   async componentWillMount () {
@@ -509,6 +511,7 @@ class ProjectDetail extends Component {
             project={project}
             history={this.props.history}
             currentRole={currentRole}
+            rules={this.rules}
           />
         )
       },
@@ -533,7 +536,7 @@ class ProjectDetail extends Component {
             handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }}
             selectedTab={this.state.actualTab}
             adjustmentML1={this.state.adjustmentML1}
-            rules={project.rule}
+            rules={this.rules}
           />
         )
       },
