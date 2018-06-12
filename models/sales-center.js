@@ -61,7 +61,7 @@ salesCenterSchema.statics.filterByUserRole = async function(filters, role, user)
   if (
     role === 'manager-level-1' ||
     role === 'manager-level-2' ||
-    role === 'supervisor'
+    role === 'consultor'
   ) {
     channels = channels
       .filter(item => {

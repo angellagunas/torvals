@@ -14,7 +14,7 @@ export default ListPage({
   title: 'Usuarios',
   icon: 'user',
   exact: true,
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2, supervisor',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Usuario',
   create: true,

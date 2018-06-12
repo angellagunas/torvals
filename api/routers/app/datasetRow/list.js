@@ -8,7 +8,8 @@ const {
   Role,
   Price,
   Period,
-  Cycle
+  Cycle,
+  CatalogItem
 } = require('models')
 const ObjectId = require('mongodb').ObjectID
 
@@ -56,7 +57,9 @@ module.exports = new Route({
     let catalogs = await DataSet.aggregate(statement)
     if (catalogs) { catalogs = catalogs[0].catalogs }
 
-    var filters = {}
+    let catalogItemsFilters = []
+
+    let filters = {}
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
@@ -112,7 +115,8 @@ module.exports = new Route({
       })
 
       if (isCatalog) {
-        filters['catalogItems'] = ObjectId(ctx.request.query[filter])
+        const cItem = await CatalogItem.findOne({uuid: ctx.request.query[filter]})
+        catalogItemsFilters.push(cItem.id)
         continue
       }
 
@@ -121,6 +125,10 @@ module.exports = new Route({
       } else {
         filters[filter] = ctx.request.query[filter]
       }
+    }
+
+    if (catalogItemsFilters.length > 0) {
+      filters['catalogItems'] = { $all: catalogItemsFilters }
     }
 
     filters['dataset'] = dataset._id
@@ -141,7 +149,7 @@ module.exports = new Route({
     if (
       currentRole.slug === 'manager-level-1' ||
       currentRole.slug === 'manager-level-2' ||
-      currentRole.slug === 'supervisor'
+      currentRole.slug === 'consultor'
     ) {
       var groups = user.groups
       if (!filters['salesCenter']) {
@@ -168,7 +176,7 @@ module.exports = new Route({
     }
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
-    .populate(['salesCenter', 'adjustmentRequest', 'channel', 'period'])
+    .populate(['salesCenter', 'adjustmentRequest', 'channel', 'period', 'catalogItems'])
     .sort(ctx.request.query.sort || '-dateCreated')
 
     const AllPrices = await Price.find({'organization': ctx.state.organization._id})
@@ -199,7 +207,8 @@ module.exports = new Route({
         localAdjustment: item.data.localAdjustment,
         lastAdjustment: item.data.lastAdjustment,
         adjustmentRequest: item.adjustmentRequest,
-        externalId: item.externalId
+        externalId: item.externalId,
+        catalogItems: item.catalogItems
       })
     }
 

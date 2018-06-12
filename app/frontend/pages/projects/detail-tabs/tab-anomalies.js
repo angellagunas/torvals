@@ -20,6 +20,7 @@ class TabAnomalies extends Component {
     super(props)
     this.state = {
       isLoading: '',
+      loaded: false,
       isFiltered: false,
       filters: {
         products: [],
@@ -142,7 +143,8 @@ class TabAnomalies extends Component {
             totalAnomalies: res.total,
             anomalies: res.data,
             isLoading: '',
-            isFiltered: true          
+            isFiltered: true,
+            loaded: true
           })  
         }      
 
@@ -152,7 +154,8 @@ class TabAnomalies extends Component {
       } catch (e) {
         this.setState({
           isLoading: '',
-          isFiltered: false
+          isFiltered: false,
+          loaded: true
         })
         this.notify('Error:Intente de nuevo', 5000, toast.TYPE.ERROR)      
       }
@@ -496,10 +499,20 @@ class TabAnomalies extends Component {
   }
 
   render () {
+    if (!this.state.loaded) {
+      return <Loader />
+    }
+
     if (this.state.filters.products.length === 0 ||
       this.state.filters.salesCenters.length === 0
     ) {
-      return <Loader />
+      return (
+        <section className='section'>
+          <center>
+            <h2 className='has-text-info'>No hay anomalías que mostrar</h2>
+          </center>
+        </section>
+      )
     }
     
     return (
