@@ -144,7 +144,8 @@ module.exports = new Route({
       return ctx.body = {
         channels: [],
         products: [],
-        salesCenters: []
+        salesCenters: [],
+        catalogItems: []
       }
     }
 
