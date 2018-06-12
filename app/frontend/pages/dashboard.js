@@ -751,7 +751,9 @@ class Dashboard extends Component {
       catalogItems: filters
     }, () => {
       filters.map(item => {
-        this.checkAllItems(item.selectAll, item.type)
+        if(item.type !== 'Producto'){
+          this.checkAllItems(item.selectAll, item.type)
+        }
       })
     })
   }
