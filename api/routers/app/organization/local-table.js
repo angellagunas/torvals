@@ -121,6 +121,7 @@ module.exports = new Route({
 
     let cycles = await Cycle.getBetweenDates(
       currentOrganization.organization._id,
+      projects[0].rule,
       start.toDate(),
       end.toDate()
     )
@@ -133,6 +134,7 @@ module.exports = new Route({
 
     cycles = await Cycle.getBetweenDates(
       currentOrganization.organization._id,
+      projects[0].rule,
       start.toDate(),
       end.toDate()
     )

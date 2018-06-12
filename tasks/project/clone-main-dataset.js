@@ -70,7 +70,9 @@ const task = new Task(
         updatedBy: row.updatedBy,
         dateCreated: row.dateCreated,
         isDeleted: row.isDeleted,
-        isAnomaly: row.isAnomaly
+        isAnomaly: row.isAnomaly,
+        cycle: row.cycle,
+        period: row.period
       }
       bulkOpsNew.push(auxRow)
 
