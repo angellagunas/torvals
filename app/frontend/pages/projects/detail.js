@@ -460,7 +460,7 @@ class ProjectDetail extends Component {
 
     const url = '/app/projects/update/businessRules'
     try {
-      await api.post(url, { uuid: this.state.project.uuid })
+      await api.post(url, { ...this.state.project })
       await this.load()
       this.hideModalOutdated()
     } catch (e) {
