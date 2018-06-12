@@ -43,7 +43,7 @@ module.exports = new Route({
     if (
         currentRole.slug === 'manager-level-1' ||
         currentRole.slug === 'manager-level-2' ||
-        currentRole.slug === 'supervisor'
+        currentRole.slug === 'consultor'
     ) {
       var userGroups = []
       for (var g of user.groups) {
@@ -83,6 +83,11 @@ module.exports = new Route({
     var statement = [
       matchCond,
       {
+        '$unwind': {
+          'path': '$catalogItems'
+        }
+      },
+      {
         '$group': {
           '_id': null,
           'channel': {
@@ -93,6 +98,9 @@ module.exports = new Route({
           },
           'product': {
             '$addToSet': '$product'
+          },
+          'catalogItem': {
+            '$addToSet': '$catalogItems'
           }
         }
       },
@@ -119,15 +127,32 @@ module.exports = new Route({
           'foreignField': '_id',
           'as': 'products'
         }
+      },
+      {
+        '$lookup': {
+          'from': 'catalogitems',
+          'localField': 'catalogItem',
+          'foreignField': '_id',
+          'as': 'catalogItems'
+        }
       }
     ]
 
     var datasetRow = await DataSetRow.aggregate(statement)
 
+    if (datasetRow.length === 0) {
+      return ctx.body = {
+        channels: [],
+        products: [],
+        salesCenters: []
+      }
+    }
+
     ctx.body = {
       channels: datasetRow[0].channels,
       products: datasetRow[0].products,
-      salesCenters: datasetRow[0].salesCenters
+      salesCenters: datasetRow[0].salesCenters,
+      catalogItems: datasetRow[0].catalogItems
     }
   }
 })
