@@ -11,7 +11,7 @@ const task = new Task(async function (argv) {
 
   const projects = await Project.find({
     isDeleted: false
-  }).populate('organization')
+  }).populate('organization rule')
 
   if (projects.length === 0) {
     console.log('No projects to verify ...')
@@ -20,18 +20,19 @@ const task = new Task(async function (argv) {
   }
 
   for (var project of projects) {
-    if (project.organization.rules) {
-      let sales = project.organization.rules.salesUpload
-      let forecast = project.organization.rules.forecastCreation + sales
-      let adjustment = project.organization.rules.rangeAdjustment + forecast
-      let adjustmenRequest = project.organization.rules.rangeAdjustmentRequest + adjustment
-      let consolidate = project.organization.rules.consolidation + adjustmenRequest
+    if (project.rule) {
+      let sales = project.rule.salesUpload
+      let forecast = project.rule.forecastCreation + sales
+      let adjustment = project.rule.rangeAdjustment + forecast
+      let adjustmenRequest = project.rule.rangeAdjustmentRequest + adjustment
+      let consolidate = project.rule.consolidation + adjustmenRequest
 
       let cycle = await Cycle.findOne({
         organization: project.organization._id,
         dateStart: {$lte: moment().utc()},
         dateEnd: {$gte: moment().utc()},
-        isDeleted: false
+        isDeleted: false,
+        rule: project.rule._id
       })
       if (cycle) {
         let currentDays = moment(cycle.dateStart).utc().format('YYYY-MM-DD')
@@ -47,6 +48,8 @@ const task = new Task(async function (argv) {
           status = 'rangeAdjustmentRequest'
         } else if (diff <= consolidate) {
           status = 'consolidation'
+        } else {
+          status = 'empty'
         }
 
         project.set({ cycleStatus: status })

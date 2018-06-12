@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const { Product, Channel, DataSet, Anomaly, SalesCenter, Project, Role } = require('models')
+const { Product, Channel, Anomaly, SalesCenter, Project, Role, CatalogItem } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -114,6 +114,20 @@ module.exports = new Route({
           $or.push({salesCenter: {$in: salesCenterValues}})
         }
 
+        let catalogItemsValues = []
+        let catalogItems = await CatalogItem.find({
+          name: new RegExp(ctx.request.query[filter], 'i'),
+          isDeleted: false,
+          organization: ctx.state.organization
+        })
+        catalogItems.map(item => {
+          catalogItemsValues.push(item._id)
+        })
+
+        if (catalogItemsValues.length) {
+          $or.push({catalogItems: {$in: catalogItemsValues}})
+        }
+
         if ($or.length) { filters['$or'] = $or }
       } else {
         if (!isNaN(parseInt(ctx.request.query[filter]))) {
@@ -173,7 +187,7 @@ module.exports = new Route({
         project: project._id
       },
       sort: ctx.request.query.sort || '-dateCreated',
-      populate: ['salesCenter', 'product', 'channel', 'organization']
+      populate: ['salesCenter', 'product', 'channel', 'organization', 'catalogItems']
     })
 
     rows.data = rows.data.map(item => {

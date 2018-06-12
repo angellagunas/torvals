@@ -61,7 +61,7 @@ class TabAdjustment extends Component {
     }
 
     currentRole = tree.get('user').currentRole.slug
-    this.rules = tree.get('user').currentOrganization.rules
+    this.rules = this.props.rules
     this.toastId = null
   }
 

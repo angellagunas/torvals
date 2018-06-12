@@ -14,6 +14,7 @@ module.exports = new Route({
     })
       .populate('fileChunk')
       .populate('project')
+      .populate('rule')
       .populate('organization')
       .populate('channels')
       .populate('products')

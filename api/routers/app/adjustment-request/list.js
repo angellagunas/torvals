@@ -17,6 +17,36 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet not found')
 
+    let statement = [{
+      $match: {
+        uuid: dataset.uuid
+      }
+    },
+    {
+      $lookup: {
+        from: 'catalogitems',
+        localField: 'catalogItems',
+        foreignField: '_id',
+        as: 'catalogs'
+      }
+    },
+    {
+      $unwind: {
+        path: '$catalogs'
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        catalogs: {
+          $addToSet: '$catalogs.type'
+        }
+      }
+    }]
+
+    let catalogs = await DataSet.aggregate(statement)
+    if (catalogs) { catalogs = catalogs[0].catalogs }
+
     var filters = {}
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
@@ -30,6 +60,15 @@ module.exports = new Route({
           filters['salesCenter'] = ObjectId(salesCenter._id)
         }
 
+        continue
+      }
+
+      var isCatalog = catalogs.find(item => {
+        return item === filter
+      })
+
+      if (isCatalog) {
+        filters['catalogItems'] = ObjectId(ctx.request.query[filter])
         continue
       }
 

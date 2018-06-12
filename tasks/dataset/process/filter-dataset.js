@@ -35,7 +35,7 @@ const task = new Task(
     log.call(`Using batch size of ${batchSize}`)
     log.call(`Start ==>  ${moment().format()}`)
 
-    const project = await Project.findOne({uuid: argv.project}).populate('mainDataset')
+    const project = await Project.findOne({uuid: argv.project}).populate('mainDataset rule')
     const dataset = await DataSet.findOne({uuid: argv.dataset})
     const organization = await Organization.findOne({_id: project.organization})
 
@@ -56,15 +56,16 @@ const task = new Task(
       return true
     }
 
-    const cycles = organization.rules.cyclesAvailable
-    let cyclesAvailable = await Cycle.getAvailable(organization._id, cycles)
+    const cycles = project.rule.cyclesAvailable
+    let cyclesAvailable = await Cycle.getAvailable(organization._id, project.rule._id, cycles)
     if (cyclesAvailable.length < cycles) {
       log.call('Creating missing cycles.')
       await appendCyclesPeriods.run({
         uuid: organization.uuid,
+        rule: project.rule.uuid,
         cycles: cyclesAvailable.length - cycles
       })
-      cyclesAvailable = await Cycle.getAvailable(organization._id, cycles)
+      cyclesAvailable = await Cycle.getAvailable(organization._id, project.rule._id, cycles)
     }
 
     log.call('Obtaining rows to copy...')
@@ -90,7 +91,8 @@ const task = new Task(
           'cycle': row.cycle,
           'period': row.period,
           'data': row.data,
-          'apiData': row.apiData
+          'apiData': row.apiData,
+          'catalogItems': row.catalogItems
         }
         )
 
@@ -109,17 +111,17 @@ const task = new Task(
 
       log.call('Obtaining max and min dates...')
       const dateMin = moment.utc(cyclesAvailable[0].dateStart)
-      const dateMax = moment.utc(cyclesAvailable[cyclesAvailable.length - 1].dateStart)
+      let dateMax = moment.utc(cyclesAvailable[cyclesAvailable.length - 1].dateStart)
 
       if (dateMax.diff(moment.utc(project.mainDataset.dateMax)) < 0) {
-        dateMax = moment.utc(project.mainDataset.dateMax))
+        dateMax = moment.utc(project.mainDataset.dateMax)
       }
 
       dataset.set({
         dateMax: dateMax.format('YYYY-MM-DD'),
         dateMin: dateMin.format('YYYY-MM-DD'),
         status: 'adjustment',
-        rule: project.rule
+        rule: project.rule._id
       })
       await dataset.save()
 

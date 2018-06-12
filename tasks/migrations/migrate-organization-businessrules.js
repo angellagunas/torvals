@@ -1,10 +1,10 @@
-// node tasks/datasetsRows/send-adjustment-datasetrows.js
+// node tasks/dmigrations/migrate-organization-businessrules.js
 require('../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
 
 const Task = require('lib/task')
-const { Organization } = require('models')
+const { Organization, Rule } = require('models')
 
 const task = new Task(async function (argv) {
   console.log(`Start ==>  ${moment().format()}`)
@@ -13,30 +13,43 @@ const task = new Task(async function (argv) {
   console.log('Fetching Organizations...')
   const organizations = await Organization.find({})
 
-  for (let org of organizations) {
-    org.set({
-      rules: {
-        startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),
-        cycleDuration: 1,
-        cycle: 'M',
-        period: 'w',
-        periodDuration: 1,
-        season: 12,
-        cyclesAvailable: 6,
-        takeStart: true,
-        consolidation: 30,
-        forecastCreation: 12,
-        rangeAdjustmentRequest: 24,
-        rangeAdjustment: 18,
-        salesUpload: 6,
-        catalogs: ['Producto', 'Centro de venta', 'Canal']
+  let rules = {
+    startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),
+    cycleDuration: 1,
+    cycle: 'M',
+    period: 'w',
+    periodDuration: 1,
+    season: 12,
+    cyclesAvailable: 6,
+    takeStart: true,
+    consolidation: 8,
+    forecastCreation: 3,
+    rangeAdjustmentRequest: 6,
+    rangeAdjustment: 10,
+    salesUpload: 3,
+    catalogs: [
+      {
+        name: 'Producto',
+        slug: 'producto'
+      }, {
+        name: 'Centro de venta',
+        slug: 'centro-de-venta'
+      }, {
+        name: 'Canal',
+        slug: 'canal'
       }
-    })
-
-    await org.save()
+    ],
+    ranges: [0, 0, 10, 20, 30, null]
   }
 
-  console.log(`${bulkOps.length} ops ==> ${moment().format()}`)
+  for (let org of organizations) {
+    await Rule.create({
+      ...rules,
+      organization: org._id,
+      isCurrent: true
+    })
+  }
+
   console.log(`End ==>  ${moment().format()}`)
 
   return true

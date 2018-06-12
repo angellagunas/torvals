@@ -8,8 +8,10 @@ const {
   Role,
   Price,
   Period,
-  Cycle
+  Cycle,
+  CatalogItem
 } = require('models')
+const ObjectId = require('mongodb').ObjectID
 
 module.exports = new Route({
   method: 'get',
@@ -21,11 +23,43 @@ module.exports = new Route({
       'uuid': datasetId,
       'isDeleted': false,
       organization: ctx.state.organization
-    })
+    }).populate('catalogItems')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    var filters = {}
+    let statement = [{
+      $match: {
+        uuid: dataset.uuid
+      }
+    },
+    {
+      $lookup: {
+        from: 'catalogitems',
+        localField: 'catalogItems',
+        foreignField: '_id',
+        as: 'catalogs'
+      }
+    },
+    {
+      $unwind: {
+        path: '$catalogs'
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        catalogs: {
+          $addToSet: '$catalogs.type'
+        }
+      }
+    }]
+
+    let catalogs = await DataSet.aggregate(statement)
+    if (catalogs) { catalogs = catalogs[0].catalogs }
+
+    let catalogItemsFilters = []
+
+    let filters = {}
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
@@ -76,11 +110,25 @@ module.exports = new Route({
         continue
       }
 
+      var isCatalog = catalogs.find(item => {
+        return item === filter
+      })
+
+      if (isCatalog) {
+        const cItem = await CatalogItem.findOne({uuid: ctx.request.query[filter]})
+        catalogItemsFilters.push(cItem.id)
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
         filters[filter] = ctx.request.query[filter]
       }
+    }
+
+    if (catalogItemsFilters.length > 0) {
+      filters['catalogItems'] = { $all: catalogItemsFilters }
     }
 
     filters['dataset'] = dataset._id
@@ -128,7 +176,7 @@ module.exports = new Route({
     }
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
-    .populate(['salesCenter', 'adjustmentRequest', 'channel', 'period'])
+    .populate(['salesCenter', 'adjustmentRequest', 'channel', 'period', 'catalogItems'])
     .sort(ctx.request.query.sort || '-dateCreated')
 
     const AllPrices = await Price.find({'organization': ctx.state.organization._id})
@@ -159,7 +207,8 @@ module.exports = new Route({
         localAdjustment: item.data.localAdjustment,
         lastAdjustment: item.data.lastAdjustment,
         adjustmentRequest: item.adjustmentRequest,
-        externalId: item.externalId
+        externalId: item.externalId,
+        catalogItems: item.catalogItems
       })
     }
 
