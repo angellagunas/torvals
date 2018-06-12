@@ -11,6 +11,7 @@ module.exports = new Route({
     const group = await Group.findOne({'uuid': groupId, 'isDeleted': false})
       .populate('organization')
       .populate('channels')
+      .populate('catalogItems')
     ctx.assert(group, 404, 'Grupo no encontrado')
 
     ctx.body = {
