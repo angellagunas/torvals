@@ -42,7 +42,7 @@ describe('Generate cycles task', () => {
         salesUpload : 1
       }})
 
-      await generateCycles.run({uuid: org.uuid, isTest: true})
+      await generateCycles.run({uuid: org.uuid})
 
       const today = new Date()
 
@@ -82,6 +82,48 @@ describe('Generate cycles task', () => {
       expect(
         moment(new Date(lastCycle.dateEnd).toISOString()).utc().format()
       ).equal(lastCycleEndDate.format())
+    })
+  })
+
+  describe('with one cycle by month and december 30, 2017 as startDate', () => {
+    it('should generate a cycle with dateStart equals to rules startDate', async function () {
+
+      const org = await createOrganization({rules: {
+        startDate: '2017-12-30T00:00:00',
+        cycleDuration: 1,
+        cycle: 'M',
+        period: 'w',
+        periodDuration: 1,
+        season: 12,
+        cyclesAvailable:6,
+        catalogs: [
+          "producto"
+        ],
+        ranges: [0, 0, 0, 0, 0, 0],
+        takeStart: true,
+        consolidation: 26,
+        forecastCreation: 1,
+        rangeAdjustment: 1,
+        rangeAdjustmentRequest: 1,
+        salesUpload : 1
+      }})
+
+      await generateCycles.run({uuid: org.uuid})
+
+      const today = new Date()
+
+      const expectedCycles = 12 + (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
+      const cyclesGenerated = await Cycle.find({organization: org._id}).count()
+
+      const startCycle = await Cycle.findOne({
+        organization: org._id,
+        dateStart: new Date("2017-12-30T00:00:00Z").toISOString()
+      })
+
+      assert.exists(startCycle)
+
+      expect(cyclesGenerated).equal(expectedCycles)
+      expect(new Date(startCycle.dateStart).toISOString()).equal(new Date("2017-12-30T00:00:00Z").toISOString())
     })
   })
 
