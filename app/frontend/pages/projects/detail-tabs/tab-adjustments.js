@@ -87,12 +87,32 @@ class TabAdjustment extends Component {
     }
   }
 
-  
+  async getCatalogFilters(){
+    let url = '/app/catalogItems/'
+    let filters = []
+    this.rules.catalogs.map(async item => {
+      if(item.slug !== 'producto'){
+        let res = await api.get(url + item.slug)
+        if(res){
+          let aux = this.state.filters
+          aux[item.slug] = res.data
+          
+          this.setState({
+            filters:  aux
+          })
+        }
+      }
+    })
+  }
 
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       this.setState({ filtersLoading:true })
+      
       const url = '/app/rows/filters/dataset/'
+
+      await this.getCatalogFilters()
+      
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
         
@@ -103,7 +123,7 @@ class TabAdjustment extends Component {
 
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
-
+        
         if (res.salesCenters.length > 0) {
           formData.salesCenter = res.salesCenters[0].uuid
         }
@@ -111,9 +131,9 @@ class TabAdjustment extends Component {
         if (res.channels.length === 1) {
           formData.channel = res.channels[0].uuid
         }
-        
         this.setState({
           filters: {
+            ...this.state.filters,
             channels: _.orderBy(res.channels, 'name'),
             products: res.products,
             salesCenters: _.orderBy(res.salesCenters, 'name'),
@@ -143,7 +163,7 @@ class TabAdjustment extends Component {
     }
   }
 
-  getCategory (products) {
+  getCategory(products) {
     const categories = new Set()
     products.map((item) => {
       if (item.category && !categories.has(item.category)) {
@@ -225,6 +245,12 @@ class TabAdjustment extends Component {
       this.getSalesTable()    
     }catch(e){
       console.log(e)
+      this.setState({
+        dataRows: [],
+        isFiltered: true,
+        isLoading: '',
+        selectedCheckboxes: new Set()
+      })
     }
   }
 
@@ -918,6 +944,47 @@ getProductsSelected () {
     return moment.utc(cycle.dateStart).format('MMMM')
   }
 
+  findName = (name) => {
+    let find = ''
+    this.rules.catalogs.map(item => {
+      if(item.slug === name){
+        find = item.name
+      }
+    })
+    return find
+  }
+
+  makeFilters() {
+    let filters = []
+    for (const key in this.state.filters) {
+      if (this.state.filters.hasOwnProperty(key)) {
+        const element = this.state.filters[key];
+        if (key === 'cycles' ||
+          key === 'channels' ||
+          key === 'salesCenters' ||
+          key === 'categories' ||
+          key === 'products') {
+          continue
+        }
+        filters.push(
+          <div key={key} className='level-item'>
+            <Select
+              label={this.findName(key)}
+              name={key}
+              value={this.state.formData[key]}
+              placeholder='Todas'
+              optionValue='uuid'
+              optionName='name'
+              options={element}
+              onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+            />
+          </div>
+        )
+      }
+    }
+    return filters
+  }
+
   render () {
     let banner
     if (this.state.error) {
@@ -1070,7 +1137,6 @@ getProductsSelected () {
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
-
             <div className='level-item'>
               <Select
                 label='Categoría'
@@ -1090,38 +1156,41 @@ getProductsSelected () {
                   </span>
                 </div>
                 :
-              <Select
-                label='Canal'
-                name='channel'
-                value=''
-                placeholder='Todos'
-                optionValue='uuid'
-                optionName='name'
-                options={this.state.filters.channels}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
+                <Select
+                  label='Canal'
+                  name='channel'
+                  value=''
+                  placeholder='Todos'
+                  optionValue='uuid'
+                  optionName='name'
+                  options={this.state.filters.channels}
+                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                />
               }
             </div>
 
             <div className='level-item'>
-            {this.state.filters.salesCenters.length === 1 ?
+              {this.state.filters.salesCenters.length === 1 ?
                 <div className='saleCenter'>
                   <span>Centro de Venta: </span>
                   <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
                   </span>
-                </div>  
-            :
-              <Select
-                label='Centro de Venta'
-                name='salesCenter'
-                value={this.state.formData.salesCenter}
-                optionValue='uuid'
-                optionName='name'
-                options={this.state.filters.salesCenters}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            }
+                </div>
+                :
+                <Select
+                  label='Centro de Venta'
+                  name='salesCenter'
+                  value={this.state.formData.salesCenter}
+                  optionValue='uuid'
+                  optionName='name'
+                  options={this.state.filters.salesCenters}
+                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                />
+              }
             </div>
+          {this.state.filters && 
+            this.makeFilters()
+          }
           </div>
         </div>
 
@@ -1315,7 +1384,7 @@ getProductsSelected () {
         </div>
           
         <section>
-          {!this.state.isFiltered || this.state.isLoading
+          {!this.state.isFiltered || this.state.isLoading !== ''
             ? <div className='section has-text-centered subtitle has-text-primary'>
                 Cargando, un momento por favor
                 <Loader />
@@ -1325,7 +1394,7 @@ getProductsSelected () {
                 <div>
                   <section className='section'>
                   <h1 className='period-info'>
-                    <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getCycleName()} - </span> 
+                    <span className='has-text-weight-semibold is-capitalized'>Ciclo {this.getCycleName()} - </span> 
                     <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
                   </h1>
                   {this.getModifyButtons()}
