@@ -140,6 +140,14 @@ module.exports = new Route({
 
     var datasetRow = await DataSetRow.aggregate(statement)
 
+    if (datasetRow.length === 0) {
+      return ctx.body = {
+        channels: [],
+        products: [],
+        salesCenters: []
+      }
+    }
+
     ctx.body = {
       channels: datasetRow[0].channels,
       products: datasetRow[0].products,
