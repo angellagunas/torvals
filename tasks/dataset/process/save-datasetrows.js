@@ -18,7 +18,7 @@ const task = new Task(
     log.call('Saving products/sales centers/channels from catalog ...')
     log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid})
+    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('project')
     .populate('channels products salesCenters cycles periods catalogItems')
     if (!dataset) {
       throw new Error('Invalid uuid!')
@@ -66,17 +66,17 @@ const task = new Task(
     log.call('Saving catalog items ...')
     for (let catalogItems of dataset.catalogItems) {
       const filters = {dataset: dataset._id}
-      filters['catalogData.is_'+ catalogItems.type + '_id'] = catalogItems.externalId.toString()
+      filters['catalogData.is_' + catalogItems.type + '_id'] = catalogItems.externalId.toString()
 
       await DataSetRow.update(
       filters,
-      {
-        $push: {
-          catalogItems: catalogItems._id
-        }
-      }, {
-        multi: true
-      })
+        {
+          $push: {
+            catalogItems: catalogItems._id
+          }
+        }, {
+          multi: true
+        })
     }
     log.call('Catalog items successfully saved!')
 
@@ -100,6 +100,13 @@ const task = new Task(
     log.call('Cycles and periods successfully saved!')
 
     dataset.set({ status: 'reviewing' })
+
+    if (dataset.isMain && dataset.project.status === 'updating-rules') {
+      dataset.set({ status: 'ready' })
+      dataset.project.set({ status: 'pendingRows' })
+      await dataset.project.save()
+    }
+
     await dataset.save()
 
     log.call('Success! DatasetRows processed!')

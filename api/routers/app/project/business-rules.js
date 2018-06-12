@@ -8,7 +8,7 @@ module.exports = new Route({
   method: 'post',
   path: '/update/businessRules',
   validator: lov.object().keys({
-    name: lov.string().required()
+    uuid: lov.string().required()
   }),
   handler: async function (ctx) {
     const data = ctx.request.body
@@ -25,6 +25,12 @@ module.exports = new Route({
     await cloneMainDataset.run({
       uuid: project.uuid
     })
+
+    project.set({
+      outdated: false
+    })
+
+    await project.save()
 
     ctx.body = {
       data: project
