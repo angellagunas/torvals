@@ -220,16 +220,6 @@ class CatalogDetail extends Component {
     }
   }
 
-  findName = (name) => {
-    let find = ''
-    this.state.groups.map(item => {
-      if (item._id === name) {
-        find = item.name
-      }
-    })
-    return find
-  }
-
   render () {
     if (this.state.notFound) {
       return <NotFound msg={'este ' + this.props.match.params.uuid} />
@@ -250,7 +240,6 @@ class CatalogDetail extends Component {
         return group.uuid === item.uuid
       }) === -1)
     })
-
 
     let groupField
     if (testRoles('analyst') || testRoles('orgadmin')) {
