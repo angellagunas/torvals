@@ -42,8 +42,10 @@ class Dashboard extends Component {
     this.selectedSalesCenters = []
     this.selectedChannels = []
     this.selectedProducts = []
+    this.selectedItems = []
 
     this.currentRole = tree.get('user').currentRole.slug
+    this.rules = tree.get('rule')
 
   }
 
@@ -226,6 +228,8 @@ class Dashboard extends Component {
     let url = '/app/dashboard/projects'
     let res = await api.get(url, projects.map(p => p.uuid))
 
+    this.getCatalogFilters(res.catalogItems)
+
     this.setState({
       filters: res,
       salesCenters: _.orderBy(res.salesCenters, 'name'),
@@ -285,7 +289,8 @@ class Dashboard extends Component {
           channels: Object.values(this.selectedChannels),
           salesCenters: Object.values(this.selectedSalesCenters),
           //products: Object.values(this.selectedProducts),
-          projects: Object.values(this.selectedProjects).map(p => p.uuid)
+          projects: Object.values(this.selectedProjects).map(p => p.uuid),
+          catalogItems: Object.keys(this.selectedItems)
         })
 
         let totalPSale = 0
@@ -386,7 +391,8 @@ class Dashboard extends Component {
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
        // products: Object.values(this.selectedProducts),
-        projects: Object.values(this.selectedProjects).map(p => p.uuid)
+        projects: Object.values(this.selectedProjects).map(p => p.uuid),
+        catalogItems: Object.keys(this.selectedItems)
       })
       this.setState({
         productTable: res.data,
@@ -438,6 +444,17 @@ class Dashboard extends Component {
     } else if (filter === 'years') {
       this.setState({
         yearsCollapsed: !this.state.yearsCollapsed,
+      })
+    }
+    else {
+      let catalogItems = this.state.catalogItems
+      catalogItems.map(item => {
+        if (item.type === filter) {
+          item.isOpen = !item.isOpen
+        }
+      })
+      this.setState({
+        catalogItems
       })
     }
   }
@@ -708,6 +725,155 @@ class Dashboard extends Component {
     }
   }
 
+
+  findName = (name) => {
+    let find = ''
+    this.rules.catalogs.map(item => {
+      if (item.slug === name) {
+        find = item.name
+      }
+    })
+    return find
+  }
+
+  async getCatalogFilters(catalogs) {
+    let filters = _(catalogs)
+      .groupBy(x => x.type)
+      .map((value, key) => ({
+        type: this.findName(key),
+        objects: value,
+        selectAll: true,
+        isOpen: true
+      }))
+      .value()
+
+    this.setState({
+      catalogItems: filters
+    }, () => {
+      filters.map(item => {
+        if(item.type !== 'Producto'){
+          this.checkAllItems(item.selectAll, item.type)
+        }
+      })
+    })
+  }
+
+  async checkAllItems(value, type) {
+    let aux = this.state.catalogItems
+    aux.map(item => {
+      if (item.type === type) {
+        for (const s of item.objects) {
+          s.selected = value
+          if (value) {
+            this.selectedItems[s.uuid] = s
+          }
+          else {
+            delete this.selectedItems[s.uuid]
+          }
+        }
+      }
+    })
+
+    await this.setState({
+      catalogItems: aux
+    })
+  }
+
+  selectItem(e, value, obj, item) {
+    let aux = this.state.catalogItems
+
+    if (value) {
+      this.selectedItems[obj.uuid] = obj
+    } else {
+      delete this.selectedItems[obj.uuid]
+    }
+
+    obj.selected = value
+    item.selectAll = this.countItems(obj.type) === item.objects.length
+
+    this.getGraph()
+    this.getProductTable()
+    this.setState({
+      catalogItems: aux
+    })
+  }
+
+  countItems(type) {
+    let count = 0
+    Object.values(this.selectedItems).map(item => {
+      if (type === item.type) {
+        count++
+      }
+    })
+    return count
+  }
+
+  makeFilters() {
+    return this.state.catalogItems.map(item => {
+      if (item.type !== 'Producto') {
+        return (
+          <li key={item.type} className='filters-item'>
+            <div className={item.isOpen ? 'collapsable-title' : 'collapsable-title active'}
+              onClick={() => { this.showFilter(item.type) }}>
+              <a>
+                <span className='icon'>
+                  <i className={this.state.channelsCollapsed
+                    ? 'fa fa-plus' : 'fa fa-minus'} />
+                </span>
+                {item.type} <strong>{item.objects && item.objects.length}</strong>
+              </a>
+            </div>
+            <aside className={item.isOpen
+              ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
+              <div>
+                <Checkbox
+                  checked={item.selectAll}
+                  label={'Seleccionar Todos'}
+                  handleCheckboxChange={(e, value) => {
+                    this.checkAllItems(value, item.type)
+                    this.getGraph()
+                    this.getProductTable()
+                  }}
+                  key={'channel'}
+                  disabled={this.state.waitingData}
+                />
+              </div>
+              <ul className='menu-list'>
+                {item.objects &&
+                  item.objects.map((obj) => {
+                    if (obj.selected === undefined) {
+                      obj.selected = true
+                    }
+                    let name = obj.name === 'Not identified' ? obj.externalId + ' (No identificado)' : obj.externalId + ' ' + obj.name
+
+                    return (
+                      <li key={obj.uuid}>
+                        <a>
+                          <Checkbox
+                            label={<span title={name}>{name}</span>}
+                            handleCheckboxChange={(e, value) => this.selectItem(e, value, obj, item)}
+                            key={obj.uuid}
+                            checked={obj.selected}
+                            disabled={this.state.waitingData}
+                          />
+                          {obj.name === 'Not identified' &&
+                            <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/' + obj.type + '/' + obj.uuid) }}>
+                              <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
+                            </span>
+                          }
+                        </a>
+                      </li>
+                    )
+                  })
+                }
+              </ul>
+            </aside>
+          </li>
+        )
+      }
+    })
+  }
+
   render () {
     const user = this.context.tree.get('user')
 
@@ -972,66 +1138,11 @@ class Dashboard extends Component {
                           </aside>
                         </li>
 
-                        {/* <li className='filters-item'>
-                          <div className={this.state.productsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
-                            onClick={() => { this.showFilter('products') }}>
-                            <a>
-                              <span className='icon'>
-                                <i className={this.state.productsCollapsed
-                                ? 'fa fa-plus' : 'fa fa-minus'} />
-                              </span>
-                            Productos <strong>{this.state.products && this.state.products.length}</strong>
-                            </a>
-                          </div>
-                          <aside className={this.state.productsCollapsed
-                          ? 'is-hidden' : 'menu'}>
-                            <div>
-                              <Checkbox
-                                checked={this.state.allProducts}
-                                label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => {
-                                  this.checkAllProducts(value)
-                                  this.getGraph()
-                                  this.getProductTable()
-                                  this.setState({
-                                    reloadGraph: false
-                                  })
-                                }}
-                                key={'product'}
-                                disabled={this.state.waitingData}
-                            />
-                            </div>
-                            <ul className='menu-list'>
-                              {this.state.products &&
-                              this.state.products.map((item) => {
-                                if (!item.selected){
-                                  item.selected = false
-                                }
-                                let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
+                        {this.state.catalogItems &&
+                          this.makeFilters()
+                        }
 
-                                return (
-                                  <li key={item.uuid}>
-                                    <a>
-                                      <Checkbox
-                                        label={<span title={name}>{name}</span>}
-                                        handleCheckboxChange={(e, value) => this.selectProduct(e, value, item)}
-                                        key={item.uuid}
-                                        checked={item.selected}
-                                        disabled={this.state.waitingData}
-                                      />
-                                      {item.name === 'Not identified' &&
-                                        <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/products/' + item.uuid) }}>
-                                          <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
-                                        </span>
-                                      }
-                                    </a>
-                                  </li>
-                                )
-                              })
-                            }
-                            </ul>
-                          </aside>
-                        </li> */}
+                        
 
                       </ul>
                     </div>
