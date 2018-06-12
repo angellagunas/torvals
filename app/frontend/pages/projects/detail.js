@@ -98,7 +98,7 @@ class ProjectDetail extends Component {
 
     try {
       const body = await api.get(url)
-      console.log(body);
+
       if (!tab && currentRole !== 'manager-level-1') {
         if (body.data.status === 'empty') {
           tab = 'datasets'
@@ -118,7 +118,7 @@ class ProjectDetail extends Component {
         tab = 'ajustes'
       }
 
-      if (!body.data.outdated) this.showModalOutdated()
+      if (body.data.outdated) this.showModalOutdated()
 
       this.setState({
         loading: false,
