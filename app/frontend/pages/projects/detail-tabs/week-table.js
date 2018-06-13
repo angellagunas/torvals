@@ -389,7 +389,7 @@ class WeekTable extends Component {
   }
 
   onChange = (e, row) => {
-    if(e.target.value.length <= 10){
+    if(e.target.value.length <= 7){
       row.adjustmentForDisplay = Number(e.target.value)
       let aux = this.state.filteredDataByWeek
 
