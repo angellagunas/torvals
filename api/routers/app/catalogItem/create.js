@@ -1,9 +1,9 @@
 const Route = require('lib/router/route')
-const {Organization, CatalogItem} = require('models')
+const { Organization, CatalogItem, Rule } = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/',
+  path: '/create',
   handler: async function (ctx) {
     var data = ctx.request.body
     var organization = ctx.state.organization._id
@@ -11,7 +11,14 @@ module.exports = new Route({
     const org = await Organization.findOne({'_id': organization, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
 
-    const findCatalog = org.rules.catalogs.find(item => { return item === data.type })
+    const rule = await Rule.findOne({
+      'organization': org._id,
+      'isCurrent': true,
+      'isDeleted': false
+    })
+    ctx.assert(rule, 404, 'Reglas no encontradas')
+
+    const findCatalog = rule.catalogs.find(item => { return item === data.type })
 
     if (!findCatalog) {
       ctx.throw(404, 'Catálogo no encontrado')

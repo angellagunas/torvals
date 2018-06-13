@@ -15,9 +15,10 @@ module.exports = new Route({
     const body = ctx.request.body
     let project
 
-    project = await Project.findOne({uuid: body.project})
+    project = await Project.findOne({uuid: body.project}).populate('rule')
 
-    const rule = await Rule.findOne({organization: ctx.state.organization._id}).sort({dateCreated: -1})
+    const rule = project.rule
+    if (!rule) { ctx.throw(404, 'Reglas de negocio no definidas') }
 
     if (!project) {
       ctx.throw(404, 'Proyecto no encontrado')
@@ -28,8 +29,8 @@ module.exports = new Route({
       description: body.description,
       organization: ctx.state.organization._id,
       createdBy: ctx.state.user,
-      project: project._id
-      // rule: rule._id
+      project: project._id,
+      rule: rule
     })
 
     project.datasets.push({
@@ -38,6 +39,8 @@ module.exports = new Route({
     })
 
     await project.save()
+
+    dataset.rule = rule
 
     ctx.body = {
       data: dataset

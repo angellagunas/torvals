@@ -131,6 +131,7 @@ class ProjectForm extends Component {
       this.schema.properties['showOnDashboard'] = {
         type: 'boolean',
         title: 'Primario (Mostrar en dashboard)',
+        default: false,
         enum: [
           true,
           false

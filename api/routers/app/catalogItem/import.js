@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
-const {CatalogItem, Organization} = require('models')
 const parse = require('csv-parse/lib/sync')
 const lov = require('lov')
+const { CatalogItem, Organization, Rule } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -21,7 +21,14 @@ module.exports = new Route({
     })
     ctx.assert(org, 404, 'Organización no encontrada')
 
-    const findCatalog = org.rules.catalogs.find(item => { return item === data.type })
+    const rule = await Rule.findOne({
+      'organization': org._id,
+      'isCurrent': true,
+      'isDeleted': false
+    })
+    ctx.assert(rule, 404, 'Reglas no encontradas')
+
+    const findCatalog = rule.catalogs.find(item => { return item === data.type })
 
     if (!findCatalog) {
       ctx.throw(404, 'Catálogo no encontrado')

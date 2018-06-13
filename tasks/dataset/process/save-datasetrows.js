@@ -18,7 +18,8 @@ const task = new Task(
     log.call('Saving products/sales centers/channels from catalog ...')
     log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('channels products salesCenters newChannels newProducts newSalesCenters cycles periods')
+    const dataset = await DataSet.findOne({uuid: argv.uuid})
+    .populate('channels products salesCenters cycles periods catalogItems')
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
@@ -60,42 +61,26 @@ const task = new Task(
         multi: true
       })
     }
-    log('Sales centers successfully saved!')
+    log.call('Sales centers successfully saved!')
 
-    log('Saving catalog items ...')
+    log.call('Saving catalog items ...')
     for (let catalogItems of dataset.catalogItems) {
-      await DataSetRow.update({
-        dataset: dataset._id,
-        `catalogData.is_${catalogItems.type}_id`: catalogItems.externalId
-      }, {
+      const filters = {dataset: dataset._id}
+      filters['catalogData.is_'+ catalogItems.type + '_id'] = catalogItems.externalId.toString()
+
+      await DataSetRow.update(
+      filters,
+      {
         $push: {
-          catalogItems: catalogItems._id,
+          catalogItems: catalogItems._id
         }
       }, {
         multi: true
       })
     }
-    log('Catalog items successfully saved!')
+    log.call('Catalog items successfully saved!')
 
-    log.call('Saving cycles...')
-    if (dataset.cycles) {
-      for (let cycle of dataset.cycles) {
-        await DataSetRow.update({
-          dataset: dataset._id,
-          'data.forecastDate': {
-            $gte: moment(cycle.dateStart).utc().format('YYYY-MM-DD'),
-            $lte: moment(cycle.dateEnd).utc().format('YYYY-MM-DD')
-          }
-        }, {
-          cycle: cycle._id
-        }, {
-          multi: true
-        })
-      }
-    }
-    log.call('Cycles successfully saved!')
-
-    log.call('Saving periods...')
+    log.call('Saving cycles and periods...')
     if (dataset.periods) {
       for (let period of dataset.periods) {
         await DataSetRow.update({
@@ -105,13 +90,14 @@ const task = new Task(
             $lte: moment(period.dateEnd).utc().format('YYYY-MM-DD')
           }
         }, {
-          period: period._id
+          period: period._id,
+          cycle: period.cycle
         }, {
           multi: true
         })
       }
     }
-    log.call('Periods successfully saved!')
+    log.call('Cycles and periods successfully saved!')
 
     dataset.set({ status: 'reviewing' })
     await dataset.save()

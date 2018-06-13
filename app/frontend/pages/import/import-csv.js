@@ -27,7 +27,8 @@ class ImportCSV extends Component {
       apiCallErrorMessage: 'is-hidden',
       message: '',
       formData: {
-        file: undefined
+        file: undefined,
+        type: this.props.type
       }
     }
   }
@@ -48,8 +49,21 @@ class ImportCSV extends Component {
         apiCallErrorMessage: 'message is-danger'
       })
     }
-
     this.setState({ apiCallMessage: 'message is-success', message: data.message })
+    if (this.props.finishUp) {
+      setTimeout(() => {
+        this.setState({
+          apiCallMessage: 'is-hidden',
+          apiCallErrorMessage: 'is-hidden',
+          message: '',
+          formData: {
+            file: undefined,
+            type: this.props.type
+          }
+        })
+        this.props.finishUp()
+      }, 3000)
+    }
   }
 
   render () {
@@ -58,6 +72,55 @@ class ImportCSV extends Component {
       error = <div>
         {this.state.error}
       </div>
+    }
+
+    if (this.props.isModal) {
+      return (
+        <div className='importcsv'>
+          <div className='section is-paddingless-top'>
+
+            <div className='columns'>
+              <div className='column is-6'>
+                <BaseForm schema={schema}
+                  uiSchema={uiSchema}
+                  formData={this.state.formData}
+                  onChange={(e) => { this.changeHandler(e) }}
+                  onSubmit={(e) => { this.submitHandler(e) }}
+                  onError={(e) => { this.errorHandler(e) }}
+                  className='has-text-centered is-primary'
+                    >
+                  <div className={this.state.apiCallMessage}>
+                    <div
+                      className='message-body is-size-7 has-text-centered'
+                        >
+                      {this.state.message}
+                    </div>
+                  </div>
+                  <div className={this.state.apiCallErrorMessage}>
+                    <div className='message-body is-size-7 has-text-centered'>
+                      {error}
+                    </div>
+                  </div>
+                  <div>
+                    <button
+                      className='button is-primary'
+                      type='submit'>
+                      Importar
+                    </button>
+                  </div>
+                </BaseForm>
+              </div>
+              <div className='column'>
+                <h4>
+                  El archivo <strong>.csv</strong> debe contener el mismo formato que el mostrado debajo:
+                </h4>
+                {this.props.format}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      )
     }
 
     return (

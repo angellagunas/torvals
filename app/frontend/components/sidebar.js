@@ -10,13 +10,18 @@ import Projects from '../pages/projects/list'
 import SalesCenters from '../pages/salesCenters/list'
 import Products from '../pages/products/list'
 import Channels from '../pages/channel/list'
-import SelectOrg from '../pages/select-org'
 import Calendar from '../pages/calendar'
 import Prices from '../pages/prices/list'
 import UsersImport from '../pages/import/users'
 import SalesCentersImport from '../pages/import/sales-centers'
 import ChannelsImport from '../pages/import/channels'
 import ProductsImport from '../pages/import/products'
+import Catalogs from '../pages/catalog/list'
+
+const cleanName = (item) => {
+  let c = item.replace(/-/g, ' ')
+  return c.charAt(0).toUpperCase() + c.slice(1)
+}
 
 class Sidebar extends Component {
   constructor (props) {
@@ -26,7 +31,8 @@ class Sidebar extends Component {
       active: '',
       activePath: '',
       collapsed: false,
-      menuItems: []
+      menuItems: [],
+      rules: tree.get('rule') || []
     }
     this.handleActiveLink = this.handleActiveLink.bind(this)
   }
@@ -37,6 +43,25 @@ class Sidebar extends Component {
     this.setState({ menuItems }, function () {
       this.handleActiveLink(activeItem)
     })
+
+    var ruleCursor = tree.select('rule')
+
+    ruleCursor.on('update', () => {
+      const activeItem = window.location.pathname.split('/').filter(String).join('')
+      this.setState({
+        rules: tree.get('rule')
+      }, () => {
+        this.setState({
+          menuItems: this.handleOpenDropdown(this.getMenuItems(), activeItem)
+        })
+      })
+    })
+  }
+
+  componentWillUnmount () {
+    var ruleCursor = tree.select('rule')
+
+    ruleCursor.on('update', () => {})
   }
 
   componentWillReceiveProps (nextProps) {
@@ -75,6 +100,40 @@ class Sidebar extends Component {
     return item
   }
 
+  catalogs () {
+    let rules = this.state.rules
+    return rules.catalogs.map(item => {
+      let config =
+        {
+          name: item.name,
+          path: '/catalogs/' + item.slug,
+          title: item.name,
+          breadcrumbs: true,
+          breadcrumbConfig: {
+            path: [
+              {
+                path: '/',
+                label: 'Inicio',
+                current: false
+              },
+              {
+                path: '/catalogs/' + item.slug,
+                label: 'Catalogos',
+                current: true
+              }
+            ],
+            align: 'left'
+          },
+          branchName: item.slug,
+          titleSingular: item.name,
+          baseUrl: '/app/catalogItems/' + item.slug,
+          detailUrl: '/catalogs/' + item.slug
+        }
+
+      return Catalogs.opts(config).asSidebarItem()
+    })
+  }
+
   getMenuItems () {
     if (tree.get('organization')) {
       return [
@@ -109,7 +168,8 @@ class Sidebar extends Component {
             Prices.asSidebarItem(),
             SalesCenters.asSidebarItem(),
             Products.asSidebarItem(),
-            Channels.asSidebarItem()
+            Channels.asSidebarItem(),
+            ...this.catalogs()
           ]
         },
         {
@@ -120,8 +180,8 @@ class Sidebar extends Component {
           dropdown: [
             UsersImport.asSidebarItem(),
             SalesCentersImport.asSidebarItem(),
-            ChannelsImport.asSidebarItem(),
-            ProductsImport.asSidebarItem()
+            ProductsImport.asSidebarItem(),
+            ChannelsImport.asSidebarItem()
           ]
         }
       ]
@@ -158,6 +218,7 @@ class Sidebar extends Component {
       })
     })
   }
+
   handleToggle (index) {
     const menuItems = [...this.state.menuItems]
     menuItems[index].opened = !menuItems[index].opened
@@ -168,30 +229,7 @@ class Sidebar extends Component {
     const menuClass = classNames({
       'menu-collapsed': this.state.collapsed
     })
-    /* return (<div className='offcanvas column is-narrow is-paddingless'>
-      <aside className={menuClass}>
-        <ul className='menu-list'>
-          <SelectOrg collapsed={this.state.collapsed} />
-          {this.state.menuItems.map((item, index) => {
-            if (item) {
-              return <SidebarItem
-                title={item.title}
-                index={index}
-                status={item.opened}
-                collapsed={this.state.collapsed}
-                icon={item.icon}
-                to={item.to}
-                dropdown={item.dropdown}
-                roles={item.roles}
-                onClick={this.handleActiveLink}
-                dropdownOnClick={(i) => this.handleToggle(i)}
-                activeItem={this.state.active}
-                key={item.title.toLowerCase().replace(/\s/g, '')} />
-            }
-          })}
-        </ul>
-      </aside>
-    </div>) */
+
     return (
       <div className={'sidenav menu ' + menuClass}>
         <ul className='menu-list'>

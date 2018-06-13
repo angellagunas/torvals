@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const { Product, Channel, Anomaly, SalesCenter, Project } = require('models')
+const { Product, Channel, Anomaly, SalesCenter, Project, Role, CatalogItem } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -114,6 +114,20 @@ module.exports = new Route({
           $or.push({salesCenter: {$in: salesCenterValues}})
         }
 
+        let catalogItemsValues = []
+        let catalogItems = await CatalogItem.find({
+          name: new RegExp(ctx.request.query[filter], 'i'),
+          isDeleted: false,
+          organization: ctx.state.organization
+        })
+        catalogItems.map(item => {
+          catalogItemsValues.push(item._id)
+        })
+
+        if (catalogItemsValues.length) {
+          $or.push({catalogItems: {$in: catalogItemsValues}})
+        }
+
         if ($or.length) { filters['$or'] = $or }
       } else {
         if (!isNaN(parseInt(ctx.request.query[filter]))) {
@@ -121,6 +135,45 @@ module.exports = new Route({
         } else {
           filters[filter] = ctx.request.query[filter]
         }
+      }
+    }
+
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
+    if (
+      currentRole.slug === 'consultor'
+    ) {
+      var groups = user.groups
+      if (!filters['salesCenter']) {
+        var salesCenters = []
+
+        salesCenters = await SalesCenter.find({
+          groups: {$in: groups},
+          organization: ctx.state.organization._id
+        })
+
+        filters['salesCenter'] = {$in: salesCenters}
+      }
+
+      if (!filters['channel']) {
+        var channels = []
+
+        channels = await Channel.find({
+          groups: { $in: groups },
+          organization: ctx.state.organization._id
+        })
+
+        filters['channel'] = {$in: channels}
       }
     }
 
@@ -134,7 +187,7 @@ module.exports = new Route({
         project: project._id
       },
       sort: ctx.request.query.sort || '-dateCreated',
-      populate: ['salesCenter', 'product', 'channel', 'organization']
+      populate: ['salesCenter', 'product', 'channel', 'organization', 'catalogItems']
     })
 
     rows.data = rows.data.map(item => {

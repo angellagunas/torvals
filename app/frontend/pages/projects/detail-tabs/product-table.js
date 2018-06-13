@@ -13,6 +13,14 @@ class ProductTable extends Component {
       data: this.props.data
     }
     this.inputs = {}
+
+    this.canEdit = true
+
+    if (this.props.currentRole === 'consultor' || this.props.generalAdjustment === 0) {
+      this.canEdit = false
+    }
+
+    this.rules = this.props.rules
   }
 
   splitWords (words) {
@@ -49,7 +57,7 @@ class ProductTable extends Component {
       <div className="field has-addons view-btns">
         <span className="control">
           <a className={this.props.currentRole === 'consultor' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
-            Vista Semana
+            Vista Periodo
           </a>
         </span>
         <span className="control">
@@ -61,12 +69,41 @@ class ProductTable extends Component {
     )
   }
 
+
+  getCatalogColumns() {
+    return this.rules.catalogs.map(item => {
+      if(item.slug !== 'producto'){
+      return (
+        {
+          group: ' ',
+          title: item.name,
+          property: item.slug,
+          default: 'N/A',
+          sortable: true,
+          groupClassName: 'table-week',
+          headerClassName: 'table-head',
+          className: 'table-cell is-capitalized',
+          formatter: (row) => {
+            let name = 'N/A'
+            row.catalogItems.map(obj => {
+              if(obj.type === item.slug){
+                name = obj.name
+              }
+            })
+            return name
+          }
+        }
+      )
+    }
+    }).filter(item => item)
+  }
+
   getColumns () {
     return [
       {
         group: this.getBtns(),
         title: (() => {
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
           return (
             <Checkbox
               label='checkAll'
@@ -77,13 +114,13 @@ class ProductTable extends Component {
           )
         }
         })(),
-        groupClassName: 'col-border-left colspan is-paddingless',
+        groupClassName: 'col-border-left colspan is-paddingless table-week',
         headerClassName: 'col-border-left table-product-head',
         className: 'col-border-left', 
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
           if (!row.selected) {
             row.selected = false
           }
@@ -104,6 +141,7 @@ class ProductTable extends Component {
         property: 'productId',
         default: 'N/A',
         sortable: true,
+        groupClassName: 'table-week',        
         headerClassName: 'has-text-centered table-product-head id',   
         className: 'id',     
         formatter: (row) => {
@@ -118,8 +156,21 @@ class ProductTable extends Component {
         property: 'productName',
         default: 'N/A',
         sortable: true,
+        groupClassName: 'table-week',        
         headerClassName: 'table-product table-product-head',
-        className: 'table-product productName'
+        className: 'table-product productName',
+        formatter: (row) => {
+          let product = 'N/A'
+          row.catalogItems.map(obj => {
+            if (obj.type === 'producto') {
+              product = obj.name
+            }
+          })
+          if (product === 'Not identified') {
+            product = 'No identificado'
+          }
+          return product
+        }
       },
       {
         group: ' ',
@@ -132,7 +183,7 @@ class ProductTable extends Component {
         >
           <i className='fa fa-exclamation fa-lg' />
         </span>,
-        groupClassName: 'table-product',
+        groupClassName: 'table-product table-week',
         headerClassName: 'table-product table-product-head table-product-head-bord table-product-shadow',
         className: 'table-product table-product-shadow',
         formatter: (row) => {
@@ -141,14 +192,20 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: 'Semana',
-        property: 'semanaBimbo',
+        title: 'Periodo',
+        property: 'period',
         default: 'N/A',
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
+        formatter: (row) => {
+          if(row.period){
+            return row.period.period
+          }
+        } 
       },
+      ...this.getCatalogColumns(),
       {
         group: ' ',
         title: 'Centro de Ventas',
@@ -216,7 +273,7 @@ class ProductTable extends Component {
           }
 
           row.tabin = row.key * 10
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
             return (
               <input
                 type='text'
@@ -323,7 +380,7 @@ class ProductTable extends Component {
       limit =
         <span
           className='icon has-text-danger'
-          title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
+          title={'Periodo ' + product.period.period + ' fuera de rango'}
           onClick={() => {
               this.props.handleAdjustmentRequest(product)
             }}>

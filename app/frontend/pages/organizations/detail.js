@@ -5,6 +5,8 @@ import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import { testRoles } from '~base/tools'
+import tree from '~core/tree'
+import { toast } from 'react-toastify'
 
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -32,7 +34,8 @@ class OrganizationDetail extends Component {
       currentStep: 1,
       selectedTab: '1',
       rules: {},
-      stepsCompleted: []
+      stepsCompleted: [],
+      unsaved: false
     }
     this.tabs = []
   }
@@ -55,16 +58,59 @@ class OrganizationDetail extends Component {
       const body = await api.get(url)
 
       this.setState({
-        loading: false,
-        loaded: true,
         organization: body.data,
-        rules: body.data.rules
       })
     } catch (e) {
       await this.setState({
         loading: false,
         loaded: true,
         notFound: true
+      })
+    }
+
+    await this.loadRules()
+  }
+
+  async loadRules () {
+    var url = '/app/rules/active'
+    
+    try {
+      const body = await api.get(url)
+
+      this.setState({
+        loading: false,
+        loaded: true,
+        rules: body.data
+      })
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
+  }
+
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = ''
+    if (type === toast.TYPE.WARNING) {
+      className = 'has-bg-warning'
+    }
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false,
+        className: className
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false,
+        className: className
       })
     }
   }
@@ -129,9 +175,8 @@ class OrganizationDetail extends Component {
           ...data,
           step: step
         },
+        unsaved: true,
         currentStep: 1
-      }, async () => {
-        await this.saveData()
       })
     }
   }
@@ -153,11 +198,22 @@ class OrganizationDetail extends Component {
 
   async saveData() {
     try {
-      let url = '/app/organizations/rules/' + this.props.match.params.uuid
-      let res = api.post(url, {
+      let url = '/app/rules'
+
+      let res = await api.post(url, {
         ...this.state.rules
       })
+
       if (res) {
+        this.notify(
+          '¡Las nuevas reglas de negocio se han guardado exitosamente!',
+          5000,
+          toast.TYPE.SUCCESS
+        )
+
+        this.setState({unsaved: false})
+        tree.set('rule', res.rules)
+        tree.commit()
         return true
       } else {
         return false
@@ -181,6 +237,14 @@ class OrganizationDetail extends Component {
   render () {
     const { organization } = this.state
 
+    if (this.state.notFound) {
+      return <NotFound msg='esta organización' />
+    }
+
+    if (!organization.uuid || !this.state.loaded) {
+      return <Loader />
+    }
+
     this.tabs = [
       {
         name: '0',
@@ -188,9 +252,7 @@ class OrganizationDetail extends Component {
         hide: false,
         content: (
           <div>
-            
             <div className='section pad-sides has-20-margin-top'>
-
               <div className='columns'>
                 <div className='column'>
                   <div className='card'>
@@ -248,9 +310,7 @@ class OrganizationDetail extends Component {
                   </div>
                 </div>
               </div>
-              
             </div>
-           
           </div>
         )
       },
@@ -261,7 +321,12 @@ class OrganizationDetail extends Component {
         reload: true,
         disabled: !(this.state.currentStep === 1),
         content: (
-          <Rules rules={this.state.rules} setStep={(step) => this.setStep(step)}/>
+          <Rules
+            rules={this.state.rules}
+            setStep={(step) => this.setStep(step)}
+            save={() => { this.saveData() }}
+            unsaved={this.state.unsaved}
+          />
         )
       }, 
       {
@@ -316,18 +381,7 @@ class OrganizationDetail extends Component {
             />
         )
       }
-      
     ]
-
-    if (this.state.notFound) {
-      return <NotFound msg='esta organización' />
-    }
-
-    
-
-    if (!organization.uuid) {
-      return <Loader />
-    }
 
     return (
      
@@ -344,24 +398,18 @@ class OrganizationDetail extends Component {
             },
             {
               path: '/organizations/',
-              label: 'Detalle',
-              current: true
-            },
-            {
-              path: '/organizations/',
               label: organization.name,
               current: true
             }
           ]}
           align='left'
         />
-          <Tabs
-            onChangeTab={(tab) => this.actualTab(tab)}
-            tabs={this.tabs}
-            selectedTab={this.tabs[this.state.currentStep].name}
-            className='is-fullwidth'
-          />
-
+        <Tabs
+          onChangeTab={(tab) => this.actualTab(tab)}
+          tabs={this.tabs}
+          selectedTab={this.tabs[this.state.currentStep].name}
+          className='is-fullwidth'
+        />
       </div>
     )
   }

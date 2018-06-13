@@ -45,10 +45,14 @@ module.exports = new Route({
           project: datasetRow.project,
           dataset: datasetRow.dataset,
           datasetRow: datasetRow._id,
+          product: datasetRow.product,
+          channel: datasetRow.channel,
+          salesCenter: datasetRow.salesCenter,
           lastAdjustment: datasetRow.data.adjustment,
           newAdjustment: row.newAdjustment,
           requestedBy: ctx.state.user._id,
-          status: status
+          status: status,
+          catalogItems: datasetRow.catalogItems
         })
 
         datasetRow.adjustmentRequest = adjustmentRequest

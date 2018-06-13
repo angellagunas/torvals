@@ -27,6 +27,7 @@ class GroupDetail extends Component {
       group: {},
       isLoading: ''
     }
+    this.rules = tree.get('rule')
 
     currentRole = tree.get('user').currentRole.slug
   }
@@ -39,7 +40,19 @@ class GroupDetail extends Component {
       pageLength: 10
     })
     this.context.tree.commit()
+    this.getChannels()
+    this.getSalesCenters()
     this.load()
+  }
+
+  findCatalogName = (name) => {
+    let find = ''
+    this.rules.catalogs.map(item => {
+      if (item.slug === name) {
+        find = item.name
+      }
+    })
+    return find
   }
 
   async load () {
@@ -51,7 +64,14 @@ class GroupDetail extends Component {
       this.setState({
         loading: false,
         loaded: true,
-        group: body.data
+        group: body.data,
+        catalogItems: _(body.data.catalogItems)
+          .groupBy(x => x.type)
+          .map((value, key) => ({
+            type: this.findCatalogName(key),
+            objects: value
+          }))
+          .value()
       })
     } catch (e) {
       await this.setState({
@@ -228,6 +248,30 @@ class GroupDetail extends Component {
     this.setState({ isLoading: '' })
   }
 
+  async getSalesCenters () {
+    let url = '/app/salesCenters/'
+    let res = await api.get(url, {
+      start: 0,
+      limit: 0,
+      group: this.props.match.params.uuid
+    })
+    this.setState({
+      salesCenters: res.data
+    })
+  }
+
+  async getChannels () {
+    let url = '/app/channels/'
+    let res = await api.get(url, {
+      start: 0,
+      limit: 0,
+      group: this.props.match.params.uuid
+    })
+    this.setState({
+      channels: res.data
+    })
+  }
+
   render () {
     if (this.state.notFound) {
       return <NotFound msg='este grupo' />
@@ -279,11 +323,6 @@ class GroupDetail extends Component {
                   },
                   {
                     path: '/manage/groups/',
-                    label: 'Detalle',
-                    current: true
-                  },
-                  {
-                    path: '/manage/groups/',
                     label: group.name,
                     current: true
                   }
@@ -321,7 +360,62 @@ class GroupDetail extends Component {
                         errorHandler={(data) => this.errorHandler(data)}
                         finishUp={(data) => this.finishUpHandler(data)}
                         >
-                        <div className='field is-grouped'>
+                        {this.state.channels && this.state.channels.length > 0 &&
+                        <div>
+                          <p className='label'>Canales</p>
+                          <div className='tags'>
+                            {this.state.channels && this.state.channels.map((item) => {
+                              return (
+                                <Link className='tag is-capitalized'
+                                  key={item.uuid}
+                                  to={'/catalogs/channels/' + item.uuid}>
+                                  {item.name}
+                                </Link>
+                              )
+                            })}
+                          </div>
+                        </div>
+                        }
+                        {this.state.salesCenters && this.state.salesCenters.length > 0 &&
+                          <div className='has-20-margin-top'>
+                            <p className='label'>Centros de Venta</p>
+                            <div className='tags'>
+                              {this.state.salesCenters && this.state.salesCenters.map((item) => {
+                                return (
+                                  <Link className='tag is-capitalized'
+                                    key={item.uuid}
+                                    to={'/catalogs/salesCenters/' + item.uuid}>
+                                    {item.name}
+                                  </Link>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        }
+                        {
+                          this.state.catalogItems &&
+                          this.state.catalogItems.length > 0 &&
+                          this.state.catalogItems.map(item => {
+                            return (
+                              <div className='has-20-margin-top' key={item.type}>
+                                <p className='label'>{item.type}</p>
+                                <div className='tags'>
+                                  {item.objects.map((obj) => {
+                                    return (
+                                      <Link className='tag is-capitalized'
+                                        key={obj.uuid}
+                                        to={'/catalogs/' + obj.type + '/' + obj.uuid}>
+                                        {obj.name}
+                                      </Link>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )
+                          })
+                          
+                        }
+                        <div className='field is-grouped has-20-margin-top'>
                           <div className='control'>
                             <button
                               className={'button is-primary ' + this.state.isLoading}

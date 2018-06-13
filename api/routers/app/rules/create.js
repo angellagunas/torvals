@@ -8,8 +8,8 @@ module.exports = new Route({
   method: 'post',
   path: '/',
   handler: async function (ctx) {
-    var data = ctx.request.body
-    var organizationId = ctx.state.organization._id
+    let data = ctx.request.body
+    let organizationId = ctx.state.organization._id
 
     const org = await Organization.findOne({'_id': organizationId, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
@@ -24,11 +24,11 @@ module.exports = new Route({
 
     if (data.cycle !== 'M' && data.cycle !== 'd' && data.cycle !== 'y' && data.cycle !== 'w') { ctx.throw(422, 'Valor incorrecto para el ciclo') }
 
-    var startDate = moment(data.startDate).utc().format('YYYY-MM-DD')
-    var cycleDate = moment(startDate).utc().add(data.cycleDuration, data.cycle)
-    var periodDate = moment(startDate).utc().add(data.periodDuration, data.period)
-    var cycleDiff = moment.duration(cycleDate.diff(startDate)).asDays()
-    var periodDiff = moment.duration(periodDate.diff(startDate)).asDays()
+    let startDate = moment(data.startDate).utc().format('YYYY-MM-DD')
+    let cycleDate = moment(startDate).utc().add(data.cycleDuration, data.cycle)
+    let periodDate = moment(startDate).utc().add(data.periodDuration, data.period)
+    let cycleDiff = moment.duration(cycleDate.diff(startDate)).asDays()
+    let periodDiff = moment.duration(periodDate.diff(startDate)).asDays()
 
     if (cycleDiff < periodDiff) { ctx.throw(400, 'El ciclo no puede tener menor duración que el periodo') }
 
@@ -51,17 +51,31 @@ module.exports = new Route({
 
     if (!Array.isArray(data.catalogs)) { ctx.throw(422, 'Catálogos tiene tipo inválido') }
 
-    let findProductsCatalog = data.catalogs.find(item => { return slugify(item) === 'producto' || slugify(item) === 'productos' })
+    let findProductsCatalog = data.catalogs.find(item => { return item.slug === 'producto' || item.slug === 'productos' })
     if (findProductsCatalog === undefined) { ctx.throw(422, 'Se debe de agregar un catálogo de productos') }
-    var rule = await Rule.create({
+
+    let previousRule = await Rule.findOne({isCurrent: true, organization: organizationId})
+
+    let version = (previousRule) ? previousRule.version + 1 : 1
+
+    await Rule.update({organization: organizationId}, {isCurrent: false}, {multi: true})
+
+    data._id = undefined
+    data.uuid = undefined
+    data.isDeleted = undefined
+
+    let rule = await Rule.create({
       ...data,
-      organization: organizationId
+      organization: organizationId,
+      isCurrent: true,
+      version: version
     })
+
     await generateCycles.run({uuid: org.uuid, rule: rule.uuid})
 
     const periods = await Period.find({ organization: org._id, isDeleted: false, rule: rule._id }).populate('cycle')
-    var periodsArray = new Set()
-    var cyclesArray = new Set()
+    let periodsArray = new Set()
+    let cyclesArray = new Set()
     periods.data = periods.map(item => {
       periodsArray.add(item._id)
       cyclesArray.add(item.cycle._id)

@@ -30,6 +30,7 @@ class TabAdjustment extends Component {
       pendingDataRows: {},
       isFiltered: false,
       filtersLoaded: false,
+      filtersLoading: false,
       isLoading: '',
       isLoadingButtons: '',
       modified: 0,
@@ -38,13 +39,11 @@ class TabAdjustment extends Component {
         channels: [],
         products: [],
         salesCenters: [],
-        semanasBimbo: [],
         categories: [],
-        filteredSemanasBimbo: [],
-        periods: []
+        cycles: []
       },
       formData: {
-        period: 1
+        cycle: 1
       },
       disableButtons: true,
       selectedCheckboxes: new Set(),
@@ -62,6 +61,7 @@ class TabAdjustment extends Component {
     }
 
     currentRole = tree.get('user').currentRole.slug
+    this.rules = this.props.rules
     this.toastId = null
   }
 
@@ -74,7 +74,7 @@ class TabAdjustment extends Component {
   componentWillReceiveProps(nextProps){
     if (this.props.project.uuid && nextProps.project.uuid !== this.props.project.uuid) return
     
-    if (nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded) {
+    if (nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded && !this.state.filtersLoading) {
       this.getFilters()
     }
     
@@ -87,100 +87,43 @@ class TabAdjustment extends Component {
     }
   }
 
-  getPeriods(data) {
-    let periods = []
-    let adjustments = {
-      '1': 10,
-      '2': 20,
-      '3': 30,
-      '4': -1
-    }
-    const map = new Map()
-
-    if (this.props.project.businessRules && this.props.project.businessRules.adjustments) {
-      adjustments = this.props.project.businessRules.adjustments
-    }
-
-    data.map((date) => {
-      if(date.year === moment().get('year')){
-        const key = date.month
-        const collection = map.get(key)
-        if (!collection) {
-          map.set(key, [date])
-        } else {
-          collection.push(date)
+  async getCatalogFilters(){
+    let url = '/app/catalogItems/'
+    let filters = []
+    this.rules.catalogs.map(async item => {
+      if(item.slug !== 'producto'){
+        let res = await api.get(url + item.slug)
+        if(res){
+          let aux = this.state.filters
+          aux[item.slug] = res.data
+          
+          this.setState({
+            filters:  aux
+          })
         }
       }
     })
-
-    let mapSize = map.size > 4 ? 4 : map.size
-
-    for (let i = map.size; i > map.size-mapSize; i--) {
-      const element = Array.from(map)[i-1]
-      let adjustment = adjustments['' + (map.size - i + 1)]
-
-      if(adjustment !== -1){
-        adjustment = adjustment/100
-      }
-
-      periods.push({
-        number: element[0],
-        name: `${moment(element[1][0].month, 'M').format('MMMM')}`,
-        maxSemana: element[1][0].week,
-        minSemana: element[1][element[1].length - 1].week,
-        adjustment: adjustment
-      })
-    }
-
-    return periods
   }
 
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
+      this.setState({ filtersLoading:true })
+      
       const url = '/app/rows/filters/dataset/'
+
+      await this.getCatalogFilters()
+      
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
+        
+        let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
+        cycles = cycles.map((item, key) => {
+          return item = { ...item, adjustmentRange: this.rules.ranges[key], name: moment.utc(item.dateStart).format('MMMM') }
+        })
 
-        if (res.dates.length === 0) {
-          this.notify(
-            'Error! No hay fechas disponibles. Por favor contacta a un administrador.',
-            5000,
-            toast.TYPE.ERROR
-          )
-
-          this.setState({
-            error: true,
-            errorMessage: 'No hay fechas disponibles. Por favor contacta a un administrador.'
-          })
-          return
-        }
-
-        if (res.dates.length < res.semanasBimbo.length) {
-          this.notify(
-            'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
-            ' correctamente. Por favor contacta a un administrador.',
-            5000,
-            toast.TYPE.ERROR
-          )
-        }
-
-        let periods = this.getPeriods(res.dates)
-        if(periods.length === 0){
-          this.notify(
-            'No se puede hacer ajustes de años anteriores',        
-            5000,
-            toast.TYPE.ERROR
-          ) 
-
-          this.setState({
-            error: true,
-            errorMessage: 'No se puede hacer ajustes de años anteriores.'
-          })
-          return
-        }
         let formData = this.state.formData
-        formData.period = periods[0].number
-
+        formData.cycle = cycles[0].cycle
+        
         if (res.salesCenters.length > 0) {
           formData.salesCenter = res.salesCenters[0].uuid
         }
@@ -188,22 +131,17 @@ class TabAdjustment extends Component {
         if (res.channels.length === 1) {
           formData.channel = res.channels[0].uuid
         }
-
-        let days = periods[0].maxSemana - periods[0].minSemana
-        let filteredSemanasBimbo = Array.from(Array(days + 1), (_, x) => periods[0].maxSemana - x).reverse()
-
         this.setState({
           filters: {
+            ...this.state.filters,
             channels: _.orderBy(res.channels, 'name'),
             products: res.products,
             salesCenters: _.orderBy(res.salesCenters, 'name'),
-            semanasBimbo: res.semanasBimbo,
-            filteredSemanasBimbo: filteredSemanasBimbo,
-            dates: res.dates,
             categories: this.getCategory(res.products),
-            periods: periods
+            cycles: cycles
           },
           formData: formData,
+          filtersLoading: false,
           filtersLoaded: true
         }, () => {
           this.getDataRows()
@@ -212,6 +150,7 @@ class TabAdjustment extends Component {
         console.log(e)
         this.setState({
           error: true,
+          filtersLoading: false,
           errorMessage: '¡No se pudieron cargar los filtros!'
         })
 
@@ -224,7 +163,7 @@ class TabAdjustment extends Component {
     }
   }
 
-  getCategory (products) {
+  getCategory(products) {
     const categories = new Set()
     products.map((item) => {
       if (item.category && !categories.has(item.category)) {
@@ -235,18 +174,14 @@ class TabAdjustment extends Component {
   }
 
   async filterChangeHandler (name, value) { 
-    if(name === 'period'){
-      var period = this.state.filters.periods.find(item => {
+    if(name === 'cycle'){
+      var cycle = this.state.filters.cycles.find(item => {
         return item.number === value
       })
 
-      var days = period.maxSemana - period.minSemana
-      var filteredSemanasBimbo = Array.from(Array(days+1), (_,x) => period.maxSemana - x).reverse()
-
       this.setState({
         filters: {
-          ...this.state.filters,
-          filteredSemanasBimbo: filteredSemanasBimbo
+          ...this.state.filters
         }
       })
     }
@@ -260,20 +195,32 @@ class TabAdjustment extends Component {
     })
   }
 
+  getAdjustment(adjustment){
+    if(adjustment === null){
+      return -1
+    }
+    else if(adjustment !== undefined){
+      return Number(adjustment) / 100
+    }
+    else{
+      return 0
+    }
+  }
+
   async getDataRows () {
-    if (!this.state.formData.period) {
-      this.notify('¡Se debe filtrar por periodo!', 5000, toast.TYPE.ERROR)
+    if (!this.state.formData.cycle) {
+      this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
     }
 
-    var period = this.state.filters.periods.find(item => {
-      return item.number === this.state.formData.period
+    var cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === this.state.formData.cycle
     })
 
     this.setState({
       isLoading: ' is-loading',
       isFiltered: false,
-      generalAdjustment: period.adjustment,
+      generalAdjustment: this.getAdjustment(cycle.adjustmentRange),
       salesTable: [],
       noSalesData: ''      
     })
@@ -282,7 +229,10 @@ class TabAdjustment extends Component {
     try{
       let data = await api.get(
         url + this.props.project.activeDataset.uuid,
-        this.state.formData
+        {
+          ...this.state.formData,
+          cycle: cycle.uuid
+        }
       )
 
       this.setState({
@@ -295,6 +245,12 @@ class TabAdjustment extends Component {
       this.getSalesTable()    
     }catch(e){
       console.log(e)
+      this.setState({
+        dataRows: [],
+        isFiltered: true,
+        isLoading: '',
+        selectedCheckboxes: new Set()
+      })
     }
   }
 
@@ -814,21 +770,23 @@ getProductsSelected () {
       return <span>Modo Ajuste Ilimitado</span>
     }
 
-    if (currentRole === 'consultor') {
+    if (currentRole === 'consultor' || ajuste === 0) {
       return <span>Modo Visualización</span>
-    }
-    else {
+    } else {
       return <span>Modo Ajuste {this.state.generalAdjustment * 100} % permitido</span>
     }
   }
 
   async getSalesTable() {
     let url = '/app/datasets/sales/' + this.props.project.activeDataset.uuid
-
+    let cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === this.state.formData.cycle
+    })
+    
     try {
       let res = await api.post(url, {
         ...this.state.formData,
-        semana_bimbo: this.state.filters.filteredSemanasBimbo
+        cycle: cycle.uuid
       })
 
       if (res.data) {
@@ -979,14 +937,56 @@ getProductsSelected () {
     })
   }
 
-  getPeriod() {
-    var period = this.state.filters.periods.find(item => {
-      return item.number === this.state.formData.period
+  getCycleName() {
+    let cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === this.state.formData.cycle
     })
-    return period.name
+    return moment.utc(cycle.dateStart).format('MMMM')
+  }
+
+  findName = (name) => {
+    let find = ''
+    this.rules.catalogs.map(item => {
+      if(item.slug === name){
+        find = item.name
+      }
+    })
+    return find
+  }
+
+  makeFilters() {
+    let filters = []
+    for (const key in this.state.filters) {
+      if (this.state.filters.hasOwnProperty(key)) {
+        const element = this.state.filters[key];
+        if (key === 'cycles' ||
+          key === 'channels' ||
+          key === 'salesCenters' ||
+          key === 'categories' ||
+          key === 'products') {
+          continue
+        }
+        filters.push(
+          <div key={key} className='level-item'>
+            <Select
+              label={this.findName(key)}
+              name={key}
+              value={this.state.formData[key]}
+              placeholder='Todas'
+              optionValue='uuid'
+              optionName='name'
+              options={element}
+              onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+            />
+          </div>
+        )
+      }
+    }
+    return filters
   }
 
   render () {
+    let banner
     if (this.state.error) {
       return (
         <div className='section columns'>
@@ -1005,7 +1005,7 @@ getProductsSelected () {
     }
 
     if (this.props.adjustmentML1){
-      return (
+      banner =  (
         <div className='section columns'>
           <div className='column'>
             <article className="message is-primary">
@@ -1090,7 +1090,7 @@ getProductsSelected () {
       )
     }
 
-    if (!this.state.filters.periods.length > 0 && this.state.filtersLoaded) {
+    if (!this.state.filters.cycles.length > 0 && this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           El proyecto no continene data rows
@@ -1098,7 +1098,7 @@ getProductsSelected () {
       )
     }
 
-    if (!this.state.filters.periods.length > 0 && !this.state.filtersLoaded) {
+    if (!this.state.filters.cycles.length > 0 && !this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
           Cargando, un momento por favor
@@ -1122,21 +1122,21 @@ getProductsSelected () {
 
     return (
       <div>
+        {banner}
         <div className='section level selects'>
           <div className='level-left'>
             <div className='level-item'>
               <Select
-                label='Periodo'
-                name='period'
-                value={this.state.formData.period}
-                optionValue='number'
+                label='Ciclo'
+                name='cycle'
+                value={this.state.formData.cycle}
+                optionValue='cycle'
                 optionName='name'
                 type='integer'
-                options={this.state.filters.periods}
+                options={this.state.filters.cycles}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
-
             <div className='level-item'>
               <Select
                 label='Categoría'
@@ -1156,38 +1156,41 @@ getProductsSelected () {
                   </span>
                 </div>
                 :
-              <Select
-                label='Canal'
-                name='channel'
-                value=''
-                placeholder='Todos'
-                optionValue='uuid'
-                optionName='name'
-                options={this.state.filters.channels}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
+                <Select
+                  label='Canal'
+                  name='channel'
+                  value=''
+                  placeholder='Todos'
+                  optionValue='uuid'
+                  optionName='name'
+                  options={this.state.filters.channels}
+                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                />
               }
             </div>
 
             <div className='level-item'>
-            {this.state.filters.salesCenters.length === 1 ?
+              {this.state.filters.salesCenters.length === 1 ?
                 <div className='saleCenter'>
                   <span>Centro de Venta: </span>
                   <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
                   </span>
-                </div>  
-            :
-              <Select
-                label='Centro de Venta'
-                name='salesCenter'
-                value={this.state.formData.salesCenter}
-                optionValue='uuid'
-                optionName='name'
-                options={this.state.filters.salesCenters}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            }
+                </div>
+                :
+                <Select
+                  label='Centro de Venta'
+                  name='salesCenter'
+                  value={this.state.formData.salesCenter}
+                  optionValue='uuid'
+                  optionName='name'
+                  options={this.state.filters.salesCenters}
+                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                />
+              }
             </div>
+          {this.state.filters && 
+            this.makeFilters()
+          }
           </div>
         </div>
 
@@ -1249,7 +1252,7 @@ getProductsSelected () {
             <div className='column is-5-desktop is-4-widescreen is-4-fullhd is-offset-1-fullhd is-offset-1-desktop'>
               <div className='panel sales-table'>
                 <div className='panel-heading'>
-                  <h2 className='is-capitalized'>Totales {this.getPeriod()}</h2>
+                  <h2 className='is-capitalized'>Totales {this.getCycleName()}</h2>
                 </div>
                 <div className='panel-block'>
                   {
@@ -1258,7 +1261,7 @@ getProductsSelected () {
                       <table className='table is-fullwidth is-hoverable'>
                         <thead>
                           <tr>
-                            <th className='has-text-centered'>Semana</th>
+                            <th className='has-text-centered'>Periodo</th>
                             <th className='has-text-info has-text-centered'>Predicción</th>
                             <th className='has-text-teal has-text-centered'>Ajuste</th>
                           </tr>
@@ -1268,7 +1271,7 @@ getProductsSelected () {
                             return (
                               <tr key={key}>
                                 <td className='has-text-centered'>
-                                  {item.week}
+                                  {item.period[0]}
                                 </td>
                                 <td className='has-text-centered'>
                                   $ {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
@@ -1312,7 +1315,7 @@ getProductsSelected () {
             <div className='column is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
               <div className='panel sales-graph'>
                 <div className='panel-heading'>
-                  <h2 className='is-capitalized'>Reporte {this.getPeriod()}</h2>
+                  <h2 className='is-capitalized'>Reporte {this.getCycleName()}</h2>
                 </div>
                 <div className='panel-block'>
                   {
@@ -1322,7 +1325,7 @@ getProductsSelected () {
                         data={graphData}
                         maintainAspectRatio={false}
                         responsive={true}
-                        labels={this.state.salesTable.map((item, key) => { return 'Semana ' + item.week })}
+                        labels={this.state.salesTable.map((item, key) => { return 'Periodo ' + item.period[0] })}
                         tooltips={{
                           mode: 'index',
                           intersect: true,
@@ -1381,7 +1384,7 @@ getProductsSelected () {
         </div>
           
         <section>
-          {!this.state.isFiltered || this.state.isLoading
+          {!this.state.isFiltered || this.state.isLoading !== ''
             ? <div className='section has-text-centered subtitle has-text-primary'>
                 Cargando, un momento por favor
                 <Loader />
@@ -1391,7 +1394,7 @@ getProductsSelected () {
                 <div>
                   <section className='section'>
                   <h1 className='period-info'>
-                    <span className='has-text-weight-semibold is-capitalized'>Periodo {this.getPeriod()} - </span> 
+                    <span className='has-text-weight-semibold is-capitalized'>Ciclo {this.getCycleName()} - </span> 
                     <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
                   </h1>
                   {this.getModifyButtons()}
@@ -1410,6 +1413,7 @@ getProductsSelected () {
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
                       handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }} 
                       handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
+                      rules={this.rules}
                     />
                     :
 
@@ -1418,7 +1422,6 @@ getProductsSelected () {
                       currentRole={currentRole}                    
                       data={this.state.filteredData}
                       checkAll={this.checkAll}
-                      filteredSemanasBimbo={this.state.filters.filteredSemanasBimbo}
                       toggleCheckbox={this.toggleCheckbox}
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}

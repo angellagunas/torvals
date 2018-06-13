@@ -40,16 +40,20 @@ module.exports = new Route({
     }
 
     var matchCond
-    if (currentRole.slug === 'manager-level-2') {
+    if (
+        currentRole.slug === 'manager-level-1' ||
+        currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'consultor'
+    ) {
       var userGroups = []
       for (var g of user.groups) {
         userGroups.push(ObjectId(g))
       }
 
-      const salesCenters = await SalesCenter.find({groups: {$in: userGroups}}).select({'_id': 1})
+      const salesCenters = await SalesCenter.find({groups: {$all: userGroups}}).select({'_id': 1})
       const matchSalesCenters = salesCenters.map(item => { return item._id })
 
-      const channels = await Channel.find({groups: {$in: userGroups}}).select({'_id': 1})
+      const channels = await Channel.find({groups: {$all: userGroups}}).select({'_id': 1})
       const matchChannels = channels.map(item => { return item._id })
       matchCond = {
         '$match': {
@@ -72,13 +76,17 @@ module.exports = new Route({
             '$in': datasets
           },
           'isDeleted': false
-
         }
       }
     }
 
     var statement = [
       matchCond,
+      {
+        '$unwind': {
+          'path': '$catalogItems'
+        }
+      },
       {
         '$group': {
           '_id': null,
@@ -90,6 +98,9 @@ module.exports = new Route({
           },
           'product': {
             '$addToSet': '$product'
+          },
+          'catalogItem': {
+            '$addToSet': '$catalogItems'
           }
         }
       },
@@ -116,15 +127,33 @@ module.exports = new Route({
           'foreignField': '_id',
           'as': 'products'
         }
+      },
+      {
+        '$lookup': {
+          'from': 'catalogitems',
+          'localField': 'catalogItem',
+          'foreignField': '_id',
+          'as': 'catalogItems'
+        }
       }
     ]
 
     var datasetRow = await DataSetRow.aggregate(statement)
 
+    if (datasetRow.length === 0) {
+      return ctx.body = {
+        channels: [],
+        products: [],
+        salesCenters: [],
+        catalogItems: []
+      }
+    }
+
     ctx.body = {
       channels: datasetRow[0].channels,
       products: datasetRow[0].products,
-      salesCenters: datasetRow[0].salesCenters
+      salesCenters: datasetRow[0].salesCenters,
+      catalogItems: datasetRow[0].catalogItems
     }
   }
 })

@@ -22,7 +22,10 @@ const task = new Task(
     log.call('Processing Dataset...')
     log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('organization')
+    const dataset = await DataSet
+      .findOne({uuid: argv.uuid})
+      .populate('organization rule')
+    const organization = dataset.organization
 
     if (!dataset) {
       throw new Error('Invalid uuid!')
@@ -37,6 +40,7 @@ const task = new Task(
 
     let maxDate
     let minDate
+    let catalogsObj = {}
 
     let productsObj = {
       _id: `$apiData.${productExternalId.name}`
@@ -62,7 +66,25 @@ const task = new Task(
       channelsObj['name'] = `$apiData.${channelName.name}`
     }
 
-    var statement = [{
+    for (let catalog of dataset.rule.catalogs) {
+      name = dataset.getCatalogItemColumn(`is_${catalog.slug}_name`)
+      idStr = dataset.getCatalogItemColumn(`is_${catalog.slug}_id`)
+
+      catalogObj = {
+        _id: `$apiData.${idStr.name}`
+      }
+
+      if (name && name.name) {
+        catalogObj['name'] = `$apiData.${name.name}`
+      }
+
+      catalogsObj[catalog.slug] = {
+        '$addToSet': catalogObj
+      }
+    }
+
+    var statement = [
+      {
         '$match': {
           'dataset': dataset._id
         }
@@ -77,7 +99,8 @@ const task = new Task(
           },
           'products': {
             '$addToSet': productsObj
-          }
+          },
+          ...catalogsObj
         }
       }
     ]
@@ -124,24 +147,13 @@ const task = new Task(
       }
     }
 
-    for (let catalog of dataset.organization.rules.catalogs) {
-      rowData[catalog] = []
-
-      if (slugify(catalog) === 'producto' || slugify(catalog) === 'productos') {
-        rowData[catalog] = rowData.products.map(item => { return item })
-      }
-
-      if (slugify(catalog) === 'centro-de-venta' || slugify(catalog) === 'centros-de-venta') {
-        rowData[catalog] = rowData.salesCenters.map(item => { return item })
-      }
-
-      if (slugify(catalog) === 'canal' || slugify(catalog) === 'canales') {
-        rowData[catalog] = rowData.channels.map(item => { return item })
-      }
+    for (let catalog of dataset.rule.catalogs) {
+      rowData[catalog.slug] = rows[0][catalog.slug]
     }
 
     log.call('Obtaining max and min dates ...')
-    statement = [{
+    statement = [
+      {
         '$match': {
           'dataset': dataset._id
         }
@@ -155,24 +167,36 @@ const task = new Task(
     ]
 
     rows = await DataSetRow.aggregate(statement)
+
     maxDate = moment(rows[0].max).utc().format('YYYY-MM-DD')
     minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
 
     await fillCyclesPeriods.run({
       uuid: dataset.organization.uuid,
+      rule: dataset.rule.uuid,
       dateMin: minDate,
       dateMax: maxDate
     })
 
     log.call('Obtaining cycles ...')
-    let cycles = await Cycle.getBetweenDates(dataset.organization._id, minDate, maxDate)
+    let cycles = await Cycle.getBetweenDates(
+      dataset.organization._id,
+      dataset.rule._id,
+      minDate,
+      maxDate
+    )
 
     cycles = cycles.map(item => {
       return item._id
     })
 
     log.call('Obtaining periods...')
-    let periods = await Period.getBetweenDates(dataset.organization._id, minDate, maxDate)
+    let periods = await Period.getBetweenDates(
+      dataset.organization._id,
+      dataset.rule._id,
+      minDate,
+      maxDate
+    )
 
     periods = periods.map(item => {
       return item._id

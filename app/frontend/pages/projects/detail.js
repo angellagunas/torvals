@@ -12,6 +12,7 @@ import Loader from '~base/components/spinner'
 import Tabs from '~base/components/base-tabs'
 import SidePanel from '~base/side-panel'
 import NotFound from '~base/components/not-found'
+import tree from '~core/tree'
 
 import ProjectForm from './create-form'
 import TabDatasets from './detail-tabs/tab-datasets'
@@ -51,6 +52,7 @@ class ProjectDetail extends Component {
     this.interval = null
     this.intervalCounter = null
     this.intervalConciliate = null
+    this.rules = tree.get('rule')
   }
 
   async componentWillMount () {
@@ -358,14 +360,15 @@ class ProjectDetail extends Component {
     })
   }
 
-  async handleAllAdjustmentRequest() {
+  async handleAllAdjustmentRequest(showMessage=true) {
     this.setState({
       isConciliating: ' is-loading'
     })
     let { pendingDataRows } = this.state
     let pendingDataRowsArray = Object.values(pendingDataRows)
+    console.log(showMessage)
 
-    await this.handleAdjustmentRequest(pendingDataRowsArray)
+    await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage)
     this.setState({
       isConciliating: ''
     })
@@ -395,7 +398,7 @@ class ProjectDetail extends Component {
     }
   }
 
-  async handleAdjustmentRequest(obj) {
+  async handleAdjustmentRequest(obj, showMessage) {
     let { pendingDataRows } = this.state
     let productAux = []
     if (currentRole === 'consultor') {
@@ -412,9 +415,15 @@ class ProjectDetail extends Component {
       var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment && item.isLimit }))
       if (currentRole === 'manager-level-1') {
         this.notify('Sus ajustes se han guardado', 5000, toast.TYPE.INFO)
-        this.setState({
-          adjustmentML1: true
-        })
+        if (showMessage) {
+          this.setState({
+            adjustmentML1: true
+          })
+
+          setTimeout(() => {this.setState({
+            adjustmentML1: false
+          })}, 5000)
+        }
       }
     } catch (e) {
       this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
@@ -502,6 +511,7 @@ class ProjectDetail extends Component {
             project={project}
             history={this.props.history}
             currentRole={currentRole}
+            rules={this.rules}
           />
         )
       },
@@ -526,6 +536,7 @@ class ProjectDetail extends Component {
             handleAllAdjustmentRequest={() => { this.handleAllAdjustmentRequest() }}
             selectedTab={this.state.actualTab}
             adjustmentML1={this.state.adjustmentML1}
+            rules={this.rules}
           />
         )
       },
@@ -681,7 +692,7 @@ class ProjectDetail extends Component {
     }
     else if (testRoles('manager-level-1')) {
       consolidarButton =
-        <p className={this.state.adjustmentML1 ? 'control btn-conciliate is-hidden' : 'control btn-conciliate'}>
+        <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
             disabled={!!this.state.isConciliating}
             onClick={e => this.handleAllAdjustmentRequest()}>

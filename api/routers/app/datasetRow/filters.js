@@ -8,7 +8,9 @@ const {
   SalesCenter,
   Product,
   AbraxasDate,
-  Role
+  Role,
+  Cycle,
+  Period
 } = require('models')
 
 module.exports = new Route({
@@ -40,33 +42,30 @@ module.exports = new Route({
 
     if (
       currentRole.slug === 'manager-level-1' ||
-      currentRole.slug === 'manager-level-2'
+      currentRole.slug === 'manager-level-2' ||
+      currentRole.slug === 'consultor'
     ) {
       var groups = user.groups
 
-      filters['groups'] = groups
+      filters['groups'] = {$all: groups}
       filters['organization'] = currentOrganization.organization._id
     }
 
     var products = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('product')
     var channels = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('channel')
     var salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
-    var semanasBimbo = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('data.semanaBimbo')
+    var cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
 
-    semanasBimbo.sort((a, b) => {
-      return a - b
-    })
-
-    var dates = await AbraxasDate.find({
-      week: {$in: semanasBimbo},
+    cycles = await Cycle.find({
+      organization: ctx.state.organization,
+      rule: dataset.rule,
       dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
     }).sort('-dateStart')
 
-    dates = dates.map(item => {
+    cycles = cycles.map(item => {
       return {
-        week: item.week,
-        month: item.month,
-        year: item.year,
+        cycle: item.cycle,
+        uuid: item.uuid,
         dateStart: item.dateStart,
         dateEnd: item.dateEnd
       }
@@ -76,12 +75,56 @@ module.exports = new Route({
     salesCenters = await SalesCenter.find({ _id: { $in: salesCenters }, ...filters })
     products = await Product.find({ _id: { $in: products } })
 
+    let statement = [
+      {
+        '$match': {
+          'uuid': dataset.uuid
+        }
+      },
+      {
+        '$unwind': {
+          'path': '$catalogItems'
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'catalogitems',
+          'localField': 'catalogItems',
+          'foreignField': '_id',
+          'as': 'catalogItem'
+        }
+      },
+      {
+        '$unwind': {
+          'path': '$catalogItem'
+        }
+      },
+      {
+        '$group': {
+          '_id': '$catalogItem.type',
+          'items': {
+            '$push': '$catalogItem'
+          }
+        }
+      }
+    ]
+
+    let catalogs = await DataSet.aggregate(statement)
+    let catalogsResponse = []
+
+    for (let catalog of catalogs) {
+      catalogsResponse[catalog._id] = []
+      for (let item of catalog.items) {
+        catalogsResponse[catalog._id].push(item)
+      }
+    }
+
     ctx.body = {
-      semanasBimbo,
+      cycles,
       channels,
       salesCenters,
       products,
-      dates
+      ...catalogsResponse
     }
   }
 })
