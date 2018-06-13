@@ -60,7 +60,8 @@ const task = new Task(
       etag: project.etag,
       dateMin: project.dateMin,
       dateMax: project.dateMax,
-      rule: project.rule
+      rule: project.rule,
+      outdated: project.outdated
     }
 
     let newProject = await Project.findOne({uuid: argv.project2})

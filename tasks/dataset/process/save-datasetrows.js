@@ -4,6 +4,7 @@ require('lib/databases/mongo')
 const Logger = require('lib/utils/logger')
 const moment = require('moment')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
+const getAnomalies = require('queues/get-anomalies')
 const Task = require('lib/task')
 const { DataSetRow, DataSet } = require('models')
 
@@ -105,6 +106,7 @@ const task = new Task(
       dataset.set({ status: 'ready' })
       dataset.project.set({ status: 'pendingRows' })
       await dataset.project.save()
+      getAnomalies.add({uuid: dataset.project.uuid})
     }
 
     await dataset.save()

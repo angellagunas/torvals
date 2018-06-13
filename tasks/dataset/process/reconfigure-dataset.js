@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 const moment = require('moment')
 
 const Task = require('lib/task')
-const { DataSet, DataSetRow } = require('models')
+const { DataSet, DataSetRow, Anomaly } = require('models')
 const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 const processDataset = require('queues/process-dataset')
 
@@ -33,14 +33,65 @@ const task = new Task(
     log(`Using batch size of ${batchSize}`)
     log(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk').populate('uploadedBy')
+    const dataset = await DataSet.findOne({uuid: argv.uuid})
+      .populate('uploadedBy')
+
     var bulkOps = []
+    var saveBulk = []
 
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
 
     try {
+      log('Restoring Anomalies')
+
+      let anomalies = await Anomaly.find({project: dataset.project}).cursor()
+
+      for (let anomaly = await anomalies.next(); anomaly != null; anomaly = await anomalies.next()) {
+        if (anomaly) {
+          bulkOps.push({
+            updateOne: {
+              'filter': {_id: anomaly._id},
+              'update': {$set: {isDeleted: true}}
+            }
+          })
+          saveBulk.push({
+            'organization': anomaly.organization,
+            'project': anomaly.project,
+            'dataset': dataset._id,
+            'apiData': anomaly.apiData,
+            'product': anomaly.product,
+            'salesCenter': anomaly.salesCenter,
+            'channel': anomaly.channel,
+            'cycle': anomaly.cycle,
+            'period': anomaly.period,
+            'data': {
+              ...anomaly.data,
+              'prediction': anomaly.prediction,
+              'sale': anomaly.data.sale,
+              'forecastDate': anomaly.date,
+              'semanaBimbo': anomaly.data.semanaBimbo,
+              'adjustment': anomaly.prediction,
+              'localAdjustment': anomaly.prediction
+            }
+          })
+        }
+
+        if (bulkOps.length === batchSize) {
+          log(`${batchSize} anomalies saved!`)
+          await Anomaly.bulkWrite(bulkOps)
+          bulkOps = []
+          await DataSetRow.insertMany(saveBulk)
+          saveBulk = []
+        }
+      }
+
+      if (bulkOps.length > 0) {
+        await Anomaly.bulkWrite(bulkOps)
+        await DataSetRow.insertMany(saveBulk)
+      }
+
       let rows = await DataSetRow.find({
         dataset: dataset._id
       }).cursor()

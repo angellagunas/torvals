@@ -122,6 +122,8 @@ class ProjectDetail extends Component {
 
       if (body.data.outdated) this.showModalOutdated()
 
+      this.rules = body.data.rule
+
       this.setState({
         loading: false,
         loaded: true,
