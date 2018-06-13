@@ -173,12 +173,20 @@ class WeekTable extends Component {
         property: 'product',
         default: 'N/A',
         sortable: true,
+        groupClassName: 'table-week',
         headerClassName: 'table-product table-product-head',
         className: 'table-product productName',
         formatter: (row) => {
-          if (row.weeks[0].productName) {
-            return row.weeks[0].productName
+          let product = 'N/A'
+          row.weeks[0].catalogItems.map(obj => {
+              if (obj.type === 'producto') {
+                product = obj.name
+              }
+            })
+          if (product === 'Not identified') {
+            product = 'No identificado'
           }
+          return product
         }
       },
       {
@@ -192,7 +200,7 @@ class WeekTable extends Component {
               >
                 <i className='fa fa-exclamation fa-lg' />
                </span>,
-        groupClassName: 'table-product',
+        groupClassName: 'table-product table-week table-product-shadow',
         headerClassName: 'table-product table-product-head table-product-head-bord table-product-shadow',
         className: 'table-product table-product-shadow',       
         formatter: (row) => {
