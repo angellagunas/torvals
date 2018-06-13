@@ -12,7 +12,8 @@ class TabDatasets extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      datasetClassName: ''
+      datasetClassName: '',
+      datasetDetail: this.props.datasetDetail
     }
   }
   getColumns () {

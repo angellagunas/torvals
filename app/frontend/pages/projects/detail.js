@@ -108,6 +108,10 @@ class ProjectDetail extends Component {
         else if (body.data.status === 'adjustment') {
           tab = 'graficos'
         }
+        else if(body.data.status === 'updating-rules'){
+          this.datasetDetail = body.data.mainDataset
+          tab = 'datasets'
+        }
         else {
           tab = this.state.selectedTab
         }
@@ -122,7 +126,8 @@ class ProjectDetail extends Component {
         loaded: true,
         project: body.data,
         selectedTab: tab,
-        actualTab: tab
+        actualTab: tab,
+        datasetDetail: this.datasetDetail
       })
 
       this.countAdjustmentRequests()
@@ -571,6 +576,7 @@ class ProjectDetail extends Component {
             canEdit={canEdit}
             setAlert={(type, data) => this.setAlert(type, data)}
             reload={(tab) => this.load(tab)}
+            datasetDetail={this.state.datasetDetail}
           />
         )
       },
