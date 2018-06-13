@@ -76,7 +76,8 @@ class Periods extends Component {
       },
       help: {
         cyclesAvailable: 'is-hidden'
-      }
+      },
+      calendar: {}
     }
     this.times = [
       {
@@ -141,6 +142,8 @@ class Periods extends Component {
         ...this.state.timesSelected,
         startDate: date
       }
+    }, () => {
+      this.makePreview()
     })
   }
 
@@ -314,8 +317,11 @@ class Periods extends Component {
     let s = moment.utc(start)
     let e = moment.utc(end)
 
-    if (this.color === 12) {
-      this.color = 1
+    if(key <= 12){
+      this.color = key
+    }
+    else if (this.color === 12) {
+      this.color = 0
     } else {
       this.color++
     }
@@ -364,18 +370,67 @@ class Periods extends Component {
     return range
   }
 
-  makePreview(){
+  makeEndDate(date) {
+    let d = {}
+    d[moment.utc(date).format('YYYY-MM-DD')] = {
+      date: moment.utc(date),
+      isRange: false,
+      isRangeEnd: false,
+      isRangeStart: false,
+      isToday: true,
+      isActive: false,
+      isTooltip: true,
+      tooltipText: 'Fin del ciclo'
+    }
+    return d
+  }
+
+  makePreview() {
     let start = moment.utc(this.state.timesSelected.startDate)
-    let end = moment.utc(this.state.timesSelected.startDate).add(1, 'M')
-    let calendar = {}
-    // for(let i = 1; i <= 5; i++){
-      let period = start.clone().add(1, 'w')
-      /*calendar = {
-        ...calendar,
-        ...this.makeRange(period, period.clone().add(-1,'days'), i)
+    let end = moment.utc(this.state.timesSelected.startDate).add(1, 'M').add(-1,'days')
+    let periodStart = start.clone()
+    let periodEnd = periodStart.clone().add(1, 'w').add(-1, 'days')
+    let i = 1
+
+    let calendar = this.makeRange(periodStart, periodEnd, i)
+
+    console.log('start', periodStart.format('YYYY-MM-DD'))
+    console.log('end', periodEnd.format('YYYY-MM-DD'))
+
+
+    while (periodEnd.isBefore(end, 'days')) {
+      i++
+      periodStart = periodStart.add(1, 'w')
+      periodEnd = periodStart.clone().add(1, 'w').add(-1, 'days')
+
+      if (this.state.timesSelected.takeStart && periodStart.isBefore(end, 'days')) {
+        console.log('S start', periodStart.format('YYYY-MM-DD'))
+        console.log('S end', periodEnd.format('YYYY-MM-DD'))
+        calendar = {
+          ...calendar,
+          ...this.makeRange(periodStart, periodEnd, i)
+        }
       }
-    } */
-    console.log(this.makeRange(start, end, 1))
+      else if (!this.state.timesSelected.takeStart && periodEnd.isBefore(end, 'days')) {
+        console.log('E start', periodStart.format('YYYY-MM-DD'))
+        console.log('E end', periodEnd.format('YYYY-MM-DD'))
+        calendar = {
+          ...calendar,
+          ...this.makeRange(periodStart, periodEnd, i)
+        }
+      }
+    }
+
+    calendar = {
+      ...calendar,
+      ...this.makeStartDate(start),
+      ...this.makeEndDate(end)
+    }
+
+    this.setState({
+      calendar
+    })
+    console.log(calendar)
 
   }
 
@@ -514,7 +569,8 @@ class Periods extends Component {
                                 ...this.state.timesSelected,
                                 takeStart: true
                               }
-                            })} />
+                            }, () => { this.makePreview() })
+                            } />
                         <span>Usar la fecha de <strong className='has-text-info'>inicio</strong> del periodo para determinar el ciclo al que pertenece</span>
                       </label>
                     </p>
@@ -531,7 +587,8 @@ class Periods extends Component {
                               ...this.state.timesSelected,
                               takeStart: false
                             }
-                          })} />
+                          }, () => { this.makePreview() })
+                          } />
                         <span>Usar la fecha <strong className='has-text-info'>final</strong> del periodo para determinar el ciclo al que pertenece</span>
                       </label>
                     </p>
@@ -546,7 +603,7 @@ class Periods extends Component {
             <Cal
               showWeekNumber
               date={moment.utc(this.state.timesSelected.startDate)}
-              dates={this.makeStartDate(this.state.timesSelected.startDate)}
+              dates={this.state.calendar}
               onChange={this.handleDateChange}
             />
 
