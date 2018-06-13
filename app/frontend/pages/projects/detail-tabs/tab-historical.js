@@ -38,8 +38,11 @@ class TabHistorical extends Component {
     this.selectedSalesCenters = []
     this.selectedChannels = []
     this.selectedProducts = []
+    this.selectedItems = []
 
     this.selectedProjects[this.props.project.uuid] = this.props.project.uuid
+    this.rules = this.props.rules
+
   }
 
   componentWillMount() {
@@ -167,7 +170,9 @@ class TabHistorical extends Component {
     try{
     let url = '/app/dashboard/projects'
     let res = await api.get(url, projects)
-
+    
+    this.getCatalogFilters(res.catalogItems)
+    
     this.setState({
       loading: false,
       filters: res,
@@ -233,7 +238,8 @@ class TabHistorical extends Component {
           channels: Object.values(this.selectedChannels),
           salesCenters: Object.values(this.selectedSalesCenters),
           //products: Object.values(this.selectedProducts),
-          projects: Object.values(this.selectedProjects)
+          projects: Object.values(this.selectedProjects),
+          catalogItems: Object.keys(this.selectedItems)
         })
 
         let totalPSale = 0
@@ -332,7 +338,8 @@ class TabHistorical extends Component {
         date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
         channels: Object.values(this.selectedChannels),
         salesCenters: Object.values(this.selectedSalesCenters),
-        projects: Object.values(this.selectedProjects)
+        projects: Object.values(this.selectedProjects),
+        catalogItems: Object.keys(this.selectedItems)
       })
       this.setState({
         productTable: res.data,
@@ -384,6 +391,17 @@ class TabHistorical extends Component {
     } else if (filter === 'years') {
       this.setState({
         yearsCollapsed: !this.state.yearsCollapsed,
+      })
+    }
+    else{
+      let catalogItems = this.state.catalogItems
+      catalogItems.map(item => {
+        if(item.type === filter){
+          item.isOpen = !item.isOpen
+        }
+      })
+      this.setState({
+        catalogItems
       })
     }
   }
@@ -581,7 +599,7 @@ class TabHistorical extends Component {
     let p = []
     let dateMin = moment.utc(this.props.project.dateMin)
     let dateMax = moment.utc(this.props.project.dateMax)
-    
+
     if(dateMin.isBefore(moment.utc('2017-01-01'))){
       dateMin = moment.utc('2017-01-01')
     }
@@ -590,7 +608,7 @@ class TabHistorical extends Component {
       d.push(dateMin)
       dateMin = moment.utc(dateMin).add(1, 'month')
     }
-    
+
     d.push(dateMin)
 
 
@@ -608,7 +626,7 @@ class TabHistorical extends Component {
       maxPeriod: p[p.length - 1]
     })
   }
-  
+
 
   setMinPeriod(item) {
     let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
@@ -653,6 +671,158 @@ class TabHistorical extends Component {
         this.getProductTable()
       })
     }
+  }
+
+
+  findName = (name) => {
+    let find = ''
+
+    if (!this.rules) return find
+
+    this.rules.catalogs.map(item => {
+      if (item.slug === name) {
+        find = item.name
+      }
+    })
+    return find
+  }
+
+  async getCatalogFilters(catalogs) {
+    let filters = _(catalogs)
+      .groupBy(x => x.type)
+      .map((value, key) => ({
+        type: this.findName(key),
+        objects: value,
+        selectAll: true,
+        isOpen: true
+      }))
+      .value()
+    
+    this.setState({
+      catalogItems: filters
+    }, () => {
+      filters.map(item => {
+        if (item.type !== 'Producto'){
+          this.checkAllItems(item.selectAll, item.type)
+        }
+      })
+    })
+  }
+
+  async checkAllItems(value, type) {
+    let aux = this.state.catalogItems
+    aux.map(item => {
+      if (item.type === type) {
+        for (const s of item.objects) {
+          s.selected = value
+          if (value) { 
+            this.selectedItems[s.uuid] = s 
+          }
+          else{
+            delete this.selectedItems[s.uuid]
+          }
+        }
+      }
+    })
+
+    await this.setState({
+      catalogItems: aux
+    })
+  }
+
+  selectItem(e, value, obj, item) {
+    let aux = this.state.catalogItems
+
+    if (value) {
+      this.selectedItems[obj.uuid] = obj
+    } else {
+      delete this.selectedItems[obj.uuid]
+    }
+
+    obj.selected = value
+    item.selectAll = this.countItems(obj.type) === item.objects.length
+  
+    this.getGraph()
+    this.getProductTable()
+    this.setState({
+      catalogItems: aux
+    })
+  }
+
+  countItems(type) {
+    let count = 0
+    Object.values(this.selectedItems).map(item => {
+      if (type === item.type) {
+        count++
+      }
+    })
+    return count
+  }
+
+  makeFilters() {
+    return this.state.catalogItems.map(item => {
+      if(item.type !== 'Producto'){
+      return (
+        <li key={item.type} className='filters-item'>
+          <div className={item.isOpen ? 'collapsable-title' : 'collapsable-title active'}
+            onClick={() => { this.showFilter(item.type) }}>
+            <a>
+              <span className='icon'>
+                <i className={this.state.channelsCollapsed
+                  ? 'fa fa-plus' : 'fa fa-minus'} />
+              </span>
+              {item.type} <strong>{item.objects && item.objects.length}</strong>
+            </a>
+          </div>
+          <aside className={item.isOpen
+            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
+            <div>
+              <Checkbox
+                checked={item.selectAll}
+                label={'Seleccionar Todos'}
+                handleCheckboxChange={(e, value) => {
+                  this.checkAllItems(value, item.type)
+                  this.getGraph()
+                  this.getProductTable()
+                }}
+                key={'channel'}
+                disabled={this.state.waitingData}
+              />
+            </div>
+            <ul className='menu-list'>
+              {item.objects &&
+                item.objects.map((obj) => {
+                  if (obj.selected === undefined) {
+                    obj.selected = true
+                  }
+                  let name = obj.name === 'Not identified' ? obj.externalId + ' (No identificado)' : obj.externalId + ' ' + obj.name
+
+                  return (
+                    <li key={obj.uuid}>
+                      <a>
+                        <Checkbox
+                          label={<span title={name}>{name}</span>}
+                          handleCheckboxChange={(e, value) => this.selectItem(e, value, obj, item )}
+                          key={obj.uuid}
+                          checked={obj.selected}
+                          disabled={this.state.waitingData}
+                        />
+                        {obj.name === 'Not identified' &&
+                          <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/' + obj.type + '/' + obj.uuid) }}>
+                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
+                          </span>
+                        }
+                      </a>
+                    </li>
+                  )
+                })
+              }
+            </ul>
+          </aside>
+        </li>
+      )
+    }
+    })
   }
 
   render() {
@@ -705,6 +875,16 @@ class TabHistorical extends Component {
       }
     ]
 
+    const vLines = (this.state.graphData || []).map(item => ({
+      drawTime: 'beforeDatasetsDraw',
+      type: 'line',
+      mode: 'vertical',
+      scaleID: 'x-axis-0',
+      value: item.date,
+      borderColor: 'rgba(233, 238, 255, 1)',
+      borderWidth: 1
+    }))
+
     return (
       <div>
         <div className='section'>
@@ -723,7 +903,7 @@ class TabHistorical extends Component {
                     <div className='card-content'>
 
                       <ul>
-                        
+
 
                         <li className='filters-item'>
                           <div className={this.state.channelsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
@@ -758,7 +938,7 @@ class TabHistorical extends Component {
                                     item.selected = false
                                   }
                                   let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
-                                  
+
                                   return (
                                     <li key={item.uuid}>
                                       <a>
@@ -771,7 +951,7 @@ class TabHistorical extends Component {
                                         />
                                         {item.name === 'Not identified' &&
                                           <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
-                                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>                                          
+                                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>
                                           </span>
                                         }
                                       </a>
@@ -816,7 +996,7 @@ class TabHistorical extends Component {
                                     item.selected = false
                                   }
                                   let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
-                                  
+
                                   return (
                                     <li key={item.uuid}>
                                       <a>
@@ -829,7 +1009,7 @@ class TabHistorical extends Component {
                                         />
                                         {item.name === 'Not identified' &&
                                           <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
-                                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>                                                                                      
+                                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>
                                           </span>
                                         }
                                       </a>
@@ -840,6 +1020,11 @@ class TabHistorical extends Component {
                             </ul>
                           </aside>
                         </li>
+
+                        {this.state.catalogItems &&
+                          this.makeFilters()
+                        }
+
                       </ul>
                     </div>
                   </div>
@@ -865,7 +1050,7 @@ class TabHistorical extends Component {
                     <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
-                    
+
                     <p className='indicators-title'>Ajuste total</p>
                     <p className='indicators-number has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -875,7 +1060,7 @@ class TabHistorical extends Component {
                     <p className='indicators-number has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
-                   
+
                   </div>
                 </div>
                 <div className='column card'>
@@ -990,7 +1175,8 @@ class TabHistorical extends Component {
                                   position: 'top',
                                   fontColor: '#424A55'
                                 }
-                              }
+                              },
+                              ...vLines
                             ]
                           }
                         }
@@ -1063,14 +1249,14 @@ class TabHistorical extends Component {
                       </div>
                     </div>
                   }
-                  
+
                     <div className='level-item date-drop'>
                       <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
                     </div>
-                  
-                  {this.state.maxPeriod && 
+
+                  {this.state.maxPeriod &&
                     <div className='level-item'>
                      <div className='field'>
                         <label className='label'>Periodo final</label>

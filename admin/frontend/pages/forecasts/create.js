@@ -25,16 +25,16 @@ class CreateForecast extends Component {
     let footer = (
       <div className='field is-grouped'>
         <div className='control'>
-          <button className='button is-primary' type='submit' onClick={() => this.submitOnClick()}>Create</button>
+          <button className='button is-primary' type='submit' onClick={() => this.submitOnClick()}>Crear</button>
         </div>
         <div className='control'>
-          <button className='button' onClick={this.props.hideModal} type='button'>Cancel</button>
+          <button className='button' onClick={this.props.hideModal} type='button'>Cancelar</button>
         </div>
       </div>
     )
     return (
       <BaseModal
-        title='Create Forecast'
+        title='Crear Forecast'
         className={this.props.className}
         hideModal={this.props.hideModal}
         hasFooter

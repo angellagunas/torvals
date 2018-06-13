@@ -108,7 +108,9 @@ class ProjectForm extends Component {
           'conciliated',
           'pendingRows',
           'error',
-          'cloning'
+          'cloning',
+          'updating-rules',
+          'pending-configuration'
         ],
         enumNames: [
           'Nuevo',
@@ -124,7 +126,9 @@ class ProjectForm extends Component {
           'Conciliado',
           'Pendiente',
           'Error',
-          'Clonando'
+          'Clonando',
+          'Actualizando reglas',
+          'Configuración pendiente'
         ]
       }
       this.uiSchema['showOnDashboard'] = {'ui:widget': SelectWidget}
