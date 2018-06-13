@@ -111,6 +111,13 @@ class ProjectDetail extends Component {
         else if (body.data.status === 'adjustment') {
           tab = 'graficos'
         }
+        else if (body.data.status === 'pending-configuration') {
+          this.datasetDetail = body.data.mainDataset
+          tab = 'datasets'
+        }
+        else if (body.data.status === 'updating-rules') {
+          tab = 'datasets'
+        }
         else {
           tab = this.state.selectedTab
         }
@@ -129,7 +136,8 @@ class ProjectDetail extends Component {
         loaded: true,
         project: body.data,
         selectedTab: tab,
-        actualTab: tab
+        actualTab: tab,
+        datasetDetail: this.datasetDetail
       })
 
       this.countAdjustmentRequests()
@@ -265,7 +273,16 @@ class ProjectDetail extends Component {
           if (!this.intervalConciliate) {
             this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
           }
-        } else {
+        }
+        else if (res.data.status === 'pending-configuration'){
+          clearInterval(this.interval)
+          this.setState({
+            selectedTab: 'datasets',
+            actualTab: 'datasets',
+            datasetDetail: res.data.mainDataset
+          })
+        }
+         else {
           clearInterval(this.intervalConciliate)
         }
       }
@@ -528,7 +545,8 @@ class ProjectDetail extends Component {
         project.status === 'processing' ||
         project.status === 'conciliating' ||
         project.status === 'pendingRows' ||
-        project.status === 'cloning'
+        project.status === 'cloning' ||
+        project.status === 'updating-rules'
     )) {
       this.interval = setInterval(() => this.getProjectStatus(), 30000)
     }
@@ -544,7 +562,9 @@ class ProjectDetail extends Component {
         hide: (testRoles('manager-level-1') ||
           project.status === 'empty' ||
           project.status === 'conciliating' ||
-          project.status === 'cloning'),
+          project.status === 'cloning' ||
+          project.status === 'updating-rules' ||
+          project.status === 'pending-configuration'),
         content: (
           <TabHistorical
             project={project}
@@ -558,7 +578,9 @@ class ProjectDetail extends Component {
         name: 'ajustes',
         title: 'Ajustes',
         reload: false,
-        hide: project.status === 'empty',
+        hide: project.status === 'empty' ||
+              project.status === 'updating-rules' ||
+              project.status === 'pending-configuration',
         content: (
           <TabAdjustment
             loadCounters={() => {
@@ -589,7 +611,9 @@ class ProjectDetail extends Component {
               project.status === 'processing' ||
               project.status === 'pendingRows' ||
               project.status === 'empty' ||
-              project.status === 'cloning'),
+              project.status === 'cloning' || 
+              project.status === 'updating-rules' ||
+              project.status === 'pending-configuration'),
         content: (
           <TabApprove
             setAlert={(type, data) => this.setAlert(type, data)}
@@ -610,6 +634,7 @@ class ProjectDetail extends Component {
             canEdit={canEdit}
             setAlert={(type, data) => this.setAlert(type, data)}
             reload={(tab) => this.load(tab)}
+            datasetDetail={this.state.datasetDetail}
           />
         )
       },
@@ -621,7 +646,9 @@ class ProjectDetail extends Component {
           project.status === 'processing' ||
           project.status === 'pendingRows' ||
           project.status === 'empty' ||
-          project.status === 'cloning'),
+          project.status === 'cloning' ||
+          project.status === 'updating-rules' ||
+          project.status === 'pending-configuration'),
         content: (
           <TabAnomalies
             project={project}

@@ -25,6 +25,7 @@ module.exports = new Route({
     }).populate('organization')
     .populate('activeDataset')
     .populate('rule')
+    .populate('mainDataset')
 
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
