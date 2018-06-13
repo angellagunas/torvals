@@ -132,11 +132,7 @@ export default ListPage({
           }
 
           if (currentUser.currentRole.slug === 'consultor') {
-            if (row.roleDetail.slug === 'consultor') {
-              disabledActions = false
-            } else {
-              disabledActions = true
-            }
+            disabledActions = true
           }
 
           return (
