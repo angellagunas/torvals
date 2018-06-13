@@ -11,6 +11,7 @@ import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
 import FontAwesome from 'react-fontawesome'
 import { toast } from 'react-toastify'
+import Multiselect from '~base/components/base-multiselect'
 
 const cleanName = (item) => {
   let c = item.replace(/-/g, ' ')
@@ -26,7 +27,9 @@ class CatalogDetail extends Component {
       catalog: {},
       roles: 'admin, orgadmin, analyst, manager-level-2',
       canEdit: false,
-      isLoading: ''
+      isLoading: '',
+      selectedGroups: [],
+      groups: []
     }
   }
 
@@ -43,8 +46,11 @@ class CatalogDetail extends Component {
       this.setState({
         loading: false,
         loaded: true,
-        catalog: body.data
+        catalog: body.data,
+        selectedGroups: [...body.data.groups]
       })
+
+      await this.loadGroups()
     } catch (e) {
       await this.setState({
         loading: false,
@@ -52,6 +58,22 @@ class CatalogDetail extends Component {
         notFound: true
       })
     }
+  }
+
+  async loadGroups () {
+    var url = '/app/groups'
+    const body = await api.get(
+      url,
+      {
+        start: 0,
+        limit: 0
+      }
+    )
+
+    this.setState({
+      ...this.state,
+      groups: body.data
+    })
   }
 
   getSavingMessage () {
@@ -82,6 +104,84 @@ class CatalogDetail extends Component {
         </p>
       )
     }
+  }
+
+  async availableGroupOnClick (uuid) {
+    this.setState({
+      saving: true
+    })
+
+    var selected = this.state.selectedGroups
+    var group = this.state.groups.find(item => { return item.uuid === uuid })
+
+    if (selected.findIndex(item => { return item.uuid === uuid }) !== -1) {
+      return
+    }
+
+    selected.push(group)
+
+    this.setState({
+      selectedGroups: selected
+    })
+
+    var url = '/app/catalogItems/' + this.props.match.params.uuid + '/add/group'
+
+    try {
+      await api.post(url,
+        {
+          group: uuid
+        }
+      )
+    } catch (e) {
+      var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
+      var selectedRemove = this.state.selectedGroups
+      selectedRemove.splice(index, 1)
+      this.notify(
+        e.message,
+        5000,
+        toast.TYPE.ERROR
+      )
+    }
+
+    setTimeout(() => {
+      this.setState({
+        saving: false,
+        saved: true
+      })
+    }, 300)
+  }
+
+  async assignedGroupOnClick (uuid) {
+    this.setState({
+      saving: true
+    })
+
+    var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
+    var selected = this.state.selectedGroups
+
+    if (index === -1) {
+      return
+    }
+
+    selected.splice(index, 1)
+
+    this.setState({
+      selectedGroups: selected
+    })
+
+    var url = '/app/catalogItems/' + this.props.match.params.uuid + '/remove/group'
+    await api.post(url,
+      {
+        group: uuid
+      }
+    )
+
+    setTimeout(() => {
+      this.setState({
+        saving: false,
+        saved: true
+      })
+    }, 300)
   }
 
   async deleteObject () {
@@ -133,6 +233,43 @@ class CatalogDetail extends Component {
     let catalog = {
       name: this.state.catalog.name,
       externalId: '' + this.state.catalog.externalId
+    }
+
+    const availableList = this.state.groups.filter(item => {
+      return (this.state.selectedGroups.findIndex(group => {
+        return group.uuid === item.uuid
+      }) === -1)
+    })
+
+    let groupField
+    if (testRoles('analyst') || testRoles('orgadmin')) {
+      groupField = <div className='column'>
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  Grupos
+                        </p>
+                <div>
+                  {this.getSavingMessage()}
+                </div>
+              </header>
+              <div className='card-content'>
+                <Multiselect
+                  availableTitle='Disponible'
+                  assignedTitle='Asignado'
+                  assignedList={this.state.selectedGroups}
+                  availableList={availableList}
+                  dataFormatter={(item) => { return item.name || 'N/A' }}
+                  availableClickHandler={this.availableGroupOnClick.bind(this)}
+                  assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     }
 
     return (
@@ -223,6 +360,7 @@ class CatalogDetail extends Component {
                 </div>
               </div>
             </div>
+            {groupField}
           </div>
         </div>
       </div>
