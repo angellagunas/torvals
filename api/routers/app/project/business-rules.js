@@ -1,14 +1,14 @@
 const lov = require('lov')
-const cloneMainDataset = require('tasks/project/clone-main-dataset')
+const cloneMainDataset = require('queues/clone-main-dataset')
 const Route = require('lib/router/route')
 
-const { Project } = require('models')
+const { Project, Rule } = require('models')
 
 module.exports = new Route({
   method: 'post',
   path: '/update/businessRules',
   validator: lov.object().keys({
-    name: lov.string().required()
+    uuid: lov.string().required()
   }),
   handler: async function (ctx) {
     const data = ctx.request.body
@@ -22,7 +22,21 @@ module.exports = new Route({
     }).populate('mainDataset')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
-    await cloneMainDataset.run({
+    const rule = await Rule.findOne({
+      'isCurrent': true,
+      'isDeleted': false,
+      'organization': ctx.state.organization._id
+    })
+
+    project.set({
+      outdated: false,
+      status: 'updating-rules',
+      rule: rule
+    })
+
+    await project.save()
+
+    cloneMainDataset.add({
       uuid: project.uuid
     })
 

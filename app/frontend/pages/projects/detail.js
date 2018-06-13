@@ -127,7 +127,9 @@ class ProjectDetail extends Component {
         tab = 'ajustes'
       }
 
-      if (body.data.outdated) this.showModalOutdated()
+      if (body.data.outdated && body.data.status !== 'cloning') this.showModalOutdated()
+
+      this.rules = body.data.rule
 
       this.setState({
         loading: false,
@@ -400,7 +402,6 @@ class ProjectDetail extends Component {
     })
     let { pendingDataRows } = this.state
     let pendingDataRowsArray = Object.values(pendingDataRows)
-    console.log(showMessage)
 
     await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage)
     this.setState({
@@ -475,7 +476,7 @@ class ProjectDetail extends Component {
   }
 
   async updateProject () {
-    this.setState({ isUpdating: ' is-loading' })
+    this.setState({ isUpdating: 'is-loading' })
 
     const url = '/app/projects/update/businessRules'
     try {
@@ -544,6 +545,7 @@ class ProjectDetail extends Component {
         project.status === 'conciliating' ||
         project.status === 'pendingRows' ||
         project.status === 'cloning' ||
+        project.status === 'pending-configuration' ||
         project.status === 'updating-rules'
     )) {
       this.interval = setInterval(() => this.getProjectStatus(), 30000)

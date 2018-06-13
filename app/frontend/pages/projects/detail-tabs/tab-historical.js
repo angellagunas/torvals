@@ -676,6 +676,9 @@ class TabHistorical extends Component {
 
   findName = (name) => {
     let find = ''
+
+    if (!this.rules) return find
+
     this.rules.catalogs.map(item => {
       if (item.slug === name) {
         find = item.name
