@@ -61,7 +61,7 @@ const task = new Task(
       if (cyclesBetween.length > 0) {
         let cycle
         if (cyclesBetween.length > 1) {
-          cycle = (takeStart) ? cyclesBetween[cyclesBetween.length - 1]._id : cyclesBetween[0]._id
+          cycle = (!takeStart) ? cyclesBetween[cyclesBetween.length - 1]._id : cyclesBetween[0]._id
         } else {
           cycle = cyclesBetween[0]._id
         }
@@ -102,7 +102,7 @@ const task = new Task(
       if (cyclesBetween.length > 0) {
         let cycle
         if (cyclesBetween.length > 1) {
-          cycle = (takeStart) ? cyclesBetween[cyclesBetween.length - 1]._id : cyclesBetween[0]._id
+          cycle = (!takeStart) ? cyclesBetween[cyclesBetween.length - 1]._id : cyclesBetween[0]._id
         } else {
           cycle = cyclesBetween[0]._id
         }

@@ -69,7 +69,7 @@ const task = new Task(
       let endYear = moment(endDate).format('YYYY')
 
       if (startYear !== endYear) {
-        if (takeStart) {
+        if (!takeStart) {
           cycleNumber = 1
         } else {
           cycleNumber++
