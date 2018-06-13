@@ -42,7 +42,7 @@ const task = new Task(
 
     try {
       let rows = await DataSetRow.find({
-        dataset: project.mainDataset._id
+        dataset: dataset._id
       }).cursor()
 
       var predictionColumn = dataset.getPredictionColumn() || {name: ''}
@@ -98,15 +98,16 @@ const task = new Task(
                 'prediction': prediction,
                 'sale': row.apiData[salesColumn.name] ? row.apiData[salesColumn.name] : 0,
                 'forecastDate': forecastDate,
-                // 'semanaBimbo': row.apiData.semana_bimbo,
+                'semanaBimbo': row.apiData.semana_bimbo,
                 'adjustment': adjustment || prediction,
                 'localAdjustment': adjustment || prediction,
-                'lastAdjustment': adjustment || undefined,
+                'lastAdjustment': adjustment,
                 'productExternalId': row.apiData[productExternalId.name],
                 'salesCenterExternalId': row.apiData[salesCenterExternalId.name],
                 'channelExternalId': row.apiData[channelExternalId.name]
               },
-              'catalogData': catalogData
+              'catalogData': catalogData,
+              'catalogItems': []
             }
           }
         })
@@ -118,7 +119,7 @@ const task = new Task(
         }
       }
 
-      log(`Success! loaded ${lineCount} rows`)
+      log(`Success!`)
     } catch (e) {
       log('Error! ' + e.message)
       dataset.set({

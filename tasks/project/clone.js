@@ -5,7 +5,7 @@ const moment = require('moment')
 const _ = require('lodash')
 
 const Task = require('lib/task')
-const { Project, DataSet } = require('models')
+const { Project, DataSet, Anomaly } = require('models')
 const cloneDataset = require('tasks/dataset/process/clone')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
@@ -59,7 +59,8 @@ const task = new Task(
       showOnDashboard: false,
       etag: project.etag,
       dateMin: project.dateMin,
-      dateMax: project.dateMax
+      dateMax: project.dateMax,
+      rule: project.rule
     }
 
     let newProject = await Project.findOne({uuid: argv.project2})
@@ -86,6 +87,52 @@ const task = new Task(
       mainDataset: newDataset
     })
     newProject.save()
+
+    log(`Cloning anomalies of ${project.name}`)
+
+    const anomalies = await Anomaly.find({
+      project: project,
+      isDeleted: false
+    }).cursor()
+    let bulkOps = []
+
+    for (let row = await anomalies.next(); row != null; row = await anomalies.next()) {
+      try {
+        bulkOps.push({
+          salesCenter: row.salesCenter,
+          product: row.product,
+          channel: row.channel,
+          project: newProject._id,
+          prediction: row.prediction,
+          organization: newProject.organization,
+          type: 'zero_sales',
+          date: row.date,
+          apiData: row.apiData,
+          period: row.period,
+          cycle: row.cycle,
+          data: row.data,
+          catalogItems: row.catalogItems
+        })
+
+        if (bulkOps.length === batchSize) {
+          log(`${batchSize} anomalies saved! => ${moment().format()}`)
+          await Anomaly.insertMany(bulkOps)
+          bulkOps = []
+        }
+      } catch (e) {
+        log('Error trying to save anomalies: ')
+        log(e)
+      }
+    }
+
+    try {
+      if (bulkOps.length > 0) {
+        await Anomaly.insertMany(bulkOps)
+      }
+    } catch (e) {
+      log('Error trying to save anomalies: ')
+      log(e)
+    }
 
     log(`Successfully cloned project ${project.name}!`)
     log(`End ==> ${moment().format()}`)

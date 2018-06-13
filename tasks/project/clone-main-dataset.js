@@ -41,11 +41,12 @@ const task = new Task(
 
     log.call('Create new dataset.')
     let auxDataset = await cloneDataset.run({dataset: project.mainDataset.uuid})
-    auxDataset = await Dataset.findOne({uuid: auxDataset})
+    auxDataset = await DataSet.findOne({uuid: auxDataset})
 
     auxDataset.set({
       status: 'configuring',
-      isMain: true
+      isMain: true,
+      rule: project.rule
     })
     await auxDataset.save()
 

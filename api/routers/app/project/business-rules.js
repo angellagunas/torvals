@@ -1,8 +1,8 @@
 const lov = require('lov')
-const cloneMainDataset = require('tasks/project/clone-main-dataset')
+const cloneMainDataset = require('queues/clone-main-dataset')
 const Route = require('lib/router/route')
 
-const { Project } = require('models')
+const { Project, Rule } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -22,15 +22,22 @@ module.exports = new Route({
     }).populate('mainDataset')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
-    await cloneMainDataset.run({
-      uuid: project.uuid
+    const rule = await Rule.findOne({
+      'isCurrent': true,
+      'isDeleted': false,
+      'organization': ctx.state.organization._id
     })
 
     project.set({
-      outdated: false
+      outdated: false,
+      rule: rule
     })
 
     await project.save()
+
+    cloneMainDataset.add({
+      uuid: project.uuid
+    })
 
     ctx.body = {
       data: project

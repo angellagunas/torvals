@@ -71,9 +71,14 @@ const task = new Task(
       products: _.cloneDeep(dataset.products),
       channels: _.cloneDeep(dataset.channels),
       apiData: _.cloneDeep(dataset.apiData),
+      groupings: _.cloneDeep(dataset.groupings),
+      catalogItems: _.cloneDeep(dataset.catalogItems),
+      cycles: _.cloneDeep(dataset.cycles),
+      periods: _.cloneDeep(dataset.periods),
       isDeleted: false,
       isMain: true,
-      uploaded: dataset.uploaded
+      uploaded: dataset.uploaded,
+      rule: dataset.rule
     }
 
     auxDataset = await DataSet.create(auxDataset)
@@ -99,6 +104,10 @@ const task = new Task(
         apiData: row.apiData,
         updatedBy: row.updatedBy,
         dateCreated: row.dateCreated,
+        catalogData: row.catalogData,
+        catalogItems: row.catalogItems,
+        cycle: row.cycle,
+        period: row.period,
         isDeleted: row.isDeleted,
         isAnomaly: row.isAnomaly
       }
