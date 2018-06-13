@@ -438,7 +438,7 @@ class GroupDetail extends Component {
                     </p>
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModalList()}>
-                        Agregar usuario existente
+                        Agregar
                       </button>
                     <BaseModal
                       title='Usuarios para asignar'

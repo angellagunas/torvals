@@ -12,6 +12,7 @@ import Loader from '~base/components/spinner'
 import Tabs from '~base/components/base-tabs'
 import SidePanel from '~base/side-panel'
 import NotFound from '~base/components/not-found'
+import BaseModal from '~base/components/base-modal'
 import tree from '~core/tree'
 
 import ProjectForm from './create-form'
@@ -38,6 +39,8 @@ class ProjectDetail extends Component {
       actualTab: 'graficos',
       datasetClassName: '',
       cloneClassName: '',
+      outdatedClassName: '',
+      isUpdating: '',
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
       isLoading: '',
@@ -123,6 +126,8 @@ class ProjectDetail extends Component {
       else if (!tab && currentRole === 'manager-level-1') {
         tab = 'ajustes'
       }
+
+      if (body.data.outdated) this.showModalOutdated()
 
       this.setState({
         loading: false,
@@ -228,6 +233,18 @@ class ProjectDetail extends Component {
   hideModalClone (e) {
     this.setState({
       cloneClassName: ''
+    })
+  }
+
+  showModalOutdated () {
+    this.setState({
+      outdatedClassName: ' is-active'
+    })
+  }
+
+  hideModalOutdated() {
+    this.setState({
+      outdatedClassName: ''
     })
   }
 
@@ -455,6 +472,26 @@ class ProjectDetail extends Component {
     this.setState({
       pendingDataRows: pendingDataRows
     })
+  }
+
+  async updateProject () {
+    this.setState({ isUpdating: ' is-loading' })
+
+    const url = '/app/projects/update/businessRules'
+    try {
+      await api.post(url, { ...this.state.project })
+      await this.load()
+      this.hideModalOutdated()
+    } catch (e) {
+      toast('Error: ' + e.message, {
+        autoClose: 5000,
+        type: toast.TYPE.ERROR,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    }
+
+    this.setState({ isUpdating: '' })
   }
 
   render () {
@@ -826,6 +863,33 @@ class ProjectDetail extends Component {
           hideModal={this.hideModalDataset.bind(this)}
           finishUp={this.finishUpDataset.bind(this)}
         />
+
+        <BaseModal
+          title='Proyecto desactualizado'
+          className={this.state.outdatedClassName}
+          hideModal={this.hideModalOutdated.bind(this)}
+        >
+          <p>
+            Este proyecto se encuentra usando una version pasada de reglas de negocio,
+            ¿Desea actualizarlo?
+          </p> <br />
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button
+                className={'button is-primary ' + this.state.isUpdating}
+                disabled={!!this.state.isUpdating}
+                onClick={this.updateProject.bind(this)}
+              >
+                Actualizar
+              </button>
+            </div>
+            <div className='control'>
+              <button className='button' onClick={this.hideModalOutdated.bind(this)} type='button'>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </BaseModal>
 
       </div>
     )
