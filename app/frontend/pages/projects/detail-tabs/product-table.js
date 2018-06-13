@@ -383,7 +383,7 @@ class ProductTable extends Component {
   }
 
   onChange = (e, row) => {
-    if(e.target.value.length<=5){
+    if(e.target.value.length <= 10){
       row.adjustmentForDisplay = Number(e.target.value)
       let aux = this.state.filteredData
       this.setState({
