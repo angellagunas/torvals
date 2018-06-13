@@ -100,7 +100,6 @@ class ProjectDetail extends Component {
 
     try {
       const body = await api.get(url)
-      console.log(body)
 
       if (!tab && currentRole !== 'manager-level-1') {
         if (body.data.status === 'empty') {
@@ -128,7 +127,7 @@ class ProjectDetail extends Component {
         tab = 'ajustes'
       }
 
-      if (body.data.outdated && !body.data.status !== 'cloning') this.showModalOutdated()
+      if (body.data.outdated && body.data.status !== 'cloning') this.showModalOutdated()
 
       this.rules = body.data.rule
 
@@ -477,7 +476,7 @@ class ProjectDetail extends Component {
   }
 
   async updateProject () {
-    this.setState({ isUpdating: ' is-loading' })
+    this.setState({ isUpdating: 'is-loading' })
 
     const url = '/app/projects/update/businessRules'
     try {

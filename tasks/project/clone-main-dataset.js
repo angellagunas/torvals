@@ -76,16 +76,50 @@ const task = new Task(
 
     return true
   }
-  // async (argv) => {
-  //   if (!argv.uuid) {
-  //     throw new Error('You need to provide an uuid!')
-  //   }
-  // },
-  // async (argv) => {
-  //   if (!argv.uuid) {
-  //     throw new Error('You need to provide an uuid!')
-  //   }
-  // }
+  async (argv) => {
+    if (!argv.uuid) {
+      throw new Error('You need to provide an uuid!')
+    }
+
+    const project = await Project.findOne({
+      uuid: argv.uuid,
+      isDeleted: false
+    })
+
+    if (!project) {
+      throw new Error('Invalid project.')
+    }
+
+    sendSlackNotificacion.run({
+      channel: 'all',
+      message: `Se ha iniciado el proceso para actualizar las reglas del proyecto` +
+        `*${project.name}* `
+    })
+  },
+  async (argv) => {
+    if (!argv.uuid) {
+      throw new Error('You need to provide an uuid!')
+    }
+
+    const project = await Project.findOne({
+      uuid: argv.uuid,
+      isDeleted: false
+    })
+
+    if (!project) {
+      throw new Error('Invalid project.')
+    }
+
+    sendSlackNotificacion.run({
+      channel: 'all',
+      message: `Se ha generado un clon del main dataset del projecto *${project.name}* ` +
+        `y esta listo para ser configurado con las nuevas reglas de negocio!`,
+      attachment: {
+        title: 'Exito!',
+        image_url: 'https://i.imgur.com/GfHWtUx.gif'
+      }
+    })
+  }
 )
 
 if (require.main === module) {

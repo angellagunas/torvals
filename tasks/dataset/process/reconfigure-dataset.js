@@ -204,8 +204,8 @@ const task = new Task(
     }
     sendSlackNotification.run({
       channel: 'all',
-      message: `El dataset *${dataset.name}* ha empezado a guardarse en base de datos.` +
-      ` Fue cargado por *${dataset.uploadedBy.name}*`
+      message: `El dataset *${dataset.name}* ha empezado a reconfigurarse con las nuevas ` +
+      `reglas de negocio`
     })
   },
   async (argv) => {
@@ -218,7 +218,7 @@ const task = new Task(
     }
     sendSlackNotification.run({
       channel: 'all',
-      message: `El dataset *${dataset.name}* ha sido cargado a la base de datos` +
+      message: `El dataset *${dataset.name}* ha sido reconfigurado` +
       ` y se procederá a procesarse.`
     })
   }

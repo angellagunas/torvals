@@ -19,8 +19,10 @@ const task = new Task(
     log.call('Saving products/sales centers/channels from catalog ...')
     log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('project')
+    const dataset = await DataSet.findOne({uuid: argv.uuid})
     .populate('channels products salesCenters cycles periods catalogItems')
+    .populate('project')
+
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
