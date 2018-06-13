@@ -227,7 +227,6 @@ class ProductTable extends Component {
                 onChange={(e) => { this.onChange(e, row) }}
                 onFocus={(e) => { this.onFocus(e, row) }}
                 tabIndex={row.tabin}
-                max='99999'
                 placeholder='0'
                 ref={(el) => { this.inputs[row.tabin] = el }}
               />

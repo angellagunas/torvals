@@ -268,7 +268,6 @@ class WeekTable extends Component {
                    onChange={(e) => { this.onChange(e, row.weeks[j])}}
                    onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
                    tabIndex={row.tabin}
-                   max='9999999'
                    placeholder='0'
                    ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
                  />
