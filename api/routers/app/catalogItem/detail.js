@@ -11,7 +11,9 @@ module.exports = new Route({
     const org = await Organization.findOne({'_id': organization, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
 
-    var catalogItem = await CatalogItem.findOne({uuid: uuidItem}).populate('organization')
+    var catalogItem = await CatalogItem.findOne({uuid: uuidItem})
+    .populate('organization')
+    .populate('groups')
     ctx.assert(catalogItem, 'Item no encontrado')
 
     ctx.body = {
