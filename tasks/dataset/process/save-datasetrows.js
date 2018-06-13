@@ -102,7 +102,7 @@ const task = new Task(
 
     dataset.set({ status: 'reviewing' })
 
-    if (dataset.isMain && dataset.project.status === 'updating-rules') {
+    if (dataset.isMain && dataset.project.status === 'pending-configuration') {
       dataset.set({ status: 'ready' })
       dataset.project.set({ status: 'pendingRows' })
       await dataset.project.save()

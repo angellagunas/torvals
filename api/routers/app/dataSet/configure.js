@@ -40,7 +40,7 @@ module.exports = new Route({
     })
     await dataset.save()
 
-    if (dataset.project.status === 'updating-rules') {
+    if (dataset.project.status === 'pending-configuration') {
       reconfigureDataset.add({uuid: dataset.uuid})
     } else {
       saveDataset.add({uuid: dataset.uuid})

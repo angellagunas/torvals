@@ -66,7 +66,7 @@ const task = new Task(
 
     project.set({
       mainDataset: auxDataset._id,
-      status: 'updating-rules'
+      status: 'pending-configuration'
     })
     project.datasets.push({
       dataset: auxDataset,

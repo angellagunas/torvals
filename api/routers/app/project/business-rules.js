@@ -30,6 +30,7 @@ module.exports = new Route({
 
     project.set({
       outdated: false,
+      status: 'updating-rules',
       rule: rule
     })
 

@@ -100,6 +100,7 @@ class ProjectDetail extends Component {
 
     try {
       const body = await api.get(url)
+      console.log(body)
 
       if (!tab && currentRole !== 'manager-level-1') {
         if (body.data.status === 'empty') {
@@ -127,7 +128,7 @@ class ProjectDetail extends Component {
         tab = 'ajustes'
       }
 
-      if (body.data.outdated) this.showModalOutdated()
+      if (body.data.outdated && !body.data.status !== 'cloning') this.showModalOutdated()
 
       this.rules = body.data.rule
 
@@ -402,7 +403,6 @@ class ProjectDetail extends Component {
     })
     let { pendingDataRows } = this.state
     let pendingDataRowsArray = Object.values(pendingDataRows)
-    console.log(showMessage)
 
     await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage)
     this.setState({
@@ -546,6 +546,7 @@ class ProjectDetail extends Component {
         project.status === 'conciliating' ||
         project.status === 'pendingRows' ||
         project.status === 'cloning' ||
+        project.status === 'pending-configuration' ||
         project.status === 'updating-rules'
     )) {
       this.interval = setInterval(() => this.getProjectStatus(), 30000)
