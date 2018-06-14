@@ -67,6 +67,7 @@ module.exports = new Route({
           }
         ],
         ranges: [0, 0, 10, 20, 30, null],
+        rangesLvl2: [0, 0, 10, 20, 30, null],
         version: 1,
         organization: org._id
       })
