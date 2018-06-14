@@ -181,45 +181,57 @@ const task = new Task(async function (argv) {
         })
       }
 
-      let datasetRows = await DataSetRow.find({dataset: dataset._id}).populate('channel product salesCenter').cursor()
-      console.log('Saving DataSetRow catalogs')
-      for (let datasetRow = await datasetRows.next(); datasetRow != null; datasetRow = await datasetRows.next()) {
-        let channelCatalog = _.find(dataset.catalogItems,
-          {
-            externalId: datasetRow.channel.externalId,
-            type: 'canal'
-          }
-        )
-        let salesCatalog = _.find(dataset.catalogItems,
-          {
-            externalId: datasetRow.salesCenter.externalId,
-            type: 'centro-de-venta'
-          }
-        )
-        let productCatalog = _.find(dataset.catalogItems,
-          {
-            externalId: datasetRow.product.externalId,
-            type: 'producto'
-          }
-        )
+      var channelExternalId = dataset.getChannelColumn() || {name: ''}
+      var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
+      var productExternalId = dataset.getProductColumn() || {name: ''}
 
-        datasetRow.set({
-          catalogData: {
-            is_producto_name: datasetRow.product.name,
-            is_producto_id: datasetRow.product.externalId,
-            is_canal_name: datasetRow.channel.name,
-            is_canal_id: datasetRow.channel.externalId,
-            'is_centro-de-venta_name': datasetRow.salesCenter.name,
-            'is_centro-de-venta_externalId': datasetRow.salesCenter.externalId
-          },
-          catalogItems: [
-            channelCatalog._id,
-            salesCatalog._id,
-            productCatalog._id
-          ]
-        })
-        await datasetRow.save()
+      console.log('Saving DataSetRow catalogs')
+      for (let catalogItem of dataset.catalogItems) {
+        if (catalogItem.type === 'canal') {
+          await DataSetRow.update({
+            dataset: dataset._id,
+            [`apiData.${channelExternalId.name}`]: catalogItem.externalId,
+            catalogItems: {$nin: [catalogItem._id]}
+          }, {
+            'catalogData.is_canal_name': catalogItem.name,
+            'catalogData.is_canal_id': catalogItem.externalId,
+            $push: {
+              catalogItems: catalogItem._id
+            }
+          }, {
+            multi: true
+          })
+        } else if (catalogItem.type === 'centro-de-venta') {
+          await DataSetRow.update({
+            dataset: dataset._id,
+            [`apiData.${salesCenterExternalId.name}`]: catalogItem.externalId,
+            catalogItems: {$nin: [catalogItem._id]}
+          }, {
+            'catalogData.is_centro-de-venta_name': catalogItem.name,
+            'catalogData.is_centro-de-venta_id': catalogItem.externalId,
+            $push: {
+              catalogItems: catalogItem._id
+            }
+          }, {
+            multi: true
+          })
+        } else if (catalogItem.type === 'producto') {
+          await DataSetRow.update({
+            dataset: dataset._id,
+            [`apiData.${productExternalId.name}`]: catalogItem.externalId,
+            catalogItems: {$nin: [catalogItem._id]}
+          }, {
+            'catalogData.is_producto_name': catalogItem.name,
+            'catalogData.is_producto_id': catalogItem.externalId,
+            $push: {
+              catalogItems: catalogItem._id
+            }
+          }, {
+            multi: true
+          })
+        }
       }
+
       console.log('Saving status as pendingRows')
       project.set({
         status: 'pendingRows'
