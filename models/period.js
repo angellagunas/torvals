@@ -60,7 +60,7 @@ periodSchema.statics.getBetweenDates = async function (organization, rule, minDa
     organization: organization,
     rule: rule,
     dateStart: {
-      $gte: firstPeriod.dateStart,
+      $gte: (firstPeriod) ? firstPeriod.dateStart : minDate,
       $lte: maxDate
     },
     isDeleted: false

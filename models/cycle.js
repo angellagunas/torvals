@@ -76,7 +76,7 @@ cycleSchema.statics.getBetweenDates = async function (organization, rule, minDat
     organization: organization,
     rule: rule,
     dateStart: {
-      $gte: firstCycle.dateStart,
+      $gte: (firstCycle) ? firstCycle.dateStart : minDate,
       $lte: maxDate
     },
     isDeleted: false
