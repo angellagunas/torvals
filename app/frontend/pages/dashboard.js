@@ -936,6 +936,7 @@ class Dashboard extends Component {
     ]
 
     const vLines = (this.state.graphData || []).map(item => ({
+      drawTime: 'beforeDatasetsDraw',
       type: 'line',
       mode: 'vertical',
       scaleID: 'x-axis-0',

@@ -12,6 +12,7 @@ import Loader from '~base/components/spinner'
 import Tabs from '~base/components/base-tabs'
 import SidePanel from '~base/side-panel'
 import NotFound from '~base/components/not-found'
+import BaseModal from '~base/components/base-modal'
 import tree from '~core/tree'
 
 import ProjectForm from './create-form'
@@ -38,6 +39,8 @@ class ProjectDetail extends Component {
       actualTab: 'graficos',
       datasetClassName: '',
       cloneClassName: '',
+      outdatedClassName: '',
+      isUpdating: '',
       roles: 'admin, orgadmin, analyst',
       canEdit: false,
       isLoading: '',
@@ -108,6 +111,13 @@ class ProjectDetail extends Component {
         else if (body.data.status === 'adjustment') {
           tab = 'graficos'
         }
+        else if (body.data.status === 'pending-configuration') {
+          this.datasetDetail = body.data.mainDataset
+          tab = 'datasets'
+        }
+        else if (body.data.status === 'updating-rules') {
+          tab = 'datasets'
+        }
         else {
           tab = this.state.selectedTab
         }
@@ -117,12 +127,17 @@ class ProjectDetail extends Component {
         tab = 'ajustes'
       }
 
+      if (body.data.outdated && body.data.status !== 'cloning') this.showModalOutdated()
+
+      this.rules = body.data.rule
+
       this.setState({
         loading: false,
         loaded: true,
         project: body.data,
         selectedTab: tab,
-        actualTab: tab
+        actualTab: tab,
+        datasetDetail: this.datasetDetail
       })
 
       this.countAdjustmentRequests()
@@ -223,6 +238,18 @@ class ProjectDetail extends Component {
     })
   }
 
+  showModalOutdated () {
+    this.setState({
+      outdatedClassName: ' is-active'
+    })
+  }
+
+  hideModalOutdated() {
+    this.setState({
+      outdatedClassName: ''
+    })
+  }
+
   finishUpClone (object) {
     this.setState({
       cloneClassName: ''
@@ -246,7 +273,16 @@ class ProjectDetail extends Component {
           if (!this.intervalConciliate) {
             this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
           }
-        } else {
+        }
+        else if (res.data.status === 'pending-configuration'){
+          clearInterval(this.interval)
+          this.setState({
+            selectedTab: 'datasets',
+            actualTab: 'datasets',
+            datasetDetail: res.data.mainDataset
+          })
+        }
+         else {
           clearInterval(this.intervalConciliate)
         }
       }
@@ -366,7 +402,6 @@ class ProjectDetail extends Component {
     })
     let { pendingDataRows } = this.state
     let pendingDataRowsArray = Object.values(pendingDataRows)
-    console.log(showMessage)
 
     await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage)
     this.setState({
@@ -440,6 +475,26 @@ class ProjectDetail extends Component {
     })
   }
 
+  async updateProject () {
+    this.setState({ isUpdating: 'is-loading' })
+
+    const url = '/app/projects/update/businessRules'
+    try {
+      await api.post(url, { ...this.state.project })
+      await this.load()
+      this.hideModalOutdated()
+    } catch (e) {
+      toast('Error: ' + e.message, {
+        autoClose: 5000,
+        type: toast.TYPE.ERROR,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    }
+
+    this.setState({ isUpdating: '' })
+  }
+
   render () {
     if (this.state.notFound) {
       return <NotFound msg='este proyecto' />
@@ -489,7 +544,9 @@ class ProjectDetail extends Component {
         project.status === 'processing' ||
         project.status === 'conciliating' ||
         project.status === 'pendingRows' ||
-        project.status === 'cloning'
+        project.status === 'cloning' ||
+        project.status === 'pending-configuration' ||
+        project.status === 'updating-rules'
     )) {
       this.interval = setInterval(() => this.getProjectStatus(), 30000)
     }
@@ -505,7 +562,9 @@ class ProjectDetail extends Component {
         hide: (testRoles('manager-level-1') ||
           project.status === 'empty' ||
           project.status === 'conciliating' ||
-          project.status === 'cloning'),
+          project.status === 'cloning' ||
+          project.status === 'updating-rules' ||
+          project.status === 'pending-configuration'),
         content: (
           <TabHistorical
             project={project}
@@ -519,7 +578,9 @@ class ProjectDetail extends Component {
         name: 'ajustes',
         title: 'Ajustes',
         reload: false,
-        hide: project.status === 'empty',
+        hide: project.status === 'empty' ||
+              project.status === 'updating-rules' ||
+              project.status === 'pending-configuration',
         content: (
           <TabAdjustment
             loadCounters={() => {
@@ -550,7 +611,9 @@ class ProjectDetail extends Component {
               project.status === 'processing' ||
               project.status === 'pendingRows' ||
               project.status === 'empty' ||
-              project.status === 'cloning'),
+              project.status === 'cloning' || 
+              project.status === 'updating-rules' ||
+              project.status === 'pending-configuration'),
         content: (
           <TabApprove
             setAlert={(type, data) => this.setAlert(type, data)}
@@ -571,6 +634,7 @@ class ProjectDetail extends Component {
             canEdit={canEdit}
             setAlert={(type, data) => this.setAlert(type, data)}
             reload={(tab) => this.load(tab)}
+            datasetDetail={this.state.datasetDetail}
           />
         )
       },
@@ -582,7 +646,9 @@ class ProjectDetail extends Component {
           project.status === 'processing' ||
           project.status === 'pendingRows' ||
           project.status === 'empty' ||
-          project.status === 'cloning'),
+          project.status === 'cloning' ||
+          project.status === 'updating-rules' ||
+          project.status === 'pending-configuration'),
         content: (
           <TabAnomalies
             project={project}
@@ -799,6 +865,33 @@ class ProjectDetail extends Component {
           hideModal={this.hideModalDataset.bind(this)}
           finishUp={this.finishUpDataset.bind(this)}
         />
+
+        <BaseModal
+          title='Proyecto desactualizado'
+          className={this.state.outdatedClassName}
+          hideModal={this.hideModalOutdated.bind(this)}
+        >
+          <p>
+            Este proyecto se encuentra usando una version pasada de reglas de negocio,
+            ¿Desea actualizarlo?
+          </p> <br />
+          <div className='field is-grouped'>
+            <div className='control'>
+              <button
+                className={'button is-primary ' + this.state.isUpdating}
+                disabled={!!this.state.isUpdating}
+                onClick={this.updateProject.bind(this)}
+              >
+                Actualizar
+              </button>
+            </div>
+            <div className='control'>
+              <button className='button' onClick={this.hideModalOutdated.bind(this)} type='button'>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </BaseModal>
 
       </div>
     )

@@ -36,9 +36,13 @@ const task = new Task(
     const periodDuration = rule.periodDuration
     const period = rule.period
     const takeStart = rule.takeStart
-    await Period.deleteMany({organization: organization._id})
-    var startDate = moment.utc(moment(cycles[0].dateStart).utc())
+
+    var startDate = moment.utc(moment(rule.startDate).utc())
     var endDate = moment.utc(moment(cycles[cycles.length - 1].dateEnd).utc())
+
+    var auxStartDate = moment.utc(moment(rule.startDate).utc())
+    var cyclesStartDate = moment.utc(moment(cycles[0].dateStart).utc())
+
     var currentEndDate
     var periodNumber
     var lastCycle
@@ -80,6 +84,67 @@ const task = new Task(
 
       startDate = moment(currentEndDate).utc().add(1, 'd')
     } while (currentEndDate <= endDate)
+
+    currentEndDate = moment(auxStartDate).utc().subtract(1, 'd')
+    var currentStartDate
+    let modifiedCycles = new Set()
+    do {
+      currentStartDate = moment(currentEndDate).utc().subtract(periodDuration, period)
+      currentStartDate = moment(currentStartDate).utc().add(1, 'd')
+      let cyclesBetween = await Cycle.find({ $or: [
+        {dateStart: {$lte: currentStartDate}, dateEnd: {$gte: currentStartDate}},
+        {dateStart: {$lte: currentEndDate}, dateEnd: {$gte: currentEndDate}}],
+        organization: organization._id,
+        rule: rule._id,
+        isDeleted: false
+      })
+
+      if (cyclesBetween.length > 0) {
+        let cycle
+        if (cyclesBetween.length > 1) {
+          cycle = (takeStart) ? cyclesBetween[cyclesBetween.length - 1]._id : cyclesBetween[0]._id
+        } else {
+          cycle = cyclesBetween[0]._id
+        }
+        modifiedCycles.add(cycle)
+        await Period.create({
+          organization: organization._id,
+          dateStart: currentStartDate,
+          dateEnd: currentEndDate,
+          cycle: cycle,
+          rule: rule._id
+        })
+
+        lastCycle = cycle
+      }
+
+      currentEndDate = moment(currentStartDate).utc().subtract(1, 'd')
+    } while (currentStartDate >= cyclesStartDate)
+
+    modifiedCycles = Array.from(modifiedCycles)
+
+    if (modifiedCycles.length) {
+      const periodsCycles = await Period.find({
+        cycle: {$in: modifiedCycles},
+        organization: organization._id,
+        isDeleted: false,
+        rule: rule._id
+      }).populate('cycle').sort({dateStart: 1})
+
+      let lastCycle, periodNumber
+      for (let periodCycle of periodsCycles) {
+        let currentCycle = periodCycle.cycle._id
+        if (String(lastCycle) !== String(currentCycle)) {
+          periodNumber = 1
+        }
+
+        await periodCycle.set({
+          period: periodNumber++
+        })
+        await periodCycle.save()
+        lastCycle = currentCycle
+      }
+    }
 
     return true
   }

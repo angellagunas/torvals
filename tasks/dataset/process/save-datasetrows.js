@@ -4,6 +4,7 @@ require('lib/databases/mongo')
 const Logger = require('lib/utils/logger')
 const moment = require('moment')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
+const getAnomalies = require('queues/get-anomalies')
 const Task = require('lib/task')
 const { DataSetRow, DataSet } = require('models')
 
@@ -20,6 +21,8 @@ const task = new Task(
 
     const dataset = await DataSet.findOne({uuid: argv.uuid})
     .populate('channels products salesCenters cycles periods catalogItems')
+    .populate('project')
+
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
@@ -66,17 +69,17 @@ const task = new Task(
     log.call('Saving catalog items ...')
     for (let catalogItems of dataset.catalogItems) {
       const filters = {dataset: dataset._id}
-      filters['catalogData.is_'+ catalogItems.type + '_id'] = catalogItems.externalId.toString()
+      filters['catalogData.is_' + catalogItems.type + '_id'] = catalogItems.externalId.toString()
 
       await DataSetRow.update(
       filters,
-      {
-        $push: {
-          catalogItems: catalogItems._id
-        }
-      }, {
-        multi: true
-      })
+        {
+          $push: {
+            catalogItems: catalogItems._id
+          }
+        }, {
+          multi: true
+        })
     }
     log.call('Catalog items successfully saved!')
 
@@ -100,6 +103,14 @@ const task = new Task(
     log.call('Cycles and periods successfully saved!')
 
     dataset.set({ status: 'reviewing' })
+
+    if (dataset.isMain && dataset.project.status === 'pending-configuration') {
+      dataset.set({ status: 'ready' })
+      dataset.project.set({ status: 'pendingRows' })
+      await dataset.project.save()
+      getAnomalies.add({uuid: dataset.project.uuid})
+    }
+
     await dataset.save()
 
     log.call('Success! DatasetRows processed!')

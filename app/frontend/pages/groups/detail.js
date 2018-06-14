@@ -27,6 +27,7 @@ class GroupDetail extends Component {
       group: {},
       isLoading: ''
     }
+    this.rules = tree.get('rule')
 
     currentRole = tree.get('user').currentRole.slug
   }
@@ -44,6 +45,16 @@ class GroupDetail extends Component {
     this.load()
   }
 
+  findCatalogName = (name) => {
+    let find = ''
+    this.rules.catalogs.map(item => {
+      if (item.slug === name) {
+        find = item.name
+      }
+    })
+    return find
+  }
+
   async load () {
     var url = '/app/groups/' + this.props.match.params.uuid
 
@@ -53,7 +64,14 @@ class GroupDetail extends Component {
       this.setState({
         loading: false,
         loaded: true,
-        group: body.data
+        group: body.data,
+        catalogItems: _(body.data.catalogItems)
+          .groupBy(x => x.type)
+          .map((value, key) => ({
+            type: this.findCatalogName(key),
+            objects: value
+          }))
+          .value()
       })
     } catch (e) {
       await this.setState({
@@ -342,7 +360,7 @@ class GroupDetail extends Component {
                         errorHandler={(data) => this.errorHandler(data)}
                         finishUp={(data) => this.finishUpHandler(data)}
                         >
-                        {this.state.channels &&
+                        {this.state.channels && this.state.channels.length > 0 &&
                         <div>
                           <p className='label'>Canales</p>
                           <div className='tags'>
@@ -358,7 +376,7 @@ class GroupDetail extends Component {
                           </div>
                         </div>
                         }
-                        {this.state.salesCenters &&
+                        {this.state.salesCenters && this.state.salesCenters.length > 0 &&
                           <div className='has-20-margin-top'>
                             <p className='label'>Centros de Venta</p>
                             <div className='tags'>
@@ -373,6 +391,29 @@ class GroupDetail extends Component {
                               })}
                             </div>
                           </div>
+                        }
+                        {
+                          this.state.catalogItems &&
+                          this.state.catalogItems.length > 0 &&
+                          this.state.catalogItems.map(item => {
+                            return (
+                              <div className='has-20-margin-top' key={item.type}>
+                                <p className='label'>{item.type}</p>
+                                <div className='tags'>
+                                  {item.objects.map((obj) => {
+                                    return (
+                                      <Link className='tag is-capitalized'
+                                        key={obj.uuid}
+                                        to={'/catalogs/' + obj.type + '/' + obj.uuid}>
+                                        {obj.name}
+                                      </Link>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )
+                          })
+                          
                         }
                         <div className='field is-grouped has-20-margin-top'>
                           <div className='control'>
@@ -397,7 +438,7 @@ class GroupDetail extends Component {
                     </p>
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModalList()}>
-                        Agregar usuario existente
+                        Agregar
                       </button>
                     <BaseModal
                       title='Usuarios para asignar'

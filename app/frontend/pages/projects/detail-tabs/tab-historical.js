@@ -599,7 +599,7 @@ class TabHistorical extends Component {
     let p = []
     let dateMin = moment.utc(this.props.project.dateMin)
     let dateMax = moment.utc(this.props.project.dateMax)
-    
+
     if(dateMin.isBefore(moment.utc('2017-01-01'))){
       dateMin = moment.utc('2017-01-01')
     }
@@ -608,7 +608,7 @@ class TabHistorical extends Component {
       d.push(dateMin)
       dateMin = moment.utc(dateMin).add(1, 'month')
     }
-    
+
     d.push(dateMin)
 
 
@@ -626,7 +626,7 @@ class TabHistorical extends Component {
       maxPeriod: p[p.length - 1]
     })
   }
-  
+
 
   setMinPeriod(item) {
     let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
@@ -676,6 +676,9 @@ class TabHistorical extends Component {
 
   findName = (name) => {
     let find = ''
+
+    if (!this.rules) return find
+
     this.rules.catalogs.map(item => {
       if (item.slug === name) {
         find = item.name
@@ -872,6 +875,16 @@ class TabHistorical extends Component {
       }
     ]
 
+    const vLines = (this.state.graphData || []).map(item => ({
+      drawTime: 'beforeDatasetsDraw',
+      type: 'line',
+      mode: 'vertical',
+      scaleID: 'x-axis-0',
+      value: item.date,
+      borderColor: 'rgba(233, 238, 255, 1)',
+      borderWidth: 1
+    }))
+
     return (
       <div>
         <div className='section'>
@@ -890,7 +903,7 @@ class TabHistorical extends Component {
                     <div className='card-content'>
 
                       <ul>
-                        
+
 
                         <li className='filters-item'>
                           <div className={this.state.channelsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
@@ -925,7 +938,7 @@ class TabHistorical extends Component {
                                     item.selected = false
                                   }
                                   let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
-                                  
+
                                   return (
                                     <li key={item.uuid}>
                                       <a>
@@ -938,7 +951,7 @@ class TabHistorical extends Component {
                                         />
                                         {item.name === 'Not identified' &&
                                           <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
-                                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>                                          
+                                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>
                                           </span>
                                         }
                                       </a>
@@ -983,7 +996,7 @@ class TabHistorical extends Component {
                                     item.selected = false
                                   }
                                   let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
-                                  
+
                                   return (
                                     <li key={item.uuid}>
                                       <a>
@@ -996,7 +1009,7 @@ class TabHistorical extends Component {
                                         />
                                         {item.name === 'Not identified' &&
                                           <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
-                                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>                                                                                      
+                                            <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>
                                           </span>
                                         }
                                       </a>
@@ -1037,7 +1050,7 @@ class TabHistorical extends Component {
                     <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
-                    
+
                     <p className='indicators-title'>Ajuste total</p>
                     <p className='indicators-number has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -1047,7 +1060,7 @@ class TabHistorical extends Component {
                     <p className='indicators-number has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
                       return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                     })}</p>
-                   
+
                   </div>
                 </div>
                 <div className='column card'>
@@ -1162,7 +1175,8 @@ class TabHistorical extends Component {
                                   position: 'top',
                                   fontColor: '#424A55'
                                 }
-                              }
+                              },
+                              ...vLines
                             ]
                           }
                         }
@@ -1235,14 +1249,14 @@ class TabHistorical extends Component {
                       </div>
                     </div>
                   }
-                  
+
                     <div className='level-item date-drop'>
                       <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
                     </div>
-                  
-                  {this.state.maxPeriod && 
+
+                  {this.state.maxPeriod &&
                     <div className='level-item'>
                      <div className='field'>
                         <label className='label'>Periodo final</label>

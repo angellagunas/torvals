@@ -7,6 +7,7 @@ const { createCycles, clearDatabase, createUser, createOrganization } = require(
 const { organizationFixture } = require('../fixtures')
 
 const generatePeriods = require('tasks/organization/generate-periods')
+const generateCycles = require('tasks/organization/generate-cycles')
 
 
 describe('Generate periods task', () => {
@@ -105,6 +106,67 @@ describe('Generate periods task', () => {
       ).equal(
         lastPeriodEndDate.toISOString().slice(0, 10)
       )
+    })
+  })
+
+  describe('with one cycle by month and period with a week as duration', () => {
+    it('should generate a period with startDate equals a startDate defined on org rules', async function () {
+
+      await clearDatabase()
+      const startDate = "2017-12-30T00:00:00"
+
+      const org = await createOrganization({rules: {
+        startDate: startDate,
+        cycleDuration: 1,
+        cycle: "M",
+        period:"w",
+        periodDuration:1,
+        season: 12,
+        cyclesAvailable:6,
+        catalogs: [
+          "producto"
+        ],
+        ranges: [0, 0, 0, 0, 0, 0],
+        takeStart: true,
+        consolidation: 26,
+        forecastCreation: 1,
+        rangeAdjustment: 1,
+        rangeAdjustmentRequest: 1,
+        salesUpload : 1
+      }})
+
+      await generateCycles.run({uuid: org.uuid})
+      const wasGenerated = await generatePeriods.run({uuid: org.uuid})
+      const today = new Date()
+
+      let startPeriod = await Period.aggregate([
+        {
+          "$redact": {
+            "$cond": [
+              {
+                "$and": [
+                  {"$eq": [{"$year": "$dateStart"}, 2017]},
+                  {"$eq": [{"$month": "$dateStart"}, 12]},
+                  {"$eq": [{"$dayOfMonth": "$dateStart"}, 30]}
+                ]
+              },
+              "$$KEEP", 
+              "$$PRUNE" 
+            ]
+          }
+        }
+      ])
+
+      startPeriod = startPeriod[0]
+
+      assert.exists(startPeriod)
+
+      expect(
+        new Date(startPeriod.dateEnd).toISOString().slice(0, 10)
+      ).equal(
+        new Date("2018-01-05").toISOString().slice(0, 10)
+      )
+
     })
   })
 

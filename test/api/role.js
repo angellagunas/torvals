@@ -36,12 +36,13 @@ describe('Role CRUD', () => {
         .expect(422)
     })
 
-    it.skip('should return a 200 and the role created', async function () {
+    it('should return a 200 and the role created', async function () {
       const res = await test()
         .post('/api/admin/roles')
         .send({
           name: 'Un role',
-          description: 'Una descripción'
+          description: 'Una descripción',
+          priority: 1
         })
         .set('Accept', 'application/json')
         .expect(200)
@@ -82,12 +83,13 @@ describe('Role CRUD', () => {
         .expect(404)
     })
 
-    it.skip('should return a 200 and the role updated', async function () {
+    it('should return a 200 and the role updated', async function () {
       await test()
         .post('/api/admin/roles/' + roleUuid)
         .send({
           name: 'Un role',
-          description: 'Otra descripción'
+          description: 'Otra descripción',
+          priority: 1
         })
         .set('Accept', 'application/json')
         .expect(200)
@@ -106,14 +108,20 @@ describe('Role CRUD', () => {
         .expect(404)
     })
 
-    it.skip('should return a 200 and the role requested', async function () {
+    it('should return a 200 and the role requested', async function () {
+      const role = await Role.create({
+        name: 'test_role',
+        description:'test',
+        slug: 'test_role'
+      })
+
       const res = await test()
-        .get('/api/admin/roles/' + roleUuid)
+        .get('/api/admin/roles/' + role.uuid)
         .set('Accept', 'application/json')
         .expect(200)
 
-      expect(res.body.data.name).equal('Un role')
-      expect(res.body.data.description).equal('Otra descripción')
+      expect(res.body.data.name).equal('test_role')
+      expect(res.body.data.description).equal('test')
     })
   })
 
@@ -125,13 +133,19 @@ describe('Role CRUD', () => {
         .expect(404)
     })
 
-    it.skip('should return a 200 and set isDeleted to true', async function () {
+    it('should return a 200 and set isDeleted to true', async function () {
+      await clearDatabase()
+      const role = await Role.create({
+        name: 'test_role',
+        description:'test',
+        slug: 'test_role'
+      })
       await test()
-        .delete('/api/admin/roles/' + roleUuid)
+        .delete('/api/admin/roles/' + role.uuid)
         .set('Accept', 'application/json')
         .expect(200)
 
-      const newOrg = await Role.findOne({'uuid': roleUuid})
+      const newOrg = await Role.findOne({'uuid': role.uuid})
       expect(newOrg.isDeleted).equal(true)
     })
   })

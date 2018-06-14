@@ -1411,8 +1411,9 @@ getProductsSelected () {
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
-                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
+                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }} 
+                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
+                      rules={this.rules}
                     />
                     :
 

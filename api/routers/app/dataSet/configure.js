@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 const { DataSet } = require('models')
+const reconfigureDataset = require('queues/reconfigure-dataset')
 const saveDataset = require('queues/save-dataset')
 
 module.exports = new Route({
@@ -18,6 +19,7 @@ module.exports = new Route({
     var datasetId = ctx.params.uuid
 
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
+      .populate('project')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
@@ -38,7 +40,12 @@ module.exports = new Route({
     })
     await dataset.save()
 
-    saveDataset.add({uuid: dataset.uuid})
+    if (dataset.project.status === 'pending-configuration') {
+      reconfigureDataset.add({uuid: dataset.uuid})
+    } else {
+      saveDataset.add({uuid: dataset.uuid})
+    }
+
     ctx.body = {
       data: dataset
     }

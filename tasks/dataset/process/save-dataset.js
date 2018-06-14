@@ -120,7 +120,7 @@ const task = new Task(
 
           let catalogData = {}
           for (let column of dataset.columns) {
-            catalogColumns = Object.keys(column).filter(x => column[x] === true && x.startsWith("is_"))
+            catalogColumns = Object.keys(column).filter(x => column[x] === true && x.startsWith('is_'))
             for (let catalogColumnName of catalogColumns) {
               catalogData[catalogColumnName] = obj[column.name]
             }

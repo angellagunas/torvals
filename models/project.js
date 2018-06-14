@@ -29,7 +29,8 @@ const projectSchema = new Schema({
       'adjustment',
       'conciliating',
       'cloning',
-      'updating-rules'
+      'updating-rules',
+      'pending-configuration'
     ],
     default: 'empty'
   },
