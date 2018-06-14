@@ -3,9 +3,9 @@ require('co-mocha')
 
 const moment = require('moment')
 
-const { Cycle } = require('models')
+const { Cycle, Rule, Period, Project } = require('models')
 const { assert, expect } = require('chai')
-const { clearDatabase, createUser, createOrganization } = require('../utils')
+const { clearDatabase, createUser, createOrganization, createFullOrganization } = require('../utils')
 const { organizationFixture } = require('../fixtures')
 
 const generateCycles = require('tasks/organization/generate-cycles')
@@ -18,51 +18,25 @@ describe('Generate cycles task', () => {
 
   describe('with one cycle by month and one month as period', () => {
     it('should generate the cycles successfully', async function () {
-
-      const user = await createUser()
-      const token = await user.createToken({type: 'session'})
-      const jwt = token.getJwt()
-      const org = await createOrganization({rules: {
-        startDate: '2018-01-01T00:00:00',
-        cycleDuration: 1,
-        cycle: 'M',
-        period: 'M',
-        periodDuration: 1,
-        season: 12,
-        cyclesAvailable:6,
-        catalogs: [
-          "producto"
-        ],
-        ranges: [0, 0, 0, 0, 0, 0],
-        takeStart: true,
-        consolidation: 26,
-        forecastCreation: 1,
-        rangeAdjustment: 1,
-        rangeAdjustmentRequest: 1,
-        salesUpload : 1
-      }})
-
-      await generateCycles.run({uuid: org.uuid})
+      const org = await createFullOrganization({})
+      const rule = await Rule.findOne({organization: org._id})
 
       const today = new Date()
+      const year = today.getFullYear()
+      const month = today.getMonth()
+      const day = today.getDate()
+      const cyclesAvailable = rule.cyclesAvailable
 
       lastCycleStartDate = moment(
-        new Date(
-          today.getFullYear(),
-          today.getMonth() + parseInt(org.rules.cyclesAvailable)
-        )
+          new Date(year, month + parseInt(cyclesAvailable))
       ).utc().set({hour:0,minute:0,second:0,millisecond:0})
 
       lastCycleEndDate = moment(
-        new Date(
-          today.getFullYear(),
-          today.getMonth() + 1 + parseInt(org.rules.cyclesAvailable),
-          0
-        )
+        new Date(year, month + 1 + parseInt(cyclesAvailable), 0)
       ).utc().set({hour:0,minute:0,second:0,millisecond:0})
 
-      const expectedCycles = 12 + (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
-      const cyclesForThisYear = (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
+      const expectedCycles = 12 + (month + 1) + parseInt(cyclesAvailable)
+      const cyclesForThisYear = (month + 1) + parseInt(cyclesAvailable)
 
       const cyclesGenerated = await Cycle.find({organization: org._id}).count()
 
@@ -87,28 +61,10 @@ describe('Generate cycles task', () => {
 
   describe('with one cycle by month and december 30, 2017 as startDate', () => {
     it('should generate a cycle with dateStart equals to rules startDate', async function () {
-
-      const org = await createOrganization({rules: {
+      const org = await createFullOrganization({}, {
         startDate: '2017-12-30T00:00:00',
-        cycleDuration: 1,
-        cycle: 'M',
         period: 'w',
-        periodDuration: 1,
-        season: 12,
-        cyclesAvailable:6,
-        catalogs: [
-          "producto"
-        ],
-        ranges: [0, 0, 0, 0, 0, 0],
-        takeStart: true,
-        consolidation: 26,
-        forecastCreation: 1,
-        rangeAdjustment: 1,
-        rangeAdjustmentRequest: 1,
-        salesUpload : 1
-      }})
-
-      await generateCycles.run({uuid: org.uuid})
+      })
 
       const today = new Date()
 
@@ -144,21 +100,13 @@ describe('Generate cycles task', () => {
     })
 
     it('send a invalid cycle should launch a exception', async function () {
-      const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
-        cycleDuration: 1,
-        cycle: "aString",
-        period:"M",
-        periodDuration: 1,
-        season: 6,
-        cyclesAvailable:4
-      }})
-
       let failed = false
       let errorMsg = ''
 
       try{
-        const wasGenerated = await generateCycles.run({uuid: org.uuid, isTest: true})
+        const org = await createFullOrganization({}, {
+          cycle: "aString"
+        })
       } catch(error) {
         failed = true
         errorMsg = error.message
@@ -185,21 +133,13 @@ describe('Generate cycles task', () => {
     })
 
     it('sending a negative number as cycleDuration should launch a exception', async function () {
-      const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
-        cycleDuration: -1,
-        cycle: "M",
-        period:"M",
-        periodDuration: 1,
-        season: 6,
-        cyclesAvailable:4
-      }})
-
       let failed = false
       let errorMsg = ''
 
       try{
-        const wasGenerated = await generateCycles.run({uuid: org.uuid, isTest: true})
+        const org = await createFullOrganization({}, {
+          cycleDuration: -1
+        })
       } catch(error) {
         failed = true
         errorMsg = error.message
@@ -210,21 +150,13 @@ describe('Generate cycles task', () => {
    })
 
    it('sending a negative number as season should launch a exception', async function () {
-      const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
-        cycleDuration: 1,
-        cycle: "M",
-        period:"M",
-        periodDuration: 1,
-        season: -1,
-        cyclesAvailable:4
-      }})
-
       let failed = false
       let errorMsg = ''
 
       try{
-        const wasGenerated = await generateCycles.run({uuid: org.uuid, isTest: true})
+        const org = await createFullOrganization({}, {
+          season: -1
+        })
       } catch(error) {
         failed = true
         errorMsg = error.message
@@ -235,21 +167,15 @@ describe('Generate cycles task', () => {
    })
 
    it('sending a negative number as cyclesAvailable should launch a exception', async function () {
-      const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
-        cycleDuration: 1,
-        cycle: "M",
-        period:"M",
-        periodDuration: 1,
-        season: 1,
-        cyclesAvailable: -4
-      }})
+      
 
       let failed = false
       let errorMsg = ''
 
       try{
-        const wasGenerated = await generateCycles.run({uuid: org.uuid, isTest: true})
+        const org = await createFullOrganization({}, {
+          cyclesAvailable: -4
+        })
       } catch(error) {
         failed = true
         errorMsg = error.message
