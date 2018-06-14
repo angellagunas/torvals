@@ -69,6 +69,14 @@ module.exports = async function (ctx, next) {
         return ctx.throw(401, 'Invalid User')
       }
 
+      let user = userToken.user
+      user = await User.populate(
+        user,
+        ['organizations.role', 'organizations.organization']
+      )
+
+      ctx.state.user = user
+      ctx.state.token = userToken
       ctx.state.authMethod = 'Basic'
     }
   }
