@@ -16,9 +16,9 @@ pipeline {
       }
     }
     stage("Test") {
+      when { anyOf { branch "feature/jenkins-test"; branch "dev" } }
       steps {
-        // TODO: Execute tests
-        echo "Pending"
+        sh "make ci"
       }
     }
     stage("Build") {
