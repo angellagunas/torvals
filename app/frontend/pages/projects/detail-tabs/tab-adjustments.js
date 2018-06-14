@@ -117,10 +117,17 @@ class TabAdjustment extends Component {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
         
         let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
-        cycles = cycles.map((item, key) => {
-          return item = { ...item, adjustmentRange: this.rules.ranges[key], name: moment.utc(item.dateStart).format('MMMM') }
-        })
 
+        if (currentRole === 'manager-level-2') {
+          cycles = cycles.map((item, key) => {
+            return item = { ...item, adjustmentRange: this.rules.rangesLvl2[key], name: moment.utc(item.dateStart).format('MMMM') }
+          })
+        }
+        else {
+          cycles = cycles.map((item, key) => {
+            return item = { ...item, adjustmentRange: this.rules.ranges[key], name: moment.utc(item.dateStart).format('MMMM') }
+          })
+        }
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
         
