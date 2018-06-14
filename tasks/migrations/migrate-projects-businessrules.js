@@ -71,6 +71,8 @@ const task = new Task(async function (argv) {
     })
     await project.save()
 
+    if (!project.mainDataset) { continue }
+
     console.log('Retrieving dataset...', project.mainDataset.uuid)
     let datasets = await DataSet.find({_id: project.mainDataset._id}).populate('channels salesCenters products')
     for (let dataset of datasets) {
