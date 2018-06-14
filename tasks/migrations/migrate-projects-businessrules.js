@@ -181,9 +181,9 @@ const task = new Task(async function (argv) {
         })
       }
 
-      let datasetRows = await DataSetRow.find({dataset: dataset._id}).populate('channel product salesCenter')
+      let datasetRows = await DataSetRow.find({dataset: dataset._id}).populate('channel product salesCenter').cursor()
       console.log('Saving DataSetRow catalogs')
-      for (let datasetRow of datasetRows) {
+      for (let datasetRow = await datasetRows.next(); datasetRow != null; datasetRow = await datasetRows.next()) {
         let channelCatalog = _.find(dataset.catalogItems,
           {
             externalId: datasetRow.channel.externalId,
