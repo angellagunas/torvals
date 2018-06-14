@@ -4,7 +4,7 @@ require('co-mocha')
 const moment = require('moment')
 
 const { assert, expect } = require('chai')
-const { Channel, Project, DataSetRow, DataSet } = require('models')
+const { Channel, Project, DataSetRow, DataSet, Rule } = require('models')
 const {
   clearDatabase,
   createCycles,
@@ -17,6 +17,7 @@ const {
   createChannels,
   createProducts,
   createSaleCenters,
+  createFullOrganization,
   createDatasetRowsUnConciliate
 } = require('../utils')
 
@@ -34,31 +35,11 @@ describe('Conciliate dataset to project', () => {
   describe('with csv file with 3 products', () => {
     it('should conciliate a new dataset with 2 records successfully', async function () {
       const user = await createUser()
-      const token = await user.createToken({type: 'session'})
-      const jwt = token.getJwt()
+      const org = await createFullOrganization({
+        period: 'M'
+      })
 
-      const org = await createOrganization({rules: {
-        startDate: '2018-01-01T00:00:00',
-        cycleDuration: 1,
-        cycle: 'M',
-        period: 'M',
-        periodDuration: 1,
-        season: 12,
-        cyclesAvailable:6,
-        catalogs: [
-          "producto"
-        ],
-        ranges: [0, 0, 0, 0, 0, 0],
-        takeStart: true,
-        consolidation: 26,
-        forecastCreation: 1,
-        rangeAdjustment: 1,
-        rangeAdjustmentRequest: 1,
-        salesUpload : 1
-      }})
-
-      await createCycles({organization: org._id})
-      await generatePeriods.run({uuid: org.uuid})
+      const rule = await Rule.findOne({organization: org._id})
 
       const project = await createProject({
         organization: org._id,
@@ -69,7 +50,8 @@ describe('Conciliate dataset to project', () => {
         organization: org._id,
         createdBy: user._id,
         project: project._id,
-        isMain: true
+        isMain: true,
+        rule: rule._id
       })
 
       project.set({
@@ -106,7 +88,8 @@ describe('Conciliate dataset to project', () => {
         createdBy: user._id,
         project: project._id,
         dateMax: "2018-05-16",
-        dateMin: "2017-10-04"
+        dateMin: "2017-10-04",
+        rule: rule._id
       })
 
       await createDatasetRowsUnConciliate({
@@ -148,10 +131,9 @@ describe('Conciliate dataset to project', () => {
 
     it('should conciliate this dataset as main', async function () {
       const user = await createUser()
-      const token = await user.createToken({type: 'session'})
-      const jwt = token.getJwt()
-
-      const org = await createOrganization()
+      const org = await createFullOrganization({
+        period: 'M'
+      })
 
       const project = await createProject({
         organization: org._id,
@@ -215,8 +197,9 @@ describe('Conciliate dataset to project', () => {
 
     it('with invalid dataset uuid should return an exception', async function () {
       const user = await createUser()
-      const org = await createOrganization()
-
+      const org = await createFullOrganization({
+        period: 'M'
+      })
       const project = await createProject({
         organization: org._id,
         createdBy: user._id
@@ -241,8 +224,9 @@ describe('Conciliate dataset to project', () => {
 
     it('with invalid project uuid should return an exception', async function () {
       const user = await createUser()
-
-      const org = await createOrganization()
+      const org = await createFullOrganization({
+        period: 'M'
+      })
 
       const project = await createProject({
         organization: org._id,
@@ -274,8 +258,9 @@ describe('Conciliate dataset to project', () => {
 
     it('with differents projects in a same conciliate in should return an exception', async function () {
       const user = await createUser()
-
-      const org = await createOrganization()
+      const org = await createFullOrganization({
+        period: 'M'
+      })
 
       const project_one = await createProject({
         organization: org._id,
