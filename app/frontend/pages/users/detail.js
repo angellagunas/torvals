@@ -270,11 +270,7 @@ class UserDetail extends Component {
     var disabledRoles = false
     if (user.roleDetail && currentUser.currentRole.slug === 'consultor') {
       disabledRoles = true
-      if (user.roleDetail.slug === 'consultor') {
-        disabledForm = false
-      } else {
-        disabledForm = true
-      }
+      disabledForm = true
     }
 
     if (user) {

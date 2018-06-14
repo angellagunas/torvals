@@ -284,7 +284,6 @@ class ProductTable extends Component {
                 onChange={(e) => { this.onChange(e, row) }}
                 onFocus={(e) => { this.onFocus(e, row) }}
                 tabIndex={row.tabin}
-                max='99999'
                 placeholder='0'
                 ref={(el) => { this.inputs[row.tabin] = el }}
               />
@@ -440,7 +439,7 @@ class ProductTable extends Component {
   }
 
   onChange = (e, row) => {
-    if(e.target.value.length<=5){
+    if(e.target.value.length <= 7){
       row.adjustmentForDisplay = Number(e.target.value)
       let aux = this.state.filteredData
       this.setState({
