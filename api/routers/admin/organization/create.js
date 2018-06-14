@@ -5,7 +5,7 @@ const slugify = require('underscore.string/slugify')
 const verifyPrices = require('queues/update-prices')
 const generateCycles = require('tasks/organization/generate-cycles')
 
-const {Organization} = require('models')
+const {Organization, Rule} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -36,24 +36,45 @@ module.exports = new Route({
 
     const org = await Organization.create(
       {
-        ...data,
-        rules: {
-          startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),
-          cycleDuration: 1,
-          cycle: 'M',
-          period: 'w',
-          periodDuration: 1,
-          season: 12,
-          cyclesAvailable: 6,
-          takeStart: true,
-          consolidation: 6,
-          forecastCreation: 3,
-          rangeAdjustmentRequest: 6,
-          rangeAdjustment: 12,
-          salesUpload: 3,
-          catalogs: [slugify('Producto'), slugify('Centro de venta'), slugify('Canal')]
-        }
+        data
       })
+
+    const rule = await Rule.create(
+      {
+        startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),
+        cycleDuration: 1,
+        cycle: 'M',
+        period: 'w',
+        periodDuration: 1,
+        season: 12,
+        cyclesAvailable: 6,
+        takeStart: true,
+        consolidation: 8,
+        forecastCreation: 3,
+        rangeAdjustmentRequest: 6,
+        rangeAdjustment: 10,
+        salesUpload: 3,
+        catalogs: [
+          {
+            name: 'Producto',
+            slug: 'producto'
+          }, {
+            name: 'Centro de venta',
+            slug: 'centro-de-venta'
+          }, {
+            name: 'Canal',
+            slug: 'canal'
+          }
+        ],
+        ranges: [0, 0, 10, 20, 30, null],
+        version: 1,
+        organization: org._id
+      })
+
+    org.set({
+      rule: rule._id
+    })
+    await org.save()
 
     if (file) {
       await org.uploadOrganizationPicture(file)
