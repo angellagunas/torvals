@@ -120,7 +120,7 @@ class UserForm extends Component {
         Error: {this.state.error}
       </div>
     }
-
+    console.log(this.props)
     if (this.props.roles.length === 0) {
       return <Loader />
     }
