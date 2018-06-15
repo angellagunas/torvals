@@ -18,11 +18,6 @@ import ChannelsImport from '../pages/import/channels'
 import ProductsImport from '../pages/import/products'
 import Catalogs from '../pages/catalog/list'
 
-const cleanName = (item) => {
-  let c = item.replace(/-/g, ' ')
-  return c.charAt(0).toUpperCase() + c.slice(1)
-}
-
 class Sidebar extends Component {
   constructor (props) {
     super(props)
@@ -143,7 +138,7 @@ class Sidebar extends Component {
           title: 'Administra tu equipo',
           icon: 'users',
           to: '/manage',
-          roles: 'orgadmin, admin, analyst, consultor, manager-level-2, manager-level-3',
+          roles: 'orgadmin, admin, analyst, consultor, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
             {
@@ -162,7 +157,7 @@ class Sidebar extends Component {
           title: 'Catálogos',
           icon: 'file',
           to: '/catalogs',
-          roles: 'consultor, analyst, orgadmin, admin, manager-level-2, manager-level-3',
+          roles: 'consultor, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
             Prices.asSidebarItem(),

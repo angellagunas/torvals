@@ -625,7 +625,7 @@ class ProjectDetail extends Component {
       {
         name: 'datasets',
         title: 'Datasets',
-        hide: testRoles('manager-level-1, manager-level-2, consultor'),
+        hide: testRoles('manager-level-1, consultor-level-2, manager-level-2, consultor'),
         reload: true,
         content: (
           <TabDatasets
@@ -659,7 +659,7 @@ class ProjectDetail extends Component {
       {
         name: 'configuracion',
         title: 'Configuración',
-        hide: testRoles('manager-level-1, manager-level-2, consultor'),
+        hide: testRoles('manager-level-1, consultor-level-2, manager-level-2, consultor'),
         reload: true,
         content: (
           <div>
@@ -912,7 +912,7 @@ export default Page({
   path: '/projects/:uuid',
   title: 'Detalle',
   exact: true,
-  roles: 'consultor, analyst, orgadmin, admin, manager-level-2, manager-level-1, manager-level-3',
+  roles: 'consultor, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-1, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

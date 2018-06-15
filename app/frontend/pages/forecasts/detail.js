@@ -676,7 +676,7 @@ export default Page({
   title: 'Forecast detail',
   icon: 'check',
   exact: true,
-  roles: 'consultor, analyst, orgadmin, admin, manager-level-1, manager-level-2',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-1, consultor-level-2, manager-level-2',
   validate: [loggedIn, verifyRole],
   component: ForecastDetail
 })

@@ -25,7 +25,6 @@ module.exports = new Route({
       currentOrganization = user.organizations.find(orgRel => {
         return ctx.state.organization._id.equals(orgRel.organization._id)
       })
-
       if (currentOrganization) {
         const role = await Role.findOne({_id: currentOrganization.role})
 

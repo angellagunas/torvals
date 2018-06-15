@@ -10,7 +10,6 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import SalesCenterForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
-import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
@@ -375,7 +374,7 @@ export default Page({
   path: '/catalogs/salesCenters/:uuid',
   title: 'Sales center detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor, manager-level-3',
+  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: SalesCenterDetail
 })

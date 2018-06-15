@@ -74,10 +74,23 @@ class GroupForm extends Component {
 
   render () {
     var error
+    let { canEdit, canCreate } = this.props
     if (this.state.error) {
       error = <div>
         Error: {this.state.error}
       </div>
+    }
+
+    if (!canEdit || !canCreate) {
+      for (let key in uiSchema) {
+        uiSchema[key]['ui:disabled'] = true
+      }
+    }
+
+    if (canEdit || canCreate) {
+      for (let key in uiSchema) {
+        uiSchema[key]['ui:disabled'] = false
+      }
     }
 
     return (

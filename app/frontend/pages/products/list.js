@@ -12,7 +12,7 @@ export default ListPage({
   title: 'Productos',
   icon: 'dropbox',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-2, consultor, manager-level-3',
+  roles: 'analyst, orgadmin, admin,  consultor-level-2, manager-level-2, consultor, manager-level-3',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Producto',
   create: true,
@@ -99,7 +99,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('consultor')) {
+          if (testRoles('consultor, consultor-level-2')) {
             return (
               <Link className='button is-primary' to={'/catalogs/products/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
