@@ -192,7 +192,7 @@ class GroupDetail extends Component {
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.addToGroup(row.uuid) }}>
-              Agregar al grupo
+              Agregar
             </button>
           )
         }
@@ -397,7 +397,7 @@ class GroupDetail extends Component {
                     </p>
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModalList()}>
-                        Agregar usuario existente
+                        Agregar
                       </button>
                     <BaseModal
                       title='Usuarios para asignar'

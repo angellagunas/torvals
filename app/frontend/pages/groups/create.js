@@ -53,7 +53,7 @@ class CreateGroup extends Component {
   render () {
     return (
       <BaseModal
-        title='Create Group'
+        title='Nuevo Grupo'
         className={this.props.className}
         hideModal={this.hideModal}
       >
