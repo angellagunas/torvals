@@ -40,13 +40,15 @@ channelSchema.methods.toAdmin = function () {
 }
 
 // This is similar to the one in sales-center, maybe it can be joined...
-channelSchema.statics.filterByUserRole = async function(filters, role, user) {
+channelSchema.statics.filterByUserRole = async function (filters, role, user) {
   let channels = await this.find(filters).select({'_id': 1, 'groups': 1})
 
   if (
     role === 'manager-level-1' ||
     role === 'manager-level-2' ||
-    role === 'consultor'
+    role === 'manager-level-3' ||
+    role === 'consultor-level-3' ||
+    role === 'consultor-level-2'
   ) {
     channels = channels
       .filter(item => {
