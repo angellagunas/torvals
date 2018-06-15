@@ -12,6 +12,7 @@ const {
   Product,
   Project,
   Role,
+  Rule,
   SalesCenter
 } = require('models')
 
@@ -25,7 +26,6 @@ module.exports = new Route({
     const user = ctx.state.user
     let currentRole
     let currentOrganization
-    let previousCycles
     let cycles
 
     if (!data.date_start || !data.date_end) {
@@ -44,6 +44,12 @@ module.exports = new Route({
       }
     }
 
+    let currentRule = await Rule.findOne({
+      organization: ctx.state.organization._id,
+      isCurrent: true,
+      isDeleted: false
+    })
+
     let filters = {
       organization: ctx.state.organization,
       mainDataset: { $ne: undefined }
@@ -55,6 +61,12 @@ module.exports = new Route({
 
     const projects = await Project.find(filters)
     const datasets = projects.map(item => { return item.mainDataset })
+
+    if (projects.length === 1) {
+      currentRule = await Rule.findOne({
+        _id: projects[0].rule
+      })
+    }
 
     data.channels = data.channels.sort()
     data.projects = data.projects.sort()
@@ -131,17 +143,18 @@ module.exports = new Route({
 
     const periods = await Period.getBetweenDates(
       currentOrganization.organization._id,
-      projects[0].rule,
+      currentRule._id,
       start.toDate(),
       end.toDate()
     )
 
     cycles = await Cycle.getBetweenDates(
       currentOrganization.organization._id,
-      projects[0].rule,
+      currentRule._id,
       start.toDate(),
       end.toDate()
     )
+
     initialMatch['cycle'] = {
       $in: cycles.map(item => { return item._id })
     }
@@ -149,9 +162,9 @@ module.exports = new Route({
     start = moment(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').utc()
     end = moment(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').utc()
 
-    previousPeriods = await Period.getBetweenDates(
+    let previousPeriods = await Period.getBetweenDates(
       currentOrganization.organization._id,
-      projects[0].rule,
+      currentRule._id,
       start.toDate(),
       end.toDate()
     )
@@ -164,33 +177,33 @@ module.exports = new Route({
       period: '$period'
     }
     let match = [{
-        '$match': {
-          ...initialMatch
-        }
-      }, {
-        '$group': {
-          _id: key,
-          prediction: { $sum: '$data.prediction' },
-          adjustment: { $sum: '$data.adjustment' },
-          sale: { $sum: '$data.sale' }
-        }
-      }, {
-        $sort: { '_id.date': 1 }
+      '$match': {
+        ...initialMatch
       }
+    }, {
+      '$group': {
+        _id: key,
+        prediction: { $sum: '$data.prediction' },
+        adjustment: { $sum: '$data.adjustment' },
+        sale: { $sum: '$data.sale' }
+      }
+    }, {
+      $sort: { '_id.date': 1 }
+    }
     ]
 
     matchPreviousSale = [{
-        '$match': {
-          ...matchPreviousSale
-        }
-      }, {
-        '$group': {
-          _id: key,
-          sale: { $sum: '$data.sale' }
-        }
-      }, {
-        $sort: { '_id.date': 1 }
+      '$match': {
+        ...matchPreviousSale
       }
+    }, {
+      '$group': {
+        _id: key,
+        sale: { $sum: '$data.sale' }
+      }
+    }, {
+      $sort: { '_id.date': 1 }
+    }
     ]
 
     let responseData = await DataSetRow.aggregate(match)

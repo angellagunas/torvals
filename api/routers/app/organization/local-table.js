@@ -8,6 +8,7 @@ const {
   Product,
   Project,
   Role,
+  Rule,
   SalesCenter
 } = require('models')
 const redis = require('lib/redis')
@@ -41,6 +42,12 @@ module.exports = new Route({
       }
     }
 
+    let currentRule = await Rule.findOne({
+      organization: ctx.state.organization._id,
+      isCurrent: true,
+      isDeleted: false
+    })
+
     let filters = {
       organization: ctx.state.organization,
       mainDataset: { $ne: undefined }
@@ -52,6 +59,12 @@ module.exports = new Route({
 
     const projects = await Project.find(filters)
     const datasets = projects.map(item => { return item.mainDataset })
+
+    if (projects.length === 1) {
+      currentRule = await Rule.findOne({
+        _id: projects[0].rule
+      })
+    }
 
     data.channels = data.channels.sort()
     data.projects = data.projects.sort()
@@ -121,7 +134,7 @@ module.exports = new Route({
 
     let cycles = await Cycle.getBetweenDates(
       currentOrganization.organization._id,
-      projects[0].rule,
+      currentRule._id,
       start.toDate(),
       end.toDate()
     )
@@ -134,7 +147,7 @@ module.exports = new Route({
 
     cycles = await Cycle.getBetweenDates(
       currentOrganization.organization._id,
-      projects[0].rule,
+      currentRule._id,
       start.toDate(),
       end.toDate()
     )
@@ -143,41 +156,40 @@ module.exports = new Route({
     }
 
     let match = [{
-        '$match': {
-          ...initialMatch
-        }
-      }, {
-        '$group': {
-          _id: key,
-          prediction: { $sum: '$data.prediction' },
-          predictionSale: {
-            $sum: {
-              $cond: {
-                if: {
-                  $gt: ['$data.sale', 0]
-                },
-                then: '$data.prediction',
-                else: 0
-              }
-            }
-          },
-          adjustment: { $sum: '$data.adjustment' },
-          sale: { $sum: '$data.sale' }
-        }
+      '$match': {
+        ...initialMatch
       }
+    }, {
+      '$group': {
+        _id: key,
+        prediction: { $sum: '$data.prediction' },
+        predictionSale: {
+          $sum: {
+            $cond: {
+              if: {
+                $gt: ['$data.sale', 0]
+              },
+              then: '$data.prediction',
+              else: 0
+            }
+          }
+        },
+        adjustment: { $sum: '$data.adjustment' },
+        sale: { $sum: '$data.sale' }
+      }
+    }
     ]
 
     matchPreviousSale = [{
-        '$match': {
-          ...matchPreviousSale
-        }
-      }, {
-        '$group': {
-          _id: key,
-          sale: { $sum: '$data.sale' }
-        }
+      '$match': {
+        ...matchPreviousSale
       }
-    ]
+    }, {
+      '$group': {
+        _id: key,
+        sale: { $sum: '$data.sale' }
+      }
+    }]
 
     let allData = await DataSetRow.aggregate(match)
     let previousSale = await DataSetRow.aggregate(matchPreviousSale)
