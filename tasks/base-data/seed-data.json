@@ -83,22 +83,33 @@
             "isDefault": false,
             "priority": 2
 
+        },        
+        {
+            "name": "Manager Level 3",
+            "isDefault": true,
+            "priority": 3
         },
         {
-            "name": "Consultor",
+            "name": "Consultor Level 3",
             "isDefault": false,
-            "priority": 3
+            "priority": 4
 
         },
         {
             "name": "Manager Level 2",
             "isDefault": false,
-            "priority": 4
+            "priority": 5
+        },
+        {
+            "name": "Consultor Level 2",
+            "isDefault": false,
+            "priority": 6
+
         },
         {
             "name": "Manager Level 1",
             "isDefault": true,
-            "priority": 5
+            "priority": 7
         }
     ],
     "relations": [

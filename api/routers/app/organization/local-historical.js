@@ -101,12 +101,12 @@ module.exports = new Route({
     }
 
     if (data.channels) {
-      const channels = await Channel.filterByUserRole(
-        { uuid: { $in: data.channels } },
-        currentRole.slug,
-        user
-      )
-      initialMatch['channel'] = { $in: channels }
+       const channels = await Channel.filterByUserRole(
+               { uuid: { $in: data.channels } },
+                 currentRole.slug,
+                  user
+                )
+       initialMatch['channel'] = { $in: channels }
     }
 
     if (data.salesCenters) {
