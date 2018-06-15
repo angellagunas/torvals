@@ -51,10 +51,10 @@ module.exports = new Route({
         userGroups.push(ObjectId(g))
       }
 
-      const salesCenters = await SalesCenter.find({groups: {$all: userGroups}}).select({'_id': 1})
+      const salesCenters = await SalesCenter.find({groups: {$elemMatch: { '$in': userGroups }}}).select({'_id': 1})
       const matchSalesCenters = salesCenters.map(item => { return item._id })
 
-      const channels = await Channel.find({groups: {$all: userGroups}}).select({'_id': 1})
+      const channels = await Channel.find({groups: {$elemMatch: { '$in': userGroups }}}).select({'_id': 1})
       const matchChannels = channels.map(item => { return item._id })
       matchCond = {
         '$match': {
