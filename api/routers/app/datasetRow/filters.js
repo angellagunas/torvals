@@ -45,7 +45,7 @@ module.exports = new Route({
     ) {
       var groups = user.groups
 
-      filters['groups'] = {$all: groups}
+      filters['groups'] = {$elemMatch: { '$in': groups }}
       filters['organization'] = currentOrganization.organization._id
     }
 
@@ -72,6 +72,8 @@ module.exports = new Route({
         dateEnd: item.dateEnd
       }
     })
+
+    console.log(filters)
 
     channels = await Channel.find({ _id: { $in: channels }, ...filters })
     salesCenters = await SalesCenter.find({ _id: { $in: salesCenters }, ...filters })
