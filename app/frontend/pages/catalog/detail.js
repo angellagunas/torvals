@@ -25,7 +25,7 @@ class CatalogDetail extends Component {
       loading: true,
       loaded: false,
       catalog: {},
-      roles: 'admin, orgadmin, analyst, manager-level-2',
+      roles: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
       canEdit: false,
       isLoading: '',
       selectedGroups: [],
@@ -372,7 +372,7 @@ export default Page({
   path: '/catalogs/:catalog/:uuid',
   title: 'Catalog Detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: CatalogDetail
 })

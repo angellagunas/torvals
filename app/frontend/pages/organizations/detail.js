@@ -425,7 +425,7 @@ export default Page({
   path: '/manage/organizations/:uuid',
   title: 'User details',
   exact: true,
-  roles: 'admin, orgadmin, analyst',
+  roles: 'admin, orgadmin, analyst, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: branchedOrganizationDetail
 })

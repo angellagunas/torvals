@@ -41,7 +41,7 @@ class ProjectDetail extends Component {
       cloneClassName: '',
       outdatedClassName: '',
       isUpdating: '',
-      roles: 'admin, orgadmin, analyst',
+      roles: 'admin, orgadmin, analyst, manager-level-3',
       canEdit: false,
       isLoading: '',
       counterAdjustments: 0,
@@ -912,7 +912,7 @@ export default Page({
   path: '/projects/:uuid',
   title: 'Detalle',
   exact: true,
-  roles: 'consultor, analyst, orgadmin, admin, manager-level-2, manager-level-1',
+  roles: 'consultor, analyst, orgadmin, admin, manager-level-2, manager-level-1, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

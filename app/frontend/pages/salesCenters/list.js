@@ -12,7 +12,7 @@ export default ListPage({
   title: 'Centros de venta',
   icon: 'credit-card-alt',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor, manager-level-3',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Centro de venta',
   create: true,
@@ -36,7 +36,7 @@ export default ListPage({
     ],
     align: 'left'
   },
-  canCreate: 'admin, orgadmin, analyst',
+  canCreate: 'admin, orgadmin, analyst, manager-level-3',
   baseUrl: '/app/salesCenters',
   branchName: 'salesCenters',
   detailUrl: 'catalogs/salesCenters/',

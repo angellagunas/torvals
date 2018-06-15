@@ -502,7 +502,7 @@ export default Page({
   path: '/manage/groups/:uuid',
   title: 'Detalles de grupo',
   exact: true,
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: branchedGroupDetail
 })

@@ -23,7 +23,7 @@ class SalesCenterDetail extends Component {
       loaded: false,
       salesCenter: {},
       groups: [],
-      roles: 'admin, orgadmin, analyst',
+      roles: 'admin, orgadmin, analyst, manager-level-3',
       canEdit: false,
       selectedGroups: [],
       saving: false,
@@ -375,7 +375,7 @@ export default Page({
   path: '/catalogs/salesCenters/:uuid',
   title: 'Sales center detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
+  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: SalesCenterDetail
 })

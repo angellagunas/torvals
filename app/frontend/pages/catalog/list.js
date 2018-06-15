@@ -28,7 +28,7 @@ Catalog.opts = (opt) => {
     import: true,
     importComponent: ImportCatalog,
     exact: true,
-    roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+    roles: 'admin, orgadmin, analyst, consultor, manager-level-2, manager-level-3',
     validate: [loggedIn, verifyRole],
     schema: {
       type: 'object',

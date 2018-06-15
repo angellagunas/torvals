@@ -27,6 +27,6 @@ export default Page({
   icon: 'credit-card-alt',
   exact: true,
   validate: [loggedIn, verifyRole],
-  roles: 'orgadmin',
+  roles: 'orgadmin, manager-level-3',
   component: ImportSalesCenter
 })

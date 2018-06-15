@@ -265,6 +265,7 @@ class UserDetail extends Component {
     var disabledForm = false
     if (user.roleDetail && currentUser) {
       disabledForm = user.roleDetail.priority <= currentUser.currentRole.priority
+      console.log(disabledForm, user.roleDetail.priority, currentUser.currentRole.priority)
     }
 
     var disabledRoles = false
@@ -450,7 +451,7 @@ const branchedUserDetail = branch({}, UserDetail)
 export default Page({
   path: '/manage/users/:uuid',
   title: 'User details',
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, manager-level-2, manager-level-3',
   exact: true,
   validate: [loggedIn, verifyRole],
   component: branchedUserDetail
