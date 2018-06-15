@@ -87,7 +87,7 @@ class ProjectDetail extends Component {
     }, 10000)
 
     if (
-      currentRole !== 'consultor' &&
+      currentRole !== 'consultor-level-3' &&
       !this.intervalConciliate &&
       this.state.project.status === 'adjustment'
     ) {
@@ -436,7 +436,7 @@ class ProjectDetail extends Component {
   async handleAdjustmentRequest(obj, showMessage) {
     let { pendingDataRows } = this.state
     let productAux = []
-    if (currentRole === 'consultor') {
+    if (currentRole === 'consultor-level-3') {
       return
     }
 
@@ -625,7 +625,7 @@ class ProjectDetail extends Component {
       {
         name: 'datasets',
         title: 'Datasets',
-        hide: testRoles('manager-level-1, consultor-level-2, manager-level-2, consultor'),
+        hide: testRoles('manager-level-1, consultor-level-2, manager-level-2, consultor-level-3'),
         reload: true,
         content: (
           <TabDatasets
@@ -659,7 +659,7 @@ class ProjectDetail extends Component {
       {
         name: 'configuracion',
         title: 'Configuración',
-        hide: testRoles('manager-level-1, consultor-level-2, manager-level-2, consultor'),
+        hide: testRoles('manager-level-1, consultor-level-2, manager-level-2, consultor-level-3'),
         reload: true,
         content: (
           <div>
@@ -746,7 +746,7 @@ class ProjectDetail extends Component {
       </span>
     </button>)
     var consolidarButton
-    if (!testRoles('consultor, manager-level-1') && this.state.actualTab === 'aprobar') {
+    if (!testRoles('consultor-level-3, manager-level-1') && this.state.actualTab === 'aprobar') {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
@@ -912,7 +912,7 @@ export default Page({
   path: '/projects/:uuid',
   title: 'Detalle',
   exact: true,
-  roles: 'consultor, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-1, manager-level-3',
+  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-1, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: BranchedProjectDetail
 })

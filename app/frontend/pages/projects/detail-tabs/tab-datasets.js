@@ -70,7 +70,7 @@ class TabDatasets extends Component {
             <div className='field is-grouped'>
               <div className='control'>
                 {
-                  testRoles('manager-level-2, consultor')
+                  testRoles('manager-level-2, consultor-level-3')
                     ? <a onClick={() => { this.setDatasetDetail(row) }}
                       className={
                         row.status === 'conciliated' || row.status === 'adjustment' || row.status === 'ready'

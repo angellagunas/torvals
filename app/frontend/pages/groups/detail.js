@@ -99,7 +99,7 @@ class GroupDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (currentRole === 'consultor' || currentRole === 'consultor-level-2') {
+          if (currentRole === 'consultor-level-3' || currentRole === 'consultor-level-2') {
             return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
               <span className='icon is-small'>
                 <i className='fa fa-eye' />
@@ -284,7 +284,7 @@ class GroupDetail extends Component {
       return <Loader />
     }
     var deleteButton
-    if (currentRole !== 'consultor' && currentRole !== 'consultor-level-2') {
+    if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
       deleteButton =
         <div className='columns'>
           <div className='column has-text-right'>
@@ -513,7 +513,7 @@ export default Page({
   path: '/manage/groups/:uuid',
   title: 'Detalles de grupo',
   exact: true,
-  roles: 'admin, orgadmin, analyst, consultor, consultor-level-2, manager-level-2, manager-level-3',
+  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: branchedGroupDetail
 })

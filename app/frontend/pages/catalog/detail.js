@@ -372,7 +372,7 @@ export default Page({
   path: '/catalogs/:catalog/:uuid',
   title: 'Catalog Detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor, manager-level-3',
+  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: CatalogDetail
 })

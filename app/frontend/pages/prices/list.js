@@ -13,12 +13,12 @@ export default ListPage({
   title: 'Precios',
   titleSingular: 'Precio',
   icon: 'money',
-  roles: 'admin, orgadmin, analyst, consultor, consultor-level-2, manager-level-2, manager-level-3',
+  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   exact: true,
   validate: [loggedIn, verifyRole],
   create: false,
   export: true,
-  exportRole: 'consultor',
+  exportRole: 'consultor-level-3',
   exportUrl: '/app/prices',
   breadcrumbs: true,
   breadcrumbConfig: {
@@ -97,7 +97,7 @@ export default ListPage({
             let price = row.price.toFixed(2).replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
-            if (!testRoles('consultor, consultor-level-2')) {
+            if (!testRoles('consultor-level-3, consultor-level-2')) {
               return (
                 <Editable
                   value={price}

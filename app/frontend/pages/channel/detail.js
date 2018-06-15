@@ -363,7 +363,7 @@ export default Page({
   path: '/catalogs/channels/:uuid',
   title: 'Channel Detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor, manager-level-3',
+  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: ChannelDetail
 })

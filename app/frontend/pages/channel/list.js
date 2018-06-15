@@ -12,13 +12,13 @@ export default ListPage({
   title: 'Canales',
   icon: 'filter',
   exact: true,
-  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor, manager-level-3',
+  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Canal',
   create: true,
   createComponent: CreateChannel,
   export: true,
-  exportRole: 'consultor',
+  exportRole: 'consultor-level-3',
   exportUrl: '/app/channels',
   breadcrumbs: true,
   breadcrumbConfig: {
@@ -80,7 +80,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('consultor, consultor-level-2')) {
+          if (testRoles('consultor-level-3, consultor-level-2')) {
             return (
               <Link className='button is-primary' to={'/catalogs/channels/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>

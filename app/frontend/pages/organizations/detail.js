@@ -132,7 +132,7 @@ class OrganizationDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-2, consultor')) {
+          if (testRoles('manager-level-2, consultor-level-3')) {
             return (
               <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>

@@ -177,7 +177,7 @@ class SalesCenterDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-2, consultor')) {
+          if (testRoles('manager-level-2, consultor-level-3')) {
             return (
               <Link className='button is-primary' to={'/forecasts/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
@@ -374,7 +374,7 @@ export default Page({
   path: '/catalogs/salesCenters/:uuid',
   title: 'Sales center detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor, manager-level-3',
+  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: SalesCenterDetail
 })

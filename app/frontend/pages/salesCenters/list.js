@@ -12,13 +12,13 @@ export default ListPage({
   title: 'Centros de venta',
   icon: 'credit-card-alt',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, consultor-level-2, manager-level-2, consultor, manager-level-3',
+  roles: 'analyst, orgadmin, admin, manager-level-1, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Centro de venta',
   create: true,
   createComponent: CreateSalesCenter,
   export: true,
-  exportRole: 'consultor',
+  exportRole: 'consultor-level-3',
   exportUrl: '/app/salesCenters',
   breadcrumbs: true,
   breadcrumbConfig: {
@@ -80,7 +80,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('consultor, consultor-level-2')) {
+          if (testRoles('consultor-level-3, consultor-level-2')) {
             return (
               <Link className='button is-primary' to={'/catalogs/salesCenters/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
