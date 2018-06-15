@@ -131,7 +131,7 @@ class ResetPassword extends Component {
                 { spinner }
                 <div className={this.state.apiCallMessage}>
                   <div className='message-body is-size-7 has-text-centered'>
-                    El e-mail ha sido enviado. El link tendrá una vigencia de 24 horas.
+                    El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias.
                   </div>
                 </div>
                 <div className={this.state.apiCallErrorMessage}>
