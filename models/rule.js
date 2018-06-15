@@ -21,7 +21,8 @@ const rulesSchema = new Schema({
   rangeAdjustmentRequest: {type: Number},
   rangeAdjustment: {type: Number},
   salesUpload: {type: Number},
-  ranges: [{type: Number}],
+  ranges: [{ type: Number }],
+  rangesLvl2: [{type: Number}],
   catalogs: [{
     name: { type: String },
     slug: { type: String }
@@ -54,6 +55,7 @@ rulesSchema.methods.toPublic = function () {
     rangeAdjustment: this.rangeAdjustment,
     salesUpload: this.salesUpload,
     ranges: this.ranges,
+    rangesLvl2: this.rangesLvl2,
     catalogs: this.catalogs,
     cycles: this.cycles,
     periods: this.periods,
@@ -82,6 +84,7 @@ rulesSchema.methods.toAdmin = function () {
     rangeAdjustment: this.rangeAdjustment,
     salesUpload: this.salesUpload,
     ranges: this.ranges,
+    rangesLvl2: this.rangesLvl2,
     catalogs: this.catalogs,
     cycles: this.cycles,
     periods: this.periods,
