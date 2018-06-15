@@ -59,7 +59,7 @@ describe('Generate cycles task', () => {
     })
   })
 
-  describe('with one cycle by month and december 30, 2017 as startDate', () => {
+  describe.skip('with one cycle by month and december 30, 2017 as startDate', () => {
     it('should generate a cycle with dateStart equals to rules startDate', async function () {
       const org = await createFullOrganization({}, {
         startDate: '2017-12-30T00:00:00',
