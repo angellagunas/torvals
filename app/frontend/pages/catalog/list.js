@@ -28,7 +28,8 @@ Catalog.opts = (opt) => {
     import: true,
     importComponent: ImportCatalog,
     exact: true,
-    roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+    roles: 'admin, orgadmin, analyst, consultor, consultor-level-2, manager-level-2',
+    canCreate: 'admin, orgadmin, analyst, manager-level-2',
     validate: [loggedIn, verifyRole],
     schema: {
       type: 'object',
@@ -57,7 +58,7 @@ Catalog.opts = (opt) => {
         {
           'title': 'Acciones',
           formatter: (row) => {
-            if (testRoles('consultor')) {
+            if (testRoles('consultor, consultor-level-2')) {
               return (
                 <Link className='button is-primary' to={opt.detailUrl + '/' + row.uuid}>
                   <span className='icon is-small' title='Visualizar'>

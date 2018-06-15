@@ -14,7 +14,7 @@ export default ListPage({
   title: 'Precios',
   titleSingular: 'Precio',
   icon: 'money',
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, consultor-level-2, manager-level-2',
   exact: true,
   validate: [loggedIn, verifyRole],
   create: false,
@@ -98,47 +98,50 @@ export default ListPage({
             let price = row.price.toFixed(2).replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
-            return (
-
-              <Editable
-                value={price}
-                type='text'
-                obj={row}
-                width={100}
-                prepend='$'
-                moneyInput
-                handleChange={async (value, row) => {
-                  try {
-                    if (Number(value) !== Number(row.price)) {
-                      const res = await api.post('/app/prices/' + row.uuid, {
-                        price: value,
-                        channel: row.channel.name,
-                        product: row.product.name
-                      })
-                      if (!res) {
-                        return false
+            if (!testRoles('consultor, consultor-level-2')) {
+              return (
+                <Editable
+                  value={price}
+                  type='text'
+                  obj={row}
+                  width={100}
+                  prepend='$'
+                  moneyInput
+                  handleChange={async (value, row) => {
+                    try {
+                      if (Number(value) !== Number(row.price)) {
+                        const res = await api.post('/app/prices/' + row.uuid, {
+                          price: value,
+                          channel: row.channel.name,
+                          product: row.product.name
+                        })
+                        if (!res) {
+                          return false
+                        }
+                        toast('¡Precio guardado!: ', {
+                          autoClose: 5000,
+                          type: toast.TYPE.INFO,
+                          hideProgressBar: true,
+                          closeButton: false
+                        })
+                        return res
                       }
-                      toast('¡Precio guardado!: ', {
+                    } catch (e) {
+                      toast('Error: ' + e.message, {
                         autoClose: 5000,
-                        type: toast.TYPE.INFO,
+                        type: toast.TYPE.ERROR,
                         hideProgressBar: true,
                         closeButton: false
                       })
-                      return res
+                      return false
                     }
-                  } catch (e) {
-                    toast('Error: ' + e.message, {
-                      autoClose: 5000,
-                      type: toast.TYPE.ERROR,
-                      hideProgressBar: true,
-                      closeButton: false
-                    })
-                    return false
                   }
-                }
               }
               />
-            )
+              )
+            } else {
+              return '$ ' + price
+            }
           }
 
           return 'N/A'
