@@ -99,18 +99,19 @@ class GroupDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (currentRole !== 'consultor' || (currentRole === 'consultor' && row.roleDetail.slug === 'consultor')) {
-            return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-              <span className='icon is-small'>
-                <i className='fa fa-pencil' />
-              </span>
-            </Link>
-          } else {
+          if (currentRole === 'consultor' || currentRole === 'consultor-level-2') {
             return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
               <span className='icon is-small'>
                 <i className='fa fa-eye' />
               </span>
             </Link>
+          } else {
+            return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+              <span className='icon is-small'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+            
           }
         }
       }
@@ -283,7 +284,7 @@ class GroupDetail extends Component {
       return <Loader />
     }
     var deleteButton
-    if (currentRole !== 'consultor') {
+    if (currentRole !== 'consultor' && currentRole !== 'consultor-level-2') {
       deleteButton =
         <div className='columns'>
           <div className='column has-text-right'>
@@ -359,7 +360,9 @@ class GroupDetail extends Component {
                         submitHandler={(data) => this.submitHandler(data)}
                         errorHandler={(data) => this.errorHandler(data)}
                         finishUp={(data) => this.finishUpHandler(data)}
-                        >
+                        canEdit={currentRole !== 'consultor-level-2'}
+                        canCreate={currentRole !== 'consultor-level-2'}
+                      >
                         {this.state.channels && this.state.channels.length > 0 &&
                         <div>
                           <p className='label'>Canales</p>
@@ -415,6 +418,7 @@ class GroupDetail extends Component {
                           })
                           
                         }
+                        {currentRole !== 'consultor-level-2' &&
                         <div className='field is-grouped has-20-margin-top'>
                           <div className='control'>
                             <button
@@ -424,6 +428,7 @@ class GroupDetail extends Component {
                               >Guardar</button>
                           </div>
                         </div>
+                        }
                       </GroupForm>
                     </div>
                   </div>
@@ -436,9 +441,11 @@ class GroupDetail extends Component {
                   <p className='card-header-title'>
                       Usuarios
                     </p>
+                  {currentRole !== 'consultor-level-2' &&
+                  
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModalList()}>
-                        Agregar usuario existente
+                        Agregar
                       </button>
                     <BaseModal
                       title='Usuarios para asignar'
@@ -455,6 +462,9 @@ class GroupDetail extends Component {
                     </BaseModal>
 
                   </div>
+                  }
+                  {currentRole !== 'consultor-level-2' &&
+
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModal()}>
                         Nuevo usuario
@@ -470,6 +480,7 @@ class GroupDetail extends Component {
                       organization={group.organization._id}
                       />
                   </div>
+                  }
                 </header>
                 <div className='card-content'>
                   <div className='columns'>
@@ -502,7 +513,7 @@ export default Page({
   path: '/manage/groups/:uuid',
   title: 'Detalles de grupo',
   exact: true,
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, consultor-level-2, manager-level-2',
   validate: [loggedIn, verifyRole],
   component: branchedGroupDetail
 })

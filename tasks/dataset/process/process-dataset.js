@@ -70,9 +70,7 @@ const task = new Task(
       name = dataset.getCatalogItemColumn(`is_${catalog.slug}_name`)
       idStr = dataset.getCatalogItemColumn(`is_${catalog.slug}_id`)
 
-      catalogObj = {
-        _id: `$apiData.${idStr.name}`
-      }
+      catalogObj = idStr && idStr.name ? {_id: `$apiData.${idStr.name}`} : {}
 
       if (name && name.name) {
         catalogObj['name'] = `$apiData.${name.name}`

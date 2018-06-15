@@ -7,6 +7,7 @@ const { assert, expect } = require('chai')
 const { Channel, Project, DataSetRow, DataSet } = require('models')
 const {
   clearDatabase,
+  createCycles,
   createUser,
   createDataset,
   createOrganization,
@@ -20,6 +21,9 @@ const {
 } = require('../utils')
 
 const conciliateDataset = require('tasks/project/conciliate-to-project')
+const processDataset = require('tasks/dataset/process/process-dataset')
+const generatePeriods = require('tasks/organization/generate-periods')
+const saveDatasetrows = require('tasks/dataset/process/save-datasetrows')
 
 
 describe('Conciliate dataset to project', () => {
@@ -33,7 +37,28 @@ describe('Conciliate dataset to project', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await createOrganization()
+      const org = await createOrganization({rules: {
+        startDate: '2018-01-01T00:00:00',
+        cycleDuration: 1,
+        cycle: 'M',
+        period: 'M',
+        periodDuration: 1,
+        season: 12,
+        cyclesAvailable:6,
+        catalogs: [
+          "producto"
+        ],
+        ranges: [0, 0, 0, 0, 0, 0],
+        takeStart: true,
+        consolidation: 26,
+        forecastCreation: 1,
+        rangeAdjustment: 1,
+        rangeAdjustmentRequest: 1,
+        salesUpload : 1
+      }})
+
+      await createCycles({organization: org._id})
+      await generatePeriods.run({uuid: org.uuid})
 
       const project = await createProject({
         organization: org._id,
@@ -89,6 +114,16 @@ describe('Conciliate dataset to project', () => {
         project: project._id,
         dataset: datasetToConciliate._id
       })
+
+
+      /*
+       * we need process dataset to obtain the catalog items.
+       */
+      await processDataset.run({uuid: dataset.uuid})
+      await processDataset.run({uuid: datasetToConciliate.uuid})
+
+      await saveDatasetrows.run({uuid: dataset.uuid})
+      await saveDatasetrows.run({uuid: datasetToConciliate.uuid})
 
       let wasFailed = false
       try{
@@ -176,62 +211,6 @@ describe('Conciliate dataset to project', () => {
       expect(totalDatasets).equal(1)
       expect(totalDatasetRows).equal(totalOriginalRows)
       expect(conciliatedDataset.isMain).equal(true)
-    })
-
-    it('without dateMax or dateMin should return an exception', async function () {
-      const user = await createUser()
-      const token = await user.createToken({type: 'session'})
-      const jwt = token.getJwt()
-
-      const org = await createOrganization()
-
-      const project = await createProject({
-        organization: org._id,
-        createdBy: user._id
-      })
-
-      const dataset = await createDataset({
-        organization: org._id,
-        createdBy: user._id,
-        project: project._id,
-      })
-
-      const chunk = await createFileChunk()
-
-      dataset.set({
-        fileChunk: chunk,
-        status: 'ready',
-        uploadedBy: user._id
-      })
-
-      await dataset.save() 
-
-      datarows = await createDatasetRows({
-        organization: org._id,
-        project: project._id,
-        dataset: dataset._id
-      })
-
-      const channels = await createChannels({organization: org._id})
-      const products = await createProducts({organization: org._id})
-      const saleCenters = await createSaleCenters({organization: org._id})
-      const totalOriginalRows = await DataSetRow.find({organization: org._id}).count()
-
-      let wasFailed = false
-      let errorMsg = ''
-
-      try{
-        conciliateResult = await conciliateDataset.run({
-          dataset: dataset.uuid,
-          project: project.uuid
-        })
-      }catch(error){
-        wasFailed = true
-        errorMsg = error.message
-      }
-
-      expect(wasFailed).equal(true)
-      expect(errorMsg).equal('Invalid dateMax or dateMin')
     })
 
     it('with invalid dataset uuid should return an exception', async function () {

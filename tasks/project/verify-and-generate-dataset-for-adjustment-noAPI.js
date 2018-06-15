@@ -46,7 +46,10 @@ const task = new Task(async function (argv) {
         project: project._id,
         source: 'adjustment',
         status: 'pendingRows',
-        catalogItems: projectDataset.catalogItems
+        catalogItems: projectDataset.catalogItems,
+        cycles: projectDataset.cycles,
+        periods: projectDataset.periods,
+        columns: projectDataset.columns
       })
 
       project.datasets.push({

@@ -9,7 +9,9 @@ var addPriorityRoles = async function () {
     {slug: 'analyst', priority: 2},
     {slug: 'consultor', priority: 3},
     {slug: 'manager-level-2', priority: 4},
-    {slug: 'manager-level-1', priority: 5}
+    {slug: 'manager-level-1', priority: 5},
+    {slug: 'consultor-level-2', priority: 6}
+
   ]
 
   for (var role of rolesPriority) {

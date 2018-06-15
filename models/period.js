@@ -60,13 +60,13 @@ periodSchema.statics.getBetweenDates = async function (organization, rule, minDa
     organization: organization,
     rule: rule,
     dateStart: {
-      $gte: firstPeriod.dateStart,
+      $gte: (firstPeriod) ? firstPeriod.dateStart : minDate,
       $lte: maxDate
     },
     isDeleted: false
   }).sort({
     dateStart: 1
-  })
+  }).populate('cycle')
   return periods
 }
 

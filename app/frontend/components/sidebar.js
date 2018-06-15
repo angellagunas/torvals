@@ -143,7 +143,7 @@ class Sidebar extends Component {
           title: 'Administra tu equipo',
           icon: 'users',
           to: '/manage',
-          roles: 'orgadmin, admin, analyst, consultor, manager-level-2',
+          roles: 'orgadmin, admin, analyst, consultor, consultor-level-2, manager-level-2',
           opened: false,
           dropdown: [
             {
@@ -162,7 +162,7 @@ class Sidebar extends Component {
           title: 'Catálogos',
           icon: 'file',
           to: '/catalogs',
-          roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
+          roles: 'consultor, analyst, orgadmin, admin, consultor-level-2, manager-level-2',
           opened: false,
           dropdown: [
             Prices.asSidebarItem(),

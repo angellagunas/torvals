@@ -270,11 +270,7 @@ class UserDetail extends Component {
     var disabledRoles = false
     if (user.roleDetail && currentUser.currentRole.slug === 'consultor') {
       disabledRoles = true
-      if (user.roleDetail.slug === 'consultor') {
-        disabledForm = false
-      } else {
-        disabledForm = true
-      }
+      disabledForm = true
     }
 
     if (user) {
@@ -454,7 +450,7 @@ const branchedUserDetail = branch({}, UserDetail)
 export default Page({
   path: '/manage/users/:uuid',
   title: 'User details',
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, consultor-level-2, manager-level-2',
   exact: true,
   validate: [loggedIn, verifyRole],
   component: branchedUserDetail

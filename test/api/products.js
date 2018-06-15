@@ -57,14 +57,16 @@ describe('/products', () => {
     })
 
     describe('[delete] / Soft Delete product', () => {
-      it.skip('should return true for deleted', async function () {
+      it('should return true for deleted', async function () {
         const product = await Product.findOne({name: 'Un producto'})
         const res = await test()
         .delete('/api/admin/products/' + product.uuid)
         .set('Accept', 'application/json')
         .expect(200)
+        console.info(res.body.data)
+        const updatedProduct = await Product.findOne({uuid: product.uuid})
 
-        expect(res.body.data.isDeleted).equal(true)
+        expect(updatedProduct.isDeleted).equal(true)
       })
     })
   })

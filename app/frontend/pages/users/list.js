@@ -14,7 +14,8 @@ export default ListPage({
   title: 'Usuarios',
   icon: 'user',
   exact: true,
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor, consultor-level-2, manager-level-2',
+  canCreate: 'admin, orgadmin, analyst, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Usuario',
   create: true,
@@ -132,11 +133,7 @@ export default ListPage({
           }
 
           if (currentUser.currentRole.slug === 'consultor') {
-            if (row.roleDetail.slug === 'consultor') {
-              disabledActions = false
-            } else {
-              disabledActions = true
-            }
+            disabledActions = true
           }
 
           return (

@@ -134,7 +134,7 @@ export default Page({
   title: 'Listos',
   icon: 'thumbs-up',
   exact: true,
-  roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
+  roles: 'consultor, analyst, orgadmin, admin, consultor-level-2, manager-level-2',
   validate: [loggedIn, verifyRole],
   component: branchedReadyDataSets
 })

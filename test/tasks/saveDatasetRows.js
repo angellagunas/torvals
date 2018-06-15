@@ -38,9 +38,7 @@ describe('Save datasets rows', () => {
         season: 12,
         cyclesAvailable:6,
         catalogs: [
-          "producto",
-          "marca",
-          "modelo"
+          "producto"
         ],
         ranges: [0, 0, 0, 0, 0, 0],
         takeStart: true,
