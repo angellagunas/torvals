@@ -16,7 +16,7 @@ class ProductTable extends Component {
 
     this.canEdit = true
 
-    if (this.props.currentRole === 'consultor' || 
+    if (this.props.currentRole === 'consultor' ||
       this.props.currentRole === 'consultor-level-2' ||
       this.props.generalAdjustment === 0) {
       this.canEdit = false
@@ -40,8 +40,8 @@ class ProductTable extends Component {
       }
       else {
         row.selected = true
-        selected.add(row)  
-      }    
+        selected.add(row)
+      }
     }
     this.props.checkAll(selected)
 
@@ -71,7 +71,6 @@ class ProductTable extends Component {
     )
   }
 
-
   getCatalogColumns() {
     return this.rules.catalogs.map(item => {
       if(item.slug !== 'producto'){
@@ -88,7 +87,7 @@ class ProductTable extends Component {
           formatter: (row) => {
             let name = 'N/A'
             row.catalogItems.map(obj => {
-              if(obj.type === item.slug){
+              if(obj.catalog.slug === item.slug){
                 name = obj.name
               }
             })
@@ -118,7 +117,7 @@ class ProductTable extends Component {
         })(),
         groupClassName: 'col-border-left colspan is-paddingless table-week',
         headerClassName: 'col-border-left table-product-head',
-        className: 'col-border-left', 
+        className: 'col-border-left',
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
@@ -143,9 +142,9 @@ class ProductTable extends Component {
         property: 'productId',
         default: 'N/A',
         sortable: true,
-        groupClassName: 'table-week',        
-        headerClassName: 'has-text-centered table-product-head id',   
-        className: 'id',     
+        groupClassName: 'table-week',
+        headerClassName: 'has-text-centered table-product-head id',
+        className: 'id',
         formatter: (row) => {
           if (row.productId) {
             return row.productId
@@ -158,13 +157,13 @@ class ProductTable extends Component {
         property: 'productName',
         default: 'N/A',
         sortable: true,
-        groupClassName: 'table-week',        
+        groupClassName: 'table-week',
         headerClassName: 'table-product table-product-head',
         className: 'table-product productName',
         formatter: (row) => {
           let product = 'N/A'
           row.catalogItems.map(obj => {
-            if (obj.type === 'producto') {
+            if (obj.catalog.slug === 'producto') {
               product = obj.name
             }
           })
@@ -205,7 +204,7 @@ class ProductTable extends Component {
           if(row.period){
             return row.period.period
           }
-        } 
+        }
       },
       ...this.getCatalogColumns(),
       {
@@ -216,7 +215,7 @@ class ProductTable extends Component {
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell is-capitalized', 
+        className: 'table-cell is-capitalized',
       },
       {
         group: ' ',
@@ -226,7 +225,7 @@ class ProductTable extends Component {
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell is-capitalized', 
+        className: 'table-cell is-capitalized',
       },
       {
         group: ' ',
@@ -268,7 +267,7 @@ class ProductTable extends Component {
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
         formatter: (row) => {
           if (!row.adjustmentForDisplay) {
             row.adjustmentForDisplay = ''
@@ -303,22 +302,22 @@ class ProductTable extends Component {
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
         formatter: (row) => {
-          let percentage 
+          let percentage
           if(row.lastAdjustment){
             percentage = (
               ((row.adjustmentForDisplay - row.lastAdjustment) / row.lastAdjustment) * 100
-            )  
+            )
           }else{
             percentage = (
               ((row.adjustmentForDisplay - row.prediction) / row.prediction) * 100
-            )  
+            )
           }
 
           if(isNaN(percentage) || !isFinite(percentage))
               percentage = 0
-          
+
           row.percentage = percentage
           let status = classNames('has-text-weight-bold', {
             'has-text-success': row.isLimit && row.adjustmentRequest && row.adjustmentRequest.status === 'approved',

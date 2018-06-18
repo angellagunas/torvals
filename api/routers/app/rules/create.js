@@ -64,7 +64,6 @@ module.exports = new Route({
     let catalogsData = []
     for (catalog of data.catalogs) {
       let catalogObj = await Catalog.create({
-        type: catalog.slug,
         name: catalog.name,
         slug: catalog.slug,
         organization: organizationId,

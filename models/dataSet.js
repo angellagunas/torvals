@@ -417,11 +417,12 @@ dataSetSchema.methods.processData = async function () {
           let cItem = await CatalogItem.findOne({
             externalId: data._id,
             organization: this.organization._id,
-            type: catalog.slug
+            catalog: catalog._id
           })
 
           if (!cItem) {
             cItem = await CatalogItem.create({
+              catalog: catalog._id,
               name: data['name'] ? data['name'] : 'Not identified',
               externalId: String(data._id),
               organization: this.organization,

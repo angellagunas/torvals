@@ -21,7 +21,7 @@ class WeekTable extends Component {
 
     this.canEdit = true
 
-    if (this.props.currentRole === 'consultor' || 
+    if (this.props.currentRole === 'consultor' ||
       this.props.currentRole === 'consultor-level-2' ||
       this.props.generalAdjustment === 0) {
       this.canEdit = false
@@ -181,7 +181,7 @@ class WeekTable extends Component {
         formatter: (row) => {
           let product = 'N/A'
           row.weeks[0].catalogItems.map(obj => {
-              if (obj.type === 'producto') {
+              if (obj.catalog.slug === 'producto') {
                 product = obj.name
               }
             })

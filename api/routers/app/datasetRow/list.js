@@ -169,7 +169,10 @@ module.exports = new Route({
     }
 
     var auxRows = []
-    for (var item of rows) {
+    for (let item of rows) {
+      for (let catalogItem of item.catalogItems ) {
+        await catalogItem.populate('catalog').execPopulate()
+      }
       auxRows.push({
         uuid: item.uuid,
         salesCenter: item.salesCenter ? item.salesCenter.name : '',

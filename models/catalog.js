@@ -5,7 +5,6 @@ const dataTables = require('mongoose-datatables')
 
 const catalogSchema = new Schema({
   uuid: { type: String, default: v4 },
-  type: { type: String },
   name: { type: String },
   slug: { type: String },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
