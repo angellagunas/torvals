@@ -73,8 +73,6 @@ module.exports = new Route({
       }
     })
 
-    console.log(filters)
-
     channels = await Channel.find({ _id: { $in: channels }, ...filters })
     salesCenters = await SalesCenter.find({ _id: { $in: salesCenters }, ...filters })
     products = await Product.find({ _id: { $in: products } })

@@ -142,12 +142,14 @@ module.exports = new Route({
     var datasetRow = await DataSetRow.aggregate(statement)
 
     if (datasetRow.length === 0) {
-      return ctx.body = {
+      ctx.body = {
         channels: [],
         products: [],
         salesCenters: [],
         catalogItems: []
       }
+
+      return
     }
 
     ctx.body = {
