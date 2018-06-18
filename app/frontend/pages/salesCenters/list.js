@@ -12,7 +12,7 @@ export default ListPage({
   title: 'Centros de venta',
   icon: 'credit-card-alt',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
+  roles: 'analyst, orgadmin, admin, manager-level-1, consultor-level-2, manager-level-2, consultor',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Centro de venta',
   create: true,
@@ -80,7 +80,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('consultor')) {
+          if (testRoles('consultor, consultor-level-2')) {
             return (
               <Link className='button is-primary' to={'/catalogs/salesCenters/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>

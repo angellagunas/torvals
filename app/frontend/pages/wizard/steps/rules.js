@@ -85,17 +85,34 @@ class Rules extends Component {
                       onClick={() => this.props.setStep(3)}>
                       Editar
                     </button>
-                    {rules.ranges.map((item, key) => {
-                      if (key < rules.cyclesAvailable) {
-                        return (
-                          <p key={key}>
-                          Rango de ajuste permitido ciclo {key + 1}:
-                          <span className='has-text-weight-bold is-capitalized'> {item !== null ? item + '%' : 'ilimitado'}</span>
-                          </p>
-                        )
-                      }
-                    })}
+                    <p>Rangos de ajuste:</p>
 
+                    <ul className='rules-ranges'>
+                      <li>
+                        <div className='tags has-addons'>
+                          <span className='tag clear-blue has-text-weight-semibold'> Ciclos</span>
+                          <span className='tag clear-blue has-text-weight-semibold'>Ajuste</span>
+                          <span className='tag clear-blue has-text-weight-semibold'>Manager Lvl 2</span>
+                        </div>
+                      </li>
+                      {rules.ranges.map((item, key) => {
+                        if (key < rules.cyclesAvailable) {
+                          return (
+                            <li key={key}>
+                              <div className='tags has-addons'>
+                                <span className='tag has-text-weight-semibold'> {key + 1}</span>
+                                <span className='tag has-text-weight-semibold'>{item !== null ? item + '%' : 'ilimitado'}</span>
+                                <span className='tag has-text-weight-semibold'>{
+                                  rules.rangesLvl2[key] !== undefined
+                                  ? rules.rangesLvl2[key] !== null ? rules.rangesLvl2[key] + '%' : 'ilimitado'
+                                  : 'No definido'
+                                  }</span>
+                              </div>
+                            </li>
+                          )
+                        }
+                      })}
+                    </ul>
                   </div>
 
                   <div className='column is-4'>

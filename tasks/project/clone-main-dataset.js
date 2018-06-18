@@ -3,11 +3,10 @@ require('../../config')
 require('lib/databases/mongo')
 const Logger = require('lib/utils/logger')
 const moment = require('moment')
-const path = require('path')
 const cloneDataset = require('tasks/dataset/process/clone')
 const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 const Task = require('lib/task')
-const { Project, DataSet, DataSetRow } = require('models')
+const { Project, DataSet } = require('models')
 
 const task = new Task(
   async function (argv) {
@@ -90,7 +89,7 @@ const task = new Task(
       throw new Error('Invalid project.')
     }
 
-    sendSlackNotificacion.run({
+    sendSlackNotification.run({
       channel: 'all',
       message: `Se ha iniciado el proceso para actualizar las reglas del proyecto` +
         `*${project.name}* `
@@ -110,7 +109,7 @@ const task = new Task(
       throw new Error('Invalid project.')
     }
 
-    sendSlackNotificacion.run({
+    sendSlackNotification.run({
       channel: 'all',
       message: `Se ha generado un clon del main dataset del projecto *${project.name}* ` +
         `y esta listo para ser configurado con las nuevas reglas de negocio!`,

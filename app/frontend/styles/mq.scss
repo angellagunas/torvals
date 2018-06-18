@@ -1,231 +1,244 @@
 @include touch {
-    .pad-sides {
-        padding: 0 !important;
-    }
-    .is-medium {
-        font-size: 1rem !important;
-    }
+  .pad-sides {
+    padding: 0 !important;
+  }
+  .is-medium {
+    font-size: 1rem !important;
+  }
 }
 
 @include desktop-only {
-    .section {
-        padding: 0.8rem 0.5rem;
-    }
-    .md-checkbox input {
-        width: 1px;
-        height: 1px;
-        opacity: 0;
-        margin: -10px;
-    }
-    .columns.is-centered {
-        justify-content: space-around;
-    }
-    .md-checkbox>div {
-        margin-left: 20px;
-    }
-    .subtitle {
-        font-size: 1rem;
-        line-height: 2.25;
-    }
-    .calendar {
-        margin: 0;
-    }
-    .c-topbar__aside__white {
-        width: 50px !important;
-        padding: 8px;
-    }
-    .dataset {
-        &-detail {
-            .card {
-                .card-content {
-                    min-height: 265px;
-                }
-            }
-        }
-    }
-    .has-20-margin-top {
-        margin: 20px 0;
-    }
-    .wizard {
-        .column ul {
-            li {
-                margin-bottom: .5rem;
-                .tag:first-child {
-                    width: 160px;
-                }
-                .tag {
-                    font-size: .85rem;
-                }
-            }
-        }
-    }
-}
-
-@include widescreen-only {
-    .section {
-        padding: 1.2rem 0.6rem;
-    }
-    .md-checkbox input {
-        width: 1px;
-        height: 1px;
-        opacity: 0;
-        margin: -10px;
-    }
-    .columns.is-centered {
-        justify-content: space-around;
-    }
-    .md-checkbox>div {
-        margin-left: 20px;
-    }
-    .subtitle {
-        font-size: 1rem;
-        line-height: 2.25;
-    }
-    .calendar {
-        margin: 0;
-    }
-    .dataset {
-        &-detail {
-            .card {
-                .card-content {
-                    min-height: 265px;
-                }
-            }
-        }
-    }
-    .has-20-margin-top {
-        margin: 20px 0 10px;
-    }
-}
-
-.md-checkbox input {
+  .section {
+    padding: 0.8rem 0.5rem;
+  }
+  .md-checkbox input {
     width: 1px;
     height: 1px;
     opacity: 0;
     margin: -10px;
+  }
+  .columns.is-centered {
+    justify-content: space-around;
+  }
+  .md-checkbox>div {
+    margin-left: 20px;
+  }
+  .subtitle {
+    font-size: 1rem;
+    line-height: 2.25;
+  }
+  .calendar {
+    margin: 0;
+  }
+  .c-topbar__aside__white {
+    width: 50px !important;
+    padding: 8px;
+  }
+  .dataset {
+    &-detail {
+      .card {
+        .card-content {
+          min-height: 265px;
+        }
+      }
+    }
+  }
+  .has-20-margin-top {
+    margin: 20px 0;
+  }
+  .wizard {
+    .column ul {
+      li {
+        margin-bottom: .5rem;
+        .tag:first-child {
+          width: 160px;
+        }
+        .tag {
+          font-size: .85rem;
+        }
+      }
+    }
+  }
+  .rules-ranges {
+    margin-top: 1rem;
+    li {
+      margin-left: .2rem !important;
+      margin-bottom: .2rem !important;
+      .tag {
+        width: 80px !important;
+      }
+      .tag {
+        font-size: .8rem !important;
+      }
+    }
+  }
+}
+
+@include widescreen-only {
+  .section {
+    padding: 1.2rem 0.6rem;
+  }
+  .md-checkbox input {
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    margin: -10px;
+  }
+  .columns.is-centered {
+    justify-content: space-around;
+  }
+  .md-checkbox>div {
+    margin-left: 20px;
+  }
+  .subtitle {
+    font-size: 1rem;
+    line-height: 2.25;
+  }
+  .calendar {
+    margin: 0;
+  }
+  .dataset {
+    &-detail {
+      .card {
+        .card-content {
+          min-height: 265px;
+        }
+      }
+    }
+  }
+  .has-20-margin-top {
+    margin: 20px 0 10px;
+  }
+}
+
+.md-checkbox input {
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  margin: -10px;
 }
 
 .md-checkbox>div {
-    margin-left: 20px;
+  margin-left: 20px;
 }
 
 @include fullhd {
-    html,
-    body {
-        font-size: 1rem;
+  html,
+  body {
+    font-size: 1rem;
+  }
+  h1 {
+    font-size: 1.7rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  .sticky-table {
+    font-size: 0.8rem;
+    .sticky-table-cell {
+      padding: 0.1rem 0.2rem;
+      .input {
+        font-size: 0.8rem !important;
+        width: 80px;
+      }
+      p {
+        line-height: .5;
+        padding-top: 0.3rem;
+      }
     }
+  }
+  .sales {
+    &-graph,
+    &-table {
+      margin: 0.7rem;
+      max-height: 320px;
+      min-height: 320px;
+      .panel-block {
+        min-height: 282px;
+      }
+    }
+  }
+  .tabs-title {
+    margin-top: 0.3rem;
     h1 {
-        font-size: 1.7rem;
+      font-size: 1.25rem;
+      max-width: 325px;
     }
-    h2 {
-        font-size: 1.5rem;
-    }
-    .sticky-table {
-        font-size: 0.8rem;
-        .sticky-table-cell {
-            padding: 0.1rem 0.2rem;
-            .input {
-                font-size: 0.8rem !important;
-                width: 80px;
-            }
-            p {
-                line-height: .5;
-                padding-top: 0.3rem;
-            }
-        }
-    }
-    .sales {
-        &-graph,
-        &-table {
-            margin: 0.7rem;
-            max-height: 320px;
-            min-height: 320px;
-            .panel-block {
-                min-height: 282px;
-            }
-        }
-    }
-    .tabs-title {
-        margin-top: 0.3rem;
-        h1 {
-            font-size: 1.25rem;
-            max-width: 325px;
-        }
-    }
-    .view-btns {
-        .button {
-            width: 184px;
-        }
-    }
+  }
+  .view-btns {
     .button {
-        font-size: 0.85rem;
+      width: 184px;
     }
-    .sidenav-open {
-        margin-left: 250px;
+  }
+  .button {
+    font-size: 0.85rem;
+  }
+  .sidenav-open {
+    margin-left: 250px;
+  }
+  .sidenav {
+    width: 240px;
+  }
+  .is-size-3 {
+    font-size: 1.5rem !important;
+  }
+  .clear-btn {
+    margin-top: 23px;
+    .button {
+      height: 1.7rem;
     }
-    .sidenav {
-        width: 240px;
-    }
-    .is-size-3 {
-        font-size: 1.5rem !important;
-    }
-    .clear-btn {
-        margin-top: 23px;
-        .button {
-            height: 1.7rem;
-        }
-    }
-    .label,
-    .input,
-    .textarea,
-    .date-selector,
-    .select select,
-    option {
-        font-size: 0.85rem;
-    }
-    .confirm-btn {
-        margin-top: .2rem;
-    }
-    .productName {
-        max-width: 300px;
-        width: 300px;
-    }
-    .filters-project {
-        .dash-graph {
-            .box {
-                min-height: 370px;
-                .chart-container {
-                    height: 100%;
-                    width: 100%;
-                }
-            }
-            .notification {
-                padding: 1.5rem 0;
-            }
-        }
-    }
+  }
+  .label,
+  .input,
+  .textarea,
+  .date-selector,
+  .select select,
+  option {
+    font-size: 0.85rem;
+  }
+  .confirm-btn {
+    margin-top: .2rem;
+  }
+  .productName {
+    max-width: 300px;
+    width: 300px;
+  }
+  .filters-project {
     .dash-graph {
-        .button.is-static {
-            font-size: .85rem !important;
-            width: 135px !important;
+      .box {
+        min-height: 370px;
+        .chart-container {
+          height: 100%;
+          width: 100%;
         }
-        .date-drop {
-            margin-top: 27px;
-        }
+      }
+      .notification {
+        padding: 1.5rem 0;
+      }
     }
-    .control.has-icons-left .icon,
-    .control.has-icons-right .icon {
-        top: 3px;
+  }
+  .dash-graph {
+    .button.is-static {
+      font-size: .85rem !important;
+      width: 135px !important;
     }
-    .calendar-view {
-        .md-checkbox {
-            padding-top: 30px;
-        }
-        .level {
-            margin-left: 5px;
-        }
+    .date-drop {
+      margin-top: 27px;
     }
-    .pad-top-5 {
-        padding-top: 5px;
+  }
+  .control.has-icons-left .icon,
+  .control.has-icons-right .icon {
+    top: 3px;
+  }
+  .calendar-view {
+    .md-checkbox {
+      padding-top: 30px;
     }
+    .level {
+      margin-left: 5px;
+    }
+  }
+  .pad-top-5 {
+    padding-top: 5px;
+  }
 }

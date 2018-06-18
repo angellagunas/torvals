@@ -43,6 +43,13 @@ module.exports = new Route({
 
     if (!validRanges) { ctx.throw(422, 'El valor de los rangos debe de ser númerico y mayor a 0') }
 
+    if (!Array.isArray(data.rangesLvl2)) { ctx.throw(422, 'Rangos para manager lvl 2 tiene tipo inválido') }
+    validRanges = data.rangesLvl2.every(item => {
+      return (typeof item === 'number' && item >= 0) || item === null
+    })
+
+    if (!validRanges) { ctx.throw(422, 'El valor de los rangos de manager lvl 2 debe de ser númerico y mayor a 0') }
+
     if (isNaN(data.consolidation) || data.consolidation <= 0) { ctx.throw(422, 'El valor de consolidar debe de ser númerico y mayor a 0') }
     if (isNaN(data.forecastCreation) || data.forecastCreation <= 0) { ctx.throw(422, 'El valor de forecast debe de ser númerico y mayor a 0') }
     if (isNaN(data.rangeAdjustmentRequest) || data.rangeAdjustmentRequest <= 0) { ctx.throw(422, 'El valor de ajuste debe de ser númerico y mayor a 0') }

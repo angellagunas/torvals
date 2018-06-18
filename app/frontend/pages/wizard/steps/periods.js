@@ -7,6 +7,58 @@ import CalendarRules from './calendar-rules';
 import { toast } from 'react-toastify'
 import Cal from '../../cal';
 
+const colors = {
+  1: {
+    rangeClass: 'calendar-range-forecast',
+    rangeClassStart: 'limit-forecast'
+  },
+  2: {
+    rangeClass: 'calendar-range-sales',
+    rangeClassStart: 'limit-sales'
+  },
+  3: {
+    rangeClass: 'calendar-range-adjustments',
+    rangeClassStart: 'limit-adjustments'
+  },
+  4: {
+    rangeClass: 'calendar-range-approve',
+    rangeClassStart: 'limit-approve'
+  },
+  5: {
+    rangeClass: 'calendar-range-consolidate',
+    rangeClassStart: 'limit-consolidate'
+  },
+  6: {
+    rangeClass: 'calendar-range-lime',
+    rangeClassStart: 'limit-lime'
+  },
+  7: {
+    rangeClass: 'calendar-range-orange',
+    rangeClassStart: 'limit-orange'
+  },
+  8: {
+    rangeClass: 'calendar-range-teal',
+    rangeClassStart: 'limit-teal'
+  },
+  9: {
+    rangeClass: 'calendar-range-pink',
+    rangeClassStart: 'limit-pink'
+  },
+  10: {
+    rangeClass: 'calendar-range-grey',
+    rangeClassStart: 'limit-grey'
+  },
+  11: {
+    rangeClass: 'calendar-range-yellow',
+    rangeClassStart: 'limit-yellow'
+  },
+  12: {
+    rangeClass: 'calendar-range-cyan',
+    rangeClassStart: 'limit-cyan'
+  }
+
+}
+
 class Periods extends Component {
   constructor(props) {
     super(props)
@@ -24,7 +76,8 @@ class Periods extends Component {
       },
       help: {
         cyclesAvailable: 'is-hidden'
-      }
+      },
+      calendar: {}
     }
     this.times = [
       {
@@ -44,6 +97,12 @@ class Periods extends Component {
         value: 'y'
       }
     ]
+    this.color = 0
+
+  }
+
+  componentWillMount(){
+    this.makePreview()
   }
 
   async selectChangeHandler(name, value) {
@@ -62,6 +121,8 @@ class Periods extends Component {
     aux[name] = value
     this.setState({
       timesSelected: aux
+    }, () => {
+      this.makePreview()
     })
   }
 
@@ -83,10 +144,12 @@ class Periods extends Component {
         ...this.state.timesSelected,
         startDate: date
       }
+    }, () => {
+      this.makePreview()
     })
   }
 
-  handleInputChange(name, value) {
+  async handleInputChange(name, value) {
     let aux = this.state.timesSelected
     value = value.replace(/\D/, '')
 
@@ -197,15 +260,16 @@ class Periods extends Component {
     aux[name] = value
     aux['season'] = aux.cyclesAvailable * 2
 
-    this.setState({
+    await this.setState({
       timesSelected: aux
     })
   }
 
-  blurDefault (name, value){
+  async blurDefault (name, value){
     if(value === ''){
-      this.handleInputChange(name, '1')
+      await this.handleInputChange(name, '1')
     }
+    this.makePreview()
   }
 
 
@@ -247,9 +311,139 @@ class Periods extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del primer ciclo'
+      tooltipText: 'Inicio del ciclo'
     }
     return d
+  }
+
+  makeRange(start, end, key) {
+    let s = moment.utc(start)
+    let e = moment.utc(end)
+    key = Number(key)
+
+    if (key <= 12) {
+      this.color = key
+    }
+    if (this.color === 12) {
+      this.color = 1
+    } else {
+      this.color++
+    }
+
+    let range = {}
+    range[s.format('YYYY-MM-DD')] = {
+      date: s,
+      isRange: true,
+      isRangeEnd: false,
+      isRangeStart: true,
+      isToday: false,
+      isActive: true,
+      isTooltip: true,
+      tooltipText: 'Inicio de periodo ' + (Number(key) + 1),
+      rangeClass: colors[this.color].rangeClass,
+      rangeClassStart: colors[this.color].rangeClassStart
+    }
+
+    while (s.format('YYYY-MM-DD') !== e.format('YYYY-MM-DD')) {
+      s = s.add(1, 'day')
+      range[s.format('YYYY-MM-DD')] = {
+        date: s,
+        isRange: true,
+        isRangeEnd: false,
+        isRangeStart: false,
+        isToday: false,
+        isActive: false,
+        isTooltip: true,
+        tooltipText: 'Periodo ' + (Number(key) + 1),
+        rangeClass: colors[this.color].rangeClass
+      }
+    }
+
+    range[e.format('YYYY-MM-DD')] = {
+      date: s,
+      isRange: true,
+      isRangeEnd: true,
+      isRangeStart: false,
+      isToday: false,
+      isActive: true,
+      isTooltip: true,
+      rangeClass: colors[this.color].rangeClass,
+      rangeClassEnd: colors[this.color].rangeClassStart,
+      tooltipText: 'Fin de periodo ' + (Number(key) + 1)
+    }
+    return range
+  }
+
+  makeEndDate(date) {
+    let d = {}
+    d[moment.utc(date).format('YYYY-MM-DD')] = {
+      date: moment.utc(date),
+      isRange: false,
+      isRangeEnd: false,
+      isRangeStart: false,
+      isToday: true,
+      isActive: false,
+      isTooltip: true,
+      tooltipText: 'Fin del ciclo'
+    }
+    return d
+  }
+
+  makeCycle(start, end) {
+    let times = this.state.timesSelected
+    let periodStart = start.clone()
+    let periodEnd = periodStart.clone().add(times.periodDuration, times.period).add(-1, 'days')
+    let i = 0
+
+    let calendar = this.makeRange(periodStart, periodEnd, i)
+
+    while (periodEnd.isBefore(end, 'days')) {
+      i++
+      periodStart = periodStart.add(times.periodDuration, times.period)
+      periodEnd = periodStart.clone().add(times.periodDuration, times.period).add(-1, 'days')
+
+      if (this.state.timesSelected.takeStart && periodStart.isBefore(end, 'days')) {
+        calendar = {
+          ...calendar,
+          ...this.makeRange(periodStart, periodEnd, i)
+        }
+      }
+      else if (!this.state.timesSelected.takeStart && periodEnd.isBefore(end, 'days')) {
+        calendar = {
+          ...calendar,
+          ...this.makeRange(periodStart, periodEnd, i)
+        }
+      }
+    }
+
+    calendar = {
+      ...calendar,
+      ...this.makeStartDate(start),
+      ...this.makeEndDate(end)
+    }
+
+    return calendar
+  }
+
+  makePreview(){
+    let times = this.state.timesSelected
+    let start = moment.utc(this.state.timesSelected.startDate)
+    let end = moment.utc(this.state.timesSelected.startDate).add(times.cycleDuration, times.cycle).add(-1, 'days')
+    let calendar = {}
+    let seasonEnd = start.clone().add(times.season, times.cycle)
+
+    while(start.isBefore(seasonEnd, 'days')){
+      calendar = {
+        ...calendar,
+        ...this.makeCycle(start, end)
+      }
+      start = start.add(times.cycleDuration,times.cycle)
+      end = start.clone().add(times.cycleDuration, times.cycle).add(-1, 'days')
+    }
+
+    this.setState({
+      calendar
+    })
   }
 
   render() {
@@ -336,7 +530,7 @@ class Periods extends Component {
                     <div className='field has-addons'>
                       <div className='control'>
                         <div className='field'>
-                          <label className='label'>Ciclos disponibles para ajuste </label>
+                          <label className='label'>Ciclos de ajuste disponibles </label>
                           <div className='control'>
                             <input className='input' type='text' placeholder='Text input'
                               name='cyclesAvailable'
@@ -387,7 +581,8 @@ class Periods extends Component {
                                 ...this.state.timesSelected,
                                 takeStart: true
                               }
-                            })} />
+                            }, () => { this.makePreview() })
+                            } />
                         <span>Usar la fecha de <strong className='has-text-info'>inicio</strong> del periodo para determinar el ciclo al que pertenece</span>
                       </label>
                     </p>
@@ -404,7 +599,8 @@ class Periods extends Component {
                               ...this.state.timesSelected,
                               takeStart: false
                             }
-                          })} />
+                          }, () => { this.makePreview() })
+                          } />
                         <span>Usar la fecha <strong className='has-text-info'>final</strong> del periodo para determinar el ciclo al que pertenece</span>
                       </label>
                     </p>
@@ -419,7 +615,7 @@ class Periods extends Component {
             <Cal
               showWeekNumber
               date={moment.utc(this.state.timesSelected.startDate)}
-              dates={this.makeStartDate(this.state.timesSelected.startDate)}
+              dates={this.state.calendar}
               onChange={this.handleDateChange}
             />
 
