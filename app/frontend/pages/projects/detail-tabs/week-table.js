@@ -40,7 +40,7 @@ class WeekTable extends Component {
       range: range
     })
   }
-  
+
   splitWords (words){
     return words.split('_').map((item, key) => {
       return <p key={key}>{item}</p>
@@ -48,7 +48,7 @@ class WeekTable extends Component {
   }
 
   checkAll = () => {
-    let selected = new Set()    
+    let selected = new Set()
     for (let row of this.state.filteredDataByWeek) {
       for (const week of row.weeks) {
         if (this.state.selectedAll) {
@@ -58,7 +58,7 @@ class WeekTable extends Component {
         else {
           week.selected = true
           selected.add(week)
-        } 
+        }
       }
       row.selected = !this.state.selectedAll
     }
@@ -77,23 +77,23 @@ class WeekTable extends Component {
       this.props.toggleCheckbox(week, !week.selected)
     }
     row.selected = !row.selected
-    
+
     this.getEdited()
   }
 
   getEdited () {
-    let aux = this.state.filteredDataByWeek 
-    aux.map((row) => {  
+    let aux = this.state.filteredDataByWeek
+    aux.map((row) => {
       for (const week of row.weeks) {
         if (week.edited) {
-          row.edited = true          
+          row.edited = true
         }
         if(week.wasEdited){
           row.wasEdited = true
         }
       }
     })
-    
+
     this.setState({
       filteredDataByWeek: aux
     })
@@ -115,7 +115,7 @@ class WeekTable extends Component {
       </div>
     )
   }
-  
+
   getColumnsByWeek() {
     return [
       {
@@ -132,9 +132,9 @@ class WeekTable extends Component {
             )
           }
         })(),
-        groupClassName: 'col-border-left colspan is-paddingless',        
+        groupClassName: 'col-border-left colspan is-paddingless',
         headerClassName: 'col-border-left table-product-head',
-        className: 'col-border-left',        
+        className: 'col-border-left',
         property: 'checkbox',
         default: '',
         formatter: (row) => {
@@ -202,9 +202,9 @@ class WeekTable extends Component {
                </span>,
         groupClassName: 'table-product table-week table-product-shadow',
         headerClassName: 'table-product table-product-head table-product-head-bord table-product-shadow',
-        className: 'table-product table-product-shadow',       
+        className: 'table-product table-product-shadow',
         formatter: (row) => {
-          return this.getLimit(row)  
+          return this.getLimit(row)
         }
       }
     ].concat(this.getWeekCols())
@@ -220,7 +220,7 @@ class WeekTable extends Component {
       .groupBy(x => x.period.period)
       .map((value, key) => ({ period: key, products: value }))
       .value()
-      
+
 
     for (let j = 0; j < periods.length; j++){
       let period = periods[j].period
@@ -233,9 +233,9 @@ class WeekTable extends Component {
           default: '',
           sortable: true,
           groupClassName: 'colspan table-week text',
-          className: 'table-cell', 
-          headerClassName: 'table-head',                                                      
-          formatter: (row) => {            
+          className: 'table-cell',
+          headerClassName: 'table-head',
+          formatter: (row) => {
             if (row.weeks[j]) {
               if (row.weeks[j].prediction) {
                 return row.weeks[j].prediction
@@ -249,9 +249,9 @@ class WeekTable extends Component {
           property: 'lastAdjustment_' + j,
           default: '',
           sortable: true,
-          groupClassName: 'table-week',           
-          headerClassName: 'table-head',                      
-          className: 'table-cell',           
+          groupClassName: 'table-week',
+          headerClassName: 'table-head',
+          className: 'table-cell',
           formatter: (row) => {
             if (row.weeks[j]) {
               if (row.weeks[j].lastAdjustment) {
@@ -271,8 +271,8 @@ class WeekTable extends Component {
            default: '',
            sortable: true,
            groupClassName: 'table-week',
-           headerClassName: 'table-head',           
-           className: 'table-cell',                      
+           headerClassName: 'table-head',
+           className: 'table-cell',
            formatter: (row) => {
              if (row.weeks[j] && row.weeks[j].prediction) {
              if (!row.weeks[j].adjustmentForDisplay) {
@@ -304,7 +304,7 @@ class WeekTable extends Component {
                return ''
              }
           }
-          
+
         },
         {
           group: ' ',
@@ -317,28 +317,28 @@ class WeekTable extends Component {
           className: 'col-border table-cell',
           formatter: (row) => {
             if (row.weeks[j] && row.weeks[j].prediction){
-              let percentage 
+              let percentage
               if(row.weeks[j].lastAdjustment){
                 percentage = (
                   ((row.weeks[j].adjustmentForDisplay - row.weeks[j].lastAdjustment) / row.weeks[j].lastAdjustment) * 100
-                )  
+                )
               }else{
                 percentage = (
                   ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
-                )  
+                )
               }
-              
+
               if(isNaN(percentage) || !isFinite(percentage))
                 percentage = 0
-              row.weeks[j].percentage = percentage 
+              row.weeks[j].percentage = percentage
               let status = classNames('has-text-weight-bold', {
                 'has-text-success': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'approved',
                 'has-text-warning': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'created',
                 'has-text-danger': row.weeks[j].isLimit && ((!row.weeks[j].adjustmentRequest || row.weeks[j].adjustmentRequest.status === 'rejected')
                                                              || this.props.currentRole === 'manager-level-2' )
-              })     
+              })
               return <span className={status}>{Math.round(percentage) + ' %'}</span>
-            
+
             } else {
               return ''
             }
@@ -346,7 +346,7 @@ class WeekTable extends Component {
         }
       )
     }
-    
+
     return cols
   }
 
@@ -419,7 +419,7 @@ class WeekTable extends Component {
 
       this.setState({
         filteredDataByWeek: aux
-      })  
+      })
     }
   }
 
@@ -429,7 +429,7 @@ class WeekTable extends Component {
 
       await this.setState({
         filteredDataByWeek: []
-      })  
+      })
 
     let data = this.state.data.slice(0)
     let rw = []
@@ -451,7 +451,7 @@ class WeekTable extends Component {
         product,
         weeks
       }
-    }) 
+    })
 
     await this.setState({
       filteredDataByWeek: rw
@@ -459,7 +459,7 @@ class WeekTable extends Component {
     this.getEdited()
     this.setState({
       sortAscending: false
-    }, () => {this.handleSortByWeek(this.state.sortBy)})    
+    }, () => {this.handleSortByWeek(this.state.sortBy)})
   }
 
   handleSortByWeek(e) {
@@ -475,7 +475,7 @@ class WeekTable extends Component {
     }
     else if(e.indexOf('_') !== -1){
       let sort = e.split('_')
-      
+
       if (this.state.sortAscending) {
         sorted = _.orderBy(sorted, function (e) { return e.weeks[parseInt(sort[1])][sort[0]] }, ['asc'])
 
@@ -511,7 +511,7 @@ class WeekTable extends Component {
             title='Ajustes aprobados'>
             <i className='fa fa-check fa-lg' />
           </span>
-      } 
+      }
 
       if (product.isLimit && product.adjustmentRequest && product.adjustmentRequest.status === 'created') {
         limit =
@@ -519,7 +519,7 @@ class WeekTable extends Component {
             className='icon has-text-warning'
             title='Ya se ha pedido un cambio'>
             <i className='fa fa-clock-o fa-lg' />
-          </span>  
+          </span>
       }
 
       if (product.isLimit && (!product.adjustmentRequest || product.adjustmentRequest.status === 'rejected')) {
@@ -532,9 +532,9 @@ class WeekTable extends Component {
             }}>
             <i className='fa fa-times fa-lg' />
           </span>
-        return limit  
+        return limit
       }
-     
+
     }
     return limit
   }
