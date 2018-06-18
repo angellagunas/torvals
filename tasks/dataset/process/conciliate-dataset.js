@@ -167,11 +167,6 @@ const task = new Task(
       let maxDate = moment.utc(dataset.dateMax, 'YYYY-MM-DD')
       let minDate = moment.utc(dataset.dateMin, 'YYYY-MM-DD')
 
-      console.log('maxDate ===> ', maxDate.format())
-      console.log('minDate ===> ', minDate.format())
-      console.log('mainDataset dateMin ===> ', moment.utc(project.mainDataset.dateMin, 'YYYY-MM-DD').format())
-      console.log('mainDataset dateMax ===> ', moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD').format())
-
       if (moment.utc(project.mainDataset.dateMin, 'YYYY-MM-DD').isBefore(minDate)) {
         minDate = moment.utc(project.mainDataset.dateMin, 'YYYY-MM-DD')
       }
@@ -187,7 +182,9 @@ const task = new Task(
       await dataset.save()
 
       project.mainDataset.set({
-        status: 'ready'
+        status: 'ready',
+        dateMax: maxDate,
+        dateMin: minDate
       })
       await project.mainDataset.save()
 
@@ -197,7 +194,7 @@ const task = new Task(
         dateMin: minDate
       })
 
-      project.save()
+      await project.save()
 
       log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
     } catch (e) {
