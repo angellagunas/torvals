@@ -5,7 +5,10 @@ const {
   Cycle,
   DataSetRow,
   Project,
-  Rule
+  Rule,
+  Channel,
+  SalesCenter,
+  Role
 } = require('models')
 
 module.exports = new Route({
@@ -14,6 +17,9 @@ module.exports = new Route({
   handler: async function (ctx) {
     const data = ctx.request.body
     const uuid = ctx.params.uuid
+    const user = ctx.state.user
+    let currentOrganization
+    let currentRole
 
     let cycles
 
@@ -22,7 +28,17 @@ module.exports = new Route({
     }
 
     const project = await Project.findOne({uuid: uuid})
+    if (ctx.state.organization) {
+      currentOrganization = user.organizations.find(orgRel => {
+        return ctx.state.organization._id.equals(orgRel.organization._id)
+      })
 
+      if (currentOrganization) {
+        const role = await Role.findOne({_id: currentOrganization.role})
+
+        currentRole = role.toPublic()
+      }
+    }
     let currentRule = await Rule.findOne({
       organization: ctx.state.organization._id,
       isCurrent: true,
@@ -32,6 +48,9 @@ module.exports = new Route({
     let initialMatch = {
       project: project._id
     }
+
+    data.channels = data.channels.sort()
+    data.salesCenters = data.salesCenters.sort()
 
     let start = moment(data.date_start, 'YYYY-MM-DD').utc()
     let end = moment(data.date_end, 'YYYY-MM-DD').utc()
@@ -45,6 +64,24 @@ module.exports = new Route({
 
     initialMatch['cycle'] = {
       $in: cycles.map(item => { return item._id })
+    }
+
+    if (data.channels) {
+      const channels = await Channel.filterByUserRole(
+        { uuid: { $in: data.channels } },
+        currentRole.slug,
+        user
+      )
+      initialMatch['channel'] = { $in: channels }
+    }
+
+    if (data.salesCenters) {
+      const salesCenters = await SalesCenter.filterByUserRole(
+        { uuid: { $in: data.salesCenters } },
+        currentRole.slug,
+        user
+      )
+      initialMatch['salesCenter'] = { $in: salesCenters }
     }
 
     let match = [{
@@ -95,6 +132,9 @@ module.exports = new Route({
         'adjustment': '$adjustment',
         'sale': '$sale'
       }
+    },
+    {
+      $sort: {dataset: 1, date: 1}
     }
     ]
 
