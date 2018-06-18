@@ -867,12 +867,6 @@ class HistoricReport extends Component {
       borderWidth: 1
     }))
 
-    if (this.state.periods){
-    console.log(
-      this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
- )
-      console.log(this.state.periods.indexOf(this.state.minPeriod))
-}
 
     return (
       <div className='historic-view'>
