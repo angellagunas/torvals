@@ -25,7 +25,7 @@ catalogSchema.methods.toPublic = function () {
   if (this.organization) { data.organization = this.organization.toPublic() }
 
   return data
-})
+}
 
 catalogSchema.methods.toAdmin = function () {
   let data = {

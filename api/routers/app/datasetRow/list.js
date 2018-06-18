@@ -30,8 +30,6 @@ module.exports = new Route({
     await dataset.rule.populate('catalogs').execPopulate()
 
     let catalogs = dataset.rule.catalogs
-    if (catalogs) { catalogs = catalogs[0].catalogs }
-
     let catalogItemsFilters = []
 
     let filters = {}
@@ -86,7 +84,7 @@ module.exports = new Route({
       }
 
       var isCatalog = catalogs.find(item => {
-        return item === filter
+        return item.slug === filter
       })
 
       if (isCatalog) {
