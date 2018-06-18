@@ -7,10 +7,8 @@ const {
   Channel,
   SalesCenter,
   Product,
-  AbraxasDate,
   Role,
-  Cycle,
-  Period
+  Cycle
 } = require('models')
 
 module.exports = new Route({
