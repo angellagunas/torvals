@@ -18,11 +18,6 @@ import ChannelsImport from '../pages/import/channels'
 import ProductsImport from '../pages/import/products'
 import Catalogs from '../pages/catalog/list'
 
-const cleanName = (item) => {
-  let c = item.replace(/-/g, ' ')
-  return c.charAt(0).toUpperCase() + c.slice(1)
-}
-
 class Sidebar extends Component {
   constructor (props) {
     super(props)
@@ -143,13 +138,13 @@ class Sidebar extends Component {
           title: 'Administra tu equipo',
           icon: 'users',
           to: '/manage',
-          roles: 'orgadmin, admin, analyst, consultor, consultor-level-2, manager-level-2',
+          roles: 'orgadmin, admin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
             {
               title: 'Mi Organización',
               icon: 'user',
-              roles: 'orgadmin, admin, analyst',
+              roles: 'orgadmin, admin, analyst, manager-level-3',
               to: '/manage/organizations/' + tree.get('organization').uuid
             },
             Groups.asSidebarItem(),
@@ -162,7 +157,7 @@ class Sidebar extends Component {
           title: 'Catálogos',
           icon: 'file',
           to: '/catalogs',
-          roles: 'consultor, analyst, orgadmin, admin, consultor-level-2, manager-level-2',
+          roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
             Prices.asSidebarItem(),
@@ -176,7 +171,7 @@ class Sidebar extends Component {
           title: 'Cargar Datos',
           icon: 'file-o',
           to: '/import',
-          roles: 'orgadmin, admin',
+          roles: 'orgadmin, admin, manager-level-3',
           dropdown: [
             UsersImport.asSidebarItem(),
             SalesCentersImport.asSidebarItem(),
@@ -193,7 +188,7 @@ class Sidebar extends Component {
         title: 'Administra tu equipo',
         icon: 'users',
         to: '/manage',
-        roles: 'orgadmin, admin',
+        roles: 'orgadmin, admin, manager-level-3',
         dropdown: [
           Users.asSidebarItem(),
           Groups.asSidebarItem()

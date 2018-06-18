@@ -16,7 +16,7 @@ class ProductTable extends Component {
 
     this.canEdit = true
 
-    if (this.props.currentRole === 'consultor' ||
+    if (this.props.currentRole === 'consultor-level-3' ||
       this.props.currentRole === 'consultor-level-2' ||
       this.props.generalAdjustment === 0) {
       this.canEdit = false
@@ -58,12 +58,12 @@ class ProductTable extends Component {
     return (
       <div className="field has-addons view-btns">
         <span className="control">
-          <a className={this.props.currentRole === 'consultor' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
+          <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
             Vista Periodo
           </a>
         </span>
         <span className="control">
-          <a className={this.props.currentRole === 'consultor' ? 'button is-info btn-lvl-3' : 'button is-info'}>
+          <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info btn-lvl-3' : 'button is-info'}>
             Vista Producto
           </a>
         </span>

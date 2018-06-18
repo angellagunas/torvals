@@ -12,7 +12,7 @@ export default ListPage({
   title: 'Proyectos',
   icon: 'cog',
   exact: true,
-  roles: 'consultor, analyst, orgadmin, admin, consultor-level-2, manager-level-2',
+  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Proyecto',
   create: true,
@@ -33,7 +33,7 @@ export default ListPage({
     ],
     align: 'left'
   },
-  canCreate: 'admin, orgadmin, analyst',
+  canCreate: 'admin, orgadmin, analyst, manager-level-3',
   baseUrl: '/app/projects',
   branchName: 'projects',
   detailUrl: '/projects/',
@@ -77,7 +77,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-2, consultor')) {
+          if (testRoles('manager-level-2, consultor-level-3, manager-level-3')) {
             return (
               <Link className='button is-primary' to={'/projects/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>

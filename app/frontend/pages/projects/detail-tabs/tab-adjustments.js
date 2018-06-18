@@ -358,7 +358,7 @@ class TabAdjustment extends Component {
 
         <div className='column is-narrow'>
           <div className='field'>
-            {currentRole !== 'consultor' ?
+            {currentRole !== 'consultor-level-3' ?
               <label className='label'>Búsqueda general</label>:
               null
             }
@@ -375,7 +375,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div>
-        {currentRole !== 'consultor' ?
+        {currentRole !== 'consultor-level-3' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -417,7 +417,7 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
-        {currentRole !== 'consultor' ?
+        {currentRole !== 'consultor-level-3' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -777,7 +777,7 @@ getProductsSelected () {
       return <span>Modo Ajuste Ilimitado</span>
     }
 
-    if (currentRole === 'consultor' || ajuste === 0) {
+    if (currentRole === 'consultor-level-3' || ajuste === 0) {
       return <span>Modo Visualización</span>
     } else {
       return <span>Modo Ajuste {this.state.generalAdjustment * 100} % permitido</span>
@@ -1263,7 +1263,7 @@ getProductsSelected () {
                 </div>
                 <div className='panel-block'>
                   {
-                    currentRole !== 'consultor' &&
+                    currentRole !== 'consultor-level-3' &&
                       this.state.salesTable.length > 0 ?
                       <table className='table is-fullwidth is-hoverable'>
                         <thead>
@@ -1326,7 +1326,7 @@ getProductsSelected () {
                 </div>
                 <div className='panel-block'>
                   {
-                    currentRole !== 'consultor' &&
+                    currentRole !== 'consultor-level-3' &&
                       this.state.salesTable.length > 0 ?
                       <Graph
                         data={graphData}

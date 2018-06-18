@@ -10,7 +10,6 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import SalesCenterForm from './create-form'
 import Multiselect from '~base/components/base-multiselect'
-import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import DeleteButton from '~base/components/base-deleteButton'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
@@ -23,7 +22,7 @@ class SalesCenterDetail extends Component {
       loaded: false,
       salesCenter: {},
       groups: [],
-      roles: 'admin, orgadmin, analyst',
+      roles: 'admin, orgadmin, analyst, manager-level-3',
       canEdit: false,
       selectedGroups: [],
       saving: false,
@@ -178,7 +177,7 @@ class SalesCenterDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-2, consultor')) {
+          if (testRoles('manager-level-2, consultor-level-3')) {
             return (
               <Link className='button is-primary' to={'/forecasts/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
@@ -375,7 +374,7 @@ export default Page({
   path: '/catalogs/salesCenters/:uuid',
   title: 'Sales center detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor',
+  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: SalesCenterDetail
 })

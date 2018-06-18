@@ -44,7 +44,7 @@ class DataSetDetail extends Component {
       currentSalesCenter: null,
       currentUnidentified: null,
       columns: [],
-      roles: 'admin, orgadmin, analyst',
+      roles: 'admin, orgadmin, analyst, manager-level-3',
       canEdit: false,
       isLoading: '',
       isLoadingConsolidate: '',

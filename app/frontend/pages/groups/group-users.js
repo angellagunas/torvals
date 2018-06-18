@@ -32,7 +32,7 @@ class GroupUsers extends Component {
         formatter: (row) => {
           return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
                   <span className='icon is-small'>
-              <i className={this.currentRole === 'consultor' || this.currentRole === 'consultor-level-2'
+              <i className={this.currentRole === 'consultor-level-3' || this.currentRole === 'consultor-level-2'
                 ? 'fa fa-eye' : 'fa fa-pencil'} />
                   </span>
                 </Link>

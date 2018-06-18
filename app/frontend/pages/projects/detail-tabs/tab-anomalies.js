@@ -174,7 +174,7 @@ class TabAnomalies extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'consultor' && currentRole !== 'consultor-level-2') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
             return (
               <Checkbox
                 label='checkAll'
@@ -191,7 +191,7 @@ class TabAnomalies extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          if (currentRole !== 'consultor' && currentRole !== 'consultor-level-2') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
             return (
               <Checkbox
                 label={row}
@@ -261,7 +261,7 @@ class TabAnomalies extends Component {
         'sortable': true,
         'className': 'editable-cell',                                
         formatter: (row) => {
-          if (currentRole !== 'consultor' && currentRole !== 'consultor-level-2') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
           return (
             <Editable
               value={row.prediction}
@@ -581,7 +581,7 @@ class TabAnomalies extends Component {
               </div>
             </div>
           </div>
-          {currentRole !== 'consultor' && currentRole !== 'consultor-level-2' &&
+          {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' &&
             <div className='level-right'>
               <div className='level-item is-margin-top-20'>
                 <button

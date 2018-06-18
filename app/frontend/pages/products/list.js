@@ -12,13 +12,13 @@ export default ListPage({
   title: 'Productos',
   icon: 'dropbox',
   exact: true,
-  roles: 'analyst, orgadmin, admin,  consultor-level-2, manager-level-2, consultor',
+  roles: 'analyst, orgadmin, admin,  consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Producto',
   create: true,
   createComponent: CreateProduct,
   export: true,
-  exportRole: 'consultor',
+  exportRole: 'consultor-level-3',
   exportUrl: '/app/products',
   breadcrumbs: true,
   breadcrumbConfig: {
@@ -36,7 +36,7 @@ export default ListPage({
     ],
     align: 'left'
   },
-  canCreate: 'admin, orgadmin, analyst, manager-level-2',
+  canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
   baseUrl: '/app/products',
   branchName: 'products',
   detailUrl: '/catalogs/products/',
@@ -99,7 +99,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('consultor, consultor-level-2')) {
+          if (testRoles('consultor-level-3, consultor-level-2')) {
             return (
               <Link className='button is-primary' to={'/catalogs/products/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>

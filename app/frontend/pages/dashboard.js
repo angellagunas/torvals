@@ -858,7 +858,7 @@ class Dashboard extends Component {
                           />
                           {obj.name === 'Not identified' &&
                             <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/' + obj.type + '/' + obj.uuid) }}>
-                              <i className={this.props.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
+                              <i className={this.props.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                             </span>
                           }
                         </a>
@@ -994,7 +994,7 @@ class Dashboard extends Component {
                                     />
 
                                     <span className='icon is-pulled-right' onClick={() => { this.moveTo('/projects/' + item.uuid) }}>
-                                      <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>
+                                      <i className={this.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'}/>
                                     </span>
                                   </a>
                                 </li>
@@ -1068,7 +1068,7 @@ class Dashboard extends Component {
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
-                                        <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
+                                        <i className={this.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                                       </span>
                                       }
                                     </a>
@@ -1126,7 +1126,7 @@ class Dashboard extends Component {
                                       />
                                       {item.name === 'Not identified' &&
                                         <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
-                                          <i className={this.currentRole === 'consultor' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
+                                          <i className={this.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                                         </span>
                                       }
                                     </a>
