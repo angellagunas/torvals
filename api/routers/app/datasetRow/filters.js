@@ -66,7 +66,7 @@ module.exports = new Route({
     let minMonth = moment.utc(dataset.dateMax).subtract(4, 'months').month() + 1
 
     dates = dates.map(item => {
-      if (item.month < minMonth) return
+      if (item.month <= minMonth) return
 
       return {
         week: item.week,
