@@ -1,0 +1,23 @@
+.historic-view {
+
+  .report-title {
+    margin-top: 5px;
+    margin-bottom: 10px;
+  }
+  .is-info-dark {
+    &-1 {
+      background: #6292c5;
+      .title,
+      .subtitle {
+        color: #fff !important;
+      }
+    }
+    &-2 {
+      background: #345f8f;
+      .title,
+      .subtitle {
+        color: #fff !important;
+      }
+    }
+  }
+}

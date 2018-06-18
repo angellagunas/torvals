@@ -241,4 +241,9 @@
   .pad-top-5 {
     padding-top: 5px;
   }
+  .historic-view {
+    .dash-graph .button.is-static {
+      width: 145px !important;
+    }
+  }
 }
