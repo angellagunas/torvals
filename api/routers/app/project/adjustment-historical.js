@@ -139,9 +139,22 @@ module.exports = new Route({
     ]
 
     let responseData = await DataSetRow.aggregate(match)
+    let totalPrediction = 0
+    let totalSale = 0
+    for (let response of responseData) {
+      if (response.prediction && response.sale) {
+        totalPrediction += response.prediction
+        totalSale += response.sale
+      }
+    }
+    let mape = 0
+    if (totalSale !== 0) {
+      mape = Math.abs((totalSale - totalPrediction) / totalSale) * 100
+    }
 
     ctx.body = {
-      data: responseData
+      data: responseData,
+      mape: mape
     }
   }
 })
