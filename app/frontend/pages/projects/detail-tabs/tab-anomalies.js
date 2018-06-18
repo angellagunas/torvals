@@ -37,8 +37,7 @@ class TabAnomalies extends Component {
       sortAscending: true,
       pageLength: 20,
       page: 1,
-      search: '',
-      rules: tree.get('rule') || []
+      search: ''
     }
     currentRole = tree.get('user').currentRole.slug
   }
@@ -170,19 +169,16 @@ class TabAnomalies extends Component {
   }
 
   getColumns () {
-    const catalogs = (this.state.anomalies[0] || {}).catalogItems
-    const catalogItems = catalogs.map((catalog, i) => {
-      const item = this.state.rules.catalogs.find(rule => rule.slug === catalog.type) || {}
-      return {
-        'title': ` ${item.name || catalog.type}`,
-        'property': '',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String((row.catalogItems[i] || {}).name)
-        }
+    const catalogs = this.props.project.rule.catalogs || []
+    const catalogItems = catalogs.map((catalog, i) => ({
+      'title': ` ${catalog.name}`,
+      'property': '',
+      'default': 'N/A',
+      'sortable': true,
+      formatter: (row) => {
+        return String((row.catalogItems[i] || {}).name)
       }
-    })
+    }))
 
     let cols = [
       {
