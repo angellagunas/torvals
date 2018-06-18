@@ -23,38 +23,13 @@ module.exports = new Route({
       'uuid': datasetId,
       'isDeleted': false,
       organization: ctx.state.organization
-    }).populate('catalogItems')
+    }).populate('catalogItems rule')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    let statement = [{
-      $match: {
-        uuid: dataset.uuid
-      }
-    },
-    {
-      $lookup: {
-        from: 'catalogitems',
-        localField: 'catalogItems',
-        foreignField: '_id',
-        as: 'catalogs'
-      }
-    },
-    {
-      $unwind: {
-        path: '$catalogs'
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        catalogs: {
-          $addToSet: '$catalogs.type'
-        }
-      }
-    }]
+    await dataset.rule.populate('catalogs').execPopulate()
 
-    let catalogs = await DataSet.aggregate(statement)
+    let catalogs = dataset.rule.catalogs
     if (catalogs) { catalogs = catalogs[0].catalogs }
 
     let catalogItemsFilters = []

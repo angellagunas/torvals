@@ -75,7 +75,7 @@ const task = new Task(
     await project.save()
 
     return true
-  }
+  },
   async (argv) => {
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
