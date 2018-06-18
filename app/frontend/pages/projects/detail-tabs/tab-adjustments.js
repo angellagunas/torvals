@@ -157,14 +157,14 @@ class TabAdjustment extends Component {
           return
         }
 
-        if (res.dates.length < res.semanasBimbo.length) {
-          this.notify(
-            'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
-            ' correctamente. Por favor contacta a un administrador.',
-            5000,
-            toast.TYPE.ERROR
-          )
-        }
+        // if (res.dates.length < res.semanasBimbo.length) {
+        //   this.notify(
+        //     'Hay menos fechas que semanas bimbo! Es posible que no se pueda realizar ajustes' +
+        //     ' correctamente. Por favor contacta a un administrador.',
+        //     5000,
+        //     toast.TYPE.ERROR
+        //   )
+        // }
 
         let periods = this.getPeriods(res.dates)
         if(periods.length === 0){
