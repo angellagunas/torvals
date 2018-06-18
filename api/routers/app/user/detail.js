@@ -27,7 +27,10 @@ module.exports = new Route({
     let groups = user.groups
 
     for (var group of groups) {
-      group.organization = await Organization.findOne({'_id': ObjectId(group.organization)})
+      if (!group.organization.uuid) {
+        group.organization = await Organization.findOne({'_id': ObjectId(group.organization)})
+      }
+
       if (group.organization.uuid === ctx.state.organization.uuid) auxGroups.push(group)
     }
 
