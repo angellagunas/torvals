@@ -61,7 +61,7 @@ module.exports = new Route({
     var dates = await AbraxasDate.find({
       week: {$in: semanasBimbo},
       dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
-    }).sort('-dateStart')
+    }).sort('dateStart')
 
     dates = dates.map(item => {
       return {
@@ -72,8 +72,6 @@ module.exports = new Route({
         dateEnd: item.dateEnd
       }
     })
-
-    console.log(filters)
 
     channels = await Channel.find({ _id: { $in: channels }, ...filters })
     salesCenters = await SalesCenter.find({ _id: { $in: salesCenters }, ...filters })
