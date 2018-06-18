@@ -63,7 +63,11 @@ module.exports = new Route({
       dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
     }).sort('-dateStart')
 
+    let minMonth = moment.utc(dataset.dateMax).subtract(4, 'months').month() + 1
+
     dates = dates.map(item => {
+      if (item.month <= minMonth) return
+
       return {
         week: item.week,
         month: item.month,
@@ -72,6 +76,8 @@ module.exports = new Route({
         dateEnd: item.dateEnd
       }
     })
+
+    dates = dates.filter(item => { return !!item })
 
     console.log(filters)
 

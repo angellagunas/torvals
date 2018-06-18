@@ -31,7 +31,7 @@ const task = new Task(async function (argv) {
     }
 
     if (!projectDataset.conciliatedBy || !projectDataset.createdBy) {
-      var projectDataset = project.mainDataset
+      projectDataset = project.mainDataset
     }
 
     if (project.mainDataset && project.mainDataset.status === 'ready') {
@@ -55,9 +55,7 @@ const task = new Task(async function (argv) {
       })
 
       project.set({
-        activeDataset: dataset,
-        dateMax: project.mainDataset.dateMax,
-        dateMin: project.mainDataset.dateMin
+        activeDataset: dataset
       })
 
       await project.save()
