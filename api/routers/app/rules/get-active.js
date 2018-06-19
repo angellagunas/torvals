@@ -10,7 +10,7 @@ module.exports = new Route({
       'isCurrent': true,
       'isDeleted': false,
       'organization': ctx.state.organization._id
-    })
+    }).populate('catalogs')
 
     ctx.assert(rule, 404, 'Reglas no encontradas')
 
