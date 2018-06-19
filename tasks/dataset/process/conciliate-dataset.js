@@ -183,8 +183,8 @@ const task = new Task(
 
       project.mainDataset.set({
         status: 'ready',
-        dateMax: maxDate,
-        dateMin: minDate
+        dateMax: maxDate.format('YYYY-MM-DD'),
+        dateMin: minDate.format('YYYY-MM-DD')
       })
       await project.mainDataset.save()
 
