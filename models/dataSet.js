@@ -402,6 +402,7 @@ dataSetSchema.methods.processData = async function () {
     }
   }
 
+  await this.rule.populate('catalogs').execPopulate()
   for (let catalog of this.rule.catalogs) {
     if (this.apiData[catalog.slug]) {
       for (let data of this.apiData[catalog.slug]) {
@@ -416,11 +417,12 @@ dataSetSchema.methods.processData = async function () {
           let cItem = await CatalogItem.findOne({
             externalId: data._id,
             organization: this.organization._id,
-            type: catalog.slug
+            catalog: catalog._id
           })
 
           if (!cItem) {
             cItem = await CatalogItem.create({
+              catalog: catalog._id,
               name: data['name'] ? data['name'] : 'Not identified',
               externalId: String(data._id),
               organization: this.organization,
@@ -464,11 +466,12 @@ dataSetSchema.methods.processReady = async function (res) {
 
 dataSetSchema.methods.setColumns = async function (headers) {
   await this.populate('rule').execPopulate()
+  await this.rule.populate('catalogs').execPopulate()
 
   let catalogs = {}
-  for (let i = 0; i < this.rule.catalogs.length; i++) {
-    catalogs[`is_${this.rule.catalogs[i].slug}_id`] = false
-    catalogs[`is_${this.rule.catalogs[i].slug}_name`] = false
+  for (let catalog of this.rule.catalogs) {
+    catalogs[`is_${catalogs.slug}_id`] = false
+    catalogs[`is_${catalogs.slug}_name`] = false
   }
 
   this.set({

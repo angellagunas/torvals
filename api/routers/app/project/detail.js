@@ -29,6 +29,8 @@ module.exports = new Route({
 
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
+    await project.rule.populate('catalogs').execPopulate()
+
     ctx.body = {
       data: project.toPublic()
     }

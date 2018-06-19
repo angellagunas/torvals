@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {CatalogItem} = require('models')
+const { CatalogItem, Catalog } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -23,13 +23,23 @@ module.exports = new Route({
     }
 
     const organization = ctx.state.organization._id
+    const catalog = await Catalog.findOne({
+      slug: type,
+      organization: organization,
+      isDeleted: false
+    })
 
     var catalogItem = await CatalogItem.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {type: type, organization: organization, isDeleted: false, ...filters},
+      find: {
+        catalog: catalog._id,
+        organization: organization,
+        isDeleted: false,
+        ...filters
+      },
       sort: ctx.request.query.sort || '-dateCreated',
-      populate: 'organization'
+      populate: 'organization catalog'
     })
 
     catalogItem.data = catalogItem.data.map(item => {
