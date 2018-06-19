@@ -19,7 +19,7 @@ module.exports = new Route({
     const project = await Project.findOne({
       'uuid': data.uuid,
       'isDeleted': false
-    }).populate('mainDataset')
+    }).populate('mainDataset').populate('datasets.dataset')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
     const rule = await Rule.findOne({
@@ -27,6 +27,37 @@ module.exports = new Route({
       'isDeleted': false,
       'organization': ctx.state.organization._id
     })
+
+    if (project.status === 'empty') {
+      project.set({
+        outdated: false,
+        rule: rule
+      })
+
+      for (let dataset of project.datasets) {
+        dataset = dataset.dataset
+        let status = dataset.status
+
+        if (dataset.status === 'reviewing' || dataset.status === 'processing') {
+          status = 'configuring'
+        }
+
+        dataset.set({
+          rule: rule,
+          status: status
+        })
+
+        await dataset.save()
+      }
+
+      await project.save()
+
+      ctx.body = {
+        data: project
+      }
+
+      return
+    }
 
     project.set({
       outdated: false,

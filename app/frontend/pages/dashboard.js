@@ -1140,7 +1140,7 @@ class Dashboard extends Component {
                           this.makeFilters()
                         }
 
-                        
+
 
                       </ul>
                     </div>

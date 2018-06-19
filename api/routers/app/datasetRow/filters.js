@@ -7,10 +7,8 @@ const {
   Channel,
   SalesCenter,
   Product,
-  AbraxasDate,
   Role,
-  Cycle,
-  Period
+  Cycle
 } = require('models')
 
 module.exports = new Route({
@@ -49,7 +47,7 @@ module.exports = new Route({
     ) {
       var groups = user.groups
 
-      filters['groups'] = {$all: groups}
+      filters['groups'] = {$elemMatch: { '$in': groups }}
       filters['organization'] = currentOrganization.organization._id
     }
 

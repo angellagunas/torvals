@@ -26,6 +26,7 @@ const task = new Task(
       .findOne({uuid: argv.uuid})
       .populate('organization rule')
     const organization = dataset.organization
+    await dataset.rule.populate('catalogs').execPopulate()
 
     if (!dataset) {
       throw new Error('Invalid uuid!')

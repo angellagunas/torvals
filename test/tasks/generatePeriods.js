@@ -1,9 +1,9 @@
 /* global describe, beforeEach, it */
 require('co-mocha')
 
-const { Cycle, Period } = require('models')
+const { Cycle, Period, Rule } = require('models')
 const { assert, expect } = require('chai')
-const { createCycles, clearDatabase, createUser, createOrganization } = require('../utils')
+const { createCycles, clearDatabase, createUser, createOrganization, createFullOrganization } = require('../utils')
 const { organizationFixture } = require('../fixtures')
 
 const generatePeriods = require('tasks/organization/generate-periods')
@@ -18,38 +18,30 @@ describe('Generate periods task', () => {
   describe('with one cycle by month and only period by cycle', () => {
     it('with 23 cycles created in db should generate 23 periods', async function () {
 
-      const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
-        cycleDuration: 1,
-        cycle: "M",
-        period:"M",
-        periodDuration:1,
-        season: 12,
-        cyclesAvailable:6
-      }})
-
-      await createCycles({organization: org._id})
+      const org = await createFullOrganization({}, {
+        period: 'M'
+      })
+      const rule = await Rule.findOne({organization: org._id})
 
       const totalCycles = await Cycle.find({organization: org._id}).count()
 
-      const wasGenerated = await generatePeriods.run({uuid: org.uuid})
       const periodsGenerated = await Period.find({organization: org._id}).count()
 
       const today = new Date()
 
       lastPeriodStartDate = new Date(
         today.getFullYear(),
-        today.getMonth() + parseInt(org.rules.cyclesAvailable)
+        today.getMonth() + parseInt(rule.cyclesAvailable)
       )
 
       lastPeriodEndDate = new Date(
         today.getFullYear(),
-        today.getMonth() + 1 + parseInt(org.rules.cyclesAvailable),
+        today.getMonth() + 1 + parseInt(rule.cyclesAvailable),
         0
       )
 
-      const expectedPeriods = 12 + (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
-      const periodsForThisYear = (today.getMonth() + 1) + parseInt(org.rules.cyclesAvailable)
+      const expectedPeriods = 12 + (today.getMonth() + 1) + parseInt(rule.cyclesAvailable)
+      const periodsForThisYear = (today.getMonth() + 1) + parseInt(rule.cyclesAvailable)
 
       let firstPeriod = await Period.aggregate([
         {
@@ -115,28 +107,12 @@ describe('Generate periods task', () => {
       await clearDatabase()
       const startDate = "2017-12-30T00:00:00"
 
-      const org = await createOrganization({rules: {
+      const org = await createFullOrganization({}, {
         startDate: startDate,
-        cycleDuration: 1,
-        cycle: "M",
-        period:"w",
-        periodDuration:1,
-        season: 12,
-        cyclesAvailable:6,
-        catalogs: [
-          "producto"
-        ],
-        ranges: [0, 0, 0, 0, 0, 0],
-        takeStart: true,
-        consolidation: 26,
-        forecastCreation: 1,
-        rangeAdjustment: 1,
-        rangeAdjustmentRequest: 1,
-        salesUpload : 1
-      }})
+        period: 'w'
+      })
+      const rule = await Rule.findOne({organization: org._id})
 
-      await generateCycles.run({uuid: org.uuid})
-      const wasGenerated = await generatePeriods.run({uuid: org.uuid})
       const today = new Date()
 
       let startPeriod = await Period.aggregate([
@@ -172,23 +148,15 @@ describe('Generate periods task', () => {
 
   describe('with a organization with invalid rules', () => {
     it('with invalid period', async function () {
-      const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
-        cycleDuration: 1,
-        cycle: "M",
-        period:"invalidString",
-        periodDuration: 1,
-        season: 6,
-        cyclesAvailable:4
-      }})
-
-      await createCycles({organization: org._id})
-
-      let wasFailed = true
+      let wasFailed = false
       let errorMsg = ''
 
       try{
-        const wasGenerated = await generatePeriods.run({uuid: org.uuid})
+        const org = await createFullOrganization({}, {
+          startDate:"2018-01-01T00:00:00",
+          period:"invalidString"
+        })
+        console.info(org)
       }catch(error){
           wasFailed = true
           errorMsg = error.message
@@ -199,21 +167,14 @@ describe('Generate periods task', () => {
     })
 
     it('with a negative period duration', async function () {
-      const org = await createOrganization({rules: {
-        startDate:"2018-01-01T00:00:00",
-        cycleDuration: 1,
-        cycle: "M",
-        period:"M",
-        periodDuration: -1,
-        season: 6,
-        cyclesAvailable:4
-      }})
-      await createCycles({organization: org._id})
 
       let wasFailed = true
       let errorMsg = ''
       try{
-        const wasGenerated = await generatePeriods.run({uuid: org.uuid})
+        const org = await createFullOrganization({}, {
+          startDate:"2018-01-01T00:00:00",
+          periodDuration: -1
+        })
       }catch(error){
           wasFailed = true
           errorMsg = error.message

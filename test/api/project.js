@@ -6,6 +6,7 @@ const http = require('http')
 const {
   clearDatabase,
   createOrganization,
+  createFullOrganization,
   createProject,
   createUser
 } = require('../utils')
@@ -24,11 +25,11 @@ describe('/projects', () => {
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
-      const org = await Organization.create({
+      const org = createFullOrganization({
         name: 'Una org',
         description: 'Una descripción',
         slug: 'test-org'
-      })
+      },{})
 
       const res = await test()
         .post('/api/app/projects')

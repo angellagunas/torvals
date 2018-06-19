@@ -4,15 +4,18 @@ const { v4 } = require('uuid')
 const dataTables = require('mongoose-datatables')
 
 const catalogItemSchema = new Schema({
-  type: { type: String },
+  catalog: { type: Schema.Types.ObjectId, ref: 'Catalog', required: true },
+  organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   name: { type: String },
   externalId: { type: String },
-  organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   isNewExternal: { type: Boolean, default: false },
   uuid: { type: String, default: v4 },
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
   isDeleted: { type: Boolean, default: false }
-}, { usePushEach: true, timestamps: { updatedAt: 'dateUpdated', createdAt: 'dateCreated' } })
+}, {
+  usePushEach: true,
+  timestamps: { updatedAt: 'dateUpdated', createdAt: 'dateCreated' }
+})
 
 catalogItemSchema.plugin(dataTables)
 
