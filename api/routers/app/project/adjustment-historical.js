@@ -5,10 +5,10 @@ const {
   Cycle,
   DataSetRow,
   Project,
-  Rule,
   Channel,
   SalesCenter,
-  Role
+  Role,
+  CatalogItem
 } = require('models')
 
 module.exports = new Route({
@@ -27,7 +27,7 @@ module.exports = new Route({
       ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
     }
 
-    const project = await Project.findOne({uuid: uuid})
+    const project = await Project.findOne({uuid: uuid}).populate('rule')
     if (ctx.state.organization) {
       currentOrganization = user.organizations.find(orgRel => {
         return ctx.state.organization._id.equals(orgRel.organization._id)
@@ -39,11 +39,6 @@ module.exports = new Route({
         currentRole = role.toPublic()
       }
     }
-    let currentRule = await Rule.findOne({
-      organization: ctx.state.organization._id,
-      isCurrent: true,
-      isDeleted: false
-    })
 
     let initialMatch = {
       project: project._id
@@ -57,7 +52,7 @@ module.exports = new Route({
 
     cycles = await Cycle.getBetweenDates(
       ctx.state.organization._id,
-      currentRule._id,
+      project.rule._id,
       start.toDate(),
       end.toDate()
     )
@@ -82,6 +77,15 @@ module.exports = new Route({
         user
       )
       initialMatch['salesCenter'] = { $in: salesCenters }
+    }
+
+    if (data.catalogItems) {
+      const catalogItems = await CatalogItem.find({
+        uuid: { $in: data.catalogItems }
+      }).select({ '_id': 1 })
+      initialMatch['catalogItems'] = {
+        $in: catalogItems.map(item => { return item._id })
+      }
     }
 
     let match = [{
