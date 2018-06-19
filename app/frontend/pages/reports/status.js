@@ -37,6 +37,11 @@ class StatusRepórt extends Component {
         days: '',
         hours: '',
         minutes: ''
+      },
+      users: {
+        ready: 0,
+        process: 0,
+        alert: 0
       }
     }
 
@@ -596,29 +601,33 @@ class StatusRepórt extends Component {
           <div className='column is-3'>
             <div className='notification is-success'>
               <div className='level'>
-                <div className='level-item'>
-                  <span className='icon is-large'>
-                    <i className='fa fa-2x fa-check'></i>
-                  </span>
+                <div className='level-left'>
+                  <div className='level-item'>
+                    <span className='icon is-large'>
+                      <i className='fa fa-2x fa-check'></i>
+                    </span>
+                  </div>
+                  <div className='level-item'>
+                    <p><strong>{this.state.users.ready} Usuarios</strong></p>
+                    <p>Ajustes finalizados</p>
+                  </div>
                 </div>
-                <div className='level-item'>
-                  <p><strong>5 Usuarios</strong></p>
-                  <p>Ajustes finalizados</p>
-              </div>
               </div>
             </div>
           </div>
           <div className='column is-3'>
             <div className='notification is-info'>
               <div className='level'>
-                <div className='level-item'>
-                  <span className='icon is-large'>
-                    <i className='fa fa-2x fa-cog'></i>
-                  </span>
-                </div>
-                <div className='level-item'>
-                  <p><strong>5 Usuarios</strong></p>
-                  <p>Ajustes en proceso</p>
+                <div className='level-left'>
+                  <div className='level-item'>
+                    <span className='icon is-large'>
+                      <i className='fa fa-2x fa-cog'></i>
+                    </span>
+                  </div>
+                  <div className='level-item'>
+                    <p><strong>{this.state.users.process} Usuarios</strong></p>
+                    <p>Ajustes en proceso</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -627,14 +636,14 @@ class StatusRepórt extends Component {
             <div className='notification is-danger'>
               <div className='level'>
                 <div className='level-left'>
-                <div className='level-item'>
-                  <span className='icon is-large'>
-                    <i className='fa fa-2x fa-exclamation-circle'></i>
-                  </span>
-                </div>
-                <div className='level-item'>
-                  <p><strong>5 Usuarios</strong></p>
-                  <p>Sin ajustes</p>
+                  <div className='level-item'>
+                    <span className='icon is-large'>
+                      <i className='fa fa-2x fa-exclamation-circle'></i>
+                    </span>
+                  </div>
+                  <div className='level-item'>
+                    <p><strong>{this.state.users.alert} Usuarios</strong></p>
+                    <p>Sin ajustes</p>
                   </div>
                 </div>
               </div>
