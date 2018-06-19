@@ -17,6 +17,7 @@ import SalesCentersImport from '../pages/import/sales-centers'
 import ChannelsImport from '../pages/import/channels'
 import ProductsImport from '../pages/import/products'
 import Catalogs from '../pages/catalog/list'
+import HistoricReport from '../pages/reports/historic'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -177,6 +178,16 @@ class Sidebar extends Component {
             SalesCentersImport.asSidebarItem(),
             ProductsImport.asSidebarItem(),
             ChannelsImport.asSidebarItem()
+          ]
+        },
+        {
+          title: 'Reportes',
+          icon: 'clipboard',
+          to: '/reports',
+          roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
+          opened: false,
+          dropdown: [
+            HistoricReport.asSidebarItem()
           ]
         }
       ]
