@@ -23,6 +23,7 @@ const Token = require('./token')
 const Cycle = require('./cycle')
 const Period = require('./period')
 const Rule = require('./rule')
+const AdjustmentDownload = require('./adjustment-download')
 // #Import
 
 module.exports = {
@@ -50,5 +51,6 @@ module.exports = {
   Token,
   Cycle,
   Period,
-  Rule// #Exports
+  Rule,
+  AdjustmentDownload// #Exports
 }
