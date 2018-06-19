@@ -255,7 +255,7 @@ class HistoricReport extends Component {
 
     if (!this.state.waitingData) {
       try {
-        let url = '/app/organizations/local/historical'
+        let url = '/app/projects/adjustment/historical/' + this.state.projectSelected.uuid
         this.setState({
           waitingData: true
         })
@@ -265,7 +265,7 @@ class HistoricReport extends Component {
           channels: Object.values(this.selectedChannels),
           salesCenters: Object.values(this.selectedSalesCenters),
           //products: Object.values(this.selectedProducts),
-          projects: Object.values(this.selectedProjects).map(p => p.uuid),
+          //projects: Object.values(this.selectedProjects).map(p => p.uuid),
           catalogItems: Object.keys(this.selectedItems)
         })
 
@@ -844,16 +844,6 @@ class HistoricReport extends Component {
         label: 'Ajuste',
         color: '#30C6CC',
         data: this.state.graphData ? this.state.graphData.map((item) => { return item.adjustment !== 0 ? item.adjustment : null }) : []
-      },
-      {
-        label: 'Venta',
-        color: '#0CB900',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale !== 0 ? item.sale : null }) : []
-      },
-      {
-        label: 'Venta año anterior',
-        color: '#EF6950',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale !== 0 ? item.previousSale : null }) : []
       }
     ]
 
