@@ -1,7 +1,4 @@
 import React, { Component } from 'react'
-import { Redirect } from 'react-router-dom'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 import tree from '~core/tree'
 import _ from 'lodash'
@@ -1316,5 +1313,6 @@ export default Page({
   validate: loggedIn,
   component: HistoricReport,
   title: 'Histórico de ajustes',
-  icon: 'users'
+  icon: 'users',
+  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'  
 })
