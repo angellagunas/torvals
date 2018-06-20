@@ -7,6 +7,7 @@ const {
   Channel,
   SalesCenter,
   Product,
+  CatalogItem,
   Role,
   Cycle
 } = require('models')
@@ -22,7 +23,7 @@ module.exports = new Route({
       'uuid': datasetId,
       'isDeleted': false,
       organization: ctx.state.organization
-    })
+    }).populate('rule')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
@@ -55,6 +56,7 @@ module.exports = new Route({
     var channels = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('channel')
     var salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
     var cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
+    var catalogItems = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('catalogItems')
 
     cycles = await Cycle.find({
       organization: ctx.state.organization,
@@ -74,49 +76,19 @@ module.exports = new Route({
     channels = await Channel.find({ _id: { $in: channels }, ...filters })
     salesCenters = await SalesCenter.find({ _id: { $in: salesCenters }, ...filters })
     products = await Product.find({ _id: { $in: products } })
+    catalogItems = await CatalogItem.find({ _id: { $in: catalogItems }, type: {$ne: 'producto'}, ...filters })
 
-    let statement = [
-      {
-        '$match': {
-          'uuid': dataset.uuid
-        }
-      },
-      {
-        '$unwind': {
-          'path': '$catalogItems'
-        }
-      },
-      {
-        '$lookup': {
-          'from': 'catalogitems',
-          'localField': 'catalogItems',
-          'foreignField': '_id',
-          'as': 'catalogItem'
-        }
-      },
-      {
-        '$unwind': {
-          'path': '$catalogItem'
-        }
-      },
-      {
-        '$group': {
-          '_id': '$catalogItem.type',
-          'items': {
-            '$push': '$catalogItem'
-          }
-        }
-      }
-    ]
+    await dataset.rule.populate('catalogs').execPopulate()
 
-    let catalogs = await DataSet.aggregate(statement)
+    let catalogs = dataset.rule.catalogs
     let catalogsResponse = []
 
     for (let catalog of catalogs) {
-      catalogsResponse[catalog._id] = []
-      for (let item of catalog.items) {
-        catalogsResponse[catalog._id].push(item)
-      }
+      catalogsResponse[catalog.slug] = []
+    }
+
+    for (let item of catalogItems) {
+      catalogsResponse[item.type].push(item)
     }
 
     ctx.body = {

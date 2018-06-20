@@ -87,31 +87,11 @@ class TabAdjustment extends Component {
     }
   }
 
-  async getCatalogFilters(){
-    let url = '/app/catalogItems/'
-    let filters = []
-    this.rules.catalogs.map(async item => {
-      if(item.slug !== 'producto'){
-        let res = await api.get(url + item.slug)
-        if(res){
-          let aux = this.state.filters
-          aux[item.slug] = res.data
-
-          this.setState({
-            filters:  aux
-          })
-        }
-      }
-    })
-  }
-
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       this.setState({ filtersLoading:true })
 
       const url = '/app/rows/filters/dataset/'
-
-      await this.getCatalogFilters()
 
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
@@ -138,14 +118,18 @@ class TabAdjustment extends Component {
         if (res.channels.length === 1) {
           formData.channel = res.channels[0].uuid
         }
+
+        for (let fil of Object.keys(res)) {
+          if (fil === 'cycles') continue
+
+          res[fil] = _.orderBy(res[fil], 'name')
+        }
+
         this.setState({
           filters: {
             ...this.state.filters,
-            channels: _.orderBy(res.channels, 'name'),
-            products: res.products,
-            salesCenters: _.orderBy(res.salesCenters, 'name'),
+            ...res,
             categories: this.getCategory(res.products),
-            cycles: cycles
           },
           formData: formData,
           filtersLoading: false,
@@ -168,6 +152,7 @@ class TabAdjustment extends Component {
         )
       }
     }
+    console.log(this.state.filters)
   }
 
   getCategory(products) {
