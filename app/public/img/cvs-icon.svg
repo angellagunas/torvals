@@ -1,0 +1,19 @@
+<svg id="Group_2294" data-name="Group 2294" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 30">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: #424a55;
+      }
+
+      .cls-2 {
+        font-size: 12px;
+        font-family: MotivaSans-ExtraBold, Motiva Sans;
+        font-weight: 800;
+      }
+    </style>
+  </defs>
+  <g id="Group_2293" data-name="Group 2293" transform="translate(0.571)">
+    <path id="Path_297" data-name="Path 297" class="cls-1" d="M1.7,0H20.727V8.054H18.814V2.315H3.613V8.087H1.7V0Zm0,21.946H3.613v5.772H18.848V21.946H20.76V30H1.7V21.946Z" transform="translate(-1.7)"/>
+  </g>
+  <text id="cvs" class="cls-2" transform="translate(0 18)"><tspan x="0" y="0">cvs</tspan></text>
+</svg>
