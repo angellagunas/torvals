@@ -257,7 +257,7 @@ class DownloadReport extends Component {
                             {
                               this.state.data.map(item => (
                                 <div className="column is-4">
-                                  <DownloadWidget />
+                                  <DownloadWidget {...item}/>
                                 </div>
                               ))
                             }
