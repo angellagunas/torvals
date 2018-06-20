@@ -102,6 +102,24 @@ datasetRowSchema.index(
   },
   {background: true}
 )
+
+datasetRowSchema.index(
+  {
+    'dataset': 1,
+    'catalogItems': 1,
+    'cycle': 1
+  },
+  {background: true}
+)
+datasetRowSchema.index(
+  {
+    'dataset': 1,
+    'catalogItems': 1,
+    'period': 1
+  },
+  {background: true}
+)
+
 datasetRowSchema.set('autoIndex', true)
 
 module.exports = mongoose.model('DataSetRow', datasetRowSchema)

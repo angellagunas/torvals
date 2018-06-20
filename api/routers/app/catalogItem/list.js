@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { CatalogItem, Catalog } = require('models')
+const { CatalogItem, Catalog, Role } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -28,6 +28,30 @@ module.exports = new Route({
       organization: organization,
       isDeleted: false
     })
+
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
+    if (
+        currentRole.slug === 'manager-level-1' ||
+        currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'consultor-level-2' ||
+        currentRole.slug === 'consultor-level-3' ||
+        currentRole.slug === 'manager-level-3'
+    ) {
+      var groups = user.groups
+
+      filters['groups'] = {$in: groups}
+    }
 
     var catalogItem = await CatalogItem.dataTables({
       limit: ctx.request.query.limit || 20,

@@ -22,7 +22,6 @@ catalogItemSchema.plugin(dataTables)
 catalogItemSchema.methods.toPublic = function () {
   let data = {
     uuid: this.uuid,
-    type: this.type,
     name: this.name,
     externalId: this.externalId,
     isNewExternal: this.isNewExternal,
@@ -37,7 +36,6 @@ catalogItemSchema.methods.toPublic = function () {
 catalogItemSchema.methods.toAdmin = function () {
   let data = {
     uuid: this.uuid,
-    type: this.type,
     name: this.name,
     externalId: this.externalId,
     isNewExternal: this.isNewExternal,
@@ -51,8 +49,32 @@ catalogItemSchema.methods.toAdmin = function () {
 }
 
 catalogItemSchema.index({ isDeleted: -1, uuid: 1, organization: 1 }, {background: true})
-catalogItemSchema.index({ type: 1, organization: 1 }, {background: true})
-catalogItemSchema.index({ type: 1, uuid: 1, organization: 1 }, {background: true})
-catalogItemSchema.index({ type: 1, externalId: 1, organization: 1 }, {background: true})
+catalogItemSchema.index({ catalog: 1, organization: 1 }, {background: true})
+catalogItemSchema.index({ catalog: 1, uuid: 1, organization: 1 }, {background: true})
+catalogItemSchema.index({ catalog: 1, externalId: 1, organization: 1 }, {background: true})
+
+catalogItemSchema.statics.filterByUserRole = async function (filters, role, user) {
+  let items = await this.find(filters).select({'_id': 1, 'groups': 1})
+
+  if (
+    role === 'manager-level-1' ||
+    role === 'manager-level-2' ||
+    role === 'manager-level-3' ||
+    role === 'consultor-level-3' ||
+    role === 'consultor-level-2'
+  ) {
+    items = items
+      .filter(item => {
+        let checkExistence = item.groups.some(function (e) {
+          return user.groups.indexOf(String(e)) >= 0
+        })
+        return checkExistence
+      })
+      .map(item => { return item._id })
+  } else {
+    items = items.map(item => { return item._id })
+  }
+  return items
+}
 
 module.exports = mongoose.model('CatalogItem', catalogItemSchema)

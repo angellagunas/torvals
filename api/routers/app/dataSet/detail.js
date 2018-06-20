@@ -20,6 +20,7 @@ module.exports = new Route({
       .populate('products')
       .populate('salesCenters')
       .populate('catalogItems')
+      .populate('catalogItems.catalog')
     await dataset.rule.populate('catalogs').execPopulate()
 
     ctx.assert(dataset, 404, 'DataSet no encontrado ')
