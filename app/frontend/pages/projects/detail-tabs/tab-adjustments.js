@@ -57,7 +57,9 @@ class TabAdjustment extends Component {
       quantity: 100,
       percentage: 1,
       error: false,
-      errorMessage: ''
+      errorMessage: '',
+      showAdjusted: true,
+      showNotAdjusted: true
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -352,6 +354,19 @@ class TabAdjustment extends Component {
     })
   }
 
+  showRows(type, value){
+    if(type === 'showAdjusted'){
+      this.setState({
+        showAdjusted: value
+      }, () => { this.searchDatarows() })
+    }
+    else {
+      this.setState({
+        showNotAdjusted: value
+      }, () => { this.searchDatarows() })
+    }
+  }
+
   getModifyButtons () {
     return (
       <div className='columns'>
@@ -458,6 +473,20 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
+        <div className='column is-narrow show-rows'>
+          <Checkbox
+            label={<span title='Ajustados'>Ajustados</span>}
+            handleCheckboxChange={(e, value) => this.showRows('showAdjusted', value)}
+            checked={this.state.showAdjusted}
+            disabled={this.state.waitingData}
+          />
+          <Checkbox
+            label={<span title='No Ajustados'>No Ajustados</span>}
+            handleCheckboxChange={(e, value) => this.showRows('showNotAdjusted', value)}
+            checked={this.state.showNotAdjusted}
+            disabled={this.state.waitingData}
+          />
+        </div>
         <div className='column is-narrow'>
           <p style={{color: 'grey', paddingTop: '1.7rem', width: '.8rem'}}>
           {
@@ -734,8 +763,34 @@ getProductsSelected () {
 
   async searchDatarows() {
     if (this.state.searchTerm === '') {
+      let data = []
+
+      if(this.state.showAdjusted){
+        data = [
+          ...data,
+          ...this.state.dataRows.filter(item => {
+            if (item.wasEdited) {
+              return true
+            }
+            return false
+          })
+        ]
+      }
+
+      if (this.state.showNotAdjusted) {
+        data = [
+          ...data,
+          ...this.state.dataRows.filter(item => {
+            if (!item.wasEdited) {
+              return true
+            }
+            return false
+          })
+        ]
+      }
+
       this.setState({
-        filteredData: this.state.dataRows
+        filteredData: data.length > 0 ? data : this.state.dataRows
       })
       return
     }
@@ -750,9 +805,33 @@ getProductsSelected () {
       return false
     })
     // .filter(function(item){ return item != null });
+    let data = []
 
+    if (this.state.showAdjusted) {
+      data = [
+        ...data,
+        ...items.filter(item => {
+          if (item.wasEdited) {
+            return true
+          }
+          return false
+        })
+      ]
+    }
+
+    if (this.state.showNotAdjusted) {
+      data = [
+        ...data,
+        ...items.filter(item => {
+          if (!item.wasEdited) {
+            return true
+          }
+          return false
+        })
+      ]
+    }
     await this.setState({
-      filteredData: items
+      filteredData: data.length > 0 ? data : items
     })
   }
 
