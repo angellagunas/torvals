@@ -7,7 +7,11 @@ const moment = require('moment')
 const adjustmentDownloadSchema = new Schema({
   organization: {type: Schema.Types.ObjectId, ref: 'Organization', required: true},
   dateCreated: { type: Date, default: moment.utc },
-  path: {type: String},
+  path: {
+    url: { type: String },
+    bucket: { type: String },
+    region: { type: String }
+  },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
   project: {type: Schema.Types.ObjectId, ref: 'Project'},
@@ -22,7 +26,8 @@ adjustmentDownloadSchema.methods.toPublic = function () {
     uuid: this.uuid,
     isDeleted: this.isDeleted,
     path: this.path,
-    project: this.project
+    project: this.project,
+    url: this.getUrl()
   }
 }
 
@@ -32,8 +37,13 @@ adjustmentDownloadSchema.methods.toAdmin = function () {
     dateCreated: this.dateCreated,
     uuid: this.uuid,
     isDeleted: this.isDeleted,
-    project: this.project
+    project: this.project,
+    url: this.getUrl()
   }
+}
+
+adjustmentDownloadSchema.methods.getUrl = function () {
+  return 'https://s3.' + this.path.region + '.amazonaws.com/' + this.path.bucket + '/' + this.path.url
 }
 
 adjustmentDownloadSchema.plugin(dataTables)

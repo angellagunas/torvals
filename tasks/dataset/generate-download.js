@@ -75,7 +75,11 @@ const task = new Task(async function (argv) {
 
       await AdjustmentDownload.create({
         organization: dataset.organization,
-        path: fileName,
+        path: {
+          url: fileName,
+          bucket: bucket,
+          region: aws.s3Region
+        },
         project: dataset.project,
         dataset: dataset._id
       })
