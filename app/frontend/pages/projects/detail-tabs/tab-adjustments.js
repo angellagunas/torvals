@@ -129,6 +129,7 @@ class TabAdjustment extends Component {
           filters: {
             ...this.state.filters,
             ...res,
+            cycles: cycles,
             categories: this.getCategory(res.products),
           },
           formData: formData,
@@ -955,7 +956,8 @@ getProductsSelected () {
           key === 'channels' ||
           key === 'salesCenters' ||
           key === 'categories' ||
-          key === 'products') {
+          key === 'products' ||
+          key === 'producto') {
           continue
         }
         filters.push(
@@ -1129,57 +1131,7 @@ getProductsSelected () {
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
-            <div className='level-item'>
-              <Select
-                label='Categoría'
-                name='category'
-                value=''
-                placeholder='Todas'
-                options={this.state.filters.categories}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            </div>
-
-            <div className='level-item'>
-              {this.state.filters.channels.length === 1 ?
-                <div className='channel'>
-                  <span>Canal: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.channels[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Canal'
-                  name='channel'
-                  value=''
-                  placeholder='Todos'
-                  optionValue='uuid'
-                  optionName='name'
-                  options={this.state.filters.channels}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
-
-            <div className='level-item'>
-              {this.state.filters.salesCenters.length === 1 ?
-                <div className='saleCenter'>
-                  <span>Centro de Venta: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Centro de Venta'
-                  name='salesCenter'
-                  value={this.state.formData.salesCenter}
-                  optionValue='uuid'
-                  optionName='name'
-                  options={this.state.filters.salesCenters}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
+            
           {this.state.filters &&
             this.makeFilters()
           }
