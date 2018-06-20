@@ -41,7 +41,11 @@ module.exports = new Route({
     })
 
     downloads.data = downloads.data.map(item => {
-      return item.toPublic()
+      return {
+        ...item.toPublic(),
+        minDate: item.dataset.dateMin,
+        maxDate: item.dataset.dateMax
+      }
     })
 
     ctx.body = downloads
