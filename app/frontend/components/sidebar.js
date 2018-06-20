@@ -161,10 +161,6 @@ class Sidebar extends Component {
           roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
-            Prices.asSidebarItem(),
-            SalesCenters.asSidebarItem(),
-            Products.asSidebarItem(),
-            Channels.asSidebarItem(),
             ...this.catalogs()
           ]
         },
@@ -174,10 +170,7 @@ class Sidebar extends Component {
           to: '/import',
           roles: 'orgadmin, admin, manager-level-3',
           dropdown: [
-            UsersImport.asSidebarItem(),
-            SalesCentersImport.asSidebarItem(),
-            ProductsImport.asSidebarItem(),
-            ChannelsImport.asSidebarItem()
+            UsersImport.asSidebarItem()
           ]
         },
         {
