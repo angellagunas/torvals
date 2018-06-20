@@ -7,6 +7,7 @@ const catalogItemSchema = new Schema({
   catalog: { type: Schema.Types.ObjectId, ref: 'Catalog', required: true },
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   name: { type: String },
+  type: { type: String },
   externalId: { type: String },
   isNewExternal: { type: Boolean, default: false },
   uuid: { type: String, default: v4 },
@@ -23,6 +24,7 @@ catalogItemSchema.methods.toPublic = function () {
   let data = {
     uuid: this.uuid,
     name: this.name,
+    type: this.type,
     externalId: this.externalId,
     isNewExternal: this.isNewExternal,
     groups: this.groups
@@ -37,6 +39,7 @@ catalogItemSchema.methods.toAdmin = function () {
   let data = {
     uuid: this.uuid,
     name: this.name,
+    type: this.type,
     externalId: this.externalId,
     isNewExternal: this.isNewExternal,
     isDeleted: this.isDeleted,
