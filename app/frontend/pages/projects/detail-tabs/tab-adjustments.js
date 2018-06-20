@@ -155,7 +155,6 @@ class TabAdjustment extends Component {
         )
       }
     }
-    console.log(this.state.filters)
   }
 
   getCategory(products) {
