@@ -181,7 +181,7 @@ class WeekTable extends Component {
         formatter: (row) => {
           let product = 'N/A'
           row.weeks[0].catalogItems.map(obj => {
-              if (obj.catalog.slug === 'producto') {
+            if (obj.catalog && obj.catalog.slug === 'producto') {
                 product = obj.name
               }
             })

@@ -10,6 +10,7 @@ const cloneProject = require('./clone-project')
 const cloneMainDataset = require('./clone-main-dataset')
 const reconfigureDataset = require('./reconfigure-dataset')
 const getAnomalies = require('./get-anomalies')
+const generateDownload = require('./generate-downloads')
 // #Requires
 
 module.exports = {
@@ -24,5 +25,6 @@ module.exports = {
   'save-datasetrows': saveDatasetRows,
   'clone-main-dataset': cloneMainDataset,
   'reconfigure-dataset': reconfigureDataset,
-  'getAnomalies': getAnomalies// #Exports
+  'getAnomalies': getAnomalies,
+  'generateDownload': generateDownload// #Exports
 }
