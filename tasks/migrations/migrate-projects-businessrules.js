@@ -85,13 +85,13 @@ const task = new Task(async function (argv) {
     organization: project.organization
   })
 
-  for (let catalogItem of catalogItems.filter((catalog) => { return catalog.type !== 'undefined'})) {
+  for (let catalogItem of catalogItems.filter((item) => { return item.type !== undefined })) {
     catalogItem.set({
       catalog: currentCatalogs.find((catalog) => {
-        return catalog.slug == catalogItem.type
+        return catalog.slug === catalogItem.type
       })
     })
-    catalogItem.save()
+    await catalogItem.save()
   }
 
   log.call('Fetching Rules...')
@@ -123,7 +123,7 @@ const task = new Task(async function (argv) {
   })
   await project.save()
 
-  log.call('Retrieving dataset...', project.mainDataset.uuid)
+  log.call(`Retrieving dataset... ${project.mainDataset.uuid}`)
   let datasets = await DataSet.find({_id: project.mainDataset._id}).populate('channels salesCenters products')
   for (let dataset of datasets) {
     log.call('Searching Dataset cycles and periods...')
@@ -220,9 +220,11 @@ const task = new Task(async function (argv) {
 
     await dataset.save()
     await dataset.populate('catalogItems periods').execPopulate()
-    await dataset.catalogItems.populate('catalog').execPopulate()
+    for (let item of dataset.catalogItems) {
+      await item.populate('catalog').execPopulate()
+    }
 
-    log.call('Saving DataSetRow periods')
+    log.call('Saving DataSetRow periods...')
     for (let period of dataset.periods) {
       await DataSetRow.update({
         dataset: dataset._id,

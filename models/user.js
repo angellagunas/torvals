@@ -24,7 +24,7 @@ const userSchema = new Schema({
   organizations: [{
     organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
     role: { type: Schema.Types.ObjectId, ref: 'Role' },
-    defaultProject: { type: Schema.Types.ObjectId, ref: 'Project' }
+    defaultProject: { type: Schema.Types.ObjectId, ref: 'Project' },
     projectStatus: {
       type: String,
       enum: [
