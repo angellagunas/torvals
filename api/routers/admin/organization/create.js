@@ -5,7 +5,7 @@ const slugify = require('underscore.string/slugify')
 const verifyPrices = require('queues/update-prices')
 const generateCycles = require('tasks/organization/generate-cycles')
 
-const {Organization, Rule} = require('models')
+const {Organization, Rule, Catalog} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -22,6 +22,7 @@ module.exports = new Route({
 
     if (auxOrg && auxOrg.isDeleted) {
       auxOrg.isDeleted = false
+      auxOrg.isNew = true
       auxOrg.save()
 
       ctx.body = {
@@ -39,6 +40,17 @@ module.exports = new Route({
         data
       })
 
+    let catalogs = []
+
+    for (let cat of ['Producto', 'Centro de venta', 'Canal']) {
+      let auxCatalog = await Catalog.create({
+        name: cat,
+        slug: slugify(cat),
+        organization: org
+      })
+      catalogs.push(auxCatalog)
+    }
+
     const rule = await Rule.create(
       {
         startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),
@@ -54,18 +66,7 @@ module.exports = new Route({
         rangeAdjustmentRequest: 6,
         rangeAdjustment: 10,
         salesUpload: 3,
-        catalogs: [
-          {
-            name: 'Producto',
-            slug: 'producto'
-          }, {
-            name: 'Centro de venta',
-            slug: 'centro-de-venta'
-          }, {
-            name: 'Canal',
-            slug: 'canal'
-          }
-        ],
+        catalogs: catalogs,
         ranges: [0, 0, 10, 20, 30, null],
         rangesLvl2: [0, 0, 10, 20, 30, null],
         version: 1,

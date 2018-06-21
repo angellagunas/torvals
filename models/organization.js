@@ -20,23 +20,7 @@ const organizationSchema = new Schema({
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
-  rules: {
-    startDate: { type: Date },
-    cycleDuration: {type: Number},
-    cycle: {type: String},
-    periodDuration: {type: Number},
-    period: {type: String},
-    season: {type: Number},
-    cyclesAvailable: {type: Number},
-    takeStart: {type: Boolean, default: false},
-    consolidation: {type: Number},
-    forecastCreation: {type: Number},
-    rangeAdjustmentRequest: {type: Number},
-    rangeAdjustment: {type: Number},
-    salesUpload: {type: Number},
-    ranges: [{type: Number}],
-    catalogs: [{ type: String }]
-  }
+  isNew: { type: Boolean, default: true }
 }, { usePushEach: true })
 
 organizationSchema.plugin(dataTables)
