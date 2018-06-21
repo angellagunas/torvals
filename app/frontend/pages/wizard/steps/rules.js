@@ -24,9 +24,16 @@ class Rules extends Component {
         forecastCreation: this.props.rules.forecastCreation || 0,
         rangeAdjustment: this.props.rules.rangeAdjustment || 0,
         rangeAdjustmentRequest: this.props.rules.rangeAdjustmentRequest || 0,
-        consolidation: this.props.rules.cycleDuration * 31
+        consolidation: this.props.rules.cycleDuration * 31,
+        isLoading: ''
       }
     }
+  }
+
+  async save () {
+    this.setState({isLoading: 'is-loading'})
+    await this.props.save()
+    this.setState({isLoading: ''})
   }
 
   render () {
@@ -189,8 +196,9 @@ class Rules extends Component {
                   <div className='column'>
                     <div className='has-text-centered' style={{marginTop: '2rem'}}>
                       <button
-                        className='button is-medium is-success'
-                        onClick={this.props.save}
+                        className={'button is-medium is-success ' + this.state.isLoading}
+                        disabled={!!this.state.isLoading}
+                        onClick={() => { this.save() }}
                       >
                         Aplicar cambios
                       </button>

@@ -16,7 +16,6 @@ catalogSchema.plugin(dataTables)
 catalogSchema.methods.toPublic = function () {
   let data = {
     uuid: this.uuid,
-    type: this.type,
     name: this.name,
     slug: this.name,
     groups: this.groups
@@ -30,7 +29,6 @@ catalogSchema.methods.toPublic = function () {
 catalogSchema.methods.toAdmin = function () {
   let data = {
     uuid: this.uuid,
-    type: this.type,
     name: this.name,
     slug: this.name,
     isDeleted: this.isDeleted,
@@ -43,7 +41,7 @@ catalogSchema.methods.toAdmin = function () {
 }
 
 catalogSchema.index({ isDeleted: -1, uuid: 1, organization: 1 }, {background: true})
-catalogSchema.index({ type: 1, organization: 1 }, {background: true})
-catalogSchema.index({ type: 1, uuid: 1, organization: 1 }, {background: true})
+catalogSchema.index({ slug: 1, organization: 1 }, {background: true})
+catalogSchema.index({ slug: 1, uuid: 1, organization: 1 }, {background: true})
 
 module.exports = mongoose.model('Catalog', catalogSchema)
