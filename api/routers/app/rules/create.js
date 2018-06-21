@@ -111,7 +111,7 @@ module.exports = new Route({
 
     await Project.update({organization: org._id}, {outdated: true}, {multi: true})
 
-    org.set({ isNew: false })
+    org.set({ isConfigured: true })
     await org.save()
 
     ctx.body = {
