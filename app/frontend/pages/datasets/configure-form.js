@@ -265,26 +265,17 @@ class ConfigureDatasetForm extends Component {
     const formData = {
       ...this.state.formData,
       isDate: this.getValue('isDate'),
-      isAnalysis: this.getValue('isAnalysis'),
-      isProduct: this.getValue('isProduct'),
-      isSalesCenter: this.getValue('isSalesCenter'),
-      isChannel: this.getValue('isChannel')
+      isAnalysis: this.getValue('isAnalysis')
     }
 
     const schema = {
       isDate: true,
-      isAnalysis: true,
-      isProduct: true,
-      isSalesCenter: true,
-      isChannel: true
+      isAnalysis: true
     }
 
     let values = {
       isDate: this.getValue('isDate'),
-      isAnalysis: this.getValue('isAnalysis'),
-      isProduct: this.getValue('isProduct'),
-      isSalesCenter: this.getValue('isSalesCenter'),
-      isChannel: this.getValue('isChannel')
+      isAnalysis: this.getValue('isAnalysis')
     }
 
     for (let col of rules.catalogs) {
@@ -449,157 +440,6 @@ class ConfigureDatasetForm extends Component {
                     })
                   }
                 </select>
-              </div>
-            </div>
-          </div>
-
-          <div className='columns'>
-            <div className='column'>
-              <div className='field'>
-                <label className='label'>Id Centro de venta*</label>
-                <div className='control'>
-                  <div className='select is-fullwidth'>
-                    <select type='text'
-                      className={this.state.errors['isSalesCenter'] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
-                      name='isSalesCenter'
-                      value={this.state.isSalesCenter}
-                      onChange={(e) => { this.handleChangeSelect('isSalesCenter', e) }}>
-                      <option value=''>Selecciona una opción</option>
-                      {
-                        this.state.formData.columns.map(function (item, key) {
-                          return <option key={key}
-                            value={item.name}>{item.name}</option>
-                        })
-                      }
-                    </select>
-                  </div>
-                </div>
-                { this.state.errors['isSalesCenter'] &&
-                  <p className='help is-danger'>{this.state.errors['isSalesCenter']}</p>
-                }
-              </div>
-            </div>
-
-            <div className='column'>
-              <div className='field'>
-                <label className='label'>Centro de venta Nombre</label>
-                <div className='control'>
-                  <div className='select is-fullwidth'>
-                    <select type='text'
-                      className='is-fullwidth'
-                      name='isSalesCenterName'
-                      value={this.state.isSalesCenterName}
-                      onChange={(e) => { this.handleChangeSelect('isSalesCenterName', e) }}>
-                      <option value=''>Selecciona una opción</option>
-                      {
-                        this.state.formData.columns.map(function (item, key) {
-                          return <option key={key}
-                            value={item.name}>{item.name}</option>
-                        })
-                      }
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className='columns'>
-            <div className='column'>
-              <div className='field'>
-                <label className='label'>Id Producto*</label>
-                <div className='control'>
-                  <div className='select is-fullwidth'>
-                    <select type='text'
-                      className={this.state.errors['isProduct'] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
-                      name='isProduct'
-                      value={this.state.isProduct}
-                      onChange={(e) => { this.handleChangeSelect('isProduct', e) }}>
-                      <option value=''>Selecciona una opción</option>
-                      {
-                        this.state.formData.columns.map(function (item, key) {
-                          return <option key={key}
-                            value={item.name}>{item.name}</option>
-                        })
-                      }
-                    </select>
-                  </div>
-                </div>
-                { this.state.errors['isProduct'] &&
-                  <p className='help is-danger'>{this.state.errors['isProduct']}</p>
-                }
-              </div>
-            </div>
-            <div className='column'>
-              <div className='field'>
-                <label className='label'>Producto Nombre</label>
-                <div className='control'>
-                  <div className='select is-fullwidth'>
-                    <select type='text'
-                      className='is-fullwidth'
-                      name='isProductName'
-                      value={this.state.isProductName}
-                      onChange={(e) => { this.handleChangeSelect('isProductName', e) }}>
-                      <option value=''>Selecciona una opción</option>
-                      {
-                        this.state.formData.columns.map(function (item, key) {
-                          return <option key={key}
-                            value={item.name}>{item.name}</option>
-                        })
-                      }
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className='columns'>
-            <div className='column'>
-              <div className='field'>
-                <label className='label'>Id Canal*</label>
-                <div className='control'>
-                  <div className='select is-fullwidth'>
-                    <select type='text'
-                      className={this.state.errors['isChannel'] ? 'is-fullwidth select-is-danger' : 'is-fullwidth'}
-                      name='isChannel'
-                      value={this.state.isChannel}
-                      onChange={(e) => { this.handleChangeSelect('isChannel', e) }}>
-                      <option value=''>Selecciona una opción</option>
-                      {
-                        this.state.formData.columns.map(function (item, key) {
-                          return <option key={key}
-                            value={item.name}>{item.name}</option>
-                        })
-                      }
-                    </select>
-                  </div>
-                </div>
-                { this.state.errors['isChannel'] &&
-                  <p className='help is-danger'>{this.state.errors['isChannel']}</p>
-                }
-              </div>
-            </div>
-            <div className='column'>
-              <div className='field'>
-                <label className='label'>Canal Nombre</label>
-                <div className='control'>
-                  <div className='select is-fullwidth'>
-                    <select type='text'
-                      className='is-fullwidth'
-                      name='isChannelName'
-                      value={this.state.isChannelName}
-                      onChange={(e) => { this.handleChangeSelect('isChannelName', e) }}>
-                      <option value=''>Selecciona una opción</option>
-                      {
-                        this.state.formData.columns.map(function (item, key) {
-                          return <option key={key}
-                            value={item.name}>{item.name}</option>
-                        })
-                      }
-                    </select>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

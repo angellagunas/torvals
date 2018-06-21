@@ -143,39 +143,6 @@ class ConfigureViewDataset extends Component {
           <div className='column' />
         </div>
 
-        <div className='columns has-borders'>
-          <div className='column'>
-            <p className='title is-7'>Id Centro de venta*</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isSalesCenter')}</p>
-          </div>
-          <div className='column'>
-            <p className='title is-7'>Centro de venta Nombre</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isSalesCenterName')}</p>
-          </div>
-        </div>
-
-        <div className='columns has-borders'>
-          <div className='column'>
-            <p className='title is-7'>Id Producto*</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isProduct')}</p>
-          </div>
-          <div className='column'>
-            <p className='title is-7'>Producto Nombre</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isProductName')}</p>
-          </div>
-        </div>
-
-        <div className='columns has-borders'>
-          <div className='column'>
-            <p className='title is-7'>Id Canal*</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isChannel')}</p>
-          </div>
-          <div className='column'>
-            <p className='title is-7'>Canal Nombre</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isChannelName')}</p>
-          </div>
-        </div>
-
         {this.state.catalogColumns.map((item, index) => {
           return (
             <div className='columns has-borders' key={index}>
