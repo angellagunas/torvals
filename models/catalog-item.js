@@ -5,6 +5,7 @@ const dataTables = require('mongoose-datatables')
 
 const catalogItemSchema = new Schema({
   catalog: { type: Schema.Types.ObjectId, ref: 'Catalog', required: true },
+  relatedTo: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   name: { type: String },
   type: { type: String },

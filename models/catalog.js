@@ -7,7 +7,8 @@ const catalogSchema = new Schema({
   uuid: { type: String, default: v4 },
   name: { type: String },
   slug: { type: String },
-  organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+  relatedTo: { type: Schema.Types.ObjectId, ref: 'Catalog' },
+  organization: {type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   isDeleted: { type: Boolean, default: false }
 }, { usePushEach: true, timestamps: { updatedAt: 'dateUpdated', createdAt: 'dateCreated' } })
 
