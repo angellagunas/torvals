@@ -265,20 +265,17 @@ class ConfigureDatasetForm extends Component {
     const formData = {
       ...this.state.formData,
       isDate: this.getValue('isDate'),
-      isAnalysis: this.getValue('isAnalysis'),
-      isProduct: this.getValue('isProduct')
+      isAnalysis: this.getValue('isAnalysis')
     }
 
     const schema = {
       isDate: true,
-      isAnalysis: true,
-      isProduct: true
+      isAnalysis: true
     }
 
     let values = {
       isDate: this.getValue('isDate'),
-      isAnalysis: this.getValue('isAnalysis'),
-      isProduct: this.getValue('isProduct')
+      isAnalysis: this.getValue('isAnalysis')
     }
 
     for (let col of rules.catalogs) {
