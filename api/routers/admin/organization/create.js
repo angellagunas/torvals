@@ -85,10 +85,7 @@ module.exports = new Route({
       ctx.throw(400, 'No se pueden tener dos organizaciones con el mismo nombre')
     }
 
-    console.log(data)
-
     const org = await Organization.create(data)
-    console.log(org)
 
     let catalogs = []
 
