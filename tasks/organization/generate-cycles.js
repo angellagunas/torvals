@@ -60,7 +60,7 @@ const task = new Task(
       cycleDuration,
       periodDuration,
       cyclesAvailable,
-      takeStart,
+      takeStart
     } = rule
 
     const firstStartDate = moment(startDate).subtract(season, cycle)
@@ -99,7 +99,7 @@ const task = new Task(
         })
 
         while(cycleEndDate.isSameOrAfter(periodStartDate)) {
-          if (periodEndDate.isSameOrAfter(cycleEndDate) && takeStart){
+          if (periodEndDate.isSameOrAfter(cycleEndDate) && !takeStart){
             break
           }
 
