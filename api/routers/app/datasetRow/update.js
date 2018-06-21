@@ -48,12 +48,12 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
     let dataSet
-    console.log('dataSet', dataSet)
+
     for (let row of datasetRows) {
       let auxData = hashTable[row.uuid]
       if (parseFloat(auxData.adjustmentForDisplay) !== parseFloat(auxData.adjustment)) {
         row.data.adjustment = auxData.adjustmentForDisplay
-        row.data.updatedBy = ctx.state.user
+        row.updatedBy = ctx.state.user
         row.status = 'adjusted'
         row.markModified('data')
         await row.save()

@@ -23,7 +23,7 @@ module.exports = new Route({
 
     if (data.cycles) {
       initialMatch['cycleInfo.uuid'] = {
-        '$in': data.projects
+        '$in': data.cycles
       }
     }
 

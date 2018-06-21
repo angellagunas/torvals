@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
 
-const {DataSetRow, AdjustmentRequest, Role} = require('models')
+const {DataSetRow, AdjustmentRequest, Role, UserReport, Cycle} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -10,14 +10,14 @@ module.exports = new Route({
     var data = ctx.request.body
     var returnData = {}
     var uuidsAux = []
-
+    let dataset
     for (let row of data) {
       if (!row.uuid || !row.newAdjustment) {
         continue
       }
 
       const datasetRow = await DataSetRow.findOne({'uuid': row.uuid, 'isDeleted': false})
-        .populate('adjustmentRequest')
+        .populate('adjustmentRequest dataset')
       ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
 
       var adjustmentRequest = datasetRow.adjustmentRequest
@@ -76,8 +76,31 @@ module.exports = new Route({
       }
 
       await adjustmentRequest.save()
+      dataset = datasetRow.dataset
 
       returnData[row.uuid] = adjustmentRequest.toPublic()
+    }
+
+    if (dataset) {
+      const userReport = await UserReport.findOne({
+        user: ctx.state.user,
+        dataset: dataset._id
+      })
+      if (!userReport) {
+        const cycle = await Cycle.getCurrent(ctx.state.organization._id, dataset.rule)
+        await UserReport.create({
+          user: ctx.state.user,
+          dataset: dataset._id,
+          cycle: cycle._id,
+          project: dataset.project,
+          status: 'finished'
+        })
+      } else {
+        userReport.set({
+          status: 'finished'
+        })
+        await userReport.save()
+      }
     }
 
     ctx.body = {data: returnData}
