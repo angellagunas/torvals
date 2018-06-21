@@ -204,8 +204,7 @@ module.exports = new Route({
       }
     }, {
       $sort: { '_id.date': 1 }
-    }
-    ]
+    }]
 
     let responseData = await DataSetRow.aggregate(match)
     let previousSale = await DataSetRow.aggregate(matchPreviousSale)

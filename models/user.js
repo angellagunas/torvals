@@ -25,7 +25,16 @@ const userSchema = new Schema({
     organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
     role: { type: Schema.Types.ObjectId, ref: 'Role' },
     defaultProject: { type: Schema.Types.ObjectId, ref: 'Project' }
-
+    projectStatus: {
+      type: String,
+      enum: [
+        'pending',
+        'ready',
+        'working',
+        'finalized'
+      ],
+      default: 'pending'
+    }
   }],
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
   profilePicture: {

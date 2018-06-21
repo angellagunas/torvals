@@ -1,22 +1,66 @@
-// node tasks/migrations/migrate-projects-businessrules.js --uuid
+// node tasks/migrations/migrate-projects-businessrules.js --uuid <project_uuid>
 require('../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
 const _ = require('lodash')
-const generateCycles = require('tasks/organization/generate-cycles')
 
+const generateCycles = require('tasks/organization/generate-cycles')
+const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
-const { Rule, Project, DataSet, CatalogItem, DataSetRow, Cycle, Period } = require('models')
+const {
+  Rule,
+  Project,
+  DataSet,
+  Catalog,
+  CatalogItem,
+  DataSetRow,
+  Cycle,
+  Period
+} = require('models')
 
 const task = new Task(async function (argv) {
-  console.log(`Start ==>  ${moment().format()}`)
+  const log = new Logger('migrate-projects-businessrules')
+  log.call(`Start ==>  ${moment().format()}`)
   if (!argv.uuid) {
     throw new Error('Project uuid not defined')
   }
 
-  console.log('Fetching Project...', argv.uuid)
-  const project = await Project.findOne({uuid: argv.uuid}).populate('organization rule mainDataset')
-  if (!project.mainDataset) { throw new Error('mainDataset not found') }
+  log.call(`Fetching Project => ${argv.uuid}`)
+  const project = await Project.findOne({ uuid: argv.uuid })
+    .populate('organization rule mainDataset')
+  if (!project.mainDataset) {
+    throw new Error('mainDataset not found')
+  }
+
+  log.call('Verifying catalogs...')
+  let currentCatalogs = await Catalog.find({
+    organization: project.organization._id,
+    isDeleted: false
+  })
+  if (!currentCatalogs) {
+    currentCatalogs = []
+    log.call('Catalogs not found. Creating...')
+    catalogs = [{
+      name: 'Producto',
+      slug: 'producto'
+    }, {
+      name: 'Centro de venta',
+      slug: 'centro-de-venta'
+    }, {
+      name: 'Canal',
+      slug: 'canal'
+    }]
+    for (let catalog of catalogs) {
+      let newCatalog = await Catalog.create({
+        organization: project.organization._id,
+        name: catalog.name,
+        slug: catalog.slug,
+        isDeleted: false
+      })
+      currentCatalogs.push(newCatalog)
+    }
+  }
+
 
   let rules = {
     startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),
@@ -32,38 +76,42 @@ const task = new Task(async function (argv) {
     rangeAdjustmentRequest: 6,
     rangeAdjustment: 10,
     salesUpload: 3,
-    catalogs: [
-      {
-        name: 'Producto',
-        slug: 'producto'
-      }, {
-        name: 'Centro de venta',
-        slug: 'centro-de-venta'
-      }, {
-        name: 'Canal',
-        slug: 'canal'
-      }
-    ],
+    catalogs: currentCatalogs,
     ranges: [0, 0, 10, 20, 30, null]
   }
 
-  let catalogItems = await CatalogItem.find({organization: project.organization})
+  log.call('Verifying catalog items...')
+  let catalogItems = await CatalogItem.find({
+    organization: project.organization
+  })
 
-  console.log('Fetching Rules...')
+  for (let catalogItem of catalogItems.filter((catalog) => { return catalog.type !== 'undefined'})) {
+    catalogItem.set({
+      catalog: currentCatalogs.find((catalog) => {
+        return catalog.slug == catalogItem.type
+      })
+    })
+    catalogItem.save()
+  }
+
+  log.call('Fetching Rules...')
 
   let currentRule = await Rule.findOne({
     organization: project.organization._id,
     isCurrent: true
   })
   if (!currentRule) {
-    console.log('Rules not found. Creating...')
+    log.call('Rules not found. Creating...')
     currentRule = await Rule.create({
       ...rules,
       organization: project.organization._id,
       isCurrent: true
     })
-    console.log('Generating cycles and periods...')
-    await generateCycles.run({uuid: project.organization.uuid, rule: currentRule.uuid})
+    log.call('Generating cycles and periods...')
+    await generateCycles.run({
+      uuid: project.organization.uuid,
+      rule: currentRule.uuid
+    })
   }
   project.organization.set({
     rule: currentRule._id
@@ -75,10 +123,10 @@ const task = new Task(async function (argv) {
   })
   await project.save()
 
-  console.log('Retrieving dataset...', project.mainDataset.uuid)
+  log.call('Retrieving dataset...', project.mainDataset.uuid)
   let datasets = await DataSet.find({_id: project.mainDataset._id}).populate('channels salesCenters products')
   for (let dataset of datasets) {
-    console.log('Searching Dataset cycles and periods...')
+    log.call('Searching Dataset cycles and periods...')
     let cycles = await Cycle.getBetweenDates(
         project.organization._id,
         currentRule._id,
@@ -101,7 +149,7 @@ const task = new Task(async function (argv) {
       return item._id
     })
 
-    console.log('Saving channels catalogs')
+    log.call('Saving channels catalogs')
     let existingCatalogs = []
     let bulkOps = new Set()
 
@@ -109,7 +157,9 @@ const task = new Task(async function (argv) {
       let findChannel = _.find(catalogItems, ['externalId', channel.externalId])
       if (!findChannel) {
         bulkOps.add({
-          type: 'canal',
+          catalog: currentCatalogs.find((catalog) => {
+            return catalog.slug == 'canal'
+          }),
           name: channel.name,
           externalId: channel.externalId,
           organization: project.organization._id,
@@ -120,12 +170,14 @@ const task = new Task(async function (argv) {
       }
     }
 
-    console.log('Saving sales centers catalogs')
+    log.call('Saving sales centers catalogs')
     for (let salesCenter of dataset.salesCenters) {
       let findSalesCenter = _.find(catalogItems, ['externalId', salesCenter.externalId])
       if (!findSalesCenter) {
         bulkOps.add({
-          type: 'centro-de-venta',
+          catalog: currentCatalogs.find((catalog) => {
+            return catalog.slug == 'centro-de-venta'
+          }),
           name: salesCenter.name,
           externalId: salesCenter.externalId,
           organization: project.organization._id,
@@ -136,12 +188,14 @@ const task = new Task(async function (argv) {
       }
     }
 
-    console.log('Saving products catalog')
+    log.call('Saving products catalog')
     for (let product of dataset.products) {
       let findProduct = _.find(catalogItems, ['externalId', product.externalId])
       if (!findProduct) {
         bulkOps.add({
-          type: 'producto',
+          catalog: currentCatalogs.find((catalog) => {
+            return catalog.slug == 'producto'
+          }),
           name: product.name,
           externalId: product.externalId,
           organization: project.organization._id
@@ -166,8 +220,9 @@ const task = new Task(async function (argv) {
 
     await dataset.save()
     await dataset.populate('catalogItems periods').execPopulate()
+    await dataset.catalogItems.populate('catalog').execPopulate()
 
-    console.log('Saving DataSetRow periods')
+    log.call('Saving DataSetRow periods')
     for (let period of dataset.periods) {
       await DataSetRow.update({
         dataset: dataset._id,
@@ -187,9 +242,9 @@ const task = new Task(async function (argv) {
     var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
     var productExternalId = dataset.getProductColumn() || {name: ''}
 
-    console.log('Saving DataSetRow catalogs')
+    log.call('Saving DataSetRow catalogs')
     for (let catalogItem of dataset.catalogItems) {
-      if (catalogItem.type === 'canal') {
+      if (catalogItem.catalog.slug === 'canal') {
         await DataSetRow.update({
           dataset: dataset._id,
           [`apiData.${channelExternalId.name}`]: catalogItem.externalId,
@@ -203,7 +258,7 @@ const task = new Task(async function (argv) {
         }, {
           multi: true
         })
-      } else if (catalogItem.type === 'centro-de-venta') {
+      } else if (catalogItem.catalog.slug === 'centro-de-venta') {
         await DataSetRow.update({
           dataset: dataset._id,
           [`apiData.${salesCenterExternalId.name}`]: catalogItem.externalId,
@@ -217,7 +272,7 @@ const task = new Task(async function (argv) {
         }, {
           multi: true
         })
-      } else if (catalogItem.type === 'producto') {
+      } else if (catalogItem.catalog.slug === 'producto') {
         await DataSetRow.update({
           dataset: dataset._id,
           [`apiData.${productExternalId.name}`]: catalogItem.externalId,
@@ -234,14 +289,14 @@ const task = new Task(async function (argv) {
       }
     }
 
-    console.log('Saving status as pendingRows')
+    log.call('Saving status as pendingRows')
     project.set({
       status: 'pendingRows'
     })
     await project.save()
   }
 
-  console.log(`End ==>  ${moment().format()}`)
+  log.call(`End ==>  ${moment().format()}`)
 
   return true
 })
