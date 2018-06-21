@@ -32,7 +32,7 @@ class Rules extends Component {
   render () {
     let rules = this.props.rules
     return (
-      <div className='section pad-sides has-20-margin-top'>
+      <div className='section pad-sides has-20-margin-top rules'>
         <Prompt
           when={this.props.unsaved}
           message={location => (
@@ -51,7 +51,7 @@ class Rules extends Component {
               <div className='card-content'>
                 <div className='columns'>
                   <div className='column is-4'>
-                    <button className='button is-primary is-small is-pulled-right'
+                    <button className='button is-primary is-small is-pulled-right edit-btn'
                       onClick={() => this.props.setStep(2)}>
                       Editar
                     </button>
@@ -81,7 +81,7 @@ class Rules extends Component {
                     </p>
 
                     <hr />
-                    <button className='button is-primary is-small is-pulled-right'
+                    <button className='button is-primary is-small is-pulled-right edit-btn'
                       onClick={() => this.props.setStep(3)}>
                       Editar
                     </button>
@@ -118,7 +118,7 @@ class Rules extends Component {
                   <div className='column is-4'>
 
                     <div>
-                      <button className='button is-primary is-small is-pulled-right'
+                      <button className='button is-primary is-small is-pulled-right edit-btn'
                         onClick={() => this.props.setStep(4)}>
                         Editar
                     </button>
@@ -161,7 +161,7 @@ class Rules extends Component {
                     <hr />
 
                     <div>
-                      <button className='button is-primary is-small is-pulled-right'
+                      <button className='button is-primary is-small is-pulled-right edit-btn'
                         onClick={() => this.props.setStep(5)}>
                         Editar
                     </button>
@@ -189,7 +189,7 @@ class Rules extends Component {
                   <div className='column'>
                     <div className='has-text-centered' style={{marginTop: '2rem'}}>
                       <button
-                        className='button is-medium is-success'
+                        className='button is-medium is-success save-btn'
                         onClick={this.props.save}
                       >
                         Aplicar cambios

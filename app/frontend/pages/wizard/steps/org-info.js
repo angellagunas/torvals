@@ -44,7 +44,7 @@ class OrgInfo extends Component {
         {this.state.org &&
         <div className='columns'>
           <div className='column is-6'>
-            <h1 className='title'> Bienvenido al asistente de configuración de Orax. </h1>
+            <h1 className='title is-4'> Bienvenido al asistente de configuración de Orax. </h1>
             <h2 className='subtitle'> Primero revisa los datos de tu organización.
             Cuando todo este correcto da click continuar.
           </h2>
@@ -92,7 +92,9 @@ class OrgInfo extends Component {
         </div>
 
         }
-        <button onClick={() => this.props.nextStep()} className='button is-primary is-pulled-right'>Continuar</button>
+        <center>
+          <button onClick={() => this.props.nextStep()} className='button is-primary'>Continuar</button>
+        </center>
       </div>
     )
   }
