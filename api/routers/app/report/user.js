@@ -1,12 +1,31 @@
 const Route = require('lib/router/route')
-
-const {UserReport} = require('models')
+const _ = require('lodash')
+const { UserReport, User } = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: 'user',
+  path: '/user/',
   handler: async function (ctx) {
     var data = ctx.request.body
+
+    let initialMatch = {}
+    if (data.users) {
+      initialMatch['userInfo.uuid'] = {
+        '$in': data.users
+      }
+    }
+
+    if (data.projects) {
+      initialMatch['projectInfo.uuid'] = {
+        '$in': data.projects
+      }
+    }
+
+    if (data.cycles) {
+      initialMatch['cycleInfo.uuid'] = {
+        '$in': data.projects
+      }
+    }
 
     var statement = [
       {
@@ -18,30 +37,11 @@ module.exports = new Route({
         }
       },
       {
-        '$match': {
-          'userInfo.uuid': {
-            '$in': [
-              'ff0d7b08-1a05-4044-8109-0bda619d360d',
-              'b687560a-93a1-4fa4-94f3-a7a4f629a6a5'
-            ]
-          }
-        }
-      },
-      {
         '$lookup': {
           'from': 'projects',
           'localField': 'project',
           'foreignField': '_id',
           'as': 'projectInfo'
-        }
-      },
-      {
-        '$match': {
-          'projectInfo.uuid': {
-            '$in': [
-              '6b9d4734-4280-42a3-9d3b-f0fd5262a04b'
-            ]
-          }
         }
       },
       {
@@ -53,13 +53,7 @@ module.exports = new Route({
         }
       },
       {
-        '$match': {
-          'cycleInfo.uuid': {
-            '$in': [
-              'c133e5bd-ecd7-409d-ba85-522cfc513c8c'
-            ]
-          }
-        }
+        '$match': { ...initialMatch }
       },
       {
         '$group': {
@@ -68,13 +62,35 @@ module.exports = new Route({
           },
           'count': {
             '$sum': 1.0
+          },
+          'users': {
+            '$addToSet': '$userInfo.uuid'
           }
         }
       }
     ]
 
-    ctx.body = {
+    const stats = await UserReport.aggregate(statement)
+    let activeUsers = []
+    let report = {}
+    for (let stat of stats) {
+      for (let user of stat.users) {
+        activeUsers.push(user[0])
+      }
+      report[stat._id.status] = stat.count
+    }
 
+    if (!data.users) {
+      let users = await User.find({'organizations.organization': ctx.state.organization})
+      data.users = users.map((item) => {
+        return item.uuid
+      })
+    }
+    const inactiveUsers = _.difference(data.users, activeUsers)
+    report['inactive'] = inactiveUsers.length
+
+    ctx.body = {
+      data: report
     }
   }
 })

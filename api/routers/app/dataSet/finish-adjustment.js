@@ -1,20 +1,10 @@
 const Route = require('lib/router/route')
-
-/*********************/
-const ObjectId = require('mongodb').ObjectID
-/*********************/
-
 const {DataSet, UserReport, Cycle} = require('models')
 
 module.exports = new Route({
   method: 'post',
   path: '/finish/:uuid',
   handler: async function (ctx) {
-    /***************************************/
-    ctx.state.organization = {_id: ObjectId('5ae22fc26f556e0022546354')}
-    ctx.state.user = ObjectId('5ae22fc16f556e002254634a')
-    /****************************************/
-
     let datasetId = ctx.params.uuid
     const dataset = await DataSet.findOne({'uuid': datasetId, 'isDeleted': false})
       .populate('organization')
