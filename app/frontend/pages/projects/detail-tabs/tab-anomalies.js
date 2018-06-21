@@ -40,6 +40,8 @@ class TabAnomalies extends Component {
       search: ''
     }
     currentRole = tree.get('user').currentRole.slug
+    this.rules = this.props.rules
+
   }
 
   async getProducts () {
@@ -163,22 +165,91 @@ class TabAnomalies extends Component {
   }
 
   async getFilters () {
+    await this.getCatalogFilters()
     await this.getSalesCent()
     await this.getProducts()
     await this.getData()
   }
 
+
+  findName = (name) => {
+    let find = ''
+
+    if (!this.rules) return find
+
+    this.rules.catalogs.map(item => {
+      if (item.slug === name) {
+        find = item.name
+      }
+    })
+    return find
+  }
+
+  async getCatalogFilters() {
+    let url = '/app/catalogItems/'
+    let filters = []
+    this.rules.catalogs.map(async item => {
+        let res = await api.get(url + item.slug)
+        if (res) {
+          let aux = this.state.filters
+          aux[item.slug] = res.data
+
+          this.setState({
+            filters: aux
+          })
+        }
+    })
+  }
+
+  makeFilters() {
+    let filters = []
+    for (const key in this.state.filters) {
+      if (this.state.filters.hasOwnProperty(key)) {
+        const element = this.state.filters[key];
+        if (key === 'cycles' ||
+          key === 'channels' ||
+          key === 'salesCenters' ||
+          key === 'categories' ||
+          key === 'products') {
+          continue
+        }
+        filters.push(
+          <div key={key} className='level-item' >
+            <Select
+              label={this.findName(key)}
+              name={key}
+              value={this.state.formData[key]}
+              placeholder='Todas'
+              optionValue='uuid'
+              optionName='name'
+              options={element}
+              onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+            />
+          </div >
+        )
+      }
+    }
+    return filters
+  }
+
   getColumns () {
     const catalogs = this.props.project.rule.catalogs || []
-    const catalogItems = catalogs.map((catalog, i) => ({
-      'title': ` ${catalog.name}`,
-      'property': '',
-      'default': 'N/A',
-      'sortable': true,
-      formatter: (row) => {
-        return String((row.catalogItems[i] || {}).name)
+    const catalogItems = catalogs.map((catalog, i) => {
+      if(catalog.slug !== 'producto'){
+        return (
+          {
+            'title': ` ${catalog.name}`,
+            'property': '',
+            'default': 'N/A',
+            'sortable': true,
+            formatter: (row) => {
+              return String((row.catalogItems[i] || {}).name)
+            }
+          }
+        )
       }
-    }))
+    }
+  ).filter(item => item)
 
     let cols = [
       {
@@ -232,20 +303,6 @@ class TabAnomalies extends Component {
           return String(row.product.name)
         }
       },
-      {
-        'title': 'Categoría',
-        'property': 'product.category',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.product.category){
-            return String(row.product.category)
-          }
-          else{
-            return 'Sin categoría'
-          }
-        }
-      },
       ...catalogItems,
       {
         'title': 'Tipo de Anomalía',
@@ -290,19 +347,6 @@ class TabAnomalies extends Component {
         }
       }
     ]
-
-    if ( this.state.filters.salesCenters.length > 1){
-      cols.splice(4,0, {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.salesCenter.name)
-        }
-      })
-    }
 
     return cols
   }
@@ -531,50 +575,9 @@ class TabAnomalies extends Component {
       <div>
         <div className='section level selects'>
           <div className='level-left'>
-            <div className='level-item'>
-              <Select
-                label='Producto'
-                name='product'
-                value={this.state.formData.product}
-                optionValue='uuid'
-                optionName='name'
-                placeholder='Seleccione'
-                options={this.state.filters.products}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            </div>
-
-            <div className='level-item'>
-              <Select
-                label='Categoría'
-                name='category'
-                placeholder='Seleccione'
-                value={this.state.formData.category}
-                options={this.state.filters.categories}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            </div>
-
-            <div className='level-item'>
-              {this.state.filters.salesCenters.length === 1 ?
-                <div className='saleCenter'>
-                  <span>Centro de Venta: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Centro de venta'
-                  name='salesCenter'
-                  value={this.state.formData.salesCenter}
-                  optionValue='uuid'
-                  optionName='name'
-                  placeholder='Seleccione'
-                  options={this.state.filters.salesCenters}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
+            {this.state.filters &&
+              this.makeFilters()
+            }
 
             <div className='level-item pad-top-5'>
               <div className='field'>

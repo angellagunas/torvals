@@ -89,31 +89,11 @@ class TabAdjustment extends Component {
     }
   }
 
-  async getCatalogFilters(){
-    let url = '/app/catalogItems/'
-    let filters = []
-    this.rules.catalogs.map(async item => {
-      if(item.slug !== 'producto'){
-        let res = await api.get(url + item.slug)
-        if(res){
-          let aux = this.state.filters
-          aux[item.slug] = res.data
-
-          this.setState({
-            filters:  aux
-          })
-        }
-      }
-    })
-  }
-
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       this.setState({ filtersLoading:true })
 
       const url = '/app/rows/filters/dataset/'
-
-      await this.getCatalogFilters()
 
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
@@ -140,14 +120,19 @@ class TabAdjustment extends Component {
         if (res.channels.length === 1) {
           formData.channel = res.channels[0].uuid
         }
+
+        for (let fil of Object.keys(res)) {
+          if (fil === 'cycles') continue
+
+          res[fil] = _.orderBy(res[fil], 'name')
+        }
+
         this.setState({
           filters: {
             ...this.state.filters,
-            channels: _.orderBy(res.channels, 'name'),
-            products: res.products,
-            salesCenters: _.orderBy(res.salesCenters, 'name'),
+            ...res,
+            cycles: cycles,
             categories: this.getCategory(res.products),
-            cycles: cycles
           },
           formData: formData,
           filtersLoading: false,
@@ -1049,7 +1034,8 @@ getProductsSelected () {
           key === 'channels' ||
           key === 'salesCenters' ||
           key === 'categories' ||
-          key === 'products') {
+          key === 'products' ||
+          key === 'producto') {
           continue
         }
         filters.push(
@@ -1223,57 +1209,7 @@ getProductsSelected () {
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
-            <div className='level-item'>
-              <Select
-                label='Categoría'
-                name='category'
-                value=''
-                placeholder='Todas'
-                options={this.state.filters.categories}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            </div>
-
-            <div className='level-item'>
-              {this.state.filters.channels.length === 1 ?
-                <div className='channel'>
-                  <span>Canal: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.channels[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Canal'
-                  name='channel'
-                  value=''
-                  placeholder='Todos'
-                  optionValue='uuid'
-                  optionName='name'
-                  options={this.state.filters.channels}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
-
-            <div className='level-item'>
-              {this.state.filters.salesCenters.length === 1 ?
-                <div className='saleCenter'>
-                  <span>Centro de Venta: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Centro de Venta'
-                  name='salesCenter'
-                  value={this.state.formData.salesCenter}
-                  optionValue='uuid'
-                  optionName='name'
-                  options={this.state.filters.salesCenters}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
+            
           {this.state.filters &&
             this.makeFilters()
           }

@@ -653,6 +653,7 @@ class ProjectDetail extends Component {
           <TabAnomalies
             project={project}
             reload={(tab) => this.load(tab)}
+            rules={this.rules}
           />
         )
       },

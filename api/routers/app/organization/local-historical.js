@@ -68,9 +68,7 @@ module.exports = new Route({
       })
     }
 
-    data.channels = data.channels.sort()
     data.projects = data.projects.sort()
-    data.salesCenters = data.salesCenters.sort()
     data.catalogItems = data.catalogItems.sort()
 
     const parameterHash = 'api:' + crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'historical').digest('hex')
@@ -100,33 +98,6 @@ module.exports = new Route({
     let initialMatch = {
       dataset: { $in: datasets }
     }
-
-    // if (data.channels) {
-    //   const channels = await Channel.filterByUserRole(
-    //     { uuid: { $in: data.channels } },
-    //     currentRole.slug,
-    //     user
-    //   )
-    //   initialMatch['channel'] = { $in: channels }
-    // }
-
-    // if (data.salesCenters) {
-    //   const salesCenters = await SalesCenter.filterByUserRole(
-    //     { uuid: { $in: data.salesCenters } },
-    //     currentRole.slug,
-    //     user
-    //   )
-    //   initialMatch['salesCenter'] = { $in: salesCenters }
-    // }
-
-    // if (data.products) {
-    //   const products = await Product.find({
-    //     uuid: { $in: data.products }
-    //   }).select({'_id': 1})
-    //   initialMatch['product'] = {
-    //     $in: products.map(item => { return item._id })
-    //   }
-    // }
 
     if (data.catalogItems) {
       const catalogItems = await CatalogItem.filterByUserRole(
