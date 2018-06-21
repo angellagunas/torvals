@@ -62,12 +62,21 @@ module.exports = new Route({
 
     let catalogsData = []
     for (let catalog of data.catalogs) {
-      let catalogObj = await Catalog.create({
-        name: catalog.name,
+      let catalogObj = await Catalog.findOne({
         slug: catalog.slug,
-        organization: organizationId,
-        isDeleted: false
+        organization: organizationId
       })
+
+      if (!catalogObj) {
+        catalogObj = await Catalog.create({
+          name: catalog.name,
+          slug: catalog.slug,
+          organization: organizationId
+        })
+      }
+
+      catalogObj.set({ isDeleted: false })
+      await catalogObj.save()
       catalogsData.push(catalogObj._id)
     }
     data.catalogs = catalogsData
