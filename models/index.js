@@ -25,6 +25,7 @@ const Cycle = require('./cycle')
 const Period = require('./period')
 const Rule = require('./rule')
 const AdjustmentDownload = require('./adjustment-download')
+const UserReport = require('./user-report')
 // #Import
 
 module.exports = {
@@ -54,5 +55,6 @@ module.exports = {
   Cycle,
   Period,
   Rule,
-  AdjustmentDownload// #Exports
+  AdjustmentDownload,
+  UserReport// #Exports
 }
