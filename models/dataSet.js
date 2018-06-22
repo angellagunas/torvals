@@ -305,7 +305,7 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
 }
 
 dataSetSchema.methods.processData = async function () {
-  const { CatalogItem } = require('models')
+  const { CatalogItem, Price } = require('models')
 
   if (!this.apiData) return
 
@@ -351,6 +351,15 @@ dataSetSchema.methods.processData = async function () {
         await cItem.save()
 
         this.newProducts.push(cItem)
+
+        let price = await Price.findOne({product: cItem._id})
+        if (!price) {
+          await Price.create({
+            price: 0,
+            product: cItem._id,
+            organization: this.organization
+          })
+        }
       }
     }
   }
