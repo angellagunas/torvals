@@ -11,7 +11,7 @@ const { organizationFixture } = require('../fixtures')
 const generateCycles = require('tasks/organization/generate-cycles')
 
 
-describe.only('Generate cycles task', () => {
+describe('Generate cycles task', () => {
   beforeEach(async function () {
     await clearDatabase()
   })
@@ -107,6 +107,39 @@ describe.only('Generate cycles task', () => {
     })
   })
 
+  describe('with one cycle by week and one week as period', () => {
+    it('should generate the cycles succesfully', async function () {
+      const org = await createFullOrganization({}, {
+        period: 'w',
+        cycle: 'w'
+      })
+      const rule = await Rule.findOne({organization: org._id})
+
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = today.getMonth()
+      const day = today.getDate()
+      const cyclesAvailable = rule.cyclesAvailable
+
+      lastCycleStartDate = moment(
+          new Date(year, month + parseInt(cyclesAvailable))
+      ).utc().set({hour:0,minute:0,second:0,millisecond:0})
+
+      lastCycleEndDate = moment(
+        new Date(year, month + 1 + parseInt(cyclesAvailable), 0)
+      ).utc().set({hour:0,minute:0,second:0,millisecond:0})
+
+      const expectedCycles = 12 + (month + 1) + parseInt(cyclesAvailable)
+      const cyclesForThisYear = (month + 1) + parseInt(cyclesAvailable)
+
+      const firstCycle = await Cycle.findOne({
+        organization: org._id,
+        dateStart: new Date("2018-01-01T06:00:00Z").toISOString()
+      })
+
+      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2018-01-07T06:00:00Z").toISOString())
+    })
+  })
 
   describe('with one cycle by month and december 30, 2017 as startDate', () => {
     it('should generate a cycle with dateStart equals to rules startDate', async function () {

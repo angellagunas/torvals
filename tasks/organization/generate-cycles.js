@@ -107,6 +107,8 @@ const task = new Task(
             cycleInstance = await Cycle.create(cycleObj)
         }
 
+        let previousPeriodEndDate
+
         while(cycleEndDate.isSameOrAfter(periodStartDate)) {
           if (periodEndDate.isAfter(cycleEndDate) && !takeStart){
             break
@@ -133,6 +135,8 @@ const task = new Task(
                 rule: rule._id
               })
             }
+
+            previousPeriodEndDate = moment(seasonEndDate)
 
             periodStartDate = moment(seasonEndDate).add(1, 'd')
             periodEndDate = moment(periodStartDate).add(periodDuration, period).subtract(1, 'd')
@@ -164,12 +168,13 @@ const task = new Task(
             })
           }
 
+          previousPeriodEndDate = moment(periodEndDate)
+
           periodStartDate = moment(periodStartDate).add(periodDuration, period)
           periodEndDate = moment(periodStartDate).add(periodDuration, period).subtract(1, 'd')
           periodNumber++
         }
 
-        const previousPeriodEndDate = moment(periodEndDate).subtract(periodDuration, period)
         if(!cycleEndDate.isSame(previousPeriodEndDate)){
           cycleInstance.set({
             dateEnd: previousPeriodEndDate
