@@ -62,8 +62,6 @@ const task = new Task(
             'dataset': dataset._id,
             'apiData': anomaly.apiData,
             'product': anomaly.product,
-            'salesCenter': anomaly.salesCenter,
-            'channel': anomaly.channel,
             'cycle': anomaly.cycle,
             'period': anomaly.period,
             'data': {
@@ -100,9 +98,7 @@ const task = new Task(
       var adjustmentColumn = dataset.getAdjustmentColumn() || {name: ''}
       var dateColumn = dataset.getDateColumn() || {name: ''}
       var salesColumn = dataset.getSalesColumn() || {name: ''}
-      var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
       var productExternalId = dataset.getProductColumn() || {name: ''}
-      var channelExternalId = dataset.getChannelColumn() || {name: ''}
 
       for (let row = await rows.next(); row != null; row = await rows.next()) {
         let forecastDate
@@ -135,7 +131,7 @@ const task = new Task(
 
         let catalogData = {}
         for (let column of dataset.columns) {
-          catalogColumns = Object.keys(column).filter(x => column[x] === true && x.startsWith('is_'))
+          let catalogColumns = Object.keys(column).filter(x => column[x] === true && x.startsWith('is_'))
           for (let catalogColumnName of catalogColumns) {
             catalogData[catalogColumnName] = row.apiData[column.name]
           }
@@ -153,9 +149,7 @@ const task = new Task(
                 'adjustment': adjustment || prediction,
                 'localAdjustment': adjustment || prediction,
                 'lastAdjustment': adjustment,
-                'productExternalId': row.apiData[productExternalId.name],
-                'salesCenterExternalId': row.apiData[salesCenterExternalId.name],
-                'channelExternalId': row.apiData[channelExternalId.name]
+                'productExternalId': row.apiData[productExternalId.name]
               },
               'catalogData': catalogData,
               'catalogItems': []

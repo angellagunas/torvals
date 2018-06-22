@@ -149,7 +149,7 @@ const task = new Task(
       periods: periods
     }
 
-    log.call('Obtaining new products/sales centers/channels  ...')
+    log.call('Saving new products and catalog items  ...')
 
     try {
       await dataset.processReady(sendData)

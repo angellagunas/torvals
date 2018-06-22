@@ -80,10 +80,7 @@ const dataSetSchema = new Schema({
     outputValue: { type: String }
   }],
 
-  salesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
-  products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
-  newProducts: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
-  channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
+  products: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
   catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
   cycles: [{ type: Schema.Types.ObjectId, ref: 'Cycle' }],
   periods: [{ type: Schema.Types.ObjectId, ref: 'Period' }],
@@ -120,9 +117,7 @@ dataSetSchema.methods.toPublic = function () {
     dateMax: this.dateMax,
     dateMin: this.dateMin,
     isMain: this.isMain,
-    salesCenters: this.salesCenters,
     products: this.products,
-    channels: this.channels,
     rule: this.rule,
     catalogItems: this.catalogItems
   }
@@ -148,9 +143,7 @@ dataSetSchema.methods.format = function () {
     dateMax: this.dateMax,
     dateMin: this.dateMin,
     isMain: this.isMain,
-    salesCenters: this.salesCenters,
     products: this.products,
-    channels: this.channels,
     rule: this.rule,
     catalogItems: this.catalogItems
   }
@@ -182,30 +175,6 @@ dataSetSchema.methods.getProductColumn = function () {
 
 dataSetSchema.methods.getProductNameColumn = function () {
   var obj = this.columns.find(item => { return item.isProductName })
-
-  return obj
-}
-
-dataSetSchema.methods.getSalesCenterColumn = function () {
-  var obj = this.columns.find(item => { return item.isSalesCenter })
-
-  return obj
-}
-
-dataSetSchema.methods.getSalesCenterNameColumn = function () {
-  var obj = this.columns.find(item => { return item.isSalesCenterName })
-
-  return obj
-}
-
-dataSetSchema.methods.getChannelColumn = function () {
-  var obj = this.columns.find(item => { return item.isChannel })
-
-  return obj
-}
-
-dataSetSchema.methods.getChannelNameColumn = function () {
-  var obj = this.columns.find(item => { return item.isChannelName })
 
   return obj
 }
@@ -319,7 +288,7 @@ dataSetSchema.methods.processData = async function () {
   if (this.apiData.products) {
     let catalog = this.rule.catalogs.find(item => { return item.slug === 'producto' })
     for (let data of this.apiData.products) {
-      let pos = this.newProducts.findIndex(item => {
+      let pos = this.products.findIndex(item => {
         return (
           String(item.externalId) === String(data._id) &&
           item.type === catalog.slug
@@ -350,7 +319,7 @@ dataSetSchema.methods.processData = async function () {
         cItem.set({isDeleted: false})
         await cItem.save()
 
-        this.newProducts.push(cItem)
+        this.products.push(cItem)
       }
     }
   }
