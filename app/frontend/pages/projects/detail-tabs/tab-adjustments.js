@@ -950,27 +950,22 @@ getProductsSelected () {
     let min
     let max
     let url = '/app/rows/download/' + this.props.project.uuid
-    var period = this.state.filters.periods.find(item => {
-      return item.number === this.state.formData.period
+
+    let cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === this.state.formData.cycle
     })
 
-    this.state.filters.dates.map((date) => {
-      if (period.maxSemana === date.week) {
-        max = date.dateEnd
-      }
-      if (period.minSemana === date.week) {
-        min = date.dateStart
-      }
-    })
+    min = cycle.dateStart
+    max = cycle.dateEnd
 
     try {
+      let formFilters = Object.assign({}, this.state.formData)
+      delete formFilters.cycle
+
       let res = await api.post(url, {
         start_date: moment(min).format('YYYY-MM-DD'),
         end_date:  moment(max).format('YYYY-MM-DD'),
-        salesCenter: this.state.formData.salesCenter,
-        channel: this.state.formData.channel,
-        product: this.state.formData.product,
-        category: this.state.formData.category
+        ...formFilters
       })
 
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
@@ -1015,14 +1010,11 @@ getProductsSelected () {
     return moment.utc(cycle.dateStart).format('MMMM')
   }
 
-  findName = (name) => {
-    let find = ''
-    this.rules.catalogs.map(item => {
-      if(item.slug === name){
-        find = item.name
-      }
+  findName = (slug) => {
+    const find = this.rules.catalogs.find(item => {
+      return item.slug === slug
     })
-    return find
+    return find.name
   }
 
   makeFilters() {
@@ -1030,14 +1022,18 @@ getProductsSelected () {
     for (const key in this.state.filters) {
       if (this.state.filters.hasOwnProperty(key)) {
         const element = this.state.filters[key];
-        if (key === 'cycles' ||
-          key === 'channels' ||
-          key === 'salesCenters' ||
-          key === 'categories' ||
-          key === 'products' ||
-          key === 'producto') {
+        const unwantedList = [
+          'cycles',
+          'channels',
+          'salesCenters',
+          'categories',
+          'products',
+          'producto'
+        ]
+        if (unwantedList.includes(key)) {
           continue
         }
+
         filters.push(
           <div key={key} className='level-item'>
             <Select
@@ -1209,7 +1205,7 @@ getProductsSelected () {
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
-            
+
           {this.state.filters &&
             this.makeFilters()
           }
