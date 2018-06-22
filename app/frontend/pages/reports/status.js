@@ -21,14 +21,12 @@ class StatusRepórt extends Component {
       filtersLoading: false,
       isLoading: '',
       filters: {
-        channels: [],
-        products: [],
-        salesCenters: [],
-        categories: [],
-        cycles: []
+        cycles: [],
+        users: []
       },
       formData: {
-        cycle: 1
+        cycle: 1,
+        user: undefined
       },
       searchTerm: '',
       error: false,
@@ -97,30 +95,17 @@ class StatusRepórt extends Component {
   async getFilters () {
     this.setState({ filtersLoading: true })
 
-    const url = '/app/rows/filters/dataset/'
+    const url = '/app/reports/filters/'
 
     await this.getCatalogFilters()
 
     try {
-      let res = await api.get(url + this.state.projectSelected.mainDataset.uuid)
+      let res = await api.get(url)
 
       let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
-
-      if (this.currentRole === 'manager-level-2') {
-        cycles = cycles.map((item, key) => {
-          return { ...item, adjustmentRange: this.rules.rangesLvl2[key], name: moment.utc(item.dateStart).format('MMMM') }
-        })
-      } else {
-        cycles = cycles.map((item, key) => {
-          return { ...item, adjustmentRange: this.rules.ranges[key], name: moment.utc(item.dateStart).format('MMMM') }
-        })
-      }
-
-      cycles = cycles.map(item => {
-          if (moment.utc(item.dateEnd).isAfter(moment.utc().startOf('month'), 'days')) {
-            return item
-          }
-      }).filter(item => item)
+      .map(item => {
+        return {...item, name: moment.utc(item.dateStart).format('MMMM') + ' - ' + item.cycle}
+      })      
 
       let formData = this.state.formData
       formData.cycle = cycles[0].cycle
@@ -129,21 +114,12 @@ class StatusRepórt extends Component {
         this.getTimeRemaining()
       }, 60000)
 
-      if (res.salesCenters.length > 0) {
-        formData.salesCenter = res.salesCenters[0].uuid
-      }
-
-      if (res.channels.length === 1) {
-        formData.channel = res.channels[0].uuid
-      }
+      
       this.setState({
         filters: {
           ...this.state.filters,
-          channels: _.orderBy(res.channels, 'name'),
-          products: res.products,
-          salesCenters: _.orderBy(res.salesCenters, 'name'),
-          categories: this.getCategory(res.products),
-          cycles: cycles
+          cycles: cycles,
+          users: res.users
         },
         formData: formData,
         filtersLoading: false,
@@ -167,15 +143,6 @@ class StatusRepórt extends Component {
     }
   }
 
-  getCategory (products) {
-    const categories = new Set()
-    products.map((item) => {
-      if (item.category && !categories.has(item.category)) {
-        categories.add(item.category)
-      }
-    })
-    return Array.from(categories)
-  }
 
   async filterChangeHandler(name, value) {
     if (name === 'project') {
@@ -224,6 +191,40 @@ class StatusRepórt extends Component {
     }
   }
 
+  async getUsers(){
+
+    var cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === this.state.formData.cycle
+    })
+
+    const url = '/app/reports/user'
+    try {
+      
+      let res = await api.post(
+        url,
+        {
+          users: this.state.formData.user ? [this.state.formData.user] : undefined,
+          cycles: [cycle.uuid],
+          projects: [this.state.projectSelected.uuid]
+        }
+      )
+      this.setState({
+        users:{
+          ready: res.data.finished,
+          process: res.data.inProgress,
+          alert: res.data.inactive
+        }
+      })
+    } catch (e) {
+      console.log(e)
+      this.setState({
+        dataRows: [],
+        isFiltered: true,
+        isLoading: '',
+        selectedCheckboxes: new Set()
+      })
+    } 
+  }
 
   async getDataRows() {
      if (!this.state.formData.cycle) {
@@ -231,7 +232,9 @@ class StatusRepórt extends Component {
       return
     }
 
-      this.getTimeRemaining()
+    this.getTimeRemaining()
+
+    await this.getUsers()
 
     var cycle = this.state.filters.cycles.find(item => {
       return item.cycle === this.state.formData.cycle
@@ -244,13 +247,24 @@ class StatusRepórt extends Component {
       noSalesData: ''
     })
 
-    const url = '/app/rows/dataset/'
+    const url = '/app/reports/adjustments'
     try {
-      let data = await api.get(
-        url + this.state.projectSelected.mainDataset.uuid,
+      let catalogItems = []
+      for (const key in this.state.formData) {
+        if (this.state.formData.hasOwnProperty(key)) {
+          const element = this.state.formData[key];
+          if(key !== 'cycle' && key !== 'user'){
+            catalogItems.push(element)
+          }
+        }
+      }
+      let data = await api.post(
+        url,
         {
-          ...this.state.formData,
-          cycle: cycle.uuid
+          users: this.state.formData.user ? [this.state.formData.user] : undefined,
+          catalogItems: catalogItems,
+          cycles: [cycle.uuid],
+          projects: [this.state.projectSelected.uuid]
         }
       )
       this.setState({
@@ -460,7 +474,10 @@ class StatusRepórt extends Component {
           key === 'channels' ||
           key === 'salesCenters' ||
           key === 'categories' ||
-          key === 'products') {
+          key === 'products' ||
+          key === 'producto' ||
+          key === 'precio' ||
+          key === 'users') {
           continue
         }
         filters.push(
@@ -541,57 +558,21 @@ class StatusRepórt extends Component {
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
+
             <div className='level-item'>
               <Select
-                label='Categoría'
-                name='category'
-                value=''
-                placeholder='Todas'
-                options={this.state.filters.categories}
+                label='Usuarios'
+                name='user'
+                value={this.state.formData.user}
+                optionValue='uuid'
+                optionName='name'
+                placeholder='Todos'
+                options={this.state.filters.users}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
 
-            <div className='level-item'>
-              {this.state.filters.channels.length === 1 ?
-                <div className='channel'>
-                  <span>Canal: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.channels[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Canal'
-                  name='channel'
-                  value=''
-                  placeholder='Todos'
-                  optionValue='uuid'
-                  optionName='name'
-                  options={this.state.filters.channels}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
-
-            <div className='level-item'>
-              {this.state.filters.salesCenters.length === 1 ?
-                <div className='saleCenter'>
-                  <span>Centro de Venta: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Centro de Venta'
-                  name='salesCenter'
-                  value={this.state.formData.salesCenter}
-                  optionValue='uuid'
-                  optionName='name'
-                  options={this.state.filters.salesCenters}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
+            
             {this.state.filters &&
               this.makeFilters()
             }
@@ -713,7 +694,7 @@ class StatusRepórt extends Component {
             </div>
             : <section className='section'>
               <center>
-                <h1 className='has-text-info'>No hay productos que mostrar, intente con otro filtro</h1>
+                <h1 className='has-text-info'>No hay información que mostrar, intente con otro filtro</h1>
               </center>
             </section>
           : <section className='section'>
