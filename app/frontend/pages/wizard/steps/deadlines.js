@@ -312,6 +312,15 @@ class DeadLines extends Component {
     })
   }
 
+  next () {
+    if (this.props.org && !this.props.org.isConfigured &&
+      this.props.completed && this.props.completed.length < 4) {
+      this.props.nextStep({ ...this.state.data, dates: this.state.dates }, 5)
+    } else {
+      this.props.nextStep({ ...this.state.data, dates: this.state.dates }, 1)
+    }
+  }
+
   render () {
     const deadlines = [
       {
@@ -411,12 +420,19 @@ class DeadLines extends Component {
         </div>
 
         <div className='buttons wizard-steps'>
-          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+          {this.props.org && !this.props.org.isConfigured &&
+            this.props.completed && this.props.completed.length < 4
+            ? <button onClick={() => this.props.setStep(3)} className='button is-primary'>Atrás</button>
+            : <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+          }
           <button
             disabled={this.state.disableBtn}
-            onClick={() => this.props.nextStep({ ...this.state.data, dates: this.state.dates })}
+            onClick={() => this.next()}
             className='button is-primary'>
-            Guardar
+            {this.props.org && !this.props.org.isConfigured &&
+              this.props.completed && this.props.completed.length < 4
+              ? 'Siguente' : 'Guardar'
+            }
           </button>
         </div>
       </div>
