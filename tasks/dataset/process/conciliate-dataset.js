@@ -182,7 +182,9 @@ const task = new Task(
       await dataset.save()
 
       project.mainDataset.set({
-        status: 'ready'
+        status: 'ready',
+        dateMax: maxDate.format('YYYY-MM-DD'),
+        dateMin: minDate.format('YYYY-MM-DD')
       })
       await project.mainDataset.save()
 
@@ -192,7 +194,7 @@ const task = new Task(
         dateMin: minDate
       })
 
-      project.save()
+      await project.save()
 
       log(`Successfully conciliated dataset ${dataset.name} into project ${project.name}`)
     } catch (e) {

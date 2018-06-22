@@ -268,7 +268,6 @@ class WeekTable extends Component {
                    onChange={(e) => { this.onChange(e, row.weeks[j])}}
                    onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
                    tabIndex={row.tabin}
-                   max='99999'
                    placeholder='0'
                    ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
                  />
@@ -390,7 +389,7 @@ class WeekTable extends Component {
   }
 
   onChange = (e, row) => {
-    if(e.target.value.length<=5){
+    if(e.target.value.length <= 7){
       row.adjustmentForDisplay = Number(e.target.value)
       let aux = this.state.filteredDataByWeek
 

@@ -234,7 +234,7 @@ userSchema.methods.sendInviteEmail = async function () {
   const UserToken = mongoose.model('UserToken')
   let userToken = await UserToken.create({
     user: this._id,
-    validUntil: moment().add(24, 'hours').utc(),
+    validUntil: moment().add(10, 'days').utc(),
     type: 'invite'
   })
 
@@ -257,7 +257,7 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
   const UserToken = mongoose.model('UserToken')
   let userToken = await UserToken.create({
     user: this._id,
-    validUntil: moment().add(24, 'hours').utc(),
+    validUntil: moment().add(10, 'days').utc(),
     type: 'reset'
   })
   let url = process.env.APP_HOST

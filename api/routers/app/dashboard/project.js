@@ -40,16 +40,20 @@ module.exports = new Route({
     }
 
     var matchCond
-    if (currentRole.slug === 'manager-level-2') {
+    if (
+        currentRole.slug === 'manager-level-1' ||
+        currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'consultor'
+    ) {
       var userGroups = []
       for (var g of user.groups) {
         userGroups.push(ObjectId(g))
       }
 
-      const salesCenters = await SalesCenter.find({groups: {$in: userGroups}}).select({'_id': 1})
+      const salesCenters = await SalesCenter.find({groups: {$elemMatch: { '$in': userGroups }}}).select({'_id': 1})
       const matchSalesCenters = salesCenters.map(item => { return item._id })
 
-      const channels = await Channel.find({groups: {$in: userGroups}}).select({'_id': 1})
+      const channels = await Channel.find({groups: {$elemMatch: { '$in': userGroups }}}).select({'_id': 1})
       const matchChannels = channels.map(item => { return item._id })
       matchCond = {
         '$match': {
@@ -72,7 +76,6 @@ module.exports = new Route({
             '$in': datasets
           },
           'isDeleted': false
-
         }
       }
     }
@@ -120,6 +123,14 @@ module.exports = new Route({
     ]
 
     var datasetRow = await DataSetRow.aggregate(statement)
+
+    if (datasetRow.length === 0) {
+      return ctx.body = {
+        channels: [],
+        products: [],
+        salesCenters: []
+      }
+    }
 
     ctx.body = {
       channels: datasetRow[0].channels,

@@ -121,81 +121,75 @@ class OrganizationDetail extends Component {
       <div>
         <div className='section-header'>
           <h2>{organization.name}</h2>
-      </div>
-            <Breadcrumb
-              path={[
-                {
-                  path: '/',
-                  label: 'Inicio',
-                  current: false
-                },
-                {
-                  path: '/organizations/',
-                  label: 'Detalle',
-                  current: true
-                },
-                {
-                  path: '/organizations/',
-                  label: organization.name,
-                  current: true
-                }
-              ]}
-              align='left'
-            />
+        </div>
+        <Breadcrumb
+          path={[
+            {
+              path: '/',
+              label: 'Inicio',
+              current: false
+            },
+            {
+              path: '/organizations/',
+              label: organization.name,
+              current: true
+            }
+          ]}
+          align='left'
+        />
         <div className='section is-paddingless-top pad-sides'>
 
-            <div className='columns'>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Detalle
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <OrganizationForm
-                          baseUrl='/app/organizations'
-                          url={'/app/organizations/' + this.props.match.params.uuid}
-                          initialState={this.state.organization}
-                          load={this.load.bind(this)}
-                          submitHandler={(data) => this.submitHandler(data)}
-                          errorHandler={(data) => this.errorHandler(data)}
-                          finishUp={(data) => this.finishUpHandler(data)}
-                        >
-                          <div className='field is-grouped'>
-                            <div className='control'>
-                              <button
-                                className={'button is-primary ' + this.state.isLoading}
-                                disabled={!!this.state.isLoading}
-                                type='submit'
-                              >Guardar</button>
-                            </div>
+          <div className='columns'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                    Detalle
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <OrganizationForm
+                        baseUrl='/app/organizations'
+                        url={'/app/organizations/' + this.props.match.params.uuid}
+                        initialState={this.state.organization}
+                        load={this.load.bind(this)}
+                        submitHandler={(data) => this.submitHandler(data)}
+                        errorHandler={(data) => this.errorHandler(data)}
+                        finishUp={(data) => this.finishUpHandler(data)}
+                      >
+                        <div className='field is-grouped'>
+                          <div className='control'>
+                            <button
+                              className={'button is-primary ' + this.state.isLoading}
+                              disabled={!!this.state.isLoading}
+                              type='submit'
+                            >Guardar</button>
                           </div>
-                        </OrganizationForm>
-                      </div>
+                        </div>
+                      </OrganizationForm>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className='column'>
-                <div className='card'>
-                  <header className='card-header'>
-                    <p className='card-header-title'>
-                      Usuarios
-                    </p>
-                  </header>
-                  <div className='card-content'>
-                    <div className='columns'>
-                      <div className='column'>
-                        <BranchedPaginatedTable
-                          branchName='users'
-                          baseUrl='/app/users'
-                          columns={this.getColumns()}
-                          filters={{organization: this.props.match.params.uuid}}
-                         />
-                      </div>
+            </div>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                    Usuarios
+                  </p>
+                </header>
+                <div className='card-content'>
+                  <div className='columns'>
+                    <div className='column'>
+                      <BranchedPaginatedTable
+                        branchName='users'
+                        baseUrl='/app/users'
+                        columns={this.getColumns()}
+                        filters={{organization: this.props.match.params.uuid}}
+                       />
                     </div>
                   </div>
                 </div>
@@ -203,7 +197,7 @@ class OrganizationDetail extends Component {
             </div>
           </div>
         </div>
-      
+      </div>
     )
   }
 }
@@ -218,7 +212,7 @@ export default Page({
   path: '/manage/organizations/:uuid',
   title: 'User details',
   exact: true,
-  roles: 'admin, orgadmin, analyst, consultor',
+  roles: 'admin, orgadmin, analyst',
   validate: [loggedIn, verifyRole],
   component: branchedOrganizationDetail
 })
