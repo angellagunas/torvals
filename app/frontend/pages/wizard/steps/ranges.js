@@ -106,6 +106,16 @@ class Ranges extends Component {
 
     return inputs
   }
+
+  next () {
+    if (this.props.org && !this.props.org.isConfigured &&
+      this.props.completed && this.props.completed.length < 4) {
+      this.props.nextStep({ ranges: this.state.ranges, rangesLvl2: this.state.rangesLvl2 }, 4)
+    } else {
+      this.props.nextStep({ ranges: this.state.ranges, rangesLvl2: this.state.rangesLvl2 }, 1)
+    }
+  }
+
   render () {
     let rules = this.props.rules
     return (
@@ -157,8 +167,19 @@ class Ranges extends Component {
         </div>
 
         <div className='buttons wizard-steps'>
-          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
-          <button onClick={() => this.props.nextStep({ ranges: this.state.ranges, rangesLvl2: this.state.rangesLvl2 })} className='button is-primary'>Guardar</button>
+          {this.props.org && !this.props.org.isConfigured &&
+            this.props.completed && this.props.completed.length < 4
+            ? <button onClick={() => this.props.setStep(2)} className='button is-primary'>Atrás</button>
+            : <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+          }
+          <button
+            onClick={() => this.next()}
+            className='button is-primary'>
+            {this.props.org && !this.props.org.isConfigured &&
+              this.props.completed && this.props.completed.length < 4
+              ? 'Siguente' : 'Guardar'
+            }
+          </button>
         </div>
 
       </div>

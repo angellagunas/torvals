@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const {DataSetRow, AdjustmentRequest, Role} = require('models')
+const {DataSetRow, AdjustmentRequest, Role, UserReport, Cycle, DataSet} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -47,12 +47,13 @@ module.exports = new Route({
 
       currentRole = role.toPublic()
     }
+    let dataSet
 
     for (let row of datasetRows) {
       let auxData = hashTable[row.uuid]
       if (parseFloat(auxData.adjustmentForDisplay) !== parseFloat(auxData.adjustment)) {
         row.data.adjustment = auxData.adjustmentForDisplay
-        row.data.updatedBy = ctx.state.user
+        row.updatedBy = ctx.state.user
         row.status = 'adjusted'
         row.markModified('data')
         await row.save()
@@ -61,7 +62,32 @@ module.exports = new Route({
           await AdjustmentRequest.findOneAndRemove({'datasetRow': row._id})
         }
 
+        dataSet = row.dataset
+
         uuidsAux.push({uuid: row.uuid})
+      }
+    }
+
+    if (dataSet) {
+      const userReport = await UserReport.findOne({
+        user: ctx.state.user,
+        dataset: dataSet
+      })
+      if (!userReport) {
+        const dataset = await DataSet.findOne({_id: dataSet})
+        const cycle = await Cycle.getCurrent(ctx.state.organization._id, dataset.rule)
+
+        await UserReport.create({
+          user: ctx.state.user,
+          dataset: dataSet,
+          project: dataset.project,
+          cycle: cycle._id
+        })
+      } else {
+        userReport.set({
+          status: 'in-progress'
+        })
+        await userReport.save()
       }
     }
 

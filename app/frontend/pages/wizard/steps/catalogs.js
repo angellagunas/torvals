@@ -15,6 +15,12 @@ class Catalogs extends Component {
           disabled: true
         },
         {
+          title: 'Precio',
+          value: 'precio',
+          checked: false,
+          disabled: true
+        },
+        {
           title: 'Centro de venta',
           value: 'centro-de-venta',
           checked: false
@@ -58,11 +64,6 @@ class Catalogs extends Component {
           title: 'Ruta',
           value: 'ruta',
           checked: false
-        },
-        {
-          title: 'Precio',
-          value: 'precio',
-          checked: false
         }
 
       ],
@@ -103,7 +104,7 @@ class Catalogs extends Component {
         }
       }
     }).filter((item) => { return item })
-    this.props.nextStep({catalogs})
+    this.props.nextStep({catalogs}, 1)
   }
 
   componentWillMount () {
@@ -208,8 +209,19 @@ class Catalogs extends Component {
           </div>
         </div>
         <div className='buttons wizard-steps'>
-          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
-          <button onClick={() => this.sendCatalogs()} className='button is-primary'>Guardar</button>
+          {this.props.org && !this.props.org.isConfigured &&
+            this.props.completed && this.props.completed.length < 4
+            ? <button onClick={() => this.props.setStep(4)} className='button is-primary'>Atrás</button>
+            : <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+          }
+          <button
+            onClick={() => this.sendCatalogs()}
+            className='button is-primary'>
+            {this.props.org && !this.props.org.isConfigured &&
+              this.props.completed && this.props.completed.length < 4
+              ? 'Siguente' : 'Guardar'
+            }
+          </button>
         </div>
       </div>
     )

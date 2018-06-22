@@ -9,10 +9,7 @@ module.exports = new Route({
   path: '/:uuid/configure',
   validator: lov.object().keys({
     isDate: lov.string().required(),
-    isAnalysis: lov.string().required(),
-    isProduct: lov.string().required(),
-    isSalesCenter: lov.string().required(),
-    isChannel: lov.string().required()
+    isAnalysis: lov.string().required()
   }),
   handler: async function (ctx) {
     const body = ctx.request.body

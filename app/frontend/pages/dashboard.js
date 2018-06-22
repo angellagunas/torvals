@@ -14,6 +14,7 @@ import Graph from '~base/components/graph'
 import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import { toast } from 'react-toastify'
+import Wizard from './wizard/wizard';
 
 class Dashboard extends Component {
   constructor (props) {
@@ -35,7 +36,6 @@ class Dashboard extends Component {
 
     this.currentRole = tree.get('user').currentRole.slug
     this.rules = tree.get('rule')
-
   }
 
   componentWillMount () {
@@ -705,7 +705,11 @@ class Dashboard extends Component {
   render () {
     const user = this.context.tree.get('user')
 
-
+    if (!user.currentOrganization.isConfigured) {
+      return(
+        <Wizard rules={this.rules} org={user.currentOrganization}/>
+      )
+    }
 
     const {
       loading
