@@ -16,8 +16,8 @@ module.exports = new Route({
   method: 'get',
   path: '/filters/dataset/:uuid',
   handler: async function (ctx) {
-    var datasetId = ctx.params.uuid
-    var filters = {}
+    const datasetId = ctx.params.uuid
+    let filters = {}
 
     const dataset = await DataSet.findOne({
       'uuid': datasetId,
@@ -28,7 +28,7 @@ module.exports = new Route({
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     const user = ctx.state.user
-    var currentRole
+    let currentRole
     const currentOrganization = user.organizations.find(orgRel => {
       return ctx.state.organization._id.equals(orgRel.organization._id)
     })
@@ -39,24 +39,25 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
-    if (
-      currentRole.slug === 'manager-level-1' ||
-      currentRole.slug === 'manager-level-2' ||
-      currentRole.slug === 'consultor-level-2' ||
-      currentRole.slug === 'consultor-level-3' ||
-      currentRole.slug === 'manager-level-3'
-    ) {
-      var groups = user.groups
+    const permissionsList = [
+      'manager-level-1',
+      'manager-level-2',
+      'manager-level-3',
+      'consultor-level-2',
+      'consultor-level-3'
+    ]
+    if (permissionsList.includes(currentRole.slug)) {
+      const groups = user.groups
 
       filters['groups'] = {$elemMatch: { '$in': groups }}
       filters['organization'] = currentOrganization.organization._id
     }
 
-    var products = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('product')
-    var channels = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('channel')
-    var salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
-    var cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
-    var catalogItems = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('catalogItems')
+    let products = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('product')
+    let channels = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('channel')
+    let salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
+    let cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
+    let catalogItems = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('catalogItems')
 
     cycles = await Cycle.find({
       organization: ctx.state.organization,
@@ -84,11 +85,12 @@ module.exports = new Route({
     let catalogsResponse = []
 
     for (let catalog of catalogs) {
-      catalogsResponse[catalog._id] = []
+      catalogsResponse[catalog.slug] = []
     }
 
     for (let item of catalogItems) {
-      catalogsResponse[item.catalog].push(item)
+      await item.populate('catalog').execPopulate()
+      catalogsResponse[item.catalog.slug].push(item)
     }
 
     ctx.body = {
