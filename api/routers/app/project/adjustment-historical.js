@@ -8,7 +8,8 @@ const {
   Channel,
   SalesCenter,
   Role,
-  CatalogItem
+  CatalogItem,
+  DataSet
 } = require('models')
 
 module.exports = new Route({
@@ -59,7 +60,7 @@ module.exports = new Route({
     }
 
     if (data.catalogItems) {
-      const catalogItems = await CatalogItem.find({
+      let catalogItems = await CatalogItem.find({
         uuid: { $in: data.catalogItems }
       }).select({ '_id': 1 })
       initialMatch['catalogItems'] = {
@@ -67,28 +68,25 @@ module.exports = new Route({
       }
     }
 
+    const datasets = await DataSet.find({
+      project: project._id,
+      isDeleted: false
+    })
+
+    data.datasets = datasets.map((item) => {
+      return item._id
+    })
+
     let match = [{
       '$match': {
-        ...initialMatch
-      }
-    }, {
-      '$lookup': {
-        'from': 'datasets',
-        'localField': 'dataset',
-        'foreignField': '_id',
-        'as': 'datasetInfo'
-      }
-    },
-    {
-      '$match': {
-        'datasetInfo.isDeleted': false,
-        'datasetInfo.source': 'adjustment'
+        ...initialMatch,
+        dataset: {$in: data.datasets}
       }
     },
     {
       '$group': {
         '_id': {
-          'dataset': '$datasetInfo.uuid',
+          'dataset': '$dataset',
           'date': '$data.forecastDate'
         },
         'prediction': {
@@ -130,6 +128,7 @@ module.exports = new Route({
         totalSale += response.sale
       }
     }
+
     let mape = 0
     if (totalSale !== 0) {
       mape = Math.abs((totalSale - totalPrediction) / totalSale) * 100
