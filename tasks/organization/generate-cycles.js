@@ -115,7 +115,7 @@ const task = new Task(
           /*
            * validate that period is in the season, and make sure the extraDate is in a period
            */
-          if(periodEndDate.isAfter(seasonEndDate)){
+          if(periodEndDate.isSameOrAfter(seasonEndDate)){
             let periodExists = await Period.findOne({
               dateStart: periodStartDate,
               dateEnd: periodEndDate,
