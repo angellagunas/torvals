@@ -85,7 +85,7 @@ const task = new Task(
     }
 
     let periodStartDate = moment(firstStartDate)
-    let periodEndDate = (periodStartDate).add(periodDuration, period).subtract(1, 'd')
+    let periodEndDate = moment(periodStartDate).add(periodDuration, period).subtract(1, 'd')
 
     let periodNumber = 1
     let cycleNumber = 1
@@ -93,13 +93,19 @@ const task = new Task(
     let cycleEndDate = moment(cycleStartDate).add(cycleDuration, cycle).subtract(1, 'd')
 
     while(lastEndDate.isSameOrAfter(periodStartDate)) {
-        const cycleInstance = await Cycle.create({
+        const cycleObj = {
           organization: organization._id,
           dateStart: cycleStartDate,
           dateEnd: cycleEndDate,
           cycle: cycleNumber,
           rule: rule._id
-        })
+        }
+
+        let cycleInstance = await Cycle.findOne(cycleObj)
+
+        if(!cycleInstance){
+            cycleInstance = await Cycle.create(cycleObj)
+        }
 
         while(cycleEndDate.isSameOrAfter(periodStartDate)) {
           if (periodEndDate.isAfter(cycleEndDate) && !takeStart){
@@ -110,14 +116,23 @@ const task = new Task(
            * validate that period is in the season, and make sure the extraDate is in a period
            */
           if(periodEndDate.isAfter(seasonEndDate)){
-            await Period.create({
-              organization: organization._id,
+            let periodExists = await Period.findOne({
               dateStart: periodStartDate,
-              dateEnd: seasonEndDate,
-              cycle: cycleInstance,
-              period: periodNumber,
-              rule: rule._id
+              dateEnd: periodEndDate,
+              rule: rule._id,
+              organization: organization._id
             })
+
+            if(!periodExists){
+              await Period.create({
+                organization: organization._id,
+                dateStart: periodStartDate,
+                dateEnd: seasonEndDate,
+                cycle: cycleInstance,
+                period: periodNumber,
+                rule: rule._id
+              })
+            }
 
             periodStartDate = moment(seasonEndDate).add(1, 'd')
             periodEndDate = moment(periodStartDate).add(periodDuration, period).subtract(1, 'd')
@@ -128,14 +143,26 @@ const task = new Task(
             break
           }
 
-          await Period.create({
-            organization: organization._id,
+          let periodExists = await Period.findOne({
             dateStart: periodStartDate,
             dateEnd: periodEndDate,
-            cycle: cycleInstance,
-            period: periodNumber,
-            rule: rule._id
+            rule: rule._id,
+            organization: organization._id
           })
+
+          /*
+           * create the period only if does not exists
+           */
+          if(!periodExists){
+            await Period.create({
+              organization: organization._id,
+              dateStart: periodStartDate,
+              dateEnd: periodEndDate,
+              cycle: cycleInstance,
+              period: periodNumber,
+              rule: rule._id
+            })
+          }
 
           periodStartDate = moment(periodStartDate).add(periodDuration, period)
           periodEndDate = moment(periodStartDate).add(periodDuration, period).subtract(1, 'd')
