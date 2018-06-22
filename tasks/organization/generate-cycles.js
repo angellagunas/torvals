@@ -63,33 +63,36 @@ const task = new Task(
       takeStart
     } = rule
 
+
     const firstStartDate = moment(startDate).subtract(season, cycle)
     let seasonEndDate = moment(firstStartDate).add(season, cycle).subtract(1, 'd')
 
+    const extraDate = argv.extraDate ? argv.extraDate : firstStartDate
+
+    /*
+     * find that extraDate is and season range if the extraDate is past
+     */
+    while (firstStartDate.isAfter(extraDate)){
+        firstStartDate = (firstStartDate).add(season, cycle)
+    }
+
     const cyclesToFuture = (moment().month() + 1) + parseInt(cyclesAvailable)
     const lastStartDate = moment(startDate).add(cyclesToFuture, cycle)
-    const lastEndDate = moment(lastStartDate).add(cycleDuration, cycle).subtract(1, 'd')
+    let lastEndDate = moment(lastStartDate).add(cycleDuration, cycle).subtract(1, 'd')
 
-    let periodStartDate = moment(startDate)
-    let periodEndDate
-    let isNext
-    /*
-     * Find the start date of the first period
-     */
-    do {
-      periodEndDate = moment(periodStartDate).subtract(1, 'd')
-      periodStartDate = moment(periodStartDate).subtract(periodDuration, period)
-      isNext = !(firstStartDate.isSameOrAfter(periodStartDate) && firstStartDate.isSameOrAfter(periodEndDate)) 
-    } while (isNext)
+    while (extraDate.isAfter(lastEndDate)){
+        lastEndDate = moment(lastEndDate).add(cycleDuration, cycle)
+    }
+
+    let periodStartDate = moment(firstStartDate)
+    let periodEndDate = (periodStartDate).add(periodDuration, period).subtract(1, 'd')
 
     let periodNumber = 1
     let cycleNumber = 1
-    let cycleStartDate = periodStartDate
-    let cycleEndDate
+    let cycleStartDate = moment(periodStartDate)
+    let cycleEndDate = moment(cycleStartDate).add(cycleDuration, cycle).subtract(1, 'd')
 
     while(lastEndDate.isSameOrAfter(periodStartDate)) {
-        cycleEndDate = moment(cycleStartDate).add(cycleDuration, cycle).subtract(1, 'd')
-
         const cycleInstance = await Cycle.create({
           organization: organization._id,
           dateStart: cycleStartDate,
@@ -99,11 +102,14 @@ const task = new Task(
         })
 
         while(cycleEndDate.isSameOrAfter(periodStartDate)) {
-          if (periodEndDate.isSameOrAfter(cycleEndDate) && !takeStart){
+          if (periodEndDate.isAfter(cycleEndDate) && !takeStart){
             break
           }
 
-          if(periodEndDate.isSameOrAfter(seasonEndDate)){
+          /*
+           * validate that period is in the season, and make sure the extraDate is in a period
+           */
+          if(periodEndDate.isAfter(seasonEndDate)){
             await Period.create({
               organization: organization._id,
               dateStart: periodStartDate,
