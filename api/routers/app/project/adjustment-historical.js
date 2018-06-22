@@ -91,13 +91,14 @@ module.exports = new Route({
 
     const datasets = await DataSet.find({
       project: project._id,
-      isDeleted: false,
-      source: 'adjustment'
+      isDeleted: false
     })
 
     data.datasets = datasets.map((item) => {
       return item._id
     })
+
+    console.log(data.datasets)
 
     let match = [{
       '$match': {
