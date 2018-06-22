@@ -2,7 +2,7 @@
 require('co-mocha')
 
 const { assert, expect } = require('chai')
-const { Channel, Product, SalesCenter, DataSetRow, CatalogItem } = require('models')
+const { Channel, Product, SalesCenter, DataSetRow, CatalogItem, Rule } = require('models')
 const {
   clearDatabase,
   createCycles,
@@ -11,6 +11,7 @@ const {
   createOrganization,
   createProject,
   createFileChunk,
+  createFullOrganization,
   createDatasetRows
 } = require('../utils')
 
@@ -26,31 +27,10 @@ describe('Save datasets rows', () => {
   describe('with csv file with 3 products', () => {
     it('should add catalogItems on each row', async function () {
       const user = await createUser()
-      const token = await user.createToken({type: 'session'})
-      const jwt = token.getJwt()
-
-      const org = await createOrganization({rules: {
-        startDate: '2018-01-01T00:00:00',
-        cycleDuration: 1,
-        cycle: 'M',
-        period: 'M',
-        periodDuration: 1,
-        season: 12,
-        cyclesAvailable:6,
-        catalogs: [
-          "producto"
-        ],
-        ranges: [0, 0, 0, 0, 0, 0],
-        takeStart: true,
-        consolidation: 26,
-        forecastCreation: 1,
-        rangeAdjustment: 1,
-        rangeAdjustmentRequest: 1,
-        salesUpload : 1
-      }})
-
-      await createCycles({organization: org._id})
-      await generatePeriods.run({uuid: org.uuid})
+      const org = await createFullOrganization({
+        period: 'M'
+      })
+      const rule = await Rule.findOne({organization: org._id})
 
       const project = await createProject({
         organization: org._id,
@@ -60,7 +40,8 @@ describe('Save datasets rows', () => {
       const dataset = await createDataset({
         organization: org._id,
         createdBy: user._id,
-        project: project._id
+        project: project._id,
+        rule: rule._id
       })
 
       const chunk = await createFileChunk()

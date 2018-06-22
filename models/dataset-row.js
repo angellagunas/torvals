@@ -12,6 +12,7 @@ const datasetRowSchema = new Schema({
   salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
   channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
+  newProduct: { type: Schema.Types.ObjectId, ref: 'CatalogItem' },
   catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
   adjustmentRequest: { type: Schema.Types.ObjectId, ref: 'AdjustmentRequest' },
   cycle: { type: Schema.Types.ObjectId, ref: 'Cycle' },
@@ -61,6 +62,7 @@ datasetRowSchema.methods.toPublic = function () {
     organization: this.organization,
     project: this.project,
     product: this.product,
+    newProduct: this.newProduct,
     salesCenter: this.salesCenter,
     status: this.status,
     data: this.data,
@@ -76,6 +78,7 @@ datasetRowSchema.methods.toAdmin = function () {
     organization: this.organization,
     project: this.project,
     product: this.product,
+    newProduct: this.newProduct,
     salesCenter: this.salesCenter,
     status: this.status,
     data: this.data,
@@ -102,6 +105,24 @@ datasetRowSchema.index(
   },
   {background: true}
 )
+
+datasetRowSchema.index(
+  {
+    'dataset': 1,
+    'catalogItems': 1,
+    'cycle': 1
+  },
+  {background: true}
+)
+datasetRowSchema.index(
+  {
+    'dataset': 1,
+    'catalogItems': 1,
+    'period': 1
+  },
+  {background: true}
+)
+
 datasetRowSchema.set('autoIndex', true)
 
 module.exports = mongoose.model('DataSetRow', datasetRowSchema)

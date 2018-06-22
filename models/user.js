@@ -25,7 +25,6 @@ const userSchema = new Schema({
     organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
     role: { type: Schema.Types.ObjectId, ref: 'Role' },
     defaultProject: { type: Schema.Types.ObjectId, ref: 'Project' }
-
   }],
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
   profilePicture: {
@@ -234,7 +233,7 @@ userSchema.methods.sendInviteEmail = async function () {
   const UserToken = mongoose.model('UserToken')
   let userToken = await UserToken.create({
     user: this._id,
-    validUntil: moment().add(24, 'hours').utc(),
+    validUntil: moment().add(10, 'days').utc(),
     type: 'invite'
   })
 
@@ -257,7 +256,7 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
   const UserToken = mongoose.model('UserToken')
   let userToken = await UserToken.create({
     user: this._id,
-    validUntil: moment().add(24, 'hours').utc(),
+    validUntil: moment().add(10, 'days').utc(),
     type: 'reset'
   })
   let url = process.env.APP_HOST

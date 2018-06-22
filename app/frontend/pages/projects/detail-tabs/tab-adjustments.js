@@ -57,7 +57,9 @@ class TabAdjustment extends Component {
       quantity: 100,
       percentage: 1,
       error: false,
-      errorMessage: ''
+      errorMessage: '',
+      showAdjusted: true,
+      showNotAdjusted: true
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -87,31 +89,11 @@ class TabAdjustment extends Component {
     }
   }
 
-  async getCatalogFilters(){
-    let url = '/app/catalogItems/'
-    let filters = []
-    this.rules.catalogs.map(async item => {
-      if(item.slug !== 'producto'){
-        let res = await api.get(url + item.slug)
-        if(res){
-          let aux = this.state.filters
-          aux[item.slug] = res.data
-
-          this.setState({
-            filters:  aux
-          })
-        }
-      }
-    })
-  }
-
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       this.setState({ filtersLoading:true })
 
       const url = '/app/rows/filters/dataset/'
-
-      await this.getCatalogFilters()
 
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
@@ -138,14 +120,19 @@ class TabAdjustment extends Component {
         if (res.channels.length === 1) {
           formData.channel = res.channels[0].uuid
         }
+
+        for (let fil of Object.keys(res)) {
+          if (fil === 'cycles') continue
+
+          res[fil] = _.orderBy(res[fil], 'name')
+        }
+
         this.setState({
           filters: {
             ...this.state.filters,
-            channels: _.orderBy(res.channels, 'name'),
-            products: res.products,
-            salesCenters: _.orderBy(res.salesCenters, 'name'),
+            ...res,
+            cycles: cycles,
             categories: this.getCategory(res.products),
-            cycles: cycles
           },
           formData: formData,
           filtersLoading: false,
@@ -352,6 +339,19 @@ class TabAdjustment extends Component {
     })
   }
 
+  showRows(type, value){
+    if(type === 'showAdjusted'){
+      this.setState({
+        showAdjusted: value
+      }, () => { this.searchDatarows() })
+    }
+    else {
+      this.setState({
+        showNotAdjusted: value
+      }, () => { this.searchDatarows() })
+    }
+  }
+
   getModifyButtons () {
     return (
       <div className='columns'>
@@ -458,6 +458,20 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
+        <div className='column is-narrow show-rows'>
+          <Checkbox
+            label={<span title='Ajustados'>Ajustados</span>}
+            handleCheckboxChange={(e, value) => this.showRows('showAdjusted', value)}
+            checked={this.state.showAdjusted}
+            disabled={this.state.waitingData}
+          />
+          <Checkbox
+            label={<span title='No Ajustados'>No Ajustados</span>}
+            handleCheckboxChange={(e, value) => this.showRows('showNotAdjusted', value)}
+            checked={this.state.showNotAdjusted}
+            disabled={this.state.waitingData}
+          />
+        </div>
         <div className='column is-narrow'>
           <p style={{color: 'grey', paddingTop: '1.7rem', width: '.8rem'}}>
           {
@@ -734,8 +748,34 @@ getProductsSelected () {
 
   async searchDatarows() {
     if (this.state.searchTerm === '') {
+      let data = []
+
+      if(this.state.showAdjusted){
+        data = [
+          ...data,
+          ...this.state.dataRows.filter(item => {
+            if (item.wasEdited) {
+              return true
+            }
+            return false
+          })
+        ]
+      }
+
+      if (this.state.showNotAdjusted) {
+        data = [
+          ...data,
+          ...this.state.dataRows.filter(item => {
+            if (!item.wasEdited) {
+              return true
+            }
+            return false
+          })
+        ]
+      }
+
       this.setState({
-        filteredData: this.state.dataRows
+        filteredData: data.length > 0 ? data : this.state.dataRows
       })
       return
     }
@@ -750,9 +790,33 @@ getProductsSelected () {
       return false
     })
     // .filter(function(item){ return item != null });
+    let data = []
 
+    if (this.state.showAdjusted) {
+      data = [
+        ...data,
+        ...items.filter(item => {
+          if (item.wasEdited) {
+            return true
+          }
+          return false
+        })
+      ]
+    }
+
+    if (this.state.showNotAdjusted) {
+      data = [
+        ...data,
+        ...items.filter(item => {
+          if (!item.wasEdited) {
+            return true
+          }
+          return false
+        })
+      ]
+    }
     await this.setState({
-      filteredData: items
+      filteredData: data.length > 0 ? data : items
     })
   }
 
@@ -886,27 +950,22 @@ getProductsSelected () {
     let min
     let max
     let url = '/app/rows/download/' + this.props.project.uuid
-    var period = this.state.filters.periods.find(item => {
-      return item.number === this.state.formData.period
+
+    let cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === this.state.formData.cycle
     })
 
-    this.state.filters.dates.map((date) => {
-      if (period.maxSemana === date.week) {
-        max = date.dateEnd
-      }
-      if (period.minSemana === date.week) {
-        min = date.dateStart
-      }
-    })
+    min = cycle.dateStart
+    max = cycle.dateEnd
 
     try {
+      let formFilters = Object.assign({}, this.state.formData)
+      delete formFilters.cycle
+
       let res = await api.post(url, {
         start_date: moment(min).format('YYYY-MM-DD'),
         end_date:  moment(max).format('YYYY-MM-DD'),
-        salesCenter: this.state.formData.salesCenter,
-        channel: this.state.formData.channel,
-        product: this.state.formData.product,
-        category: this.state.formData.category
+        ...formFilters
       })
 
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
@@ -951,14 +1010,11 @@ getProductsSelected () {
     return moment.utc(cycle.dateStart).format('MMMM')
   }
 
-  findName = (name) => {
-    let find = ''
-    this.rules.catalogs.map(item => {
-      if(item.slug === name){
-        find = item.name
-      }
+  findName = (slug) => {
+    const find = this.rules.catalogs.find(item => {
+      return item.slug === slug
     })
-    return find
+    return find.name
   }
 
   makeFilters() {
@@ -966,13 +1022,18 @@ getProductsSelected () {
     for (const key in this.state.filters) {
       if (this.state.filters.hasOwnProperty(key)) {
         const element = this.state.filters[key];
-        if (key === 'cycles' ||
-          key === 'channels' ||
-          key === 'salesCenters' ||
-          key === 'categories' ||
-          key === 'products') {
+        const unwantedList = [
+          'cycles',
+          'channels',
+          'salesCenters',
+          'categories',
+          'products',
+          'producto'
+        ]
+        if (unwantedList.includes(key)) {
           continue
         }
+
         filters.push(
           <div key={key} className='level-item'>
             <Select
@@ -1144,57 +1205,7 @@ getProductsSelected () {
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
-            <div className='level-item'>
-              <Select
-                label='Categoría'
-                name='category'
-                value=''
-                placeholder='Todas'
-                options={this.state.filters.categories}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            </div>
 
-            <div className='level-item'>
-              {this.state.filters.channels.length === 1 ?
-                <div className='channel'>
-                  <span>Canal: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.channels[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Canal'
-                  name='channel'
-                  value=''
-                  placeholder='Todos'
-                  optionValue='uuid'
-                  optionName='name'
-                  options={this.state.filters.channels}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
-
-            <div className='level-item'>
-              {this.state.filters.salesCenters.length === 1 ?
-                <div className='saleCenter'>
-                  <span>Centro de Venta: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Centro de Venta'
-                  name='salesCenter'
-                  value={this.state.formData.salesCenter}
-                  optionValue='uuid'
-                  optionName='name'
-                  options={this.state.filters.salesCenters}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
           {this.state.filters &&
             this.makeFilters()
           }
@@ -1418,8 +1429,8 @@ getProductsSelected () {
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }} 
-                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
+                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
+                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
                       rules={this.rules}
                     />
                     :

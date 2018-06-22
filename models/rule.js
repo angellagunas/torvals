@@ -21,12 +21,9 @@ const rulesSchema = new Schema({
   rangeAdjustmentRequest: {type: Number},
   rangeAdjustment: {type: Number},
   salesUpload: {type: Number},
-  ranges: [{ type: Number }],
+  ranges: [{type: Number}],
   rangesLvl2: [{type: Number}],
-  catalogs: [{
-    name: { type: String },
-    slug: { type: String }
-  }],
+  catalogs: [{type: Schema.Types.ObjectId, ref: 'Catalog'}],
   organization: {type: Schema.Types.ObjectId, ref: 'Organization'},
   cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
   periods: [{type: Schema.Types.ObjectId, ref: 'Period'}],

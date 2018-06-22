@@ -50,27 +50,28 @@ class Wizard extends Component {
       })
     }
   }
+
   hideModal () {
-    this.setState({
-      modalClass: ''
-    })
+
   }
 
-  nextStep (data) {
+  setStep (step) {
+    this.setState({ currentStep: step })
+  }
+
+  nextStep (data, step) {
     if (data) {
       this.setState({
         rules: {
           ...this.state.rules,
           ...data,
-          step: this.state.currentStep
-        }
-      }, async () => {
+          step: step
+        },
+        unsaved: step === 1,
+        currentStep: step
       })
     }
-    let step = this.state.currentStep + 1
-    if (step >= this.tabs.length) {
-      step = this.tabs.length
-    }
+
     this.stepCompleted(step)
   }
 
@@ -151,59 +152,85 @@ class Wizard extends Component {
   render () {
     this.tabs = [
       {
-        name: '1',
+        name: '0',
         title: 'Organización',
-        hide: false,
+        hide: !(this.state.currentStep === 0),
+        disabled: !(this.state.currentStep === 0),
         content: (
-          <OrgInfo org={this.props.org} nextStep={() => this.nextStep()} />
+          <OrgInfo org={this.props.org} nextStep={() => this.setStep(2)} />
           )
+      },
+      {
+        name: '1',
+        title: 'Resumen',
+        hide: !(this.state.currentStep === 1),
+        disabled: !(this.state.currentStep === 1),
+        content: (
+          <div className='section'>
+            <Rules
+              org={this.props.org}
+              rules={this.state.rules}
+              setStep={(step) => this.setStep(step)}
+              save={() => { this.saveData() }}
+              unsaved={this.state.unsaved} />
+          </div>
+        )
       },
       {
         name: '2',
         title: 'Periodos',
-        hide: false,
-        disabled: !(this.state.stepsCompleted.length >= 1),
+        hide: !(this.state.currentStep === 2),
+        disabled: !(this.state.currentStep === 2),
         content: (
-          <Periods rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+          <Periods
+            org={this.props.org}
+            rules={this.state.rules}
+            nextStep={(data, step) => this.nextStep(data, step)}
+            setStep={(step) => this.setStep(step)}
+            completed={this.state.stepsCompleted} />
           )
       }, {
         name: '3',
         title: 'Rangos',
-        hide: false,
+        hide: !(this.state.currentStep === 3),
+        disabled: !(this.state.currentStep === 3),
         reload: true,
-        disabled: !(this.state.stepsCompleted.length >= 2),
         content: (
-          <Ranges rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+          <Ranges
+            org={this.props.org}
+            rules={this.state.rules}
+            nextStep={(data, step) => this.nextStep(data, step)}
+            setStep={(step) => this.setStep(step)}
+            completed={this.state.stepsCompleted} />
           )
       },
       {
         name: '4',
         title: 'Ciclos de operación',
-        hide: false,
-        disabled: !(this.state.stepsCompleted.length >= 3),
+        hide: !(this.state.currentStep === 4),
+        disabled: !(this.state.currentStep === 4),
         content: (
-          <DeadLines startDate={this.state.rules.startDate} rules={this.state.rules} nextStep={(data) => this.nextStep(data)} />
+          <DeadLines
+            org={this.props.org}
+            startDate={this.state.rules.startDate}
+            rules={this.state.rules}
+            nextStep={(data, step) => this.nextStep(data, step)}
+            setStep={(step) => this.setStep(step)}
+            completed={this.state.stepsCompleted} />
           )
       },
       {
         name: '5',
         title: 'Catálogos de Ventas',
-        hide: false,
-        disabled: !(this.state.stepsCompleted.length >= 4),
+        hide: !(this.state.currentStep === 5),
+        disabled: !(this.state.currentStep === 5),
         content: (
-          <Catalogs nextStep={(data) => this.nextStep(data)} />
-          )
-      },
-      {
-        name: '6',
-        title: 'Finalizar',
-        hide: false,
-        disabled: !(this.state.stepsCompleted.length >= 5),
-        content: (
-          <div className='section'>
-            <Rules rules={this.state.rules} />
-
-          </div>
+          <Catalogs
+            org={this.props.org}
+            rules={this.props.rules}
+            nextStep={(data, step) => this.nextStep(data, step)}
+            setStep={(step) => this.setStep(step)}
+            completed={this.state.stepsCompleted} />
           )
       }
     ]
@@ -215,7 +242,9 @@ class Wizard extends Component {
           className={this.state.modalClass}
           hideModal={this.hideModal} >
           <div className='section-header'>
-            <h2>Wizard</h2>
+            <h2><figure className='image'>
+              <img className='logo' src='/app/public/img/oraxh.svg' />
+            </figure></h2>
           </div>
           <div className='container'>
             <Tabs

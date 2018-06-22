@@ -7,18 +7,12 @@ import Dashboard from '../pages/dashboard'
 import Users from '../pages/users/list'
 import Groups from '../pages/groups/list'
 import Projects from '../pages/projects/list'
-import SalesCenters from '../pages/salesCenters/list'
-import Products from '../pages/products/list'
-import Channels from '../pages/channel/list'
 import Calendar from '../pages/calendar'
-import Prices from '../pages/prices/list'
 import UsersImport from '../pages/import/users'
-import SalesCentersImport from '../pages/import/sales-centers'
-import ChannelsImport from '../pages/import/channels'
-import ProductsImport from '../pages/import/products'
 import Catalogs from '../pages/catalog/list'
 import HistoricReport from '../pages/reports/historic'
 import StatusReport from '../pages/reports/status'
+import DownloadReport from '../pages/reports/download'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -162,10 +156,6 @@ class Sidebar extends Component {
           roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
-            Prices.asSidebarItem(),
-            SalesCenters.asSidebarItem(),
-            Products.asSidebarItem(),
-            Channels.asSidebarItem(),
             ...this.catalogs()
           ]
         },
@@ -175,10 +165,7 @@ class Sidebar extends Component {
           to: '/import',
           roles: 'orgadmin, admin, manager-level-3',
           dropdown: [
-            UsersImport.asSidebarItem(),
-            SalesCentersImport.asSidebarItem(),
-            ProductsImport.asSidebarItem(),
-            ChannelsImport.asSidebarItem()
+            UsersImport.asSidebarItem()
           ]
         },
         {
@@ -189,7 +176,8 @@ class Sidebar extends Component {
           opened: false,
           dropdown: [
             StatusReport.asSidebarItem(),
-            HistoricReport.asSidebarItem()
+            HistoricReport.asSidebarItem(),
+            DownloadReport.asSidebarItem()
           ]
         }
       ]

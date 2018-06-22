@@ -1,7 +1,6 @@
 const Route = require('lib/router/route')
-const { Rule, Organization, Period, Project } = require('models')
+const { Catalog, Organization, Period, Project, Rule } = require('models')
 const moment = require('moment')
-const slugify = require('underscore.string/slugify')
 const generateCycles = require('tasks/organization/generate-cycles')
 
 module.exports = new Route({
@@ -61,6 +60,27 @@ module.exports = new Route({
     let findProductsCatalog = data.catalogs.find(item => { return item.slug === 'producto' || item.slug === 'productos' })
     if (findProductsCatalog === undefined) { ctx.throw(422, 'Se debe de agregar un catálogo de productos') }
 
+    let catalogsData = []
+    for (let catalog of data.catalogs) {
+      let catalogObj = await Catalog.findOne({
+        slug: catalog.slug,
+        organization: organizationId
+      })
+
+      if (!catalogObj) {
+        catalogObj = await Catalog.create({
+          name: catalog.name,
+          slug: catalog.slug,
+          organization: organizationId
+        })
+      }
+
+      catalogObj.set({ isDeleted: false })
+      await catalogObj.save()
+      catalogsData.push(catalogObj._id)
+    }
+    data.catalogs = catalogsData
+
     let previousRule = await Rule.findOne({isCurrent: true, organization: organizationId})
 
     let version = (previousRule) ? previousRule.version + 1 : 1
@@ -96,7 +116,12 @@ module.exports = new Route({
 
     await rule.save()
 
+    rule = await Rule.findOne({_id: rule._id}).populate('catalogs')
+
     await Project.update({organization: org._id}, {outdated: true}, {multi: true})
+
+    org.set({ isConfigured: true })
+    await org.save()
 
     ctx.body = {
       rules: rule,

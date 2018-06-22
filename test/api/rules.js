@@ -8,7 +8,28 @@ const api = require('api/')
 const request = require('supertest')
 const {DataSet, Organization, User} = require('models')
 
-const { organizationFixture } = require('../fixtures')
+const rule = {
+  startDate: '2018-01-01T00:00:00',
+  cycleDuration: 1,
+  cycle: 'M',
+  period: 'M',
+  periodDuration: 1,
+  season: 12,
+  cyclesAvailable:6,
+  catalogs: [
+    {
+      name: 'producto',
+      slug: 'producto'
+    }
+  ],
+  ranges: [0, 0, 0, 0, 0, 0],
+  takeStart: true,
+  consolidation: 26,
+  forecastCreation: 1,
+  rangeAdjustment: 1,
+  rangeAdjustmentRequest: 1,
+  salesUpload : 1
+}
 
 function test () {
   return request(http.createServer(api.callback()))
@@ -21,17 +42,17 @@ describe('organizations/rules/:uuid', () => {
 
   describe('with extra data', () => {
     it('should not save a extra fields', async function () {
-      const org = await Organization.create({rules: {}, slug:'test-org'})
+      const org = await Organization.create({slug:'test-org'})
 
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      rules = Object.assign(organizationFixture.rules, {extraField: 'random value'})
+      rules = Object.assign(rule, {extraField: 'random value'})
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}`)
-        .send(organizationFixture.rules)
+        .post(`/api/app/rules` )
+        .send(rule)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
         .set('Referer', 'http://test-org.orax.com')
@@ -45,14 +66,14 @@ describe('organizations/rules/:uuid', () => {
 
   describe('with invalid organization', () => {
     it('should return a 404 status code', async function () {
-      const org = await Organization.create({rules: {}, slug:'test-org'})
+      const org = await Organization.create({slug:'test-org'})
       const user = await createUser()
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
       const response = await test()
-        .post(`/api/app/organizations/rules/a-invalid-uuid` )
-        .send(organizationFixture.rules)
+        .post(`/api/app/rules/invalid-uuid` )
+        .send(rule)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
         .set('Referer', 'http://test-org.orax.com')
@@ -66,17 +87,18 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}, slug:'test-org'})
+      const org = await Organization.create({slug:'test-org'})
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}` )
-        .send(organizationFixture.rules)
+        .post(`/api/app/rules` )
+        .send(rule)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
         .set('Referer', 'http://test-org.orax.com')
         .expect(200)
 
-      assert.exists(response.body.data.rules)
+      assert.exists(response.body.rules)
+      assert.exists(response.body.periods)
     })
   })
 
@@ -85,8 +107,8 @@ describe('organizations/rules/:uuid', () => {
       const org = await Organization.create({rules: {}, slug:'test-org'})
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}` )
-        .send(organizationFixture.rules)
+        .post(`/api/app/rules` )
+        .send(rule)
         .set('Accept', 'application/json')
         .set('Referer', 'http://test-org.orax.com')
         .expect(401)
@@ -99,12 +121,12 @@ describe('organizations/rules/:uuid', () => {
       const token = await user.createToken({type: 'session'})
       const jwt = token.getJwt()
 
-      const org = await Organization.create({rules: {}, slug:'test-org'})
-      const data = organizationFixture.rules
+      const org = await Organization.create({slug:'test-org'})
+      const data = rule
       data.periodDuration = "aString"
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}` )
+        .post(`/api/app/rules` )
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
@@ -118,11 +140,11 @@ describe('organizations/rules/:uuid', () => {
       const jwt = token.getJwt()
 
       const org = await Organization.create({rules: {}, slug:'test-org'})
-      const data = organizationFixture.rules
+      const data = rule
       data.periodDuration = -1
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}` )
+        .post(`/api/app/rules` )
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
@@ -136,11 +158,11 @@ describe('organizations/rules/:uuid', () => {
       const jwt = token.getJwt()
 
       const org = await Organization.create({rules: {}, slug:'test-org'})
-      const data = organizationFixture.rules
+      const data = rule
       data.cycleDuration = "aString"
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}` )
+        .post(`/api/app/rules` )
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
@@ -154,11 +176,11 @@ describe('organizations/rules/:uuid', () => {
       const jwt = token.getJwt()
 
       const org = await Organization.create({rules: {}, slug:'test-org'})
-      const data = organizationFixture.rules
+      const data = rule
       data.cycleDuration = -1
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}` )
+        .post(`/api/app/rules` )
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
@@ -172,11 +194,11 @@ describe('organizations/rules/:uuid', () => {
       const jwt = token.getJwt()
 
       const org = await Organization.create({rules: {}, slug:'test-org'})
-      const data = organizationFixture.rules
+      const data = rule
       data.season = "aString"
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}` )
+        .post(`/api/app/rules` )
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
@@ -190,11 +212,11 @@ describe('organizations/rules/:uuid', () => {
       const jwt = token.getJwt()
 
       const org = await Organization.create({rules: {}, slug:'test-org'})
-      const data = organizationFixture.rules
+      const data = rule
       data.season = -1
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}` )
+        .post(`/api/app/rules` )
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
@@ -208,11 +230,11 @@ describe('organizations/rules/:uuid', () => {
       const jwt = token.getJwt()
 
       const org = await Organization.create({rules: {}, slug:'test-org'})
-      const data = organizationFixture.rules
+      const data = rule
       data.startDate = "01-01-2018"
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}` )
+        .post(`/api/app/rules` )
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)
@@ -226,11 +248,11 @@ describe('organizations/rules/:uuid', () => {
       const jwt = token.getJwt()
 
       const org = await Organization.create({rules: {}, slug:'test-org'})
-      const data = organizationFixture.rules
+      const data = rule
       data.startDate = "01-01-2018"
 
       const response = await test()
-        .post(`/api/app/organizations/rules/${org.uuid}` )
+        .post(`/api/app/rules` )
         .send(data)
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${jwt}`)

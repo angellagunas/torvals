@@ -6,17 +6,14 @@ const path = require('path')
 const { execSync } = require('child_process')
 
 const Task = require('lib/task')
+const Logger = require('lib/utils/logger')
 const { DataSet, DataSetRow } = require('models')
 const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 const processDataset = require('queues/process-dataset')
 
 const task = new Task(
   async function (argv) {
-    let log = (args) => {
-      args = ('[save-dataset] ') + args
-
-      console.log(args)
-    }
+    const log = new Logger('save-dataset')
 
     var batchSize = 10000
     if (!argv.uuid) {
@@ -27,13 +24,13 @@ const task = new Task(
       try {
         batchSize = parseInt(argv.batchSize)
       } catch (e) {
-        log('Invalid batch size!')
+        log.call('Invalid batch size!')
       }
     }
 
-    log(`Fetching Dataset ${argv.uuid} ...`)
-    log(`Using batch size of ${batchSize}`)
-    log(`Start ==>  ${moment().format()}`)
+    log.call(`Fetching Dataset ${argv.uuid} ...`)
+    log.call(`Using batch size of ${batchSize}`)
+    log.call(`Start ==>  ${moment().format()}`)
 
     const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk').populate('uploadedBy')
     var bulkOps = []
@@ -49,7 +46,7 @@ const task = new Task(
       const filepath = path.join(fileChunk.path, fileChunk.filename)
 
       const rawLineCount = execSync(`wc -l < ${filepath}`)
-      log('Line count ===> ', parseInt(String(rawLineCount)))
+      log.call('Line count ===> ', parseInt(String(rawLineCount)))
 
       const lineCount = parseInt(String(rawLineCount)) - 1
       const pages = Math.ceil(lineCount / batchSize)
@@ -66,7 +63,7 @@ const task = new Task(
       var channelExternalId = dataset.getChannelColumn() || {name: ''}
 
       for (var i = 0; i < pages; i++) {
-        log(`${lineCount} => ${(i * batchSize) + 1} - ${(i * batchSize) + batchSize}`)
+        log.call(`${lineCount} => ${(i * batchSize) + 1} - ${(i * batchSize) + batchSize}`)
 
         let rawLine
 
@@ -112,8 +109,8 @@ const task = new Task(
             adjustment = parseInt(adjustment)
             prediction = parseInt(prediction)
           } catch (e) {
-            console.log('Error!')
-            console.log(e)
+            log.call('Error!')
+            log.call(e)
 
             continue
           }
@@ -149,12 +146,12 @@ const task = new Task(
 
         await DataSetRow.insertMany(bulkOps)
         bulkOps = []
-        log(`${batchSize} ops ==> ${moment().format()}`)
+        log.call(`${batchSize} ops ==> ${moment().format()}`)
       }
 
-      log(`Success! loaded ${lineCount} rows`)
+      log.call(`Success! loaded ${lineCount} rows`)
     } catch (e) {
-      log('Error! ' + e.message)
+      log.call('Error! ' + e.message)
       dataset.set({
         status: 'error',
         error: e.message
@@ -170,7 +167,7 @@ const task = new Task(
       return false
     }
 
-    log(`End ==> ${moment().format()}`)
+    log.call(`End ==> ${moment().format()}`)
 
     if (!argv.noNextStep) processDataset.add({uuid: dataset.uuid})
 

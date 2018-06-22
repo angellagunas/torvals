@@ -193,7 +193,7 @@ class PasswordUserForm extends Component {
         return item._id === this.state.formData.role
       })
       if (role && role.slug === 'manager-level-1') {
-        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        schema.properties['project'] = { type: 'string', title: 'Proyecto', enum: [], enumNames: [] }
         uiSchema['project'] = {'ui:widget': SelectWidget}
         schema.required.push('project')
       } else {

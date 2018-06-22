@@ -7,29 +7,28 @@ const {
   Channel,
   SalesCenter,
   Product,
-  AbraxasDate,
+  CatalogItem,
   Role,
-  Cycle,
-  Period
+  Cycle
 } = require('models')
 
 module.exports = new Route({
   method: 'get',
   path: '/filters/dataset/:uuid',
   handler: async function (ctx) {
-    var datasetId = ctx.params.uuid
-    var filters = {}
+    const datasetId = ctx.params.uuid
+    let filters = {}
 
     const dataset = await DataSet.findOne({
       'uuid': datasetId,
       'isDeleted': false,
       organization: ctx.state.organization
-    })
+    }).populate('rule')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     const user = ctx.state.user
-    var currentRole
+    let currentRole
     const currentOrganization = user.organizations.find(orgRel => {
       return ctx.state.organization._id.equals(orgRel.organization._id)
     })
@@ -40,23 +39,25 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
-    if (
-      currentRole.slug === 'manager-level-1' ||
-      currentRole.slug === 'manager-level-2' ||
-      currentRole.slug === 'consultor-level-2' ||
-      currentRole.slug === 'consultor-level-3' ||
-      currentRole.slug === 'manager-level-3'
-    ) {
-      var groups = user.groups
+    const permissionsList = [
+      'manager-level-1',
+      'manager-level-2',
+      'manager-level-3',
+      'consultor-level-2',
+      'consultor-level-3'
+    ]
+    if (permissionsList.includes(currentRole.slug)) {
+      const groups = user.groups
 
-      filters['groups'] = {$all: groups}
+      filters['groups'] = {$elemMatch: { '$in': groups }}
       filters['organization'] = currentOrganization.organization._id
     }
 
-    var products = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('product')
-    var channels = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('channel')
-    var salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
-    var cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
+    let products = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('product')
+    let channels = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('channel')
+    let salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
+    let cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
+    let catalogItems = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('catalogItems')
 
     cycles = await Cycle.find({
       organization: ctx.state.organization,
@@ -76,49 +77,23 @@ module.exports = new Route({
     channels = await Channel.find({ _id: { $in: channels }, ...filters })
     salesCenters = await SalesCenter.find({ _id: { $in: salesCenters }, ...filters })
     products = await Product.find({ _id: { $in: products } })
+    catalogItems = await CatalogItem.find({ _id: { $in: catalogItems }, type: {$ne: 'producto'}, ...filters })
 
-    let statement = [
-      {
-        '$match': {
-          'uuid': dataset.uuid
-        }
-      },
-      {
-        '$unwind': {
-          'path': '$catalogItems'
-        }
-      },
-      {
-        '$lookup': {
-          'from': 'catalogitems',
-          'localField': 'catalogItems',
-          'foreignField': '_id',
-          'as': 'catalogItem'
-        }
-      },
-      {
-        '$unwind': {
-          'path': '$catalogItem'
-        }
-      },
-      {
-        '$group': {
-          '_id': '$catalogItem.type',
-          'items': {
-            '$push': '$catalogItem'
-          }
-        }
-      }
-    ]
+    await dataset.rule.populate('catalogs').execPopulate()
 
-    let catalogs = await DataSet.aggregate(statement)
+    let catalogs = dataset.rule.catalogs
     let catalogsResponse = []
 
     for (let catalog of catalogs) {
-      catalogsResponse[catalog._id] = []
-      for (let item of catalog.items) {
-        catalogsResponse[catalog._id].push(item)
-      }
+      console.log(catalog)
+      catalogsResponse[catalog.slug] = []
+    }
+
+    for (let item of catalogItems) {
+      await item.populate('catalog').execPopulate()
+      console.log(item.catalog)
+      if (!catalogsResponse[item.catalog.slug]) continue
+      catalogsResponse[item.catalog.slug].push(item)
     }
 
     ctx.body = {

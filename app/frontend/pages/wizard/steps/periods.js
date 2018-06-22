@@ -273,8 +273,14 @@ class Periods extends Component {
   }
 
 
-  next(){
-    this.props.nextStep(this.state.timesSelected)
+  next() {
+    if (this.props.org && !this.props.org.isConfigured
+      && this.props.completed && this.props.completed.length < 4) {
+      this.props.nextStep(this.state.timesSelected, 3)
+    }
+    else {
+      this.props.nextStep(this.state.timesSelected, 1)
+    }
   }
 
   notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
@@ -624,12 +630,21 @@ class Periods extends Component {
 
         <br />
         <div className='buttons wizard-steps'>
+          {this.props.org && !this.props.org.isConfigured &&
+            this.props.completed && this.props.completed.length < 4
+            ? 
+            <button onClick={() => this.props.setStep(0)} className='button is-primary'>Atrás</button>
+          :
           <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+          }
           <button
             disabled={this.state.disableBtn}
             onClick={() => this.next()}
             className='button is-primary'>
-            Guardar
+            {this.props.org && !this.props.org.isConfigured 
+            && this.props.completed && this.props.completed.length < 4?
+            'Siguente' : 'Guardar'
+            }
           </button>
         </div>
   
