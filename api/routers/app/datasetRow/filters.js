@@ -85,11 +85,14 @@ module.exports = new Route({
     let catalogsResponse = []
 
     for (let catalog of catalogs) {
+      console.log(catalog)
       catalogsResponse[catalog.slug] = []
     }
 
     for (let item of catalogItems) {
       await item.populate('catalog').execPopulate()
+      console.log(item.catalog)
+      if (!catalogsResponse[item.catalog.slug]) continue
       catalogsResponse[item.catalog.slug].push(item)
     }
 
