@@ -63,7 +63,7 @@ module.exports = new Route({
     }
 
     if (data.channels) {
-      const channels = await Channel.filterByUserRole(
+      let channels = await Channel.filterByUserRole(
         { uuid: { $in: data.channels } },
         currentRole.slug,
         user
@@ -72,7 +72,7 @@ module.exports = new Route({
     }
 
     if (data.salesCenters) {
-      const salesCenters = await SalesCenter.filterByUserRole(
+      let salesCenters = await SalesCenter.filterByUserRole(
         { uuid: { $in: data.salesCenters } },
         currentRole.slug,
         user
@@ -81,7 +81,7 @@ module.exports = new Route({
     }
 
     if (data.catalogItems) {
-      const catalogItems = await CatalogItem.find({
+      let catalogItems = await CatalogItem.find({
         uuid: { $in: data.catalogItems }
       }).select({ '_id': 1 })
       initialMatch['catalogItems'] = {
@@ -97,8 +97,6 @@ module.exports = new Route({
     data.datasets = datasets.map((item) => {
       return item._id
     })
-
-    console.log(data.datasets)
 
     let match = [{
       '$match': {
