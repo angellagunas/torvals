@@ -84,11 +84,11 @@ module.exports = new Route({
     let catalogsResponse = []
 
     for (let catalog of catalogs) {
-      catalogsResponse[catalog.slug] = []
+      catalogsResponse[catalog._id] = []
     }
 
     for (let item of catalogItems) {
-      catalogsResponse[item.type].push(item)
+      catalogsResponse[item.catalog].push(item)
     }
 
     ctx.body = {
