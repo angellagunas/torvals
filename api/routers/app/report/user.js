@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 const _ = require('lodash')
-const { UserReport, User } = require('models')
+const { UserReport, User, Cycle, Project } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -9,25 +9,41 @@ module.exports = new Route({
     var data = ctx.request.body
 
     let initialMatch = {}
+
     if (data.users) {
-      initialMatch['userInfo.uuid'] = {
-        '$in': data.users
+      const users = await User.find({uuid: {$in: data.users}})
+      let usersIds = users.map((item) => {
+        return item._id
+      })
+      initialMatch['user'] = {
+        '$in': usersIds
       }
     }
 
     if (data.projects) {
-      initialMatch['projectInfo.uuid'] = {
-        '$in': data.projects
+      const projects = await Project.find({uuid: {$in: data.project}})
+      let projectsIds = projects.map((item) => {
+        return item._id
+      })
+      initialMatch['project'] = {
+        '$in': projectsIds
       }
     }
 
     if (data.cycles) {
-      initialMatch['cycleInfo.uuid'] = {
-        '$in': data.cycles
+      const cycles = await Cycle.find({uuid: {$in: data.cycles}})
+      let cyclesIds = cycles.map((item) => {
+        return item._id
+      })
+      initialMatch['cycle'] = {
+        '$in': cyclesIds
       }
     }
 
     var statement = [
+      {
+        '$match': { ...initialMatch }
+      },
       {
         '$lookup': {
           'from': 'users',
@@ -35,25 +51,6 @@ module.exports = new Route({
           'foreignField': '_id',
           'as': 'userInfo'
         }
-      },
-      {
-        '$lookup': {
-          'from': 'projects',
-          'localField': 'project',
-          'foreignField': '_id',
-          'as': 'projectInfo'
-        }
-      },
-      {
-        '$lookup': {
-          'from': 'cycles',
-          'localField': 'cycle',
-          'foreignField': '_id',
-          'as': 'cycleInfo'
-        }
-      },
-      {
-        '$match': { ...initialMatch }
       },
       {
         '$group': {
@@ -86,6 +83,7 @@ module.exports = new Route({
         return item.uuid
       })
     }
+
     const inactiveUsers = _.difference(data.users, activeUsers)
     report['inactive'] = inactiveUsers.length
 
