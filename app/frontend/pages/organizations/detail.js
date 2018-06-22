@@ -324,7 +324,7 @@ class OrganizationDetail extends Component {
           <Rules
             rules={this.state.rules}
             setStep={(step) => this.setStep(step)}
-            save={() => { this.saveData() }}
+            save={async () => { await this.saveData() }}
             unsaved={this.state.unsaved}
           />
         )

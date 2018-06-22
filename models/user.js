@@ -25,7 +25,6 @@ const userSchema = new Schema({
     organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
     role: { type: Schema.Types.ObjectId, ref: 'Role' },
     defaultProject: { type: Schema.Types.ObjectId, ref: 'Project' }
-
   }],
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
   profilePicture: {
