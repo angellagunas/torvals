@@ -210,7 +210,8 @@ class TabAnomalies extends Component {
           key === 'channels' ||
           key === 'salesCenters' ||
           key === 'categories' ||
-          key === 'products') {
+          key === 'products' ||
+          key === 'precio' ) {
           continue
         }
         filters.push(

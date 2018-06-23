@@ -1028,7 +1028,8 @@ getProductsSelected () {
           'salesCenters',
           'categories',
           'products',
-          'producto'
+          'producto',
+          'precio'
         ]
         if (unwantedList.includes(key)) {
           continue

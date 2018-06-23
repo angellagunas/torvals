@@ -1,7 +1,4 @@
 import React, { Component } from 'react'
-import { Redirect } from 'react-router-dom'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 import tree from '~core/tree'
 import _ from 'lodash'
@@ -20,13 +17,6 @@ class HistoricReport extends Component {
     super(props)
     this.state = {
       loading: true,
-      salesCentersCollapsed: true,
-      channelsCollapsed: true,
-      productsCollapsed: true,
-      allProjects: false,
-      allChannels: false,
-      allSalesCenters: false,
-      allProducts: false,
       totalAdjustment: 0,
       totalPrediction: 0,
       totalSale: 0,
@@ -38,9 +28,6 @@ class HistoricReport extends Component {
       projectSelected: ''
     }
     this.selectedProjects = {}
-    this.selectedSalesCenters = []
-    this.selectedChannels = []
-    this.selectedProducts = []
     this.selectedItems = []
 
     this.currentRole = tree.get('user').currentRole.slug
@@ -62,9 +49,6 @@ class HistoricReport extends Component {
     this.selectedProducts = []
     this.setState({
       filters: undefined,
-      salesCenters: undefined,
-      channels: undefined,
-      products: undefined,
       graphData: undefined,
       filteredData: undefined,
       mape: 0,
@@ -95,47 +79,6 @@ class HistoricReport extends Component {
     })
   }
 
-  async checkAllSC(value) {
-    let aux = this.state.salesCenters
-    this.selectedSalesCenters = []
-    for (const sc of aux) {
-      sc.selected = value
-
-      if (value) { this.selectedSalesCenters[sc.uuid] = sc.uuid }
-    }
-    await this.setState({
-      salesCenters: aux,
-      allSalesCenters: value
-    })
-  }
-
-  async checkAllChannels(value) {
-    let aux = this.state.channels
-    this.selectedChannels = []
-    for (const c of aux) {
-      c.selected = value
-      if (value) { this.selectedChannels[c.uuid] = c.uuid }
-    }
-    await this.setState({
-      channels: aux,
-      allChannels: value
-    })
-  }
-
-  async checkAllProducts(value) {
-    let aux = this.state.products
-    this.selectedProducts = []
-    for (const p of aux) {
-      p.selected = value
-
-      if (value) { this.selectedProducts[p.uuid] = p.uuid }
-    }
-    await this.setState({
-      products: aux,
-      allProducts: value
-    })
-  }
-
   async selectProject(project) {
     this.selectedProjects = {}
     this.selectedProjects[project.uuid] = project
@@ -144,51 +87,6 @@ class HistoricReport extends Component {
       projectSelected: project
     }, () => {
       this.getAll()
-    })
-  }
-
-  selectSalesCenter(e, value, project) {
-    if (value) {
-      this.selectedSalesCenters[project.uuid] = project.uuid
-    } else {
-      delete this.selectedSalesCenters[project.uuid]
-    }
-
-    project.selected = value
-
-    this.getGraph()
-    this.setState({
-      allSalesCenters: Object.keys(this.selectedSalesCenters).length === this.state.salesCenters.length
-    })
-  }
-
-  selectChannel(e, value, project) {
-    if (value) {
-      this.selectedChannels[project.uuid] = project.uuid
-    } else {
-      delete this.selectedChannels[project.uuid]
-    }
-
-    project.selected = value
-
-    this.getGraph()
-    this.setState({
-      allChannels: Object.keys(this.selectedChannels).length === this.state.channels.length
-    })
-  }
-
-  selectProduct(e, value, project) {
-    if (value) {
-      this.selectedProducts[project.uuid] = project.uuid
-    } else {
-      delete this.selectedProducts[project.uuid]
-    }
-
-    project.selected = value
-
-    this.getGraph()
-    this.setState({
-      allProducts: Object.keys(this.selectedProducts).length === this.state.products.length
     })
   }
 
@@ -209,15 +107,9 @@ class HistoricReport extends Component {
 
     this.setState({
       filters: res,
-      salesCenters: _.orderBy(res.salesCenters, 'name'),
-      channels: _.orderBy(res.channels, 'name'),
-      products: res.products,
       dateMin: moment.min(minD),
       dateMax: moment.max(maxD)
     }, async () => {
-      await this.checkAllChannels(true)
-      await this.checkAllSC(true)
-      await this.checkAllProducts(true)
       await this.getDates()
       this.getGraph()
     })
@@ -235,24 +127,6 @@ class HistoricReport extends Component {
       noData: undefined
     })
 
-    if (Object.keys(this.selectedChannels).length === 0) {
-      this.setState({
-        filteredData: undefined,
-        graphData: undefined,
-        noData: 'Debe seleccionar un canal'
-      })
-      return
-    }
-
-    else if (Object.keys(this.selectedSalesCenters).length === 0) {
-      this.setState({
-        filteredData: undefined,
-        graphData: undefined,
-        noData: 'Debe seleccionar un centro de venta'
-      })
-      return
-    }
-
     if (!this.state.waitingData) {
       try {
         let url = '/app/projects/adjustment/historical/' + this.state.projectSelected.uuid
@@ -262,10 +136,6 @@ class HistoricReport extends Component {
         let res = await api.post(url, {
           date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
           date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
-          channels: Object.values(this.selectedChannels),
-          salesCenters: Object.values(this.selectedSalesCenters),
-          //products: Object.values(this.selectedProducts),
-          //projects: Object.values(this.selectedProjects).map(p => p.uuid),
           catalogItems: Object.keys(this.selectedItems)
         })
 
@@ -360,34 +230,15 @@ class HistoricReport extends Component {
   }
 
   showFilter(filter) {
-    if (filter === 'salesCenters') {
-      this.setState({
-        salesCentersCollapsed: !this.state.salesCentersCollapsed,
-      })
-    } else if (filter === 'channels') {
-      this.setState({
-        channelsCollapsed: !this.state.channelsCollapsed,
-      })
-    } else if (filter === 'products') {
-      this.setState({
-        productsCollapsed: !this.state.productsCollapsed,
-      })
-    } else if (filter === 'years') {
-      this.setState({
-        yearsCollapsed: !this.state.yearsCollapsed,
-      })
-    }
-    else {
-      let catalogItems = this.state.catalogItems
-      catalogItems.map(item => {
-        if (item.type === filter) {
-          item.isOpen = !item.isOpen
-        }
-      })
-      this.setState({
-        catalogItems
-      })
-    }
+    let catalogItems = this.state.catalogItems
+    catalogItems.map(item => {
+      if (item.type === filter) {
+        item.isOpen = !item.isOpen
+      }
+    })
+    this.setState({
+      catalogItems
+    })
   }
 
   getColumns() {
@@ -685,7 +536,7 @@ class HistoricReport extends Component {
       catalogItems: filters
     }, () => {
       filters.map(item => {
-        if (item.type !== 'Producto') {
+        if (item.type !== 'Producto' && item.type !== 'Precio') {
           this.checkAllItems(item.selectAll, item.type)
         }
       })
@@ -743,14 +594,14 @@ class HistoricReport extends Component {
 
   makeFilters() {
     return this.state.catalogItems.map(item => {
-      if (item.type !== 'Producto') {
+      if (item.type !== 'Producto' && item.type !== 'Precio') {
         return (
           <li key={item.type} className='filters-item'>
             <div className={item.isOpen ? 'collapsable-title' : 'collapsable-title active'}
               onClick={() => { this.showFilter(item.type) }}>
               <a>
                 <span className='icon'>
-                  <i className={this.state.channelsCollapsed
+                  <i className={item.isOpen
                     ? 'fa fa-plus' : 'fa fa-minus'} />
                 </span>
                 {item.type} <strong>{item.objects && item.objects.length}</strong>
@@ -1009,127 +860,9 @@ class HistoricReport extends Component {
                     <div className='card-content'>
 
                       <ul>
-
-                        <li className='filters-item'>
-                          <div className={this.state.channelsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
-                            onClick={() => { this.showFilter('channels') }}>
-                            <a>
-                              <span className='icon'>
-                                <i className={this.state.channelsCollapsed
-                                  ? 'fa fa-plus' : 'fa fa-minus'} />
-                              </span>
-                              Canales <strong>{this.state.channels && this.state.channels.length}</strong>
-                            </a>
-                          </div>
-                          <aside className={this.state.channelsCollapsed
-                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
-                            <div>
-                              <Checkbox
-                                checked={this.state.allChannels}
-                                label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => {
-                                  this.checkAllChannels(value)
-                                  this.getGraph()
-                                }}
-                                key={'channel'}
-                                disabled={this.state.waitingData}
-                              />
-                            </div>
-                            <ul className='menu-list'>
-                              {this.state.channels &&
-                                this.state.channels.map((item) => {
-                                  if (!item.selected) {
-                                    item.selected = false
-                                  }
-                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
-
-                                  return (
-                                    <li key={item.uuid}>
-                                      <a>
-                                        <Checkbox
-                                          label={<span title={name}>{name}</span>}
-                                          handleCheckboxChange={(e, value) => this.selectChannel(e, value, item)}
-                                          key={item.uuid}
-                                          checked={item.selected}
-                                          disabled={this.state.waitingData}
-                                        />
-                                        {item.name === 'Not identified' &&
-                                          <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
-                                            <i className={this.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
-                                          </span>
-                                        }
-                                      </a>
-                                    </li>
-                                  )
-                                })
-                              }
-                            </ul>
-                          </aside>
-                        </li>
-
-                        <li className='filters-item'>
-                          <div className={this.state.salesCentersCollapsed ? 'collapsable-title' : 'collapsable-title active'}
-                            onClick={() => { this.showFilter('salesCenters') }}>
-                            <a>
-                              <span className='icon'>
-                                <i className={this.state.salesCentersCollapsed
-                                  ? 'fa fa-plus' : 'fa fa-minus'} />
-                              </span>
-                              Centros de Venta <strong>{this.state.salesCenters && this.state.salesCenters.length}</strong>
-                            </a>
-                          </div>
-                          <aside className={this.state.salesCentersCollapsed
-                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
-                            <div>
-                              <Checkbox
-                                checked={this.state.allSalesCenters}
-                                label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => {
-                                  this.checkAllSC(value)
-                                  this.getGraph()
-                                }}
-                                key={'salesCenter'}
-                                disabled={this.state.waitingData}
-                              />
-                            </div>
-                            <ul className='menu-list'>
-                              {this.state.salesCenters &&
-                                this.state.salesCenters.map((item) => {
-                                  if (!item.selected) {
-                                    item.selected = false
-                                  }
-                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.externalId + ' ' + item.name
-
-                                  return (
-                                    <li key={item.uuid}>
-                                      <a>
-                                        <Checkbox
-                                          label={<span title={name}>{name}</span>}
-                                          handleCheckboxChange={(e, value) => this.selectSalesCenter(e, value, item)}
-                                          key={item.uuid}
-                                          checked={item.selected}
-                                          disabled={this.state.waitingData}
-                                        />
-                                        {item.name === 'Not identified' &&
-                                          <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
-                                            <i className={this.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
-                                          </span>
-                                        }
-                                      </a>
-                                    </li>
-                                  )
-                                })
-                              }
-                            </ul>
-                          </aside>
-                        </li>
-
                         {this.state.catalogItems &&
                           this.makeFilters()
                         }
-
-
-
                       </ul>
                     </div>
                   </div>
@@ -1316,5 +1049,6 @@ export default Page({
   validate: loggedIn,
   component: HistoricReport,
   title: 'Histórico de ajustes',
-  icon: 'users'
+  icon: 'users',
+  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'  
 })

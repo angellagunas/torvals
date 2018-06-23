@@ -531,7 +531,7 @@ class TabHistorical extends Component {
       catalogItems: filters
     }, () => {
       filters.map(item => {
-        if (item.type !== 'Producto'){
+        if (item.type !== 'Producto' && item.type !== 'Precio'){
           this.checkAllItems(item.selectAll, item.type)
         }
       })
@@ -590,7 +590,7 @@ class TabHistorical extends Component {
 
   makeFilters() {
     return this.state.catalogItems.map(item => {
-      if(item.type !== 'Producto'){
+      if (item.type !== 'Producto' && item.type !== 'Precio'){
       return (
         <li key={item.type} className='filters-item'>
           <div className={item.isOpen ? 'collapsable-title' : 'collapsable-title active'}

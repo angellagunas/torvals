@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { DataSetRow } = require('models')
+const { DataSetRow, User, Project, CatalogItem, Cycle } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -9,54 +9,55 @@ module.exports = new Route({
 
     let initialMatch = {}
     if (data.users) {
-      initialMatch['userInfo.uuid'] = {
-        '$in': data.users
+      let users = await User.find({uuid: {$in: data.users}})
+      let usersIds = users.map((item) => {
+        return item._id
+      })
+      initialMatch['updatedBy'] = {
+        '$in': usersIds
       }
     }
 
     if (data.projects) {
-      initialMatch['projectInfo.uuid'] = {
-        '$in': data.projects
+      let projects = await Project.find({uuid: {$in: data.projects}})
+      let projectsIds = projects.map((item) => {
+        return item._id
+      })
+      initialMatch['project'] = {
+        '$in': projectsIds
       }
     }
 
     if (data.cycles) {
-      initialMatch['cycleInfo.uuid'] = {
-        '$in': data.cycles
+      let cycles = await Cycle.find({uuid: {$in: data.cycles}})
+      let cyclesIds = cycles.map((item) => {
+        return item._id
+      })
+      initialMatch['cycle'] = {
+        '$in': cyclesIds
       }
     }
 
     if (data.catalogItems) {
-      initialMatch['catalogInfo.uuid'] = {
-        '$in': data.catalogItems
+      let catalogItems = await CatalogItem.find({uuid: {$in: data.catalogItems}})
+      let catalogItemsIds = await catalogItems.map((item) => {
+        return item._id
+      })
+      initialMatch['catalogItems'] = {
+        '$in': catalogItemsIds
       }
     }
 
     var statement = [
       {
         '$match': {
+          ...initialMatch,
           'status': {
             '$ne': 'unmodified'
           },
           'updatedBy': {
             '$ne': null
           }
-        }
-      },
-      {
-        '$lookup': {
-          'from': 'projects',
-          'localField': 'project',
-          'foreignField': '_id',
-          'as': 'projectInfo'
-        }
-      },
-      {
-        '$lookup': {
-          'from': 'cycles',
-          'localField': 'cycle',
-          'foreignField': '_id',
-          'as': 'cycleInfo'
         }
       },
       {
@@ -69,23 +70,10 @@ module.exports = new Route({
       },
       {
         '$lookup': {
-          'from': 'catalogitems',
-          'localField': 'catalogItems',
-          'foreignField': '_id',
-          'as': 'catalogInfo'
-        }
-      },
-      {
-        '$lookup': {
           'from': 'adjustmentrequests',
           'localField': '_id',
           'foreignField': 'datasetRow',
           'as': 'adjustmentRequest'
-        }
-      },
-      {
-        '$match': {
-          ...initialMatch
         }
       },
       {
