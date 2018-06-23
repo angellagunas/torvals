@@ -45,9 +45,6 @@ module.exports = new Route({
       project: project._id
     }
 
-    data.channels = data.channels.sort()
-    data.salesCenters = data.salesCenters.sort()
-
     let start = moment(data.date_start, 'YYYY-MM-DD').utc()
     let end = moment(data.date_end, 'YYYY-MM-DD').utc()
 
@@ -60,24 +57,6 @@ module.exports = new Route({
 
     initialMatch['cycle'] = {
       $in: cycles.map(item => { return item._id })
-    }
-
-    if (data.channels) {
-      let channels = await Channel.filterByUserRole(
-        { uuid: { $in: data.channels } },
-        currentRole.slug,
-        user
-      )
-      initialMatch['channel'] = { $in: channels }
-    }
-
-    if (data.salesCenters) {
-      let salesCenters = await SalesCenter.filterByUserRole(
-        { uuid: { $in: data.salesCenters } },
-        currentRole.slug,
-        user
-      )
-      initialMatch['salesCenter'] = { $in: salesCenters }
     }
 
     if (data.catalogItems) {

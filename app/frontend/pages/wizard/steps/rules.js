@@ -196,7 +196,7 @@ class Rules extends Component {
                   <div className='column'>
                     <div className='has-text-centered' style={{marginTop: '2rem'}}>
                       <button
-                        className={'button is-medium is-success ' + this.state.isLoading}
+                        className={'button is-medium is-success save-btn ' + this.state.isLoading}
                         disabled={!!this.state.isLoading}
                         onClick={() => { this.save() }}
                       >

@@ -97,7 +97,7 @@ class Catalogs extends Component {
 
   sendCatalogs () {
     let catalogs = this.state.catalogs.map((item) => {
-      if (item.checked) {
+      if (item.checked && item.value !== 'precio') {
         return {
           name: item.title,
           slug: slugify(item.value)

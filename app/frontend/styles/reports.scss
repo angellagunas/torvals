@@ -1,23 +1,51 @@
 .historic-view {
+    .report-title {
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
+    .is-info-dark {
+        &-1 {
+            background: #6292c5;
+            .title,
+            .subtitle {
+                color: #fff !important;
+            }
+        }
+        &-2 {
+            background: #345f8f;
+            .title,
+            .subtitle {
+                color: #fff !important;
+            }
+        }
+    }
+}
 
-  .report-title {
-    margin-top: 5px;
-    margin-bottom: 10px;
-  }
-  .is-info-dark {
-    &-1 {
-      background: #6292c5;
-      .title,
-      .subtitle {
-        color: #fff !important;
-      }
+.status-report {
+    .level-item {
+        display: block;
+        font-size: 1rem;
     }
-    &-2 {
-      background: #345f8f;
-      .title,
-      .subtitle {
-        color: #fff !important;
-      }
+    .level-item:first-child {
+        margin-right: 1rem;
     }
-  }
+    .time {
+        margin: 0 1rem;
+        .num {
+            font-size: 2rem;
+            font-weight: 700;
+            color: $info;
+        }
+        .desc {
+            font-size: .8rem;
+            font-weight: 700;
+        }
+    }
+    .search-section {
+        margin-top: -1.5rem;
+    }
+}
+
+.filter-widget{
+    cursor: pointer;
 }
