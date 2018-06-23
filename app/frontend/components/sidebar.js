@@ -13,6 +13,7 @@ import Catalogs from '../pages/catalog/list'
 import HistoricReport from '../pages/reports/historic'
 import StatusReport from '../pages/reports/status'
 import DownloadReport from '../pages/reports/download'
+import Prices from '../pages/prices/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -156,6 +157,7 @@ class Sidebar extends Component {
           roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
+            Prices.asSidebarItem(),
             ...this.catalogs()
           ]
         },

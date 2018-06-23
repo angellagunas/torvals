@@ -40,7 +40,10 @@ class StatusRepórt extends Component {
         ready: 0,
         process: 0,
         alert: 0
-      }
+      },
+      filterReady: false,
+      filterProgress: false,
+      filterInactive: false,
     }
 
     this.currentRole = tree.get('user').currentRole.slug
@@ -366,8 +369,43 @@ class StatusRepórt extends Component {
 
   async searchDatarows() {
     if (this.state.searchTerm === '') {
+      let data = []
+
+      if (this.state.filterReady) {
+        data = [
+          ...data,
+          ...this.state.dataRows.filter(item => {
+            if (item.status === 'finished') {
+              return true
+            }
+            return false
+          })
+        ]
+      }
+      else if (this.state.filterProgress) {
+        data = [
+          ...data,
+          ...this.state.dataRows.filter(item => {
+            if (item.status === 'in-progress') {
+              return true
+            }
+            return false
+          })
+        ]
+      }
+      else if (this.state.filterInactive) {
+        data = [
+          ...data,
+          ...this.state.dataRows.filter(item => {
+            if (item.status === 'inactive') {
+              return true
+            }
+            return false
+          })
+        ]
+      }
       this.setState({
-        filteredData: this.state.dataRows
+        filteredData: data.length > 0 ? data : this.state.dataRows
       })
       return
     }
@@ -382,8 +420,42 @@ class StatusRepórt extends Component {
       return false
     })
 
+    if (this.state.filterReady) {
+      data = [
+        ...data,
+        ...items.filter(item => {
+          if (item.status === 'finished') {
+            return true
+          }
+          return false
+        })
+      ]
+    }
+    else if (this.state.filterProgress) {
+      data = [
+        ...data,
+        ...items.filter(item => {
+          if (item.status === 'in-progress') {
+            return true
+          }
+          return false
+        })
+      ]
+    }
+    else if (this.state.filterInactive) {
+      data = [
+        ...data,
+        ...items.filter(item => {
+          if (item.status === 'inactive') {
+            return true
+          }
+          return false
+        })
+      ]
+    }
+    
     await this.setState({
-      filteredData: items
+      filteredData: data.length > 0 ? data : items
     })
   }
 
@@ -494,6 +566,37 @@ class StatusRepórt extends Component {
     })
   }
 
+
+  filterUsers(type){
+    if(type === 1){
+      this.setState({
+        filterReady: !this.state.filterReady,
+        filterProgress: false,
+        filterInactive: false
+      }, () => {
+        this.searchDatarows()
+      })
+    }
+    else if (type === 2) {
+      this.setState({
+        filterReady: false,
+        filterProgress: !this.state.filterProgress,
+        filterInactive: false
+      }, () => {
+        this.searchDatarows()
+      })
+    }
+    else if (type === 3) {
+      this.setState({
+        filterReady: false,
+        filterProgress: false,
+        filterInactive: !this.state.filterInactive
+      }, () => {
+        this.searchDatarows()
+      })
+    }
+  }
+
   render () {
     return (
       <div className='status-report'>
@@ -549,7 +652,7 @@ class StatusRepórt extends Component {
         </div>
         <div className='section columns is-padingless-top'>
           <div className='column is-3'>
-            <div className='notification is-success'>
+            <div className='notification is-success filter-widget' onClick={() => { this.filterUsers(1) }}>
               <div className='level'>
                 <div className='level-left'>
                   <div className='level-item'>
@@ -566,7 +669,7 @@ class StatusRepórt extends Component {
             </div>
           </div>
           <div className='column is-3'>
-            <div className='notification is-info'>
+            <div className='notification is-info filter-widget' onClick={() => { this.filterUsers(2) }}>
               <div className='level'>
                 <div className='level-left'>
                   <div className='level-item'>
@@ -583,7 +686,7 @@ class StatusRepórt extends Component {
             </div>
           </div>
           <div className='column is-3'>
-            <div className='notification is-danger'>
+            <div className='notification is-danger filter-widget' onClick={() => { this.filterUsers(3) }}>
               <div className='level'>
                 <div className='level-left'>
                   <div className='level-item'>
