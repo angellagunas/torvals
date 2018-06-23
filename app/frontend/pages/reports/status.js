@@ -262,7 +262,7 @@ class StatusRepórt extends Component {
         url,
         {
           users: this.state.formData.user ? [this.state.formData.user] : undefined,
-          catalogItems: catalogItems,
+          catalogItems: catalogItems.length > 0 ? catalogItems : undefined,
           cycles: [cycle.uuid],
           projects: [this.state.projectSelected.uuid]
         }
@@ -289,73 +289,42 @@ class StatusRepórt extends Component {
     let cols = [
       {
         'title': 'Usuario',
-        'property': 'productName',
+        'property': 'user.name',
         'default': 'N/A',
-        'sortable': true
-      },
-      {
-        'title': 'Centro de venta',
-        'property': 'salesCenter',
-        'default': '0',
-        'sortable': true
+        'sortable': true,
+        formatter: (row) => {
+          return row.user[0].name
+        }
       },
       {
         'title': 'Ajustes por periodo',
-        'property': 'adjustment',
+        'property': 'total',
         'default': '0',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.adjustment) {
-            return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
-              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-            })
-          }
-        }
+        'sortable': true
       },
       {
         'title': 'Aprobados',
-        'property': 'adjustment',
+        'property': 'approved',
         'default': '0',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.adjustment) {
-            return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
-              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-            })
-          }
-        }
+        'sortable': true
       },
       {
         'title': 'Rechazados',
-        'property': 'adjustment',
+        'property': 'rejected',
         'default': '0',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.adjustment) {
-            return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
-              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-            })
-          }
-        }
+        'sortable': true
       },
       {
         'title': 'Pendientes',
-        'property': 'adjustment',
+        'property': 'created',
         'default': '0',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.adjustment) {
-            return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
-              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-            })
-          }
-        }
+        'sortable': true
       },
       {
         'title': 'Acciones',
         formatter: (row) => {
             return (
-              <Link className='button is-primary' to={'/projects/' + row.uuid}>
+              <Link className='button is-primary' to={'/manager/users/' + row.user.uuid}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>
@@ -683,7 +652,7 @@ class StatusRepórt extends Component {
               <div className='scroll-table-container'>
 
                 <BaseTable
-                  className='dash-table is-fullwidth'
+                  className='dash-table is-fullwidth status-table'
                   data={this.state.filteredData}
                   columns={this.getColumns()}
                   handleSort={(e) => { this.handleSort(e) }}
