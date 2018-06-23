@@ -5,15 +5,12 @@ const redis = require('lib/redis')
 const Route = require('lib/router/route')
 const {
   CatalogItem,
-  Channel,
   Cycle,
   DataSetRow,
   Period,
-  Product,
   Project,
   Role,
-  Rule,
-  SalesCenter
+  Rule
 } = require('models')
 
 const EXPIRATION = 60 * 60 * 24 * 4

@@ -11,7 +11,6 @@ const {
   Cycle,
   CatalogItem
 } = require('models')
-const ObjectId = require('mongodb').ObjectID
 
 module.exports = new Route({
   method: 'get',
@@ -143,8 +142,6 @@ module.exports = new Route({
       currentRole.slug === 'consultor-level-3' ||
       currentRole.slug === 'manager-level-3'
     ) {
-      var groups = user.groups
-
       if (catalogItemsFilters.length === 0) {
         let catalogItems = await CatalogItem.filterByUserRole(
           { _id: { $in: catalogItemsFilters } },
@@ -154,33 +151,33 @@ module.exports = new Route({
         filters['catalogItems'] = { '$in': catalogItems }
       }
 
-      if (!filters['salesCenter']) {
-        var salesCenters = []
+      // if (!filters['salesCenter']) {
+      //   var salesCenters = []
 
-        salesCenters = await SalesCenter.find({
-          groups: {$in: groups},
-          organization: ctx.state.organization._id
-        })
+      //   salesCenters = await SalesCenter.find({
+      //     groups: {$in: groups},
+      //     organization: ctx.state.organization._id
+      //   })
 
-        filters['salesCenter'] = {$in: salesCenters}
-      }
+      //   filters['salesCenter'] = {$in: salesCenters}
+      // }
 
-      if (!filters['channel']) {
-        var channels = []
+      // if (!filters['channel']) {
+      //   var channels = []
 
-        channels = await Channel.find({
-          groups: { $in: groups },
-          organization: ctx.state.organization._id
-        })
+      //   channels = await Channel.find({
+      //     groups: { $in: groups },
+      //     organization: ctx.state.organization._id
+      //   })
 
-        filters['channel'] = {$in: channels}
-      }
+      //   filters['channel'] = {$in: channels}
+      // }
     }
 
     console.log(filters)
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
-    .populate(['salesCenter', 'adjustmentRequest', 'channel', 'period', 'catalogItems'])
+    .populate(['adjustmentRequest', 'product', 'period', 'catalogItems'])
     .sort(ctx.request.query.sort || '-dateCreated')
 
     const AllPrices = await Price.find({'organization': ctx.state.organization._id})
@@ -189,11 +186,11 @@ module.exports = new Route({
       prices[price._id] = price.price
     }
 
-    const AllProducts = await Product.find({'organization': ctx.state.organization._id})
-    var productsArr = []
-    for (let product of AllProducts) {
-      productsArr[product._id] = {'name': product.name, 'externalId': product.externalId}
-    }
+    // const AllProducts = await Product.find({'organization': ctx.state.organization._id})
+    // var productsArr = []
+    // for (let product of AllProducts) {
+    //   productsArr[product._id] = {'name': product.name, 'externalId': product.externalId}
+    // }
 
     var auxRows = []
     for (let item of rows) {
@@ -202,12 +199,9 @@ module.exports = new Route({
       }
       auxRows.push({
         uuid: item.uuid,
-        salesCenter: item.salesCenter ? item.salesCenter.name : '',
-        productId: productsArr[item.product] ? productsArr[item.product].externalId : '',
-        productName: productsArr[item.product] ? productsArr[item.product].name : '',
+        productId: item.product ? item.product.externalId : '',
+        productName: item.product ? item.product.name : '',
         productPrice: prices[item.product.price] || '',
-        channel: item.channel ? item.channel.name : '',
-        channelId: item.channel ? item.channel.externalId : '',
         period: item.period,
         prediction: item.data.prediction,
         adjustment: item.data.adjustment,

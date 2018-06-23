@@ -2,14 +2,11 @@ const Route = require('lib/router/route')
 const moment = require('moment')
 const {
   CatalogItem,
-  Channel,
   Cycle,
   DataSetRow,
-  Product,
   Project,
   Role,
-  Rule,
-  SalesCenter
+  Rule
 } = require('models')
 const redis = require('lib/redis')
 const crypto = require('crypto')
@@ -170,7 +167,7 @@ module.exports = new Route({
     let products = allData.map(item => { return item._id.product })
     let previousProducts = previousSale.map(item => { return item._id.product })
     products = _.concat(products, previousProducts)
-    products = await Product.find({_id: {$in: products}})
+    products = await CatalogItem.find({_id: {$in: products}})
     let dataDict = {}
 
     for (let prod of products) {

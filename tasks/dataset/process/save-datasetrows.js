@@ -20,25 +20,11 @@ const task = new Task(
     log.call(`Start ==>  ${moment().format()}`)
 
     const dataset = await DataSet.findOne({uuid: argv.uuid})
-    .populate('channels products salesCenters cycles periods catalogItems')
-    .populate('project')
+    .populate('products cycles periods catalogItems project')
 
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
-
-    // log.call('Saving channels ...')
-    // for (let channel of dataset.channels) {
-    //   await DataSetRow.update({
-    //     dataset: dataset._id,
-    //     'data.channelExternalId': channel.externalId
-    //   }, {
-    //     channel: channel._id
-    //   }, {
-    //     multi: true
-    //   })
-    // }
-    // log.call('Channels successfully saved!')
 
     log.call('Saving products ...')
     for (let product of dataset.products) {
@@ -46,25 +32,12 @@ const task = new Task(
         dataset: dataset._id,
         'data.productExternalId': product.externalId
       }, {
-        newProduct: product._id
+        product: product._id
       }, {
         multi: true
       })
     }
     log.call('Products successfully saved!')
-
-    // log.call('Saving sales centers ...')
-    // for (let salesCenter of dataset.salesCenters) {
-    //   await DataSetRow.update({
-    //     dataset: dataset._id,
-    //     'data.salesCenterExternalId': salesCenter.externalId
-    //   }, {
-    //     salesCenter: salesCenter._id
-    //   }, {
-    //     multi: true
-    //   })
-    // }
-    // log.call('Sales centers successfully saved!')
 
     log.call('Saving catalog items ...')
     for (let catalogItems of dataset.catalogItems) {

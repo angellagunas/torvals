@@ -85,8 +85,6 @@ const task = new Task(
           'organization': project.organization,
           'project': project,
           'dataset': dataset._id,
-          'channel': row.channel,
-          'salesCenter': row.salesCenter,
           'product': row.product,
           'cycle': row.cycle,
           'period': row.period,
