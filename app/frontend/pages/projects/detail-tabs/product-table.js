@@ -162,11 +162,9 @@ class ProductTable extends Component {
         className: 'table-product productName',
         formatter: (row) => {
           let product = 'N/A'
-          row.catalogItems.map(obj => {
-            if (obj.catalog.slug === 'producto') {
-              product = obj.name
-            }
-          })
+          if (row.productName) {
+            product = row.productName
+          }
           if (product === 'Not identified') {
             product = 'No identificado'
           }

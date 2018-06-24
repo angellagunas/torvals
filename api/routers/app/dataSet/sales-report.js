@@ -67,17 +67,17 @@ module.exports = new Route({
       }
     }
 
-    if (data.channel) {
-      const channel = await Channel.findOne({uuid: data.channel})
-      ctx.assert(channel, 404, 'Canal no encontrado')
-      match['channel'] = channel._id
-    }
+    // if (data.channel) {
+    //   const channel = await Channel.findOne({uuid: data.channel})
+    //   ctx.assert(channel, 404, 'Canal no encontrado')
+    //   match['channel'] = channel._id
+    // }
 
-    if (data.product) {
-      const product = await Product.findOne({uuid: data.product})
-      ctx.assert(product, 404, 'Producto no encontrado')
-      match['product'] = product._id
-    }
+    // if (data.product) {
+    //   const product = await Product.findOne({uuid: data.product})
+    //   ctx.assert(product, 404, 'Producto no encontrado')
+    //   match['product'] = product._id
+    // }
 
     var statement = [
       {
@@ -101,8 +101,8 @@ module.exports = new Route({
       {
         '$lookup': {
           'from': 'prices',
-          'localField': 'products.price',
-          'foreignField': '_id',
+          'localField': 'products._id',
+          'foreignField': 'product',
           'as': 'prices'
         }
       },

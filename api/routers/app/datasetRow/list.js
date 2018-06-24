@@ -2,9 +2,6 @@ const Route = require('lib/router/route')
 const {
   DataSetRow,
   DataSet,
-  Product,
-  SalesCenter,
-  Channel,
   Role,
   Price,
   Period,
@@ -73,15 +70,6 @@ module.exports = new Route({
         continue
       }
 
-      // if (filter === 'category') {
-      //   var products = await Product.find({
-      //     'category': ctx.request.query[filter],
-      //     organization: dataset.organization
-      //   })
-      //   filters['product'] = { $in: products.map(item => { return item._id }) }
-      //   continue
-      // }
-
       if (filter === 'period') {
         const periods = await Period.find({uuid: {$in: ctx.request.query[filter]}})
         filters['period'] = { $in: periods.map(item => { return item._id }) }
@@ -111,17 +99,6 @@ module.exports = new Route({
       }
     }
 
-    // const catalogItems = await CatalogItem.filterByUserRole(
-    //   { uuid: { $in: data.catalogItems } },
-    //   currentRole.slug,
-    //   user
-    // )
-    // catalogItemsFilters = new Set(catalogItemsFilters)
-
-    // for (let cItem of catalogItems) {
-    //   catalogItemsFilters.add(cItem)
-    // }
-
     if (catalogItemsFilters.length > 0) {
       let catalogItems = await CatalogItem.filterByUserRole(
         { _id: { $in: catalogItemsFilters } },
@@ -130,8 +107,6 @@ module.exports = new Route({
       )
       filters['catalogItems'] = { '$all': catalogItems }
     }
-
-    console.log(filters.catalogItems)
 
     filters['dataset'] = dataset._id
 
@@ -150,31 +125,7 @@ module.exports = new Route({
         )
         filters['catalogItems'] = { '$in': catalogItems }
       }
-
-      // if (!filters['salesCenter']) {
-      //   var salesCenters = []
-
-      //   salesCenters = await SalesCenter.find({
-      //     groups: {$in: groups},
-      //     organization: ctx.state.organization._id
-      //   })
-
-      //   filters['salesCenter'] = {$in: salesCenters}
-      // }
-
-      // if (!filters['channel']) {
-      //   var channels = []
-
-      //   channels = await Channel.find({
-      //     groups: { $in: groups },
-      //     organization: ctx.state.organization._id
-      //   })
-
-      //   filters['channel'] = {$in: channels}
-      // }
     }
-
-    console.log(filters)
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
     .populate(['adjustmentRequest', 'product', 'period', 'catalogItems'])
@@ -186,16 +137,13 @@ module.exports = new Route({
       prices[price._id] = price.price
     }
 
-    // const AllProducts = await Product.find({'organization': ctx.state.organization._id})
-    // var productsArr = []
-    // for (let product of AllProducts) {
-    //   productsArr[product._id] = {'name': product.name, 'externalId': product.externalId}
-    // }
-
     var auxRows = []
     for (let item of rows) {
       for (let catalogItem of item.catalogItems) {
-        await catalogItem.populate('catalog').execPopulate()
+        await catalogItem.populate({
+          path: 'catalog',
+          options: { sort: { '_id': -1 } }
+        }).execPopulate()
       }
       auxRows.push({
         uuid: item.uuid,

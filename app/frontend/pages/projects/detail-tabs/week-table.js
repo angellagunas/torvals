@@ -180,11 +180,9 @@ class WeekTable extends Component {
         className: 'table-product productName',
         formatter: (row) => {
           let product = 'N/A'
-          row.weeks[0].catalogItems.map(obj => {
-            if (obj.catalog && obj.catalog.slug === 'producto') {
-                product = obj.name
-              }
-            })
+          if (row.product) {
+            product = row.product
+          }
           if (product === 'Not identified') {
             product = 'No identificado'
           }
@@ -437,15 +435,22 @@ class WeekTable extends Component {
     let rw = []
     for (let index = 0; index < data.length; index++) {
       const element = data[index];
-      let find = rw.indexOf(element.productId + ' (' + element.channel + ')')
+      let catItems = element.catalogItems.map(item => {return item.uuid})
+        .reduce((item, last) => {return last + ',' + item})
+
+      console.log(catItems)
+      let find = rw.indexOf(element.productId + ' (' + catItems + ')')
       if (find === -1) {
-        rw.push(element.productId + ' (' + element.channel + ')')
+        rw.push(element.productId + ' (' + catItems + ')')
       }
     }
 
     rw = rw.map((item) => {
       let weeks = _.orderBy(data.filter((element, index) => {
-          return element.productId + ' (' + element.channel + ')' === item
+        let catItems = element.catalogItems.map(item => {return item.uuid})
+          .reduce((item, last) => {return last + ',' + item})
+          
+          return element.productId + ' (' + catItems + ')' === item
         }), function (e) { return e.period.period }, ['asc'])
 
       let product = weeks[0].productName
