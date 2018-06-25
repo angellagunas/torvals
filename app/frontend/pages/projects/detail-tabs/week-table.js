@@ -438,7 +438,6 @@ class WeekTable extends Component {
       let catItems = element.catalogItems.map(item => {return item.uuid})
         .reduce((item, last) => {return last + ',' + item})
 
-      console.log(catItems)
       let find = rw.indexOf(element.productId + ' (' + catItems + ')')
       if (find === -1) {
         rw.push(element.productId + ' (' + catItems + ')')
@@ -482,13 +481,25 @@ class WeekTable extends Component {
     }
     else if(e.indexOf('_') !== -1){
       let sort = e.split('_')
-
       if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, function (e) { return e.weeks[parseInt(sort[1])][sort[0]] }, ['asc'])
-
+        sorted = _.orderBy(sorted, function (e) { 
+          if (e.weeks[parseInt(sort[1])]){
+            return e.weeks[parseInt(sort[1])][sort[0]] 
+          }
+          else{
+            return 0
+          }
+        }, ['asc'])
       }
       else {
-        sorted = _.orderBy(sorted, function (e) { return e.weeks[parseInt(sort[1])][sort[0]] }, ['desc'])
+        sorted = _.orderBy(sorted, function (e) { 
+          if (e.weeks[parseInt(sort[1])]) {
+            return e.weeks[parseInt(sort[1])][sort[0]]
+          }
+          else {
+            return 0
+          } 
+        }, ['desc'])
       }
     }
     else {
