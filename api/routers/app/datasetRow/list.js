@@ -149,7 +149,7 @@ module.exports = new Route({
         uuid: item.uuid,
         productId: item.product ? item.product.externalId : '',
         productName: item.product ? item.product.name : '',
-        productPrice: prices[item.product.price] || '',
+        productPrice: item.product ? prices[item.product.price] : '',
         period: item.period,
         prediction: item.data.prediction,
         adjustment: item.data.adjustment,

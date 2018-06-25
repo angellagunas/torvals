@@ -94,36 +94,39 @@ class Sidebar extends Component {
 
   catalogs () {
     let rules = this.state.rules
-    return rules.catalogs.map(item => {
-      let config =
-        {
-          name: item.name,
-          path: '/catalogs/' + item.slug,
-          title: item.name,
-          breadcrumbs: true,
-          breadcrumbConfig: {
-            path: [
-              {
-                path: '/',
-                label: 'Inicio',
-                current: false
-              },
-              {
-                path: '/catalogs/' + item.slug,
-                label: 'Catalogos',
-                current: true
-              }
-            ],
-            align: 'left'
-          },
-          branchName: item.slug,
-          titleSingular: item.name,
-          baseUrl: '/app/catalogItems/' + item.slug,
-          detailUrl: '/catalogs/' + item.slug
-        }
 
-      return Catalogs.opts(config).asSidebarItem()
-    })
+    return rules.catalogs.map(item => {
+      if (item.slug !== 'precio') {
+        let config =
+          {
+            name: item.name,
+            path: '/catalogs/' + item.slug,
+            title: item.name,
+            breadcrumbs: true,
+            breadcrumbConfig: {
+              path: [
+                {
+                  path: '/',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/catalogs/' + item.slug,
+                  label: 'Catalogos',
+                  current: true
+                }
+              ],
+              align: 'left'
+            },
+            branchName: item.slug,
+            titleSingular: item.name,
+            baseUrl: '/app/catalogItems/' + item.slug,
+            detailUrl: '/catalogs/' + item.slug
+          }
+
+        return Catalogs.opts(config).asSidebarItem()
+      }
+    }).filter(item => item)
   }
 
   getMenuItems () {
