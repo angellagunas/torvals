@@ -21,7 +21,7 @@ module.exports = new Route({
     }
 
     if (data.projects) {
-      const projects = await Project.find({uuid: {$in: data.project}})
+      const projects = await Project.find({uuid: {$in: data.projects}})
       let projectsIds = projects.map((item) => {
         return item._id
       })
@@ -68,11 +68,16 @@ module.exports = new Route({
     ]
 
     const stats = await UserReport.aggregate(statement)
-    let activeUsers = []
+    let finishedUsers = []
+    let inProgressUsers = []
     let report = {}
     for (let stat of stats) {
       for (let user of stat.users) {
-        activeUsers.push(user[0])
+        if (stat._id.status === 'finished') {
+          finishedUsers.push(user[0])
+        } else {
+          inProgressUsers.push(user[0])
+        }
       }
       report[stat._id.status] = stat.count
     }
@@ -83,9 +88,12 @@ module.exports = new Route({
         return item.uuid
       })
     }
-
-    const inactiveUsers = _.difference(data.users, activeUsers)
+    const inactiveUsers = _.difference(data.users, [...finishedUsers, ...inProgressUsers])
     report['inactive'] = inactiveUsers.length
+
+    report['inactiveUsers'] = inactiveUsers
+    report['finishedUsers'] = finishedUsers
+    report['inProgressUsers'] = inProgressUsers
 
     ctx.body = {
       data: report
