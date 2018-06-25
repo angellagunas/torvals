@@ -38,7 +38,8 @@ const task = new Task(async function (argv) {
     rangeAdjustmentRequest: 6,
     rangeAdjustment: 10,
     salesUpload: 3,
-    ranges: [0, 0, 10, 20, 30, null]
+    ranges: [0, 0, 10, 20, 30, null],
+    version: 1
   }
 
   for (let org of organizations) {
