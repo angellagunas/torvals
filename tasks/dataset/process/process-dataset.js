@@ -83,7 +83,7 @@ const task = new Task(
     }
 
     for (let catalog of dataset.rule.catalogs) {
-      if (catalog.slug === 'producto') continue
+      // if (catalog.slug === 'producto') continue
       rowData[catalog.slug] = rows[0][catalog.slug]
     }
 
