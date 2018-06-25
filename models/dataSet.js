@@ -80,7 +80,8 @@ const dataSetSchema = new Schema({
     outputValue: { type: String }
   }],
 
-  products: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
+  products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+  newProducts: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
   catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
   cycles: [{ type: Schema.Types.ObjectId, ref: 'Cycle' }],
   periods: [{ type: Schema.Types.ObjectId, ref: 'Period' }],
@@ -274,7 +275,7 @@ dataSetSchema.methods.recreateAndUploadFile = async function () {
 }
 
 dataSetSchema.methods.processData = async function () {
-  const { CatalogItem, Price } = require('models')
+  const { CatalogItem, Product, Price } = require('models')
 
   if (!this.apiData) return
 
@@ -286,9 +287,42 @@ dataSetSchema.methods.processData = async function () {
   this.catalogItems = []
 
   if (this.apiData.products) {
-    let catalog = this.rule.catalogs.find(item => { return item.slug === 'producto' })
     for (let data of this.apiData.products) {
       let pos = this.products.findIndex(item => {
+        return (
+          String(item.externalId) === String(data._id) &&
+          item.type === catalog.slug
+        )
+      })
+
+      if (pos < 0) {
+        let cItem = await Product.findOne({
+          externalId: data._id,
+          organization: this.organization._id
+        })
+
+        if (!cItem) {
+          cItem = await Product.create({
+            name: data['name'] ? data['name'] : 'Not identified',
+            externalId: String(data._id),
+            organization: this.organization,
+            isNewExternal: true
+          })
+        } else if (cItem.isNewExternal && data['name']) {
+          cItem.set({ name: data['name'] })
+          await cItem.save()
+        }
+
+        cItem.set({isDeleted: false})
+        await cItem.save()
+
+        this.products.push(cItem)
+      }
+    }
+
+    let catalog = this.rule.catalogs.find(item => { return item.slug === 'producto' })
+    for (let data of this.apiData.products) {
+      let pos = this.newProducts.findIndex(item => {
         return (
           String(item.externalId) === String(data._id) &&
           item.type === catalog.slug
@@ -319,7 +353,7 @@ dataSetSchema.methods.processData = async function () {
         cItem.set({isDeleted: false})
         await cItem.save()
 
-        this.products.push(cItem)
+        this.newProducts.push(cItem)
 
         let price = await Price.findOne({product: cItem._id})
         if (!price) {

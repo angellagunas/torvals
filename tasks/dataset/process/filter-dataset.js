@@ -86,6 +86,7 @@ const task = new Task(
           'project': project,
           'dataset': dataset._id,
           'product': row.product,
+          'newProduct': row.newProduct,
           'cycle': row.cycle,
           'period': row.period,
           'data': row.data,

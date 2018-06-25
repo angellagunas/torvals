@@ -20,19 +20,19 @@ const task = new Task(
     log.call(`Start ==>  ${moment().format()}`)
 
     const dataset = await DataSet.findOne({uuid: argv.uuid})
-    .populate('products cycles periods catalogItems project')
+    .populate('newProducts cycles periods catalogItems project')
 
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
 
     log.call('Saving products ...')
-    for (let product of dataset.products) {
+    for (let product of dataset.newProducts) {
       await DataSetRow.update({
         dataset: dataset._id,
         'data.productExternalId': product.externalId
       }, {
-        product: product._id
+        newProduct: product._id
       }, {
         multi: true
       })

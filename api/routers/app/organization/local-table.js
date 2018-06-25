@@ -84,7 +84,7 @@ module.exports = new Route({
       console.log('Error retrieving the cache')
     }
 
-    const key = { product: '$product' }
+    const key = { product: '$newProduct' }
     let initialMatch = {
       dataset: { $in: datasets }
     }

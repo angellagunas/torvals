@@ -62,6 +62,7 @@ const task = new Task(
             'dataset': dataset._id,
             'apiData': anomaly.apiData,
             'product': anomaly.product,
+            'newProduct': anomaly.newProduct,
             'cycle': anomaly.cycle,
             'period': anomaly.period,
             'data': {
