@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
@@ -15,7 +15,7 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import { toast } from 'react-toastify'
 
-export function DownloadWidget({ url, minDate, maxDate, project={}}) {
+export function DownloadWidget({ url, minMonth, maxMonth, project={}}) {
   return (
     <a
       href={url}
@@ -27,12 +27,10 @@ export function DownloadWidget({ url, minDate, maxDate, project={}}) {
       </div>
       <div className="download-text">
         <h3><strong> {project.name} </strong></h3>
-        <span>{`${minDate} / ${maxDate}`}</span>
+        <span>{`${minMonth} - ${maxMonth}`}</span>
       </div>
       <div className="download-icon">
-        <span className="icon">
-          <i className="fa fa-download" />
-        </span>
+        <img width="40px" src="/app/public/img/download.svg" alt="download icon"/>
       </div>
     </a>
   )
@@ -104,16 +102,56 @@ class DownloadReport extends Component {
     }, () => this.getData())
   }
 
-  async getData() {
-    const url = `/app/adjustmentDownloads/${this.state.projectSelected.uuid}`
-    const { data=[] } = await api.get(url)
+  capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1)
+  }
 
-    data.forEach(item => {
-      item.minDate = moment.utc(item.minDate).format('DD-MM-YYYY')
-      item.maxDate = moment.utc(item.maxDate).format('DD-MM-YYYY')
+  crateTestData() {
+    const base = i => ({
+      'organization':'5ae9ef852fda5d768d050e10',
+      'dateCreated':'2018-06-20T20:15:05.201Z',
+      'uuid': i + '64552621-8b5b-4c0f-9766-0785c88fff83',
+      'project':{
+        '_id':'5b2a896caf2254a9c525f8dd',
+        'name':'20 Jun'
+      },
+      'url':'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/datasets/7e8b361a-2804-472f-b768-56f276459ef7.csv',
+      'minDate':`2018-0${i}-01`,
+      'maxDate':`2018-0${i + 2}-01`
     })
 
-    this.setState({ data })
+    return [
+      base(1), base(1), base(1), base(1),
+      base(2), base(2), base(2),
+      base(3), base(3),
+      base(4)
+    ]
+  }
+
+  async getData() {
+    try {
+      const url = `/app/adjustmentDownloads/${this.state.projectSelected.uuid}`
+      const { data=[] } = await api.get(url)
+      const dataItems = []
+      const dataTest = this.crateTestData()
+
+      moment.locale('es')
+      dataTest.forEach(item => {
+        item.minMonth = this.capitalize(moment.utc(item.minDate).format('MMMM'))
+        item.maxMonth = this.capitalize(moment.utc(item.maxDate).format('MMMM YYYY'))
+
+        const index = dataItems.findIndex(it => it.month === item.minMonth)
+        if (index !== -1) {
+          dataItems[index].items.push(item)
+        } else {
+          dataItems.push({ month: item.minMonth, items: [item] })
+        }
+      })
+
+      this.setState({ data: dataItems })
+    } catch (error) {
+      this.notify('Algo salio mal al cargar los items', 5000, toast.TYPE.ERROR)
+    }
   }
 
   notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
@@ -255,9 +293,20 @@ class DownloadReport extends Component {
                         this.state.data.length > 0 ?
                           <div className="columns is-multiline">
                             {
-                              this.state.data.map(item => (
-                                <div className="column is-4">
-                                  <DownloadWidget {...item}/>
+                              this.state.data.map(dataItem => (
+                                <div key={dataItem.month}>
+                                  <div className="column">
+                                    <h3><strong> {dataItem.month} </strong></h3>
+                                    <div className="columns is-multiline">
+                                      {
+                                        dataItem.items.map(item => (
+                                          <div key={item.uuid} className="column">
+                                            <DownloadWidget {...item}/>
+                                          </div>
+                                        ))
+                                      }
+                                    </div>
+                                  </div>
                                 </div>
                               ))
                             }
