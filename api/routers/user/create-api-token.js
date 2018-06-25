@@ -9,7 +9,7 @@ module.exports = new Route({
   }),
   handler: async function (ctx) {
     const {user} = ctx.state
-    const {name} = ctx.request.body
+    const {name, organization} = ctx.request.body
 
     if (!user) {
       return ctx.throw(403)
@@ -21,7 +21,8 @@ module.exports = new Route({
 
     const token = await user.createToken({
       type: 'api',
-      name
+      name,
+      organization
     })
 
     ctx.body = {
