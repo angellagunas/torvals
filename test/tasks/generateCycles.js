@@ -3,7 +3,7 @@ require('co-mocha')
 
 const moment = require('moment')
 
-const { Cycle, Rule, Period, Project } = require('models')
+const { Cycle, Rule, Period, Project, Organization } = require('models')
 const { assert, expect } = require('chai')
 const { clearDatabase, createUser, createOrganization, createFullOrganization } = require('../utils')
 const { organizationFixture } = require('../fixtures')
@@ -73,6 +73,62 @@ describe('Generate cycles task', () => {
       })
 
       expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2018-01-28T06:00:00Z").toISOString())
+    })
+
+    it('and a extraDate before of first season should create two season before', async function () {
+      /*
+       * by default the startDate is 2018-01-01, so normally should create cycles from 2017-01-01,
+       * but if we pass a date before of it, should create a season before
+       */
+      const { addCyclesPeriodsToRule, createRules } = require('test/utils')
+      const generateCycles = require('tasks/organization/generate-cycles')
+      const { organizationFixture } = require('../fixtures')
+
+      let org = await Organization.create(Object.assign({}, organizationFixture, {}))
+      let rules = {organization: org._id}
+      let rule = await createRules(rules)
+
+      await generateCycles.run({uuid: org.uuid, rule: rule.uuid, extraDate: '2016-12-12'})
+
+      rule = await addCyclesPeriodsToRule({org: org._id, rule: rule.uuid})
+      await Project.update({organization: org._id}, {outdated: true}, {multi: true})
+
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = today.getMonth()
+      const day = today.getDate()
+      const cyclesAvailable = rule.cyclesAvailable
+
+      const firstCycle = await Cycle.findOne({
+        organization: org._id,
+        dateStart: new Date("2016-01-01T06:00:00Z").toISOString()
+      })
+
+      assert.exists(firstCycle)
+    })
+
+    it('and a extraDate after of last season should create a cycle after', async function () {
+      const { addCyclesPeriodsToRule, createRules } = require('test/utils')
+      const generateCycles = require('tasks/organization/generate-cycles')
+      const { organizationFixture } = require('../fixtures')
+
+      let org = await Organization.create(Object.assign({}, organizationFixture, {}))
+      let rules = {organization: org._id}
+      let rule = await createRules(rules)
+
+      await generateCycles.run({uuid: org.uuid, rule: rule.uuid})
+      rule = await addCyclesPeriodsToRule({org: org._id, rule: rule.uuid})
+      await Project.update({organization: org._id}, {outdated: true}, {multi: true})
+
+      const lastCycle = await Cycle.findOne({}).sort('-dateEnd').limit(1)
+      const originalTotalCycles = await Cycle.find({}).count()
+
+      const extraDate = moment(lastCycle.dateEnd).add(1, 'd')
+
+      await generateCycles.run({uuid: org.uuid, rule: rule.uuid, extraDate: extraDate})
+      const totalCycles = await Cycle.find({}).count()
+
+      expect(totalCycles).equals(originalTotalCycles + 1)
     })
   })
 

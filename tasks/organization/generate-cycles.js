@@ -1,4 +1,4 @@
-// node tasks/organization/generate-cycles.js --uuid
+// node tasks/organization/generate-cycles.js --uuid --rule --extraDate
 require('../../config')
 require('lib/databases/mongo')
 
@@ -64,16 +64,17 @@ const task = new Task(
     } = rule
 
 
-    const firstStartDate = moment(startDate).subtract(season, cycle)
+    let firstStartDate = moment(startDate).subtract(season, cycle)
     let seasonEndDate = moment(firstStartDate).add(season, cycle).subtract(1, 'd')
 
-    const extraDate = argv.extraDate ? argv.extraDate : firstStartDate
+    const extraDate = argv.extraDate ? moment(argv.extraDate) : firstStartDate
 
     /*
      * find that extraDate is and season range if the extraDate is past
      */
     while (firstStartDate.isAfter(extraDate)){
-        firstStartDate = (firstStartDate).add(season, cycle)
+        firstStartDate = moment(firstStartDate).subtract(season, cycle)
+        seasonEndDate = moment(firstStartDate).add(season, cycle).subtract(1, 'd')
     }
 
     const cyclesToFuture = (moment().month() + 1) + parseInt(cyclesAvailable)
@@ -93,17 +94,22 @@ const task = new Task(
     let cycleEndDate = moment(cycleStartDate).add(cycleDuration, cycle).subtract(1, 'd')
 
     while(lastEndDate.isSameOrAfter(periodStartDate)) {
-        const cycleObj = {
-          organization: organization._id,
-          dateStart: cycleStartDate,
-          dateEnd: cycleEndDate,
-          cycle: cycleNumber,
-          rule: rule._id
-        }
 
-        let cycleInstance = await Cycle.findOne(cycleObj)
+        let cycleInstance = await Cycle.findOne({
+          dateStart: {$gte: moment(cycleStartDate)},
+          organization: organization._id,
+          rule: rule._id,
+          cycle: cycleNumber
+        })
 
         if(!cycleInstance){
+            cycleObj = {
+              organization: organization._id,
+              dateStart: cycleStartDate,
+              dateEnd: cycleEndDate,
+              cycle: cycleNumber,
+              rule: rule._id
+            }
             cycleInstance = await Cycle.create(cycleObj)
         }
 
