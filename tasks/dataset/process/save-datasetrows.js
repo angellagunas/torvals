@@ -27,12 +27,12 @@ const task = new Task(
     }
 
     log.call('Saving products ...')
-    for (let product of dataset.products) {
+    for (let product of dataset.newProducts) {
       await DataSetRow.update({
         dataset: dataset._id,
         'data.productExternalId': product.externalId
       }, {
-        product: product._id
+        newProduct: product._id
       }, {
         multi: true
       })

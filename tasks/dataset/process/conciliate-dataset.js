@@ -91,6 +91,7 @@ const task = new Task(
         columns: dataset1.columns,
         catalogItems: dataset1.catalogItems,
         products: dataset1.products,
+        newProducts: dataset1.newProducts,
         // channels: dataset1.channels,
         isMain: true,
         groupings: dataset1.groupings,

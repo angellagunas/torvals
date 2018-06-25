@@ -40,7 +40,7 @@ const task = new Task(async function (argv) {
   if (!currentCatalogs) {
     currentCatalogs = []
     log.call('Catalogs not found. Creating...')
-    catalogs = [{
+    let catalogs = [{
       name: 'Producto',
       slug: 'producto'
     }, {
@@ -60,7 +60,6 @@ const task = new Task(async function (argv) {
       currentCatalogs.push(newCatalog)
     }
   }
-
 
   let rules = {
     startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),

@@ -134,7 +134,7 @@ module.exports = new Route({
     const AllPrices = await Price.find({'organization': ctx.state.organization._id})
     var prices = {}
     for (let price of AllPrices) {
-      prices[price._id] = price.price
+      prices[price.product] = price.price
     }
 
     var auxRows = []
@@ -149,7 +149,7 @@ module.exports = new Route({
         uuid: item.uuid,
         productId: item.product ? item.product.externalId : '',
         productName: item.product ? item.product.name : '',
-        productPrice: prices[item.product.price] || '',
+        productPrice: prices[item.product._id] || '',
         period: item.period,
         prediction: item.data.prediction,
         adjustment: item.data.adjustment,
