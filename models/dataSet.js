@@ -319,7 +319,7 @@ dataSetSchema.methods.processData = async function () {
         cItem.set({isDeleted: false})
         await cItem.save()
 
-        this.newProducts.push(cItem)
+        this.products.push(cItem)
 
         let price = await Price.findOne({product: cItem._id})
         if (!price) {
