@@ -54,6 +54,13 @@ const task = new Task(async function (argv) {
       })
       currentCatalogs.push(newCatalog)
     }
+
+    await Rule.update(
+      {organization: org._id},
+      {isCurrent: false},
+      {multi: true}
+    )
+
     await Rule.create({
       ...rules,
       catalogs: currentCatalogs,
