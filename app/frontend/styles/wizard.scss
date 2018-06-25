@@ -1,4 +1,40 @@
 .wizard {
+    .modal {
+        &-background {
+            background-color: #FBFBFB;
+        }
+        &-card {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-height: 80vh;
+            height: 80vh;
+            &-head {
+                display: none;
+            }
+            &-body {
+                padding: 0;
+                .container {
+                    margin-top: 1rem;
+                }
+                .tabs {
+                  display: none;
+                    &-title {
+                        display: none;
+                    }
+
+                    ul{
+                      display: none;
+                    }
+                }
+                .field.is-grouped {
+                    justify-content: center;
+                }
+            }
+        }
+    }
+    .modal .modal-card .modal-card-body .field.is-grouped {
+        justify-content: center;
+    }
     .tabs {
         &-title {
             display: none;
@@ -39,11 +75,13 @@
         align-items: flex-end;
         .button.is-static {
             pointer-events: inherit;
+            width: 30px;
         }
     }
     .help-btn {
         .button.is-static {
             pointer-events: inherit;
+            width: 30px;
         }
     }
     .is-centered-content {
@@ -97,5 +135,40 @@
     }
     .delete-button {
         text-transform: none !important;
+    }
+    .field {
+        .is-grouped {
+            justify-content: center !important;
+        }
+    }
+}
+
+.rules-ranges {
+    margin-top: 1rem;
+    li {
+        margin-left: .5rem !important;
+        margin-bottom: .2rem !important;
+        .tag {
+            width: 100px !important;
+        }
+        .tag {
+            font-size: .85rem;
+        }
+    }
+}
+
+.clear-blue {
+    background-color: #EFF1F9 !important;
+    border-color: #E6E8F6 !important;
+}
+
+.rules {
+    .edit-btn{
+      width: 43px !important;
+      height: 23px !important;
+    }
+    .save-btn{
+      width: inherit !important;
+      height: inherit !important;
     }
 }

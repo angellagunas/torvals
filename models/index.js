@@ -14,6 +14,7 @@ const Prediction = require('./prediction')
 const PredictionHistoric = require('./prediction-historic')
 const AdjustmentRequest = require('./adjustment-request')
 const Channel = require('./channel')
+const Catalog = require('./catalog')
 const CatalogItem = require('./catalog-item')
 const DataSetRow = require('./dataset-row')
 const AbraxasDate = require('./abraxas-date')
@@ -23,6 +24,8 @@ const Token = require('./token')
 const Cycle = require('./cycle')
 const Period = require('./period')
 const Rule = require('./rule')
+const AdjustmentDownload = require('./adjustment-download')
+const UserReport = require('./user-report')
 // #Import
 
 module.exports = {
@@ -44,11 +47,14 @@ module.exports = {
   DataSetRow,
   AbraxasDate,
   Channel,
+  Catalog,
   CatalogItem,
   Price,
   Anomaly,
   Token,
   Cycle,
   Period,
-  Rule// #Exports
+  Rule,
+  AdjustmentDownload,
+  UserReport// #Exports
 }

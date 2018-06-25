@@ -62,7 +62,7 @@ class TabApprove extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'consultor') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
             return (
               <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
                 <Checkbox
@@ -78,7 +78,7 @@ class TabApprove extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row, state) => {
-          if (currentRole !== 'consultor') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
             if (row.status === 'created') {
               if (!row.selected) {
                 row.selected = false
@@ -372,7 +372,7 @@ class TabApprove extends Component {
           </div>
         </div>
 
-        {currentRole !== 'consultor'
+        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' 
           ? <div className='level-right'>
             <div className='level-item'>
               <div className='saleCenter'>

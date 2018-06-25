@@ -71,7 +71,6 @@ const task = new Task(
       products: _.cloneDeep(dataset.products),
       channels: _.cloneDeep(dataset.channels),
       apiData: _.cloneDeep(dataset.apiData),
-      groupings: _.cloneDeep(dataset.groupings),
       catalogItems: _.cloneDeep(dataset.catalogItems),
       cycles: _.cloneDeep(dataset.cycles),
       periods: _.cloneDeep(dataset.periods),

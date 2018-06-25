@@ -49,6 +49,7 @@ class ConfigureDatasetForm extends Component {
         }).name,
         isPrediction: checkIsPrediction ? checkIsPrediction.name : '',
         isAdjustment: checkIsAdjustment ? checkIsAdjustment.name : '',
+        isSales: checkSales ? checkSales.name : '',
         isProduct: this.props.initialState.columns.find((item) => {
           return item.isProduct
         }).name,
@@ -57,7 +58,6 @@ class ConfigureDatasetForm extends Component {
           return item.isSalesCenter
         }).name,
         isSalesCenterName: checkSalesCenterName ? checkSalesCenterName.name : '',
-        isSales: checkSales ? checkSales.name : '',
         isChannel: this.props.initialState.columns.find((item) => {
           return item.isChannel
         }).name,
@@ -242,6 +242,7 @@ class ConfigureDatasetForm extends Component {
     let rules = this.state.rules
 
     for (let col of rules.catalogs) {
+      if (col.slug === 'precio') continue
       cols.push({
         id: {
           label: `${col.name} Id *`,
@@ -288,6 +289,7 @@ class ConfigureDatasetForm extends Component {
     }
 
     for (let col of rules.catalogs) {
+      if (col.slug === 'precio') continue
       let idStr = `is_${col.slug}_id`
       let nameStr = `is_${col.slug}_name`
       schema[idStr] = true

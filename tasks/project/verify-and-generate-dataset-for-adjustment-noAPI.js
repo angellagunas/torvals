@@ -1,7 +1,6 @@
 // node tasks/verify-datasets.js
 require('../../config')
 require('lib/databases/mongo')
-const moment = require('moment')
 
 const Task = require('lib/task')
 const { Project, DataSet } = require('models')
@@ -21,16 +20,16 @@ const task = new Task(async function (argv) {
     return true
   }
 
-  for (var project of projects) {
+  for (let project of projects) {
     console.log(`Verifying status of project ${project.name} ...`)
-    var projectDataset = project.activeDataset
+    let projectDataset = project.activeDataset
     if (!projectDataset) {
       await project.populate('datasets[0].dataset').execPopulate()
       projectDataset = project.datasets[0].dataset
     }
 
     if (!projectDataset.conciliatedBy || !projectDataset.createdBy) {
-      var projectDataset = project.mainDataset
+      projectDataset = project.mainDataset
     }
 
     if (project.mainDataset && project.mainDataset.status === 'ready') {
@@ -58,15 +57,10 @@ const task = new Task(async function (argv) {
       })
 
       project.set({
-        activeDataset: dataset,
-        dateMax: project.mainDataset.dateMax,
-        dateMin: project.mainDataset.dateMin
+        activeDataset: dataset
       })
 
       await project.save()
-
-      let dateEnd = moment.utc(project.dateMax, 'YYYY-MM-DD')
-      let dateStart = moment.utc(dateEnd).subtract(4, 'months')
 
       project.set({
         status: 'processing'

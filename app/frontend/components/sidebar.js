@@ -7,21 +7,13 @@ import Dashboard from '../pages/dashboard'
 import Users from '../pages/users/list'
 import Groups from '../pages/groups/list'
 import Projects from '../pages/projects/list'
-import SalesCenters from '../pages/salesCenters/list'
-import Products from '../pages/products/list'
-import Channels from '../pages/channel/list'
 import Calendar from '../pages/calendar'
-import Prices from '../pages/prices/list'
 import UsersImport from '../pages/import/users'
-import SalesCentersImport from '../pages/import/sales-centers'
-import ChannelsImport from '../pages/import/channels'
-import ProductsImport from '../pages/import/products'
 import Catalogs from '../pages/catalog/list'
-
-const cleanName = (item) => {
-  let c = item.replace(/-/g, ' ')
-  return c.charAt(0).toUpperCase() + c.slice(1)
-}
+import HistoricReport from '../pages/reports/historic'
+import StatusReport from '../pages/reports/status'
+import DownloadReport from '../pages/reports/download'
+import Prices from '../pages/prices/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -143,13 +135,13 @@ class Sidebar extends Component {
           title: 'Administra tu equipo',
           icon: 'users',
           to: '/manage',
-          roles: 'orgadmin, admin, analyst, consultor, manager-level-2',
+          roles: 'orgadmin, admin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
             {
               title: 'Mi Organización',
               icon: 'user',
-              roles: 'orgadmin, admin, analyst',
+              roles: 'orgadmin, admin, analyst, manager-level-3',
               to: '/manage/organizations/' + tree.get('organization').uuid
             },
             Groups.asSidebarItem(),
@@ -162,13 +154,10 @@ class Sidebar extends Component {
           title: 'Catálogos',
           icon: 'file',
           to: '/catalogs',
-          roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
+          roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
             Prices.asSidebarItem(),
-            SalesCenters.asSidebarItem(),
-            Products.asSidebarItem(),
-            Channels.asSidebarItem(),
             ...this.catalogs()
           ]
         },
@@ -176,12 +165,21 @@ class Sidebar extends Component {
           title: 'Cargar Datos',
           icon: 'file-o',
           to: '/import',
-          roles: 'orgadmin, admin',
+          roles: 'orgadmin, admin, manager-level-3',
           dropdown: [
-            UsersImport.asSidebarItem(),
-            SalesCentersImport.asSidebarItem(),
-            ProductsImport.asSidebarItem(),
-            ChannelsImport.asSidebarItem()
+            UsersImport.asSidebarItem()
+          ]
+        },
+        {
+          title: 'Reportes',
+          icon: 'clipboard',
+          to: '/reports',
+          roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
+          opened: false,
+          dropdown: [
+            StatusReport.asSidebarItem(),
+            HistoricReport.asSidebarItem(),
+            DownloadReport.asSidebarItem()
           ]
         }
       ]
@@ -193,7 +191,7 @@ class Sidebar extends Component {
         title: 'Administra tu equipo',
         icon: 'users',
         to: '/manage',
-        roles: 'orgadmin, admin',
+        roles: 'orgadmin, admin, manager-level-3',
         dropdown: [
           Users.asSidebarItem(),
           Groups.asSidebarItem()

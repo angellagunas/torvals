@@ -18,8 +18,8 @@ const schema = {
   properties: {
     name: {type: 'string', title: 'Nombre'},
     description: {type: 'string', title: 'Descripción'},
-    slug: {type: 'string', title: 'Slug'},
-    profile: {type: 'string', title: 'Imagen', format: 'data-url'}
+    slug: {type: 'string', title: 'Subdominio'},
+    profile: {type: 'string', title: 'Logo', format: 'data-url'}
   }
 }
 

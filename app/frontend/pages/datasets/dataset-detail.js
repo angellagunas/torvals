@@ -44,7 +44,7 @@ class DataSetDetail extends Component {
       currentSalesCenter: null,
       currentUnidentified: null,
       columns: [],
-      roles: 'admin, orgadmin, analyst',
+      roles: 'admin, orgadmin, analyst, manager-level-3',
       canEdit: false,
       isLoading: '',
       isLoadingConsolidate: '',
@@ -1550,7 +1550,7 @@ class DataSetDetail extends Component {
       let currentUnidentified = this.state.currentUnidentified
       currentUnidentified.externalId = String(currentUnidentified.externalId)
       return (<BaseModal
-        title={'Editar ' + currentUnidentified.type.replace(/-/g, ' ')}
+        title={'Editar ' + currentUnidentified.catalog.name}
         className={this.state.classNameUn}
         hideModal={() => this.hideModalUnidentified()} >
         <ChannelForm
@@ -1606,17 +1606,24 @@ class DataSetDetail extends Component {
       return <Loader />
     }
 
+    this.catalogs = {}
+    for (let cat of dataset.rule.catalogs) {
+      this.catalogs[cat._id] = cat
+    }
+
     this.newCatalogs = dataset.catalogItems.map((item) => {
       if (item.isNewExternal) {
+        item.catalog = this.catalogs[item.catalog]
+        item.type = item.catalog.slug
         return item
       }
     }).filter(item => item)
 
-
     this.newCatalogs = _(this.newCatalogs)
-    .groupBy(x => x.type)
-    .map((value, key) => ({ 
-      type: key, 
+    .groupBy(x => x.catalog.slug)
+    .map((value, key) => ({
+      type: key,
+      name: value[0].catalog.name,
       objects: value, 
       headerClass: 'is-hidden',
       iconClass: 'fa fa-2x fa-caret-down',
@@ -1624,7 +1631,6 @@ class DataSetDetail extends Component {
       selectAll: false
     }))
     .value()
-
     
     this.setState({
       unidentified: this.newCatalogs
@@ -1648,7 +1654,7 @@ renderUnidentified(){
           <div className='card'>
             <header className='card-header deep-shadow '>
               <p className='card-header-title'>
-                <span className='is-capitalized'>{item.type.replace(/-/g, ' ')}</span>&nbsp;no identificados: {item.objects.length}
+                <span className='is-capitalized'>{item.name}</span>&nbsp;no identificados: {item.objects.length}
               </p>
               <div className='field is-grouped is-grouped-right card-header-select'>
                 {canEdit &&

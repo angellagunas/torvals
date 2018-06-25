@@ -37,11 +37,13 @@ class TabAnomalies extends Component {
       sortAscending: true,
       pageLength: 20,
       page: 1,
-      search: '' 
+      search: ''
     }
     currentRole = tree.get('user').currentRole.slug
+    this.rules = this.props.rules
+
   }
- 
+
   async getProducts () {
     const url = '/app/products/'
     let res = await api.get(url, {
@@ -145,36 +147,117 @@ class TabAnomalies extends Component {
             isLoading: '',
             isFiltered: true,
             loaded: true
-          })  
-        }      
+          })
+        }
 
         if(res.data.length === 0)
-          this.notify('No hay anomalías que mostrar', 5000, toast.TYPE.INFO)      
-          
+          this.notify('No hay anomalías que mostrar', 5000, toast.TYPE.INFO)
+
       } catch (e) {
         this.setState({
           isLoading: '',
           isFiltered: false,
           loaded: true
         })
-        this.notify('Error:Intente de nuevo', 5000, toast.TYPE.ERROR)      
+        this.notify('Error:Intente de nuevo', 5000, toast.TYPE.ERROR)
       }
     })
   }
 
   async getFilters () {
+    await this.getCatalogFilters()
     await this.getSalesCent()
     await this.getProducts()
     await this.getData()
   }
 
+
+  findName = (name) => {
+    let find = ''
+
+    if (!this.rules) return find
+
+    this.rules.catalogs.map(item => {
+      if (item.slug === name) {
+        find = item.name
+      }
+    })
+    return find
+  }
+
+  async getCatalogFilters() {
+    let url = '/app/catalogItems/'
+    let filters = []
+    this.rules.catalogs.map(async item => {
+        let res = await api.get(url + item.slug)
+        if (res) {
+          let aux = this.state.filters
+          aux[item.slug] = res.data
+
+          this.setState({
+            filters: aux
+          })
+        }
+    })
+  }
+
+  makeFilters() {
+    let filters = []
+    for (const key in this.state.filters) {
+      if (this.state.filters.hasOwnProperty(key)) {
+        const element = this.state.filters[key];
+        if (key === 'cycles' ||
+          key === 'channels' ||
+          key === 'salesCenters' ||
+          key === 'categories' ||
+          key === 'products' ||
+          key === 'precio' ) {
+          continue
+        }
+        filters.push(
+          <div key={key} className='level-item' >
+            <Select
+              label={this.findName(key)}
+              name={key}
+              value={this.state.formData[key]}
+              placeholder='Todas'
+              optionValue='uuid'
+              optionName='name'
+              options={element}
+              onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+            />
+          </div >
+        )
+      }
+    }
+    return filters
+  }
+
   getColumns () {
+    const catalogs = this.props.project.rule.catalogs || []
+    const catalogItems = catalogs.map((catalog, i) => {
+      if(catalog.slug !== 'producto'){
+        return (
+          {
+            'title': ` ${catalog.name}`,
+            'property': '',
+            'default': 'N/A',
+            'sortable': true,
+            formatter: (row) => {
+              return String((row.catalogItems[i] || {}).name)
+            }
+          }
+        )
+      }
+    }
+  ).filter(item => item)
+
     let cols = [
       {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'consultor') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
             return (
               <Checkbox
                 label='checkAll'
@@ -191,7 +274,7 @@ class TabAnomalies extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          if (currentRole !== 'consultor') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
             return (
               <Checkbox
                 label={row}
@@ -207,7 +290,7 @@ class TabAnomalies extends Component {
         'title': 'Id',
         'property': 'productId',
         'default': 'N/A',
-        'sortable': true,                        
+        'sortable': true,
         formatter: (row) => {
           return String(row.product.externalId)
         }
@@ -216,30 +299,17 @@ class TabAnomalies extends Component {
         'title': 'Producto',
         'property': 'product.name',
         'default': 'N/A',
-        'sortable': true,                                
+        'sortable': true,
         formatter: (row) => {
           return String(row.product.name)
         }
       },
-      {
-        'title': 'Categoría',
-        'property': 'product.category',
-        'default': 'N/A',
-        'sortable': true,                                
-        formatter: (row) => {
-          if (row.product.category){
-            return String(row.product.category)
-          }
-          else{
-            return 'Sin categoría'
-          }
-        }
-      },
+      ...catalogItems,
       {
         'title': 'Tipo de Anomalía',
         'property': 'type',
         'default': 'N/A',
-        'sortable': true,                                
+        'sortable': true,
         formatter: (row) => {
           return String(row.type)
         }
@@ -248,7 +318,7 @@ class TabAnomalies extends Component {
         'title': 'Fecha',
         'property': 'date',
         'default': 'N/A',
-        'sortable': true,                                
+        'sortable': true,
         formatter: (row) => {
           return moment.utc(row.date, 'YYYY-MM-DD').local().format('DD/MM/YYYY')
         }
@@ -259,9 +329,9 @@ class TabAnomalies extends Component {
         'default': 0,
         'type': 'number',
         'sortable': true,
-        'className': 'editable-cell',                                
+        'className': 'editable-cell',
         formatter: (row) => {
-          if (currentRole !== 'consultor') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
           return (
             <Editable
               value={row.prediction}
@@ -278,19 +348,6 @@ class TabAnomalies extends Component {
         }
       }
     ]
-
-    if ( this.state.filters.salesCenters.length > 1){
-      cols.splice(4,0, { 
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'salesCenter',
-        'default': 'N/A',
-        formatter: (row) => {
-          return String(row.salesCenter.name)
-        }
-      })
-    }
 
     return cols
   }
@@ -312,7 +369,7 @@ class TabAnomalies extends Component {
 
     var url = '/app/anomalies/' + obj.uuid
     const res = await api.post(url, { ...obj })
-    
+
     if(res.data){
       obj.edited = true
       let index = this.state.anomalies.findIndex((item) => { return obj.uuid === item.uuid })
@@ -325,7 +382,7 @@ class TabAnomalies extends Component {
       })
 
       this.notify('¡Ajuste guardado!', 5000, toast.TYPE.INFO)
-      
+
     }
     else{
       this.notify('Intente de nuevo', 5000, toast.TYPE.ERROR)
@@ -380,8 +437,8 @@ class TabAnomalies extends Component {
 
     this.props.reload('configuracion')
   }
-  
-   
+
+
 
   checkAll = (check) => {
     let selected = {}
@@ -405,14 +462,14 @@ class TabAnomalies extends Component {
       item.selected = false
     }
     else {
-      selected[item.uuid] = item   
+      selected[item.uuid] = item
       item.selected = true
     }
 
     this.setState({
       selected,
       selectAll: Object.keys(this.state.selected).length === this.state.anomalies.length
-    }, 
+    },
     () => {
       this.toggleButtons()
     })
@@ -439,7 +496,7 @@ class TabAnomalies extends Component {
 
   async searchOnChange(e){
     let value = e.target.value
-    
+
     this.setState({
       search: value,
       page: 1,
@@ -451,7 +508,7 @@ class TabAnomalies extends Component {
       this.toggleButtons()
       this.getData()
     }
-    
+
   }
 
   handleSort(e){
@@ -462,19 +519,19 @@ class TabAnomalies extends Component {
             sorted.sort((a, b) => { return parseFloat(a.product.externalId) - parseFloat(b.product.externalId) })
           }
           else{
-            sorted.sort((a, b) => { return parseFloat(b.product.externalId) - parseFloat(a.product.externalId) })                        
+            sorted.sort((a, b) => { return parseFloat(b.product.externalId) - parseFloat(a.product.externalId) })
           }
     }
     else{
       if (this.state.sortAscending){
         sorted = _.orderBy(sorted,[e], ['asc'])
-              
+
       }
       else{
-        sorted = _.orderBy(sorted,[e], ['desc'])    
+        sorted = _.orderBy(sorted,[e], ['desc'])
       }
     }
-    
+
     this.setState({
       anomalies: sorted,
       sortAscending: !this.state.sortAscending,
@@ -514,62 +571,18 @@ class TabAnomalies extends Component {
         </section>
       )
     }
-    
+
     return (
       <div>
         <div className='section level selects'>
           <div className='level-left'>
-            <div className='level-item'>
-              <Select
-                label='Producto'
-                name='product'
-                value={this.state.formData.product}
-                optionValue='uuid'
-                optionName='name'
-                placeholder='Seleccione'
-                options={this.state.filters.products}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            </div>
-
-            <div className='level-item'>
-              <Select
-                label='Categoría'
-                name='category'
-                placeholder='Seleccione'
-                value={this.state.formData.category}
-                options={this.state.filters.categories}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            </div>
-
-            <div className='level-item'>
-              {this.state.filters.salesCenters.length === 1 ?
-                <div className='saleCenter'>
-                  <span>Centro de Venta: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Centro de venta'
-                  name='salesCenter'
-                  value={this.state.formData.salesCenter}
-                  optionValue='uuid'
-                  optionName='name'
-                  placeholder='Seleccione'
-                  options={this.state.filters.salesCenters}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
+            {this.state.filters &&
+              this.makeFilters()
+            }
 
             <div className='level-item pad-top-5'>
               <div className='field'>
-                {currentRole !== 'consultor' ?
-                  <label className='label'>Búsqueda general</label> :
-                  null
-                }
+                <label className='label'>Búsqueda general</label>
                 <div className='control has-icons-right'>
                   <input
                     className='input input-search'
@@ -584,7 +597,7 @@ class TabAnomalies extends Component {
               </div>
             </div>
           </div>
-          {currentRole !== 'consultor' &&
+          {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' &&
             <div className='level-right'>
               <div className='level-item is-margin-top-20'>
                 <button
@@ -608,14 +621,14 @@ class TabAnomalies extends Component {
                 <h2 className='has-text-info'>Cargando anomalías</h2>
               </center>
             </section>
-          : 
+          :
             this.state.anomalies.length === 0
               ? <section className='section'>
                   <center>
                     <h2 className='has-text-info'>No hay anomalías que mostrar</h2>
                   </center>
                 </section>
-              : 
+              :
               <div>
               <BaseTable
                 className='aprobe-table is-fullwidth is-margin-top-20'
@@ -633,7 +646,7 @@ class TabAnomalies extends Component {
                   pageLength={this.state.pageLength}
               />
                 </div>
-              
+
               </div>
           }
         </section>

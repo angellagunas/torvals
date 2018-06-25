@@ -24,15 +24,22 @@ class Rules extends Component {
         forecastCreation: this.props.rules.forecastCreation || 0,
         rangeAdjustment: this.props.rules.rangeAdjustment || 0,
         rangeAdjustmentRequest: this.props.rules.rangeAdjustmentRequest || 0,
-        consolidation: this.props.rules.cycleDuration * 31
+        consolidation: this.props.rules.cycleDuration * 31,
+        isLoading: ''
       }
     }
+  }
+
+  async save () {
+    this.setState({isLoading: 'is-loading'})
+    await this.props.save()
+    this.setState({isLoading: ''})
   }
 
   render () {
     let rules = this.props.rules
     return (
-      <div className='section pad-sides has-20-margin-top'>
+      <div className='section pad-sides has-20-margin-top rules'>
         <Prompt
           when={this.props.unsaved}
           message={location => (
@@ -51,7 +58,7 @@ class Rules extends Component {
               <div className='card-content'>
                 <div className='columns'>
                   <div className='column is-4'>
-                    <button className='button is-primary is-small is-pulled-right'
+                    <button className='button is-primary is-small is-pulled-right edit-btn'
                       onClick={() => this.props.setStep(2)}>
                       Editar
                     </button>
@@ -81,27 +88,44 @@ class Rules extends Component {
                     </p>
 
                     <hr />
-                    <button className='button is-primary is-small is-pulled-right'
+                    <button className='button is-primary is-small is-pulled-right edit-btn'
                       onClick={() => this.props.setStep(3)}>
                       Editar
                     </button>
-                    {rules.ranges.map((item, key) => {
-                      if (key < rules.cyclesAvailable) {
-                        return (
-                          <p key={key}>
-                          Rango de ajuste permitido ciclo {key + 1}:
-                          <span className='has-text-weight-bold is-capitalized'> {item !== null ? item + '%' : 'ilimitado'}</span>
-                          </p>
-                        )
-                      }
-                    })}
+                    <p>Rangos de ajuste:</p>
 
+                    <ul className='rules-ranges'>
+                      <li>
+                        <div className='tags has-addons'>
+                          <span className='tag clear-blue has-text-weight-semibold'> Ciclos</span>
+                          <span className='tag clear-blue has-text-weight-semibold'>Ajuste</span>
+                          <span className='tag clear-blue has-text-weight-semibold'>Manager Lvl 2</span>
+                        </div>
+                      </li>
+                      {rules.ranges.map((item, key) => {
+                        if (key < rules.cyclesAvailable) {
+                          return (
+                            <li key={key}>
+                              <div className='tags has-addons'>
+                                <span className='tag has-text-weight-semibold'> {key + 1}</span>
+                                <span className='tag has-text-weight-semibold'>{item !== null ? item + '%' : 'ilimitado'}</span>
+                                <span className='tag has-text-weight-semibold'>{
+                                  rules.rangesLvl2[key] !== undefined
+                                  ? rules.rangesLvl2[key] !== null ? rules.rangesLvl2[key] + '%' : 'ilimitado'
+                                  : 'No definido'
+                                  }</span>
+                              </div>
+                            </li>
+                          )
+                        }
+                      })}
+                    </ul>
                   </div>
 
                   <div className='column is-4'>
 
                     <div>
-                      <button className='button is-primary is-small is-pulled-right'
+                      <button className='button is-primary is-small is-pulled-right edit-btn'
                         onClick={() => this.props.setStep(4)}>
                         Editar
                     </button>
@@ -144,7 +168,7 @@ class Rules extends Component {
                     <hr />
 
                     <div>
-                      <button className='button is-primary is-small is-pulled-right'
+                      <button className='button is-primary is-small is-pulled-right edit-btn'
                         onClick={() => this.props.setStep(5)}>
                         Editar
                     </button>
@@ -172,8 +196,9 @@ class Rules extends Component {
                   <div className='column'>
                     <div className='has-text-centered' style={{marginTop: '2rem'}}>
                       <button
-                        className='button is-medium is-success'
-                        onClick={this.props.save}
+                        className={'button is-medium is-success save-btn ' + this.state.isLoading}
+                        disabled={!!this.state.isLoading}
+                        onClick={() => { this.save() }}
                       >
                         Aplicar cambios
                       </button>

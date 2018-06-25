@@ -57,7 +57,9 @@ class TabAdjustment extends Component {
       quantity: 100,
       percentage: 1,
       error: false,
-      errorMessage: ''
+      errorMessage: '',
+      showAdjusted: true,
+      showNotAdjusted: true
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -70,14 +72,14 @@ class TabAdjustment extends Component {
       this.getFilters()
     }
   }
-  
+
   componentWillReceiveProps(nextProps){
     if (this.props.project.uuid && nextProps.project.uuid !== this.props.project.uuid) return
-    
+
     if (nextProps.selectedTab === 'ajustes' && !this.state.filtersLoaded && !this.state.filtersLoading) {
       this.getFilters()
     }
-    
+
   }
 
   componentDidUpdate(prevProps) {
@@ -87,43 +89,30 @@ class TabAdjustment extends Component {
     }
   }
 
-  async getCatalogFilters(){
-    let url = '/app/catalogItems/'
-    let filters = []
-    this.rules.catalogs.map(async item => {
-      if(item.slug !== 'producto'){
-        let res = await api.get(url + item.slug)
-        if(res){
-          let aux = this.state.filters
-          aux[item.slug] = res.data
-          
-          this.setState({
-            filters:  aux
-          })
-        }
-      }
-    })
-  }
-
   async getFilters() {
     if (this.props.project.activeDataset && this.props.project.status === 'adjustment') {
       this.setState({ filtersLoading:true })
-      
+
       const url = '/app/rows/filters/dataset/'
 
-      await this.getCatalogFilters()
-      
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
-        
-        let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
-        cycles = cycles.map((item, key) => {
-          return item = { ...item, adjustmentRange: this.rules.ranges[key], name: moment.utc(item.dateStart).format('MMMM') }
-        })
 
+        let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
+
+        if (currentRole === 'manager-level-2') {
+          cycles = cycles.map((item, key) => {
+            return item = { ...item, adjustmentRange: this.rules.rangesLvl2[key], name: moment.utc(item.dateStart).format('MMMM') }
+          })
+        }
+        else {
+          cycles = cycles.map((item, key) => {
+            return item = { ...item, adjustmentRange: this.rules.ranges[key], name: moment.utc(item.dateStart).format('MMMM') }
+          })
+        }
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
-        
+
         if (res.salesCenters.length > 0) {
           formData.salesCenter = res.salesCenters[0].uuid
         }
@@ -131,14 +120,19 @@ class TabAdjustment extends Component {
         if (res.channels.length === 1) {
           formData.channel = res.channels[0].uuid
         }
+
+        for (let fil of Object.keys(res)) {
+          if (fil === 'cycles') continue
+
+          res[fil] = _.orderBy(res[fil], 'name')
+        }
+
         this.setState({
           filters: {
             ...this.state.filters,
-            channels: _.orderBy(res.channels, 'name'),
-            products: res.products,
-            salesCenters: _.orderBy(res.salesCenters, 'name'),
+            ...res,
+            cycles: cycles,
             categories: this.getCategory(res.products),
-            cycles: cycles
           },
           formData: formData,
           filtersLoading: false,
@@ -159,7 +153,7 @@ class TabAdjustment extends Component {
           5000,
           toast.TYPE.ERROR
         )
-      }            
+      }
     }
   }
 
@@ -173,7 +167,7 @@ class TabAdjustment extends Component {
     return Array.from(categories)
   }
 
-  async filterChangeHandler (name, value) { 
+  async filterChangeHandler (name, value) {
     if(name === 'cycle'){
       var cycle = this.state.filters.cycles.find(item => {
         return item.number === value
@@ -222,7 +216,7 @@ class TabAdjustment extends Component {
       isFiltered: false,
       generalAdjustment: this.getAdjustment(cycle.adjustmentRange),
       salesTable: [],
-      noSalesData: ''      
+      noSalesData: ''
     })
 
     const url = '/app/rows/dataset/'
@@ -242,7 +236,7 @@ class TabAdjustment extends Component {
         selectedCheckboxes: new Set()
       })
       this.clearSearch()
-      this.getSalesTable()    
+      this.getSalesTable()
     }catch(e){
       console.log(e)
       this.setState({
@@ -304,7 +298,7 @@ class TabAdjustment extends Component {
   }
 
   changeAdjustment = async (value, row) => {
-    row.lastLocalAdjustment = row.adjustmentForDisplay    
+    row.lastLocalAdjustment = row.adjustmentForDisplay
     row.newAdjustment = value
     const res = await this.handleChange(row)
     if (!res) {
@@ -345,16 +339,29 @@ class TabAdjustment extends Component {
     })
   }
 
+  showRows(type, value){
+    if(type === 'showAdjusted'){
+      this.setState({
+        showAdjusted: value
+      }, () => { this.searchDatarows() })
+    }
+    else {
+      this.setState({
+        showNotAdjusted: value
+      }, () => { this.searchDatarows() })
+    }
+  }
+
   getModifyButtons () {
     return (
       <div className='columns'>
-            
+
         <div className='column is-narrow'>
           <div className='field'>
-            {currentRole !== 'consultor' ?
+            {currentRole !== 'consultor-level-3' ?
               <label className='label'>Búsqueda general</label>:
-              null   
-            }           
+              null
+            }
             <div className='control has-icons-right'>
               <input
                 className='input input-search'
@@ -368,7 +375,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div>
-        {currentRole !== 'consultor' ?
+        {currentRole !== 'consultor-level-3' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -410,7 +417,7 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
-        {currentRole !== 'consultor' ?
+        {currentRole !== 'consultor-level-3' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -451,10 +458,24 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
+        <div className='column is-narrow show-rows'>
+          <Checkbox
+            label={<span title='Ajustados'>Ajustados</span>}
+            handleCheckboxChange={(e, value) => this.showRows('showAdjusted', value)}
+            checked={this.state.showAdjusted}
+            disabled={this.state.waitingData}
+          />
+          <Checkbox
+            label={<span title='No Ajustados'>No Ajustados</span>}
+            handleCheckboxChange={(e, value) => this.showRows('showNotAdjusted', value)}
+            checked={this.state.showNotAdjusted}
+            disabled={this.state.waitingData}
+          />
+        </div>
         <div className='column is-narrow'>
           <p style={{color: 'grey', paddingTop: '1.7rem', width: '.8rem'}}>
           {
-            this.state.isLoadingButtons && 
+            this.state.isLoadingButtons &&
             <span><FontAwesome className='fa-spin' name='spinner' /></span>
           }
           </p>
@@ -466,7 +487,7 @@ class TabAdjustment extends Component {
             <span>{this.state.byWeek ? this.getProductsSelected() : this.state.selectedCheckboxes.size} </span>
             Productos Seleccionados
             </p>
-          </div> 
+          </div>
         }
 
         <div className='column download-btn'>
@@ -478,8 +499,8 @@ class TabAdjustment extends Component {
               <i className='fa fa-download' />
             </span>
           </button>
-        </div> 
-       
+        </div>
+
       </div>
     )
   }
@@ -501,11 +522,11 @@ getProductsSelected () {
 
     for (const row of selectedCheckboxes) {
       let toAdd = 0
-      
+
       if (
-        type === 'percent' && 
+        type === 'percent' &&
         !isNaN(this.state.percentage) &&
-        parseInt(this.state.percentage) !== 0 
+        parseInt(this.state.percentage) !== 0
       ){
         toAdd = row.lastAdjustment * 0.01 * parseInt(this.state.percentage)
         toAdd = Math.round(toAdd)
@@ -521,7 +542,7 @@ getProductsSelected () {
 
       let adjustmentForDisplayAux = Math.round(row.adjustmentForDisplay)
       let newAdjustment = adjustmentForDisplayAux + toAdd
-      
+
       row.lastLocalAdjustment = row.adjustmentForDisplay
       row.newAdjustment = newAdjustment
     }
@@ -542,10 +563,10 @@ getProductsSelected () {
 
     for (const row of selectedCheckboxes) {
       let toAdd = 0
-      
+
       if (
-        type === 'percent' && 
-        parseInt(this.state.percentage) !== 0 && 
+        type === 'percent' &&
+        parseInt(this.state.percentage) !== 0 &&
         !isNaN(this.state.percentage)
       ) {
         toAdd = row.lastAdjustment * 0.01 * parseInt(this.state.percentage)
@@ -565,7 +586,7 @@ getProductsSelected () {
       row.lastLocalAdjustment = row.adjustmentForDisplay
       row.newAdjustment = newAdjustment
     }
-    
+
     await this.handleChange(selectedCheckboxes)
     this.setState({isLoadingButtons: ''})
   }
@@ -651,7 +672,7 @@ getProductsSelected () {
         )
       } else {
         if(currentRole === 'manager-level-2' && isLimited){
-          this.notify('¡Ajustes fuera de rango guardados!', 5000, toast.TYPE.WARNING)          
+          this.notify('¡Ajustes fuera de rango guardados!', 5000, toast.TYPE.WARNING)
         }
         else{
           this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
@@ -727,8 +748,34 @@ getProductsSelected () {
 
   async searchDatarows() {
     if (this.state.searchTerm === '') {
+      let data = []
+
+      if(this.state.showAdjusted){
+        data = [
+          ...data,
+          ...this.state.dataRows.filter(item => {
+            if (item.wasEdited) {
+              return true
+            }
+            return false
+          })
+        ]
+      }
+
+      if (this.state.showNotAdjusted) {
+        data = [
+          ...data,
+          ...this.state.dataRows.filter(item => {
+            if (!item.wasEdited) {
+              return true
+            }
+            return false
+          })
+        ]
+      }
+
       this.setState({
-        filteredData: this.state.dataRows
+        filteredData: data.length > 0 ? data : this.state.dataRows
       })
       return
     }
@@ -739,13 +786,37 @@ getProductsSelected () {
 
       if (regEx.test(searchStr))
         return true
-      
+
       return false
     })
     // .filter(function(item){ return item != null });
+    let data = []
 
+    if (this.state.showAdjusted) {
+      data = [
+        ...data,
+        ...items.filter(item => {
+          if (item.wasEdited) {
+            return true
+          }
+          return false
+        })
+      ]
+    }
+
+    if (this.state.showNotAdjusted) {
+      data = [
+        ...data,
+        ...items.filter(item => {
+          if (!item.wasEdited) {
+            return true
+          }
+          return false
+        })
+      ]
+    }
     await this.setState({
-      filteredData: items
+      filteredData: data.length > 0 ? data : items
     })
   }
 
@@ -770,7 +841,7 @@ getProductsSelected () {
       return <span>Modo Ajuste Ilimitado</span>
     }
 
-    if (currentRole === 'consultor' || ajuste === 0) {
+    if (currentRole === 'consultor-level-3' || ajuste === 0) {
       return <span>Modo Visualización</span>
     } else {
       return <span>Modo Ajuste {this.state.generalAdjustment * 100} % permitido</span>
@@ -782,7 +853,7 @@ getProductsSelected () {
     let cycle = this.state.filters.cycles.find(item => {
       return item.cycle === this.state.formData.cycle
     })
-    
+
     try {
       let res = await api.post(url, {
         ...this.state.formData,
@@ -879,36 +950,31 @@ getProductsSelected () {
     let min
     let max
     let url = '/app/rows/download/' + this.props.project.uuid
-    var period = this.state.filters.periods.find(item => {
-      return item.number === this.state.formData.period
+
+    let cycle = this.state.filters.cycles.find(item => {
+      return item.cycle === this.state.formData.cycle
     })
 
-    this.state.filters.dates.map((date) => {
-      if (period.maxSemana === date.week) {
-        max = date.dateEnd
-      }
-      if (period.minSemana === date.week) {
-        min = date.dateStart
-      }
-    })
-    
+    min = cycle.dateStart
+    max = cycle.dateEnd
+
     try {
+      let formFilters = Object.assign({}, this.state.formData)
+      delete formFilters.cycle
+
       let res = await api.post(url, {
         start_date: moment(min).format('YYYY-MM-DD'),
         end_date:  moment(max).format('YYYY-MM-DD'),
-        salesCenter: this.state.formData.salesCenter,
-        channel: this.state.formData.channel,
-        product: this.state.formData.product,
-        category: this.state.formData.category
+        ...formFilters
       })
 
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
-      FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}`);
+      FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}.csv`);
       this.setState({isDownloading: ''})
       this.notify('¡Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
-    
+
       this.setState({
         isLoading: '',
         noSalesData: e.message + ', intente más tarde',
@@ -944,14 +1010,11 @@ getProductsSelected () {
     return moment.utc(cycle.dateStart).format('MMMM')
   }
 
-  findName = (name) => {
-    let find = ''
-    this.rules.catalogs.map(item => {
-      if(item.slug === name){
-        find = item.name
-      }
+  findName = (slug) => {
+    const find = this.rules.catalogs.find(item => {
+      return item.slug === slug
     })
-    return find
+    return find.name
   }
 
   makeFilters() {
@@ -959,13 +1022,19 @@ getProductsSelected () {
     for (const key in this.state.filters) {
       if (this.state.filters.hasOwnProperty(key)) {
         const element = this.state.filters[key];
-        if (key === 'cycles' ||
-          key === 'channels' ||
-          key === 'salesCenters' ||
-          key === 'categories' ||
-          key === 'products') {
+        const unwantedList = [
+          'cycles',
+          'channels',
+          'salesCenters',
+          'categories',
+          'products',
+          'producto',
+          'precio'
+        ]
+        if (unwantedList.includes(key)) {
           continue
         }
+
         filters.push(
           <div key={key} className='level-item'>
             <Select
@@ -1137,58 +1206,8 @@ getProductsSelected () {
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
-            <div className='level-item'>
-              <Select
-                label='Categoría'
-                name='category'
-                value=''
-                placeholder='Todas'
-                options={this.state.filters.categories}
-                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-              />
-            </div>
 
-            <div className='level-item'>
-              {this.state.filters.channels.length === 1 ?
-                <div className='channel'>
-                  <span>Canal: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.channels[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Canal'
-                  name='channel'
-                  value=''
-                  placeholder='Todos'
-                  optionValue='uuid'
-                  optionName='name'
-                  options={this.state.filters.channels}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
-
-            <div className='level-item'>
-              {this.state.filters.salesCenters.length === 1 ?
-                <div className='saleCenter'>
-                  <span>Centro de Venta: </span>
-                  <span className='has-text-weight-bold is-capitalized'>{this.state.filters.salesCenters[0].name}
-                  </span>
-                </div>
-                :
-                <Select
-                  label='Centro de Venta'
-                  name='salesCenter'
-                  value={this.state.formData.salesCenter}
-                  optionValue='uuid'
-                  optionName='name'
-                  options={this.state.filters.salesCenters}
-                  onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                />
-              }
-            </div>
-          {this.state.filters && 
+          {this.state.filters &&
             this.makeFilters()
           }
           </div>
@@ -1200,14 +1219,14 @@ getProductsSelected () {
               <h1>Indicadores</h1>
             </div>
           </div>
-          <div className={this.state.indicators === 'indicators-hide' ? 
-          'level-item has-text-centered has-text-info' : 
-          'level-item has-text-centered has-text-info disapear'} 
+          <div className={this.state.indicators === 'indicators-hide' ?
+          'level-item has-text-centered has-text-info' :
+          'level-item has-text-centered has-text-info disapear'}
           >
             <div>
               <p className='has-text-weight-semibold'>Predicción</p>
               <h1 className='num has-text-weight-bold'>
-                {this.state.totalPrediction ? 
+                {this.state.totalPrediction ?
                 '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                   return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                 })
@@ -1216,13 +1235,13 @@ getProductsSelected () {
               </h1>
             </div>
           </div>
-          <div className={this.state.indicators === 'indicators-hide' ? 
-          'level-item has-text-centered has-text-teal' : 
+          <div className={this.state.indicators === 'indicators-hide' ?
+          'level-item has-text-centered has-text-teal' :
           'level-item has-text-centered has-text-teal disapear'}>
             <div>
               <p className='has-text-weight-semibold'>Ajuste</p>
               <h1 className='num has-text-weight-bold'>
-                {this.state.totalAdjustment ? 
+                {this.state.totalAdjustment ?
                 '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
                   return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                 })
@@ -1234,8 +1253,8 @@ getProductsSelected () {
           <div className={this.state.indicators === 'indicators-hide' ?
             'level-item has-text-centered' : ' level-item has-text-centered no-border'}>
             <div>
-              <img src='/app/public/img/grafica.png' 
-              className={this.state.indicators === 'indicators-hide' ? 
+              <img src='/app/public/img/grafica.png'
+              className={this.state.indicators === 'indicators-hide' ?
               '' : 'disapear'}/>
               <a className='collapse-btn' onClick={this.toggleIndicators}>
                 <span className='icon is-large'>
@@ -1256,7 +1275,7 @@ getProductsSelected () {
                 </div>
                 <div className='panel-block'>
                   {
-                    currentRole !== 'consultor' &&
+                    currentRole !== 'consultor-level-3' &&
                       this.state.salesTable.length > 0 ?
                       <table className='table is-fullwidth is-hoverable'>
                         <thead>
@@ -1319,7 +1338,7 @@ getProductsSelected () {
                 </div>
                 <div className='panel-block'>
                   {
-                    currentRole !== 'consultor' &&
+                    currentRole !== 'consultor-level-3' &&
                       this.state.salesTable.length > 0 ?
                       <Graph
                         data={graphData}
@@ -1382,7 +1401,7 @@ getProductsSelected () {
 
           </div>
         </div>
-          
+
         <section>
           {!this.state.isFiltered || this.state.isLoading !== ''
             ? <div className='section has-text-centered subtitle has-text-primary'>
@@ -1394,7 +1413,7 @@ getProductsSelected () {
                 <div>
                   <section className='section'>
                   <h1 className='period-info'>
-                    <span className='has-text-weight-semibold is-capitalized'>Ciclo {this.getCycleName()} - </span> 
+                    <span className='has-text-weight-semibold is-capitalized'>Ciclo {this.getCycleName()} - </span>
                     <span className='has-text-info has-text-weight-semibold'> {this.setAlertMsg()}</span>
                   </h1>
                   {this.getModifyButtons()}
@@ -1411,15 +1430,15 @@ getProductsSelected () {
                       changeAdjustment={this.changeAdjustment}
                       generalAdjustment={this.state.generalAdjustment}
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }} 
-                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
+                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
+                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
                       rules={this.rules}
                     />
                     :
 
                     <WeekTable
                       show={this.showByProduct}
-                      currentRole={currentRole}                    
+                      currentRole={currentRole}
                       data={this.state.filteredData}
                       checkAll={this.checkAll}
                       toggleCheckbox={this.toggleCheckbox}
@@ -1427,7 +1446,7 @@ getProductsSelected () {
                       generalAdjustment={this.state.generalAdjustment}
                       adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
                       handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
-                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }} 
+                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
                     />
                 }
               </div>

@@ -31,7 +31,6 @@ const rule = {
   salesUpload : 1
 }
 
-
 function test () {
   return request(http.createServer(api.callback()))
 }

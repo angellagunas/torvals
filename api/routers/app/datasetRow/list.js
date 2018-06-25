@@ -23,41 +23,26 @@ module.exports = new Route({
       'uuid': datasetId,
       'isDeleted': false,
       organization: ctx.state.organization
-    }).populate('catalogItems')
+    }).populate('catalogItems rule')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
-    let statement = [{
-      $match: {
-        uuid: dataset.uuid
-      }
-    },
-    {
-      $lookup: {
-        from: 'catalogitems',
-        localField: 'catalogItems',
-        foreignField: '_id',
-        as: 'catalogs'
-      }
-    },
-    {
-      $unwind: {
-        path: '$catalogs'
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        catalogs: {
-          $addToSet: '$catalogs.type'
-        }
-      }
-    }]
+    await dataset.rule.populate('catalogs').execPopulate()
 
-    let catalogs = await DataSet.aggregate(statement)
-    if (catalogs) { catalogs = catalogs[0].catalogs }
-
+    let catalogs = dataset.rule.catalogs
     let catalogItemsFilters = []
+    const user = ctx.state.user
+    var currentRole
+
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
 
     let filters = {}
     for (var filter in ctx.request.query) {
@@ -66,37 +51,37 @@ module.exports = new Route({
       }
 
       if (filter === 'product') {
-        filters[filter] = await Product.findOne({
-          'uuid': ctx.request.query[filter],
-          organization: dataset.organization
-        })
+        // filters[filter] = await Product.findOne({
+        //   'uuid': ctx.request.query[filter],
+        //   organization: dataset.organization
+        // })
         continue
       }
 
       if (filter === 'channel') {
-        filters[filter] = await Channel.findOne({
-          'uuid': ctx.request.query[filter],
-          organization: dataset.organization
-        })
+        // filters[filter] = await Channel.findOne({
+        //   'uuid': ctx.request.query[filter],
+        //   organization: dataset.organization
+        // })
         continue
       }
 
       if (filter === 'salesCenter') {
-        filters[filter] = await SalesCenter.findOne({
-          'uuid': ctx.request.query[filter],
-          organization: dataset.organization
-        })
+        // filters[filter] = await SalesCenter.findOne({
+        //   'uuid': ctx.request.query[filter],
+        //   organization: dataset.organization
+        // })
         continue
       }
 
-      if (filter === 'category') {
-        var products = await Product.find({
-          'category': ctx.request.query[filter],
-          organization: dataset.organization
-        })
-        filters['product'] = { $in: products.map(item => { return item._id }) }
-        continue
-      }
+      // if (filter === 'category') {
+      //   var products = await Product.find({
+      //     'category': ctx.request.query[filter],
+      //     organization: dataset.organization
+      //   })
+      //   filters['product'] = { $in: products.map(item => { return item._id }) }
+      //   continue
+      // }
 
       if (filter === 'period') {
         const periods = await Period.find({uuid: {$in: ctx.request.query[filter]}})
@@ -111,7 +96,7 @@ module.exports = new Route({
       }
 
       var isCatalog = catalogs.find(item => {
-        return item === filter
+        return item.slug === filter
       })
 
       if (isCatalog) {
@@ -127,31 +112,48 @@ module.exports = new Route({
       }
     }
 
+    // const catalogItems = await CatalogItem.filterByUserRole(
+    //   { uuid: { $in: data.catalogItems } },
+    //   currentRole.slug,
+    //   user
+    // )
+    // catalogItemsFilters = new Set(catalogItemsFilters)
+
+    // for (let cItem of catalogItems) {
+    //   catalogItemsFilters.add(cItem)
+    // }
+
     if (catalogItemsFilters.length > 0) {
-      filters['catalogItems'] = { $all: catalogItemsFilters }
+      let catalogItems = await CatalogItem.filterByUserRole(
+        { _id: { $in: catalogItemsFilters } },
+        currentRole.slug,
+        user
+      )
+      filters['catalogItems'] = { '$all': catalogItems }
     }
+
+    console.log(filters.catalogItems)
 
     filters['dataset'] = dataset._id
-
-    const user = ctx.state.user
-    var currentRole
-
-    const currentOrganization = user.organizations.find(orgRel => {
-      return ctx.state.organization._id.equals(orgRel.organization._id)
-    })
-
-    if (currentOrganization) {
-      const role = await Role.findOne({_id: currentOrganization.role})
-
-      currentRole = role.toPublic()
-    }
 
     if (
       currentRole.slug === 'manager-level-1' ||
       currentRole.slug === 'manager-level-2' ||
-      currentRole.slug === 'consultor'
+      currentRole.slug === 'consultor-level-2' ||
+      currentRole.slug === 'consultor-level-3' ||
+      currentRole.slug === 'manager-level-3'
     ) {
       var groups = user.groups
+
+      if (catalogItemsFilters.length === 0) {
+        let catalogItems = await CatalogItem.filterByUserRole(
+          { _id: { $in: catalogItemsFilters } },
+          currentRole.slug,
+          user
+        )
+        filters['catalogItems'] = { '$in': catalogItems }
+      }
+
       if (!filters['salesCenter']) {
         var salesCenters = []
 
@@ -175,6 +177,8 @@ module.exports = new Route({
       }
     }
 
+    console.log(filters)
+
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
     .populate(['salesCenter', 'adjustmentRequest', 'channel', 'period', 'catalogItems'])
     .sort(ctx.request.query.sort || '-dateCreated')
@@ -192,7 +196,10 @@ module.exports = new Route({
     }
 
     var auxRows = []
-    for (var item of rows) {
+    for (let item of rows) {
+      for (let catalogItem of item.catalogItems) {
+        await catalogItem.populate('catalog').execPopulate()
+      }
       auxRows.push({
         uuid: item.uuid,
         salesCenter: item.salesCenter ? item.salesCenter.name : '',

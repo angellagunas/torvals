@@ -1,3 +1,4 @@
+import React, { Component } from 'react'
 import {
   BrowserRouter as Router,
   Switch,
@@ -6,7 +7,6 @@ import {
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
-
 import LandPage from './pages/land-page'
 import Dashboard from './pages/dashboard'
 import Users from './pages/users/list'
@@ -41,8 +41,9 @@ import ProductsImport from './pages/import/products'
 import SalesCentersImport from './pages/import/sales-centers'
 import CatalogRouter from './pages/catalog/router'
 import CatalogDetail from './pages/catalog/detail'
-import tree from '~core/tree'
-import React, { Component } from 'react'
+import HistoricalReport from './pages/reports/historic'
+import StatusReport from './pages/reports/status'
+import DownloadReport from './pages/reports/download'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -101,6 +102,9 @@ class AppRouter extends Component {
               {PriceDetail.asRouterItem()}
               {CatalogDetail.asRouterItem()}
 
+              {HistoricalReport.asRouterItem()}
+              {StatusReport.asRouterItem()}
+              {DownloadReport.asRouterItem()}
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
               <Route component={NoMatch} />

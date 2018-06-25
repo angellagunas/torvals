@@ -60,8 +60,8 @@ const task = new Task(
     }
 
     currentDateDiff += cyclesAvailable
-    var previousYear
-    var cycleNumber
+    let previousYear
+    let cycleNumber = 0
     for (let i = 1; i <= currentDateDiff; i++) {
       let endDate = moment(startDate).utc().add(cycleDuration, cycle)
       endDate = moment(endDate).utc().subtract(1, 'd')
@@ -69,7 +69,7 @@ const task = new Task(
       let endYear = moment(endDate).format('YYYY')
 
       if (startYear !== endYear) {
-        if (takeStart) {
+        if (!takeStart) {
           cycleNumber = 1
         } else {
           cycleNumber++

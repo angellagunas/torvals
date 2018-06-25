@@ -7,12 +7,28 @@ const slugify = require('underscore.string/slugify')
 var changeRoleNames = async function () {
   console.log('Starting .....')
   try {
-    console.log('*****Changing role "OpsManager" to "Manager Level 2"')
-    var roleObj = await Role.findOne({slug: 'opsmanager'})
-    var newNameRole = 'Manager Level 2'
+    console.log('*****Changing role "Consultor" to "Consultor Level 3"')
+    var roleObj = await Role.findOne({slug: 'consultor'})
+    var newNameRole = 'Consultor Level 3'
     var newNameRoleSlug = slugify(newNameRole)
 
     var newRoleObj = await Role.findOne({slug: newNameRoleSlug})
+
+    if (roleObj && !newRoleObj) {
+      roleObj.name = newNameRole
+      roleObj.slug = newNameRoleSlug
+      await roleObj.save()
+      console.log('Done "Consultor" to "Consultor Level 3" .....')
+    } else {
+      console.log('Role "Consultor" doesnt exits or role "Consultor Level 3" already exits')
+    }
+
+    console.log('*****Changing role "OpsManager" to "Manager Level 2"')
+    roleObj = await Role.findOne({slug: 'opsmanager'})
+    newNameRole = 'Manager Level 2'
+    newNameRoleSlug = slugify(newNameRole)
+
+    newRoleObj = await Role.findOne({slug: newNameRoleSlug})
 
     if (roleObj && !newRoleObj) {
       roleObj.name = newNameRole
