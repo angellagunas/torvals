@@ -106,37 +106,14 @@ class DownloadReport extends Component {
     return str.charAt(0).toUpperCase() + str.slice(1)
   }
 
-  crateTestData() {
-    const base = i => ({
-      'organization':'5ae9ef852fda5d768d050e10',
-      'dateCreated':'2018-06-20T20:15:05.201Z',
-      'uuid': i + '64552621-8b5b-4c0f-9766-0785c88fff83',
-      'project':{
-        '_id':'5b2a896caf2254a9c525f8dd',
-        'name':'20 Jun'
-      },
-      'url':'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/datasets/7e8b361a-2804-472f-b768-56f276459ef7.csv',
-      'minDate':`2018-0${i}-01`,
-      'maxDate':`2018-0${i + 2}-01`
-    })
-
-    return [
-      base(1), base(1), base(1), base(1),
-      base(2), base(2), base(2),
-      base(3), base(3),
-      base(4)
-    ]
-  }
-
   async getData() {
     try {
       const url = `/app/adjustmentDownloads/${this.state.projectSelected.uuid}`
       const { data=[] } = await api.get(url)
       const dataItems = []
-      const dataTest = this.crateTestData()
 
       moment.locale('es')
-      dataTest.forEach(item => {
+      data.forEach(item => {
         item.minMonth = this.capitalize(moment.utc(item.minDate).format('MMMM'))
         item.maxMonth = this.capitalize(moment.utc(item.maxDate).format('MMMM YYYY'))
 
