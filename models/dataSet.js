@@ -282,6 +282,7 @@ dataSetSchema.methods.processData = async function () {
   await this.rule.populate('catalogs').execPopulate()
 
   this.products = []
+  this.newProducts = []
   this.channels = []
   this.salesCenters = []
   this.catalogItems = []

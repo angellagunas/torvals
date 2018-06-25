@@ -131,7 +131,7 @@ module.exports = new Route({
       {
         '$lookup': {
           'from': 'catalogitems',
-          'localField': 'product',
+          'localField': 'newProduct',
           'foreignField': '_id',
           'as': 'products'
         }
