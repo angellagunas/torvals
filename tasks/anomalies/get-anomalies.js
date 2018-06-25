@@ -55,9 +55,8 @@ const task = new Task(
     for (let dataRow = await datasetrows.next(); dataRow != null; dataRow = await datasetrows.next()) {
       try {
         bulkOps.push({
-          salesCenter: dataRow.salesCenter,
           product: dataRow.product,
-          channel: dataRow.channel,
+          newProduct: dataRow.newProduct,
           project: project._id,
           prediction: dataRow.data.prediction,
           organization: project.organization,

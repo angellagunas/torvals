@@ -244,7 +244,11 @@ class TabAnomalies extends Component {
             'default': 'N/A',
             'sortable': true,
             formatter: (row) => {
-              return String((row.catalogItems[i] || {}).name)
+              return  row.catalogItems.map(item => {
+                if(catalog.slug === item.type){
+                  return item.name
+                }
+              })
             }
           }
         )
