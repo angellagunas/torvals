@@ -73,12 +73,12 @@ class ProductTable extends Component {
 
   getCatalogColumns() {
     return this.rules.catalogs.map(item => {
-      if(item.slug !== 'producto'){
+      if (item.slug !== 'producto' && item.slug !== 'precio'){
       return (
         {
           group: ' ',
           title: item.name,
-          property: item.slug,
+          property: 'catalog_' + item.slug,
           default: 'N/A',
           sortable: true,
           groupClassName: 'table-week',
@@ -192,7 +192,7 @@ class ProductTable extends Component {
       {
         group: ' ',
         title: 'Periodo',
-        property: 'period',
+        property: 'period.period',
         default: 'N/A',
         sortable: true,
         groupClassName: 'table-week',
@@ -311,14 +311,37 @@ class ProductTable extends Component {
 
   handleSort (e) {
     let sorted = this.state.filteredData
-
     if (e === 'productId') {
       if (this.state.sortAscending) {
         sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
       } else {
         sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
       }
-    } else {
+
+    } 
+    else if (e.indexOf('_') !== -1) {
+      let sort = e.split('_')
+      
+      if (this.state.sortAscending) {
+        sorted = _.orderBy(sorted, function (e) { 
+          return e.catalogItems.map((item, key) => {
+            if (sort[1] === item.type) {
+              return e.catalogItems[key]['name'].toLowerCase()
+            }
+          }) 
+        }, ['asc'])
+      }
+      else {
+        sorted = _.orderBy(sorted, function (e) {
+          return e.catalogItems.map((item, key) => {
+            if (sort[1] === item.type) {
+              return e.catalogItems[key]['name'].toLowerCase()
+            }
+          })
+        }, ['desc'])
+      }
+    }
+    else {
       if (this.state.sortAscending) {
         sorted = _.orderBy(sorted, [e], ['asc'])
       } else {

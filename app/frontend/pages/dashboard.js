@@ -705,7 +705,7 @@ class Dashboard extends Component {
   render () {
     const user = this.context.tree.get('user')
 
-    if (!user.currentOrganization.isConfigured) {
+    if (!user.currentOrganization.isConfigured && user.currentRole === 'orgadmin') {
       return(
         <Wizard rules={this.rules} org={user.currentOrganization}/>
       )

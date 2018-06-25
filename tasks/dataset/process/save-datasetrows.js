@@ -20,7 +20,7 @@ const task = new Task(
     log.call(`Start ==>  ${moment().format()}`)
 
     const dataset = await DataSet.findOne({uuid: argv.uuid})
-    .populate('products cycles periods catalogItems project')
+    .populate('newProducts cycles periods catalogItems project')
 
     if (!dataset) {
       throw new Error('Invalid uuid!')

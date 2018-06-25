@@ -128,7 +128,7 @@ module.exports = new Route({
     }
 
     var rows = await DataSetRow.find({isDeleted: false, ...filters})
-    .populate(['adjustmentRequest', 'product', 'period', 'catalogItems'])
+    .populate(['adjustmentRequest', 'newProduct', 'period', 'catalogItems'])
     .sort(ctx.request.query.sort || '-dateCreated')
 
     const AllPrices = await Price.find({'organization': ctx.state.organization._id})
@@ -147,9 +147,9 @@ module.exports = new Route({
       }
       auxRows.push({
         uuid: item.uuid,
-        productId: item.product ? item.product.externalId : '',
-        productName: item.product ? item.product.name : '',
-        productPrice: prices[item.product._id] || '',
+        productId: item.newProduct ? item.newProduct.externalId : '',
+        productName: item.newProduct ? item.newProduct.name : '',
+        productPrice: item.newProduct ? prices[item.newProduct._id] : '',
         period: item.period,
         prediction: item.data.prediction,
         adjustment: item.data.adjustment,
