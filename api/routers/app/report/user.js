@@ -68,15 +68,15 @@ module.exports = new Route({
     ]
 
     const stats = await UserReport.aggregate(statement)
-    let activeUsers = []
+    let finishedUsers = []
     let inProgressUsers = []
     let report = {}
     for (let stat of stats) {
       for (let user of stat.users) {
         if (stat._id.status === 'finished') {
-          inProgressUsers.push(user[0])
+          finishedUsers.push(user[0])
         } else {
-          activeUsers.push(user[0])
+          inProgressUsers.push(user[0])
         }
       }
       report[stat._id.status] = stat.count
@@ -88,11 +88,11 @@ module.exports = new Route({
         return item.uuid
       })
     }
-    const inactiveUsers = _.difference(data.users, [...activeUsers, ...inProgressUsers])
+    const inactiveUsers = _.difference(data.users, [...finishedUsers, ...inProgressUsers])
     report['inactive'] = inactiveUsers.length
 
     report['inactiveUsers'] = inactiveUsers
-    report['activeUsers'] = activeUsers
+    report['finishedUsers'] = finishedUsers
     report['inProgressUsers'] = inProgressUsers
 
     ctx.body = {
