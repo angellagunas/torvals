@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import CalendarRules from './calendar-rules';
 import { toast } from 'react-toastify'
 import Cal from '../../cal';
+import Checkbox from '~base/components/base-checkbox'
 
 const colors = {
   1: {
@@ -72,7 +73,8 @@ class Periods extends Component {
         takeStart: rules.takeStart !== undefined ? rules.takeStart : true,
         cyclesAvailable: rules.cyclesAvailable || 2,
         season: rules.season || 4,
-        startDate: moment.utc(rules.startDate) || moment.utc()
+        startDate: moment.utc(rules.startDate) || moment.utc(),
+        hasAnomalies: true
       },
       help: {
         cyclesAvailable: 'is-hidden'
@@ -452,6 +454,15 @@ class Periods extends Component {
     })
   }
 
+  hasAnomalies(value){
+    this.setState({
+      timesSelected: {
+        ...this.state.timesSelected,
+        hasAnomalies: value
+      }
+    })
+  }
+
   render() {
     return (
       <div className='section pad-sides has-20-margin-top'>
@@ -574,6 +585,12 @@ class Periods extends Component {
                         </div>
                       </div>
                     </div>
+                    <br/>
+                    <Checkbox
+                      label={<span title='Usar anomalias'>Usar anomalias</span>}
+                      handleCheckboxChange={(e, value) => this.hasAnomalies(value)}
+                      checked={this.state.timesSelected.hasAnomalies}
+                    />
                     <br />
 
                       <p>
@@ -609,7 +626,7 @@ class Periods extends Component {
                           } />
                         <span>Usar la fecha <strong className='has-text-info'>final</strong> del periodo para determinar el ciclo al que pertenece</span>
                       </label>
-                    </p>
+                    </p>                    
                   </div>
                 </div>
               </div>
