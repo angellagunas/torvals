@@ -91,12 +91,13 @@ const task = new Task(
     let periodNumber = 1
     let cycleNumber = 1
     let cycleStartDate = moment(periodStartDate)
-    let cycleEndDate = moment(cycleStartDate).add(cycleDuration, cycle).subtract(1, 'd')
+    let cycleEndDate
 
     while(lastEndDate.isSameOrAfter(periodStartDate)) {
+        cycleEndDate = moment(cycleStartDate).add(cycleDuration, cycle).subtract(1, 'd')
 
         let cycleInstance = await Cycle.findOne({
-          dateStart: {$gte: moment(cycleStartDate)},
+          dateStart: moment(cycleStartDate),
           organization: organization._id,
           rule: rule._id,
           cycle: cycleNumber
@@ -195,7 +196,6 @@ const task = new Task(
         }
 
         cycleStartDate = moment(periodStartDate)
-        cycleEndDate = moment(cycleStartDate).add(cycleDuration, cycle).subtract(1, 'd')
     }
 
     return true
