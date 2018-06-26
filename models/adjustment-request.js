@@ -16,8 +16,7 @@ const adjustmentRequestSchema = new Schema({
   approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   rejectedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
-  salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
-  channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
+  newProduct: { type: Schema.Types.ObjectId, ref: 'CatalogItem' },
   catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
   status: {
     type: String,
@@ -49,6 +48,7 @@ adjustmentRequestSchema.methods.toPublic = function () {
     project: this.project,
     status: this.status,
     newAdjustment: this.newAdjustment,
+    catalogItems: this.catalogItems,
     lastAdjustment: this.lastAdjustment
   }
 }
@@ -68,6 +68,7 @@ adjustmentRequestSchema.methods.toAdmin = function () {
     project: this.project,
     status: this.status,
     lastAdjustment: this.lastAdjustment,
+    catalogItems: this.catalogItems,
     newAdjustment: this.newAdjustment
   }
 }

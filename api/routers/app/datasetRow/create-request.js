@@ -46,6 +46,7 @@ module.exports = new Route({
           dataset: datasetRow.dataset,
           datasetRow: datasetRow._id,
           product: datasetRow.product,
+          newProduct: datasetRow.newProduct,
           channel: datasetRow.channel,
           salesCenter: datasetRow.salesCenter,
           lastAdjustment: datasetRow.data.adjustment,
