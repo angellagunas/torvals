@@ -1831,10 +1831,11 @@ renderUnidentified(){
                             name: this.state.dataset.name,
                             description: this.state.dataset.description,
                             organization: this.state.dataset.organization.uuid,
-                            status: datasetStatus[dataset.status]
+                            status: dataset.status
                           }}
                           load={this.load.bind(this)}
                           canEdit={canEdit}
+                          isAdmin={testRoles('orgadmin')}
                           submitHandler={(data) => this.submitHandler(data)}
                           errorHandler={(data) => this.errorHandler(data)}
                           finishUp={(data) => this.finishUpHandler(data)}

@@ -716,6 +716,7 @@ class ProjectDetail extends Component {
                 load={this.load.bind(this)}
                 canEdit={canEdit}
                 editable
+                isAdmin={testRoles('orgadmin')}
                 submitHandler={(data) => this.submitHandler(data)}
                 errorHandler={(data) => this.errorHandler(data)}
                 finishUp={(data) => this.finishUpHandler(data)}

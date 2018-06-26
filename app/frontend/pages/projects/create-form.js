@@ -39,6 +39,7 @@ class ProjectForm extends Component {
   componentWillMount () {
     if (this.props.setAlert) { this.props.setAlert('is-white', ' ') }
   }
+
   errorHandler (e) {}
 
   changeHandler ({formData}) {
@@ -90,7 +91,7 @@ class ProjectForm extends Component {
     let { editable } = this.props
 
     if (editable) {
-      this.uiSchema['status'] = {'ui:widget': SelectWidget, 'ui:disabled': true}
+      this.uiSchema['status'] = {'ui:widget': SelectWidget, 'ui:disabled': !this.props.isAdmin}
       this.schema.properties['status'] = {
         type: 'string',
         title: 'Estado',
@@ -154,14 +155,14 @@ class ProjectForm extends Component {
     if (!canEdit) {
       this.uiSchema.name['ui:disabled'] = true
       this.uiSchema.description['ui:disabled'] = true
-      if (this.uiSchema.status) this.uiSchema.status['ui:disabled'] = true
+      if (this.uiSchema.status) this.uiSchema.status['ui:disabled'] = !this.props.isAdmin
     } else {
       delete this.uiSchema.name['ui:disabled']
       delete this.uiSchema.description['ui:disabled']
       if (this.uiSchema.status) delete this.uiSchema.status['ui:disabled']
     }
 
-    if (this.uiSchema.status) this.uiSchema.status['ui:disabled'] = true
+    if (this.uiSchema.status) this.uiSchema.status['ui:disabled'] = !this.props.isAdmin
     if (this.state.formData.cycleStatus) {
       this.uiSchema['cycleStatus'] = {'ui:widget': TextWidget, 'ui:disabled': true}
       this.schema.properties['cycleStatus'] = {
