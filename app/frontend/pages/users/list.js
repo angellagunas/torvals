@@ -136,6 +136,10 @@ export default ListPage({
             disabledActions = true
           }
 
+          if (currentUser.currentRole.slug === 'orgadmin') {
+            disabledActions = false
+          }
+
           return (
             <div className='field is-grouped'>
               <div className='control'>
