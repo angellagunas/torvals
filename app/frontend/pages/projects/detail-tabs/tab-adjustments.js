@@ -939,12 +939,6 @@ class TabAdjustment extends Component {
   }
 
   async downloadReport () {
-    if (!this.state.formData.salesCenter) {
-      this.notify('¡Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
-
-      return
-    }
-
     this.setState({isDownloading: ' is-loading'})
 
     let min
