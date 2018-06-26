@@ -402,8 +402,8 @@ class ProjectDetail extends Component {
     })
     let { pendingDataRows } = this.state
     let pendingDataRowsArray = Object.values(pendingDataRows)
-
-    await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage)
+    let finishAdjustments = true
+    await this.handleAdjustmentRequest(pendingDataRowsArray, showMessage, finishAdjustments)
     this.setState({
       isConciliating: ''
     })
@@ -433,7 +433,7 @@ class ProjectDetail extends Component {
     }
   }
 
-  async handleAdjustmentRequest(obj, showMessage) {
+  async handleAdjustmentRequest(obj, showMessage, finishAdjustments=false) {
     let { pendingDataRows } = this.state
     let productAux = []
     if (currentRole === 'consultor-level-3') {
@@ -445,9 +445,9 @@ class ProjectDetail extends Component {
     } else {
       productAux.push(obj)
     }
-
+    let rows = productAux.filter(item => { return item.newAdjustment && item.isLimit })
     try {
-      var res = await api.post('/app/rows/request', productAux.filter(item => { return item.newAdjustment && item.isLimit }))
+      var res = await api.post('/app/rows/request', {rows: rows, finishAdjustments: finishAdjustments})
       if (currentRole === 'manager-level-1') {
         this.notify('Sus ajustes se han guardado', 5000, toast.TYPE.INFO)
         if (showMessage) {
@@ -716,6 +716,7 @@ class ProjectDetail extends Component {
                 load={this.load.bind(this)}
                 canEdit={canEdit}
                 editable
+                isAdmin={testRoles('orgadmin')}
                 submitHandler={(data) => this.submitHandler(data)}
                 errorHandler={(data) => this.errorHandler(data)}
                 finishUp={(data) => this.finishUpHandler(data)}
