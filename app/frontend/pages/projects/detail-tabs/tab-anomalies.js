@@ -166,8 +166,6 @@ class TabAnomalies extends Component {
 
   async getFilters () {
     await this.getCatalogFilters()
-    await this.getSalesCent()
-    await this.getProducts()
     await this.getData()
   }
 
@@ -189,7 +187,7 @@ class TabAnomalies extends Component {
     let url = '/app/catalogItems/'
     let filters = []
     this.rules.catalogs.map(async item => {
-        let res = await api.get(url + item.slug)
+        let res = await api.get(url + item.slug,{limit:0})
         if (res) {
           let aux = this.state.filters
           aux[item.slug] = res.data
@@ -562,18 +560,6 @@ class TabAnomalies extends Component {
   render () {
     if (!this.state.loaded) {
       return <Loader />
-    }
-
-    if (this.state.filters.products.length === 0 ||
-      this.state.filters.salesCenters.length === 0
-    ) {
-      return (
-        <section className='section'>
-          <center>
-            <h2 className='has-text-info'>No hay anomalías que mostrar</h2>
-          </center>
-        </section>
-      )
     }
 
     return (
