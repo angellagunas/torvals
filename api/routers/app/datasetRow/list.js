@@ -105,7 +105,6 @@ module.exports = new Route({
         currentRole.slug,
         user
       )
-      console.log(catalogItems)
       filters['catalogItems'] = { '$all': catalogItems }
     }
 
@@ -124,7 +123,6 @@ module.exports = new Route({
           currentRole.slug,
           user
         )
-        console.log(catalogItems)
         filters['catalogItems'] = { '$in': catalogItems }
       }
     }
