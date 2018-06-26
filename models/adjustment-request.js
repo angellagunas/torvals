@@ -49,7 +49,8 @@ adjustmentRequestSchema.methods.toPublic = function () {
     status: this.status,
     newAdjustment: this.newAdjustment,
     catalogItems: this.catalogItems,
-    lastAdjustment: this.lastAdjustment
+    lastAdjustment: this.lastAdjustment,
+    newProduct: this.newProduct
   }
 }
 
@@ -69,7 +70,8 @@ adjustmentRequestSchema.methods.toAdmin = function () {
     status: this.status,
     lastAdjustment: this.lastAdjustment,
     catalogItems: this.catalogItems,
-    newAdjustment: this.newAdjustment
+    newAdjustment: this.newAdjustment,
+    newProduct: this.newProduct
   }
 }
 

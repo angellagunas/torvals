@@ -114,7 +114,8 @@ module.exports = new Route({
         'approvedBy',
         'rejectedBy',
         'newProduct',
-        'catalogItems'
+        'catalogItems',
+        'datasetRow'
       ],
       sort: ctx.request.query.sort || '-dateCreated'
     })
@@ -122,6 +123,7 @@ module.exports = new Route({
     adjustmentRequests.data = adjustmentRequests.data.map(item => {
       return {
         ...item.toPublic(),
+        product: item.newProduct,
         requestedBy: item.requestedBy.toPublic(),
         approvedBy: item.approvedBy ? item.approvedBy.toPublic() : undefined,
         rejectedBy: item.rejectedBy ? item.rejectedBy.toPublic() : undefined,
