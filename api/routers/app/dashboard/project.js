@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const _ = require('lodash')
 const ObjectId = require('mongodb').ObjectID
 
-const { DataSetRow, Project, Role, SalesCenter, Channel } = require('models')
+const { DataSetRow, Project, Role, CatalogItem } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -51,23 +51,18 @@ module.exports = new Route({
         userGroups.push(ObjectId(g))
       }
 
-      const salesCenters = await SalesCenter.find({groups: {$elemMatch: { '$in': userGroups }}}).select({'_id': 1})
-      const matchSalesCenters = salesCenters.map(item => { return item._id })
-
-      const channels = await Channel.find({groups: {$elemMatch: { '$in': userGroups }}}).select({'_id': 1})
-      const matchChannels = channels.map(item => { return item._id })
+      const catalogItems = await CatalogItem.filterByUserRole(
+        { },
+        currentRole.slug,
+        user
+      )
       matchCond = {
         '$match': {
           'dataset': {
             '$in': datasets
           },
           'isDeleted': false,
-          'salesCenter': {
-            $in: matchSalesCenters
-          },
-          'channel': {
-            $in: matchChannels
-          }
+          'catalogItems': { $in: catalogItems }
         }
       }
     } else {
@@ -91,14 +86,8 @@ module.exports = new Route({
       {
         '$group': {
           '_id': null,
-          'channel': {
-            '$addToSet': '$channel'
-          },
-          'salesCenter': {
-            '$addToSet': '$salesCenter'
-          },
           'product': {
-            '$addToSet': '$product'
+            '$addToSet': '$newProduct'
           },
           'catalogItem': {
             '$addToSet': '$catalogItems'
@@ -107,23 +96,7 @@ module.exports = new Route({
       },
       {
         '$lookup': {
-          'from': 'channels',
-          'localField': 'channel',
-          'foreignField': '_id',
-          'as': 'channels'
-        }
-      },
-      {
-        '$lookup': {
-          'from': 'salescenters',
-          'localField': 'salesCenter',
-          'foreignField': '_id',
-          'as': 'salesCenters'
-        }
-      },
-      {
-        '$lookup': {
-          'from': 'products',
+          'from': 'catalogitems',
           'localField': 'product',
           'foreignField': '_id',
           'as': 'products'
@@ -143,9 +116,6 @@ module.exports = new Route({
 
     if (datasetRow.length === 0) {
       ctx.body = {
-        channels: [],
-        products: [],
-        salesCenters: [],
         catalogItems: []
       }
 
@@ -153,9 +123,7 @@ module.exports = new Route({
     }
 
     ctx.body = {
-      channels: datasetRow[0].channels,
       products: datasetRow[0].products,
-      salesCenters: datasetRow[0].salesCenters,
       catalogItems: datasetRow[0].catalogItems
     }
   }

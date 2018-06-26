@@ -104,38 +104,38 @@ class TabApprove extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          return String(row.datasetRow.product.externalId)
+          return String(row.datasetRow.newProduct.externalId)
         }
       },
       {
         'title': 'Producto',
-        'property': 'datasetRow.product.name',
+        'property': 'datasetRow.newProduct.name',
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return String(row.datasetRow.product.name)
+          return String(row.datasetRow.newProduct.name)
         }
       },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'datasetRow.salesCenter.name',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.datasetRow.salesCenter.name)
-        }
-      },
-      {
-        'title': 'Semana',
-        'property': 'datasetRow.data.semanaBimbo',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.datasetRow.data.semanaBimbo)
-        }
-      },
+      // {
+      //   'title': 'Centro de venta',
+      //   'abbreviate': true,
+      //   'abbr': 'C. Venta',
+      //   'property': 'datasetRow.salesCenter.name',
+      //   'default': 'N/A',
+      //   'sortable': true,
+      //   formatter: (row) => {
+      //     return String(row.datasetRow.salesCenter.name)
+      //   }
+      // },
+      // {
+      //   'title': 'Semana',
+      //   'property': 'datasetRow.data.semanaBimbo',
+      //   'default': 'N/A',
+      //   'sortable': true,
+      //   formatter: (row) => {
+      //     return String(row.datasetRow.data.semanaBimbo)
+      //   }
+      // },
       {
         'title': 'Predicción',
         'property': 'datasetRow.data.prediction',

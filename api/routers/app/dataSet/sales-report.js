@@ -6,7 +6,6 @@ module.exports = new Route({
   path: '/sales/:uuid',
   handler: async function (ctx) {
     var data = ctx.request.body
-    console.log(data)
     const dataset = await DataSet.findOne({uuid: ctx.params.uuid}).populate('rule')
     ctx.assert(dataset, 404, 'Dataset no encontrado')
 
@@ -76,53 +75,13 @@ module.exports = new Route({
     ) {
       if (catalogItemsFilters.length === 0) {
         let catalogItems = await CatalogItem.filterByUserRole(
-            { _id: { $in: catalogItemsFilters } },
+            { },
             currentRole.slug,
             user
           )
         match['catalogItems'] = { '$in': catalogItems }
       }
     }
-    console.log(JSON.stringify(match))
-
-    // if (data.salesCenter) {
-    //   const salesCenter = await SalesCenter.findOne({uuid: data.salesCenter})
-    //   ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
-    //   match['salesCenter'] = salesCenter._id
-    // }
-
-    // if (
-    //   (
-    //     currentRole.slug === 'manager-level-1' ||
-    //     currentRole.slug === 'manager-level-2' ||
-    //     currentRole.slug === 'consultor-level-2' ||
-    //     currentRole.slug === 'consultor-level-3' ||
-    //     currentRole.slug === 'manager-level-3'
-    //   ) && !data.salesCenters
-    // ) {
-    //   var groups = user.groups
-    //   var salesCenters = []
-
-    //   salesCenters = await SalesCenter.findOne({groups: {$in: groups}})
-
-    //   if (salesCenters) {
-    //     match['salesCenter'] = salesCenters._id
-    //   } else {
-    //     ctx.throw(400, '¡Se le debe asignar al menos un centro de venta al usuario!')
-    //   }
-    // }
-
-    // if (data.channel) {
-    //   const channel = await Channel.findOne({uuid: data.channel})
-    //   ctx.assert(channel, 404, 'Canal no encontrado')
-    //   match['channel'] = channel._id
-    // }
-
-    // if (data.product) {
-    //   const product = await Product.findOne({uuid: data.product})
-    //   ctx.assert(product, 404, 'Producto no encontrado')
-    //   match['product'] = product._id
-    // }
 
     var statement = [
       {
@@ -202,7 +161,6 @@ module.exports = new Route({
     ]
 
     var res = await DataSetRow.aggregate(statement)
-    console.log(res)
 
     ctx.body = {
       data: res

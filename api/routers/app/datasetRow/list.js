@@ -105,6 +105,7 @@ module.exports = new Route({
         currentRole.slug,
         user
       )
+      console.log(catalogItems)
       filters['catalogItems'] = { '$all': catalogItems }
     }
 
@@ -119,10 +120,11 @@ module.exports = new Route({
     ) {
       if (catalogItemsFilters.length === 0) {
         let catalogItems = await CatalogItem.filterByUserRole(
-          { _id: { $in: catalogItemsFilters } },
+          { },
           currentRole.slug,
           user
         )
+        console.log(catalogItems)
         filters['catalogItems'] = { '$in': catalogItems }
       }
     }

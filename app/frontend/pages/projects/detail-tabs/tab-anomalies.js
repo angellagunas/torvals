@@ -296,7 +296,7 @@ class TabAnomalies extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return String(row.product.externalId)
+          return String(row.newProduct.externalId)
         }
       },
       {
@@ -305,7 +305,7 @@ class TabAnomalies extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return String(row.product.name)
+          return String(row.newProduct.name)
         }
       },
       ...catalogItems,
