@@ -16,7 +16,8 @@ const {
   CatalogItem,
   DataSetRow,
   Cycle,
-  Period
+  Period,
+  Anomaly
 } = require('models')
 
 const task = new Task(async function (argv) {
@@ -300,6 +301,7 @@ const task = new Task(async function (argv) {
       }
     }
 
+    await Anomaly.deleteMany({project: project._id})
     await getAnomalies.run({uuid: argv.uuid})
 
     log.call('Saving status as pendingRows')
