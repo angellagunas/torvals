@@ -12,7 +12,7 @@ export default ListPage({
   path: '/catalogs/prices',
   title: 'Precios',
   titleSingular: 'Precio',
-  icon: 'money',
+  icon: 'list-alt',
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   exact: true,
   validate: [loggedIn, verifyRole],
@@ -27,6 +27,16 @@ export default ListPage({
         path: '/',
         label: 'Inicio',
         current: false
+      },
+      {
+        path: '/',
+        label: 'Administración',
+        current: true
+      },
+      {
+        path: '/',
+        label: 'Catálogos',
+        current: true
       },
       {
         path: '/catalogs/prices',

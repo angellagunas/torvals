@@ -8,6 +8,22 @@
 }
 
 @include desktop-only {
+  .main-wrapper {
+    margin-top: 0px;
+    margin-left: 42px;
+    transition: margin-left .5s;
+    .main {
+      border-radius: 5px;
+      -webkit-box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
+      -moz-box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
+      box-shadow: -6px 5px 16px -6px rgba(0, 0, 0, 0.3);
+      margin-bottom: 1rem;
+      min-height: 90vh;
+    }
+  }
+  .sidenav-open {
+    margin-left: 205px;
+  }
   .section {
     padding: 0.8rem 0.5rem;
   }
@@ -75,6 +91,22 @@
 }
 
 @include widescreen-only {
+  .main-wrapper {
+    margin-top: 0px;
+    margin-left: 42px;
+    transition: margin-left .5s;
+    .main {
+      border-radius: 5px;
+      -webkit-box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
+      -moz-box-shadow: -6px 3px 16px -8px rgba(0, 0, 0, 0.3);
+      box-shadow: -6px 5px 16px -6px rgba(0, 0, 0, 0.3);
+      margin-bottom: 1rem;
+      min-height: 90vh;
+    }
+  }
+  .sidenav-open {
+    margin-left: 205px;
+  }
   .section {
     padding: 1.2rem 0.6rem;
   }

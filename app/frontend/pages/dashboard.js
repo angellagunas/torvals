@@ -1165,7 +1165,7 @@ const branchedDashboard = branch({forecasts: 'forecasts'}, Dashboard)
 export default Page({
   path: '/dashboard',
   title: 'Dashboard',
-  icon: 'github',
+  icon: 'line-chart',
   exact: true,
   validate: loggedIn,
   component: branchedDashboard

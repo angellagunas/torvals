@@ -40,8 +40,13 @@ class CatalogRouter extends Component {
               current: false
             },
             {
+              path: '/',
+              label: 'Administración',
+              current: true
+            },
+            {
               path: '/catalogs/' + item.slug,
-              label: 'Catalogos',
+              label: 'Catálogos',
               current: true
             },
             {
