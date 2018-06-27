@@ -75,7 +75,7 @@ const task = new Task(
 
     try {
       const rows = await DataSetRow.aggregate(match).allowDiskUse(true)
-        .cursor({batchSize: batchSize * 10}).exec()
+        .cursor({batchSize: batchSize}).exec()
 
       log('Aggregate ready, transversing ...')
 

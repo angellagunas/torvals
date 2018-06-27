@@ -69,8 +69,8 @@ const task = new Task(
               ...anomaly.data,
               'prediction': anomaly.prediction,
               'sale': anomaly.data.sale,
+              'semanaBimbo': anomaly.data.semanaBimbo || 0,
               'forecastDate': anomaly.date,
-              'semanaBimbo': anomaly.data.semanaBimbo,
               'adjustment': anomaly.prediction,
               'localAdjustment': anomaly.prediction
             }

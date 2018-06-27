@@ -32,10 +32,20 @@ const task = new Task(
     log(`Using batch size of ${batchSize}`)
     log(`Start ==>  ${moment().format()}`)
 
-    const project = await Project.findOne({uuid: argv.uuid}).populate('mainDataset')
+    const project = await Project.findOne({uuid: argv.uuid}).populate('mainDataset rule')
 
     if (!project) {
       throw new Error('Project not found')
+    }
+
+    if (!project.rule.hasAnomalies) {
+      log('Organization doesnt have anomalies!')
+      project.set({
+        status: 'pendingRows'
+      })
+      await project.save()
+
+      return true
     }
 
     let month = moment.utc().startOf('month')

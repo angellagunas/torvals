@@ -28,7 +28,8 @@ const rulesSchema = new Schema({
   cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
   periods: [{type: Schema.Types.ObjectId, ref: 'Period'}],
   isCurrent: {type: Boolean, default: true},
-  version: {type: Number}
+  version: {type: Number},
+  hasAnomalies: {type: Boolean, default: true}
 }, { usePushEach: true })
 
 rulesSchema.plugin(dataTables)
