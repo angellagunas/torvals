@@ -77,7 +77,8 @@ const task = new Task(async function (argv) {
     rangeAdjustment: 10,
     salesUpload: 3,
     catalogs: currentCatalogs,
-    ranges: [0, 0, 10, 20, 30, null]
+    ranges: [0, 0, 10, 20, 30, null],
+    version: 1
   }
 
   log.call('Verifying catalog items...')
