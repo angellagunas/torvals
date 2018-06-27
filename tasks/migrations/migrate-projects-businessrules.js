@@ -37,7 +37,8 @@ const task = new Task(async function (argv) {
     organization: project.organization._id,
     isDeleted: false
   })
-  if (!currentCatalogs) {
+
+  if (!currentCatalogs || currentCatalogs.length === 0) {
     currentCatalogs = []
     log.call('Catalogs not found. Creating...')
     let catalogs = [{
@@ -162,7 +163,8 @@ const task = new Task(async function (argv) {
           name: channel.name,
           externalId: channel.externalId,
           organization: project.organization._id,
-          groups: channel.groups
+          groups: channel.groups,
+          type: 'canal'
         })
       } else {
         existingCatalogs.push(findChannel._id)
@@ -180,7 +182,8 @@ const task = new Task(async function (argv) {
           name: salesCenter.name,
           externalId: salesCenter.externalId,
           organization: project.organization._id,
-          groups: salesCenter.groups
+          groups: salesCenter.groups,
+          type: 'centro-de-venta'
         })
       } else {
         existingCatalogs.push(findSalesCenter._id)
@@ -197,7 +200,8 @@ const task = new Task(async function (argv) {
           }),
           name: product.name,
           externalId: product.externalId,
-          organization: project.organization._id
+          organization: project.organization._id,
+          type: 'producto'
         })
       } else {
         existingCatalogs.push(findProduct._id)
@@ -205,6 +209,7 @@ const task = new Task(async function (argv) {
     }
 
     bulkOps = Array.from(bulkOps)
+
     let catalogItemIds = await CatalogItem.insertMany(bulkOps)
     bulkOps = []
 
