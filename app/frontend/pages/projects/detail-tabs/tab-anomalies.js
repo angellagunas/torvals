@@ -22,13 +22,8 @@ class TabAnomalies extends Component {
       isLoading: '',
       loaded: false,
       isFiltered: false,
-      filters: {
-        products: [],
-        salesCenters: [],
-        categories: []
-      },
-      formData: {
-      },
+      filters: {},
+      formData: {},
       anomalies: [],
       requestId: 0,
       selectAll: false,
@@ -42,65 +37,6 @@ class TabAnomalies extends Component {
     currentRole = tree.get('user').currentRole.slug
     this.rules = this.props.rules
 
-  }
-
-  async getProducts () {
-    const url = '/app/products/'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name',
-      organization: this.props.project.organization.uuid
-    })
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        products: res.data
-      }
-    }, () => {
-      this.getCategory(res.data)
-    })
-  }
-
-  async getSalesCent () {
-    const url = '/app/salesCenters/'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name',
-      organization: this.props.project.organization.uuid
-    })
-
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        salesCenters: res.data
-      }
-    })
-
-    if (res.data.length === 1) {
-      this.setState({
-        formData: {
-          ...this.state.formData,
-          salesCenter: res.data[0].uuid
-        }
-      })
-    }
-  }
-
-  getCategory (products) {
-    const categories = new Set()
-    products.map((item) => {
-      if (item.category && !categories.has(item.category)) {
-        categories.add(item.category)
-      }
-    })
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        categories: Array.from(categories)
-      }
-    })
   }
 
   async filterChangeHandler(name, value) {
