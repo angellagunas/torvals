@@ -5,6 +5,7 @@ const moment = require('moment')
 const _ = require('lodash')
 
 const generateCycles = require('tasks/organization/generate-cycles')
+const getAnomalies = require('tasks/anomalies/get-anomalies')
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
 const {
@@ -298,6 +299,8 @@ const task = new Task(async function (argv) {
         })
       }
     }
+
+    await getAnomalies.run({uuid: argv.uuid})
 
     log.call('Saving status as pendingRows')
     project.set({
