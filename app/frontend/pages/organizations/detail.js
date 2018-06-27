@@ -262,15 +262,7 @@ class OrganizationDetail extends Component {
                   submitHandler={(data) => this.submitHandler(data)}
                   errorHandler={(data) => this.errorHandler(data)}
                   finishUp={(data) => this.finishUpHandler(data)}
-                >
-                  <button
-                    className={'button is-primary ' + this.state.isLoading}
-                    disabled={!!this.state.isLoading}
-                    type='submit'
-                  >
-                    Guardar
-                  </button>
-                </OrganizationForm>
+                />
 
               </div>
           </div>

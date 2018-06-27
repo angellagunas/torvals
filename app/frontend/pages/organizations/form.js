@@ -8,7 +8,6 @@ import {
   TextareaWidget,
   FileWidget
 } from '~base/components/base-form'
-import { shouldRender } from '~base/components/base-form/utils'
 
 const schema = {
   type: 'object',
@@ -63,7 +62,13 @@ class CustomForm extends Component {
             <strong>Detalle de tu organización</strong>
           </p>
           <div className="is-pulled-right">
-            {this.props.children}
+            <button
+              className={'button is-primary ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'
+            >
+              Guardar
+            </button>
           </div>
         </div>
 
@@ -172,10 +177,6 @@ class OrganizationForm extends Component {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return !shouldRender(this, nextProps, nextState)
-  }
-
   errorHandler (e) {}
 
   changeHandler ({formData}) {
@@ -239,11 +240,11 @@ class OrganizationForm extends Component {
           onSubmit={(e) => { this.submitHandler(e) }}
           onError={(e) => { this.errorHandler(e) }}
           fields={{
-            custom: props => (
+            custom: CustomForm /*props => (
               <CustomForm {...props}>
                 {this.props.children}
               </CustomForm>
-            )
+            )*/
           }}
         >
           <div className={this.state.apiCallMessage}>
