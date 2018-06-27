@@ -14,6 +14,7 @@ import HistoricReport from '../pages/reports/historic'
 import StatusReport from '../pages/reports/status'
 import DownloadReport from '../pages/reports/download'
 import Prices from '../pages/prices/list'
+import Roles from '../pages/roles/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -148,7 +149,8 @@ class Sidebar extends Component {
               to: '/manage/organizations/' + tree.get('organization').uuid
             },
             Groups.asSidebarItem(),
-            Users.asSidebarItem()
+            Users.asSidebarItem(),
+            Roles.asSidebarItem(),
           ]
         },
         Projects.asSidebarItem(),
