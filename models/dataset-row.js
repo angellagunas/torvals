@@ -9,9 +9,7 @@ const datasetRowSchema = new Schema({
   organization: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   dataset: { type: Schema.Types.ObjectId, ref: 'DataSet', required: true },
-  salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
-  channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
   newProduct: { type: Schema.Types.ObjectId, ref: 'CatalogItem' },
   catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
   adjustmentRequest: { type: Schema.Types.ObjectId, ref: 'AdjustmentRequest' },
@@ -39,9 +37,7 @@ const datasetRowSchema = new Schema({
     lastAdjustment: { type: Number },
     semanaBimbo: { type: Number },
     forecastDate: { type: Date },
-    productExternalId: { type: String },
-    channelExternalId: { type: String },
-    salesCenterExternalId: { type: String }
+    productExternalId: { type: String }
   },
   catalogData: { type: Schema.Types.Mixed },
   apiData: { type: Schema.Types.Mixed },

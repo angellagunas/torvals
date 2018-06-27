@@ -1,8 +1,6 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
-const { Price } = require('models')
-const Api = require('lib/abraxas/api')
-const verifyPrices = require('queues/update-prices')
+const { Price, CatalogItem } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -14,17 +12,25 @@ module.exports = new Route({
     var priceId = ctx.params.uuid
     var data = ctx.request.body
 
-    const price = await Price.findOne({'uuid': priceId, 'isDeleted': false}).populate('organization')
-    ctx.assert(price, 404, 'Price not found')
+    let prod = await CatalogItem.find({uuid: data.product})
+    ctx.assert(prod, 404, 'Producto no encontrado')
 
-    var res = await Api.updatePrices(price.etag, price.externalId, data.price)
-    if (res.status === 'ok') {
-      verifyPrices.add({uuid: price.organization.uuid})
-      price.set({ price: data.price })
-      await price.save()
-    } else {
-      ctx.throw(401, 'Error al actualizar precio (Abraxas)')
+    let catalogs = []
+    for (let item of data.catalogItems) {
+      let citem = await CatalogItem.find({uuid: item})
+      if (citem) {
+        catalogs.push(citem._id)
+      }
     }
+
+    const price = await Price.findOne({
+      'uuid': priceId,
+      'isDeleted': false,
+      catalogItems: catalogs,
+      product: prod._id
+
+    }).populate('organization')
+    ctx.assert(price, 404, 'Price not found')
 
     ctx.body = {
       data: price.toPublic()

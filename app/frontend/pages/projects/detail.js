@@ -73,8 +73,8 @@ class ProjectDetail extends Component {
       })
     }
 
-    await this.hasSaleCenter()
-    await this.hasChannel()
+    // await this.hasSaleCenter()
+    // await this.hasChannel()
     await this.load()
 
     this.setState({

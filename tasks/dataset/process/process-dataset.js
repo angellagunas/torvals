@@ -5,7 +5,6 @@ const _ = require('lodash')
 const fillCyclesPeriods = require('tasks/organization/fill-cycles-periods')
 const Logger = require('lib/utils/logger')
 const moment = require('moment')
-const slugify = require('underscore.string/slugify')
 const saveDatasetRows = require('queues/save-datasetrows')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 const Task = require('lib/task')
@@ -25,53 +24,21 @@ const task = new Task(
     const dataset = await DataSet
       .findOne({uuid: argv.uuid})
       .populate('organization rule')
-    const organization = dataset.organization
     await dataset.rule.populate('catalogs').execPopulate()
 
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
 
-    var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
-    var salesCenterName = dataset.getSalesCenterNameColumn() || {name: ''}
-    var productExternalId = dataset.getProductColumn() || {name: ''}
-    var productName = dataset.getProductNameColumn() || {name: ''}
-    var channelExternalId = dataset.getChannelColumn() || {name: ''}
-    var channelName = dataset.getChannelNameColumn() || {name: ''}
-
     let maxDate
     let minDate
     let catalogsObj = {}
 
-    let productsObj = {
-      _id: `$apiData.${productExternalId.name}`
-    }
-
-    if (productName.name) {
-      productsObj['name'] = `$apiData.${productName.name}`
-    }
-
-    let salesCentersObj = {
-      _id: `$apiData.${salesCenterExternalId.name}`
-    }
-
-    if (salesCenterName.name) {
-      salesCentersObj['name'] = `$apiData.${salesCenterName.name}`
-    }
-
-    let channelsObj = {
-      _id: `$apiData.${channelExternalId.name}`
-    }
-
-    if (channelName.name) {
-      channelsObj['name'] = `$apiData.${channelName.name}`
-    }
-
     for (let catalog of dataset.rule.catalogs) {
-      name = dataset.getCatalogItemColumn(`is_${catalog.slug}_name`)
-      idStr = dataset.getCatalogItemColumn(`is_${catalog.slug}_id`)
+      let name = dataset.getCatalogItemColumn(`is_${catalog.slug}_name`)
+      let idStr = dataset.getCatalogItemColumn(`is_${catalog.slug}_id`)
 
-      catalogObj = idStr && idStr.name ? {_id: `$apiData.${idStr.name}`} : {}
+      let catalogObj = idStr && idStr.name ? {_id: `$apiData.${idStr.name}`} : {}
 
       if (name && name.name) {
         catalogObj['name'] = `$apiData.${name.name}`
@@ -90,15 +57,6 @@ const task = new Task(
       }, {
         '$group': {
           '_id': null,
-          'channels': {
-            '$addToSet': channelsObj
-          },
-          'salesCenters': {
-            '$addToSet': salesCentersObj
-          },
-          'products': {
-            '$addToSet': productsObj
-          },
           ...catalogsObj
         }
       }
@@ -113,7 +71,7 @@ const task = new Task(
       channels: []
     }
 
-    for (let product of rows[0].products) {
+    for (let product of rows[0].producto) {
       let productIndex = _.findIndex(rowData['products'], { '_id': product._id })
       if (productIndex === -1) {
         rowData['products'].push(product)
@@ -124,29 +82,8 @@ const task = new Task(
       }
     }
 
-    for (let salesCenter of rows[0].salesCenters) {
-      let salesIndex = _.findIndex(rowData['salesCenters'], { '_id': salesCenter._id })
-      if (salesIndex === -1) {
-        rowData['salesCenters'].push(salesCenter)
-      } else {
-        if (!rowData['salesCenters'][salesIndex].name && salesCenter.name) {
-          rowData['salesCenters'][salesIndex].name = salesCenter.name
-        }
-      }
-    }
-
-    for (let channel of rows[0].channels) {
-      let channelIndex = _.findIndex(rowData['channels'], { '_id': channel._id })
-      if (channelIndex === -1) {
-        rowData['channels'].push(channel)
-      } else {
-        if (!rowData['channels'][channelIndex].name && channel.name) {
-          rowData['channels'][channelIndex].name = channel.name
-        }
-      }
-    }
-
     for (let catalog of dataset.rule.catalogs) {
+      // if (catalog.slug === 'producto') continue
       rowData[catalog.slug] = rows[0][catalog.slug]
     }
 
@@ -212,7 +149,7 @@ const task = new Task(
       periods: periods
     }
 
-    log.call('Obtaining new products/sales centers/channels  ...')
+    log.call('Saving new products and catalog items  ...')
 
     try {
       await dataset.processReady(sendData)

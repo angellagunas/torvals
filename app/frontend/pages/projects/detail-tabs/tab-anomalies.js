@@ -22,13 +22,8 @@ class TabAnomalies extends Component {
       isLoading: '',
       loaded: false,
       isFiltered: false,
-      filters: {
-        products: [],
-        salesCenters: [],
-        categories: []
-      },
-      formData: {
-      },
+      filters: {},
+      formData: {},
       anomalies: [],
       requestId: 0,
       selectAll: false,
@@ -42,65 +37,6 @@ class TabAnomalies extends Component {
     currentRole = tree.get('user').currentRole.slug
     this.rules = this.props.rules
 
-  }
-
-  async getProducts () {
-    const url = '/app/products/'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name',
-      organization: this.props.project.organization.uuid
-    })
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        products: res.data
-      }
-    }, () => {
-      this.getCategory(res.data)
-    })
-  }
-
-  async getSalesCent () {
-    const url = '/app/salesCenters/'
-    let res = await api.get(url, {
-      start: 0,
-      limit: 0,
-      sort: 'name',
-      organization: this.props.project.organization.uuid
-    })
-
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        salesCenters: res.data
-      }
-    })
-
-    if (res.data.length === 1) {
-      this.setState({
-        formData: {
-          ...this.state.formData,
-          salesCenter: res.data[0].uuid
-        }
-      })
-    }
-  }
-
-  getCategory (products) {
-    const categories = new Set()
-    products.map((item) => {
-      if (item.category && !categories.has(item.category)) {
-        categories.add(item.category)
-      }
-    })
-    this.setState({
-      filters: {
-        ...this.state.filters,
-        categories: Array.from(categories)
-      }
-    })
   }
 
   async filterChangeHandler(name, value) {
@@ -166,8 +102,6 @@ class TabAnomalies extends Component {
 
   async getFilters () {
     await this.getCatalogFilters()
-    await this.getSalesCent()
-    await this.getProducts()
     await this.getData()
   }
 
@@ -189,7 +123,7 @@ class TabAnomalies extends Component {
     let url = '/app/catalogItems/'
     let filters = []
     this.rules.catalogs.map(async item => {
-        let res = await api.get(url + item.slug)
+        let res = await api.get(url + item.slug,{limit:0})
         if (res) {
           let aux = this.state.filters
           aux[item.slug] = res.data
@@ -244,7 +178,11 @@ class TabAnomalies extends Component {
             'default': 'N/A',
             'sortable': true,
             formatter: (row) => {
-              return String((row.catalogItems[i] || {}).name)
+              return  row.catalogItems.map(item => {
+                if(catalog.slug === item.type){
+                  return item.name
+                }
+              })
             }
           }
         )
@@ -292,7 +230,7 @@ class TabAnomalies extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return String(row.product.externalId)
+          return String(row.newProduct.externalId)
         }
       },
       {
@@ -301,7 +239,7 @@ class TabAnomalies extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return String(row.product.name)
+          return String(row.newProduct.name)
         }
       },
       ...catalogItems,
@@ -558,18 +496,6 @@ class TabAnomalies extends Component {
   render () {
     if (!this.state.loaded) {
       return <Loader />
-    }
-
-    if (this.state.filters.products.length === 0 ||
-      this.state.filters.salesCenters.length === 0
-    ) {
-      return (
-        <section className='section'>
-          <center>
-            <h2 className='has-text-info'>No hay anomalías que mostrar</h2>
-          </center>
-        </section>
-      )
     }
 
     return (

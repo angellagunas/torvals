@@ -113,13 +113,13 @@ class TabAdjustment extends Component {
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
 
-        if (res.salesCenters.length > 0) {
-          formData.salesCenter = res.salesCenters[0].uuid
-        }
+        // if (res.salesCenters.length > 0) {
+        //   formData.salesCenter = res.salesCenters[0].uuid
+        // }
 
-        if (res.channels.length === 1) {
-          formData.channel = res.channels[0].uuid
-        }
+        // if (res.channels.length === 1) {
+        //   formData.channel = res.channels[0].uuid
+        // }
 
         for (let fil of Object.keys(res)) {
           if (fil === 'cycles') continue
@@ -132,7 +132,7 @@ class TabAdjustment extends Component {
             ...this.state.filters,
             ...res,
             cycles: cycles,
-            categories: this.getCategory(res.products),
+            // categories: this.getCategory(res.products),
           },
           formData: formData,
           filtersLoading: false,
@@ -505,10 +505,10 @@ class TabAdjustment extends Component {
     )
   }
 
-getProductsSelected () {
-  let p = _.groupBy(Array.from(this.state.selectedCheckboxes), 'productId')
-  return _.size(p)
-}
+  getProductsSelected () {
+    let p = _.groupBy(Array.from(this.state.selectedCheckboxes), 'productId')
+    return _.size(p)
+  }
 
   async onClickButtonPlus (type) {
     if(this.state.selectedCheckboxes.size === 0){
@@ -939,12 +939,6 @@ getProductsSelected () {
   }
 
   async downloadReport () {
-    if (!this.state.formData.salesCenter) {
-      this.notify('¡Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
-
-      return
-    }
-
     this.setState({isDownloading: ' is-loading'})
 
     let min

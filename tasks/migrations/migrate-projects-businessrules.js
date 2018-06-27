@@ -40,7 +40,7 @@ const task = new Task(async function (argv) {
   if (!currentCatalogs) {
     currentCatalogs = []
     log.call('Catalogs not found. Creating...')
-    catalogs = [{
+    let catalogs = [{
       name: 'Producto',
       slug: 'producto'
     }, {
@@ -60,7 +60,6 @@ const task = new Task(async function (argv) {
       currentCatalogs.push(newCatalog)
     }
   }
-
 
   let rules = {
     startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),
@@ -158,7 +157,7 @@ const task = new Task(async function (argv) {
       if (!findChannel) {
         bulkOps.add({
           catalog: currentCatalogs.find((catalog) => {
-            return catalog.slug == 'canal'
+            return catalog.slug === 'canal'
           }),
           name: channel.name,
           externalId: channel.externalId,
@@ -176,7 +175,7 @@ const task = new Task(async function (argv) {
       if (!findSalesCenter) {
         bulkOps.add({
           catalog: currentCatalogs.find((catalog) => {
-            return catalog.slug == 'centro-de-venta'
+            return catalog.slug === 'centro-de-venta'
           }),
           name: salesCenter.name,
           externalId: salesCenter.externalId,
@@ -194,7 +193,7 @@ const task = new Task(async function (argv) {
       if (!findProduct) {
         bulkOps.add({
           catalog: currentCatalogs.find((catalog) => {
-            return catalog.slug == 'producto'
+            return catalog.slug === 'producto'
           }),
           name: product.name,
           externalId: product.externalId,
@@ -220,9 +219,15 @@ const task = new Task(async function (argv) {
 
     await dataset.save()
     await dataset.populate('catalogItems periods').execPopulate()
+    let newProducts = []
+
     for (let item of dataset.catalogItems) {
+      if (item.type === 'producto') newProducts.push(item)
       await item.populate('catalog').execPopulate()
     }
+
+    dataset.set({newProducts: newProducts})
+    await dataset.save()
 
     log.call('Saving DataSetRow periods...')
     for (let period of dataset.periods) {
@@ -277,14 +282,11 @@ const task = new Task(async function (argv) {
       } else if (catalogItem.catalog.slug === 'producto') {
         await DataSetRow.update({
           dataset: dataset._id,
-          [`apiData.${productExternalId.name}`]: catalogItem.externalId,
-          catalogItems: {$nin: [catalogItem._id]}
+          [`apiData.${productExternalId.name}`]: catalogItem.externalId
         }, {
           'catalogData.is_producto_name': catalogItem.name,
           'catalogData.is_producto_id': catalogItem.externalId,
-          $push: {
-            catalogItems: catalogItem._id
-          }
+          'newProduct': catalogItem._id
         }, {
           multi: true
         })
