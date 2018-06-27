@@ -71,7 +71,7 @@ module.exports = new Route({
       skip: ctx.request.query.start,
       find: {isDeleted: false, ...filters},
       sort: ctx.request.query.sort || '-dateCreated',
-      populate: ['catalogsItems', 'product']
+      populate: ['catalogItems', 'product']
     })
 
     prices.data = prices.data.map((price) => { return price.toAdmin() })
