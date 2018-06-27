@@ -1,6 +1,6 @@
 const url = require('url')
 
-const { UserToken, Organization, User } = require('models')
+const { Organization, UserToken, User } = require('models')
 const { server } = require('config')
 const jwt = require('lib/jwt')
 
@@ -23,7 +23,7 @@ module.exports = async function (ctx, next) {
       let userToken = await UserToken.findOne({
         key: data.key,
         secret: data.secret,
-        isDeleted: {$ne: true}
+        isDeleted: { $ne: true }
       }).populate('user')
 
       if (!userToken) {
