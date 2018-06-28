@@ -127,7 +127,7 @@ class Ranges extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Ingresa tu ajuste
+                  Ajustes para Manager Level 1
                 </p>
               </header>
               <div className='card-content'>

@@ -113,18 +113,14 @@ class TabAdjustment extends Component {
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
 
-        // if (res.salesCenters.length > 0) {
-        //   formData.salesCenter = res.salesCenters[0].uuid
-        // }
-
-        // if (res.channels.length === 1) {
-        //   formData.channel = res.channels[0].uuid
-        // }
+        
 
         for (let fil of Object.keys(res)) {
           if (fil === 'cycles') continue
 
           res[fil] = _.orderBy(res[fil], 'name')
+          if(res[fil][0])
+            formData[fil] = res[fil][0].uuid
         }
 
         this.setState({
@@ -132,7 +128,6 @@ class TabAdjustment extends Component {
             ...this.state.filters,
             ...res,
             cycles: cycles,
-            // categories: this.getCategory(res.products),
           },
           formData: formData,
           filtersLoading: false,
@@ -155,16 +150,6 @@ class TabAdjustment extends Component {
         )
       }
     }
-  }
-
-  getCategory(products) {
-    const categories = new Set()
-    products.map((item) => {
-      if (item.category && !categories.has(item.category)) {
-        categories.add(item.category)
-      }
-    })
-    return Array.from(categories)
   }
 
   async filterChangeHandler (name, value) {
@@ -642,6 +627,7 @@ class TabAdjustment extends Component {
       row.adjustmentForDisplay = row.newAdjustment
 
       row.edited = true
+      row.wasEdited = true
 
       if (row.isLimit) {
         isLimited = true
@@ -1030,12 +1016,11 @@ class TabAdjustment extends Component {
         }
 
         filters.push(
-          <div key={key} className='level-item'>
+          <div key={key} className='column is-narrow'>
             <Select
               label={this.findName(key)}
               name={key}
               value={this.state.formData[key]}
-              placeholder='Todas'
               optionValue='uuid'
               optionName='name'
               options={element}
@@ -1187,8 +1172,8 @@ class TabAdjustment extends Component {
       <div>
         {banner}
         <div className='section level selects'>
-          <div className='level-left'>
-            <div className='level-item'>
+          <div className='columns is-multiline is-mobile'>
+            <div className='column is-narrow'>
               <Select
                 label='Ciclo'
                 name='cycle'
@@ -1200,12 +1185,12 @@ class TabAdjustment extends Component {
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
-
-          {this.state.filters &&
-            this.makeFilters()
-          }
+            {this.state.filters &&
+              this.makeFilters()
+            }
           </div>
         </div>
+
 
         <div className='level indicators deep-shadow'>
           <div className='level-item has-text-centered'>

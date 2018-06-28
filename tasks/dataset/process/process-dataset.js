@@ -2,7 +2,8 @@
 require('../../../config')
 require('lib/databases/mongo')
 const _ = require('lodash')
-const fillCyclesPeriods = require('tasks/organization/fill-cycles-periods')
+const generateCycles = require('tasks/organization/generate-cycles')
+
 const Logger = require('lib/utils/logger')
 const moment = require('moment')
 const saveDatasetRows = require('queues/save-datasetrows')
@@ -107,12 +108,8 @@ const task = new Task(
     maxDate = moment(rows[0].max).utc().format('YYYY-MM-DD')
     minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
 
-    await fillCyclesPeriods.run({
-      uuid: dataset.organization.uuid,
-      rule: dataset.rule.uuid,
-      dateMin: minDate,
-      dateMax: maxDate
-    })
+    await generateCycles.run({uuid: dataset.organization.uuid, rule: dataset.rule.uuid, extraDate: minDate})
+    await generateCycles.run({uuid: dataset.organization.uuid, rule: dataset.rule.uuid, extraDate: maxDate})
 
     log.call('Obtaining cycles ...')
     let cycles = await Cycle.getBetweenDates(

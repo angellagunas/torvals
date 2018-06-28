@@ -24,7 +24,7 @@ class ImportUsers extends Component {
 export default Page({
   path: '/import/users',
   title: 'Usuarios',
-  icon: 'user',
+  icon: 'user-plus',
   exact: true,
   validate: [loggedIn, verifyRole],
   roles: 'orgadmin, manager-level-3',

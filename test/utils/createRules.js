@@ -1,20 +1,21 @@
-const { Rule } = require('models')
+const { Rule, Catalog } = require('models')
 
-module.exports = function createRules(opts = {}) {
-  const rule = {
+module.exports = async function createRules(opts = {}) {
+  const catalog = await Catalog.create({
+    name: 'producto',
+    slug: 'producto',
+    organization: opts.organization
+  })
+
+  const data = {
     startDate: '2018-01-01T00:00:00',
     cycleDuration: 1,
     cycle: 'M',
-    period: 'M',
+    period: 'w',
     periodDuration: 1,
     season: 12,
     cyclesAvailable:6,
-    catalogs: [
-      {
-        name: 'producto',
-        slug: 'producto'
-      }
-    ],
+    catalogs: [catalog],
     ranges: [0, 0, 0, 0, 0, 0],
     takeStart: true,
     consolidation: 26,
@@ -23,6 +24,7 @@ module.exports = function createRules(opts = {}) {
     rangeAdjustmentRequest: 1,
     salesUpload : 1
   }
+  const rule = await Rule.create(Object.assign({}, data, opts))
 
-  return Rule.create(Object.assign({}, rule, opts))
+  return rule
 }

@@ -83,7 +83,7 @@ module.exports = new Route({
 
     let previousRule = await Rule.findOne({isCurrent: true, organization: organizationId})
 
-    let version = (previousRule) ? previousRule.version + 1 : 1
+    let version = (previousRule && previousRule.version) ? previousRule.version + 1 : 1
 
     await Rule.update({organization: organizationId}, {isCurrent: false}, {multi: true})
 

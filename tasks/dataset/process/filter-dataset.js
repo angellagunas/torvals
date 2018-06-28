@@ -2,7 +2,8 @@
 require('../../../config')
 require('lib/databases/mongo')
 const _ = require('lodash')
-const appendCyclesPeriods = require('tasks/organization/append-cycles-periods')
+const generateCycles = require('tasks/organization/generate-cycles')
+
 const Logger = require('lib/utils/logger')
 const moment = require('moment')
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
@@ -60,11 +61,13 @@ const task = new Task(
     let cyclesAvailable = await Cycle.getAvailable(organization._id, project.rule._id, cycles)
     if (cyclesAvailable.length < cycles) {
       log.call('Creating missing cycles.')
-      await appendCyclesPeriods.run({
-        uuid: organization.uuid,
-        rule: project.rule.uuid,
-        cycles: cyclesAvailable.length - cycles
-      })
+
+      await generateCycles.run({
+        uuid: organization.uuid, rule: project.rule.uuid, extraDate: dataset.dateMin })
+
+      await generateCycles.run({
+        uuid: organization.uuid, rule: project.rule.uuid, extraDate: dataset.dateMax })
+
       cyclesAvailable = await Cycle.getAvailable(organization._id, project.rule._id, cycles)
     }
 

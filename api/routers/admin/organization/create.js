@@ -114,7 +114,7 @@ module.exports = new Route({
     }
 
     // verifyPrices.add({uuid: org.uuid})
-    generateCycles.run({uuid: org.uuid})
+    generateCycles.run({uuid: org.uuid, rule: rule.uuid})
 
     ctx.body = {
       data: org.toAdmin()
