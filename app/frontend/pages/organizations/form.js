@@ -90,7 +90,7 @@ class CustomForm extends Component {
                     <div className="form-group field">
                       <br />
                       <label className="label">
-                        Sube tu foto de organización
+                        Sube tu logo de organización
                       </label>
                       <br />
                       <FileWidget
