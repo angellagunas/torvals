@@ -5,6 +5,7 @@ const moment = require('moment')
 const _ = require('lodash')
 
 const generateCycles = require('tasks/organization/generate-cycles')
+const getAnomalies = require('tasks/anomalies/get-anomalies')
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
 const {
@@ -15,7 +16,8 @@ const {
   CatalogItem,
   DataSetRow,
   Cycle,
-  Period
+  Period,
+  Anomaly
 } = require('models')
 
 const task = new Task(async function (argv) {
@@ -37,7 +39,8 @@ const task = new Task(async function (argv) {
     organization: project.organization._id,
     isDeleted: false
   })
-  if (!currentCatalogs) {
+
+  if (!currentCatalogs || currentCatalogs.length === 0) {
     currentCatalogs = []
     log.call('Catalogs not found. Creating...')
     let catalogs = [{
@@ -76,7 +79,8 @@ const task = new Task(async function (argv) {
     rangeAdjustment: 10,
     salesUpload: 3,
     catalogs: currentCatalogs,
-    ranges: [0, 0, 10, 20, 30, null]
+    ranges: [0, 0, 10, 20, 30, null],
+    version: 1
   }
 
   log.call('Verifying catalog items...')
@@ -162,7 +166,8 @@ const task = new Task(async function (argv) {
           name: channel.name,
           externalId: channel.externalId,
           organization: project.organization._id,
-          groups: channel.groups
+          groups: channel.groups,
+          type: 'canal'
         })
       } else {
         existingCatalogs.push(findChannel._id)
@@ -180,7 +185,8 @@ const task = new Task(async function (argv) {
           name: salesCenter.name,
           externalId: salesCenter.externalId,
           organization: project.organization._id,
-          groups: salesCenter.groups
+          groups: salesCenter.groups,
+          type: 'centro-de-venta'
         })
       } else {
         existingCatalogs.push(findSalesCenter._id)
@@ -197,7 +203,8 @@ const task = new Task(async function (argv) {
           }),
           name: product.name,
           externalId: product.externalId,
-          organization: project.organization._id
+          organization: project.organization._id,
+          type: 'producto'
         })
       } else {
         existingCatalogs.push(findProduct._id)
@@ -205,6 +212,7 @@ const task = new Task(async function (argv) {
     }
 
     bulkOps = Array.from(bulkOps)
+
     let catalogItemIds = await CatalogItem.insertMany(bulkOps)
     bulkOps = []
 
@@ -292,6 +300,9 @@ const task = new Task(async function (argv) {
         })
       }
     }
+
+    await Anomaly.deleteMany({project: project._id})
+    await getAnomalies.run({uuid: argv.uuid})
 
     log.call('Saving status as pendingRows')
     project.set({
