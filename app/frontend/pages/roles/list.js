@@ -1,5 +1,7 @@
 import React from 'react'
 import moment from 'moment'
+import { uniqBy } from 'lodash'
+import tree from '~core/tree'
 
 import ListPage from '~base/list-page'
 import { loggedIn, verifyRole } from '~base/middlewares/'
@@ -38,11 +40,16 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      name: {type: 'text', title: 'Buscar'}
+      general: {type: 'text', title: 'Buscar'}
     }
   },
   uiSchema: {
-    name: {'ui:widget': 'SearchFilter'}
+    general: {'ui:widget': 'SearchFilter'}
+  },
+  sortBy: 'priority',
+  modifyData: (data) => {
+    const actualRole = tree.get('role')
+    return uniqBy([actualRole, ...data], 'uuid')
   },
   getColumns: () => {
     return [
