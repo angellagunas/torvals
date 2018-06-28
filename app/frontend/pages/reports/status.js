@@ -258,6 +258,8 @@ class StatusRepórt extends Component {
         }
       }
 
+      catalogItems = catalogItems.filter(item => item)
+
       let users = this.state.formData.user ? [this.state.formData.user] : undefined
       if(this.state.filterReady){
         users = this.state.users.finishedUsers

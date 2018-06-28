@@ -6,8 +6,8 @@
         &-card {
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
             width: 90%;
-            max-height: 80vh;
-            height: 80vh;
+            min-height: 80vh;
+            max-height: 100%;
             &-head {
                 display: none;
             }
@@ -207,5 +207,54 @@
     .save-btn {
         width: inherit !important;
         height: inherit !important;
+    }
+}
+
+.org-rules {
+    .section-header {
+        margin-bottom: .3rem;
+    }
+    &>.card {
+        border-top: none;
+    }
+    .card-content {
+        position: relative;
+    }
+    &.wizard .column ul {
+        margin-top: 0;
+        li {
+            margin-left: 0;
+        }
+    }
+    &.wizard {
+        .rules-ranges li {
+            margin-left: 0 !important;
+        }
+    }
+    .edit-btn {
+        margin-top: 2rem;
+        width: auto !important;
+        height: auto !important;
+        font-size: .9rem !important;
+    }
+    .save-btn {
+        font-size: 1rem !important;
+    }
+}
+
+.modal-confirm {
+    .modal-card {
+        width: 600px;
+    }
+    .modal-card-body {
+        h3 {
+            font-size: 1.1rem !important;
+        }
+        button {
+            font-size: 1rem !important;
+            margin-top: .8rem;
+            width: auto !important;
+            height: auto !important;
+        }
     }
 }
