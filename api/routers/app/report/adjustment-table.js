@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { DataSetRow, User, Project, CatalogItem, Cycle } = require('models')
+const { DataSetRow, User, Project, CatalogItem, Cycle, AdjustmentRequest } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -8,24 +8,43 @@ module.exports = new Route({
     var data = ctx.request.body
 
     let initialMatch = {}
+    let midMatch = {}
+
+    let projects = await Project.find({uuid: {$in: data.projects}})
+    let projectsIds = projects.map((item) => {
+      return item._id
+    })
+    initialMatch['project'] = {
+      '$in': projectsIds
+    }
+
     if (data.users) {
       let users = await User.find({uuid: {$in: data.users}})
       let usersIds = users.map((item) => {
         return item._id
       })
-      initialMatch['updatedBy'] = {
-        '$in': usersIds
-      }
-    }
+      let adjustmentsReq = await AdjustmentRequest.find({
+        requestedBy: {
+          '$in': usersIds
+        },
+        project: {
+          '$in': projectsIds
+        }
+      })
 
-    if (data.projects) {
-      let projects = await Project.find({uuid: {$in: data.projects}})
-      let projectsIds = projects.map((item) => {
+      let adjustmentsIds = adjustmentsReq.map((item) => {
         return item._id
       })
-      initialMatch['project'] = {
-        '$in': projectsIds
-      }
+
+      initialMatch['$or'] = [
+        {adjustmentRequest: {'$in': adjustmentsIds}},
+        {updatedBy: {'$in': usersIds}}
+      ]
+
+      midMatch['$or'] = [
+        {'adjustmentRequest.requestedBy': {$in: usersIds}},
+        {updatedBy: {'$in': usersIds}, 'adjustmentRequest.requestedBy': null}
+      ]
     }
 
     if (data.cycles) {
@@ -52,12 +71,10 @@ module.exports = new Route({
       {
         '$match': {
           ...initialMatch,
-          'status': {
-            '$ne': 'unmodified'
-          },
-          'updatedBy': {
-            '$ne': null
-          }
+          $or: [
+            {updatedBy: {$ne: null}},
+            {adjustmentRequest: {$ne: null}}
+          ]
         }
       },
       {
@@ -83,9 +100,19 @@ module.exports = new Route({
         }
       },
       {
+        '$match': {
+          ...midMatch
+        }
+      },
+      {
         '$group': {
           '_id': {
-            'user': '$updatedBy'
+            'user': {
+              '$ifNull': [
+                '$adjustmentRequest.requestedBy',
+                '$updatedBy'
+              ]
+            }
           },
           'total': {
             '$sum': 1.0
@@ -131,8 +158,15 @@ module.exports = new Route({
                 0.0
               ]
             }
-          },
-          user: {$addToSet: {$arrayElemAt: ['$userInfo', 0]}}
+          }
+        }
+      },
+      {
+        '$lookup': {
+          from: 'users',
+          localField: '_id.user',
+          foreignField: '_id',
+          as: 'user'
         }
       }
     ]
