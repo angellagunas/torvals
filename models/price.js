@@ -7,10 +7,8 @@ const moment = require('moment')
 const priceSchema = new Schema({
   price: { type: Number },
   externalId: { type: String },
-  product: { type: Schema.Types.ObjectId, ref: 'Product' },
-  productExternalId: { type: Number },
-  channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
-  channelExternalId: { type: String },
+  product: { type: Schema.Types.ObjectId, ref: 'CatalogItem' },
+  catalogItems: [{type: Schema.Types.ObjectId, ref: 'CatalogItem'}],
   organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
   etag: { type: String },
   dateCreated: { type: Date, default: moment.utc },
@@ -26,14 +24,11 @@ priceSchema.methods.toAdmin = function () {
     externalId: this.externalId,
     price: this.price,
     product: this.product,
-    productExternalId: this.productExternalId,
-    channel: this.channel,
-    channelExternalId: this.channelExternalId,
+    catalogItems: this.catalogItems,
     etag: this.etag,
     dateCreated: this.dateCreated,
     organization: this.organization
   }
-  if (this.channel && this.channel.toPublic) { data.channel = this.channel.toPublic() }
   return data
 }
 
@@ -43,14 +38,11 @@ priceSchema.methods.toPublic = function () {
     externalId: this.externalId,
     price: this.price,
     product: this.product,
-    productExternalId: this.productExternalId,
-    channel: this.channel,
-    channelExternalId: this.channelExternalId,
+    catalogItems: this.catalogItems,
     etag: this.etag,
     dateCreated: this.dateCreated,
     organization: this.organization
   }
-  if (this.channel && this.channel.toPublic) { data.channel = this.channel.toPublic() }
   return data
 }
 

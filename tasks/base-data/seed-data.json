@@ -66,11 +66,11 @@
         {
             "name": "Barcel",
             "description": "Organización de Barcel"
-        },
-        {
-            "name": "Globo",
-            "description": "Organización de Globo"
         }
+        // {
+        //     "name": "Globo",
+        //     "description": "Organización de Globo"
+        // }
     ],
     "roles": [
         {
@@ -86,7 +86,7 @@
         },        
         {
             "name": "Manager Level 3",
-            "isDefault": true,
+            "isDefault": false,
             "priority": 3
         },
         {

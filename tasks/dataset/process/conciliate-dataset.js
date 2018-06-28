@@ -75,7 +75,7 @@ const task = new Task(
 
     try {
       const rows = await DataSetRow.aggregate(match).allowDiskUse(true)
-        .cursor({batchSize: batchSize * 10}).exec()
+        .cursor({batchSize: batchSize}).exec()
 
       log('Aggregate ready, transversing ...')
 
@@ -89,9 +89,10 @@ const task = new Task(
         dateMax: dataset1.dateMax,
         dateMin: dataset1.dateMin,
         columns: dataset1.columns,
-        salesCenters: dataset1.salesCenters,
+        catalogItems: dataset1.catalogItems,
         products: dataset1.products,
-        channels: dataset1.channels,
+        newProducts: dataset1.newProducts,
+        // channels: dataset1.channels,
         isMain: true,
         groupings: dataset1.groupings,
         apiData: dataset1.apiData,

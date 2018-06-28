@@ -39,7 +39,19 @@ class Dashboard extends Component {
   }
 
   componentWillMount () {
-      this.getProjects()
+    this.getProjects()
+
+    var userCursor = this.context.tree.select('user')
+
+    userCursor.on('update', () => {
+      this.forceUpdate()
+    })
+  }
+
+  componentWillUnmount () {
+    var ruleCursor = tree.select('rule')
+
+    ruleCursor.on('update', () => {})
   }
 
   moveTo (route) {
@@ -705,7 +717,9 @@ class Dashboard extends Component {
   render () {
     const user = this.context.tree.get('user')
 
-    if (!user.currentOrganization.isConfigured) {
+    
+
+    if (!user.currentOrganization.isConfigured && user.currentRole.slug === 'orgadmin') {
       return(
         <Wizard rules={this.rules} org={user.currentOrganization}/>
       )

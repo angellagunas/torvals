@@ -130,7 +130,13 @@ class Wizard extends Component {
         )
 
         this.setState({unsaved: false})
-        tree.set('rule', res.rules)
+
+        let me = await api.get('/user/me')
+        tree.set('user', me.user)
+        tree.set('organization', me.user.currentOrganization)
+        tree.set('rule', me.rule)
+        tree.set('role', me.user.currentRole)
+        tree.set('loggedIn', me.loggedIn)
         tree.commit()
         return true
       } else {

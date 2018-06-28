@@ -265,13 +265,17 @@ class UserDetail extends Component {
     var disabledForm = false
     if (user.roleDetail && currentUser) {
       disabledForm = user.roleDetail.priority <= currentUser.currentRole.priority
-      console.log(disabledForm, user.roleDetail.priority, currentUser.currentRole.priority)
     }
 
     var disabledRoles = false
     if (user.roleDetail && currentUser.currentRole.slug === 'consultor-level-3') {
       disabledRoles = true
       disabledForm = true
+    }
+
+    if (currentUser.currentRole.slug === 'orgadmin') {
+      disabledRoles = false
+      disabledForm = false
     }
 
     if (user) {

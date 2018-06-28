@@ -1,12 +1,9 @@
 const Route = require('lib/router/route')
 const {
   CatalogItem,
-  Channel,
   Cycle,
   DataSetRow,
-  Product,
-  Project,
-  SalesCenter
+  Project
 } = require('models')
 const lov = require('lov')
 const moment = require('moment')
@@ -42,27 +39,6 @@ module.exports = new Route({
       }
     }
 
-    if (data.salesCenter) {
-      const salesCenter = await SalesCenter.findOne({ uuid: data.salesCenter })
-      ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
-
-      filters['salesCenter'] = salesCenter._id
-    }
-
-    if (data.channel) {
-      const channel = await Channel.findOne({ uuid: data.channel })
-      ctx.assert(channel, 404, 'Canal no encontrado')
-
-      filters['channel'] = channel._id
-    }
-
-    if (data.product) {
-      const product = await Product.findOne({ uuid: data.product })
-      ctx.assert(product, 404, 'Producto no encontrado')
-
-      filters['product'] = product._id
-    }
-
     catalogItems = []
     for (let filter of Object.keys(data)) {
       const unwantedKeys = [
@@ -82,14 +58,14 @@ module.exports = new Route({
 
     }
     filters['catalogItems'] = {
-      '$in': catalogItems
+      '$all': catalogItems
     }
 
     let rows = await DataSetRow.find({
       dataset: project.activeDataset._id,
       isDeleted: false,
       ...filters
-    }).populate('product channel salesCenter')
+    })
 
     let rowsCsv = ''
     let names = []
