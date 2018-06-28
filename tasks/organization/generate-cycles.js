@@ -142,7 +142,7 @@ const task = new Task(
         if (periodEndDate.isSameOrAfter(seasonEndDate)) {
           let periodExists = await Period.findOne({
             dateStart: periodStartDate,
-            dateEnd: periodEndDate,
+            dateEnd: seasonEndDate,
             rule: rule._id,
             organization: organization._id
           })

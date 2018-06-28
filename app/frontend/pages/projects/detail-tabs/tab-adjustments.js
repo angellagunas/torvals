@@ -642,6 +642,7 @@ class TabAdjustment extends Component {
       row.adjustmentForDisplay = row.newAdjustment
 
       row.edited = true
+      row.wasEdited = true
 
       if (row.isLimit) {
         isLimited = true
