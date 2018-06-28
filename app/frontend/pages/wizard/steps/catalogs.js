@@ -17,7 +17,7 @@ class Catalogs extends Component {
         {
           title: 'Precio',
           value: 'precio',
-          checked: false,
+          checked: true,
           disabled: true
         },
         {
