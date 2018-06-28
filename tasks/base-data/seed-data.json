@@ -67,10 +67,6 @@
             "name": "Barcel",
             "description": "Organización de Barcel"
         }
-        // {
-        //     "name": "Globo",
-        //     "description": "Organización de Globo"
-        // }
     ],
     "roles": [
         {
