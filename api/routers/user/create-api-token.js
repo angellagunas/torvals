@@ -1,6 +1,8 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
+const { Organization } = require('models')
+
 module.exports = new Route({
   method: 'post',
   path: '/tokens',
@@ -19,10 +21,15 @@ module.exports = new Route({
       return ctx.throw(403)
     }
 
+    const orgObject = await Organization.findOne({ uuid: organization})
+    if (!orgObject) {
+      return ctx.throw(403)
+    }
+
     const token = await user.createToken({
       type: 'api',
-      name,
-      organization
+      organization: orgObject._id,
+      name
     })
 
     ctx.body = {
