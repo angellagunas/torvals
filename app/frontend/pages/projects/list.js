@@ -10,7 +10,7 @@ import CreateProject from './create'
 export default ListPage({
   path: '/projects',
   title: 'Proyectos',
-  icon: 'cog',
+  icon: 'folder',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],

@@ -3,6 +3,7 @@ import moment from 'moment'
 import { testRoles } from '~base/tools'
 import api from '~base/api'
 import { toast } from 'react-toastify'
+import tree from '~core/tree'
 
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
@@ -12,7 +13,7 @@ export default ListPage({
   path: '/catalogs/prices',
   title: 'Precios',
   titleSingular: 'Precio',
-  icon: 'money',
+  icon: 'list-alt',
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   exact: true,
   validate: [loggedIn, verifyRole],
@@ -27,6 +28,16 @@ export default ListPage({
         path: '/',
         label: 'Inicio',
         current: false
+      },
+      {
+        path: '/',
+        label: 'Administración',
+        current: true
+      },
+      {
+        path: '/',
+        label: 'Catálogos',
+        current: true
       },
       {
         path: '/catalogs/prices',
@@ -51,64 +62,80 @@ export default ListPage({
     general: {'ui:widget': 'SearchFilter'}
   },
   getColumns: () => {
-    return [
-      {
-        'title': 'Id',
-        'property': 'productExternalId',
-        'default': 'N/A',
-        'sortable': true
-      },
-      {
-        'title': 'Producto',
-        'property': 'product',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.product && row.product.name) {
-            return row.product.name
-          }
-
-          return 'N/A'
-        }
-      },
-
-      {
-        'title': 'Canal',
-        'property': 'channel',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.channel && row.channel.name) {
-            return row.channel.name
-          }
-
-          return 'N/A'
-        }
-      },
-
-      {
-        'title': 'Precio',
-        'property': 'price',
-        'default': 'N/A',
-        'sortable': true,
-        'className': 'editable-cell',
-        formatter: (row) => {
-          if (row && row.price) {
-            let price = row.price.toFixed(2).replace(/./g, (c, i, a) => {
-              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+    const catalogs = tree.get('rule').catalogs || []
+    const catalogItems = catalogs.map((catalog, i) => {
+      if (catalog.slug !== 'producto') {
+        return (
+        {
+          'title': ` ${catalog.name}`,
+          'property': '',
+          'default': 'N/A',
+          'sortable': true,
+          formatter: (row) => {
+            return row.catalogItems.map(item => {
+              if (catalog.slug === item.type) {
+                return item.name
+              }
             })
-            if (!testRoles('consultor-level-3, consultor-level-2')) {
-              return (
-                <Editable
-                  value={price}
-                  type='text'
-                  obj={row}
-                  width={100}
-                  prepend='$'
-                  moneyInput
-                  handleChange={async (value, row) => {
-                    try {
-                      if (Number(value) !== Number(row.price)) {
+          }
+        }
+        )
+      }
+    }
+    ).filter(item => item)
+
+    let cols =
+      [
+        {
+          'title': 'Id',
+          'property': 'product.externalId',
+          'default': 'N/A',
+          'sortable': true,
+          formatter: (row) => {
+            if (row.product && row.product.externalId) {
+              return row.product.externalId
+            }
+
+            return 'N/A'
+          }
+        },
+        {
+          'title': 'Producto',
+          'property': 'product',
+          'default': 'N/A',
+          'sortable': true,
+          formatter: (row) => {
+            if (row.product && row.product.name) {
+              return row.product.name
+            }
+
+            return 'N/A'
+          }
+        },
+        ...catalogItems,
+        {
+          'title': 'Precio',
+          'property': 'price',
+          'default': 'N/A',
+          'sortable': true,
+          'className': 'editable-cell',
+          formatter: (row) => {
+            if (row && row.price) {
+              let price = row.price.toFixed(2).replace(/./g, (c, i, a) => {
+                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+              })
+              if (!testRoles('consultor-level-3, consultor-level-2')) {
+                return (
+                  <Editable
+                    value={price}
+                    type='text'
+                    obj={row}
+                    width={100}
+                    prepend='$'
+                    moneyInput
+                    handleChange={async (value, row) => {
+                      try {
+                        if (Number(value) !== Number(row.price)) {
                         const res = await api.post('/app/prices/' + row.uuid, {
                           price: value,
                           channel: row.channel.name,
@@ -125,39 +152,41 @@ export default ListPage({
                         })
                         return res
                       }
-                    } catch (e) {
-                      toast('Error: ' + e.message, {
+                      } catch (e) {
+                        toast('Error: ' + e.message, {
                         autoClose: 5000,
                         type: toast.TYPE.ERROR,
                         hideProgressBar: true,
                         closeButton: false
                       })
-                      return false
+                        return false
+                      }
                     }
-                  }
               }
               />
-              )
-            } else {
-              return '$ ' + price
+                )
+              } else {
+                return '$ ' + price
+              }
             }
+
+            return 'N/A'
           }
+        },
 
-          return 'N/A'
-        }
-      },
-
-      {
-        'title': 'Creado',
-        'property': 'dateCreated',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return (
+        {
+          'title': 'Creado',
+          'property': 'dateCreated',
+          'default': 'N/A',
+          'sortable': true,
+          formatter: (row) => {
+            return (
             moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
-          )
+            )
+          }
         }
-      }
-    ]
+      ]
+
+    return cols
   }
 })

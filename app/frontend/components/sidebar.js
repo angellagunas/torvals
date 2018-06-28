@@ -135,38 +135,38 @@ class Sidebar extends Component {
 
         Dashboard.asSidebarItem(),
         {
-          title: 'Administra tu equipo',
-          icon: 'users',
+          title: 'Administración',
+          icon: 'id-card-o',
           to: '/manage',
           roles: 'orgadmin, admin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
             {
-              title: 'Mi Organización',
-              icon: 'user',
+              title: 'Organización',
+              icon: 'user-circle-o',
               roles: 'orgadmin, admin, analyst, manager-level-3',
               to: '/manage/organizations/' + tree.get('organization').uuid
             },
             Groups.asSidebarItem(),
-            Users.asSidebarItem()
+            Users.asSidebarItem(),
+            {
+              title: 'Catálogos',
+              icon: 'book',
+              to: '/catalogs',
+              roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
+              openedLvl2: false,
+              dropdown: [
+                Prices.asSidebarItem(),
+                ...this.catalogs()
+              ]
+            }
           ]
         },
         Projects.asSidebarItem(),
         Calendar.asSidebarItem(),
         {
-          title: 'Catálogos',
-          icon: 'file',
-          to: '/catalogs',
-          roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
-          opened: false,
-          dropdown: [
-            Prices.asSidebarItem(),
-            ...this.catalogs()
-          ]
-        },
-        {
           title: 'Cargar Datos',
-          icon: 'file-o',
+          icon: 'upload',
           to: '/import',
           roles: 'orgadmin, admin, manager-level-3',
           dropdown: [
