@@ -24,11 +24,7 @@ const schema = {
 }
 
 const uiSchema = {
-  'ui:field': 'custom',
-  /*name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
-  slug: {'ui:widget': TextWidget, 'ui:disabled': true},
-  profile: {'ui:widget': FileWidget}*/
+  'ui:field': 'custom'
 }
 
 class CustomForm extends Component {
@@ -239,13 +235,7 @@ class OrganizationForm extends Component {
           onChange={(e) => { this.changeHandler(e) }}
           onSubmit={(e) => { this.submitHandler(e) }}
           onError={(e) => { this.errorHandler(e) }}
-          fields={{
-            custom: CustomForm /*props => (
-              <CustomForm {...props}>
-                {this.props.children}
-              </CustomForm>
-            )*/
-          }}
+          fields={{ custom: CustomForm }}
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
