@@ -153,8 +153,8 @@ class TabHistorical extends Component {
           mape,
           topValue,
           reloadGraph: true,
-          startPeriod: activePeriod[0],
-          endPeriod: activePeriod[activePeriod.length - 1],
+          startPeriod: moment.utc().startOf(this.rules.cycle).format('YYYY-MM-DD'),
+          endPeriod: moment.utc().endOf(this.rules.cycle).format('YYYY-MM-DD'),
           waitingData: false
         })
         setTimeout(() => {
@@ -854,7 +854,7 @@ class TabHistorical extends Component {
                             ]
                           }
                         }
-                        annotation={this.state.startPeriod && this.state.startPeriod.date &&
+                        annotation={this.state.startPeriod &&
                           {
                             annotations: [
                               {
@@ -862,8 +862,8 @@ class TabHistorical extends Component {
                                 type: 'box',
                                 xScaleID: 'x-axis-0',
                                 yScaleID: 'y-axis-0',
-                                xMin: this.state.startPeriod.date,
-                                xMax: this.state.endPeriod.date,
+                                xMin: this.state.startPeriod,
+                                xMax: this.state.endPeriod,
                                 yMin: 0,
                                 yMax: this.state.topValue,
                                 backgroundColor: 'rgba(233, 238, 255, 0.5)',
@@ -876,7 +876,7 @@ class TabHistorical extends Component {
                                 type: 'line',
                                 mode: 'vertical',
                                 scaleID: 'x-axis-0',
-                                value: this.state.startPeriod.date,
+                                value: this.state.startPeriod,
                                 borderColor: 'rgba(233, 238, 255, 1)',
                                 borderWidth: 1,
                                 label: {
