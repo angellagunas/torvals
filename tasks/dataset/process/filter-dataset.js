@@ -115,10 +115,6 @@ const task = new Task(
       const dateMin = moment.utc(cyclesAvailable[0].dateStart)
       let dateMax = moment.utc(cyclesAvailable[cyclesAvailable.length - 1].dateStart)
 
-      if (dateMax.diff(moment.utc(project.mainDataset.dateMax)) < 0) {
-        dateMax = moment.utc(project.mainDataset.dateMax)
-      }
-
       dataset.set({
         dateMax: dateMax.format('YYYY-MM-DD'),
         dateMin: dateMin.format('YYYY-MM-DD'),

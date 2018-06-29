@@ -6,6 +6,7 @@ const moment = require('moment')
 const cloneDataset = require('tasks/dataset/process/clone')
 const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 const Task = require('lib/task')
+const checkProjectCycleStatus = require('tasks/project/verify-cycle-status')
 const { Project, DataSet } = require('models')
 
 const task = new Task(
@@ -94,6 +95,8 @@ const task = new Task(
       columns: []
     })
     await project.save()
+
+    await checkProjectCycleStatus.run()
 
     return true
   },
