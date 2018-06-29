@@ -77,46 +77,129 @@ module.exports = new Route({
       return item._id
     })
 
-    let match = [{
-      '$match': {
-        ...initialMatch,
-        dataset: {$in: data.datasets}
-      }
-    },
-    {
-      '$group': {
-        '_id': {
-          'dataset': '$dataset',
-          'date': '$data.forecastDate'
+    let conditions = []
+    let group
+
+    if (data.prices) {
+      conditions = [
+        {
+          '$lookup': {
+            'from': 'catalogitems',
+            'localField': 'catalogItems',
+            'foreignField': '_id',
+            'as': 'catalogs'
+          }
         },
-        'prediction': {
-          '$sum': '$data.prediction'
+        {
+          '$lookup': {
+            'from': 'prices',
+            'localField': 'newProduct',
+            'foreignField': 'product',
+            'as': 'price'
+          }
         },
-        'adjustment': {
-          '$sum': '$data.adjustment'
+        {
+          '$unwind': {
+            'path': '$price'
+          }
         },
-        'sale': {
-          '$sum': '$data.sale'
+        {
+          '$addFields': {
+            'catalogsSize': {
+              '$size': '$price.catalogItems'
+            }
+          }
+        },
+        {
+          '$match': {
+            'catalogsSize': {
+              '$gte': 1.0
+            }
+          }
+        },
+        {
+          '$redact': {
+            '$cond': [
+              {
+                '$setIsSubset': [
+                  '$price.catalogItems',
+                  '$catalogItems'
+                ]
+              },
+              '$$KEEP',
+              '$$PRUNE'
+            ]
+          }
         }
-      }
-    },
-    {
-      '$unwind': {
-        'path': '$_id.dataset'
-      }
-    },
-    {
-      '$project': {
-        'dataset': '$_id.dataset',
-        'date': '$_id.date',
-        'prediction': '$prediction',
-        'adjustment': '$adjustment',
-        'sale': '$sale'
-      }
-    },
-    {
-      $sort: {dataset: 1, date: 1}
+      ]
+
+      group = [
+        {
+          '$group': {
+            '_id': {
+              'dataset': '$dataset',
+              'date': '$data.forecastDate'
+            },
+            'prediction': {
+              '$sum': {$multiply: ['$data.prediction', '$price.price']}
+            },
+            'adjustment': {
+              '$sum': {$multiply: ['$data.adjustment', '$price.price']}
+            },
+            'sale': {
+              '$sum': {$multiply: ['$data.sale', '$price.price']}
+            }
+          }
+        }
+      ]
+    } else {
+      group = [
+        {
+          '$group': {
+            '_id': {
+              'dataset': '$dataset',
+              'date': '$data.forecastDate'
+            },
+            'prediction': {
+              '$sum': '$data.prediction'
+            },
+            'adjustment': {
+              '$sum': '$data.adjustment'
+            },
+            'sale': {
+              '$sum': '$data.sale'
+            }
+          }
+        }
+      ]
     }
+
+    let match = [
+      {
+        '$match': {
+          ...initialMatch,
+          dataset: {$in: data.datasets}
+        }
+      },
+      ...conditions,
+      ...group,
+      {
+        '$unwind': {
+          'path': '$_id.dataset'
+        }
+      },
+      {
+        '$project': {
+          'dataset': '$_id.dataset',
+          'date': '$_id.date',
+          'prediction': '$prediction',
+          'adjustment': '$adjustment',
+          'sale': '$sale'
+        }
+      },
+      {
+        $sort: {dataset: 1, date: 1}
+      }
     ]
 
     let responseData = await DataSetRow.aggregate(match)

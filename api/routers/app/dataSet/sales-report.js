@@ -83,6 +83,92 @@ module.exports = new Route({
       }
     }
 
+    let conditions = []
+    let group = []
+    if (data.prices) {
+      conditions = [
+        {
+          '$lookup': {
+            'from': 'prices',
+            'localField': 'newProduct',
+            'foreignField': 'product',
+            'as': 'prices'
+          }
+        },
+        {
+          '$unwind': {
+            'path': '$prices'
+          }
+        },
+        {
+          '$addFields': {
+            'catalogsSize': {
+              '$size': '$prices.catalogItems'
+            }
+          }
+        },
+        {
+          '$match': {
+            'catalogsSize': {
+              '$gte': 1.0
+            }
+          }
+        },
+        {
+          '$redact': {
+            '$cond': [
+              {
+                '$setIsSubset': [
+                  '$prices.catalogItems',
+                  '$catalogItems'
+                ]
+              },
+              '$$KEEP',
+              '$$PRUNE'
+            ]
+          }
+        }
+      ]
+
+      group = [
+        {
+          '$group': {
+            '_id': '$period.period',
+            'prediction': {
+              '$sum': {
+                '$multiply': [
+                  '$data.prediction',
+                  '$prices.price'
+                ]
+              }
+            },
+            'adjustment': {
+              '$sum': {
+                '$multiply': [
+                  '$data.adjustment',
+                  '$prices.price'
+                ]
+              }
+            }
+          }
+        }
+      ]
+    } else {
+      group = [
+        {
+          '$group': {
+            '_id': '$period.period',
+            'prediction': {
+              '$sum': '$data.prediction'
+            },
+            'adjustment': {
+              '$sum': '$data.adjustment'
+            }
+          }
+        }
+      ]
+    }
+
     var statement = [
       {
         '$match': match
@@ -102,14 +188,7 @@ module.exports = new Route({
           'preserveNullAndEmptyArrays': false
         }
       },
-      {
-        '$lookup': {
-          'from': 'prices',
-          'localField': 'products._id',
-          'foreignField': 'product',
-          'as': 'prices'
-        }
-      },
+      ...conditions,
       {
         '$lookup': {
           'from': 'periods',
@@ -118,34 +197,7 @@ module.exports = new Route({
           'as': 'period'
         }
       },
-      {
-        '$unwind': {
-          'path': '$prices',
-          'includeArrayIndex': 'arrayIndex',
-          'preserveNullAndEmptyArrays': false
-        }
-      },
-      {
-        '$group': {
-          '_id': '$period.period',
-          'prediction': {
-            '$sum': {
-              '$multiply': [
-                '$data.prediction',
-                '$prices.price'
-              ]
-            }
-          },
-          'adjustment': {
-            '$sum': {
-              '$multiply': [
-                '$data.adjustment',
-                '$prices.price'
-              ]
-            }
-          }
-        }
-      },
+      ...group,
       {
         '$project': {
           'period': '$_id',
