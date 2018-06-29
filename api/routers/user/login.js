@@ -8,14 +8,14 @@ module.exports = new Route({
     const { email, password } = ctx.request.body
     const user = await User.auth(email, password)
 
-    var orgsAux = user.organizations.map(item => {
+    const orgsAux = user.organizations.map(item => {
       return {
         organization: item.organization.toPublic(),
         role: item.role
       }
     })
 
-    var userPublic = user.toPublic()
+    let userPublic = user.toPublic()
     userPublic.organizations = orgsAux
 
     const token = await user.createToken({
