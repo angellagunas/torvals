@@ -49,6 +49,7 @@ const task = new Task(
       let anomalies = await Anomaly.find({project: dataset.project}).cursor()
 
       for (let anomaly = await anomalies.next(); anomaly != null; anomaly = await anomalies.next()) {
+        console.log(anomaly)
         if (anomaly) {
           bulkOps.push({
             updateOne: {
@@ -89,6 +90,9 @@ const task = new Task(
         await Anomaly.bulkWrite(bulkOps)
         await DataSetRow.insertMany(saveBulk)
       }
+
+      log(`Finished restoring Anomalies!`)
+      log(`Reprocessing Rows....`)
 
       let rows = await DataSetRow.find({
         dataset: dataset._id
