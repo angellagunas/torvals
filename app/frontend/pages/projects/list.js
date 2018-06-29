@@ -2,7 +2,7 @@ import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
 import { testRoles } from '~base/tools'
-
+import tree from '~core/tree'
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateProject from './create'
@@ -77,7 +77,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-2, consultor-level-3, manager-level-3')) {
+          if (testRoles('consultor-level-2, manager-level-2, consultor-level-3, manager-level-3')) {
             return (
               <Link className='button is-primary' to={'/projects/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>
