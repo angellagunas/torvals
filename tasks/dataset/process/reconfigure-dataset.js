@@ -49,7 +49,6 @@ const task = new Task(
       let anomalies = await Anomaly.find({project: dataset.project}).cursor()
 
       for (let anomaly = await anomalies.next(); anomaly != null; anomaly = await anomalies.next()) {
-        console.log(anomaly)
         if (anomaly) {
           bulkOps.push({
             updateOne: {
