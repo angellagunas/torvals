@@ -157,7 +157,8 @@ module.exports = new Route({
         lastAdjustment: item.data.lastAdjustment,
         adjustmentRequest: item.adjustmentRequest,
         externalId: item.externalId,
-        catalogItems: item.catalogItems
+        catalogItems: item.catalogItems,
+        rawData: item.data
       })
     }
 
