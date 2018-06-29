@@ -360,8 +360,8 @@ class GroupDetail extends Component {
                         submitHandler={(data) => this.submitHandler(data)}
                         errorHandler={(data) => this.errorHandler(data)}
                         finishUp={(data) => this.finishUpHandler(data)}
-                        canEdit={currentRole !== 'consultor-level-2'}
-                        canCreate={currentRole !== 'consultor-level-2'}
+                        canEdit={currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'}
+                        canCreate={currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'}
                       >
                         {this.state.channels && this.state.channels.length > 0 &&
                         <div>
