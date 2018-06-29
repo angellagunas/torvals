@@ -7,7 +7,7 @@ const conciliateDataset = require('./conciliate-dataset')
 const conciliateToProject = require('./conciliate-to-project')
 const filterDataset = require('./filter-dataset')
 const cloneProject = require('./clone-project')
-const cloneMainDataset = require('./clone-main-dataset')
+const cloneUpdateRulesMainDataset = require('./clone-update-rules-main-dataset')
 const reconfigureDataset = require('./reconfigure-dataset')
 const getAnomalies = require('./get-anomalies')
 const generateDownload = require('./generate-downloads')
@@ -23,7 +23,7 @@ module.exports = {
   'save-dataset': saveDataset,
   'process-dataset': processDataset,
   'save-datasetrows': saveDatasetRows,
-  'clone-main-dataset': cloneMainDataset,
+  'clone-update-rules-main-dataset': cloneUpdateRulesMainDataset,
   'reconfigure-dataset': reconfigureDataset,
   'getAnomalies': getAnomalies,
   'generateDownload': generateDownload// #Exports

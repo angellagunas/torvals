@@ -42,9 +42,9 @@ const task = new Task(
     log.call('Saving catalog items ...')
     for (let catalogItems of dataset.catalogItems) {
       if (catalogItems.type === 'producto') continue
-      await catalogItems.populate('catalog').execPopulate()
+
       const filters = {dataset: dataset._id}
-      filters['catalogData.is_' + catalogItems.catalog.slug + '_id'] = catalogItems.externalId.toString()
+      filters['catalogData.is_' + catalogItems.type + '_id'] = catalogItems.externalId.toString()
 
       await DataSetRow.update(
       filters,

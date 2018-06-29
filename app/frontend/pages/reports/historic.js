@@ -1049,6 +1049,6 @@ export default Page({
   validate: loggedIn,
   component: HistoricReport,
   title: 'Histórico de ajustes',
-  icon: 'users',
+  icon: 'history',
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'  
 })

@@ -75,7 +75,8 @@ class Dashboard extends Component {
     let url = '/app/projects'
 
     let res = await api.get(url,{
-      showOnDashboard: true
+      showOnDashboard: true,
+      outdated: false
     })
 
     let activeProjects = res.data.filter(item => { return item.mainDataset })
@@ -1179,7 +1180,7 @@ const branchedDashboard = branch({forecasts: 'forecasts'}, Dashboard)
 export default Page({
   path: '/dashboard',
   title: 'Dashboard',
-  icon: 'github',
+  icon: 'line-chart',
   exact: true,
   validate: loggedIn,
   component: branchedDashboard

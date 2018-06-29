@@ -6,9 +6,9 @@ const path = require('path')
 const Queue = require('lib/queue')
 
 const queue = new Queue({
-  name: 'clone-main-dataset',
+  name: 'clone-update-rules-main-dataset',
   isFile: true,
-  task: path.join(__dirname, 'tasks-wrappers/clone-main-dataset.js')
+  task: path.join(__dirname, 'tasks-wrappers/clone-update-rules-main-dataset.js')
 })
 
 if (require.main === module) {

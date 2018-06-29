@@ -97,7 +97,7 @@ module.exports = new Route({
     ) {
       if (catalogItemsFilters.length === 0) {
         let catalogItems = await CatalogItem.filterByUserRole(
-          { _id: { $in: catalogItemsFilters } },
+          { },
           currentRole.slug,
           user
         )

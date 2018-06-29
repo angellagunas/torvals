@@ -35,7 +35,6 @@ const datasetRowSchema = new Schema({
     adjustment: { type: Number },
     sale: { type: Number },
     lastAdjustment: { type: Number },
-    semanaBimbo: { type: Number },
     forecastDate: { type: Date },
     productExternalId: { type: String }
   },
