@@ -2,7 +2,7 @@ import React from 'react'
 import Link from '~base/router/link'
 import moment from 'moment'
 import { testRoles } from '~base/tools'
-import tree from '~core/tree'
+
 import ListPage from '~base/list-page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateProject from './create'
