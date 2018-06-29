@@ -156,8 +156,11 @@ class UserForm extends Component {
       for (let field in uiSchema) {
         uiSchema[field]['ui:disabled'] = false
       }
-      schema.properties.role.enum.push(this.state.formData.roleDetail._id)
-      schema.properties.role.enumNames.push(this.state.formData.roleDetail.name)
+
+      if (!schema.properties.role.enum.includes(this.state.formData.roleDetail._id)) {
+        schema.properties.role.enum.push(this.state.formData.roleDetail._id)
+        schema.properties.role.enumNames.push(this.state.formData.roleDetail.name)
+      }
     }
 
     return (
