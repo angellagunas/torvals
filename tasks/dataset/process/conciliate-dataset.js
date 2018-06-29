@@ -53,9 +53,8 @@ const task = new Task(
 
     const key = {
       date: '$data.forecastDate',
-      product: '$product',
-      salesCenter: '$salesCenter',
-      channel: '$channel',
+      product: '$newProduct',
+      catalogItems: '$catalogItems',
       period: '$period'
     }
 

@@ -58,6 +58,7 @@ module.exports = new Route({
     if (
         currentRole.slug === 'manager-level-1' ||
         currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'manager-level-3' ||
         currentRole.slug === 'consultor-level-2' ||
         currentRole.slug === 'consultor-level-3'
     ) {
@@ -67,12 +68,12 @@ module.exports = new Route({
       }
 
       const catalogItems = await CatalogItem.filterByUserRole(
-        { },
-        currentRole.slug,
-        user
-      )
+          { },
+          currentRole.slug,
+          user
+        )
 
-      matchCond['catalogItems'] = { $in: catalogItems }
+      matchCond['$match']['catalogItems'] = { $in: catalogItems }
     }
 
     var statement = [
@@ -108,11 +109,6 @@ module.exports = new Route({
           'foreignField': '_id',
           'as': 'catalogItems'
         }
-      },
-      {
-        '$match': {
-          'catalogItems.type': { $in: matchCatalogs }
-        }
       }
     ]
 
@@ -126,9 +122,13 @@ module.exports = new Route({
       return
     }
 
+    const catalogs = datasetRow[0].catalogItems.filter(item => {
+      return matchCatalogs.indexOf(item.type) >= 0
+    })
+
     ctx.body = {
       products: datasetRow[0].products,
-      catalogItems: datasetRow[0].catalogItems
+      catalogItems: catalogs
     }
   }
 })
