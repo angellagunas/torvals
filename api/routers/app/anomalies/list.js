@@ -112,7 +112,8 @@ module.exports = new Route({
     }
 
     if (
-      currentRole.slug === 'consultor-level-3' || currentRole.slug === 'manager-level-3'
+      currentRole.slug === 'consultor-level-3' || currentRole.slug === 'manager-level-3' ||
+      currentRole.slug === 'consultor-level-2' || currentRole.slug === 'manager-level-2'
     ) {
       if (catalogItemsFilters.length === 0) {
         let catalogItems = await CatalogItem.filterByUserRole(
