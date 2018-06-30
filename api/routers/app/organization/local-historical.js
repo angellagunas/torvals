@@ -113,9 +113,11 @@ module.exports = new Route({
 
       let catalogItemsMatch = []
       for (let key of Object.keys(catalogItemsObj)) {
-        catalogItemsMatch.push({
-          'catalogItems': { $in: catalogItemsObj[key] }
-        })
+        if (catalogItemsObj[key].length > 0) {
+          catalogItemsMatch.push({
+            'catalogItems': { $in: catalogItemsObj[key] }
+          })
+        }
       }
 
       initialMatch['$and'] = catalogItemsMatch
