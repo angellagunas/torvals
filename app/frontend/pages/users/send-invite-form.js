@@ -217,7 +217,7 @@ class InviteUserForm extends Component {
       schema.properties.project.enumNames = this.state.projects.map(item => { return item.name })
     }
 
-    if (testRoles('consultor')) {
+    if (testRoles('consultor-level-3')) {
       delete uiSchema['role']
       delete schema.properties['role']
       delete schema.properties['project']

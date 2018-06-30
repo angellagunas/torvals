@@ -1,10 +1,6 @@
 const { Organization } = require('models')
+const { organizationFixture } = require('../fixtures')
 
 module.exports = function createOrganization (opts = {}) {
-  const org = {
-    name: 'Organization test',
-    description: 'Little description about the organization'
-  }
-
-  return Organization.create(Object.assign({}, org, opts))
+  return Organization.create(Object.assign({}, organizationFixture, opts))
 }

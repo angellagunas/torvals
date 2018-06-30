@@ -11,7 +11,7 @@ export default ListPage({
   title: 'Datasets',
   icon: 'check',
   exact: true,
-  roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
+  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Dataset',
   breadcrumbs: true,
@@ -114,7 +114,7 @@ export default ListPage({
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (testRoles('manager-level-2, consultor')) {
+          if (testRoles('manager-level-2, consultor-level-3')) {
             return (
               <Link className='button is-primary' to={'/datasets/' + row.uuid}>
                 <span className='icon is-small' title='Visualizar'>

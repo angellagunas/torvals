@@ -9,11 +9,11 @@ module.exports = new Route({
     var anomalyId = ctx.params.uuid
 
     const anomaly = await Anomaly.findOne({'uuid': anomalyId, 'isDeleted': false})
-    .populate('channel').populate('product').populate('dataset').populate('salesCenter')
+    .populate('channel').populate('product').populate('salesCenter')
     ctx.assert(anomaly, 404, 'Anomalía no encontrada')
 
     ctx.body = {
-      data: anomaly.toAdmin()
+      data: anomaly.toPublic()
     }
   }
 })

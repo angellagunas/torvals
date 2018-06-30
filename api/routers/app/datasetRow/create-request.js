@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
 
-const {DataSetRow, AdjustmentRequest, Role} = require('models')
+const {DataSetRow, AdjustmentRequest, Role, UserReport} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -11,13 +11,13 @@ module.exports = new Route({
     var returnData = {}
     var uuidsAux = []
 
-    for (let row of data) {
+    for (let row of data.rows) {
       if (!row.uuid || !row.newAdjustment) {
         continue
       }
 
       const datasetRow = await DataSetRow.findOne({'uuid': row.uuid, 'isDeleted': false})
-        .populate('adjustmentRequest')
+        .populate('adjustmentRequest dataset')
       ctx.assert(datasetRow, 404, 'DataSetRow no encontrado')
 
       var adjustmentRequest = datasetRow.adjustmentRequest
@@ -46,12 +46,14 @@ module.exports = new Route({
           dataset: datasetRow.dataset,
           datasetRow: datasetRow._id,
           product: datasetRow.product,
+          newProduct: datasetRow.newProduct,
           channel: datasetRow.channel,
           salesCenter: datasetRow.salesCenter,
           lastAdjustment: datasetRow.data.adjustment,
           newAdjustment: row.newAdjustment,
           requestedBy: ctx.state.user._id,
-          status: status
+          status: status,
+          catalogItems: datasetRow.catalogItems
         })
 
         datasetRow.adjustmentRequest = adjustmentRequest
@@ -75,6 +77,26 @@ module.exports = new Route({
       }
 
       await adjustmentRequest.save()
+      let adjustmentStatus = 'in-progress'
+      if (data.finishAdjustments) { adjustmentStatus = 'finished' }
+      let userReport = await UserReport.findOne({
+        user: ctx.state.user,
+        dataset: datasetRow.dataset._id
+      })
+      if (!userReport) {
+        await UserReport.create({
+          user: ctx.state.user,
+          dataset: datasetRow.dataset._id,
+          cycle: datasetRow.cycle,
+          project: datasetRow.dataset.project,
+          status: adjustmentStatus
+        })
+      } else {
+        userReport.set({
+          status: adjustmentStatus
+        })
+        await userReport.save()
+      }
 
       returnData[row.uuid] = adjustmentRequest.toPublic()
     }

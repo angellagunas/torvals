@@ -32,14 +32,27 @@ const task = new Task(
     log(`Using batch size of ${batchSize}`)
     log(`Start ==>  ${moment().format()}`)
 
-    const project = await Project.findOne({uuid: argv.uuid}).populate('mainDataset activeDataset')
+    const project = await Project.findOne({uuid: argv.uuid}).populate('mainDataset rule')
 
     if (!project) {
       throw new Error('Project not found')
     }
 
+    if (!project.rule.hasAnomalies) {
+      log('Organization doesnt have anomalies!')
+      project.set({
+        status: 'pendingRows'
+      })
+      await project.save()
+
+      return true
+    }
+
+    let month = moment.utc().startOf('month')
+
     const datasetrows = await DataSetRow.find({
-      dataset: project.activeDataset._id,
+      dataset: project.mainDataset,
+      'data.forecastDate': {$gte: month.toDate()},
       'data.prediction': {$ne: null},
       $or: [{'data.prediction': 0}, {'data.prediction': {$lt: 0}}]
     }).cursor()
@@ -47,28 +60,28 @@ const task = new Task(
     log('Rows ready, transversing ...')
 
     var bulkOps = []
-    var updateBulk = []
+    var deleteBulk = []
     let count = 0
     for (let dataRow = await datasetrows.next(); dataRow != null; dataRow = await datasetrows.next()) {
       try {
         bulkOps.push({
-          dataset: project.activeDataset._id,
-          datasetRow: dataRow._id,
-          salesCenter: dataRow.salesCenter,
           product: dataRow.product,
-          channel: dataRow.channel,
+          newProduct: dataRow.newProduct,
           project: project._id,
           prediction: dataRow.data.prediction,
-          semanaBimbo: dataRow.data.semanaBimbo,
           organization: project.organization,
           type: 'zero_sales',
-          date: dataRow.data.forecastDate
+          date: dataRow.data.forecastDate,
+          apiData: dataRow.apiData,
+          period: dataRow.period,
+          cycle: dataRow.cycle,
+          data: dataRow.data,
+          catalogItems: dataRow.catalogItems
         })
 
-        updateBulk.push({
-          updateOne: {
-            'filter': {_id: dataRow._id},
-            'update': {$set: {isAnomaly: true}}
+        deleteBulk.push({
+          deleteOne: {
+            filter: {_id: dataRow._id}
           }
         })
 
@@ -76,8 +89,8 @@ const task = new Task(
           log(`${batchSize} anomalies saved! => ${moment().format()}`)
           await Anomaly.insertMany(bulkOps)
           bulkOps = []
-          await DataSetRow.bulkWrite(updateBulk)
-          updateBulk = []
+          await DataSetRow.bulkWrite(deleteBulk)
+          deleteBulk = []
         }
         count++
       } catch (e) {
@@ -89,7 +102,7 @@ const task = new Task(
     try {
       if (bulkOps.length > 0) {
         await Anomaly.insertMany(bulkOps)
-        await DataSetRow.bulkWrite(updateBulk)
+        await DataSetRow.bulkWrite(deleteBulk)
       }
     } catch (e) {
       log('Error trying to save anomalies: ')
@@ -97,6 +110,11 @@ const task = new Task(
     }
 
     log(`Received ${count} anomalies!`)
+
+    project.set({
+      status: 'pendingRows'
+    })
+    await project.save()
 
     return true
   },

@@ -19,7 +19,8 @@ const organizationSchema = new Schema({
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  isConfigured: { type: Boolean, default: false }
 }, { usePushEach: true })
 
 organizationSchema.plugin(dataTables)
@@ -31,7 +32,9 @@ organizationSchema.methods.toPublic = function () {
     description: this.description,
     slug: this.slug,
     dateCreated: this.dateCreated,
-    profileUrl: this.profileUrl
+    profileUrl: this.profileUrl,
+    isConfigured: this.isConfigured,
+    rules: this.rules
   }
 }
 
@@ -42,7 +45,9 @@ organizationSchema.methods.toAdmin = function () {
     slug: this.slug,
     description: this.description,
     dateCreated: this.dateCreated,
-    profileUrl: this.profileUrl
+    profileUrl: this.profileUrl,
+    isConfigured: this.isConfigured,
+    rules: this.rules
   }
 }
 
@@ -55,7 +60,7 @@ organizationSchema.methods.uploadOrganizationPicture = async function (file) {
 
   var s3File = {
     Key: fileName,
-    Body: new Buffer(file.split(',')[1], 'base64'),
+    Body: Buffer.from(file.split(',')[1], 'base64'),
     ContentType: contentType,
     Bucket: bucket,
     ACL: 'public-read'

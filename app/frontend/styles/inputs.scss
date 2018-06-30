@@ -28,6 +28,11 @@ option {
     color: $general_text;
 }
 
+.select-is-danger {
+    border-color: $danger !important;
+    color: $general_text;
+}
+
 .selects {
     .select,
     select,

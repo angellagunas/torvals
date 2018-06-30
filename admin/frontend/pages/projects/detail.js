@@ -157,6 +157,7 @@ class ProjectDetail extends Component {
     if (!this.state.loaded) {
       return <Loader />
     }
+
     const tabs = [
       {
         name: 'ajustes',

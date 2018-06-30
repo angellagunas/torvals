@@ -260,7 +260,7 @@ const task = new Task(async function (argv) {
       delete existingUser
     }
 
-    await getDates.run()
+    // await getDates.run()
   } catch (e) {
     console.log('ERROR!!!!')
     console.log(e)

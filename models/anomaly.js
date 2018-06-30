@@ -6,22 +6,22 @@ const moment = require('moment')
 
 // forecast on Abraxas API
 const anomalySchema = new Schema({
-  channel: { type: Schema.Types.ObjectId, ref: 'Channel' },
   dateCreated: { type: Date, default: moment.utc },
   date: { type: Date },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
-  dataset: { type: Schema.Types.ObjectId, ref: 'DataSet', required: true },
   project: { type: Schema.Types.ObjectId, ref: 'Project' },
   product: { type: Schema.Types.ObjectId, ref: 'Product' },
-  salesCenter: { type: Schema.Types.ObjectId, ref: 'SalesCenter' },
+  newProduct: {type: Schema.Types.ObjectId, ref: 'CatalogItem'},
   organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
   externalId: { type: String },
   prediction: { type: Number },
-  semanaBimbo: { type: Number },
-  datasetRow: {type: Schema.Types.ObjectId, ref: 'DataSetRow', required: true},
   type: { type: String },
-  apiData: {type: Schema.Types.Mixed}
+  apiData: {type: Schema.Types.Mixed},
+  data: {type: Schema.Types.Mixed},
+  cycle: { type: Schema.Types.ObjectId, ref: 'Cycle' },
+  period: { type: Schema.Types.ObjectId, ref: 'Period' },
+  catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }]
 }, { usePushEach: true })
 
 anomalySchema.plugin(dataTables)
@@ -31,13 +31,15 @@ anomalySchema.methods.toPublic = function () {
     uuid: this.uuid,
     dateCreated: this.dateCreated,
     product: this.product,
+    newProduct: this.newProduct,
     salesCenter: this.salesCenter,
-    status: this.status,
     prediction: this.prediction,
     channel: this.channel,
     organization: this.organization,
     semanaBimbo: this.semanaBimbo,
-    type: this.type
+    date: this.date,
+    type: this.type,
+    catalogItems: this.catalogItems
   }
 }
 
@@ -46,17 +48,19 @@ anomalySchema.methods.toAdmin = function () {
     uuid: this.uuid,
     dateCreated: this.dateCreated,
     product: this.product,
+    newProduct: this.newProduct,
     salesCenter: this.salesCenter,
-    status: this.status,
     prediction: this.prediction,
     channel: this.channel,
     organization: this.organization,
     semanaBimbo: this.semanaBimbo,
-    type: this.type
+    date: this.date,
+    type: this.type,
+    catalogItems: this.catalogItems
   }
 }
 
-anomalySchema.index({ externalId: 1, dataset: 1}, {background: true})
+anomalySchema.index({ externalId: 1, dataset: 1 }, { background: true })
 anomalySchema.set('autoIndex', true)
 
 module.exports = mongoose.model('Anomaly', anomalySchema)

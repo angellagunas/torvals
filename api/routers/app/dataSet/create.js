@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const { DataSet, Project } = require('models')
+const { DataSet, Project, Rule } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -15,7 +15,10 @@ module.exports = new Route({
     const body = ctx.request.body
     let project
 
-    project = await Project.findOne({uuid: body.project})
+    project = await Project.findOne({uuid: body.project}).populate('rule')
+
+    const rule = project.rule
+    if (!rule) { ctx.throw(404, 'Reglas de negocio no definidas') }
 
     if (!project) {
       ctx.throw(404, 'Proyecto no encontrado')
@@ -26,7 +29,8 @@ module.exports = new Route({
       description: body.description,
       organization: ctx.state.organization._id,
       createdBy: ctx.state.user,
-      project: project._id
+      project: project._id,
+      rule: rule
     })
 
     project.datasets.push({
@@ -35,6 +39,8 @@ module.exports = new Route({
     })
 
     await project.save()
+
+    dataset.rule = rule
 
     ctx.body = {
       data: dataset

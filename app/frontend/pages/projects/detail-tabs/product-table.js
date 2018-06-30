@@ -13,6 +13,16 @@ class ProductTable extends Component {
       data: this.props.data
     }
     this.inputs = {}
+
+    this.canEdit = true
+
+    if (this.props.currentRole === 'consultor-level-3' ||
+      this.props.currentRole === 'consultor-level-2' ||
+      this.props.generalAdjustment === 0) {
+      this.canEdit = false
+    }
+
+    this.rules = this.props.rules
   }
 
   splitWords (words) {
@@ -30,8 +40,8 @@ class ProductTable extends Component {
       }
       else {
         row.selected = true
-        selected.add(row)  
-      }    
+        selected.add(row)
+      }
     }
     this.props.checkAll(selected)
 
@@ -48,12 +58,12 @@ class ProductTable extends Component {
     return (
       <div className="field has-addons view-btns">
         <span className="control">
-          <a className={this.props.currentRole === 'consultor' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
-            Vista Semana
+          <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
+            Vista Periodo
           </a>
         </span>
         <span className="control">
-          <a className={this.props.currentRole === 'consultor' ? 'button is-info btn-lvl-3' : 'button is-info'}>
+          <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info btn-lvl-3' : 'button is-info'}>
             Vista Producto
           </a>
         </span>
@@ -61,12 +71,40 @@ class ProductTable extends Component {
     )
   }
 
+  getCatalogColumns() {
+    return this.rules.catalogs.map(item => {
+      if (item.slug !== 'producto' && item.slug !== 'precio'){
+      return (
+        {
+          group: ' ',
+          title: item.name,
+          property: 'catalog_' + item.slug,
+          default: 'N/A',
+          sortable: true,
+          groupClassName: 'table-week',
+          headerClassName: 'table-head',
+          className: 'table-cell is-capitalized',
+          formatter: (row) => {
+            let name = 'N/A'
+            row.catalogItems.map(obj => {
+              if(obj.catalog.slug === item.slug){
+                name = obj.name
+              }
+            })
+            return name
+          }
+        }
+      )
+    }
+    }).filter(item => item)
+  }
+
   getColumns () {
     return [
       {
         group: this.getBtns(),
         title: (() => {
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
           return (
             <Checkbox
               label='checkAll'
@@ -77,13 +115,13 @@ class ProductTable extends Component {
           )
         }
         })(),
-        groupClassName: 'col-border-left colspan is-paddingless',
+        groupClassName: 'col-border-left colspan is-paddingless table-week',
         headerClassName: 'col-border-left table-product-head',
-        className: 'col-border-left', 
+        className: 'col-border-left',
         'property': 'checkbox',
         'default': '',
         formatter: (row) => {
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
           if (!row.selected) {
             row.selected = false
           }
@@ -104,8 +142,9 @@ class ProductTable extends Component {
         property: 'productId',
         default: 'N/A',
         sortable: true,
-        headerClassName: 'has-text-centered table-product-head id',   
-        className: 'id',     
+        groupClassName: 'table-week',
+        headerClassName: 'has-text-centered table-product-head id',
+        className: 'id',
         formatter: (row) => {
           if (row.productId) {
             return row.productId
@@ -118,8 +157,19 @@ class ProductTable extends Component {
         property: 'productName',
         default: 'N/A',
         sortable: true,
+        groupClassName: 'table-week',
         headerClassName: 'table-product table-product-head',
-        className: 'table-product productName'
+        className: 'table-product productName',
+        formatter: (row) => {
+          let product = 'N/A'
+          if (row.productName) {
+            product = row.productName
+          }
+          if (product === 'Not identified') {
+            product = 'No identificado'
+          }
+          return product
+        }
       },
       {
         group: ' ',
@@ -132,7 +182,7 @@ class ProductTable extends Component {
         >
           <i className='fa fa-exclamation fa-lg' />
         </span>,
-        groupClassName: 'table-product',
+        groupClassName: 'table-product table-week',
         headerClassName: 'table-product table-product-head table-product-head-bord table-product-shadow',
         className: 'table-product table-product-shadow',
         formatter: (row) => {
@@ -141,34 +191,20 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: 'Semana',
-        property: 'semanaBimbo',
+        title: 'Periodo',
+        property: 'period.period',
         default: 'N/A',
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
+        formatter: (row) => {
+          if(row.period){
+            return row.period.period
+          }
+        }
       },
-      {
-        group: ' ',
-        title: 'Centro de Ventas',
-        property: 'salesCenter',
-        default: 'N/A',
-        sortable: true,
-        groupClassName: 'table-week',
-        headerClassName: 'table-head',
-        className: 'table-cell is-capitalized', 
-      },
-      {
-        group: ' ',
-        title: 'Canal',
-        property: 'channel',
-        default: 'N/A',
-        sortable: true,
-        groupClassName: 'table-week',
-        headerClassName: 'table-head',
-        className: 'table-cell is-capitalized', 
-      },
+      ...this.getCatalogColumns(),
       {
         group: ' ',
         title: 'Predicción',
@@ -209,14 +245,14 @@ class ProductTable extends Component {
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
         formatter: (row) => {
           if (!row.adjustmentForDisplay) {
             row.adjustmentForDisplay = ''
           }
 
           row.tabin = row.key * 10
-          if (this.props.currentRole !== 'consultor') {
+          if (this.canEdit) {
             return (
               <input
                 type='text'
@@ -244,22 +280,22 @@ class ProductTable extends Component {
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
-        className: 'table-cell', 
+        className: 'table-cell',
         formatter: (row) => {
-          let percentage 
+          let percentage
           if(row.lastAdjustment){
             percentage = (
               ((row.adjustmentForDisplay - row.lastAdjustment) / row.lastAdjustment) * 100
-            )  
+            )
           }else{
             percentage = (
               ((row.adjustmentForDisplay - row.prediction) / row.prediction) * 100
-            )  
+            )
           }
 
           if(isNaN(percentage) || !isFinite(percentage))
               percentage = 0
-          
+
           row.percentage = percentage
           let status = classNames('has-text-weight-bold', {
             'has-text-success': row.isLimit && row.adjustmentRequest && row.adjustmentRequest.status === 'approved',
@@ -275,14 +311,37 @@ class ProductTable extends Component {
 
   handleSort (e) {
     let sorted = this.state.filteredData
-
     if (e === 'productId') {
       if (this.state.sortAscending) {
         sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
       } else {
         sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
       }
-    } else {
+
+    } 
+    else if (e.indexOf('_') !== -1) {
+      let sort = e.split('_')
+      
+      if (this.state.sortAscending) {
+        sorted = _.orderBy(sorted, function (e) { 
+          return e.catalogItems.map((item, key) => {
+            if (sort[1] === item.type) {
+              return e.catalogItems[key]['name'].toLowerCase()
+            }
+          }) 
+        }, ['asc'])
+      }
+      else {
+        sorted = _.orderBy(sorted, function (e) {
+          return e.catalogItems.map((item, key) => {
+            if (sort[1] === item.type) {
+              return e.catalogItems[key]['name'].toLowerCase()
+            }
+          })
+        }, ['desc'])
+      }
+    }
+    else {
       if (this.state.sortAscending) {
         sorted = _.orderBy(sorted, [e], ['asc'])
       } else {
@@ -322,7 +381,7 @@ class ProductTable extends Component {
       limit =
         <span
           className='icon has-text-danger'
-          title={'Semana ' + product.semanaBimbo + ' fuera de rango'}
+          title={'Periodo ' + product.period.period + ' fuera de rango'}
           onClick={() => {
               this.props.handleAdjustmentRequest(product)
             }}>

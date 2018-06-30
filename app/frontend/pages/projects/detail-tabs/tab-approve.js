@@ -62,7 +62,7 @@ class TabApprove extends Component {
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
-          if (currentRole !== 'consultor') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
             return (
               <div className={this.state.remainingItems > 0 ? '' : 'is-invisible'}>
                 <Checkbox
@@ -78,7 +78,7 @@ class TabApprove extends Component {
         'property': 'checkbox',
         'default': '',
         formatter: (row, state) => {
-          if (currentRole !== 'consultor') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
             if (row.status === 'created') {
               if (!row.selected) {
                 row.selected = false
@@ -104,36 +104,16 @@ class TabApprove extends Component {
           if (!row.selected) {
             row.selected = false
           }
-          return String(row.datasetRow.product.externalId)
+          return String(row.product.externalId)
         }
       },
       {
         'title': 'Producto',
-        'property': 'datasetRow.product.name',
+        'property': 'product.name',
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          return String(row.datasetRow.product.name)
-        }
-      },
-      {
-        'title': 'Centro de venta',
-        'abbreviate': true,
-        'abbr': 'C. Venta',
-        'property': 'datasetRow.salesCenter.name',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.datasetRow.salesCenter.name)
-        }
-      },
-      {
-        'title': 'Semana',
-        'property': 'datasetRow.data.semanaBimbo',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          return String(row.datasetRow.data.semanaBimbo)
+          return String(row.product.name)
         }
       },
       {
@@ -372,7 +352,7 @@ class TabApprove extends Component {
           </div>
         </div>
 
-        {currentRole !== 'consultor'
+        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' 
           ? <div className='level-right'>
             <div className='level-item'>
               <div className='saleCenter'>
@@ -427,9 +407,8 @@ class TabApprove extends Component {
           if (this.state.searchTerm !== '') {
             const regEx = new RegExp(this.state.searchTerm, 'gi')
 
-            if (regEx.test(item.datasetRow.product.name) ||
-              regEx.test(item.datasetRow.product.externalId) ||
-              regEx.test(item.datasetRow.salesCenter.name))
+            if (regEx.test(item.product.name) ||
+              regEx.test(item.product.externalId))
               return item
             else
               return null
@@ -445,9 +424,8 @@ class TabApprove extends Component {
       else if (this.state.searchTerm !== '' && !this.state.searchDate) {
         const regEx = new RegExp(this.state.searchTerm, 'gi')
 
-        if (regEx.test(item.datasetRow.product.name) ||
-          regEx.test(item.datasetRow.product.externalId) ||
-          regEx.test(item.datasetRow.salesCenter.name))
+        if (regEx.test(item.product.name) ||
+          regEx.test(item.product.externalId))
           return item
         else
           return null
@@ -611,10 +589,10 @@ class TabApprove extends Component {
 
     if (e === 'productId') {
       if (this.state.sortAscending) {
-        sorted.sort((a, b) => { return parseFloat(a.datasetRow.product.externalId) - parseFloat(b.datasetRow.product.externalId) })
+        sorted.sort((a, b) => { return parseFloat(a.product.externalId) - parseFloat(b.product.externalId) })
       }
       else {
-        sorted.sort((a, b) => { return parseFloat(b.datasetRow.product.externalId) - parseFloat(a.datasetRow.product.externalId) })
+        sorted.sort((a, b) => { return parseFloat(b.product.externalId) - parseFloat(a.product.externalId) })
       }
     }
     else {

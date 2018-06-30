@@ -1,16 +1,24 @@
 import React, { Component } from 'react'
 import Loader from '~base/components/spinner'
+import s from 'underscore.string'
 
 class ConfigureViewDataset extends Component {
   constructor (props) {
     super(props)
 
     this.state = {
+      dataset: this.props.initialState,
+      rules: this.props.initialState.rule,
       formData: {
         columns: this.props.initialState.columns,
         groupings: this.props.initialState.groupings
-      }
+      },
+      catalogColumns: []
     }
+  }
+
+  componentWillMount () {
+    this.getCatalogColumns()
   }
 
   getColumnForValue (type) {
@@ -25,6 +33,26 @@ class ConfigureViewDataset extends Component {
     } else {
       return this.state.formData.columns[posColumn].name
     }
+  }
+
+  getCatalogColumns () {
+    let cols = []
+    let rules = this.state.rules
+
+    for (let col of rules.catalogs) {
+      cols.push({
+        id: {
+          label: `${col.name} Id *`,
+          name: `is_${col.slug}_id`
+        },
+        name: {
+          label: `${col.name} Nombre`,
+          name: `is_${col.slug}_name`
+        }
+      })
+    }
+
+    this.setState({catalogColumns: cols})
   }
 
   render () {
@@ -115,38 +143,22 @@ class ConfigureViewDataset extends Component {
           <div className='column' />
         </div>
 
-        <div className='columns has-borders'>
-          <div className='column'>
-            <p className='title is-7'>Id Centro de venta*</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isSalesCenter')}</p>
-          </div>
-          <div className='column'>
-            <p className='title is-7'>Centro de venta Nombre</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isSalesCenterName')}</p>
-          </div>
-        </div>
-
-        <div className='columns has-borders'>
-          <div className='column'>
-            <p className='title is-7'>Id Producto*</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isProduct')}</p>
-          </div>
-          <div className='column'>
-            <p className='title is-7'>Producto Nombre</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isProductName')}</p>
-          </div>
-        </div>
-
-        <div className='columns has-borders'>
-          <div className='column'>
-            <p className='title is-7'>Id Canal*</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isChannel')}</p>
-          </div>
-          <div className='column'>
-            <p className='title is-7'>Canal Nombre</p>
-            <p className='subtitle is-7'>{this.getColumnForValue('isChannelName')}</p>
-          </div>
-        </div>
+        {this.state.catalogColumns.map((item, index) => {
+          if (item.name.name !== 'is_precio_name') {
+            return (
+              <div className='columns has-borders' key={index}>
+                <div className='column'>
+                  <p className='title is-7'>{item.id.label}</p>
+                  <p className='subtitle is-7'>{this.getColumnForValue(item.id.name)}</p>
+                </div>
+                <div className='column'>
+                  <p className='title is-7'>{item.name.label}</p>
+                  <p className='subtitle is-7'>{this.getColumnForValue(item.name.name)}</p>
+                </div>
+              </div>
+            )
+          }
+        })}
 
         <div className='columns has-20-margin-top'>
           <div className='column is-paddingless'>
