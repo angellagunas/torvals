@@ -155,6 +155,8 @@ class HistoricReport extends Component {
           }
           , ['asc'])
 
+        let datasets = {}
+
         data.map((item) => {
           totalAdjustment += item.adjustment
           totalPrediction += item.prediction
@@ -164,6 +166,13 @@ class HistoricReport extends Component {
           if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
             activePeriod.push(item)
           }
+
+          if(datasets[item.dataset]){
+            datasets[item.dataset].push(item)
+          }else{
+            datasets[item.dataset] = [item]
+          }
+
         })
 
         topValue = this.getTopValue(res.data)
@@ -185,7 +194,8 @@ class HistoricReport extends Component {
           reloadGraph: true,
           startPeriod: activePeriod[0],
           endPeriod: activePeriod[activePeriod.length - 1],
-          waitingData: false
+          waitingData: false,
+          datasets
         })
         setTimeout(() => {
           this.setState({
@@ -657,6 +667,13 @@ class HistoricReport extends Component {
     })
   }
 
+  getRandColor(brightness) {
+    let rgb = [Math.random() * 256, Math.random() * 256, Math.random() * 256];
+    let mix = [brightness * 51, brightness * 51, brightness * 51]; //51 => 255/5
+    let mixedrgb = [rgb[0] + mix[0], rgb[1] + mix[1], rgb[2] + mix[2]].map((x) => { return Math.round(x / 2.0) })
+    return "rgb(" + mixedrgb.join(",") + ")";
+  }
+
   render() {
     const user = tree.get('user')
 
@@ -685,18 +702,48 @@ class HistoricReport extends Component {
       )
     }
 
-    const graph = [
-      {
-        label: 'Predicción',
-        color: '#187FE6',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.prediction !== 0 ? item.prediction : null }) : []
-      },
-      {
-        label: 'Ajuste',
-        color: '#30C6CC',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.adjustment !== 0 ? item.adjustment : null }) : []
-      }
-    ]
+
+    let graph = []
+
+    let labels = {}
+
+    let prediction = {}
+
+
+    if (this.state.graphData){
+      this.state.graphData.map((item) => {
+        labels[item.date] = item.date
+        prediction[item.date] = item.prediction !== 0 ? item.prediction : null
+      })
+
+      prediction = Object.values(prediction)
+      labels = Object.keys(labels)
+
+      graph = [
+        {
+          label: 'Predicción',
+          color: '#187FE6',
+          data: prediction
+        }
+      ]
+
+      Object.values(this.state.datasets).map((arr, key) => {
+        let data = Array(labels.length).fill(null);
+
+        arr.map((item) => {
+          let index = labels.indexOf(item.date)
+          if ( index !== -1) {
+            data[index] = item.adjustment !== 0 ? item.adjustment : null
+          }
+        })
+
+        graph.push({
+          label: 'Ajuste ' + (key + 1),
+          color: this.getRandColor(4),
+          data: data
+        })
+      })
+    }
 
     const vLines = (this.state.graphData || []).map(item => ({
       drawTime: 'beforeDatasetsDraw',
@@ -943,7 +990,7 @@ class HistoricReport extends Component {
                             }
                           }
                         }}
-                        labels={this.state.graphData.map((item) => { return item.date })}
+                        labels={labels}
                         scales={
                           {
                             xAxes: [
