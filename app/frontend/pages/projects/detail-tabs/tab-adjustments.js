@@ -100,7 +100,7 @@ class TabAdjustment extends Component {
 
         let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
 
-        if (currentRole === 'manager-level-2') {
+        if (currentRole !== 'manager-level-1') {
           cycles = cycles.map((item, key) => {
             return item = { ...item, adjustmentRange: this.rules.rangesLvl2[key], name: moment.utc(item.dateStart).format('MMMM') }
           })
@@ -196,10 +196,14 @@ class TabAdjustment extends Component {
       return item.cycle === this.state.formData.cycle
     })
 
+    let adjustment = this.getAdjustment(cycle.adjustmentRange)
+    if (this.props.project.cycleStatus !== 'rangeAdjustment')
+      adjustment = 0
+
     this.setState({
       isLoading: ' is-loading',
       isFiltered: false,
-      generalAdjustment: this.getAdjustment(cycle.adjustmentRange),
+      generalAdjustment: adjustment,
       salesTable: [],
       noSalesData: ''
     })
@@ -343,7 +347,7 @@ class TabAdjustment extends Component {
 
         <div className='column is-narrow'>
           <div className='field'>
-            {currentRole !== 'consultor-level-3' ?
+            {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' ?
               <label className='label'>Búsqueda general</label>:
               null
             }
@@ -360,7 +364,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div>
-        {currentRole !== 'consultor-level-3' ?
+        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -402,7 +406,7 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
-        {currentRole !== 'consultor-level-3' ?
+        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -645,7 +649,7 @@ class TabAdjustment extends Component {
       if (rowAux.length > 0) {
         const res = await api.post(url, rowAux)
       }
-      if (isLimited && currentRole === 'manager-level-1') {
+      if (isLimited && (currentRole === 'manager-level-1' || currentRole === 'manager-level-2')) {
         this.notify(
           (<p>
             <span className='icon'>
@@ -657,12 +661,7 @@ class TabAdjustment extends Component {
           toast.TYPE.WARNING
         )
       } else {
-        if(currentRole === 'manager-level-2' && isLimited){
-          this.notify('¡Ajustes fuera de rango guardados!', 5000, toast.TYPE.WARNING)
-        }
-        else{
-          this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
-        }
+        this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
       }
       this.props.pendingDataRows(pendingDataRows)
 
@@ -701,7 +700,7 @@ class TabAdjustment extends Component {
 
     this.props.loadCounters()
 
-    if (currentRole !== 'manager-level-1' && limitedRows.length) {
+    if (currentRole !== 'manager-level-1' && currentRole !== 'manager-level-2' && limitedRows.length) {
       this.props.handleAdjustmentRequest(limitedRows)
     }
 

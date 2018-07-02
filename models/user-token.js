@@ -1,9 +1,8 @@
+const jwt = require('lib/jwt')
+const moment = require('moment')
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const { v4 } = require('uuid')
-const moment = require('moment')
-
-const jwt = require('lib/jwt')
 
 const userTokenSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User' },
@@ -12,6 +11,7 @@ const userTokenSchema = new Schema({
   key: { type: String, default: v4 },
   secret: { type: String, default: v4 },
   type: { type: String, default: 'generic' },
+  organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
   validUntil: { type: Date },
   lastUse: { type: Date },
   isDeleted: { type: Boolean },

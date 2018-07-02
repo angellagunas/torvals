@@ -89,13 +89,35 @@ module.exports = new Route({
       dataset: { $in: datasets }
     }
 
-    if (data.catalogItems) {
-      const catalogItems = await CatalogItem.filterByUserRole(
+    if (data.catalogItems && data.catalogItems.length > 0) {
+      let catalogItems = await CatalogItem.filterByUserRole(
         { uuid: { $in: data.catalogItems } },
         currentRole.slug,
         user
       )
-      initialMatch['catalogItems'] = { $in: catalogItems }
+
+      catalogItems = await CatalogItem.find({_id: {$in: catalogItems}})
+      let catalogItemsObj = {}
+
+      for (let cat of catalogItems) {
+        if (!catalogItemsObj[cat.type]) catalogItemsObj[cat.type] = [cat._id]
+        else catalogItemsObj[cat.type].push(cat._id)
+      }
+
+      let catalogItemsMatch = []
+      for (let key of Object.keys(catalogItemsObj)) {
+        if (catalogItemsObj[key].length > 0) {
+          catalogItemsMatch.push({
+            'catalogItems': { $in: catalogItemsObj[key] }
+          })
+        }
+      }
+
+      initialMatch['$and'] = catalogItemsMatch
+    }
+
+    if (data.catalogItems && data.catalogItems.length === 0) {
+      initialMatch['catalogItems'] = {$in: []}
     }
 
     let matchPreviousSale = _.cloneDeep(initialMatch)
@@ -114,7 +136,7 @@ module.exports = new Route({
     }
 
     start = moment(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').utc()
-    end = moment(data.date_start, 'YYYY-MM-DD').subtract(1, 'd').utc()
+    end = moment(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').utc()
 
     cycles = await Cycle.getBetweenDates(
       currentOrganization.organization._id,

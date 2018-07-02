@@ -9,11 +9,7 @@ import {
 import AdminLayout from '~components/admin-layout'
 import LandPage from './pages/land-page'
 import Dashboard from './pages/dashboard'
-import Users from './pages/users/list'
-import UserDetail from './pages/users/detail'
 import Profile from './pages/profile'
-import Groups from './pages/groups/list'
-import GroupDetail from './pages/groups/detail'
 import OrganizationDetail from './pages/organizations/detail'
 import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
@@ -45,6 +41,8 @@ import HistoricalReport from './pages/reports/historic'
 import StatusReport from './pages/reports/status'
 import DownloadReport from './pages/reports/download'
 import OrgRules from './pages/org-rules'
+import UsersGroups from './pages/users-groups'
+import Roles from './pages/roles/list'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -67,14 +65,9 @@ class AppRouter extends Component {
               {Dashboard.asRouterItem()}
               {Profile.asRouterItem()}
 
-              {Users.asRouterItem()}
-              {UserDetail.asRouterItem()}
               {UsersImport.asRouterItem()}
 
               {OrganizationDetail.asRouterItem()}
-
-              {Groups.asRouterItem()}
-              {GroupDetail.asRouterItem()}
 
               {DataSets.asRouterItem()}
               {ReadyDataSets.asRouterItem()}
@@ -108,6 +101,8 @@ class AppRouter extends Component {
               {DownloadReport.asRouterItem()}
 
               {OrgRules.asRouterItem()}
+              {UsersGroups.asRouterItem()}
+              {Roles.asRouterItem()}
 
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 

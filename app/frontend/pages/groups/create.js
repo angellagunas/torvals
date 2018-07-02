@@ -61,6 +61,8 @@ class CreateGroup extends Component {
           baseUrl='/app/groups'
           url={this.props.url}
           finishUp={this.props.finishUp}
+          canCreate={this.props.canCreate}
+          canEdit={this.props.canEdit}
           initialState={initialState}
           load={this.load.bind(this)}
           submitHandler={(data) => this.submitHandler(data)}

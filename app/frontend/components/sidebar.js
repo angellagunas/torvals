@@ -4,8 +4,6 @@ import tree from '~core/tree'
 import classNames from 'classnames'
 
 import Dashboard from '../pages/dashboard'
-import Users from '../pages/users/list'
-import Groups from '../pages/groups/list'
 import Projects from '../pages/projects/list'
 import Calendar from '../pages/calendar'
 import UsersImport from '../pages/import/users'
@@ -15,6 +13,8 @@ import StatusReport from '../pages/reports/status'
 import DownloadReport from '../pages/reports/download'
 import Prices from '../pages/prices/list'
 import OrgRules from '../pages/org-rules'
+import UsersGroups from '../pages/users-groups'
+import Roles from '../pages/roles/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -149,8 +149,8 @@ class Sidebar extends Component {
               to: '/manage/organizations/' + tree.get('organization').uuid
             },
             OrgRules.asSidebarItem(),
-            Groups.asSidebarItem(),
-            Users.asSidebarItem(),
+            UsersGroups.asSidebarItem(),
+            Roles.asSidebarItem(),
             {
               title: 'Catálogos',
               icon: 'book',

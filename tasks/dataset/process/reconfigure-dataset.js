@@ -69,7 +69,6 @@ const task = new Task(
               ...anomaly.data,
               'prediction': anomaly.prediction,
               'sale': anomaly.data.sale,
-              'semanaBimbo': anomaly.data.semanaBimbo || 0,
               'forecastDate': anomaly.date,
               'adjustment': anomaly.prediction,
               'localAdjustment': anomaly.prediction
@@ -90,6 +89,9 @@ const task = new Task(
         await Anomaly.bulkWrite(bulkOps)
         await DataSetRow.insertMany(saveBulk)
       }
+
+      log(`Finished restoring Anomalies!`)
+      log(`Reprocessing Rows....`)
 
       let rows = await DataSetRow.find({
         dataset: dataset._id
@@ -146,7 +148,6 @@ const task = new Task(
                 'prediction': prediction,
                 'sale': row.apiData[salesColumn.name] ? row.apiData[salesColumn.name] : 0,
                 'forecastDate': forecastDate,
-                'semanaBimbo': row.apiData.semana_bimbo,
                 'adjustment': adjustment || prediction,
                 'localAdjustment': adjustment || prediction,
                 'lastAdjustment': adjustment,
