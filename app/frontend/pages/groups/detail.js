@@ -33,13 +33,13 @@ class GroupDetail extends Component {
   }
 
   componentWillMount () {
-    this.context.tree.set('groups', {
+    tree.set('groups', {
       page: 1,
       totalItems: 0,
       items: [],
       pageLength: 10
     })
-    this.context.tree.commit()
+    tree.commit()
     this.getChannels()
     this.getSalesCenters()
     this.load()
@@ -56,7 +56,7 @@ class GroupDetail extends Component {
   }
 
   async load () {
-    var url = '/app/groups/' + this.props.match.params.uuid
+    var url = '/app/groups/' + this.props.group.uuid
 
     try {
       const body = await api.get(url)
@@ -96,7 +96,7 @@ class GroupDetail extends Component {
         'default': 'N/A',
         'sortable': true
       },
-      {
+      /* {
         'title': 'Acciones',
         formatter: (row) => {
           if (currentRole === 'consultor-level-3' || currentRole === 'consultor-level-2') {
@@ -114,7 +114,7 @@ class GroupDetail extends Component {
             
           }
         }
-      }
+      } */
     ]
   }
 
@@ -137,9 +137,9 @@ class GroupDetail extends Component {
   }
 
   async deleteObject () {
-    var url = '/app/groups/' + this.props.match.params.uuid
+    var url = '/app/groups/' + this.props.group.uuid
     await api.del(url)
-    this.props.history.push('/manage/groups')
+    this.props.selectGroup()
   }
 
   async loadGroupUsers () {
@@ -148,11 +148,11 @@ class GroupDetail extends Component {
       {
         start: 0,
         limit: 0,
-        group: this.props.match.params.uuid
+        group: this.props.group.uuid
       }
     )
 
-    this.cursor = this.context.tree.select('users')
+    this.cursor = tree.select('users')
 
     this.cursor.set({
       page: 1,
@@ -160,14 +160,14 @@ class GroupDetail extends Component {
       items: body.data,
       pageLength: this.cursor.get('pageLength') || 10
     })
-    this.context.tree.commit()
+    tree.commit()
   }
 
   async addToGroup (user) {
     var url = '/app/users/' + user + '/add/group'
     await api.post(url,
       {
-        group: this.props.match.params.uuid
+        group: this.props.group.uuid
       }
     )
 
@@ -180,7 +180,7 @@ class GroupDetail extends Component {
     const cursor = tree.get('usersAsign')
     const updateUsers = await api.get(
       '/app/users',
-      {groupAsign: this.props.match.params.uuid, organization: this.state.group.organization.uuid}
+      {groupAsign: this.props.group.uuid, organization: this.state.group.organization.uuid}
     )
 
     tree.set('usersAsign', {
@@ -254,7 +254,7 @@ class GroupDetail extends Component {
     let res = await api.get(url, {
       start: 0,
       limit: 0,
-      group: this.props.match.params.uuid
+      group: this.props.group.uuid
     })
     this.setState({
       salesCenters: res.data
@@ -266,7 +266,7 @@ class GroupDetail extends Component {
     let res = await api.get(url, {
       start: 0,
       limit: 0,
-      group: this.props.match.params.uuid
+      group: this.props.group.uuid
     })
     this.setState({
       channels: res.data
@@ -303,10 +303,6 @@ class GroupDetail extends Component {
     }
     return (
       <div className='detail-page'>
-        <div className='section-header'>
-          <h2>{group.name}</h2>
-        </div>
-
         <div className='level'>
           <div className='level-left'>
             <div className='level-item'>
@@ -320,7 +316,12 @@ class GroupDetail extends Component {
                   {
                     path: '/manage/groups',
                     label: 'Grupos',
-                    current: false
+                    current: true
+                  },
+                  {
+                    path: '/manage/groups',
+                    label: 'Detalle',
+                    current: true
                   },
                   {
                     path: '/manage/groups/',
@@ -333,6 +334,13 @@ class GroupDetail extends Component {
             </div>
           </div>
           <div className='level-right'>
+            <div className='level-item'>
+              <a
+                className='button is-info'
+                onClick={() => { this.props.selectGroup() }}>
+                Regresar
+              </a>
+            </div>
             <div className='level-item'>
               {deleteButton}
             </div>
@@ -354,7 +362,7 @@ class GroupDetail extends Component {
                     <div className='column'>
                       <GroupForm
                         baseUrl='/app/groups'
-                        url={'/app/groups/' + this.props.match.params.uuid}
+                        url={'/app/groups/' + this.props.group.uuid}
                         initialState={{...this.state.group, organization: this.state.group.organization._id}}
                         load={this.load.bind(this)}
                         submitHandler={(data) => this.submitHandler(data)}
@@ -457,7 +465,7 @@ class GroupDetail extends Component {
                         branchName='usersAsign'
                         baseUrl='/app/users'
                         columns={this.getColumnsUsersToAsign()}
-                        filters={{groupAsign: this.props.match.params.uuid, organization: group.organization.uuid}}
+                        filters={{groupAsign: this.props.group.uuid, organization: group.organization.uuid}}
                          />
                     </BaseModal>
 
@@ -476,7 +484,7 @@ class GroupDetail extends Component {
                       branchName='users'
                       baseUrl='/app/users'
                       url='/app/users/'
-                      filters={{group: this.props.match.params.uuid}}
+                      filters={{group: this.props.group.uuid}}
                       organization={group.organization._id}
                       />
                   </div>
@@ -489,7 +497,7 @@ class GroupDetail extends Component {
                         branchName='users'
                         baseUrl='/app/users'
                         columns={this.getColumns()}
-                        filters={{group: this.props.match.params.uuid}}
+                        filters={{group: this.props.group.uuid}}
                          />
                     </div>
                   </div>
@@ -503,7 +511,8 @@ class GroupDetail extends Component {
   }
 }
 
-GroupDetail.contextTypes = {
+export default GroupDetail
+/* GroupDetail.contextTypes = {
   tree: PropTypes.baobab
 }
 
@@ -516,4 +525,4 @@ export default Page({
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: branchedGroupDetail
-})
+}) */

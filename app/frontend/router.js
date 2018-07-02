@@ -9,11 +9,7 @@ import {
 import AdminLayout from '~components/admin-layout'
 import LandPage from './pages/land-page'
 import Dashboard from './pages/dashboard'
-import Users from './pages/users/list'
-import UserDetail from './pages/users/detail'
 import Profile from './pages/profile'
-import Groups from './pages/groups/list'
-import GroupDetail from './pages/groups/detail'
 import OrganizationDetail from './pages/organizations/detail'
 import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
@@ -44,6 +40,7 @@ import CatalogDetail from './pages/catalog/detail'
 import HistoricalReport from './pages/reports/historic'
 import StatusReport from './pages/reports/status'
 import DownloadReport from './pages/reports/download'
+import UsersGroups from './pages/users-groups'
 import Roles from './pages/roles/list'
 
 const NoMatch = () => {
@@ -67,14 +64,9 @@ class AppRouter extends Component {
               {Dashboard.asRouterItem()}
               {Profile.asRouterItem()}
 
-              {Users.asRouterItem()}
-              {UserDetail.asRouterItem()}
               {UsersImport.asRouterItem()}
 
               {OrganizationDetail.asRouterItem()}
-
-              {Groups.asRouterItem()}
-              {GroupDetail.asRouterItem()}
 
               {DataSets.asRouterItem()}
               {ReadyDataSets.asRouterItem()}
@@ -107,7 +99,9 @@ class AppRouter extends Component {
               {StatusReport.asRouterItem()}
               {DownloadReport.asRouterItem()}
 
+              {UsersGroups.asRouterItem()}
               {Roles.asRouterItem()}
+
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
               <Route component={NoMatch} />
