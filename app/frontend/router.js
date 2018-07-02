@@ -44,6 +44,7 @@ import CatalogDetail from './pages/catalog/detail'
 import HistoricalReport from './pages/reports/historic'
 import StatusReport from './pages/reports/status'
 import DownloadReport from './pages/reports/download'
+import Roles from './pages/roles/list'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -105,6 +106,8 @@ class AppRouter extends Component {
               {HistoricalReport.asRouterItem()}
               {StatusReport.asRouterItem()}
               {DownloadReport.asRouterItem()}
+
+              {Roles.asRouterItem()}
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
               <Route component={NoMatch} />
