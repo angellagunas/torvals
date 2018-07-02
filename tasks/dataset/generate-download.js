@@ -23,7 +23,7 @@ const task = new Task(async function (argv) {
   }
 
   const datasetRow = await DataSetRow.find({dataset: dataset})
-    .populate('organization product catalogItems')
+    .populate('organization product catalogItems newProduct')
 
   let fileName = dataset.uuid + '.csv'
   const filePath = path.resolve('.', 'media', 'uploads', fileName)
@@ -44,9 +44,13 @@ const task = new Task(async function (argv) {
   for (let row of datasetRow) {
     i = 0
     for (let cat of catalogs) {
-      let item = _.find(row.catalogItems, {type: cat})
       if (i++) { writer.write(',') }
-      writer.write(item.externalId + ',' + item.name)
+      if (cat === 'producto') {
+        writer.write(row.newProduct.externalId + ',' + row.newProduct.name)
+      } else {
+        let item = _.find(row.catalogItems, {type: cat})
+        writer.write(item.externalId + ',' + item.name)
+      }
     }
     writer.write(',' + row.data.forecastDate + ',' + row.data.prediction + ',' + row.data.sale + ',' + row.data.adjustment + ',' + row.data.lastAdjustment)
     writer.write('\r\n')

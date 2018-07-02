@@ -74,7 +74,7 @@ class Periods extends Component {
         cyclesAvailable: rules.cyclesAvailable || 2,
         season: rules.season || 4,
         startDate: moment.utc(rules.startDate) || moment.utc(),
-        hasAnomalies: true
+        hasAnomalies: rules.hasAnomalies !== undefined ? rules.hasAnomalies : true,
       },
       help: {
         cyclesAvailable: 'is-hidden'

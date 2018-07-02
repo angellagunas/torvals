@@ -30,7 +30,7 @@ class OrganizationDetail extends Component {
       loading: true,
       loaded: false,
       organization: {},
-      isLoading: '',    
+      isLoading: '',
       currentStep: 1,
       selectedTab: '1',
       rules: {},
@@ -53,7 +53,7 @@ class OrganizationDetail extends Component {
 
   async load () {
     var url = '/app/organizations/' + this.props.match.params.uuid
-    
+
     try {
       const body = await api.get(url)
 
@@ -73,7 +73,7 @@ class OrganizationDetail extends Component {
 
   async loadRules () {
     var url = '/app/rules/active'
-    
+
     try {
       const body = await api.get(url)
 
@@ -253,64 +253,18 @@ class OrganizationDetail extends Component {
         content: (
           <div>
             <div className='section pad-sides has-20-margin-top'>
-              <div className='columns'>
-                <div className='column'>
-                  <div className='card'>
-                    <header className='card-header'>
-                      <p className='card-header-title'>
-                        Detalle
-                    </p>
-                    </header>
-                    <div className='card-content'>
-                      <div className='columns'>
-                        <div className='column'>
-                          <OrganizationForm
-                            baseUrl='/app/organizations'
-                            url={'/app/organizations/' + this.props.match.params.uuid}
-                            initialState={this.state.organization}
-                            load={this.load.bind(this)}
-                            submitHandler={(data) => this.submitHandler(data)}
-                            errorHandler={(data) => this.errorHandler(data)}
-                            finishUp={(data) => this.finishUpHandler(data)}
-                          >
-                            <div className='field is-grouped'>
-                              <div className='control'>
-                                <button
-                                  className={'button is-primary ' + this.state.isLoading}
-                                  disabled={!!this.state.isLoading}
-                                  type='submit'
-                                >Guardar</button>
-                              </div>
-                            </div>
-                          </OrganizationForm>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className='column'>
-                  <div className='card'>
-                    <header className='card-header'>
-                      <p className='card-header-title'>
-                        Usuarios
-                    </p>
-                    </header>
-                    <div className='card-content'>
-                      <div className='columns'>
-                        <div className='column'>
-                          <BranchedPaginatedTable
-                            branchName='users'
-                            baseUrl='/app/users'
-                            columns={this.getColumns()}
-                            filters={{ organization: this.props.match.params.uuid }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
+                <OrganizationForm
+                  baseUrl='/app/organizations'
+                  url={'/app/organizations/' + this.props.match.params.uuid}
+                  initialState={this.state.organization}
+                  load={this.load.bind(this)}
+                  submitHandler={(data) => this.submitHandler(data)}
+                  errorHandler={(data) => this.errorHandler(data)}
+                  finishUp={(data) => this.finishUpHandler(data)}
+                />
+
               </div>
-            </div>
           </div>
         )
       },
@@ -328,15 +282,15 @@ class OrganizationDetail extends Component {
             unsaved={this.state.unsaved}
           />
         )
-      }, 
+      },
       {
         name: '2',
         title: 'Periodos',
         hide: !(this.state.currentStep === 2),
         disabled: !(this.state.currentStep === 2),
         content: (
-          <Periods 
-            rules={this.state.rules} 
+          <Periods
+            rules={this.state.rules}
             nextStep={(data) => this.nextStep(data,1)}
             setStep={(step) => this.setStep(step)}
              />
@@ -348,9 +302,9 @@ class OrganizationDetail extends Component {
         reload: true,
         disabled: !(this.state.currentStep === 3),
         content: (
-          <Ranges 
-            rules={this.state.rules} 
-            nextStep={(data) => this.nextStep(data,2)} 
+          <Ranges
+            rules={this.state.rules}
+            nextStep={(data) => this.nextStep(data,2)}
             setStep={(step) => this.setStep(step)}
           />
         )
@@ -361,9 +315,9 @@ class OrganizationDetail extends Component {
         hide: !(this.state.currentStep === 4),
         disabled: !(this.state.currentStep === 4),
         content: (
-          <DeadLines 
-            startDate={this.state.rules.startDate} 
-            rules={this.state.rules} 
+          <DeadLines
+            startDate={this.state.rules.startDate}
+            rules={this.state.rules}
             nextStep={(data) => this.nextStep(data,3)}
             setStep={(step) => this.setStep(step)} />
         )
@@ -374,9 +328,9 @@ class OrganizationDetail extends Component {
         hide: !(this.state.currentStep === 5),
         disabled: !(this.state.currentStep === 5),
         content: (
-          <Catalogs 
+          <Catalogs
             rules={this.state.rules}
-            nextStep={(data) => this.nextStep(data,4)} 
+            nextStep={(data) => this.nextStep(data,4)}
             setStep={(step) => this.setStep(step)}
             />
         )
@@ -384,7 +338,7 @@ class OrganizationDetail extends Component {
     ]
 
     return (
-     
+
       <div className='wizard'>
         <div className='section-header'>
           <h2>{organization.name}</h2>
@@ -429,4 +383,3 @@ export default Page({
   validate: [loggedIn, verifyRole],
   component: branchedOrganizationDetail
 })
-  

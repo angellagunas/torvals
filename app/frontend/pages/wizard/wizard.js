@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
 import api from '~base/api'
-import BaseModal from '~base/components/base-modal'
 import Tabs from '~base/components/base-tabs'
 import OrgInfo from './steps/org-info'
 import Periods from './steps/periods'
@@ -49,10 +48,6 @@ class Wizard extends Component {
         selectedTab: tab
       })
     }
-  }
-
-  hideModal () {
-
   }
 
   setStep (step) {
@@ -242,25 +237,22 @@ class Wizard extends Component {
     ]
 
     return (
-      <div className='wizard'>
-        <BaseModal
-          title='Wizard'
-          className={this.state.modalClass}
-          hideModal={this.hideModal} >
+      <div className='wizard wizard__modal'>
+        <div className='container'>
           <div className='section-header'>
-            <h2><figure className='image'>
-              <img className='logo' src='/app/public/img/oraxh.svg' />
-            </figure></h2>
+            <h2>
+              <figure className='image'>
+                <img className='logo' src='/app/public/img/oraxh.svg' />
+              </figure>
+            </h2>
           </div>
-          <div className='container'>
-            <Tabs
-              onChangeTab={(tab) => this.actualTab(tab)}
-              tabs={this.tabs}
-              selectedTab={this.tabs[this.state.currentStep].name}
-              className='is-fullwidth'
+          <Tabs
+            onChangeTab={(tab) => this.actualTab(tab)}
+            tabs={this.tabs}
+            selectedTab={this.tabs[this.state.currentStep].name}
+            className='is-fullwidth'
           />
-          </div>
-        </BaseModal>
+        </div>
       </div>
     )
   }

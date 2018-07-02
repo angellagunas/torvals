@@ -96,7 +96,7 @@ module.exports = new Route({
       dataset: { $in: datasets }
     }
 
-    if (data.catalogItems) {
+    if (data.catalogItems && data.catalogItems.length > 0) {
       let catalogItems = await CatalogItem.filterByUserRole(
         { uuid: { $in: data.catalogItems } },
         currentRole.slug,
@@ -113,12 +113,18 @@ module.exports = new Route({
 
       let catalogItemsMatch = []
       for (let key of Object.keys(catalogItemsObj)) {
-        catalogItemsMatch.push({
-          'catalogItems': { $in: catalogItemsObj[key] }
-        })
+        if (catalogItemsObj[key].length > 0) {
+          catalogItemsMatch.push({
+            'catalogItems': { $in: catalogItemsObj[key] }
+          })
+        }
       }
 
       initialMatch['$and'] = catalogItemsMatch
+    }
+
+    if (data.catalogItems && data.catalogItems.length === 0) {
+      initialMatch['catalogItems'] = {$in: []}
     }
 
     let matchPreviousSale = _.cloneDeep(initialMatch)

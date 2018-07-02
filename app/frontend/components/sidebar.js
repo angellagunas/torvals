@@ -13,6 +13,7 @@ import StatusReport from '../pages/reports/status'
 import DownloadReport from '../pages/reports/download'
 import Prices from '../pages/prices/list'
 import UsersGroups from '../pages/users-groups'
+import Roles from '../pages/roles/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -147,6 +148,7 @@ class Sidebar extends Component {
               to: '/manage/organizations/' + tree.get('organization').uuid
             },
             UsersGroups.asSidebarItem(),
+            Roles.asSidebarItem(),
             {
               title: 'Catálogos',
               icon: 'book',
