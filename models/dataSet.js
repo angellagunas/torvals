@@ -86,6 +86,9 @@ const dataSetSchema = new Schema({
   cycles: [{ type: Schema.Types.ObjectId, ref: 'Cycle' }],
   periods: [{ type: Schema.Types.ObjectId, ref: 'Period' }],
 
+  channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
+  salesCenters: [{ type: Schema.Types.ObjectId, ref: 'SalesCenter' }],
+
   apiData: { type: Schema.Types.Mixed },
   dateCreated: { type: Date, default: moment.utc },
   dateConciliated: { type: Date, default: moment.utc },
@@ -574,5 +577,41 @@ dataSetSchema.virtual('url').get(function () {
 
   return 'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
 })
+
+dataSetSchema.methods.getProductColumn = function () {
+  var obj = this.columns.find(item => { return item.isProduct })
+
+  return obj
+}
+
+dataSetSchema.methods.getProductNameColumn = function () {
+  var obj = this.columns.find(item => { return item.isProductName })
+
+  return obj
+}
+
+dataSetSchema.methods.getSalesCenterColumn = function () {
+  var obj = this.columns.find(item => { return item.isSalesCenter })
+
+  return obj
+}
+
+dataSetSchema.methods.getSalesCenterNameColumn = function () {
+  var obj = this.columns.find(item => { return item.isSalesCenterName })
+
+  return obj
+}
+
+dataSetSchema.methods.getChannelColumn = function () {
+  var obj = this.columns.find(item => { return item.isChannel })
+
+  return obj
+}
+
+dataSetSchema.methods.getChannelNameColumn = function () {
+  var obj = this.columns.find(item => { return item.isChannelName })
+
+  return obj
+}
 
 module.exports = mongoose.model('DataSet', dataSetSchema)

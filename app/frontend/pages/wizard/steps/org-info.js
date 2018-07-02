@@ -46,7 +46,7 @@ class OrgInfo extends Component {
           <div className='column is-6'>
             <h1 className='title is-4'> Bienvenido al asistente de configuración de Orax. </h1>
             <h2 className='subtitle'> Primero revisa los datos de tu organización.
-            Cuando todo este correcto da click continuar.
+            Cuando todo esté correcto da click en guardar y después en continuar.
           </h2>
             <OrganizationForm
               baseUrl='/app/organizations'

@@ -149,7 +149,7 @@ class TabAnomalies extends Component {
           continue
         }
         filters.push(
-          <div key={key} className='level-item' >
+          <div key={key} className='column is-narrow' >
             <Select
               label={this.findName(key)}
               name={key}
@@ -501,12 +501,12 @@ class TabAnomalies extends Component {
     return (
       <div>
         <div className='section level selects'>
-          <div className='level-left'>
+          <div className='columns is-multiline is-mobile'>
             {this.state.filters &&
               this.makeFilters()
             }
 
-            <div className='level-item pad-top-5'>
+            <div className='column is-narrow pad-top-5'>
               <div className='field'>
                 <label className='label'>Búsqueda general</label>
                 <div className='control has-icons-right'>
@@ -514,7 +514,7 @@ class TabAnomalies extends Component {
                     className='input input-search'
                     type='text'
                     value={this.state.searchTerm}
-                    onKeyUp={(e) => { this.searchOnChange(e) }} placeholder='Buscar'/>
+                    onKeyUp={(e) => { this.searchOnChange(e) }} placeholder='Buscar' />
 
                   <span className='icon is-small is-right'>
                     <i className='fa fa-search fa-xs'></i>
@@ -522,10 +522,8 @@ class TabAnomalies extends Component {
                 </div>
               </div>
             </div>
-          </div>
-          {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' &&
-            <div className='level-right'>
-              <div className='level-item is-margin-top-20'>
+            {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' &&
+              <div className='column is-narrow is-margin-top-20'>
                 <button
                   className={'button is-info ' + this.state.isRestoring}
                   disabled={!!this.state.isRestoring || this.state.disableButton}
@@ -535,8 +533,8 @@ class TabAnomalies extends Component {
                   Recuperar ({Object.keys(this.state.selected).length})
                   </button>
               </div>
-            </div>
-          }
+            }
+          </div>
         </div>
 
         <section>

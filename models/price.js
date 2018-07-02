@@ -24,12 +24,11 @@ priceSchema.methods.toAdmin = function () {
     externalId: this.externalId,
     price: this.price,
     product: this.product,
-    channel: this.catalogItems,
+    catalogItems: this.catalogItems,
     etag: this.etag,
     dateCreated: this.dateCreated,
     organization: this.organization
   }
-  if (this.channel && this.channel.toPublic) { data.channel = this.channel.toPublic() }
   return data
 }
 
@@ -39,12 +38,11 @@ priceSchema.methods.toPublic = function () {
     externalId: this.externalId,
     price: this.price,
     product: this.product,
-    channel: this.catalogItems,
+    catalogItems: this.catalogItems,
     etag: this.etag,
     dateCreated: this.dateCreated,
     organization: this.organization
   }
-  if (this.channel && this.channel.toPublic) { data.channel = this.channel.toPublic() }
   return data
 }
 

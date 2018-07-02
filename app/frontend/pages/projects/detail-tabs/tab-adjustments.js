@@ -100,7 +100,7 @@ class TabAdjustment extends Component {
 
         let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
 
-        if (currentRole === 'manager-level-2') {
+        if (currentRole !== 'manager-level-1') {
           cycles = cycles.map((item, key) => {
             return item = { ...item, adjustmentRange: this.rules.rangesLvl2[key], name: moment.utc(item.dateStart).format('MMMM') }
           })
@@ -113,18 +113,14 @@ class TabAdjustment extends Component {
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
 
-        // if (res.salesCenters.length > 0) {
-        //   formData.salesCenter = res.salesCenters[0].uuid
-        // }
-
-        // if (res.channels.length === 1) {
-        //   formData.channel = res.channels[0].uuid
-        // }
+        
 
         for (let fil of Object.keys(res)) {
           if (fil === 'cycles') continue
 
           res[fil] = _.orderBy(res[fil], 'name')
+          if(res[fil][0])
+            formData[fil] = res[fil][0].uuid
         }
 
         this.setState({
@@ -132,7 +128,6 @@ class TabAdjustment extends Component {
             ...this.state.filters,
             ...res,
             cycles: cycles,
-            // categories: this.getCategory(res.products),
           },
           formData: formData,
           filtersLoading: false,
@@ -155,16 +150,6 @@ class TabAdjustment extends Component {
         )
       }
     }
-  }
-
-  getCategory(products) {
-    const categories = new Set()
-    products.map((item) => {
-      if (item.category && !categories.has(item.category)) {
-        categories.add(item.category)
-      }
-    })
-    return Array.from(categories)
   }
 
   async filterChangeHandler (name, value) {
@@ -211,10 +196,14 @@ class TabAdjustment extends Component {
       return item.cycle === this.state.formData.cycle
     })
 
+    let adjustment = this.getAdjustment(cycle.adjustmentRange)
+    if (this.props.project.cycleStatus !== 'rangeAdjustment')
+      adjustment = 0
+
     this.setState({
       isLoading: ' is-loading',
       isFiltered: false,
-      generalAdjustment: this.getAdjustment(cycle.adjustmentRange),
+      generalAdjustment: adjustment,
       salesTable: [],
       noSalesData: ''
     })
@@ -358,7 +347,7 @@ class TabAdjustment extends Component {
 
         <div className='column is-narrow'>
           <div className='field'>
-            {currentRole !== 'consultor-level-3' ?
+            {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' ?
               <label className='label'>Búsqueda general</label>:
               null
             }
@@ -375,7 +364,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div>
-        {currentRole !== 'consultor-level-3' ?
+        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -417,7 +406,7 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
-        {currentRole !== 'consultor-level-3' ?
+        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -642,6 +631,7 @@ class TabAdjustment extends Component {
       row.adjustmentForDisplay = row.newAdjustment
 
       row.edited = true
+      row.wasEdited = true
 
       if (row.isLimit) {
         isLimited = true
@@ -659,7 +649,7 @@ class TabAdjustment extends Component {
       if (rowAux.length > 0) {
         const res = await api.post(url, rowAux)
       }
-      if (isLimited && currentRole === 'manager-level-1') {
+      if (isLimited && (currentRole === 'manager-level-1' || currentRole === 'manager-level-2')) {
         this.notify(
           (<p>
             <span className='icon'>
@@ -671,12 +661,7 @@ class TabAdjustment extends Component {
           toast.TYPE.WARNING
         )
       } else {
-        if(currentRole === 'manager-level-2' && isLimited){
-          this.notify('¡Ajustes fuera de rango guardados!', 5000, toast.TYPE.WARNING)
-        }
-        else{
-          this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
-        }
+        this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
       }
       this.props.pendingDataRows(pendingDataRows)
 
@@ -715,7 +700,7 @@ class TabAdjustment extends Component {
 
     this.props.loadCounters()
 
-    if (currentRole !== 'manager-level-1' && limitedRows.length) {
+    if (currentRole !== 'manager-level-1' && currentRole !== 'manager-level-2' && limitedRows.length) {
       this.props.handleAdjustmentRequest(limitedRows)
     }
 
@@ -1030,12 +1015,11 @@ class TabAdjustment extends Component {
         }
 
         filters.push(
-          <div key={key} className='level-item'>
+          <div key={key} className='column is-narrow'>
             <Select
               label={this.findName(key)}
               name={key}
               value={this.state.formData[key]}
-              placeholder='Todas'
               optionValue='uuid'
               optionName='name'
               options={element}
@@ -1187,8 +1171,8 @@ class TabAdjustment extends Component {
       <div>
         {banner}
         <div className='section level selects'>
-          <div className='level-left'>
-            <div className='level-item'>
+          <div className='columns is-multiline is-mobile'>
+            <div className='column is-narrow'>
               <Select
                 label='Ciclo'
                 name='cycle'
@@ -1200,12 +1184,12 @@ class TabAdjustment extends Component {
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
-
-          {this.state.filters &&
-            this.makeFilters()
-          }
+            {this.state.filters &&
+              this.makeFilters()
+            }
           </div>
         </div>
+
 
         <div className='level indicators deep-shadow'>
           <div className='level-item has-text-centered'>

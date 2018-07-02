@@ -57,6 +57,7 @@ rulesSchema.methods.toPublic = function () {
     catalogs: this.catalogs,
     cycles: this.cycles,
     periods: this.periods,
+    hasAnomalies: this.hasAnomalies,
     isCurrent: this.isCurrent
   }
   // if (this.organization) { data.organization = this.organization.toPublic() }
@@ -86,6 +87,7 @@ rulesSchema.methods.toAdmin = function () {
     catalogs: this.catalogs,
     cycles: this.cycles,
     periods: this.periods,
+    hasAnomalies: this.hasAnomalies,
     isCurrent: this.isCurrent
   }
   // if (this.organization) { data.organization = this.organization.toPublic() }

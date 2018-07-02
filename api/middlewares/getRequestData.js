@@ -1,6 +1,6 @@
 const url = require('url')
 
-const { UserToken, Organization, User } = require('models')
+const { Organization, UserToken, User } = require('models')
 const { server } = require('config')
 const jwt = require('lib/jwt')
 
@@ -23,7 +23,7 @@ module.exports = async function (ctx, next) {
       let userToken = await UserToken.findOne({
         key: data.key,
         secret: data.secret,
-        isDeleted: {$ne: true}
+        isDeleted: { $ne: true }
       }).populate('user')
 
       if (!userToken) {
@@ -55,11 +55,11 @@ module.exports = async function (ctx, next) {
       const key = decodedStr.split(':')[0]
       const secret = decodedStr.split(':')[1]
 
-      userToken = await UserToken.findOne({
+      let userToken = await UserToken.findOne({
         key: key,
         secret: secret,
         isDeleted: {$ne: true}
-      }).populate('user')
+      }).populate('user organization')
 
       if (!userToken) {
         return ctx.throw(401, 'Invalid User')
@@ -78,6 +78,7 @@ module.exports = async function (ctx, next) {
       ctx.state.user = user
       ctx.state.token = userToken
       ctx.state.authMethod = 'Basic'
+      ctx.state.organization = userToken.organization
     }
   }
 
@@ -90,7 +91,9 @@ module.exports = async function (ctx, next) {
     originalHost = ctx.request.headers.origin
   }
 
-  if (originalHost && !pathname.includes('login')) {
+  if (originalHost.indexOf('http') < 0) originalHost = 'http://' + originalHost
+
+  if (originalHost && !pathname.includes('login') && !ctx.state.organization) {
     const origin = url.parse(originalHost)
     const apiHostname = url.parse(server.apiHost).hostname.split('.')
 

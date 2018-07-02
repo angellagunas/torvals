@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const _ = require('lodash')
 const ObjectId = require('mongodb').ObjectID
 
-const { DataSetRow, Project, Role, CatalogItem } = require('models')
+const { DataSetRow, Project, Role, CatalogItem, Rule } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -24,6 +24,13 @@ module.exports = new Route({
     const projects = await Project.find(filters)
 
     const datasets = projects.map(item => { return item.mainDataset })
+    const currentRule = await Rule.findOne({
+      organization: ctx.state.organization,
+      isDeleted: false,
+      isCurrent: true
+    }).populate('catalogs')
+
+    let matchCatalogs = currentRule.catalogs.map(item => { return item.slug })
 
     var currentRole
     var currentOrganization
@@ -39,10 +46,19 @@ module.exports = new Route({
       }
     }
 
-    var matchCond
+    var matchCond = {
+      '$match': {
+        'dataset': {
+          '$in': datasets
+        },
+        'isDeleted': false
+      }
+    }
+
     if (
         currentRole.slug === 'manager-level-1' ||
         currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'manager-level-3' ||
         currentRole.slug === 'consultor-level-2' ||
         currentRole.slug === 'consultor-level-3'
     ) {
@@ -52,28 +68,12 @@ module.exports = new Route({
       }
 
       const catalogItems = await CatalogItem.filterByUserRole(
-        { },
-        currentRole.slug,
-        user
-      )
-      matchCond = {
-        '$match': {
-          'dataset': {
-            '$in': datasets
-          },
-          'isDeleted': false,
-          'catalogItems': { $in: catalogItems }
-        }
-      }
-    } else {
-      matchCond = {
-        '$match': {
-          'dataset': {
-            '$in': datasets
-          },
-          'isDeleted': false
-        }
-      }
+          { },
+          currentRole.slug,
+          user
+        )
+
+      matchCond['$match']['catalogItems'] = { $in: catalogItems }
     }
 
     var statement = [
@@ -122,9 +122,13 @@ module.exports = new Route({
       return
     }
 
+    const catalogs = datasetRow[0].catalogItems.filter(item => {
+      return matchCatalogs.indexOf(item.type) >= 0
+    })
+
     ctx.body = {
       products: datasetRow[0].products,
-      catalogItems: datasetRow[0].catalogItems
+      catalogItems: catalogs
     }
   }
 })
