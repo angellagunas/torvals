@@ -28,6 +28,7 @@ userTokenSchema.methods.getJwt = function () {
 userTokenSchema.methods.toPrivate = function () {
   return {
     name: this.name,
+    organization: this.organization,
     uuid: this.uuid,
     key: this.key,
     secret: this.secret,
@@ -38,6 +39,7 @@ userTokenSchema.methods.toPrivate = function () {
 userTokenSchema.methods.toPublic = function () {
   return {
     name: this.name,
+    organization: this.organization,
     uuid: this.uuid,
     key: this.key,
     lastUse: this.lastUse

@@ -33,7 +33,7 @@ module.exports = new Route({
     })
 
     ctx.body = {
-      token: token.toPrivate()
+      token: {...token.toPrivate(), organization: orgObject.toPublic()}
     }
   }
 })
