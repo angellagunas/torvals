@@ -51,7 +51,7 @@ class DataSetDetail extends Component {
       disableBtnUn: true,
       isLoadingBtnUn: ''
     }
-    
+
   }
 
   componentWillMount() {
@@ -73,7 +73,7 @@ class DataSetDetail extends Component {
       }
     }, 30000)
     this.setState({ canEdit: testRoles(this.state.roles) })
-    
+
   }
 
   componentWillUnmount() {
@@ -99,7 +99,7 @@ class DataSetDetail extends Component {
       })
     }
     this.getUnidentified()
-    
+
   }
 
   getColumns() {
@@ -158,7 +158,7 @@ class DataSetDetail extends Component {
     await api.post(url)
     await this.load()
     this.setState({ isLoadingConsolidate: '' })
-    this.props.setDataset('', 'ajustes') 
+    this.props.setDataset('', 'ajustes')
   }
 
   async cancelOnClick() {
@@ -568,8 +568,10 @@ class DataSetDetail extends Component {
                           </span>
                         </div>
                         <div className='media-content'>
-                          Se ha generado un error. Por favor intenta borrar este dataset y generar otro.
-                          Si no se soluciona, contacta a un administrador.
+                          {
+                            testRoles('orgadmin') ? dataset.error
+                            : 'Se ha generado un error. Por favor intenta borrar este dataset y generar otro. Si no se soluciona, contacta a un administrador.'
+                          }
                         </div>
                       </div>
                     </div>
@@ -657,7 +659,7 @@ class DataSetDetail extends Component {
 
     this.setState({
       unidentified: uni
-    }) 
+    })
   }
 
   checkUnidentified = (item, check) => {
@@ -688,7 +690,7 @@ class DataSetDetail extends Component {
     uni[key].selectAll = check
     this.setState({
       unidentified: uni
-    }) 
+    })
   }
 
   countUnidentified(type){
@@ -825,14 +827,14 @@ class DataSetDetail extends Component {
     .map((value, key) => ({
       type: key,
       name: value[0].catalog.name,
-      objects: value, 
+      objects: value,
       headerClass: 'is-hidden',
       iconClass: 'fa fa-2x fa-caret-down',
       isOpen: false,
       selectAll: false
     }))
     .value()
-    
+
     this.setState({
       unidentified: this.newCatalogs
     })
@@ -846,7 +848,7 @@ renderUnidentified(){
     dataset.status !== 'conciliated') ||
     this.state.unidentified.length === 0) {
     return ''
-  } 
+  }
 
   let unidentified = this.state.unidentified.map((item, key) => {
     return (
