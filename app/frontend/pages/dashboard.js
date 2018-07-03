@@ -1151,7 +1151,7 @@ class Dashboard extends Component {
 
                   <div className='level-item'>
                     <div className="field">
-                      <label className='label'>Mostrar unidades por: </label>
+                      <label className='label'>Mostrar por: </label>
                       <div className='control'>
 
                         <div className="field is-grouped">
