@@ -167,32 +167,125 @@ module.exports = new Route({
       cycle: '$cycle',
       period: '$period'
     }
-    let match = [{
-      '$match': {
-        ...initialMatch
-      }
-    }, {
-      '$group': {
-        _id: key,
-        prediction: { $sum: '$data.prediction' },
-        adjustment: { $sum: '$data.adjustment' },
-        sale: { $sum: '$data.sale' }
-      }
-    }, {
-      $sort: { '_id.date': 1 }
+
+    let conditions = []
+    let group
+    let previousGroup
+
+    if (data.prices) {
+      conditions = [
+        {
+          '$lookup': {
+            'from': 'catalogitems',
+            'localField': 'catalogItems',
+            'foreignField': '_id',
+            'as': 'catalogs'
+          }
+        },
+        {
+          '$lookup': {
+            'from': 'prices',
+            'localField': 'newProduct',
+            'foreignField': 'product',
+            'as': 'price'
+          }
+        },
+        {
+          '$unwind': {
+            'path': '$price'
+          }
+        },
+        {
+          '$addFields': {
+            'catalogsSize': {
+              '$size': '$price.catalogItems'
+            }
+          }
+        },
+        {
+          '$match': {
+            'catalogsSize': {
+              '$gte': 1.0
+            }
+          }
+        },
+        {
+          '$redact': {
+            '$cond': [
+              {
+                '$setIsSubset': [
+                  '$price.catalogItems',
+                  '$catalogItems'
+                ]
+              },
+              '$$KEEP',
+              '$$PRUNE'
+            ]
+          }
+        }
+      ]
+
+      group = [
+        {
+          '$group': {
+            _id: key,
+            prediction: { $sum: { $multiply: ['$data.prediction', '$price.price'] } },
+            adjustment: { $sum: { $multiply: ['$data.adjustment', '$price.price'] } },
+            sale: { $sum: { $multiply: ['$data.sale', '$price.price'] } }
+          }
+        }
+      ]
+
+      previousGroup = [
+        {
+          '$group': {
+            _id: key,
+            sale: { $sum: { $multiply: ['$data.sale', '$price.price'] } }
+          }
+        }
+      ]
+    } else {
+      group = [
+        {
+          '$group': {
+            _id: key,
+            prediction: { $sum: '$data.prediction' },
+            adjustment: { $sum: '$data.adjustment' },
+            sale: { $sum: '$data.sale' }
+          }
+        }
+      ]
+      previousGroup = [
+        {
+          '$group': {
+            _id: key,
+            sale: { $sum: '$data.sale' }
+          }
+        }
+      ]
     }
+
+    let match = [
+      {
+        '$match': {
+          ...initialMatch
+        }
+      },
+      ...conditions,
+      ...group,
+      {
+        $sort: { '_id.date': 1 }
+      }
     ]
 
     matchPreviousSale = [{
       '$match': {
         ...matchPreviousSale
       }
-    }, {
-      '$group': {
-        _id: key,
-        sale: { $sum: '$data.sale' }
-      }
-    }, {
+    },
+      ...conditions,
+      ...previousGroup,
+    {
       $sort: { '_id.date': 1 }
     }]
 
