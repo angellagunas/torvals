@@ -171,7 +171,8 @@ class Dashboard extends Component {
           date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
           date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
           projects: Object.values(this.selectedProjects).map(p => p.uuid),
-          catalogItems: Object.keys(this.selectedItems)
+          catalogItems: Object.keys(this.selectedItems),
+          prices: this.state.prices
         })
 
         let totalPSale = 0
@@ -252,7 +253,8 @@ class Dashboard extends Component {
         date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1 ]).startOf('month').format('YYYY-MM-DD'),
         date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
         projects: Object.values(this.selectedProjects).map(p => p.uuid),
-        catalogItems: Object.keys(this.selectedItems)
+        catalogItems: Object.keys(this.selectedItems),
+        prices: this.state.prices        
       })
       this.setState({
         productTable: res.data,
@@ -715,6 +717,15 @@ class Dashboard extends Component {
     })
   }
 
+
+  showBy(prices){
+    this.setState({ prices }, 
+      () => {
+        this.getGraph()
+        this.getProductTable()
+      })
+  }
+
   render () {
     const user = this.context.tree.get('user')
 
@@ -1058,6 +1069,46 @@ class Dashboard extends Component {
                         </span>
                       </div>
                     </div>
+                  </div>
+
+                  <div className='level-item'>
+                    <div className="field">
+                      <label className='label'>Mostrar unidades por: </label>
+                      <div className='control'>
+
+                        <div className="field is-grouped">
+                          <div className='control'>
+
+                            <input
+                              className="is-checkradio is-info is-small"
+                              id='showByquantity'
+                              type="radio"
+                              name='showBy'
+                              checked={!this.state.prices}
+                              disabled={this.state.waitingData}
+                              onChange={() => this.showBy(false)} />
+                            <label htmlFor='showByquantity'>
+                              <span title='Cantidad'>Cantidad</span>
+                            </label>
+                          </div>
+
+                          <div className='control'>
+                            <input
+                              className="is-checkradio is-info is-small"
+                              id='showByprice'
+                              type="radio"
+                              name='showBy'
+                              checked={this.state.prices}                              
+                              disabled={this.state.waitingData}
+                              onChange={() => this.showBy(true)} />
+                            <label htmlFor='showByprice'>
+                              <span title='Precio'>Precio</span>
+                            </label>
+                          </div>
+                          </div>
+
+                        </div>
+                      </div>
                   </div>
                 </div>
 
