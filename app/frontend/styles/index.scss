@@ -154,37 +154,37 @@ h2 {
 }
 
 .download-card {
-  display: grid;
-  grid-template: 1fr / 15% 1fr 15%;
-  grid-template-areas: "download-img download-text download-icon";
-  justify-content: center;
-  justify-items: center;
-  align-content: center;
-  align-items: center;
-  min-width: 333px;
-  max-width: 333px;
+    display: grid;
+    grid-template: 1fr / 15% 1fr 15%;
+    grid-template-areas: "download-img download-text download-icon";
+    justify-content: center;
+    justify-items: center;
+    align-content: center;
+    align-items: center;
+    min-width: 333px;
+    max-width: 333px;
 }
 
 .download-card:hover {
-  border-color: $info;
-  box-shadow: 0 15px 35px rgba(50, 50, 93, .1), 0 5px 15px rgba(0, 0, 0, .07);
+    border-color: $info;
+    box-shadow: 0 15px 35px rgba(50, 50, 93, .1), 0 5px 15px rgba(0, 0, 0, .07);
 }
 
 .download-img {
-  padding: 10px;
-  grid-area: download-img;
+    padding: 10px;
+    grid-area: download-img;
 }
 
 .download-text {
-  grid-area: download-text;
-  justify-self: start;
-  font-size: 15px;
+    grid-area: download-text;
+    justify-self: start;
+    font-size: 15px;
 }
 
 .download-icon {
-  padding: 10px;
-  grid-area: download-icon;
-  color: $info;
+    padding: 10px;
+    grid-area: download-icon;
+    color: $info;
 }
 
 .is-size-3 {
@@ -469,6 +469,10 @@ h2 {
     left: 0 !important;
     right: inherit !important;
   }
+}
+
+.has-background-light {
+    background-color: hsl(0, 0%, 96%);
 }
 
 @import 'wizard';
