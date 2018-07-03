@@ -21,7 +21,9 @@ class HistoricReport extends Component {
       totalPrediction: 0,
       totalSale: 0,
       totalPSale: 0,
-      mape: 0,
+      mapePrediction: 0,
+      mapeAdjustment: 0,
+      difference: 0,
       searchTerm: '',
       sortBy: 'sale',
       sortAscending: true,
@@ -51,7 +53,9 @@ class HistoricReport extends Component {
       filters: undefined,
       graphData: undefined,
       filteredData: undefined,
-      mape: 0,
+      mapePrediction: 0,
+      mapeAdjustment: 0,
+      difference: 0,      
       totalAdjustment: 0,
       totalPrediction: 0,
       totalSale: 0,
@@ -119,7 +123,9 @@ class HistoricReport extends Component {
     this.setState({
       filteredData: undefined,
       graphData: undefined,
-      mape: 0,
+      mapePrediction: 0,
+      mapeAdjustment: 0,
+      difference: 0,
       totalAdjustment: 0,
       totalPrediction: 0,
       totalSale: 0,
@@ -136,14 +142,17 @@ class HistoricReport extends Component {
         let res = await api.post(url, {
           date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
           date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
-          catalogItems: Object.keys(this.selectedItems)
+          catalogItems: Object.keys(this.selectedItems),
+          prices: this.state.prices
         })
 
         let totalPSale = 0
         let totalSale = 0
         let totalPrediction = 0
         let totalAdjustment = 0
-        let mape = 0
+        let mapePrediction = 0
+        let mapeAdjustment = 0
+        let difference = 0
 
         let data = res.data
         let activePeriod = []
@@ -177,11 +186,10 @@ class HistoricReport extends Component {
 
         topValue = this.getTopValue(res.data)
 
-        mape = res.mape
+        mapePrediction = res.mapePrediction
+        mapeAdjustment = res.mapeAdjustment
+        difference = res.difference
 
-        if (isNaN(mape) || mape === Infinity || mape === null) {
-          mape = 0
-        }
 
         this.setState({
           graphData: data,
@@ -189,7 +197,9 @@ class HistoricReport extends Component {
           totalPrediction,
           totalSale,
           totalPSale,
-          mape,
+          mapePrediction,
+          mapeAdjustment,
+          difference,
           topValue,
           reloadGraph: true,
           startPeriod: activePeriod[0],
@@ -674,6 +684,72 @@ class HistoricReport extends Component {
     return "rgb(" + mixedrgb.join(",") + ")";
   }
 
+
+  showBy(prices) {
+    this.setState({ prices },
+      () => {
+        this.getGraph()
+      })
+  }
+
+  getCallback() {
+    if (this.state.prices) {
+      return function (label, index, labels) {
+        let val = ''
+        if (label <= 999) {
+          val = label
+        } else if (label >= 1000 && label <= 999999) {
+          val = (label / 1000) + 'K'
+        } else if (label >= 1000000 && label <= 999999999) {
+          val = (label / 1000000) + 'M'
+        }
+        return '$' + val
+      }
+    }
+    else {
+      return function (label, index, labels) {
+        if (label <= 999) {
+          return label
+        } else if (label >= 1000 && label <= 999999) {
+          return (label / 1000) + 'K'
+        } else if (label >= 1000000 && label <= 999999999) {
+          return (label / 1000000) + 'M'
+        }
+      }
+    }
+  }
+
+  getTooltipCallback() {
+    if (this.state.prices) {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + '$' + yVal
+      }
+    }
+    else {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + yVal
+      }
+    }
+  }
+
   render() {
     const user = tree.get('user')
 
@@ -684,6 +760,9 @@ class HistoricReport extends Component {
     if (loading) {
       return <Loader />
     }
+
+    let callbackLabels = this.getCallback()
+    let tooltipCallback = this.getTooltipCallback()
 
     if (this.state.noFilters) {
       return (
@@ -894,6 +973,47 @@ class HistoricReport extends Component {
                   </div>
 
                 </div>
+                
+                <div className='column is-12'>
+                  <div className="field">
+                    <label className='label'>Mostrar unidades por: </label>
+                    <div className='control'>
+
+                      <div className="field is-grouped">
+                        <div className='control'>
+
+                          <input
+                            className="is-checkradio is-info is-small"
+                            id='showByquantity'
+                            type="radio"
+                            name='showBy'
+                            checked={!this.state.prices}
+                            disabled={this.state.waitingData}
+                            onChange={() => this.showBy(false)} />
+                          <label htmlFor='showByquantity'>
+                            <span title='Cantidad'>Cantidad</span>
+                          </label>
+                        </div>
+
+                        <div className='control'>
+                          <input
+                            className="is-checkradio is-info is-small"
+                            id='showByprice'
+                            type="radio"
+                            name='showBy'
+                            checked={this.state.prices}
+                            disabled={this.state.waitingData}
+                            onChange={() => this.showBy(true)} />
+                          <label htmlFor='showByprice'>
+                            <span title='Precio'>Precio</span>
+                          </label>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
                 <div className='column is-12'>
 
                   <div className='card filters'>
@@ -929,21 +1049,21 @@ class HistoricReport extends Component {
               <div className='columns'>
                 <div className='column is-paddingless'>
                   <div className='notification is-info has-text-centered'>
-                    <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
+                    <h1 className='title is-2'>{this.state.mapePrediction.toFixed(2) || '0.00'}%</h1>
                     <h2 className='subtitle has-text-weight-bold'>MAPE Predicción</h2>
                   </div>
                 </div>
 
                 <div className='column is-paddingless'>
                   <div className='notification is-info-dark-1 has-text-centered'>
-                    <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
+                    <h1 className='title is-2'>{this.state.mapeAdjustment.toFixed(2) || '0.00'}%</h1>
                     <h2 className='subtitle has-text-weight-bold'>MAPE Ajuste</h2>
                   </div>
                 </div>
 
                 <div className='column is-paddingless'>
                   <div className='notification is-info-dark-2 has-text-centered'>
-                    <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
+                    <h1 className='title is-2'>{this.state.difference.toFixed(2) || '0.00'}%</h1>
                     <h2 className='subtitle has-text-weight-bold'>Diferencia Predicción - Ajuste</h2>
                   </div>
                 </div>
@@ -976,18 +1096,7 @@ class HistoricReport extends Component {
                           bodyFontFamily: "'Roboto', sans-serif",
                           bodyFontStyle: 'bold',
                           callbacks: {
-                            label: function (tooltipItem, data) {
-                              let label = ' '
-                              label += data.datasets[tooltipItem.datasetIndex].label || ''
-
-                              if (label) {
-                                label += ': '
-                              }
-                              let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })
-                              return label + yVal
-                            }
+                            label: tooltipCallback
                           }
                         }}
                         labels={labels}
@@ -1009,15 +1118,7 @@ class HistoricReport extends Component {
                             yAxes: [
                               {
                                 ticks: {
-                                  callback: function (label, index, labels) {
-                                    if (label <= 999) {
-                                      return label
-                                    } else if (label >= 1000 && label <= 999999) {
-                                      return (label / 1000) + 'K'
-                                    } else if (label >= 1000000 && label <= 999999999) {
-                                      return (label / 1000000) + 'M'
-                                    }
-                                  },
+                                  callback: callbackLabels,
                                   fontSize: 11
                                 },
                                 gridLines: {

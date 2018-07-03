@@ -59,7 +59,8 @@ class TabAdjustment extends Component {
       error: false,
       errorMessage: '',
       showAdjusted: true,
-      showNotAdjusted: true
+      showNotAdjusted: true,
+      prices: true
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -842,7 +843,8 @@ class TabAdjustment extends Component {
     try {
       let res = await api.post(url, {
         ...this.state.formData,
-        cycle: cycle.uuid
+        cycle: cycle.uuid,
+        prices: this.state.prices
       })
 
       if (res.data) {
@@ -858,7 +860,12 @@ class TabAdjustment extends Component {
         this.setState({
           salesTable: res.data,
           totalAdjustment: totalAdjustment,
-          totalPrediction: totalPrediction
+          totalPrediction: totalPrediction,
+          reloadGraph: true
+        }, () => {
+            this.setState({
+              reloadGraph: false
+            })
         })
       }
     } catch (e) {
@@ -1032,6 +1039,62 @@ class TabAdjustment extends Component {
     return filters
   }
 
+  showBy(prices) {
+    this.setState({ prices },
+      () => {
+        this.getSalesTable()
+      })
+  }
+
+  getCallback() {
+    if (this.state.prices) {
+      return function (label, index, labels) {
+        return '$' + label.toFixed(2).replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+      }
+    }
+    else {
+      return function (label, index, labels) {
+        return label.toFixed(2).replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+      }
+    }
+  }
+
+  getTooltipCallback() {
+    if (this.state.prices) {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = '$' + tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + yVal
+      }
+    }
+    else {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + yVal
+      }
+    }
+  }
+
+
   render () {
     let banner
     if (this.state.error) {
@@ -1167,6 +1230,10 @@ class TabAdjustment extends Component {
       }
     ]
 
+    let labelCallback = this.getCallback()
+    let tooltipCallback = this.getTooltipCallback()
+
+
     return (
       <div>
         {banner}
@@ -1205,10 +1272,15 @@ class TabAdjustment extends Component {
               <p className='has-text-weight-semibold'>Predicción</p>
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalPrediction ?
-                '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
-                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                })
-                : null
+                  this.state.prices ?
+                    '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })
+                    :
+                    this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })
+                  : null
                 }
               </h1>
             </div>
@@ -1220,11 +1292,16 @@ class TabAdjustment extends Component {
               <p className='has-text-weight-semibold'>Ajuste</p>
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalAdjustment ?
-                '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
-                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                })
-                : null
-              }
+                  this.state.prices ?
+                    '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })
+                    :
+                    this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })
+                  : null
+                }
               </h1>
             </div>
           </div>
@@ -1245,6 +1322,49 @@ class TabAdjustment extends Component {
 
 
         <div className={'indicators-collapse ' + this.state.indicators}>
+          <div className='section level'>
+            <div className='level-left'>
+              <div className='level-item'>
+                <div className="field">
+                  <label className='label'>Mostrar unidades por: </label>
+                  <div className='control'>
+
+                    <div className="field is-grouped">
+                      <div className='control'>
+
+                        <input
+                          className="is-checkradio is-info is-small"
+                          id='showByquantityAd'
+                          type="radio"
+                          name='showByAd'
+                          checked={!this.state.prices}
+                          disabled={this.state.waitingData}
+                          onChange={() => this.showBy(false)} />
+                        <label htmlFor='showByquantityAd'>
+                          <span title='Cantidad'>Cantidad</span>
+                        </label>
+                      </div>
+
+                      <div className='control'>
+                        <input
+                          className="is-checkradio is-info is-small"
+                          id='showBypriceAd'
+                          type="radio"
+                          name='showByAd'
+                          checked={this.state.prices}
+                          disabled={this.state.waitingData}
+                          onChange={() => this.showBy(true)} />
+                        <label htmlFor='showBypriceAd'>
+                          <span title='Precio'>Precio</span>
+                        </label>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className='columns'>
             <div className='column is-5-desktop is-4-widescreen is-4-fullhd is-offset-1-fullhd is-offset-1-desktop'>
               <div className='panel sales-table'>
@@ -1271,12 +1391,12 @@ class TabAdjustment extends Component {
                                   {item.period[0]}
                                 </td>
                                 <td className='has-text-centered'>
-                                  $ {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
+                                  {this.state.prices && '$'} {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
                                 <td className='has-text-centered'>
-                                  $ {item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                                  {this.state.prices && '$'} {item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
@@ -1290,12 +1410,12 @@ class TabAdjustment extends Component {
                               Total
                             </th>
                             <th className='has-text-info has-text-centered'>
-                              $ {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                              {this.state.prices && '$'} {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>
                             <th className='has-text-teal has-text-centered'>
-                              $ {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                              {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>
@@ -1322,6 +1442,7 @@ class TabAdjustment extends Component {
                         data={graphData}
                         maintainAspectRatio={false}
                         responsive={true}
+                        reloadGraph={this.state.reloadGraph}                        
                         labels={this.state.salesTable.map((item, key) => { return 'Periodo ' + item.period[0] })}
                         tooltips={{
                           mode: 'index',
@@ -1330,18 +1451,7 @@ class TabAdjustment extends Component {
                           bodyFontFamily: "'Roboto', sans-serif",
                           bodyFontStyle: 'bold',
                           callbacks: {
-                            label: function (tooltipItem, data) {
-                              let label = ' '
-                              label += data.datasets[tooltipItem.datasetIndex].label || ''
-
-                              if (label) {
-                                label += ': '
-                              }
-                              let yVal = '$' + tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })
-                              return label + yVal
-                            }
+                            label: tooltipCallback
                           }
                         }}
                         scales={
@@ -1357,11 +1467,7 @@ class TabAdjustment extends Component {
                                   display: false
                                 },
                                 ticks: {
-                                  callback: function (label, index, labels) {
-                                    return '$' + label.toFixed(2).replace(/./g, (c, i, a) => {
-                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                    })
-                                  },
+                                  callback: labelCallback,
                                   fontSize: 11
                                 },
                                 display: true

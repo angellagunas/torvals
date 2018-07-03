@@ -329,9 +329,10 @@ class Dashboard extends Component {
         'sortable': true,
         formatter: (row) => {
           if (row.prediction) {
-            return row.prediction.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.prediction.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+            return this.state.prices ? '$' + val : val
           }
         }
       },
@@ -342,7 +343,7 @@ class Dashboard extends Component {
         'sortable': true,
         formatter: (row) => {
           if (row.adjustment) {
-            return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.adjustment.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
           }
@@ -355,9 +356,10 @@ class Dashboard extends Component {
         'sortable': true,
         formatter: (row) => {
           if (row.sale) {
-            return row.sale.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.sale.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+            return this.state.prices ? '$' + val : val
           }
         }
       },
@@ -368,9 +370,10 @@ class Dashboard extends Component {
         'sortable': true,
         formatter: (row) => {
           if(row.previousSale){
-            return row.previousSale.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.previousSale.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+            return this.state.prices ? '$' + val : val
           }
         }
       },
@@ -726,10 +729,69 @@ class Dashboard extends Component {
       })
   }
 
+  getCallback() {
+    if (this.state.prices) {
+      return function (label, index, labels) {
+        let val = ''
+        if (label <= 999) {
+          val = label
+        } else if (label >= 1000 && label <= 999999) {
+          val = (label / 1000) + 'K'
+        } else if (label >= 1000000 && label <= 999999999) {
+          val = (label / 1000000) + 'M'
+        }
+        return '$' + val 
+      }
+    }
+    else{
+      return function (label, index, labels) {
+        if (label <= 999) {
+          return label
+        } else if (label >= 1000 && label <= 999999) {
+          return (label / 1000) + 'K'
+        } else if (label >= 1000000 && label <= 999999999) {
+          return (label / 1000000) + 'M'
+        }
+      }
+    }
+  }
+
+  getTooltipCallback() {
+    if (this.state.prices) {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + '$' + yVal
+      }
+    }
+    else {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + yVal
+      }
+    }
+  }
+
   render () {
     const user = this.context.tree.get('user')
 
-    
+    let callbackLabels = this.getCallback()
+    let tooltipCallback = this.getTooltipCallback()
 
     if (!user.currentOrganization.isConfigured && user.currentRole.slug === 'orgadmin') {
       return(
@@ -901,23 +963,58 @@ class Dashboard extends Component {
                   </div>
                   <div className='indicators'>
                     <p className='indicators-title'>Venta total</p>
-                    <p className='indicators-number has-text-success'>{this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                    <p className='indicators-number has-text-success'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          :
+                          this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
                     <p className='indicators-title'>Venta año anterior</p>
-                    <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                    <p className='indicators-number has-text-danger'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          : this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
 
                     <p className='indicators-title'>Ajuste total</p>
-                    <p className='indicators-number has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                    <p className='indicators-number has-text-teal'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          :
+                          this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
 
                     <p className='indicators-title'>Predicción total</p>
-                    <p className='indicators-number has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                    <p className='indicators-number has-text-info'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          :
+                          this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
                   </div>
                 </div>
                 <div className='column card'>
@@ -947,18 +1044,7 @@ class Dashboard extends Component {
                           bodyFontFamily: "'Roboto', sans-serif",
                           bodyFontStyle: 'bold',
                           callbacks: {
-                            label: function (tooltipItem, data) {
-                              let label = ' '
-                              label += data.datasets[tooltipItem.datasetIndex].label || ''
-
-                              if (label) {
-                                label += ': '
-                              }
-                              let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })
-                              return label + yVal
-                            }
+                            label: tooltipCallback
                           }
                         }}
                         labels={this.state.graphData.map((item) => { return item.date })}
@@ -980,15 +1066,7 @@ class Dashboard extends Component {
                             yAxes: [
                               {
                                 ticks: {
-                                  callback: function (label, index, labels) {
-                                    if (label <= 999) {
-                                      return label
-                                    } else if (label >= 1000 && label <= 999999) {
-                                      return (label / 1000) + 'K'
-                                    } else if (label >= 1000000 && label <= 999999999) {
-                                      return (label / 1000000) + 'M'
-                                    }
-                                  },
+                                  callback: callbackLabels,
                                   fontSize: 11
                                 },
                                 gridLines: {
