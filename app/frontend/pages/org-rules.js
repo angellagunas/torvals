@@ -318,6 +318,9 @@ class OrgRules extends Component {
                 </div>
                 <div className='card-content'>
                   <div className='tags'>
+                    <div className='tag is-capitalized has-text-weight-semibold'>
+                      Precio
+                    </div>
                     {this.state.rules.catalogs.map((item, key) => {
                       return (
                         <div key={key} className='tag is-capitalized has-text-weight-semibold'>
