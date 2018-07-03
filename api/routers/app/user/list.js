@@ -96,13 +96,13 @@ module.exports = new Route({
           if (filterSort[1] === 'role') {
             sortStatement['doc.infoRole.name'] = -1
           } else {
-            sortStatement['doc.infoRole.name'] = -1
+            sortStatement['doc.' + filterSort[1]] = -1
           }
         } else {
           if (filterSort[0] === 'role') {
             sortStatement['doc.infoRole.name'] = 1
           } else {
-            sortStatement['doc.infoRole.name'] = 1
+            sortStatement['doc.' + filterSort[0]] = 1
           }
         }
         statement.push({ '$sort': sortStatement })
@@ -131,7 +131,6 @@ module.exports = new Route({
     var statementCount = [...statementNoSkip]
 
     statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
-
     var users = await User.aggregate(statement)
     statementCount.push({$count: 'total'})
     var usersCount = await User.aggregate(statementCount) || 0
