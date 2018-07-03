@@ -17,7 +17,8 @@ const {
   DataSetRow,
   Cycle,
   Period,
-  Anomaly
+  Anomaly,
+  Product
 } = require('models')
 
 const task = new Task(async function (argv) {
@@ -298,6 +299,35 @@ const task = new Task(async function (argv) {
         }, {
           multi: true
         })
+      }
+    }
+
+    let products = await Product.find({})
+    let prodsObj = {}
+
+    for (let prod of products) {
+      prodsObj[prod._id] = prod
+    }
+
+    let datasetRows = await DataSetRow.find({
+      dataset: dataset._id,
+      newProduct: { $exists: false }
+    }).populate('product').cursor()
+
+    for (let row = await datasetRows.next(); row != null; row = await datasetRows.next()) {
+      let findProduct = _.find(catalogItems, ['externalId', row.product.externalId])
+      if (!findProduct) {
+        bulkOps.add({
+          catalog: currentCatalogs.find((catalog) => {
+            return catalog.slug === 'producto'
+          }),
+          name: product.name,
+          externalId: product.externalId,
+          organization: project.organization._id,
+          type: 'producto'
+        })
+      } else {
+        existingCatalogs.push(findProduct._id)
       }
     }
 
