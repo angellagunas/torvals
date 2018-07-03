@@ -29,9 +29,14 @@ const task = new Task(async function (argv) {
 
       let date
       if (argv.date) {
-        date = moment(argv.date).utc()
+        date = moment(argv.date, 'YYYY-MM-DD', true).utc()
       } else {
         date = moment().utc()
+      }
+
+      if (!date.isValid()) {
+        console.log('Error: Invalid date format (YYYY-MM-DD)')
+        return false
       }
 
       let cycle = await Cycle.findOne({
