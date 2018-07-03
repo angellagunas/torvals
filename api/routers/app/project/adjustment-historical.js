@@ -1,5 +1,6 @@
 const moment = require('moment')
 const Route = require('lib/router/route')
+const _ = require('lodash')
 
 const {
   Cycle,
@@ -205,21 +206,42 @@ module.exports = new Route({
     let responseData = await DataSetRow.aggregate(match)
     let totalPrediction = 0
     let totalSale = 0
-    for (let response of responseData) {
-      if (response.prediction && response.sale) {
-        totalPrediction += response.prediction
-        totalSale += response.sale
+    let totalSaleAdjustment = 0
+    let totalAdjustment = 0
+    for (let response in responseData) {
+      responseData[response] = {
+        ...responseData[response],
+        name: _.find(datasets, {_id: responseData[response].dataset}).name
+      }
+      if (responseData[response].prediction && responseData[response].sale) {
+        totalPrediction += responseData[response].prediction
+        totalSale += responseData[response].sale
+      }
+
+      if (responseData[response].adjustment && responseData[response].sale) {
+        totalAdjustment += responseData[response].adjustment
+        totalSaleAdjustment += responseData[response].sale
       }
     }
 
-    let mape = 0
+    let mapeAdjustment = 0
+    let mapePrediction = 0
+
     if (totalSale !== 0) {
-      mape = Math.abs((totalSale - totalPrediction) / totalSale) * 100
+      mapePrediction = Math.abs((totalSale - totalPrediction) / totalSale) * 100
     }
+
+    if (totalSaleAdjustment !== 0) {
+      mapeAdjustment = Math.abs((totalSaleAdjustment - totalAdjustment) / totalSaleAdjustment) * 100
+    }
+
+    let diffPredictionAdjustment = mapePrediction - mapeAdjustment
 
     ctx.body = {
       data: responseData,
-      mape: mape
+      mapePrediction: mapePrediction,
+      mapeAdjustment: mapeAdjustment,
+      difference: diffPredictionAdjustment
     }
   }
 })
