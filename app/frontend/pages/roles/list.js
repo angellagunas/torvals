@@ -66,7 +66,7 @@ export default ListPage({
         'sortable': true
       },
       {
-        'title': 'Creado',
+        'title': 'Fecha de creación',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
