@@ -32,7 +32,12 @@ const task = new Task(
     log.call(`Using batch size of ${batchSize}`)
     log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk').populate('uploadedBy')
+    const dataset = await DataSet.findOne({uuid: argv.uuid})
+      .populate('fileChunk')
+      .populate('uploadedBy')
+      .populate('rule')
+
+    await dataset.rule.populate('catalogs').execPopulate()
     var bulkOps = []
 
     if (!dataset) {
@@ -58,9 +63,7 @@ const task = new Task(
       var adjustmentColumn = dataset.getAdjustmentColumn() || {name: ''}
       var dateColumn = dataset.getDateColumn() || {name: ''}
       var salesColumn = dataset.getSalesColumn() || {name: ''}
-      var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
-      var productExternalId = dataset.getProductColumn() || {name: ''}
-      var channelExternalId = dataset.getChannelColumn() || {name: ''}
+      var productExternalId = dataset.getCatalogItemColumn('is_producto_id') || {name: ''}
 
       for (var i = 0; i < pages; i++) {
         log.call(`${lineCount} => ${(i * batchSize) + 1} - ${(i * batchSize) + batchSize}`)
@@ -117,7 +120,8 @@ const task = new Task(
 
           let catalogData = {}
           for (let column of dataset.columns) {
-            catalogColumns = Object.keys(column).filter(x => column[x] === true && x.startsWith('is_'))
+            let catalogColumns = Object.keys(column).filter(x => column[x] === true && x.startsWith('is_'))
+
             for (let catalogColumnName of catalogColumns) {
               catalogData[catalogColumnName] = obj[column.name]
             }
@@ -136,9 +140,7 @@ const task = new Task(
               'adjustment': adjustment || prediction,
               'localAdjustment': adjustment || prediction,
               'lastAdjustment': adjustment || undefined,
-              'productExternalId': obj[productExternalId.name],
-              'salesCenterExternalId': obj[salesCenterExternalId.name],
-              'channelExternalId': obj[channelExternalId.name]
+              'productExternalId': obj[productExternalId.name]
             },
             'catalogData': catalogData
           })

@@ -4,9 +4,6 @@ const moment = require('moment')
 const {
   DataSetRow,
   DataSet,
-  Channel,
-  SalesCenter,
-  Product,
   CatalogItem,
   Role,
   Cycle
@@ -53,9 +50,6 @@ module.exports = new Route({
       filters['organization'] = currentOrganization.organization._id
     }
 
-    let products = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('product')
-    let channels = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('channel')
-    let salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
     let cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
     let catalogItems = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('catalogItems')
 
@@ -74,9 +68,6 @@ module.exports = new Route({
       }
     })
 
-    channels = await Channel.find({ _id: { $in: channels }, ...filters })
-    salesCenters = await SalesCenter.find({ _id: { $in: salesCenters }, ...filters })
-    products = await Product.find({ _id: { $in: products } })
     catalogItems = await CatalogItem.find({ _id: { $in: catalogItems }, type: {$ne: 'producto'}, ...filters })
 
     await dataset.rule.populate('catalogs').execPopulate()
@@ -85,22 +76,17 @@ module.exports = new Route({
     let catalogsResponse = []
 
     for (let catalog of catalogs) {
-      console.log(catalog)
       catalogsResponse[catalog.slug] = []
     }
 
     for (let item of catalogItems) {
       await item.populate('catalog').execPopulate()
-      console.log(item.catalog)
       if (!catalogsResponse[item.catalog.slug]) continue
       catalogsResponse[item.catalog.slug].push(item)
     }
 
     ctx.body = {
       cycles,
-      channels,
-      salesCenters,
-      products,
       ...catalogsResponse
     }
   }

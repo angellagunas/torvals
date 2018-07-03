@@ -28,7 +28,8 @@ const rulesSchema = new Schema({
   cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
   periods: [{type: Schema.Types.ObjectId, ref: 'Period'}],
   isCurrent: {type: Boolean, default: true},
-  version: {type: Number}
+  version: {type: Number},
+  hasAnomalies: {type: Boolean, default: true}
 }, { usePushEach: true })
 
 rulesSchema.plugin(dataTables)
@@ -56,6 +57,7 @@ rulesSchema.methods.toPublic = function () {
     catalogs: this.catalogs,
     cycles: this.cycles,
     periods: this.periods,
+    hasAnomalies: this.hasAnomalies,
     isCurrent: this.isCurrent
   }
   // if (this.organization) { data.organization = this.organization.toPublic() }
@@ -85,6 +87,7 @@ rulesSchema.methods.toAdmin = function () {
     catalogs: this.catalogs,
     cycles: this.cycles,
     periods: this.periods,
+    hasAnomalies: this.hasAnomalies,
     isCurrent: this.isCurrent
   }
   // if (this.organization) { data.organization = this.organization.toPublic() }

@@ -1,4 +1,4 @@
-// node tasks/project/update-business-rules.js --uuid uuid --batchSize
+// node tasks/project/clone-update-rules-main-dataset.js --uuid uuid --batchSize
 require('../../config')
 require('lib/databases/mongo')
 const Logger = require('lib/utils/logger')
@@ -6,11 +6,12 @@ const moment = require('moment')
 const cloneDataset = require('tasks/dataset/process/clone')
 const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 const Task = require('lib/task')
+const checkProjectCycleStatus = require('tasks/project/verify-cycle-status')
 const { Project, DataSet } = require('models')
 
 const task = new Task(
   async function (argv) {
-    const log = new Logger('clone-main-dataset')
+    const log = new Logger('clone-update-rules-MD')
 
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
@@ -32,7 +33,10 @@ const task = new Task(
     const project = await Project.findOne({
       uuid: argv.uuid,
       isDeleted: false
-    }).populate('mainDataset')
+    }).populate('mainDataset').populate('rule')
+    await project.rule.populate('catalogs').execPopulate()
+
+    const projectCatalogs = project.rule.catalogs.map(item => { return item.slug })
 
     if (!project || !project.mainDataset) {
       throw new Error('Invalid project.')
@@ -40,13 +44,32 @@ const task = new Task(
 
     log.call('Create new dataset.')
     let auxDataset = await cloneDataset.run({dataset: project.mainDataset.uuid})
-    auxDataset = await DataSet.findOne({uuid: auxDataset})
+    auxDataset = await DataSet.findOne({uuid: auxDataset}).populate('rule')
+    await auxDataset.rule.populate('catalogs').execPopulate()
+    const datasetCatalogs = auxDataset.rule.catalogs.map(item => { return item.slug })
+
+    const catalogsToRemove = datasetCatalogs.filter(item => {
+      return projectCatalogs.indexOf(item) < 0
+    })
+
+    let newCols = auxDataset.columns
+
+    for (let col of newCols) {
+      for (let cat of catalogsToRemove) {
+        let idStr = `is_${cat}_id`
+        let nameStr = `is_${cat}_name`
+        if (col[idStr]) col[idStr] = false
+        if (col[nameStr]) col[nameStr] = false
+      }
+    }
 
     auxDataset.set({
       status: 'configuring',
       isMain: true,
-      rule: project.rule
+      rule: project.rule,
+      columns: newCols
     })
+    auxDataset.markModified('columns')
     await auxDataset.save()
 
     project.mainDataset.set({
@@ -72,6 +95,8 @@ const task = new Task(
       columns: []
     })
     await project.save()
+
+    await checkProjectCycleStatus.run()
 
     return true
   },

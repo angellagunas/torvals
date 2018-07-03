@@ -20,10 +20,10 @@ module.exports = new Route({
       isDeleted: {$ne: true},
       user: user._id,
       type: 'api'
-    })
+    }).populate('organization')
 
     ctx.body = {
-      tokens: tokens.map(token => token.toPublic())
+      tokens: tokens.map(token => ({...token.toPublic(), organization: token.organization.toPublic()}))
     }
   }
 })

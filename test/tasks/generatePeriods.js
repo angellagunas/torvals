@@ -19,7 +19,7 @@ describe('Generate periods task', () => {
     it('with 23 cycles created in db should generate 23 periods', async function () {
 
       const org = await createFullOrganization({}, {
-        period: 'M'
+        period: 'w'
       })
       const rule = await Rule.findOne({organization: org._id})
 
@@ -49,7 +49,7 @@ describe('Generate periods task', () => {
             "$cond": [
               {
                 "$and": [
-                  {"$eq": [{"$year": "$dateStart"}, 2017]},
+                  {"$eq": [{"$year": "$dateStart"}, 2018]},
                   {"$eq": [{"$month": "$dateStart"}, 1]},
                   {"$eq": [{"$dayOfMonth": "$dateStart"}, 1]}
                 ]
@@ -61,42 +61,14 @@ describe('Generate periods task', () => {
         }
       ])
 
-      let lastPeriod = await Period.aggregate([
-        {
-          "$redact": {
-            "$cond": [
-              {
-                "$and": [
-                  {"$eq": [{"$year": "$dateStart"}, lastPeriodStartDate.getFullYear()]},
-                  {"$eq": [{"$month": "$dateStart"}, (lastPeriodStartDate.getMonth() + 1)]},
-                  {"$eq": [{"$dayOfMonth": "$dateStart"}, lastPeriodStartDate.getDate()]}
-                ]
-              },
-              "$$KEEP", 
-              "$$PRUNE" 
-            ]
-          }
-        }
-      ])
-
       firstPeriod = firstPeriod[0]
-      lastPeriod = lastPeriod[0]
 
       assert.exists(firstPeriod)
-      assert.exists(lastPeriod)
-
-      expect(periodsGenerated).equal(expectedPeriods)
 
       expect(
         new Date(firstPeriod.dateEnd).toISOString().slice(0, 10)
       ).equal(
-        new Date("2017-01-31").toISOString().slice(0, 10)
-      )
-
-      expect(
-        new Date(lastPeriod.dateEnd).toISOString().slice(0, 10)
-      ).equal(
-        lastPeriodEndDate.toISOString().slice(0, 10)
+        new Date("2018-01-07").toISOString().slice(0, 10)
       )
     })
   })

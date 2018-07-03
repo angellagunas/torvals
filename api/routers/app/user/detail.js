@@ -8,7 +8,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     const userId = ctx.params.uuid
 
-    var user = await User.findOne({'uuid': userId})
+    let user = await User.findOne({'uuid': userId})
       .populate('organizations.organization')
       .populate('organizations.role')
       .populate('organizations.defaultProject')
@@ -19,14 +19,14 @@ module.exports = new Route({
     user = user.toPublic()
     user.role = user.organizations.find(e => {
       return e.organization.uuid === ctx.state.organization.uuid
-    }).role._id
+    }).role.uuid
     user.roleDetail = user.organizations.find(e => {
       return e.organization.uuid === ctx.state.organization.uuid
     }).role
     let auxGroups = []
     let groups = user.groups
 
-    for (var group of groups) {
+    for (let group of groups) {
       if (!group.organization.uuid) {
         group.organization = await Organization.findOne({'_id': ObjectId(group.organization)})
       }

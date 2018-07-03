@@ -17,7 +17,7 @@ class Catalogs extends Component {
         {
           title: 'Precio',
           value: 'precio',
-          checked: false,
+          checked: true,
           disabled: true
         },
         {
@@ -117,21 +117,21 @@ class Catalogs extends Component {
         if (item.slug === c.value) {
           c.checked = true
           findIt = true
-          break
         }
       }
 
       if (!findIt) {
-        this.setState({
-          catalogs: this.state.catalogs.concat(
-            {
-              title: item.name,
-              value: item.slug,
-              checked: true,
-              delete: true
-            })
+        catalog.push({
+          title: item.name,
+          value: item.slug,
+          checked: true,
+          delete: true
         })
       }
+    })
+
+    this.setState({
+      catalogs: catalog
     })
   }
 

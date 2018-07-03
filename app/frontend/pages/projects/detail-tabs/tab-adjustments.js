@@ -59,7 +59,8 @@ class TabAdjustment extends Component {
       error: false,
       errorMessage: '',
       showAdjusted: true,
-      showNotAdjusted: true
+      showNotAdjusted: true,
+      prices: true
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -100,7 +101,7 @@ class TabAdjustment extends Component {
 
         let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
 
-        if (currentRole === 'manager-level-2') {
+        if (currentRole !== 'manager-level-1') {
           cycles = cycles.map((item, key) => {
             return item = { ...item, adjustmentRange: this.rules.rangesLvl2[key], name: moment.utc(item.dateStart).format('MMMM') }
           })
@@ -113,18 +114,14 @@ class TabAdjustment extends Component {
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
 
-        if (res.salesCenters.length > 0) {
-          formData.salesCenter = res.salesCenters[0].uuid
-        }
-
-        if (res.channels.length === 1) {
-          formData.channel = res.channels[0].uuid
-        }
+        
 
         for (let fil of Object.keys(res)) {
           if (fil === 'cycles') continue
 
           res[fil] = _.orderBy(res[fil], 'name')
+          if(res[fil][0])
+            formData[fil] = res[fil][0].uuid
         }
 
         this.setState({
@@ -132,7 +129,6 @@ class TabAdjustment extends Component {
             ...this.state.filters,
             ...res,
             cycles: cycles,
-            categories: this.getCategory(res.products),
           },
           formData: formData,
           filtersLoading: false,
@@ -155,16 +151,6 @@ class TabAdjustment extends Component {
         )
       }
     }
-  }
-
-  getCategory(products) {
-    const categories = new Set()
-    products.map((item) => {
-      if (item.category && !categories.has(item.category)) {
-        categories.add(item.category)
-      }
-    })
-    return Array.from(categories)
   }
 
   async filterChangeHandler (name, value) {
@@ -211,10 +197,14 @@ class TabAdjustment extends Component {
       return item.cycle === this.state.formData.cycle
     })
 
+    let adjustment = this.getAdjustment(cycle.adjustmentRange)
+    if (this.props.project.cycleStatus !== 'rangeAdjustment')
+      adjustment = 0
+
     this.setState({
       isLoading: ' is-loading',
       isFiltered: false,
-      generalAdjustment: this.getAdjustment(cycle.adjustmentRange),
+      generalAdjustment: adjustment,
       salesTable: [],
       noSalesData: ''
     })
@@ -358,7 +348,7 @@ class TabAdjustment extends Component {
 
         <div className='column is-narrow'>
           <div className='field'>
-            {currentRole !== 'consultor-level-3' ?
+            {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' ?
               <label className='label'>Búsqueda general</label>:
               null
             }
@@ -375,7 +365,7 @@ class TabAdjustment extends Component {
             </div>
           </div>
         </div>
-        {currentRole !== 'consultor-level-3' ?
+        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -417,7 +407,7 @@ class TabAdjustment extends Component {
           </div> : null
         }
 
-        {currentRole !== 'consultor-level-3' ?
+        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' ?
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
@@ -505,10 +495,10 @@ class TabAdjustment extends Component {
     )
   }
 
-getProductsSelected () {
-  let p = _.groupBy(Array.from(this.state.selectedCheckboxes), 'productId')
-  return _.size(p)
-}
+  getProductsSelected () {
+    let p = _.groupBy(Array.from(this.state.selectedCheckboxes), 'productId')
+    return _.size(p)
+  }
 
   async onClickButtonPlus (type) {
     if(this.state.selectedCheckboxes.size === 0){
@@ -642,6 +632,7 @@ getProductsSelected () {
       row.adjustmentForDisplay = row.newAdjustment
 
       row.edited = true
+      row.wasEdited = true
 
       if (row.isLimit) {
         isLimited = true
@@ -659,7 +650,7 @@ getProductsSelected () {
       if (rowAux.length > 0) {
         const res = await api.post(url, rowAux)
       }
-      if (isLimited && currentRole === 'manager-level-1') {
+      if (isLimited && (currentRole === 'manager-level-1' || currentRole === 'manager-level-2')) {
         this.notify(
           (<p>
             <span className='icon'>
@@ -671,12 +662,7 @@ getProductsSelected () {
           toast.TYPE.WARNING
         )
       } else {
-        if(currentRole === 'manager-level-2' && isLimited){
-          this.notify('¡Ajustes fuera de rango guardados!', 5000, toast.TYPE.WARNING)
-        }
-        else{
-          this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
-        }
+        this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
       }
       this.props.pendingDataRows(pendingDataRows)
 
@@ -715,7 +701,7 @@ getProductsSelected () {
 
     this.props.loadCounters()
 
-    if (currentRole !== 'manager-level-1' && limitedRows.length) {
+    if (currentRole !== 'manager-level-1' && currentRole !== 'manager-level-2' && limitedRows.length) {
       this.props.handleAdjustmentRequest(limitedRows)
     }
 
@@ -857,7 +843,8 @@ getProductsSelected () {
     try {
       let res = await api.post(url, {
         ...this.state.formData,
-        cycle: cycle.uuid
+        cycle: cycle.uuid,
+        prices: this.state.prices
       })
 
       if (res.data) {
@@ -873,7 +860,12 @@ getProductsSelected () {
         this.setState({
           salesTable: res.data,
           totalAdjustment: totalAdjustment,
-          totalPrediction: totalPrediction
+          totalPrediction: totalPrediction,
+          reloadGraph: true
+        }, () => {
+            this.setState({
+              reloadGraph: false
+            })
         })
       }
     } catch (e) {
@@ -939,12 +931,6 @@ getProductsSelected () {
   }
 
   async downloadReport () {
-    if (!this.state.formData.salesCenter) {
-      this.notify('¡Es necesario filtrar por centro de venta para obtener un reporte!', 5000, toast.TYPE.ERROR)
-
-      return
-    }
-
     this.setState({isDownloading: ' is-loading'})
 
     let min
@@ -1036,12 +1022,11 @@ getProductsSelected () {
         }
 
         filters.push(
-          <div key={key} className='level-item'>
+          <div key={key} className='column is-narrow'>
             <Select
               label={this.findName(key)}
               name={key}
               value={this.state.formData[key]}
-              placeholder='Todas'
               optionValue='uuid'
               optionName='name'
               options={element}
@@ -1053,6 +1038,62 @@ getProductsSelected () {
     }
     return filters
   }
+
+  showBy(prices) {
+    this.setState({ prices },
+      () => {
+        this.getSalesTable()
+      })
+  }
+
+  getCallback() {
+    if (this.state.prices) {
+      return function (label, index, labels) {
+        return '$' + label.toFixed(2).replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+      }
+    }
+    else {
+      return function (label, index, labels) {
+        return label.toFixed(2).replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+      }
+    }
+  }
+
+  getTooltipCallback() {
+    if (this.state.prices) {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = '$' + tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + yVal
+      }
+    }
+    else {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + yVal
+      }
+    }
+  }
+
 
   render () {
     let banner
@@ -1189,12 +1230,16 @@ getProductsSelected () {
       }
     ]
 
+    let labelCallback = this.getCallback()
+    let tooltipCallback = this.getTooltipCallback()
+
+
     return (
       <div>
         {banner}
         <div className='section level selects'>
-          <div className='level-left'>
-            <div className='level-item'>
+          <div className='columns is-multiline is-mobile'>
+            <div className='column is-narrow'>
               <Select
                 label='Ciclo'
                 name='cycle'
@@ -1206,12 +1251,12 @@ getProductsSelected () {
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
               />
             </div>
-
-          {this.state.filters &&
-            this.makeFilters()
-          }
+            {this.state.filters &&
+              this.makeFilters()
+            }
           </div>
         </div>
+
 
         <div className='level indicators deep-shadow'>
           <div className='level-item has-text-centered'>
@@ -1227,10 +1272,15 @@ getProductsSelected () {
               <p className='has-text-weight-semibold'>Predicción</p>
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalPrediction ?
-                '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
-                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                })
-                : null
+                  this.state.prices ?
+                    '$' + this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })
+                    :
+                    this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })
+                  : null
                 }
               </h1>
             </div>
@@ -1242,11 +1292,16 @@ getProductsSelected () {
               <p className='has-text-weight-semibold'>Ajuste</p>
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalAdjustment ?
-                '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
-                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                })
-                : null
-              }
+                  this.state.prices ?
+                    '$' + this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })
+                    :
+                    this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })
+                  : null
+                }
               </h1>
             </div>
           </div>
@@ -1267,6 +1322,47 @@ getProductsSelected () {
 
 
         <div className={'indicators-collapse ' + this.state.indicators}>
+          <div className='section level'>
+              <div className='level-item'>
+                <div className="field">
+                  <label className='label'>Mostrar por: </label>
+                  <div className='control'>
+
+                    <div className="field is-grouped">
+                      <div className='control'>
+
+                        <input
+                          className="is-checkradio is-info is-small"
+                          id='showByquantityAd'
+                          type="radio"
+                          name='showByAd'
+                          checked={!this.state.prices}
+                          disabled={this.state.waitingData}
+                          onChange={() => this.showBy(false)} />
+                        <label htmlFor='showByquantityAd'>
+                          <span title='Cantidad'>Cantidad</span>
+                        </label>
+                      </div>
+
+                      <div className='control'>
+                        <input
+                          className="is-checkradio is-info is-small"
+                          id='showBypriceAd'
+                          type="radio"
+                          name='showByAd'
+                          checked={this.state.prices}
+                          disabled={this.state.waitingData}
+                          onChange={() => this.showBy(true)} />
+                        <label htmlFor='showBypriceAd'>
+                          <span title='Precio'>Precio</span>
+                        </label>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+          </div>
           <div className='columns'>
             <div className='column is-5-desktop is-4-widescreen is-4-fullhd is-offset-1-fullhd is-offset-1-desktop'>
               <div className='panel sales-table'>
@@ -1293,12 +1389,12 @@ getProductsSelected () {
                                   {item.period[0]}
                                 </td>
                                 <td className='has-text-centered'>
-                                  $ {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
+                                  {this.state.prices && '$'} {item.prediction.toFixed(2).replace(/./g, (c, i, a) => {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
                                 <td className='has-text-centered'>
-                                  $ {item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                                  {this.state.prices && '$'} {item.adjustment.toFixed(2).replace(/./g, (c, i, a) => {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
@@ -1312,12 +1408,12 @@ getProductsSelected () {
                               Total
                             </th>
                             <th className='has-text-info has-text-centered'>
-                              $ {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
+                              {this.state.prices && '$'} {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>
                             <th className='has-text-teal has-text-centered'>
-                              $ {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                              {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>
@@ -1344,6 +1440,7 @@ getProductsSelected () {
                         data={graphData}
                         maintainAspectRatio={false}
                         responsive={true}
+                        reloadGraph={this.state.reloadGraph}                        
                         labels={this.state.salesTable.map((item, key) => { return 'Periodo ' + item.period[0] })}
                         tooltips={{
                           mode: 'index',
@@ -1352,18 +1449,7 @@ getProductsSelected () {
                           bodyFontFamily: "'Roboto', sans-serif",
                           bodyFontStyle: 'bold',
                           callbacks: {
-                            label: function (tooltipItem, data) {
-                              let label = ' '
-                              label += data.datasets[tooltipItem.datasetIndex].label || ''
-
-                              if (label) {
-                                label += ': '
-                              }
-                              let yVal = '$' + tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })
-                              return label + yVal
-                            }
+                            label: tooltipCallback
                           }
                         }}
                         scales={
@@ -1379,11 +1465,7 @@ getProductsSelected () {
                                   display: false
                                 },
                                 ticks: {
-                                  callback: function (label, index, labels) {
-                                    return '$' + label.toFixed(2).replace(/./g, (c, i, a) => {
-                                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                                    })
-                                  },
+                                  callback: labelCallback,
                                   fontSize: 11
                                 },
                                 display: true

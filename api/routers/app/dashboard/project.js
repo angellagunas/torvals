@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const _ = require('lodash')
 const ObjectId = require('mongodb').ObjectID
 
-const { DataSetRow, Project, Role, SalesCenter, Channel } = require('models')
+const { DataSetRow, Project, Role, CatalogItem, Rule } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -24,6 +24,13 @@ module.exports = new Route({
     const projects = await Project.find(filters)
 
     const datasets = projects.map(item => { return item.mainDataset })
+    const currentRule = await Rule.findOne({
+      organization: ctx.state.organization,
+      isDeleted: false,
+      isCurrent: true
+    }).populate('catalogs')
+
+    let matchCatalogs = currentRule.catalogs.map(item => { return item.slug })
 
     var currentRole
     var currentOrganization
@@ -39,10 +46,19 @@ module.exports = new Route({
       }
     }
 
-    var matchCond
+    var matchCond = {
+      '$match': {
+        'dataset': {
+          '$in': datasets
+        },
+        'isDeleted': false
+      }
+    }
+
     if (
         currentRole.slug === 'manager-level-1' ||
         currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'manager-level-3' ||
         currentRole.slug === 'consultor-level-2' ||
         currentRole.slug === 'consultor-level-3'
     ) {
@@ -51,34 +67,13 @@ module.exports = new Route({
         userGroups.push(ObjectId(g))
       }
 
-      const salesCenters = await SalesCenter.find({groups: {$elemMatch: { '$in': userGroups }}}).select({'_id': 1})
-      const matchSalesCenters = salesCenters.map(item => { return item._id })
+      const catalogItems = await CatalogItem.filterByUserRole(
+          { },
+          currentRole.slug,
+          user
+        )
 
-      const channels = await Channel.find({groups: {$elemMatch: { '$in': userGroups }}}).select({'_id': 1})
-      const matchChannels = channels.map(item => { return item._id })
-      matchCond = {
-        '$match': {
-          'dataset': {
-            '$in': datasets
-          },
-          'isDeleted': false,
-          'salesCenter': {
-            $in: matchSalesCenters
-          },
-          'channel': {
-            $in: matchChannels
-          }
-        }
-      }
-    } else {
-      matchCond = {
-        '$match': {
-          'dataset': {
-            '$in': datasets
-          },
-          'isDeleted': false
-        }
-      }
+      matchCond['$match']['catalogItems'] = { $in: catalogItems }
     }
 
     var statement = [
@@ -91,14 +86,8 @@ module.exports = new Route({
       {
         '$group': {
           '_id': null,
-          'channel': {
-            '$addToSet': '$channel'
-          },
-          'salesCenter': {
-            '$addToSet': '$salesCenter'
-          },
           'product': {
-            '$addToSet': '$product'
+            '$addToSet': '$newProduct'
           },
           'catalogItem': {
             '$addToSet': '$catalogItems'
@@ -107,23 +96,7 @@ module.exports = new Route({
       },
       {
         '$lookup': {
-          'from': 'channels',
-          'localField': 'channel',
-          'foreignField': '_id',
-          'as': 'channels'
-        }
-      },
-      {
-        '$lookup': {
-          'from': 'salescenters',
-          'localField': 'salesCenter',
-          'foreignField': '_id',
-          'as': 'salesCenters'
-        }
-      },
-      {
-        '$lookup': {
-          'from': 'products',
+          'from': 'catalogitems',
           'localField': 'product',
           'foreignField': '_id',
           'as': 'products'
@@ -143,20 +116,19 @@ module.exports = new Route({
 
     if (datasetRow.length === 0) {
       ctx.body = {
-        channels: [],
-        products: [],
-        salesCenters: [],
         catalogItems: []
       }
 
       return
     }
 
+    const catalogs = datasetRow[0].catalogItems.filter(item => {
+      return matchCatalogs.indexOf(item.type) >= 0
+    })
+
     ctx.body = {
-      channels: datasetRow[0].channels,
       products: datasetRow[0].products,
-      salesCenters: datasetRow[0].salesCenters,
-      catalogItems: datasetRow[0].catalogItems
+      catalogItems: catalogs
     }
   }
 })

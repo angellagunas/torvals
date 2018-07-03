@@ -73,8 +73,8 @@ class ProjectDetail extends Component {
       })
     }
 
-    await this.hasSaleCenter()
-    await this.hasChannel()
+    // await this.hasSaleCenter()
+    // await this.hasChannel()
     await this.load()
 
     this.setState({
@@ -716,6 +716,7 @@ class ProjectDetail extends Component {
                 load={this.load.bind(this)}
                 canEdit={canEdit}
                 editable
+                isAdmin={testRoles('orgadmin')}
                 submitHandler={(data) => this.submitHandler(data)}
                 errorHandler={(data) => this.errorHandler(data)}
                 finishUp={(data) => this.finishUpHandler(data)}

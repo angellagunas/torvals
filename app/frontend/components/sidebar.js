@@ -4,8 +4,6 @@ import tree from '~core/tree'
 import classNames from 'classnames'
 
 import Dashboard from '../pages/dashboard'
-import Users from '../pages/users/list'
-import Groups from '../pages/groups/list'
 import Projects from '../pages/projects/list'
 import Calendar from '../pages/calendar'
 import UsersImport from '../pages/import/users'
@@ -14,6 +12,9 @@ import HistoricReport from '../pages/reports/historic'
 import StatusReport from '../pages/reports/status'
 import DownloadReport from '../pages/reports/download'
 import Prices from '../pages/prices/list'
+import OrgRules from '../pages/org-rules'
+import UsersGroups from '../pages/users-groups'
+import Roles from '../pages/roles/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -94,36 +95,39 @@ class Sidebar extends Component {
 
   catalogs () {
     let rules = this.state.rules
-    return rules.catalogs.map(item => {
-      let config =
-        {
-          name: item.name,
-          path: '/catalogs/' + item.slug,
-          title: item.name,
-          breadcrumbs: true,
-          breadcrumbConfig: {
-            path: [
-              {
-                path: '/',
-                label: 'Inicio',
-                current: false
-              },
-              {
-                path: '/catalogs/' + item.slug,
-                label: 'Catalogos',
-                current: true
-              }
-            ],
-            align: 'left'
-          },
-          branchName: item.slug,
-          titleSingular: item.name,
-          baseUrl: '/app/catalogItems/' + item.slug,
-          detailUrl: '/catalogs/' + item.slug
-        }
 
-      return Catalogs.opts(config).asSidebarItem()
-    })
+    return rules.catalogs.map(item => {
+      if (item.slug !== 'precio') {
+        let config =
+          {
+            name: item.name,
+            path: '/catalogs/' + item.slug,
+            title: item.name,
+            breadcrumbs: true,
+            breadcrumbConfig: {
+              path: [
+                {
+                  path: '/',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/catalogs/' + item.slug,
+                  label: 'Catalogos',
+                  current: true
+                }
+              ],
+              align: 'left'
+            },
+            branchName: item.slug,
+            titleSingular: item.name,
+            baseUrl: '/app/catalogItems/' + item.slug,
+            detailUrl: '/catalogs/' + item.slug
+          }
+
+        return Catalogs.opts(config).asSidebarItem()
+      }
+    }).filter(item => item)
   }
 
   getMenuItems () {
@@ -132,38 +136,39 @@ class Sidebar extends Component {
 
         Dashboard.asSidebarItem(),
         {
-          title: 'Administra tu equipo',
-          icon: 'users',
+          title: 'Administración',
+          icon: 'id-card-o',
           to: '/manage',
           roles: 'orgadmin, admin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
             {
-              title: 'Mi Organización',
-              icon: 'user',
+              title: 'Organización',
+              icon: 'user-circle-o',
               roles: 'orgadmin, admin, analyst, manager-level-3',
               to: '/manage/organizations/' + tree.get('organization').uuid
             },
-            Groups.asSidebarItem(),
-            Users.asSidebarItem()
+            OrgRules.asSidebarItem(),
+            UsersGroups.asSidebarItem(),
+            Roles.asSidebarItem(),
+            {
+              title: 'Catálogos',
+              icon: 'book',
+              to: '/catalogs',
+              roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
+              openedLvl2: false,
+              dropdown: [
+                Prices.asSidebarItem(),
+                ...this.catalogs()
+              ]
+            }
           ]
         },
         Projects.asSidebarItem(),
         Calendar.asSidebarItem(),
         {
-          title: 'Catálogos',
-          icon: 'file',
-          to: '/catalogs',
-          roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
-          opened: false,
-          dropdown: [
-            Prices.asSidebarItem(),
-            ...this.catalogs()
-          ]
-        },
-        {
           title: 'Cargar Datos',
-          icon: 'file-o',
+          icon: 'upload',
           to: '/import',
           roles: 'orgadmin, admin, manager-level-3',
           dropdown: [

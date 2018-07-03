@@ -6,23 +6,19 @@ const http = require('http')
 const { clearDatabase, createUser } = require('../utils')
 const api = require('api/')
 const request = require('supertest')
-const {DataSet, Organization, User} = require('models')
+const {DataSet, Organization, User, Rule} = require('models')
 
 const rule = {
   startDate: '2018-01-01T00:00:00',
   cycleDuration: 1,
   cycle: 'M',
-  period: 'M',
+  period: 'w',
   periodDuration: 1,
   season: 12,
   cyclesAvailable:6,
-  catalogs: [
-    {
-      name: 'producto',
-      slug: 'producto'
-    }
-  ],
   ranges: [0, 0, 0, 0, 0, 0],
+  rangesLvl2: [0, 0, 0, 0, 0, 0],
+  catalogs: [{slug: 'producto', name: 'producto'}],
   takeStart: true,
   consolidation: 26,
   forecastCreation: 1,
@@ -58,9 +54,9 @@ describe('organizations/rules/:uuid', () => {
         .set('Referer', 'http://test-org.orax.com')
         .expect(200)
 
-      const newOrg = await Organization.findOne({_id: org._id})
+      const newRule = await Rule.findOne({organization: org._id})
 
-      assert.notExists(newOrg.rules.extraField)
+      assert.notExists(newRule.extraField)
     })
   })
 

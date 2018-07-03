@@ -1,5 +1,5 @@
 const lov = require('lov')
-const cloneMainDataset = require('queues/clone-main-dataset')
+const updateRules = require('queues/clone-update-rules-main-dataset')
 const Route = require('lib/router/route')
 
 const { Project, Rule } = require('models')
@@ -42,9 +42,19 @@ module.exports = new Route({
           status = 'configuring'
         }
 
+        let newCols = dataset.columns
+
+        for (let col of newCols) {
+          for (let key of Object.keys(col)) {
+            if (key === 'name') continue
+            col[key] = false
+          }
+        }
+
         dataset.set({
           rule: rule,
-          status: status
+          status: status,
+          columns: newCols
         })
 
         await dataset.save()
@@ -67,7 +77,7 @@ module.exports = new Route({
 
     await project.save()
 
-    cloneMainDataset.add({
+    updateRules.add({
       uuid: project.uuid
     })
 

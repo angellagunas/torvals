@@ -1,7 +1,7 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
 
-const {DataSet, AdjustmentRequest, SalesCenter, Channel, Role} = require('models')
+const {DataSet, AdjustmentRequest, Role, CatalogItem} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -13,7 +13,7 @@ module.exports = new Route({
       'uuid': datasetId,
       'isDeleted': false,
       'organization': ctx.state.organization
-    })
+    }).populate('rule')
 
     ctx.assert(dataset, 404, 'DataSet not found')
 
@@ -47,19 +47,10 @@ module.exports = new Route({
     let catalogs = await DataSet.aggregate(statement)
     if (catalogs) { catalogs = catalogs[0].catalogs }
 
+    let catalogItemsFilters = []
     var filters = {}
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
-        continue
-      }
-
-      if (filter === 'salesCenter') {
-        const salesCenter = await SalesCenter.findOne({'uuid': ctx.request.query[filter]})
-
-        if (salesCenter) {
-          filters['salesCenter'] = ObjectId(salesCenter._id)
-        }
-
         continue
       }
 
@@ -68,7 +59,8 @@ module.exports = new Route({
       })
 
       if (isCatalog) {
-        filters['catalogItems'] = ObjectId(ctx.request.query[filter])
+        const cItem = await CatalogItem.findOne({uuid: ctx.request.query[filter]})
+        catalogItemsFilters.push(cItem.id)
         continue
       }
 
@@ -91,30 +83,25 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
+    if (catalogItemsFilters.length > 0) {
+      let catalogItems = await CatalogItem.filterByUserRole(
+        { _id: { $in: catalogItemsFilters } },
+        currentRole.slug,
+        user
+      )
+      filters['catalogItems'] = { '$all': catalogItems }
+    }
+
     if (
       currentRole.slug === 'consultor-level-3' || currentRole.slug === 'manager-level-3'
     ) {
-      var groups = user.groups
-      if (!filters['salesCenter']) {
-        var salesCenters = []
-
-        salesCenters = await SalesCenter.find({
-          groups: {$in: groups},
-          organization: ctx.state.organization._id
-        })
-
-        filters['salesCenter'] = {$in: salesCenters}
-      }
-
-      if (!filters['channel']) {
-        var channels = []
-
-        channels = await Channel.find({
-          groups: { $in: groups },
-          organization: ctx.state.organization._id
-        })
-
-        filters['channel'] = {$in: channels}
+      if (catalogItemsFilters.length === 0) {
+        let catalogItems = await CatalogItem.filterByUserRole(
+          { },
+          currentRole.slug,
+          user
+        )
+        filters['catalogItems'] = { '$in': catalogItems }
       }
     }
 
@@ -126,7 +113,9 @@ module.exports = new Route({
         'requestedBy',
         'approvedBy',
         'rejectedBy',
-        {path: 'datasetRow', populate: ['product', 'salesCenter']}
+        'newProduct',
+        'catalogItems',
+        'datasetRow'
       ],
       sort: ctx.request.query.sort || '-dateCreated'
     })
@@ -134,6 +123,7 @@ module.exports = new Route({
     adjustmentRequests.data = adjustmentRequests.data.map(item => {
       return {
         ...item.toPublic(),
+        product: item.newProduct,
         requestedBy: item.requestedBy.toPublic(),
         approvedBy: item.approvedBy ? item.approvedBy.toPublic() : undefined,
         rejectedBy: item.rejectedBy ? item.rejectedBy.toPublic() : undefined,

@@ -37,9 +37,9 @@ class StatusRepórt extends Component {
         minutes: ''
       },
       users: {
-        ready: 0,
-        process: 0,
-        alert: 0
+        finishedUsers: [],
+        inProgressUsers: [],
+        inactiveUsers: []
       },
       filterReady: false,
       filterProgress: false,
@@ -109,6 +109,10 @@ class StatusRepórt extends Component {
       .map(item => {
         return {...item, name: moment.utc(item.dateStart).format('MMMM') + ' - ' + item.cycle}
       })      
+
+      cycles = cycles.slice(-this.rules.cyclesAvailable)
+
+      cycles = _.orderBy(cycles, 'dateStart', 'asc')
 
       let formData = this.state.formData
       formData.cycle = cycles[0].cycle
@@ -212,11 +216,7 @@ class StatusRepórt extends Component {
         }
       )
       this.setState({
-        users:{
-          ready: res.data.finished,
-          process: res.data.inProgress,
-          alert: res.data.inactive
-        }
+        users: res.data
       })
     } catch (e) {
       console.log(e)
@@ -261,10 +261,25 @@ class StatusRepórt extends Component {
           }
         }
       }
+
+      catalogItems = catalogItems.filter(item => item)
+
+      let users = this.state.formData.user ? [this.state.formData.user] : undefined
+      if(this.state.filterReady){
+        users = this.state.users.finishedUsers
+      }
+      else if (this.state.filterProgress) {
+        users = this.state.users.inProgressUsers
+      }
+      else if (this.state.filterInactive) {
+        users = this.state.users.inactiveUsers
+      } 
+      
+      
       let data = await api.post(
         url,
         {
-          users: this.state.formData.user ? [this.state.formData.user] : undefined,
+          users: users && users.length > 0 ? users : undefined,
           catalogItems: catalogItems.length > 0 ? catalogItems : undefined,
           cycles: [cycle.uuid],
           projects: [this.state.projectSelected.uuid]
@@ -369,43 +384,8 @@ class StatusRepórt extends Component {
 
   async searchDatarows() {
     if (this.state.searchTerm === '') {
-      let data = []
-
-      if (this.state.filterReady) {
-        data = [
-          ...data,
-          ...this.state.dataRows.filter(item => {
-            if (item.status === 'finished') {
-              return true
-            }
-            return false
-          })
-        ]
-      }
-      else if (this.state.filterProgress) {
-        data = [
-          ...data,
-          ...this.state.dataRows.filter(item => {
-            if (item.status === 'in-progress') {
-              return true
-            }
-            return false
-          })
-        ]
-      }
-      else if (this.state.filterInactive) {
-        data = [
-          ...data,
-          ...this.state.dataRows.filter(item => {
-            if (item.status === 'inactive') {
-              return true
-            }
-            return false
-          })
-        ]
-      }
       this.setState({
-        filteredData: data.length > 0 ? data : this.state.dataRows
+        filteredData: this.state.dataRows
       })
       return
     }
@@ -419,43 +399,9 @@ class StatusRepórt extends Component {
 
       return false
     })
-
-    if (this.state.filterReady) {
-      data = [
-        ...data,
-        ...items.filter(item => {
-          if (item.status === 'finished') {
-            return true
-          }
-          return false
-        })
-      ]
-    }
-    else if (this.state.filterProgress) {
-      data = [
-        ...data,
-        ...items.filter(item => {
-          if (item.status === 'in-progress') {
-            return true
-          }
-          return false
-        })
-      ]
-    }
-    else if (this.state.filterInactive) {
-      data = [
-        ...data,
-        ...items.filter(item => {
-          if (item.status === 'inactive') {
-            return true
-          }
-          return false
-        })
-      ]
-    }
     
     await this.setState({
-      filteredData: data.length > 0 ? data : items
+      filteredData: items
     })
   }
 
@@ -574,7 +520,7 @@ class StatusRepórt extends Component {
         filterProgress: false,
         filterInactive: false
       }, () => {
-        this.searchDatarows()
+        this.getDataRows()
       })
     }
     else if (type === 2) {
@@ -583,7 +529,7 @@ class StatusRepórt extends Component {
         filterProgress: !this.state.filterProgress,
         filterInactive: false
       }, () => {
-        this.searchDatarows()
+        this.getDataRows()
       })
     }
     else if (type === 3) {
@@ -592,7 +538,7 @@ class StatusRepórt extends Component {
         filterProgress: false,
         filterInactive: !this.state.filterInactive
       }, () => {
-        this.searchDatarows()
+        this.getDataRows()
       })
     }
   }
@@ -661,7 +607,7 @@ class StatusRepórt extends Component {
                     </span>
                   </div>
                   <div className='level-item'>
-                    <p><strong>{this.state.users.ready} Usuarios</strong></p>
+                    <p><strong>{this.state.users.finishedUsers.length} Usuarios</strong></p>
                     <p>Ajustes finalizados</p>
                   </div>
                 </div>
@@ -678,7 +624,7 @@ class StatusRepórt extends Component {
                     </span>
                   </div>
                   <div className='level-item'>
-                    <p><strong>{this.state.users.process} Usuarios</strong></p>
+                    <p><strong>{this.state.users.inProgressUsers.length} Usuarios</strong></p>
                     <p>Ajustes en proceso</p>
                   </div>
                 </div>
@@ -695,7 +641,7 @@ class StatusRepórt extends Component {
                     </span>
                   </div>
                   <div className='level-item'>
-                    <p><strong>{this.state.users.alert} Usuarios</strong></p>
+                    <p><strong>{this.state.users.inactiveUsers.length} Usuarios</strong></p>
                     <p>Sin ajustes</p>
                   </div>
                 </div>
@@ -785,6 +731,6 @@ export default Page({
   validate: loggedIn,
   component: StatusRepórt,
   title: 'Status de proyecto',
-  icon: 'user',
+  icon: 'calendar-check-o',
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'  
 })

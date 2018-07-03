@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const {User, Project} = require('models')
+const { Project, Role, User } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -11,15 +11,18 @@ module.exports = new Route({
     email: lov.string().email().required()
   }),
   handler: async function (ctx) {
-    var userId = ctx.params.uuid
-    var data = ctx.request.body
+    let userId = ctx.params.uuid
+    let data = ctx.request.body
 
-    const user = await User.findOne({'uuid': userId})
+    const user = await User.findOne({ 'uuid': userId })
     ctx.assert(user, 404, 'Usuario no encontrado')
 
-    user.set({name: data.name, isAdmin: data.isAdmin})
+    user.set({
+      name: data.name,
+      isAdmin: data.isAdmin
+    })
 
-    var org = user.organizations.find(e => {
+    let org = user.organizations.find(e => {
       return String(e.organization) === String(ctx.state.organization._id)
     })
     if (data.project) {
@@ -28,7 +31,11 @@ module.exports = new Route({
       org.defaultProject = project
     }
 
-    org.role = data.role
+    const role = await Role.findOne({uuid: data.role })
+    ctx.assert(user, 404, 'Role no encontrado')
+
+    data.role = role._id
+    org.role = role
 
     await org.save()
     await user.save()

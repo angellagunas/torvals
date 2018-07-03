@@ -39,7 +39,19 @@ class Dashboard extends Component {
   }
 
   componentWillMount () {
-      this.getProjects()
+    this.getProjects()
+
+    var userCursor = this.context.tree.select('user')
+
+    userCursor.on('update', () => {
+      this.forceUpdate()
+    })
+  }
+
+  componentWillUnmount () {
+    var ruleCursor = tree.select('rule')
+
+    ruleCursor.on('update', () => {})
   }
 
   moveTo (route) {
@@ -63,7 +75,8 @@ class Dashboard extends Component {
     let url = '/app/projects'
 
     let res = await api.get(url,{
-      showOnDashboard: true
+      showOnDashboard: true,
+      outdated: false
     })
 
     let activeProjects = res.data.filter(item => { return item.mainDataset })
@@ -158,7 +171,8 @@ class Dashboard extends Component {
           date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
           date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
           projects: Object.values(this.selectedProjects).map(p => p.uuid),
-          catalogItems: Object.keys(this.selectedItems)
+          catalogItems: Object.keys(this.selectedItems),
+          prices: this.state.prices
         })
 
         let totalPSale = 0
@@ -205,8 +219,8 @@ class Dashboard extends Component {
           mape,
           topValue,
           reloadGraph: true,
-          startPeriod: activePeriod[0],
-          endPeriod: activePeriod[activePeriod.length - 1],
+          startPeriod: moment.utc().startOf(this.rules.cycle).format('YYYY-MM-DD'),
+          endPeriod: moment.utc().endOf(this.rules.cycle).format('YYYY-MM-DD'),
           waitingData: false
         })
         setTimeout(() => {
@@ -239,7 +253,8 @@ class Dashboard extends Component {
         date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1 ]).startOf('month').format('YYYY-MM-DD'),
         date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
         projects: Object.values(this.selectedProjects).map(p => p.uuid),
-        catalogItems: Object.keys(this.selectedItems)
+        catalogItems: Object.keys(this.selectedItems),
+        prices: this.state.prices        
       })
       this.setState({
         productTable: res.data,
@@ -314,9 +329,10 @@ class Dashboard extends Component {
         'sortable': true,
         formatter: (row) => {
           if (row.prediction) {
-            return row.prediction.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.prediction.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+            return this.state.prices ? '$' + val : val
           }
         }
       },
@@ -327,7 +343,7 @@ class Dashboard extends Component {
         'sortable': true,
         formatter: (row) => {
           if (row.adjustment) {
-            return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.adjustment.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
           }
@@ -340,9 +356,10 @@ class Dashboard extends Component {
         'sortable': true,
         formatter: (row) => {
           if (row.sale) {
-            return row.sale.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.sale.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+            return this.state.prices ? '$' + val : val
           }
         }
       },
@@ -353,9 +370,10 @@ class Dashboard extends Component {
         'sortable': true,
         formatter: (row) => {
           if(row.previousSale){
-            return row.previousSale.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.previousSale.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+            return this.state.prices ? '$' + val : val
           }
         }
       },
@@ -702,10 +720,80 @@ class Dashboard extends Component {
     })
   }
 
+
+  showBy(prices){
+    this.setState({ prices }, 
+      () => {
+        this.getGraph()
+        this.getProductTable()
+      })
+  }
+
+  getCallback() {
+    if (this.state.prices) {
+      return function (label, index, labels) {
+        let val = ''
+        if (label <= 999) {
+          val = label
+        } else if (label >= 1000 && label <= 999999) {
+          val = (label / 1000) + 'K'
+        } else if (label >= 1000000 && label <= 999999999) {
+          val = (label / 1000000) + 'M'
+        }
+        return '$' + val 
+      }
+    }
+    else{
+      return function (label, index, labels) {
+        if (label <= 999) {
+          return label
+        } else if (label >= 1000 && label <= 999999) {
+          return (label / 1000) + 'K'
+        } else if (label >= 1000000 && label <= 999999999) {
+          return (label / 1000000) + 'M'
+        }
+      }
+    }
+  }
+
+  getTooltipCallback() {
+    if (this.state.prices) {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + '$' + yVal
+      }
+    }
+    else {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + yVal
+      }
+    }
+  }
+
   render () {
     const user = this.context.tree.get('user')
 
-    if (!user.currentOrganization.isConfigured) {
+    let callbackLabels = this.getCallback()
+    let tooltipCallback = this.getTooltipCallback()
+
+    if (!user.currentOrganization.isConfigured && user.currentRole.slug === 'orgadmin') {
       return(
         <Wizard rules={this.rules} org={user.currentOrganization}/>
       )
@@ -875,23 +963,58 @@ class Dashboard extends Component {
                   </div>
                   <div className='indicators'>
                     <p className='indicators-title'>Venta total</p>
-                    <p className='indicators-number has-text-success'>{this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                    <p className='indicators-number has-text-success'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          :
+                          this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
                     <p className='indicators-title'>Venta año anterior</p>
-                    <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                    <p className='indicators-number has-text-danger'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          : this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
 
                     <p className='indicators-title'>Ajuste total</p>
-                    <p className='indicators-number has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                    <p className='indicators-number has-text-teal'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          :
+                          this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
 
                     <p className='indicators-title'>Predicción total</p>
-                    <p className='indicators-number has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                    <p className='indicators-number has-text-info'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          :
+                          this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
                   </div>
                 </div>
                 <div className='column card'>
@@ -921,18 +1044,7 @@ class Dashboard extends Component {
                           bodyFontFamily: "'Roboto', sans-serif",
                           bodyFontStyle: 'bold',
                           callbacks: {
-                            label: function (tooltipItem, data) {
-                              let label = ' '
-                              label += data.datasets[tooltipItem.datasetIndex].label || ''
-
-                              if (label) {
-                                label += ': '
-                              }
-                              let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })
-                              return label + yVal
-                            }
+                            label: tooltipCallback
                           }
                         }}
                         labels={this.state.graphData.map((item) => { return item.date })}
@@ -954,15 +1066,7 @@ class Dashboard extends Component {
                             yAxes: [
                               {
                                 ticks: {
-                                  callback: function (label, index, labels) {
-                                    if (label <= 999) {
-                                      return label
-                                    } else if (label >= 1000 && label <= 999999) {
-                                      return (label / 1000) + 'K'
-                                    } else if (label >= 1000000 && label <= 999999999) {
-                                      return (label / 1000000) + 'M'
-                                    }
-                                  },
+                                  callback: callbackLabels,
                                   fontSize: 11
                                 },
                                 gridLines: {
@@ -973,7 +1077,7 @@ class Dashboard extends Component {
                             ]
                           }
                         }
-                        annotation={this.state.startPeriod && this.state.startPeriod.date &&
+                        annotation={this.state.startPeriod  &&
                           {
                             annotations: [
                               {
@@ -981,8 +1085,8 @@ class Dashboard extends Component {
                                 type: 'box',
                                 xScaleID: 'x-axis-0',
                                 yScaleID: 'y-axis-0',
-                                xMin: this.state.startPeriod.date,
-                                xMax: this.state.endPeriod.date,
+                                xMin: this.state.startPeriod,
+                                xMax: this.state.endPeriod,
                                 yMin: 0,
                                 yMax: this.state.topValue,
                                 backgroundColor: 'rgba(233, 238, 255, 0.5)',
@@ -995,12 +1099,12 @@ class Dashboard extends Component {
                                 type: 'line',
                                 mode: 'vertical',
                                 scaleID: 'x-axis-0',
-                                value: this.state.startPeriod.date,
+                                value: this.state.startPeriod,
                                 borderColor: 'rgba(233, 238, 255, 1)',
                                 borderWidth: 1,
                                 label: {
                                   backgroundColor: 'rgb(233, 238, 255)',
-                                  content: 'Periodo actual',
+                                  content: 'Ciclo actual',
                                   enabled: true,
                                   fontSize: 10,
                                   position: 'top',
@@ -1043,6 +1147,46 @@ class Dashboard extends Component {
                         </span>
                       </div>
                     </div>
+                  </div>
+
+                  <div className='level-item'>
+                    <div className="field">
+                      <label className='label'>Mostrar por: </label>
+                      <div className='control'>
+
+                        <div className="field is-grouped">
+                          <div className='control'>
+
+                            <input
+                              className="is-checkradio is-info is-small"
+                              id='showByquantity'
+                              type="radio"
+                              name='showBy'
+                              checked={!this.state.prices}
+                              disabled={this.state.waitingData}
+                              onChange={() => this.showBy(false)} />
+                            <label htmlFor='showByquantity'>
+                              <span title='Cantidad'>Cantidad</span>
+                            </label>
+                          </div>
+
+                          <div className='control'>
+                            <input
+                              className="is-checkradio is-info is-small"
+                              id='showByprice'
+                              type="radio"
+                              name='showBy'
+                              checked={this.state.prices}                              
+                              disabled={this.state.waitingData}
+                              onChange={() => this.showBy(true)} />
+                            <label htmlFor='showByprice'>
+                              <span title='Precio'>Precio</span>
+                            </label>
+                          </div>
+                          </div>
+
+                        </div>
+                      </div>
                   </div>
                 </div>
 
@@ -1165,7 +1309,7 @@ const branchedDashboard = branch({forecasts: 'forecasts'}, Dashboard)
 export default Page({
   path: '/dashboard',
   title: 'Dashboard',
-  icon: 'github',
+  icon: 'line-chart',
   exact: true,
   validate: loggedIn,
   component: branchedDashboard

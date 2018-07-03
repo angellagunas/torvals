@@ -31,7 +31,7 @@ catalogItemSchema.methods.toPublic = function () {
     groups: this.groups
   }
 
-  if (this.organization) { data.organization = this.organization.toPublic() }
+  if (this.organization.uuid) { data.organization = this.organization.toPublic() }
 
   return data
 }
@@ -47,7 +47,7 @@ catalogItemSchema.methods.toAdmin = function () {
     groups: this.groups
   }
 
-  if (this.organization) { data.organization = this.organization.toPublic() }
+  if (this.organization.uuid) { data.organization = this.organization.toPublic() }
 
   return data
 }

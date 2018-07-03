@@ -5,6 +5,7 @@ const moment = require('moment')
 const _ = require('lodash')
 
 const generateCycles = require('tasks/organization/generate-cycles')
+const getAnomalies = require('tasks/anomalies/get-anomalies')
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
 const {
@@ -15,7 +16,8 @@ const {
   CatalogItem,
   DataSetRow,
   Cycle,
-  Period
+  Period,
+  Anomaly
 } = require('models')
 
 const task = new Task(async function (argv) {
@@ -37,10 +39,11 @@ const task = new Task(async function (argv) {
     organization: project.organization._id,
     isDeleted: false
   })
-  if (!currentCatalogs) {
+
+  if (!currentCatalogs || currentCatalogs.length === 0) {
     currentCatalogs = []
     log.call('Catalogs not found. Creating...')
-    catalogs = [{
+    let catalogs = [{
       name: 'Producto',
       slug: 'producto'
     }, {
@@ -61,7 +64,6 @@ const task = new Task(async function (argv) {
     }
   }
 
-
   let rules = {
     startDate: moment().startOf('year').utc().format('YYYY-MM-DD'),
     cycleDuration: 1,
@@ -77,7 +79,8 @@ const task = new Task(async function (argv) {
     rangeAdjustment: 10,
     salesUpload: 3,
     catalogs: currentCatalogs,
-    ranges: [0, 0, 10, 20, 30, null]
+    ranges: [0, 0, 10, 20, 30, null],
+    version: 1
   }
 
   log.call('Verifying catalog items...')
@@ -158,12 +161,13 @@ const task = new Task(async function (argv) {
       if (!findChannel) {
         bulkOps.add({
           catalog: currentCatalogs.find((catalog) => {
-            return catalog.slug == 'canal'
+            return catalog.slug === 'canal'
           }),
           name: channel.name,
           externalId: channel.externalId,
           organization: project.organization._id,
-          groups: channel.groups
+          groups: channel.groups,
+          type: 'canal'
         })
       } else {
         existingCatalogs.push(findChannel._id)
@@ -176,12 +180,13 @@ const task = new Task(async function (argv) {
       if (!findSalesCenter) {
         bulkOps.add({
           catalog: currentCatalogs.find((catalog) => {
-            return catalog.slug == 'centro-de-venta'
+            return catalog.slug === 'centro-de-venta'
           }),
           name: salesCenter.name,
           externalId: salesCenter.externalId,
           organization: project.organization._id,
-          groups: salesCenter.groups
+          groups: salesCenter.groups,
+          type: 'centro-de-venta'
         })
       } else {
         existingCatalogs.push(findSalesCenter._id)
@@ -194,11 +199,12 @@ const task = new Task(async function (argv) {
       if (!findProduct) {
         bulkOps.add({
           catalog: currentCatalogs.find((catalog) => {
-            return catalog.slug == 'producto'
+            return catalog.slug === 'producto'
           }),
           name: product.name,
           externalId: product.externalId,
-          organization: project.organization._id
+          organization: project.organization._id,
+          type: 'producto'
         })
       } else {
         existingCatalogs.push(findProduct._id)
@@ -206,6 +212,7 @@ const task = new Task(async function (argv) {
     }
 
     bulkOps = Array.from(bulkOps)
+
     let catalogItemIds = await CatalogItem.insertMany(bulkOps)
     bulkOps = []
 
@@ -220,9 +227,15 @@ const task = new Task(async function (argv) {
 
     await dataset.save()
     await dataset.populate('catalogItems periods').execPopulate()
+    let newProducts = []
+
     for (let item of dataset.catalogItems) {
+      if (item.type === 'producto') newProducts.push(item)
       await item.populate('catalog').execPopulate()
     }
+
+    dataset.set({newProducts: newProducts})
+    await dataset.save()
 
     log.call('Saving DataSetRow periods...')
     for (let period of dataset.periods) {
@@ -277,19 +290,19 @@ const task = new Task(async function (argv) {
       } else if (catalogItem.catalog.slug === 'producto') {
         await DataSetRow.update({
           dataset: dataset._id,
-          [`apiData.${productExternalId.name}`]: catalogItem.externalId,
-          catalogItems: {$nin: [catalogItem._id]}
+          [`apiData.${productExternalId.name}`]: catalogItem.externalId
         }, {
           'catalogData.is_producto_name': catalogItem.name,
           'catalogData.is_producto_id': catalogItem.externalId,
-          $push: {
-            catalogItems: catalogItem._id
-          }
+          'newProduct': catalogItem._id
         }, {
           multi: true
         })
       }
     }
+
+    await Anomaly.deleteMany({project: project._id})
+    await getAnomalies.run({uuid: argv.uuid})
 
     log.call('Saving status as pendingRows')
     project.set({
