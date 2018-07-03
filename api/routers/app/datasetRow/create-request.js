@@ -35,7 +35,7 @@ module.exports = new Route({
       }
 
       var status = 'created'
-      if (currentRole.slug !== 'manager-level-1') {
+      if (currentRole.slug !== 'manager-level-1' && currentRole.slug !== 'manager-level-2') {
         status = 'approved'
       }
 
@@ -65,7 +65,7 @@ module.exports = new Route({
         adjustmentRequest.requestedBy = ctx.state.user
       }
 
-      if (currentRole.slug !== 'manager-level-1') {
+      if (currentRole.slug !== 'manager-level-1' && currentRole.slug !== 'manager-level-2') {
         adjustmentRequest.approvedBy = ctx.state.user._id
         adjustmentRequest.dateApproved = moment.utc()
         datasetRow.data.adjustment = adjustmentRequest.newAdjustment
