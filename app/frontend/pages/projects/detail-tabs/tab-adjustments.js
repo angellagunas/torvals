@@ -1323,7 +1323,6 @@ class TabAdjustment extends Component {
 
         <div className={'indicators-collapse ' + this.state.indicators}>
           <div className='section level'>
-            <div className='level-left'>
               <div className='level-item'>
                 <div className="field">
                   <label className='label'>Mostrar por: </label>
@@ -1363,7 +1362,6 @@ class TabAdjustment extends Component {
                   </div>
                 </div>
               </div>
-            </div>
           </div>
           <div className='columns'>
             <div className='column is-5-desktop is-4-widescreen is-4-fullhd is-offset-1-fullhd is-offset-1-desktop'>
