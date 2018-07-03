@@ -975,8 +975,8 @@ class HistoricReport extends Component {
                 </div>
                 
                 <div className='column is-12'>
-                  <div className="field">
-                    <label className='label'>Mostrar unidades por: </label>
+                  <div className="field has-pad-sides-5">
+                    <label className='label'>Mostrar por: </label>
                     <div className='control'>
 
                       <div className="field is-grouped">
