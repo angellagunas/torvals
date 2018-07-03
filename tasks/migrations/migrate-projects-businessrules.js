@@ -312,24 +312,36 @@ const task = new Task(async function (argv) {
     let datasetRows = await DataSetRow.find({
       dataset: dataset._id,
       newProduct: { $exists: false }
-    }).populate('product').cursor()
+    }).cursor()
 
     for (let row = await datasetRows.next(); row != null; row = await datasetRows.next()) {
-      let findProduct = _.find(catalogItems, ['externalId', row.product.externalId])
+      let prod = prodsObj[row.product]
+      let findProduct = _.find(newProducts, ['externalId', prod.externalId])
       if (!findProduct) {
-        bulkOps.add({
+        findProduct = await CatalogItem.create({
           catalog: currentCatalogs.find((catalog) => {
             return catalog.slug === 'producto'
           }),
-          name: product.name,
-          externalId: product.externalId,
+          name: prod.name,
+          externalId: prod.externalId,
           organization: project.organization._id,
           type: 'producto'
         })
       } else {
-        existingCatalogs.push(findProduct._id)
+        newProducts.push(findProduct._id)
       }
+
+      row.set({
+        'catalogData.is_producto_name': findProduct.name,
+        'catalogData.is_producto_id': findProduct.externalId,
+        'newProduct': findProduct._id
+      })
+
+      await row.save()
     }
+
+    dataset.set({newProducts: newProducts})
+    await dataset.save()
 
     await Anomaly.deleteMany({project: project._id})
     await getAnomalies.run({uuid: argv.uuid})
