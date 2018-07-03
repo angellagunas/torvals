@@ -25,7 +25,6 @@ const userSchema = new Schema({
     organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
     role: { type: Schema.Types.ObjectId, ref: 'Role' },
     defaultProject: { type: Schema.Types.ObjectId, ref: 'Project' }
-
   }],
   groups: [{ type: Schema.Types.ObjectId, ref: 'Group' }],
   profilePicture: {
@@ -119,6 +118,7 @@ userSchema.methods.createToken = async function (options = {}) {
 
   const token = await UserToken.create({
     user: this._id,
+    organization: options.organization,
     name: options.name,
     type: options.type || ''
   })
@@ -129,7 +129,10 @@ userSchema.methods.createToken = async function (options = {}) {
 // Statics
 userSchema.statics.auth = async function (email, password) {
   const userEmail = email.toLowerCase()
-  const user = await this.findOne({email: userEmail, isDeleted: false}).populate('organizations.organization')
+  const user = await this.findOne({
+    email: userEmail,
+    isDeleted: false
+  }).populate('organizations.organization')
   assert(user, 401, 'Invalid email/password')
 
   const isValid = await new Promise((resolve, reject) => {
@@ -234,7 +237,7 @@ userSchema.methods.sendInviteEmail = async function () {
   const UserToken = mongoose.model('UserToken')
   let userToken = await UserToken.create({
     user: this._id,
-    validUntil: moment().add(24, 'hours').utc(),
+    validUntil: moment().add(10, 'days').utc(),
     type: 'invite'
   })
 
@@ -257,7 +260,7 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
   const UserToken = mongoose.model('UserToken')
   let userToken = await UserToken.create({
     user: this._id,
-    validUntil: moment().add(24, 'hours').utc(),
+    validUntil: moment().add(10, 'days').utc(),
     type: 'reset'
   })
   let url = process.env.APP_HOST
@@ -275,7 +278,7 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
       email: this.email,
       name: this.name
     },
-    title: 'Reestablecer contraseña en Orax'
+    title: 'Restablecer contraseña en Orax'
   })
 }
 

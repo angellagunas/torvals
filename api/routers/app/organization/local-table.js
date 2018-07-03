@@ -1,9 +1,18 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
-const { Project, DataSetRow, Product, Channel, SalesCenter, AbraxasDate, Role } = require('models')
+const {
+  CatalogItem,
+  Cycle,
+  DataSetRow,
+  Project,
+  Role,
+  Rule
+} = require('models')
 const redis = require('lib/redis')
 const crypto = require('crypto')
 const _ = require('lodash')
+
+const EXPIRATION = 60 * 60 * 24 * 4
 
 module.exports = new Route({
   method: 'post',
@@ -13,6 +22,10 @@ module.exports = new Route({
     const user = ctx.state.user
     let currentRole
     let currentOrganization
+
+    if (!data.date_start || !data.date_end) {
+      ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
+    }
 
     if (ctx.state.organization) {
       currentOrganization = user.organizations.find(orgRel => {
@@ -26,23 +39,34 @@ module.exports = new Route({
       }
     }
 
+    let currentRule = await Rule.findOne({
+      organization: ctx.state.organization._id,
+      isCurrent: true,
+      isDeleted: false
+    })
+
     let filters = {
       organization: ctx.state.organization,
-      mainDataset: {$ne: undefined}
+      mainDataset: { $ne: undefined }
     }
 
     if (data.projects && data.projects.length > 0) {
-      filters['uuid'] = {$in: data.projects}
+      filters['uuid'] = { $in: data.projects }
     }
 
     const projects = await Project.find(filters)
     const datasets = projects.map(item => { return item.mainDataset })
 
-    data.channels = data.channels.sort()
-    data.projects = data.projects.sort()
-    data.salesCenters = data.salesCenters.sort()
+    if (projects.length === 1) {
+      currentRule = await Rule.findOne({
+        _id: projects[0].rule
+      })
+    }
 
-    const parameterHash = crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'table').digest('hex')
+    data.projects = data.projects.sort()
+    data.catalogItems = data.catalogItems.sort()
+
+    const parameterHash = 'api:' + crypto.createHash('md5').update(JSON.stringify(data) + JSON.stringify(datasets) + 'table').digest('hex')
     try {
       const cacheData = await redis.hGetAll(parameterHash)
       if (cacheData) {
@@ -60,63 +84,218 @@ module.exports = new Route({
       console.log('Error retrieving the cache')
     }
 
-    const key = {product: '$product'}
+    const key = { product: '$newProduct' }
     let initialMatch = {
       dataset: { $in: datasets }
     }
 
-    if (data.channels) {
-      let channels = await Channel.find({ uuid: { $in: data.channels } }).select({'_id': 1, 'groups': 1})
-      if (currentRole.slug === 'manager-level-2') {
-        channels = channels.filter(item => {
-          let checkExistence = item.groups.some(function (e) {
-            return user.groups.indexOf(String(e)) >= 0
-          })
-          return checkExistence
-        }).map(item => { return item._id })
-      } else {
-        channels = channels.map(item => { return item._id })
+    if (data.catalogItems && data.catalogItems.length > 0) {
+      let catalogItems = await CatalogItem.filterByUserRole(
+        { uuid: { $in: data.catalogItems } },
+        currentRole.slug,
+        user
+      )
+
+      catalogItems = await CatalogItem.find({_id: {$in: catalogItems}})
+      let catalogItemsObj = {}
+
+      for (let cat of catalogItems) {
+        if (!catalogItemsObj[cat.type]) catalogItemsObj[cat.type] = [cat._id]
+        else catalogItemsObj[cat.type].push(cat._id)
       }
-      initialMatch['channel'] = { $in: channels }
+
+      let catalogItemsMatch = []
+      for (let key of Object.keys(catalogItemsObj)) {
+        if (catalogItemsObj[key].length > 0) {
+          catalogItemsMatch.push({
+            'catalogItems': { $in: catalogItemsObj[key] }
+          })
+        }
+      }
+
+      initialMatch['$and'] = catalogItemsMatch
     }
 
-    if (data.salesCenters) {
-      let salesCenters = await SalesCenter.find({ uuid: { $in: data.salesCenters } }).select({'_id': 1, 'groups': 1})
-      if (currentRole.slug === 'manager-level-2') {
-        salesCenters = salesCenters.filter(item => {
-          let checkExistence = item.groups.some(function (e) {
-            return user.groups.indexOf(String(e)) >= 0
-          })
-          return checkExistence
-        }).map(item => { return item._id })
-      } else {
-        salesCenters = salesCenters.map(item => { return item._id })
-      }
-      initialMatch['salesCenter'] = { $in: salesCenters }
-    }
-
-    if (data.products) {
-      const products = await Product.find({ uuid: { $in: data.products } }).select({'_id': 1})
-      initialMatch['product'] = { $in: products.map(item => { return item._id }) }
+    if (data.catalogItems && data.catalogItems.length === 0) {
+      initialMatch['catalogItems'] = {$in: []}
     }
 
     let matchPreviousSale = _.cloneDeep(initialMatch)
 
-    if (data.date_start && data.date_end) {
-      const weeks = await AbraxasDate.find({ $and: [{dateStart: {$gte: data.date_start}}, {dateEnd: {$lte: data.date_end}}] })
-      data.weeks = []
-      for (let week of weeks) {
-        data.weeks.push(week.week)
-      }
+    let start = moment(data.date_start, 'YYYY-MM-DD').utc()
+    let end = moment(data.date_end, 'YYYY-MM-DD').utc()
 
-      data.year = moment(data.date_start).year()
+    let cycles = await Cycle.getBetweenDates(
+      currentOrganization.organization._id,
+      currentRule._id,
+      start.toDate(),
+      end.toDate()
+    )
+    initialMatch['cycle'] = {
+      $in: cycles.map(item => { return item._id })
+    }
 
-      initialMatch['data.semanaBimbo'] = {$in: data.weeks}
+    start = moment(data.date_start, 'YYYY-MM-DD').subtract(1, 'years').utc()
+    end = moment(data.date_end, 'YYYY-MM-DD').subtract(1, 'years').utc()
 
-      var lastYear = data.year - 1
-      matchPreviousSale['data.semanaBimbo'] = {$in: data.weeks}
+    cycles = await Cycle.getBetweenDates(
+      currentOrganization.organization._id,
+      currentRule._id,
+      start.toDate(),
+      end.toDate()
+    )
+    matchPreviousSale['cycle'] = {
+      $in: cycles.map(item => { return item._id })
+    }
+
+    let conditions = []
+    let group
+    let previousGroup
+
+    if (data.prices) {
+      conditions = [
+        {
+          '$lookup': {
+            'from': 'catalogitems',
+            'localField': 'catalogItems',
+            'foreignField': '_id',
+            'as': 'catalogs'
+          }
+        },
+        {
+          '$lookup': {
+            'from': 'prices',
+            'localField': 'newProduct',
+            'foreignField': 'product',
+            'as': 'price'
+          }
+        },
+        {
+          '$unwind': {
+            'path': '$price'
+          }
+        },
+        {
+          '$addFields': {
+            'catalogsSize': {
+              '$size': '$price.catalogItems'
+            }
+          }
+        },
+        {
+          '$match': {
+            'catalogsSize': {
+              '$gte': 1.0
+            }
+          }
+        },
+        {
+          '$redact': {
+            '$cond': [
+              {
+                '$setIsSubset': [
+                  '$price.catalogItems',
+                  '$catalogItems'
+                ]
+              },
+              '$$KEEP',
+              '$$PRUNE'
+            ]
+          }
+        }
+
+      ]
+
+      group = [
+        {
+          '$group': {
+            '_id': key,
+            'prediction': {
+              '$sum': {
+                '$multiply': [
+                  '$data.prediction',
+                  '$price.price'
+                ]
+              }
+            },
+            'predictionSale': {
+              '$sum': {
+                '$cond': {
+                  'if': {
+                    '$gt': [
+                      '$data.sale',
+                      0.0
+                    ]
+                  },
+                  'then': {
+                    '$multiply': [
+                      '$data.prediction',
+                      '$price.price'
+                    ]
+                  },
+                  'else': 0.0
+                }
+              }
+            },
+            'adjustment': {
+              '$sum': {
+                '$multiply': [
+                  '$data.adjustment',
+                  '$price.price'
+                ]
+              }
+            },
+            'sale': {
+              '$sum': {
+                '$multiply': [
+                  '$data.sale',
+                  '$price.price'
+                ]
+              }
+            }
+          }
+        }
+      ]
+
+      previousGroup = [
+        {
+          '$group': {
+            _id: key,
+            sale: { $sum: {'$multiply': ['$data.sale', '$price.price']} }
+          }
+        }
+      ]
     } else {
-      ctx.throw(400, '¡Es necesario filtrarlo por un rango de fechas!')
+      group = [
+        {
+          '$group': {
+            _id: key,
+            prediction: { $sum: '$data.prediction' },
+            predictionSale: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $gt: ['$data.sale', 0]
+                  },
+                  then: '$data.prediction',
+                  else: 0
+                }
+              }
+            },
+            adjustment: { $sum: '$data.adjustment' },
+            sale: { $sum: '$data.sale' }
+          }
+        }
+      ]
+
+      previousGroup = [
+        {
+          '$group': {
+            _id: key,
+            sale: { $sum: '$data.sale' }
+          }
+        }
+      ]
     }
 
     let match = [
@@ -125,34 +304,8 @@ module.exports = new Route({
           ...initialMatch
         }
       },
-      {
-        '$redact': {
-          '$cond': [
-                { '$eq': [{ '$year': '$data.forecastDate' }, data.year] },
-            '$$KEEP',
-            '$$PRUNE'
-          ]
-        }
-      },
-      {
-        '$group': {
-          _id: key,
-          prediction: { $sum: '$data.prediction' },
-          predictionSale: {
-            $sum: {
-              $cond: {
-                if: {
-                  $gt: ['$data.sale', 0]
-                },
-                then: '$data.prediction',
-                else: 0
-              }
-            }
-          },
-          adjustment: { $sum: '$data.adjustment' },
-          sale: { $sum: '$data.sale' }
-        }
-      }
+      ...conditions,
+      ...group
     ]
 
     matchPreviousSale = [
@@ -161,21 +314,8 @@ module.exports = new Route({
           ...matchPreviousSale
         }
       },
-      {
-        '$redact': {
-          '$cond': [
-                { '$eq': [{ '$year': '$data.forecastDate' }, lastYear] },
-            '$$KEEP',
-            '$$PRUNE'
-          ]
-        }
-      },
-      {
-        '$group': {
-          _id: key,
-          sale: { $sum: '$data.sale' }
-        }
-      }
+      ...conditions,
+      ...previousGroup
     ]
 
     let allData = await DataSetRow.aggregate(match)
@@ -183,7 +323,7 @@ module.exports = new Route({
     let products = allData.map(item => { return item._id.product })
     let previousProducts = previousSale.map(item => { return item._id.product })
     products = _.concat(products, previousProducts)
-    products = await Product.find({_id: {$in: products}})
+    products = await CatalogItem.find({_id: {$in: products}})
     let dataDict = {}
 
     for (let prod of products) {
@@ -248,6 +388,7 @@ module.exports = new Route({
     try {
       for (let item in responseData) {
         await redis.hSet(parameterHash, item, JSON.stringify(responseData[item]))
+        await redis.expire(parameterHash, EXPIRATION)
       }
     } catch (e) {
       console.log('Error setting the cache')

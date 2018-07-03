@@ -20,7 +20,7 @@ class ProductDetail extends Component {
       loading: true,
       loaded: false,
       product: {},
-      roles: 'admin, orgadmin, analyst, manager-level-2',
+      roles: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
       canEdit: false,
       isLoading: ''
     }
@@ -145,11 +145,6 @@ class ProductDetail extends Component {
                   },
                   {
                     path: '/catalogs/products/detail/',
-                    label: 'Detalle',
-                    current: true
-                  },
-                  {
-                    path: '/catalogs/products/detail/',
                     label: product.name,
                     current: true
                   }
@@ -221,7 +216,7 @@ export default Page({
   path: '/catalogs/products/:uuid',
   title: 'Product detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
+  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: ProductDetail
 })

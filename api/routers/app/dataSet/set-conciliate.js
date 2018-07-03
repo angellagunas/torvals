@@ -2,7 +2,8 @@ const Route = require('lib/router/route')
 const moment = require('moment')
 
 const { DataSet } = require('models')
-const conciliateDataset = require('queues/conciliate-dataset')
+const conciliateToProject = require('queues/conciliate-to-project')
+const generateDownload = require('queues/generate-downloads')
 
 module.exports = new Route({
   method: 'post',
@@ -15,6 +16,8 @@ module.exports = new Route({
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
+    await generateDownload.add({uuid: dataset.uuid})
+
     dataset.set({
       status: 'conciliating',
       conciliatedBy: ctx.state.user,
@@ -23,7 +26,13 @@ module.exports = new Route({
 
     await dataset.save()
 
-    conciliateDataset.add({project: dataset.project.uuid, dataset: dataset.uuid})
+    dataset.project.set({
+      status: 'conciliating'
+    })
+
+    await dataset.project.save()
+
+    conciliateToProject.add({project: dataset.project.uuid, dataset: dataset.uuid})
 
     ctx.body = {
       data: dataset

@@ -18,16 +18,152 @@ const schema = {
   properties: {
     name: {type: 'string', title: 'Nombre'},
     description: {type: 'string', title: 'Descripción'},
-    slug: {type: 'string', title: 'Slug'},
-    profile: {type: 'string', title: 'Imagen', format: 'data-url'}
+    slug: {type: 'string', title: 'Subdominio'},
+    profile: {type: 'string', title: 'Logo', format: 'data-url'}
   }
 }
 
 const uiSchema = {
-  name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
-  slug: {'ui:widget': TextWidget, 'ui:disabled': true},
-  profile: {'ui:widget': FileWidget}
+  'ui:field': 'custom'
+}
+
+class CustomForm extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      name: '',
+      description: '',
+      slug: '',
+      profile: '',
+      ...props.formData
+    }
+  }
+
+  onChange(name) {
+    return value => {
+      this.setState({ [name]: value })
+      setImmediate(() => this.props.onChange(this.state))
+    }
+  }
+
+  render() {
+    const { name, slug, description, profile, profileUrl } = this.state
+    const profileImg = profile || profileUrl
+
+    return (
+      <div className="columns is-multiline test">
+
+        <div className='column is-12'>
+          <p className='subtitle is-pulled-left'>
+            <strong>Detalle de tu organización</strong>
+          </p>
+          <div className="is-pulled-right">
+            <button
+              className={'button is-primary ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'
+            >
+              Guardar
+            </button>
+          </div>
+        </div>
+
+        <div className='column is-one-third'>
+          <div className='card'>
+            <div className='card-content'>
+              <div className='columns'>
+                <div className='column'>
+
+                  <center>
+                    {
+                      profileImg && <div
+                        style={{
+                          width: '170px',
+                          height: '170px',
+                          backgroundImage: `url('${profileImg}')`,
+                          backgroundSize: 'cover',
+                          display: 'block',
+                          borderRadius: '100px'
+                        }}
+                      />
+                    }
+                    <div className="form-group field">
+                      <br />
+                      <label className="label">
+                        Sube el logo de la organización
+                      </label>
+                      <br />
+                      <FileWidget
+                        value={profile}
+                        onChange={this.onChange('profile')}
+                        style={{ justifyContent: 'center' }}
+                      />
+                    </div>
+                  </center>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className='column'>
+          <div className='card'>
+            <div className='card-content'>
+              <div className='columns'>
+                <div className='column'>
+
+                  <div className="form-group field">
+                    <label className="label">Nombre*</label>
+                    <div className="control">
+                      <TextWidget
+                        required
+                        type='text'
+                        className='input'
+                        value={name}
+                        onChange={this.onChange('name')}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group field">
+                    <label className="label">Descripción</label>
+                    <div className="control">
+                      <TextareaWidget
+                        options={{ rows: 4 }}
+                        type="text"
+                        className="input"
+                        maxLength="140"
+                        value={description}
+                        onChange={this.onChange('description')}
+                      />
+                    </div>
+                    <p className="help-block has-text-grey is-size-7">
+                      Máximo 140 caracteres
+                    </p>
+                  </div>
+                  <div className="form-group field">
+                    <label className="label">Subdominio*</label>
+                    <div className="control">
+                      <TextWidget
+                        required
+                        disabled
+                        type='text'
+                        className='input'
+                        value={slug}
+                        onChange={this.onChange('slug')}
+                      />
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    )
+  }
 }
 
 class OrganizationForm extends Component {
@@ -103,6 +239,7 @@ class OrganizationForm extends Component {
           onChange={(e) => { this.changeHandler(e) }}
           onSubmit={(e) => { this.submitHandler(e) }}
           onError={(e) => { this.errorHandler(e) }}
+          fields={{ custom: CustomForm }}
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
@@ -115,7 +252,6 @@ class OrganizationForm extends Component {
               {error}
             </div>
           </div>
-          {this.props.children}
         </BaseForm>
       </div>
     )

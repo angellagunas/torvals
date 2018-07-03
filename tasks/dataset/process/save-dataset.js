@@ -1,4 +1,4 @@
-// node tasks/migrations/set-week-datasetrows.js
+// node tasks/dataset/process/save-dataset.js --uuid uuid [--batchSize batchSize --noNextStep]
 require('../../../config')
 require('lib/databases/mongo')
 const moment = require('moment')
@@ -6,17 +6,14 @@ const path = require('path')
 const { execSync } = require('child_process')
 
 const Task = require('lib/task')
+const Logger = require('lib/utils/logger')
 const { DataSet, DataSetRow } = require('models')
-const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
+const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 const processDataset = require('queues/process-dataset')
 
 const task = new Task(
   async function (argv) {
-    let log = (args) => {
-      args = ('[save_dataset] ') + args
-
-      console.log(args)
-    }
+    const log = new Logger('save-dataset')
 
     var batchSize = 10000
     if (!argv.uuid) {
@@ -27,15 +24,20 @@ const task = new Task(
       try {
         batchSize = parseInt(argv.batchSize)
       } catch (e) {
-        log('Invalid batch size!')
+        log.call('Invalid batch size!')
       }
     }
 
-    log(`Fetching Dataset ${argv.uuid} ...`)
-    log(`Using batch size of ${batchSize}`)
-    log(`Start ==>  ${moment().format()}`)
+    log.call(`Fetching Dataset ${argv.uuid} ...`)
+    log.call(`Using batch size of ${batchSize}`)
+    log.call(`Start ==>  ${moment().format()}`)
 
-    const dataset = await DataSet.findOne({uuid: argv.uuid}).populate('fileChunk').populate('uploadedBy')
+    const dataset = await DataSet.findOne({uuid: argv.uuid})
+      .populate('fileChunk')
+      .populate('uploadedBy')
+      .populate('rule')
+
+    await dataset.rule.populate('catalogs').execPopulate()
     var bulkOps = []
 
     if (!dataset) {
@@ -49,7 +51,7 @@ const task = new Task(
       const filepath = path.join(fileChunk.path, fileChunk.filename)
 
       const rawLineCount = execSync(`wc -l < ${filepath}`)
-      log('Line count ===> ', parseInt(String(rawLineCount)))
+      log.call('Line count ===> ', parseInt(String(rawLineCount)))
 
       const lineCount = parseInt(String(rawLineCount)) - 1
       const pages = Math.ceil(lineCount / batchSize)
@@ -61,12 +63,10 @@ const task = new Task(
       var adjustmentColumn = dataset.getAdjustmentColumn() || {name: ''}
       var dateColumn = dataset.getDateColumn() || {name: ''}
       var salesColumn = dataset.getSalesColumn() || {name: ''}
-      var salesCenterExternalId = dataset.getSalesCenterColumn() || {name: ''}
-      var productExternalId = dataset.getProductColumn() || {name: ''}
-      var channelExternalId = dataset.getChannelColumn() || {name: ''}
+      var productExternalId = dataset.getCatalogItemColumn('is_producto_id') || {name: ''}
 
       for (var i = 0; i < pages; i++) {
-        log(`${lineCount} => ${(i * batchSize) + 1} - ${(i * batchSize) + batchSize}`)
+        log.call(`${lineCount} => ${(i * batchSize) + 1} - ${(i * batchSize) + batchSize}`)
 
         let rawLine
 
@@ -102,42 +102,66 @@ const task = new Task(
             continue
           }
 
+          let adjustment = obj[adjustmentColumn.name] || '0'
+          let prediction = obj[predictionColumn.name] || '0'
+
+          if (adjustment === 'NA') adjustment = 0
+          if (prediction === 'NA') prediction = 0
+
+          try {
+            adjustment = parseInt(adjustment)
+            prediction = parseInt(prediction)
+          } catch (e) {
+            log.call('Error!')
+            log.call(e)
+
+            continue
+          }
+
+          let catalogData = {}
+          for (let column of dataset.columns) {
+            let catalogColumns = Object.keys(column).filter(x => column[x] === true && x.startsWith('is_'))
+
+            for (let catalogColumnName of catalogColumns) {
+              catalogData[catalogColumnName] = obj[column.name]
+            }
+          }
+
           bulkOps.push({
             'organization': dataset.organization,
             'project': dataset.project,
             'dataset': dataset._id,
             'apiData': obj,
             'data': {
-              'prediction': obj[predictionColumn.name],
+              'prediction': prediction,
               'sale': obj[salesColumn.name] ? obj[salesColumn.name] : 0,
               'forecastDate': forecastDate,
               'semanaBimbo': obj.semana_bimbo,
-              'adjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-              'localAdjustment': obj[adjustmentColumn.name] || obj[predictionColumn.name],
-              'lastAdjustment': obj[adjustmentColumn.name] || undefined,
-              'productExternalId': obj[productExternalId.name],
-              'salesCenterExternalId': obj[salesCenterExternalId.name],
-              'channelExternalId': obj[channelExternalId.name]
-            }
+              'adjustment': adjustment || prediction,
+              'localAdjustment': adjustment || prediction,
+              'lastAdjustment': adjustment || undefined,
+              'productExternalId': obj[productExternalId.name]
+            },
+            'catalogData': catalogData
           })
         }
 
         await DataSetRow.insertMany(bulkOps)
         bulkOps = []
-        log(`${batchSize} ops ==> ${moment().format()}`)
+        log.call(`${batchSize} ops ==> ${moment().format()}`)
       }
 
-      log(`Success! loaded ${lineCount} rows`)
+      log.call(`Success! loaded ${lineCount} rows`)
     } catch (e) {
-      log('Error! ' + e.message)
+      log.call('Error! ' + e.message)
       dataset.set({
         status: 'error',
         error: e.message
       })
       await dataset.save()
 
-      await sendSlackNotificacion.run({
-        channel: 'opskamino',
+      await sendSlackNotification.run({
+        channel: 'all',
         message: `Error al cargar el dataset *${dataset.name}* a la base de datos! ` +
         `*${e.message}*`
       })
@@ -145,7 +169,7 @@ const task = new Task(
       return false
     }
 
-    log(`End ==> ${moment().format()}`)
+    log.call(`End ==> ${moment().format()}`)
 
     if (!argv.noNextStep) processDataset.add({uuid: dataset.uuid})
 
@@ -159,8 +183,8 @@ const task = new Task(
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
-    sendSlackNotificacion.run({
-      channel: 'opskamino',
+    sendSlackNotification.run({
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha empezado a guardarse en base de datos.` +
       ` Fue cargado por *${dataset.uploadedBy.name}*`
     })
@@ -173,8 +197,8 @@ const task = new Task(
     if (!dataset) {
       throw new Error('Invalid uuid!')
     }
-    sendSlackNotificacion.run({
-      channel: 'opskamino',
+    sendSlackNotification.run({
+      channel: 'all',
       message: `El dataset *${dataset.name}* ha sido cargado a la base de datos` +
       ` y se procederá a procesarse.`
     })

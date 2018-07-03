@@ -207,7 +207,7 @@ class ContainerTable extends Component {
 
     if (
         forecast.status !== 'readyToOrder' &&
-        currentRole !== 'consultor'
+      currentRole !== 'consultor-level-3'
     ) {
       return (
         <div className='columns'>
@@ -472,7 +472,7 @@ class ContainerTable extends Component {
         formatter: (row) => {
           if (
               currentRole !== 'analyst' &&
-              currentRole !== 'consultor'
+            currentRole !== 'consultor-level-3'
           ) {
             if (row.isLimit && !row.adjustmentRequest) {
               return (
@@ -613,7 +613,7 @@ class ContainerTable extends Component {
               setRowsToEdit={(e) => this.setRowsToEdit(e)}
               selectable={
                 (forecast.status !== 'readyToOrder') &&
-                (currentRole !== 'consultor')
+                (currentRole !== 'consultor-level-3')
               }
              />
           </div>

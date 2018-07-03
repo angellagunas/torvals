@@ -9,7 +9,7 @@ module.exports = new Route({
     const datasetId = ctx.request.body.dataset
 
     const project = await Project.findOne({'uuid': projectId})
-    .populate('datasets.dataset')
+    .populate('datasets.dataset').populate('activeDataset')
 
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
@@ -24,10 +24,13 @@ module.exports = new Route({
     project.status = 'empty'
 
     for (var d of project.datasets) {
-      if (d.dataset.status === 'conciliated') {
+      if (d.dataset.status === 'conciliated' || d.dataset.status === 'ready') {
         project.status = 'ready'
-        break
       }
+    }
+
+    if (project.activeDataset && dataset.uuid !== project.activeDataset.uuid) {
+      project.status = 'adjustment'
     }
 
     await project.save()

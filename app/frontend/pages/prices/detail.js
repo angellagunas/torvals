@@ -70,7 +70,7 @@ class PriceDetail extends Component {
 
     const currentUser = tree.get('user')
     var disabledForm = false
-    if (currentUser.currentRole.slug === 'consultor') {
+    if (currentUser.currentRole.slug === 'consultor-level-3') {
       disabledForm = true
     }
     return (
@@ -88,11 +88,6 @@ class PriceDetail extends Component {
                   path: '/catalogs/prices',
                   label: 'Precios',
                   current: false
-                },
-                {
-                  path: '/catalogs/prices/detail/',
-                  label: 'Detalle',
-                  current: true
                 },
                 {
                   path: '/catalogs/prices/detail/',

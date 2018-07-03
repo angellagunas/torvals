@@ -15,7 +15,8 @@ export default ListPage({
   title: 'Grupos',
   icon: 'users',
   exact: true,
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
+  canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Grupo',
   create: true,
@@ -114,7 +115,7 @@ export default ListPage({
 
           var currentRole = tree.get('user').currentRole.slug
           var deleteButton
-          if (currentRole !== 'consultor') {
+          if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
             deleteButton =
               <div className='control'>
                 <DeleteButton
@@ -132,7 +133,8 @@ export default ListPage({
               <div className='control'>
                 <Link className='button is-primary' to={'/manage/groups/' + row.uuid}>
                   <span className='icon is-small' title='Editar'>
-                    <i className='fa fa-pencil' />
+                    <i className={currentRole === 'consultor-level-3' || currentRole === 'consultor-level-2'
+                      ? 'fa fa-eye' : 'fa fa-pencil'} />
                   </span>
                 </Link>
               </div>

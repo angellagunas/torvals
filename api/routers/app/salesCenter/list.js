@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 const ObjectId = require('mongodb').ObjectID
-const {SalesCenter, Role, Forecast, Prediction} = require('models')
+const {SalesCenter, Role, Forecast, Prediction, Group} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -47,6 +47,12 @@ module.exports = new Route({
           const predictions = await Prediction.find({'forecast': ObjectId(forecast._id)}).populate('salesCenter')
           statement.push({'$match': { '_id': { $in: predictions.map(item => { return item.salesCenter._id }) } }})
         }
+      } else if (filter === 'group') {
+        let group = await Group.findOne({ uuid: ctx.request.query[filter] })
+        let salesCentersList = []
+
+        salesCentersList = await SalesCenter.find({ groups: group._id })
+        statement.push({ '$match': { '_id': { $in: salesCentersList.map(item => { return item._id }) } } })
       }
     }
 
@@ -66,7 +72,13 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
-    if (currentRole.slug === 'manager-level-1' || currentRole.slug === 'manager-level-2') {
+    if (
+        currentRole.slug === 'manager-level-1' ||
+        currentRole.slug === 'manager-level-2' ||
+        currentRole.slug === 'consultor-level-2' ||
+        currentRole.slug === 'consultor-level-3' ||
+        currentRole.slug === 'manager-level-3'
+    ) {
       var groups = user.groups
       var salesCentersList = []
 

@@ -13,7 +13,9 @@ import {
 
 class UserForm extends Component {
   constructor (props) {
+    props.initialState.role = props.initialState.roleDetail.uuid
     super(props)
+
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
@@ -49,7 +51,7 @@ class UserForm extends Component {
     }
     if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
-      var data = await api.post(this.props.url, formData)
+      let data = await api.post(this.props.url, formData)
       await this.props.load()
       this.clearState()
       this.setState({
@@ -58,7 +60,9 @@ class UserForm extends Component {
       })
       setTimeout(() => { this.setState({ apiCallMessage: 'is-hidden' }) }, 3000)
 
-      if (this.props.finishUp) this.props.finishUp(data.data)
+      if (this.props.finishUp) {
+        this.props.finishUp(data.data)
+      }
       return
     } catch (e) {
       if (this.props.errorHandler) this.props.errorHandler(e)
@@ -91,19 +95,17 @@ class UserForm extends Component {
       }
     }
 
-    const uiSchema = {
+    let uiSchema = {
       name: {'ui:widget': TextWidget},
       email: {'ui:widget': EmailWidget},
       role: {'ui:widget': SelectWidget}
     }
 
-    if (this.state.formData['role']) {
-      var role = this.props.roles.find((item) => {
-        return item._id === this.state.formData['role']
-      })
+    if (this.state.formData.roleDetail) {
+      let role = this.state.formData.roleDetail
 
       if (role && role.slug === 'manager-level-1') {
-        schema.properties['project'] = { type: 'string', title: 'Project', enum: [], enumNames: [] }
+        schema.properties['project'] = { type: 'string', title: 'Proyecto', enum: [], enumNames: [] }
         uiSchema['project'] = {'ui:widget': SelectWidget}
         schema.required.push('project')
       } else {
@@ -133,23 +135,36 @@ class UserForm extends Component {
       uiSchema.role['ui:disabled'] = true
     }
 
-    schema.properties.role.enum = this.props.roles.map(item => { return item._id })
+    schema.properties.role.enum = this.props.roles.map(item => { return item.uuid })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
     if (schema.properties.project) {
       schema.properties.project.enum = this.props.projects.map(item => { return item.uuid })
       schema.properties.project.enumNames = this.props.projects.map(item => { return item.name })
     }
     if (this.props.disabled) {
-      for (var field in uiSchema) {
+      for (let field in uiSchema) {
         uiSchema[field]['ui:disabled'] = true
       }
-      schema.properties.role.enum.push(this.state.formData.roleDetail._id)
+      schema.properties.role.enum.push(this.state.formData.roleDetail.uuid)
       schema.properties.role.enumNames.push(this.state.formData.roleDetail.name)
     }
 
     if (this.props.disabledRoles) {
       uiSchema['role']['ui:disabled'] = true
     }
+
+    if (currentUser.currentRole.slug === 'orgadmin') {
+      uiSchema['role']['ui:disabled'] = false
+      for (let field in uiSchema) {
+        uiSchema[field]['ui:disabled'] = false
+      }
+
+      if (!schema.properties.role.enum.includes(currentUser.currentRole.uuid)) {
+        schema.properties.role.enum.push(currentUser.currentRole.uuid)
+        schema.properties.role.enumNames.push(currentUser.currentRole.name)
+      }
+    }
+
     return (
       <div>
         <BaseForm

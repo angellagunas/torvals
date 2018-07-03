@@ -54,7 +54,7 @@ class UserDetail extends Component {
     })
   }
   async load () {
-    var url = '/app/users/' + this.props.match.params.uuid
+    var url = '/app/users/' + this.props.user.uuid
     try {
       const body = await api.get(url)
 
@@ -78,7 +78,7 @@ class UserDetail extends Component {
     const body = await api.get(
       url,
       {
-        user_orgs: this.props.match.params.uuid,
+        user_orgs: this.props.user.uuid,
         start: 0,
         limit: 0
       }
@@ -130,7 +130,7 @@ class UserDetail extends Component {
 
     selected.push(group)
 
-    var url = '/app/users/' + this.props.match.params.uuid + '/add/group'
+    var url = '/app/users/' + this.props.user.uuid + '/add/group'
     await api.post(url,
       {
         group: uuid
@@ -163,7 +163,7 @@ class UserDetail extends Component {
       selectedGroups: selected
     })
 
-    var url = '/app/users/' + this.props.match.params.uuid + '/remove/group'
+    var url = '/app/users/' + this.props.user.uuid + '/remove/group'
     await api.post(url,
       {
         group: uuid
@@ -268,19 +268,21 @@ class UserDetail extends Component {
     }
 
     var disabledRoles = false
-    if (user.roleDetail && currentUser.currentRole.slug === 'consultor') {
+    if (user.roleDetail && currentUser.currentRole.slug === 'consultor-level-3') {
       disabledRoles = true
-      if (user.roleDetail.slug === 'consultor') {
-        disabledForm = false
-      } else {
-        disabledForm = true
-      }
+      disabledForm = true
+    }
+
+    if (currentUser.currentRole.slug === 'orgadmin') {
+      disabledRoles = false
+      disabledForm = false
     }
 
     if (user) {
-      var role = this.state.roles.find((item) => {
-        return item._id === user.role
-      })
+      let role
+      if (this.state.formData && this.state.formData.roleDetail) {
+        role = this.state.formData.roleDetail
+      }
 
       if (role && role.slug === 'manager-level-1') {
         var currentOrg = user.organizations.find((item) => {
@@ -330,9 +332,6 @@ class UserDetail extends Component {
 
     return (
       <div className='detail-page'>
-        <div className='section-header'>
-          <h2>{user.name}</h2>
-        </div>
 
         <div className='level'>
           <div className='level-left'>
@@ -345,12 +344,12 @@ class UserDetail extends Component {
                     current: false
                   },
                   {
-                    path: '/manage/users',
+                    path: '/manage/users-groups',
                     label: 'Usuarios',
                     current: false
                   },
                   {
-                    path: '/manage/users/',
+                    path: '/manage/users',
                     label: 'Detalle',
                     current: true
                   },
@@ -365,6 +364,13 @@ class UserDetail extends Component {
             </div>
           </div>
           <div className='level-right'>
+            <div className='level-item'>
+              <a
+                className='button is-info'
+                onClick={() => { this.props.selectUser() }}>
+                Regresar
+              </a>
+            </div>
             <div className='level-item'>
               {!disabledForm && resetButton}
             </div>
@@ -385,7 +391,7 @@ class UserDetail extends Component {
                     <div className='column'>
                       <UserForm
                         baseUrl='/app/users'
-                        url={'/app/users/' + this.props.match.params.uuid}
+                        url={'/app/users/' + this.props.user.uuid}
                         initialState={this.state.user}
                         load={this.load.bind(this)}
                         roles={this.state.roles || []}
@@ -450,7 +456,9 @@ class UserDetail extends Component {
   }
 }
 
-UserDetail.contextTypes = {
+export default UserDetail
+
+/* UserDetail.contextTypes = {
   tree: PropTypes.baobab
 }
 
@@ -459,8 +467,8 @@ const branchedUserDetail = branch({}, UserDetail)
 export default Page({
   path: '/manage/users/:uuid',
   title: 'User details',
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   exact: true,
   validate: [loggedIn, verifyRole],
   component: branchedUserDetail
-})
+}) */

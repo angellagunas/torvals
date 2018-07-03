@@ -63,8 +63,10 @@ describe('/products', () => {
         .delete('/api/admin/products/' + product.uuid)
         .set('Accept', 'application/json')
         .expect(200)
+        console.info(res.body.data)
+        const updatedProduct = await Product.findOne({uuid: product.uuid})
 
-        expect(res.body.data.isDeleted).equal(true)
+        expect(updatedProduct.isDeleted).equal(true)
       })
     })
   })

@@ -4,19 +4,17 @@ import tree from '~core/tree'
 import classNames from 'classnames'
 
 import Dashboard from '../pages/dashboard'
-import Users from '../pages/users/list'
-import Groups from '../pages/groups/list'
 import Projects from '../pages/projects/list'
-import SalesCenters from '../pages/salesCenters/list'
-import Products from '../pages/products/list'
-import Channels from '../pages/channel/list'
-import SelectOrg from '../pages/select-org'
 import Calendar from '../pages/calendar'
-import Prices from '../pages/prices/list'
 import UsersImport from '../pages/import/users'
-import SalesCentersImport from '../pages/import/sales-centers'
-import ChannelsImport from '../pages/import/channels'
-import ProductsImport from '../pages/import/products'
+import Catalogs from '../pages/catalog/list'
+import HistoricReport from '../pages/reports/historic'
+import StatusReport from '../pages/reports/status'
+import DownloadReport from '../pages/reports/download'
+import Prices from '../pages/prices/list'
+import OrgRules from '../pages/org-rules'
+import UsersGroups from '../pages/users-groups'
+import Roles from '../pages/roles/list'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -26,7 +24,8 @@ class Sidebar extends Component {
       active: '',
       activePath: '',
       collapsed: false,
-      menuItems: []
+      menuItems: [],
+      rules: tree.get('rule') || []
     }
     this.handleActiveLink = this.handleActiveLink.bind(this)
   }
@@ -37,6 +36,25 @@ class Sidebar extends Component {
     this.setState({ menuItems }, function () {
       this.handleActiveLink(activeItem)
     })
+
+    var ruleCursor = tree.select('rule')
+
+    ruleCursor.on('update', () => {
+      const activeItem = window.location.pathname.split('/').filter(String).join('')
+      this.setState({
+        rules: tree.get('rule')
+      }, () => {
+        this.setState({
+          menuItems: this.handleOpenDropdown(this.getMenuItems(), activeItem)
+        })
+      })
+    })
+  }
+
+  componentWillUnmount () {
+    var ruleCursor = tree.select('rule')
+
+    ruleCursor.on('update', () => {})
   }
 
   componentWillReceiveProps (nextProps) {
@@ -75,53 +93,98 @@ class Sidebar extends Component {
     return item
   }
 
+  catalogs () {
+    let rules = this.state.rules
+
+    return rules.catalogs.map(item => {
+      if (item.slug !== 'precio') {
+        let config =
+          {
+            name: item.name,
+            path: '/catalogs/' + item.slug,
+            title: item.name,
+            breadcrumbs: true,
+            breadcrumbConfig: {
+              path: [
+                {
+                  path: '/',
+                  label: 'Inicio',
+                  current: false
+                },
+                {
+                  path: '/catalogs/' + item.slug,
+                  label: 'Catalogos',
+                  current: true
+                }
+              ],
+              align: 'left'
+            },
+            branchName: item.slug,
+            titleSingular: item.name,
+            baseUrl: '/app/catalogItems/' + item.slug,
+            detailUrl: '/catalogs/' + item.slug
+          }
+
+        return Catalogs.opts(config).asSidebarItem()
+      }
+    }).filter(item => item)
+  }
+
   getMenuItems () {
     if (tree.get('organization')) {
       return [
 
         Dashboard.asSidebarItem(),
         {
-          title: 'Administra tu equipo',
-          icon: 'users',
+          title: 'Administración',
+          icon: 'id-card-o',
           to: '/manage',
-          roles: 'orgadmin, admin, analyst, consultor, manager-level-2',
+          roles: 'orgadmin, admin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
             {
-              title: 'Mi Organización',
-              icon: 'user',
-              roles: 'orgadmin, admin, analyst',
+              title: 'Organización',
+              icon: 'user-circle-o',
+              roles: 'orgadmin, admin, analyst, manager-level-3',
               to: '/manage/organizations/' + tree.get('organization').uuid
             },
-            Groups.asSidebarItem(),
-            Users.asSidebarItem()
+            OrgRules.asSidebarItem(),
+            UsersGroups.asSidebarItem(),
+            Roles.asSidebarItem(),
+            {
+              title: 'Catálogos',
+              icon: 'book',
+              to: '/catalogs',
+              roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
+              openedLvl2: false,
+              dropdown: [
+                Prices.asSidebarItem(),
+                ...this.catalogs()
+              ]
+            }
           ]
         },
         Projects.asSidebarItem(),
         Calendar.asSidebarItem(),
         {
-          title: 'Catálogos',
-          icon: 'file',
-          to: '/catalogs',
-          roles: 'consultor, analyst, orgadmin, admin, manager-level-2',
-          opened: false,
+          title: 'Cargar Datos',
+          icon: 'upload',
+          to: '/import',
+          roles: 'orgadmin, admin, manager-level-3',
           dropdown: [
-            Prices.asSidebarItem(),
-            SalesCenters.asSidebarItem(),
-            Products.asSidebarItem(),
-            Channels.asSidebarItem()
+            UsersImport.asSidebarItem()
           ]
         },
         {
-          title: 'Cargar Datos',
-          icon: 'file-o',
-          to: '/import',
-          roles: 'orgadmin, admin',
+          title: 'Reportes',
+          icon: 'clipboard',
+          to: '/reports',
+          roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
+          opened: false,
           dropdown: [
-            UsersImport.asSidebarItem(),
-            SalesCentersImport.asSidebarItem(),
-            ChannelsImport.asSidebarItem(),
-            ProductsImport.asSidebarItem()
+            StatusReport.asSidebarItem(),
+            HistoricReport.asSidebarItem(),
+            DownloadReport.asSidebarItem()
           ]
         }
       ]
@@ -133,7 +196,7 @@ class Sidebar extends Component {
         title: 'Administra tu equipo',
         icon: 'users',
         to: '/manage',
-        roles: 'orgadmin, admin',
+        roles: 'orgadmin, admin, manager-level-3',
         dropdown: [
           Users.asSidebarItem(),
           Groups.asSidebarItem()
@@ -158,6 +221,7 @@ class Sidebar extends Component {
       })
     })
   }
+
   handleToggle (index) {
     const menuItems = [...this.state.menuItems]
     menuItems[index].opened = !menuItems[index].opened
@@ -168,30 +232,7 @@ class Sidebar extends Component {
     const menuClass = classNames({
       'menu-collapsed': this.state.collapsed
     })
-    /* return (<div className='offcanvas column is-narrow is-paddingless'>
-      <aside className={menuClass}>
-        <ul className='menu-list'>
-          <SelectOrg collapsed={this.state.collapsed} />
-          {this.state.menuItems.map((item, index) => {
-            if (item) {
-              return <SidebarItem
-                title={item.title}
-                index={index}
-                status={item.opened}
-                collapsed={this.state.collapsed}
-                icon={item.icon}
-                to={item.to}
-                dropdown={item.dropdown}
-                roles={item.roles}
-                onClick={this.handleActiveLink}
-                dropdownOnClick={(i) => this.handleToggle(i)}
-                activeItem={this.state.active}
-                key={item.title.toLowerCase().replace(/\s/g, '')} />
-            }
-          })}
-        </ul>
-      </aside>
-    </div>) */
+
     return (
       <div className={'sidenav menu ' + menuClass}>
         <ul className='menu-list'>

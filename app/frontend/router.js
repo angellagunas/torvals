@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import {
   BrowserRouter as Router,
   Switch,
@@ -7,20 +7,14 @@ import {
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
-
 import LandPage from './pages/land-page'
 import Dashboard from './pages/dashboard'
-import Users from './pages/users/list'
-import UserDetail from './pages/users/detail'
 import Profile from './pages/profile'
-import Groups from './pages/groups/list'
-import GroupDetail from './pages/groups/detail'
 import OrganizationDetail from './pages/organizations/detail'
 import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
 import ResetPassword from './pages/reset-password'
 import DataSets from './pages/datasets/list'
-import DataSetDetail from './pages/datasets/detail'
 import ReadyDataSets from './pages/datasets/list-ready'
 import Projects from './pages/projects/list'
 import ProjectDetail from './pages/projects/detail'
@@ -41,6 +35,14 @@ import UsersImport from './pages/import/users'
 import ChannelImport from './pages/import/channels'
 import ProductsImport from './pages/import/products'
 import SalesCentersImport from './pages/import/sales-centers'
+import CatalogRouter from './pages/catalog/router'
+import CatalogDetail from './pages/catalog/detail'
+import HistoricalReport from './pages/reports/historic'
+import StatusReport from './pages/reports/status'
+import DownloadReport from './pages/reports/download'
+import OrgRules from './pages/org-rules'
+import UsersGroups from './pages/users-groups'
+import Roles from './pages/roles/list'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -49,59 +51,68 @@ const NoMatch = () => {
   return (<NotFound />)
 }
 
-const AppRouter = () => {
-  return (<Router>
-    <AdminLayout>
-      <div>
-        <Switch>
-          {LandPage.asRouterItem()}
-          {ResetPassword.asRouterItem()}
-          {EmailResetLanding.asRouterItem()}
-          {EmailInviteLanding.asRouterItem()}
-          {Dashboard.asRouterItem()}
-          {Profile.asRouterItem()}
+class AppRouter extends Component {
+  render () {
+    return (
+      <Router>
+        <AdminLayout>
+          <div>
+            <Switch>
+              {LandPage.asRouterItem()}
+              {ResetPassword.asRouterItem()}
+              {EmailResetLanding.asRouterItem()}
+              {EmailInviteLanding.asRouterItem()}
+              {Dashboard.asRouterItem()}
+              {Profile.asRouterItem()}
 
-          {Users.asRouterItem()}
-          {UserDetail.asRouterItem()}
-          {UsersImport.asRouterItem()}
+              {UsersImport.asRouterItem()}
 
-          {OrganizationDetail.asRouterItem()}
+              {OrganizationDetail.asRouterItem()}
 
-          {Groups.asRouterItem()}
-          {GroupDetail.asRouterItem()}
+              {DataSets.asRouterItem()}
+              {ReadyDataSets.asRouterItem()}
 
-          {DataSets.asRouterItem()}
-          {ReadyDataSets.asRouterItem()}
-          {DataSetDetail.asRouterItem()}
+              {Projects.asRouterItem()}
 
-          {Projects.asRouterItem()}
+              {Calendar.asRouterItem()}
 
-          {Calendar.asRouterItem()}
+              {ProjectDetail.asRouterItem()}
 
-          {ProjectDetail.asRouterItem()}
+              {SalesCenters.asRouterItem()}
+              {SalesCenterDetail.asRouterItem()}
+              {SalesCentersImport.asRouterItem()}
 
-          {SalesCenters.asRouterItem()}
-          {SalesCenterDetail.asRouterItem()}
-          {SalesCentersImport.asRouterItem()}
+              {Products.asRouterItem()}
+              {ProductDetail.asRouterItem()}
 
-          {Products.asRouterItem()}
-          {ProductDetail.asRouterItem()}
+              {Forecasts.asRouterItem()}
+              {ForecastDetail.asRouterItem()}
+              {Channels.asRouterItem()}
+              {ChannelsDetail.asRouterItem()}
+              {ChannelImport.asRouterItem()}
+              {ProductsImport.asRouterItem()}
 
-          {Forecasts.asRouterItem()}
-          {ForecastDetail.asRouterItem()}
-          {Channels.asRouterItem()}
-          {ChannelsDetail.asRouterItem()}
-          {ChannelImport.asRouterItem()}
-          {ProductsImport.asRouterItem()}
+              {Prices.asRouterItem()}
+              {PriceDetail.asRouterItem()}
+              {CatalogDetail.asRouterItem()}
 
-          {Prices.asRouterItem()}
-          {PriceDetail.asRouterItem()}
+              {HistoricalReport.asRouterItem()}
+              {StatusReport.asRouterItem()}
+              {DownloadReport.asRouterItem()}
 
-          <Route component={NoMatch} />
-        </Switch>
-      </div>
-    </AdminLayout>
-  </Router>)
+              {OrgRules.asRouterItem()}
+              {UsersGroups.asRouterItem()}
+              {Roles.asRouterItem()}
+
+              <CatalogRouter path={env.PREFIX + '/catalogs/'} />
+
+              <Route component={NoMatch} />
+
+            </Switch>
+          </div>
+        </AdminLayout>
+      </Router>)
+  }
 }
 
 export default AppRouter

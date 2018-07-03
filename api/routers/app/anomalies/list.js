@@ -1,56 +1,52 @@
 const Route = require('lib/router/route')
-
-const { Product, Channel, DataSet, Anomaly, SalesCenter, Project } = require('models')
+const { Anomaly, Project, Role, CatalogItem, Period, Cycle } = require('models')
 
 module.exports = new Route({
   method: 'get',
   path: '/list/:uuid',
   handler: async function (ctx) {
     var filters = {}
-    const project = await Project.findOne({uuid: ctx.params.uuid}).populate('mainDataset')
+    const project = await Project.findOne({uuid: ctx.params.uuid}).populate('rule')
 
     ctx.assert(project, 404, 'Proyecto no encontrado')
-    ctx.assert(project.mainDataset, 404, 'No hay DataSet activo')
+
+    await project.rule.populate('catalogs').execPopulate()
+
+    let catalogs = project.rule.catalogs
+    let catalogItemsFilters = []
 
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
       }
 
-      if (filter === 'semanaBimbo') {
-        filters['semanaBimbo'] = ctx.request.query[filter]
-        continue
-      }
-
       if (filter === 'product') {
-        filters[filter] = await Product.findOne({
+        filters['newProduct'] = await CatalogItem.findOne({
           'uuid': ctx.request.query[filter],
           organization: ctx.state.organization
         })
         continue
       }
 
-      if (filter === 'channel') {
-        filters[filter] = await Channel.findOne({
-          'uuid': ctx.request.query[filter],
-          organization: ctx.state.organization
-        })
+      if (filter === 'period') {
+        const periods = await Period.find({uuid: {$in: ctx.request.query[filter]}})
+        filters['period'] = { $in: periods.map(item => { return item._id }) }
         continue
       }
 
-      if (filter === 'salesCenter') {
-        filters[filter] = await SalesCenter.findOne({
-          'uuid': ctx.request.query[filter],
-          organization: ctx.state.organization
-        })
+      if (filter === 'cycle') {
+        const cycles = await Cycle.find({uuid: {$in: ctx.request.query[filter]}})
+        filters['cycle'] = { $in: cycles.map(item => { return item._id }) }
         continue
       }
-      if (filter === 'category') {
-        var products = await Product.find({
-          'category': ctx.request.query[filter],
-          organization: ctx.state.organization
-        })
-        filters['product'] = { $in: products.map(item => { return item._id }) }
+
+      var isCatalog = catalogs.find(item => {
+        return item.slug === filter
+      })
+
+      if (isCatalog) {
+        const cItem = await CatalogItem.findOne({uuid: ctx.request.query[filter]})
+        catalogItemsFilters.push(cItem.id)
         continue
       }
 
@@ -66,53 +62,22 @@ module.exports = new Route({
           $or.push({prediction: ctx.request.query[filter]})
         }
 
-        let channelValues = []
-        let channel = await Channel.find({
-          name: new RegExp(ctx.request.query[filter], 'i'),
-          isDeleted: false,
-          organization: ctx.state.organization
-        })
-        channel.map(channel => {
-          channelValues.push(channel._id)
-        })
-
-        if (channelValues.length) {
-          $or.push({channel: {$in: channelValues}})
-        }
-
-        let productValues = []
-        let product = await Product.find({
-          '$or': [
+        let catalogItemsValues = []
+        let catalogItems = await CatalogItem.find({
+          $or: [
             {name: new RegExp(ctx.request.query[filter], 'i')},
             {externalId: new RegExp(ctx.request.query[filter], 'i')}
           ],
           isDeleted: false,
           organization: ctx.state.organization
         })
-
-        product.map(product => {
-          productValues.push(product._id)
+        catalogItems.map(item => {
+          catalogItemsValues.push(item._id)
         })
 
-        if (productValues.length) {
-          $or.push({product: {$in: productValues}})
-        }
-
-        let salesCenterValues = []
-        let salesCenter = await Product.find({
-          '$or': [
-            {name: new RegExp(ctx.request.query[filter], 'i')},
-            {externalId: new RegExp(ctx.request.query[filter], 'i')}
-          ],
-          isDeleted: false,
-          organization: ctx.state.organization
-        })
-        salesCenter.map(saleCenter => {
-          salesCenterValues.push(saleCenter._id)
-        })
-
-        if (salesCenterValues.length) {
-          $or.push({salesCenter: {$in: salesCenterValues}})
+        if (catalogItemsValues.length) {
+          $or.push({catalogItems: {$in: catalogItemsValues}})
+          $or.push({newProduct: {$in: catalogItemsValues}})
         }
 
         if ($or.length) { filters['$or'] = $or }
@@ -122,6 +87,41 @@ module.exports = new Route({
         } else {
           filters[filter] = ctx.request.query[filter]
         }
+      }
+    }
+
+    const user = ctx.state.user
+    var currentRole
+    const currentOrganization = user.organizations.find(orgRel => {
+      return ctx.state.organization._id.equals(orgRel.organization._id)
+    })
+
+    if (currentOrganization) {
+      const role = await Role.findOne({_id: currentOrganization.role})
+
+      currentRole = role.toPublic()
+    }
+
+    if (catalogItemsFilters.length > 0) {
+      let catalogItems = await CatalogItem.filterByUserRole(
+        { _id: { $in: catalogItemsFilters } },
+        currentRole.slug,
+        user
+      )
+      filters['catalogItems'] = { '$all': catalogItems }
+    }
+
+    if (
+      currentRole.slug === 'consultor-level-3' || currentRole.slug === 'manager-level-3' ||
+      currentRole.slug === 'consultor-level-2' || currentRole.slug === 'manager-level-2'
+    ) {
+      if (catalogItemsFilters.length === 0) {
+        let catalogItems = await CatalogItem.filterByUserRole(
+          { },
+          currentRole.slug,
+          user
+        )
+        filters['catalogItems'] = { '$in': catalogItems }
       }
     }
 
@@ -135,11 +135,14 @@ module.exports = new Route({
         project: project._id
       },
       sort: ctx.request.query.sort || '-dateCreated',
-      populate: ['salesCenter', 'product', 'channel', 'dataset', 'organization']
+      populate: ['newProduct', 'organization', 'catalogItems']
     })
 
     rows.data = rows.data.map(item => {
-      return item.toAdmin()
+      return {
+        ...item.toPublic(),
+        product: item.newProduct
+      }
     })
 
     if (requestId) {

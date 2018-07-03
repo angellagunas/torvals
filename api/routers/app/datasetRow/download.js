@@ -1,7 +1,12 @@
 const Route = require('lib/router/route')
-const { Project, SalesCenter, Channel, Product } = require('models')
-const Api = require('lib/abraxas/api')
+const {
+  CatalogItem,
+  Cycle,
+  DataSetRow,
+  Project
+} = require('models')
 const lov = require('lov')
+const moment = require('moment')
 
 module.exports = new Route({
   method: 'post',
@@ -11,8 +16,10 @@ module.exports = new Route({
     end_date: lov.string().required()
   }),
   handler: async function (ctx) {
-    var data = ctx.request.body
-    const project = await Project.findOne({uuid: ctx.params.uuid}).populate('activeDataset')
+    const data = ctx.request.body
+    const project = await Project.findOne({uuid: ctx.params.uuid})
+      .populate('organization')
+      .populate('activeDataset mainDataset')
 
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
@@ -20,44 +27,88 @@ module.exports = new Route({
       ctx.throw(400, 'No hay DataSet activo para el proyecto')
     }
 
-    const requestBody = {
-      date_start: data.start_date,
-      date_end: data.end_date
+    let cycles = await Cycle.getBetweenDates(
+      project.organization._id,
+      project.rule,
+      moment.utc(data.start_date, 'YYYY-MM-DD').toDate(),
+      moment.utc(data.end_date, 'YYYY-MM-DD').toDate()
+    )
+    let filters = {
+      'cycle': {
+        $in: cycles.map(item => { return item._id })
+      }
     }
 
-    if (data.salesCenter) {
-      const agenciaName = project.activeDataset.getSalesCenterColumn() || {name: 'agencia_id'}
-      const salesCenter = await SalesCenter.findOne({uuid: data.salesCenter})
-      ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
+    catalogItems = []
+    for (let filter of Object.keys(data)) {
+      const unwantedKeys = [
+        'start_date',
+        'end_date',
+        'salesCenter',
+        'channel',
+        'product'
+      ]
+      if (unwantedKeys.includes(filter)) {
+        continue
+      }
+      const catalogItem = await CatalogItem.findOne({
+        uuid: data[filter]
+      })
+      catalogItems.push(catalogItem._id)
 
-      requestBody[agenciaName.name] = salesCenter.externalId
+    }
+    filters['catalogItems'] = {
+      '$all': catalogItems
     }
 
-    if (data.channel) {
-      const channelName = project.activeDataset.getChannelColumn() || {name: 'canal_id'}
-      const channel = await Channel.findOne({uuid: data.channel})
-      ctx.assert(channel, 404, 'Canal no encontrado')
+    let rows = await DataSetRow.find({
+      dataset: project.activeDataset._id,
+      isDeleted: false,
+      ...filters
+    })
 
-      requestBody[channelName.name] = channel.externalId
+    let rowsCsv = ''
+    let names = []
+
+    for (let head of project.mainDataset.columns) {
+      rowsCsv += head.name + ','
+      names.push(head.name)
     }
 
-    if (data.product) {
-      const productName = project.activeDataset.getProductColumn() || {name: 'producto_id'}
-      const product = await Product.findOne({uuid: data.product})
-      ctx.assert(product, 404, 'Producto no encontrado')
+    rowsCsv = rowsCsv.substring(0, rowsCsv.length - 1) + '\r\n'
 
-      requestBody[productName.name] = product.externalId
+    for (let row of rows) {
+      let rowsString = ''
+
+      for (let col of names) {
+        var predictionColumn = project.mainDataset.getPredictionColumn() || {name: ''}
+        var adjustmentColumn = project.mainDataset.getAdjustmentColumn() || {name: ''}
+
+        if (col === adjustmentColumn.name) {
+          rowsString += row.data.adjustment + ','
+          continue
+        }
+
+        if (col === predictionColumn.name) {
+          rowsString += row.data.prediction + ','
+          continue
+        }
+
+        if (row.apiData[col]) {
+          rowsString += row.apiData[col] + ','
+        } else {
+          rowsString += ','
+        }
+      }
+
+      rowsString = rowsString.substring(0, rowsString.length - 1) + '\r\n'
+
+      rowsCsv += rowsString
     }
-
-    if (data.period) {
-      requestBody.periodo = data.period
-    }
-
-    var res = await Api.downloadProject(project.externalId, requestBody)
 
     ctx.set('Content-disposition', `attachment; filename=datasetrow.csv`)
     ctx.set('Content-type', `text/csv`)
 
-    ctx.body = res
+    ctx.body = rowsCsv
   }
 })

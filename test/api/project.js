@@ -3,7 +3,13 @@ require('co-mocha')
 
 const { expect } = require('chai')
 const http = require('http')
-const { clearDatabase, createUser } = require('../utils')
+const {
+  clearDatabase,
+  createOrganization,
+  createFullOrganization,
+  createProject,
+  createUser
+} = require('../utils')
 const api = require('api/')
 const request = require('supertest')
 const {Project, Organization} = require('models')
@@ -16,20 +22,25 @@ describe('/projects', () => {
   describe('[post] / Create Project', () => {
     it('should return a 200 then the project created', async function () {
       await clearDatabase()
-      const org = await Organization.create({
+      const user = await createUser()
+      const token = await user.createToken({type: 'session'})
+      const jwt = token.getJwt()
+      const org = createFullOrganization({
         name: 'Una org',
-        description: 'Una descripción'
-      })
+        description: 'Una descripción',
+        slug: 'test-org'
+      },{})
 
       const res = await test()
-        .post('/api/admin/projects')
+        .post('/api/app/projects')
         .send({
           name: 'Un proyecto',
           organization: org.uuid,
           description: 'Una descripción de proyecto'
-
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(200)
 
       const newProject = await Project.findOne({'uuid': res.body.data.uuid})
@@ -46,19 +57,42 @@ describe('/projects', () => {
       })
 
       it('should return list of projects', async function () {
+        await clearDatabase()
+        const user = await createUser()
+        const token = await user.createToken({type: 'session'})
+        const jwt = token.getJwt()
+
+        const org = await createOrganization({rules: {}})
+
+        const project = await createProject({
+          organization: org._id,
+          createdBy: user._id
+        })
+
         const res = await test()
         .get('/api/admin/projects')
         .set('Accept', 'application/json')
         .expect(200)
 
-        const projects = await Project.findOne({name: 'Un proyecto'})
-        expect(projects.name).equal('Un proyecto')
+        const projects = await Project.find({}).count()
+        expect(projects).equal(res.body.total)
       })
     })
 
     describe('[delete] / Soft Delete project', () => {
       it('should return true for deleted', async function () {
-        const project = await Project.findOne({name: 'Un proyecto'})
+        await clearDatabase()
+        const user = await createUser()
+        const token = await user.createToken({type: 'session'})
+        const jwt = token.getJwt()
+
+        const org = await createOrganization({rules: {}})
+
+        const project = await createProject({
+          organization: org._id,
+          createdBy: user._id
+        })
+
         const res = await test()
         .delete('/api/admin/projects/' + project.uuid)
         .set('Accept', 'application/json')

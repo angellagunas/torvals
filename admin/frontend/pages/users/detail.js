@@ -115,7 +115,8 @@ class UserDetail extends PageComponent {
         role: role
       }
     )
-    this.loadGroups()
+    await this.loadGroups()
+    await this.loadCurrentUser()
   }
 
   async availableGroupOnClick (uuid) {
@@ -547,11 +548,6 @@ class UserDetail extends PageComponent {
                   path: '/admin/manage/users',
                   label: 'Usuarios',
                   current: false
-                },
-                {
-                  path: '/admin/manage/users/',
-                  label: 'Detalle',
-                  current: true
                 },
                 {
                   path: '/admin/manage/users/',

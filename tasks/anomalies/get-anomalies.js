@@ -1,77 +1,156 @@
-// node tasks/anomalies/get-anomalies.js --uuid uuid
+// node tasks/anomalies/get-anomalies.js --uuid uuid [--batchSize batchize]
 require('../../config')
 require('lib/databases/mongo')
+const moment = require('moment')
 
 const Task = require('lib/task')
-const { Anomaly, DataSetRow, DataSet } = require('models')
+const { Anomaly, DataSetRow, Project } = require('models')
+const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 
-const task = new Task(async function (argv) {
-  if (!argv.uuid) {
-    throw new Error('You need to provide an uuid!')
-  }
-  console.log('Fetching Anomalies ...')
+const task = new Task(
+  async function (argv) {
+    let log = (args) => {
+      args = ('[get-anomalies] ') + args
 
-  const dataset = await DataSet.findOne({uuid: argv.uuid})
-  if (!dataset) {
-    throw new Error('Project not found')
-  }
+      console.log(args)
+    }
 
-  var batchSize = 10000
-  const datasetrows = await DataSetRow.find({
-    dataset: dataset._id,
-    'data.prediction': {$ne: null},
-    $or: [{'data.prediction': 0}, {'data.prediction': {$lt: 0}}] })
+    if (!argv.uuid) {
+      throw new Error('You need to provide an uuid!')
+    }
 
-  var bulkOps = []
-  var updateBulk = []
-  for (let dataRow of datasetrows) {
-    try {
-      bulkOps.push({
-        datasetRow: dataRow._id,
-        salesCenter: dataRow.salesCenter,
-        product: dataRow.product,
-        channel: dataRow.channel,
-        project: dataset.project,
-        prediction: dataRow.data.prediction,
-        semanaBimbo: dataRow.data.semanaBimbo,
-        organization: dataset.organization,
-        type: 'zero_sales',
-        date: dataRow.data.forecastDate
+    var batchSize = 10000
+    if (argv.batchSize) {
+      try {
+        batchSize = parseInt(argv.batchSize)
+      } catch (e) {
+        log('Invalid batch size!')
+      }
+    }
+
+    log('Finding Anomalies ...')
+    log(`Using batch size of ${batchSize}`)
+    log(`Start ==>  ${moment().format()}`)
+
+    const project = await Project.findOne({uuid: argv.uuid}).populate('mainDataset rule')
+
+    if (!project) {
+      throw new Error('Project not found')
+    }
+
+    if (!project.rule.hasAnomalies) {
+      log('Organization doesnt have anomalies!')
+      project.set({
+        status: 'pendingRows'
       })
-      updateBulk.push({
-        updateOne: {
-          'filter': {_id: dataRow._id},
-          'update': {$set: {isAnomaly: true}}
+      await project.save()
+
+      return true
+    }
+
+    let month = moment.utc().startOf('month')
+
+    const datasetrows = await DataSetRow.find({
+      dataset: project.mainDataset,
+      'data.forecastDate': {$gte: month.toDate()},
+      'data.prediction': {$ne: null},
+      $or: [{'data.prediction': 0}, {'data.prediction': {$lt: 0}}]
+    }).cursor()
+
+    log('Rows ready, transversing ...')
+
+    var bulkOps = []
+    var deleteBulk = []
+    let count = 0
+    for (let dataRow = await datasetrows.next(); dataRow != null; dataRow = await datasetrows.next()) {
+      try {
+        bulkOps.push({
+          product: dataRow.product,
+          newProduct: dataRow.newProduct,
+          project: project._id,
+          prediction: dataRow.data.prediction,
+          organization: project.organization,
+          type: 'zero_sales',
+          date: dataRow.data.forecastDate,
+          apiData: dataRow.apiData,
+          period: dataRow.period,
+          cycle: dataRow.cycle,
+          data: dataRow.data,
+          catalogItems: dataRow.catalogItems
+        })
+
+        deleteBulk.push({
+          deleteOne: {
+            filter: {_id: dataRow._id}
+          }
+        })
+
+        if (bulkOps.length === batchSize) {
+          log(`${batchSize} anomalies saved! => ${moment().format()}`)
+          await Anomaly.insertMany(bulkOps)
+          bulkOps = []
+          await DataSetRow.bulkWrite(deleteBulk)
+          deleteBulk = []
         }
-      })
+        count++
+      } catch (e) {
+        log('Error trying to save anomalies: ')
+        log(e)
+      }
+    }
 
-      if (bulkOps.length === batchSize) {
-        console.log(`${batchSize} anomalies saved!`)
+    try {
+      if (bulkOps.length > 0) {
         await Anomaly.insertMany(bulkOps)
-        bulkOps = []
-        await DataSetRow.bulkWrite(updateBulk)
-        updateBulk = []
+        await DataSetRow.bulkWrite(deleteBulk)
       }
     } catch (e) {
-      console.log('Error trying to save anomaly: ')
-      console.log(e)
+      log('Error trying to save anomalies: ')
+      log(e)
     }
-  }
 
-  try {
-    if (bulkOps.length > 0) {
-      await Anomaly.insertMany(bulkOps)
-      await DataSetRow.bulkWrite(updateBulk)
+    log(`Received ${count} anomalies!`)
+
+    project.set({
+      status: 'pendingRows'
+    })
+    await project.save()
+
+    return true
+  },
+  async (argv) => {
+    if (!argv.uuid) {
+      throw new Error('You need to provide a project!')
     }
-  } catch (e) {
-    console.log('Error trying to save anomaly: ')
-    console.log(e)
+
+    const project = await Project.findOne({uuid: argv.uuid})
+
+    if (!project) {
+      throw new Error('Invalid project!')
+    }
+
+    sendSlackNotification.run({
+      channel: 'all',
+      message: `Se estan obteniendo las anomalias del proyecto *${project.name}*`
+    })
+  },
+  async (argv) => {
+    if (!argv.uuid) {
+      throw new Error('You need to provide a project!')
+    }
+
+    const project = await Project.findOne({uuid: argv.uuid})
+
+    if (!project) {
+      throw new Error('Invalid project!')
+    }
+
+    sendSlackNotification.run({
+      channel: 'all',
+      message: `Se obtuvieron correctamente todas las anomalias del proyecto *${project.name}*!`
+    })
   }
-  dataset.set({ status: 'reviewing' })
-  await dataset.save()
-  console.log(`Received ${datasetrows.length} anomalies!`)
-  return true
-})
+)
 
 if (require.main === module) {
   task.setCliHandlers()

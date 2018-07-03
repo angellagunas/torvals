@@ -11,6 +11,7 @@ const groupSchema = new Schema({
   users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
   channels: [{ type: Schema.Types.ObjectId, ref: 'Channel' }],
+  catalogItems: [{ type: Schema.Types.ObjectId, ref: 'CatalogItem' }],
 
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
@@ -24,7 +25,9 @@ groupSchema.methods.toPublic = function () {
     description: this.description,
     slug: this.slug,
     organization: this.organization,
-    dateCreated: this.dateCreated
+    dateCreated: this.dateCreated,
+    channels: this.channels,
+    catalogItems: this.catalogItems
   }
 }
 
@@ -34,7 +37,8 @@ groupSchema.methods.toAdmin = function () {
     name: this.name,
     description: this.description,
     dateCreated: this.dateCreated,
-    organization: this.organization
+    organization: this.organization,
+    catalogItems: this.catalogItems
   }
 }
 

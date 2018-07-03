@@ -34,36 +34,24 @@ class DataSetDetail extends Component {
       className: '',
       classNameSC: '',
       classNameCh: '',
-      isProductsOpen: false,
-      isChannelsOpen: false,
-      isSalesCenterOpen: false,
       loading: true,
       loaded: false,
       dataset: {},
-      currentProduct: null,
-      currentSalesCenter: null,
+      currentUnidentified: null,
       columns: [],
-      roles: 'admin, orgadmin, analyst',
+      roles: 'admin, orgadmin, analyst, manager-level-3',
       canEdit: false,
       isLoading: '',
       isLoadingConsolidate: '',
       isLoadingConfigure: '',
-      selectedProducts: new Set(),
-      selectAllProducts: false,
-      selectAllSalesCenters: false,
-      selectedSalesCenters: new Set(),
-      selectAllChannels: false,
-      selectedChannels: new Set(),
-      disableBtnC: true,
+      selectedUnidentified: new Set(),
       isLoadingBtnC: '',
-      disableBtnP: true,
       isLoadingBtnP: '',
-      disableBtnS: true,
-      isLoadingBtnS: ''
+      isLoadingBtnS: '',
+      disableBtnUn: true,
+      isLoadingBtnUn: ''
     }
-    this.newProducts = []
-    this.newChannels = []
-    this.newSalesCenters = []
+
   }
 
   componentWillMount() {
@@ -76,6 +64,7 @@ class DataSetDetail extends Component {
     tree.commit()
     this.load()
     this.interval = setInterval(() => {
+
       if (this.state.dataset.status === 'preprocessing' ||
         this.state.dataset.status === 'processing' ||
         this.state.dataset.status === 'uploaded' ||
@@ -83,8 +72,13 @@ class DataSetDetail extends Component {
         this.state.dataset.status === 'pendingRows') {
         this.load()
       }
-    }, 30000)
+      if (this.state.dataset.project.status === 'pendingRows' &&
+      this.state.dataset.status === 'ready'){
+        this.props.setDataset('', 'ajustes')
+      }
+    }, 10000)
     this.setState({ canEdit: testRoles(this.state.roles) })
+
   }
 
   componentWillUnmount() {
@@ -109,6 +103,8 @@ class DataSetDetail extends Component {
         notFound: true
       })
     }
+    this.getUnidentified()
+
   }
 
   getColumns() {
@@ -167,7 +163,7 @@ class DataSetDetail extends Component {
     await api.post(url)
     await this.load()
     this.setState({ isLoadingConsolidate: '' })
-    this.props.setDataset('', 'ajustes') 
+    this.props.setDataset('', 'ajustes')
   }
 
   async cancelOnClick() {
@@ -577,9 +573,11 @@ class DataSetDetail extends Component {
                           </span>
                         </div>
                         <div className='media-content'>
-                          Se ha generado un error. Por favor intenta borrar este dataset y generar otro.
-                      Si no se soluciona, contacta a un administrador.
-                          </div>
+                          {
+                            testRoles('orgadmin') ? dataset.error
+                            : 'Se ha generado un error. Por favor intenta borrar este dataset y generar otro. Si no se soluciona, contacta a un administrador.'
+                          }
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -614,23 +612,6 @@ class DataSetDetail extends Component {
     })
   }
 
-  toggleUnidentifiedProducts() {
-    this.setState({ isProductsOpen: !this.state.isProductsOpen }, function () {
-      this.setHeights()
-    })
-  }
-
-  toggleUnidentifiedSalesCenters() {
-    this.setState({ isSalesCenterOpen: !this.state.isSalesCenterOpen }, function () {
-      this.setHeights()
-    })
-  }
-
-  toggleUnidentifiedChannels() {
-    this.setState({ isChannelsOpen: !this.state.isChannelsOpen }, function () {
-      this.setHeights()
-    })
-  }
 
   getHeight(element) {
     if (this.state.bodyHeight === 0) {
@@ -638,47 +619,6 @@ class DataSetDetail extends Component {
     }
   }
 
-  showModal(item) {
-    this.setState({
-      className: ' is-active',
-      currentProduct: item
-    })
-  }
-
-  hideModal() {
-    this.setState({
-      className: '',
-      currentProduct: null
-    })
-  }
-
-  showModalSalesCenters(item) {
-    this.setState({
-      classNameSC: ' is-active',
-      currentSalesCenter: item
-    })
-  }
-
-  hideModalSalesCenters() {
-    this.setState({
-      classNameSC: '',
-      currentSalesCenter: null
-    })
-  }
-
-  showModalChannels(item) {
-    this.setState({
-      classNameCh: ' is-active',
-      currentChannel: item
-    })
-  }
-
-  hideModalChannels() {
-    this.setState({
-      classNameCh: '',
-      currentChannel: null
-    })
-  }
 
   submitHandler() {
     this.setState({ isLoading: ' is-loading' })
@@ -692,50 +632,140 @@ class DataSetDetail extends Component {
     this.setState({ isLoading: '' })
   }
 
-  getModalCurrentProduct() {
-    if (this.state.currentProduct && this.state.canEdit) {
-      return (<BaseModal
-        title='Editar Producto'
-        className={this.state.className}
-        hideModal={() => this.hideModal()}
-      >
-        <ProductForm
-          baseUrl='/app/products'
-          url={'/app/products/' + this.state.currentProduct.uuid}
-          initialState={this.state.currentProduct}
-          load={this.deleteNewProduct.bind(this)}
-          submitHandler={(data) => this.submitHandler(data)}
-          errorHandler={(data) => this.errorHandler(data)}
-          finishUp={(data) => this.finishUpHandler(data)}
-        >
-          <div className='field is-grouped'>
-            <div className='control'>
-              <button
-                className={'button is-primary ' + this.state.isLoading}
-                disabled={!!this.state.isLoading}
-                type='submit'
-              >Guardar</button>
-            </div>
-            <div className='control'>
-              <button className='button' onClick={() => this.hideModal()} type='button'>Cancelar</button>
-            </div>
-          </div>
-        </ProductForm>
-      </BaseModal>)
-    }
+
+
+  toggleButtons() {
+
+    this.setState({
+      ...this.state
+    })
   }
 
-  getModalChannels() {
-    if (this.state.currentChannel && this.state.canEdit) {
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    this.toastId = toast(message, {
+      autoClose: timeout,
+      type: type,
+      hideProgressBar: true,
+      closeButton: false
+    })
+  }
+
+  toggleUnidentified(key, item) {
+    let uni = this.state.unidentified
+
+    uni[key].headerClass = classNames('card-content', {
+      'is-hidden': item.isOpen
+    })
+    uni[key].iconClass = classNames('fa fa-2x', {
+      'fa-caret-down': item.isOpen,
+      'fa-caret-up': !item.isOpen
+    })
+    uni[key].isOpen = !item.isOpen
+
+    this.setState({
+      unidentified: uni
+    })
+  }
+
+  checkUnidentified = (item, check) => {
+    if (check) {
+      this.state.selectedUnidentified.add(item)
+      item.selected = true
+    }
+    else {
+      this.state.selectedUnidentified.delete(item)
+      item.selected = false
+    }
+
+    this.toggleButtons()
+  }
+
+  checkAllUnidentified = (check, key, type) => {
+    let uni = this.state.unidentified
+    for (let item of uni[key].objects) {
+
+      if (check){
+        this.state.selectedUnidentified.add(item)
+      }else if(!check && item.type === type){
+        this.state.selectedUnidentified.delete(item)
+      }
+
+      item.selected = check
+    }
+    uni[key].selectAll = check
+    this.setState({
+      unidentified: uni
+    })
+  }
+
+  countUnidentified(type){
+    let count = 0
+    for (const item of this.state.selectedUnidentified) {
+      if(type === item.type){
+        count++
+      }
+    }
+    return count
+  }
+
+  async confirmUnidentified(type) {
+    this.setState({
+      isLoadingBtnC: ' is-loading'
+    })
+
+    const url = '/app/catalogItems/approve'
+    try {
+      let res = await api.post(url, Array.from(this.state.selectedUnidentified).map(item => {
+        if(item.type === type)
+          return { uuid: item.uuid }
+      }))
+
+      if (res.success > 0) {
+        this.notify(
+          `¡Se confirmaron exitosamente ${res.success} ${type}!`,
+          5000,
+          toast.TYPE.SUCCESS
+        )
+      }
+
+      if (res.error > 0) {
+        this.notify(
+          `¡No se pudieron confirmar ${res.error} ${type}!`,
+          5000,
+          toast.TYPE.ERROR
+        )
+      }
+
+      if (res.error === 0 && res.success === 0) {
+        this.notify(`¡Error al confirmar ${type}!`, 5000, toast.TYPE.ERROR)
+      }
+    } catch (e) {
+      this.notify(`¡Error al confirmar ${type}!`, 5000, toast.TYPE.ERROR)
+    }
+
+
+    this.setState({
+      selectedUnidentified: new Set(),
+      isLoadingBtnC: ''
+    }, function () {
+      this.toggleButtons()
+      this.load()
+    })
+  }
+
+  getModalUnidentified() {
+    if (this.state.currentUnidentified && this.state.canEdit) {
+      let currentUnidentified = this.state.currentUnidentified
+      currentUnidentified.externalId = String(currentUnidentified.externalId)
       return (<BaseModal
-        title='Editar Canal'
-        className={this.state.classNameCh}
-        hideModal={() => this.hideModalChannels()} >
+        title={'Editar ' + currentUnidentified.catalog.name}
+        className={this.state.classNameUn}
+        hideModal={() => this.hideModalUnidentified()} >
         <ChannelForm
-          baseUrl='/app/channels'
-          url={'/app/channels/' + this.state.currentChannel.uuid}
-          initialState={this.state.currentChannel}
-          load={this.deleteNewChannel.bind(this)}
+          baseUrl='/app/catalogItems'
+          url={'/app/catalogItems/' + currentUnidentified.uuid}
+          initialState={currentUnidentified}
+          load={this.deleteUnidentified.bind(this)}
           submitHandler={(data) => this.submitHandler(data)}
           errorHandler={(data) => this.errorHandler(data)}
           finishUp={(data) => this.finishUpHandler(data)}
@@ -749,7 +779,7 @@ class DataSetDetail extends Component {
               >Guardar</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={() => this.hideModalChannels()} type='button'>Cancelar</button>
+              <button className='button' onClick={() => this.hideModalUnidentified()} type='button'>Cancelar</button>
             </div>
           </div>
         </ChannelForm>
@@ -757,382 +787,110 @@ class DataSetDetail extends Component {
     }
   }
 
-  getModalSalesCenters() {
-    if (this.state.currentSalesCenter && this.state.canEdit) {
-      return (<BaseModal
-        title='Editar Centro de Venta'
-        className={this.state.classNameSC}
-        hideModal={() => this.hideModalSalesCenters()}
-      >
-        <SalesCenterForm
-          baseUrl='/app/salesCenters'
-          url={'/app/salesCenters/' + this.state.currentSalesCenter.uuid}
-          initialState={this.state.currentSalesCenter}
-          load={this.deleteNewSalesCenter.bind(this)}
-          submitHandler={(data) => this.submitHandler(data)}
-          errorHandler={(data) => this.errorHandler(data)}
-          finishUp={(data) => this.finishUpHandler(data)}
-        >
-          <div className='field is-grouped'>
-            <div className='control'>
-              <button
-                className={'button is-primary ' + this.state.isLoading}
-                disabled={!!this.state.isLoading}
-                type='submit'
-              >Guardar</button>
-            </div>
-            <div className='control'>
-              <button className='button' onClick={() => this.hideModalSalesCenters()} type='button'>Cancelar</button>
-            </div>
-          </div>
-        </SalesCenterForm>
-      </BaseModal>)
-    }
-  }
-
-  async deleteNewProduct() {
+  async deleteUnidentified() {
     this.load()
     setTimeout(() => {
-      this.hideModal()
+      this.hideModalUnidentified()
     }, 1000)
   }
 
-  async deleteNewSalesCenter() {
-    this.load()
-    setTimeout(() => {
-      this.hideModalSalesCenters()
-    }, 1000)
-  }
-  async deleteNewChannel() {
-    this.load()
-    setTimeout(() => {
-      this.hideModalChannels()
-    }, 1000)
+  showModalUnidentified(item) {
+    this.setState({
+      classNameUn: ' is-active',
+      currentUnidentified: item
+    })
   }
 
-  getUnidentifiedChannels() {
+  hideModalUnidentified() {
+    this.setState({
+      classNameUn: '',
+      currentUnidentified: null
+    })
+  }
+
+  getUnidentified() {
     const { dataset, canEdit } = this.state
     if (!dataset.uuid) {
       return <Loader />
     }
 
-    const headerChannelsClass = classNames('card-content', {
-      'is-hidden': this.state.isChannelsOpen === false
-    })
-
-    const toggleBtnIconClass = classNames('fa fa-2x', {
-      'fa-caret-down': this.state.isChannelsOpen === false,
-      'fa-caret-up': this.state.isChannelsOpen !== false
-    })
-
-    this.newChannels = []
-    dataset.channels.map((item, key) => {
-      if (item.isNewExternal) {
-        this.newChannels.push(item)
-      }
-    })
-
-    if ((dataset.status !== 'reviewing' &&
-      dataset.status !== 'conciliated') ||
-      this.newChannels.length === 0) {
-      return ''
+    this.catalogs = {}
+    for (let cat of dataset.rule.catalogs) {
+      this.catalogs[cat._id] = cat
     }
 
-    return (<div className='columns unidentified'>
-      <div className='column'>
-        <div className='card'>
-          <header className='card-header deep-shadow '>
-            <p className='card-header-title'>
-              Canales no identificados: {this.newChannels.length}
-            </p>
-            <div className='field is-grouped is-grouped-right card-header-select'>
-              {canEdit &&
-                <div className={this.state.isChannelsOpen ? 'control' : 'is-hidden'}>
-                  <button
-                    onClick={() => this.confirmChannels()}
-                    disabled={this.state.disableBtnC || !!this.state.isLoadingBtnC}
-                    className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnC}
-                  >
-                    Confirmar ({this.state.selectedChannels.size})
-                </button>
-                </div>
-              }
-              <div className='control'>
-                <a
-                  className='button is-info undefined-btn'
-                  onClick={() => this.toggleUnidentifiedChannels()}>
-                  <span className='icon is-large'>
-                    <i className={toggleBtnIconClass} />
-                  </span>
-                </a>
-              </div>
-            </div>
-          </header>
-          <div className={headerChannelsClass}>
-            <div className='columns'>
-              <div className='column'>
-                <table className='table is-fullwidth'>
-                  <thead>
-                    <tr>
-                      {canEdit &&
-                        <th className='has-text-centered'>
-                          <span title='Seleccionar todos'>
-                            <Checkbox
-                              label='checkAll'
-                              handleCheckboxChange={(e) => this.checkAllChannels(!this.state.selectAllChannels)}
-                              key='checkAll'
-                              checked={this.state.selectAllChannels}
-                              hideLabel />
-                          </span>
-                        </th>
-                      }
-                      <th>Id Externo</th>
-                      <th>Nombre</th>
-                      {canEdit &&
-                        <th>Acciones</th>
-                      }
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      this.newChannels.map((item, key) => {
-                        if (!item.selected) {
-                          item.selected = false
-                        }
-                        return (
-                          <tr key={key}>
-                            {canEdit &&
-                              <td className='has-text-centered'>
-                                <Checkbox
-                                  label={item}
-                                  handleCheckboxChange={this.toggleCheckboxChannels}
-                                  key={item.externalId}
-                                  checked={item.selected}
-                                  hideLabel />
-                              </td>
-                            }
-                            <td>{item.externalId}</td>
-                            <td>{item.name}</td>
-                            {canEdit &&
-                              <td>
-                                <button
-                                  className='button is-primary'
-                                  onClick={() => this.showModalChannels(item)}
-                                >
-                                  <span className='icon' title='Editar'>
-                                    <i className='fa fa-pencil' />
-                                  </span>
-                                </button>
-                              </td>
-                            }
-                          </tr>
-                        )
-                      })
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>)
+    this.newCatalogs = dataset.catalogItems.map((item) => {
+      if (item.isNewExternal) {
+        item.catalog = this.catalogs[item.catalog]
+        item.type = item.catalog.slug
+        return item
+      }
+    }).filter(item => item)
+
+    this.newCatalogs = _(this.newCatalogs)
+    .groupBy(x => x.catalog.slug)
+    .map((value, key) => ({
+      type: key,
+      name: value[0].catalog.name,
+      objects: value,
+      headerClass: 'is-hidden',
+      iconClass: 'fa fa-2x fa-caret-down',
+      isOpen: false,
+      selectAll: false
+    }))
+    .value()
+
+    this.setState({
+      unidentified: this.newCatalogs
+    })
+
   }
 
-  getUnidentifiedSalesCenters() {
-    const { dataset, canEdit } = this.state
-    if (!dataset.uuid) {
-      return <Loader />
-    }
+renderUnidentified(){
+  const { dataset, canEdit } = this.state
 
-    const headerSalesCenterClass = classNames('card-content', {
-      'is-hidden': this.state.isSalesCenterOpen === false
-    })
-
-    const toggleBtnIconClass = classNames('fa fa-2x', {
-      'fa-caret-down': this.state.isSalesCenterOpen === false,
-      'fa-caret-up': this.state.isSalesCenterOpen !== false
-    })
-
-    this.newSalesCenters = []
-    dataset.salesCenters.map((item, key) => {
-      if (item.isNewExternal) {
-        this.newSalesCenters.push(item)
-      }
-    })
-
-    if ((dataset.status !== 'reviewing' &&
-      dataset.status !== 'conciliated') ||
-      this.newSalesCenters.length === 0) {
-      return ''
-    }
-
-    return (<div className='columns unidentified'>
-      <div className='column'>
-        <div className='card'>
-          <header className='card-header deep-shadow'>
-            <p className='card-header-title'>
-              Centros de Venta no identificados: {this.newSalesCenters.length}
-            </p>
-            <div className='field is-grouped is-grouped-right card-header-select'>
-              {canEdit &&
-                <div className={this.state.isSalesCenterOpen ? 'control' : 'is-hidden'}>
-                  <button
-                    onClick={() => this.confirmSalesCenters()}
-                    disabled={this.state.disableBtnS || !!this.state.isLoadingBtnS}
-                    className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnS}
-                  >
-                    Confirmar ({this.state.selectedSalesCenters.size})
-                </button>
-                </div>
-              }
-              <div className='control'>
-                <a
-                  className='button is-info undefined-btn'
-                  onClick={() => this.toggleUnidentifiedSalesCenters()}>
-                  <span className='icon is-large'>
-                    <i className={toggleBtnIconClass} />
-                  </span>
-                </a>
-              </div>
-            </div>
-          </header>
-          <div className={headerSalesCenterClass}>
-            <div className='columns'>
-              <div className='column'>
-                <table className='table is-fullwidth'>
-                  <thead>
-                    <tr>
-                      {
-                        canEdit &&
-                        <th className='has-text-centered'>
-                          <span title='Seleccionar todos'>
-                            <Checkbox
-                              label='checkAll'
-                              handleCheckboxChange={(e) => this.checkAllSalesCenters(!this.state.selectAllSalesCenters)}
-                              key='checkAll'
-                              checked={this.state.selectAllSalesCenters}
-                              hideLabel />
-                          </span>
-                        </th>
-                      }
-                      <th>Id Externo</th>
-                      <th>Nombre</th>
-                      {canEdit &&
-                        <th>Acciones</th>
-                      }
-
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      this.newSalesCenters.map((item, key) => {
-                        if (!item.selected) {
-                          item.selected = false
-                        }
-                        return (
-                          <tr key={key}>
-                            {canEdit &&
-                              <td className='has-text-centered'>
-                                <Checkbox
-                                  label={item}
-                                  handleCheckboxChange={this.toggleCheckboxSalesCenters}
-                                  key={item.externalId}
-                                  checked={item.selected}
-                                  hideLabel />
-                              </td>
-                            }
-                            <td>{item.externalId}</td>
-                            <td>{item.name}</td>
-                            {canEdit &&
-                              <td>
-                                <button
-                                  className='button is-primary'
-                                  onClick={() => this.showModalSalesCenters(item)}
-                                >
-                                  <span className='icon' title='Editar'>
-                                    <i className='fa fa-pencil' />
-                                  </span>
-                                </button>
-                              </td>
-                            }
-                          </tr>
-                        )
-                      })
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>)
+  if ((dataset.status !== 'reviewing' &&
+    dataset.status !== 'conciliated') ||
+    this.state.unidentified.length === 0) {
+    return ''
   }
 
-  getUnidentifiedProducts() {
-    const { dataset, canEdit } = this.state
-
-    if (!dataset.uuid) {
-      return <Loader />
-    }
-
-    const headerProductsClass = classNames('card-content', {
-      'is-hidden': this.state.isProductsOpen === false
-    })
-    const toggleBtnIconClass = classNames('fa fa-2x', {
-      'fa-caret-down': this.state.isProductsOpen === false,
-      'fa-caret-up': this.state.isProductsOpen !== false
-    })
-
-    this.newProducts = []
-    dataset.products.map((item, key) => {
-      if (item.isNewExternal) {
-        this.newProducts.push(item)
-      }
-    })
-
-    if ((dataset.status !== 'reviewing' &&
-      dataset.status !== 'conciliated') ||
-      this.newProducts.length === 0) {
-      return ''
-    }
-
+  let unidentified = this.state.unidentified.map((item, key) => {
     return (
-      <div className='columns unidentified'>
+      <div key={key} className='columns unidentified'>
         <div className='column'>
           <div className='card'>
-            <header className='card-header deep-shadow'>
+            <header className='card-header deep-shadow '>
               <p className='card-header-title'>
-                Productos no identificados: {this.newProducts.length}
+                <span className='is-capitalized'>{item.name}</span>&nbsp;no identificados: {item.objects.length}
               </p>
               <div className='field is-grouped is-grouped-right card-header-select'>
                 {canEdit &&
-                  <div className={this.state.isProductsOpen ? 'control' : 'is-hidden'}>
+                  <div className={item.isOpen ? 'control' : 'is-hidden'}>
                     <button
-                      onClick={() => this.confirmProducts()}
-                      disabled={this.state.disableBtnP || !!this.state.isLoadingBtnP}
-                      className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnP}
+                    onClick={() => this.confirmUnidentified(item.type)}
+                    disabled={this.countUnidentified(item.type) === 0 || !!this.state.isLoadingBtnUn}
+                      className={'button is-primary is-outlined is-pulled-right confirm-btn ' + this.state.isLoadingBtnUn}
                     >
-                      Confirmar ({this.state.selectedProducts.size})
-                  </button>
+                    Confirmar ({this.countUnidentified(item.type)})
+                </button>
                   </div>
                 }
                 <div className='control'>
                   <a
                     className='button is-info undefined-btn'
-                    onClick={() => this.toggleUnidentifiedProducts()}>
+                    onClick={() => this.toggleUnidentified(key,item)}>
                     <span className='icon is-large'>
-                      <i className={toggleBtnIconClass} />
+                      <i className={item.iconClass} />
                     </span>
                   </a>
                 </div>
               </div>
             </header>
-            <div className={headerProductsClass}>
+            <div className={item.headerClass}>
               <div className='columns'>
                 <div className='column'>
-                  <table className='table is-fullwidth is-narrow'>
+                  <table className='table is-fullwidth'>
                     <thead>
                       <tr>
                         {canEdit &&
@@ -1140,9 +898,9 @@ class DataSetDetail extends Component {
                             <span title='Seleccionar todos'>
                               <Checkbox
                                 label='checkAll'
-                                handleCheckboxChange={(e) => this.checkAllProducts(!this.state.selectAllProducts)}
+                                handleCheckboxChange={(e, value) => this.checkAllUnidentified(value, key, item.type)}
                                 key='checkAll'
-                                checked={this.state.selectAllProducts}
+                                checked={item.selectAll}
                                 hideLabel />
                             </span>
                           </th>
@@ -1156,29 +914,29 @@ class DataSetDetail extends Component {
                     </thead>
                     <tbody>
                       {
-                        this.newProducts.map((item, key) => {
-                          if (!item.selected) {
-                            item.selected = false
+                        item.objects.map((ob, key) => {
+                          if (!ob.selected) {
+                            ob.selected = false
                           }
                           return (
                             <tr key={key}>
                               {canEdit &&
                                 <td className='has-text-centered'>
                                   <Checkbox
-                                    label={item}
-                                    handleCheckboxChange={this.toggleCheckboxProducts}
-                                    key={item.externalId}
-                                    checked={item.selected}
+                                    label={ob}
+                                    handleCheckboxChange={(e, value) => this.checkUnidentified(ob,value)}
+                                    key={ob.externalId}
+                                    checked={ob.selected}
                                     hideLabel />
                                 </td>
                               }
-                              <td>{item.externalId}</td>
-                              <td>{item.name}</td>
+                              <td>{ob.externalId}</td>
+                              <td>{ob.name}</td>
                               {canEdit &&
                                 <td>
                                   <button
                                     className='button is-primary'
-                                    onClick={() => this.showModal(item)}
+                                    onClick={() => this.showModalUnidentified(ob)}
                                   >
                                     <span className='icon' title='Editar'>
                                       <i className='fa fa-pencil' />
@@ -1197,242 +955,12 @@ class DataSetDetail extends Component {
             </div>
           </div>
         </div>
-      </div>
-    )
-  }
+      </div>)
 
-  checkAllProducts = (check) => {
-    this.state.selectedProducts.clear()
-    for (let item of this.newProducts) {
-      if (check)
-        this.state.selectedProducts.add(item)
+  })
 
-      item.selected = check
-    }
-    this.setState({ selectAllProducts: check }, function () {
-      this.toggleButtons()
-    })
-  }
-
-  toggleCheckboxProducts = (item, all) => {
-    if (this.state.selectedProducts.has(item) && !all) {
-      this.state.selectedProducts.delete(item)
-      item.selected = false
-    }
-    else {
-      this.state.selectedProducts.add(item)
-      item.selected = true
-    }
-
-    this.toggleButtons()
-  }
-
-  checkAllSalesCenters = (check) => {
-    this.state.selectedSalesCenters.clear()
-    for (let item of this.newSalesCenters) {
-      if (check)
-        this.state.selectedSalesCenters.add(item)
-
-      item.selected = check
-    }
-    this.setState({ selectAllSalesCenters: check }, function () {
-      this.toggleButtons()
-    })
-  }
-
-  toggleCheckboxSalesCenters = (item, all) => {
-    if (this.state.selectedSalesCenters.has(item) && !all) {
-      this.state.selectedSalesCenters.delete(item)
-      item.selected = false
-    }
-    else {
-      this.state.selectedSalesCenters.add(item)
-      item.selected = true
-    }
-
-    this.toggleButtons()
-  }
-
-  checkAllChannels = (check) => {
-    this.state.selectedChannels.clear()
-    for (let item of this.newChannels) {
-      if (check)
-        this.state.selectedChannels.add(item)
-
-      item.selected = check
-    }
-    this.setState({ selectAllChannels: check }, function () {
-      this.toggleButtons()
-    })
-  }
-
-  toggleCheckboxChannels = (item, all) => {
-    if (this.state.selectedChannels.has(item) && !all) {
-      this.state.selectedChannels.delete(item)
-      item.selected = false
-    }
-    else {
-      this.state.selectedChannels.add(item)
-      item.selected = true
-    }
-
-    this.toggleButtons()
-  }
-
-
-  toggleButtons() {
-    let disableP = true
-    let disableS = true
-    let disableC = true
-
-    if (this.state.selectedProducts.size > 0)
-      disableP = false
-    if (this.state.selectedChannels.size > 0)
-      disableC = false
-    if (this.state.selectedSalesCenters.size > 0)
-      disableS = false
-
-    this.setState({
-      disableBtnP: disableP,
-      disableBtnS: disableS,
-      disableBtnC: disableC
-    })
-  }
-
-  async confirmProducts() {
-    this.setState({
-      isLoadingBtnP: ' is-loading'
-    })
-
-    const url = '/app/products/approve'
-    let products = Array.from(this.state.selectedProducts).map(item => {
-      return {
-        ...item,
-        category: item.category || '',
-        subcategory: item.subcategory || '',
-      }
-    })
-
-    try {
-      let res = await api.post(url, products)
-
-      if (res.success > 0) {
-        this.notify(`¡Se confirmaron exitosamente ${res.success} productos!`, 5000, toast.TYPE.SUCCESS)
-      }
-
-      if (res.error > 0) {
-        this.notify(`¡No se pudieron confirmar ${res.error} productos!`, 5000, toast.TYPE.ERROR)
-      }
-
-      if (res.error === 0 && res.success === 0) {
-        this.notify('¡Error al confirmar productos!', 5000, toast.TYPE.ERROR)
-      }
-    } catch (e) {
-      this.notify('¡Error al confirmar productos!', 5000, toast.TYPE.ERROR)
-    }
-
-    this.setState({
-      selectedProducts: new Set(),
-      selectAllProducts: false,
-      isLoadingBtnP: ''
-    }, function () {
-      this.toggleButtons()
-      this.load()
-    })
-  }
-
-  async confirmSalesCenters() {
-    this.setState({
-      isLoadingBtnS: ' is-loading'
-    })
-
-    const url = '/app/salesCenters/approve'
-    try {
-      let res = await api.post(url, Array.from(this.state.selectedSalesCenters))
-
-      if (res.success > 0) {
-        this.notify(
-          `¡Se confirmaron exitosamente ${res.success} centros de venta!`,
-          5000,
-          toast.TYPE.SUCCESS
-        )
-      }
-
-      if (res.error > 0) {
-        this.notify(
-          `¡No se pudieron confirmar ${res.error} centros de venta!`,
-          5000,
-          toast.TYPE.ERROR
-        )
-      }
-
-      if (res.error === 0 && res.success === 0) {
-        this.notify('¡Error al confirmar centros de venta!', 5000, toast.TYPE.ERROR)
-      }
-    } catch (e) {
-      this.notify('¡Error al confirmar centros de venta!', 5000, toast.TYPE.ERROR)
-    }
-
-    this.setState({
-      selectedSalesCenters: new Set(),
-      selectAllSalesCenters: false,
-      isLoadingBtnS: ''
-    }, function () {
-      this.toggleButtons()
-      this.load()
-    })
-  }
-
-  async confirmChannels() {
-    this.setState({
-      isLoadingBtnC: ' is-loading'
-    })
-
-    const url = '/app/channels/approve'
-    try {
-      let res = await api.post(url, Array.from(this.state.selectedChannels))
-
-      if (res.success > 0) {
-        this.notify(
-          `¡Se confirmaron exitosamente ${res.success} canales!`,
-          5000,
-          toast.TYPE.SUCCESS
-        )
-      }
-
-      if (res.error > 0) {
-        this.notify(
-          `¡No se pudieron confirmar ${res.error} canales!`,
-          5000,
-          toast.TYPE.ERROR
-        )
-      }
-
-      if (res.error === 0 && res.success === 0) {
-        this.notify('¡Error al confirmar canales!', 5000, toast.TYPE.ERROR)
-      }
-    } catch (e) {
-      this.notify('¡Error al confirmar canales!', 5000, toast.TYPE.ERROR)
-    }
-
-    this.setState({
-      selectedChannels: new Set(),
-      selectAllChannels: false,
-      isLoadingBtnC: ''
-    }, function () {
-      this.toggleButtons()
-      this.load()
-    })
-  }
-
-  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
-    this.toastId = toast(message, {
-      autoClose: timeout,
-      type: type,
-      hideProgressBar: true,
-      closeButton: false
-    })
-  }
+  return unidentified
+}
 
   render() {
     if (this.state.notFound) {
@@ -1484,9 +1012,10 @@ class DataSetDetail extends Component {
               </div>
             </div>
           </div>
-          {this.getUnidentifiedProducts()}
-          {this.getUnidentifiedSalesCenters()}
-          {this.getUnidentifiedChannels()}
+          {
+            this.state.unidentified &&
+              this.renderUnidentified()
+          }
           <div className='section is-paddingless-top pad-sides'>
 
             <div className='columns dataset-detail'>
@@ -1507,10 +1036,11 @@ class DataSetDetail extends Component {
                             name: this.state.dataset.name,
                             description: this.state.dataset.description,
                             organization: this.state.dataset.organization.uuid,
-                            status: datasetStatus[dataset.status]
+                            status: dataset.status
                           }}
                           load={this.load.bind(this)}
                           canEdit={canEdit}
+                          isAdmin={testRoles('orgadmin')}
                           submitHandler={(data) => this.submitHandler(data)}
                           errorHandler={(data) => this.errorHandler(data)}
                           finishUp={(data) => this.finishUpHandler(data)}
@@ -1534,9 +1064,7 @@ class DataSetDetail extends Component {
             </div>
           </div>
         </div>
-        {this.getModalCurrentProduct()}
-        {this.getModalSalesCenters()}
-        {this.getModalChannels()}
+        {this.getModalUnidentified()}
       </div>
     )
   }

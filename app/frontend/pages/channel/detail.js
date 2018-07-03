@@ -20,7 +20,7 @@ class ChannelDetail extends Component {
       loading: true,
       loaded: false,
       channel: {},
-      roles: 'admin, orgadmin, analyst, manager-level-2',
+      roles: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
       canEdit: false,
       isLoading: '',
       groups: [],
@@ -292,11 +292,6 @@ class ChannelDetail extends Component {
                   },
                   {
                     path: '/catalogs/channels/',
-                    label: 'Detalle',
-                    current: true
-                  },
-                  {
-                    path: '/catalogs/channels/',
                     label: channel.name,
                     current: true
                   }
@@ -368,7 +363,7 @@ export default Page({
   path: '/catalogs/channels/:uuid',
   title: 'Channel Detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, manager-level-1, manager-level-2, consultor',
+  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: ChannelDetail
 })

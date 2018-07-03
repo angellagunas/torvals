@@ -4,30 +4,28 @@ const moment = require('moment')
 const {
   DataSetRow,
   DataSet,
-  Channel,
-  SalesCenter,
-  Product,
-  AbraxasDate,
-  Role
+  CatalogItem,
+  Role,
+  Cycle
 } = require('models')
 
 module.exports = new Route({
   method: 'get',
   path: '/filters/dataset/:uuid',
   handler: async function (ctx) {
-    var datasetId = ctx.params.uuid
-    var filters = {}
+    const datasetId = ctx.params.uuid
+    let filters = {}
 
     const dataset = await DataSet.findOne({
       'uuid': datasetId,
       'isDeleted': false,
       organization: ctx.state.organization
-    })
+    }).populate('rule')
 
     ctx.assert(dataset, 404, 'DataSet no encontrado')
 
     const user = ctx.state.user
-    var currentRole
+    let currentRole
     const currentOrganization = user.organizations.find(orgRel => {
       return ctx.state.organization._id.equals(orgRel.organization._id)
     })
@@ -38,50 +36,58 @@ module.exports = new Route({
       currentRole = role.toPublic()
     }
 
-    if (
-      currentRole.slug === 'manager-level-1' ||
-      currentRole.slug === 'manager-level-2'
-    ) {
-      var groups = user.groups
+    const permissionsList = [
+      'manager-level-1',
+      'manager-level-2',
+      'manager-level-3',
+      'consultor-level-2',
+      'consultor-level-3'
+    ]
+    if (permissionsList.includes(currentRole.slug)) {
+      const groups = user.groups
 
-      filters['groups'] = groups
+      filters['groups'] = {$elemMatch: { '$in': groups }}
       filters['organization'] = currentOrganization.organization._id
     }
 
-    var products = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('product')
-    var channels = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('channel')
-    var salesCenters = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('salesCenter')
-    var semanasBimbo = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('data.semanaBimbo')
+    let cycles = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('cycle')
+    let catalogItems = await DataSetRow.find({isDeleted: false, dataset: dataset}).distinct('catalogItems')
 
-    semanasBimbo.sort((a, b) => {
-      return a - b
-    })
-
-    var dates = await AbraxasDate.find({
-      week: {$in: semanasBimbo},
+    cycles = await Cycle.find({
+      organization: ctx.state.organization,
+      rule: dataset.rule,
       dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
     }).sort('-dateStart')
 
-    dates = dates.map(item => {
+    cycles = cycles.map(item => {
       return {
-        week: item.week,
-        month: item.month,
-        year: item.year,
+        cycle: item.cycle,
+        uuid: item.uuid,
         dateStart: item.dateStart,
         dateEnd: item.dateEnd
       }
     })
 
-    channels = await Channel.find({ _id: { $in: channels }, ...filters })
-    salesCenters = await SalesCenter.find({ _id: { $in: salesCenters }, ...filters })
-    products = await Product.find({ _id: { $in: products } })
+    catalogItems = await CatalogItem.find({ _id: { $in: catalogItems }, type: {$ne: 'producto'}, ...filters })
+
+    await dataset.rule.populate('catalogs').execPopulate()
+
+    let catalogs = dataset.rule.catalogs
+    let catalogsResponse = []
+
+    for (let catalog of catalogs) {
+      catalogsResponse[catalog.slug] = []
+    }
+
+    for (let item of catalogItems) {
+      await item.populate('catalog').execPopulate()
+      if (!catalogsResponse[item.catalog.slug]) continue
+      catalogsResponse[item.catalog.slug].push(item)
+    }
 
     ctx.body = {
-      semanasBimbo,
-      channels,
-      salesCenters,
-      products,
-      dates
+      cycles,
+      ...catalogsResponse
     }
   }
 })

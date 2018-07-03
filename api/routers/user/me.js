@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {Organization, Role, Project} = require('models')
+const {Organization, Role, Project, Rule} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -21,9 +21,14 @@ module.exports = new Route({
         if (currentOrganization) {
           const org = await Organization.findOne({_id: currentOrganization.organization})
           const role = await Role.findOne({_id: currentOrganization.role})
+          const rule = await Rule.findOne({
+            organization: org._id,
+            isCurrent: true
+          }).populate('catalogs')
 
           data.user.currentOrganization = org.toPublic()
           data.user.currentRole = role.toPublic()
+          data.rule = rule.toPublic()
 
           if (role.slug === 'manager-level-1') {
             data.user.currentProject = await Project.findOne({_id: currentOrganization.defaultProject})

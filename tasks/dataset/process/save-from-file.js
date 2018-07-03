@@ -21,7 +21,7 @@ const task = new Task(async function (argv) {
     try {
       batchSize = parseInt(argv.batchSize)
     } catch (e) {
-      console.log('Invalid batch size! Using default of 1000 ...')
+      console.log('Invalid batch size! Using default of 10000...')
     }
   }
 
@@ -37,7 +37,8 @@ const task = new Task(async function (argv) {
     name: 'prueba cargar dataset',
     project: project._id,
     createdBy: project.createdBy,
-    organization: project.organization
+    organization: project.organization,
+    rule: project.rule
   })
 
   var bulkOps = []

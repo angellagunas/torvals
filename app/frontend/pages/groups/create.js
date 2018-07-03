@@ -15,6 +15,9 @@ class CreateGroup extends Component {
   constructor (props) {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
+    this.state = {
+      isLoading: ''
+    }
   }
 
   componentWillMount () {
@@ -39,10 +42,18 @@ class CreateGroup extends Component {
     this.context.tree.commit()
   }
 
+  submitHandler () {
+    this.setState({ isLoading: ' is-loading' })
+  }
+
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
+
   render () {
     return (
       <BaseModal
-        title='Create Group'
+        title='Nuevo Grupo'
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -50,15 +61,24 @@ class CreateGroup extends Component {
           baseUrl='/app/groups'
           url={this.props.url}
           finishUp={this.props.finishUp}
+          canCreate={this.props.canCreate}
+          canEdit={this.props.canEdit}
           initialState={initialState}
           load={this.load.bind(this)}
+          submitHandler={(data) => this.submitHandler(data)}
+          errorHandler={(data) => this.errorHandler(data)}
         >
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Create</button>
+              <button
+                className={'button is-primary ' + this.state.isLoading}
+                disabled={!!this.state.isLoading}
+                type='submit'>
+                Crear
+              </button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancel</button>
+              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
             </div>
           </div>
         </GroupForm>

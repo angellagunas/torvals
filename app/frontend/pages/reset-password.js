@@ -108,7 +108,7 @@ class ResetPassword extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Reset Password
+              Restabler contraseña
             </p>
             <a className='card-header-icon'>
               <span className='icon'>
@@ -119,7 +119,7 @@ class ResetPassword extends Component {
           <div className='card-content'>
             <div className='content'>
               <p>
-                Necesitamos tu dirección de correo para enviarte un link de reestablecimiento de la contraseña:
+                Necesitamos tu dirección de correo para enviarte un link de restablecimiento de la contraseña:
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}
@@ -131,7 +131,7 @@ class ResetPassword extends Component {
                 { spinner }
                 <div className={this.state.apiCallMessage}>
                   <div className='message-body is-size-7 has-text-centered'>
-                    El e-mail ha sido enviado. El link tendrá una vigencia de 24 horas.
+                    El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias.
                   </div>
                 </div>
                 <div className={this.state.apiCallErrorMessage}>

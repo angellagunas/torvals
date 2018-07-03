@@ -17,17 +17,6 @@ class TabHistorical extends Component {
     super(props)
     this.state = {
       loading: true,
-      salesCentersCollapsed: true,
-      channelsCollapsed: true,
-      productsCollapsed: true,
-      yearsCollapsed: true,
-      minPeriod: 1,
-      maxPeriod: 12,
-      yearSelected: moment().get('year'),
-      allProjects: false,
-      allChannels: false,
-      allSalesCenters: false,
-      allProducts: false,
       totalAdjustment: 0,
       totalPrediction: 0,
       totalSale: 0,
@@ -38,11 +27,11 @@ class TabHistorical extends Component {
       sortAscending: true
     }
     this.selectedProjects = {}
-    this.selectedSalesCenters = []
-    this.selectedChannels = []
-    this.selectedProducts = []
+    this.selectedItems = []
 
     this.selectedProjects[this.props.project.uuid] = this.props.project.uuid
+    this.rules = this.props.rules
+
   }
 
   componentWillMount() {
@@ -54,14 +43,8 @@ class TabHistorical extends Component {
   }
 
   clear() {
-    this.selectedChannels = []
-    this.selectedSalesCenters = []
-    this.selectedProducts = []
     this.setState({
       filters: undefined,
-      salesCenters: undefined,
-      channels: undefined,
-      products: undefined,
       graphData: undefined,
       filteredData: undefined,
       mape: 0,
@@ -72,119 +55,33 @@ class TabHistorical extends Component {
     })
   }
 
-  async checkAllSC(value) {
-    let aux = this.state.salesCenters
-    this.selectedSalesCenters = []
-    for (const sc of aux) {
-      sc.selected = value
-
-      if (value) { this.selectedSalesCenters[sc.uuid] = sc.uuid }
-    }
-    await this.setState({
-      salesCenters: aux,
-      allSalesCenters: value
-    })
-  }
-
-  async checkAllChannels(value) {
-    let aux = this.state.channels
-    this.selectedChannels = []
-    for (const c of aux) {
-      c.selected = value
-      if (value) { this.selectedChannels[c.uuid] = c.uuid }
-    }
-    await this.setState({
-      channels: aux,
-      allChannels: value
-    })
-  }
-
-  async checkAllProducts(value) {
-    let aux = this.state.products
-    this.selectedProducts = []
-    for (const p of aux) {
-      p.selected = value
-
-      if (value) { this.selectedProducts[p.uuid] = p.uuid }
-    }
-    await this.setState({
-      products: aux,
-      allProducts: value
-    })
-  }
-
-  selectSalesCenter(e, value, project) {
-    if (value) {
-      this.selectedSalesCenters[project.uuid] = project.uuid
-    } else {
-      delete this.selectedSalesCenters[project.uuid]
-    }
-
-    project.selected = value
-
-    this.getGraph()
-    this.getProductTable()
-    this.setState({
-      allSalesCenters: Object.keys(this.selectedSalesCenters).length === this.state.salesCenters.length
-    })
-  }
-
-  selectChannel(e, value, project) {
-    if (value) {
-      this.selectedChannels[project.uuid] = project.uuid
-    } else {
-      delete this.selectedChannels[project.uuid]
-    }
-
-    project.selected = value
-
-    this.getGraph()
-    this.getProductTable()
-    this.setState({
-      allChannels: Object.keys(this.selectedChannels).length === this.state.channels.length
-    })
-  }
-
-  selectProduct(e, value, project) {
-    if (value) {
-      this.selectedProducts[project.uuid] = project.uuid
-    } else {
-      delete this.selectedProducts[project.uuid]
-    }
-
-    project.selected = value
-
-    this.getGraph()
-    this.getProductTable()
-    this.setState({
-      allProducts: Object.keys(this.selectedProducts).length === this.state.products.length
-    })
-  }
-
   async getAll() {
     let projects = Object.values(this.selectedProjects)
 
     if (projects.length <= 0) {
       return
     }
-
+    try{
     let url = '/app/dashboard/projects'
     let res = await api.get(url, projects)
-
+    
+    this.getCatalogFilters(res.catalogItems)
+    
     this.setState({
       loading: false,
       filters: res,
-      salesCenters: _.orderBy(res.salesCenters, 'name'),
-      channels: _.orderBy(res.channels, 'name'),
-      products: res.products,
     }, async () => {
-      await this.checkAllChannels(true)
-      await this.checkAllSC(true)
-      await this.checkAllProducts(true)
       await this.getDates()
       this.getGraph()
       this.getProductTable()
     })
+    }catch(e){
+      this.notify('Error al obtener los filtros ' + e.message, 5000, toast.TYPE.ERROR)
+        this.setState({
+          loading: false,
+          noFilters: 'Error al obtener los filtros, contacte a un administrador'
+        })
+    }
   }
 
   async getGraph() {
@@ -199,24 +96,6 @@ class TabHistorical extends Component {
       noData: undefined
     })
 
-    if (Object.keys(this.selectedChannels).length === 0) {
-      this.setState({
-        filteredData: undefined,
-        graphData: undefined,
-        noData: 'Debe seleccionar un canal'
-      })
-      return
-    }
-
-    else if (Object.keys(this.selectedSalesCenters).length === 0) {
-      this.setState({
-        filteredData: undefined,
-        graphData: undefined,
-        noData: 'Debe seleccionar un centro de venta'
-      })
-      return
-    }
-
     if (!this.state.waitingData) {
       try {
         let url = '/app/organizations/local/historical'
@@ -224,12 +103,11 @@ class TabHistorical extends Component {
           waitingData: true
         })
         let res = await api.post(url, {
-          date_start: moment([this.state.yearSelected, this.state.minPeriod - 1]).startOf('month').format('YYYY-MM-DD'),
-          date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
-          channels: Object.values(this.selectedChannels),
-          salesCenters: Object.values(this.selectedSalesCenters),
-          //products: Object.values(this.selectedProducts),
-          projects: Object.values(this.selectedProjects)
+          date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
+          date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
+          projects: Object.values(this.selectedProjects),
+          catalogItems: Object.keys(this.selectedItems),
+          prices: this.state.prices          
         })
 
         let totalPSale = 0
@@ -276,8 +154,8 @@ class TabHistorical extends Component {
           mape,
           topValue,
           reloadGraph: true,
-          startPeriod: activePeriod[0],
-          endPeriod: activePeriod[activePeriod.length - 1],
+          startPeriod: moment.utc().startOf(this.rules.cycle).format('YYYY-MM-DD'),
+          endPeriod: moment.utc().endOf(this.rules.cycle).format('YYYY-MM-DD'),
           waitingData: false
         })
         setTimeout(() => {
@@ -304,31 +182,14 @@ class TabHistorical extends Component {
   }
 
   async getProductTable() {
-    if (Object.keys(this.selectedChannels).length === 0) {
-      this.setState({
-        filteredData: undefined,
-        graphData: undefined,
-        noData: 'Debe seleccionar un canal'
-      })
-      return
-    }
-
-    else if (Object.keys(this.selectedSalesCenters).length === 0) {
-      this.setState({
-        filteredData: undefined,
-        graphData: undefined,
-        noData: 'Debe seleccionar un centro de venta'
-      })
-      return
-    }
     try {
       let url = '/app/organizations/local/table'
       let res = await api.post(url, {
-        date_start: moment([this.state.yearSelected, this.state.minPeriod - 1]).startOf('month').format('YYYY-MM-DD'),
-        date_end: moment([this.state.yearSelected, this.state.maxPeriod - 1]).endOf('month').format('YYYY-MM-DD'),
-        channels: Object.values(this.selectedChannels),
-        salesCenters: Object.values(this.selectedSalesCenters),
-        projects: Object.values(this.selectedProjects)
+        date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
+        date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
+        projects: Object.values(this.selectedProjects),
+        catalogItems: Object.keys(this.selectedItems),
+        prices: this.state.prices
       })
       this.setState({
         productTable: res.data,
@@ -365,23 +226,15 @@ class TabHistorical extends Component {
   }
 
   showFilter(filter) {
-    if (filter === 'salesCenters') {
-      this.setState({
-        salesCentersCollapsed: !this.state.salesCentersCollapsed,
+      let catalogItems = this.state.catalogItems
+      catalogItems.map(item => {
+        if(item.type === filter){
+          item.isOpen = !item.isOpen
+        }
       })
-    } else if (filter === 'channels') {
       this.setState({
-        channelsCollapsed: !this.state.channelsCollapsed,
+        catalogItems
       })
-    } else if (filter === 'products') {
-      this.setState({
-        productsCollapsed: !this.state.productsCollapsed,
-      })
-    } else if (filter === 'years') {
-      this.setState({
-        yearsCollapsed: !this.state.yearsCollapsed,
-      })
-    }
   }
 
   getColumns() {
@@ -411,9 +264,11 @@ class TabHistorical extends Component {
         'sortable': true,
         formatter: (row) => {
           if (row.prediction) {
-            return row.prediction.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.prediction.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+
+            return this.state.prices ? '$' + val : val
           }
         }
       },
@@ -424,9 +279,11 @@ class TabHistorical extends Component {
         'sortable': true,
         formatter: (row) => {
           if (row.adjustment) {
-            return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.adjustment.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+
+            return this.state.prices ? '$' + val : val
           }
         }
       },
@@ -437,22 +294,24 @@ class TabHistorical extends Component {
         'sortable': true,
         formatter: (row) => {
           if (row.sale) {
-            return row.sale.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.sale.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+            return this.state.prices ? '$' + val : val
           }
         }
       },
       {
-        'title': 'Venta anterior',
+        'title': 'Venta año anterior',
         'property': 'previousSale',
         'default': '0',
         'sortable': true,
         formatter: (row) => {
           if (row.previousSale) {
-            return row.previousSale.toFixed().replace(/./g, (c, i, a) => {
+            let val = row.previousSale.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
+            return this.state.prices ? '$' + val : val
           }
         }
       },
@@ -573,89 +432,45 @@ class TabHistorical extends Component {
   }
 
   async getDates() {
-    const url = '/app/dates/'
+    let d = []
+    let p = []
+    let dateMin = moment.utc(this.props.project.dateMin)
+    let dateMax = moment.utc(this.props.project.dateMax)
 
-    try {
-      let res = await api.get(url)
-      var periods = []
-      let years = new Set()
-
-      res.data.map((date) => {
-        years.add(date.year)
-      })
-
-      periods = this.getPeriods(res.data, Array.from(years)[0])
-
-      this.setState({
-        dates: res.data,
-        periods: periods,
-        years: Array.from(years),
-        value: { min: periods[0].number, max: periods[periods.length - 1].number },
-        yearSelected: Array.from(years)[0]
-      })
-    } catch (e) {
-      this.notify('Error: No hay fechas disponíbles, intente más tarde', 5000, toast.TYPE.ERROR)
+    if(dateMin.isBefore(moment.utc('2017-01-01'))){
+      dateMin = moment.utc('2017-01-01')
     }
-  }
 
-  getPeriods(data, year) {
-    let periods = []
-    const map = new Map()
-    data.map((date) => {
-      if (date.year === year) {
-        const key = date.month
-        const collection = map.get(key)
-        if (!collection) {
-          map.set(key, [date])
-        } else {
-          collection.push(date)
-        }
-      }
+    while (dateMin.format('MMMM YYYY') !== dateMax.format('MMMM YYYY')){
+      d.push(dateMin)
+      dateMin = moment.utc(dateMin).add(1, 'month')
+    }
+
+    d.push(dateMin)
+
+
+    for (let i = 0; i < d.length; i++) {
+      p.push({
+        number: d[i].get('month') + 1,
+        name: `${d[i].format('MMMM')}`,
+        year: d[i].get('year')
+      })
+    }
+
+    this.setState({
+      periods: p,
+      minPeriod: {number: 1, name: "enero", year: 2018},
+      maxPeriod: p[p.length - 1]
     })
-
-    for (let i = 0; i < Array.from(map).length; i++) {
-      const element = Array.from(map)[i]
-      periods.push({
-        number: element[0],
-        name: `${moment(element[1][0].month, 'M').format('MMMM')}`,
-        maxSemana: element[1][0].week,
-        minSemana: element[1][element[1].length - 1].week
-      })
-    }
-
-    return periods.reverse()
   }
 
-  getPeriodDate(period, startOf) {
-    if (startOf) {
-      return moment(period, 'M').startOf('month').format('MMMM')
-    }
-    else {
-      return moment(period, 'M').endOf('month').format('MMMM')
-    }
-  }
 
-  selectYear(item, value) {
-    if (value) {
-      this.setState({ yearSelected: item, noData: undefined },
-        () => {
-          this.getGraph()
-          this.getProductTable()
-        })
-    }
-    else {
+  setMinPeriod(item) {
+    let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
+    let min = moment.utc([item.year, item.number - 1])
+    if (min.isBefore(max)) {
       this.setState({
-        filteredData: undefined,
-        graphData: undefined,
-        noData: 'Debe seleccionar un año'
-      })
-    }
-  }
-
-  setMinPeriod(number) {
-    if (number <= this.state.maxPeriod) {
-      this.setState({
-        minPeriod: number
+        minPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
@@ -664,7 +479,7 @@ class TabHistorical extends Component {
     else {
       this.setState({
         minPeriod: this.state.maxPeriod,
-        maxPeriod: number
+        maxPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
@@ -673,10 +488,12 @@ class TabHistorical extends Component {
 
   }
 
-  setMaxPeriod(number) {
-    if (number >= this.state.minPeriod) {
+  setMaxPeriod(item) {
+    let min = moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1])
+    let max = moment.utc([item.year, item.number - 1])
+    if (max.isAfter(min)){
       this.setState({
-        maxPeriod: number
+        maxPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
@@ -685,11 +502,230 @@ class TabHistorical extends Component {
     else {
       this.setState({
         maxPeriod: this.state.minPeriod,
-        minPeriod: number
+        minPeriod: item
       }, () => {
         this.getGraph()
         this.getProductTable()
       })
+    }
+  }
+
+
+  findName = (name) => {
+    let find = ''
+
+    if (!this.rules) return find
+
+    this.rules.catalogs.map(item => {
+      if (item.slug === name) {
+        find = item.name
+      }
+    })
+    return find
+  }
+
+  async getCatalogFilters(catalogs) {
+    let filters = _(catalogs)
+      .groupBy(x => x.type)
+      .map((value, key) => ({
+        type: this.findName(key),
+        objects: value,
+        selectAll: true,
+        isOpen: true
+      }))
+      .value()
+    
+    this.setState({
+      catalogItems: filters
+    }, () => {
+      filters.map(item => {
+        if (item.type !== 'Producto' && item.type !== 'Precio'){
+          this.checkAllItems(item.selectAll, item.type)
+        }
+      })
+    })
+  }
+
+  async checkAllItems(value, type) {
+    let aux = this.state.catalogItems
+    aux.map(item => {
+      if (item.type === type) {
+        for (const s of item.objects) {
+          s.selected = value
+          if (value) { 
+            this.selectedItems[s.uuid] = s 
+          }
+          else{
+            delete this.selectedItems[s.uuid]
+          }
+        }
+      }
+    })
+
+    await this.setState({
+      catalogItems: aux
+    })
+  }
+
+  selectItem(e, value, obj, item) {
+    let aux = this.state.catalogItems
+
+    if (value) {
+      this.selectedItems[obj.uuid] = obj
+    } else {
+      delete this.selectedItems[obj.uuid]
+    }
+
+    obj.selected = value
+    item.selectAll = this.countItems(obj.type) === item.objects.length
+  
+    this.getGraph()
+    this.getProductTable()
+    this.setState({
+      catalogItems: aux
+    })
+  }
+
+  countItems(type) {
+    let count = 0
+    Object.values(this.selectedItems).map(item => {
+      if (type === item.type) {
+        count++
+      }
+    })
+    return count
+  }
+
+  makeFilters() {
+    return this.state.catalogItems.map(item => {
+      if (item.type !== 'Producto' && item.type !== 'Precio'){
+      return (
+        <li key={item.type} className='filters-item'>
+          <div className={item.isOpen ? 'collapsable-title' : 'collapsable-title active'}
+            onClick={() => { this.showFilter(item.type) }}>
+            <a>
+              <span className='icon'>
+                <i className={item.isOpen
+                  ? 'fa fa-plus' : 'fa fa-minus'} />
+              </span>
+              {item.type} <strong>{item.objects && item.objects.length}</strong>
+            </a>
+          </div>
+          <aside className={item.isOpen
+            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
+            <div>
+              <Checkbox
+                checked={item.selectAll}
+                label={'Seleccionar Todos'}
+                handleCheckboxChange={(e, value) => {
+                  this.checkAllItems(value, item.type)
+                  this.getGraph()
+                  this.getProductTable()
+                }}
+                key={item.type}
+                disabled={this.state.waitingData}
+              />
+            </div>
+            <ul className='menu-list'>
+              {item.objects &&
+                item.objects.map((obj) => {
+                  if (obj.selected === undefined) {
+                    obj.selected = true
+                  }
+                  let name = obj.name === 'Not identified' ? obj.externalId + ' (No identificado)' : obj.externalId + ' ' + obj.name
+
+                  return (
+                    <li key={obj.uuid}>
+                      <a>
+                        <Checkbox
+                          label={<span title={name}>{name}</span>}
+                          handleCheckboxChange={(e, value) => this.selectItem(e, value, obj, item )}
+                          key={obj.uuid}
+                          checked={obj.selected}
+                          disabled={this.state.waitingData}
+                        />
+                        {obj.name === 'Not identified' &&
+                          <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/' + obj.type + '/' + obj.uuid) }}>
+                            <i className={this.props.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
+                          </span>
+                        }
+                      </a>
+                    </li>
+                  )
+                })
+              }
+            </ul>
+          </aside>
+        </li>
+      )
+    }
+    })
+  }
+
+  showBy(prices) {
+    this.setState({ prices },
+      () => {
+        this.getGraph()
+        this.getProductTable()
+      })
+  }
+
+  getCallback() {
+    if (this.state.prices) {
+      return function (label, index, labels) {
+        let val = ''
+        if (label <= 999) {
+          val = label
+        } else if (label >= 1000 && label <= 999999) {
+          val = (label / 1000) + 'K'
+        } else if (label >= 1000000 && label <= 999999999) {
+          val = (label / 1000000) + 'M'
+        }
+        return '$' + val
+      }
+    }
+    else {
+      return function (label, index, labels) {
+        if (label <= 999) {
+          return label
+        } else if (label >= 1000 && label <= 999999) {
+          return (label / 1000) + 'K'
+        } else if (label >= 1000000 && label <= 999999999) {
+          return (label / 1000000) + 'M'
+        }
+      }
+    }
+  }
+
+
+  getTooltipCallback(){
+    if(this.state.prices){
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + '$' + yVal
+      }
+    }
+    else {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
+
+        if (label) {
+          label += ': '
+        }
+        let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + yVal
+      }
     }
   }
 
@@ -701,6 +737,26 @@ class TabHistorical extends Component {
 
     if (loading) {
       return <Loader />
+    }
+
+    let callbackLabels = this.getCallback()
+    let tooltipCallback = this.getTooltipCallback()
+    
+    if(this.state.noFilters){
+      return (
+        <div className='section columns'>
+          <div className='column'>
+            <article className="message is-danger">
+              <div className="message-header">
+                <p>Error</p>
+              </div>
+              <div className="message-body">
+                {this.state.noFilters}
+              </div>
+            </article>
+          </div>
+        </div>
+      )
     }
 
     const graph = [
@@ -720,11 +776,21 @@ class TabHistorical extends Component {
         data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale !== 0 ? item.sale : null }) : []
       },
       {
-        label: 'Venta Anterior',
+        label: 'Venta año anterior',
         color: '#EF6950',
         data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale !== 0 ? item.previousSale : null}) : []
       }
     ]
+
+    const vLines = (this.state.graphData || []).map(item => ({
+      drawTime: 'beforeDatasetsDraw',
+      type: 'line',
+      mode: 'vertical',
+      scaleID: 'x-axis-0',
+      value: item.date,
+      borderColor: 'rgba(233, 238, 255, 1)',
+      borderWidth: 1
+    }))
 
     return (
       <div>
@@ -744,157 +810,11 @@ class TabHistorical extends Component {
                     <div className='card-content'>
 
                       <ul>
-                        <li className='filters-item'>
-                          <div className={this.state.yearsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
-                            onClick={() => { this.showFilter('years') }}>
-                            <a>
-                              <span className='icon'>
-                                <i className={this.state.yearsCollapsed
-                                  ? 'fa fa-plus' : 'fa fa-minus'} />
-                              </span>
-                              Año <strong>{this.state.years && this.state.years.length}</strong>
-                            </a>
-                          </div>
-                          <aside className={this.state.yearsCollapsed
-                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
 
-                            <ul className='menu-list'>
-                              {this.state.years &&
-                                this.state.years.map((item) => {
-                                  return (
-                                    <li key={item}>
-                                      <a>
-                                        <Checkbox
-                                          label={item}
-                                          handleCheckboxChange={(e, value) => this.selectYear(item, value)}
-                                          key={item}
-                                          checked={item === this.state.yearSelected}
-                                          disabled={this.state.waitingData}
-                                        />
-                                      </a>
-                                    </li>
-                                  )
-                                })
-                              }
-                            </ul>
-                          </aside>
-                        </li>
+                        {this.state.catalogItems &&
+                          this.makeFilters()
+                        }
 
-                        <li className='filters-item'>
-                          <div className={this.state.channelsCollapsed ? 'collapsable-title' : 'collapsable-title active'}
-                            onClick={() => { this.showFilter('channels') }}>
-                            <a>
-                              <span className='icon'>
-                                <i className={this.state.channelsCollapsed
-                                  ? 'fa fa-plus' : 'fa fa-minus'} />
-                              </span>
-                              Canales <strong>{this.state.channels && this.state.channels.length}</strong>
-                            </a>
-                          </div>
-                          <aside className={this.state.channelsCollapsed
-                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
-                            <div>
-                              <Checkbox
-                                checked={this.state.allChannels}
-                                label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => {
-                                  this.checkAllChannels(value)
-                                  this.getGraph()
-                                  this.getProductTable()
-                                }}
-                                key={'channel'}
-                                disabled={this.state.waitingData}
-                              />
-                            </div>
-                            <ul className='menu-list'>
-                              {this.state.channels &&
-                                this.state.channels.map((item) => {
-                                  if (!item.selected) {
-                                    item.selected = false
-                                  }
-                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
-                                  
-                                  return (
-                                    <li key={item.uuid}>
-                                      <a>
-                                        <Checkbox
-                                          label={<span title={name}>{name}</span>}
-                                          handleCheckboxChange={(e, value) => this.selectChannel(e, value, item)}
-                                          key={item.uuid}
-                                          checked={item.selected}
-                                          disabled={this.state.waitingData}
-                                        />
-                                        {item.name === 'Not identified' &&
-                                          <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/channels/' + item.uuid) }}>
-                                            <i className='fa fa-eye has-text-info' />
-                                          </span>
-                                        }
-                                      </a>
-                                    </li>
-                                  )
-                                })
-                              }
-                            </ul>
-                          </aside>
-                        </li>
-
-                        <li className='filters-item'>
-                          <div className={this.state.salesCentersCollapsed ? 'collapsable-title' : 'collapsable-title active'}
-                            onClick={() => { this.showFilter('salesCenters') }}>
-                            <a>
-                              <span className='icon'>
-                                <i className={this.state.salesCentersCollapsed
-                                  ? 'fa fa-plus' : 'fa fa-minus'} />
-                              </span>
-                              Centros de Venta <strong>{this.state.salesCenters && this.state.salesCenters.length}</strong>
-                            </a>
-                          </div>
-                          <aside className={this.state.salesCentersCollapsed
-                            ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
-                            <div>
-                              <Checkbox
-                                checked={this.state.allSalesCenters}
-                                label={'Seleccionar Todos'}
-                                handleCheckboxChange={(e, value) => {
-                                  this.checkAllSC(value)
-                                  this.getGraph()
-                                  this.getProductTable()
-                                }}
-                                key={'salesCenter'}
-                                disabled={this.state.waitingData}
-                              />
-                            </div>
-                            <ul className='menu-list'>
-                              {this.state.salesCenters &&
-                                this.state.salesCenters.map((item) => {
-                                  if (!item.selected) {
-                                    item.selected = false
-                                  }
-                                  let name = item.name === 'Not identified' ? item.externalId + ' (No identificado)' : item.name
-                                  
-                                  return (
-                                    <li key={item.uuid}>
-                                      <a>
-                                        <Checkbox
-                                          label={<span title={name}>{name}</span>}
-                                          handleCheckboxChange={(e, value) => this.selectSalesCenter(e, value, item)}
-                                          key={item.uuid}
-                                          checked={item.selected}
-                                          disabled={this.state.waitingData}
-                                        />
-                                        {item.name === 'Not identified' &&
-                                          <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/salesCenters/' + item.uuid) }}>
-                                            <i className='fa fa-eye has-text-info' />
-                                          </span>
-                                        }
-                                      </a>
-                                    </li>
-                                  )
-                                })
-                              }
-                            </ul>
-                          </aside>
-                        </li>
                       </ul>
                     </div>
                   </div>
@@ -910,27 +830,61 @@ class TabHistorical extends Component {
                     <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
                     <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
                   </div>
+
                   <div className='indicators'>
                     <p className='indicators-title'>Venta total</p>
-                    <p className='indicators-number has-text-success'>{this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                    <p className='indicators-number has-text-success'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          :
+                          this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
+                    <p className='indicators-title'>Venta año anterior</p>
+                    <p className='indicators-number has-text-danger'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          : this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
 
-                    <p className='indicators-title'>Venta anterior</p>
-                    <p className='indicators-number has-text-danger'>{this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
-                    
                     <p className='indicators-title'>Ajuste total</p>
-                    <p className='indicators-number has-text-teal'>{this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
+                    <p className='indicators-number has-text-teal'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          :
+                          this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
 
                     <p className='indicators-title'>Predicción total</p>
-                    <p className='indicators-number has-text-info'>{this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
-                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                    })}</p>
-                   
+                    <p className='indicators-number has-text-info'>
+                      {
+                        this.state.prices ? '$' +
+                          this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                          :
+                          this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                          })
+                      }
+                    </p>
                   </div>
                 </div>
                 <div className='column card'>
@@ -960,18 +914,7 @@ class TabHistorical extends Component {
                           bodyFontFamily: "'Roboto', sans-serif",
                           bodyFontStyle: 'bold',
                           callbacks: {
-                            label: function (tooltipItem, data) {
-                              let label = ' '
-                              label += data.datasets[tooltipItem.datasetIndex].label || ''
-
-                              if (label) {
-                                label += ': '
-                              }
-                              let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
-                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })
-                              return label + yVal
-                            }
+                            label: tooltipCallback
                           }
                         }}
                         labels={this.state.graphData.map((item) => { return item.date })}
@@ -993,15 +936,7 @@ class TabHistorical extends Component {
                             yAxes: [
                               {
                                 ticks: {
-                                  callback: function (label, index, labels) {
-                                    if (label <= 999) {
-                                      return label
-                                    } else if (label >= 1000 && label <= 999999) {
-                                      return (label / 1000) + 'K'
-                                    } else if (label >= 1000000 && label <= 999999999) {
-                                      return (label / 1000000) + 'M'
-                                    }
-                                  },
+                                  callback: callbackLabels,
                                   fontSize: 11
                                 },
                                 gridLines: {
@@ -1012,7 +947,7 @@ class TabHistorical extends Component {
                             ]
                           }
                         }
-                        annotation={this.state.startPeriod && this.state.startPeriod.date &&
+                        annotation={this.state.startPeriod &&
                           {
                             annotations: [
                               {
@@ -1020,8 +955,8 @@ class TabHistorical extends Component {
                                 type: 'box',
                                 xScaleID: 'x-axis-0',
                                 yScaleID: 'y-axis-0',
-                                xMin: this.state.startPeriod.date,
-                                xMax: this.state.endPeriod.date,
+                                xMin: this.state.startPeriod,
+                                xMax: this.state.endPeriod,
                                 yMin: 0,
                                 yMax: this.state.topValue,
                                 backgroundColor: 'rgba(233, 238, 255, 0.5)',
@@ -1034,7 +969,7 @@ class TabHistorical extends Component {
                                 type: 'line',
                                 mode: 'vertical',
                                 scaleID: 'x-axis-0',
-                                value: this.state.startPeriod.date,
+                                value: this.state.startPeriod,
                                 borderColor: 'rgba(233, 238, 255, 1)',
                                 borderWidth: 1,
                                 label: {
@@ -1045,7 +980,8 @@ class TabHistorical extends Component {
                                   position: 'top',
                                   fontColor: '#424A55'
                                 }
-                              }
+                              },
+                              ...vLines
                             ]
                           }
                         }
@@ -1082,10 +1018,50 @@ class TabHistorical extends Component {
                       </div>
                     </div>
                   </div>
+
+                  <div className='level-item'>
+                    <div className="field">
+                      <label className='label'>Mostrar por: </label>
+                      <div className='control'>
+
+                        <div className="field is-grouped">
+                          <div className='control'>
+
+                            <input
+                              className="is-checkradio is-info is-small"
+                              id='showByquantity'
+                              type="radio"
+                              name='showBy'
+                              checked={!this.state.prices}
+                              disabled={this.state.waitingData}
+                              onChange={() => this.showBy(false)} />
+                            <label htmlFor='showByquantity'>
+                              <span title='Cantidad'>Cantidad</span>
+                            </label>
+                          </div>
+
+                          <div className='control'>
+                            <input
+                              className="is-checkradio is-info is-small"
+                              id='showByprice'
+                              type="radio"
+                              name='showBy'
+                              checked={this.state.prices}
+                              disabled={this.state.waitingData}
+                              onChange={() => this.showBy(true)} />
+                            <label htmlFor='showByprice'>
+                              <span title='Precio'>Precio</span>
+                            </label>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className='level-right'>
-                  {this.state.yearSelected &&
+                  {this.state.minPeriod &&
                     <div className='level-item'>
                     <div className='field'>
                       <label className='label'>Periodo inicial</label>
@@ -1093,7 +1069,7 @@ class TabHistorical extends Component {
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
-                            <span>{this.getPeriodDate(this.state.minPeriod, true) + ' ' + this.state.yearSelected}</span>
+                            <span>{this.state.minPeriod.name + ' ' + this.state.minPeriod.year}</span>
                             <span className='icon is-small'>
                               <i className='fa fa-angle-down' aria-hidden='true'></i>
                             </span>
@@ -1101,11 +1077,13 @@ class TabHistorical extends Component {
                         </div>
                         <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
                           <div className='dropdown-content'>
-                            {this.state.periods && this.state.periods.map((item) => {
+                            {this.state.periods && this.state.periods.map((item, key) => {
                               return (
-                                <a key={item.number} className={this.state.minPeriod === item.number ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
-                                  onClick={() => this.setMinPeriod(item.number)}>
-                                  {item.name + ' ' + this.state.yearSelected}
+                                <a key={key} className={this.state.minPeriod.number === item.number &&
+                                  this.state.minPeriod.name === item.name &&
+                                  this.state.minPeriod.year === item.year ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                  onClick={() => this.setMinPeriod(item)}>
+                                  {item.name + ' ' + item.year}
                                 </a>
                               )
                             })}
@@ -1116,14 +1094,14 @@ class TabHistorical extends Component {
                       </div>
                     </div>
                   }
-                  {this.state.yearSelected &&
+
                     <div className='level-item date-drop'>
                       <span className='icon'>
                         <i className='fa fa-minus' />
                       </span>
                     </div>
-                  }
-                  {this.state.yearSelected &&
+
+                  {this.state.maxPeriod &&
                     <div className='level-item'>
                      <div className='field'>
                         <label className='label'>Periodo final</label>
@@ -1131,7 +1109,7 @@ class TabHistorical extends Component {
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
                           <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
-                            <span>{this.getPeriodDate(this.state.maxPeriod, true) + ' ' + this.state.yearSelected}</span>
+                            <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
                             <span className='icon is-small'>
                               <i className='fa fa-angle-down' aria-hidden='true'></i>
                             </span>
@@ -1139,11 +1117,13 @@ class TabHistorical extends Component {
                         </div>
                         <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
                           <div className='dropdown-content'>
-                            {this.state.periods && this.state.periods.map((item) => {
+                            {this.state.periods &&
+                                this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
+                            .map((item, key) => {
                               return (
-                                <a key={item.number} className={this.state.maxPeriod === item.number ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
-                                  onClick={() => this.setMaxPeriod(item.number)}>
-                                  {item.name + ' ' + this.state.yearSelected}
+                                <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                  onClick={() => this.setMaxPeriod(item)}>
+                                  {item.name + ' ' + item.year}
                                 </a>
                               )
                             })}

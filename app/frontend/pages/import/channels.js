@@ -26,6 +26,6 @@ export default Page({
   icon: 'filter',
   exact: true,
   validate: [loggedIn, verifyRole],
-  roles: 'orgadmin',
+  roles: 'orgadmin, manager-level-3',
   component: ImportChannels
 })
