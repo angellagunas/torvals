@@ -21,7 +21,6 @@ describe('Configure datasets', () => {
 
   describe('with csv file with 3 products', () => {
     it('should be add rows successfully', async function () {
-      this.timeout(1000 * 20);
 
       const user = await createUser()
       const token = await user.createToken({type: 'session'})

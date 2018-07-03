@@ -115,7 +115,8 @@ class UserDetail extends PageComponent {
         role: role
       }
     )
-    this.loadGroups()
+    await this.loadGroups()
+    await this.loadCurrentUser()
   }
 
   async availableGroupOnClick (uuid) {

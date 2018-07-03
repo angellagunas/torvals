@@ -1,18 +1,18 @@
 const Route = require('lib/router/route')
-const { DataSet, SalesCenter, Channel, Product, DataSetRow, Role, Price } = require('models')
-const Api = require('lib/abraxas/api')
+const { DataSet, CatalogItem, DataSetRow, Role, Cycle, Period } = require('models')
 
 module.exports = new Route({
   method: 'post',
   path: '/sales/:uuid',
   handler: async function (ctx) {
     var data = ctx.request.body
-    const dataset = await DataSet.findOne({uuid: ctx.params.uuid})
+    const dataset = await DataSet.findOne({uuid: ctx.params.uuid}).populate('rule')
     ctx.assert(dataset, 404, 'Dataset no encontrado')
 
-    const requestQuery = {}
-
     const user = ctx.state.user
+    await dataset.rule.populate('catalogs').execPopulate()
+
+    let catalogs = dataset.rule.catalogs
     var currentRole
     const currentOrganization = user.organizations.find(orgRel => {
       return ctx.state.organization._id.equals(orgRel.organization._id)
@@ -23,6 +23,12 @@ module.exports = new Route({
 
       currentRole = role.toPublic()
     }
+    var cycle = await Cycle.findOne({organization: ctx.state.organization, uuid: data.cycle})
+    var periods = await Period.find({cycle: cycle._id})
+
+    periods.ids = periods.map(item => {
+      return item._id
+    })
 
     var match = {
       'dataset': dataset._id,
@@ -32,46 +38,49 @@ module.exports = new Route({
       'data.prediction': {
         '$ne': null
       },
-      'data.semanaBimbo': {
-        '$in': data.semana_bimbo
+      'period': {
+        '$in': periods.ids
       }
     }
 
-    if (data.salesCenter) {
-      const salesCenter = await SalesCenter.findOne({uuid: data.salesCenter})
-      ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
-      match['salesCenter'] = salesCenter._id
+    let catalogItemsFilters = []
+
+    for (let filter of Object.keys(data)) {
+      var isCatalog = catalogs.find(item => {
+        return item.slug === filter
+      })
+
+      if (isCatalog) {
+        const cItem = await CatalogItem.findOne({uuid: data[filter]})
+        catalogItemsFilters.push(cItem.id)
+        continue
+      }
+    }
+
+    if (catalogItemsFilters.length > 0) {
+      let catalogItems = await CatalogItem.filterByUserRole(
+        { _id: { $in: catalogItemsFilters } },
+        currentRole.slug,
+        user
+      )
+      match['catalogItems'] = { '$all': catalogItems }
     }
 
     if (
-      (
-        currentRole.slug === 'manager-level-1' ||
-        currentRole.slug === 'manager-level-2' ||
-        currentRole.slug === 'consultor'
-      ) && !data.salesCenters
+      currentRole.slug === 'manager-level-1' ||
+      currentRole.slug === 'manager-level-2' ||
+      currentRole.slug === 'consultor-level-2' ||
+      currentRole.slug === 'consultor-level-3' ||
+      currentRole.slug === 'manager-level-3'
     ) {
-      var groups = user.groups
-      var salesCenters = []
-
-      salesCenters = await SalesCenter.findOne({groups: {$in: groups}})
-
-      if (salesCenters) {
-        match['salesCenter'] = salesCenters._id
-      } else {
-        ctx.throw(400, '¡Se le debe asignar al menos un centro de venta al usuario!')
+      if (catalogItemsFilters.length === 0) {
+        let catalogItems = await CatalogItem.filterByUserRole(
+            { },
+            currentRole.slug,
+            user
+          )
+        match['catalogItems'] = { '$in': catalogItems }
       }
-    }
-
-    if (data.channel) {
-      const channel = await Channel.findOne({uuid: data.channel})
-      ctx.assert(channel, 404, 'Canal no encontrado')
-      match['channel'] = channel._id
-    }
-
-    if (data.product) {
-      const product = await Product.findOne({uuid: data.product})
-      ctx.assert(product, 404, 'Producto no encontrado')
-      match['product'] = product._id
     }
 
     var statement = [
@@ -80,8 +89,8 @@ module.exports = new Route({
       },
       {
         '$lookup': {
-          'from': 'products',
-          'localField': 'product',
+          'from': 'catalogitems',
+          'localField': 'newProduct',
           'foreignField': '_id',
           'as': 'products'
         }
@@ -96,9 +105,17 @@ module.exports = new Route({
       {
         '$lookup': {
           'from': 'prices',
-          'localField': 'products.price',
-          'foreignField': '_id',
+          'localField': 'products._id',
+          'foreignField': 'product',
           'as': 'prices'
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'periods',
+          'localField': 'period',
+          'foreignField': '_id',
+          'as': 'period'
         }
       },
       {
@@ -110,7 +127,7 @@ module.exports = new Route({
       },
       {
         '$group': {
-          '_id': '$data.semanaBimbo',
+          '_id': '$period.period',
           'prediction': {
             '$sum': {
               '$multiply': [
@@ -131,14 +148,14 @@ module.exports = new Route({
       },
       {
         '$project': {
-          'week': '$_id',
+          'period': '$_id',
           'prediction': 1,
           'adjustment': 1
         }
       },
       {
         '$sort': {
-          'week': 1
+          'period': 1
         }
       }
     ]

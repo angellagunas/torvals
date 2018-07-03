@@ -1,7 +1,6 @@
 // node tasks/verify-datasets.js
 require('../../config')
 require('lib/databases/mongo')
-const moment = require('moment')
 
 const Task = require('lib/task')
 const { Project, DataSet } = require('models')
@@ -21,12 +20,11 @@ const task = new Task(async function (argv) {
     return true
   }
 
-  for (var project of projects) {
+  for (let project of projects) {
     console.log(`Verifying status of project ${project.name} ...`)
-    var projectDataset = project.activeDataset
-
+    let projectDataset = project.activeDataset
     if (!projectDataset) {
-      await project.populate('datasets.dataset').execPopulate()
+      await project.populate('datasets[0].dataset').execPopulate()
       projectDataset = project.datasets[0].dataset
     }
 
@@ -46,7 +44,11 @@ const task = new Task(async function (argv) {
         uploaded: true,
         project: project._id,
         source: 'adjustment',
-        status: 'pendingRows'
+        status: 'pendingRows',
+        catalogItems: projectDataset.catalogItems,
+        cycles: projectDataset.cycles,
+        periods: projectDataset.periods,
+        columns: projectDataset.columns
       })
 
       project.datasets.push({
@@ -60,9 +62,6 @@ const task = new Task(async function (argv) {
 
       await project.save()
 
-      let dateEnd = moment.utc(project.dateMax, 'YYYY-MM-DD')
-      let dateStart = moment.utc(dateEnd).subtract(4, 'months')
-
       project.set({
         status: 'processing'
       })
@@ -71,9 +70,7 @@ const task = new Task(async function (argv) {
 
       filterDataset.add({
         project: project.uuid,
-        dataset: dataset.uuid,
-        dateStart: dateStart.format('YYYY-MM-DD'),
-        dateEnd: dateEnd.format('YYYY-MM-DD')
+        dataset: dataset.uuid
       })
     } else {
       console.log(`Project ${project.name} is still conciliating!`)

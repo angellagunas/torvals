@@ -28,11 +28,24 @@ const projectSchema = new Schema({
       'pendingRows',
       'adjustment',
       'conciliating',
-      'cloning'
+      'cloning',
+      'updating-rules',
+      'pending-configuration'
     ],
     default: 'empty'
   },
-
+  cycleStatus: {
+    type: String,
+    enum: [
+      'empty',
+      'consolidation',
+      'forecastCreation',
+      'rangeAdjustmentRequest',
+      'rangeAdjustment',
+      'salesUpload'
+    ],
+    default: 'empty'
+  },
   description: { type: String },
   externalId: { type: String },
   adjustment: { type: Number },
@@ -49,7 +62,9 @@ const projectSchema = new Schema({
   dateCreated: { type: Date, default: moment.utc },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   uuid: { type: String, default: v4 },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  rule: {type: Schema.Types.ObjectId, ref: 'Rule'},
+  outdated: {type: Boolean, default: false}
 }, { usePushEach: true })
 
 projectSchema.plugin(dataTables)
@@ -70,7 +85,10 @@ projectSchema.methods.toPublic = function () {
     dateCreated: this.dateCreated,
     dateMin: this.dateMin,
     dateMax: this.dateMax,
-    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
+    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard,
+    outdated: this.outdated,
+    rule: this.rule,
+    cycleStatus: this.cycleStatus
   }
 }
 
@@ -90,7 +108,10 @@ projectSchema.methods.toAdmin = function () {
     dateCreated: this.dateCreated,
     dateMin: this.dateMin,
     dateMax: this.dateMax,
-    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard
+    showOnDashboard: (this.showOnDashboard === null) ? true : this.showOnDashboard,
+    rule: this.rule,
+    outdated: this.outdated,
+    cycleStatus: this.cycleStatus
   }
 }
 

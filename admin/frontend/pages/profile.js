@@ -18,7 +18,6 @@ export default Page({
         <section className='is-fullwidth'>
           <div className='columns'>
             <div className='column is-half'>
-
               <div className='card'>
                 <header className='card-header'>
                   <div className='card-header-title'>
@@ -44,7 +43,6 @@ export default Page({
             </div>
           </div>
           <div className='columns'>
-
             <div className='column is-two-thirds'>
               <TokensList />
             </div>

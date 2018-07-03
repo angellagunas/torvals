@@ -3,10 +3,10 @@ require('co-mocha')
 
 const { expect } = require('chai')
 const http = require('http')
-const { clearDatabase } = require('../utils')
+const { clearDatabase, createUser } = require('../utils')
 const api = require('api/')
 const request = require('supertest')
-const {Organization} = require('models')
+const { Organization, Role, User } = require('models')
 
 function test () {
   return request(http.createServer(api.callback()))
@@ -73,30 +73,46 @@ describe('Organization CRUD', () => {
         .expect(422)
     })
 
-    it.skip("should return a 404 if the org isn't found", async function () {
+    it("should return a 404 if the org isn't found", async function () {
+      const user = await createUser()
+      const token = await user.createToken({type: 'session'})
+      const jwt = token.getJwt()
+      const org = await Organization.create({rules: {}, slug:'test-org'})
+
       await test()
-        .post('/api/admin/organizations/blaaaaaa')
+        .post('/api/admin/organizations/a_invalid_org')
         .send({
           name: 'Una org',
-          description: 'Otra descripción'
+          description: 'Otra descripción',
+          slug: 'a_fake_slug'
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(404)
     })
 
-    it.skip('should return a 200 and the org updated', async function () {
-      await test()
-        .post('/api/admin/organizations/' + orgUuid)
+    it('should return a 200 and the org updated', async function () {
+      const user = await createUser({'email': 'bla@gmail.com'})
+      const token = await user.createToken({type: 'session'})
+      const jwt = token.getJwt()
+      const org = await Organization.create({rules: {}, slug:'test-org'})
+
+      const res = await test()
+        .post('/api/admin/organizations/' + org.uuid)
         .send({
           name: 'Una org',
-          description: 'Otra descripción'
+          description: 'Otra descripción',
+          slug: 'a-fake-slug'
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${jwt}`)
+        .set('Referer', 'http://test-org.orax.com')
         .expect(200)
 
-      const newOrg = await Organization.findOne({'uuid': orgUuid})
-      expect(newOrg.name).equal('Una org')
-      expect(newOrg.description).equal('Otra descripción')
+      expect(org.slug).to.be.not.equal(res.body.data.slug)
+      expect(res.body.data.slug).equal('a-fake-slug')
+      expect(res.body.data.description).equal('Otra descripción')
     })
   })
 
@@ -108,14 +124,20 @@ describe('Organization CRUD', () => {
         .expect(404)
     })
 
-    it.skip('should return a 200 and the org requested', async function () {
+    it('should return a 200 and the org requested', async function () {
+      await clearDatabase()
+      const user = await createUser()
+      const token = await user.createToken({type: 'session'})
+      const jwt = token.getJwt()
+      const org = await Organization.create({rules: {}, slug:'test-org'})
+
       const res = await test()
-        .get('/api/admin/organizations/' + orgUuid)
+        .get('/api/admin/organizations/' + org.uuid)
         .set('Accept', 'application/json')
         .expect(200)
 
-      expect(res.body.data.name).equal('Una org')
-      expect(res.body.data.description).equal('Otra descripción')
+      expect(res.body.data.slug).equal(org.slug)
+      expect(res.body.data.uuid).equal(org.uuid)
     })
   })
 
@@ -163,20 +185,29 @@ describe('Organization CRUD', () => {
         .expect(404)
     })
 
-    it.skip('should add a user to an organzation and return a 200', async function () {
-      const organization = await Organization.create({name: 'new organization'})
+    it('should add a user to an organzation and return a 200', async function () {
+      await clearDatabase()
+      const user = await createUser()
+      const token = await user.createToken({type: 'session'})
+      const jwt = token.getJwt()
+
+      const role = await Role.create({name: 'test_role', slug: 'test_role'})
+      const org = await Organization.create({rules: {}, slug:'test-org'})
+
       const res = await test()
-        .post('/api/admin/users/' + userUuid + '/add/organization')
+        .post('/api/admin/users/' + user.uuid + '/add/organization')
         .send({
-          organization: organization.uuid
+          organization: org.uuid,
+          role: role.uuid
         })
         .set('Accept', 'application/json')
         .expect(200)
 
-      const newOrg = await Organization.findOne({'uuid': organization.uuid}).populate('users')
+      const newOrg = await Organization.findOne({'uuid': org.uuid}).populate('users')
+      const updatedUser = await User.findOne({'uuid': user.uuid})
 
-      expect(res.body.data.organizations[0].uuid).equal(newOrg.uuid)
-      expect(newOrg.users[0].uuid).equal(userUuid)
+      expect(res.body.data.organizations[0].organization.uuid).equal(newOrg.uuid)
+      expect(String(updatedUser.organizations[0].organization)).equal(String(org._id))
     })
   })
 
@@ -208,18 +239,22 @@ describe('Organization CRUD', () => {
         .expect(404)
     })
 
-    it.skip('should return a 200', async function () {
+    it('should return a 200', async function () {
+      await clearDatabase()
+      const user = await createUser()
+      const token = await user.createToken({type: 'session'})
+      const jwt = token.getJwt()
+      const org = await Organization.create({rules: {}, slug:'test-org'})
+
       const res = await test()
-        .post('/api/admin/users/' + userUuid + '/remove/organization')
+        .post('/api/admin/users/' + user.uuid + '/remove/organization')
         .send({
-          organization: orgUuid
+          organization: org.uuid
         })
         .set('Accept', 'application/json')
         .expect(200)
 
       expect(res.body.data.organizations.length).equal(0)
-      const newOrg = await Organization.findOne({'uuid': orgUuid})
-      expect(newOrg.users.length).equal(0)
     })
   })
 
@@ -232,12 +267,18 @@ describe('Organization CRUD', () => {
     })
 
     it('should return a 200 and set isDeleted to true', async function () {
+      await clearDatabase()
+      const user = await createUser()
+      const token = await user.createToken({type: 'session'})
+      const jwt = token.getJwt()
+      const org = await Organization.create({rules: {}, slug:'test-org'})
+
       await test()
-        .delete('/api/admin/organizations/' + orgUuid)
+        .delete('/api/admin/organizations/' + org.uuid)
         .set('Accept', 'application/json')
         .expect(200)
 
-      const newOrg = await Organization.findOne({'uuid': orgUuid})
+      const newOrg = await Organization.findOne({'uuid': org.uuid})
       expect(newOrg.isDeleted).equal(true)
     })
   })

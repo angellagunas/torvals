@@ -27,6 +27,7 @@ class GroupDetail extends Component {
       group: {},
       isLoading: ''
     }
+    this.rules = tree.get('rule')
 
     currentRole = tree.get('user').currentRole.slug
   }
@@ -44,6 +45,16 @@ class GroupDetail extends Component {
     this.load()
   }
 
+  findCatalogName = (name) => {
+    let find = ''
+    this.rules.catalogs.map(item => {
+      if (item.slug === name) {
+        find = item.name
+      }
+    })
+    return find
+  }
+
   async load () {
     var url = '/app/groups/' + this.props.match.params.uuid
 
@@ -53,7 +64,14 @@ class GroupDetail extends Component {
       this.setState({
         loading: false,
         loaded: true,
-        group: body.data
+        group: body.data,
+        catalogItems: _(body.data.catalogItems)
+          .groupBy(x => x.type)
+          .map((value, key) => ({
+            type: this.findCatalogName(key),
+            objects: value
+          }))
+          .value()
       })
     } catch (e) {
       await this.setState({
@@ -81,18 +99,19 @@ class GroupDetail extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          if (currentRole !== 'consultor' || (currentRole === 'consultor' && row.roleDetail.slug === 'consultor')) {
-            return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-              <span className='icon is-small'>
-                <i className='fa fa-pencil' />
-              </span>
-            </Link>
-          } else {
+          if (currentRole === 'consultor-level-3' || currentRole === 'consultor-level-2') {
             return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
               <span className='icon is-small'>
                 <i className='fa fa-eye' />
               </span>
             </Link>
+          } else {
+            return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+              <span className='icon is-small'>
+                <i className='fa fa-pencil' />
+              </span>
+            </Link>
+            
           }
         }
       }
@@ -265,7 +284,7 @@ class GroupDetail extends Component {
       return <Loader />
     }
     var deleteButton
-    if (currentRole !== 'consultor') {
+    if (currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2') {
       deleteButton =
         <div className='columns'>
           <div className='column has-text-right'>
@@ -341,8 +360,10 @@ class GroupDetail extends Component {
                         submitHandler={(data) => this.submitHandler(data)}
                         errorHandler={(data) => this.errorHandler(data)}
                         finishUp={(data) => this.finishUpHandler(data)}
-                        >
-                        {this.state.channels &&
+                        canEdit={currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'}
+                        canCreate={currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'}
+                      >
+                        {this.state.channels && this.state.channels.length > 0 &&
                         <div>
                           <p className='label'>Canales</p>
                           <div className='tags'>
@@ -358,7 +379,7 @@ class GroupDetail extends Component {
                           </div>
                         </div>
                         }
-                        {this.state.salesCenters &&
+                        {this.state.salesCenters && this.state.salesCenters.length > 0 &&
                           <div className='has-20-margin-top'>
                             <p className='label'>Centros de Venta</p>
                             <div className='tags'>
@@ -374,6 +395,30 @@ class GroupDetail extends Component {
                             </div>
                           </div>
                         }
+                        {
+                          this.state.catalogItems &&
+                          this.state.catalogItems.length > 0 &&
+                          this.state.catalogItems.map(item => {
+                            return (
+                              <div className='has-20-margin-top' key={item.type}>
+                                <p className='label'>{item.type}</p>
+                                <div className='tags'>
+                                  {item.objects.map((obj) => {
+                                    return (
+                                      <Link className='tag is-capitalized'
+                                        key={obj.uuid}
+                                        to={'/catalogs/' + obj.type + '/' + obj.uuid}>
+                                        {obj.name}
+                                      </Link>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )
+                          })
+                          
+                        }
+                        {currentRole !== 'consultor-level-2' &&
                         <div className='field is-grouped has-20-margin-top'>
                           <div className='control'>
                             <button
@@ -383,6 +428,7 @@ class GroupDetail extends Component {
                               >Guardar</button>
                           </div>
                         </div>
+                        }
                       </GroupForm>
                     </div>
                   </div>
@@ -395,6 +441,8 @@ class GroupDetail extends Component {
                   <p className='card-header-title'>
                       Usuarios
                     </p>
+                  {currentRole !== 'consultor-level-2' &&
+                  
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModalList()}>
                         Agregar
@@ -414,6 +462,9 @@ class GroupDetail extends Component {
                     </BaseModal>
 
                   </div>
+                  }
+                  {currentRole !== 'consultor-level-2' &&
+
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModal()}>
                         Nuevo usuario
@@ -429,6 +480,7 @@ class GroupDetail extends Component {
                       organization={group.organization._id}
                       />
                   </div>
+                  }
                 </header>
                 <div className='card-content'>
                   <div className='columns'>
@@ -461,7 +513,7 @@ export default Page({
   path: '/manage/groups/:uuid',
   title: 'Detalles de grupo',
   exact: true,
-  roles: 'admin, orgadmin, analyst, consultor, manager-level-2',
+  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: branchedGroupDetail
 })

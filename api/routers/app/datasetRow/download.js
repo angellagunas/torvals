@@ -1,5 +1,10 @@
 const Route = require('lib/router/route')
-const { Project, SalesCenter, Channel, Product, DataSetRow } = require('models')
+const {
+  CatalogItem,
+  Cycle,
+  DataSetRow,
+  Project
+} = require('models')
 const lov = require('lov')
 const moment = require('moment')
 
@@ -11,8 +16,9 @@ module.exports = new Route({
     end_date: lov.string().required()
   }),
   handler: async function (ctx) {
-    var data = ctx.request.body
+    const data = ctx.request.body
     const project = await Project.findOne({uuid: ctx.params.uuid})
+      .populate('organization')
       .populate('activeDataset mainDataset')
 
     ctx.assert(project, 404, 'Proyecto no encontrado')
@@ -21,38 +27,45 @@ module.exports = new Route({
       ctx.throw(400, 'No hay DataSet activo para el proyecto')
     }
 
-    const filters = {
-      'data.forecastDate': {
-        $gte: moment.utc(data.start_date, 'YYYY-MM-DD').toDate(),
-        $lte: moment.utc(data.end_date, 'YYYY-MM-DD').toDate()
+    let cycles = await Cycle.getBetweenDates(
+      project.organization._id,
+      project.rule,
+      moment.utc(data.start_date, 'YYYY-MM-DD').toDate(),
+      moment.utc(data.end_date, 'YYYY-MM-DD').toDate()
+    )
+    let filters = {
+      'cycle': {
+        $in: cycles.map(item => { return item._id })
       }
     }
 
-    if (data.salesCenter) {
-      const salesCenter = await SalesCenter.findOne({uuid: data.salesCenter})
-      ctx.assert(salesCenter, 404, 'Centro de ventas no encontrado')
+    catalogItems = []
+    for (let filter of Object.keys(data)) {
+      const unwantedKeys = [
+        'start_date',
+        'end_date',
+        'salesCenter',
+        'channel',
+        'product'
+      ]
+      if (unwantedKeys.includes(filter)) {
+        continue
+      }
+      const catalogItem = await CatalogItem.findOne({
+        uuid: data[filter]
+      })
+      catalogItems.push(catalogItem._id)
 
-      filters['salesCenter'] = salesCenter._id
     }
-
-    if (data.channel) {
-      const channel = await Channel.findOne({uuid: data.channel})
-      ctx.assert(channel, 404, 'Canal no encontrado')
-
-      filters['channel'] = channel._id
-    }
-
-    if (data.product) {
-      const product = await Product.findOne({uuid: data.product})
-      ctx.assert(product, 404, 'Producto no encontrado')
-
-      filters['product'] = product._id
+    filters['catalogItems'] = {
+      '$all': catalogItems
     }
 
     let rows = await DataSetRow.find({
-      ...filters,
-      isDeleted: false
-    }).populate('product channel salesCenter')
+      dataset: project.activeDataset._id,
+      isDeleted: false,
+      ...filters
+    })
 
     let rowsCsv = ''
     let names = []

@@ -24,8 +24,12 @@ module.exports = new Route({
       'organization': ctx.state.organization._id
     }).populate('organization')
     .populate('activeDataset')
+    .populate('rule')
+    .populate('mainDataset')
 
     ctx.assert(project, 404, 'Proyecto no encontrado')
+
+    await project.rule.populate({ path: 'catalogs', options: {sort: {'slug': 1}} }).execPopulate()
 
     ctx.body = {
       data: project.toPublic()

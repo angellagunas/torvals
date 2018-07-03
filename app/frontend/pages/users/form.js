@@ -140,7 +140,7 @@ class UserForm extends Component {
       schema.properties.project.enumNames = this.props.projects.map(item => { return item.name })
     }
     if (this.props.disabled) {
-      for (var field in uiSchema) {
+      for (let field in uiSchema) {
         uiSchema[field]['ui:disabled'] = true
       }
       schema.properties.role.enum.push(this.state.formData.roleDetail._id)
@@ -150,6 +150,16 @@ class UserForm extends Component {
     if (this.props.disabledRoles) {
       uiSchema['role']['ui:disabled'] = true
     }
+
+    if (currentUser.currentRole.slug === 'orgadmin') {
+      uiSchema['role']['ui:disabled'] = false
+      for (let field in uiSchema) {
+        uiSchema[field]['ui:disabled'] = false
+      }
+      schema.properties.role.enum.push(this.state.formData.roleDetail._id)
+      schema.properties.role.enumNames.push(this.state.formData.roleDetail.name)
+    }
+
     return (
       <div>
         <BaseForm

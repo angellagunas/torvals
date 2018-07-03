@@ -7,12 +7,14 @@ import DeleteButton from '~base/components/base-deleteButton'
 import moment from 'moment'
 import {datasetStatus, testRoles} from '~base/tools'
 import DataSetDetail from '../../datasets/dataset-detail'
+import Loader from '~base/components/spinner'
 
 class TabDatasets extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      datasetClassName: ''
+      datasetClassName: '',
+      datasetDetail: this.props.datasetDetail
     }
   }
   getColumns () {
@@ -68,7 +70,7 @@ class TabDatasets extends Component {
             <div className='field is-grouped'>
               <div className='control'>
                 {
-                  testRoles('manager-level-2, consultor')
+                  testRoles('manager-level-2, consultor-level-3')
                     ? <a onClick={() => { this.setDatasetDetail(row) }}
                       className={
                         row.status === 'conciliated' || row.status === 'adjustment' || row.status === 'ready'
@@ -173,6 +175,16 @@ class TabDatasets extends Component {
     this.props.setAlert('is-white', ' ')
   }
 
+  componentWillReceiveProps (next) {
+    if (next.datasetDetail !== undefined &&
+        this.state.datasetDetail !== next.datasetDetail &&
+        next.datasetDetail !== ''
+      ) {
+      this.setState({
+        datasetDetail: next.datasetDetail
+      })
+    }
+  }
   async setDatasetDetail (dataset, tab) {
     await this.props.reload(tab)
 
@@ -196,6 +208,14 @@ class TabDatasets extends Component {
           Necesitas subir y configurar al menos un
           <strong> dataset </strong> para tener información disponible
         </div>
+    }
+    if (this.props.project.status === 'updating-rules') {
+      return (
+        <div className='section has-text-centered subtitle has-text-primary'>
+          Actualizando reglas del proyecto
+          <Loader />
+        </div>
+      )
     }
     return (
       <div className='dataset-tab'>

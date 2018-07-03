@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 
 import api from '~base/api'
+import { datasetStatus } from '~base/tools'
 
 import {
   BaseForm,
   TextWidget,
-  TextareaWidget
+  TextareaWidget,
+  SelectWidget
 } from '~base/components/base-form'
 
 const schema = {
@@ -17,15 +19,13 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Nombre'},
-    description: {type: 'string', title: 'Descripción'},
-    status: {type: 'string', title: 'Estado'}
+    description: {type: 'string', title: 'Descripción'}
   }
 }
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 3},
-  status: {'ui:widget': TextWidget, 'ui:disabled': true}
+  description: {'ui:widget': TextareaWidget, 'ui:rows': 3}
 }
 
 class DatasetDetailForm extends Component {
@@ -35,6 +35,13 @@ class DatasetDetailForm extends Component {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
+    }
+    uiSchema['status'] = { 'ui:widget': SelectWidget, 'ui:disabled': !this.props.isAdmin }
+    schema.properties['status'] = {
+      type: 'string',
+      title: 'Estado',
+      enum: Object.keys(datasetStatus),
+      enumNames: Object.values(datasetStatus)
     }
   }
 

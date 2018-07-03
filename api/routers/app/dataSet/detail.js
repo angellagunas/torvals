@@ -14,10 +14,14 @@ module.exports = new Route({
     })
       .populate('fileChunk')
       .populate('project')
+      .populate('rule')
       .populate('organization')
       .populate('channels')
       .populate('products')
       .populate('salesCenters')
+      .populate('catalogItems')
+      .populate('catalogItems.catalog')
+    await dataset.rule.populate('catalogs').execPopulate()
 
     ctx.assert(dataset, 404, 'DataSet no encontrado ')
 
