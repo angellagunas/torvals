@@ -27,16 +27,25 @@ const task = new Task(async function (argv) {
       let adjustmenRequest = project.rule.rangeAdjustmentRequest + adjustment
       let consolidate = project.rule.consolidation + adjustmenRequest
 
+      let date
+      if (argv.date) {
+        date = moment(argv.date).utc()
+      } else {
+        date = moment().utc()
+      }
+
       let cycle = await Cycle.findOne({
         organization: project.organization._id,
-        dateStart: {$lte: moment().utc()},
-        dateEnd: {$gte: moment().utc()},
+        dateStart: {$lte: date},
+        dateEnd: {$gte: date},
         isDeleted: false,
         rule: project.rule._id
       })
       if (cycle) {
-        let currentDays = moment(cycle.dateStart).utc().format('YYYY-MM-DD')
-        let diff = moment.duration(moment().diff(currentDays)).asDays()
+        let currentDays
+        currentDays = moment(cycle.dateStart).utc().format('YYYY-MM-DD')
+
+        let diff = moment.duration(date.diff(currentDays)).asDays()
         let status = ''
         if (diff <= sales) {
           status = 'salesUpload'
