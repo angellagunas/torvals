@@ -12,12 +12,10 @@ const generateCycles = require('tasks/organization/generate-cycles')
 
 
 describe('Generate cycles task', () => {
-  beforeEach(async function () {
-    await clearDatabase()
-  })
-
   describe('with one cycle by month and one week as period', () => {
     it('should generate the cycles successfully', async function () {
+      await clearDatabase()
+
       const org = await createFullOrganization({})
       const rule = await Rule.findOne({organization: org._id})
 
@@ -43,10 +41,12 @@ describe('Generate cycles task', () => {
         dateStart: new Date("2018-01-01T06:00:00Z").toISOString()
       })
 
-      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2018-02-04T06:00:00Z").toISOString())
+      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2018-01-28T06:00:00Z").toISOString())
     })
 
     it('and takeStart as false should generate the first cycle with dateEnd before of 31 January', async function () {
+      await clearDatabase()
+
       const org = await createFullOrganization({}, {takeStart: false})
       const rule = await Rule.findOne({organization: org._id})
 
@@ -76,6 +76,7 @@ describe('Generate cycles task', () => {
     })
 
     it('and a extraDate before of first season should create two season before', async function () {
+      await clearDatabase()
       /*
        * by default the startDate is 2018-01-01, so normally should create cycles from 2017-01-01,
        * but if we pass a date before of it, should create a season before
@@ -108,6 +109,8 @@ describe('Generate cycles task', () => {
     })
 
     it('and a extraDate after of last season should create a cycle after', async function () {
+      await clearDatabase()
+
       const { addCyclesPeriodsToRule, createRules } = require('test/utils')
       const generateCycles = require('tasks/organization/generate-cycles')
       const { organizationFixture } = require('../fixtures')
@@ -134,6 +137,8 @@ describe('Generate cycles task', () => {
 
   describe('with one cycle by month and month as period', () => {
     it('should generate the cycles succesfully', async function () {
+      await clearDatabase()
+
       const org = await createFullOrganization({}, {period: 'M'})
       const rule = await Rule.findOne({organization: org._id})
 
@@ -165,6 +170,8 @@ describe('Generate cycles task', () => {
 
   describe('with one cycle by week and one week as period', () => {
     it('should generate the cycles succesfully', async function () {
+      await clearDatabase()
+
       const org = await createFullOrganization({}, {
         period: 'w',
         cycle: 'w'
@@ -199,6 +206,8 @@ describe('Generate cycles task', () => {
 
   describe('with one cycle by month and december 30, 2017 as startDate', () => {
     it('should generate a cycle with dateStart equals to rules startDate', async function () {
+      await clearDatabase()
+
       const org = await createFullOrganization({}, {
         startDate: '2017-12-30T00:00:00',
         period: 'w'
@@ -220,6 +229,8 @@ describe('Generate cycles task', () => {
 
   describe('with invalid data in organization', () => {
     it('send a undefined uuid should launch a exception', async function () { 
+      await clearDatabase()
+
       let failed = false
       let errorMsg = ''
 
@@ -235,6 +246,8 @@ describe('Generate cycles task', () => {
     })
 
     it('send a invalid cycle should launch a exception', async function () {
+      await clearDatabase()
+
       let failed = false
       let errorMsg = ''
 
@@ -252,6 +265,7 @@ describe('Generate cycles task', () => {
    })
 
    it('try generate the cycles with a organization without rules', async function () {
+      await clearDatabase()
 
       data = organizationFixture
       data.rules = {}
@@ -268,6 +282,8 @@ describe('Generate cycles task', () => {
     })
 
     it('sending a negative number as cycleDuration should launch a exception', async function () {
+      await clearDatabase()
+
       let failed = false
       let errorMsg = ''
 
@@ -285,6 +301,8 @@ describe('Generate cycles task', () => {
    })
 
    it('sending a negative number as season should launch a exception', async function () {
+      await clearDatabase()
+
       let failed = false
       let errorMsg = ''
 
@@ -302,7 +320,7 @@ describe('Generate cycles task', () => {
    })
 
    it('sending a negative number as cyclesAvailable should launch a exception', async function () {
-      
+      await clearDatabase()
 
       let failed = false
       let errorMsg = ''
