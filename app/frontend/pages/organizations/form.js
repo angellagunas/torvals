@@ -90,7 +90,7 @@ class CustomForm extends Component {
                     <div className="form-group field">
                       <br />
                       <label className="label">
-                        Sube tu logo de organización
+                        Sube el logo de la organización
                       </label>
                       <br />
                       <FileWidget
@@ -130,12 +130,16 @@ class CustomForm extends Component {
                     <div className="control">
                       <TextareaWidget
                         options={{ rows: 4 }}
-                        type='text'
-                        className='input'
+                        type="text"
+                        className="input"
+                        maxLength="140"
                         value={description}
                         onChange={this.onChange('description')}
                       />
                     </div>
+                    <p className="help-block has-text-grey is-size-7">
+                      Máximo 140 caracteres
+                    </p>
                   </div>
                   <div className="form-group field">
                     <label className="label">Subdominio*</label>
