@@ -22,8 +22,12 @@ module.exports = new Route({
       type: 'api'
     }).populate('organization')
 
-    ctx.body = {
-      tokens: tokens.map(token => ({...token.toPublic(), organization: token.organization.toPublic()}))
+    try {
+      ctx.body = {
+        tokens: tokens.map(token => ({...token.toPublic(), organization: token.organization.toPublic()}))
+      }
+    }catch(error){
+      ctx.throw(422)
     }
   }
 })
