@@ -180,7 +180,7 @@ class OrgRules extends Component {
                     <li>
                       <div className='columns is-gapless has-addons'>
                         <span className='column has-text-centered clear-blue has-text-weight-semibold'> Ciclos</span>
-                        <span className='column has-text-centered clear-blue has-text-weight-semibold'>Ajuste</span>
+                        <span className='column has-text-centered clear-blue has-text-weight-semibold'>Manager Lvl 1</span>
                         <span className='column has-text-centered clear-blue has-text-weight-semibold'>Manager Lvl 2</span>
                       </div>
                     </li>
