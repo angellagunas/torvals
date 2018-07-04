@@ -182,7 +182,7 @@ class DataSetDetail extends Component {
 
     if (
       (!dataset.fileChunk && dataset.source === 'uploaded') ||
-      (dataset.fileChunk && dataset.status === 'uploading')
+      (dataset.fileChunk && (dataset.status === 'uploading' || dataset.status === 'new'))
     ) {
       if (canEdit) {
         return (
