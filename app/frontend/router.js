@@ -43,6 +43,7 @@ import DownloadReport from './pages/reports/download'
 import OrgRules from './pages/org-rules'
 import UsersGroups from './pages/users-groups'
 import Roles from './pages/roles/list'
+import Forecast from './pages/forecast/forecast'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -103,6 +104,8 @@ class AppRouter extends Component {
               {OrgRules.asRouterItem()}
               {UsersGroups.asRouterItem()}
               {Roles.asRouterItem()}
+
+              {Forecast.asRouterItem()}
 
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 

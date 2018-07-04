@@ -15,6 +15,7 @@ import Prices from '../pages/prices/list'
 import OrgRules from '../pages/org-rules'
 import UsersGroups from '../pages/users-groups'
 import Roles from '../pages/roles/list'
+import Forecast from '../pages/forecast/forecast'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -164,6 +165,7 @@ class Sidebar extends Component {
             }
           ]
         },
+        Forecast.asSidebarItem(),
         Projects.asSidebarItem(),
         Calendar.asSidebarItem(),
         {
