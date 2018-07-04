@@ -279,9 +279,10 @@ class UserDetail extends Component {
     }
 
     if (user) {
-      var role = this.state.roles.find((item) => {
-        return item._id === user.role
-      })
+      let role
+      if (this.state.formData && this.state.formData.roleDetail) {
+        role = this.state.formData.roleDetail
+      }
 
       if (role && role.slug === 'manager-level-1') {
         var currentOrg = user.organizations.find((item) => {

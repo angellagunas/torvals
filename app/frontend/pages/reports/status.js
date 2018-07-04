@@ -110,6 +110,10 @@ class StatusRepórt extends Component {
         return {...item, name: moment.utc(item.dateStart).format('MMMM') + ' - ' + item.cycle}
       })      
 
+      cycles = cycles.slice(-this.rules.cyclesAvailable)
+
+      cycles = _.orderBy(cycles, 'dateStart', 'asc')
+
       let formData = this.state.formData
       formData.cycle = cycles[0].cycle
 
@@ -258,7 +262,7 @@ class StatusRepórt extends Component {
         }
       }
 
-      catalogItems = catalogItems.filter(item=>item)
+      catalogItems = catalogItems.filter(item => item)
 
       let users = this.state.formData.user ? [this.state.formData.user] : undefined
       if(this.state.filterReady){

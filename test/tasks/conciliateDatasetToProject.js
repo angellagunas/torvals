@@ -28,12 +28,11 @@ const saveDatasetrows = require('tasks/dataset/process/save-datasetrows')
 
 
 describe('Conciliate dataset to project', () => {
-  beforeEach(async function () {
-    await clearDatabase()
-  })
 
   describe('with csv file with 3 products', () => {
     it('should conciliate a new dataset with 2 records successfully', async function () {
+      await clearDatabase()
+
       const user = await createUser()
       const org = await createFullOrganization({
         period: 'M'
@@ -76,9 +75,6 @@ describe('Conciliate dataset to project', () => {
         project: project._id,
         dataset: dataset._id
       })
-      const channels = await createChannels({organization: org._id})
-      const products = await createProducts({organization: org._id})
-      const saleCenters = await createSaleCenters({organization: org._id})
 
       /*
        * Now create the dataset to conciliate
@@ -126,10 +122,12 @@ describe('Conciliate dataset to project', () => {
       expect(datasetToConciliate._id).to.not.equal(projectConciliate.mainDataset._id)
       expect(dataset._id).to.not.equal(projectConciliate.mainDataset._id)
       expect(totalDatasets).equal(3)
-      expect(totalNewDatasetRows).equal(13)
+      expect(totalNewDatasetRows).equal(14)
     })
 
     it('should conciliate this dataset as main', async function () {
+      await clearDatabase()
+
       const user = await createUser()
       const org = await createFullOrganization({
         period: 'M'
@@ -196,6 +194,8 @@ describe('Conciliate dataset to project', () => {
     })
 
     it('with invalid dataset uuid should return an exception', async function () {
+      await clearDatabase()
+
       const user = await createUser()
       const org = await createFullOrganization({
         period: 'M'
@@ -223,6 +223,8 @@ describe('Conciliate dataset to project', () => {
     })
 
     it('with invalid project uuid should return an exception', async function () {
+      await clearDatabase()
+
       const user = await createUser()
       const org = await createFullOrganization({
         period: 'M'
@@ -257,6 +259,8 @@ describe('Conciliate dataset to project', () => {
     })
 
     it('with differents projects in a same conciliate in should return an exception', async function () {
+      await clearDatabase()
+
       const user = await createUser()
       const org = await createFullOrganization({
         period: 'M'

@@ -166,6 +166,12 @@ const task = new Task(
 
             // Recalculate the new end date of the next season
           seasonEndDate = moment(seasonEndDate).add(seasonDuration)
+
+          if(period === cycle){
+            tentativeCycleEndDate = moment(tentativeCycleEndDate)
+          }else{
+            tentativeCycleEndDate = moment(tentativeCycleEndDate).subtract(cycleDurationMoment)
+          }
           break
         }
 

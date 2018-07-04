@@ -1,12 +1,13 @@
 const Route = require('lib/router/route')
 const { DataSet, CatalogItem, DataSetRow, Role, Cycle, Period } = require('models')
+const moment = require('moment')
 
 module.exports = new Route({
   method: 'post',
   path: '/sales/:uuid',
   handler: async function (ctx) {
     var data = ctx.request.body
-    const dataset = await DataSet.findOne({uuid: ctx.params.uuid}).populate('rule')
+    const dataset = await DataSet.findOne({uuid: ctx.params.uuid}).populate('rule project')
     ctx.assert(dataset, 404, 'Dataset no encontrado')
 
     const user = ctx.state.user
@@ -40,6 +41,29 @@ module.exports = new Route({
       },
       'period': {
         '$in': periods.ids
+      }
+    }
+
+    let previousStart = moment(cycle.dateStart, 'YYYY-MM-DD').subtract(1, 'years').utc()
+    let previousEnd = moment(cycle.dateEnd, 'YYYY-MM-DD').subtract(1, 'years').utc()
+
+    let previousPeriods = await Period.getBetweenDates(
+      currentOrganization.organization._id,
+      dataset.rule._id,
+      previousStart.toDate(),
+      previousEnd.toDate()
+    )
+
+    let matchPreviousSale = {
+      'dataset': dataset.project.mainDataset,
+      'data.adjustment': {
+        '$ne': null
+      },
+      'data.prediction': {
+        '$ne': null
+      },
+      'period': {
+        $in: previousPeriods.map(item => { return item._id })
       }
     }
 
@@ -83,6 +107,92 @@ module.exports = new Route({
       }
     }
 
+    let conditions = []
+    let group = []
+    if (data.prices) {
+      conditions = [
+        {
+          '$lookup': {
+            'from': 'prices',
+            'localField': 'newProduct',
+            'foreignField': 'product',
+            'as': 'prices'
+          }
+        },
+        {
+          '$unwind': {
+            'path': '$prices'
+          }
+        },
+        {
+          '$addFields': {
+            'catalogsSize': {
+              '$size': '$prices.catalogItems'
+            }
+          }
+        },
+        {
+          '$match': {
+            'catalogsSize': {
+              '$gte': 1.0
+            }
+          }
+        },
+        {
+          '$redact': {
+            '$cond': [
+              {
+                '$setIsSubset': [
+                  '$prices.catalogItems',
+                  '$catalogItems'
+                ]
+              },
+              '$$KEEP',
+              '$$PRUNE'
+            ]
+          }
+        }
+      ]
+
+      group = [
+        {
+          '$group': {
+            '_id': '$period.period',
+            'prediction': {
+              '$sum': {
+                '$multiply': [
+                  '$data.prediction',
+                  '$prices.price'
+                ]
+              }
+            },
+            'adjustment': {
+              '$sum': {
+                '$multiply': [
+                  '$data.adjustment',
+                  '$prices.price'
+                ]
+              }
+            }
+          }
+        }
+      ]
+    } else {
+      group = [
+        {
+          '$group': {
+            '_id': '$period.period',
+            'prediction': {
+              '$sum': '$data.prediction'
+            },
+            'adjustment': {
+              '$sum': '$data.adjustment'
+            }
+          }
+        }
+      ]
+    }
+
     var statement = [
       {
         '$match': match
@@ -102,14 +212,7 @@ module.exports = new Route({
           'preserveNullAndEmptyArrays': false
         }
       },
-      {
-        '$lookup': {
-          'from': 'prices',
-          'localField': 'products._id',
-          'foreignField': 'product',
-          'as': 'prices'
-        }
-      },
+      ...conditions,
       {
         '$lookup': {
           'from': 'periods',
@@ -118,34 +221,50 @@ module.exports = new Route({
           'as': 'period'
         }
       },
+      ...group,
+      {
+        '$project': {
+          'period': '$_id',
+          'prediction': 1,
+          'adjustment': 1
+        }
+      },
+      {
+        '$sort': {
+          'period': 1
+        }
+      }
+    ]
+
+    var previousStatement = [
+      {
+        '$match': matchPreviousSale
+      },
+      {
+        '$lookup': {
+          'from': 'catalogitems',
+          'localField': 'newProduct',
+          'foreignField': '_id',
+          'as': 'products'
+        }
+      },
       {
         '$unwind': {
-          'path': '$prices',
+          'path': '$products',
           'includeArrayIndex': 'arrayIndex',
           'preserveNullAndEmptyArrays': false
         }
       },
+      ...conditions,
       {
-        '$group': {
-          '_id': '$period.period',
-          'prediction': {
-            '$sum': {
-              '$multiply': [
-                '$data.prediction',
-                '$prices.price'
-              ]
-            }
-          },
-          'adjustment': {
-            '$sum': {
-              '$multiply': [
-                '$data.adjustment',
-                '$prices.price'
-              ]
-            }
-          }
+        '$lookup': {
+          'from': 'periods',
+          'localField': 'period',
+          'foreignField': '_id',
+          'as': 'period'
         }
       },
+      ...group,
       {
         '$project': {
           'period': '$_id',
@@ -161,9 +280,11 @@ module.exports = new Route({
     ]
 
     var res = await DataSetRow.aggregate(statement)
+    var previous = await DataSetRow.aggregate(previousStatement)
 
     ctx.body = {
-      data: res
+      data: res,
+      previous: previous
     }
   }
 })
