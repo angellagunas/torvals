@@ -819,26 +819,62 @@ class DataSetDetail extends Component {
       this.catalogs[cat._id] = cat
     }
 
-    this.newCatalogs = dataset.catalogItems.map((item) => {
-      if (item.isNewExternal) {
-        item.catalog = this.catalogs[item.catalog]
-        item.type = item.catalog.slug
-        return item
-      }
-    }).filter(item => item)
+    if (!this.newCatalogs) {
+      this.newCatalogs = dataset.catalogItems.map((item) => {
+        if (item.isNewExternal) {
+          item.catalog = this.catalogs[item.catalog]
+          item.type = item.catalog.slug
+          return item
+        }
+      }).filter(item => item)
 
-    this.newCatalogs = _(this.newCatalogs)
-    .groupBy(x => x.catalog.slug)
-    .map((value, key) => ({
-      type: key,
-      name: value[0].catalog.name,
-      objects: value,
-      headerClass: 'is-hidden',
-      iconClass: 'fa fa-2x fa-caret-down',
-      isOpen: false,
-      selectAll: false
-    }))
-    .value()
+      this.newCatalogs = _(this.newCatalogs)
+      .groupBy(x => x.catalog.slug)
+      .map((value, key) => ({
+        type: key,
+        name: value[0].catalog.name,
+        objects: value,
+        headerClass: 'is-hidden',
+        iconClass: 'fa fa-2x fa-caret-down',
+        isOpen: false,
+        selectAll: false
+      }))
+      .value()
+    } else {
+      let newCatalogs = dataset.catalogItems.map((item) => {
+        if (item.isNewExternal) {
+          item.catalog = this.catalogs[item.catalog]
+          item.type = item.catalog.slug
+          return item
+        }
+      }).filter(item => item)
+
+      newCatalogs = _(newCatalogs)
+      .groupBy(x => x.catalog.slug)
+      .map((value, key) => ({
+        type: key,
+        objects: value,
+        selectAll: false
+      }))
+      .value()
+      let auxNewCatalogs = []
+
+      for (let cat of this.newCatalogs) {
+        let newItem = newCatalogs.find(item => {
+          return item.type === cat.type
+        })
+
+        if (!newItem) {
+          cat = {}
+          continue
+        }
+
+        cat.objects = newItem.objects
+        cat.selectAll = false
+        auxNewCatalogs.push(cat)
+      }
+      this.newCatalogs = auxNewCatalogs
+    }
 
     this.setState({
       unidentified: this.newCatalogs
