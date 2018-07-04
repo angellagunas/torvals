@@ -17,7 +17,8 @@ const {
   DataSetRow,
   Cycle,
   Period,
-  Anomaly
+  Anomaly,
+  Product
 } = require('models')
 
 const task = new Task(async function (argv) {
@@ -300,6 +301,47 @@ const task = new Task(async function (argv) {
         })
       }
     }
+
+    let products = await Product.find({})
+    let prodsObj = {}
+
+    for (let prod of products) {
+      prodsObj[prod._id] = prod
+    }
+
+    let datasetRows = await DataSetRow.find({
+      dataset: dataset._id,
+      newProduct: { $exists: false }
+    }).cursor()
+
+    for (let row = await datasetRows.next(); row != null; row = await datasetRows.next()) {
+      let prod = prodsObj[row.product]
+      let findProduct = _.find(newProducts, ['externalId', prod.externalId])
+      if (!findProduct) {
+        findProduct = await CatalogItem.create({
+          catalog: currentCatalogs.find((catalog) => {
+            return catalog.slug === 'producto'
+          }),
+          name: prod.name,
+          externalId: prod.externalId,
+          organization: project.organization._id,
+          type: 'producto'
+        })
+      } else {
+        newProducts.push(findProduct._id)
+      }
+
+      row.set({
+        'catalogData.is_producto_name': findProduct.name,
+        'catalogData.is_producto_id': findProduct.externalId,
+        'newProduct': findProduct._id
+      })
+
+      await row.save()
+    }
+
+    dataset.set({newProducts: newProducts})
+    await dataset.save()
 
     await Anomaly.deleteMany({project: project._id})
     await getAnomalies.run({uuid: argv.uuid})

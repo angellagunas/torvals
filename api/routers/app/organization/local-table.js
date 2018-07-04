@@ -366,6 +366,8 @@ module.exports = new Route({
 
     let responseData = allData.map(item => {
       let product = item._id.product
+      if (product === null) return
+
       let data = dataDict[product]
       let mape = 0
       let prediction = item.predictionSale
@@ -384,6 +386,7 @@ module.exports = new Route({
         mape: mape
       }
     })
+    responseData = responseData.filter(item => { return item })
 
     try {
       for (let item in responseData) {
