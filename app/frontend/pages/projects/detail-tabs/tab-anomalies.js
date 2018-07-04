@@ -549,7 +549,7 @@ class TabAnomalies extends Component {
             this.state.anomalies.length === 0
               ? <section className='section'>
                   <center>
-                    <h2 className='has-text-info'>No hay anomalías que mostrar</h2>
+                  <h2 className='subtitle has-text-primary'>No hay anomalías que mostrar</h2>
                   </center>
                 </section>
               :
