@@ -18,6 +18,8 @@ pipeline {
     stage("Test") {
       when { anyOf { branch "dev" } }
       steps {
+        sh "cp .env.ci .env"
+        sh "make post-ci"
         sh "make ci"
       }
       post {
