@@ -270,12 +270,13 @@ class ProjectDetail extends Component {
 
         if (res.data.status === 'adjustment') {
           clearInterval(this.interval)
+          this.interval = null
+
           if (!this.intervalConciliate) {
             this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
           }
         }
         else if (res.data.status === 'pending-configuration'){
-          clearInterval(this.interval)
           this.setState({
             selectedTab: 'datasets',
             actualTab: 'datasets',
@@ -284,6 +285,8 @@ class ProjectDetail extends Component {
         }
          else {
           clearInterval(this.intervalConciliate)
+          this.intervalConciliate = null
+
         }
       }
     } catch (e) {
@@ -295,6 +298,9 @@ class ProjectDetail extends Component {
     clearInterval(this.interval)
     clearInterval(this.intervalCounter)
     clearInterval(this.intervalConciliate)
+    this.interval = null
+    this.intervalCounter = null
+    this.intervalConciliate = null
   }
 
   submitHandler () {
@@ -364,6 +370,8 @@ class ProjectDetail extends Component {
     var url = '/app/datasets/' + this.state.project.activeDataset.uuid + '/set/conciliate'
     try {
       clearInterval(this.interval)
+      this.interval = null
+
       await api.post(url)
       await this.load('ajustes')
     } catch (e) {
@@ -548,7 +556,7 @@ class ProjectDetail extends Component {
         project.status === 'pending-configuration' ||
         project.status === 'updating-rules'
     )) {
-      this.interval = setInterval(() => this.getProjectStatus(), 30000)
+      this.interval = setInterval(() => this.getProjectStatus(), 10000)
     }
 
     if (!this.state.loaded) {

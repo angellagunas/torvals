@@ -621,7 +621,8 @@ class TabApprove extends Component {
           {this.state.dataRows.length === 0 ?
             <section className='section'>
               <center>
-                <h2 className='has-text-info'>No hay ajustes por aprobar</h2></center>
+                <h2 className='subtitle has-text-primary'>No hay ajustes por aprobar</h2>
+              </center>
             </section>
             :
             <BaseTable

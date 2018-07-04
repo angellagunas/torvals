@@ -28,7 +28,7 @@ const uiSchema = {
 }
 
 class CustomForm extends Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       name: '',
@@ -39,25 +39,25 @@ class CustomForm extends Component {
     }
   }
 
-  onChange(name) {
+  onChange (name) {
     return value => {
       this.setState({ [name]: value })
       setImmediate(() => this.props.onChange(this.state))
     }
   }
 
-  render() {
+  render () {
     const { name, slug, description, profile, profileUrl } = this.state
     const profileImg = profile || profileUrl
 
     return (
-      <div className="columns is-multiline test">
+      <div className='columns is-multiline test'>
 
         <div className='column is-12'>
           <p className='subtitle is-pulled-left'>
             <strong>Detalle de tu organización</strong>
           </p>
-          <div className="is-pulled-right">
+          <div className='is-pulled-right'>
             <button
               className={'button is-primary ' + this.state.isLoading}
               disabled={!!this.state.isLoading}
@@ -81,15 +81,16 @@ class CustomForm extends Component {
                           width: '170px',
                           height: '170px',
                           backgroundImage: `url('${profileImg}')`,
-                          backgroundSize: 'cover',
+                          backgroundSize: 'contain',
+                          backgroundRepeat: 'no-repeat',
                           display: 'block',
                           borderRadius: '100px'
                         }}
                       />
                     }
-                    <div className="form-group field">
+                    <div className='form-group field'>
                       <br />
-                      <label className="label">
+                      <label className='label'>
                         Sube el logo de la organización
                       </label>
                       <br />
@@ -113,9 +114,9 @@ class CustomForm extends Component {
               <div className='columns'>
                 <div className='column'>
 
-                  <div className="form-group field">
-                    <label className="label">Nombre*</label>
-                    <div className="control">
+                  <div className='form-group field'>
+                    <label className='label'>Nombre*</label>
+                    <div className='control'>
                       <TextWidget
                         required
                         type='text'
@@ -125,25 +126,25 @@ class CustomForm extends Component {
                       />
                     </div>
                   </div>
-                  <div className="form-group field">
-                    <label className="label">Descripción</label>
-                    <div className="control">
+                  <div className='form-group field'>
+                    <label className='label'>Descripción</label>
+                    <div className='control'>
                       <TextareaWidget
                         options={{ rows: 4 }}
-                        type="text"
-                        className="input"
-                        maxLength="140"
+                        type='text'
+                        className='input'
+                        maxLength='140'
                         value={description}
                         onChange={this.onChange('description')}
                       />
                     </div>
-                    <p className="help-block has-text-grey is-size-7">
+                    <p className='help-block has-text-grey is-size-7'>
                       Máximo 140 caracteres
                     </p>
                   </div>
-                  <div className="form-group field">
-                    <label className="label">Subdominio*</label>
-                    <div className="control">
+                  <div className='form-group field'>
+                    <label className='label'>Subdominio*</label>
+                    <div className='control'>
                       <TextWidget
                         required
                         disabled

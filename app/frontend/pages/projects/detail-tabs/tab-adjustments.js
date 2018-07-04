@@ -198,6 +198,7 @@ class TabAdjustment extends Component {
     })
 
     let adjustment = this.getAdjustment(cycle.adjustmentRange)
+
     if (this.props.project.cycleStatus !== 'rangeAdjustment')
       adjustment = 0
 
@@ -861,7 +862,8 @@ class TabAdjustment extends Component {
           salesTable: res.data,
           totalAdjustment: totalAdjustment,
           totalPrediction: totalPrediction,
-          reloadGraph: true
+          reloadGraph: true,
+          noSalesData: res.data.length === 0 ? 'No hay información' : ''
         }, () => {
             this.setState({
               reloadGraph: false
