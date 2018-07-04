@@ -65,7 +65,9 @@ const task = new Task(
       await generateCycles.run({
         uuid: organization.uuid, rule: project.rule.uuid, extraDate: project.mainDataset.dateMin })
 
-      if (moment.utc().isAfter(moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD'))) {
+      let today = moment.utc()
+
+      if (today.isAfter(moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD'))) {
         let seasonDuration = moment.duration(
           project.rule.season * project.rule.cycleDuration,
           project.rule.cycle
@@ -73,7 +75,7 @@ const task = new Task(
         await generateCycles.run({
           uuid: organization.uuid,
           rule: project.rule.uuid,
-          extraDate: moment.utc().add(seasonDuration).format('YYYY-MM-DD')
+          extraDate: today.add(seasonDuration).format('YYYY-MM-DD')
         })
       } else {
         await generateCycles.run({
