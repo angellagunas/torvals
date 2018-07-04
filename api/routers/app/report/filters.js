@@ -51,7 +51,7 @@ module.exports = new Route({
         }
       ]
 
-    }).sort({dateStart: 1})
+    }).sort({dateStart: 1}).limit(rule.cyclesAvailable)
 
     cycles.data = cycles.map((item) => {
       return item.toPublic()
@@ -62,6 +62,7 @@ module.exports = new Route({
       organization: organization._id,
       type: {$nin: ['producto', 'productos']}
     }).populate('organization')
+
     catalogItems.data = catalogItems.map((item) => {
       return item.toPublic()
     })

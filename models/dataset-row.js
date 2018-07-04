@@ -90,6 +90,7 @@ datasetRowSchema.index({ dataset: 1, 'data.productExternalId': 1 }, {background:
 datasetRowSchema.index({ dataset: 1, 'data.channelExternalId': 1 }, {background: true})
 datasetRowSchema.index({ dataset: 1, 'data.salesCenterExternalId': 1 }, {background: true})
 datasetRowSchema.index({ 'data.forecastDate': 1 }, {background: true})
+datasetRowSchema.index({ 'project': -1, cycle: 1, adjustmentRequest: -1, updatedBy: -1 }, {background: true})
 datasetRowSchema.index(
   {
     'apiData.producto_id': 1,
