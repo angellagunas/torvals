@@ -71,7 +71,8 @@ module.exports = new Route({
 
     const datasets = await DataSet.find({
       project: project._id,
-      isDeleted: false
+      isDeleted: false,
+      $or: [{source: 'adjustment'}, {_id: project.mainDataset}]
     })
 
     data.datasets = datasets.map((item) => {
