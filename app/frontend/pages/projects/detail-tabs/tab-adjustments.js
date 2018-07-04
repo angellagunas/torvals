@@ -649,7 +649,7 @@ class TabAdjustment extends Component {
       if (rowAux.length > 0) {
         const res = await api.post(url, rowAux)
       }
-      if (isLimited && currentRole === 'manager-level-1') {
+      if (isLimited && (currentRole === 'manager-level-1' || currentRole === 'manager-level-2')) {
         this.notify(
           (<p>
             <span className='icon'>
@@ -661,12 +661,7 @@ class TabAdjustment extends Component {
           toast.TYPE.WARNING
         )
       } else {
-        if(currentRole === 'manager-level-2' && isLimited){
-          this.notify('¡Ajustes fuera de rango guardados!', 5000, toast.TYPE.WARNING)
-        }
-        else{
-          this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
-        }
+        this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
       }
       this.props.pendingDataRows(pendingDataRows)
 
@@ -705,7 +700,7 @@ class TabAdjustment extends Component {
 
     this.props.loadCounters()
 
-    if (currentRole !== 'manager-level-1' && limitedRows.length) {
+    if (currentRole !== 'manager-level-1' && currentRole !== 'manager-level-2' && limitedRows.length) {
       this.props.handleAdjustmentRequest(limitedRows)
     }
 
