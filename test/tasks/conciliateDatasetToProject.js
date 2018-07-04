@@ -33,7 +33,7 @@ describe('Conciliate dataset to project', () => {
   })
 
   describe('with csv file with 3 products', () => {
-    it.skip('should conciliate a new dataset with 2 records successfully', async function () {
+    it('should conciliate a new dataset with 2 records successfully', async function () {
       const user = await createUser()
       const org = await createFullOrganization({
         period: 'M'

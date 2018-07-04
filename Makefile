@@ -44,14 +44,15 @@ run-test:
 	@$(BIN_DIR)/mocha
 
 ci:
-	cp .env.default .env
-	docker pull mongo:latest
-	docker pull redis:alpine
+	cp .env.ci .env
 	docker-compose build api
-	docker-compose up -d redisdb
-	docker-compose up -d mongodb
-	docker-compose up -d api
+	docker-compose up -d redisdb mongodb api
 	docker-compose exec -T api npm test
+
+post-ci:
+	docker-compose stop
+	docker-compose down
+	rm .env
 
 build:
 	@docker build --no-cache --pull -t $(DOCKER_TAG) .

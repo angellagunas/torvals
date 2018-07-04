@@ -15,7 +15,7 @@ describe('Generate periods task', () => {
     await clearDatabase()
   })
 
-  describe.skip('with one cycle by month and only period by cycle', () => {
+  describe('with one cycle by month and only period by cycle', () => {
     it('with 23 cycles created in db should generate 23 periods', async function () {
 
       const org = await createFullOrganization({}, {

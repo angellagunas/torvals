@@ -16,9 +16,14 @@ pipeline {
       }
     }
     stage("Test") {
-      when { anyOf { branch "feature/jenkins-test"; branch "dev" } }
+      when { anyOf { branch "dev" } }
       steps {
         sh "make ci"
+      }
+      post {
+        always {
+          sh "make post-ci"
+        }
       }
     }
     stage("Build") {
