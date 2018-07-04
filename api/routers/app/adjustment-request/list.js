@@ -1,7 +1,9 @@
 const ObjectId = require('mongodb').ObjectID
 const Route = require('lib/router/route')
+const moment = require('moment')
+const _ = require('lodash')
 
-const {DataSet, AdjustmentRequest, Role, CatalogItem} = require('models')
+const {DataSet, AdjustmentRequest, Role, CatalogItem, Cycle} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -105,6 +107,12 @@ module.exports = new Route({
       }
     }
 
+    if (
+      currentRole.slug === 'consultor-level-2' || currentRole.slug === 'manager-level-2'
+    ) {
+      filters['requestedBy'] = { '$ne': ctx.state.user }
+    }
+
     var adjustmentRequests = await AdjustmentRequest.dataTables({
       limit: ctx.request.query.limit || 0,
       skip: ctx.request.query.start,
@@ -119,6 +127,34 @@ module.exports = new Route({
       ],
       sort: ctx.request.query.sort || '-dateCreated'
     })
+
+    if (currentRole.slug === 'consultor-level-2' || currentRole.slug === 'manager-level-2') {
+      let ranges = dataset.rule.rangesLvl2
+      let cycles = await Cycle.find({
+        organization: ctx.state.organization,
+        rule: dataset.rule,
+        dateStart: {$lte: moment.utc(dataset.dateMax), $gte: moment.utc(dataset.dateMin).subtract(1, 'days')}
+      }).sort({'cycle': 1})
+
+      cycles = cycles.map(item => {
+        return {
+          cycle: item.cycle,
+          uuid: item.uuid,
+          dateStart: item.dateStart,
+          dateEnd: item.dateEnd
+        }
+      })
+
+      adjustmentRequests.data = adjustmentRequests.data.filter(item => {
+        let rangeIndex = _.findIndex(cycles, cycle => {
+          return moment(cycle.dateStart).utc() <= moment(item.datasetRow.data.forecastDate).utc() &&
+                 moment(cycle.dateEnd).utc() >= moment(item.datasetRow.data.forecastDate).utc()
+        })
+
+        let percentage = Math.round(((item.newAdjustment - item.lastAdjustment) / item.lastAdjustment) * 100)
+        return percentage <= ranges[rangeIndex]
+      })
+    }
 
     adjustmentRequests.data = adjustmentRequests.data.map(item => {
       return {
