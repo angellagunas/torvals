@@ -63,10 +63,25 @@ const task = new Task(
       log.call('Creating missing cycles.')
 
       await generateCycles.run({
-        uuid: organization.uuid, rule: project.rule.uuid, extraDate: dataset.dateMin })
+        uuid: organization.uuid, rule: project.rule.uuid, extraDate: project.mainDataset.dateMin })
 
-      await generateCycles.run({
-        uuid: organization.uuid, rule: project.rule.uuid, extraDate: dataset.dateMax })
+      if (moment.utc().isAfter(moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD'))) {
+        let seasonDuration = moment.duration(
+          project.rule.season * project.rule.cycleDuration,
+          project.rule.cycle
+        )
+        await generateCycles.run({
+          uuid: organization.uuid,
+          rule: project.rule.uuid,
+          extraDate: moment.utc().add(seasonDuration).format('YYYY-MM-DD')
+        })
+      } else {
+        await generateCycles.run({
+          uuid: organization.uuid,
+          rule: project.rule.uuid,
+          extraDate: project.mainDataset.dateMax
+        })
+      }
 
       cyclesAvailable = await Cycle.getAvailable(organization._id, project.rule._id, cycles)
     }
