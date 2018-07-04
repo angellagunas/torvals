@@ -52,6 +52,9 @@ cycleSchema.statics.getCurrent = async function (organization, rule) {
 
 cycleSchema.statics.getAvailable = async function (organization, rule, cyclesAvailable) {
   const currentCycle = await this.getCurrent(organization, rule)
+
+  if (!currentCycle) return []
+
   const cycles = await this.find({
     organization: organization,
     rule: rule,
