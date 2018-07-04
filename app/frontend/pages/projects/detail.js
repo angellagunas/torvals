@@ -766,7 +766,7 @@ class ProjectDetail extends Component {
           </a>
         </p>
     }
-    else if (testRoles('manager-level-1')) {
+    else if (testRoles('manager-level-1, manager-level-2')) {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
