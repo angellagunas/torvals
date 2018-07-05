@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const moment = require('moment')
 
-const {DataSetRow, AdjustmentRequest, Role, UserReport} = require('models')
+const {DataSetRow, AdjustmentRequest, Role, UserReport, Cycle, DataSet} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -75,30 +75,36 @@ module.exports = new Route({
         await datasetRow.save()
         uuidsAux.push({uuid: datasetRow.uuid})
       }
-
       await adjustmentRequest.save()
-      let adjustmentStatus = 'in-progress'
-      if (data.finishAdjustments) { adjustmentStatus = 'finished' }
-      let userReport = await UserReport.findOne({
-        user: ctx.state.user,
-        dataset: datasetRow.dataset._id
-      })
-      if (!userReport) {
-        await UserReport.create({
-          user: ctx.state.user,
-          dataset: datasetRow.dataset._id,
-          cycle: datasetRow.cycle,
-          project: datasetRow.dataset.project,
-          status: adjustmentStatus
-        })
-      } else {
-        userReport.set({
-          status: adjustmentStatus
-        })
-        await userReport.save()
-      }
-
       returnData[row.uuid] = adjustmentRequest.toPublic()
+    }
+
+    let adjustmentStatus = 'in-progress'
+    if (data.finishAdjustments) { adjustmentStatus = 'finished' }
+    const cycle = await Cycle.findOne({
+      organization: ctx.state.organization._id,
+      uuid: data.cycle
+    })
+    const dataset = await DataSet.findOne({uuid: data.dataset})
+
+    let userReport = await UserReport.findOne({
+      user: ctx.state.user,
+      dataset: dataset._id,
+      cycle: cycle._id
+    })
+    if (!userReport) {
+      await UserReport.create({
+        user: ctx.state.user,
+        dataset: dataset._id,
+        cycle: cycle._id,
+        project: dataset.project,
+        status: adjustmentStatus
+      })
+    } else {
+      userReport.set({
+        status: adjustmentStatus
+      })
+      await userReport.save()
     }
 
     ctx.body = {data: returnData}
