@@ -558,7 +558,7 @@ class StatusRepórt extends Component {
     return (
       <div className='status-report'>
         <div className='section-header'>
-          <h2>Status de proyecto </h2>
+          <h2>Estatus de proyecto </h2>
         </div>
         <div className='section level selects'>
           <div className='level-left'>
