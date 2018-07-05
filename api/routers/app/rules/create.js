@@ -143,7 +143,7 @@ module.exports = new Route({
       if (isNaN(data.rangeAdjustment) || data.rangeAdjustment <= 0) { ctx.throw(422, 'El valor de aprobación debe de ser númerico y mayor a 0') }
       if (isNaN(data.salesUpload) || data.salesUpload <= 0) { ctx.throw(422, 'El valor de ventas debe de ser númerico y mayor a 0') }
 
-      rule = await Rule.findOne({organization: org._id, isCurrent: true, isDeleted: false}).populate('periods')
+      rule = await Rule.findOne({organization: org._id, isCurrent: true, isDeleted: false}).populate('periods catalogs')
       rule.set({
         consolidation: data.consolidation,
         forecastCreation: data.forecastCreation,
