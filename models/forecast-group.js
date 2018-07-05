@@ -5,7 +5,7 @@ const { v4 } = require('uuid')
 
 const forecastGroupSchema = new Schema({
   project: { type: Schema.Types.ObjectId, ref: 'Project' },
-  forecasts: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+  forecasts: [{ type: Schema.Types.ObjectId, ref: 'Forecast' }],
 
   alias: { type: String },
   type: {
