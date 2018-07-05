@@ -9,7 +9,9 @@ const DataSet = require('./dataSet')
 const Project = require('./project')
 const SalesCenter = require('./sales-center')
 const Product = require('./product')
+const Engine = require('./engine')
 const Forecast = require('./forecast')
+const ForecastGroup = require('./forecast-group')
 const Prediction = require('./prediction')
 const PredictionHistoric = require('./prediction-historic')
 const AdjustmentRequest = require('./adjustment-request')
@@ -43,7 +45,9 @@ module.exports = {
   Prediction,
   PredictionHistoric,
   AdjustmentRequest,
+  Engine,
   Forecast,
+  ForecastGroup,
   DataSetRow,
   AbraxasDate,
   Channel,
