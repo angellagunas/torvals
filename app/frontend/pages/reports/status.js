@@ -135,6 +135,10 @@ class StatusRepórt extends Component {
     } catch (e) {
       console.log(e)
       this.setState({
+        filters: {
+          cycles: [],
+          users: []
+        },
         error: true,
         filtersLoading: false,
         errorMessage: '¡No se pudieron cargar los filtros!'
@@ -158,7 +162,7 @@ class StatusRepórt extends Component {
       this.setState({
         projectSelected: project
       }, () => {
-        this.getDataRows()
+        this.getFilters()
       })
     }
     else {
@@ -476,6 +480,7 @@ class StatusRepórt extends Component {
               optionName='name'
               options={element}
               onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              disabled={this.state.filtersLoading}              
             />
           </div>
         )
@@ -562,6 +567,7 @@ class StatusRepórt extends Component {
               />
             </div>
             }
+            {this.state.filters.cycles.length > 0 &&
             <div className='level-item'>
               <Select
                 label='Ciclo'
@@ -572,9 +578,11 @@ class StatusRepórt extends Component {
                 type='integer'
                 options={this.state.filters.cycles}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                disabled={this.state.filtersLoading}
               />
             </div>
-
+            }
+            {this.state.filters.users.length > 0 &&
             <div className='level-item'>
               <Select
                 label='Usuarios'
@@ -585,8 +593,10 @@ class StatusRepórt extends Component {
                 placeholder='Todos'
                 options={this.state.filters.users}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                disabled={this.state.filtersLoading}                
               />
             </div>
+            }
 
             
             {this.state.filters &&
