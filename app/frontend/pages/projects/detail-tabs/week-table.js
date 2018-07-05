@@ -106,7 +106,7 @@ class WeekTable extends Component {
       <div className='field has-addons view-btns'>
         <span className='control'>
           <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info btn-lvl-3' : 'button is-info'}>
-            Vista Semana
+            Vista Periodo
           </a>
         </span>
         <span className='control'>
