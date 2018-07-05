@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const { v4 } = require('uuid')
 
-const userTokenSchema = new Schema({
+const forecastGroupSchema = new Schema({
   project: { type: Schema.Types.ObjectId, ref: 'Project' },
   forecasts: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
 
@@ -23,8 +23,7 @@ const userTokenSchema = new Schema({
   uuid: { type: String, default: v4 }
 }, { usePushEach: true })
 
-
-userTokenSchema.methods.toPrivate = function () {
+forecastGroupSchema.methods.toPrivate = function () {
   return {
     project: this.project,
     forecasts: this.forecasts,
@@ -34,7 +33,7 @@ userTokenSchema.methods.toPrivate = function () {
   }
 }
 
-userTokenSchema.methods.toPublic = function () {
+forecastGroupSchema.methods.toPublic = function () {
   return {
     project: this.project,
     forecasts: this.forecasts,

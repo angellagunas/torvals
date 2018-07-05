@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const { v4 } = require('uuid')
 
-const userTokenSchema = new Schema({
+const engineSchema = new Schema({
   name: { type: String },
   description: { type: String },
   path: { type: String },
@@ -14,7 +14,7 @@ const userTokenSchema = new Schema({
   uuid: { type: String, default: v4 }
 }, { usePushEach: true })
 
-userTokenSchema.methods.toPrivate = function () {
+engineSchema.methods.toPrivate = function () {
   return {
     name: this.name,
     description: this.description,
@@ -24,7 +24,7 @@ userTokenSchema.methods.toPrivate = function () {
   }
 }
 
-userTokenSchema.methods.toPublic = function () {
+engineSchema.methods.toPublic = function () {
   return {
     name: this.name,
     description: this.description,
