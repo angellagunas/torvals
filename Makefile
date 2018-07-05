@@ -43,6 +43,17 @@ dist:
 run-test:
 	@$(BIN_DIR)/mocha
 
+ci:
+	cp .env.ci .env
+	docker-compose build api
+	docker-compose up -d redisdb mongodb api
+	docker-compose exec -T api npm test
+
+post-ci:
+	docker-compose stop
+	docker-compose down
+	rm .env
+
 build:
 	@docker build --no-cache --pull -t $(DOCKER_TAG) .
 

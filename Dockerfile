@@ -23,4 +23,4 @@ WORKDIR /app
 ENV NODE_ENV="production"
 
 # Run tracker
-CMD npm run start
+CMD ./wait-for-it.sh http://redisdb:6379 --  npm run start
