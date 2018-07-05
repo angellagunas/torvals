@@ -127,7 +127,15 @@ class ProjectDetail extends Component {
         tab = 'ajustes'
       }
 
-      if (body.data.outdated && body.data.status !== 'cloning') this.showModalOutdated()
+      if (
+        currentRole !== 'manager-level-1' &&
+        currentRole !== 'manager-level-2' &&
+        body.data.outdated &&
+        body.data.status !== 'cloning' &&
+        !this.state.project.uuid
+      ) {
+        this.showModalOutdated()
+      }
 
       this.rules = body.data.rule
 

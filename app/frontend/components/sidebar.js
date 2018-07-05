@@ -191,17 +191,8 @@ class Sidebar extends Component {
     }
 
     return [
-      Dashboard.asSidebarItem(),
-      {
-        title: 'Administra tu equipo',
-        icon: 'users',
-        to: '/manage',
-        roles: 'orgadmin, admin, manager-level-3',
-        dropdown: [
-          Users.asSidebarItem(),
-          Groups.asSidebarItem()
-        ]
-      }]
+      Dashboard.asSidebarItem()
+    ]
   }
 
   handleActiveLink (item, title) {
