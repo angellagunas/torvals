@@ -1,4 +1,3 @@
-const jwt = require('lib/jwt')
 const moment = require('moment')
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
@@ -24,12 +23,6 @@ const userTokenSchema = new Schema({
   uuid: { type: String, default: v4 }
 }, { usePushEach: true })
 
-userTokenSchema.methods.getJwt = function () {
-  return jwt.sign({
-    key: this.key,
-    secret: this.secret
-  })
-}
 
 userTokenSchema.methods.toPrivate = function () {
   return {
