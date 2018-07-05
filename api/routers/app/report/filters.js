@@ -1,34 +1,22 @@
 const Route = require('lib/router/route')
-const {Project, User, Cycle, Organization, CatalogItem, Rule} = require('models')
+const {Project, User, Organization, CatalogItem, Cycle, Rule} = require('models')
 const moment = require('moment')
 
 module.exports = new Route({
   method: 'get',
-  path: '/filters/',
+  path: '/filters/:uuid',
   handler: async function (ctx) {
     const organization = await Organization.findOne({_id: ctx.state.organization._id})
+    const uuid = ctx.params.uuid
 
-    const projects = await Project.find({
-      isDeleted: false,
-      mainDataset: {$ne: null},
+    const project = await Project.findOne({
+      uuid: uuid,
       organization: organization._id
-    })
-    projects.data = projects.map((item) => {
-      return item.toPublic()
-    })
-
-    const users = await User.find({
-      isDeleted: false,
-      'organizations.organization': organization._id
-    })
-    users.data = users.map((item) => {
-      return item.toPublic()
     })
 
     const rule = await Rule.findOne({
       organization: organization._id,
-      isCurrent: true,
-      isDeleted: false
+      _id: project.rule
     })
 
     const cycles = await Cycle.find({
@@ -57,6 +45,14 @@ module.exports = new Route({
       return item.toPublic()
     })
 
+    const users = await User.find({
+      isDeleted: false,
+      'organizations.organization': organization._id
+    })
+    users.data = users.map((item) => {
+      return item.toPublic()
+    })
+
     const catalogItems = await CatalogItem.find({
       isDeleted: false,
       organization: organization._id,
@@ -68,9 +64,8 @@ module.exports = new Route({
     })
 
     ctx.body = {
-      projects: projects.data,
-      users: users.data,
       cycles: cycles.data,
+      users: users.data,
       catalogItems: catalogItems.data
     }
   }
