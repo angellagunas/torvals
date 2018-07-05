@@ -53,7 +53,9 @@ module.exports = new Route({
           newAdjustment: row.newAdjustment,
           requestedBy: ctx.state.user._id,
           status: status,
-          catalogItems: datasetRow.catalogItems
+          catalogItems: datasetRow.catalogItems,
+          period: datasetRow.period,
+          cycle: datasetRow.cycle
         })
 
         datasetRow.adjustmentRequest = adjustmentRequest
