@@ -10,6 +10,7 @@ import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
 import { BaseTable } from '~base/components/base-table'
 import Link from '~base/router/link'
+import classNames from 'classnames'
 
 class StatusRepórt extends Component {
   constructor (props) {
@@ -340,17 +341,24 @@ class StatusRepórt extends Component {
         'title': 'Acciones',
         formatter: (row) => {
             return (
-              <Link className='button is-primary' to={'/manager/users/' + row.user.uuid}>
+              <a className='button is-primary' onClick={() => this.userDetail(row.user[0])}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>
-              </Link>
+              </a>
             )
         }
       }
     ]
 
     return cols
+  }
+
+
+  userDetail(user){
+    tree.set('userDetail', user)
+    tree.commit()
+    this.props.history.push('/manage/users-groups')
   }
 
   handleSort(e) {
@@ -596,7 +604,11 @@ class StatusRepórt extends Component {
         </div>
         <div className='section columns is-padingless-top'>
           <div className='column is-3'>
-            <div className='notification is-success filter-widget' onClick={() => { this.filterUsers(1) }}>
+            <div className={
+              classNames('notification is-success filter-widget', 
+                { 'filter-widget__active': this.state.filterReady })
+              } 
+              onClick={() => { this.filterUsers(1) }}>
               <div className='level'>
                 <div className='level-left'>
                   <div className='level-item'>
@@ -613,7 +625,11 @@ class StatusRepórt extends Component {
             </div>
           </div>
           <div className='column is-3'>
-            <div className='notification is-info filter-widget' onClick={() => { this.filterUsers(2) }}>
+            <div className={
+              classNames('notification is-info filter-widget',
+                { 'filter-widget__active': this.state.filterProgress })
+              } 
+              onClick={() => { this.filterUsers(2) }}>
               <div className='level'>
                 <div className='level-left'>
                   <div className='level-item'>
@@ -630,7 +646,11 @@ class StatusRepórt extends Component {
             </div>
           </div>
           <div className='column is-3'>
-            <div className='notification is-danger filter-widget' onClick={() => { this.filterUsers(3) }}>
+            <div className={
+              classNames('notification is-danger filter-widget',
+                { 'filter-widget__active': this.state.filterInactive })
+              } 
+              onClick={() => { this.filterUsers(3) }}>
               <div className='level'>
                 <div className='level-left'>
                   <div className='level-item'>
