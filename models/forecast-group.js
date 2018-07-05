@@ -51,4 +51,4 @@ userTokenSchema.methods.toPublic = function () {
   }
 }
 
-module.exports = mongoose.model('ForecastGroup', userTokenSchema)
+module.exports = mongoose.model('ForecastGroup', forecastGroupSchema)

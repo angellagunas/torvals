@@ -42,4 +42,4 @@ userTokenSchema.methods.toPublic = function () {
   }
 }
 
-module.exports = mongoose.model('Engine', userTokenSchema)
+module.exports = mongoose.model('Engine', engineSchema)
