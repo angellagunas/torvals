@@ -175,6 +175,9 @@ class Rules extends Component {
                       <p>Catálogos:</p>
                       <br />
                       <div className='tags'>
+                        <div className='tag is-capitalized has-text-weight-semibold'>
+                          Precio
+                        </div>
                         {this.props.rules.catalogs.map((item, key) => {
                           return (
                             <div key={key} className='tag is-capitalized has-text-weight-semibold'>

@@ -1,46 +1,34 @@
 /* global describe, beforeEach, it */
 require('co-mocha')
 
-const { expect } = require('chai')
-const http = require('http')
-const {
-  clearDatabase,
-  createOrganization,
-  createFullOrganization,
-  createProject,
-  createUser
-} = require('../utils')
 const api = require('api/')
+const http = require('http')
+const { expect } = require('chai')
 const request = require('supertest')
-const {Project, Organization} = require('models')
+const { Project, Organization } = require('models')
+const { clearDatabase, createProject, apiHeaders } = require('../utils')
 
-function test () {
+function test() {
   return request(http.createServer(api.callback()))
 }
 
 describe('/projects', () => {
+
   describe('[post] / Create Project', () => {
     it('should return a 200 then the project created', async function () {
       await clearDatabase()
-      const user = await createUser()
-      const token = await user.createToken({type: 'session'})
-      const jwt = token.getJwt()
-      const org = createFullOrganization({
-        name: 'Una org',
-        description: 'Una descripción',
-        slug: 'test-org'
-      },{})
+      const credentials = await apiHeaders()
 
       const res = await test()
         .post('/api/app/projects')
         .send({
           name: 'Un proyecto',
-          organization: org.uuid,
+          organization: credentials.org.uuid,
           description: 'Una descripción de proyecto'
         })
         .set('Accept', 'application/json')
-        .set('Authorization', `Bearer ${jwt}`)
-        .set('Referer', 'http://test-org.orax.com')
+        .set('Authorization', `Bearer ${credentials.token}`)
+        .set('Referer', credentials.referer)
         .expect(200)
 
       const newProject = await Project.findOne({'uuid': res.body.data.uuid})
@@ -50,28 +38,31 @@ describe('/projects', () => {
 
     describe('[get] / Obtain projects', () => {
       it('should return a 200', async function () {
+        await clearDatabase()
+        const credentials = await apiHeaders()
+
         await test()
         .get('/api/admin/projects')
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${credentials.token}`)
+        .set('Referer', credentials.referer)
         .expect(200)
       })
 
       it('should return list of projects', async function () {
         await clearDatabase()
-        const user = await createUser()
-        const token = await user.createToken({type: 'session'})
-        const jwt = token.getJwt()
-
-        const org = await createOrganization({rules: {}})
+        const credentials = await apiHeaders()
 
         const project = await createProject({
-          organization: org._id,
-          createdBy: user._id
+          organization: credentials.org._id,
+          createdBy: credentials.user._id
         })
 
         const res = await test()
         .get('/api/admin/projects')
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${credentials.token}`)
+        .set('Referer', credentials.referer)
         .expect(200)
 
         const projects = await Project.find({}).count()
@@ -82,20 +73,18 @@ describe('/projects', () => {
     describe('[delete] / Soft Delete project', () => {
       it('should return true for deleted', async function () {
         await clearDatabase()
-        const user = await createUser()
-        const token = await user.createToken({type: 'session'})
-        const jwt = token.getJwt()
-
-        const org = await createOrganization({rules: {}})
+        const credentials = await apiHeaders()
 
         const project = await createProject({
-          organization: org._id,
-          createdBy: user._id
+          organization: credentials.org._id,
+          createdBy: credentials.user._id
         })
 
         const res = await test()
         .delete('/api/admin/projects/' + project.uuid)
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${credentials.token}`)
+        .set('Referer', credentials.referer)
         .expect(200)
 
         expect(res.body.data.isDeleted).equal(true)

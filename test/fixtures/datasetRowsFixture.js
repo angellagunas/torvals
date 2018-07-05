@@ -20,7 +20,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Takis Fuego 62G Co2 Bar",
-            "is_producto_id" : "123109"
+            "is_producto_id" : "123109",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -61,7 +64,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Takis Fuego 62G Co2 Bar",
-            "is_producto_id" : "123109"
+            "is_producto_id" : "123109",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -102,7 +108,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Takis Fuego 62G Co2 Bar",
-            "is_producto_id" : "123109"
+            "is_producto_id" : "123109",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -143,7 +152,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Runners 58G Co2 Bar",
-            "is_producto_id" : "123110"
+            "is_producto_id" : "123110",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -184,7 +196,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Runners 58G Co2 Bar",
-            "is_producto_id" : "123110"
+            "is_producto_id" : "123110",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -225,7 +240,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Runners 58G Co2 Bar",
-            "is_producto_id" : "123110"
+            "is_producto_id" : "123110",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -266,7 +284,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Takis Fuego 62G Co2 Bar",
-            "is_producto_id" : "123109"
+            "is_producto_id" : "123109",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -307,7 +328,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Pecositas 70P 9 8G Ric",
-            "is_producto_id" : "122928"
+            "is_producto_id" : "122928",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -347,7 +371,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Pecositas 70P 9 8G Ric",
-            "is_producto_id" : "122928"
+            "is_producto_id" : "122928",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -387,7 +414,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Takis Fuego 62G Co2 Bar",
-            "is_producto_id" : "123109"
+            "is_producto_id" : "123109",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -428,7 +458,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Takis Fuego 62G Co2 Bar",
-            "is_producto_id" : "123109"
+            "is_producto_id" : "123109",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,
@@ -469,7 +502,10 @@ module.exports = [
         },
         "catalogData" : {
             "is_producto_name" : "Takis Fuego 62G Co2 Bar",
-            "is_producto_id" : "123109"
+            "is_producto_id" : "123109",
+            "is_canal_name" : "detalle",
+            "is_canal_id" : "1",
+            "is_centro-de-venta_id" : "12604"
         },
         "isAnomaly" : false,
         "isDeleted" : false,

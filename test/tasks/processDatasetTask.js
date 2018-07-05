@@ -2,7 +2,15 @@
 require('co-mocha')
 
 const { assert, expect } = require('chai')
-const { Channel, Product, SalesCenter, DataSetRow, Rule } = require('models')
+const {
+  Channel,
+  Product,
+  SalesCenter,
+  DataSetRow,
+  Rule,
+  Catalog,
+  CatalogItem } = require('models')
+
 const {
   clearDatabase,
   createCycles,
@@ -12,8 +20,7 @@ const {
   createProject,
   createFileChunk,
   createFullOrganization,
-  createDatasetRows
-} = require('../utils')
+  createDatasetRows } = require('../utils')
 
 const processDataset = require('tasks/dataset/process/process-dataset')
 const generatePeriods = require('tasks/organization/generate-periods')
@@ -62,20 +69,24 @@ describe('Process datasets', () => {
 
       processingResult = await processDataset.run({uuid: dataset.uuid})
 
-      channels = await Channel.find().count()
-      products = await Product.find().count()
-      saleCenters = await SalesCenter.find().count()
+      let canal_catalog = await Catalog.findOne({slug: 'canal'})
+      let sale_center_catalog = await Catalog.findOne({slug: 'centro-de-venta'})
+      let product_catalog = await Catalog.findOne({slug: 'producto'})
 
-      detalleChannel = await Channel.findOne({externalId: 1})
-      autoServicioChannel = await Channel.findOne({externalId: 2})
-      convenienciaChannel = await Channel.findOne({externalId: 4})
+      channels = await CatalogItem.find({catalog: canal_catalog._id}).count()
+      saleCenters = await CatalogItem.find({catalog: sale_center_catalog._id}).count()
+      products = await CatalogItem.find({catalog: product_catalog._id}).count()
 
-      product1 = await Product.findOne({externalId: '123109', name: 'Takis Fuego 62G Co2 Bar'})
-      product2 = await Product.findOne({externalId: '123110', name: 'Runners 58G Co2 Bar'})
-      product3 = await Product.findOne({externalId: '122928', name: 'Pecositas 70P 9 8G Ric'})
+      detalleChannel = await CatalogItem.findOne({catalog: canal_catalog, externalId: 1})
+      autoServicioChannel = await CatalogItem.findOne({catalog: canal_catalog, externalId: 2})
+      convenienciaChannel = await CatalogItem.findOne({catalog: canal_catalog, externalId: 4})
 
-      saleCenter1 = await SalesCenter.findOne({externalId: '12604', name: 'Not identified'})
-      saleCenter2 = await SalesCenter.findOne({externalId: '12837', name: 'Not identified'})
+      product1 = await CatalogItem.findOne({catalog:product_catalog, externalId: '123109', name: 'Takis Fuego 62G Co2 Bar'})
+      product2 = await CatalogItem.findOne({catalog:product_catalog, externalId: '123110', name: 'Runners 58G Co2 Bar'})
+      product3 = await CatalogItem.findOne({catalog:product_catalog, externalId: '122928', name: 'Pecositas 70P 9 8G Ric'})
+
+      saleCenter1 = await CatalogItem.findOne({catalog:sale_center_catalog, externalId: '12604', name: 'Not identified'})
+      saleCenter2 = await CatalogItem.findOne({catalog:sale_center_catalog, externalId: '12837', name: 'Not identified'})
 
       expect(channels).equal(3)
       expect(products).equal(3)
