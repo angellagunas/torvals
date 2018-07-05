@@ -98,7 +98,7 @@ class StatusRepórt extends Component {
   async getFilters () {
     this.setState({ filtersLoading: true })
 
-    const url = '/app/reports/filters/'
+    const url = '/app/reports/filters/' + this.state.projectSelected.uuid
 
     await this.getCatalogFilters()
 
