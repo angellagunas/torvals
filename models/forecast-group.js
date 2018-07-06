@@ -2,6 +2,7 @@ const moment = require('moment')
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const { v4 } = require('uuid')
+const dataTables = require('mongoose-datatables')
 
 const forecastGroupSchema = new Schema({
   project: { type: Schema.Types.ObjectId, ref: 'Project' },
@@ -42,5 +43,7 @@ forecastGroupSchema.methods.toPublic = function () {
     uuid: this.uuid
   }
 }
+
+forecastGroupSchema.plugin(dataTables)
 
 module.exports = mongoose.model('ForecastGroup', forecastGroupSchema)
