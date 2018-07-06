@@ -60,7 +60,9 @@ class TabAdjustment extends Component {
       errorMessage: '',
       showAdjusted: true,
       showNotAdjusted: true,
-      prices: true
+      prices: true,
+      totalPrevSale: 0,
+      prevData: []
     }
 
     currentRole = tree.get('user').currentRole.slug
@@ -114,7 +116,7 @@ class TabAdjustment extends Component {
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
 
-        
+
 
         for (let fil of Object.keys(res)) {
           if (fil === 'cycles') continue
@@ -849,8 +851,10 @@ class TabAdjustment extends Component {
       })
 
       if (res.data) {
+        const prevData = (res.previous || [])
         let totalPrediction = 0
         let totalAdjustment = 0
+        let totalPrevSale = 0
 
         for (let i = 0; i < res.data.length; i++) {
           const element = res.data[i];
@@ -858,7 +862,13 @@ class TabAdjustment extends Component {
           totalPrediction += element.prediction
         }
 
+        prevData.forEach(item => {
+          totalPrevSale += item.sale
+        })
+
         this.setState({
+          prevData,
+          totalPrevSale,
           salesTable: res.data,
           totalAdjustment: totalAdjustment,
           totalPrediction: totalPrediction,
@@ -1229,6 +1239,11 @@ class TabAdjustment extends Component {
         label: 'Ajuste',
         color: '#30C6CC',
         data: this.state.salesTable.map((item, key) => { return item.adjustment.toFixed(2) })
+      },
+      {
+        label: 'Venta año anterior',
+        color: '#EF6950',
+        data: this.state.prevData.map(item => item.sale.toFixed(2))
       }
     ]
 
@@ -1381,6 +1396,7 @@ class TabAdjustment extends Component {
                             <th className='has-text-centered'>Periodo</th>
                             <th className='has-text-info has-text-centered'>Predicción</th>
                             <th className='has-text-teal has-text-centered'>Ajuste</th>
+                            <th className='has-text-danger has-text-centered'>Venta año anterior</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1400,6 +1416,11 @@ class TabAdjustment extends Component {
                                     return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                                   })}
                                 </td>
+                                <td className='has-text-centered'>
+                                  {this.state.prices && '$'} {((this.state.prevData[key] || {}).sale || 0).toFixed(2).replace(/./g, (c, i, a) => {
+                                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                  })}
+                                </td>
                               </tr>
                             )
                           })
@@ -1416,6 +1437,11 @@ class TabAdjustment extends Component {
                             </th>
                             <th className='has-text-teal has-text-centered'>
                               {this.state.prices && '$'} {this.state.totalAdjustment.toFixed(2).replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })}
+                            </th>
+                            <th className='has-text-danger has-text-centered'>
+                              {this.state.prices && '$'} {this.state.totalPrevSale.toFixed(2).replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
                               })}
                             </th>
@@ -1442,7 +1468,7 @@ class TabAdjustment extends Component {
                         data={graphData}
                         maintainAspectRatio={false}
                         responsive={true}
-                        reloadGraph={this.state.reloadGraph}                        
+                        reloadGraph={this.state.reloadGraph}
                         labels={this.state.salesTable.map((item, key) => { return 'Periodo ' + item.period[0] })}
                         tooltips={{
                           mode: 'index',
