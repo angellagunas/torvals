@@ -64,7 +64,8 @@ class OrgRules extends Component {
         this.setState({
           unsaved: false,
           isLoading: '',
-          className: ''
+          className: '',
+          rules: res.rules
         })
         tree.set('rule', res.rules)
         tree.commit()
@@ -151,7 +152,10 @@ class OrgRules extends Component {
   }
 
   confirmSave () {
-    this.setState({ important: false }, async () => {
+    this.setState({
+      important: false,
+      rules: { ...this.state.rules, important: true }
+    }, async () => {
       await this.saveData()
       this.setState({
         alert: true

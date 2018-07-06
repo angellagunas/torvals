@@ -175,6 +175,10 @@ class Periods extends Component {
             5000,
             toast.TYPE.INFO
           )
+          if (Number(value) > Number(this.props.rules.cyclesAvailable)){
+            aux.ranges =  Array.apply(null, { length: Number(value) }).map(function () { return 0 })
+            aux.rangesLvl2 = Array.apply(null, { length: Number(value) }).map(function () { return 0 })
+          }
         }
 
         this.setState({
