@@ -12,6 +12,7 @@ const forecastGroupSchema = new Schema({
   type: {
     type: String,
     enum: [
+      'created',
       'informative',
       'compatible'
     ],
