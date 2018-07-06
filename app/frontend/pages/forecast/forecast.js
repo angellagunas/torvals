@@ -4,6 +4,7 @@ import Page from '~base/page'
 import tree from '~core/tree'
 import api from '~base/api'
 import CreateModal from './createModal'
+import Loader from '~base/components/spinner'
 
 class Forecast extends Component {
   constructor (props) {
@@ -11,7 +12,8 @@ class Forecast extends Component {
     this.state = {
       loading: true,
       createModal: '',
-      projectSelected: undefined
+      projectSelected: undefined,
+      forecasts: []
     }
 
     this.currentRole = tree.get('user').currentRole.slug
@@ -40,6 +42,8 @@ class Forecast extends Component {
       projects: activeProjects,
       projectSelected: activeProjects[0],
       loading: false
+    }, () => {
+      this.getForecast()
     })
   }
 
@@ -47,7 +51,32 @@ class Forecast extends Component {
     console.log(project.uuid)
     this.setState({
       projectSelected: project
+    }, () => {
+      this.getForecast()
     })
+  }
+
+  async getForecast () {
+    this.setState({
+      loadingForecasts: true
+    })
+    let url = '/app/projects/forecast-groups/' + this.state.projectSelected.uuid
+    try {
+      let res = await api.get(url)
+
+      if (res.data) {
+        this.setState({
+          forecasts: res.data,
+          loadingForecasts: false
+        })
+      }
+    } catch (e) {
+      console.log(e)
+      this.setState({
+        forecasts: [],
+        loadingForecasts: false
+      })
+    }
   }
 
   showCreateModal () {
@@ -59,6 +88,34 @@ class Forecast extends Component {
   hideCreateModal () {
     this.setState({
       createModal: ''
+    })
+  }
+
+  forecasts () {
+    return this.state.forecasts.map(item => {
+      return <div className='card'>
+        <header className='card-header'>
+          <p className='card-header-title'>
+            Component
+          </p>
+          <a href='#' className='card-header-icon' aria-label='more options'>
+            <span className='icon'>
+              <i className='fas fa-angle-down' aria-hidden='true' />
+            </span>
+          </a>
+        </header>
+        <div className='card-content'>
+          <div className='content'>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris.
+            <a href='#'>@bulmaio</a>. <a href='#'>#css</a> <a href='#'>#responsive</a>
+          </div>
+        </div>
+        <footer className='card-footer'>
+          <a href='#' className='card-footer-item'>Save</a>
+          <a href='#' className='card-footer-item'>Edit</a>
+          <a href='#' className='card-footer-item'>Delete</a>
+        </footer>
+      </div>
     })
   }
 
@@ -128,28 +185,42 @@ class Forecast extends Component {
               </div>
             </div>
 
-            <div className='column'>
-              <article className='message is-info'>
-                <div className='message-header has-text-weight-bold'>
-                  <p>Configuración de predicciones</p>
-                </div>
-                <div className='message-body is-size-6 has-text-centered'>
-                  <span className='icon is-large has-text-info'>
-                    <i className='fa fa-magic fa-2x' />
-                  </span>
-                  <span className='is-size-5'>
+            {this.state.loadingForecasts &&
+            <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
+                  Cargando, un momento por favor
+                  <Loader />
+            </div>
+            }
+            {!this.state.loadingForecasts && this.state.forecasts.length === 0 &&
+              <div className='column'>
+                <article className='message is-info'>
+                  <div className='message-header has-text-weight-bold'>
+                    <p>Configuración de predicciones</p>
+                  </div>
+                  <div className='message-body is-size-6 has-text-centered'>
+                    <span className='icon is-large has-text-info'>
+                      <i className='fa fa-magic fa-2x' />
+                    </span>
+                    <span className='is-size-5'>
                    Aún no tienes predicciones disponibles para este proyecto.
                    </span>
-                  <br />
-                  <br />
-                  <a
-                    className='button is-info is-medium'
-                    onClick={() => this.showCreateModal()}>
-                    <span>Crear</span>
-                  </a>
-                </div>
-              </article>
-            </div>
+                    <br />
+                    <br />
+                    <a
+                      className='button is-info is-medium'
+                      onClick={() => this.showCreateModal()}>
+                      <span>Crear</span>
+                    </a>
+                  </div>
+                </article>
+              </div>
+            }
+
+            {
+              !this.state.loadingForecasts && this.state.forecasts.length > 0 &&
+              this.forecasts()
+            }
+
             <CreateModal
               project={this.state.projectSelected}
               className={this.state.createModal}

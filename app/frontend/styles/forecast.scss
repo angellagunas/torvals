@@ -102,4 +102,11 @@
       text-overflow: ellipsis;
     }
   }
+  .generate-btn{
+    width: inherit !important;
+    height: inherit !important;
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+  }
 }

@@ -3,6 +3,8 @@ import BaseModal from '~base/components/base-modal'
 import tree from '~core/tree'
 import Checkbox from '~base/components/base-checkbox'
 import moment from 'moment'
+import api from '~base/api'
+import { toast } from 'react-toastify'
 
 class CreateModal extends Component {
   constructor (props) {
@@ -10,7 +12,8 @@ class CreateModal extends Component {
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
       reportType: 'conciliable',
-      project: this.props.project
+      project: this.props.project,
+      alias: ''
     }
     this.catalogs = {}
     this.engines = {}
@@ -111,13 +114,18 @@ class CreateModal extends Component {
 
   selectCatalog (value, item) {
     if (value) {
-      this.catalogs[item.slug] = item
+      this.catalogs[item.uuid] = item
     } else {
-      delete this.catalogs[item.slug]
+      delete this.catalogs[item.uuid]
     }
   }
 
   selectEngine (value, item) {
+    if (this.state.emptyEngines) {
+      this.setState({
+        emptyEngines: false
+      })
+    }
     if (value) {
       this.engines[item.uuid] = item
     } else {
@@ -125,7 +133,23 @@ class CreateModal extends Component {
     }
   }
 
-  getEngines () {
+  async getEngines () {
+    let url = '/app/engines'
+    try {
+      let res = await api.get(url)
+
+      if (res.data) {
+        this.setState({
+          engines: res.data
+        })
+      }
+    } catch (e) {
+      console.log(e)
+      this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
+      this.setState({
+        engines: []
+      })
+    }
     let engines = [
       {
         name: 'Modelo 1',
@@ -148,6 +172,65 @@ class CreateModal extends Component {
     })
   }
 
+  async generateForecast () {
+    if (Object.values(this.engines).length === 0) {
+      this.setState({
+        emptyEngines: true
+      })
+      return
+    }
+    this.setState({
+      generating: ' is-loading'
+    })
+    let url = '/app/projects/forecast-groups'
+    try {
+      let res = await api.post(url, {
+        alias: this.state.alias !== '' ? this.state.alias : moment.utc().format('YYYY-MM-DD HH:mm:ss'),
+        type: this.state.reportType,
+        engines: Object.keys(this.engines),
+        catalogs: this.state.reportType === 'informative' ? Object.keys(this.catalogs) : undefined,
+        dateStart: this.state.reportType === 'informative' ? moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD') : undefined,
+        dateEnd: this.state.reportType === 'informative' ? moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD') : undefined
+      })
+
+      if (res.data) {
+        this.engines = {}
+        this.catalogs = {}
+        this.setState({
+          reportType: 'conciliable',
+          alias: '',
+          generating: ''
+        }, () => {
+          this.hideModal()
+        })
+      }
+    } catch (e) {
+      console.log(e)
+      this.notify('Error generando forecast ' + e.message, 5000, toast.TYPE.ERROR)
+      this.setState({
+        generating: ''
+      })
+    }
+  }
+
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
+  }
+
   render () {
     let rules = tree.get('rule')
     return (
@@ -160,7 +243,11 @@ class CreateModal extends Component {
           <div className='field'>
             <label className='label'>Alias</label>
             <div className='control'>
-              <input className='input' type='text' placeholder='Escribe un alias para identificar tu predicción' />
+              <input
+                className='input'
+                type='text'
+                placeholder='Escribe un alias para identificar tu predicción'
+                onChange={(e) => this.setState({ alias: e.target.value })} />
             </div>
           </div>
 
@@ -331,10 +418,18 @@ class CreateModal extends Component {
                 )
               })}
             </div>
-
-            <p className='help is-danger'>¡Debes elegir al menos un modelo para generar tu predicción!</p>
-
+            {this.state.emptyEngines &&
+              <p className='help is-danger'>¡Debes elegir al menos un modelo para generar tu predicción!</p>
+            }
           </div>
+
+          <button
+            className={'button generate-btn is-primary ' + this.state.generating}
+            disabled={!!this.state.generating}
+            onClick={() => this.generateForecast()}>
+            Generar predicción
+          </button>
+
         </BaseModal>
       </div>
     )
