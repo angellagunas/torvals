@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Page from '~base/page'
-import { loggedIn } from '~base/middlewares/'
+import { loggedIn, verifyRole } from '~base/middlewares/'
 import tree from '~core/tree'
 import Periods from './wizard/steps/periods'
 import Ranges from './wizard/steps/ranges'
@@ -555,6 +555,7 @@ export default Page({
   title: 'Reglas',
   icon: 'list',
   exact: true,
-  validate: loggedIn,
+  roles: 'admin, orgadmin, analyst, manager-level-3',
+  validate: [loggedIn, verifyRole],
   component: OrgRules
 })

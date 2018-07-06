@@ -137,7 +137,7 @@ class SidebarItem extends Component {
   getDropdownItems (dropdown, to, icon, title, onClick, dropdownOnClick) {
     let dropdownItems = (
       <ul className={this.state.open ? '' : 'is-hidden'}>
-        {dropdown.length > 0 && dropdown.map((e, i) => {
+        {dropdown.length > 0 && dropdown.filter(item => item).map((e, i) => {
           if (!this.testRoles(e.roles)) return null
           if (e.dropdown) {
             return (

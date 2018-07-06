@@ -1,5 +1,6 @@
 const Route = require('lib/router/route')
 const { DataSetRow, User, Project, CatalogItem, Cycle, AdjustmentRequest } = require('models')
+const _ = require('lodash')
 
 module.exports = new Route({
   method: 'post',
@@ -172,7 +173,24 @@ module.exports = new Route({
     ]
 
     const stats = await DataSetRow.aggregate(statement)
+    let foundUsers = stats.map(item => {
+      return item.user[0].uuid
+    })
 
+    let inactiveUsers = _.difference(data.users, foundUsers)
+    const inactives = await User.find({uuid: {$in: inactiveUsers}})
+
+    if (inactives && inactives.length) {
+      for (let inactive of inactives) {
+        stats.push({
+          approved: 0,
+          created: 0,
+          rejected: 0,
+          total: 0,
+          user: [inactive]
+        })
+      }
+    }
     ctx.body = {
       data: stats
     }
