@@ -115,8 +115,8 @@ class TabAdjustment extends Component {
         }
         let formData = this.state.formData
         formData.cycle = cycles[0].cycle
-
-
+        tree.set('selectedCycle', cycles[0])
+        tree.commit()
 
         for (let fil of Object.keys(res)) {
           if (fil === 'cycles') continue
@@ -158,7 +158,7 @@ class TabAdjustment extends Component {
   async filterChangeHandler (name, value) {
     if(name === 'cycle'){
       var cycle = this.state.filters.cycles.find(item => {
-        return item.number === value
+        return item.cycle === value
       })
 
       this.setState({
@@ -166,6 +166,8 @@ class TabAdjustment extends Component {
           ...this.state.filters
         }
       })
+      tree.set('selectedCycle', cycle)
+      tree.commit()
     }
 
     let aux = this.state.formData

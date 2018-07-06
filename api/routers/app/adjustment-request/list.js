@@ -123,7 +123,9 @@ module.exports = new Route({
         'rejectedBy',
         'newProduct',
         'catalogItems',
-        'datasetRow'
+        'datasetRow',
+        'period',
+        'cycle'
       ],
       sort: ctx.request.query.sort || '-dateCreated'
     })

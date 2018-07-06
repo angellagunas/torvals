@@ -64,7 +64,8 @@ module.exports = new Route({
         if (row.dataset) {
           let userReport = await UserReport.findOne({
             user: ctx.state.user,
-            dataset: row.dataset
+            dataset: row.dataset,
+            cycle: row.cycle
           })
           if (!userReport) {
             let dataset = await DataSet.findOne({_id: row.dataset})
