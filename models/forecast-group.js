@@ -7,7 +7,9 @@ const dataTables = require('mongoose-datatables')
 const forecastGroupSchema = new Schema({
   project: { type: Schema.Types.ObjectId, ref: 'Project' },
   forecasts: [{ type: Schema.Types.ObjectId, ref: 'Forecast' }],
-
+  catalogs: [{type: Schema.Types.ObjectId, ref: 'Catalog'}],
+  cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
+  engines: [{type: Schema.Types.ObjectId, ref: 'Engine'}],
   alias: { type: String },
   type: {
     type: String,
