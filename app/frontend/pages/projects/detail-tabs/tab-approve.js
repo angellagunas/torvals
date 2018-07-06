@@ -117,6 +117,29 @@ class TabApprove extends Component {
         }
       },
       {
+        'title': 'Ciclo',
+        'property': 'cycle.dateStart',
+        'default': 'N/A',
+        'sortable': true,
+        'className': 'is-capitalized',
+        formatter: (row) => {
+          if(row.cycle){
+            return moment.utc(row.cycle.dateStart).format('MMMM') + ' - ' + row.cycle.cycle
+          }
+        }
+      },
+      {
+        'title': 'Periodo',
+        'property': 'period.period',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          if(row.period){
+            return row.period.period
+          }
+        }
+      },
+      {
         'title': 'Predicción',
         'property': 'datasetRow.data.prediction',
         'default': 0,

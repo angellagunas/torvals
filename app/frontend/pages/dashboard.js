@@ -1195,7 +1195,7 @@ class Dashboard extends Component {
                   {this.state.minPeriod &&
                     <div className='level-item'>
                     <div className='field'>
-                      <label className='label'>Periodo inicial</label>
+                      <label className='label'>Mes inicial</label>
                       <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
@@ -1235,7 +1235,7 @@ class Dashboard extends Component {
                   {this.state.maxPeriod &&
                     <div className='level-item'>
                      <div className='field'>
-                        <label className='label'>Periodo final</label>
+                        <label className='label'>Mes final</label>
                         <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
