@@ -27,7 +27,7 @@ const task = new Task(async function (argv) {
     name: argv.name,
     description: argv.description || null,
     path: argv.path,
-    instructions: argv.instrucions
+    instructions: argv.instructions
   })
 
   console.log(`Engine created!`)
