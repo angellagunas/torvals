@@ -14,7 +14,8 @@ const uiSchema = {
   file: {
     'ui:widget': FileWidget,
     'ui:className': 'is-centered is-medium is-info',
-    'ui:accept': '.csv'
+    'ui:accept': '.csv',
+    'ui:hidden': true
   }
 }
 

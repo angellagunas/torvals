@@ -16,9 +16,16 @@ pipeline {
       }
     }
     stage("Test") {
+      when { anyOf { branch "dev" } }
       steps {
-        // TODO: Execute tests
-        echo "Pending"
+        sh "cp .env.ci .env"
+        sh "make post-ci"
+        sh "make ci"
+      }
+      post {
+        always {
+          sh "make post-ci"
+        }
       }
     }
     stage("Build") {

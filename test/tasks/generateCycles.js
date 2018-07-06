@@ -10,38 +10,44 @@ const { organizationFixture } = require('../fixtures')
 
 const generateCycles = require('tasks/organization/generate-cycles')
 
+const dateAggregate = function(year, month, day){
+  return {
+    "$redact": {
+      "$cond": [
+        {
+          "$and": [
+            {"$eq": [{"$year": "$dateStart"}, year]},
+            {"$eq": [{"$month": "$dateStart"}, month]},
+            {"$eq": [{"$dayOfMonth": "$dateStart"}, day]}
+          ]
+        },
+        "$$KEEP",
+        "$$PRUNE"
+      ]
+    }
+  }
+}
+
 
 describe('Generate cycles task', () => {
   describe('with one cycle by month and one week as period', () => {
     it('should generate the cycles successfully', async function () {
       await clearDatabase()
 
-      const org = await createFullOrganization({})
+      const org = await createFullOrganization({},{})
       const rule = await Rule.findOne({organization: org._id})
 
-      const today = new Date()
-      const year = today.getFullYear()
-      const month = today.getMonth()
-      const day = today.getDate()
-      const cyclesAvailable = rule.cyclesAvailable
+      const startDate = moment('2018-01-01')
+      const year = startDate.year()
+      const month = startDate.month() + 1
+      const day = startDate.date()
 
-      lastCycleStartDate = moment(
-          new Date(year, month + parseInt(cyclesAvailable))
-      ).utc().set({hour:0,minute:0,second:0,millisecond:0})
+      let firstCycle = await Cycle.aggregate([dateAggregate(year, month, day)])
+      firstCycle = firstCycle[0]
 
-      lastCycleEndDate = moment(
-        new Date(year, month + 1 + parseInt(cyclesAvailable), 0)
-      ).utc().set({hour:0,minute:0,second:0,millisecond:0})
-
-      const expectedCycles = 12 + (month + 1) + parseInt(cyclesAvailable)
-      const cyclesForThisYear = (month + 1) + parseInt(cyclesAvailable)
-
-      const firstCycle = await Cycle.findOne({
-        organization: org._id,
-        dateStart: new Date("2018-01-01T06:00:00Z").toISOString()
-      })
-
-      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2018-01-28T06:00:00Z").toISOString())
+      expect(moment.utc(firstCycle.dateEnd).year()).equals(2018)
+      expect(moment.utc(firstCycle.dateEnd).month() + 1).equals(2)
+      expect(moment.utc(firstCycle.dateEnd).date()).equals(4)
     })
 
     it('and takeStart as false should generate the first cycle with dateEnd before of 31 January', async function () {
@@ -67,12 +73,12 @@ describe('Generate cycles task', () => {
       const expectedCycles = 12 + (month + 1) + parseInt(cyclesAvailable)
       const cyclesForThisYear = (month + 1) + parseInt(cyclesAvailable)
 
-      const firstCycle = await Cycle.findOne({
-        organization: org._id,
-        dateStart: new Date("2018-01-01T06:00:00Z").toISOString()
-      })
+      let firstCycle = await Cycle.aggregate([dateAggregate(2018, 1, 1)])
+      firstCycle = firstCycle[0]
 
-      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2018-01-28T06:00:00Z").toISOString())
+      expect(moment.utc(firstCycle.dateEnd).year()).equals(2018)
+      expect(moment.utc(firstCycle.dateEnd).month() + 1).equals(1)
+      expect(moment.utc(firstCycle.dateEnd).date()).equals(28)
     })
 
     it('and a extraDate before of first season should create two season before', async function () {
@@ -100,10 +106,8 @@ describe('Generate cycles task', () => {
       const day = today.getDate()
       const cyclesAvailable = rule.cyclesAvailable
 
-      const firstCycle = await Cycle.findOne({
-        organization: org._id,
-        dateStart: new Date("2016-01-01T06:00:00Z").toISOString()
-      })
+      let firstCycle = await Cycle.aggregate([dateAggregate(2018, 1, 1)])
+      firstCycle = firstCycle[0]
 
       assert.exists(firstCycle)
     })
@@ -159,12 +163,12 @@ describe('Generate cycles task', () => {
       const expectedCycles = 12 + (month + 1) + parseInt(cyclesAvailable)
       const cyclesForThisYear = (month + 1) + parseInt(cyclesAvailable)
 
-      const firstCycle = await Cycle.findOne({
-        organization: org._id,
-        dateStart: new Date("2018-01-01T06:00:00Z").toISOString()
-      })
+      let firstCycle = await Cycle.aggregate([dateAggregate(2018, 1, 1)])
+      firstCycle = firstCycle[0]
 
-      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2018-01-31T06:00:00Z").toISOString())
+      expect(moment.utc(firstCycle.dateEnd).year()).equals(2018)
+      expect(moment.utc(firstCycle.dateEnd).month() + 1).equals(1)
+      expect(moment.utc(firstCycle.dateEnd).date()).equals(31)
     })
   })
 
@@ -195,12 +199,12 @@ describe('Generate cycles task', () => {
       const expectedCycles = 12 + (month + 1) + parseInt(cyclesAvailable)
       const cyclesForThisYear = (month + 1) + parseInt(cyclesAvailable)
 
-      const firstCycle = await Cycle.findOne({
-        organization: org._id,
-        dateStart: new Date("2018-01-01T06:00:00Z").toISOString()
-      })
+      let firstCycle = await Cycle.aggregate([dateAggregate(2018, 1, 1)])
+      firstCycle = firstCycle[0]
 
-      expect(new Date(firstCycle.dateEnd).toISOString()).equal(new Date("2018-01-07T06:00:00Z").toISOString())
+      expect(moment.utc(firstCycle.dateEnd).year()).equals(2018)
+      expect(moment.utc(firstCycle.dateEnd).month() + 1).equals(1)
+      expect(moment.utc(firstCycle.dateEnd).date()).equals(7)
     })
   })
 
@@ -216,14 +220,14 @@ describe('Generate cycles task', () => {
       const today = new Date()
       const rules = await Rule.findOne({organization: org._id})
 
-      const startCycle = await Cycle.findOne({
-        organization: org._id,
-        dateStart: new Date("2017-12-30T06:00:00Z").toISOString()
-      })
+      let firstCycle = await Cycle.aggregate([dateAggregate(2017, 12, 30)])
+      firstCycle = firstCycle[0]
 
-      assert.exists(startCycle)
+      assert.exists(firstCycle)
 
-      expect(new Date(startCycle.dateStart).toISOString()).equal(new Date("2017-12-30T06:00:00Z").toISOString())
+      expect(moment(firstCycle.dateEnd).year()).equals(2018)
+      expect(moment(firstCycle.dateEnd).month() + 1).equals(2)
+      expect(moment(firstCycle.dateEnd).date()).equals(2)
     })
   })
 
