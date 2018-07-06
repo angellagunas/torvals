@@ -22,6 +22,11 @@ module.exports = new Route({
         continue
       }
 
+      if (filter === 'hasMainDataset') {
+        filters['mainDataset'] = {$ne: null}
+        continue
+      }
+
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {

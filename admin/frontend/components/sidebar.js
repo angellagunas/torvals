@@ -19,6 +19,7 @@ import Channels from '../pages/channels/list'
 import DeletedChannels from '../pages/channels/deleted-list'
 import Calendar from '../pages/calendar'
 import Prices from '../pages/prices/list'
+import Engines from '../pages/engines/list'
 import UsersImport from '../pages/import/users'
 import SalesCentersImport from '../pages/import/sales-centers'
 import ChannelsImport from '../pages/import/channels'
@@ -109,6 +110,7 @@ class Sidebar extends Component {
         ]
       },
       Calendar.asSidebarItem(),
+      Engines.asSidebarItem(),
       {
         title: 'Catálogos',
         icon: 'file',
