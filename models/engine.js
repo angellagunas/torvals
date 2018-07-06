@@ -10,7 +10,7 @@ const engineSchema = new Schema({
   instructions: { type: String },
 
   dateCreated: { type: Date, default: moment.utc },
-  isDeleted: { type: Boolean },
+  isDeleted: { type: Boolean, default: false },
   uuid: { type: String, default: v4 }
 }, { usePushEach: true })
 
