@@ -60,13 +60,20 @@ class Forecast extends Component {
     this.setState({
       loadingForecasts: true
     })
-    let url = '/app/projects/forecast-groups/' + this.state.projectSelected.uuid
+    let url = '/app/forecastGroups'
     try {
-      let res = await api.get(url)
+      let res = await api.get(url, {
+        project: this.state.projectSelected.uuid
+      })
 
       if (res.data) {
         this.setState({
           forecasts: res.data,
+          loadingForecasts: false
+        })
+      } else {
+        this.setState({
+          forecasts: [],
           loadingForecasts: false
         })
       }

@@ -182,9 +182,10 @@ class CreateModal extends Component {
     this.setState({
       generating: ' is-loading'
     })
-    let url = '/app/projects/forecast-groups'
+    let url = '/app/forecastGroups'
     try {
       let res = await api.post(url, {
+        project: this.state.project.uuid,
         alias: this.state.alias !== '' ? this.state.alias : moment.utc().format('YYYY-MM-DD HH:mm:ss'),
         type: this.state.reportType,
         engines: Object.keys(this.engines),
@@ -193,7 +194,7 @@ class CreateModal extends Component {
         dateEnd: this.state.reportType === 'informative' ? moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD') : undefined
       })
 
-      if (res.data) {
+      if (res) {
         this.engines = {}
         this.catalogs = {}
         this.setState({
