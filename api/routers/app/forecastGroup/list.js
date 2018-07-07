@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {ForecastGroup} = require('models')
+const {ForecastGroup, Project} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -16,6 +16,12 @@ module.exports = new Route({
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
         filters[filter] = { '$regex': ctx.request.query[filter], '$options': 'i' }
+      }
+
+      if (filter === 'project') {
+        let project = await Project.findOne({uuid: ctx.request.query[filter]})
+        if (project) { filters['project'] = project._id }
+        continue
       }
 
       if (filter === 'general') {
