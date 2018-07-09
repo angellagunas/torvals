@@ -138,9 +138,9 @@ class CreateModal extends Component {
     try {
       let res = await api.get(url)
 
-      if (res.data) {
+      if (res) {
         this.setState({
-          engines: res.data
+          engines: res
         })
       }
     } catch (e) {
@@ -150,7 +150,7 @@ class CreateModal extends Component {
         engines: []
       })
     }
-    let engines = [
+    /* let engines = [
       {
         name: 'Modelo 1',
         description: 'descripción larga larga laguisima del modelo 1',
@@ -169,7 +169,7 @@ class CreateModal extends Component {
 
     this.setState({
       engines: engines
-    })
+    }) */
   }
 
   async generateForecast () {
@@ -409,7 +409,7 @@ class CreateModal extends Component {
                         label={
                           <span>
                             <p className='title is-6'>{item.name}</p>
-                            <p className='subtitle is-6'>{item.description}</p>
+                            <p className='subtitle is-6'>{item.description || 'Sin descripción'}</p>
                           </span>
                         }
                         handleCheckboxChange={(e, value) => this.selectEngine(value, item)}

@@ -98,32 +98,67 @@ class Forecast extends Component {
     })
   }
 
-  forecasts () {
-    return this.state.forecasts.map(item => {
-      return <div className='card'>
-        <header className='card-header'>
-          <p className='card-header-title'>
-            Component
-          </p>
-          <a href='#' className='card-header-icon' aria-label='more options'>
-            <span className='icon'>
-              <i className='fas fa-angle-down' aria-hidden='true' />
-            </span>
-          </a>
-        </header>
-        <div className='card-content'>
-          <div className='content'>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris.
-            <a href='#'>@bulmaio</a>. <a href='#'>#css</a> <a href='#'>#responsive</a>
+  forecastMenu () {
+    return (
+      <div className='dropdown is-right is-hoverable'>
+        <div className='dropdown-trigger'>
+          <span className='icon is-small' aria-haspopup='true' aria-controls='dropdown-menu6'>
+            <i className='fa fa-ellipsis-h' aria-hidden='true' />
+          </span>
+        </div>
+        <div className='dropdown-menu' id='dropdown-menu6' role='menu'>
+          <div className='dropdown-content'>
+            <div className='dropdown-item'>
+              <a className='button is-primary is-small'>Eliminar</a>
+            </div>
           </div>
         </div>
-        <footer className='card-footer'>
-          <a href='#' className='card-footer-item'>Save</a>
-          <a href='#' className='card-footer-item'>Edit</a>
-          <a href='#' className='card-footer-item'>Delete</a>
-        </footer>
       </div>
-    })
+    )
+  }
+
+  forecasts () {
+    return (
+      <div className='column'>
+        <div className='columns is-multiline forecast-widget'>
+          {
+            this.state.forecasts.map(item => {
+              return (
+                <div key={item.uuid} className='column is-4 box'>
+                  <article className='media'>
+                    <div className='media-content'>
+                      <div className='content'>
+                        <p className='forecast-widget__title'>
+                          <strong>Predicción</strong>
+                          <small className='is-pulled-right'>
+                            {this.forecastMenu()}
+                          </small>
+                          <br />
+                        </p>
+
+                        <p>
+                          <strong>Reporte</strong>
+                          <br />
+                          Conciliable
+                        </p>
+                        <div>
+                          <strong>Catálogos</strong>
+                          <br />
+                          <p>
+                            <a>Ruta</a>,&nbsp;
+                            <a>Marca</a>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+              )
+            })
+          }
+        </div>
+      </div>
+    )
   }
 
   render () {

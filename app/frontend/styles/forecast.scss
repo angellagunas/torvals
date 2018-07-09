@@ -101,11 +101,22 @@
       text-overflow: ellipsis;
     }
   }
-  .generate-btn{
+  .generate-btn {
     width: inherit !important;
     height: inherit !important;
     position: absolute;
     bottom: 10px;
     right: 20px;
+  }
+  &-widget {
+    margin: 0;
+    .media-content{
+      overflow: hidden;
+    }
+    &__title {
+      font-size: .9rem;
+      padding-bottom: .2rem;
+      border-bottom: 1px solid $general_text;
+    }
   }
 }
