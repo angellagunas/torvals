@@ -4,7 +4,7 @@ const { Schema } = require('mongoose')
 const { v4 } = require('uuid')
 
 const forecastGroupSchema = new Schema({
-  project: { type: Schema.Types.ObjectId, ref: 'Project' },
+  project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   forecasts: [{ type: Schema.Types.ObjectId, ref: 'Forecast' }],
 
   alias: { type: String },
@@ -14,13 +14,13 @@ const forecastGroupSchema = new Schema({
       'informative',
       'compatible'
     ],
-    default: 'created'
+    default: 'informative'
   },
 
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   dateCreated: { type: Date, default: moment.utc },
   isDeleted: { type: Boolean },
-  uuid: { type: String, default: v4 }
+  uuid: { type: String, default: v4, unique: true }
 }, { usePushEach: true })
 
 forecastGroupSchema.methods.toPrivate = function () {
