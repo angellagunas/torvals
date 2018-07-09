@@ -31,12 +31,10 @@ module.exports = new Route({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
       find: {...filters, isDeleted: false},
-      sort: ctx.request.query.sort || '-dateCreated'
+      sort: ctx.request.query.sort || '-dateCreated',
+      format: 'toPublic'
     })
 
-    engines.data = engines.data.map(item => {
-      return item.toPublic()
-    })
-    ctx.body = engines.data
+    ctx.body = engines
   }
 })
