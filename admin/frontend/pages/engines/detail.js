@@ -59,7 +59,7 @@ class EngineDetail extends Component {
     const { engine, notFound, isLoading } = this.state
 
     if (notFound) {
-      return <NotFound msg='este rol' />
+      return <NotFound msg='este modelo' />
     }
 
     if (!engine.uuid) {
