@@ -64,7 +64,8 @@ const projectSchema = new Schema({
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
   rule: {type: Schema.Types.ObjectId, ref: 'Rule'},
-  outdated: {type: Boolean, default: false}
+  outdated: {type: Boolean, default: false},
+  hasForecast: {type: Boolean, default: false}
 }, { usePushEach: true })
 
 projectSchema.plugin(dataTables)
