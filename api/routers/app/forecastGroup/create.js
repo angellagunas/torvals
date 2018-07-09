@@ -35,9 +35,10 @@ module.exports = new Route({
       project: project._id,
       alias: data.alias,
       catalogs: catalogs.data,
-      cycles: cycles,
-      engines: engines,
-      createdBy: user._id
+      cycles: cycles.data,
+      engines: engines.data,
+      createdBy: user._id,
+      type: data.type
     })
 
     ctx.body = forecast

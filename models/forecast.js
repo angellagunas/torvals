@@ -14,8 +14,8 @@ const forecastSchema = new Schema({
 
   dateEnd: { type: Date },
   dateStart: { type: Date },
-  instanceKey: { type: String },
-  port: { type: String },
+  instanceKey: { type: String, required: true, unique: true },
+  port: { type: Number },
   status: {
     type: String,
     enum: [
@@ -34,7 +34,7 @@ const forecastSchema = new Schema({
 
   dateCreated: { type: Date, default: moment.utc },
   isDeleted: { type: Boolean, default: false },
-  uuid: { type: String, default: v4 }
+  uuid: { type: String, default: v4, unique: true }
 
 }, { usePushEach: true })
 

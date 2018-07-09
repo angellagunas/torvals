@@ -28,7 +28,7 @@ export default ListPage({
     ],
     align: 'left'
   },
-  baseUrl: '/admin/engines/list',
+  baseUrl: '/admin/engines/',
   branchName: 'engines',
   detailUrl: '/admin/engines/detail/',
   filters: true,
@@ -72,7 +72,7 @@ export default ListPage({
         'title': 'Acciones',
         formatter: (row) => {
           return (
-            <Link disabled className='button is-primary' to={'/engines/detail/' + row.uuid}>
+            <Link className='button is-primary' to={'/engines/detail/' + row.uuid}>
               <span className='icon is-small' title='Editar'>
                 <i className='fa fa-pencil' />
               </span>
