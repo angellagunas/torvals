@@ -113,6 +113,11 @@ class CreateModal extends Component {
   }
 
   selectCatalog (value, item) {
+    if (this.state.emptyCatalogs) {
+      this.setState({
+        emptyCatalogs: false
+      })
+    }
     if (value) {
       this.catalogs[item.uuid] = item
     } else {
@@ -159,6 +164,12 @@ class CreateModal extends Component {
       })
       return
     }
+    if (this.state.reportType === 'informative' && Object.keys(this.catalogs).length === 0) {
+      this.setState({
+        emptyCatalogs: true
+      })
+      return
+    }
     this.setState({
       generating: ' is-loading'
     })
@@ -183,7 +194,7 @@ class CreateModal extends Component {
           generating: ''
         }, () => {
           this.hideModal()
-          this.props.getForecast()
+          this.props.finishUp(res)
         })
       }
     } catch (e) {
@@ -295,6 +306,9 @@ class CreateModal extends Component {
                 }
               </div>
             </div>
+            {this.state.emptyCatalogs &&
+              <p className='help is-danger'>¡Debes elegir al menos un catálogo para generar tu predicción!</p>
+            }
           </div>
           }
 
