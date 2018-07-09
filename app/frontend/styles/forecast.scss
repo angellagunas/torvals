@@ -110,13 +110,22 @@
   }
   &-widget {
     margin: 0;
-    .media-content{
+    .box {
+      transition: all .3s;
+      &:hover {
+        cursor: pointer;
+        border-color: $primary;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      }
+    }
+    .media-content {
       overflow: hidden;
     }
     &__title {
       font-size: .9rem;
       padding-bottom: .2rem;
       border-bottom: 1px solid $general_text;
+      margin-bottom: .5rem;
     }
   }
 }

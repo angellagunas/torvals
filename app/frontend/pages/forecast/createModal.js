@@ -11,7 +11,7 @@ class CreateModal extends Component {
     super(props)
     this.hideModal = this.props.hideModal.bind(this)
     this.state = {
-      reportType: 'conciliable',
+      reportType: 'compatible',
       project: this.props.project,
       alias: ''
     }
@@ -20,7 +20,7 @@ class CreateModal extends Component {
   }
 
   selectReport (report) {
-    if (report === 'conciliable') {
+    if (report === 'compatible') {
       this.catalogs = {}
     }
     this.setState({
@@ -150,26 +150,6 @@ class CreateModal extends Component {
         engines: []
       })
     }
-    /* let engines = [
-      {
-        name: 'Modelo 1',
-        description: 'descripción larga larga laguisima del modelo 1',
-        path: '/path/modelo1',
-        instructions: 'intructions',
-        uuid: '987654321'
-      },
-      {
-        name: 'Modelo 2',
-        description: 'descripción modelo 2',
-        path: '/path/modelo2',
-        instructions: 'intructions',
-        uuid: '123456789'
-      }
-    ]
-
-    this.setState({
-      engines: engines
-    }) */
   }
 
   async generateForecast () {
@@ -198,11 +178,12 @@ class CreateModal extends Component {
         this.engines = {}
         this.catalogs = {}
         this.setState({
-          reportType: 'conciliable',
+          reportType: 'compatible',
           alias: '',
           generating: ''
         }, () => {
           this.hideModal()
+          this.props.getForecast()
         })
       }
     } catch (e) {
@@ -272,19 +253,19 @@ class CreateModal extends Component {
                 <div className='column is-narrow'>
                   <input
                     className='is-checkradio is-info is-small'
-                    id='conciliable'
+                    id='compatible'
                     type='radio'
                     name='reportType'
-                    checked={this.state.reportType === 'conciliable'}
-                    onChange={() => this.selectReport('conciliable')} />
-                  <label className='has-text-weight-normal' htmlFor='conciliable'>
+                    checked={this.state.reportType === 'compatible'}
+                    onChange={() => this.selectReport('compatible')} />
+                  <label className='has-text-weight-normal' htmlFor='compatible'>
                     <span title='Conciliable'>Conciliable</span>
                   </label>
                 </div>
               </div>
 
             </div>
-            {this.state.reportType === 'conciliable' &&
+            {this.state.reportType === 'compatible' &&
               this.state.project.cycleStatus !== 'empty' &&
               this.state.project.cycleStatus !== 'forecastCreation' &&
               this.state.project.cycleStatus !== 'salesUpload' &&
@@ -326,7 +307,7 @@ class CreateModal extends Component {
                 <div className='field'>
                   <label className='label'>Ciclo inicial</label>
                   <div className='field is-grouped control'>
-                    <div className={this.state.reportType === 'conciliable' ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
+                    <div className={this.state.reportType === 'compatible' ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                       <div className='dropdown-trigger'>
                         <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
                           <span>{this.state.minPeriod.name + ' ' + this.state.minPeriod.year}</span>
@@ -366,7 +347,7 @@ class CreateModal extends Component {
                 <div className='field'>
                   <label className='label'>Ciclo final</label>
                   <div className='field is-grouped control'>
-                    <div className={this.state.reportType === 'conciliable' ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
+                    <div className={this.state.reportType === 'compatible' ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                       <div className='dropdown-trigger'>
                         <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
                           <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
@@ -426,7 +407,12 @@ class CreateModal extends Component {
 
           <button
             className={'button generate-btn is-primary ' + this.state.generating}
-            disabled={!!this.state.generating}
+            disabled={!!this.state.generating ||
+              this.state.reportType === 'compatible' &&
+                this.state.project.cycleStatus !== 'empty' &&
+                this.state.project.cycleStatus !== 'forecastCreation' &&
+                this.state.project.cycleStatus !== 'salesUpload'
+              }
             onClick={() => this.generateForecast()}>
             Generar predicción
           </button>

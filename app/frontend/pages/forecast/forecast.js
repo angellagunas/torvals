@@ -5,6 +5,8 @@ import tree from '~core/tree'
 import api from '~base/api'
 import CreateModal from './createModal'
 import Loader from '~base/components/spinner'
+import Link from '~base/router/link'
+import DeleteButton from '~base/components/base-deleteButton'
 
 class Forecast extends Component {
   constructor (props) {
@@ -48,7 +50,6 @@ class Forecast extends Component {
   }
 
   async selectProject (project) {
-    console.log(project.uuid)
     this.setState({
       projectSelected: project
     }, () => {
@@ -98,9 +99,9 @@ class Forecast extends Component {
     })
   }
 
-  forecastMenu () {
+  forecastMenu (item) {
     return (
-      <div className='dropdown is-right is-hoverable'>
+/*       <div className='dropdown is-right is-hoverable'>
         <div className='dropdown-trigger'>
           <span className='icon is-small' aria-haspopup='true' aria-controls='dropdown-menu6'>
             <i className='fa fa-ellipsis-h' aria-hidden='true' />
@@ -113,45 +114,110 @@ class Forecast extends Component {
             </div>
           </div>
         </div>
-      </div>
+      </div> */
+
+      <DeleteButton
+        objectName='Catálogo'
+        objectDelete={() => this.deleteForecast(item)}
+        message={<span>¿Estas seguro de querer eliminar esta Predicción?</span>}
+        small
+      />
     )
+  }
+
+  deleteForecast (item) {
+    console.log('Deleted', item)
   }
 
   forecasts () {
     return (
       <div className='column'>
+        <div className='level'>
+          <div className='level-left'>
+            <div className='level-item'>
+              <h2>Tienes {this.state.forecasts.length}
+                {this.state.forecasts.length > 1 ? ' predicciones disponibles' : ' predicción disponible'} </h2>
+            </div>
+          </div>
+          <div className='level-right'>
+            <div className='level-item'>
+              <button className='button is-primary'
+                onClick={() => this.showCreateModal()}>
+                Nueva predicción
+              </button>
+            </div>
+          </div>
+        </div>
         <div className='columns is-multiline forecast-widget'>
           {
             this.state.forecasts.map(item => {
               return (
-                <div key={item.uuid} className='column is-4 box'>
-                  <article className='media'>
-                    <div className='media-content'>
-                      <div className='content'>
-                        <p className='forecast-widget__title'>
-                          <strong>Predicción</strong>
-                          <small className='is-pulled-right'>
-                            {this.forecastMenu()}
-                          </small>
-                          <br />
-                        </p>
+                <div key={item.uuid} className='column is-4'>
+                  <div className='box'>
 
-                        <p>
-                          <strong>Reporte</strong>
-                          <br />
-                          Conciliable
-                        </p>
-                        <div>
-                          <strong>Catálogos</strong>
-                          <br />
+                    <article className='media'>
+                      <div className='media-content'>
+                        <div className='contents'>
+                          <div className='forecast-widget__title'>
+                            <strong>{item.alias}</strong>
+                            <small className='is-pulled-right'>
+                              {this.forecastMenu(item)}
+                            </small>
+                            <br />
+                          </div>
+
                           <p>
-                            <a>Ruta</a>,&nbsp;
-                            <a>Marca</a>
+                            <strong>Reporte</strong>
+                            <br />
+                            {item.type === 'compatible' ? 'Conciliable' : item.type}
                           </p>
+                          <div>
+                            <strong>Catálogos</strong>
+                            <br />
+                            <div>
+                              {item.type === 'compatible'
+                            ? this.rules.catalogs.map((item, key) => {
+                              let cat = item.name + ', '
+                              if (key === this.rules.catalogs.length - 1) {
+                                cat = item.name
+                              }
+                              return (
+                                <Link key={item.uuid}
+                                  to={'/catalogs/' + item.slug}>
+                                  {cat}
+                                </Link>
+                              )
+                            })
+                            : item.catalogs.map((obj, key) => {
+                              let cat = obj.name + ', '
+                              if (key === item.catalogs.length - 1) {
+                                cat = obj.name
+                              }
+                              return (
+                                <Link key={obj.uuid}
+                                  to={'/catalogs/' + obj.slug}>
+                                  {cat}
+                                </Link>
+                              )
+                            })
+                          }
+                            </div>
+                          </div>
+                          <div>
+                            <strong>Modelos</strong>
+                            <br />
+                            {item.engines.map((obj, key) => {
+                              let engine = obj.name + ', '
+                              if (key === item.engines.length - 1) {
+                                engine = obj.name
+                              }
+                              return <span>{engine}</span>
+                            })}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </article>
+                    </article>
+                  </div>
                 </div>
               )
             })
@@ -162,6 +228,14 @@ class Forecast extends Component {
   }
 
   render () {
+    if (this.state.loading) {
+      return (
+        <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
+          Cargando, un momento por favor
+          <Loader />
+        </div>
+      )
+    }
     return (
       <div>
         <div className='section-header'>
@@ -266,7 +340,8 @@ class Forecast extends Component {
             <CreateModal
               project={this.state.projectSelected}
               className={this.state.createModal}
-              hideModal={() => this.hideCreateModal()} />
+              hideModal={() => this.hideCreateModal()}
+              getForecast={() => this.getForecast()} />
           </div>
         : <div className='columns is-centered'>
           <div className='column is-8'>
