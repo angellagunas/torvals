@@ -10,10 +10,8 @@ module.exports = new Route({
     const engine = await Engine.findOne({uuid: uuid, isDeleted: false})
     ctx.assert(engine, 404, 'Engine no encontrado')
 
-    if (!data.path) { ctx.throw(422, 'Path es requerido') }
-
     engine.set({
-      path: data.path
+      description: data.description
     })
 
     await engine.save()
