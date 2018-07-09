@@ -5,7 +5,7 @@ const { v4 } = require('uuid')
 const dataTables = require('mongoose-datatables')
 
 const forecastGroupSchema = new Schema({
-  project: { type: Schema.Types.ObjectId, ref: 'Project' },
+  project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   forecasts: [{ type: Schema.Types.ObjectId, ref: 'Forecast' }],
   catalogs: [{type: Schema.Types.ObjectId, ref: 'Catalog'}],
   cycles: [{type: Schema.Types.ObjectId, ref: 'Cycle'}],
@@ -18,13 +18,14 @@ const forecastGroupSchema = new Schema({
       'informative',
       'compatible'
     ],
-    default: 'created'
+    default: 'informative'
   },
 
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   dateCreated: { type: Date, default: moment.utc },
   isDeleted: { type: Boolean, default: false },
-  uuid: { type: String, default: v4 }
+  uuid: { type: String, default: v4, unique: true }
+
 }, { usePushEach: true })
 
 forecastGroupSchema.methods.toPrivate = function () {
