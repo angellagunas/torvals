@@ -371,38 +371,7 @@ class GroupDetail extends Component {
                         canEdit={currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'}
                         canCreate={currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'}
                       >
-                        {this.state.channels && this.state.channels.length > 0 &&
-                        <div>
-                          <p className='label'>Canales</p>
-                          <div className='tags'>
-                            {this.state.channels && this.state.channels.map((item) => {
-                              return (
-                                <Link className='tag is-capitalized'
-                                  key={item.uuid}
-                                  to={'/catalogs/channels/' + item.uuid}>
-                                  {item.name}
-                                </Link>
-                              )
-                            })}
-                          </div>
-                        </div>
-                        }
-                        {this.state.salesCenters && this.state.salesCenters.length > 0 &&
-                          <div className='has-20-margin-top'>
-                            <p className='label'>Centros de Venta</p>
-                            <div className='tags'>
-                              {this.state.salesCenters && this.state.salesCenters.map((item) => {
-                                return (
-                                  <Link className='tag is-capitalized'
-                                    key={item.uuid}
-                                    to={'/catalogs/salesCenters/' + item.uuid}>
-                                    {item.name}
-                                  </Link>
-                                )
-                              })}
-                            </div>
-                          </div>
-                        }
+                        
                         {
                           this.state.catalogItems &&
                           this.state.catalogItems.length > 0 &&

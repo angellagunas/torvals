@@ -518,11 +518,19 @@ class Dashboard extends Component {
       })
     }
 
+    let min
+    p.map(item => {
+      if (item.year === 2018 && item.number === 1) {
+        min = item
+      }
+    })
+
     this.setState({
       periods: p,
-      minPeriod: {number: 1, name: "enero", year: 2018},
+      minPeriod: min || { number: 1, name: "enero", year: 2018 },
       maxPeriod: p[p.length - 1]
     })
+
   }
 
 
