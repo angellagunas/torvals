@@ -18,9 +18,9 @@ const schema = {
   ],
   properties: {
     name: {type: 'string', title: 'Nombre'},
-    path: {type: 'number', title: 'Ruta'},
+    path: {type: 'string', title: 'Ruta'},
     description: {type: 'string', title: 'Descripción'},
-    instructions: {type: 'number', title: 'Instrucciones'}
+    instructions: {type: 'string', title: 'Instrucciones'}
   }
 }
 
@@ -60,15 +60,14 @@ class EngineForm extends Component {
     })
   }
 
-  async submitHandler ({formData}) {
-    formData.isDefault = undefined
+  async submitHandler ({ formData }) {
     if (this.props.submitHandler) this.props.submitHandler(formData)
     try {
-      var data = await api.post(this.props.url, formData)
-      await this.props.load()
+      const data = await api.post(this.props.url, formData)
+
       this.clearState()
       this.setState({...this.state, apiCallMessage: 'message is-success'})
-      if (this.props.finishUp) this.props.finishUp(data.data)
+      if (this.props.finishUp) this.props.finishUp(data)
       return
     } catch (e) {
       if (this.props.errorHandler) this.props.errorHandler(e)
