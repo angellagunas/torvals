@@ -9,6 +9,7 @@ const request = require('supertest')
 const {DataSet, Organization, User, Rule} = require('models')
 
 const rule = {
+  important: true,
   startDate: '2018-01-01T00:00:00',
   cycleDuration: 1,
   cycle: 'M',

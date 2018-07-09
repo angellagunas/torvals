@@ -136,7 +136,7 @@ describe('ForecastGroup Model', () => {
       }
 
       expect(wasFailed).equals(true)
-      expect(await ForecastGroup.find().count()).equals(0)
+      expect(await ForecastGroup.find().count()).equals(1)
     })
 
     it('without project', async function () {
