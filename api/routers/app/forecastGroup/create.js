@@ -36,7 +36,7 @@ module.exports = new Route({
       alias: data.alias,
       catalogs: catalogs.data,
       cycles: cycles.data,
-      engines: engines,
+      engines: engines.data,
       createdBy: user._id,
       type: data.type
     })
