@@ -25,14 +25,14 @@ class EngineDetail extends Component {
   }
 
   load = async () => {
-    var url = '/admin/engines/' + this.props.match.params.uuid
+    const url = '/admin/engines/' + this.props.match.params.uuid
     try {
       const body = await api.get(url)
 
       this.setState({
         loading: false,
         loaded: true,
-        engine: body.data
+        engine: body || {}
       })
     } catch (e) {
       this.setState({
@@ -104,7 +104,7 @@ class EngineDetail extends Component {
                       <div className='column'>
                         <EngineForm
                           baseUrl='/admin/engine'
-                          url={'/admin/engine/' + this.props.match.params.uuid}
+                          url={'/admin/engines/' + this.props.match.params.uuid}
                           initialState={engine}
                           load={this.load}
                           submitHandler={this.submitHandler}
