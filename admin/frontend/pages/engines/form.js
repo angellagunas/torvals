@@ -25,10 +25,10 @@ const schema = {
 }
 
 const uiSchema = {
-  name: {'ui:widget': TextWidget},
-  path: {'ui:widget': TextWidget},
-  description: {'ui:widget': TextareaWidget, 'ui:rows': 2},
-  instructions: {'ui:widget': TextareaWidget, 'ui:rows': 3}
+  name: { 'ui:widget': TextWidget, 'ui:disabled': true },
+  path: { 'ui:widget': TextWidget, 'ui:disabled': true },
+  description: { 'ui:widget': TextareaWidget, 'ui:rows': 2 },
+  instructions: { 'ui:widget': TextareaWidget, 'ui:rows': 3, 'ui:disabled': true }
 }
 
 class EngineForm extends Component {
