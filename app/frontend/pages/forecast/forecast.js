@@ -7,6 +7,7 @@ import CreateModal from './createModal'
 import Loader from '~base/components/spinner'
 import Link from '~base/router/link'
 import DeleteButton from '~base/components/base-deleteButton'
+import BaseModal from '~base/components/base-modal'
 
 class Forecast extends Component {
   constructor (props) {
@@ -101,7 +102,7 @@ class Forecast extends Component {
 
   forecastMenu (item) {
     return (
-/*       <div className='dropdown is-right is-hoverable'>
+      <div className='dropdown is-right is-hoverable'>
         <div className='dropdown-trigger'>
           <span className='icon is-small' aria-haspopup='true' aria-controls='dropdown-menu6'>
             <i className='fa fa-ellipsis-h' aria-hidden='true' />
@@ -110,18 +111,29 @@ class Forecast extends Component {
         <div className='dropdown-menu' id='dropdown-menu6' role='menu'>
           <div className='dropdown-content'>
             <div className='dropdown-item'>
-              <a className='button is-primary is-small'>Eliminar</a>
+              <button className='button is-primary is-small'
+                onClick={() => this.moveTo('/forecast/detail/' + item.uuid)}
+              >Detalle</button>
+            </div>
+            <div className='dropdown-item'>
+              <DeleteButton
+                buttonClass='is-small'
+                hideIcon
+                objectName='Predicción'
+                objectDelete={() => this.deleteForecast(item)}
+                message={<span>¿Estas seguro de querer eliminar esta Predicción?</span>}
+              />
             </div>
           </div>
         </div>
-      </div> */
+      </div>
 
-      <DeleteButton
-        objectName='Catálogo'
+      /* <DeleteButton
+        objectName='Predicción'
         objectDelete={() => this.deleteForecast(item)}
         message={<span>¿Estas seguro de querer eliminar esta Predicción?</span>}
         small
-      />
+      /> */
     )
   }
 
@@ -159,7 +171,7 @@ class Forecast extends Component {
                       <div className='media-content'>
                         <div className='contents'>
                           <div className='forecast-widget__title'>
-                            <strong>{item.alias}</strong>
+                            <strong onClick={() => this.moveTo('/forecast/detail/' + item.uuid)}>{item.alias}</strong>
                             <small className='is-pulled-right'>
                               {this.forecastMenu(item)}
                             </small>
@@ -225,6 +237,44 @@ class Forecast extends Component {
         </div>
       </div>
     )
+  }
+
+  finishUp (forecast) {
+    this.showForecastMsg(forecast)
+    this.getForecast()
+  }
+
+  forecastMsg () {
+    return (
+      <BaseModal
+        title={'Predicción en proceso'}
+        className={this.state.forecastMsg}
+        hideModal={this.hideForecastMsg}>
+        <p>Tu predicción se está generando. <br />
+        Este proceso puede tomar mucho tiempo. Se le enviará un correo cuando el processo termine.
+        </p>
+        <br />
+        <button
+          className='button generate-btn is-primary is-pulled-right'
+          onClick={() => this.hideForecastMsg()}>
+          Aceptar
+        </button>
+      </BaseModal>
+    )
+  }
+
+  showForecastMsg (forecast) {
+    this.setState({
+      forecastMsg: ' is-active',
+      activeForecast: forecast
+    })
+  }
+
+  hideForecastMsg () {
+    this.setState({
+      forecastMsg: '',
+      activeForecast: undefined
+    })
   }
 
   render () {
@@ -337,11 +387,12 @@ class Forecast extends Component {
               this.forecasts()
             }
 
+            {this.forecastMsg()}
             <CreateModal
               project={this.state.projectSelected}
               className={this.state.createModal}
               hideModal={() => this.hideCreateModal()}
-              getForecast={() => this.getForecast()} />
+              finishUp={() => this.finishUp()} />
           </div>
         : <div className='columns is-centered'>
           <div className='column is-8'>

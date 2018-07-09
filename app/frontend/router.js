@@ -22,8 +22,6 @@ import SalesCenters from './pages/salesCenters/list'
 import SalesCenterDetail from './pages/salesCenters/detail'
 import Products from './pages/products/list'
 import ProductDetail from './pages/products/detail'
-import Forecasts from './pages/forecasts/list'
-import ForecastDetail from './pages/forecasts/detail'
 import env from '~base/env-variables'
 import Channels from './pages/channel/list'
 import ChannelsDetail from './pages/channel/detail'
@@ -44,6 +42,7 @@ import OrgRules from './pages/org-rules'
 import UsersGroups from './pages/users-groups'
 import Roles from './pages/roles/list'
 import Forecast from './pages/forecast/forecast'
+import ForecastDetail from './pages/forecast/detail'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -86,8 +85,6 @@ class AppRouter extends Component {
               {Products.asRouterItem()}
               {ProductDetail.asRouterItem()}
 
-              {Forecasts.asRouterItem()}
-              {ForecastDetail.asRouterItem()}
               {Channels.asRouterItem()}
               {ChannelsDetail.asRouterItem()}
               {ChannelImport.asRouterItem()}
@@ -106,7 +103,7 @@ class AppRouter extends Component {
               {Roles.asRouterItem()}
 
               {Forecast.asRouterItem()}
-
+              {ForecastDetail.asRouterItem()}
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
               <Route component={NoMatch} />
