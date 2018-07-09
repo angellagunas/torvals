@@ -2,6 +2,7 @@ const moment = require('moment')
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
 const { v4 } = require('uuid')
+const dataTables = require('mongoose-datatables')
 
 const engineSchema = new Schema({
   name: { type: String },
@@ -33,5 +34,7 @@ engineSchema.methods.toPublic = function () {
     uuid: this.uuid
   }
 }
+
+engineSchema.plugin(dataTables)
 
 module.exports = mongoose.model('Engine', engineSchema)
