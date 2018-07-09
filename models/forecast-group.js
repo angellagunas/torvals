@@ -23,7 +23,7 @@ const forecastGroupSchema = new Schema({
 
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   dateCreated: { type: Date, default: moment.utc },
-  isDeleted: { type: Boolean },
+  isDeleted: { type: Boolean, default: false },
   uuid: { type: String, default: v4 }
 }, { usePushEach: true })
 
