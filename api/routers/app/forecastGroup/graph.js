@@ -14,6 +14,7 @@ module.exports = new Route({
     const data = ctx.request.body
 
     const forecastGroup = await ForecastGroup.findOne({uuid: uuid, isDeleted: false}).populate('forecasts engines')
+    ctx.assert(forecastGroup, 404, 'ForecastGroup no encontrado')
 
     let datasets = forecastGroup.forecasts.map(item => {
       return item.dataset
