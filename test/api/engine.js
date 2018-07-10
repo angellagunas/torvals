@@ -33,7 +33,7 @@ describe('/engines', () => {
         .set('Referer', credentials.referer)
         .expect(200)
 
-      expect(res.body[0].name).equal(engine.name)
+      expect(res.body.data[0].name).equal(engine.name)
     })
 
     it('with valid request should return only if isDeleted is false', async function () {
@@ -55,7 +55,7 @@ describe('/engines', () => {
         .set('Referer', credentials.referer)
         .expect(200)
 
-      expect(res.body.length).equal(0)
+      expect(res.body.data.length).equal(0)
     })
 
     it('without authorization headers should return a 401 status', async function () {
@@ -96,7 +96,7 @@ describe('/engines', () => {
         .set('Referer', credentials.referer)
         .expect(200)
 
-      expect(res.body[0].name).equal(engine.name)
+      expect(res.body.data[0].name).equal(engine.name)
     })
 
     it('with valid request should return only if isDeleted is false', async function () {
@@ -118,7 +118,7 @@ describe('/engines', () => {
         .set('Referer', credentials.referer)
         .expect(200)
 
-      expect(res.body.length).equal(0)
+      expect(res.body.data.length).equal(0)
     })
 
     it('without authorization headers should return a 401 status', async function () {
