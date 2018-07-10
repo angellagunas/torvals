@@ -7,14 +7,15 @@ import Loader from '~base/components/spinner'
 import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import api from '~base/api'
-import CreateModal from './createModal'
 
 class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      loading: true
+      loading: true,
+      disabled: true
     }
+    this.engineSelected = {}
   }
 
   componentWillMount () {
@@ -64,7 +65,7 @@ class ForecastDetail extends Component {
             return (
               <Checkbox
                 label={row}
-                handleCheckboxChange={this.toggleCheckbox}
+                handleCheckboxChange={(e, value) => this.selectEngine(value, row)}
                 key={row}
                 checked={row.selected}
                 hideLabel />
@@ -86,7 +87,8 @@ class ForecastDetail extends Component {
       {
         'title': 'Estado',
         'property': 'status',
-        'default': 'N/A'
+        'default': 'N/A',
+        'sortable': true
       }
     ]
 
@@ -94,24 +96,16 @@ class ForecastDetail extends Component {
   }
 
   handleSort (e) {
-    let sorted = this.state.productTable
+    let sorted = this.state.engineTable
 
-    if (e === 'product.externalId') {
-      if (this.state.sortAscending) {
-        sorted.sort((a, b) => { return parseFloat(a.product.externalId) - parseFloat(b.product.externalId) })
-      } else {
-        sorted.sort((a, b) => { return parseFloat(b.product.externalId) - parseFloat(a.product.externalId) })
-      }
+    if (this.state.sortAscending) {
+      sorted = _.orderBy(sorted, [e], ['asc'])
     } else {
-      if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, [e], ['asc'])
-      } else {
-        sorted = _.orderBy(sorted, [e], ['desc'])
-      }
+      sorted = _.orderBy(sorted, [e], ['desc'])
     }
 
     this.setState({
-      productTable: sorted,
+      engineTable: sorted,
       sortAscending: !this.state.sortAscending,
       sortBy: e
     }, () => {
@@ -119,21 +113,28 @@ class ForecastDetail extends Component {
     })
   }
 
-  finishUp (forecast) {
-    console.log(forecast)
+  selectEngine (value, item) {
+    if (value) {
+      this.engineSelected[item.uuid] = item
+    } else {
+      delete this.engineSelected[item.uuid]
+    }
+
+    this.disableBtns()
   }
 
-  showCreateModal () {
-    this.setState({
-      createModal: 'is-active'
-    })
+  disableBtns () {
+    if (Object.keys(this.engineSelected).length === 0) {
+      this.setState({
+        disabled: true
+      })
+    } else {
+      this.setState({
+        disabled: false
+      })
+    }
   }
 
-  hideCreateModal () {
-    this.setState({
-      createModal: ''
-    })
-  }
   render () {
     if (this.state.loading) {
       return <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
@@ -177,13 +178,6 @@ class ForecastDetail extends Component {
             </div>
           </div>
           <div className='level-right'>
-            <div className='level-item'>
-              <a
-                className='button is-info'
-                onClick={() => { this.showCreateModal() }}>
-                Nueva predicción
-              </a>
-            </div>
             <div className='level-item'>
               <DeleteButton
                 titleButton={'Eliminar'}
@@ -324,8 +318,20 @@ class ForecastDetail extends Component {
               </div>
             </div>
             <div className='level-right'>
+              {this.state.forecast.type !== 'informative' &&
               <div className='level-item'>
-                <button className='button is-primary'>
+                <button
+                  className='button is-primary'
+                  disabled={this.state.disabled}>
+                 Consolidar
+                </button>
+              </div>
+              }
+
+              <div className='level-item'>
+                <button
+                  className='button is-primary'
+                  disabled={this.state.disabled}>
                   <span className='icon'>
                     <i className='fa fa-eye' />
                   </span>
@@ -333,8 +339,9 @@ class ForecastDetail extends Component {
               </div>
 
               <div className='level-item'>
-
-                <button className='button is-primary'>
+                <button
+                  className='button is-primary'
+                  disabled={this.state.disabled}>
                   <span className='icon'>
                     <i className='fa fa-share-alt' />
                   </span>
@@ -342,7 +349,6 @@ class ForecastDetail extends Component {
               </div>
 
               <div className='level-item'>
-
                 <DeleteButton
                   iconOnly
                   objectName='Predicción'
@@ -365,15 +371,10 @@ class ForecastDetail extends Component {
               handleSort={(e) => { this.handleSort(e) }}
               sortAscending={this.state.sortAscending}
               sortBy={this.state.sortBy}
-                />
+            />
           </div>
         </div>
 
-        <CreateModal
-          project={this.state.forecast.project}
-          className={this.state.createModal}
-          hideModal={() => this.hideCreateModal()}
-          finishUp={() => this.finishUp()} />
       </div>
     )
   }
