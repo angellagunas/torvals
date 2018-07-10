@@ -78,15 +78,16 @@ class Dashboard extends Component {
     let url = '/app/projects'
 
     let res = await api.get(url,{
-      showOnDashboard: true,
-      outdated: false
+      showOnDashboard: true
     })
 
-    let activeProjects = res.data.filter(item => { return item.mainDataset })
-    const outdated = activeProjects.every(v => v.outdated)
+    let allProjects = res.data.filter(item => item.mainDataset)
+    const activeProjects = allProjects.filter(item => !item.outdated)
+    const outdated = allProjects.every(item => item.outdated)
 
     this.setState({
       outdated,
+      allProjects,
       projects: activeProjects,
       loading: false
     }, () => { this.checkAllProjects(true) })
