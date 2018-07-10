@@ -7,7 +7,7 @@ module.exports = new Route({
   handler: async function (ctx) {
     const uuid = ctx.params.uuid
 
-    var forecast = await ForecastGroup.findOne({uuid: uuid, isDeleted: false}).populate('project forecasts')
+    var forecast = await ForecastGroup.findOne({uuid: uuid, isDeleted: false}).populate('project forecasts engines')
     ctx.assert(forecast, 404, 'ForecastGroup no encontrado')
 
     ctx.body = forecast.toPublic()

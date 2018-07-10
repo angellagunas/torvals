@@ -130,4 +130,16 @@
       }
     }
   }
+  &-detail {
+    .box {
+      background-color: #EFF1F9;
+      border-color: #E6E8F6;
+      border-radius: 0;
+      padding: .5rem;
+    }
+    .indicators{
+      max-height: inherit;
+      height: auto;
+    }
+  }
 }

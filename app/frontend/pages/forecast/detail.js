@@ -4,12 +4,36 @@ import Page from '~base/page'
 import Breadcrumb from '~base/components/base-breadcrumb'
 import DeleteButton from '~base/components/base-deleteButton'
 import Loader from '~base/components/spinner'
+import { BaseTable } from '~base/components/base-table'
+import Checkbox from '~base/components/base-checkbox'
+import api from '~base/api'
+import CreateModal from './createModal'
 
 class ForecastDetail extends Component {
   constructor (props) {
     super(props)
     this.state = {
       loading: true
+    }
+  }
+
+  componentWillMount () {
+    this.load()
+  }
+  async load () {
+    let url = '/app/forecastGroups/' + this.props.match.params.uuid
+    try {
+      let res = await api.get(url)
+
+      if (res) {
+        this.setState({
+          forecast: res,
+          loading: false
+        })
+      }
+    } catch (e) {
+      console.log(e)
+      // this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -20,17 +44,107 @@ class ForecastDetail extends Component {
       </div>
     )
   }
+  deleteForecast (item) {
+    console.log('Deleted', item)
+  }
+
+  getColumns () {
+    let cols = [
+      {
+        'title': '',
+        'abbreviate': true,
+        'abbr': '',
+        'property': 'checkbox',
+        'default': '',
+        formatter: (row, state) => {
+          if (row.status === 'created') {
+            if (!row.selected) {
+              row.selected = false
+            }
+            return (
+              <Checkbox
+                label={row}
+                handleCheckboxChange={this.toggleCheckbox}
+                key={row}
+                checked={row.selected}
+                hideLabel />
+            )
+          }
+        }
+      },
+      {
+        'title': 'Modelo',
+        'property': 'engine',
+        'default': 'N/A',
+        'sortable': true
+      },
+      {
+        'title': 'Descripción',
+        'property': 'description',
+        'default': 'Sin descripción'
+      },
+      {
+        'title': 'Estado',
+        'property': 'status',
+        'default': 'N/A'
+      }
+    ]
+
+    return cols
+  }
+
+  handleSort (e) {
+    let sorted = this.state.productTable
+
+    if (e === 'product.externalId') {
+      if (this.state.sortAscending) {
+        sorted.sort((a, b) => { return parseFloat(a.product.externalId) - parseFloat(b.product.externalId) })
+      } else {
+        sorted.sort((a, b) => { return parseFloat(b.product.externalId) - parseFloat(a.product.externalId) })
+      }
+    } else {
+      if (this.state.sortAscending) {
+        sorted = _.orderBy(sorted, [e], ['asc'])
+      } else {
+        sorted = _.orderBy(sorted, [e], ['desc'])
+      }
+    }
+
+    this.setState({
+      productTable: sorted,
+      sortAscending: !this.state.sortAscending,
+      sortBy: e
+    }, () => {
+      this.searchDatarows()
+    })
+  }
+
+  finishUp (forecast) {
+    console.log(forecast)
+  }
+
+  showCreateModal () {
+    this.setState({
+      createModal: 'is-active'
+    })
+  }
+
+  hideCreateModal () {
+    this.setState({
+      createModal: ''
+    })
+  }
   render () {
-    /* if (this.state.loading) {
+    if (this.state.loading) {
       return <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
         Cargando, un momento por favor
           <Loader />
       </div>
-    } */
+    }
     return (
-      <div>
+      <div className='forecast-detail'>
         <div className='section-header'>
-          <h2>Forecasts Detail</h2>
+          <h2>Predicción {this.state.forecast.alias}</h2>
         </div>
         <div className='level'>
           <div className='level-left'>
@@ -54,7 +168,7 @@ class ForecastDetail extends Component {
                   },
                   {
                     path: '/forecast/detail',
-                    label: 'titulo prediccion',
+                    label: this.state.forecast.alias,
                     current: true
                   }
                 ]}
@@ -66,50 +180,35 @@ class ForecastDetail extends Component {
             <div className='level-item'>
               <a
                 className='button is-info'
-                onClick={() => { this.props.selectGroup() }}>
-                Regresar
+                onClick={() => { this.showCreateModal() }}>
+                Nueva predicción
               </a>
             </div>
             <div className='level-item'>
               <DeleteButton
                 titleButton={'Eliminar'}
-                objectName='Grupo'
+                objectName='Predicción'
                 objectDelete={this.deleteObject}
-                message={`¿Está seguro que desea eliminar el grupo?`}
+                message={`¿Está seguro que desea eliminar el predicción?`}
               />
             </div>
           </div>
         </div>
 
-        <div className='section columns box'>
-          <div className='column is-3 is-2-widescreen is-paddingless'>
-            <div className='notification is-info has-text-centered'>
-              <h1 className='title is-2'>0</h1>
-              <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
+        <div className='section'>
+          <div className='columns box'>
+            <div className='column is-3 is-2-widescreen is-paddingless'>
+              <div className='indicators'>
+                <p className='indicators-title'>
+                  <strong>Modelo</strong>
+                </p>
+                <p className='indicators-number has-text-success'>
+                  0
+                </p>
+              </div>
             </div>
-            <div className='indicators'>
-              <p className='indicators-title'>Venta total</p>
-              <p className='indicators-number has-text-success'>
-                0
-              </p>
-              <p className='indicators-title'>Venta año anterior</p>
-              <p className='indicators-number has-text-danger'>
-                0
-              </p>
-
-              <p className='indicators-title'>Ajuste total</p>
-              <p className='indicators-number has-text-teal'>
-                0
-              </p>
-
-              <p className='indicators-title'>Predicción total</p>
-              <p className='indicators-number has-text-info'>
-                0
-              </p>
-            </div>
-          </div>
-          <div className='column card'>
-            {this.state.graphData && this.state.filteredData
+            <div className='column card'>
+              {this.state.graphData && this.state.filteredData
               ? this.state.graphData.length > 0
                 ? <Graph
                   data={graph}
@@ -215,8 +314,66 @@ class ForecastDetail extends Component {
               </section>
             }
 
+            </div>
+          </div>
+
+          <div className='level'>
+            <div className='level-left'>
+              <div className='level-item'>
+                <p>Selecciona un modelo para conciliar.</p>
+              </div>
+            </div>
+            <div className='level-right'>
+              <div className='level-item'>
+                <button className='button is-primary'>
+                  <span className='icon'>
+                    <i className='fa fa-eye' />
+                  </span>
+                </button>
+              </div>
+
+              <div className='level-item'>
+
+                <button className='button is-primary'>
+                  <span className='icon'>
+                    <i className='fa fa-share-alt' />
+                  </span>
+                </button>
+              </div>
+
+              <div className='level-item'>
+
+                <DeleteButton
+                  iconOnly
+                  objectName='Predicción'
+                  objectDelete={() => this.deleteForecast(item)}
+                  message={<span>¿Estas seguro de querer eliminar esta predicción?</span>}
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div className='scroll-table'>
+          <div className='scroll-table-container'>
+
+            <BaseTable
+              className='dash-table is-fullwidth'
+              data={this.state.filteredData}
+              columns={this.getColumns()}
+              handleSort={(e) => { this.handleSort(e) }}
+              sortAscending={this.state.sortAscending}
+              sortBy={this.state.sortBy}
+                />
           </div>
         </div>
+
+        <CreateModal
+          project={this.state.forecast.project}
+          className={this.state.createModal}
+          hideModal={() => this.hideCreateModal()}
+          finishUp={() => this.finishUp()} />
       </div>
     )
   }
