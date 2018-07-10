@@ -18,7 +18,12 @@ module.exports = new Route({
       }
 
       if (filter === 'outdated') {
-        filters['outdated'] = false
+        filters['outdated'] = ctx.request.query[filter]
+        continue
+      }
+
+      if (filter === 'hasMainDataset') {
+        filters['mainDataset'] = {$ne: null}
         continue
       }
 

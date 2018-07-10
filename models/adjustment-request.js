@@ -23,7 +23,8 @@ const adjustmentRequestSchema = new Schema({
     enum: ['created', 'approved', 'rejected'],
     default: 'created'
   },
-
+  cycle: { type: Schema.Types.ObjectId, ref: 'Cycle', required: true },
+  period: { type: Schema.Types.ObjectId, ref: 'Period', required: true},
   dateRequested: { type: Date, default: moment.utc },
   dateApproved: { type: Date },
   dateRejected: { type: Date },
@@ -50,7 +51,9 @@ adjustmentRequestSchema.methods.toPublic = function () {
     newAdjustment: this.newAdjustment,
     catalogItems: this.catalogItems,
     lastAdjustment: this.lastAdjustment,
-    newProduct: this.newProduct
+    newProduct: this.newProduct,
+    period: this.period,
+    cycle: this.cycle
   }
 }
 
@@ -71,7 +74,9 @@ adjustmentRequestSchema.methods.toAdmin = function () {
     lastAdjustment: this.lastAdjustment,
     catalogItems: this.catalogItems,
     newAdjustment: this.newAdjustment,
-    newProduct: this.newProduct
+    newProduct: this.newProduct,
+    period: this.period,
+    cycle: this.cycle
   }
 }
 

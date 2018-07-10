@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 const { Rule, Catalog } = require('models')
 
 module.exports = async function createRules(opts = {}) {
@@ -20,7 +22,8 @@ module.exports = async function createRules(opts = {}) {
   })
 
   const data = {
-    startDate: '2018-01-01T00:00:00',
+    important: true,
+    startDate: moment.utc('2018-01-01'),
     cycleDuration: 1,
     cycle: 'M',
     period: 'w',

@@ -10,6 +10,7 @@ import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
 import { BaseTable } from '~base/components/base-table'
 import Link from '~base/router/link'
+import classNames from 'classnames'
 
 class StatusRepórt extends Component {
   constructor (props) {
@@ -98,7 +99,7 @@ class StatusRepórt extends Component {
   async getFilters () {
     this.setState({ filtersLoading: true })
 
-    const url = '/app/reports/filters/'
+    const url = '/app/reports/filters/' + this.state.projectSelected.uuid
 
     await this.getCatalogFilters()
 
@@ -109,8 +110,6 @@ class StatusRepórt extends Component {
       .map(item => {
         return {...item, name: moment.utc(item.dateStart).format('MMMM') + ' - ' + item.cycle}
       })      
-
-      cycles = cycles.slice(-this.rules.cyclesAvailable)
 
       cycles = _.orderBy(cycles, 'dateStart', 'asc')
 
@@ -137,6 +136,10 @@ class StatusRepórt extends Component {
     } catch (e) {
       console.log(e)
       this.setState({
+        filters: {
+          cycles: [],
+          users: []
+        },
         error: true,
         filtersLoading: false,
         errorMessage: '¡No se pudieron cargar los filtros!'
@@ -160,7 +163,7 @@ class StatusRepórt extends Component {
       this.setState({
         projectSelected: project
       }, () => {
-        this.getDataRows()
+        this.getFilters()
       })
     }
     else {
@@ -342,17 +345,24 @@ class StatusRepórt extends Component {
         'title': 'Acciones',
         formatter: (row) => {
             return (
-              <Link className='button is-primary' to={'/manager/users/' + row.user.uuid}>
+              <a className='button is-primary' onClick={() => this.userDetail(row.user[0])}>
                 <span className='icon is-small' title='Visualizar'>
                   <i className='fa fa-eye' />
                 </span>
-              </Link>
+              </a>
             )
         }
       }
     ]
 
     return cols
+  }
+
+
+  userDetail(user){
+    tree.set('userDetail', user)
+    tree.commit()
+    this.props.history.push('/manage/users-groups')
   }
 
   handleSort(e) {
@@ -478,6 +488,7 @@ class StatusRepórt extends Component {
               optionName='name'
               options={element}
               onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              disabled={this.state.filtersLoading}              
             />
           </div>
         )
@@ -547,7 +558,7 @@ class StatusRepórt extends Component {
     return (
       <div className='status-report'>
         <div className='section-header'>
-          <h2>Status de proyecto </h2>
+          <h2>Estado de proyecto </h2>
         </div>
         <div className='section level selects'>
           <div className='level-left'>
@@ -564,6 +575,7 @@ class StatusRepórt extends Component {
               />
             </div>
             }
+            {this.state.filters.cycles.length > 0 &&
             <div className='level-item'>
               <Select
                 label='Ciclo'
@@ -574,9 +586,11 @@ class StatusRepórt extends Component {
                 type='integer'
                 options={this.state.filters.cycles}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                disabled={this.state.filtersLoading}
               />
             </div>
-
+            }
+            {this.state.filters.users.length > 0 &&
             <div className='level-item'>
               <Select
                 label='Usuarios'
@@ -587,8 +601,10 @@ class StatusRepórt extends Component {
                 placeholder='Todos'
                 options={this.state.filters.users}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                disabled={this.state.filtersLoading}                
               />
             </div>
+            }
 
             
             {this.state.filters &&
@@ -598,7 +614,11 @@ class StatusRepórt extends Component {
         </div>
         <div className='section columns is-padingless-top'>
           <div className='column is-3'>
-            <div className='notification is-success filter-widget' onClick={() => { this.filterUsers(1) }}>
+            <div className={
+              classNames('notification is-success filter-widget', 
+                { 'filter-widget__active': this.state.filterReady })
+              } 
+              onClick={() => { this.filterUsers(1) }}>
               <div className='level'>
                 <div className='level-left'>
                   <div className='level-item'>
@@ -615,7 +635,11 @@ class StatusRepórt extends Component {
             </div>
           </div>
           <div className='column is-3'>
-            <div className='notification is-info filter-widget' onClick={() => { this.filterUsers(2) }}>
+            <div className={
+              classNames('notification is-info filter-widget',
+                { 'filter-widget__active': this.state.filterProgress })
+              } 
+              onClick={() => { this.filterUsers(2) }}>
               <div className='level'>
                 <div className='level-left'>
                   <div className='level-item'>
@@ -632,7 +656,11 @@ class StatusRepórt extends Component {
             </div>
           </div>
           <div className='column is-3'>
-            <div className='notification is-danger filter-widget' onClick={() => { this.filterUsers(3) }}>
+            <div className={
+              classNames('notification is-danger filter-widget',
+                { 'filter-widget__active': this.state.filterInactive })
+              } 
+              onClick={() => { this.filterUsers(3) }}>
               <div className='level'>
                 <div className='level-left'>
                   <div className='level-item'>

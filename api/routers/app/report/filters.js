@@ -1,34 +1,22 @@
 const Route = require('lib/router/route')
-const {Project, User, Cycle, Organization, CatalogItem, Rule} = require('models')
+const {Project, User, Organization, CatalogItem, Cycle, Rule} = require('models')
 const moment = require('moment')
 
 module.exports = new Route({
   method: 'get',
-  path: '/filters/',
+  path: '/filters/:uuid',
   handler: async function (ctx) {
     const organization = await Organization.findOne({_id: ctx.state.organization._id})
+    const uuid = ctx.params.uuid
 
-    const projects = await Project.find({
-      isDeleted: false,
-      mainDataset: {$ne: null},
+    const project = await Project.findOne({
+      uuid: uuid,
       organization: organization._id
-    })
-    projects.data = projects.map((item) => {
-      return item.toPublic()
-    })
-
-    const users = await User.find({
-      isDeleted: false,
-      'organizations.organization': organization._id
-    })
-    users.data = users.map((item) => {
-      return item.toPublic()
     })
 
     const rule = await Rule.findOne({
       organization: organization._id,
-      isCurrent: true,
-      isDeleted: false
+      _id: project.rule
     })
 
     const cycles = await Cycle.find({
@@ -51,9 +39,17 @@ module.exports = new Route({
         }
       ]
 
-    }).sort({dateStart: 1})
+    }).sort({dateStart: 1}).limit(rule.cyclesAvailable)
 
     cycles.data = cycles.map((item) => {
+      return item.toPublic()
+    })
+
+    const users = await User.find({
+      isDeleted: false,
+      'organizations.organization': organization._id
+    })
+    users.data = users.map((item) => {
       return item.toPublic()
     })
 
@@ -62,14 +58,14 @@ module.exports = new Route({
       organization: organization._id,
       type: {$nin: ['producto', 'productos']}
     }).populate('organization')
+
     catalogItems.data = catalogItems.map((item) => {
       return item.toPublic()
     })
 
     ctx.body = {
-      projects: projects.data,
-      users: users.data,
       cycles: cycles.data,
+      users: users.data,
       catalogItems: catalogItems.data
     }
   }

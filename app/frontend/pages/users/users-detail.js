@@ -12,7 +12,7 @@ class UsersDetail extends Component {
     super(props)
     this.state = {
       searchTerm: '',
-      userSelected: undefined,
+      userSelected: tree.get('userDetail') || undefined,
       modalClassName: '',
       canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3'
     }
@@ -146,6 +146,8 @@ class UsersDetail extends Component {
   }
 
   selectUser (user) {
+    tree.set('userDetail', user)
+    tree.commit()
     this.setState({
       userSelected: user
     })

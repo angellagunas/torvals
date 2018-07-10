@@ -9,7 +9,7 @@ module.exports = async function(){
     slug: 'test-org'
   },{})
 
-  const user = await createUser()
+  const user = await createUser({isAdmin: true})
   const token = await user.createToken({type: 'session'})
   const jwt = token.getJwt()
 

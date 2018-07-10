@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
 import Page from '~base/page'
-import { loggedIn } from '~base/middlewares/'
+import { loggedIn, verifyRole } from '~base/middlewares/'
 import tree from '~core/tree'
 import Periods from './wizard/steps/periods'
 import Ranges from './wizard/steps/ranges'
 import DeadLines from './wizard/steps/deadlines'
-import CalendarRules from './wizard/steps/calendar-rules'
 import Catalogs from './wizard/steps/catalogs'
 import Tabs from '~base/components/base-tabs'
 import moment from 'moment'
 import { toast } from 'react-toastify'
 import api from '~base/api'
 import BaseModal from '~base/components/base-modal'
+import { Prompt } from 'react-router-dom'
 
 const times = {
   'd': 'Día',
@@ -33,7 +33,9 @@ class OrgRules extends Component {
       unsaved: false,
       important: false,
       isLoading: '',
-      className: ''
+      className: '',
+      projectModal: '',
+      alert: false
     }
     this.tabs = []
   }
@@ -59,7 +61,12 @@ class OrgRules extends Component {
           toast.TYPE.SUCCESS
         )
 
-        this.setState({ unsaved: false, isLoading: '', className: '' })
+        this.setState({
+          unsaved: false,
+          isLoading: '',
+          className: '',
+          rules: res.rules
+        })
         tree.set('rule', res.rules)
         tree.commit()
         return true
@@ -130,20 +137,29 @@ class OrgRules extends Component {
           <p><strong>Recuerda que tus reglas anteriores se perderán.</strong></p>
           </h3>
           <br />
-          <button className='button is-success'
-            onClick={() => { this.confirmSave() }} >Sí, guardar</button>
-          <br />
-          <button
-            className='button is-primary is-inverted'
-            onClick={() => { this.hideModal() }}>No, regresar</button>
+          <div className='buttons org-rules__modal'>
+            <button
+              className={'button is-pulled-right is-success ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              onClick={() => { this.confirmSave() }} >Sí, guardar</button>
+            <button
+              className='button is-primary is-inverted is-pulled-right'
+              onClick={() => { this.hideModal() }}>No, regresar</button>
+          </div>
         </center>
       </BaseModal>
     )
   }
 
   confirmSave () {
-    this.setState({ important: false }, () => {
-      this.saveData()
+    this.setState({
+      important: false,
+      rules: { ...this.state.rules, important: true }
+    }, async () => {
+      await this.saveData()
+      this.setState({
+        alert: true
+      })
     })
   }
 
@@ -157,6 +173,92 @@ class OrgRules extends Component {
     this.setState({
       className: ''
     })
+  }
+
+  async showModalProjects () {
+    let url = '/app/projects'
+    let res = await api.get(url, {
+      outdated: true,
+      limit: 0
+    })
+
+    this.setState({
+      projectList: res.data,
+      projectModal: ' is-active'
+    })
+  }
+
+  hideModalProjects () {
+    this.setState({
+      projectModal: ''
+    })
+  }
+
+  selectProject (item) {
+    this.setState({
+      projecSelected: item
+    })
+  }
+
+  async confirmUpdate () {
+    const url = '/app/projects/update/businessRules'
+    try {
+      await api.post(url, { ...this.state.projecSelected })
+      this.hideModalProjects()
+      this.props.history.push('/projects/' + this.state.projecSelected.uuid)
+    } catch (e) {
+      toast('Error: ' + e.message, {
+        autoClose: 5000,
+        type: toast.TYPE.ERROR,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    }
+  }
+
+  projectsModal () {
+    return (
+      <BaseModal
+        title='Cambios en reglas de negocio'
+        className={'modal-confirm ' + this.state.projectModal}
+        hideModal={() => { this.hideModalProjects() }}>
+        <h3>
+            Selecciona un proyecto para actualizar.
+          </h3>
+        <br />
+        <div className='columns is-multiline org-rules__project-container'>
+          {this.state.projectList && this.state.projectList.map(item => {
+            return (
+              <div className='column is-6' key={item.uuid}>
+                <div className='card'>
+                  <div className='card-content'>
+                    <input
+                      className='is-checkradio is-info is-small'
+                      id={item.name}
+                      type='radio'
+                      name='projects'
+                      disabled={this.state.waitingData}
+                      onChange={() => this.selectProject(item)} />
+                    <label htmlFor={item.name}>
+                      <span title={item.name}>{item.name}</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+        <div className='buttons org-rules__modal'>
+          <button
+            className={'button is-pulled-right is-primary ' + this.state.isLoading}
+            disabled={!!this.state.isLoading || !this.state.projecSelected}
+            onClick={() => { this.confirmUpdate() }} >Actualizar</button>
+          <button
+            className='button is-primary is-inverted is-pulled-right'
+            onClick={() => { this.hideModalProjects() }}>Ahora no</button>
+        </div>
+      </BaseModal>
+    )
   }
 
   render () {
@@ -357,12 +459,44 @@ class OrgRules extends Component {
             Puedes editar los datos las veces que desees sin embargo, recuerda que tus anteriores reglas quedarán deshabilitadas y perderás tu información.
             </div>
         </div>
-
+        {this.state.alert &&
+          <div className='section'>
+            <article className='message is-warning'>
+              <div className='message-header has-text-white'>
+                <p>Atención</p>
+              </div>
+              <div className='message-body is-size-6'>
+                <div className='level'>
+                  <div className='level-left'>
+                    <div className='level-item'>
+                      <span className='icon is-large has-text-warning'>
+                        <i className='fa fa-exclamation-triangle fa-2x' />
+                      </span>
+                    </div>
+                    <div className='level-item'>
+                      Tu configuración ha sido modificada, recuerda que&nbsp;<strong>debes actualizar tus proyectos</strong>
+                    </div>
+                  </div>
+                  <div className='level-right'>
+                    <div className='level-item'>
+                      <a
+                        className='button is-info is-pulled-right'
+                        onClick={() => this.showModalProjects()}>
+                        <span>Actualizar Proyectos</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        }
         <Tabs
           tabs={this.tabs}
           selectedTab={'0'}
           className='is-fullwidth'
         />
+        {this.projectsModal()}
       </div>
 
     if (this.state.currentStep === 2) {
@@ -401,6 +535,12 @@ class OrgRules extends Component {
 
     return (
       <div>
+        <Prompt
+          when={this.state.unsaved}
+          message={location => (
+            `Hay cambios a las reglas de negocio sin aplicar, ¿estás seguro de querer salir de esta página?`
+          )}
+        />
         <div className='org-rules wizard'>
           <div className='section-header'>
             <h2>{org.name}</h2>
@@ -419,6 +559,7 @@ export default Page({
   title: 'Reglas',
   icon: 'list',
   exact: true,
-  validate: loggedIn,
+  roles: 'admin, orgadmin, analyst, manager-level-3',
+  validate: [loggedIn, verifyRole],
   component: OrgRules
 })

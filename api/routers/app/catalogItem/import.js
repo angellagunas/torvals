@@ -69,6 +69,7 @@ module.exports = new Route({
       if (organization) {
         d.organization = organization._id
         d.type = type
+        d.catalog = findCatalog
         let item = await CatalogItem.findOne({
           'externalId': d.externalId,
           'organization': ctx.state.organization._id,

@@ -191,63 +191,93 @@
 }
 
 .rules {
-    .edit-btn {
-        width: 43px !important;
-        height: 23px !important;
-    }
-    .save-btn {
-        width: inherit !important;
-        height: inherit !important;
-    }
+  .edit-btn {
+    width: 43px !important;
+    height: 23px !important;
+  }
+  .save-btn {
+    width: inherit !important;
+    height: inherit !important;
+  }
 }
 
 .org-rules {
-    .section-header {
-        margin-bottom: .3rem;
+  .section-header {
+    margin-bottom: .3rem;
+  }
+  &>.card {
+    border-top: none;
+  }
+  .card-content {
+    position: relative;
+  }
+  &.wizard .column ul {
+    margin-top: 0;
+    li {
+      margin-left: 0;
     }
-    &>.card {
-        border-top: none;
+  }
+  &.wizard {
+    .rules-ranges li {
+      margin-left: 0 !important;
     }
-    .card-content {
-        position: relative;
-    }
-    &.wizard .column ul {
-        margin-top: 0;
-        li {
-            margin-left: 0;
+  }
+  .edit-btn {
+    margin-top: 2rem;
+    width: auto !important;
+    height: auto !important;
+    font-size: .9rem !important;
+  }
+  .save-btn {
+    font-size: 1rem !important;
+  }
+  &__modal {
+    justify-content: flex-end;
+  }
+  &__project{
+    &-container{
+      max-height: 50vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+
+      .card-content{
+        padding: 0;
+        span{
+          font-weight: 700;
+          font-size: .9rem;
+          line-height: 1rem;
         }
-    }
-    &.wizard {
-        .rules-ranges li {
-            margin-left: 0 !important;
+        label{
+          display: block;
+          padding: 1rem .5rem 1rem 0;
+          margin: 0 0 0 1rem;
+          &::before{
+            top: inherit;
+          }
+          &::after{
+            top:inherit;
+          }
         }
+      }
     }
-    .edit-btn {
-        margin-top: 2rem;
-        width: auto !important;
-        height: auto !important;
-        font-size: .9rem !important;
-    }
-    .save-btn {
-        font-size: 1rem !important;
-    }
+  }
 }
 
 .modal-confirm {
-    .modal-card {
-        width: 600px;
+  .modal-card {
+    width: 600px;
+  }
+  .modal-card-body {
+    h3 {
+      font-size: 1.1rem !important;
     }
-    .modal-card-body {
-        h3 {
-            font-size: 1.1rem !important;
-        }
-        button {
-            font-size: 1rem !important;
-            margin-top: .8rem;
-            width: auto !important;
-            height: auto !important;
-        }
+    button {
+      font-size: 1rem !important;
+      margin-top: .8rem;
+      width: auto !important;
+      height: auto !important;
     }
+  }
   .edit-btn {
     width: 43px !important;
     height: 23px !important;

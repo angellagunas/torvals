@@ -15,6 +15,7 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import { toast } from 'react-toastify'
 import Wizard from './wizard/wizard';
+import Empty from '~base/components/empty'
 
 class Dashboard extends Component {
   constructor (props) {
@@ -29,7 +30,9 @@ class Dashboard extends Component {
       mape: 0,
       searchTerm: '',
       sortBy: 'sale',
-      sortAscending: true
+      sortAscending: true,
+      outdated: false,
+      projects: []
     }
     this.selectedProjects = {}
     this.selectedItems = []
@@ -75,13 +78,16 @@ class Dashboard extends Component {
     let url = '/app/projects'
 
     let res = await api.get(url,{
-      showOnDashboard: true,
-      outdated: false
+      showOnDashboard: true
     })
 
-    let activeProjects = res.data.filter(item => { return item.mainDataset })
+    let allProjects = res.data.filter(item => item.mainDataset)
+    const activeProjects = allProjects.filter(item => !item.outdated)
+    const outdated = allProjects.every(item => item.outdated)
 
     this.setState({
+      outdated,
+      allProjects,
       projects: activeProjects,
       loading: false
     }, () => { this.checkAllProjects(true) })
@@ -254,7 +260,7 @@ class Dashboard extends Component {
         date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
         projects: Object.values(this.selectedProjects).map(p => p.uuid),
         catalogItems: Object.keys(this.selectedItems),
-        prices: this.state.prices        
+        prices: this.state.prices
       })
       this.setState({
         productTable: res.data,
@@ -518,11 +524,19 @@ class Dashboard extends Component {
       })
     }
 
+    let min
+    p.map(item => {
+      if (item.year === 2018 && item.number === 1) {
+        min = item
+      }
+    })
+
     this.setState({
       periods: p,
-      minPeriod: {number: 1, name: "enero", year: 2018},
+      minPeriod: min || { number: 1, name: "enero", year: 2018 },
       maxPeriod: p[p.length - 1]
     })
+
   }
 
 
@@ -722,7 +736,7 @@ class Dashboard extends Component {
 
 
   showBy(prices){
-    this.setState({ prices }, 
+    this.setState({ prices },
       () => {
         this.getGraph()
         this.getProductTable()
@@ -740,7 +754,7 @@ class Dashboard extends Component {
         } else if (label >= 1000000 && label <= 999999999) {
           val = (label / 1000000) + 'M'
         }
-        return '$' + val 
+        return '$' + val
       }
     }
     else{
@@ -799,9 +813,7 @@ class Dashboard extends Component {
       )
     }
 
-    const {
-      loading
-    } = this.state
+    const { loading, outdated } = this.state
 
     if (loading) {
       return <Loader />
@@ -813,6 +825,10 @@ class Dashboard extends Component {
 
     if (user.currentRole.slug === 'manager-level-1') {
       return <Redirect to={'/projects/' + user.currentProject.uuid} />
+    }
+
+    if (this.state.projects.length === 0 || outdated) {
+      return <Empty outdated={outdated} />
     }
 
     if(this.state.noFilters){
@@ -1176,7 +1192,7 @@ class Dashboard extends Component {
                               id='showByprice'
                               type="radio"
                               name='showBy'
-                              checked={this.state.prices}                              
+                              checked={this.state.prices}
                               disabled={this.state.waitingData}
                               onChange={() => this.showBy(true)} />
                             <label htmlFor='showByprice'>
@@ -1195,7 +1211,7 @@ class Dashboard extends Component {
                   {this.state.minPeriod &&
                     <div className='level-item'>
                     <div className='field'>
-                      <label className='label'>Periodo inicial</label>
+                      <label className='label'>Mes inicial</label>
                       <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
@@ -1235,7 +1251,7 @@ class Dashboard extends Component {
                   {this.state.maxPeriod &&
                     <div className='level-item'>
                      <div className='field'>
-                        <label className='label'>Periodo final</label>
+                        <label className='label'>Mes final</label>
                         <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>

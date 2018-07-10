@@ -127,7 +127,15 @@ class ProjectDetail extends Component {
         tab = 'ajustes'
       }
 
-      if (body.data.outdated && body.data.status !== 'cloning') this.showModalOutdated()
+      if (
+        currentRole !== 'manager-level-1' &&
+        currentRole !== 'manager-level-2' &&
+        body.data.outdated &&
+        body.data.status !== 'cloning' &&
+        !this.state.project.uuid
+      ) {
+        this.showModalOutdated()
+      }
 
       this.rules = body.data.rule
 
@@ -270,12 +278,13 @@ class ProjectDetail extends Component {
 
         if (res.data.status === 'adjustment') {
           clearInterval(this.interval)
+          this.interval = null
+
           if (!this.intervalConciliate) {
             this.intervalConciliate = setInterval(() => { this.getModifiedCount() }, 10000)
           }
         }
         else if (res.data.status === 'pending-configuration'){
-          clearInterval(this.interval)
           this.setState({
             selectedTab: 'datasets',
             actualTab: 'datasets',
@@ -284,6 +293,8 @@ class ProjectDetail extends Component {
         }
          else {
           clearInterval(this.intervalConciliate)
+          this.intervalConciliate = null
+
         }
       }
     } catch (e) {
@@ -295,6 +306,9 @@ class ProjectDetail extends Component {
     clearInterval(this.interval)
     clearInterval(this.intervalCounter)
     clearInterval(this.intervalConciliate)
+    this.interval = null
+    this.intervalCounter = null
+    this.intervalConciliate = null
   }
 
   submitHandler () {
@@ -364,6 +378,8 @@ class ProjectDetail extends Component {
     var url = '/app/datasets/' + this.state.project.activeDataset.uuid + '/set/conciliate'
     try {
       clearInterval(this.interval)
+      this.interval = null
+
       await api.post(url)
       await this.load('ajustes')
     } catch (e) {
@@ -435,6 +451,8 @@ class ProjectDetail extends Component {
 
   async handleAdjustmentRequest(obj, showMessage, finishAdjustments=false) {
     let { pendingDataRows } = this.state
+    let cycle = tree.get('selectedCycle')
+    
     let productAux = []
     if (currentRole === 'consultor-level-3') {
       return
@@ -447,8 +465,8 @@ class ProjectDetail extends Component {
     }
     let rows = productAux.filter(item => { return item.newAdjustment && item.isLimit })
     try {
-      var res = await api.post('/app/rows/request', {rows: rows, finishAdjustments: finishAdjustments})
-      if (currentRole === 'manager-level-1') {
+      var res = await api.post('/app/rows/request', {rows: rows, finishAdjustments: finishAdjustments, cycle: cycle.uuid, dataset: this.state.project.activeDataset.uuid})
+      if (currentRole === 'manager-level-1' || currentRole === 'manager-level-2') {
         this.notify('Sus ajustes se han guardado', 5000, toast.TYPE.INFO)
         if (showMessage) {
           this.setState({
@@ -548,7 +566,7 @@ class ProjectDetail extends Component {
         project.status === 'pending-configuration' ||
         project.status === 'updating-rules'
     )) {
-      this.interval = setInterval(() => this.getProjectStatus(), 30000)
+      this.interval = setInterval(() => this.getProjectStatus(), 10000)
     }
 
     if (!this.state.loaded) {
@@ -748,7 +766,7 @@ class ProjectDetail extends Component {
       </span>
     </button>)
     var consolidarButton
-    if (!testRoles('consultor-level-3, manager-level-1') && this.state.actualTab === 'aprobar') {
+    if (!testRoles('consultor-level-3, consultor-level-2, manager-level-1, manager-level-2') && this.state.actualTab === 'aprobar') {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}
@@ -758,7 +776,7 @@ class ProjectDetail extends Component {
           </a>
         </p>
     }
-    else if (testRoles('manager-level-1')) {
+    else if (testRoles('manager-level-1, manager-level-2')) {
       consolidarButton =
         <p className='control btn-conciliate'>
           <a className={'button is-success ' + this.state.isConciliating}

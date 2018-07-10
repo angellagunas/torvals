@@ -457,11 +457,19 @@ class TabHistorical extends Component {
       })
     }
 
+    let min
+    p.map(item => {
+      if (item.year === 2018 && item.number === 1) {
+        min = item
+      }
+    })
+
     this.setState({
       periods: p,
-      minPeriod: {number: 1, name: "enero", year: 2018},
+      minPeriod: min || { number: 1, name: "enero", year: 2018 },
       maxPeriod: p[p.length - 1]
     })
+
   }
 
 
@@ -1064,7 +1072,7 @@ class TabHistorical extends Component {
                   {this.state.minPeriod &&
                     <div className='level-item'>
                     <div className='field'>
-                      <label className='label'>Periodo inicial</label>
+                      <label className='label'>Mes inicial</label>
                       <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
@@ -1104,7 +1112,7 @@ class TabHistorical extends Component {
                   {this.state.maxPeriod &&
                     <div className='level-item'>
                      <div className='field'>
-                        <label className='label'>Periodo final</label>
+                        <label className='label'>Mes final</label>
                         <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>

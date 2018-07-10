@@ -15,6 +15,7 @@ import Prices from '../pages/prices/list'
 import OrgRules from '../pages/org-rules'
 import UsersGroups from '../pages/users-groups'
 import Roles from '../pages/roles/list'
+import Forecast from '../pages/forecast/forecast'
 
 class Sidebar extends Component {
   constructor (props) {
@@ -164,6 +165,7 @@ class Sidebar extends Component {
             }
           ]
         },
+        Forecast.asSidebarItem(),
         Projects.asSidebarItem(),
         Calendar.asSidebarItem(),
         {
@@ -191,17 +193,8 @@ class Sidebar extends Component {
     }
 
     return [
-      Dashboard.asSidebarItem(),
-      {
-        title: 'Administra tu equipo',
-        icon: 'users',
-        to: '/manage',
-        roles: 'orgadmin, admin, manager-level-3',
-        dropdown: [
-          Users.asSidebarItem(),
-          Groups.asSidebarItem()
-        ]
-      }]
+      Dashboard.asSidebarItem()
+    ]
   }
 
   handleActiveLink (item, title) {
