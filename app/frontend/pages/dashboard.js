@@ -21,7 +21,7 @@ function Empty({ outdated }) {
   let btnText = 'Crear'
 
   if (outdated) {
-    text = 'No hay proyectos que utilicen las reglas de negocio más actuales, por favor actualiza alguno'
+    text = 'Tus proyectos no cumplen con las reglas de negocio actuales, actualizalos para verlos aquí'
     btnText = 'Actualizar'
   }
 
