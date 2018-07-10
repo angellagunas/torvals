@@ -1,6 +1,7 @@
 const Route = require('lib/router/route')
-const {ForecastGroup, Project, Catalog, Cycle, Engine} = require('models')
+const {ForecastGroup, Project, Catalog, Cycle, Engine, Forecast, DataSet} = require('models')
 const lov = require('lov')
+const { v4 } = require('uuid')
 
 module.exports = new Route({
   method: 'post',
@@ -13,7 +14,7 @@ module.exports = new Route({
     let data = ctx.request.body
     let user = ctx.state.user
 
-    let project = await Project.findOne({uuid: data.project})
+    let project = await Project.findOne({uuid: data.project}).populate('mainDataset')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
     let catalogs = await Catalog.find({uuid: {$in: data.catalogs}})
@@ -31,7 +32,7 @@ module.exports = new Route({
       return item._id
     })
 
-    let forecast = await ForecastGroup.create({
+    let forecastGroup = await ForecastGroup.create({
       project: project._id,
       alias: data.alias,
       catalogs: catalogs.data,
@@ -41,6 +42,40 @@ module.exports = new Route({
       type: data.type
     })
 
-    ctx.body = forecast
+    for (let engine of engines.data) {
+      let dataset = await DataSet.create({
+        name: data.alias,
+        organization: project.organization,
+        project: project._id,
+        createdBy: ctx.state.user,
+        dateMax: data.dateStart,
+        dateMin: data.dateMin,
+        status: 'new',
+        source: 'forecast',
+        columns: project.mainDataset.columns,
+        products: project.mainDataset.products,
+        newProducts: project.mainDataset.newProducts,
+        catalogItems: project.mainDataset.catalogItems,
+        cycles: project.mainDataset.cycles,
+        periods: project.mainDataset.periods,
+        rule: project.rule
+      })
+
+      let forecast = await Forecast.create({
+        catalogs: catalogs.data,
+        engine: engine,
+        forecastGroup: forecastGroup._id,
+        dateEnd: data.dateEnd,
+        dateStart: data.dateStart,
+        dataset: dataset._id,
+        instanceKey: v4()
+      })
+
+      forecastGroup.forecasts.push(forecast._id)
+    }
+
+    await forecastGroup.save()
+
+    ctx.body = forecastGroup
   }
 })
