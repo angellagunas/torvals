@@ -142,7 +142,7 @@ module.exports = new Route({
 
       return {
         ...item,
-        engine: engine.uuid
+        engine: engine
       }
     })
 

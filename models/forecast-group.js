@@ -34,7 +34,8 @@ forecastGroupSchema.methods.toPrivate = function () {
     forecasts: this.forecasts,
     alias: this.alias,
     type: this.type,
-    uuid: this.uuid
+    uuid: this.uuid,
+    engines: this.engines
   }
 }
 
@@ -44,7 +45,8 @@ forecastGroupSchema.methods.toPublic = function () {
     forecasts: this.forecasts,
     alias: this.alias,
     type: this.type,
-    uuid: this.uuid
+    uuid: this.uuid,
+    engines: this.engines
   }
 }
 

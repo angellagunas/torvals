@@ -223,7 +223,7 @@ class Forecast extends Component {
                               if (key === item.engines.length - 1) {
                                 engine = obj.name
                               }
-                              return <span>{engine}</span>
+                              return <span key={obj.uuid}>{engine}</span>
                             })}
                           </div>
                         </div>

@@ -5,21 +5,20 @@ import Breadcrumb from '~base/components/base-breadcrumb'
 import DeleteButton from '~base/components/base-deleteButton'
 import Loader from '~base/components/spinner'
 import { BaseTable } from '~base/components/base-table'
-import Checkbox from '~base/components/base-checkbox'
 import api from '~base/api'
 import Graph from '~base/components/graph'
 import moment from 'moment'
 import { graphColors } from '~base/tools'
 import tree from '~core/tree'
+import Select from '../projects/detail-tabs/select'
 
-class ForecastDetail extends Component {
+class ForecastCompare extends Component {
   constructor (props) {
     super(props)
     this.state = {
       loading: true,
       disabled: true
     }
-    this.engineSelected = {}
     this.graphColors = graphColors.sort(function (a, b) { return 0.5 - Math.random() })
   }
 
@@ -29,20 +28,43 @@ class ForecastDetail extends Component {
   }
 
   async getForecasts () {
-    let url = '/app/forecastGroups/' + this.props.match.params.uuid
+    let forecasts = Object.values(tree.get('compareEngines'))
+    console.log(forecasts)
+    let catalogs = {}
+    if (forecasts === undefined) {
+      this.props.history.push('/forecast/detail/' + this.props.match.params.uuid)
+    }
+    forecasts.map(item => {
+      item.catalogs.map(item => {
+        catalogs[item.uuid] = item
+      })
+    })
+
+    catalogs = Object.values(catalogs).map(async item => {
+      return {
+        ...item,
+        items: this.getCatalogs(item)
+      }
+    })
+
+    this.setState({
+      forecasts: forecasts,
+      catalogs: catalogs
+    })
+
+    console.log(catalogs)
+  }
+
+  async getCatalogs (item) {
+    let url = '/app/catalogItems/' + item.slug
     try {
       let res = await api.get(url)
 
-      if (res.forecasts) {
-        this.setState({
-          alias: res.alias,
-          forecast: res.forecasts,
-          type: res.type
-        })
+      if (res.data) {
+        return res.data
       }
     } catch (e) {
       console.log(e)
-      // this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -54,42 +76,8 @@ class ForecastDetail extends Component {
     )
   }
 
-  deleteForecast (item) {
-    console.log('Deleted', item)
-  }
-
   getColumns () {
-    let colorClass = 'status-info'
     let cols = [
-      {
-        title: '',
-        abbreviate: true,
-        abbr: '',
-        property: 'checkbox',
-        default: '',
-        formatter: (row, state) => {
-          if (row.status === 'created') {
-            if (!row.selected) {
-              row.selected = false
-            }
-            if (row.status === 'created') {
-              colorClass = 'status-info'
-            } else if (row.status === 'ready') {
-              colorClass = 'status-ready'
-            } else {
-              colorClass = 'status-process'
-            }
-            return (
-              <Checkbox
-                label={row}
-                handleCheckboxChange={(e, value) => this.selectEngine(value, row)}
-                key={row}
-                checked={row.selected}
-                hideLabel />
-            )
-          }
-        }
-      },
       {
         title: 'Modelo',
         property: 'engine.name',
@@ -112,7 +100,6 @@ class ForecastDetail extends Component {
         property: 'status',
         default: 'N/A',
         sortable: true,
-        className: colorClass,
         formatter: (row) => {
           if (row.status === 'created') {
             return 'Creado'
@@ -142,28 +129,6 @@ class ForecastDetail extends Component {
       sortAscending: !this.state.sortAscending,
       sortBy: e
     })
-  }
-
-  selectEngine (value, item) {
-    if (value) {
-      this.engineSelected[item.uuid] = item
-    } else {
-      delete this.engineSelected[item.uuid]
-    }
-
-    this.disableBtns()
-  }
-
-  disableBtns () {
-    if (Object.keys(this.engineSelected).length === 0) {
-      this.setState({
-        disabled: true
-      })
-    } else {
-      this.setState({
-        disabled: false
-      })
-    }
   }
 
   async getGraph () {
@@ -248,12 +213,6 @@ class ForecastDetail extends Component {
     }
   }
 
-  compare () {
-    tree.set('compareEngines', this.engineSelected)
-    tree.commit()
-    this.props.history.push('/forecast/compare/' + this.props.match.params.uuid)
-  }
-
   render () {
     if (this.state.loading) {
       return <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
@@ -334,178 +293,148 @@ class ForecastDetail extends Component {
             <div className='column is-3 is-2-widescreen is-paddingless'>
               <div className='indicators'>
                 {
-                totals && totals.map(item => {
-                  return (
-                    <div key={item.name}>
-                      <p className='indicators-title is-capitalized'>
-                        <strong>{item.name}</strong>
-                      </p>
-                      <p className='indicators-number' style={{color: item.color}}>
-                        {item.prediction}
-                      </p>
-                    </div>
-                  )
-                })
-              }
+                  totals && totals.map(item => {
+                    return (
+                      <div key={item.name}>
+                        <p className='indicators-title is-capitalized'>
+                          <strong>{item.name}</strong>
+                        </p>
+                        <p className='indicators-number' style={{ color: item.color }}>
+                          {item.prediction}
+                        </p>
+                      </div>
+                    )
+                  })
+                }
 
               </div>
             </div>
             <div className='column card'>
               {this.state.graphData
-              ? this.state.graphData.length > 0
-                ? <Graph
-                  data={graph}
-                  maintainAspectRatio={false}
-                  responsive
-                  reloadGraph={this.state.reloadGraph}
-                  legend={{
-                    display: true,
-                    position: 'right',
-                    fontSize: 11,
-                    labels: {
-                      boxWidth: 10,
-                      fontStyle: 'normal',
-                      fontFamily: "'Roboto', sans-serif",
-                      usePointStyle: false,
-                      padding: 12
-                    }
-                  }}
-                  tooltips={{
-                    mode: 'index',
-                    intersect: true,
-                    titleFontFamily: "'Roboto', sans-serif",
-                    bodyFontFamily: "'Roboto', sans-serif",
-                    bodyFontStyle: 'bold',
-                    callbacks: {
-                      label: tooltipCallback
-                    }
-                  }}
-                  labels={this.state.graphData.map((item) => { return item.date })}
-                  scales={{
-                    xAxes: [
-                      {
-                        ticks: {
-                          callback: function (label, index, labels) {
-                            return moment.utc(label).format('DD-MM-YYYY')
+                ? this.state.graphData.length > 0
+                  ? <Graph
+                    data={graph}
+                    maintainAspectRatio={false}
+                    responsive
+                    reloadGraph={this.state.reloadGraph}
+                    legend={{
+                      display: true,
+                      position: 'right',
+                      fontSize: 11,
+                      labels: {
+                        boxWidth: 10,
+                        fontStyle: 'normal',
+                        fontFamily: "'Roboto', sans-serif",
+                        usePointStyle: false,
+                        padding: 12
+                      }
+                    }}
+                    tooltips={{
+                      mode: 'index',
+                      intersect: true,
+                      titleFontFamily: "'Roboto', sans-serif",
+                      bodyFontFamily: "'Roboto', sans-serif",
+                      bodyFontStyle: 'bold',
+                      callbacks: {
+                        label: tooltipCallback
+                      }
+                    }}
+                    labels={this.state.graphData.map((item) => { return item.date })}
+                    scales={{
+                      xAxes: [
+                        {
+                          ticks: {
+                            callback: function (label, index, labels) {
+                              return moment.utc(label).format('DD-MM-YYYY')
+                            },
+                            fontSize: 11
                           },
-                          fontSize: 11
-                        },
-                        gridLines: {
-                          display: false
-                        }
-                      }
-                    ],
-                    yAxes: [
-                      {
-                        ticks: {
-                          callback: callbackLabels,
-                          fontSize: 11
-                        },
-                        gridLines: {
-                          display: false
-                        },
-                        display: true
-                      }
-                    ]
-                  }}
-                  annotation={this.state.startPeriod &&
-                    {
-                      annotations: [
-                        {
-                          drawTime: 'beforeDatasetsDraw',
-                          type: 'box',
-                          xScaleID: 'x-axis-0',
-                          yScaleID: 'y-axis-0',
-                          xMin: this.state.startPeriod,
-                          xMax: this.state.endPeriod,
-                          yMin: 0,
-                          yMax: this.state.topValue,
-                          backgroundColor: 'rgba(233, 238, 255, 0.5)',
-                          borderColor: 'rgba(233, 238, 255, 1)',
-                          borderWidth: 1
-                        },
-                        {
-                          drawTime: 'afterDatasetsDraw',
-                          id: 'vline',
-                          type: 'line',
-                          mode: 'vertical',
-                          scaleID: 'x-axis-0',
-                          value: this.state.startPeriod,
-                          borderColor: 'rgba(233, 238, 255, 1)',
-                          borderWidth: 1,
-                          label: {
-                            backgroundColor: 'rgb(233, 238, 255)',
-                            content: 'Ciclo actual',
-                            enabled: true,
-                            fontSize: 10,
-                            position: 'top',
-                            fontColor: '#424A55'
+                          gridLines: {
+                            display: false
                           }
                         }
+                      ],
+                      yAxes: [
+                        {
+                          ticks: {
+                            callback: callbackLabels,
+                            fontSize: 11
+                          },
+                          gridLines: {
+                            display: false
+                          },
+                          display: true
+                        }
                       ]
+                    }}
+                    annotation={this.state.startPeriod &&
+                      {
+                        annotations: [
+                          {
+                            drawTime: 'beforeDatasetsDraw',
+                            type: 'box',
+                            xScaleID: 'x-axis-0',
+                            yScaleID: 'y-axis-0',
+                            xMin: this.state.startPeriod,
+                            xMax: this.state.endPeriod,
+                            yMin: 0,
+                            yMax: this.state.topValue,
+                            backgroundColor: 'rgba(233, 238, 255, 0.5)',
+                            borderColor: 'rgba(233, 238, 255, 1)',
+                            borderWidth: 1
+                          },
+                          {
+                            drawTime: 'afterDatasetsDraw',
+                            id: 'vline',
+                            type: 'line',
+                            mode: 'vertical',
+                            scaleID: 'x-axis-0',
+                            value: this.state.startPeriod,
+                            borderColor: 'rgba(233, 238, 255, 1)',
+                            borderWidth: 1,
+                            label: {
+                              backgroundColor: 'rgb(233, 238, 255)',
+                              content: 'Ciclo actual',
+                              enabled: true,
+                              fontSize: 10,
+                              position: 'top',
+                              fontColor: '#424A55'
+                            }
+                          }
+                        ]
+                      }
                     }
-                  }
-                />
+                  />
+                  : <section className='section has-30-margin-top'>
+                    <center>
+                      <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
+                    </center>
+                  </section>
                 : <section className='section has-30-margin-top'>
-                  <center>
-                    <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
-                  </center>
+                  {this.loadTable()}
                 </section>
-              : <section className='section has-30-margin-top'>
-                {this.loadTable()}
-              </section>
-            }
+              }
 
             </div>
           </div>
 
-          <div className='level'>
-            <div className='level-left'>
-              <div className='level-item'>
-                <p>Selecciona un modelo para conciliar.</p>
-              </div>
-            </div>
-            <div className='level-right'>
-              {this.state.type !== 'informative' &&
-              <div className='level-item'>
-                <button
-                  className='button is-primary'
-                  disabled={this.state.disabled}>
-                 Consolidar
-                </button>
-              </div>
-              }
+          <div className='columns is-multiline'>
+            {this.state.catalogs && this.state.catalogs.map((item, key) => {
+              return (
+                <div key={key} className='column is-narrow'>
+                  <Select
+                    label={item.name}
+                    name={key}
+                    value={item.items[0]}
+                    optionValue='uuid'
+                    optionName='name'
+                    options={item.items}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                  />
+                </div>
+              )
+            })}
 
-              <div className='level-item'>
-                <button
-                  className='button is-primary'
-                  disabled={this.state.disabled}
-                  onClick={() => this.compare()} >
-                  <span className='icon'>
-                    <i className='fa fa-eye' />
-                  </span>
-                </button>
-              </div>
-
-              <div className='level-item'>
-                <button
-                  className='button is-primary'
-                  disabled={this.state.disabled}>
-                  <span className='icon'>
-                    <i className='fa fa-share-alt' />
-                  </span>
-                </button>
-              </div>
-
-              <div className='level-item'>
-                <DeleteButton
-                  iconOnly
-                  objectName='Predicción'
-                  objectDelete={() => this.deleteForecast(item)}
-                  message={<span>¿Estas seguro de querer eliminar esta predicción?</span>}
-                />
-              </div>
-            </div>
           </div>
 
         </div>
@@ -530,11 +459,11 @@ class ForecastDetail extends Component {
 }
 
 export default Page({
-  path: '/forecast/detail/:uuid',
+  path: '/forecast/compare/:uuid',
   title: 'Forecast',
   icon: 'bar-chart',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin',
   validate: [loggedIn, verifyRole],
-  component: ForecastDetail
+  component: ForecastCompare
 })
