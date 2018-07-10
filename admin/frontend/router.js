@@ -47,6 +47,8 @@ import NotFound from '~base/components/not-found'
 import Calendar from './pages/calendar'
 import Prices from './pages/prices/list'
 import PriceDetail from './pages/prices/detail'
+import Engines from './pages/engines/list'
+import EngineDetail from './pages/engines/detail'
 import UsersImport from './pages/import/users'
 import ChannelImport from './pages/import/channels'
 import ProductsImport from './pages/import/products'
@@ -95,6 +97,9 @@ const AppRouter = () => {
           {ProjectDetail.asRouterItem()}
 
           {Calendar.asRouterItem()}
+
+          {Engines.asRouterItem()}
+          {EngineDetail.asRouterItem()}
 
           {SalesCenters.asRouterItem()}
           {DeletedSalesCenters.asRouterItem()}

@@ -39,6 +39,9 @@ module.exports = new Route({
       'data.prediction': {
         '$ne': null
       },
+      'data.sale': {
+        '$ne': null
+      },
       'period': {
         '$in': periods.ids
       }
@@ -60,6 +63,9 @@ module.exports = new Route({
         '$ne': null
       },
       'data.prediction': {
+        '$ne': null
+      },
+      'data.sale': {
         '$ne': null
       },
       'period': {
@@ -173,6 +179,14 @@ module.exports = new Route({
                   '$prices.price'
                 ]
               }
+            },
+            'sale': {
+              '$sum': {
+                '$multiply': [
+                  '$data.sale',
+                  '$prices.price'
+                ]
+              }
             }
           }
         }
@@ -187,6 +201,9 @@ module.exports = new Route({
             },
             'adjustment': {
               '$sum': '$data.adjustment'
+            },
+            'sale': {
+              '$sum': '$data.sale'
             }
           }
         }
@@ -269,7 +286,8 @@ module.exports = new Route({
         '$project': {
           'period': '$_id',
           'prediction': 1,
-          'adjustment': 1
+          'adjustment': 1,
+          'sale': 1
         }
       },
       {

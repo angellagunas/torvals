@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {Project} = require('models')
+const {Engine} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -9,21 +9,6 @@ module.exports = new Route({
 
     for (var filter in ctx.request.query) {
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
-        continue
-      }
-
-      if (filter === 'showOnDashboard') {
-        filters['$or'] = [{showOnDashboard: null}, {showOnDashboard: true}]
-        continue
-      }
-
-      if (filter === 'outdated') {
-        filters['outdated'] = ctx.request.query[filter]
-        continue
-      }
-
-      if (filter === 'hasMainDataset') {
-        filters['mainDataset'] = {$ne: null}
         continue
       }
 
@@ -42,14 +27,14 @@ module.exports = new Route({
       }
     }
 
-    var projects = await Project.dataTables({
+    var engines = await Engine.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {...filters, isDeleted: false, organization: ctx.state.organization._id},
+      find: {...filters, isDeleted: false},
       sort: ctx.request.query.sort || '-dateCreated',
-      populate: ['organization', 'mainDataset']
+      format: 'toPublic'
     })
 
-    ctx.body = projects
+    ctx.body = engines
   }
 })

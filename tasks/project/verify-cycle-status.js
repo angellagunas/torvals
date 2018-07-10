@@ -55,6 +55,9 @@ const task = new Task(async function (argv) {
         if (diff <= sales) {
           status = 'salesUpload'
         } else if (diff <= forecast) {
+          if (project.cycleStatus === 'salesUpload') {
+            project.set({ hasForecast: false })
+          }
           status = 'forecastCreation'
         } else if (diff <= adjustment) {
           status = 'rangeAdjustment'

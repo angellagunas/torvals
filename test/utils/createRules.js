@@ -22,6 +22,7 @@ module.exports = async function createRules(opts = {}) {
   })
 
   const data = {
+    important: true,
     startDate: moment.utc('2018-01-01'),
     cycleDuration: 1,
     cycle: 'M',
