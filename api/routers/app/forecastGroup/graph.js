@@ -1,9 +1,9 @@
-const moment = require('moment')
 const Route = require('lib/router/route')
 const _ = require('lodash')
 
 const {
-  ForecastGroup
+  ForecastGroup,
+  DataSetRow
 } = require('models')
 
 module.exports = new Route({
@@ -11,21 +11,12 @@ module.exports = new Route({
   path: '/graph/:uuid',
   handler: async function (ctx) {
     const uuid = ctx.params.uuid
+    const data = ctx.request.body
 
-    const forecastGroup = await ForecastGroup.find({uuid: uuid, isDeleted: false}).populate('forecasts')
+    const forecastGroup = await ForecastGroup.findOne({uuid: uuid, isDeleted: false}).populate('forecasts engines')
 
-    let datasetsIds = forecastGroup.forecasts.map(item => {
-
-    })
-
-    const datasets = await DataSet.find({
-      project: project._id,
-      isDeleted: false,
-      $or: [{source: 'adjustment'}, {_id: project.mainDataset}]
-    })
-
-    data.datasets = datasets.map((item) => {
-      return item._id
+    let datasets = forecastGroup.forecasts.map(item => {
+      return item.dataset
     })
 
     let conditions = []
@@ -93,12 +84,6 @@ module.exports = new Route({
             },
             'prediction': {
               '$sum': {$multiply: ['$data.prediction', '$price.price']}
-            },
-            'adjustment': {
-              '$sum': {$multiply: ['$data.adjustment', '$price.price']}
-            },
-            'sale': {
-              '$sum': {$multiply: ['$data.sale', '$price.price']}
             }
           }
         }
@@ -113,12 +98,6 @@ module.exports = new Route({
             },
             'prediction': {
               '$sum': '$data.prediction'
-            },
-            'adjustment': {
-              '$sum': '$data.adjustment'
-            },
-            'sale': {
-              '$sum': '$data.sale'
             }
           }
         }
@@ -128,8 +107,7 @@ module.exports = new Route({
     let match = [
       {
         '$match': {
-          ...initialMatch,
-          dataset: {$in: data.datasets}
+          dataset: {$in: datasets}
         }
       },
       ...conditions,
@@ -154,44 +132,22 @@ module.exports = new Route({
     ]
 
     let responseData = await DataSetRow.aggregate(match)
-    let totalPrediction = 0
-    let totalSale = 0
-    let totalSaleAdjustment = 0
-    let totalAdjustment = 0
-    for (let response in responseData) {
-      responseData[response] = {
-        ...responseData[response],
-        name: _.find(datasets, {_id: responseData[response].dataset}).name
+    let totalPrediction = {}
+    responseData.data = responseData.map(item => {
+      let forecast = _.find(forecastGroup.forecasts, {dataset: item.dataset})
+      let engine = _.find(forecastGroup.engines, {_id: forecast.engine})
+      if (!totalPrediction[engine.uuid]) { totalPrediction[engine.uuid] = {prediction: 0, name: engine.name} }
+      totalPrediction[engine.uuid].prediction += item.prediction
+
+      return {
+        ...item,
+        engine: engine.uuid
       }
-      if (responseData[response].prediction && responseData[response].sale) {
-        totalPrediction += responseData[response].prediction
-        totalSale += responseData[response].sale
-      }
-
-      if (responseData[response].adjustment && responseData[response].sale) {
-        totalAdjustment += responseData[response].adjustment
-        totalSaleAdjustment += responseData[response].sale
-      }
-    }
-
-    let mapeAdjustment = 0
-    let mapePrediction = 0
-
-    if (totalSale !== 0) {
-      mapePrediction = Math.abs((totalSale - totalPrediction) / totalSale) * 100
-    }
-
-    if (totalSaleAdjustment !== 0) {
-      mapeAdjustment = Math.abs((totalSaleAdjustment - totalAdjustment) / totalSaleAdjustment) * 100
-    }
-
-    let diffPredictionAdjustment = mapePrediction - mapeAdjustment
+    })
 
     ctx.body = {
-      data: responseData,
-      mapePrediction: mapePrediction,
-      mapeAdjustment: mapeAdjustment,
-      difference: diffPredictionAdjustment
+      data: responseData.data,
+      total: {...totalPrediction}
     }
   }
 })
