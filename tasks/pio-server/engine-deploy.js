@@ -17,7 +17,25 @@ const task = new Task(async function (argv) {
     throw new Error('Invalid forecast.')
   }
 
-  log.call('Import data to created app.')
+  log.call('Deploy engine.')
+  const ls = spawn(
+    'pio',
+    ['deploy &'],
+    { cdw: forecast.engine.path }
+  );
+
+  ls.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  ls.stderr.on('data', (data) => {
+    console.log(`stderr: ${data}`);
+  });
+
+  ls.on('close', (code) => {
+    // Code 0 for OK
+    console.log(`child process exited with code ${code}`);
+  });
 
   return true
 })
