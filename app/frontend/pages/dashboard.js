@@ -15,49 +15,7 @@ import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import { toast } from 'react-toastify'
 import Wizard from './wizard/wizard';
-
-function Empty({ outdated }) {
-  let text = 'Debes crear al menos un proyecto'
-  let btnText = 'Crear'
-
-  if (outdated) {
-    text = 'Tus proyectos no cumplen con las reglas de negocio actuales, actualizalos para verlos aquí'
-    btnText = 'Actualizar'
-  }
-
-  return (
-    <div>
-      <div className="section-header">
-        <h2>Dashboard</h2>
-      </div>
-      <div className="section">
-
-        <div className="columns is-centered">
-          <div className="column is-8">
-
-              <article className="message is-info">
-                <div className="message-header">
-                  <p>Configuración de proyecto</p>
-                </div>
-                <div className="message-body has-text-centered is-size-5">
-                  <span style={{ marginRight: '30px', marginTop: '20px' }} className="icon is-info">
-                    <i className="fa fa-2x fa-magic" />
-                  </span>
-                  {text}
-                  <br /> <br />
-                  <Link to="/projects" className="button is-info is-medium">
-                    {btnText}
-                  </Link>
-                </div>
-              </article>
-
-          </div>
-        </div>
-
-      </div>
-    </div>
-  )
-}
+import Empty from '~base/components/empty'
 
 class Dashboard extends Component {
   constructor (props) {
