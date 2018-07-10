@@ -23,7 +23,7 @@ const forecastGroupSchema = new Schema({
   uuid: { type: String, default: v4 }
 }, { usePushEach: true })
 
-forecastGroupSchema.methods.toPrivate = function () {
+forecastGroupSchema.methods.toAdmin = function () {
   return {
     project: this.project,
     forecasts: this.forecasts,

@@ -3,6 +3,7 @@ const { Schema } = require('mongoose')
 const { v4 } = require('uuid')
 const dataTables = require('mongoose-datatables')
 const moment = require('moment')
+const pick = require('lodash')
 
 const roleSchema = new Schema({
   priority: { type: Number },
@@ -17,14 +18,15 @@ const roleSchema = new Schema({
 }, { usePushEach: true })
 
 roleSchema.methods.toPublic = function () {
-  return {
-    uuid: this.uuid,
-    name: this.name,
-    description: this.description,
-    slug: this.slug,
-    dateCreated: this.dateCreated,
-    priority: this.priority
-  }
+  const toPublic = [
+    'uuid',
+    'name',
+    'description',
+    'slug',
+    'dateCreated',
+    'priority'
+  ]
+  return pick.pick(this, toPublic)
 }
 
 roleSchema.methods.toAdmin = function () {

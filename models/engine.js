@@ -14,7 +14,7 @@ const engineSchema = new Schema({
   uuid: { type: String, default: v4 }
 }, { usePushEach: true })
 
-engineSchema.methods.toPrivate = function () {
+engineSchema.methods.toAdmin = function () {
   return {
     name: this.name,
     description: this.description,
