@@ -5,14 +5,14 @@ const api = require('api/')
 const http = require('http')
 const { expect } = require('chai')
 const request = require('supertest')
-const { clearDatabase, apiHeaders, createProject } = require('../utils')
+const { clearDatabase, apiHeaders, createProject, createDataset } = require('../utils')
 const { Engine, ForecastGroup, Rule, Forecast } = require('models')
 
 function test () {
   return request(http.createServer(api.callback()))
 }
 
-describe.only('/forecast_group', () => {
+describe('/forecast_group', () => {
   describe('[POST] should return a success response', () => {
     it('with valid request', async function () {
       await clearDatabase()
@@ -22,6 +22,28 @@ describe.only('/forecast_group', () => {
         organization: credentials.org._id,
         createdBy: credentials.user._id
       })
+
+      const dataset = await createDataset({
+        organization: credentials.org._id,
+        createdBy: credentials.user._id,
+        project: project._id,
+        dateMax: "2018-05-16",
+        dateMin: "2017-10-04"
+      })
+
+      project.set({
+        mainDataset: dataset._id,
+        dateMin: dataset.dateMin,
+        dateMax: dataset.dateMax
+      })
+
+      dataset.set({
+        isMain: true,
+        status: 'ready'
+      })
+
+      await dataset.save()
+      await project.save()
 
       const rule = await Rule.findOne({organization: credentials.org._id})
 
@@ -60,6 +82,28 @@ describe.only('/forecast_group', () => {
         organization: credentials.org._id,
         createdBy: credentials.user._id
       })
+
+      const dataset = await createDataset({
+        organization: credentials.org._id,
+        createdBy: credentials.user._id,
+        project: project._id,
+        dateMax: "2018-05-16",
+        dateMin: "2017-10-04"
+      })
+
+      project.set({
+        mainDataset: dataset._id,
+        dateMin: dataset.dateMin,
+        dateMax: dataset.dateMax
+      })
+
+      dataset.set({
+        isMain: true,
+        status: 'ready'
+      })
+
+      await dataset.save()
+      await project.save()
 
       const rule = await Rule.findOne({organization: credentials.org._id})
 
@@ -204,6 +248,57 @@ describe.only('/forecast_group', () => {
         createdBy: credentials.user._id
       })
 
+      const dataset = await createDataset({
+        organization: credentials.org._id,
+        createdBy: credentials.user._id,
+        project: project._id,
+        dateMax: "2018-05-16",
+        dateMin: "2017-10-04"
+      })
+
+      project.set({
+        mainDataset: dataset._id,
+        dateMin: dataset.dateMin,
+        dateMax: dataset.dateMax
+      })
+
+      dataset.set({
+        isMain: true,
+        status: 'ready'
+      })
+
+      await dataset.save()
+      await project.save()
+
+      const rule = await Rule.findOne({organization: credentials.org._id})
+
+      const data = {
+        project: project.uuid,
+        catalogs: rule.catalogs,
+        alias: 'a_forecast_test',
+        engines: []
+      }
+
+      const res = await test()
+        .post('/api/app/forecastGroups')
+        .send(data)
+        .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${credentials.token}`)
+        .set('Referer', credentials.referer)
+        .expect(422)
+
+      expect(res.body.message).equals('value: engines: missing required value')
+    })
+
+    it('with project witout mainDataset', async function () {
+      await clearDatabase()
+      const credentials = await apiHeaders()
+
+      const project = await createProject({
+        organization: credentials.org._id,
+        createdBy: credentials.user._id
+      })
+
       const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
@@ -217,7 +312,7 @@ describe.only('/forecast_group', () => {
         project: project.uuid,
         catalogs: rule.catalogs,
         alias: 'a_forecast_test',
-        engines: []
+        engines: [engine.uuid]
       }
 
       const res = await test()
