@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {CatalogItem} = require('models')
+const {CatalogItem, Catalog} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -7,7 +7,12 @@ module.exports = new Route({
   handler: async function (ctx) {
     const data = ctx.request.body
 
-    var catalogItems = await CatalogItem.find({uuid: {$in: data.catalogItems}, isDeleted: false})
+    var catalogs = await Catalog.find({uuid: {$in: data.catalogs}, isDeleted: false})
+    catalogs.data = catalogs.map(item => {
+      return item._id
+    })
+
+    var catalogItems = await CatalogItem.find({catalog: {$in: catalogs.data}, isDeleted: false})
     catalogItems.data = catalogItems.map(item => {
       return item.toPublic()
     })
