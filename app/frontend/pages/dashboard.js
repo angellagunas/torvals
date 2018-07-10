@@ -16,6 +16,49 @@ import Checkbox from '~base/components/base-checkbox'
 import { toast } from 'react-toastify'
 import Wizard from './wizard/wizard';
 
+function Empty({ outdated }) {
+  let text = 'Debes crear al menos un proyecto'
+  let btnText = 'Crear'
+
+  if (outdated) {
+    text = 'No hay proyectos que utilicen las reglas de negocio más actuales, por favor actualiza alguno'
+    btnText = 'Actualizar'
+  }
+
+  return (
+    <div>
+      <div className="section-header">
+        <h2>Dashboard</h2>
+      </div>
+      <div className="section">
+
+        <div className="columns is-centered">
+          <div className="column is-8">
+
+              <article className="message is-info">
+                <div className="message-header">
+                  <p>Configuración de proyecto</p>
+                </div>
+                <div className="message-body has-text-centered is-size-5">
+                  <span style={{ marginRight: '30px', marginTop: '20px' }} className="icon is-info">
+                    <i className="fa fa-2x fa-magic" />
+                  </span>
+                  {text}
+                  <br /> <br />
+                  <Link to="/projects" className="button is-info is-medium">
+                    {btnText}
+                  </Link>
+                </div>
+              </article>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
 class Dashboard extends Component {
   constructor (props) {
     super(props)
@@ -29,7 +72,9 @@ class Dashboard extends Component {
       mape: 0,
       searchTerm: '',
       sortBy: 'sale',
-      sortAscending: true
+      sortAscending: true,
+      outdated: false,
+      projects: []
     }
     this.selectedProjects = {}
     this.selectedItems = []
@@ -80,8 +125,10 @@ class Dashboard extends Component {
     })
 
     let activeProjects = res.data.filter(item => { return item.mainDataset })
+    const outdated = activeProjects.every(v => v.outdated)
 
     this.setState({
+      outdated,
       projects: activeProjects,
       loading: false
     }, () => { this.checkAllProjects(true) })
@@ -254,7 +301,7 @@ class Dashboard extends Component {
         date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
         projects: Object.values(this.selectedProjects).map(p => p.uuid),
         catalogItems: Object.keys(this.selectedItems),
-        prices: this.state.prices        
+        prices: this.state.prices
       })
       this.setState({
         productTable: res.data,
@@ -730,7 +777,7 @@ class Dashboard extends Component {
 
 
   showBy(prices){
-    this.setState({ prices }, 
+    this.setState({ prices },
       () => {
         this.getGraph()
         this.getProductTable()
@@ -748,7 +795,7 @@ class Dashboard extends Component {
         } else if (label >= 1000000 && label <= 999999999) {
           val = (label / 1000000) + 'M'
         }
-        return '$' + val 
+        return '$' + val
       }
     }
     else{
@@ -807,9 +854,7 @@ class Dashboard extends Component {
       )
     }
 
-    const {
-      loading
-    } = this.state
+    const { loading, outdated } = this.state
 
     if (loading) {
       return <Loader />
@@ -821,6 +866,10 @@ class Dashboard extends Component {
 
     if (user.currentRole.slug === 'manager-level-1') {
       return <Redirect to={'/projects/' + user.currentProject.uuid} />
+    }
+
+    if (this.state.projects.length === 0 || outdated) {
+      return <Empty outdated={outdated} />
     }
 
     if(this.state.noFilters){
@@ -1184,7 +1233,7 @@ class Dashboard extends Component {
                               id='showByprice'
                               type="radio"
                               name='showBy'
-                              checked={this.state.prices}                              
+                              checked={this.state.prices}
                               disabled={this.state.waitingData}
                               onChange={() => this.showBy(true)} />
                             <label htmlFor='showByprice'>
