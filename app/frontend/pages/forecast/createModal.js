@@ -143,9 +143,9 @@ class CreateModal extends Component {
     try {
       let res = await api.get(url)
 
-      if (res) {
+      if (res.data) {
         this.setState({
-          engines: res
+          engines: res.data
         })
       }
     } catch (e) {
