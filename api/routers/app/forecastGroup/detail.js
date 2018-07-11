@@ -13,6 +13,7 @@ module.exports = new Route({
       path: 'forecasts',
       populate: { path: 'engine catalogs' }
     })
+
     ctx.assert(forecast, 404, 'ForecastGroup no encontrado')
 
     ctx.body = forecast.toPublic()

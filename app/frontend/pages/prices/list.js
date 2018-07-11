@@ -120,7 +120,7 @@ export default ListPage({
           'sortable': true,
           'className': 'editable-cell',
           formatter: (row) => {
-            if (row && row.price) {
+            if (row && (row.price || row.price === 0)) {
               let price = row.price.toFixed(2).replace(/./g, (c, i, a) => {
                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
               })
@@ -136,29 +136,27 @@ export default ListPage({
                     handleChange={async (value, row) => {
                       try {
                         if (Number(value) !== Number(row.price)) {
-                        const res = await api.post('/app/prices/' + row.uuid, {
-                          price: value,
-                          channel: row.channel.name,
-                          product: row.product.name
-                        })
-                        if (!res) {
-                          return false
+                          const res = await api.post('/app/prices/' + row.uuid, {
+                            price: value
+                          })
+                          if (!res) {
+                            return false
+                          }
+                          toast('¡Precio guardado!: ', {
+                            autoClose: 5000,
+                            type: toast.TYPE.INFO,
+                            hideProgressBar: true,
+                            closeButton: false
+                          })
+                          return res
                         }
-                        toast('¡Precio guardado!: ', {
+                      } catch (e) {
+                        toast('Error: ' + e.message, {
                           autoClose: 5000,
-                          type: toast.TYPE.INFO,
+                          type: toast.TYPE.ERROR,
                           hideProgressBar: true,
                           closeButton: false
                         })
-                        return res
-                      }
-                      } catch (e) {
-                        toast('Error: ' + e.message, {
-                        autoClose: 5000,
-                        type: toast.TYPE.ERROR,
-                        hideProgressBar: true,
-                        closeButton: false
-                      })
                         return false
                       }
                     }
