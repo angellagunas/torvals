@@ -29,12 +29,15 @@ class ForecastCompare extends Component {
   }
 
   async getForecasts () {
-    let forecasts = Object.values(tree.get('compareEngines'))
-    console.log(forecasts)
+    let forecasts = tree.get('compareEngines')
     let catalogs = {}
+
     if (forecasts === undefined) {
       this.props.history.push('/forecast/detail/' + this.props.match.params.uuid)
+      return
     }
+
+    forecasts = Object.values(forecasts)
     forecasts.map(item => {
       item.catalogs.map(item => {
         catalogs[item.slug] = {...item, items: []}
@@ -321,8 +324,13 @@ class ForecastCompare extends Component {
                     current: false
                   },
                   {
-                    path: '/forecast/detail',
+                    path: '/forecast/detail/' + this.props.match.params.uuid,
                     label: 'Detalle',
+                    current: false
+                  },
+                  {
+                    path: '/forecast/compare',
+                    label: 'Comparar',
                     current: true
                   },
                   {
@@ -337,12 +345,14 @@ class ForecastCompare extends Component {
           </div>
           <div className='level-right'>
             <div className='level-item'>
-              <DeleteButton
-                titleButton={'Eliminar'}
-                objectName='Predicción'
-                objectDelete={this.deleteObject}
-                message={`¿Está seguro que desea eliminar el predicción?`}
-              />
+              <div className='level-item'>
+                <button className='button is-primary'
+                  onClick={() => {
+                    this.props.history.push('/forecast/detail/' + this.props.match.params.uuid)
+                  }}>
+                  Regresar
+                </button>
+              </div>
             </div>
           </div>
         </div>

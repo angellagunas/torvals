@@ -8,6 +8,7 @@ import Loader from '~base/components/spinner'
 import Link from '~base/router/link'
 import DeleteButton from '~base/components/base-deleteButton'
 import BaseModal from '~base/components/base-modal'
+import moment from 'moment'
 
 class Forecast extends Component {
   constructor (props) {
@@ -179,10 +180,22 @@ class Forecast extends Component {
                           </div>
 
                           <p>
-                            <strong>Reporte</strong>
+                            <strong>Reporte
+                              <span className='is-capitalized is-pulled-right'>
+                              Ciclos
+                              </span>
+                            </strong>
                             <br />
                             {item.type === 'compatible' ? 'Conciliable'
                               : item.type === 'informative' ? 'Informativo' : 'Creado'}
+                            <span className='is-capitalized is-pulled-right'>
+                              {item.cycles.length > 0 &&
+                              moment.utc(item.cycles[0].dateStart).format('MMMM') +
+                            ' #' + item.cycles[0].cycle + ' - ' +
+                            moment.utc(item.cycles[item.cycles.length - 1].dateStart).format('MMMM') +
+                            ' #' + item.cycles[item.cycles.length - 1].cycle
+                            }
+                            </span>
                           </p>
                           <div>
                             <strong>Catálogos</strong>
@@ -252,7 +265,8 @@ class Forecast extends Component {
         className={this.state.forecastMsg}
         hideModal={this.hideForecastMsg}>
         <p>Tu predicción se está generando. <br />
-        Este proceso puede tomar mucho tiempo. Se le enviará un correo cuando el processo termine.
+        Este proceso puede tomar mucho tiempo.
+        Te avisaremos por correo cuando el proceso termine.
         </p>
         <br />
         <button

@@ -11,6 +11,7 @@ import Graph from '~base/components/graph'
 import moment from 'moment'
 import { graphColors } from '~base/tools'
 import tree from '~core/tree'
+import { toast } from 'react-toastify'
 
 class ForecastDetail extends Component {
   constructor (props) {
@@ -42,7 +43,7 @@ class ForecastDetail extends Component {
       }
     } catch (e) {
       console.log(e)
-      // this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error obteniendo predicción ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -85,7 +86,8 @@ class ForecastDetail extends Component {
                 handleCheckboxChange={(e, value) => this.selectEngine(value, row)}
                 key={row}
                 checked={row.selected}
-                hideLabel />
+                hideLabel
+                disabled={row.status !== 'ready'} />
             )
           }
         }
@@ -180,7 +182,7 @@ class ForecastDetail extends Component {
       }
     } catch (e) {
       console.log(e)
-      // this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error obteniendo gráfica ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -254,6 +256,24 @@ class ForecastDetail extends Component {
     this.props.history.push('/forecast/compare/' + this.props.match.params.uuid)
   }
 
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
+  }
+
   render () {
     if (this.state.loading) {
       return <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
@@ -285,7 +305,14 @@ class ForecastDetail extends Component {
     return (
       <div className='forecast-detail'>
         <div className='section-header'>
-          <h2>Predicción {this.state.alias}</h2>
+          <h2>Predicción {this.state.alias}
+            <span className='is-pulled-right forecast-detail-type-dates'>
+              <span className='is-pulled-right'>{this.state.type}</span>
+              <span className='is-pulled-right'>-</span>
+              <span className='is-pulled-right'>{this.state.type}</span>
+              <span className='is-pulled-right'>{this.state.type}</span>
+            </span>
+          </h2>
         </div>
         <div className='level'>
           <div className='level-left'>
@@ -319,6 +346,14 @@ class ForecastDetail extends Component {
           </div>
           <div className='level-right'>
             <div className='level-item'>
+              <button className='button is-primary'
+                onClick={() => {
+                  this.props.history.push('/forecast')
+                }}>
+                Regresar
+                </button>
+            </div>
+            <div className='level-item'>
               <DeleteButton
                 titleButton={'Eliminar'}
                 objectName='Predicción'
@@ -329,11 +364,34 @@ class ForecastDetail extends Component {
           </div>
         </div>
 
-        <div className='section'>
-          <div className='columns box'>
-            <div className='column is-3 is-2-widescreen is-paddingless'>
-              <div className='indicators'>
-                {
+        {
+            this.state.forecast && this.state.forecast.length === 0
+            ? <div className='section'>
+              <article className='message is-info'>
+                <div className='message-header has-text-weight-bold'>
+                  <p>Información de predicciones</p>
+                </div>
+                <div className='message-body is-size-6 has-text-centered'>
+                  <span className='icon is-large has-text-info'>
+                    <i className='fa fa-magic fa-2x' />
+                  </span>
+                  <span className='is-size-5'>
+                  Aún no hay datos disponibles para esta predicción.
+                  <br />
+                  Este proceso puede tomar tiempo.
+                  Te avisaremos por correo cuando el proceso termine.
+                </span>
+                  <br />
+                  <br />
+                </div>
+              </article>
+            </div>
+          : <div>
+            <div className='section'>
+              <div className='columns box'>
+                <div className='column is-3 is-2-widescreen is-paddingless'>
+                  <div className='indicators'>
+                    {
                 totals && totals.map(item => {
                   return (
                     <div key={item.name}>
@@ -348,10 +406,10 @@ class ForecastDetail extends Component {
                 })
               }
 
-              </div>
-            </div>
-            <div className='column card'>
-              {this.state.graphData
+                  </div>
+                </div>
+                <div className='column card'>
+                  {this.state.graphData
               ? this.state.graphData.length > 0
                 ? <Graph
                   data={graph}
@@ -448,7 +506,7 @@ class ForecastDetail extends Component {
                 />
                 : <section className='section has-30-margin-top'>
                   <center>
-                    <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
+                    <h1 className='has-text-info'>No hay datos que mostrar, intente más tarde</h1>
                   </center>
                 </section>
               : <section className='section has-30-margin-top'>
@@ -456,74 +514,75 @@ class ForecastDetail extends Component {
               </section>
             }
 
-            </div>
-          </div>
-
-          <div className='level'>
-            <div className='level-left'>
-              <div className='level-item'>
-                <p>Selecciona un modelo para conciliar.</p>
+                </div>
               </div>
-            </div>
-            <div className='level-right'>
-              {this.state.type !== 'informative' &&
-              <div className='level-item'>
-                <button
-                  className='button is-primary'
-                  disabled={this.state.disabled}>
+
+              <div className='level'>
+                <div className='level-left'>
+                  <div className='level-item'>
+                    <p>Selecciona un modelo para conciliar.</p>
+                  </div>
+                </div>
+                <div className='level-right'>
+                  {this.state.type !== 'informative' &&
+                  <div className='level-item'>
+                    <button
+                      className='button is-primary'
+                      disabled={this.state.disabled}>
                  Consolidar
                 </button>
-              </div>
+                  </div>
               }
 
-              <div className='level-item'>
-                <button
-                  className='button is-primary'
-                  disabled={this.state.disabled}
-                  onClick={() => this.compare()} >
-                  <span className='icon'>
-                    <i className='fa fa-eye' />
-                  </span>
-                </button>
+                  <div className='level-item'>
+                    <button
+                      className='button is-primary'
+                      disabled={this.state.disabled}
+                      onClick={() => this.compare()} >
+                      <span className='icon'>
+                        <i className='fa fa-eye' />
+                      </span>
+                    </button>
+                  </div>
+
+                  <div className='level-item'>
+                    <button
+                      className='button is-primary'
+                      disabled={this.state.disabled}>
+                      <span className='icon'>
+                        <i className='fa fa-share-alt' />
+                      </span>
+                    </button>
+                  </div>
+
+                  <div className='level-item'>
+                    <DeleteButton
+                      iconOnly
+                      objectName='Predicción'
+                      objectDelete={() => this.deleteForecast(item)}
+                      message={<span>¿Estas seguro de querer eliminar esta predicción?</span>}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className='level-item'>
-                <button
-                  className='button is-primary'
-                  disabled={this.state.disabled}>
-                  <span className='icon'>
-                    <i className='fa fa-share-alt' />
-                  </span>
-                </button>
-              </div>
+            </div>
 
-              <div className='level-item'>
-                <DeleteButton
-                  iconOnly
-                  objectName='Predicción'
-                  objectDelete={() => this.deleteForecast(item)}
-                  message={<span>¿Estas seguro de querer eliminar esta predicción?</span>}
-                />
+            <div className='scroll-table'>
+              <div className='scroll-table-container'>
+
+                <BaseTable
+                  className='dash-table is-fullwidth'
+                  data={this.state.forecast}
+                  columns={this.getColumns()}
+                  handleSort={(e) => { this.handleSort(e) }}
+                  sortAscending={this.state.sortAscending}
+                  sortBy={this.state.sortBy}
+            />
               </div>
             </div>
           </div>
-
-        </div>
-
-        <div className='scroll-table'>
-          <div className='scroll-table-container'>
-
-            <BaseTable
-              className='dash-table is-fullwidth'
-              data={this.state.forecast}
-              columns={this.getColumns()}
-              handleSort={(e) => { this.handleSort(e) }}
-              sortAscending={this.state.sortAscending}
-              sortBy={this.state.sortBy}
-            />
-          </div>
-        </div>
-
+          }
       </div>
     )
   }
