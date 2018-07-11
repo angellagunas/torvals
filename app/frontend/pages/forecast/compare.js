@@ -11,6 +11,7 @@ import moment from 'moment'
 import { graphColors } from '~base/tools'
 import tree from '~core/tree'
 import Select from '../projects/detail-tabs/select'
+import _ from 'lodash'
 
 class ForecastCompare extends Component {
   constructor (props) {
@@ -36,32 +37,44 @@ class ForecastCompare extends Component {
     }
     forecasts.map(item => {
       item.catalogs.map(item => {
-        catalogs[item.uuid] = item
+        catalogs[item.slug] = {...item, items: []}
       })
     })
 
-    catalogs = Object.values(catalogs).map(async item => {
-      return {
-        ...item,
-        items: this.getCatalogs(item)
+    let cat = catalogs
+
+    catalogs = await this.getCatalogs(Object.values(catalogs).map(item => {
+      return item.uuid
+    }))
+
+    catalogs = _.groupBy(catalogs, 'type')
+
+    for (const key in catalogs) {
+      if (catalogs.hasOwnProperty(key)) {
+        const element = catalogs[key]
+        cat[key].items = element
+        console.log(key, element)
       }
-    })
+    }
+    console.log(catalogs)
 
     this.setState({
       forecasts: forecasts,
-      catalogs: catalogs
+      catalogs: Object.values(cat)
+    }, () => {
+      this.getTable()
     })
-
-    console.log(catalogs)
   }
 
-  async getCatalogs (item) {
-    let url = '/app/catalogItems/' + item.slug
+  async getCatalogs (items) {
+    let url = '/app/forecastGroups/filters'
     try {
-      let res = await api.get(url)
+      let res = await api.post(url, {
+        catalogs: items
+      })
 
-      if (res.data) {
-        return res.data
+      if (res) {
+        return res
       }
     } catch (e) {
       console.log(e)
@@ -77,39 +90,66 @@ class ForecastCompare extends Component {
   }
 
   getColumns () {
-    let cols = [
-      {
-        title: 'Modelo',
-        property: 'engine.name',
-        default: 'N/A',
-        sortable: true,
-        formatter: (row) => {
-          return row.engine.name
-        }
-      },
-      {
-        title: 'Descripción',
-        property: 'engine.description',
-        default: 'Sin descripción',
-        formatter: (row) => {
-          return row.engine.description
-        }
-      },
-      {
-        title: 'Estado',
-        property: 'status',
-        default: 'N/A',
-        sortable: true,
-        formatter: (row) => {
-          if (row.status === 'created') {
-            return 'Creado'
-          } else if (row.status === 'ready') {
-            return 'Completado'
-          } else {
-            return 'En Proceso'
+    const catalogs = this.state.catalogs || []
+    const catalogItems = catalogs.map((catalog, i) => {
+      if (catalog.slug !== 'producto') {
+        return (
+        {
+          'title': ` ${catalog.name}`,
+          'property': '',
+          'default': 'N/A',
+          'sortable': true,
+          formatter: (row) => {
+            return row.catalogItems.map(item => {
+              if (catalog.slug === item.type) {
+                return item.name
+              }
+            })
           }
         }
+        )
       }
+    }
+    ).filter(item => item)
+
+    /* const engines = this.state.forecasts.engines.map(item => {
+      return (
+      {
+        title: item.name,
+        property: '',
+        default: 'N/A',
+        sortable: true,
+        formatter: (row) => {
+          return row.engines.map(obj => {
+            if (item.name === obj.name) {
+              return item.name
+            }
+          })
+        }
+      }
+      )
+    }) */
+
+    let cols = [
+      {
+        title: 'Id',
+        property: 'product.externalId',
+        default: 'N/A',
+        sortable: true,
+        formatter: (row) => {
+          return row.product.externalId
+        }
+      },
+      {
+        title: 'Producto',
+        property: 'product.name',
+        default: 'N/A',
+        formatter: (row) => {
+          return row.product.name
+        }
+      },
+      ...catalogItems
+      // ...engines
     ]
 
     return cols
@@ -213,6 +253,25 @@ class ForecastCompare extends Component {
     }
   }
 
+  async getTable () {
+    let url = '/app/forecastGroups/graph/compare/table/' + this.props.match.params.uuid
+    try {
+      let res = await api.post(url, {
+        engines: this.state.forecasts.map(item => { return item.engine.uuid })
+      })
+
+      if (res.data) {
+        this.setState({
+          forecastTable: Object.values(res.data),
+          loading: false
+        })
+      }
+    } catch (e) {
+      console.log(e)
+      // this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
+    }
+  }
+
   render () {
     if (this.state.loading) {
       return <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
@@ -289,6 +348,26 @@ class ForecastCompare extends Component {
         </div>
 
         <div className='section'>
+
+          <div className='columns is-multiline filters'>
+            {this.state.catalogs && this.state.catalogs.map((item, key) => {
+              return (
+                <div key={key} className='column is-narrow'>
+                  <Select
+                    label={item.name}
+                    name={key}
+                    value={item.items[0]}
+                    optionValue='uuid'
+                    optionName='name'
+                    options={item.items}
+                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+                  />
+                </div>
+              )
+            })}
+
+          </div>
+
           <div className='columns box'>
             <div className='column is-3 is-2-widescreen is-paddingless'>
               <div className='indicators'>
@@ -418,25 +497,68 @@ class ForecastCompare extends Component {
             </div>
           </div>
 
-          <div className='columns is-multiline'>
-            {this.state.catalogs && this.state.catalogs.map((item, key) => {
-              return (
-                <div key={key} className='column is-narrow'>
-                  <Select
-                    label={item.name}
-                    name={key}
-                    value={item.items[0]}
-                    optionValue='uuid'
-                    optionName='name'
-                    options={item.items}
-                    onChange={(name, value) => { this.filterChangeHandler(name, value) }}
-                  />
+          <div className='level'>
+            <div className='level-left'>
+              <div className='level-item'>
+
+                <div className='field'>
+                  <label className='label'>Búsqueda general</label>
+                  <div className='control has-icons-right'>
+                    <input
+                      className='input'
+                      type='text'
+                      value={this.state.searchTerm}
+                      onChange={this.searchOnChange} placeholder='Buscar' />
+
+                    <span className='icon is-small is-right'>
+                      <i className='fa fa-search fa-xs' />
+                    </span>
+                  </div>
                 </div>
-              )
-            })}
+              </div>
+
+              <div className='level-item'>
+                <div className='field'>
+                  <label className='label'>Mostrar por: </label>
+                  <div className='control'>
+
+                    <div className='field is-grouped'>
+                      <div className='control'>
+
+                        <input
+                          className='is-checkradio is-info is-small'
+                          id='showByquantity'
+                          type='radio'
+                          name='showBy'
+                          checked={!this.state.prices}
+                          disabled={this.state.waitingData}
+                          onChange={() => this.showBy(false)} />
+                        <label htmlFor='showByquantity'>
+                          <span title='Cantidad'>Cantidad</span>
+                        </label>
+                      </div>
+
+                      <div className='control'>
+                        <input
+                          className='is-checkradio is-info is-small'
+                          id='showByprice'
+                          type='radio'
+                          name='showBy'
+                          checked={this.state.prices}
+                          disabled={this.state.waitingData}
+                          onChange={() => this.showBy(true)} />
+                        <label htmlFor='showByprice'>
+                          <span title='Precio'>Precio</span>
+                        </label>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
 
           </div>
-
         </div>
 
         <div className='scroll-table'>
@@ -444,7 +566,7 @@ class ForecastCompare extends Component {
 
             <BaseTable
               className='dash-table is-fullwidth'
-              data={this.state.forecast}
+              data={this.state.forecastTable}
               columns={this.getColumns()}
               handleSort={(e) => { this.handleSort(e) }}
               sortAscending={this.state.sortAscending}
