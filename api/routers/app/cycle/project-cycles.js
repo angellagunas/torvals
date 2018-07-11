@@ -11,7 +11,7 @@ module.exports = new Route({
     const project = await Project.findOne({'uuid': uuid, 'isDeleted': false})
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
-    if (project.organization !== ctx.state.organization._id) {
+    if (String(project.organization) !== String(ctx.state.organization._id)) {
       ctx.throw(404, 'Organización no encontrada')
     }
 
