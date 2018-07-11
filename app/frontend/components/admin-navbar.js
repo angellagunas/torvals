@@ -80,8 +80,21 @@ class NavBar extends Component {
     tree.set('shouldSelectOrg', false)
     await tree.commit()
     cookies.set('organization', slug)
-    var data = env.APP_HOST.split('://')
-    window.location = data[0] + '://' + slug + '.' + data[1] + '/dashboard'
+    const hostname = window.location.hostname
+    const hostnameSplit = hostname.split('.')
+
+    if (env.ENV === 'production') {
+      if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
+        const newHostname = hostnameSplit.slice(-3).join('.')
+        window.location = `//${slug}.${newHostname}/dashboard`
+      } else {
+        const newHostname = hostnameSplit.slice(-2).join('.')
+        window.location = `//${slug}.${newHostname}/dashboard`
+      }
+    } else {
+      const baseUrl = env.APP_HOST.split('://')
+      window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard'
+    }
   }
 
   toggleBtnClass () {
