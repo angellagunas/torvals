@@ -3,22 +3,49 @@ const _ = require('lodash')
 
 const {
   ForecastGroup,
-  DataSetRow
+  DataSetRow,
+  Forecast,
+  Engine,
+  CatalogItem
 } = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/graph/:uuid',
+  path: '/graph/compare/:uuid',
   handler: async function (ctx) {
     const uuid = ctx.params.uuid
     const data = ctx.request.body
 
+    if (!data.engines) {
+      ctx.throw(422, 'Se necesitan especificar los modelos a comparar')
+    }
+
     const forecastGroup = await ForecastGroup.findOne({uuid: uuid, isDeleted: false}).populate('forecasts engines')
     ctx.assert(forecastGroup, 404, 'ForecastGroup no encontrado')
 
-    let datasets = forecastGroup.forecasts.map(item => {
+    const engines = await Engine.find({uuid: {$in: data.engines}})
+    data.engines = engines.map(item => {
+      return item._id
+    })
+
+    const forecasts = await Forecast.find({forecastGroup: forecastGroup._id, engine: {$in: data.engines}})
+
+    let datasets = forecasts.map(item => {
       return item.dataset
     })
+
+    let initialMatch = {
+      dataset: {$in: datasets}
+    }
+
+    if (data.catalogItems) {
+      let catalogItems = await CatalogItem.find({
+        uuid: { $in: data.catalogItems }
+      }).select({ '_id': 1 })
+      initialMatch['catalogItems'] = {
+        $in: catalogItems.map(item => { return item._id })
+      }
+    }
 
     let conditions = []
     let group
@@ -107,9 +134,7 @@ module.exports = new Route({
 
     let match = [
       {
-        '$match': {
-          dataset: {$in: datasets}
-        }
+        '$match': {...initialMatch}
       },
       ...conditions,
       ...group,
@@ -142,7 +167,7 @@ module.exports = new Route({
 
       return {
         ...item,
-        engine: engine
+        engine: engine.uuid
       }
     })
 

@@ -3,25 +3,53 @@ const _ = require('lodash')
 
 const {
   ForecastGroup,
-  DataSetRow
+  DataSetRow,
+  Forecast,
+  Engine,
+  CatalogItem
 } = require('models')
 
 module.exports = new Route({
   method: 'post',
-  path: '/graph/:uuid',
+  path: '/graph/compare/table/:uuid',
   handler: async function (ctx) {
     const uuid = ctx.params.uuid
     const data = ctx.request.body
 
+    if (!data.engines) {
+      ctx.throw(422, 'Se necesitan especificar los modelos a comparar')
+    }
+
     const forecastGroup = await ForecastGroup.findOne({uuid: uuid, isDeleted: false}).populate('forecasts engines')
     ctx.assert(forecastGroup, 404, 'ForecastGroup no encontrado')
 
-    let datasets = forecastGroup.forecasts.map(item => {
+    const engines = await Engine.find({uuid: {$in: data.engines}})
+    data.engines = engines.map(item => {
+      return item._id
+    })
+
+    const forecasts = await Forecast.find({forecastGroup: forecastGroup._id, engine: {$in: data.engines}})
+
+    let datasets = forecasts.map(item => {
       return item.dataset
     })
 
+    let initialMatch = {
+      dataset: {$in: datasets}
+    }
+
+    if (data.catalogItems) {
+      let catalogItems = await CatalogItem.find({
+        uuid: { $in: data.catalogItems }
+      }).select({ '_id': 1 })
+      initialMatch['catalogItems'] = {
+        $in: catalogItems.map(item => { return item._id })
+      }
+    }
+
     let conditions = []
     let group
+    const key = {product: '$newProduct', engine: '$forecast.engine'}
 
     if (data.prices) {
       conditions = [
@@ -79,10 +107,7 @@ module.exports = new Route({
       group = [
         {
           '$group': {
-            '_id': {
-              'dataset': '$dataset',
-              'date': '$data.forecastDate'
-            },
+            '_id': key,
             'prediction': {
               '$sum': {$multiply: ['$data.prediction', '$price.price']}
             }
@@ -93,10 +118,7 @@ module.exports = new Route({
       group = [
         {
           '$group': {
-            '_id': {
-              'dataset': '$dataset',
-              'date': '$data.forecastDate'
-            },
+            '_id': key,
             'prediction': {
               '$sum': '$data.prediction'
             }
@@ -107,48 +129,55 @@ module.exports = new Route({
 
     let match = [
       {
-        '$match': {
-          dataset: {$in: datasets}
-        }
+        '$match': {...initialMatch}
       },
       ...conditions,
+      {
+        '$lookup': {
+          'from': 'forecasts',
+          'localField': 'dataset',
+          'foreignField': 'dataset',
+          'as': 'forecast'
+        }
+      },
       ...group,
       {
-        '$unwind': {
-          'path': '$_id.dataset'
+        '$lookup': {
+          'from': 'catalogitems',
+          'localField': '_id.product',
+          'foreignField': '_id',
+          'as': 'product'
         }
       },
       {
-        '$project': {
-          'dataset': '$_id.dataset',
-          'date': '$_id.date',
-          'prediction': '$prediction',
-          'adjustment': '$adjustment',
-          'sale': '$sale'
+        '$lookup': {
+          'from': 'engines',
+          'localField': '_id.engine',
+          'foreignField': '_id',
+          'as': 'engine'
         }
-      },
-      {
-        $sort: {dataset: 1, date: 1}
       }
     ]
 
     let responseData = await DataSetRow.aggregate(match)
-    let totalPrediction = {}
-    responseData.data = responseData.map(item => {
-      let forecast = _.find(forecastGroup.forecasts, {dataset: item.dataset})
-      let engine = _.find(forecastGroup.engines, {_id: forecast.engine})
-      if (!totalPrediction[engine.uuid]) { totalPrediction[engine.uuid] = {prediction: 0, name: engine.name} }
-      totalPrediction[engine.uuid].prediction += item.prediction
 
-      return {
-        ...item,
-        engine: engine
+    let response = {}
+    for (let row of responseData) {
+      if (!response[row.product[0].uuid]) {
+        response[row.product[0].uuid] = {
+          product: row.product[0],
+          engines: []
+        }
       }
-    })
+
+      response[row.product[0].uuid]['engines'].push({
+        engine: row.engine[0],
+        prediction: row.prediction
+      })
+    }
 
     ctx.body = {
-      data: responseData.data,
-      total: {...totalPrediction}
+      data: response
     }
   }
 })
