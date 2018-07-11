@@ -181,7 +181,8 @@ class Forecast extends Component {
                           <p>
                             <strong>Reporte</strong>
                             <br />
-                            {item.type === 'compatible' ? 'Conciliable' : item.type}
+                            {item.type === 'compatible' ? 'Conciliable'
+                              : item.type === 'informative' ? 'Informativo' : 'Creado'}
                           </p>
                           <div>
                             <strong>Catálogos</strong>

@@ -80,6 +80,23 @@ class CreateModal extends Component {
       minPeriod: min || { number: 1, name: 'enero', year: 2018 },
       maxPeriod: c[c.length - 1]
     })
+    let url = '/app/cycles/project/' + this.state.project.uuid
+    try {
+      let res = await api.get(url)
+
+      console.log(res)
+      /* if (res.data) {
+        this.setState({
+          engines: res.data
+        })
+      } */
+    } catch (e) {
+      console.log(e)
+      this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
+      this.setState({
+        engines: []
+      })
+    }
   }
 
   setMinPeriod (item) {
