@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
-const { spawn } = require('child_process')
+const { spawnSync } = require('child_process')
 const { Forecast } = require('models')
 
 const task = new Task(async function (argv) {
@@ -18,24 +18,21 @@ const task = new Task(async function (argv) {
   }
 
   log.call('Build engine.')
-  const ls = spawn(
+  const spawnPio = spawnSync(
     'pio',
-    ['build'],
-    { cdw: forecast.engine.path }
-  );
+    ['build', '--verbose'],
+    { cwd: `/engines/${forecast.engine.path}` }
+  )
+  log.call(spawnPio.output)
+  log.call(spawnPio.stdout)
+  log.call(spawnPio.signal)
 
-  ls.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-  });
-
-  ls.stderr.on('data', (data) => {
-    console.log(`stderr: ${data}`);
-  });
-
-  ls.on('close', (code) => {
-    // Code 0 for OK
-    console.log(`child process exited with code ${code}`);
-  });
+  log.call(spawnPio.status)
+  if (spawnPio.status !== 0) {
+    log.call(spawnPio.stderr)
+    log.call(spawnPio.error)
+    return false
+  }
 
   return true
 })

@@ -1,8 +1,12 @@
 // node tasks/pio/app/create.js --forecast=uuid
-require('../../../config')
+require('../../config')
 require('lib/databases/mongo')
 
 const createApp = require('queues/pio-create-app')
+const loadAppData = require('queues/pio-load-data')
+const engineBuild = require('queues/pio-build-engine')
+const engineTrain = require('queues/pio-train-engine')
+const engineDeploy = require('queues/pio-deploy-engine')
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
 const { Forecast } = require('models')
@@ -14,11 +18,13 @@ const task = new Task(async function (argv) {
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.forecast})
     .populate('engine')
+    .populate('forecastGroup')
   if (!forecast || !forecast.engine) {
     throw new Error('Invalid forecast.')
   }
 
-  log.call('Save forecast.')
+  // CREATE
+  /*log.call('Update forecast data.')
   forecast.set({
     instanceKey: forecast.uuid,
     port: forecast.port || '8000',
@@ -28,6 +34,18 @@ const task = new Task(async function (argv) {
 
   log.call('Sending task to queue for the APP creation.')
   createApp.add({
+    forecast: forecast.uuid
+  })*/
+
+  // LOAD
+  /*log.call('Sending task to queue for loading APP data.')
+  loadAppData.add({
+    forecast: forecast.uuid
+  })*/
+
+  // BUILD ENGINE
+  log.call('Sending task to queue for building the engine.')
+  engineBuild.add({
     forecast: forecast.uuid
   })
 

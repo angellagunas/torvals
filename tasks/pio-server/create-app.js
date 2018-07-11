@@ -3,8 +3,9 @@ require('../../config')
 require('lib/databases/mongo')
 
 const Logger = require('lib/utils/logger')
+const slugify = require('underscore.string/slugify')
 const Task = require('lib/task')
-const { spawn } = require('child_process')
+const { spawnSync } = require('child_process')
 const { Forecast } = require('models')
 
 const task = new Task(async function (argv) {
@@ -16,26 +17,25 @@ const task = new Task(async function (argv) {
   if (!forecast || !forecast.engine) {
     throw new Error('Invalid forecast.')
   }
+  log.call(forecast)
 
   log.call('Create new app.')
-  const ls = spawn(
+  const spawnPio = spawnSync(
     'pio',
-    ['app', 'new', forecast.engine.name, '--access-key', forecast.instanceKey],
-    { cdw: forecast.engine.path }
-  );
+    ['app', 'new', slugify(forecast.engine.name), '--access-key', forecast.instanceKey],
+    { cwd: `/engines/${forecast.engine.path}` }
+  )
 
-  ls.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-  });
+  log.call(spawnPio.output)
+  log.call(spawnPio.stdout)
+  log.call(spawnPio.signal)
 
-  ls.stderr.on('data', (data) => {
-    console.log(`stderr: ${data}`);
-  });
-
-  ls.on('close', (code) => {
-    // Code 0 for OK
-    console.log(`child process exited with code ${code}`);
-  });
+  log.call(spawnPio.status)
+  if (spawnPio.status !== 0) {
+    log.call(spawnPio.stderr)
+    log.call(spawnPio.error)
+    return false
+  }
 
   return true
 })
