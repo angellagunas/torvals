@@ -12,6 +12,7 @@ import moment from 'moment'
 import { graphColors } from '~base/tools'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
+import BaseModal from '~base/components/base-modal'
 
 class ForecastDetail extends Component {
   constructor (props) {
@@ -40,6 +41,13 @@ class ForecastDetail extends Component {
           forecast: res.forecasts,
           type: res.type
         })
+
+        tree.set('activeForecast', {
+          alias: res.alias,
+          type: res.type
+        })
+
+        tree.commit()
       }
     } catch (e) {
       console.log(e)
@@ -87,7 +95,8 @@ class ForecastDetail extends Component {
                 key={row}
                 checked={row.selected}
                 hideLabel
-                disabled={row.status !== 'ready'} />
+                // disabled={row.status !== 'ready'}
+                 />
             )
           }
         }
@@ -153,6 +162,15 @@ class ForecastDetail extends Component {
       delete this.engineSelected[item.uuid]
     }
 
+    if (Object.values(this.engineSelected).length === 1) {
+      this.setState({
+        engineConciliate: Object.values(this.engineSelected)[0]
+      })
+    } else {
+      this.setState({
+        engineConciliate: undefined
+      })
+    }
     this.disableBtns()
   }
 
@@ -274,6 +292,60 @@ class ForecastDetail extends Component {
     }
   }
 
+  showConciliate () {
+    this.setState({
+      conciliateModal: ' is-active'
+    })
+  }
+
+  hideConciliate () {
+    this.setState({
+      conciliateModal: ''
+    })
+  }
+
+  async finishUpConciliate () {
+    let url = '/app/forecasts/conciliate/' + this.state.engineConciliate.uuid
+    try {
+      let res = await api.get(url)
+
+      if (res) {
+        await this.hideConciliate()
+        this.props.history.push('/forecast')
+      }
+    } catch (e) {
+      console.log(e)
+      this.notify('Error conciliando ' + e.message, 5000, toast.TYPE.ERROR)
+    }
+  }
+
+  conciliateMsg () {
+    return (
+      <BaseModal
+        title={'Conciliar predicción'}
+        className={this.state.conciliateModal}
+        hideModal={() => this.hideConciliate()}>
+        <p>¿Estás seguro de utilizar la predicción del modelo
+          <strong> {this.state.engineConciliate && this.state.engineConciliate.engine.name} </strong> en tu proyecto?<br />
+          No podrás crear otra predicción conciliable hasta el siguiente ciclo de predicciones.
+        </p>
+        <br />
+        <div className='buttons org-rules__modal'>
+          <button
+            className='button generate-btn is-primary is-pulled-right'
+            onClick={() => this.finishUpConciliate()}>
+          Conciliar
+        </button>
+          <button
+            className='button generate-btn is-danger is-pulled-right'
+            onClick={() => this.hideConciliate()}>
+          Cancelar
+        </button>
+        </div>
+      </BaseModal>
+    )
+  }
+
   render () {
     if (this.state.loading) {
       return <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
@@ -307,10 +379,15 @@ class ForecastDetail extends Component {
         <div className='section-header'>
           <h2>Predicción {this.state.alias}
             <span className='is-pulled-right forecast-detail-type-dates'>
-              <span className='is-pulled-right'>{this.state.type}</span>
+              <span className='is-pulled-right'>{this.state.forecast &&
+                moment.utc(this.state.forecast[0].dateStart).format('MMMM YYYY')
+                }</span>
               <span className='is-pulled-right'>-</span>
-              <span className='is-pulled-right'>{this.state.type}</span>
-              <span className='is-pulled-right'>{this.state.type}</span>
+              <span className='is-pulled-right'>{this.state.forecast &&
+                moment.utc(this.state.forecast[0].dateEnd).format('MMMM YYYY')
+              }</span>
+              <span className='is-pulled-right'>{this.state.type === 'compatible' ? 'Conciliable'
+                : this.state.type === 'informative' ? 'Informativo' : 'Creado'}</span>
             </span>
           </h2>
         </div>
@@ -528,9 +605,12 @@ class ForecastDetail extends Component {
                   <div className='level-item'>
                     <button
                       className='button is-primary'
-                      disabled={this.state.disabled}>
-                 Consolidar
-                </button>
+                      disabled={
+                        this.state.disabled ||
+                        Object.values(this.engineSelected).length > 1}
+                      onClick={() => { this.showConciliate() }} >
+                      Conciliar
+                  </button>
                   </div>
               }
 
@@ -583,6 +663,7 @@ class ForecastDetail extends Component {
             </div>
           </div>
           }
+        {this.conciliateMsg()}
       </div>
     )
   }

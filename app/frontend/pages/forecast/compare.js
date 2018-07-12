@@ -12,20 +12,22 @@ import { graphColors } from '~base/tools'
 import tree from '~core/tree'
 import Select from '../projects/detail-tabs/select'
 import _ from 'lodash'
+import { toast } from 'react-toastify'
 
 class ForecastCompare extends Component {
   constructor (props) {
     super(props)
     this.state = {
       loading: true,
-      disabled: true
+      disabled: true,
+      prices: false,
+      catalogItems: {}
     }
     this.graphColors = graphColors.sort(function (a, b) { return 0.5 - Math.random() })
   }
 
   componentWillMount () {
     this.getForecasts()
-    this.getGraph()
   }
 
   async getForecasts () {
@@ -56,16 +58,16 @@ class ForecastCompare extends Component {
       if (catalogs.hasOwnProperty(key)) {
         const element = catalogs[key]
         cat[key].items = element
-        console.log(key, element)
       }
     }
-    console.log(catalogs)
 
     this.setState({
       forecasts: forecasts,
-      catalogs: Object.values(cat)
+      catalogs: Object.values(cat),
+      activeForecast: tree.get('activeForecast')
     }, () => {
       this.getTable()
+      this.getGraph()
     })
   }
 
@@ -99,12 +101,13 @@ class ForecastCompare extends Component {
         return (
         {
           'title': ` ${catalog.name}`,
-          'property': '',
+          'property': catalog.slug,
           'default': 'N/A',
           'sortable': true,
           formatter: (row) => {
-            return row.catalogItems.map(item => {
+            return row.catalogs.map(item => {
               if (catalog.slug === item.type) {
+                row[catalog.slug] = item.name
                 return item.name
               }
             })
@@ -115,28 +118,32 @@ class ForecastCompare extends Component {
     }
     ).filter(item => item)
 
-    /* const engines = this.state.forecasts.engines.map(item => {
+    const engines = Object.values(this.state.totals).map(item => {
       return (
       {
         title: item.name,
-        property: '',
+        property: item.name,
         default: 'N/A',
         sortable: true,
         formatter: (row) => {
           return row.engines.map(obj => {
             if (item.name === obj.name) {
-              return item.name
+              row[item.name] = obj.prediction
+              let val = obj.prediction.toFixed().replace(/./g, (c, i, a) => {
+                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+              })
+              return this.state.prices ? '$' + val : val
             }
           })
         }
       }
       )
-    }) */
+    })
 
     let cols = [
       {
         title: 'Id',
-        property: 'product.externalId',
+        property: 'externalId',
         default: 'N/A',
         sortable: true,
         formatter: (row) => {
@@ -147,37 +154,56 @@ class ForecastCompare extends Component {
         title: 'Producto',
         property: 'product.name',
         default: 'N/A',
+        sortable: true,
         formatter: (row) => {
           return row.product.name
         }
       },
-      ...catalogItems
-      // ...engines
+      ...catalogItems,
+      ...engines
     ]
 
     return cols
   }
 
   handleSort (e) {
-    let sorted = this.state.engineTable
-
-    if (this.state.sortAscending) {
-      sorted = _.orderBy(sorted, [e], ['asc'])
+    let sorted = this.state.forecastTable
+    if (e === 'externalId') {
+      if (this.state.sortAscending) {
+        sorted.sort((a, b) => {
+          return parseInt(a.product[e]) - parseInt(b.product[e])
+        })
+      } else {
+        sorted.sort((a, b) => { return parseInt(b.product[e]) - parseInt(a.product[e]) })
+      }
     } else {
-      sorted = _.orderBy(sorted, [e], ['desc'])
+      if (this.state.sortAscending) {
+        sorted = _.orderBy(sorted, [e], ['asc'])
+      } else {
+        sorted = _.orderBy(sorted, [e], ['desc'])
+      }
     }
 
     this.setState({
-      engineTable: sorted,
+      forecastTable: sorted,
       sortAscending: !this.state.sortAscending,
       sortBy: e
+    }, () => {
+      this.searchDatarows()
     })
   }
 
   async getGraph () {
-    let url = '/app/forecastGroups/graph/' + this.props.match.params.uuid
+    this.setState({
+      loading: true
+    })
+    let url = '/app/forecastGroups/graph/compare/' + this.props.match.params.uuid
     try {
-      let res = await api.post(url, {})
+      let res = await api.post(url, {
+        engines: this.state.forecasts.map(item => { return item.engine.uuid }),
+        prices: this.state.prices,
+        catalogItems: this.state.filters
+      })
 
       if (res.data) {
         this.setState({
@@ -188,7 +214,7 @@ class ForecastCompare extends Component {
       }
     } catch (e) {
       console.log(e)
-      // this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error obteniendo gráfica ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -196,7 +222,7 @@ class ForecastCompare extends Component {
     this.setState({ prices },
       () => {
         this.getGraph()
-        this.getProductTable()
+        this.getTable()
       })
   }
 
@@ -257,21 +283,90 @@ class ForecastCompare extends Component {
   }
 
   async getTable () {
+    this.setState({
+      loading: true
+    })
     let url = '/app/forecastGroups/graph/compare/table/' + this.props.match.params.uuid
     try {
       let res = await api.post(url, {
-        engines: this.state.forecasts.map(item => { return item.engine.uuid })
+        engines: this.state.forecasts.map(item => { return item.engine.uuid }),
+        prices: this.state.prices,
+        catalogItems: this.state.filters
       })
 
-      if (res.data) {
+      if (res) {
         this.setState({
-          forecastTable: Object.values(res.data),
+          forecastTable: res,
           loading: false
+        }, () => {
+          this.searchDatarows()
         })
       }
     } catch (e) {
       console.log(e)
-      // this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error obteniendo tabla ' + e.message, 5000, toast.TYPE.ERROR)
+    }
+  }
+
+
+  async searchDatarows() {
+    if (this.state.searchTerm === '') {
+      this.setState({
+        filteredData: this.state.forecastTable
+      })
+
+      return
+    }
+
+    const items = this.state.forecastTable.filter((item) => {
+      const regEx = new RegExp(this.state.searchTerm, 'gi')
+      const searchStr = `${item.product.externalId} ${item.product.name}`
+
+      if (regEx.test(searchStr))
+        return true
+
+      return false
+    })
+
+    await this.setState({
+      filteredData: items
+    })
+  }
+
+  searchOnChange = (e) => {
+    this.setState({
+      searchTerm: e.target.value
+    }, () => this.searchDatarows())
+  }
+
+
+  async filterChangeHandler(name, value) {
+    let aux = this.state.catalogItems
+    aux[name] = value
+    this.setState({
+      catalogItems: aux,
+      filters: Object.values(aux)
+    }, () => {
+      this.getGraph()
+      this.getTable()
+    })
+  }
+
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
     }
   }
 
@@ -306,7 +401,7 @@ class ForecastCompare extends Component {
     return (
       <div className='forecast-detail'>
         <div className='section-header'>
-          <h2>Predicción {this.state.alias}</h2>
+          <h2>Predicción {this.state.activeForecast.alias}</h2>
         </div>
         <div className='level'>
           <div className='level-left'>
@@ -329,15 +424,16 @@ class ForecastCompare extends Component {
                     current: false
                   },
                   {
-                    path: '/forecast/compare',
-                    label: 'Comparar',
+                    path: '/forecast/detail',
+                    label: this.state.activeForecast.alias,
                     current: true
                   },
                   {
-                    path: '/forecast/detail',
-                    label: this.state.alias,
+                    path: '/forecast/compare',
+                    label: 'Comparar',
                     current: true
                   }
+                  
                 ]}
                 align='left'
               />
@@ -366,7 +462,8 @@ class ForecastCompare extends Component {
                   <Select
                     label={item.name}
                     name={key}
-                    value={item.items[0]}
+                    placeholder='Todos'
+                    value={this.state.catalogItems[key]}
                     optionValue='uuid'
                     optionName='name'
                     options={item.items}
@@ -389,7 +486,16 @@ class ForecastCompare extends Component {
                           <strong>{item.name}</strong>
                         </p>
                         <p className='indicators-number' style={{ color: item.color }}>
-                          {item.prediction}
+
+                          {
+                            this.state.prices ? '$' +
+                              item.prediction.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                              : item.prediction.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                          }
                         </p>
                       </div>
                     )
@@ -576,7 +682,7 @@ class ForecastCompare extends Component {
 
             <BaseTable
               className='dash-table is-fullwidth'
-              data={this.state.forecastTable}
+              data={this.state.filteredData}
               columns={this.getColumns()}
               handleSort={(e) => { this.handleSort(e) }}
               sortAscending={this.state.sortAscending}
