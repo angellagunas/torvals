@@ -20,6 +20,14 @@ const forecastGroupSchema = new Schema({
     ],
     default: 'informative'
   },
+  status: {
+    type: String,
+    enum: [
+      'created',
+      'conciliated'
+    ],
+    default: 'created'
+  },
 
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   dateCreated: { type: Date, default: moment.utc },
