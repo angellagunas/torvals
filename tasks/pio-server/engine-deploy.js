@@ -20,7 +20,7 @@ const task = new Task(async function (argv) {
   log.call('Deploy engine.')
   const spawnPio = spawnSync(
     'pio',
-    ['deploy &'],
+    ['deploy', '--port', forecast.port, '&'],
     { cwd: `/engines/${forecast.engine.path}` }
   )
 

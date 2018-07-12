@@ -38,16 +38,22 @@ const task = new Task(async function (argv) {
   })*/
 
   // LOAD
-  /*log.call('Sending task to queue for loading APP data.')
+  log.call('Sending task to queue for loading APP data.')
   loadAppData.add({
+    forecast: forecast.uuid
+  })
+
+  // BUILD ENGINE
+  /*log.call('Sending task to queue for building the engine.')
+  engineBuild.add({
     forecast: forecast.uuid
   })*/
 
-  // BUILD ENGINE
-  log.call('Sending task to queue for building the engine.')
-  engineBuild.add({
+  // TRAIN ENGINE
+  /*log.call('Sending task to queue for trainging the engine.')
+  engineTrain.add({
     forecast: forecast.uuid
-  })
+  })*/
 
   log.call('Forecast/App task sended.')
   return true

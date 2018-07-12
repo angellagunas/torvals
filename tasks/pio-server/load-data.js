@@ -3,9 +3,10 @@ require('../../config')
 require('lib/databases/mongo')
 
 const Logger = require('lib/utils/logger')
+const request = require('lib/request')
 const Task = require('lib/task')
 const { spawnSync } = require('child_process')
-const { DataSetRow, Forecast } = require('models')
+const { CatalogItem, DataSetRow, Forecast } = require('models')
 
 const task = new Task(async function (argv) {
   const log = new Logger('task-pio-load-data')
@@ -14,7 +15,6 @@ const task = new Task(async function (argv) {
   const forecast = await Forecast.findOne({uuid: argv.forecast})
     .populate('engine')
     .populate('forecastGroup')
-    .populate('forecastGroup.project')
   if (!forecast || !forecast.engine) {
     throw new Error('Invalid forecast.')
   }
@@ -22,21 +22,50 @@ const task = new Task(async function (argv) {
 
   log.call('Import data to created app.')
   const rows = await DataSetRow.find({
-    dataset: forecast.forecastGroup.project.dataset,
+    dataset: forecast.forecastGroup.project.mainDataset,
     cycle: { '$in': forecast.forecastGroup.cycles }
   })
 
-  log.call('Load data.')
-  const spawnPio = spawnSync(
-    'python',
-    ['/data/import_data.py', '--access-key', forecast.instanceKey, '--file', '/data/sample_data_barcel.csv', '--group-by', 'fecha producto_id'],
-    { cwd: `/engines/${forecast.engine.path}` }
-  )
+  const catalogItems = await CatalogItem.find({
+    organization: forecast.forecastGroup.project.organization
+  }).populate('catalog')
 
-  if (spawnPio.status !== 0) {
-    log.call(spawnPio.stderr)
-    log.call(spawnPio.error)
-    return false
+  log.call('Load data.')
+  for (let row of rows) {
+    const data = row.catalogItems.reduce(function(obj, item) {
+      const info = catalogItems.find(function(element) {
+        return element._id === item
+      })
+      log.call(info)
+      obj[info.catalog.slug] = info.name
+
+      return obj
+    }, {})
+    const options = {
+      url: `http://localhost:7070/events.json?accessKey=${forecast.instanceKey}`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: {
+        'event': 'group',
+        'entityType': 'forecast',
+        'entityId': '',
+        'properties': {
+          'a': 'b'
+        }
+      },
+      json: true,
+      persist: true
+    }
+
+    try {
+      const res = await request(options)
+      log.call(res)
+    } catch (e) {
+      log.call('There was an error creating the event.')
+    }
   }
 
   return true

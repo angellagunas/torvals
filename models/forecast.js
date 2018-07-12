@@ -19,6 +19,7 @@ const forecastSchema = new Schema({
   status: {
     type: String,
     enum: [
+      'error',
       'created',
       'initializing',
       'sendingInfo',

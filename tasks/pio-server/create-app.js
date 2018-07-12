@@ -17,7 +17,6 @@ const task = new Task(async function (argv) {
   if (!forecast || !forecast.engine) {
     throw new Error('Invalid forecast.')
   }
-  log.call(forecast)
 
   log.call('Create new app.')
   const spawnPio = spawnSync(
@@ -34,6 +33,11 @@ const task = new Task(async function (argv) {
   if (spawnPio.status !== 0) {
     log.call(spawnPio.stderr)
     log.call(spawnPio.error)
+    forecast.set({
+      status: 'error'
+    })
+    await forecast.save()
+
     return false
   }
 
