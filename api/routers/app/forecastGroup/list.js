@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {Project} = require('models')
+const {ForecastGroup, Project} = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -12,25 +12,16 @@ module.exports = new Route({
         continue
       }
 
-      if (filter === 'showOnDashboard') {
-        filters['$or'] = [{showOnDashboard: null}, {showOnDashboard: true}]
-        continue
-      }
-
-      if (filter === 'outdated') {
-        filters['outdated'] = ctx.request.query[filter]
-        continue
-      }
-
-      if (filter === 'hasMainDataset') {
-        filters['mainDataset'] = {$ne: null}
-        continue
-      }
-
       if (!isNaN(parseInt(ctx.request.query[filter]))) {
         filters[filter] = parseInt(ctx.request.query[filter])
       } else {
         filters[filter] = { '$regex': ctx.request.query[filter], '$options': 'i' }
+      }
+
+      if (filter === 'project') {
+        let project = await Project.findOne({uuid: ctx.request.query[filter]})
+        if (project) { filters['project'] = project._id }
+        continue
       }
 
       if (filter === 'general') {
@@ -42,14 +33,14 @@ module.exports = new Route({
       }
     }
 
-    var projects = await Project.dataTables({
+    var forecast = await ForecastGroup.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {...filters, isDeleted: false, organization: ctx.state.organization._id},
+      find: {...filters, isDeleted: false},
       sort: ctx.request.query.sort || '-dateCreated',
-      populate: ['organization', 'mainDataset']
+      format: 'toPublic'
     })
 
-    ctx.body = projects
+    ctx.body = forecast
   }
 })
