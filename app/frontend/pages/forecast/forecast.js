@@ -9,6 +9,7 @@ import Link from '~base/router/link'
 import DeleteButton from '~base/components/base-deleteButton'
 import BaseModal from '~base/components/base-modal'
 import moment from 'moment'
+import { toast } from 'react-toastify'
 
 class Forecast extends Component {
   constructor (props) {
@@ -30,6 +31,24 @@ class Forecast extends Component {
 
   moveTo (route) {
     this.props.history.push(route)
+  }
+
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
   }
 
   async getProjects () {
@@ -128,18 +147,21 @@ class Forecast extends Component {
           </div>
         </div>
       </div>
-
-      /* <DeleteButton
-        objectName='Predicción'
-        objectDelete={() => this.deleteForecast(item)}
-        message={<span>¿Estas seguro de querer eliminar esta Predicción?</span>}
-        small
-      /> */
     )
   }
 
-  deleteForecast (item) {
-    console.log('Deleted', item)
+  async deleteForecast (item) {
+    let url = '/app/forecastGroups/'
+    try {
+      let res = await api.del(url + item.uuid)
+
+      if (res) {
+        this.getForecast()
+        this.notify('Predicción eliminada con éxito', 3000)
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   forecasts () {
