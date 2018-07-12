@@ -7,7 +7,7 @@ const cloneDataset = require('tasks/dataset/process/clone')
 const sendSlackNotification = require('tasks/slack/send-message-to-channel')
 const Task = require('lib/task')
 const checkProjectCycleStatus = require('tasks/project/verify-cycle-status')
-const { Project, DataSet } = require('models')
+const { Project, DataSet, ForecastGroup } = require('models')
 
 const task = new Task(
   async function (argv) {
@@ -85,6 +85,8 @@ const task = new Task(
     if (pos > 0) {
       project.datasets.splice(pos, 1)
     }
+
+    await ForecastGroup.update({project: project._id, status: 'created'}, {type: 'informative'}, {multi: true})
 
     project.set({
       mainDataset: auxDataset._id,
