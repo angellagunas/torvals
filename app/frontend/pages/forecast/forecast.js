@@ -304,7 +304,7 @@ class Forecast extends Component {
     return (
       <div>
         <div className='section-header'>
-          <h2>Forecasts</h2>
+          <h2>Predicciones</h2>
         </div>
         <div className='section'>
           {this.state.projects &&
@@ -442,7 +442,7 @@ class Forecast extends Component {
 
 export default Page({
   path: '/forecast',
-  title: 'Forecast',
+  title: 'Predicciones',
   icon: 'bar-chart',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin',

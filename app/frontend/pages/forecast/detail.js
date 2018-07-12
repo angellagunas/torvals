@@ -671,7 +671,7 @@ class ForecastDetail extends Component {
 
 export default Page({
   path: '/forecast/detail/:uuid',
-  title: 'Forecast',
+  title: 'Predicciones',
   icon: 'bar-chart',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin',
