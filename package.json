@@ -87,6 +87,7 @@
     "react-notification-system": "^0.2.16",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
+    "react-select": "^1.2.1",
     "react-spinkit": "^3.0.0",
     "react-sticky-table": "^2.0.0",
     "react-toastify": "^3.2.2",

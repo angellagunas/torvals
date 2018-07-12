@@ -13,6 +13,8 @@ import { graphColors } from '~base/tools'
 import tree from '~core/tree'
 import { toast } from 'react-toastify'
 import BaseModal from '~base/components/base-modal'
+import Select from 'react-select'
+import 'react-select/dist/react-select.css'
 
 class ForecastDetail extends Component {
   constructor (props) {
@@ -346,6 +348,98 @@ class ForecastDetail extends Component {
     )
   }
 
+  async getUsers () {
+    let url = '/app/users'
+    try {
+      let res = await api.get(url)
+
+      if (res.data) {
+        this.setState({
+          users: res.data.map(item => {
+            return {label: item.name, value: item.email}
+          })
+        }, () => {
+          this.showShareModal()
+        })
+      }
+    } catch (e) {
+      console.log(e)
+      this.notify('Error obteniendo usuarios ' + e.message, 5000, toast.TYPE.ERROR)
+    }
+  }
+
+  handleSelectChange (usersEmails) {
+    this.setState({ usersEmails })
+  }
+
+  shareModal () {
+    return (
+      <BaseModal
+        title={'Compartir predicción'}
+        className={'shareModal ' + this.state.shareModal}
+        hideModal={() => this.hideShareModal()}>
+        <p>Selecciona los usuarios con quienes quieres compartir la predicción.</p>
+        <br />
+        <br />
+
+        <Select
+          closeOnSelect={false}
+          multi
+          onChange={(value) => this.handleSelectChange(value)}
+          placeholder='Seleccionar usuario(s)'
+          removeSelected
+          simpleValue
+          value={this.state.usersEmails}
+          options={this.state.users}
+        />
+        <br />
+        <br />
+
+        <div className='buttons org-rules__modal'>
+          <button
+            className='button generate-btn is-primary is-pulled-right'
+            onClick={() => this.finishUpShare()}
+            disabled={!this.state.usersEmails || this.state.usersEmails === ''}>
+            Compartir
+        </button>
+          <button
+            className='button generate-btn is-danger is-pulled-right'
+            onClick={() => this.hideShareModal()}>
+            Cancelar
+        </button>
+        </div>
+      </BaseModal>
+    )
+  }
+
+  showShareModal () {
+    this.setState({
+      shareModal: ' is-active'
+    })
+  }
+
+  hideShareModal () {
+    this.setState({
+      shareModal: ''
+    })
+  }
+
+  async finishUpShare () {
+    let url = '/app/forecasts/share'
+    try {
+      let res = await api.post(url, {
+        users: this.state.usersEmails
+      })
+
+      if (res) {
+        await this.hideShareModal()
+      }
+    } catch (e) {
+      console.log(e)
+      this.notify('Error compartiendo ' + e.message, 5000, toast.TYPE.ERROR)
+    }
+  }
+
   render () {
     if (this.state.loading) {
       return <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
@@ -628,7 +722,8 @@ class ForecastDetail extends Component {
                   <div className='level-item'>
                     <button
                       className='button is-primary'
-                      disabled={this.state.disabled}>
+                      disabled={this.state.disabled}
+                      onClick={() => this.getUsers()} >
                       <span className='icon'>
                         <i className='fa fa-share-alt' />
                       </span>
@@ -639,6 +734,7 @@ class ForecastDetail extends Component {
                     <DeleteButton
                       iconOnly
                       objectName='Predicción'
+                      disabled={this.state.disabled}
                       objectDelete={() => this.deleteForecast(item)}
                       message={<span>¿Estas seguro de querer eliminar esta predicción?</span>}
                     />
@@ -664,6 +760,7 @@ class ForecastDetail extends Component {
           </div>
           }
         {this.conciliateMsg()}
+        {this.shareModal()}
       </div>
     )
   }
