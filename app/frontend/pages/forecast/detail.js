@@ -428,7 +428,8 @@ class ForecastDetail extends Component {
     let url = '/app/forecasts/share'
     try {
       let res = await api.post(url, {
-        users: this.state.usersEmails
+        users: this.state.usersEmails,
+        forecasts: Object.keys(this.engineSelected)
       })
 
       if (res) {
