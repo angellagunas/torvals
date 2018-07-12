@@ -78,7 +78,7 @@ class ForecastDetail extends Component {
   }
 
   async deleteForecastItem () {
-    let url = '/app/forecasts'
+    let url = '/app/forecasts/delete/'
     try {
       let res = await api.post(url, {
         forecasts: Object.keys(this.engineSelected)
