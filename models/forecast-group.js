@@ -20,6 +20,14 @@ const forecastGroupSchema = new Schema({
     ],
     default: 'informative'
   },
+  status: {
+    type: String,
+    enum: [
+      'created',
+      'conciliated'
+    ],
+    default: 'created'
+  },
 
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   dateCreated: { type: Date, default: moment.utc },
@@ -34,7 +42,8 @@ forecastGroupSchema.methods.toAdmin = function () {
     forecasts: this.forecasts,
     alias: this.alias,
     type: this.type,
-    uuid: this.uuid
+    uuid: this.uuid,
+    engines: this.engines
   }
 }
 
@@ -44,7 +53,8 @@ forecastGroupSchema.methods.toPublic = function () {
     forecasts: this.forecasts,
     alias: this.alias,
     type: this.type,
-    uuid: this.uuid
+    uuid: this.uuid,
+    engines: this.engines
   }
 }
 

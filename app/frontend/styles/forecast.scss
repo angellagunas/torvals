@@ -42,7 +42,8 @@
   .modal .modal-card {
     width: 680px;
   }
-  &-catalog {
+  &-catalog,
+  &-engine {
     font-size: .8rem !important;
     .md-checkbox {
       line-height: 1;
@@ -129,5 +130,135 @@
         cursor: pointer;
       }
     }
+
+    .dropdown-menu{
+      min-width: 3rem;
+      .dropdown-content{
+        padding: 0;
+        .dropdown-item{
+          padding:  .2rem;
+          .button{
+            min-width: 56px;
+          }
+        }
+      }
+
+    }
+  }
+  &-detail {
+    .box {
+      background-color: #EFF1F9;
+      border-color: #E6E8F6;
+      border-radius: 0;
+      padding: .5rem;
+      margin-bottom: 1.5rem;
+    }
+    .indicators {
+      max-height: 35vh;
+      min-height: 30vh;
+      height: auto;
+      &-title {
+        font-size: .9rem;
+        margin-bottom: -.3rem;
+        font-weight: 700;
+      }
+      &-number {
+        font-size: 1.2rem;
+        margin-bottom: .8rem !important;
+        font-weight: 700;
+      }
+    }
+    &>.level {
+      margin-bottom: 0;
+      margin-top: .5rem;
+      .level-right {
+        margin-right: .6rem;
+      }
+    }
+    &>.section {
+      .columns.box {
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
+    .md-checkbox {
+      line-height: 1;
+    }
+    .md-checkbox--fake {
+      margin: 5px;
+      width: 20px;
+      height: 20px;
+    }
+    .md-checkbox--fake::after {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      border: 2px solid #ccc;
+    }
+    .md-checkbox--fake::before {
+      border-radius: 5px;
+      border: 0px solid transparent;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::after {
+      border: 2px solid #ccc;
+    }
+    .md-checkbox input:checked+.md-checkbox--fake::before {
+      height: 8px;
+      border-radius: 2px;
+      border-color: $success;
+      border-width: 2px;
+      border-top-style: none;
+      border-right-style: none;
+      -webkit-transform: rotate(-45deg);
+      -moz-transform: rotate(-45deg);
+      -ms-transform: rotate(-45deg);
+      -o-transform: rotate(-45deg);
+      transform: rotate(-45deg) translate(0px, 4px);
+    }
+    .filters {
+      margin-top: -1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    &-type-dates {
+      font-weight: 600;
+      font-size: 1rem;
+      border-left: 1px solid #E6E8F6;
+      height: 50px;
+      margin-top: -.7rem;
+      span {
+        padding: .8rem .7rem;
+      }
+    }
+
+    .dash-table{
+        td{
+            text-align: left;
+            padding-left: 1.5rem;
+        }
+    }
+
+    .shareModal{
+      .modal-card{
+        min-height: 25vh;
+      }
+    }
+  }
+}
+
+.status {
+  &-info {
+    font-weight: 700;
+    background-color: rgba($info, .1) !important;
+    color: $info;
+  }
+  &-ready {
+    font-weight: 700;
+    background-color: rgba($success, .1) !important;
+    color: $success;
+  }
+  &-process {
+    font-weight: 700;
+    background-color: rgba($warning, .1) !important;
+    color: $warning;
   }
 }

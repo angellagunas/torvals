@@ -39,7 +39,7 @@ module.exports = new Route({
       find: {...filters, isDeleted: false},
       sort: ctx.request.query.sort || '-dateCreated',
       format: 'toPublic',
-      populate: ['catalogs', 'engines']
+      populate: ['catalogs', 'engines', 'cycles']
     })
 
     ctx.body = forecast

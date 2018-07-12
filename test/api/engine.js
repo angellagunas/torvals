@@ -13,7 +13,6 @@ function test () {
 }
 
 describe('/engines', () => {
-
   describe('[GET] as admin', () => {
     it('with valid request should return a list of engines', async function () {
       await clearDatabase()
