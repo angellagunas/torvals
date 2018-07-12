@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const {ForecastGroup, Project, Catalog, Cycle, Engine, Forecast, DataSet} = require('models')
+const {ForecastGroup, Project, Catalog, Cycle, Engine, Forecast, DataSet, Rule} = require('models')
 const lov = require('lov')
 const { v4 } = require('uuid')
 
@@ -14,18 +14,27 @@ module.exports = new Route({
     let data = ctx.request.body
     let user = ctx.state.user
 
-    let project = await Project.findOne({uuid: data.project}).populate('mainDataset')
+    let project = await Project.findOne({uuid: data.project}).populate('mainDataset rule')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
-    let catalogs = await Catalog.find({uuid: {$in: data.catalogs}})
-    catalogs.data = catalogs.map(item => {
-      return item._id
-    })
+    let catalogs
+    let cycles
+    if (data.type === 'compatible') {
+      catalogs = {data: project.rule.catalogs}
 
-    let cycles = await Cycle.getBetweenDates(project.organization, project.rule, data.dateStart, data.dateEnd)
-    cycles.data = cycles.map(item => {
-      return item._id
-    })
+      cycles = await Cycle.getCurrent(project.organization, project.rule._id)
+      cycles.data = [cycles._id]
+    } else {
+      catalogs = await Catalog.find({uuid: {$in: data.catalogs}})
+      catalogs.data = catalogs.map(item => {
+        return item._id
+      })
+
+      cycles = await Cycle.getBetweenDates(project.organization, project.rule._id, data.dateStart, data.dateEnd)
+      cycles.data = cycles.map(item => {
+        return item._id
+      })
+    }
 
     let engines = await Engine.find({uuid: {$in: data.engines}})
     engines.data = engines.map(item => {
@@ -58,7 +67,7 @@ module.exports = new Route({
         catalogItems: project.mainDataset.catalogItems,
         cycles: project.mainDataset.cycles,
         periods: project.mainDataset.periods,
-        rule: project.rule
+        rule: project.rule._id
       })
 
       let forecast = await Forecast.create({

@@ -65,8 +65,35 @@ class ForecastDetail extends Component {
     )
   }
 
-  deleteForecast (item) {
-    console.log('Deleted', item)
+  async deleteForecast (item) {
+    let url = '/app/forecastGroups/'
+    try {
+      let res = await api.del(url + item)
+
+      if (res) {
+        this.notify('Predicción eliminada con éxito', 3000)
+        this.props.history.push('/forecast')
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  async deleteForecastItem () {
+    let url = '/app/forecasts/delete/'
+    try {
+      let res = await api.post(url, {
+        forecasts: Object.keys(this.engineSelected)
+      })
+
+      if (res) {
+        this.notify('Predicción eliminada con éxito', 3000)
+        this.getForecasts()
+        this.getGraph()
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   getColumns () {
@@ -529,7 +556,7 @@ class ForecastDetail extends Component {
               <DeleteButton
                 titleButton={'Eliminar'}
                 objectName='Predicción'
-                objectDelete={this.deleteObject}
+                objectDelete={() => this.deleteForecast(this.props.match.params.uuid)}
                 message={`¿Está seguro que desea eliminar el predicción?`}
               />
             </div>
@@ -734,10 +761,10 @@ class ForecastDetail extends Component {
                   <div className='level-item'>
                     <DeleteButton
                       iconOnly
-                      objectName='Predicción'
                       disabled={this.state.disabled}
-                      objectDelete={() => this.deleteForecast(item)}
-                      message={<span>¿Estas seguro de querer eliminar esta predicción?</span>}
+                      objectName='Modelos'
+                      objectDelete={() => this.deleteForecastItem()}
+                      message={<span>¿Estas seguro de querer eliminar estos modelos?</span>}
                     />
                   </div>
                 </div>
