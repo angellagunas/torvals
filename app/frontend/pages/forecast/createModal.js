@@ -5,6 +5,7 @@ import Checkbox from '~base/components/base-checkbox'
 import moment from 'moment'
 import api from '~base/api'
 import { toast } from 'react-toastify'
+import _ from 'lodash'
 
 class CreateModal extends Component {
   constructor (props) {
@@ -44,47 +45,46 @@ class CreateModal extends Component {
   }
 
   async getDates () {
-    let d = []
     let c = []
-    let dateMin = moment.utc(this.state.project.dateMin)
-    let dateMax = moment.utc(this.state.project.dateMax)
+    let url = '/app/cycles/project/' + this.state.project.uuid
 
-    if (dateMin.isBefore(moment.utc('2017-01-01'))) {
-      dateMin = moment.utc('2017-01-01')
-    }
+    try {
+      let res = await api.get(url)
 
-    while (dateMin.format('MMMM YYYY') !== dateMax.format('MMMM YYYY')) {
-      d.push(dateMin)
-      dateMin = moment.utc(dateMin).add(1, 'month')
-    }
+      if (res.data) {
+        for (let i = 0; i < res.data.length; i++) {
+          c.push({
+            number: res.data[i].cycle,
+            name: `${moment.utc(res.data[i].dateStart).format('MMMM') + ' #' + res.data[i].cycle}`,
+            year: moment.utc(res.data[i].dateStart).get('year'),
+            dateStart: res.data[i].dateStart
+          })
+        }
 
-    d.push(dateMin)
+        c = _.orderBy(c, 'year')
 
-    for (let i = 0; i < d.length; i++) {
-      c.push({
-        number: d[i].get('month') + 1,
-        name: `${d[i].format('MMMM')}`,
-        year: d[i].get('year')
-      })
-    }
+        let min
+        c.map(item => {
+          if (item.year === 2018 && item.number === 1 && item.name === 'enero #1') {
+            min = item
+          }
+        })
 
-    let min
-    c.map(item => {
-      if (item.year === 2018 && item.number === 1) {
-        min = item
+        this.setState({
+          cycles: c,
+          minPeriod: min || { number: 1, name: 'enero', year: 2018 },
+          maxPeriod: c[c.length - 1]
+        })
       }
-    })
-
-    this.setState({
-      cycles: c,
-      minPeriod: min || { number: 1, name: 'enero', year: 2018 },
-      maxPeriod: c[c.length - 1]
-    })
+    } catch (e) {
+      console.log(e)
+      this.notify('Error obteniendo ciclos ' + e.message, 5000, toast.TYPE.ERROR)
+    }
   }
 
   setMinPeriod (item) {
-    let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
-    let min = moment.utc([item.year, item.number - 1])
+    let max = moment.utc(this.state.maxPeriod.dateStart)
+    let min = moment.utc(item.dateStart)
     if (min.isBefore(max)) {
       this.setState({
         minPeriod: item
@@ -98,8 +98,8 @@ class CreateModal extends Component {
   }
 
   setMaxPeriod (item) {
-    let min = moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1])
-    let max = moment.utc([item.year, item.number - 1])
+    let min = moment.utc(this.state.minPeriod.dateStart)
+    let max = moment.utc(item.dateStart)
     if (max.isAfter(min)) {
       this.setState({
         maxPeriod: item
@@ -181,8 +181,8 @@ class CreateModal extends Component {
         type: this.state.reportType,
         engines: Object.keys(this.engines),
         catalogs: this.state.reportType === 'informative' ? Object.keys(this.catalogs) : undefined,
-        dateStart: this.state.reportType === 'informative' ? moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD') : undefined,
-        dateEnd: this.state.reportType === 'informative' ? moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD') : undefined
+        dateStart: this.state.reportType === 'informative' ? moment.utc(this.state.minPeriod.dateStart).startOf('month').format('YYYY-MM-DD') : undefined,
+        dateEnd: this.state.reportType === 'informative' ? moment.utc(this.state.maxPeriod.dateStart).endOf('month').format('YYYY-MM-DD') : undefined
       })
 
       if (res) {
