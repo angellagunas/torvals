@@ -49,7 +49,7 @@ module.exports = new Route({
         project: project._id,
         createdBy: ctx.state.user,
         dateMax: data.dateStart,
-        dateMin: data.dateMin,
+        dateMin: data.dateEnd,
         status: 'new',
         source: 'forecast',
         columns: project.mainDataset.columns,
