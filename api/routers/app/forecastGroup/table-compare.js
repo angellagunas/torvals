@@ -6,7 +6,8 @@ const {
   DataSetRow,
   Forecast,
   Engine,
-  CatalogItem
+  CatalogItem,
+  Rule
 } = require('models')
 
 module.exports = new Route({
@@ -20,7 +21,7 @@ module.exports = new Route({
       ctx.throw(422, 'Se necesitan especificar los modelos a comparar')
     }
 
-    const forecastGroup = await ForecastGroup.findOne({uuid: uuid, isDeleted: false}).populate('forecasts engines')
+    const forecastGroup = await ForecastGroup.findOne({uuid: uuid, isDeleted: false}).populate('forecasts engines project')
     ctx.assert(forecastGroup, 404, 'ForecastGroup no encontrado')
 
     const engines = await Engine.find({uuid: {$in: data.engines}})
@@ -49,7 +50,7 @@ module.exports = new Route({
 
     let conditions = []
     let group
-    const key = {product: '$newProduct', engine: '$forecast.engine'}
+    const key = {product: '$newProduct', engine: '$forecast.engine', 'catalogItems': '$catalogItems'}
 
     if (data.prices) {
       conditions = [
@@ -156,28 +157,60 @@ module.exports = new Route({
           'foreignField': '_id',
           'as': 'engine'
         }
+      },
+      {
+        '$addFields': {
+          'catalogItems': {
+            '$reduce': {
+              'input': '$_id.catalogItems',
+              'initialValue': [
+
+              ],
+              'in': {
+                '$setUnion': [
+                  '$$value',
+                  '$_id.catalogItems'
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'catalogitems',
+          'localField': 'catalogItems',
+          'foreignField': '_id',
+          'as': 'catalogs'
+        }
       }
     ]
 
     let responseData = await DataSetRow.aggregate(match)
 
-    let response = {}
+    let response = []
+
     for (let row of responseData) {
-      if (!response[row.product[0].uuid]) {
-        response[row.product[0].uuid] = {
+      let element = _.find(response,
+        {
+          product: {_id: row.product[0]._id},
+          catalogs: row.catalogs.map(item => ({_id: item._id}))
+        })
+
+      if (!element) {
+        element = response.push({
           product: row.product[0],
-          engines: []
-        }
+          engines: [{...row.engine[0], prediction: row.prediction}],
+          catalogs: row.catalogs
+        })
+      } else {
+        element['engines'].push({
+          ...row.engine[0],
+          prediction: row.prediction
+        })
       }
-
-      response[row.product[0].uuid]['engines'].push({
-        engine: row.engine[0],
-        prediction: row.prediction
-      })
     }
 
-    ctx.body = {
-      data: response
-    }
+    ctx.body = response
   }
 })
