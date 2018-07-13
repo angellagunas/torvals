@@ -1,19 +1,22 @@
 // node tasks/pio/app/create.js --forecast=uuid
 require('../../config')
 require('lib/databases/mongo')
-
-const createApp = require('queues/pio-create-app')
-const loadAppData = require('queues/pio-load-data')
-const engineBuild = require('queues/pio-build-engine')
-const engineTrain = require('queues/pio-train-engine')
-const engineDeploy = require('queues/pio-deploy-engine')
+const moment = require('moment')
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
+
+const createApp = require('tasks/pio-server/pio-create-app')
+const loadAppData = require('tasks/pio-server/pio-load-data')
+const engineBuild = require('tasks/pio-server/pio-build-engine')
+const engineTrain = require('tasks/pio-server/pio-train-engine')
+const engineDeploy = require('tasks/pio-server/pio-deploy-engine')
+
 const { Forecast } = require('models')
 
 const task = new Task(async function (argv) {
   const log = new Logger('pio-task-app-queue')
-  log.call('Start app creation.')
+  log.call('Starting forecast proccess...')
+  log.call(`Start ==>  ${moment().format()}`)
 
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.forecast})
@@ -24,7 +27,7 @@ const task = new Task(async function (argv) {
   }
 
   // CREATE
-  /*log.call('Update forecast data.')
+  log.call('Update forecast data.')
   forecast.set({
     instanceKey: forecast.uuid,
     port: forecast.port || '8000',
@@ -32,30 +35,31 @@ const task = new Task(async function (argv) {
   })
   await forecast.save()
 
-  log.call('Sending task to queue for the APP creation.')
-  createApp.add({
+  log.call('Creating app...')
+  await createApp.run({
     forecast: forecast.uuid
-  })*/
+  })
 
   // LOAD
-  log.call('Sending task to queue for loading APP data.')
-  loadAppData.add({
+  log.call('Loading app data ...')
+  loadAppData.run({
     forecast: forecast.uuid
   })
 
   // BUILD ENGINE
-  /*log.call('Sending task to queue for building the engine.')
-  engineBuild.add({
+  log.call('Building the engine...')
+  engineBuild.run({
     forecast: forecast.uuid
-  })*/
+  })
 
   // TRAIN ENGINE
-  /*log.call('Sending task to queue for trainging the engine.')
-  engineTrain.add({
+  log.call('Training the engine...')
+  engineTrain.run({
     forecast: forecast.uuid
-  })*/
+  })
 
-  log.call('Forecast/App task sended.')
+  log.call('Done! Forecast generated')
+  log.call(`End ==>  ${moment().format()}`)
   return true
 })
 

@@ -25,4 +25,4 @@ USER pio
 ENV NODE_ENV="production"
 
 # Run tracker
-CMD pio-initialize.sh
+CMD ./pio-initialize.sh
