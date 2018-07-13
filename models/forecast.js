@@ -10,6 +10,7 @@ const forecastSchema = new Schema({
   catalogs: [{ type: Schema.Types.ObjectId, ref: 'Catalog' }],
   dataset: { type: Schema.Types.ObjectId, ref: 'DataSet' },
   engine: { type: Schema.Types.ObjectId, ref: 'Engine', required: true },
+  project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
   forecastGroup: { type: Schema.Types.ObjectId, ref: 'ForecastGroup', required: true },
 
   dateEnd: { type: Date },
@@ -46,6 +47,7 @@ forecastSchema.methods.toPublic = function () {
     approvedBy: this.approvedBy,
     catalogs: this.catalogs,
     dataset: this.dataset,
+    project: this.project,
     engine: this.engine,
     forecastGroup: this.forecastGroup,
     dateEnd: this.dateEnd,
@@ -62,6 +64,7 @@ forecastSchema.methods.toAdmin = function () {
     approvedBy: this.approvedBy,
     catalogs: this.catalogs,
     dataset: this.dataset,
+    project: this.project,
     engine: this.engine,
     forecastGroup: this.forecastGroup,
     dateEnd: this.dateEnd,

@@ -74,6 +74,7 @@ module.exports = new Route({
       let forecast = await Forecast.create({
         catalogs: catalogs.data,
         engine: engine,
+        project: project,
         forecastGroup: forecastGroup._id,
         dateEnd: data.dateEnd,
         dateStart: data.dateStart,
