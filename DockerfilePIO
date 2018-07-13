@@ -1,5 +1,6 @@
 FROM pio-0.12.1
 
+USER root
 ENV NODE_ENV production
 RUN npm config set -g production false
 
@@ -23,4 +24,4 @@ WORKDIR /app
 ENV NODE_ENV="production"
 
 # Run tracker
-CMD /engines/initialize.sh
+CMD pio-initialize.sh

@@ -112,6 +112,7 @@ services:
     volumes:
       - ./pio-code/env:/env
       - ./pio-code/engines:/engines
+      - ./pio-code/data:/data
     ports:
       - "7070:7070"
       - "9001:9000"
