@@ -7,9 +7,9 @@ const Task = require('lib/task')
 
 const createApp = require('tasks/pio-server/create-app')
 const loadAppData = require('tasks/pio-server/load-data')
-const engineBuild = require('tasks/pio-server/build-engine')
-const engineTrain = require('tasks/pio-server/train-engine')
-const engineDeploy = require('tasks/pio-server/deploy-engine')
+const engineBuild = require('tasks/pio-server/engine-build')
+const engineTrain = require('tasks/pio-server/engine-train')
+const engineDeploy = require('tasks/pio-server/engine-deploy')
 
 const { Forecast } = require('models')
 
