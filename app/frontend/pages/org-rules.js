@@ -161,9 +161,17 @@ class OrgRules extends Component {
       rules: { ...this.state.rules, important: true }
     }, async () => {
       await this.saveData()
-      this.setState({
-        alert: true
+      let url = '/app/projects'
+      let res = await api.get(url, {
+        outdated: true,
+        limit: 0
       })
+      if (res.data.length > 0) {
+        this.setState({
+          projectList: res.data,
+          alert: true
+        })
+      }
     })
   }
 
@@ -179,15 +187,8 @@ class OrgRules extends Component {
     })
   }
 
-  async showModalProjects () {
-    let url = '/app/projects'
-    let res = await api.get(url, {
-      outdated: true,
-      limit: 0
-    })
-
+  showModalProjects () {
     this.setState({
-      projectList: res.data,
       projectModal: ' is-active'
     })
   }
