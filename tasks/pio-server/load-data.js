@@ -53,12 +53,13 @@ const task = new Task(async function (argv) {
         'entityType': 'forecast',
         'entityId': '',
         'properties': {
-          'a': 'b'
+          ...data
         }
       },
       json: true,
       persist: true
     }
+    console.log(data)
 
     try {
       const res = await request(options)
