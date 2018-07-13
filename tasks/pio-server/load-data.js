@@ -5,7 +5,6 @@ require('lib/databases/mongo')
 const Logger = require('lib/utils/logger')
 const request = require('lib/request')
 const Task = require('lib/task')
-const { spawnSync } = require('child_process')
 const { CatalogItem, DataSetRow, Forecast } = require('models')
 
 const task = new Task(async function (argv) {
@@ -14,6 +13,7 @@ const task = new Task(async function (argv) {
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.forecast})
     .populate('engine')
+    .populate('project')
     .populate('forecastGroup')
   if (!forecast || !forecast.engine) {
     throw new Error('Invalid forecast.')
@@ -22,18 +22,18 @@ const task = new Task(async function (argv) {
 
   log.call('Import data to created app.')
   const rows = await DataSetRow.find({
-    dataset: forecast.forecastGroup.project.mainDataset,
+    dataset: forecast.project.mainDataset,
     cycle: { '$in': forecast.forecastGroup.cycles }
   })
 
   const catalogItems = await CatalogItem.find({
-    organization: forecast.forecastGroup.project.organization
+    organization: forecast.project.organization
   }).populate('catalog')
 
   log.call('Load data.')
   for (let row of rows) {
-    const data = row.catalogItems.reduce(function(obj, item) {
-      const info = catalogItems.find(function(element) {
+    const data = row.catalogItems.reduce(function (obj, item) {
+      const info = catalogItems.find(function (element) {
         return element._id === item
       })
       log.call(info)
@@ -41,6 +41,7 @@ const task = new Task(async function (argv) {
 
       return obj
     }, {})
+
     const options = {
       url: `http://localhost:7070/events.json?accessKey=${forecast.instanceKey}`,
       method: 'POST',
