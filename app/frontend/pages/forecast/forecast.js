@@ -59,7 +59,7 @@ class Forecast extends Component {
     })
 
     let activeProjects = res.data.filter(item => { return item.mainDataset })
-    activeProjects[0].selected = true
+    if (activeProjects.length > 0) activeProjects[0].selected = true
 
     this.setState({
       projects: activeProjects,
