@@ -23,5 +23,4 @@ WORKDIR /app
 ENV NODE_ENV="production"
 
 # Run tracker
-CMD npm run start
 CMD /engines/initialize.sh
