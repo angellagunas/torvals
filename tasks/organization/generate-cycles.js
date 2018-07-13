@@ -77,6 +77,17 @@ const duration = function(duration, measure){
   return moment.duration(duration, measure)
 }
 
+const hasCycle = async function(organization, rule, date){
+  const cycle = await Cycle.find({
+    organization: organization,
+    rule: rule,
+    dateStart: {$gte: date, $lte: date },
+    isDeleted: false
+  }).count()
+
+  return cycle > 0
+}
+
 const getFirstDate = function(firstStartDate, extraDate, seasonDuration){
   while (firstStartDate.isAfter(extraDate)) {
     firstStartDate = subtract(firstStartDate, seasonDuration)
@@ -85,12 +96,23 @@ const getFirstDate = function(firstStartDate, extraDate, seasonDuration){
   return firstStartDate
 }
 
-const getLastEndDate = function(cyclesAvailable, startDate, cycleDuration, cycle, extraDate){
+const getLastEndDate = async function(rule, extraDate){
+  const {
+    cycle,
+    period,
+    cycleDuration,
+    cyclesAvailable,
+    organization
+  } = rule
+  const startDate = utc(rule.startDate)
+
   const cyclesToFuture = (moment().month() + 1) + parseInt(cyclesAvailable)
   const lastStartDate = moment(startDate).add(cyclesToFuture * cycleDuration, cycle)
   let cycleDurationMoment = duration(cycleDuration, cycle)
   let durationToSubtract = duration(1, 'd')
   let lastEndDate = subtract(add(lastStartDate, cycleDurationMoment), durationToSubtract)
+
+  if(await hasCycle(organization, rule._id, extraDate)) return lastEndDate
 
   while (extraDate.isAfter(lastEndDate)) {
     lastEndDate = moment(lastEndDate).add(cycleDurationMoment)
@@ -131,7 +153,7 @@ const task = new Task(
     firstStartDate = getFirstDate(firstStartDate, extraDate, seasonDuration)
 
     let seasonEndDate = subtract(add(firstStartDate, seasonDuration), durationToSubtract)
-    let lastEndDate = getLastEndDate(cyclesAvailable, startDate, cycleDuration, cycle, extraDate)
+    let lastEndDate = await getLastEndDate(rule, extraDate)
 
     let periodNumber = 1
     let cycleNumber = 1
@@ -151,17 +173,23 @@ const task = new Task(
       let cycleInstance = await Cycle.findOne(cycleObj)
       if(cycleInstance){
         cycleStartDate = add(utc(cycleInstance.dateEnd), durationToSubtract)
-        tentativeCycleEndDate = utc(tentativeCycleEndDate).add(cycleDurationMoment)
+
+        if(period === cycle){
+          tentativeCycleEndDate = utc(tentativeCycleEndDate)
+        }else{
+          tentativeCycleEndDate = utc(tentativeCycleEndDate).subtract(cycleDurationMoment)
+        }
+
         previousPeriodEndDate = utc(cycleInstance.dateEnd)
         
         if(utc(seasonEndDate).isSame(utc(cycleInstance.dateEnd))){
           cycleNumber = 1
+          seasonEndDate = utc(seasonEndDate).add(seasonDuration)
         } else {
           cycleNumber++
         }
 
         if (isEndOfMonthCycle) tentativeCycleEndDate.endOf('month')
-
         continue
       }
 
