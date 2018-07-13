@@ -46,19 +46,19 @@ const task = new Task(async function (argv) {
 
   // LOAD
   log.call('Loading app data ...')
-  loadAppData.run({
+  await loadAppData.run({
     forecast: forecast.uuid
   })
 
   // BUILD ENGINE
   log.call('Building the engine...')
-  engineBuild.run({
+  await engineBuild.run({
     forecast: forecast.uuid
   })
 
   // TRAIN ENGINE
   log.call('Training the engine...')
-  engineTrain.run({
+  await engineTrain.run({
     forecast: forecast.uuid
   })
 
