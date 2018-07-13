@@ -198,7 +198,7 @@ const task = new Task(
       let periodStartDate = utc(cycleStartDate)
       let periodEndDate = utc(periodStartDate).add(periodDurationMoment).subtract(durationToSubtract)
       while (tentativeCycleEndDate.isSameOrAfter(periodStartDate)) {
-        if (periodEndDate.isAfter(cycleEndDate) && !takeStart) break
+        if (periodEndDate.isAfter(tentativeCycleEndDate) && !takeStart) break
 
         let periodObj = {
           organization: organization._id,
