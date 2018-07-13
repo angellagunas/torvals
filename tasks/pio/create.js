@@ -18,8 +18,12 @@ const task = new Task(async function (argv) {
   log.call('Starting forecast proccess...')
   log.call(`Start ==>  ${moment().format()}`)
 
+  if (!argv.uuid) {
+    throw new Error('You need to provide an uuid!')
+  }
+
   log.call('Get forecast/engine data.')
-  const forecast = await Forecast.findOne({uuid: argv.forecast})
+  const forecast = await Forecast.findOne({uuid: argv.uuid})
     .populate('engine')
     .populate('forecastGroup')
   if (!forecast || !forecast.engine) {
