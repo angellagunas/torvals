@@ -48,7 +48,7 @@ const task = new Task(async function (argv) {
   log.call('Loading app data ...')
   await loadAppData.run({
     forecast: forecast.uuid
-  })
+  })*/
 
   // BUILD ENGINE
   log.call('Building the engine...')

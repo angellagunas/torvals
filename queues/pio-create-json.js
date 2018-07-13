@@ -6,7 +6,7 @@ const path = require('path')
 const Queue = require('lib/queue')
 
 const queue = new Queue({
-  name: 'pio-train-engine',
+  name: 'pio-create-json',
   isFile: true,
   task: path.join(__dirname, 'tasks-wrappers/pio-create-json.js')
 })
