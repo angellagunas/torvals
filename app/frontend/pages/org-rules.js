@@ -35,7 +35,8 @@ class OrgRules extends Component {
       isLoading: '',
       className: '',
       projectModal: '',
-      alert: false
+      alert: false,
+      selectedTab: '0'
     }
     this.tabs = []
   }
@@ -82,6 +83,8 @@ class OrgRules extends Component {
   }
 
   nextStep (data, step) {
+    this.setTab()
+
     if (data) {
       this.setState({
         rules: {
@@ -97,7 +100,8 @@ class OrgRules extends Component {
   }
 
   setStep (step) {
-    this.setState({ currentStep: step })
+    this.setTab()
+    this.setState({ currentStep: step})
   }
 
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
@@ -157,9 +161,17 @@ class OrgRules extends Component {
       rules: { ...this.state.rules, important: true }
     }, async () => {
       await this.saveData()
-      this.setState({
-        alert: true
+      let url = '/app/projects'
+      let res = await api.get(url, {
+        outdated: true,
+        limit: 0
       })
+      if (res.data.length > 0) {
+        this.setState({
+          projectList: res.data,
+          alert: true
+        })
+      }
     })
   }
 
@@ -175,15 +187,8 @@ class OrgRules extends Component {
     })
   }
 
-  async showModalProjects () {
-    let url = '/app/projects'
-    let res = await api.get(url, {
-      outdated: true,
-      limit: 0
-    })
-
+  showModalProjects () {
     this.setState({
-      projectList: res.data,
       projectModal: ' is-active'
     })
   }
@@ -259,6 +264,16 @@ class OrgRules extends Component {
         </div>
       </BaseModal>
     )
+  }
+
+  setTab () {
+    let tab = '0'
+    if (this.state.currentStep === 2 || this.state.currentStep === 5) {
+      tab = '1'
+    }
+    this.setState({
+      selectedTab: tab
+    })
   }
 
   render () {
@@ -493,7 +508,7 @@ class OrgRules extends Component {
         }
         <Tabs
           tabs={this.tabs}
-          selectedTab={'0'}
+          selectedTab={this.state.selectedTab}
           className='is-fullwidth'
         />
         {this.projectsModal()}

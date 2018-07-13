@@ -97,7 +97,6 @@ class ForecastDetail extends Component {
   }
 
   getColumns () {
-    let colorClass = 'status-info'
     let cols = [
       {
         title: '',
@@ -106,28 +105,19 @@ class ForecastDetail extends Component {
         property: 'checkbox',
         default: '',
         formatter: (row, state) => {
-          if (row.status === 'created') {
-            if (!row.selected) {
-              row.selected = false
-            }
-            if (row.status === 'created') {
-              colorClass = 'status-info'
-            } else if (row.status === 'ready') {
-              colorClass = 'status-ready'
-            } else {
-              colorClass = 'status-process'
-            }
-            return (
-              <Checkbox
-                label={row}
-                handleCheckboxChange={(e, value) => this.selectEngine(value, row)}
-                key={row}
-                checked={row.selected}
-                hideLabel
-                // disabled={row.status !== 'ready'}
-                 />
-            )
+          if (!row.selected) {
+            row.selected = false
           }
+          return (
+            <Checkbox
+              label={row}
+              handleCheckboxChange={(e, value) => this.selectEngine(value, row)}
+              key={row}
+              checked={row.selected}
+              hideLabel
+              disabled={row.status !== 'ready'}
+                 />
+          )
         }
       },
       {
@@ -152,14 +142,15 @@ class ForecastDetail extends Component {
         property: 'status',
         default: 'N/A',
         sortable: true,
-        className: colorClass,
+        className: 'status',
         formatter: (row) => {
+          console.log(row.status)
           if (row.status === 'created') {
-            return 'Creado'
+            return <div className='status-info'>Creado</div>
           } else if (row.status === 'ready') {
-            return 'Completado'
+            return <div className='status-ready'>Completado</div>
           } else {
-            return 'En Proceso'
+            return <div className='status-process'>En Proceso</div>
           }
         }
       }
@@ -502,11 +493,11 @@ class ForecastDetail extends Component {
           <h2>Predicción {this.state.alias}
             <span className='is-pulled-right forecast-detail-type-dates'>
               <span className='is-pulled-right'>{this.state.forecast &&
-                moment.utc(this.state.forecast[0].dateStart).format('MMMM YYYY')
+                moment.utc(this.state.forecast[0].dateEnd).format('MMMM YYYY')
                 }</span>
               <span className='is-pulled-right'>-</span>
               <span className='is-pulled-right'>{this.state.forecast &&
-                moment.utc(this.state.forecast[0].dateEnd).format('MMMM YYYY')
+                moment.utc(this.state.forecast[0].dateStart).format('MMMM YYYY')
               }</span>
               <span className='is-pulled-right'>{this.state.type === 'compatible' ? 'Conciliable'
                 : this.state.type === 'informative' ? 'Informativo' : 'Creado'}</span>
@@ -587,24 +578,44 @@ class ForecastDetail extends Component {
             </div>
           : <div>
             <div className='section'>
+              {this.state.graphData &&
+                  this.state.graphData.length === 0
+                ? <article className='message is-info'>
+                  <div className='message-header has-text-weight-bold'>
+                    <p>Información de predicciones</p>
+                  </div>
+                  <div className='message-body is-size-6 has-text-centered'>
+                    <span className='icon is-large has-text-info'>
+                      <i className='fa fa-magic fa-2x' />
+                    </span>
+                    <span className='is-size-5'>
+                      Aún no hay datos disponibles para esta predicción.
+                  <br />
+                      Este proceso puede tomar tiempo.
+                      Te avisaremos por correo cuando el proceso termine.
+                </span>
+                    <br />
+                    <br />
+                  </div>
+                </article>
+            : <div>
               <div className='columns box'>
                 <div className='column is-3 is-2-widescreen is-paddingless'>
                   <div className='indicators'>
                     {
-                totals && totals.map(item => {
-                  return (
-                    <div key={item.name}>
-                      <p className='indicators-title is-capitalized'>
-                        <strong>{item.name}</strong>
-                      </p>
-                      <p className='indicators-number' style={{color: item.color}}>
-                        {item.prediction}
-                      </p>
-                    </div>
-                  )
-                })
-              }
-
+                      totals && totals.map(item => {
+                        return (
+                          <div key={item.name}>
+                            <p className='indicators-title is-capitalized'>
+                              <strong>{item.name}</strong>
+                            </p>
+                            <p className='indicators-number' style={{color: item.color}}>
+                              {item.prediction}
+                            </p>
+                          </div>
+                        )
+                      })
+                    }
                   </div>
                 </div>
                 <div className='column card'>
@@ -771,7 +782,8 @@ class ForecastDetail extends Component {
               </div>
 
             </div>
-
+            }
+            </div>
             <div className='scroll-table'>
               <div className='scroll-table-container'>
 
