@@ -2,6 +2,7 @@ const Route = require('lib/router/route')
 const { Catalog, Organization, Period, Project, Rule } = require('models')
 const moment = require('moment')
 const generateCycles = require('tasks/organization/generate-cycles')
+const verifyCycleStatus = require('tasks/project/verify-cycle-status')
 
 module.exports = new Route({
   method: 'post',
@@ -161,6 +162,8 @@ module.exports = new Route({
         })
       }
     }
+
+    await verifyCycleStatus.run()
 
     ctx.body = {
       rules: rule,

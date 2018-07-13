@@ -114,7 +114,8 @@ class Wizard extends Component {
       let url = '/app/rules'
 
       let res = await api.post(url, {
-        ...this.state.rules
+        ...this.state.rules,
+        important: true
       })
 
       if (res) {

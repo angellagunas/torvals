@@ -43,6 +43,7 @@ import UsersGroups from './pages/users-groups'
 import Roles from './pages/roles/list'
 import Forecast from './pages/forecast/forecast'
 import ForecastDetail from './pages/forecast/detail'
+import ForecastCompare from './pages/forecast/compare'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -104,6 +105,8 @@ class AppRouter extends Component {
 
               {Forecast.asRouterItem()}
               {ForecastDetail.asRouterItem()}
+              {ForecastCompare.asRouterItem()}
+
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
               <Route component={NoMatch} />

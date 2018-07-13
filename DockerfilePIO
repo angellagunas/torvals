@@ -1,5 +1,6 @@
-FROM node:8.7.0
+FROM pio-0.12.1
 
+USER root
 ENV NODE_ENV production
 RUN npm config set -g production false
 
@@ -12,7 +13,16 @@ RUN mkdir -p /app && cp -a /tmp/node_modules /app/
 ADD . /app
 WORKDIR /app
 
+# RUN make app-dist
+# RUN make admin-dist
+# RUN node tasks/build-indexes.js
+
+# RUN mkdir -p media/uploads
+# RUN chown node:node media/
+# RUN chown node:node media/uploads
+USER pio
+
 ENV NODE_ENV="production"
 
 # Run tracker
-CMD npm run pio-queues
+CMD ./pio-initialize.sh

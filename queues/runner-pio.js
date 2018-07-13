@@ -1,4 +1,4 @@
-const createApp = require('./pio-create-app')
+const createForecast = require('./pio-create-app')
 const loadAppData = require('./pio-load-data')
 const engineBuild = require('./pio-build-engine')
 const engineTrain = require('./pio-train-engine')
@@ -7,7 +7,7 @@ const createJson = require('./pio-create-json')
 
 const { each } = require('lodash')
 
-const queues = [createApp, loadAppData, engineBuild, engineTrain, engineDeploy, createJson]
+const queues = [createForecast]
 
 each(queues, queue => {
   queue.run()

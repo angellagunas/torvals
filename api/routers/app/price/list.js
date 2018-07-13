@@ -11,7 +11,7 @@ module.exports = new Route({
       if (filter === 'limit' || filter === 'start' || filter === 'sort') {
         continue
       }
-      if (filter === 'general') {
+      if (filter === 'general' && ctx.request.query[filter]) {
         let $or = []
         if (!isNaN(ctx.request.query[filter])) {
           $or.push({price: ctx.request.query[filter]})
@@ -69,12 +69,12 @@ module.exports = new Route({
     var prices = await Price.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
-      find: {isDeleted: false, ...filters},
+      find: {isDeleted: false, ...filters, organization: ctx.state.organization},
       sort: ctx.request.query.sort || '-dateCreated',
       populate: ['catalogItems', 'product']
     })
 
-    prices.data = prices.data.map((price) => { return price.toAdmin() })
+    prices.data = prices.data.map((price) => { return price.toPublic() })
 
     ctx.body = prices
   }

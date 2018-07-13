@@ -3,9 +3,7 @@ require('../../config')
 require('lib/databases/mongo')
 
 const Task = require('lib/task')
-const { AdjustmentDownload, DataSet, DataSetRow } = require('models')
-const { aws } = require('../../config')
-const awsService = require('aws-sdk')
+const { DataSet, DataSetRow } = require('models')
 const fs = require('fs-extra')
 const path = require('path')
 const moment = require('moment')
@@ -61,44 +59,7 @@ const task = new Task(async function (argv) {
     writer.end(() => { resolve() })
   })
 
-  fileName = 'datasets/' + fileName
-  let bucket = aws.s3Bucket
-
-  var s3File = {
-    ContentType: 'text/csv',
-    Bucket: bucket,
-    ACL: 'public-read'
-  }
-
-  s3File['Body'] = await fs.readFile(filePath)
-  s3File['Key'] = fileName
-
-  try {
-    var s3 = new awsService.S3({
-      credentials: {
-        accessKeyId: aws.s3AccessKey,
-        secretAccessKey: aws.s3Secret
-      },
-      region: aws.s3Region
-    })
-
-    await s3.putObject(s3File).promise()
-  } catch (e) {
-    console.error(e)
-  }
-
-  await AdjustmentDownload.create({
-    organization: dataset.organization,
-    path: {
-      url: fileName,
-      bucket: bucket,
-      region: aws.s3Region
-    },
-    project: dataset.project,
-    dataset: dataset._id
-  })
-  await fs.unlink(filePath)
-  console.log('Successfully uploaded')
+  console.log('Successfully generated')
 
   return true
 })

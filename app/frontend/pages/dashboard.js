@@ -83,7 +83,7 @@ class Dashboard extends Component {
 
     let allProjects = res.data.filter(item => item.mainDataset)
     const activeProjects = allProjects.filter(item => !item.outdated)
-    const outdated = allProjects.every(item => item.outdated)
+    const outdated = allProjects.length > 0 ? allProjects.every(item => item.outdated) : false
 
     this.setState({
       outdated,
