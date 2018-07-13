@@ -130,19 +130,17 @@
         cursor: pointer;
       }
     }
-
-    .dropdown-menu{
+    .dropdown-menu {
       min-width: 3rem;
-      .dropdown-content{
+      .dropdown-content {
         padding: 0;
-        .dropdown-item{
-          padding:  .2rem;
-          .button{
+        .dropdown-item {
+          padding: .2rem;
+          .button {
             min-width: 56px;
           }
         }
       }
-
     }
   }
   &-detail {
@@ -229,36 +227,56 @@
         padding: .8rem .7rem;
       }
     }
-
-    .dash-table{
-        td{
-            text-align: left;
-            padding-left: 1.5rem;
+    .dash-table {
+      td {
+        text-align: left;
+        padding-left: 1.5rem;
+        &.status {
+          padding: 0 !important;
+          .status {
+            &-info {
+              padding-top: 10px;
+              height: 100%;
+              width: 100%;
+              font-weight: 700;
+              background-color: rgba($info, .1) !important;
+              color: $info;
+              text-align: center;
+              vertical-align: middle;
+            }
+            &-ready {
+              padding-top: 10px;
+              height: 100%;
+              width: 100%;
+              font-weight: 700;
+              background-color: rgba($success, .1) !important;
+              color: $success;
+              text-align: center;
+              vertical-align: middle;
+            }
+            &-process {
+              padding-top: 10px;
+              height: 100%;
+              width: 100%;
+              font-weight: 700;
+              background-color: rgba($warning, .1) !important;
+              color: $warning;
+              text-align: center;
+              vertical-align: middle;
+            }
+          }
         }
+      }
     }
-
-    .shareModal{
-      .modal-card{
+    .shareModal {
+      .modal-card {
         min-height: 25vh;
       }
     }
   }
 }
 
-.status {
-  &-info {
-    font-weight: 700;
-    background-color: rgba($info, .1) !important;
-    color: $info;
-  }
-  &-ready {
-    font-weight: 700;
-    background-color: rgba($success, .1) !important;
-    color: $success;
-  }
-  &-process {
-    font-weight: 700;
-    background-color: rgba($warning, .1) !important;
-    color: $warning;
-  }
+.md-checkbox--fake.disabled {
+  cursor: not-allowed;
+  opacity: .5;
 }

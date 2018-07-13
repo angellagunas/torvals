@@ -35,7 +35,8 @@ class OrgRules extends Component {
       isLoading: '',
       className: '',
       projectModal: '',
-      alert: false
+      alert: false,
+      selectedTab: '0'
     }
     this.tabs = []
   }
@@ -82,6 +83,8 @@ class OrgRules extends Component {
   }
 
   nextStep (data, step) {
+    this.setTab()
+
     if (data) {
       this.setState({
         rules: {
@@ -97,7 +100,8 @@ class OrgRules extends Component {
   }
 
   setStep (step) {
-    this.setState({ currentStep: step })
+    this.setTab()
+    this.setState({ currentStep: step})
   }
 
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
@@ -259,6 +263,16 @@ class OrgRules extends Component {
         </div>
       </BaseModal>
     )
+  }
+
+  setTab () {
+    let tab = '0'
+    if (this.state.currentStep === 2 || this.state.currentStep === 5) {
+      tab = '1'
+    }
+    this.setState({
+      selectedTab: tab
+    })
   }
 
   render () {
@@ -493,7 +507,7 @@ class OrgRules extends Component {
         }
         <Tabs
           tabs={this.tabs}
-          selectedTab={'0'}
+          selectedTab={this.state.selectedTab}
           className='is-fullwidth'
         />
         {this.projectsModal()}
