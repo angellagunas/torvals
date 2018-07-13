@@ -10,6 +10,7 @@ const loadAppData = require('tasks/pio-server/load-data')
 const engineBuild = require('tasks/pio-server/engine-build')
 const engineTrain = require('tasks/pio-server/engine-train')
 const engineDeploy = require('tasks/pio-server/engine-deploy')
+const createBatch = require('tasks/pio-server/create-batch-prediction-json')
 
 const { Forecast } = require('models')
 
@@ -48,7 +49,7 @@ const task = new Task(async function (argv) {
   log.call('Loading app data ...')
   await loadAppData.run({
     forecast: forecast.uuid
-  })*/
+  })
 
   // BUILD ENGINE
   log.call('Building the engine...')
@@ -59,6 +60,16 @@ const task = new Task(async function (argv) {
   // TRAIN ENGINE
   log.call('Training the engine...')
   await engineTrain.run({
+    forecast: forecast.uuid
+  })
+
+  log.call('Deploying the engine...')
+  await engineDeploy.run({
+    forecast: forecast.uuid
+  })
+
+  log.call('Creating json for batch predict')
+  await createBatch.run({
     forecast: forecast.uuid
   })
 
