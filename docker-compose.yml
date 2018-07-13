@@ -60,6 +60,26 @@ services:
     volumes:
       - /www/data/db:/data/db
       - /www/media/uploads:/app/media/uploads
+  # pio-queues:
+  #   restart: always
+  #   build:
+  #     context: .
+  #     dockerfile: DockerfilePioQueues
+  #   links:
+  #     - mongodb
+  #     - redisdb
+  #   depends_on:
+  #     - mongodb
+  #     - redisdb
+  #   cpu_shares: 200
+  #   cpus: 2
+  #   mem_limit: 6000M
+  #   mem_reservation: 2000m
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - /www/data/db:/data/db
+  #     - /www/media/uploads:/app/media/uploads
   redisdb:
     restart: always
     image: "redis:alpine"
@@ -82,6 +102,29 @@ services:
     mem_limit: 30000M
     mem_reservation: 8000m
     command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 24 # --quiet
+  pio:
+    image: pio-0.12.1
+    build:
+      context: .
+      dockerfile: DockerfilePIO
+    env_file:
+      - .env
+    volumes:
+      - ./pio-code/env:/env
+      - ./pio-code/engines:/engines
+      - ./pio-code/data:/data
+    ports:
+      - "7070:7070"
+      - "9001:9000"
+      - "8000-8081:8000-8081"
+    links:
+      - mongodb
+      - redisdb
+    depends_on:
+      - mongodb
+      - redisdb
+    # command: ./engines/initialize.sh
+    tty: true
 #  neo4j:
 #    image: 'neo4j:3.2.1'
 #    ports:

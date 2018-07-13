@@ -1,7 +1,8 @@
 const Route = require('lib/router/route')
-const {ForecastGroup, Project, Catalog, Cycle, Engine, Forecast, DataSet, Rule} = require('models')
+const {ForecastGroup, Project, Catalog, Cycle, Engine, Forecast, DataSet} = require('models')
 const lov = require('lov')
 const { v4 } = require('uuid')
+const generateForecast = require('queues/pio-create-app')
 
 module.exports = new Route({
   method: 'post',
@@ -73,6 +74,7 @@ module.exports = new Route({
       let forecast = await Forecast.create({
         catalogs: catalogs.data,
         engine: engine,
+        project: project,
         forecastGroup: forecastGroup._id,
         dateEnd: data.dateEnd,
         dateStart: data.dateStart,
@@ -80,6 +82,7 @@ module.exports = new Route({
         instanceKey: v4()
       })
 
+      generateForecast.add({uuid: forecast.uuid})
       forecastGroup.forecasts.push(forecast._id)
     }
 

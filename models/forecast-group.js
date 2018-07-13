@@ -36,7 +36,7 @@ const forecastGroupSchema = new Schema({
 
 }, { usePushEach: true })
 
-forecastGroupSchema.methods.toPrivate = function () {
+forecastGroupSchema.methods.toAdmin = function () {
   return {
     project: this.project,
     forecasts: this.forecasts,

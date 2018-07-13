@@ -9,6 +9,7 @@
     "api-server": "nodemon api/runner.js",
     "app-server": "nodemon app/runner.js",
     "admin-server": "nodemon admin/runner.js",
+    "pio-queues": "node --max-old-space-size=4096 queues/runner-pio.js",
     "test": "mocha",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
