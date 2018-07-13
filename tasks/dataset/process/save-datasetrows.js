@@ -11,7 +11,7 @@ const { DataSetRow, DataSet } = require('models')
 const task = new Task(
   async function (argv) {
     const log = new Logger('save-datasetrows')
-
+    const batchSize = 1000
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
     }
@@ -27,17 +27,31 @@ const task = new Task(
     }
 
     log.call('Saving products ...')
+    let bulkOps = []
     for (let product of dataset.newProducts) {
-      await DataSetRow.update({
-        dataset: dataset._id,
-        'data.productExternalId': product.externalId
-      }, {
-        newProduct: product._id
-      }, {
-        multi: true
+      bulkOps.push({
+        updateMany: {
+          'filter': {
+            dataset: dataset._id,
+            'data.productExternalId': product.externalId
+          },
+          'update': {$set: {newProduct: product._id}}
+        }
       })
+
+      if (bulkOps.length === batchSize) {
+        console.log(`${batchSize} products saved!`)
+        await DataSetRow.bulkWrite(bulkOps)
+        bulkOps = []
+      }
+    }
+
+    if (bulkOps.length > 0) {
+      await DataSetRow.bulkWrite(bulkOps)
     }
     log.call('Products successfully saved!')
+
+    bulkOps = []
 
     log.call('Saving catalog items ...')
     for (let catalogItems of dataset.catalogItems) {
@@ -46,35 +60,61 @@ const task = new Task(
       const filters = {dataset: dataset._id}
       filters['catalogData.is_' + catalogItems.type + '_id'] = catalogItems.externalId.toString()
 
-      await DataSetRow.update(
-      filters,
-        {
-          $push: {
-            catalogItems: catalogItems._id
+      bulkOps.push({
+        updateMany: {
+          'filter': filters,
+          'update': {
+            $push: {
+              catalogItems: catalogItems._id
+            }
           }
-        }, {
-          multi: true
-        })
+        }
+      })
+
+      if (bulkOps.length === batchSize) {
+        console.log(`${batchSize} catalog items saved!`)
+        await DataSetRow.bulkWrite(bulkOps)
+        bulkOps = []
+      }
+    }
+    if (bulkOps.length > 0) {
+      await DataSetRow.bulkWrite(bulkOps)
     }
     log.call('Catalog items successfully saved!')
+
+    bulkOps = []
 
     log.call('Saving cycles and periods...')
     if (dataset.periods) {
       for (let period of dataset.periods) {
-        await DataSetRow.update({
-          dataset: dataset._id,
-          'data.forecastDate': {
-            $gte: moment(period.dateStart).utc().format('YYYY-MM-DD'),
-            $lte: moment(period.dateEnd).utc().format('YYYY-MM-DD')
+        bulkOps.push({
+          updateMany: {
+            'filter': {
+              dataset: dataset._id,
+              'data.forecastDate': {
+                $gte: moment(period.dateStart).utc().format('YYYY-MM-DD'),
+                $lte: moment(period.dateEnd).utc().format('YYYY-MM-DD')
+              }
+            },
+            'update': {$set: {
+              period: period._id,
+              cycle: period.cycle
+            }}
           }
-        }, {
-          period: period._id,
-          cycle: period.cycle
-        }, {
-          multi: true
         })
+
+        if (bulkOps.length === batchSize) {
+          console.log(`${batchSize} cycles and periods items saved!`)
+          await DataSetRow.bulkWrite(bulkOps)
+          bulkOps = []
+        }
       }
     }
+
+    if (bulkOps.length > 0) {
+      await DataSetRow.bulkWrite(bulkOps)
+    }
+
     log.call('Cycles and periods successfully saved!')
 
     dataset.set({ status: 'reviewing' })
