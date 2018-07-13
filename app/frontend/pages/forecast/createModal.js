@@ -32,14 +32,25 @@ class CreateModal extends Component {
   componentWillMount () {
     this.getDates()
     this.getEngines()
+    this.selectAllCatalogs()
   }
 
   componentWillReceiveProps (next) {
+    this.engines = {}
+    this.selectAllCatalogs()
+    this.setState({
+      reportType: 'compatible',
+      alias: '',
+      generating: '',
+      emptyCatalogs: false,
+      emptyEngines: false
+    })
     if (next.project !== this.state.project) {
       this.setState({
         project: next.project
       }, () => {
         this.getDates()
+        this.selectAllCatalogs()
       })
     }
   }
@@ -187,7 +198,7 @@ class CreateModal extends Component {
 
       if (res) {
         this.engines = {}
-        this.catalogs = {}
+        this.selectAllCatalogs()
         this.setState({
           reportType: 'compatible',
           alias: '',
@@ -224,6 +235,13 @@ class CreateModal extends Component {
     }
   }
 
+  selectAllCatalogs () {
+    let rules = tree.get('rule')
+    rules.catalogs.map(item => {
+      this.catalogs[item.uuid] = item
+    })
+  }
+
   render () {
     let rules = tree.get('rule')
     return (
@@ -239,6 +257,7 @@ class CreateModal extends Component {
               <input
                 className='input'
                 type='text'
+                value={this.state.alias}
                 placeholder='Escribe un alias para identificar tu predicción'
                 onChange={(e) => this.setState({ alias: e.target.value })} />
             </div>
@@ -297,6 +316,7 @@ class CreateModal extends Component {
                         <Checkbox
                           key={key}
                           label={item.name}
+                          checked={this.catalogs[item.uuid] !== undefined}
                           handleCheckboxChange={(e, value) => this.selectCatalog(value, item)}
                         />
                       </div>
@@ -401,6 +421,7 @@ class CreateModal extends Component {
                     <div className='forecast-engine'>
                       <Checkbox
                         key={item.uuid}
+                        checked={this.engines[item.uuid] !== undefined}
                         label={
                           <span>
                             <p className='title is-6'>{item.name}</p>
