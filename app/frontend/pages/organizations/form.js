@@ -70,39 +70,21 @@ class CustomForm extends Component {
 
         <div className='column is-one-third'>
           <div className='card'>
+            <div className='card-image'>
+              <figure className='image is-1by1'>
+                <img src={profileImg} />
+              </figure>
+            </div>
             <div className='card-content'>
-              <div className='columns'>
-                <div className='column'>
-
-                  <center>
-                    {
-                      profileImg && <div
-                        style={{
-                          width: '170px',
-                          height: '170px',
-                          backgroundImage: `url('${profileImg}')`,
-                          backgroundSize: 'contain',
-                          backgroundRepeat: 'no-repeat',
-                          display: 'block',
-                          borderRadius: '100px'
-                        }}
-                      />
-                    }
-                    <div className='form-group field'>
-                      <br />
-                      <label className='label'>
+              <div className='form-group field'>
+                <label className='label'>
                         Sube el logo de la organización
-                      </label>
-                      <br />
-                      <FileWidget
-                        value={profile}
-                        onChange={this.onChange('profile')}
-                        style={{ justifyContent: 'center' }}
-                      />
-                    </div>
-                  </center>
-
-                </div>
+                </label>
+                <FileWidget
+                  value={profile}
+                  onChange={this.onChange('profile')}
+                  style={{ justifyContent: 'center' }}
+                />
               </div>
             </div>
           </div>
