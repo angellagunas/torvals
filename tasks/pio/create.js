@@ -15,7 +15,7 @@ const createBatch = require('tasks/pio-server/create-batch-prediction-json')
 const { Forecast } = require('models')
 
 const task = new Task(async function (argv) {
-  const log = new Logger('pio-task-app-queue')
+  const log = new Logger('pio-master-queue')
   log.call('Starting forecast proccess...')
   log.call(`Start ==>  ${moment().format()}`)
 
@@ -63,15 +63,15 @@ const task = new Task(async function (argv) {
     forecast: forecast.uuid
   })
 
-  log.call('Deploying the engine...')
+  // log.call('Deploying the engine...')
   await engineDeploy.run({
     forecast: forecast.uuid
   })
 
-  log.call('Creating json for batch predict')
-  await createBatch.run({
-    forecast: forecast.uuid
-  })
+  // log.call('Creating json for batch predict')
+  // await createBatch.run({
+  //   forecast: forecast.uuid
+  // })
 
   log.call('Done! Forecast generated')
   log.call(`End ==>  ${moment().format()}`)

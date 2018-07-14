@@ -48,7 +48,7 @@ services:
     restart: always
     image: "redis:alpine"
     ports:
-      - "6379:6379"
+      - "6380:6379"
   mongodb:
     restart: always
     image: mongo:latest

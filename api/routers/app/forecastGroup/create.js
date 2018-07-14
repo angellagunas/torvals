@@ -1,8 +1,19 @@
 const Route = require('lib/router/route')
-const {ForecastGroup, Project, Catalog, Cycle, Engine, Forecast, DataSet} = require('models')
+const {
+  ForecastGroup,
+  Project,
+  Catalog,
+  Cycle,
+  Engine,
+  Forecast,
+  DataSet,
+  Period
+} = require('models')
 const lov = require('lov')
+const moment = require('moment')
 const { v4 } = require('uuid')
 const generateForecast = require('queues/pio-create-app')
+const generateCycles = require('tasks/organization/generate-cycles')
 
 module.exports = new Route({
   method: 'post',
@@ -23,8 +34,48 @@ module.exports = new Route({
     if (data.type === 'compatible') {
       catalogs = {data: project.rule.catalogs}
 
-      cycles = await Cycle.getCurrent(project.organization, project.rule._id)
-      cycles.data = [cycles._id]
+      // cycles = await Cycle.getCurrent(project.organization, project.rule._id)
+      cycles = project.rule.cyclesAvailable
+      let cyclesAvailable = await Cycle.getAvailable(
+        project.organization._id,
+        project.rule._id,
+        cycles
+      )
+
+      if (cyclesAvailable.length < cycles) {
+        await generateCycles.run({
+          uuid: project.organization.uuid,
+          rule: project.rule.uuid,
+          extraDate: project.mainDataset.dateMin
+        })
+
+        let today = moment.utc()
+
+        if (today.isAfter(moment.utc(project.mainDataset.dateMax, 'YYYY-MM-DD'))) {
+          let seasonDuration = moment.duration(
+            project.rule.season * project.rule.cycleDuration,
+            project.rule.cycle
+          )
+          await generateCycles.run({
+            uuid: project.organization.uuid,
+            rule: project.rule.uuid,
+            extraDate: today.add(seasonDuration).format('YYYY-MM-DD')
+          })
+        } else {
+          await generateCycles.run({
+            uuid: project.organization.uuid,
+            rule: project.rule.uuid,
+            extraDate: project.mainDataset.dateMax
+          })
+        }
+
+        cyclesAvailable = await Cycle.getAvailable(
+          project.organization._id,
+          project.rule._id,
+          cycles
+        )
+      }
+      cycles.data = cyclesAvailable.map(item => { return item._id })
     } else {
       catalogs = await Catalog.find({uuid: {$in: data.catalogs}})
       catalogs.data = catalogs.map(item => {
@@ -36,6 +87,8 @@ module.exports = new Route({
         return item._id
       })
     }
+
+    let periods = await Period.find({cycle: {$in: cycles.data}})
 
     let engines = await Engine.find({uuid: {$in: data.engines}})
     engines.data = engines.map(item => {
@@ -66,8 +119,8 @@ module.exports = new Route({
         products: project.mainDataset.products,
         newProducts: project.mainDataset.newProducts,
         catalogItems: project.mainDataset.catalogItems,
-        cycles: project.mainDataset.cycles,
-        periods: project.mainDataset.periods,
+        cycles: cycles.data,
+        periods: periods,
         rule: project.rule._id
       })
 
@@ -79,8 +132,11 @@ module.exports = new Route({
         dateEnd: data.dateEnd,
         dateStart: data.dateStart,
         dataset: dataset._id,
+        cycles: cycles.data,
         instanceKey: v4()
       })
+      console.log(engine)
+      console.log(forecast)
 
       generateForecast.add({uuid: forecast.uuid})
       forecastGroup.forecasts.push(forecast._id)

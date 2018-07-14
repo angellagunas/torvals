@@ -8,7 +8,7 @@ const Task = require('lib/task')
 const { Forecast } = require('models')
 
 const task = new Task(async function (argv) {
-  const log = new Logger('task-pio-get-batch-prediction')
+  const log = new Logger('pio-get-batch-prediction')
 
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.forecast})
@@ -90,7 +90,7 @@ const task = new Task(async function (argv) {
         'data': {
           'prediction': prediction,
           'forecastDate': forecastDate,
-          'adjustment': prediction,
+          'adjustment': prediction
         },
         'catalogData': catalogData
       })

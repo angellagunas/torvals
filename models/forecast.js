@@ -8,6 +8,7 @@ const moment = require('moment')
 const forecastSchema = new Schema({
   approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   catalogs: [{ type: Schema.Types.ObjectId, ref: 'Catalog' }],
+  cycles: [{ type: Schema.Types.ObjectId, ref: 'Cycle' }],
   dataset: { type: Schema.Types.ObjectId, ref: 'DataSet' },
   engine: { type: Schema.Types.ObjectId, ref: 'Engine', required: true },
   project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
@@ -49,6 +50,7 @@ forecastSchema.methods.toPublic = function () {
     dataset: this.dataset,
     project: this.project,
     engine: this.engine,
+    cycles: this.cycles,
     forecastGroup: this.forecastGroup,
     dateEnd: this.dateEnd,
     dateStart: this.dateStart,
@@ -66,6 +68,7 @@ forecastSchema.methods.toAdmin = function () {
     dataset: this.dataset,
     project: this.project,
     engine: this.engine,
+    cycles: this.cycles,
     forecastGroup: this.forecastGroup,
     dateEnd: this.dateEnd,
     dateStart: this.dateStart,

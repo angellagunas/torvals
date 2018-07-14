@@ -8,7 +8,7 @@ const { spawnSync } = require('child_process')
 const { Forecast } = require('models')
 
 const task = new Task(async function (argv) {
-  const log = new Logger('task-pio-engine-traing')
+  const log = new Logger('pio-engine-traing')
 
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.forecast})
@@ -20,7 +20,7 @@ const task = new Task(async function (argv) {
   log.call('Train engine.')
   const spawnPio = spawnSync(
     'pio',
-    ['train', '--main-py-file', 'train.py'],
+    ['train', '--main-py-file', 'train.py', 'blaaaaa'],
     { cwd: `/engines/${forecast.engine.path}` }
   )
 
