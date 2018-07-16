@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 
 class Ranges extends Component {
   constructor (props) {
@@ -61,45 +61,62 @@ class Ranges extends Component {
     for (let i = 0; i < this.props.rules.cyclesAvailable; i++) {
       if (!role) {
         inputs.push(
-          <div className='field has-addons' key={i}>
-            <p className='control'>
-              <a className='button is-capitalized'>
-              Ciclo {i + 1} {i === 0 && '(Actual)'}
-              </a>
-            </p>
-            <p className='control'>
-              <input className='input' type='text' placeholder='Ilimitado'
-                value={i === 0 ? 0 : this.state.ranges[i]}
-                onChange={(e) => { this.handleInputChange(i, e.target.value) }}
-                disabled={i === 0} />
-            </p>
-            <p className='control'>
-              <a className='button is-static'>
-              % de ajuste
-            </a>
-            </p>
-          </div>
+          <Fragment key={i}>
+            <div className='field has-addons'>
+              <p className='control'>
+                <a className='button is-capitalized'>
+                Ciclo {i + 1} {i === 0 && '(Actual)'}
+                </a>
+              </p>
+              <p className='control'>
+                <input className='input' type='text' placeholder='Ilimitado'
+                  value={i === 0 ? 0 : this.state.ranges[i]}
+                  onChange={(e) => { this.handleInputChange(i, e.target.value) }}
+                  disabled={i === 0}
+                />
+              </p>
+              <p className='control'>
+                <a className='button is-static'>
+                  % de ajuste
+                </a>
+              </p>
+            </div>
+            {
+              i === 0 &&
+              <p className='has-text-danger' style={{ marginBottom: 10 }}>
+                * En el ciclo actual no se permite realizar ajustes
+              </p>
+            }
+          </Fragment>
       )
       } else {
         inputs.push(
-          <div className='field has-addons' key={i}>
-            <p className='control'>
-              <a className='button is-capitalized'>
-                Ciclo {i + 1} {i === 0 && '(Actual)'}
-              </a>
-            </p>
-            <p className='control'>
-              <input className='input' type='text' placeholder='Ilimitado'
-                value={i === 0 ? 0 : this.state.rangesLvl2[i]}
-                onChange={(e) => { this.handleInputChange(i, e.target.value, role) }}
-                disabled={i === 0} />
-            </p>
-            <p className='control'>
-              <a className='button is-static'>
-                % de ajuste
-            </a>
-            </p>
-          </div>
+          <Fragment key={i}>
+            <div className='field has-addons'>
+              <p className='control'>
+                <a className='button is-capitalized'>
+                  Ciclo {i + 1} {i === 0 && '(Actual)'}
+                </a>
+              </p>
+              <p className='control'>
+                <input className='input' type='text' placeholder='Ilimitado'
+                  value={i === 0 ? 0 : this.state.rangesLvl2[i]}
+                  onChange={(e) => { this.handleInputChange(i, e.target.value, role) }}
+                  disabled={i === 0} />
+              </p>
+              <p className='control'>
+                <a className='button is-static'>
+                  % de ajuste
+                </a>
+              </p>
+            </div>
+            {
+              i === 0 &&
+              <p className='has-text-danger' style={{ marginBottom: 10 }}>
+                * En el ciclo actual no se permite realizar ajustes
+              </p>
+            }
+          </Fragment>
         )
       }
     }
@@ -156,9 +173,6 @@ class Ranges extends Component {
 
         <div className='columns is-centered'>
           <div className='column is-narrow'>
-            <p className='has-text-danger'>
-              * En el ciclo actual no se permite realizar ajustes
-            </p>
             <p>
               0  No permitido <br /> Dejar en blanco para ajuste Ilimitado
             </p>
