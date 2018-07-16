@@ -1,4 +1,12 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
+
+function DangerText() {
+  return (
+    <p className="has-text-danger">
+      * En el ciclo actual no se permite realizar ajustes
+    </p>
+  )
+}
 
 class Ranges extends Component {
   constructor (props) {
@@ -71,12 +79,13 @@ class Ranges extends Component {
               <input className='input' type='text' placeholder='Ilimitado'
                 value={i === 0 ? 0 : this.state.ranges[i]}
                 onChange={(e) => { this.handleInputChange(i, e.target.value) }}
-                disabled={i === 0} />
+                disabled={i === 0}
+              />
             </p>
             <p className='control'>
               <a className='button is-static'>
-              % de ajuste
-            </a>
+                % de ajuste
+              </a>
             </p>
           </div>
       )
@@ -97,7 +106,7 @@ class Ranges extends Component {
             <p className='control'>
               <a className='button is-static'>
                 % de ajuste
-            </a>
+              </a>
             </p>
           </div>
         )
@@ -121,7 +130,10 @@ class Ranges extends Component {
     return (
       <div className='section pad-sides has-20-margin-top'>
         <h1 className='title is-5'> Rangos de ajuste</h1>
-        <p className='subtitle is-6'>Asigna el porcentaje de ajuste para cada ciclo disponible.</p>
+        <p className='subtitle is-6'>
+          Asigna el porcentaje de ajuste para cada ciclo disponible. <br />
+          Si ingresas "0" no se permitirá ajustar en ese ciclo, mientras que si dejas vacío no habrá límite de ajuste.
+        </p>
         <div className='columns is-centered'>
           <div className='column'>
             <div className='card'>
@@ -134,6 +146,7 @@ class Ranges extends Component {
                 {rules && rules.cyclesAvailable &&
                   this.createInputs()
                 }
+                <DangerText />
               </div>
             </div>
           </div>
@@ -149,21 +162,10 @@ class Ranges extends Component {
                 {rules && rules.cyclesAvailable &&
                   this.createInputs('lvl2')
                 }
+                <DangerText />
               </div>
             </div>
           </div>
-        </div>
-
-        <div className='columns is-centered'>
-          <div className='column is-narrow'>
-            <p className='has-text-danger'>
-              * En el ciclo actual no se permite realizar ajustes
-            </p>
-            <p>
-              0  No permitido <br /> Dejar en blanco para ajuste Ilimitado
-            </p>
-          </div>
-
         </div>
 
         <div className='buttons wizard-steps'>
