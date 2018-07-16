@@ -188,6 +188,8 @@ const task = new Task(
           seasonEndDate = utc(seasonEndDate).add(seasonDuration)
         } else {
           cycleNumber++
+          const periodsInCycle = await Period.find({cycle: cycleInstance._id}).sort({dateEnd: -1})
+          periodNumber = parseInt(periodsInCycle[0].period) + 1
         }
 
         if (isEndOfMonthCycle) tentativeCycleEndDate.endOf('month')
