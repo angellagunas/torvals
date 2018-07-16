@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
 
-function DangerText(props) {
+function DangerText() {
   return (
     <p className="has-text-danger">
       * En el ciclo actual no se permite realizar ajustes
