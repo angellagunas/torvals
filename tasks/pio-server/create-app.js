@@ -9,7 +9,7 @@ const { spawnSync } = require('child_process')
 const { Forecast } = require('models')
 
 const task = new Task(async function (argv) {
-  const log = new Logger('task-pio-create-app')
+  const log = new Logger('pio-create-app')
 
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.forecast})
@@ -19,6 +19,7 @@ const task = new Task(async function (argv) {
   }
 
   log.call('Create new app.')
+
   const spawnPio = spawnSync(
     'pio',
     ['app', 'new', slugify(forecast.engine.name), '--access-key', forecast.instanceKey],

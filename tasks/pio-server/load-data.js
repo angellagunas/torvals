@@ -8,7 +8,7 @@ const Task = require('lib/task')
 const { CatalogItem, DataSetRow, Forecast } = require('models')
 
 const task = new Task(async function (argv) {
-  const log = new Logger('task-pio-load-data')
+  const log = new Logger('pio-load-data')
 
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.forecast})
@@ -22,25 +22,30 @@ const task = new Task(async function (argv) {
 
   log.call('Import data to created app.')
   const rows = await DataSetRow.find({
-    dataset: forecast.project.mainDataset,
-    cycle: { '$in': forecast.forecastGroup.cycles }
-  })
+    dataset: forecast.project.mainDataset
+    // cycle: { '$in': forecast.cycles }
+  }).populate('newProduct').limit(10000).cursor()
 
   const catalogItems = await CatalogItem.find({
     organization: forecast.project.organization
   }).populate('catalog')
 
   log.call('Load data.')
-  for (let row of rows) {
-    const data = row.catalogItems.reduce(function (obj, item) {
-      const info = catalogItems.find(function (element) {
-        return element._id === item
+  for (let row = await rows.next(); row != null; row = await rows.next()) {
+    let group = 'group_fecha_producto'
+    let properties = {
+      fecha: row.data.forecastDate,
+      producto_id: row.newProduct.externalId,
+      venta_uni: row.data.sale
+    }
+    for (let cat of row.catalogItems) {
+      const info = catalogItems.find((element) => {
+        return String(element._id) === String(cat)
       })
-      log.call(info)
-      obj[info.catalog.slug] = info.name
 
-      return obj
-    }, {})
+      group = group + '_' + info.catalog.slug
+      properties[`${info.catalog.slug}_id`] = info.externalId
+    }
 
     const options = {
       url: `http://localhost:7070/events.json?accessKey=${forecast.instanceKey}`,
@@ -50,12 +55,10 @@ const task = new Task(async function (argv) {
         'Accept': 'application/json'
       },
       body: {
-        'event': 'group',
-        'entityType': 'forecast',
-        'entityId': '',
-        'properties': {
-          ...data
-        }
+        'event': group,
+        'entityType': 'user',
+        'entityId': row._id,
+        'properties': properties
       },
       json: true,
       persist: true
@@ -64,8 +67,9 @@ const task = new Task(async function (argv) {
 
     try {
       const res = await request(options)
-      log.call(res)
+      // log.call(res)
     } catch (e) {
+      // console.log(e)
       log.call('There was an error creating the event.')
     }
   }

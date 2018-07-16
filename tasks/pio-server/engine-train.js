@@ -8,7 +8,7 @@ const { spawnSync } = require('child_process')
 const { Forecast } = require('models')
 
 const task = new Task(async function (argv) {
-  const log = new Logger('task-pio-engine-traing')
+  const log = new Logger('pio-engine-traing')
 
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.forecast})

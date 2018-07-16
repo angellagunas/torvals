@@ -91,6 +91,7 @@ module.exports = new Route({
       data._id = undefined
       data.uuid = undefined
       data.isDeleted = undefined
+      data.dateCreated = undefined
 
       rule = await Rule.create({
         ...data,

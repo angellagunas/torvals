@@ -4,11 +4,11 @@ require('lib/databases/mongo')
 
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
-const { spawnSync } = require('child_process')
+const { spawnSync, spawn } = require('child_process')
 const { Forecast } = require('models')
 
 const task = new Task(async function (argv) {
-  const log = new Logger('task-pio-engine-deploy')
+  const log = new Logger('pio-engine-deploy')
 
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.forecast})
@@ -18,10 +18,14 @@ const task = new Task(async function (argv) {
   }
 
   log.call('Deploy engine.')
-  const spawnPio = spawnSync(
+  const spawnPio = spawn(
     'pio',
-    ['deploy', '--port', forecast.port, '&'],
-    { cwd: `/engines/${forecast.engine.path}` }
+    ['deploy', '--port', forecast.port],
+    {
+      cwd: `/engines/${forecast.engine.path}`,
+      stdio: 'ignore', // piping all stdio to /dev/null
+      detached: true
+    }
   )
 
   log.call(spawnPio.output)
