@@ -72,7 +72,7 @@ class Ranges extends Component {
           <div className='field has-addons' key={i}>
             <p className='control'>
               <a className='button is-capitalized'>
-              Ciclo {i + 1} {i === 0 && '(Actual)'}
+                Ciclo {i + 1} {i === 0 && <Fragment>(Actual) <span className="has-text-danger">*</span></Fragment>}
               </a>
             </p>
             <p className='control'>
@@ -94,7 +94,7 @@ class Ranges extends Component {
           <div className='field has-addons' key={i}>
             <p className='control'>
               <a className='button is-capitalized'>
-                Ciclo {i + 1} {i === 0 && '(Actual)'}
+                Ciclo {i + 1} {i === 0 && <Fragment>(Actual) <span className="has-text-danger">*</span></Fragment>}
               </a>
             </p>
             <p className='control'>
