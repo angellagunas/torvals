@@ -138,7 +138,10 @@ class Ranges extends Component {
     return (
       <div className='section pad-sides has-20-margin-top'>
         <h1 className='title is-5'> Rangos de ajuste</h1>
-        <p className='subtitle is-6'>Asigna el porcentaje de ajuste para cada ciclo disponible.</p>
+        <p className='subtitle is-6'>
+          Asigna el porcentaje de ajuste para cada ciclo disponible. <br />
+          Si ingresas "0" no se permitirá ajustar en ese ciclo, mientras que si dejas vacío no habrá límite de ajuste.
+        </p>
         <div className='columns is-centered'>
           <div className='column'>
             <div className='card'>
@@ -169,15 +172,6 @@ class Ranges extends Component {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className='columns is-centered'>
-          <div className='column is-narrow'>
-            <p>
-              0  No permitido <br /> Dejar en blanco para ajuste Ilimitado
-            </p>
-          </div>
-
         </div>
 
         <div className='buttons wizard-steps'>
