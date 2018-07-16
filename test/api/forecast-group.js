@@ -239,7 +239,7 @@ describe('/forecast_group', () => {
       expect(res.body.message).equals('value: alias: missing required value')
     })
 
-    it('with forecast array empty', async function () {
+    it('with engines array empty', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
 
@@ -287,10 +287,10 @@ describe('/forecast_group', () => {
         .set('Referer', credentials.referer)
         .expect(422)
 
-      expect(res.body.message).equals('value: engines: missing required value')
+      expect(res.body.message).equals('Debes seleccionar por lo menos un modelo de predicciones')
     })
 
-    it('with project witout mainDataset', async function () {
+    it('with project without mainDataset', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
 
@@ -323,7 +323,7 @@ describe('/forecast_group', () => {
         .set('Referer', credentials.referer)
         .expect(422)
 
-      expect(res.body.message).equals('value: engines: missing required value')
+      expect(res.body.message).equals('El proyecto no tiene un dataset principal')
     })
   })
 })

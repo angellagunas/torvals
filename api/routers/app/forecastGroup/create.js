@@ -29,6 +29,14 @@ module.exports = new Route({
     let project = await Project.findOne({uuid: data.project}).populate('mainDataset rule')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
+    if(!project.mainDataset){
+      ctx.throw(422, 'El proyecto no tiene un dataset principal')
+    }
+
+    if((data.engines && data.engines.length < 1) || (!data.engines)){
+      ctx.throw(422, 'Debes seleccionar por lo menos un modelo de predicciones')
+    }
+
     let catalogs
     let cycles
     if (data.type === 'compatible') {
