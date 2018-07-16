@@ -1,5 +1,13 @@
 import React, { Component, Fragment } from 'react'
 
+function DangerText(props) {
+  return (
+    <p className="has-text-danger">
+      * En el ciclo actual no se permite realizar ajustes
+    </p>
+  )
+}
+
 class Ranges extends Component {
   constructor (props) {
     super(props)
@@ -61,62 +69,46 @@ class Ranges extends Component {
     for (let i = 0; i < this.props.rules.cyclesAvailable; i++) {
       if (!role) {
         inputs.push(
-          <Fragment key={i}>
-            <div className='field has-addons'>
-              <p className='control'>
-                <a className='button is-capitalized'>
-                Ciclo {i + 1} {i === 0 && '(Actual)'}
-                </a>
-              </p>
-              <p className='control'>
-                <input className='input' type='text' placeholder='Ilimitado'
-                  value={i === 0 ? 0 : this.state.ranges[i]}
-                  onChange={(e) => { this.handleInputChange(i, e.target.value) }}
-                  disabled={i === 0}
-                />
-              </p>
-              <p className='control'>
-                <a className='button is-static'>
-                  % de ajuste
-                </a>
-              </p>
-            </div>
-            {
-              i === 0 &&
-              <p className='has-text-danger' style={{ marginBottom: 10 }}>
-                * En el ciclo actual no se permite realizar ajustes
-              </p>
-            }
-          </Fragment>
+          <div className='field has-addons' key={i}>
+            <p className='control'>
+              <a className='button is-capitalized'>
+              Ciclo {i + 1} {i === 0 && '(Actual)'}
+              </a>
+            </p>
+            <p className='control'>
+              <input className='input' type='text' placeholder='Ilimitado'
+                value={i === 0 ? 0 : this.state.ranges[i]}
+                onChange={(e) => { this.handleInputChange(i, e.target.value) }}
+                disabled={i === 0}
+              />
+            </p>
+            <p className='control'>
+              <a className='button is-static'>
+                % de ajuste
+              </a>
+            </p>
+          </div>
       )
       } else {
         inputs.push(
-          <Fragment key={i}>
-            <div className='field has-addons'>
-              <p className='control'>
-                <a className='button is-capitalized'>
-                  Ciclo {i + 1} {i === 0 && '(Actual)'}
-                </a>
-              </p>
-              <p className='control'>
-                <input className='input' type='text' placeholder='Ilimitado'
-                  value={i === 0 ? 0 : this.state.rangesLvl2[i]}
-                  onChange={(e) => { this.handleInputChange(i, e.target.value, role) }}
-                  disabled={i === 0} />
-              </p>
-              <p className='control'>
-                <a className='button is-static'>
-                  % de ajuste
-                </a>
-              </p>
-            </div>
-            {
-              i === 0 &&
-              <p className='has-text-danger' style={{ marginBottom: 10 }}>
-                * En el ciclo actual no se permite realizar ajustes
-              </p>
-            }
-          </Fragment>
+          <div className='field has-addons' key={i}>
+            <p className='control'>
+              <a className='button is-capitalized'>
+                Ciclo {i + 1} {i === 0 && '(Actual)'}
+              </a>
+            </p>
+            <p className='control'>
+              <input className='input' type='text' placeholder='Ilimitado'
+                value={i === 0 ? 0 : this.state.rangesLvl2[i]}
+                onChange={(e) => { this.handleInputChange(i, e.target.value, role) }}
+                disabled={i === 0} />
+            </p>
+            <p className='control'>
+              <a className='button is-static'>
+                % de ajuste
+              </a>
+            </p>
+          </div>
         )
       }
     }
@@ -154,6 +146,7 @@ class Ranges extends Component {
                 {rules && rules.cyclesAvailable &&
                   this.createInputs()
                 }
+                <DangerText />
               </div>
             </div>
           </div>
@@ -169,6 +162,7 @@ class Ranges extends Component {
                 {rules && rules.cyclesAvailable &&
                   this.createInputs('lvl2')
                 }
+                <DangerText />
               </div>
             </div>
           </div>
