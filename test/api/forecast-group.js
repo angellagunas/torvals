@@ -17,6 +17,7 @@ describe('/forecast_group', () => {
     it('with valid request', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
@@ -34,7 +35,8 @@ describe('/forecast_group', () => {
       project.set({
         mainDataset: dataset._id,
         dateMin: dataset.dateMin,
-        dateMax: dataset.dateMax
+        dateMax: dataset.dateMax,
+        rule: rule._id
       })
 
       dataset.set({
@@ -45,7 +47,6 @@ describe('/forecast_group', () => {
       await dataset.save()
       await project.save()
 
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',

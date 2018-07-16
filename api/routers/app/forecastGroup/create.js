@@ -143,8 +143,6 @@ module.exports = new Route({
         cycles: cycles.data,
         instanceKey: v4()
       })
-      console.log(engine)
-      console.log(forecast)
 
       generateForecast.add({uuid: forecast.uuid})
       forecastGroup.forecasts.push(forecast._id)
