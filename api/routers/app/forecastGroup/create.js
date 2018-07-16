@@ -26,7 +26,8 @@ module.exports = new Route({
     let data = ctx.request.body
     let user = ctx.state.user
 
-    let project = await Project.findOne({uuid: data.project}).populate('mainDataset rule')
+    let project = await Project.findOne({uuid: data.project})
+      .populate('mainDataset rule organization')
     ctx.assert(project, 404, 'Proyecto no encontrado')
 
     let catalogs
