@@ -1,15 +1,6 @@
 {% extends "./layout.html" %}
 
 {% block content %}
-<table class="container">
-  <tbody>
-    <tr>
-      <td class="header">
-        <a href="http://www.orax.io/" class="logo" target="_blank">
-          <img src="http://www.orax.io/admin/public/img/logo.png" width="100" height="auto" alt="Orax">
-        </a>
-      </td>
-    </tr>
     <tr>
       <td colspan="2" class="body">
         <p class="main">La conciliación de los ajustes del proyecto {{name}} han terminado!</p>
@@ -20,29 +11,4 @@
         <p>o copia esta url: <a class="link" href="{{ url }}">{{ url }}</a></p>
       </td>
     </tr>
-    <tr>
-      <td colspan="2" class="footer">
-        <table>
-          <tr>
-            <td align="left">
-              <img src="https://www.orax.io/admin/public/img/abraxas-logo.svg" width="100" height="auto" alt="Abraxas" />
-            </td>
-          </tr>
-          <tr>
-            <td align="left">
-              <p>Donato Guerra 9, Progreso Tizapán, Ciudad de México, CDMX</p>
-              <p>
-                <a class="link" href="http://www.grupoabraxas.com">www.grupoabraxas.com</a>
-              </p>
-            </td>
-            <td align="right">
-              <p>Orax prowered by Common Sense People</p>
-              <p>Todos los derechos recervados, 2018</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </tbody>
-</table>
 {% endblock %}
