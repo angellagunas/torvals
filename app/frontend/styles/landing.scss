@@ -1,148 +1,238 @@
-.dash-card {
-  cursor: pointer;
-  background-color: $abraxas-color !important;
-  color: white !important;
-  border-radius: 5px !important;
-  i {
-    padding: 5px 10px 5px 0px !important;
-    box-sizing: border-box !important;
-  }
-  .content p:not(:last-child) {
-    margin-bottom: 0.3em !important;
-  }
-}
-
 .is-bg-whitesmoke {
-  background-color: whitesmoke !important;
+    background-color: whitesmoke !important;
 }
 
 .has-text-color {
-  color: $abraxas-color !important;
-}
-
-.icon-land {
-  height: 7rem !important;
-  width: 7rem !important;
-  background: #28d2eb !important;
-  border-radius: 100px !important;
-  margin: 30px 20px 0px !important;
-}
-
-.card-land {
-  height: 295px !important;
+    color: $abraxas-color !important;
 }
 
 .pad-bottom {
-  padding-bottom: 20px !important;
+    padding-bottom: 20px !important;
 }
 
 .land-login {
-  width: 350px !important;
-  background-color: white;
-  overflow: hidden !important;
-  text-align: center !important;
-  padding: 40px !important;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  .input {
-    color: $general_text !important;
-    background-color: rgba(0, 0, 0, 0) !important;
-    border: 0px !important;
-    border-bottom: 2px solid $info !important;
-    width: 100%;
-    border-radius: 0;
-    box-shadow: none;
-  }
-  .input:focus {
-    border: 0px !important;
-    border-bottom: 3px solid $info !important;
-    box-shadow: none !important;
-  }
-  .label {
-    text-align: left !important;
-    color: $general_text !important;
-  }
-  .image {
-    margin-bottom: 15px;
-  }
+    width: 350px !important;
+    background-color: white;
+    overflow: hidden !important;
+    text-align: center !important;
+    padding: 40px !important;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    .input {
+        color: $general_text !important;
+        background-color: rgba(0, 0, 0, 0) !important;
+        border: 0px !important;
+        border-bottom: 2px solid $info !important;
+        width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .input:focus {
+        border: 0px !important;
+        border-bottom: 3px solid $info !important;
+        box-shadow: none !important;
+    }
+    .label {
+        text-align: left !important;
+        color: $general_text !important;
+    }
+    .image {
+        margin-bottom: 15px;
+    }
 }
 
 .landing {
-  .modal-background {
-    background-color: whitesmoke;
-  }
+    .navbar.is-primary .navbar-brand>a.navbar-item:hover,
+    .navbar.is-primary .navbar-brand>a.navbar-item.is-active,
+    .navbar.is-primary .navbar-brand .navbar-link:hover,
+    .navbar.is-primary .navbar-brand .navbar-link.is-active {
+        background-color: rgba(0, 0, 0, .07);
+        color: #fff;
+    }
+    .navbar.is-primary .navbar-start>a.navbar-item:hover,
+    .navbar.is-primary .navbar-start>a.navbar-item.is-active,
+    .navbar.is-primary .navbar-start .navbar-link:hover,
+    .navbar.is-primary .navbar-start .navbar-link.is-active,
+    .navbar.is-primary .navbar-end>a.navbar-item:hover,
+    .navbar.is-primary .navbar-end>a.navbar-item.is-active,
+    .navbar.is-primary .navbar-end .navbar-link:hover,
+    .navbar.is-primary .navbar-end .navbar-link.is-active {
+        background-color: rgba(0, 0, 0, .07);
+        color: #fff;
+    }
+    .navbar {
+        &.has-shadow {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+    }
+    .modal-background {
+        background-color: whitesmoke;
+    }
+    &-right-img {
+        width: 50%;
+        position: absolute;
+        top: -70px;
+        right: 5%;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        transition: 0.3s;
+        animation: .3s ease-in-out both fade-in;
+        &:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+    }
+    .footer {
+        background: #424A55;
+        color: #FFF !important;
+        font-size: .9rem;
+        img {
+            padding: 0 .3rem .8rem 0;
+        }
+        p {
+            margin: .6rem 0;
+            &.top-medium {
+                margin-top: 1.85rem;
+            }
+            &.top-small {
+                margin-top: 1.2rem;
+            }
+            span:not(:last-child) {
+                margin-right: .5rem;
+            }
+        }
+        a,
+        a:visited,
+        a:link {
+            color: #FFF !important;
+            font-size: .9rem;
+        }
+    }
+    .comments {
+        &__item {
+            &.fadeIn {
+                animation: .3s ease-in-out both fade-in;
+            }
+            &.fadeOut {
+                animation: .3s ease-in-out both fade-out;
+            }
+        }
+    }
 }
 
 .land-card {
-  width: 400px;
-  margin: 0 auto;
-  .navbar-item {
-    background-color: #EFF1F9;
-    border-color: #E6E8F6;
-    .column.is-one-third {
-      text-align: center;
+    width: 400px;
+    margin: 0 auto;
+    .navbar-item {
+        background-color: #EFF1F9;
+        border-color: #E6E8F6;
+        .column.is-one-third {
+            text-align: center;
+        }
     }
-  }
-}
-
-.landing {
-  display: flex;
-  height: 100vh;
-  .left-side {
-    background-color: $primary;
-    flex: 0 0 30%;
-    position: relative;
-    .down {
-      position: absolute !important;
-      bottom: 100px !important;
-      h2 {
-        padding: 2.5rem;
-      }
-    }
-    img {
-      padding: 0px 40px !important;
-      margin-bottom: -10px !important;
-    }
-  }
-  .right-side {
-    background-color: whitesmoke;
-    flex: 1;
-  }
 }
 
 .pos-rel {
-  position: relative;
+    position: relative;
 }
 
-.landing-right-img {
-  width: 600px;
-  position: absolute;
-  top: -75px;
-  right: 120px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-  transition: 0.3s;
-  &:hover {
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-  }
+$backGradient: 25%;
+@mixin backLinearGradient($color) {
+    background-image: linear-gradient($color 0%, $color $backGradient, whitesmoke $backGradient);
 }
 
 .changeBack {
-  -webkit-animation: backColor 30s infinite;
+    -webkit-animation: backColor 30s infinite;
+    &__gradient {
+        /* @include backLinearGradient(#187FE6);
+        -webkit-animation: backColorGradient 30s ease infinite; */
+        &:before {
+            height: 45vh;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            -webkit-animation: backColor 30s infinite;
+        }
+    }
 }
 
 @-webkit-keyframes backColor {
-  0% {
-    background-color: #187FE6;
-  }
-  25% {
-    background-color: #589ADC;
-  }
-  50% {
-    background-color: #7982C5;
-  }
-  75% {
-    background-color: #589ADC;
-  }
-  100% {
-    background-color: #187FE6;
-  }
+    0% {
+        background-color: #187FE6;
+    }
+    25% {
+        background-color: #589ADC;
+    }
+    50% {
+        background-color: #7982C5;
+    }
+    75% {
+        background-color: #589ADC;
+    }
+    100% {
+        background-color: #187FE6;
+    }
+}
+
+@-webkit-keyframes backColorGradient {
+    0% {
+        @include backLinearGradient(#187FE6);
+    }
+    25% {
+        @include backLinearGradient(#589ADC);
+    }
+    50% {
+        @include backLinearGradient(#7982C5);
+    }
+    75% {
+        @include backLinearGradient(#589ADC);
+    }
+    100% {
+        @include backLinearGradient(#187FE6);
+    }
+}
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0);
+    }
+}
+
+.how {
+    &__img {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        transition: 0.3s;
+        animation: .3s ease-in-out both fade-in;
+        margin: 20px 20px 20px 0;
+        &:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+    }
+    &__video {
+        margin: 5rem 0;
+        border: 1px solid $primary;
+    }
+}
+
+.video{
+    .modal-background{
+        background-color: rgba(0, 0, 0, 0.8);
+    }
 }

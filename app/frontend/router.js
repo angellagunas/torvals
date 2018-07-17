@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom'
 
 import AdminLayout from '~components/admin-layout'
-import LandPage from './pages/land-page'
+import LandPage from './pages//landing/land-page'
 import Dashboard from './pages/dashboard'
 import Profile from './pages/profile'
 import OrganizationDetail from './pages/organizations/detail'
@@ -44,6 +44,7 @@ import Roles from './pages/roles/list'
 import Forecast from './pages/forecast/forecast'
 import ForecastDetail from './pages/forecast/detail'
 import ForecastCompare from './pages/forecast/compare'
+import HowItWorks from './pages/landing/how-it-works'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -106,6 +107,8 @@ class AppRouter extends Component {
               {Forecast.asRouterItem()}
               {ForecastDetail.asRouterItem()}
               {ForecastCompare.asRouterItem()}
+
+              {HowItWorks.asRouterItem()}
 
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
