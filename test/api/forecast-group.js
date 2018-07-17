@@ -21,7 +21,8 @@ describe('/forecast_group', () => {
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
 
       const dataset = await createDataset({
@@ -46,7 +47,6 @@ describe('/forecast_group', () => {
 
       await dataset.save()
       await project.save()
-
 
       const engine = await Engine.create({
         name: 'regression',
@@ -78,10 +78,12 @@ describe('/forecast_group', () => {
     it('with valid request and extra field, but without save it', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
 
       const dataset = await createDataset({
@@ -105,8 +107,6 @@ describe('/forecast_group', () => {
 
       await dataset.save()
       await project.save()
-
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',
@@ -143,13 +143,13 @@ describe('/forecast_group', () => {
     it('without authorization header', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
-
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',
@@ -208,13 +208,13 @@ describe('/forecast_group', () => {
     it('without alias', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
-
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',
@@ -243,10 +243,12 @@ describe('/forecast_group', () => {
     it('with engines array empty', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
 
       const dataset = await createDataset({
@@ -271,8 +273,6 @@ describe('/forecast_group', () => {
       await dataset.save()
       await project.save()
 
-      const rule = await Rule.findOne({organization: credentials.org._id})
-
       const data = {
         project: project.uuid,
         catalogs: rule.catalogs,
@@ -294,13 +294,13 @@ describe('/forecast_group', () => {
     it('with project without mainDataset', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
-
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',
