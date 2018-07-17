@@ -33,6 +33,11 @@ const userSchema = new Schema({
     region: { type: String }
   },
 
+  accountOwner: { type: Boolean, default: false },
+  language: { type: String, default: 'ES' },
+  job: { type: String },
+  isVerified: { type: Boolean, default: false },
+
   isDeleted: { type: Boolean, default: false },
 
   uuid: { type: String, default: v4 },
@@ -78,7 +83,11 @@ userSchema.methods.toPublic = function () {
     validEmail: this.validEmail,
     groups: this.groups,
     profileUrl: this.profileUrl,
-    isAdmin: this.isAdmin
+    isAdmin: this.isAdmin,
+    accountOwner: this.accountOwner,
+    language: this.language,
+    job: this.job,
+    isVerified: this.isVerified
   }
 }
 
@@ -93,7 +102,11 @@ userSchema.methods.toAdmin = function () {
     validEmail: this.validEmail,
     organizations: this.organizations,
     groups: this.groups,
-    profileUrl: this.profileUrl
+    profileUrl: this.profileUrl,
+    accountOwner: this.accountOwner,
+    language: this.language,
+    job: this.job,
+    isVerified: this.isVerified
   }
 
   if (this.role && this.role.toAdmin) {
