@@ -38,7 +38,8 @@ module.exports = new Route({
       skip: ctx.request.query.start,
       find: {...filters, isDeleted: false},
       sort: ctx.request.query.sort || '-dateCreated',
-      format: 'toPublic'
+      format: 'toPublic',
+      populate: ['catalogs', 'engines']
     })
 
     ctx.body = forecast
