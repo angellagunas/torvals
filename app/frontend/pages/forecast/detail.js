@@ -144,7 +144,6 @@ class ForecastDetail extends Component {
         sortable: true,
         className: 'status',
         formatter: (row) => {
-          console.log(row.status)
           if (row.status === 'created') {
             return <div className='status-info'>Creado</div>
           } else if (row.status === 'ready') {
