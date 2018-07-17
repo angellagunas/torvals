@@ -1,6 +1,8 @@
 /* global describe, beforeEach, it */
 require('co-mocha')
 
+const moment = require('moment')
+
 const api = require('api/')
 const http = require('http')
 const { expect } = require('chai')
@@ -440,7 +442,7 @@ describe('/forecast_group', () => {
     })
   })
 
-  describe('/:uuid [GET] should return a success response', () => {
+  describe('/:uuid [GET] should return a forecast group with a list of forecast', () => {
     it('with valid request', async function () {
       await clearDatabase()
       const initialData = await apiHeaders()
