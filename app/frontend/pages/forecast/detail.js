@@ -11,6 +11,10 @@ import Graph from '~base/components/graph'
 import moment from 'moment'
 import { graphColors } from '~base/tools'
 import tree from '~core/tree'
+import { toast } from 'react-toastify'
+import BaseModal from '~base/components/base-modal'
+import Select from 'react-select'
+import 'react-select/dist/react-select.css'
 
 class ForecastDetail extends Component {
   constructor (props) {
@@ -39,10 +43,17 @@ class ForecastDetail extends Component {
           forecast: res.forecasts,
           type: res.type
         })
+
+        tree.set('activeForecast', {
+          alias: res.alias,
+          type: res.type
+        })
+
+        tree.commit()
       }
     } catch (e) {
       console.log(e)
-      // this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error obteniendo predicción ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -54,12 +65,38 @@ class ForecastDetail extends Component {
     )
   }
 
-  deleteForecast (item) {
-    console.log('Deleted', item)
+  async deleteForecast (item) {
+    let url = '/app/forecastGroups/'
+    try {
+      let res = await api.del(url + item)
+
+      if (res) {
+        this.notify('Predicción eliminada con éxito', 3000)
+        this.props.history.push('/forecast')
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  async deleteForecastItem () {
+    let url = '/app/forecasts/delete/'
+    try {
+      let res = await api.post(url, {
+        forecasts: Object.keys(this.engineSelected)
+      })
+
+      if (res) {
+        this.notify('Predicción eliminada con éxito', 3000)
+        this.getForecasts()
+        this.getGraph()
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   getColumns () {
-    let colorClass = 'status-info'
     let cols = [
       {
         title: '',
@@ -68,26 +105,19 @@ class ForecastDetail extends Component {
         property: 'checkbox',
         default: '',
         formatter: (row, state) => {
-          if (row.status === 'created') {
-            if (!row.selected) {
-              row.selected = false
-            }
-            if (row.status === 'created') {
-              colorClass = 'status-info'
-            } else if (row.status === 'ready') {
-              colorClass = 'status-ready'
-            } else {
-              colorClass = 'status-process'
-            }
-            return (
-              <Checkbox
-                label={row}
-                handleCheckboxChange={(e, value) => this.selectEngine(value, row)}
-                key={row}
-                checked={row.selected}
-                hideLabel />
-            )
+          if (!row.selected) {
+            row.selected = false
           }
+          return (
+            <Checkbox
+              label={row}
+              handleCheckboxChange={(e, value) => this.selectEngine(value, row)}
+              key={row}
+              checked={row.selected}
+              hideLabel
+              disabled={row.status !== 'ready'}
+                 />
+          )
         }
       },
       {
@@ -112,14 +142,15 @@ class ForecastDetail extends Component {
         property: 'status',
         default: 'N/A',
         sortable: true,
-        className: colorClass,
+        className: 'status',
         formatter: (row) => {
+          console.log(row.status)
           if (row.status === 'created') {
-            return 'Creado'
+            return <div className='status-info'>Creado</div>
           } else if (row.status === 'ready') {
-            return 'Completado'
+            return <div className='status-ready'>Completado</div>
           } else {
-            return 'En Proceso'
+            return <div className='status-process'>En Proceso</div>
           }
         }
       }
@@ -151,6 +182,15 @@ class ForecastDetail extends Component {
       delete this.engineSelected[item.uuid]
     }
 
+    if (Object.values(this.engineSelected).length === 1) {
+      this.setState({
+        engineConciliate: Object.values(this.engineSelected)[0]
+      })
+    } else {
+      this.setState({
+        engineConciliate: undefined
+      })
+    }
     this.disableBtns()
   }
 
@@ -180,7 +220,7 @@ class ForecastDetail extends Component {
       }
     } catch (e) {
       console.log(e)
-      // this.notify('Error obteniendo modelos ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error obteniendo gráfica ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -254,6 +294,171 @@ class ForecastDetail extends Component {
     this.props.history.push('/forecast/compare/' + this.props.match.params.uuid)
   }
 
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
+  }
+
+  showConciliate () {
+    this.setState({
+      conciliateModal: ' is-active'
+    })
+  }
+
+  hideConciliate () {
+    this.setState({
+      conciliateModal: ''
+    })
+  }
+
+  async finishUpConciliate () {
+    let url = '/app/forecasts/conciliate/' + this.state.engineConciliate.uuid
+    try {
+      let res = await api.get(url)
+
+      if (res) {
+        await this.hideConciliate()
+        this.props.history.push('/forecast')
+      }
+    } catch (e) {
+      console.log(e)
+      this.notify('Error conciliando ' + e.message, 5000, toast.TYPE.ERROR)
+    }
+  }
+
+  conciliateMsg () {
+    return (
+      <BaseModal
+        title={'Conciliar predicción'}
+        className={this.state.conciliateModal}
+        hideModal={() => this.hideConciliate()}>
+        <p>¿Estás seguro de utilizar la predicción del modelo
+          <strong> {this.state.engineConciliate && this.state.engineConciliate.engine.name} </strong> en tu proyecto?<br />
+          No podrás crear otra predicción conciliable hasta el siguiente ciclo de predicciones.
+        </p>
+        <br />
+        <div className='buttons org-rules__modal'>
+          <button
+            className='button generate-btn is-primary is-pulled-right'
+            onClick={() => this.finishUpConciliate()}>
+          Conciliar
+        </button>
+          <button
+            className='button generate-btn is-danger is-pulled-right'
+            onClick={() => this.hideConciliate()}>
+          Cancelar
+        </button>
+        </div>
+      </BaseModal>
+    )
+  }
+
+  async getUsers () {
+    let url = '/app/users'
+    try {
+      let res = await api.get(url)
+
+      if (res.data) {
+        this.setState({
+          users: res.data.map(item => {
+            return {label: item.name, value: item.email}
+          })
+        }, () => {
+          this.showShareModal()
+        })
+      }
+    } catch (e) {
+      console.log(e)
+      this.notify('Error obteniendo usuarios ' + e.message, 5000, toast.TYPE.ERROR)
+    }
+  }
+
+  handleSelectChange (usersEmails) {
+    this.setState({ usersEmails })
+  }
+
+  shareModal () {
+    return (
+      <BaseModal
+        title={'Compartir predicción'}
+        className={'shareModal ' + this.state.shareModal}
+        hideModal={() => this.hideShareModal()}>
+        <p>Selecciona los usuarios con quienes quieres compartir la predicción.</p>
+        <br />
+        <br />
+
+        <Select
+          closeOnSelect={false}
+          multi
+          onChange={(value) => this.handleSelectChange(value)}
+          placeholder='Seleccionar usuario(s)'
+          removeSelected
+          simpleValue
+          value={this.state.usersEmails}
+          options={this.state.users}
+        />
+        <br />
+        <br />
+
+        <div className='buttons org-rules__modal'>
+          <button
+            className='button generate-btn is-primary is-pulled-right'
+            onClick={() => this.finishUpShare()}
+            disabled={!this.state.usersEmails || this.state.usersEmails === ''}>
+            Compartir
+        </button>
+          <button
+            className='button generate-btn is-danger is-pulled-right'
+            onClick={() => this.hideShareModal()}>
+            Cancelar
+        </button>
+        </div>
+      </BaseModal>
+    )
+  }
+
+  showShareModal () {
+    this.setState({
+      shareModal: ' is-active'
+    })
+  }
+
+  hideShareModal () {
+    this.setState({
+      shareModal: ''
+    })
+  }
+
+  async finishUpShare () {
+    let url = '/app/forecasts/share'
+    try {
+      let res = await api.post(url, {
+        users: this.state.usersEmails,
+        forecasts: Object.keys(this.engineSelected)
+      })
+
+      if (res) {
+        await this.hideShareModal()
+      }
+    } catch (e) {
+      console.log(e)
+      this.notify('Error compartiendo ' + e.message, 5000, toast.TYPE.ERROR)
+    }
+  }
+
   render () {
     if (this.state.loading) {
       return <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
@@ -285,7 +490,19 @@ class ForecastDetail extends Component {
     return (
       <div className='forecast-detail'>
         <div className='section-header'>
-          <h2>Predicción {this.state.alias}</h2>
+          <h2>Predicción {this.state.alias}
+            <span className='is-pulled-right forecast-detail-type-dates'>
+              <span className='is-pulled-right'>{this.state.forecast &&
+                moment.utc(this.state.forecast[0].dateEnd).format('MMMM YYYY')
+                }</span>
+              <span className='is-pulled-right'>-</span>
+              <span className='is-pulled-right'>{this.state.forecast &&
+                moment.utc(this.state.forecast[0].dateStart).format('MMMM YYYY')
+              }</span>
+              <span className='is-pulled-right'>{this.state.type === 'compatible' ? 'Conciliable'
+                : this.state.type === 'informative' ? 'Informativo' : 'Creado'}</span>
+            </span>
+          </h2>
         </div>
         <div className='level'>
           <div className='level-left'>
@@ -319,39 +536,90 @@ class ForecastDetail extends Component {
           </div>
           <div className='level-right'>
             <div className='level-item'>
+              <button className='button is-primary'
+                onClick={() => {
+                  this.props.history.push('/forecast')
+                }}>
+                Regresar
+                </button>
+            </div>
+            <div className='level-item'>
               <DeleteButton
                 titleButton={'Eliminar'}
                 objectName='Predicción'
-                objectDelete={this.deleteObject}
+                objectDelete={() => this.deleteForecast(this.props.match.params.uuid)}
                 message={`¿Está seguro que desea eliminar el predicción?`}
               />
             </div>
           </div>
         </div>
 
-        <div className='section'>
-          <div className='columns box'>
-            <div className='column is-3 is-2-widescreen is-paddingless'>
-              <div className='indicators'>
-                {
-                totals && totals.map(item => {
-                  return (
-                    <div key={item.name}>
-                      <p className='indicators-title is-capitalized'>
-                        <strong>{item.name}</strong>
-                      </p>
-                      <p className='indicators-number' style={{color: item.color}}>
-                        {item.prediction}
-                      </p>
-                    </div>
-                  )
-                })
-              }
-
-              </div>
+        {
+            this.state.forecast && this.state.forecast.length === 0
+            ? <div className='section'>
+              <article className='message is-info'>
+                <div className='message-header has-text-weight-bold'>
+                  <p>Información de predicciones</p>
+                </div>
+                <div className='message-body is-size-6 has-text-centered'>
+                  <span className='icon is-large has-text-info'>
+                    <i className='fa fa-magic fa-2x' />
+                  </span>
+                  <span className='is-size-5'>
+                  Aún no hay datos disponibles para esta predicción.
+                  <br />
+                  Este proceso puede tomar tiempo.
+                  Te avisaremos por correo cuando el proceso termine.
+                </span>
+                  <br />
+                  <br />
+                </div>
+              </article>
             </div>
-            <div className='column card'>
-              {this.state.graphData
+          : <div>
+            <div className='section'>
+              {this.state.graphData &&
+                  this.state.graphData.length === 0
+                ? <article className='message is-info'>
+                  <div className='message-header has-text-weight-bold'>
+                    <p>Información de predicciones</p>
+                  </div>
+                  <div className='message-body is-size-6 has-text-centered'>
+                    <span className='icon is-large has-text-info'>
+                      <i className='fa fa-magic fa-2x' />
+                    </span>
+                    <span className='is-size-5'>
+                      Aún no hay datos disponibles para esta predicción.
+                  <br />
+                      Este proceso puede tomar tiempo.
+                      Te avisaremos por correo cuando el proceso termine.
+                </span>
+                    <br />
+                    <br />
+                  </div>
+                </article>
+            : <div>
+              <div className='columns box'>
+                <div className='column is-3 is-2-widescreen is-paddingless'>
+                  <div className='indicators'>
+                    {
+                      totals && totals.map(item => {
+                        return (
+                          <div key={item.name}>
+                            <p className='indicators-title is-capitalized'>
+                              <strong>{item.name}</strong>
+                            </p>
+                            <p className='indicators-number' style={{color: item.color}}>
+                              {item.prediction}
+                            </p>
+                          </div>
+                        )
+                      })
+                    }
+                  </div>
+                </div>
+                <div className='column card'>
+                  {this.state.graphData
               ? this.state.graphData.length > 0
                 ? <Graph
                   data={graph}
@@ -448,7 +716,7 @@ class ForecastDetail extends Component {
                 />
                 : <section className='section has-30-margin-top'>
                   <center>
-                    <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
+                    <h1 className='has-text-info'>No hay datos que mostrar, intente más tarde</h1>
                   </center>
                 </section>
               : <section className='section has-30-margin-top'>
@@ -456,74 +724,83 @@ class ForecastDetail extends Component {
               </section>
             }
 
-            </div>
-          </div>
+                </div>
+              </div>
 
-          <div className='level'>
-            <div className='level-left'>
-              <div className='level-item'>
-                <p>Selecciona un modelo para conciliar.</p>
-              </div>
-            </div>
-            <div className='level-right'>
-              {this.state.type !== 'informative' &&
-              <div className='level-item'>
-                <button
-                  className='button is-primary'
-                  disabled={this.state.disabled}>
-                 Consolidar
-                </button>
-              </div>
+              <div className='level'>
+                <div className='level-left'>
+                  <div className='level-item'>
+                    <p>Selecciona un modelo para conciliar.</p>
+                  </div>
+                </div>
+                <div className='level-right'>
+                  {this.state.type !== 'informative' &&
+                  <div className='level-item'>
+                    <button
+                      className='button is-primary'
+                      disabled={
+                        this.state.disabled ||
+                        Object.values(this.engineSelected).length > 1}
+                      onClick={() => { this.showConciliate() }} >
+                      Conciliar
+                  </button>
+                  </div>
               }
 
-              <div className='level-item'>
-                <button
-                  className='button is-primary'
-                  disabled={this.state.disabled}
-                  onClick={() => this.compare()} >
-                  <span className='icon'>
-                    <i className='fa fa-eye' />
-                  </span>
-                </button>
+                  <div className='level-item'>
+                    <button
+                      className='button is-primary'
+                      disabled={this.state.disabled}
+                      onClick={() => this.compare()} >
+                      <span className='icon'>
+                        <i className='fa fa-eye' />
+                      </span>
+                    </button>
+                  </div>
+
+                  <div className='level-item'>
+                    <button
+                      className='button is-primary'
+                      disabled={this.state.disabled}
+                      onClick={() => this.getUsers()} >
+                      <span className='icon'>
+                        <i className='fa fa-share-alt' />
+                      </span>
+                    </button>
+                  </div>
+
+                  <div className='level-item'>
+                    <DeleteButton
+                      iconOnly
+                      disabled={this.state.disabled}
+                      objectName='Modelos'
+                      objectDelete={() => this.deleteForecastItem()}
+                      message={<span>¿Estas seguro de querer eliminar estos modelos?</span>}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className='level-item'>
-                <button
-                  className='button is-primary'
-                  disabled={this.state.disabled}>
-                  <span className='icon'>
-                    <i className='fa fa-share-alt' />
-                  </span>
-                </button>
-              </div>
+            </div>
+            }
+            </div>
+            <div className='scroll-table'>
+              <div className='scroll-table-container'>
 
-              <div className='level-item'>
-                <DeleteButton
-                  iconOnly
-                  objectName='Predicción'
-                  objectDelete={() => this.deleteForecast(item)}
-                  message={<span>¿Estas seguro de querer eliminar esta predicción?</span>}
-                />
+                <BaseTable
+                  className='dash-table is-fullwidth'
+                  data={this.state.forecast}
+                  columns={this.getColumns()}
+                  handleSort={(e) => { this.handleSort(e) }}
+                  sortAscending={this.state.sortAscending}
+                  sortBy={this.state.sortBy}
+            />
               </div>
             </div>
           </div>
-
-        </div>
-
-        <div className='scroll-table'>
-          <div className='scroll-table-container'>
-
-            <BaseTable
-              className='dash-table is-fullwidth'
-              data={this.state.forecast}
-              columns={this.getColumns()}
-              handleSort={(e) => { this.handleSort(e) }}
-              sortAscending={this.state.sortAscending}
-              sortBy={this.state.sortBy}
-            />
-          </div>
-        </div>
-
+          }
+        {this.conciliateMsg()}
+        {this.shareModal()}
       </div>
     )
   }
@@ -531,7 +808,7 @@ class ForecastDetail extends Component {
 
 export default Page({
   path: '/forecast/detail/:uuid',
-  title: 'Forecast',
+  title: 'Predicciones',
   icon: 'bar-chart',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin',

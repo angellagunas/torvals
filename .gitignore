@@ -13,3 +13,4 @@ package-lock.json
 
 /data
 .env
+pio-code/

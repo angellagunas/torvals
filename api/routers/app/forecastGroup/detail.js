@@ -14,6 +14,8 @@ module.exports = new Route({
       populate: { path: 'engine catalogs' }
     })
 
+    forecast.forecasts = forecast.forecasts.filter(item => item.isDeleted === false)
+
     ctx.assert(forecast, 404, 'ForecastGroup no encontrado')
 
     ctx.body = forecast.toPublic()

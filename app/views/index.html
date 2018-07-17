@@ -13,7 +13,7 @@
         color: { theme: '#187FE6' },
         launcher: {
           chatLabel: {
-            '*': 'Soporte'
+            '*': 'Contáctanos'
           }
         }
       }
@@ -33,9 +33,10 @@
     
     zEmbed(function () {
       $zopim(function () {
-        $zopim.livechat.window.setTitle('Orax')
+        $zopim.livechat.window.setTitle('Contáctanos')
         $zopim.livechat.concierge.setName('Bienvenido a Orax')
         $zopim.livechat.concierge.setTitle('Puedo ayudarte con cualquier duda.')
+        $zopim.livechat.concierge.setAvatar('http://www.orax.io/admin/public/img/logo.png')
         $zopim.livechat.setLanguage('es')
         $zopim.livechat.departments.setVisitorDepartment('Orax')
         window.$zopim.livechat.removeTags('kamino.us')
