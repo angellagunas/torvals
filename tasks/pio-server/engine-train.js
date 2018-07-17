@@ -18,10 +18,9 @@ const task = new Task(async function (argv) {
   }
 
   log.call('Train engine.')
-  source
   const spawnPio = spawnSync(
-    'source',
-    [`/env/${forecast.engine.path}/bin/activate`, '&&', 'pio', 'train', '--main-py-file', 'train.py'],
+    'pio',
+    ['train', '--main-py-file', 'train.py'],
     { cwd: `/engines/${forecast.engine.path}` }
   )
 

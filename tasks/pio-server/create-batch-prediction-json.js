@@ -33,7 +33,7 @@ const task = new Task(async function (argv) {
   }, {
     $group: {
       _id: '$catalog',
-      result: { $push: "$externalId" }
+      result: { $push: '$externalId' }
     }
   }])
 
@@ -53,7 +53,13 @@ const task = new Task(async function (argv) {
     let result = {}
     for (let pos of item) {
       const catalogName = catalogs.find(catalog => catalog._id.toString() === catalogItems[item.indexOf(pos)]._id.toString())
-      result[catalogName.slug] = pos
+
+      if (catalogName.slug === 'centro-de-venta') {
+        // if (parseInt(pos) === 12604) continue
+        result['agencia_id'] = parseInt(pos)
+      } else {
+        result[`${catalogName.slug}_id`] = parseInt(pos)
+      }
     }
     return result
   })
@@ -76,19 +82,25 @@ const task = new Task(async function (argv) {
   log.call('Create JSON')
   const tmpdir = path.resolve('.', 'media', 'jsons')
   fs.mkdir(tmpdir, (err) => {
+    console.log(err)
     log.call('Folder already exists')
   })
   const filePath = path.join(tmpdir, `${forecast.uuid}.json`)
+  const outputFilePath = path.join(tmpdir, `${forecast.uuid}-output.json`)
   const writerStream = fs.createWriteStream(filePath)
   for (let row of rows) {
     const json = JSON.stringify(row)
     writerStream.write(`${json}\n`)
   }
 
+  await new Promise((resolve, reject) => {
+    writerStream.end(() => { resolve() })
+  })
+
   log.call('Send file to PIO.')
   const spawnPio = spawnSync(
     'pio',
-    ['batchpredict', '--input', filePath, '--output', filePath],
+    ['batchpredict', '--input', filePath, '--output', outputFilePath],
     { cwd: `/engines/${forecast.engine.path}` }
   )
 

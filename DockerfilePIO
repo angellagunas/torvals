@@ -1,4 +1,4 @@
-FROM pio-0.12.1
+FROM pio-0.12.1:latest
 
 USER root
 ENV NODE_ENV production
@@ -8,6 +8,8 @@ RUN npm config set -g production false
 ADD package.json /tmp/package.json
 RUN cd /tmp && npm --unsafe-perm install
 RUN mkdir -p /app && cp -a /tmp/node_modules /app/
+
+RUN pip install numpy
 
 # Copy application code.
 ADD . /app

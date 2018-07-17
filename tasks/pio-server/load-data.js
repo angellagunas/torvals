@@ -4,7 +4,9 @@ require('lib/databases/mongo')
 
 const Logger = require('lib/utils/logger')
 const request = require('lib/request')
+const moment = require('moment')
 const Task = require('lib/task')
+const replaceAll = require('underscore.string/replaceAll')
 const { CatalogItem, DataSetRow, Forecast } = require('models')
 
 const task = new Task(async function (argv) {
@@ -34,7 +36,7 @@ const task = new Task(async function (argv) {
   for (let row = await rows.next(); row != null; row = await rows.next()) {
     let group = 'group_fecha_producto'
     let properties = {
-      fecha: row.data.forecastDate,
+      fecha: moment.utc(row.data.forecastDate).format('YYYY-MM-DD'),
       producto_id: row.newProduct.externalId,
       venta_uni: row.data.sale
     }
@@ -44,7 +46,11 @@ const task = new Task(async function (argv) {
       })
 
       group = group + '_' + info.catalog.slug
-      properties[`${info.catalog.slug}_id`] = info.externalId
+      if (info.catalog.slug === 'centro-de-venta') {
+        properties['agencia_id'] = info.externalId
+      } else {
+        properties[`${replaceAll(info.catalog.slug, '-', '_')}_id`] = info.externalId
+      }
     }
 
     const options = {
@@ -63,13 +69,12 @@ const task = new Task(async function (argv) {
       json: true,
       persist: true
     }
-    console.log(data)
 
     try {
       const res = await request(options)
       // log.call(res)
     } catch (e) {
-      // console.log(e)
+      console.log(e)
       log.call('There was an error creating the event.')
     }
   }

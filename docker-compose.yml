@@ -83,7 +83,7 @@ services:
     mem_reservation: 8000m
     command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 24 # --quiet
   pio:
-    image: pio-0.12.1
+    # image: pio-0.12.1
     build:
       context: .
       dockerfile: DockerfilePIO
@@ -93,6 +93,7 @@ services:
       - ./pio-code/env:/env
       - ./pio-code/engines:/engines
       - ./pio-code/data:/data
+      - /www/media/jsons:/app/media/jsons
     ports:
       - "7070:7070"
       - "9001:9000"

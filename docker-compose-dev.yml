@@ -62,7 +62,7 @@ services:
         - 27017:27017
     command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 5 # --quiet
   pio:
-    image: pio-0.12.1
+    # image: pio-0.12.1
     build:
       context: .
       dockerfile: DockerfilePIO
@@ -72,6 +72,7 @@ services:
       - ./pio-code/env:/env
       - ./pio-code/engines:/engines
       - ./pio-code/data:/data
+      - ./media/jsons:/app/media/jsons
     ports:
       - "7070:7070"
       - "9001:9000"
