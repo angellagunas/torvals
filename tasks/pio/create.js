@@ -4,6 +4,7 @@ require('lib/databases/mongo')
 const moment = require('moment')
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
+const Mailer = require('lib/mailer')
 
 const createApp = require('tasks/pio-server/create-app')
 const loadAppData = require('tasks/pio-server/load-data')
@@ -27,7 +28,9 @@ const task = new Task(async function (argv) {
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.uuid})
     .populate('engine')
-    .populate('forecastGroup')
+    .populate({path: 'project', populate: {path: 'organization'}})
+    .populate({path: 'forecastGroup', populate: {path: 'createdBy'}})
+
   if (!forecast || !forecast.engine) {
     throw new Error('Invalid forecast.')
   }
@@ -82,6 +85,37 @@ const task = new Task(async function (argv) {
 
   log.call('Done! Forecast generated')
   log.call(`End ==>  ${moment().format()}`)
+
+  const email = new Mailer('forecast-ready')
+  let url = process.env.APP_HOST
+  let base = url.split('://')
+  base[1].replace('wwww', '')
+  url = base[0] + '://' + forecast.project.organization.slug + '.' + base[1]
+
+  let dataMail = {
+    url: url + '/forecast/detail/' + forecast.forecastGroup.uuid,
+    base: url,
+    name: forecast.forecastGroup.createdBy.name,
+    prediction: forecast.forecastGroup.alias,
+    status: forecast.status
+  }
+
+  await email.format(dataMail)
+
+  const recipient = {
+    email: forecast.forecastGroup.createdBy.email,
+    name: forecast.forecastGroup.createdBy.name
+  }
+
+  let recipients = {
+    recipient: recipient
+  }
+
+  await email.send({
+    ...recipients,
+    title: 'Se ha generado una predicción'
+  })
+
   return true
 })
 
