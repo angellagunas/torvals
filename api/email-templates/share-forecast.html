@@ -1,15 +1,6 @@
 {% extends "./layout.html" %}
 
 {% block content %}
-<table class="container">
-  <tbody>
-    <tr>
-      <td class="header">
-        <a href="{{ url }}" class="logo" target="_blank">
-          <img src="{{ base }}/app/public/img/logo.png" width="295" height="295" alt="Orax">
-        </a>
-      </td>
-    </tr>
     <tr>
       <td colSpan="2" class="body">
         <p class="main">Ingresa para revisar las predicciones generadas</p>
@@ -20,6 +11,4 @@
         <p>o copia esta url: <a class="link" href="{{ url }}">{{ url }}</a></p>
       </td>
     </tr>
-  </tbody>
-</table>
 {% endblock %}

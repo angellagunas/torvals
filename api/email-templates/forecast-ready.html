@@ -1,0 +1,21 @@
+{% extends "./layout.html" %} 
+{% block content %}
+    <tr>
+      <td colSpan="2" class="body">
+        <p class="main">Confirmación de predicción</p>
+        <p>
+          <img src="http://www.orax.io/admin/public/img/logo.png" width="100" height="auto" alt="Orax">
+        </p>
+        <p class="label">Hola {{ name }}</p>
+        <p class="label">Tu predicción
+          <strong>{{ prediction }} </strong>se encuentra</p>
+        <p class="label status">{{ status }}</p>
+        <p>
+          <a class="btn" href="{{ url }}" target="_blank">Ver predicción</a>
+        </p>
+        <p>o copia esta url:
+          <a class="link" href="{{ url }}">{{ url }}</a>
+        </p>
+      </td>
+    </tr>
+{% endblock %}
