@@ -442,7 +442,7 @@ class ForecastDetail extends Component {
   }
 
   async finishUpShare () {
-    let url = '/app/forecasts/share'
+    let url = '/app/forecastGroups/share/' + this.props.match.params.uuid
     try {
       let res = await api.post(url, {
         users: this.state.usersEmails,

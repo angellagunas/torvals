@@ -300,7 +300,7 @@ class CreateModal extends Component {
               this.state.project.cycleStatus !== 'forecastCreation' &&
               this.state.project.cycleStatus !== 'salesUpload' &&
 
-              <p className='help is-danger'>Se están realizando ajustes o no es tiempo de creación de predicciones. Puedes elegir un reporte informativo.</p>
+              <p className='help info-message'>En este momento no es posible crear un reporte conciliable hasta tu próximo ciclo.</p>
             }
           </div>
 
@@ -449,7 +449,7 @@ class CreateModal extends Component {
                 this.state.project.cycleStatus !== 'salesUpload'
               }
             onClick={() => this.generateForecast()}>
-            Generar predicción
+            Crear
           </button>
 
         </BaseModal>
