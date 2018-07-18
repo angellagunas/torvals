@@ -60,6 +60,7 @@
         color: #fff;
     }
     .navbar {
+        min-height: 4.25rem;
         &.has-shadow {
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
@@ -70,7 +71,7 @@
     &-right-img {
         width: 50%;
         position: absolute;
-        top: -70px;
+        top: -2px;
         right: 5%;
         border-radius: 10px;
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -231,8 +232,87 @@ $backGradient: 25%;
     }
 }
 
-.video{
-    .modal-background{
+.video {
+    .modal-background {
         background-color: rgba(0, 0, 0, 0.8);
+    }
+}
+
+.register {
+    &__modal {
+        .modal-close {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        color: $general_text;
+        .modal-content {
+            width: 80% !important; //background-color: white;
+            overflow: hidden !important;
+            text-align: center !important;
+            padding: 40px !important; //box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            .input {
+                color: $general_text !important;
+                background-color: #FFF !important;
+                border: 1px solid #E6E8F6;
+                height: 2.5rem; //border-bottom: 2px solid $info !important;
+                width: 100%;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .input:focus {
+                border: 0px !important;
+                border-bottom: 2px solid $info !important;
+                box-shadow: none !important;
+            }
+            .label {
+                text-align: left !important;
+                color: $general_text !important;
+                font-size: 1rem;
+            }
+            h1 {
+                color: $primary;
+                font-weight: 700;
+            }
+        }
+        .md-checkbox {
+            line-height: 1;
+            font-size: 1rem;
+        }
+        .md-checkbox--fake {
+            margin: 5px;
+            width: 20px;
+            height: 20px;
+        }
+        .md-checkbox--fake::after {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            border: 2px solid #ccc;
+        }
+        .md-checkbox--fake::before {
+            border-radius: 5px;
+            border: 0px solid transparent;
+        }
+        .md-checkbox input:checked+.md-checkbox--fake::after {
+            border: 2px solid #ccc;
+        }
+        .md-checkbox input:checked+.md-checkbox--fake::before {
+            height: 8px;
+            border-radius: 2px;
+            border-color: $success;
+            border-width: 2px;
+            border-top-style: none;
+            border-right-style: none;
+            -webkit-transform: rotate(-45deg);
+            -moz-transform: rotate(-45deg);
+            -ms-transform: rotate(-45deg);
+            -o-transform: rotate(-45deg);
+            transform: rotate(-45deg) translate(0px, 4px);
+        }
+        .md-checkbox>div {
+            line-height: 30px;
+        }
+        &_buttons{
+            text-align: right !important;
+        }
     }
 }

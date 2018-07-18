@@ -191,7 +191,6 @@ class LogInButton extends Component {
   }
 
   hideModal () {
-    console.log('hide')
     this.setState({
       className: ''
     })

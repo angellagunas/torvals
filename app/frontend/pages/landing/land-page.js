@@ -5,6 +5,7 @@ import { forcePublic } from '~base/middlewares/'
 import LogInButton from './log-in-form'
 import Footer from './footer'
 import Contact from './contact'
+import RegisterModal from './register/registerModal'
 
 class LandPage extends Component {
   constructor (props) {
@@ -153,9 +154,7 @@ class LandPage extends Component {
 
                 {this.state.isDown
                   ? <div className='navbar-item'>
-                    <button className='button is-success'>
-                      Probar 30 días gratis
-                    </button>
+                    <RegisterModal />
                   </div>
 
                   : <div className='navbar-item'>
@@ -187,9 +186,7 @@ class LandPage extends Component {
                   <h2 className='subtitle'>
                     Large subtitle
                   </h2>
-                  <button className='button is-success is-medium'>
-                    Probar 30 días gratis
-                  </button>
+                  <RegisterModal buttonClass='is-medium' />
                   <img className='landing-right-img is-hidden-mobile' src='/app/public/img/dash.jpg' />
 
                 </div>
