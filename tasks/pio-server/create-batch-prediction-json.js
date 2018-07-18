@@ -55,7 +55,6 @@ const task = new Task(async function (argv) {
       const catalogName = catalogs.find(catalog => catalog._id.toString() === catalogItems[item.indexOf(pos)]._id.toString())
 
       if (catalogName.slug === 'centro-de-venta') {
-        // if (parseInt(pos) === 12604) continue
         result['agencia_id'] = parseInt(pos)
       } else {
         result[`${catalogName.slug}_id`] = parseInt(pos)

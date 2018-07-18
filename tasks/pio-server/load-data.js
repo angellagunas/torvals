@@ -26,7 +26,7 @@ const task = new Task(async function (argv) {
   const rows = await DataSetRow.find({
     dataset: forecast.project.mainDataset
     // cycle: { '$in': forecast.cycles }
-  }).populate('newProduct').limit(10000).cursor()
+  }).populate('newProduct').cursor()
 
   const catalogItems = await CatalogItem.find({
     organization: forecast.project.organization
@@ -49,7 +49,7 @@ const task = new Task(async function (argv) {
       if (info.catalog.slug === 'centro-de-venta') {
         properties['agencia_id'] = info.externalId
       } else {
-        properties[`${replaceAll(info.catalog.slug, '-', '_')}_id`] = info.externalId
+        properties[`${info.catalog.slug}_id`] = info.externalId
       }
     }
 

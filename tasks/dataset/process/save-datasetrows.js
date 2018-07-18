@@ -134,6 +134,7 @@ const task = new Task(
     return true
   },
   async (argv) => {
+    if (argv.noSlack) return
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
     }
@@ -147,6 +148,7 @@ const task = new Task(
     })
   },
   async (argv) => {
+    if (argv.noSlack) return
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
     }

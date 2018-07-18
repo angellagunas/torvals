@@ -2,104 +2,141 @@
 require('../../config')
 require('lib/databases/mongo')
 
-const fs = require('fs')
+const moment = require('moment')
+const path = require('path')
+const { execSync } = require('child_process')
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
-const { Forecast } = require('models')
+const saveDatasetrows = require('tasks/dataset/process/save-datasetrows')
+const { Forecast, Rule, DataSetRow } = require('models')
 
 const task = new Task(async function (argv) {
   const log = new Logger('pio-get-batch-prediction')
+  const batchSize = 10000
+
+  log.call(`Start ==>  ${moment().format()}`)
 
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({uuid: argv.forecast})
-    .populate('engine')
-  if (!forecast || !forecast.engine) {
+    .populate('engine project dataset')
+  if (!forecast) {
     throw new Error('Invalid forecast.')
   }
 
   const tmpdir = path.resolve('.', 'media', 'jsons')
-  fs.mkdir(tmpdir, (err) => {
-    log.call('Folder already exists')
-  })
-  const filePath = path.join(tmpdir, `${forecast.uuid}.json`)
+  // fs.mkdir(tmpdir, (err) => {
+  //   log.call('Folder already exists')
+  // })
+  const filePath = path.join(tmpdir, `${forecast.uuid}-output.json`)
+  let contents = String(execSync(`ls ${filePath}`)).split('\n')
+  let dataset = forecast.dataset
 
-  log.call('Import data to created app.')
-  for (var i = 0; i < pages; i++) {
-    log.call(`${lineCount} => ${(i * batchSize) + 1} - ${(i * batchSize) + batchSize}`)
+  const rule = await Rule.findOne({_id: forecast.project.rule}).populate('catalogs')
 
-    let rawLine
+  const catalogs = rule.catalogs
+  let bulkOps = []
 
-    if (i === 0) {
-      rawLine = String(execSync(`sed '1d;${(i * batchSize) + batchSize}q' ${filepath}`))
-    } else {
-      rawLine = String(execSync(`sed '1,${i * batchSize}d;${(i * batchSize) + batchSize}q' ${filepath}`))
-    }
+  log.call('Reading prediction data from file.')
+  for (let file of contents) {
+    if (!file.includes('part-')) continue
 
-    let rows = rawLine.split('\n')
+    log.call(`Reading file ${file}...`)
+    let actualFilePath = path.join(filePath, file)
+    const rawLineCount = execSync(`wc -l < ${actualFilePath}`)
+    log.call('Line count ===> ', parseInt(String(rawLineCount)))
 
-    for (let row of rows) {
-      let obj = {}
-      let itemSplit = row.split(',')
+    const lineCount = parseInt(String(rawLineCount))
+    const pages = Math.ceil(lineCount / batchSize)
 
-      for (var j = 0; j < headers.length; j++) {
-        obj[headers[j]] = itemSplit[j]
+    for (var i = 0; i < pages; i++) {
+      log.call(`${lineCount} => ${(i * batchSize) + 1} - ${(i * batchSize) + batchSize}`)
+
+      let rawLine
+
+      if (i === 0) {
+        rawLine = String(execSync(`sed '1d;${(i * batchSize) + batchSize}q' ${actualFilePath}`))
+      } else {
+        rawLine = String(execSync(`sed '1,${i * batchSize}d;${(i * batchSize) + batchSize}q' ${actualFilePath}`))
       }
 
-      if (!obj[dateColumn.name]) {
-        continue
-      }
-
-      let forecastDate
-
-      try {
-        forecastDate = moment.utc(obj[dateColumn.name], 'YYYY-MM-DD')
-      } catch (e) {
-        continue
-      }
-
-      if (!forecastDate.isValid()) {
-        continue
-      }
-
-      let prediction = obj[predictionColumn.name] || '0'
-      if (prediction === 'NA') prediction = 0
-
-      try {
-        prediction = parseInt(prediction)
-      } catch (e) {
-        log.call('Error!')
-        log.call(e)
-
-        continue
-      }
-
-      let catalogData = {}
-      for (let column of dataset.columns) {
-        let catalogColumns = Object.keys(column).filter(x => column[x] === true && x.startsWith('is_'))
-
-        for (let catalogColumnName of catalogColumns) {
-          catalogData[catalogColumnName] = obj[column.name]
+      let rows = rawLine.split('\n')
+      // log.call(rows)
+      for (let row of rows) {
+        if (row === '') continue
+        try {
+          row = JSON.parse(row)
+        } catch (e) {
+          console.log(e)
+          console.log(row)
+          continue
         }
+
+        let obj = row.query
+        if (!obj['fecha']) {
+          continue
+        }
+
+        let forecastDate
+
+        try {
+          forecastDate = moment.utc(obj['fecha'], 'YYYY-MM-DD')
+        } catch (e) {
+          continue
+        }
+
+        if (!forecastDate.isValid()) {
+          continue
+        }
+
+        let prediction = row.prediction.label || '0'
+        if (prediction === 'NA') prediction = 0
+
+        try {
+          prediction = parseInt(prediction)
+        } catch (e) {
+          log.call('Error!')
+          log.call(e)
+
+          continue
+        }
+
+        let catalogData = {}
+        for (let cat of catalogs) {
+          if (cat.slug === 'producto') continue
+          if (cat.slug === 'centro-de-venta') {
+            catalogData[`is_${cat.slug}_id`] = obj[`agencia_id`]
+          } else {
+            catalogData[`is_${cat.slug}_id`] = obj[`${cat.slug}_id`]
+          }
+        }
+
+        bulkOps.push({
+          'organization': dataset.organization,
+          'project': dataset.project,
+          'dataset': dataset._id,
+          'apiData': obj,
+          'data': {
+            'prediction': prediction,
+            'forecastDate': forecastDate,
+            'sale': 0,
+            'adjustment': prediction,
+            'localAdjustment': prediction,
+            'lastAdjustment': undefined,
+            'productExternalId': obj[`producto_id`]
+          },
+          'catalogData': catalogData
+        })
       }
 
-      bulkOps.push({
-        'organization': dataset.organization,
-        'project': dataset.project,
-        'dataset': dataset._id,
-        'apiData': obj,
-        'data': {
-          'prediction': prediction,
-          'forecastDate': forecastDate,
-          'adjustment': prediction
-        },
-        'catalogData': catalogData
-      })
+      await DataSetRow.insertMany(bulkOps)
+      bulkOps = []
+      log.call(`${batchSize} ops ==> ${moment().format()}`)
     }
-
-    await DataSetRow.insertMany(bulkOps)
-    bulkOps = []
-    log.call(`${batchSize} ops ==> ${moment().format()}`)
   }
+
+  await saveDatasetrows.run({uuid: dataset.uuid, noSlack: true})
+
+  log.call(`End ==>  ${moment().format()}`)
 
   return true
 })
