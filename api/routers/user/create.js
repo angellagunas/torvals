@@ -32,12 +32,15 @@ module.exports = new Route({
     user.role = defaultRole
     user.save()
 
-    if (!user.isVerified) {
-      user.sendActivationEmail()
-    }
+    user.sendActivationEmail()
+
+    const token = await user.createToken({
+      type: 'session'
+    })
 
     ctx.body = {
-      user: user.toPublic()
+      user: user.toPublic(),
+      jwt: token.getJwt()
     }
   }
 })

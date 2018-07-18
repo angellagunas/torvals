@@ -171,6 +171,20 @@ userSchema.statics.register = async function (options) {
   return createdUser
 }
 
+userSchema.statics.validateActivation = async function (email, token) {
+  const UserToken = mongoose.model('UserToken')
+  const userEmail = email.toLowerCase()
+  const user = await this.findOne({email: userEmail, isVerified: false})
+  assert(user, 401, '¡Usuario inválido! Contacta al administrador de la página.')
+  const userToken = await UserToken.findOne({'user': user, 'key': token, type: 'activation', 'validUntil': {$gte: moment.utc()}})
+  assert(userToken, 401, 'Token inválido! Contacta al administrador de la página.')
+
+  user.isVerified = true
+  await user.save()
+
+  return user
+}
+
 userSchema.statics.validateInvite = async function (email, token) {
   const UserToken = mongoose.model('UserToken')
   const userEmail = email.toLowerCase()
