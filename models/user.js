@@ -236,6 +236,29 @@ userSchema.virtual('profileUrl').get(function () {
   return 'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
 })
 
+userSchema.methods.sendActivationEmail = async function () {
+  const UserToken = mongoose.model('UserToken')
+  let userToken = await UserToken.create({
+    user: this._id,
+    validUntil: moment().add(1, 'year').utc(),
+    type: 'activation'
+  })
+
+  const email = new Mailer('activation')
+
+  const data = this.toJSON()
+  data.url = process.env.APP_HOST + '/emails/activate?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
+
+  await email.format(data)
+  await email.send({
+    recipient: {
+      email: this.email,
+      name: this.name
+    },
+    title: 'Activación a Orax'
+  })
+}
+
 userSchema.methods.validatePassword = async function (password) {
   const isValid = await new Promise((resolve, reject) => {
     bcrypt.compare(password, this.password, (err, compared) =>
