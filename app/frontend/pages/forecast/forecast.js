@@ -302,7 +302,7 @@ class Forecast extends Component {
       <BaseModal
         title={'Predicción en proceso'}
         className={this.state.forecastMsg}
-        hideModal={this.hideForecastMsg}>
+        hideModal={() => this.hideForecastMsg()}>
         <p>Tu predicción se está generando. <br />
         Este proceso puede tomar mucho tiempo.
         Te avisaremos por correo cuando el proceso termine.

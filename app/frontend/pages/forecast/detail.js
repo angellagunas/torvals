@@ -609,7 +609,9 @@ class ForecastDetail extends Component {
                               <strong>{item.name}</strong>
                             </p>
                             <p className='indicators-number' style={{color: item.color}}>
-                              {item.prediction}
+                              {item.prediction.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })}
                             </p>
                           </div>
                         )
