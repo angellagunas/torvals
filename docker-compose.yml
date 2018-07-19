@@ -83,15 +83,12 @@ services:
     mem_reservation: 8000m
     command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 24 # --quiet
   pio:
-    # image: pio-0.12.1
     build:
       context: .
       dockerfile: DockerfilePIO
     env_file:
       - .env
     volumes:
-      - ./pio-code/env:/env
-      - ./pio-code/engines:/engines
       - ./pio-code/data:/data
       - /www/media/jsons:/app/media/jsons
     ports:
@@ -104,7 +101,6 @@ services:
     depends_on:
       - mongodb
       - redisdb
-    # command: ./engines/initialize.sh
     tty: true
 #  neo4j:
 #    image: 'neo4j:3.2.1'
