@@ -13,11 +13,12 @@ RUN pip install numpy
 
 # Copy application code.
 ADD . /app
-
-USER pio
-
 ADD ./pio-code/engines /engines
 ADD ./pio-code/env /env
+RUN chown -R pio /engines
+RUN chown -R pio /env
+
+USER pio
 
 WORKDIR /app
 

@@ -134,6 +134,31 @@ const task = new Task(async function (argv) {
     }
   }
 
+  log.call('Obtaining max and min dates ...')
+  let statement = [
+    {
+      '$match': {
+        'dataset': dataset._id
+      }
+    }, {
+      '$group': {
+        '_id': null,
+        'max': { '$max': '$data.forecastDate' },
+        'min': { '$min': '$data.forecastDate' }
+      }
+    }
+  ]
+
+  let rows = await DataSetRow.aggregate(statement)
+
+  let maxDate = moment(rows[0].max).utc().format('YYYY-MM-DD')
+  let minDate = moment(rows[0].min).utc().format('YYYY-MM-DD')
+  dataset.set({
+    dateMin: minDate,
+    dateMax: maxDate
+  })
+  await dataset.save()
+
   await saveDatasetrows.run({uuid: dataset.uuid, noSlack: true})
 
   log.call(`End ==>  ${moment().format()}`)
