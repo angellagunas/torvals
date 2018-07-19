@@ -16,18 +16,26 @@ const task = new Task(async function (argv) {
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({ uuid: argv.forecast })
     .populate('engine')
+    .populate('dataset')
+    .populate('project')
     .populate('forecastGroup')
   if (!forecast || !forecast.engine) {
     throw new Error('Invalid forecast.')
   }
-  await forecast.forecastGroup.populate('project').execPopulate()
+  // await forecast.dataset.populate('catalogItems').execPopulate()
+  //
+  let catalogItemsIds = forecast.dataset.catalogItems
+  catalogItemsIds = catalogItemsIds.concat(forecast.dataset.newProducts)
 
   const catalogItems = await CatalogItem.aggregate([{
     $match: {
       isDeleted: false,
-      organization: forecast.forecastGroup.project.organization,
+      organization: forecast.project.organization,
       catalog: {
         $in: forecast.catalogs
+      },
+      _id: {
+        $in: catalogItemsIds
       }
     }
   }, {
