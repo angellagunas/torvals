@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import Checkbox from '~base/components/base-checkbox'
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector'
+import api from '~base/api'
+import cookies from '~base/cookies'
+import tree from '~core/tree'
 
 class RegisterModal extends Component {
   constructor (props) {
@@ -16,12 +19,12 @@ class RegisterModal extends Component {
         passConfirm: '',
         name: '',
         lastName: '',
-        charge: '',
-        tel: '',
+        job: '',
+        phone: '',
         domain: '',
         orgName: '',
         turn: '',
-        employes: '',
+        employees: '',
         country: '',
         region: '',
         rfc: '',
@@ -35,12 +38,12 @@ class RegisterModal extends Component {
         passConfirm: '',
         name: '',
         lastName: '',
-        charge: '',
-        tel: '',
+        job: '',
+        phone: '',
         domain: '',
         orgName: '',
         turn: '',
-        employes: '',
+        employees: '',
         country: '',
         region: '',
         rfc: '',
@@ -73,12 +76,16 @@ class RegisterModal extends Component {
     }
   }
 
-  nextStep (step) {
+  async nextStep (step) {
     if (step < 0) {
       step = 0
       this.hideModal()
     }
     if (step > this.state.step) {
+      let res = await this.sendData(step)
+      if (!res) {
+        return
+      }
       this.setState({
         fade: 'fadeOutLeft'
       }, () => {
@@ -100,6 +107,197 @@ class RegisterModal extends Component {
           })
         }, 300)
       })
+    }
+  }
+
+  async sendData (step) {
+    if (step === 1) {
+      return this.validEmail()
+    } else if (step === 2) {
+      return this.createUser()
+    } else if (step === 3) {
+      return this.validateDomain()
+    } else if (step === 4) {
+      return this.updateOrg()
+    }
+  }
+
+  async validEmail () {
+    try {
+      let url = '/user/validate'
+      let res = await api.post(url, {email: this.state.registerData.email})
+      if (res.status === 400) {
+        this.setState({
+          errors: {
+            ...this.state.errors,
+            error: true,
+            email: 'Ese correo ya se encuentra en uso'
+          }
+        })
+        return false
+      }
+      this.setState({
+        errors: {
+          ...this.state.errors,
+          error: false,
+          email: ''
+        }
+      })
+      return true
+    } catch (e) {
+      console.log(e)
+      this.setState({
+        errors: {
+          ...this.state.errors,
+          error: true,
+          email: 'Ese correo ya se encuentra en uso'
+        }
+      })
+      return false
+    }
+  }
+
+  async createUser () {
+    try {
+      let url = '/user'
+      let res = await api.post(url,
+        { email: this.state.registerData.email,
+          password: this.state.registerData.pass,
+          name: this.state.registerData.name + ' ' + this.state.registerData.lastName,
+          job: this.state.registerData.job,
+          phone: this.state.registerData.phone
+        })
+      if (res.status === 401) {
+        this.setState({
+          errors: {
+            ...this.state.errors,
+            error: true,
+            email: 'Ese correo ya se encuentra en uso'
+          }
+        })
+        return false
+      }
+      this.setState({
+        errors: {
+          ...this.state.errors,
+          error: false,
+          email: ''
+        }
+      })
+
+      cookies.set('jwt', res.jwt)
+      cookies.set('user', res.user)
+      tree.set('user', res.user)
+      tree.set('jwt', res.jwt)
+      console.log(cookies.get())
+      console.log(tree.get())
+      return true
+    } catch (e) {
+      console.log(e)
+      this.setState({
+        errors: {
+          ...this.state.errors,
+          error: true,
+          email: 'Ese correo ya se encuentra en uso'
+        }
+      })
+      return false
+    }
+  }
+
+  async validateDomain () {
+    try {
+      let url = '/app/organizations/validate'
+      let res = await api.post(url,
+        {
+          slug: this.state.registerData.domain
+        })
+      if (res.status === 400) {
+        this.setState({
+          errors: {
+            ...this.state.errors,
+            error: true,
+            domain: 'Ese subdominio ya se encuentra en uso'
+          }
+        })
+        return false
+      }
+      this.setState({
+        errors: {
+          ...this.state.errors,
+          error: false,
+          domain: '',
+          org: res
+        }
+      })
+
+      cookies.set('organization', res.slug)
+      return true
+    } catch (e) {
+      console.log(e)
+      this.setState({
+        errors: {
+          ...this.state.errors,
+          error: true,
+          domain: 'Ese subdominio ya se encuentra en uso'
+        }
+      })
+      return false
+    }
+  }
+
+  async updateOrg () {
+    let r = this.state.registerData
+    try {
+      let url = '/app/organizations/' + this.state.org.uuid
+      let res = await api.post(url,
+        {
+          name: r.orgName,
+          country: r.country + ' ' + r.region,
+          status: 'trial',
+          employees: r.employees,
+          rfc: r.rfc,
+          billingEmail: r.orgEmail,
+          businessName: r.orgName,
+          salesRep: {
+            name: r.name,
+            email: r.email,
+            phone: r.phone
+          }
+        })
+      if (res.status === 400) {
+        this.setState({
+          errors: {
+            ...this.state.errors,
+            error: true,
+            domain: 'Ese subdominio ya se encuentra en uso'
+          }
+        })
+        return false
+      }
+      this.setState({
+        errors: {
+          ...this.state.errors,
+          error: false,
+          domain: '',
+          org: res
+        }
+      })
+
+      cookies.set('organization', res.slug)
+      tree.set('organization', res)
+      this.props.history.push('/dashboard')
+      return true
+    } catch (e) {
+      console.log(e)
+      this.setState({
+        errors: {
+          ...this.state.errors,
+          error: true,
+          domain: 'Ese subdominio ya se encuentra en uso'
+        }
+      })
+      return false
     }
   }
 
@@ -152,6 +350,16 @@ class RegisterModal extends Component {
       }
     }
 
+    if (input === 'domain') {
+      if (!e.target.validity.valid) {
+        aux[input] = 'El subdominio solo puede contener letras, números y _'
+        aux.error = true
+      } else {
+        aux[input] = ''
+        aux.error = false
+      }
+    }
+
     this.setState({
       errors: aux
     })
@@ -182,6 +390,7 @@ class RegisterModal extends Component {
                     required
                     autoComplete='off'
                     name='email'
+                    pattern='[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$'
                     value={this.state.registerData.email}
                     onChange={(e) => this.handleInputChange(e, 'email')} />
                 </div>
@@ -286,9 +495,9 @@ class RegisterModal extends Component {
                     type='text'
                     placeholder='Ej. Administrador'
                     autoComplete='off'
-                    name='charge'
-                    value={this.state.registerData.name}
-                    onChange={(e) => this.handleInputChange(e, 'charge')} />
+                    name='job'
+                    value={this.state.registerData.job}
+                    onChange={(e) => this.handleInputChange(e, 'job')} />
                 </div>
               </div>
             </div>
@@ -317,9 +526,9 @@ class RegisterModal extends Component {
                     placeholder='Lada + 10 digitos'
                     autoComplete='off'
                     required
-                    name='tel'
-                    value={this.state.registerData.tel}
-                    onChange={(e) => this.handleInputChange(e, 'tel')} />
+                    name='phone'
+                    value={this.state.registerData.phone}
+                    onChange={(e) => this.handleInputChange(e, 'phone')} />
                 </div>
               </div>
             </div>
@@ -358,6 +567,7 @@ class RegisterModal extends Component {
                         autoComplete='off'
                         required
                         name='domain'
+                        pattern='[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?'
                         value={this.state.registerData.domain}
                         onChange={(e) => this.handleInputChange(e, 'domain')} />
                     </p>
@@ -541,7 +751,6 @@ class RegisterModal extends Component {
   continue () {
     let r = this.state.registerData
     let e = this.state.errors
-    console.log('continie')
     if (e.error) {
       return false
     }
@@ -558,7 +767,19 @@ class RegisterModal extends Component {
       if (!this.state.accept) {
         return false
       }
+    } else if (this.state.step === 1) {
+      if (r.name === '' || e.name !== '') {
+        return false
+      }
+      if (r.lastName === '' || e.lastName !== '') {
+        return false
+      }
+    } else if (this.state.step === 2) {
+      if (r.domain === '' || e.domain !== '') {
+        return false
+      }
     }
+
     return true
   }
 
