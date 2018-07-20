@@ -50,7 +50,7 @@ const task = new Task(async function (argv) {
       if (info.catalog.slug === 'centro-de-venta') {
         properties['agencia_id'] = info.externalId
       } else {
-        properties[`${replaceAll(info.catalog.slug, '-', '_')}_id`] = info.externalId
+        properties[`${info.catalog.slug}_id`] = info.externalId
       }
     }
 

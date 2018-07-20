@@ -13,16 +13,14 @@ RUN pip install numpy
 
 # Copy application code.
 ADD . /app
-WORKDIR /app
+ADD ./pio-code/engines /engines
+ADD ./pio-code/env /env
+RUN chown -R pio /engines
+RUN chown -R pio /env
 
-# RUN make app-dist
-# RUN make admin-dist
-# RUN node tasks/build-indexes.js
-
-# RUN mkdir -p media/uploads
-# RUN chown node:node media/
-# RUN chown node:node media/uploads
 USER pio
+
+WORKDIR /app
 
 ENV NODE_ENV="production"
 

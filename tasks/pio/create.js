@@ -16,7 +16,55 @@ const engineDeploy = require('tasks/pio-server/engine-deploy')
 const createBatch = require('tasks/pio-server/create-batch-prediction-json')
 const getBatch = require('tasks/pio-server/get-batch-prediction')
 
+const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
+
 const { Catalog, Forecast } = require('models')
+
+let start = async (argv) => {
+  if (!argv.uuid) {
+    throw new Error('You need to provide an uuid!')
+  }
+  const forecast = await Forecast.findOne({uuid: argv.uuid})
+    .populate('forecastGroup engine')
+
+  if (!forecast) {
+    throw new Error('Invalid uuid!')
+  }
+
+  let forecastGroup = forecast.forecastGroup
+  let engine = forecast.engine
+
+  sendSlackNotificacion.run({
+    channel: 'all',
+    message: `La predicción *${forecastGroup.alias}* con engine ` +
+      `*${engine.name}* ha empezado a generarse!.`
+  })
+}
+
+let end = async (argv) => {
+  if (!argv.uuid) {
+    throw new Error('You need to provide an uuid!')
+  }
+  const forecast = await Forecast.findOne({uuid: argv.uuid})
+    .populate('forecastGroup engine')
+
+  if (!forecast) {
+    throw new Error('Invalid uuid!')
+  }
+
+  let forecastGroup = forecast.forecastGroup
+  let engine = forecast.engine
+
+  sendSlackNotificacion.run({
+    channel: 'all',
+    message: `La predicción *${forecastGroup.alias}* con engine ` +
+      `*${engine.name}* ha terminado de generarse y esta lista para revisarse!.`,
+    attachment: {
+      title: 'Exito!',
+      image_url: 'https://i.imgur.com/GfHWtUx.gif'
+    }
+  })
+}
 
 const task = new Task(async function (argv) {
   const log = new Logger('pio-master-queue')
@@ -99,8 +147,12 @@ const task = new Task(async function (argv) {
     forecast: forecast.uuid
   })
 
+  forecast.set({
+    status: 'ready'
+  })
+  await forecast.save()
+
   log.call('Done! Forecast generated')
-  log.call(`End ==>  ${moment().format()}`)
 
   const email = new Mailer('forecast-ready')
   let url = process.env.APP_HOST
@@ -127,13 +179,19 @@ const task = new Task(async function (argv) {
     recipient: recipient
   }
 
-  await email.send({
-    ...recipients,
-    title: 'Se ha generado una predicción'
-  })
+  try {
+    await email.send({
+      ...recipients,
+      title: 'Se ha generado una predicción'
+    })
+  } catch (e) {
+    log.call(`Error sending email: ${e}`)
+  }
+
+  log.call(`End ==>  ${moment().format()}`)
 
   return true
-})
+}, start, end)
 
 if (require.main === module) {
   task.setCliHandlers()
