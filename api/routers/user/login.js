@@ -8,6 +8,10 @@ module.exports = new Route({
     const { email, password } = ctx.request.body
     const user = await User.auth(email, password)
 
+    if (user && !user.isVerified) {
+      ctx.throw(400, 'User no active')
+    }
+
     const orgsAux = user.organizations.map(item => {
       return {
         organization: item.organization.toPublic(),

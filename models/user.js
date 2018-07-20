@@ -33,6 +33,11 @@ const userSchema = new Schema({
     region: { type: String }
   },
 
+  accountOwner: { type: Boolean, default: false },
+  language: { type: String, default: 'ES' },
+  job: { type: String },
+  isVerified: { type: Boolean, default: false },
+
   isDeleted: { type: Boolean, default: false },
 
   uuid: { type: String, default: v4 },
@@ -78,7 +83,11 @@ userSchema.methods.toPublic = function () {
     validEmail: this.validEmail,
     groups: this.groups,
     profileUrl: this.profileUrl,
-    isAdmin: this.isAdmin
+    isAdmin: this.isAdmin,
+    accountOwner: this.accountOwner,
+    language: this.language,
+    job: this.job,
+    isVerified: this.isVerified
   }
 }
 
@@ -93,7 +102,11 @@ userSchema.methods.toAdmin = function () {
     validEmail: this.validEmail,
     organizations: this.organizations,
     groups: this.groups,
-    profileUrl: this.profileUrl
+    profileUrl: this.profileUrl,
+    accountOwner: this.accountOwner,
+    language: this.language,
+    job: this.job,
+    isVerified: this.isVerified
   }
 
   if (this.role && this.role.toAdmin) {
@@ -156,6 +169,20 @@ userSchema.statics.register = async function (options) {
   const createdUser = await this.create(options)
 
   return createdUser
+}
+
+userSchema.statics.validateActivation = async function (email, token) {
+  const UserToken = mongoose.model('UserToken')
+  const userEmail = email.toLowerCase()
+  const user = await this.findOne({email: userEmail, isVerified: false})
+  assert(user, 401, '¡Usuario inválido! Contacta al administrador de la página.')
+  const userToken = await UserToken.findOne({'user': user, 'key': token, type: 'activation', 'validUntil': {$gte: moment.utc()}})
+  assert(userToken, 401, 'Token inválido! Contacta al administrador de la página.')
+
+  user.isVerified = true
+  await user.save()
+
+  return user
 }
 
 userSchema.statics.validateInvite = async function (email, token) {
@@ -222,6 +249,29 @@ userSchema.virtual('profileUrl').get(function () {
 
   return 'https://s3.us-west-2.amazonaws.com/pythia-kore-dev/avatars/default.jpg'
 })
+
+userSchema.methods.sendActivationEmail = async function () {
+  const UserToken = mongoose.model('UserToken')
+  let userToken = await UserToken.create({
+    user: this._id,
+    validUntil: moment().add(1, 'year').utc(),
+    type: 'activation'
+  })
+
+  const email = new Mailer('activation')
+
+  const data = this.toJSON()
+  data.url = process.env.APP_HOST + '/emails/activate?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
+
+  await email.format(data)
+  await email.send({
+    recipient: {
+      email: this.email,
+      name: this.name
+    },
+    title: 'Activación a Orax'
+  })
+}
 
 userSchema.methods.validatePassword = async function (password) {
   const isValid = await new Promise((resolve, reject) => {

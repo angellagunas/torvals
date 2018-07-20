@@ -26,8 +26,17 @@ module.exports = new Route({
     let data = ctx.request.body
     let user = ctx.state.user
 
-    let project = await Project.findOne({uuid: data.project}).populate('mainDataset rule')
+    let project = await Project.findOne({uuid: data.project})
+      .populate('mainDataset rule organization')
     ctx.assert(project, 404, 'Proyecto no encontrado')
+
+    if(!project.mainDataset){
+      ctx.throw(422, 'El proyecto no tiene un dataset principal')
+    }
+
+    if((data.engines && data.engines.length < 1) || (!data.engines)){
+      ctx.throw(422, 'Debes seleccionar por lo menos un modelo de predicciones')
+    }
 
     let catalogs
     let cycles
@@ -135,8 +144,6 @@ module.exports = new Route({
         cycles: cycles.data,
         instanceKey: v4()
       })
-      console.log(engine)
-      console.log(forecast)
 
       generateForecast.add({uuid: forecast.uuid})
       forecastGroup.forecasts.push(forecast._id)

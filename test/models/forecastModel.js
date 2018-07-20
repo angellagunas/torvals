@@ -58,7 +58,8 @@ describe('Forecast Model', () => {
         instanceKey: 'a_random_intance_key',
         port: 1000,
         status: 'created',
-        uuid: 'a_static_uuid'
+        uuid: 'a_static_uuid',
+        project: project._id
       })
 
       assert.exists(forecast)
@@ -105,7 +106,8 @@ describe('Forecast Model', () => {
         dateStart: moment.utc(),
         instanceKey: 'a_random_intance_key',
         port: 1000,
-        uuid: 'a_static_uuid'
+        uuid: 'a_static_uuid',
+        project: project._id
       })
 
       assert.exists(forecast)
@@ -153,7 +155,8 @@ describe('Forecast Model', () => {
         instanceKey: 'a_random_intance_key',
         port: 1000,
         status: 'created',
-        uuid: 'a_static_uuid'
+        uuid: 'a_static_uuid',
+        project: project._id
       })
 
       assert.exists(forecast)
@@ -200,7 +203,8 @@ describe('Forecast Model', () => {
         instanceKey: 'a_random_intance_key',
         port: 1000,
         status: 'created',
-        uuid: 'a_static_uuid'
+        uuid: 'a_static_uuid',
+        project: project._id
       })
 
       assert.exists(forecast)
@@ -248,7 +252,8 @@ describe('Forecast Model', () => {
         instanceKey: 'a_random_intance_key',
         port: 1000,
         status: 'created',
-        uuid: 'a_static_uuid'
+        uuid: 'a_static_uuid',
+        project: project._id
       })
 
       expect(typeof forecast.port).equals('number')
@@ -460,7 +465,8 @@ describe('Forecast Model', () => {
           instanceKey: 'a_random_intance_key',
           port: 1000,
           status: 'created',
-          uuid: 'a_static_uuid'
+          uuid: 'a_static_uuid',
+          project: project._id
         }
 
         const firstForecast = await Forecast.create(data)
@@ -570,7 +576,8 @@ describe('Forecast Model', () => {
           dateEnd: moment.utc(),
           dateStart: moment.utc(),
           instanceKey: 'a_random_intance_key',
-          port: 1000
+          port: 1000,
+          project: project._id
         }
 
         const firstForecast = await Forecast.create(data)
