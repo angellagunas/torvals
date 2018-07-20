@@ -31,6 +31,7 @@ const organizationSchema = new Schema({
   rfc: { type: String },
   billingEmail: { type: String },
   businessName: { type: String },
+  businessType: { type: String },
   accountType: { type: String, default: 'managed' },
   trialStart: { type: Date, default: moment.utc },
   trialEnd: { type: Date, default: moment.utc().add(30, 'd') },

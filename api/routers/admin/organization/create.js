@@ -113,7 +113,6 @@ module.exports = new Route({
       await org.uploadOrganizationPicture(file)
     }
 
-    // verifyPrices.add({uuid: org.uuid})
     generateCycles.run({uuid: org.uuid, rule: rule.uuid})
 
     ctx.body = {
