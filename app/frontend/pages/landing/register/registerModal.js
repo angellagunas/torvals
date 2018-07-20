@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Checkbox from '~base/components/base-checkbox'
+import { CountryDropdown, RegionDropdown } from 'react-country-region-selector'
 
 class RegisterModal extends Component {
   constructor (props) {
@@ -7,7 +8,45 @@ class RegisterModal extends Component {
     this.state = {
       className: '',
       step: 0,
-      fade: 'fadeInRight'
+      fade: 'fadeInRight',
+      accept: false,
+      registerData: {
+        email: '',
+        pass: '',
+        passConfirm: '',
+        name: '',
+        lastName: '',
+        charge: '',
+        tel: '',
+        domain: '',
+        orgName: '',
+        turn: '',
+        employes: '',
+        country: '',
+        region: '',
+        rfc: '',
+        razonSocial: '',
+        orgEmail: ''
+      },
+      errors: {
+        error: false,
+        email: '',
+        pass: '',
+        passConfirm: '',
+        name: '',
+        lastName: '',
+        charge: '',
+        tel: '',
+        domain: '',
+        orgName: '',
+        turn: '',
+        employes: '',
+        country: '',
+        region: '',
+        rfc: '',
+        razonSocial: '',
+        orgEmail: ''
+      }
     }
   }
   showModal () {
@@ -64,6 +103,60 @@ class RegisterModal extends Component {
     }
   }
 
+  handleInputChange (e, input) {
+    this.validateInput(e, input)
+    let aux = this.state.registerData
+    let val = ''
+    if (input === 'country' || input === 'region') {
+      val = e
+    } else {
+      val = e.target.value
+    }
+    aux[input] = val
+    this.setState({
+      registerData: aux
+    })
+  }
+
+  validateInput (e, input) {
+    console.log(e.target.validity.valid, input)
+    let aux = this.state.errors
+
+    if (input === 'email') {
+      if (!e.target.validity.valid) {
+        aux.error = true
+        aux[input] = 'Ingresa una dirección de correo válida'
+      } else {
+        aux[input] = ''
+        aux.error = false
+      }
+    }
+
+    if (input === 'pass') {
+      if (!e.target.validity.valid) {
+        aux.error = true
+        aux[input] = 'La contraseña debe contener al menos seis caracteres, incluidas mayúsculas, minúsculas y números'
+      } else {
+        aux[input] = ''
+        aux.error = false
+      }
+    }
+
+    if (input === 'passConfirm') {
+      if (!e.target.validity.valid || this.state.registerData.pass !== e.target.value) {
+        aux[input] = 'Las contraseñas no coinciden'
+        aux.error = true
+      } else {
+        aux[input] = ''
+        aux.error = false
+      }
+    }
+
+    this.setState({
+      errors: aux
+    })
+  }
+
   mailForm () {
     return (
       <div className={'register__form ' + this.state.fade}>
@@ -80,27 +173,72 @@ class RegisterModal extends Component {
           <div className='columns is-centered'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Email</label>
+                <label className='label'>Correo</label>
                 <div className='control'>
-                  <input className='input' type='email' placeholder='correo@correo.com' required autoComplete='off' />
+                  <input
+                    className='input'
+                    type='email'
+                    placeholder='correo@correo.com'
+                    required
+                    autoComplete='off'
+                    name='email'
+                    value={this.state.registerData.email}
+                    onChange={(e) => this.handleInputChange(e, 'email')} />
                 </div>
+                <p className='help is-danger'>{this.state.errors.email}</p>
               </div>
               <div className='field'>
                 <label className='label'>Contraseña</label>
                 <div className='control'>
-                  <input className='input' type='password' placeholder='Deberá tener al menos 6 caracteres' autoComplete='off' required />
+                  <input
+                    pattern='(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\w{6,}'
+                    className='input'
+                    type='password'
+                    placeholder='Deberá contener al menos seis caracteres, incluidas mayúsculas, minúsculas y números'
+                    autoComplete='off'
+                    required
+                    name='pass'
+                    value={this.state.registerData.pass}
+                    onChange={(e) => this.handleInputChange(e, 'pass')} />
                 </div>
+                <p className='help is-danger'>{this.state.errors.pass}</p>
               </div>
               <div className='field'>
-                <Checkbox
-                  label={
-                    <strong>Acepto el <a className='has-text-primary'>Aviso de privacidad</a> y condición de uso de mis datos.</strong>
-                  }
-                  handleCheckboxChange={(e, value) => {
-                    this.setState({ accept: true })
-                  }}
-                />
+                <label className='label'>Confirmar contraseña</label>
+                <div className='control'>
+                  <input
+                    pattern='(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\w{6,}'
+                    className='input'
+                    type='password'
+                    placeholder='Confirmar contraseña'
+                    autoComplete='off'
+                    required
+                    name='passConfirm'
+                    value={this.state.registerData.passConfirm}
+                    onChange={(e) => this.handleInputChange(e, 'passConfirm')} />
+                </div>
+                <p className='help is-danger'>{this.state.errors.passConfirm}</p>
               </div>
+              <div className='field'>
+                <div className='columns'>
+                  <div className='column is-narrow'>
+                    <Checkbox
+                      hideLabel
+                      checked={this.state.accept}
+                      handleCheckboxChange={(e, value) => {
+                        this.setState({ accept: value })
+                      }}
+                    />
+                  </div>
+                  <div className='column is-narrow'>
+                    <div className='accept__label'>
+                      <strong>Acepto el <a className='has-text-primary'>Aviso de privacidad</a> y condición de uso de mis datos.</strong>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           </div>
         </div>
@@ -128,13 +266,29 @@ class RegisterModal extends Component {
               <div className='field'>
                 <label className='label'>Nombre *</label>
                 <div className='control'>
-                  <input className='input' type='text' placeholder='correo@correo.com' required autoComplete='off' />
+                  <input
+                    className='input'
+                    type='text'
+                    placeholder='Nombre(s)'
+                    autoComplete='off'
+                    required
+                    name='name'
+                    value={this.state.registerData.name}
+                    onChange={(e) => this.handleInputChange(e, 'name')} />
                 </div>
+                <p className='help is-danger'>{this.state.errors.name}</p>
               </div>
               <div className='field'>
                 <label className='label'>Puesto</label>
                 <div className='control'>
-                  <input className='input' type='text' placeholder='correo@correo.com' required autoComplete='off' />
+                  <input
+                    className='input'
+                    type='text'
+                    placeholder='Ej. Administrador'
+                    autoComplete='off'
+                    name='charge'
+                    value={this.state.registerData.name}
+                    onChange={(e) => this.handleInputChange(e, 'charge')} />
                 </div>
               </div>
             </div>
@@ -142,13 +296,30 @@ class RegisterModal extends Component {
               <div className='field'>
                 <label className='label'>Apellido *</label>
                 <div className='control'>
-                  <input className='input' type='text' placeholder='Deberá tener al menos 6 caracteres' autoComplete='off' required />
+                  <input
+                    className='input'
+                    type='text'
+                    placeholder='Apellido(s)'
+                    autoComplete='off'
+                    required
+                    name='lastName'
+                    value={this.state.registerData.lastName}
+                    onChange={(e) => this.handleInputChange(e, 'lastName')} />
                 </div>
+                <p className='help is-danger'>{this.state.errors.lastName}</p>
               </div>
               <div className='field'>
                 <label className='label'>Teléfono</label>
                 <div className='control'>
-                  <input className='input' type='tel' placeholder='Deberá tener al menos 6 caracteres' autoComplete='off' required />
+                  <input
+                    className='input'
+                    type='tel'
+                    placeholder='Lada + 10 digitos'
+                    autoComplete='off'
+                    required
+                    name='tel'
+                    value={this.state.registerData.tel}
+                    onChange={(e) => this.handleInputChange(e, 'tel')} />
                 </div>
               </div>
             </div>
@@ -178,9 +349,17 @@ class RegisterModal extends Component {
               <div className='field'>
                 <label className='label'>El subdominio que ingreses será la URL a tu espacio de trabajo</label>
                 <div className='control'>
-                  <div class='field has-addons'>
-                    <p class='control  is-expanded'>
-                      <input className='input' type='text' placeholder='Your email' />
+                  <div className='field has-addons'>
+                    <p className='control  is-expanded'>
+                      <input
+                        className='input'
+                        type='text'
+                        placeholder='url-de-tu-espacio'
+                        autoComplete='off'
+                        required
+                        name='domain'
+                        value={this.state.registerData.domain}
+                        onChange={(e) => this.handleInputChange(e, 'domain')} />
                     </p>
                     <p className='control'>
                       <a className='button is-static'>
@@ -189,6 +368,7 @@ class RegisterModal extends Component {
                     </p>
                   </div>
                 </div>
+                <p className='help is-danger'>{this.state.errors.domain}</p>
               </div>
             </div>
           </div>
@@ -216,8 +396,17 @@ class RegisterModal extends Component {
               <div className='field'>
                 <label className='label'>Nombre</label>
                 <div className='control'>
-                  <input className='input' type='text' placeholder='Ingresa el nombre completo de tu empresa' required autoComplete='off' />
+                  <input
+                    className='input'
+                    type='text'
+                    placeholder='Ingresa el nombre completo de tu empresa'
+                    autoComplete='off'
+                    required
+                    name='orgName'
+                    value={this.state.registerData.orgName}
+                    onChange={(e) => this.handleInputChange(e, 'orgName')} />
                 </div>
+                <p className='help is-danger'>{this.state.errors.orgName}</p>
               </div>
             </div>
           </div>
@@ -227,13 +416,27 @@ class RegisterModal extends Component {
               <div className='field'>
                 <label className='label'>Giro</label>
                 <div className='control'>
-                  <input className='input' type='text' placeholder='Ingresa el nombre completo de tu empresa' required autoComplete='off' />
+                  <input
+                    className='input'
+                    type='text'
+                    placeholder='Ingresa el giro de tu empresa'
+                    autoComplete='off'
+                    required
+                    name='turn'
+                    value={this.state.registerData.turn}
+                    onChange={(e) => this.handleInputChange(e, 'turn')} />
                 </div>
               </div>
               <div className='field'>
                 <label className='label'>País</label>
                 <div className='control'>
-                  <input className='input' type='text' placeholder='correo@correo.com' required autoComplete='off' />
+                  <CountryDropdown
+                    defaultOptionLabel='Selecciona tu país'
+                    value={this.state.registerData.country}
+                    id='my-country-field-id'
+                    name='my-country-field'
+                    classes='input'
+                    onChange={(e) => { this.handleInputChange(e, 'country') }} />
                 </div>
               </div>
             </div>
@@ -242,6 +445,20 @@ class RegisterModal extends Component {
                 <label className='label'>No. de empleados</label>
                 <div className='control'>
                   <input className='input' type='text' placeholder='Deberá tener al menos 6 caracteres' autoComplete='off' required />
+                </div>
+              </div>
+              <div className='field'>
+                <label className='label'>Región</label>
+                <div className='control'>
+                  <RegionDropdown
+                    blankOptionLabel='No hay paìs seleccionado'
+                    defaultOptionLabel='Selecciona tu región'
+                    country={this.state.registerData.country}
+                    value={this.state.registerData.region}
+                    name='my-region-field-name'
+                    id='my-region-field-id'
+                    classes='input'
+                    onChange={(e) => { this.handleInputChange(e, 'region') }} />
                 </div>
               </div>
             </div>
@@ -254,7 +471,14 @@ class RegisterModal extends Component {
               <div className='field'>
                 <label className='label'>RFC</label>
                 <div className='control'>
-                  <input className='input' type='text' placeholder='Ingresa el nombre completo de tu empresa' required autoComplete='off' />
+                  <input
+                    className='input'
+                    type='text'
+                    placeholder='Ingresa el giro de tu empresa'
+                    autoComplete='off'
+                    name='rfc'
+                    value={this.state.registerData.rfc}
+                    onChange={(e) => this.handleInputChange(e, 'rfc')} />
                 </div>
               </div>
             </div>
@@ -265,7 +489,14 @@ class RegisterModal extends Component {
               <div className='field'>
                 <label className='label'>Razón Social</label>
                 <div className='control'>
-                  <input className='input' type='text' placeholder='Ingresa el nombre completo de tu empresa' required autoComplete='off' />
+                  <input
+                    className='input'
+                    type='text'
+                    placeholder='Ingresa la razón social giro de tu empresa'
+                    autoComplete='off'
+                    name='razonSocial'
+                    value={this.state.registerData.razonSocial}
+                    onChange={(e) => this.handleInputChange(e, 'razonSocial')} />
                 </div>
               </div>
             </div>
@@ -273,7 +504,14 @@ class RegisterModal extends Component {
               <div className='field'>
                 <label className='label'>Correo de facturación</label>
                 <div className='control'>
-                  <input className='input' type='text' placeholder='Deberá tener al menos 6 caracteres' autoComplete='off' required />
+                  <input
+                    className='input'
+                    type='email'
+                    placeholder='Ingresa el correo de tu empresa'
+                    autoComplete='off'
+                    name='orgEmail'
+                    value={this.state.registerData.orgEmail}
+                    onChange={(e) => this.handleInputChange(e, 'orgEmail')} />
                 </div>
               </div>
             </div>
@@ -300,6 +538,30 @@ class RegisterModal extends Component {
     )
   }
 
+  continue () {
+    let r = this.state.registerData
+    let e = this.state.errors
+    console.log('continie')
+    if (e.error) {
+      return false
+    }
+    if (this.state.step === 0) {
+      if (r.email === '' || e.email !== '') {
+        return false
+      }
+      if (r.pass === '' || e.pass !== '') {
+        return false
+      }
+      if (r.passConfirm === '' || e.passConfirm !== '') {
+        return false
+      }
+      if (!this.state.accept) {
+        return false
+      }
+    }
+    return true
+  }
+
   render () {
     return (
       <div>
@@ -323,6 +585,7 @@ class RegisterModal extends Component {
                     Regresar
               </button>
                   <button className='button is-primary is-medium'
+                    disabled={!this.continue()}
                     onClick={() => { this.nextStep(this.state.step + 1) }}>
                     Siguiente
               </button>
