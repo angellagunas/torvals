@@ -24,15 +24,16 @@ const task = new Task(async function (argv) {
 
   log.call('Import data to created app.')
   const rows = await DataSetRow.find({
-    dataset: forecast.project.mainDataset
-    // cycle: { '$in': forecast.cycles }
-  }).populate('newProduct').limit(10000).cursor()
+    dataset: forecast.project.mainDataset,
+    cycle: { '$in': forecast.cycles }
+  }).populate('newProduct').cursor()
 
   const catalogItems = await CatalogItem.find({
     organization: forecast.project.organization
   }).populate('catalog')
 
   log.call('Load data.')
+  let count = 0
   for (let row = await rows.next(); row != null; row = await rows.next()) {
     let group = 'group_fecha_producto'
     let properties = {
@@ -69,7 +70,7 @@ const task = new Task(async function (argv) {
       json: true,
       persist: true
     }
-
+    count = count + 1
     try {
       const res = await request(options)
       // log.call(res)
@@ -79,6 +80,7 @@ const task = new Task(async function (argv) {
     }
   }
 
+  log.call(`${count} events loaded.`)
   return true
 })
 
