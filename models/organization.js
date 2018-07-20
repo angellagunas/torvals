@@ -33,7 +33,7 @@ const organizationSchema = new Schema({
   businessName: { type: String },
   accountType: { type: String, default: 'managed' },
   trialStart: { type: Date, default: moment.utc },
-  trialEnd: { type: Date },
+  trialEnd: { type: Date, default: moment.utc().add(30, 'd') },
   availableUsers: { type: Number, default: 20 },
   billingStart: { type: Date },
   billingEnd: { type: Date},
@@ -112,13 +112,6 @@ organizationSchema.methods.toAdmin = function () {
     wizardSteps: this.wizardSteps
   }
 }
-
-organizationSchema.pre('save', function (next) {
-  if (this.isNew) {
-    this.trialEnd = moment(this.trialStart).add(30, 'd')
-  }
-  next()
-})
 
 organizationSchema.methods.uploadOrganizationPicture = async function (file) {
   if (!file) return false

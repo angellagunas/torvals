@@ -9,9 +9,23 @@ module.exports = new Route({
   path: '/:uuid',
   validator: lov.object().keys({
     name: lov.string().required(),
-    slug: lov.string().required()
+    description: lov.string(),
+    country: lov.string().required(),
+    status: lov.string().required(),
+    employees: lov.number().required(),
+    rfc: lov.string().required(),
+    billingEmail: lov.string().required(),
+    businessName: lov.string().required(),
+    accountType: lov.string().required(),
+    availableUsers: lov.number().required(),
+    salesRep: lov.object().keys({
+      name: lov.string().required(),
+      email: lov.string().email().required(),
+      phone: lov.string().required()
+    })
   }),
   handler: async function (ctx) {
+    console.log('ctx.params', ctx.params)
     var organizationId = ctx.params.uuid
     var data = ctx.request.body
 
@@ -24,8 +38,19 @@ module.exports = new Route({
     const org = await Organization.findOne({'uuid': organizationId, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
 
-    data.slug = slugify(data.slug)
-    org.set(data)
+    org.set({
+      name: data.name,
+      slug: data.slug,
+      country: data.country,
+      status: data.status,
+      employees: data.employees,
+      rfc: data.rfc,
+      billingEmail: data.billingEmail,
+      businessName: data.businessName,
+      accountType: data.accountType,
+      availableUsers: data.availableUsers,
+      salesRep: data.salesRep
+    })
 
     if (!data.description) org.set({description: ''})
 
