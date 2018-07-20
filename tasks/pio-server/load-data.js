@@ -26,7 +26,7 @@ const task = new Task(async function (argv) {
   const rows = await DataSetRow.find({
     dataset: forecast.project.mainDataset
     // cycle: { '$in': forecast.cycles }
-  }).populate('newProduct').cursor()
+  }).populate('newProduct').limit(100).cursor()
 
   const catalogItems = await CatalogItem.find({
     organization: forecast.project.organization
