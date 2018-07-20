@@ -10,7 +10,8 @@ module.exports = new Route({
   handler: async function (ctx) {
     var forecastId = ctx.params.uuid
 
-    const forecast = await Forecast.findOne({'uuid': forecastId, 'isDeleted': false}).populate('dataset forecastGroup')
+    const forecast = await Forecast.findOne({'uuid': forecastId, 'isDeleted': false})
+      .populate('dataset forecastGroup')
     ctx.assert(forecast, 404, 'Forecast no encontrado')
 
     const project = await Project.findOne({_id: forecast.dataset.project})
@@ -47,7 +48,7 @@ module.exports = new Route({
     await forecast.forecastGroup.save()
 
     forecast.set({
-      status: 'ready'
+      status: 'conciliated'
     })
     await forecast.save()
 

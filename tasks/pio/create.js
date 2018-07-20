@@ -163,10 +163,14 @@ const task = new Task(async function (argv) {
     recipient: recipient
   }
 
-  await email.send({
-    ...recipients,
-    title: 'Se ha generado una predicción'
-  })
+  try {
+    await email.send({
+      ...recipients,
+      title: 'Se ha generado una predicción'
+    })
+  } catch (e) {
+    log.call(`Error sending email: ${e}`)
+  }
 
   log.call(`End ==>  ${moment().format()}`)
 

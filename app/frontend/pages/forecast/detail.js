@@ -21,7 +21,8 @@ class ForecastDetail extends Component {
     super(props)
     this.state = {
       loading: true,
-      disabled: true
+      disabled: true,
+      forecastGroup: {}
     }
     this.engineSelected = {}
     this.graphColors = graphColors.sort(function (a, b) { return 0.5 - Math.random() })
@@ -41,7 +42,8 @@ class ForecastDetail extends Component {
         this.setState({
           alias: res.alias,
           forecast: res.forecasts,
-          type: res.type
+          type: res.type,
+          forecastGroup: res
         })
 
         tree.set('activeForecast', {
@@ -148,6 +150,8 @@ class ForecastDetail extends Component {
             return <div className='status-info'>Creado</div>
           } else if (row.status === 'ready') {
             return <div className='status-ready'>Completado</div>
+          } else if (row.status === 'conciliated') {
+            return <div className='status-ready'>Conciliado</div>
           } else {
             return <div className='status-process'>En Proceso</div>
           }
@@ -543,12 +547,14 @@ class ForecastDetail extends Component {
                 </button>
             </div>
             <div className='level-item'>
-              <DeleteButton
-                titleButton={'Eliminar'}
-                objectName='Predicción'
-                objectDelete={() => this.deleteForecast(this.props.match.params.uuid)}
-                message={`¿Está seguro que desea eliminar el predicción?`}
-              />
+              {this.state.forecastGroup && this.state.forecastGroup.status !== 'conciliated' &&
+                <DeleteButton
+                  titleButton={'Eliminar'}
+                  objectName='Predicción'
+                  objectDelete={() => this.deleteForecast(this.props.match.params.uuid)}
+                  message={`¿Está seguro que desea eliminar el predicción?`}
+                />
+              }
             </div>
           </div>
         </div>
@@ -736,17 +742,19 @@ class ForecastDetail extends Component {
                 </div>
                 <div className='level-right'>
                   {this.state.type !== 'informative' &&
-                  <div className='level-item'>
-                    <button
-                      className='button is-primary'
-                      disabled={
-                        this.state.disabled ||
-                        Object.values(this.engineSelected).length > 1}
-                      onClick={() => { this.showConciliate() }} >
-                      Conciliar
-                  </button>
-                  </div>
-              }
+                    this.state.forecastGroup &&
+                    this.state.forecastGroup.status !== 'conciliated' &&
+                      <div className='level-item'>
+                        <button
+                          className='button is-primary'
+                          disabled={
+                            this.state.disabled ||
+                            Object.values(this.engineSelected).length > 1}
+                          onClick={() => { this.showConciliate() }} >
+                          Conciliar
+                        </button>
+                      </div>
+                  }
 
                   <div className='level-item'>
                     <button

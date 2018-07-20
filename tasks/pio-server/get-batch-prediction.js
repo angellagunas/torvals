@@ -24,9 +24,6 @@ const task = new Task(async function (argv) {
   }
 
   const tmpdir = path.resolve('.', 'media', 'jsons')
-  // fs.mkdir(tmpdir, (err) => {
-  //   log.call('Folder already exists')
-  // })
   const filePath = path.join(tmpdir, `${forecast.uuid}-output.json`)
   let contents = String(execSync(`ls ${filePath}`)).split('\n')
   let dataset = forecast.dataset
@@ -60,7 +57,6 @@ const task = new Task(async function (argv) {
       }
 
       let rows = rawLine.split('\n')
-      // log.call(rows)
       for (let row of rows) {
         if (row === '') continue
         try {
