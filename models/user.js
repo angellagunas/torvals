@@ -36,6 +36,7 @@ const userSchema = new Schema({
   accountOwner: { type: Boolean, default: false },
   language: { type: String, default: 'ES' },
   job: { type: String },
+  phone: { type: String },
   isVerified: { type: Boolean, default: false },
 
   isDeleted: { type: Boolean, default: false },
