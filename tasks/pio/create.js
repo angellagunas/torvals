@@ -89,14 +89,14 @@ const task = new Task(async function (argv) {
     isDeleted: false
   })
 
-  const tmpdir = path.resolve('.', 'pio-code', 'engines', forecast.engine.path)
+  const tmpdir = path.resolve('/engines', forecast.engine.path)
   const filePath = path.join(tmpdir, '/engine.json')
   const engineJson = fs.readFileSync(filePath);
   const engine = JSON.parse(engineJson)
 
   engine.algorithms[0].params.appName = forecast.uuid
-  engine.algorithms[0].params.label = 'venta_uni'
-  engine.algorithms[0].params.date = 'fecha'
+  engine.algorithms[0].params.label = 'sale'
+  engine.algorithms[0].params.date = 'date'
   engine.algorithms[0].params.groupBy = ['date'].concat(catalogs.map((catalog) => catalog.slug))
 
   fs.writeFileSync(filePath, JSON.stringify(engine))

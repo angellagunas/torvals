@@ -61,12 +61,7 @@ const task = new Task(async function (argv) {
     let result = {}
     for (let pos of item) {
       const catalogName = catalogs.find(catalog => catalog._id.toString() === catalogItems[item.indexOf(pos)]._id.toString())
-
-      if (catalogName.slug === 'centro-de-venta') {
-        result['agencia_id'] = parseInt(pos)
-      } else {
-        result[`${catalogName.slug}_id`] = parseInt(pos)
-      }
+      result[`${catalogName.slug}_id`] = parseInt(pos)
     }
     return result
   })
@@ -80,7 +75,7 @@ const task = new Task(async function (argv) {
   for (let date of dates) {
     for (let item of catalogItemsNames) {
       rows.push({
-        'fecha': date,
+        'date': date,
         ...item
       })
     }

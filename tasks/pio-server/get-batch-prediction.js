@@ -25,6 +25,10 @@ const task = new Task(async function (argv) {
 
   const tmpdir = path.resolve('.', 'media', 'jsons')
   const filePath = path.join(tmpdir, `${forecast.uuid}-output.json`)
+  fs.mkdir(filePath, (err) => {
+    console.log(err)
+    log.call('Folder already exists')
+  })
   let contents = String(execSync(`ls ${filePath}`)).split('\n')
   let dataset = forecast.dataset
 
@@ -68,14 +72,14 @@ const task = new Task(async function (argv) {
         }
 
         let obj = row.query
-        if (!obj['fecha']) {
+        if (!obj['date']) {
           continue
         }
 
         let forecastDate
 
         try {
-          forecastDate = moment.utc(obj['fecha'], 'YYYY-MM-DD')
+          forecastDate = moment.utc(obj['date'], 'YYYY-MM-DD')
         } catch (e) {
           continue
         }
@@ -98,12 +102,7 @@ const task = new Task(async function (argv) {
 
         let catalogData = {}
         for (let cat of catalogs) {
-          if (cat.slug === 'producto') continue
-          if (cat.slug === 'centro-de-venta') {
-            catalogData[`is_${cat.slug}_id`] = obj[`agencia_id`]
-          } else {
-            catalogData[`is_${cat.slug}_id`] = obj[`${cat.slug}_id`]
-          }
+          catalogData[`is_${cat.slug}_id`] = obj[`${cat.slug}_id`]
         }
 
         bulkOps.push({
