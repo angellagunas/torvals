@@ -7,55 +7,125 @@ const Task = require('lib/task')
 
 const { Organization, Cycle, Rule, Period } = require('models')
 
+const validateTask = async function(argv) {
+  if (!argv.uuid) {
+    throw new Error('You need to provide an organization')
+  }
+
+  if (!argv.rule) {
+    throw new Error('You need to provide an rule')
+  }
+
+  const organization = await Organization.findOne({uuid: argv.uuid})
+  const rule = await Rule.findOne({uuid: argv.rule})
+
+  if (!organization) {
+    throw new Error('Organization not found')
+  }
+
+  if (!rule) {
+    throw new Error('Business rules not found')
+  }
+
+  if (isNaN(parseInt(rule.cycleDuration)) || parseInt(rule.cycleDuration) < 1) {
+    throw new Error('The cycleDuration should be a positive integer')
+  }
+
+  if (isNaN(rule.periodDuration) || parseInt(rule.periodDuration) < 1) {
+    throw new Error('The periodDuration should be a positive integer')
+  }
+
+  if (!(['M', 'w', 'd', 'y'].indexOf(rule.cycle) >= 0)) {
+    throw new Error('The given cycle has a invalid format')
+  }
+
+  if (!(['M', 'w', 'd', 'y'].indexOf(rule.period) >= 0)) {
+    throw new Error('The given period has a invalid format')
+  }
+
+  if (isNaN(parseInt(rule.season)) || parseInt(rule.season) < 1) {
+    throw new Error('The season should be a positive integer')
+  }
+
+  if (isNaN(parseInt(rule.cyclesAvailable)) || parseInt(rule.cyclesAvailable) < 1) {
+    throw new Error('The cyclesAvailable should be a positive integer')
+  }
+
+  return {
+    organization: organization,
+    rule: rule
+  }
+}
+
+const utc = function(date){
+  return moment.utc(date)
+}
+
+const format = function(date, regex='YYYY-MM-DD'){
+  return moment.utc(date).format(regex)
+}
+
+const subtract = function(minuend, subtrahend){
+  return moment(minuend).subtract(subtrahend)
+}
+
+const add = function(firstAddend, secondAddend){
+  return moment(firstAddend).add(secondAddend)
+}
+
+const duration = function(duration, measure){
+  return moment.duration(duration, measure)
+}
+
+const hasCycle = async function(organization, rule, date){
+  const cycle = await Cycle.find({
+    organization: organization,
+    rule: rule,
+    dateStart: {$gte: date, $lte: date },
+    isDeleted: false
+  }).count()
+
+  return cycle > 0
+}
+
+const getFirstDate = function(firstStartDate, extraDate, seasonDuration){
+  while (firstStartDate.isAfter(extraDate)) {
+    firstStartDate = subtract(firstStartDate, seasonDuration)
+  }
+
+  return firstStartDate
+}
+
+const getLastEndDate = async function(rule, extraDate){
+  const {
+    cycle,
+    period,
+    cycleDuration,
+    cyclesAvailable,
+    organization
+  } = rule
+  const startDate = utc(rule.startDate)
+
+  const cyclesToFuture = (moment().month() + 1) + parseInt(cyclesAvailable)
+  const lastStartDate = moment(startDate).add(cyclesToFuture * cycleDuration, cycle)
+  let cycleDurationMoment = duration(cycleDuration, cycle)
+  let durationToSubtract = duration(1, 'd')
+  let lastEndDate = subtract(add(lastStartDate, cycleDurationMoment), durationToSubtract)
+
+  if(await hasCycle(organization, rule._id, extraDate)) return lastEndDate
+
+  while (extraDate.isAfter(lastEndDate)) {
+    lastEndDate = utc(lastEndDate).add(cycleDurationMoment)
+  }
+
+  return lastEndDate
+}
+
+
 const task = new Task(
   async function (argv) {
-    if (!argv.uuid) {
-      throw new Error('You need to provide an organization')
-    }
-
-    if (!argv.rule) {
-      throw new Error('You need to provide an rule')
-    }
-
-    const organization = await Organization.findOne({uuid: argv.uuid})
-    const rule = await Rule.findOne({uuid: argv.rule})
-
-    if (!organization) {
-      throw new Error('Organization not found')
-    }
-
-    if (!rule) {
-      throw new Error('Business rules not found')
-    }
-
-    if (isNaN(parseInt(rule.cycleDuration)) || parseInt(rule.cycleDuration) < 1) {
-      throw new Error('The cycleDuration should be a positive integer')
-    }
-
-    if (isNaN(rule.periodDuration) || parseInt(rule.periodDuration) < 1) {
-      throw new Error('The periodDuration should be a positive integer')
-    }
-
-    if (!(['M', 'w', 'd', 'y'].indexOf(rule.cycle) >= 0)) {
-      throw new Error('The given cycle has a invalid format')
-    }
-
-    if (!(['M', 'w', 'd', 'y'].indexOf(rule.period) >= 0)) {
-      throw new Error('The given period has a invalid format')
-    }
-
-    if (isNaN(parseInt(rule.season)) || parseInt(rule.season) < 1) {
-      throw new Error('The season should be a positive integer')
-    }
-
-    if (isNaN(parseInt(rule.cyclesAvailable)) || parseInt(rule.cyclesAvailable) < 1) {
-      throw new Error('The cyclesAvailable should be a positive integer')
-    }
-
-    const startDate = moment.utc(rule.startDate, 'YYYY-MM-DD')
-    let isEndOfMonthCycle = false
-    let startOfMonth = moment.utc(startDate.format('YYYY-MM'), 'YYYY-MM').startOf('month')
-
+    const { organization, rule } = await validateTask(argv)
+    const startDate = utc(rule.startDate)
     const {
       season,
       cycle,
@@ -66,161 +136,125 @@ const task = new Task(
       takeStart
     } = rule
 
-    if (
-      startDate.isSame(startOfMonth) &&
-      cycle === 'M' &&
-      cycleDuration === 1
-    ) {
+    let isEndOfMonthCycle = false
+    let startOfMonth = moment.utc(startDate.format('YYYY-MM'), 'YYYY-MM').startOf('month')
+    if (startDate.isSame(startOfMonth) && cycle === 'M' && cycleDuration === 1) {
       isEndOfMonthCycle = true
     }
 
-    let seasonDuration = moment.duration(season * cycleDuration, cycle)
-    let cycleDurationMoment = moment.duration(cycleDuration, cycle)
-    let periodDurationMoment = moment.duration(periodDuration, period)
+    let durationToSubtract = duration(1, 'd')
+    let seasonDuration = duration(season * cycleDuration, cycle)
+    let cycleDurationMoment = duration(cycleDuration, cycle)
+    let periodDurationMoment = duration(periodDuration, period)
 
-    let firstStartDate = moment(startDate).subtract(seasonDuration)
-    let seasonEndDate = moment(firstStartDate).add(seasonDuration).subtract(1, 'd')
-
+    let firstStartDate = subtract(startDate, seasonDuration)
     const extraDate = argv.extraDate ? moment(argv.extraDate) : firstStartDate
 
-    /*
-     * find that extraDate is and season range if the extraDate is past
-     */
-    while (firstStartDate.isAfter(extraDate)) {
-      firstStartDate = moment(firstStartDate).subtract(seasonDuration)
-      seasonEndDate = moment(firstStartDate).add(seasonDuration).subtract(1, 'd')
-    }
+    firstStartDate = getFirstDate(firstStartDate, extraDate, seasonDuration)
 
-    const cyclesToFuture = (moment().month() + 1) + parseInt(cyclesAvailable)
-    const lastStartDate = moment(startDate).add(cyclesToFuture * cycleDuration, cycle)
-    let lastEndDate = moment(lastStartDate).add(cycleDurationMoment).subtract(1, 'd')
-
-    while (extraDate.isAfter(lastEndDate)) {
-      lastEndDate = moment(lastEndDate).add(cycleDurationMoment)
-    }
-
-    let periodStartDate = moment(firstStartDate)
-    let periodEndDate = moment(periodStartDate).add(periodDurationMoment).subtract(1, 'd')
+    let seasonEndDate = subtract(add(firstStartDate, seasonDuration), durationToSubtract)
+    let lastEndDate = await getLastEndDate(rule, extraDate)
 
     let periodNumber = 1
     let cycleNumber = 1
-    let cycleStartDate = moment(periodStartDate)
+    let cycleStartDate = moment(firstStartDate)
     let cycleEndDate
-    let tentativeCycleEndDate = moment(cycleStartDate).add(cycleDurationMoment).subtract(1, 'd')
+    let tentativeCycleEndDate = moment(cycleStartDate).add(cycleDurationMoment).subtract(durationToSubtract)
+    let firstEndDate = utc(tentativeCycleEndDate).date()
+    let previousPeriodEndDate
 
-    while (lastEndDate.isSameOrAfter(periodStartDate)) {
-      cycleEndDate = moment(cycleStartDate).add(cycleDurationMoment).subtract(1, 'd')
-
-      let cycleInstance = await Cycle.findOne({
-        dateStart: moment(cycleStartDate),
+    while (lastEndDate.isSameOrAfter(cycleStartDate)) {
+      let cycleObj = {
         organization: organization._id,
-        rule: rule._id,
-        cycle: cycleNumber
-      })
-
-      if (!cycleInstance) {
-        let cycleObj = {
-          organization: organization._id,
-          dateStart: cycleStartDate,
-          dateEnd: cycleEndDate,
-          cycle: cycleNumber,
-          rule: rule._id
-        }
-        cycleInstance = await Cycle.create(cycleObj)
+        dateStart: cycleStartDate,
+        cycle: cycleNumber,
+        rule: rule._id
       }
 
-      let previousPeriodEndDate
+      let cycleInstance = await Cycle.findOne(cycleObj)
+      if(cycleInstance){
+        cycleStartDate = add(utc(cycleInstance.dateEnd), durationToSubtract)
+
+        if(period === cycle){
+          tentativeCycleEndDate = utc(tentativeCycleEndDate)
+        }else{
+          tentativeCycleEndDate = utc(tentativeCycleEndDate).add(cycleDurationMoment)
+        }
+
+        previousPeriodEndDate = utc(cycleInstance.dateEnd)
+        
+        if(utc(seasonEndDate).isSame(utc(cycleInstance.dateEnd))){
+          cycleNumber = 1
+          seasonEndDate = utc(seasonEndDate).add(seasonDuration)
+        } else {
+          cycleNumber++
+          const periodsInCycle = await Period.find({cycle: cycleInstance._id}).sort({dateEnd: -1})
+          periodNumber = parseInt(periodsInCycle[0].period) + 1
+        }
+
+        if (isEndOfMonthCycle) tentativeCycleEndDate.endOf('month')
+        continue
+      }
+
+      cycleInstance = await Cycle.create(cycleObj)
+
+      let periodStartDate = utc(cycleStartDate)
+      let periodEndDate = utc(periodStartDate).add(periodDurationMoment).subtract(durationToSubtract)
 
       while (tentativeCycleEndDate.isSameOrAfter(periodStartDate)) {
-        if (periodEndDate.isAfter(cycleEndDate) && !takeStart) {
-          break
+        if (periodEndDate.isAfter(tentativeCycleEndDate) && !takeStart) break
+
+        let periodObj = {
+          organization: organization._id,
+          dateStart: periodStartDate,
+          cycle: cycleInstance._id,
+          period: periodNumber,
+          rule: rule._id
         }
 
-          /*
-           * validate that period is in the season, and make sure the extraDate is in a period
-           */
         if (periodEndDate.isSameOrAfter(seasonEndDate)) {
-          let periodExists = await Period.findOne({
-            dateStart: periodStartDate,
-            dateEnd: seasonEndDate,
-            rule: rule._id,
-            organization: organization._id
-          })
+          periodObj['dateEnd'] = seasonEndDate
+          if (! await Period.findOne(periodObj)) await Period.create(periodObj)
 
-          if (!periodExists) {
-            await Period.create({
-              organization: organization._id,
-              dateStart: periodStartDate,
-              dateEnd: seasonEndDate,
-              cycle: cycleInstance,
-              period: periodNumber,
-              rule: rule._id
-            })
+          tentativeCycleEndDate = moment.utc(format(tentativeCycleEndDate), 'YYYY-MM-DD')
+          if(utc(tentativeCycleEndDate).isAfter(utc(seasonEndDate))){
+            tentativeCycleEndDate = utc(tentativeCycleEndDate).subtract(cycleDurationMoment)
           }
 
-          previousPeriodEndDate = moment(seasonEndDate)
-
-          periodStartDate = moment(seasonEndDate).add(1, 'd')
-          periodEndDate = moment(periodStartDate).add(periodDurationMoment).subtract(1, 'd')
+          previousPeriodEndDate = utc(seasonEndDate)
+          seasonEndDate = moment(seasonEndDate).add(seasonDuration)
           periodNumber = 1
 
-            // Recalculate the new end date of the next season
-          seasonEndDate = moment(seasonEndDate).add(seasonDuration)
-
-          if(period === cycle){
-            tentativeCycleEndDate = moment(tentativeCycleEndDate)
-          }else{
-            tentativeCycleEndDate = moment(tentativeCycleEndDate).subtract(cycleDurationMoment)
-          }
           break
         }
 
-        let periodExists = await Period.findOne({
-          dateStart: periodStartDate,
-          dateEnd: periodEndDate,
-          rule: rule._id,
-          organization: organization._id
-        })
+        periodObj['dateEnd'] = periodEndDate
+        if (! await Period.findOne(periodObj)) await Period.create(periodObj)
 
-          /*
-           * create the period only if does not exists
-           */
-        if (!periodExists) {
-          await Period.create({
-            organization: organization._id,
-            dateStart: periodStartDate,
-            dateEnd: periodEndDate,
-            cycle: cycleInstance,
-            period: periodNumber,
-            rule: rule._id
-          })
-        }
-
-        previousPeriodEndDate = moment(periodEndDate)
-
-        periodStartDate = moment(periodStartDate).add(periodDurationMoment)
-        periodEndDate = moment(periodStartDate).add(periodDurationMoment).subtract(1, 'd')
+        previousPeriodEndDate = utc(periodEndDate)
+        periodStartDate = utc(periodStartDate).add(periodDurationMoment)
+        periodEndDate = utc(periodStartDate).add(periodDurationMoment).subtract(1, 'd')
         periodNumber++
       }
 
-      if (!cycleEndDate.isSame(previousPeriodEndDate)) {
-        cycleInstance.set({
-          dateEnd: previousPeriodEndDate
-        })
-        await cycleInstance.save()
+      await cycleInstance.set({dateEnd: utc(previousPeriodEndDate)}).save()
+      tentativeCycleEndDate = utc(tentativeCycleEndDate).add(cycleDurationMoment)
+
+      if(periodNumber == 1) cycleNumber = 0
+      cycleNumber++ 
+
+      cycleStartDate = utc(previousPeriodEndDate).add(durationToSubtract)
+
+      if(utc(tentativeCycleEndDate).date() !== firstEndDate && cycle == 'm'){
+        const endOfMonth = utc(tentativeCycleEndDate).endOf('month').date()
+        if(endOfMonth < firstEndDate) {
+          tentativeCycleEndDate = utc(tentativeCycleEndDate).set('date', endOfMonth)
+        } else {
+          tentativeCycleEndDate = utc(tentativeCycleEndDate).set('date', firstEndDate)
+        }
       }
 
-      if (periodNumber === 1) {
-        cycleNumber = 1
-      } else {
-        cycleNumber++
-      }
-
-      cycleStartDate = moment(periodStartDate)
-      tentativeCycleEndDate = moment(tentativeCycleEndDate).add(cycleDurationMoment)
-      if (isEndOfMonthCycle) {
-        tentativeCycleEndDate.endOf('month')
-      }
+      if (isEndOfMonthCycle) tentativeCycleEndDate.endOf('month')
     }
 
     return true

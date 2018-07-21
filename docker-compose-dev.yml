@@ -7,9 +7,6 @@ services:
       dockerfile: DockerfileNginxAdmin
     ports:
       - "3001:80"
-    cpu_shares: 50
-    mem_limit: 1000M
-    mem_reservation: 500m
   web:
     restart: always
     build:
@@ -17,9 +14,6 @@ services:
       dockerfile: DockerfileNginxApp
     ports:
       - "3002:80"
-    cpu_shares: 50
-    mem_limit: 1000M
-    mem_reservation: 500m
   api:
     restart: always
     build: .
@@ -31,15 +25,10 @@ services:
     depends_on:
       - mongodb
       - redisdb
-    cpu_shares: 200
-    cpus: 2
-    mem_limit: 6000M
-    mem_reservation: 2000m
     env_file:
       - .env
     volumes:
-      - /www/data/db:/data/db
-      - /www/media/uploads:/app/media/uploads
+      - ./media/uploads:/app/media/uploads
   queues:
     restart: always
     build:
@@ -51,23 +40,15 @@ services:
     depends_on:
       - mongodb
       - redisdb
-    cpu_shares: 200
-    cpus: 2
-    mem_limit: 6000M
-    mem_reservation: 2000m
     env_file:
       - .env
     volumes:
-      - /www/data/db:/data/db
-      - /www/media/uploads:/app/media/uploads
+      - ./media/uploads:/app/media/uploads
   redisdb:
     restart: always
     image: "redis:alpine"
     ports:
-      - "6379:6379"
-    cpu_shares: 100
-    mem_limit: 3000M
-    mem_reservation: 1000m
+      - "6380:6379"
   mongodb:
     restart: always
     image: mongo:latest
@@ -76,12 +57,10 @@ services:
       - MONGO_DATA_DIR=/data/db
       - MONGO_LOG_DIR=/dev/null
     volumes:
-      - /www/data/db:/data/db
+      - ./data/db:/data/db
     ports:
         - 27017:27017
-    mem_limit: 30000M
-    mem_reservation: 8000m
-    command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 24 # --quiet
+    command: mongod --smallfiles --logpath=/dev/null --wiredTigerCacheSizeGB 5 # --quiet
   pio:
     image: pio-0.12.1
     build:
@@ -103,8 +82,6 @@ services:
     depends_on:
       - mongodb
       - redisdb
-    # command: ./engines/initialize.sh
-    tty: true
 #  neo4j:
 #    image: 'neo4j:3.2.1'
 #    ports:
@@ -115,6 +92,3 @@ services:
 #    volumes:
 #      - $HOME/neo4j/data:/data
 #      - $HOME/neo4j/logs:/logs
-#    cpu_shares: 300
-#    mem_limit: 30000M
-#    mem_reservation: 30000M

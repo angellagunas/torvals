@@ -17,6 +17,7 @@ describe('/forecast_group', () => {
     it('with valid request', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
@@ -34,7 +35,8 @@ describe('/forecast_group', () => {
       project.set({
         mainDataset: dataset._id,
         dateMin: dataset.dateMin,
-        dateMax: dataset.dateMax
+        dateMax: dataset.dateMax,
+        rule: rule._id
       })
 
       dataset.set({
@@ -45,7 +47,6 @@ describe('/forecast_group', () => {
       await dataset.save()
       await project.save()
 
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',
@@ -239,7 +240,7 @@ describe('/forecast_group', () => {
       expect(res.body.message).equals('value: alias: missing required value')
     })
 
-    it('with forecast array empty', async function () {
+    it('with engines array empty', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
 
@@ -287,10 +288,10 @@ describe('/forecast_group', () => {
         .set('Referer', credentials.referer)
         .expect(422)
 
-      expect(res.body.message).equals('value: engines: missing required value')
+      expect(res.body.message).equals('Debes seleccionar por lo menos un modelo de predicciones')
     })
 
-    it('with project witout mainDataset', async function () {
+    it('with project without mainDataset', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
 
@@ -323,7 +324,7 @@ describe('/forecast_group', () => {
         .set('Referer', credentials.referer)
         .expect(422)
 
-      expect(res.body.message).equals('value: engines: missing required value')
+      expect(res.body.message).equals('El proyecto no tiene un dataset principal')
     })
   })
 })

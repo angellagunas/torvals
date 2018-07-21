@@ -165,7 +165,7 @@ class Sidebar extends Component {
             }
           ]
         },
-        Forecast.asSidebarItem(),
+        // Forecast.asSidebarItem(),
         Projects.asSidebarItem(),
         Calendar.asSidebarItem(),
         {

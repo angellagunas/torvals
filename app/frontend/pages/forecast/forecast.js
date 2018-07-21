@@ -8,6 +8,8 @@ import Loader from '~base/components/spinner'
 import Link from '~base/router/link'
 import DeleteButton from '~base/components/base-deleteButton'
 import BaseModal from '~base/components/base-modal'
+import moment from 'moment'
+import { toast } from 'react-toastify'
 
 class Forecast extends Component {
   constructor (props) {
@@ -31,6 +33,24 @@ class Forecast extends Component {
     this.props.history.push(route)
   }
 
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
+  }
+
   async getProjects () {
     let url = '/app/projects'
 
@@ -39,7 +59,7 @@ class Forecast extends Component {
     })
 
     let activeProjects = res.data.filter(item => { return item.mainDataset })
-    activeProjects[0].selected = true
+    if (activeProjects.length > 0) activeProjects[0].selected = true
 
     this.setState({
       projects: activeProjects,
@@ -127,18 +147,21 @@ class Forecast extends Component {
           </div>
         </div>
       </div>
-
-      /* <DeleteButton
-        objectName='Predicción'
-        objectDelete={() => this.deleteForecast(item)}
-        message={<span>¿Estas seguro de querer eliminar esta Predicción?</span>}
-        small
-      /> */
     )
   }
 
-  deleteForecast (item) {
-    console.log('Deleted', item)
+  async deleteForecast (item) {
+    let url = '/app/forecastGroups/'
+    try {
+      let res = await api.del(url + item.uuid)
+
+      if (res) {
+        this.getForecast()
+        this.notify('Predicción eliminada con éxito', 3000)
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   forecasts () {
@@ -179,9 +202,22 @@ class Forecast extends Component {
                           </div>
 
                           <p>
-                            <strong>Reporte</strong>
+                            <strong>Reporte
+                              <span className='is-capitalized is-pulled-right'>
+                              Ciclos
+                              </span>
+                            </strong>
                             <br />
-                            {item.type === 'compatible' ? 'Conciliable' : item.type}
+                            {item.type === 'compatible' ? 'Conciliable'
+                              : item.type === 'informative' ? 'Informativo' : 'Creado'}
+                            <span className='is-capitalized is-pulled-right'>
+                              {item.cycles.length > 0 &&
+                              moment.utc(item.cycles[0].dateStart).format('MMMM') +
+                            ' #' + item.cycles[0].cycle + ' - ' +
+                            moment.utc(item.cycles[item.cycles.length - 1].dateStart).format('MMMM') +
+                            ' #' + item.cycles[item.cycles.length - 1].cycle
+                            }
+                            </span>
                           </p>
                           <div>
                             <strong>Catálogos</strong>
@@ -251,7 +287,8 @@ class Forecast extends Component {
         className={this.state.forecastMsg}
         hideModal={this.hideForecastMsg}>
         <p>Tu predicción se está generando. <br />
-        Este proceso puede tomar mucho tiempo. Se le enviará un correo cuando el processo termine.
+        Este proceso puede tomar mucho tiempo.
+        Te avisaremos por correo cuando el proceso termine.
         </p>
         <br />
         <button
@@ -289,7 +326,7 @@ class Forecast extends Component {
     return (
       <div>
         <div className='section-header'>
-          <h2>Forecasts</h2>
+          <h2>Predicciones</h2>
         </div>
         <div className='section'>
           {this.state.projects &&
@@ -427,7 +464,7 @@ class Forecast extends Component {
 
 export default Page({
   path: '/forecast',
-  title: 'Forecast',
+  title: 'Predicciones',
   icon: 'bar-chart',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin',
