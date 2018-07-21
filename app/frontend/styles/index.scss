@@ -471,6 +471,15 @@ h2 {
   }
 }
 
+.info-message {
+  border: 1px solid $primary;
+  padding: 5px;
+  background: rgba($primary, .05);
+  color: $primary;
+  font-weight: 700;
+  text-align: center;
+}
+
 .has-background-light {
   background-color: hsl(0, 0%, 96%);
 }

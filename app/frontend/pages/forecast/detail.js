@@ -144,7 +144,6 @@ class ForecastDetail extends Component {
         sortable: true,
         className: 'status',
         formatter: (row) => {
-          console.log(row.status)
           if (row.status === 'created') {
             return <div className='status-info'>Creado</div>
           } else if (row.status === 'ready') {
@@ -443,7 +442,7 @@ class ForecastDetail extends Component {
   }
 
   async finishUpShare () {
-    let url = '/app/forecasts/share'
+    let url = '/app/forecastGroups/share/' + this.props.match.params.uuid
     try {
       let res = await api.post(url, {
         users: this.state.usersEmails,
@@ -610,7 +609,9 @@ class ForecastDetail extends Component {
                               <strong>{item.name}</strong>
                             </p>
                             <p className='indicators-number' style={{color: item.color}}>
-                              {item.prediction}
+                              {item.prediction.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })}
                             </p>
                           </div>
                         )

@@ -90,7 +90,7 @@ const task = new Task(async function (argv) {
     base: url,
     name: forecast.forecastGroup.createdBy.name,
     prediction: forecast.forecastGroup.alias,
-    status: forecast.status
+    org_logo: forecast.project.organization.profileUrl
   }
 
   await email.format(dataMail)

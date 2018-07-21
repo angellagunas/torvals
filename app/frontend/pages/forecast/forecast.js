@@ -33,6 +33,13 @@ class Forecast extends Component {
     this.props.history.push(route)
   }
 
+  moveToPrediction (prediction) {
+    tree.set('selectedProject', prediction.project)
+    tree.commit()
+
+    this.props.history.push('/forecast/detail/' + prediction.uuid)
+  }
+
   notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
@@ -59,11 +66,21 @@ class Forecast extends Component {
     })
 
     let activeProjects = res.data.filter(item => { return item.mainDataset })
-    if (activeProjects.length > 0) activeProjects[0].selected = true
+    let selectedProject = tree.get('selectedProject')
+    let currentProject = {}
+
+    if (activeProjects.length > 0 && selectedProject) {
+      currentProject = activeProjects.find(ap => String(ap._id) === String(selectedProject))
+      tree.unset('selectedProject')
+      tree.commit()
+    } else if (activeProjects.length > 0) {
+      currentProject = activeProjects[0]
+      currentProject.selected = true
+    }
 
     this.setState({
       projects: activeProjects,
-      projectSelected: activeProjects[0],
+      projectSelected: currentProject,
       loading: false
     }, () => {
       this.getForecast()
@@ -132,7 +149,7 @@ class Forecast extends Component {
           <div className='dropdown-content'>
             <div className='dropdown-item'>
               <button className='button is-primary is-small'
-                onClick={() => this.moveTo('/forecast/detail/' + item.uuid)}
+                onClick={() => this.moveToPrediction(item)}
               >Detalle</button>
             </div>
             <div className='dropdown-item'>
@@ -194,7 +211,7 @@ class Forecast extends Component {
                       <div className='media-content'>
                         <div className='contents'>
                           <div className='forecast-widget__title'>
-                            <strong onClick={() => this.moveTo('/forecast/detail/' + item.uuid)}>{item.alias}</strong>
+                            <strong onClick={() => this.moveToPrediction(item)}>{item.alias}</strong>
                             <small className='is-pulled-right'>
                               {this.forecastMenu(item)}
                             </small>
@@ -285,7 +302,7 @@ class Forecast extends Component {
       <BaseModal
         title={'Predicción en proceso'}
         className={this.state.forecastMsg}
-        hideModal={this.hideForecastMsg}>
+        hideModal={() => this.hideForecastMsg()}>
         <p>Tu predicción se está generando. <br />
         Este proceso puede tomar mucho tiempo.
         Te avisaremos por correo cuando el proceso termine.
