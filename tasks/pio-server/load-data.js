@@ -25,8 +25,7 @@ const task = new Task(async function (argv) {
   log.call('Import data to created app.')
   const rows = await DataSetRow.find({
     dataset: forecast.project.mainDataset
-    // cycle: { '$in': forecast.cycles }
-  }).populate('newProduct').limit(100).cursor()
+  }).populate('newProduct').cursor()
 
   const catalogItems = await CatalogItem.find({
     organization: forecast.project.organization
