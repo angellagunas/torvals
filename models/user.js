@@ -88,6 +88,7 @@ userSchema.methods.toPublic = function () {
     accountOwner: this.accountOwner,
     language: this.language,
     job: this.job,
+    phone: this.phone,
     isVerified: this.isVerified
   }
 }
@@ -107,6 +108,7 @@ userSchema.methods.toAdmin = function () {
     accountOwner: this.accountOwner,
     language: this.language,
     job: this.job,
+    phone: this.phone,
     isVerified: this.isVerified
   }
 
