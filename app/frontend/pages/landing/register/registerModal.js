@@ -437,10 +437,10 @@ class RegisterModal extends Component {
                 <label className='label'>Contraseña</label>
                 <div className='control'>
                   <input
-                    pattern='(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\w{6,}'
+                    pattern='^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.]).{8,}$'
                     className='input'
                     type='password'
-                    placeholder='Deberá contener al menos seis caracteres, incluidas mayúsculas, minúsculas y números'
+                    placeholder='Deberá contener al menos 8 caracteres, incluidas mayúsculas, minúsculas, números y caracteres espeaciales como #?!@$%^&*-.'
                     autoComplete='off'
                     required
                     name='pass'
