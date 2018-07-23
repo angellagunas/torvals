@@ -30,9 +30,9 @@ module.exports = new Route({
     var organizationId = ctx.params.uuid
     var data = ctx.request.body
 
-    if (organizationId !== ctx.state.organization.uuid) {
+    /* if (organizationId !== ctx.state.organization.uuid) {
       ctx.throw(404, 'Organización no encontrada')
-    }
+    } */
 
     var file = data.profile || ''
 
