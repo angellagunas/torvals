@@ -2,8 +2,9 @@
 require('../../config')
 require('lib/databases/mongo')
 
-const moment = require('moment')
+const fs = require('fs')
 const path = require('path')
+const moment = require('moment')
 const { execSync } = require('child_process')
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
@@ -24,7 +25,7 @@ const task = new Task(async function (argv) {
   }
 
   const tmpdir = path.resolve('.', 'media', 'jsons')
-  const filePath = path.join(tmpdir, `${forecast.uuid}-output.json`)
+  const filePath = path.join(tmpdir, `${forecast.uuid}-result.json`)
   fs.mkdir(filePath, (err) => {
     console.log(err)
     log.call('Folder already exists')

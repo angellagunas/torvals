@@ -7,6 +7,7 @@ const Logger = require('lib/utils/logger')
 const moment = require('moment')
 const path = require('path')
 const Task = require('lib/task')
+const replaceAll = require('underscore.string/replaceAll')
 const { spawnSync } = require('child_process')
 const { Catalog, CatalogItem, Forecast } = require('models')
 
@@ -61,7 +62,7 @@ const task = new Task(async function (argv) {
     let result = {}
     for (let pos of item) {
       const catalogName = catalogs.find(catalog => catalog._id.toString() === catalogItems[item.indexOf(pos)]._id.toString())
-      result[`${catalogName.slug}_id`] = parseInt(pos)
+      result[`${replaceAll(catalogName.slug, '-', '_')}_id`] = parseInt(pos)
     }
     return result
   })
@@ -84,7 +85,6 @@ const task = new Task(async function (argv) {
   log.call('Create JSON')
   const tmpdir = path.resolve('.', 'media', 'jsons')
   fs.mkdir(tmpdir, (err) => {
-    console.log(err)
     log.call('Folder already exists')
   })
   const filePath = path.join(tmpdir, `${forecast.uuid}.json`)

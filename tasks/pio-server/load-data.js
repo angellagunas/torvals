@@ -47,7 +47,7 @@ const task = new Task(async function (argv) {
       })
 
       group = group + '_' + info.catalog.slug
-      properties[`${info.catalog.slug}_id`] = info.externalId
+      properties[`${replaceAll(info.catalog.slug, '-', '_')}_id`] = info.externalId
     }
 
     const options = {

@@ -7,6 +7,7 @@ const Task = require('lib/task')
 const fs = require('fs')
 const path = require('path')
 const Mailer = require('lib/mailer')
+const replaceAll = require('underscore.string/replaceAll')
 
 const createApp = require('tasks/pio-server/create-app')
 const loadAppData = require('tasks/pio-server/load-data')
@@ -97,7 +98,7 @@ const task = new Task(async function (argv) {
   engine.algorithms[0].params.appName = forecast.uuid
   engine.algorithms[0].params.label = 'sale'
   engine.algorithms[0].params.date = 'date'
-  engine.algorithms[0].params.groupBy = ['date'].concat(catalogs.map((catalog) => catalog.slug))
+  engine.algorithms[0].params.groupBy = ['date'].concat(catalogs.map((catalog) => replaceAll(catalog.slug, '-', '_')))
 
   fs.writeFileSync(filePath, JSON.stringify(engine))
   // CREATE
