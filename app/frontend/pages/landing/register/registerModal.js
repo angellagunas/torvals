@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import Checkbox from '~base/components/base-checkbox'
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector'
 import api from '~base/api'
-import cookies from '~base/cookies'
 import tree from '~core/tree'
+import env from '~base/env-variables'
 
 class RegisterModal extends Component {
   constructor (props) {
@@ -71,8 +71,10 @@ class RegisterModal extends Component {
       return this.userForm()
     } else if (this.state.step === 2) {
       return this.siteForm()
-    } else {
+    } else if (this.state.step === 3) {
       return this.orgForm()
+    } else {
+      return this.finish()
     }
   }
 
@@ -185,11 +187,17 @@ class RegisterModal extends Component {
         }
       })
 
-      cookies.set('jwt', res.jwt)
-      cookies.set('user', res.user)
-      tree.set('user', res.user)
       tree.set('jwt', res.jwt)
-      console.log(cookies.get())
+
+      // tree.commit()
+
+      let me = await api.get('/user/me')
+      tree.set('user', me.user)
+      tree.set('organization', me.user.currentOrganization)
+      tree.set('role', me.user.currentRole)
+      tree.set('loggedIn', me.loggedIn)
+      // tree.commit()
+
       console.log(tree.get())
       return true
     } catch (e) {
@@ -207,7 +215,7 @@ class RegisterModal extends Component {
 
   async validateDomain () {
     try {
-      let url = '/app/organizations/validate'
+      let url = '/organization/validate'
       let res = await api.post(url,
         {
           slug: this.state.registerData.domain
@@ -226,12 +234,12 @@ class RegisterModal extends Component {
         errors: {
           ...this.state.errors,
           error: false,
-          domain: '',
-          org: res
-        }
+          domain: ''
+        },
+        org: res.data
       })
-
-      cookies.set('organization', res.slug)
+      tree.set('organization', res.data)
+      // tree.commit()
       return true
     } catch (e) {
       console.log(e)
@@ -248,6 +256,7 @@ class RegisterModal extends Component {
 
   async updateOrg () {
     let r = this.state.registerData
+
     try {
       let url = '/app/organizations/' + this.state.org.uuid
       let res = await api.post(url,
@@ -279,14 +288,17 @@ class RegisterModal extends Component {
         errors: {
           ...this.state.errors,
           error: false,
-          domain: '',
-          org: res
+          domain: ''
+        },
+        org: {
+          ...this.state.org,
+          ...res.data
         }
       })
 
-      cookies.set('organization', res.slug)
-      tree.set('organization', res)
-      this.props.history.push('/dashboard')
+      // tree.set('organization', res.data)
+      // tree.commit()
+
       return true
     } catch (e) {
       console.log(e)
@@ -305,11 +317,17 @@ class RegisterModal extends Component {
     this.validateInput(e, input)
     let aux = this.state.registerData
     let val = ''
+
     if (input === 'country' || input === 'region') {
       val = e
+    } else if (input === 'phone' || input === 'employees') {
+      if (!isNaN(Number(e.target.value))) {
+        val = e.target.value
+      }
     } else {
       val = e.target.value
     }
+
     aux[input] = val
     this.setState({
       registerData: aux
@@ -317,10 +335,9 @@ class RegisterModal extends Component {
   }
 
   validateInput (e, input) {
-    console.log(e.target.validity.valid, input)
     let aux = this.state.errors
 
-    if (input === 'email') {
+    if (input === 'email' || input === 'orgEmail') {
       if (!e.target.validity.valid) {
         aux.error = true
         aux[input] = 'Ingresa una dirección de correo válida'
@@ -353,6 +370,26 @@ class RegisterModal extends Component {
     if (input === 'domain') {
       if (!e.target.validity.valid) {
         aux[input] = 'El subdominio solo puede contener letras, números y _'
+        aux.error = true
+      } else {
+        aux[input] = ''
+        aux.error = false
+      }
+    }
+
+    if (input === 'orgName') {
+      if (e.target.value === undefined || e.target.value === '') {
+        aux[input] = 'Falta el nombre de tu empresa'
+        aux.error = true
+      } else {
+        aux[input] = ''
+        aux.error = false
+      }
+    }
+
+    if (input === 'rfc') {
+      if (!e.target.validity.valid) {
+        aux[input] = 'Ingrese un RFC válido'
         aux.error = true
       } else {
         aux[input] = ''
@@ -527,6 +564,7 @@ class RegisterModal extends Component {
                     autoComplete='off'
                     required
                     name='phone'
+                    pattern='[0-9]{10}'
                     value={this.state.registerData.phone}
                     onChange={(e) => this.handleInputChange(e, 'phone')} />
                 </div>
@@ -604,7 +642,7 @@ class RegisterModal extends Component {
           <div className='columns is-centered'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Nombre</label>
+                <label className='label'>Nombre *</label>
                 <div className='control'>
                   <input
                     className='input'
@@ -654,7 +692,15 @@ class RegisterModal extends Component {
               <div className='field'>
                 <label className='label'>No. de empleados</label>
                 <div className='control'>
-                  <input className='input' type='text' placeholder='Deberá tener al menos 6 caracteres' autoComplete='off' required />
+                  <input
+                    className='input'
+                    type='text'
+                    placeholder='No. de empleados de tu empresa'
+                    autoComplete='off'
+                    required
+                    name='employees'
+                    value={this.state.registerData.employees}
+                    onChange={(e) => this.handleInputChange(e, 'employees')} />
                 </div>
               </div>
               <div className='field'>
@@ -687,9 +733,11 @@ class RegisterModal extends Component {
                     placeholder='Ingresa el giro de tu empresa'
                     autoComplete='off'
                     name='rfc'
+                    pattern='[A-Z&Ñ]{3,4}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]'
                     value={this.state.registerData.rfc}
                     onChange={(e) => this.handleInputChange(e, 'rfc')} />
                 </div>
+                <p className='help is-danger'>{this.state.errors.rfc}</p>
               </div>
             </div>
           </div>
@@ -723,9 +771,32 @@ class RegisterModal extends Component {
                     value={this.state.registerData.orgEmail}
                     onChange={(e) => this.handleInputChange(e, 'orgEmail')} />
                 </div>
+                <p className='help is-danger'>{this.state.errors.orgEmail}</p>
               </div>
             </div>
           </div>
+
+        </div>
+      </div>
+    )
+  }
+
+  finish () {
+    return (
+      <div className={'register__form ' + this.state.fade}>
+        <h1 className='is-size-3'>
+          <span className='icon is-large'>
+            <i className='fa fa-3x fa-birthday-cake' />
+          </span>
+        </h1>
+        <h1 className='is-size-2 pad-bottom'>
+          ¡Felicidades!
+        </h1>
+        <div className='content'>
+          <p className='is-size-5'>
+           Tu cuenta ha sido creada. <strong>Tus 30 días de prueba comienzan hoy. </strong>
+           Solicita tu cotización en cualquier momento desde el apartado "Mi Cuenta" y sigue utilizando Orax.
+           </p>
 
         </div>
       </div>
@@ -778,9 +849,31 @@ class RegisterModal extends Component {
       if (r.domain === '' || e.domain !== '') {
         return false
       }
+    } else if (this.state.step === 3) {
+      if (r.orgName === '') {
+        return false
+      }
     }
 
     return true
+  }
+
+  finishUp () {
+    const hostname = window.location.hostname
+    const hostnameSplit = hostname.split('.')
+
+    if (env.ENV === 'production') {
+      if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
+        const newHostname = hostnameSplit.slice(-3).join('.')
+        window.location = `//${this.state.org.slug}.${newHostname}/dashboard`
+      } else {
+        const newHostname = hostnameSplit.slice(-2).join('.')
+        window.location = `//${this.state.org.slug}.${newHostname}/dashboard`
+      }
+    } else {
+      const baseUrl = env.APP_HOST.split('://')
+      window.location = baseUrl[0] + '://' + this.state.org.slug + '.' + baseUrl[1] + '/dashboard'
+    }
   }
 
   render () {
@@ -800,18 +893,33 @@ class RegisterModal extends Component {
               <center>
                 <br />
                 <br />
-                <div className='field'>
-                  <button className='button is-primary is-inverted is-medium'
-                    onClick={() => { this.nextStep(this.state.step - 1) }}>
+                {this.state.step !== 4 &&
+                <div>
+                  <div className='field'>
+                    <button className='button is-primary is-inverted is-medium'
+                      onClick={() => { this.nextStep(this.state.step - 1) }}>
                     Regresar
-              </button>
-                  <button className='button is-primary is-medium'
-                    disabled={!this.continue()}
-                    onClick={() => { this.nextStep(this.state.step + 1) }}>
+                  </button>
+                    <button className='button is-primary is-medium'
+                      disabled={!this.continue()}
+                      onClick={() => { this.nextStep(this.state.step + 1) }}>
                     Siguiente
-              </button>
+                    </button>
+                  </div>
+                  {this.indicators()}
                 </div>
-                {this.indicators()}
+                }
+                {this.state.step === 4 &&
+                  <div>
+                    <div className='field'>
+                      <button className='button is-primary is-medium'
+                        disabled={!this.continue()}
+                        onClick={() => { this.finishUp() }}>
+                        Empezar
+                    </button>
+                    </div>
+                  </div>
+                }
               </center>
             </div>
 
