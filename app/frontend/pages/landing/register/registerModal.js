@@ -184,21 +184,11 @@ class RegisterModal extends Component {
           ...this.state.errors,
           error: false,
           email: ''
-        }
+        },
+        user: res.user,
+        jwt: res.jwt
       })
 
-      tree.set('jwt', res.jwt)
-
-      // tree.commit()
-
-      let me = await api.get('/user/me')
-      tree.set('user', me.user)
-      tree.set('organization', me.user.currentOrganization)
-      tree.set('role', me.user.currentRole)
-      tree.set('loggedIn', me.loggedIn)
-      // tree.commit()
-
-      console.log(tree.get())
       return true
     } catch (e) {
       console.log(e)
@@ -238,8 +228,7 @@ class RegisterModal extends Component {
         },
         org: res.data
       })
-      tree.set('organization', res.data)
-      // tree.commit()
+
       return true
     } catch (e) {
       console.log(e)
@@ -290,15 +279,21 @@ class RegisterModal extends Component {
           error: false,
           domain: ''
         },
-        org: {
-          ...this.state.org,
-          ...res.data
-        }
+        org: res.data,
+        rules: res.rule
       })
 
-      // tree.set('organization', res.data)
-      // tree.commit()
+      tree.set('jwt', this.state.jwt)
+      let me = await api.get('/user/me')
+      console.log(me)
 
+      tree.set('organization', res.data)
+      tree.set('user', {...this.state.user, currentOrganization: res.data})
+      tree.set('role', this.state.user.currentRole)
+      tree.set('rule', res.rule)
+      tree.set('loggedIn', true)
+      tree.commit()
+      console.log(tree.get())
       return true
     } catch (e) {
       console.log(e)

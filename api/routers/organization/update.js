@@ -2,7 +2,7 @@ const Route = require('lib/router/route')
 const lov = require('lov')
 const slugify = require('underscore.string/slugify')
 
-const {Organization} = require('models')
+const {Organization, Rule} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -29,6 +29,11 @@ module.exports = new Route({
     const org = await Organization.findOne({'uuid': organizationId, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
 
+    const rule = await Rule.findOne({
+      organization: org._id,
+      isCurrent: true
+    }).populate('catalogs')
+
     org.set({
       name: data.name,
       slug: data.slug,
@@ -45,7 +50,8 @@ module.exports = new Route({
     org.save()
 
     ctx.body = {
-      data: org.toPublic()
+      data: org.toPublic(),
+      rule: rule.toPublic()
     }
   }
 })
