@@ -4,20 +4,24 @@ const moment = require('moment')
 const slugify = require('underscore.string/slugify')
 const generateCycles = require('tasks/organization/generate-cycles')
 
-const {Organization, Catalog, Rule} = require('models')
+const {Organization, Catalog, Rule, User, Role} = require('models')
 
 module.exports = new Route({
   method: 'post',
   path: '/validate',
   validator: lov.object().keys({
-    slug: lov.string().required()
+    slug: lov.string().required(),
+    user: lov.string().required()
   }),
   handler: async function (ctx) {
-    const { slug } = ctx.request.body
+    const slug = ctx.request.body.slug
+    const userId = ctx.request.body.user
     const organization = await Organization.findOne({slug: slug})
+    const user = await User.findOne({uuid: userId})
+    ctx.assert(user, 400, 'Usuario no existe.')
 
     if (organization) {
-      ctx.throw(400, 'Organization exists')
+      ctx.throw(400, 'Organización ya existe.')
     }
 
     let defaultRule = {
@@ -42,6 +46,20 @@ module.exports = new Route({
     const org = await Organization.create({
       slug: slug
     })
+
+    let role = await Role.findOne({slug: 'orgadmin'})
+
+    var organizations = [{organization: org, role: role}]
+
+    user.set({
+      organizations
+    })
+
+    await user.save()
+
+    let userData = user.toPublic()
+    userData.currentOrganization = org.toPublic()
+    userData.currentRole = role.toPublic()
 
     let catalogs = []
 
@@ -69,7 +87,8 @@ module.exports = new Route({
     generateCycles.run({uuid: org.uuid, rule: rule.uuid})
 
     ctx.body = {
-      data: org.toPublic()
+      data: org.toPublic(),
+      user: userData
     }
   }
 })
