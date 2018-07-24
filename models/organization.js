@@ -44,10 +44,10 @@ const organizationSchema = new Schema({
     phone: { type: String }
   },
   wizardSteps: {
-    businessRules: { type: Boolean },
-    project: { type: Boolean },
-    forecast: { type: Boolean },
-    users: { type: Boolean }
+    businessRules: { type: Boolean, default: false },
+    project: { type: Boolean, default: false },
+    forecast: { type: Boolean, default: false },
+    users: { type: Boolean, default: false }
   },
 
   dateCreated: { type: Date, default: moment.utc },
