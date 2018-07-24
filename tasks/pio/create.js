@@ -95,6 +95,8 @@ const task = new Task(async function (argv) {
   const engineJson = fs.readFileSync(filePath);
   const engine = JSON.parse(engineJson)
 
+  engine.datasource.params.appName = forecast.uuid
+  engine.datasource.params.columns = ['date'].concat(catalogs.map((catalog) => replaceAll(catalog.slug, '-', '_')))
   engine.algorithms[0].params.appName = forecast.uuid
   engine.algorithms[0].params.label = 'sale'
   engine.algorithms[0].params.date = 'date'
