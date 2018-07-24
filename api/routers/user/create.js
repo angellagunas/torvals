@@ -19,15 +19,7 @@ module.exports = new Route({
       password
     })
 
-    let defaultRole = await Role.findOne({isDefault: true})
-    if (!defaultRole) {
-      defaultRole = await Role.create({
-        name: 'Default',
-        slug: 'default',
-        description: 'Default role',
-        isDefault: true
-      })
-    }
+    let defaultRole = await Role.findOne({slug: 'orgadmin'})
 
     user.role = defaultRole
     user.save()
@@ -38,8 +30,11 @@ module.exports = new Route({
       type: 'session'
     })
 
+    var data = user.toPublic()
+    data['currentRole'] = defaultRole.toPublic()
+
     ctx.body = {
-      user: user.toPublic(),
+      user: data,
       jwt: token.getJwt()
     }
   }
