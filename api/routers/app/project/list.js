@@ -42,6 +42,7 @@ module.exports = new Route({
       }
     }
 
+    console.log(ctx.state)
     var projects = await Project.dataTables({
       limit: ctx.request.query.limit || 20,
       skip: ctx.request.query.start,
