@@ -4,6 +4,7 @@ import { CountryDropdown, RegionDropdown } from 'react-country-region-selector'
 import api from '~base/api'
 import tree from '~core/tree'
 import env from '~base/env-variables'
+import cookies from '~base/cookies'
 
 class RegisterModal extends Component {
   constructor (props) {
@@ -208,7 +209,8 @@ class RegisterModal extends Component {
       let url = '/organization/validate'
       let res = await api.post(url,
         {
-          slug: this.state.registerData.domain
+          slug: this.state.registerData.domain,
+          user: this.state.user.uuid
         })
       if (res.status === 400) {
         this.setState({
@@ -226,7 +228,8 @@ class RegisterModal extends Component {
           error: false,
           domain: ''
         },
-        org: res.data
+        org: res.data,
+        user: res.user
       })
 
       return true
@@ -273,27 +276,22 @@ class RegisterModal extends Component {
         })
         return false
       }
+
+      let org = { ...this.state.org, ...res.data }
+
       this.setState({
         errors: {
           ...this.state.errors,
           error: false,
           domain: ''
         },
-        org: res.data,
+        org: org,
         rules: res.rule
       })
 
-      tree.set('jwt', this.state.jwt)
-      let me = await api.get('/user/me')
-      console.log(me)
+      cookies.set('jwt', this.state.jwt)
+      cookies.set('organization', org)
 
-      tree.set('organization', res.data)
-      tree.set('user', {...this.state.user, currentOrganization: res.data})
-      tree.set('role', this.state.user.currentRole)
-      tree.set('rule', res.rule)
-      tree.set('loggedIn', true)
-      tree.commit()
-      console.log(tree.get())
       return true
     } catch (e) {
       console.log(e)
@@ -856,7 +854,8 @@ class RegisterModal extends Component {
   finishUp () {
     const hostname = window.location.hostname
     const hostnameSplit = hostname.split('.')
-
+    tree.set('loggedIn', true)
+    tree.commit()
     if (env.ENV === 'production') {
       if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
         const newHostname = hostnameSplit.slice(-3).join('.')
