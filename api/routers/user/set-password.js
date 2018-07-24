@@ -20,6 +20,9 @@ module.exports = new Route({
 
     user = await User.auth(user.email, password)
 
+    user.isVerified = true
+    await user.save()
+
     var orgsAux = user.organizations.map(item => {
       return {
         organization: item.organization.toPublic(),

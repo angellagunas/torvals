@@ -135,24 +135,22 @@ export default ListPage({
                     moneyInput
                     handleChange={async (value, row) => {
                       try {
-                        if (Number(value) !== Number(row.price)) {
-                          const res = await api.post('/app/prices/' + row.uuid, {
-                            price: value
-                          })
-                          if (!res) {
-                            return false
-                          }
-                          toast('¡Precio guardado!: ', {
-                            autoClose: 5000,
-                            type: toast.TYPE.INFO,
-                            hideProgressBar: true,
-                            closeButton: false
-                          })
-                          return res
+                        const res = await api.post('/app/prices/' + row.uuid, {
+                          price: value
+                        })
+                        if (!res) {
+                          return false
                         }
+                        toast('¡Precio guardado! ', {
+                          autoClose: 3000,
+                          type: toast.TYPE.INFO,
+                          hideProgressBar: true,
+                          closeButton: false
+                        })
+                        return res
                       } catch (e) {
                         toast('Error: ' + e.message, {
-                          autoClose: 5000,
+                          autoClose: 3000,
                           type: toast.TYPE.ERROR,
                           hideProgressBar: true,
                           closeButton: false

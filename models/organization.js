@@ -17,6 +17,39 @@ const organizationSchema = new Schema({
     region: { type: String }
   },
 
+  country: { type: String },
+  status: { type: String,
+    enum: [
+      'active',
+      'inactive',
+      'trial',
+      'activationPending'
+    ],
+    default: 'trial'
+  },
+  employees: { type: Number },
+  rfc: { type: String },
+  billingEmail: { type: String },
+  businessName: { type: String },
+  businessType: { type: String },
+  accountType: { type: String, default: 'managed' },
+  trialStart: { type: Date, default: moment.utc },
+  trialEnd: { type: Date, default: moment.utc().add(30, 'd') },
+  availableUsers: { type: Number, default: 20 },
+  billingStart: { type: Date },
+  billingEnd: { type: Date},
+  salesRep: {
+    name: { type: String },
+    email: { type: String },
+    phone: { type: String }
+  },
+  wizardSteps: {
+    businessRules: { type: Boolean },
+    project: { type: Boolean },
+    forecast: { type: Boolean },
+    users: { type: Boolean }
+  },
+
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
@@ -34,7 +67,22 @@ organizationSchema.methods.toPublic = function () {
     dateCreated: this.dateCreated,
     profileUrl: this.profileUrl,
     isConfigured: this.isConfigured,
-    rules: this.rules
+    rules: this.rules,
+
+    country: this.country,
+    status: this.status,
+    employees: this.employees,
+    rfc: this.rfc,
+    billingEmail: this.billingEmail,
+    businessName: this.businessName,
+    accountType: this.accountType,
+    trialStart: this.trialStart,
+    trialEnd: this.trialEnd,
+    availableUsers: this.availableUsers,
+    billingStart: this.billingStart,
+    billingEnd: this.billingEnd,
+    salesRep: this.salesRep,
+    wizardSteps: this.wizardSteps
   }
 }
 
@@ -47,7 +95,22 @@ organizationSchema.methods.toAdmin = function () {
     dateCreated: this.dateCreated,
     profileUrl: this.profileUrl,
     isConfigured: this.isConfigured,
-    rules: this.rules
+    rules: this.rules,
+
+    country: this.country,
+    status: this.status,
+    employees: this.employees,
+    rfc: this.rfc,
+    billingEmail: this.billingEmail,
+    businessName: this.businessName,
+    accountType: this.accountType,
+    trialStart: this.trialStart,
+    trialEnd: this.trialEnd,
+    availableUsers: this.availableUsers,
+    billingStart: this.billingStart,
+    billingEnd: this.billingEnd,
+    salesRep: this.salesRep,
+    wizardSteps: this.wizardSteps
   }
 }
 

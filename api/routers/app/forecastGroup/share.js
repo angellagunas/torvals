@@ -14,7 +14,9 @@ module.exports = new Route({
     })
     ctx.assert(forecastGroup, 404, 'ForecastGroup no encontrado')
 
-    const users = await User.find({uuid: {$in: data.users}})
+    let users = data.users.split(',')
+
+    users = await User.find({email: {$in: users}})
     const email = new Mailer('share-forecast')
     let url = process.env.APP_HOST
     let base = url.split('://')

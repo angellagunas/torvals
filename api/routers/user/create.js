@@ -9,14 +9,18 @@ module.exports = new Route({
   validator: lov.object().keys({
     email: lov.string().email().required(),
     password: lov.string().required(),
-    name: lov.string().required()
+    name: lov.string().required(),
+    job: lov.string(),
+    phone: lov.string()
   }),
   handler: async function (ctx) {
     const { name, email, password } = ctx.request.body
     const user = await User.register({
       name,
       email,
-      password
+      password,
+      job,
+      phone
     })
 
     let defaultRole = await Role.findOne({isDefault: true})
@@ -30,7 +34,10 @@ module.exports = new Route({
     }
 
     user.role = defaultRole
-    user.save()
+    user.accountOwner = true
+    await user.save()
+
+    user.sendActivationEmail()
 
     const token = await user.createToken({
       type: 'session'

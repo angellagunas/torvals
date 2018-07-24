@@ -43,7 +43,7 @@ class ForecastDetail extends Component {
           alias: res.alias,
           forecast: res.forecasts,
           type: res.type,
-          forecastGroup: res
+          project: res.project
         })
 
         tree.set('activeForecast', {
@@ -328,16 +328,25 @@ class ForecastDetail extends Component {
   }
 
   async finishUpConciliate () {
+    this.setState({
+      conciliating: 'is-loading'
+    })
     let url = '/app/forecasts/conciliate/' + this.state.engineConciliate.uuid
     try {
       let res = await api.get(url)
 
       if (res) {
+        this.setState({
+          conciliating: ''
+        })
         await this.hideConciliate()
-        this.props.history.push('/forecast')
+        this.props.history.push('/projects/' + this.state.project.uuid)
       }
     } catch (e) {
       console.log(e)
+      this.setState({
+        conciliating: ''
+      })
       this.notify('Error conciliando ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
@@ -355,7 +364,8 @@ class ForecastDetail extends Component {
         <br />
         <div className='buttons org-rules__modal'>
           <button
-            className='button generate-btn is-primary is-pulled-right'
+            className={'button generate-btn is-primary is-pulled-right ' + this.state.conciliating}
+            disabled={!!this.state.conciliating}
             onClick={() => this.finishUpConciliate()}>
           Conciliar
         </button>
@@ -418,9 +428,11 @@ class ForecastDetail extends Component {
 
         <div className='buttons org-rules__modal'>
           <button
-            className='button generate-btn is-primary is-pulled-right'
+            className={'button generate-btn is-primary is-pulled-right ' + this.state.sharing}
             onClick={() => this.finishUpShare()}
-            disabled={!this.state.usersEmails || this.state.usersEmails === ''}>
+            disabled={!!this.state.sharing ||
+            !this.state.usersEmails ||
+            this.state.usersEmails === ''}>
             Compartir
         </button>
           <button
@@ -446,7 +458,10 @@ class ForecastDetail extends Component {
   }
 
   async finishUpShare () {
-    let url = '/app/forecasts/share'
+    this.setState({
+      sharing: 'is-loading'
+    })
+    let url = '/app/forecastGroups/share/' + this.props.match.params.uuid
     try {
       let res = await api.post(url, {
         users: this.state.usersEmails,
@@ -454,10 +469,16 @@ class ForecastDetail extends Component {
       })
 
       if (res) {
+        this.setState({
+          sharing: ''
+        })
         await this.hideShareModal()
       }
     } catch (e) {
       console.log(e)
+      this.setState({
+        sharing: ''
+      })
       this.notify('Error compartiendo ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
