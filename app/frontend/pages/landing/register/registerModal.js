@@ -800,9 +800,9 @@ class RegisterModal extends Component {
     let indicators = []
     for (let i = 0; i < 4; i++) {
       if (i === this.state.step) {
-        indicators.push(<span className='indicator indicator__active' />)
+        indicators.push(<span key={i} className='indicator indicator__active' />)
       } else {
-        indicators.push(<span className='indicator' />)
+        indicators.push(<span key={i} className='indicator' />)
       }
     }
     return (

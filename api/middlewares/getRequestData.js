@@ -101,7 +101,7 @@ module.exports = async function (ctx, next) {
 
     if (host.length > apiHostname.length && host[0] !== 'www') {
       ctx.state.orgSlug = host[0]
-
+      console.log('HOST', host)
       if (ctx.state.orgSlug) {
         const organization = await Organization.findOne({slug: ctx.state.orgSlug, isDeleted: false})
 
