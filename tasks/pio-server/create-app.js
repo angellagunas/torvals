@@ -22,7 +22,7 @@ const task = new Task(async function (argv) {
 
   const spawnPio = spawnSync(
     'pio',
-    ['app', 'new', slugify(forecast.engine.name), '--access-key', forecast.instanceKey],
+    ['app', 'new', forecast.uuid, '--access-key', forecast.instanceKey],
     { cwd: `/engines/${forecast.engine.path}` }
   )
 
@@ -39,9 +39,11 @@ const task = new Task(async function (argv) {
     })
     await forecast.save()
 
+    log.call('New app saved with errors.')
     return false
   }
 
+  log.call('New app created successful')
   return true
 })
 
