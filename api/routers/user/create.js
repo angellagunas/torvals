@@ -14,7 +14,7 @@ module.exports = new Route({
     phone: lov.string()
   }),
   handler: async function (ctx) {
-    const { name, email, password } = ctx.request.body
+    const { name, email, password, job, phone } = ctx.request.body
     const user = await User.register({
       name,
       email,
