@@ -19,11 +19,6 @@ module.exports = new Route({
       password
     })
 
-    let defaultRole = await Role.findOne({slug: 'orgadmin'})
-
-    user.role = defaultRole
-    user.save()
-
     user.sendActivationEmail()
 
     const token = await user.createToken({
