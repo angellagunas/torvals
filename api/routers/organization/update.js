@@ -36,7 +36,6 @@ module.exports = new Route({
 
     org.set({
       name: data.name,
-      slug: data.slug,
       country: data.country,
       status: data.status,
       employees: data.employees,
