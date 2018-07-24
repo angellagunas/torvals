@@ -157,6 +157,7 @@ const task = new Task(async function (argv) {
           name: user.name,
           isAdmin: false,
           validEmail: true,
+          isVerified: true
         })
       }
 
@@ -176,6 +177,7 @@ const task = new Task(async function (argv) {
           name: admin.name,
           isAdmin: true,
           validEmail: true,
+          isVerified: true
         })
       }
 
