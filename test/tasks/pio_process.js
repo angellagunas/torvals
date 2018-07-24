@@ -21,7 +21,7 @@ const conciliateDataset = require('tasks/project/conciliate-to-project')
 const createPioProcess = require('tasks/pio/create')
 
 
-describe('Pio process', () => {
+describe.skip('Pio process', () => {
 
     it('should be success', async function () {
       await clearDatabase()

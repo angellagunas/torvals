@@ -19,7 +19,7 @@ const conciliateDataset = require('tasks/project/conciliate-to-project')
 const filterDataset = require('tasks/dataset/process/filter-dataset')
 
 
-describe.only('Filter dataset to project', () => {
+describe('Filter dataset to project', () => {
 
   describe('with csv file with 3 products', () => {
     it('should conciliate a new dataset with 2 records successfully', async function () {
