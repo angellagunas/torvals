@@ -258,7 +258,7 @@ class RegisterModal extends Component {
     let r = this.state.registerData
 
     try {
-      let url = '/app/organizations/' + this.state.org.uuid
+      let url = '/organization/update/' + this.state.org.uuid
       let res = await api.post(url,
         {
           name: r.orgName,
@@ -453,7 +453,7 @@ class RegisterModal extends Component {
                 <label className='label'>Confirmar contraseña</label>
                 <div className='control'>
                   <input
-                    pattern='(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\w{6,}'
+                    pattern='^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.]).{8,}$'
                     className='input'
                     type='password'
                     placeholder='Confirmar contraseña'
