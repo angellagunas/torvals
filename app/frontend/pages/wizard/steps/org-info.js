@@ -68,7 +68,7 @@ class OrgInfo extends Component {
               </div>
             </OrganizationForm>
           </div>
-          <div className='column is-4 is-offset-1'>
+          {/* <div className='column is-4 is-offset-1'>
 
             <div className='card'>
               <div className='card-image'>
@@ -88,7 +88,7 @@ class OrgInfo extends Component {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         }

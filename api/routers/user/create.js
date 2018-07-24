@@ -25,11 +25,8 @@ module.exports = new Route({
       type: 'session'
     })
 
-    var data = user.toPublic()
-    data['currentRole'] = defaultRole.toPublic()
-
     ctx.body = {
-      user: data,
+      user: user.toPublic(),
       jwt: token.getJwt()
     }
   }
