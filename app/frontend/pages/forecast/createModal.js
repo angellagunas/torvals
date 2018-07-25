@@ -417,15 +417,16 @@ class CreateModal extends Component {
             <div className='control columns is-multiline'>
               {this.state.engines && this.state.engines.map(item => {
                 return (
-                  <div className='column is-4 is-capitalized' key={item.uuid}>
+                  <div className='column is-4' key={item.uuid}>
                     <div className='forecast-engine'>
                       <Checkbox
                         key={item.uuid}
                         checked={this.engines[item.uuid] !== undefined}
                         label={
                           <span>
-                            <p className='title is-6'>{item.name}</p>
-                            <p className='subtitle is-6'>{item.description || 'Sin descripción'}</p>
+                            <p className='title is-6 is-capitalized'>{item.name}</p>
+                            <p className='subtitle is-6 tooltip'
+                              data-tooltip={item.description || 'Sin descripción'}>{item.description || 'Sin descripción'}</p>
                           </span>
                         }
                         handleCheckboxChange={(e, value) => this.selectEngine(value, item)}

@@ -409,7 +409,7 @@ class ForecastDetail extends Component {
         title={'Compartir predicción'}
         className={'shareModal ' + this.state.shareModal}
         hideModal={() => this.hideShareModal()}>
-        <p>Selecciona los usuarios con quienes quieres compartir la predicción.</p>
+        <p>Selecciona los usuarios con quiénes quieres compartir la predicción.</p>
         <br />
         <br />
 
