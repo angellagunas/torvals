@@ -127,10 +127,10 @@ class TabHistorical extends Component {
           , ['asc'])
 
         data.map((item) => {
-          totalAdjustment += item.adjustment
-          totalPrediction += item.prediction
-          totalSale += item.sale
-          totalPSale += item.previousSale
+          totalAdjustment += item.adjustment ? item.adjustment : 0
+          totalPrediction += item.prediction ? item.prediction : 0
+          totalSale += item.sale ? item.sale : 0
+          totalPSale += item.previousSale ? item.previousSale : 0
 
           if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
             activePeriod.push(item)
@@ -457,7 +457,7 @@ class TabHistorical extends Component {
       })
     }
 
-    let min
+    let min = p[0]
     p.map(item => {
       if (item.year === 2018 && item.number === 1) {
         min = item
@@ -771,22 +771,30 @@ class TabHistorical extends Component {
       {
         label: 'Predicción',
         color: '#187FE6',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.prediction !== 0 ? item.prediction : null }) : []
+        data: this.state.graphData ?
+          this.state.graphData.map((item) => { return item.prediction !== undefined ? item.prediction : null })
+            .filter(item => { return item || item === 0 }) : []
       },
       {
         label: 'Ajuste',
         color: '#30C6CC',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.adjustment !== 0 ? item.adjustment : null }) : []
+        data: this.state.graphData ?
+          this.state.graphData.map((item) => { return item.adjustment !== undefined ? item.adjustment : null })
+            .filter(item => { return item || item === 0 }) : []
       },
       {
         label: 'Venta',
         color: '#0CB900',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.sale !== 0 ? item.sale : null }) : []
+        data: this.state.graphData ?
+          this.state.graphData.map((item) => { return item.sale !== undefined ? item.sale : null })
+            .filter(item => { return item || item === 0 }) : []
       },
       {
         label: 'Venta año anterior',
         color: '#EF6950',
-        data: this.state.graphData ? this.state.graphData.map((item) => { return item.previousSale !== 0 ? item.previousSale : null}) : []
+        data: this.state.graphData ?
+          this.state.graphData.map((item) => { return item.previousSale !== undefined ? item.previousSale : null })
+            .filter(item => { return item || item === 0 }) : []
       }
     ]
 
@@ -843,6 +851,8 @@ class TabHistorical extends Component {
                     <p className='indicators-title'>Venta total</p>
                     <p className='indicators-number has-text-success'>
                       {
+                        this.state.totalSale === 0 ?
+                          'No disponible' :
                         this.state.prices ? '$' +
                           this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
                             return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -856,6 +866,8 @@ class TabHistorical extends Component {
                     <p className='indicators-title'>Venta año anterior</p>
                     <p className='indicators-number has-text-danger'>
                       {
+                        this.state.totalPSale === 0 ?
+                          'No disponible' :
                         this.state.prices ? '$' +
                           this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
                             return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -869,6 +881,8 @@ class TabHistorical extends Component {
                     <p className='indicators-title'>Ajuste total</p>
                     <p className='indicators-number has-text-teal'>
                       {
+                        this.state.totalAdjustment === 0 ?
+                          'No disponible' :
                         this.state.prices ? '$' +
                           this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
                             return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -883,6 +897,8 @@ class TabHistorical extends Component {
                     <p className='indicators-title'>Predicción total</p>
                     <p className='indicators-number has-text-info'>
                       {
+                        this.state.totalPrediction === 0 ?
+                          'No disponible' :
                         this.state.prices ? '$' +
                           this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
                             return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -925,7 +941,7 @@ class TabHistorical extends Component {
                             label: tooltipCallback
                           }
                         }}
-                        labels={this.state.graphData.map((item) => { return item.date })}
+                        labels={this.state.graphData.map((item) => { return item.prediction !== undefined ? item.date : undefined }).filter(item => { return item || item === 0 })}
                         scales={
                           {
                             xAxes: [
