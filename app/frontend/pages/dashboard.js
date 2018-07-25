@@ -854,28 +854,28 @@ class Dashboard extends Component {
         color: '#187FE6',
         data: this.state.graphData ? 
         this.state.graphData.map((item) => { return item.prediction !== undefined ? item.prediction : null })
-        .filter(item => { return item || item === 0}) : []
+         : []
       },
       {
         label: 'Ajuste',
         color: '#30C6CC',
         data: this.state.graphData ? 
         this.state.graphData.map((item) => { return item.adjustment !== undefined ? item.adjustment : null })
-        .filter(item => { return item || item === 0}) : []
+          : []
       },
       {
         label: 'Venta',
         color: '#0CB900',
         data: this.state.graphData ? 
         this.state.graphData.map((item) => { return item.sale !== undefined ? item.sale : null})
-        .filter(item => { return item || item === 0}) : []
+         : []
       },
       {
         label: 'Venta año anterior',
         color: '#EF6950',
         data: this.state.graphData ? 
         this.state.graphData.map((item) => { return item.previousSale !== undefined ? item.previousSale : null })
-        .filter(item => { return item || item === 0}) : []
+         : []
       }
     ]
 
@@ -1079,7 +1079,7 @@ class Dashboard extends Component {
                             label: tooltipCallback
                           }
                         }}
-                        labels={this.state.graphData.map((item) => { return item.prediction !== undefined ? item.date : undefined }).filter(item => { return item || item === 0})}
+                        labels={this.state.graphData.map((item) => { return item.date })}
                         scales={
                           {
                             xAxes: [
