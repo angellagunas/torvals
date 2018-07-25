@@ -149,7 +149,7 @@ userSchema.statics.auth = async function (email, password) {
     email: userEmail,
     isDeleted: false
   }).populate('organizations.organization')
-  assert(user, 401, 'Invalid email/password')
+  assert(user, 401, 'Email/Password inválidos')
 
   const isValid = await new Promise((resolve, reject) => {
     bcrypt.compare(password, user.password, (err, compared) =>
@@ -157,7 +157,7 @@ userSchema.statics.auth = async function (email, password) {
     )
   })
 
-  assert(isValid, 401, 'Invalid email/password')
+  assert(isValid, 401, 'Email/Password inválidos')
 
   return user
 }
@@ -166,9 +166,8 @@ userSchema.statics.register = async function (options) {
   const {email} = options
 
   const emailTaken = await this.findOne({ email })
-  assert(!emailTaken, 401, 'Email already in use')
+  assert(!emailTaken, 401, 'El email ya esta en uso.')
 
-  // create in mongoose
   const createdUser = await this.create(options)
 
   return createdUser
