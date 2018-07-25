@@ -5,6 +5,8 @@ const dataTables = require('mongoose-datatables')
 const moment = require('moment')
 const { aws } = require('../config')
 const awsService = require('aws-sdk')
+const Mailer = require('lib/mailer')
+const assert = require('http-assert')
 
 const organizationSchema = new Schema({
   name: { type: String },
@@ -112,6 +114,29 @@ organizationSchema.methods.toAdmin = function () {
     salesRep: this.salesRep,
     wizardSteps: this.wizardSteps
   }
+}
+
+organizationSchema.methods.endTrialPeriod = async function () {
+  const User = mongoose.model('User')
+  const owner = await User.findOne({'organizations.organization': this._id, accountOwner: true})
+  assert(owner, 401, 'La orgnaización o tiene dueño')
+  const email = new Mailer('trial')
+
+  this.status = 'inactive'
+  await this.save()
+
+  const data = this.toJSON()
+
+  await email.format(data)
+  await email.send({
+    recipient: {
+      email: owner.email,
+      name: owner.name
+    },
+    title: 'Período de prueba en Orax ha terminado.'
+  })
+
+  return {orgazation: this, user: owner}
 }
 
 organizationSchema.methods.uploadOrganizationPicture = async function (file) {
