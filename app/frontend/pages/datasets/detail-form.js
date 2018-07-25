@@ -36,7 +36,7 @@ class DatasetDetailForm extends Component {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
-    uiSchema['status'] = { 'ui:widget': SelectWidget, 'ui:disabled': !this.props.isAdmin }
+    uiSchema['status'] = { 'ui:widget': SelectWidget, 'ui:disabled': true }
     schema.properties['status'] = {
       type: 'string',
       title: 'Estado',
