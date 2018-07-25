@@ -474,7 +474,7 @@ class HistoricReport extends Component {
       })
     }
 
-    let min 
+    let min = p[0]
     p.map(item => {
       if(item.year === 2018 && item.number === 1){
         min = item
@@ -792,7 +792,7 @@ class HistoricReport extends Component {
     if (this.state.graphData){
       this.state.graphData.map((item) => {
         labels[item.date] = item.date
-        prediction[item.date] = item.prediction !== 0 ? item.prediction : null
+        prediction[item.date] = item.prediction !== undefined ? item.prediction : null
       })
 
       prediction = Object.values(prediction)
@@ -812,7 +812,7 @@ class HistoricReport extends Component {
         arr.map((item) => {
           let index = labels.indexOf(item.date)
           if ( index !== -1) {
-            data[index] = item.adjustment !== 0 ? item.adjustment : null
+            data[index] = item.adjustment !== undefined ? item.adjustment : null
           }
         })
 

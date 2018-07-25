@@ -316,10 +316,10 @@ module.exports = new Route({
       let dateStart = moment(date.dateStart).utc().format('YYYY-MM-DD')
       let item = {
         date: dateStart,
-        prediction: 0,
-        adjustment: 0,
-        sale: 0,
-        previousSale: 0
+        prediction: undefined,
+        adjustment: undefined,
+        sale: undefined,
+        previousSale: undefined
       }
 
       if (saleDict[date._id]) {
