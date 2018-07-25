@@ -23,20 +23,6 @@ module.exports = new Route({
       phone
     })
 
-    let defaultRole = await Role.findOne({isDefault: true})
-    if (!defaultRole) {
-      defaultRole = await Role.create({
-        name: 'Default',
-        slug: 'default',
-        description: 'Default role',
-        isDefault: true
-      })
-    }
-
-    user.role = defaultRole
-    user.accountOwner = true
-    await user.save()
-
     user.sendActivationEmail()
 
     const token = await user.createToken({
