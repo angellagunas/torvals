@@ -134,7 +134,7 @@ const task = new Task(
             'apiData': obj,
             'data': {
               'prediction': prediction,
-              'sale': obj[salesColumn.name] ? obj[salesColumn.name] : 0,
+              'sale': obj[salesColumn.name] ? obj[salesColumn.name] : undefined,
               'forecastDate': forecastDate,
               'semanaBimbo': obj.semana_bimbo,
               'adjustment': adjustment || prediction,
