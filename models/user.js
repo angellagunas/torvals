@@ -195,6 +195,9 @@ userSchema.statics.validateInvite = async function (email, token) {
   const userToken = await UserToken.findOne({'user': user._id, 'key': token, type: 'invite', 'validUntil': {$gte: moment.utc()}})
   assert(userToken, 401, 'Token inválido! Contacta al administrador de la página.')
 
+  user.isVerified = true
+  await user.save()
+
   return user
 }
 
