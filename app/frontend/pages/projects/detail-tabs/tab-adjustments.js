@@ -101,16 +101,24 @@ class TabAdjustment extends Component {
       try {
         let res = await api.get(url + this.props.project.activeDataset.uuid)
 
-        let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
+        let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
 
         if (currentRole !== 'manager-level-1') {
           cycles = cycles.map((item, key) => {
-            return item = { ...item, adjustmentRange: this.rules.rangesLvl2[key], name: moment.utc(item.dateStart).format('MMMM') }
+            return item = { 
+              ...item, 
+              adjustmentRange: this.rules.rangesLvl2[key], 
+              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+            }
           })
         }
         else {
           cycles = cycles.map((item, key) => {
-            return item = { ...item, adjustmentRange: this.rules.ranges[key], name: moment.utc(item.dateStart).format('MMMM') }
+            return item = { 
+              ...item, 
+              adjustmentRange: this.rules.ranges[key], 
+              name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+            }
           })
         }
         let formData = this.state.formData
@@ -1035,6 +1043,16 @@ class TabAdjustment extends Component {
           continue
         }
 
+        if(element.length === 1){
+          filters.push(
+            <div key={key} className='channel'>
+              <span className='is-capitalized'>{this.findName(key)}: </span>
+              <span className='has-text-weight-bold is-capitalized'>{element[0].name}
+              </span>
+            </div>
+          )
+        }
+        else{
         filters.push(
           <div key={key} className='column is-narrow'>
             <Select
@@ -1048,6 +1066,7 @@ class TabAdjustment extends Component {
             />
           </div>
         )
+      }
       }
     }
     return filters
