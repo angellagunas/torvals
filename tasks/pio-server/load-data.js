@@ -33,6 +33,7 @@ const task = new Task(async function (argv) {
 
   log.call('Load data.')
   let count = 0
+  let err = 0
   for (let row = await rows.next(); row != null; row = await rows.next()) {
     let group = 'group_date_sale'
     let properties = {
@@ -45,8 +46,13 @@ const task = new Task(async function (argv) {
         return String(element._id) === String(cat)
       })
 
-      group = group + '_' + info.catalog.slug
+      group = group + '_' + replaceAll(info.catalog.slug, '-', '_')
       properties[`${replaceAll(info.catalog.slug, '-', '_')}_id`] = info.externalId
+    }
+    // Validate if the length of the properties are consistent in each request.
+    if(Object.keys(properties).length !== forecast.catalogs.length + 2) {
+      err = err + 1
+      continue
     }
 
     const options = {
@@ -75,6 +81,7 @@ const task = new Task(async function (argv) {
   }
 
   log.call(`${count} events loaded.`)
+  log.call(`${err} rows with issues.`)
   return true
 })
 

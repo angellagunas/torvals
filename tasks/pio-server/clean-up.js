@@ -46,7 +46,7 @@ const task = new Task(async function (argv) {
 
   const spawnPio = await spawnSync(
     'pio',
-    ['app', 'delete', slugify(forecast.engine.name), '-f'],
+    ['app', 'delete', slugify(forecast.uuid), '-f'],
     { cwd: `/engines/${forecast.engine.path}` }
   )
 
