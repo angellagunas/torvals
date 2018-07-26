@@ -13,7 +13,6 @@ import Sidebar from '~components/sidebar'
 import AdminNavBar from '~components/admin-navbar'
 import { ToastContainer } from 'react-toastify'
 
-
 class AdminLayout extends Component {
   constructor (props) {
     super(props)
@@ -99,7 +98,19 @@ class AdminLayout extends Component {
     })
   }
 
+  openWizards() {
+    this.setState({
+      openWizards: this.state.openWizards === 'is-active' ? '' : 'is-active'
+    })
+  }
+
+  moveTo(route){
+    let url = window.location.protocol + route
+    window.location = url
+  }
+
   render () {
+    
     const mainClass = classNames('main-wrapper',{
       'sidenav-open': this.state.sidebarCollapsed
     })
@@ -119,7 +130,8 @@ class AdminLayout extends Component {
           <AdminNavBar
             handlePathChange={(p) => this.handlePathChange(p)}
             collapsed={this.state.sidebarCollapsed}
-            handleBurgerEvent={() => this.handleBurgerEvent()} />
+            handleBurgerEvent={() => this.handleBurgerEvent()}
+            openWizards={() => this.openWizards()} />
           
           
           {this.state.user.currentRole && this.state.user.currentRole.slug !== 'manager-level-1' &&
@@ -140,6 +152,96 @@ class AdminLayout extends Component {
               <ToastContainer />
             </section>
           </div>
+
+
+          <div className={'modal wizard-steps-modal ' + this.state.openWizards}>
+            <div className='modal-background' onClick={() => this.openWizards()}/>
+            <div className='modal-card'>
+              <header className='modal-card-head'>
+                <p className='modal-card-title'>Inicia con Orax</p>
+                <button className='delete' aria-label='close'></button>
+              </header>
+              <section className='modal-card-body'>
+                {!this.state.user.currentOrganization.wizardSteps.businessRules ?
+                  'Comienza con la configuración de reglas de negocio para crear un proyecto.'
+                  :
+                  'Continúa configurando los pasos restantes'
+                }
+                <p className={ 
+                this.state.user.currentOrganization.wizardSteps.businessRules ||
+                    this.state.user.currentOrganization.isConfigured ? 
+                    'wizard-step done has-20-margin-top' : 'wizard-step has-20-margin-top'
+                }>
+                <strong>Reglas de negocio </strong>
+                Deberás establecer tus ciclos y periodos de ajuste.
+                <span className='icon has-text-success'>
+                  <i className='fa fa-check fa-lg'/>
+                </span>
+                </p>
+
+                <p className={
+                  this.state.user.currentOrganization.wizardSteps.project ?
+                    'wizard-step done' : 
+                    this.state.user.currentOrganization.wizardSteps.businessRules ?
+                    'wizard-step' :
+                    'wizard-step disabled' 
+                  }
+                  onClick={() => {
+                    this.moveTo('/projects')
+                  }}
+                >
+                  <strong>Proyecto </strong>
+                  Crea un proyecto para generar predicciones.
+                <span className='icon has-text-success'>
+                    <i className='fa fa-check fa-lg' />
+                  </span>
+                </p>
+
+                <p className={
+                  this.state.user.currentOrganization.wizardSteps.forecast ?
+                    'wizard-step done' : 
+                    this.state.user.currentOrganization.wizardSteps.businessRules &&
+                    this.state.user.currentOrganization.wizardSteps.project ?
+                    'wizard-step' :
+                    'wizard-step disabled'
+                  }
+                  onClick={() => {
+                    this.moveTo('/forecast')
+                  }}
+                  >
+                  <strong>Predicción </strong>
+                  Realiza predicciones por proyecto.
+                <span className='icon has-text-success'>
+                    <i className='fa fa-check fa-lg' />
+                  </span>
+                </p>
+
+                <p className={
+                  this.state.user.currentOrganization.wizardSteps.users ?
+                    'wizard-step done' : 
+                    this.state.user.currentOrganization.wizardSteps.businessRules &&
+                    this.state.user.currentOrganization.wizardSteps.project ?
+                      'wizard-step' :
+                      'wizard-step disabled'
+                  }
+                  onClick={() => {
+                    this.moveTo('/manage/users-groups')
+                  }}
+                  >
+                  <strong>Usuarios </strong>
+                  Agrega, edita o elimina usuarios.
+                <span className='icon has-text-success'>
+                    <i className='fa fa-check fa-lg' />
+                  </span>
+                </p>
+                <br/>
+                <button className='button is-primary is-inverted is-pulled-right'
+                  onClick={() => this.openWizards()}>Omitir</button>
+
+              </section>    
+              
+            </div>
+            </div>
         </div>)
     } else {
       return (<div>

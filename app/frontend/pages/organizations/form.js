@@ -73,8 +73,8 @@ class CustomForm extends Component {
           </div>
         </div>
 
-        <div className='column is-4'>
-          <div className='card'>
+        <div className='column is-narrow'>
+          <div className='card org-card'>
             <div className='card-image'>
               <figure className='image is-1by1'>
                 <img src={profileImg} className='org-img' />
