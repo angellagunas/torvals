@@ -127,6 +127,10 @@ class NavBar extends Component {
         steps++
       }
     })
+    if (this.props.user.currentOrganization.isConfigured &&
+      !this.props.user.currentOrganization.wizardSteps.bussinesRules) {
+      steps--
+    }
     this.setState({
       steps: steps
     })

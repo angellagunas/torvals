@@ -12,6 +12,7 @@ import Loader from '~base/components/spinner'
 import Sidebar from '~components/sidebar'
 import AdminNavBar from '~components/admin-navbar'
 import { ToastContainer } from 'react-toastify'
+import { withRouter } from 'react-router'
 
 class AdminLayout extends Component {
   constructor (props) {
@@ -105,12 +106,11 @@ class AdminLayout extends Component {
   }
 
   moveTo(route){
-    let url = window.location.protocol + route
-    window.location = url
+    this.openWizards()
+    this.props.history.push(route)
   }
 
   render () {
-    
     const mainClass = classNames('main-wrapper',{
       'sidenav-open': this.state.sidebarCollapsed
     })
@@ -159,7 +159,7 @@ class AdminLayout extends Component {
             <div className='modal-card'>
               <header className='modal-card-head'>
                 <p className='modal-card-title'>Inicia con Orax</p>
-                <button className='delete' aria-label='close'></button>
+                <button className='delete' aria-label='close' onClick={() => this.openWizards()}></button>
               </header>
               <section className='modal-card-body'>
                 {!this.state.user.currentOrganization.wizardSteps.businessRules ?
@@ -182,7 +182,8 @@ class AdminLayout extends Component {
                 <p className={
                   this.state.user.currentOrganization.wizardSteps.project ?
                     'wizard-step done' : 
-                    this.state.user.currentOrganization.wizardSteps.businessRules ?
+                    this.state.user.currentOrganization.wizardSteps.businessRules ||
+                      this.state.user.currentOrganization.isConfigured  ?
                     'wizard-step' :
                     'wizard-step disabled' 
                   }
@@ -200,7 +201,8 @@ class AdminLayout extends Component {
                 <p className={
                   this.state.user.currentOrganization.wizardSteps.forecast ?
                     'wizard-step done' : 
-                    this.state.user.currentOrganization.wizardSteps.businessRules &&
+                    this.state.user.currentOrganization.wizardSteps.businessRules ||
+                      this.state.user.currentOrganization.isConfigured &&
                     this.state.user.currentOrganization.wizardSteps.project ?
                     'wizard-step' :
                     'wizard-step disabled'
@@ -219,7 +221,8 @@ class AdminLayout extends Component {
                 <p className={
                   this.state.user.currentOrganization.wizardSteps.users ?
                     'wizard-step done' : 
-                    this.state.user.currentOrganization.wizardSteps.businessRules &&
+                    this.state.user.currentOrganization.wizardSteps.businessRules ||
+                      this.state.user.currentOrganization.isConfigured &&
                     this.state.user.currentOrganization.wizardSteps.project ?
                       'wizard-step' :
                       'wizard-step disabled'
@@ -251,4 +254,4 @@ class AdminLayout extends Component {
   }
 }
 
-export default root(tree, AdminLayout)
+export default withRouter(root(tree, AdminLayout))

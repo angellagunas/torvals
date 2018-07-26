@@ -178,7 +178,7 @@ class CreateModal extends Component {
 
       let res = await api.post(url, {
         step: {
-          name: 'project',
+          name: 'forecast',
           value: true
         }
       })
