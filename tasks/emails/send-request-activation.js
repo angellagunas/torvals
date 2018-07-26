@@ -13,11 +13,13 @@ const task = new Task(async function (argv) {
   } = argv
 
   const mailer = new Mailer('request-org-activation')
+
   await mailer.format({
     name,
     email,
     organization
   })
+
   await mailer.send({
     recipient: {
       email,
@@ -26,7 +28,7 @@ const task = new Task(async function (argv) {
     title: 'Confirmación de requerimiento de activación recibido.'
   })
 
-  console.log('Request Activation Notifiaction Email Sent =>', email, uuid)
+  console.log('Request Activation Notification Email Sent =>', email, uuid)
 })
 
 if (require.main === module) {
