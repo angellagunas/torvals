@@ -181,10 +181,10 @@ class LandPage extends Component {
               <div className='columns'>
                 <div className='column pos-rel'>
                   <h1 className='title'>
-                    Large title
+                    Decisiones inteligentes
                   </h1>
                   <h2 className='subtitle'>
-                    Large subtitle
+                    A partir de predicciones
                   </h2>
                   <RegisterModal buttonClass='is-medium' />
                   <img className='landing-right-img is-hidden-mobile' src='/app/public/img/dash.jpg' />
@@ -202,10 +202,12 @@ class LandPage extends Component {
               <div className='columns'>
                 <div className='column is-6'>
                   <h1 className='title'>
-                    Large title
+                    ¿Qué es Orax?
                   </h1>
                   <h2 className='subtitle'>
-                    Large subtitle
+                    Orax es una herramienta moderna que con base en información histórica,
+                    predice la demanda para guiarnos a través de la incertidumbre, ayudándonos
+                    a tomar mejores decisiones empresariales y a responder de maner más ágil.
                   </h2>
                 </div>
                 <div className='column'>
@@ -213,19 +215,19 @@ class LandPage extends Component {
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Manejo de información en tiempo real.
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Predicción confiable de ventas o producción.
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Ajustes entre predicciones, existencias o pedidos.
                   </p>
                 </div>
               </div>

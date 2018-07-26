@@ -21,18 +21,16 @@ class Contact extends Component {
                     <div className='field'>
                       <label className='label'>Nombre</label>
                       <div className='control'>
-                        <input className='input' type='text' placeholder='Text input' />
+                        <input className='input' type='text' placeholder='Josué' />
                       </div>
-                      <p className='help'>This is a help text</p>
                     </div>
                   </div>
                   <div className='column'>
                     <div className='field'>
                       <label className='label'>Apellido</label>
                       <div className='control'>
-                        <input className='input' type='text' placeholder='Text input' />
+                        <input className='input' type='text' placeholder='Monroy' />
                       </div>
-                      <p className='help'>This is a help text</p>
                     </div>
                   </div>
                 </div>
@@ -42,9 +40,8 @@ class Contact extends Component {
                     <div className='field'>
                       <label className='label'>Empresa u Organización</label>
                       <div className='control'>
-                        <input className='input' type='text' placeholder='Text input' />
+                        <input className='input' type='text' placeholder='Grupo Monroy' />
                       </div>
-                      <p className='help'>This is a help text</p>
                     </div>
                   </div>
                 </div>
@@ -54,18 +51,16 @@ class Contact extends Component {
                     <div className='field'>
                       <label className='label'>Número de empleados</label>
                       <div className='control'>
-                        <input className='input' type='text' placeholder='Text input' />
+                        <input className='input' type='text' placeholder='50' />
                       </div>
-                      <p className='help'>This is a help text</p>
                     </div>
                   </div>
                   <div className='column'>
                     <div className='field'>
                       <label className='label'>País</label>
                       <div className='control'>
-                        <input className='input' type='text' placeholder='Text input' />
+                        <input className='input' type='text' placeholder='México' />
                       </div>
-                      <p className='help'>This is a help text</p>
                     </div>
                   </div>
                 </div>

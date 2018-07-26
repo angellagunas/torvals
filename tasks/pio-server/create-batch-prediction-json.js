@@ -7,6 +7,7 @@ const Logger = require('lib/utils/logger')
 const moment = require('moment')
 const path = require('path')
 const Task = require('lib/task')
+const replaceAll = require('underscore.string/replaceAll')
 const { spawnSync } = require('child_process')
 const { Catalog, CatalogItem, Forecast } = require('models')
 
@@ -16,24 +17,32 @@ const task = new Task(async function (argv) {
   log.call('Get forecast/engine data.')
   const forecast = await Forecast.findOne({ uuid: argv.forecast })
     .populate('engine')
+    .populate('dataset')
+    .populate('project')
     .populate('forecastGroup')
   if (!forecast || !forecast.engine) {
     throw new Error('Invalid forecast.')
   }
-  await forecast.forecastGroup.populate('project').execPopulate()
+  // await forecast.dataset.populate('catalogItems').execPopulate()
+  //
+  let catalogItemsIds = forecast.dataset.catalogItems
+  catalogItemsIds = catalogItemsIds.concat(forecast.dataset.newProducts)
 
   const catalogItems = await CatalogItem.aggregate([{
     $match: {
       isDeleted: false,
-      organization: forecast.forecastGroup.project.organization,
+      organization: forecast.project.organization,
       catalog: {
         $in: forecast.catalogs
+      },
+      _id: {
+        $in: catalogItemsIds
       }
     }
   }, {
     $group: {
       _id: '$catalog',
-      result: { $push: "$externalId" }
+      result: { $push: '$externalId' }
     }
   }])
 
@@ -53,7 +62,7 @@ const task = new Task(async function (argv) {
     let result = {}
     for (let pos of item) {
       const catalogName = catalogs.find(catalog => catalog._id.toString() === catalogItems[item.indexOf(pos)]._id.toString())
-      result[catalogName.slug] = pos
+      result[`${replaceAll(catalogName.slug, '-', '_')}_id`] = parseInt(pos)
     }
     return result
   })
@@ -67,7 +76,7 @@ const task = new Task(async function (argv) {
   for (let date of dates) {
     for (let item of catalogItemsNames) {
       rows.push({
-        'fecha': date,
+        'date': date,
         ...item
       })
     }
@@ -79,16 +88,21 @@ const task = new Task(async function (argv) {
     log.call('Folder already exists')
   })
   const filePath = path.join(tmpdir, `${forecast.uuid}.json`)
+  const outputFilePath = path.join(tmpdir, `${forecast.uuid}-output.json`)
   const writerStream = fs.createWriteStream(filePath)
   for (let row of rows) {
     const json = JSON.stringify(row)
     writerStream.write(`${json}\n`)
   }
 
+  await new Promise((resolve, reject) => {
+    writerStream.end(() => { resolve() })
+  })
+
   log.call('Send file to PIO.')
   const spawnPio = spawnSync(
     'pio',
-    ['batchpredict', '--input', filePath, '--output', filePath],
+    ['batchpredict', '--input', filePath, '--output', outputFilePath],
     { cwd: `/engines/${forecast.engine.path}` }
   )
 

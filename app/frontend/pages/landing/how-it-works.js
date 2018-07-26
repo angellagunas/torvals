@@ -131,7 +131,7 @@ class HowItWorks extends Component {
           <div className='hero-body'>
             <div className='container'>
               <h1 className='title has-text-white'>
-                Large title
+                Características
               </h1>
               <div className='columns'>
                 <div className='column is-5'>
@@ -140,19 +140,19 @@ class HowItWorks extends Component {
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Inteligencia artificial y machine learning.
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                     Optimización de modelos de predicción y operaciones.
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Flexibilidad y adaptabilidad a las reglas y necesidades.
                   </p>
                 </div>
                 <div className='column is-5 is-offset-1'>
@@ -161,19 +161,19 @@ class HowItWorks extends Component {
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Gestión de usuarios y roles.
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Evaluación y monitoreo de la información.
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Visualización intuitiva para un análisis completo del negocio.
                   </p>
                 </div>
               </div>
@@ -198,28 +198,28 @@ class HowItWorks extends Component {
                 </div>
                 <div className='column is-5 is-offset-1'>
                   <h1 className='title'>
-                    Large title
+                    Beneficios
                   </h1>
                   <h2 className='subtitle'>
-                    Large subtitle
+                  &nbsp;
                   </h2>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Minimiza el desperdicio/devoluciones y asegura el abasto.
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Planeación más precisa.
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Incrementa la productividad de las personas
                   </p>
                 </div>
               </div>
@@ -227,28 +227,28 @@ class HowItWorks extends Component {
               <div className='columns'>
                 <div className='column is-5'>
                   <h1 className='title'>
-                    Large title
+                    Valor agregado
                   </h1>
                   <h2 className='subtitle'>
-                    Large subtitle
+                    &nbsp;
                   </h2>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Información centralizada en tiempo real.
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Flexibilidad y adaptabilidad a las reglas de negocio.
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Item list
+                    Control de usuarios.
                   </p>
                 </div>
 
@@ -267,10 +267,10 @@ class HowItWorks extends Component {
               <div className='columns'>
                 <div className='column'>
                   <h1 className='title'>
-                    Large title
+                    Pay- as you go.
                   </h1>
                   <h2 className='subtitle'>
-                    Large subtitle
+                    Orax se ajusta a tus necesidades.
                   </h2>
                 </div>
 

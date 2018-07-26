@@ -36,6 +36,7 @@ const userSchema = new Schema({
   accountOwner: { type: Boolean, default: false },
   language: { type: String, default: 'ES' },
   job: { type: String },
+  phone: { type: String },
   isVerified: { type: Boolean, default: false },
 
   isDeleted: { type: Boolean, default: false },
@@ -87,6 +88,7 @@ userSchema.methods.toPublic = function () {
     accountOwner: this.accountOwner,
     language: this.language,
     job: this.job,
+    phone: this.phone,
     isVerified: this.isVerified
   }
 }
@@ -106,6 +108,7 @@ userSchema.methods.toAdmin = function () {
     accountOwner: this.accountOwner,
     language: this.language,
     job: this.job,
+    phone: this.phone,
     isVerified: this.isVerified
   }
 
@@ -146,7 +149,7 @@ userSchema.statics.auth = async function (email, password) {
     email: userEmail,
     isDeleted: false
   }).populate('organizations.organization')
-  assert(user, 401, 'Invalid email/password')
+  assert(user, 401, 'Email/Password inválidos')
 
   const isValid = await new Promise((resolve, reject) => {
     bcrypt.compare(password, user.password, (err, compared) =>
@@ -154,7 +157,7 @@ userSchema.statics.auth = async function (email, password) {
     )
   })
 
-  assert(isValid, 401, 'Invalid email/password')
+  assert(isValid, 401, 'Email/Password inválidos')
 
   return user
 }
@@ -163,9 +166,8 @@ userSchema.statics.register = async function (options) {
   const {email} = options
 
   const emailTaken = await this.findOne({ email })
-  assert(!emailTaken, 401, 'Email already in use')
+  assert(!emailTaken, 401, 'El email ya esta en uso.')
 
-  // create in mongoose
   const createdUser = await this.create(options)
 
   return createdUser
@@ -192,6 +194,9 @@ userSchema.statics.validateInvite = async function (email, token) {
   assert(user, 401, '¡Usuario inválido! Contacta al administrador de la página.')
   const userToken = await UserToken.findOne({'user': user._id, 'key': token, type: 'invite', 'validUntil': {$gte: moment.utc()}})
   assert(userToken, 401, 'Token inválido! Contacta al administrador de la página.')
+
+  user.isVerified = true
+  await user.save()
 
   return user
 }

@@ -4,7 +4,9 @@ require('lib/databases/mongo')
 
 const Logger = require('lib/utils/logger')
 const request = require('lib/request')
+const moment = require('moment')
 const Task = require('lib/task')
+const replaceAll = require('underscore.string/replaceAll')
 const { CatalogItem, DataSetRow, Forecast } = require('models')
 
 const task = new Task(async function (argv) {
@@ -24,19 +26,20 @@ const task = new Task(async function (argv) {
   const rows = await DataSetRow.find({
     dataset: forecast.project.mainDataset
     // cycle: { '$in': forecast.cycles }
-  }).populate('newProduct').limit(10000).cursor()
+  }).populate('newProduct').cursor()
 
   const catalogItems = await CatalogItem.find({
     organization: forecast.project.organization
   }).populate('catalog')
 
   log.call('Load data.')
+  let count = 0
   for (let row = await rows.next(); row != null; row = await rows.next()) {
-    let group = 'group_fecha_producto'
+    let group = 'group_date_sale'
     let properties = {
-      fecha: row.data.forecastDate,
-      producto_id: row.newProduct.externalId,
-      venta_uni: row.data.sale
+      date: moment.utc(row.data.forecastDate).format('YYYY-MM-DD'),
+      sale: row.data.sale,
+      product_id: row.newProduct.externalId,
     }
     for (let cat of row.catalogItems) {
       const info = catalogItems.find((element) => {
@@ -44,11 +47,11 @@ const task = new Task(async function (argv) {
       })
 
       group = group + '_' + info.catalog.slug
-      properties[`${info.catalog.slug}_id`] = info.externalId
+      properties[`${replaceAll(info.catalog.slug, '-', '_')}_id`] = info.externalId
     }
 
     const options = {
-      url: `http://localhost:7070/events.json?accessKey=${forecast.instanceKey}`,
+      url: `http://pio:7070/events.json?accessKey=${forecast.instanceKey}`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -63,16 +66,16 @@ const task = new Task(async function (argv) {
       json: true,
       persist: true
     }
-
+    count = count + 1
     try {
       const res = await request(options)
-      // log.call(res)
     } catch (e) {
-      // console.log(e)
+      console.log(e)
       log.call('There was an error creating the event.')
     }
   }
 
+  log.call(`${count} events loaded.`)
   return true
 })
 
