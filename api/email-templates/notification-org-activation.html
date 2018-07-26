@@ -1,0 +1,12 @@
+{% extends "./layout.html" %}
+
+{% block content %}
+    <tr>
+      <td colSpan="2" class="body">
+        <p class="main">Se ha hecho una petición de activación para la organización {{organization}} y poder acceder a Orax</p>
+        <p>El contacto es: </p>
+        <p>Nombre: {{owner.name}}</p>
+        <p>email: {{owner.email}}</p>
+      </td>
+    </tr>
+{% endblock %}
