@@ -24,7 +24,7 @@ const task = new Task(async function (argv) {
     { cwd: `/engines/${forecast.engine.path}` }
   )
 
-  log.call(spawnPio.output)
+  // log.call(spawnPio.output)
   log.call(spawnPio.stdout)
   log.call(spawnPio.signal)
 

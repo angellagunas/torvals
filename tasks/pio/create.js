@@ -16,6 +16,7 @@ const engineTrain = require('tasks/pio-server/engine-train')
 const engineDeploy = require('tasks/pio-server/engine-deploy')
 const createBatch = require('tasks/pio-server/create-batch-prediction-json')
 const getBatch = require('tasks/pio-server/get-batch-prediction')
+const cleanUp = require('tasks/pio-server/clean-up')
 
 const sendSlackNotificacion = require('tasks/slack/send-message-to-channel')
 
@@ -135,16 +136,19 @@ const task = new Task(async function (argv) {
     forecast: forecast.uuid
   })
 
+  // DEPLOY ENGINE
   log.call('Deploying the engine...')
-  await engineDeploy.run({
+  let deploy = await engineDeploy.run({
     forecast: forecast.uuid
   })
 
+  // CREATE JSON FOR BATCH PREDICT
   log.call('Creating json for batch predict...')
   await createBatch.run({
     forecast: forecast.uuid
   })
 
+  // SAVE PREDICTIONS
   log.call('Reading and saving predictions...')
   await getBatch.run({
     forecast: forecast.uuid
@@ -190,6 +194,13 @@ const task = new Task(async function (argv) {
   } catch (e) {
     log.call(`Error sending email: ${e}`)
   }
+
+  // CLEAN UP
+  log.call('Cleaning up...')
+  await cleanUp.run({
+    forecast: forecast.uuid,
+    deploy: deploy
+  })
 
   log.call(`End ==>  ${moment().format()}`)
 

@@ -25,7 +25,7 @@ const task = new Task(async function (argv) {
   }
 
   const tmpdir = path.resolve('.', 'media', 'jsons')
-  const filePath = path.join(tmpdir, `${forecast.uuid}-result.json`)
+  const filePath = path.join(tmpdir, `${forecast.uuid}-output.json`)
   fs.mkdir(filePath, (err) => {
     console.log(err)
     log.call('Folder already exists')

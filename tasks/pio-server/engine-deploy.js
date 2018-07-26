@@ -4,7 +4,7 @@ require('lib/databases/mongo')
 
 const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
-const { spawnSync, spawn } = require('child_process')
+const { spawn } = require('child_process')
 const { Forecast } = require('models')
 
 const task = new Task(async function (argv) {
@@ -28,18 +28,21 @@ const task = new Task(async function (argv) {
     }
   )
 
-  log.call(spawnPio.output)
+  // log.call(spawnPio.output)
   log.call(spawnPio.stdout)
   log.call(spawnPio.signal)
 
   log.call(spawnPio.status)
-  if (spawnPio.status !== 0) {
-    log.call(spawnPio.stderr)
-    log.call(spawnPio.error)
-    return false
-  }
+  // if (spawnPio.status !== 0) {
+  //   log.call(spawnPio.stderr)
+  //   log.call(spawnPio.error)
+  //   return false
+  // }
 
-  return true
+  // console.log(spawnPio)
+  // console.log(spawnPio.kill())
+
+  return spawnPio
 })
 
 if (require.main === module) {

@@ -5,6 +5,7 @@ require('lib/databases/mongo')
 const Logger = require('lib/utils/logger')
 const slugify = require('underscore.string/slugify')
 const Task = require('lib/task')
+const path = require('path')
 const { spawnSync } = require('child_process')
 const { Forecast } = require('models')
 
@@ -18,32 +19,42 @@ const task = new Task(async function (argv) {
     throw new Error('Invalid forecast.')
   }
 
-  log.call('Create new app.')
+  if (!argv.deploy) {
+    throw new Error('No app to stop')
+  }
 
-  const spawnPio = spawnSync(
+  log.call('Stopping deploy...')
+
+  argv.deploy.kill()
+
+  log.call('Clean up JSON')
+  const tmpdir = path.resolve('.', 'media', 'jsons')
+  const filePath = path.join(tmpdir, `${forecast.uuid}.json`)
+  const outputFilePath = path.join(tmpdir, `${forecast.uuid}-output.json`)
+
+  await spawnSync(
+    'rm',
+    ['-rf', filePath]
+  )
+
+  await spawnSync(
+    'rm',
+    ['-rf', outputFilePath]
+  )
+
+  log.call('Clean up PIO app')
+
+  const spawnPio = await spawnSync(
     'pio',
-    ['app', 'new', forecast.uuid, '--access-key', forecast.instanceKey],
+    ['app', 'delete', slugify(forecast.uuid), '-f'],
     { cwd: `/engines/${forecast.engine.path}` }
   )
 
-  // log.call(spawnPio.output)
   log.call(spawnPio.stdout)
   log.call(spawnPio.signal)
 
   log.call(spawnPio.status)
-  if (spawnPio.status !== 0) {
-    log.call(spawnPio.stderr)
-    log.call(spawnPio.error)
-    forecast.set({
-      status: 'error'
-    })
-    await forecast.save()
 
-    log.call('New app saved with errors.')
-    return false
-  }
-
-  log.call('New app created successful')
   return true
 })
 
