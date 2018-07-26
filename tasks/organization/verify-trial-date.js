@@ -10,21 +10,19 @@ const task = new Task(async function (argv) {
   console.log('Running task =>', argv)
   const currentDate = moment.utc()
 
-  const trialOrganizations = await Organization.count({
+  const trialOrganizations = await Organization.find({
     status: 'trial',
     trialEnd: {$lte: currentDate}
   })
 
-  console.log('Organizations with a completed trial period =>', trialOrganizations)
+  console.log('Organizations with a completed trial period =>', trialOrganizations.length)
 
-  await Organization.update(
-    {
-      status: 'trial',
-      trialEnd: {$lte: currentDate}
-    },
-    {status: 'inactive'},
-    {multi: true}
-  )
+  for (let org of trialOrganizations) {
+    const {user} = await org.endTrialPeriod()
+    console.log('********')
+    console.log(' Organization: ' + org.name)
+    console.log(' Owner: ' + user.name)
+  }
 })
 
 if (require.main === module) {
