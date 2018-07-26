@@ -453,7 +453,8 @@ class ForecastDetail extends Component {
 
   hideShareModal () {
     this.setState({
-      shareModal: ''
+      shareModal: '',
+      usersEmails: []
     })
   }
 
@@ -470,7 +471,8 @@ class ForecastDetail extends Component {
 
       if (res) {
         this.setState({
-          sharing: ''
+          sharing: '',
+          usersEmails: []
         })
         await this.hideShareModal()
       }
@@ -510,7 +512,7 @@ class ForecastDetail extends Component {
         })
       })
     }
-
+    
     return (
       <div className='forecast-detail'>
         <div className='section-header'>
