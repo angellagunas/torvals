@@ -20,6 +20,7 @@ const task = new Task(async function (argv) {
       organization: organization.name,
       owner: owner
     })
+
     await mailer.send({
       recipient: {
         email: admin.email,
@@ -28,7 +29,7 @@ const task = new Task(async function (argv) {
       title: 'Notificación de requerimiento de activación de organización en Orax.'
     })
 
-    console.log('Activation Admin Notifiaction Email Sent =>', admin.email)
+    console.log('Activation Admin Notification Email Sent =>', admin.email)
   }
 })
 

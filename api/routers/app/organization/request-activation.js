@@ -18,8 +18,14 @@ module.exports = new Route({
     const owner = await User.findOne({'organizations.organization': org._id, accountOwner: true})
     ctx.assert(owner, 400, 'La organización no cuenta con un dueño.')
 
+    org.set({
+      status: 'activationPending'
+    })
+
+    await org.save()
+
     await sendRequestActivation.run({
-      uuid: owner.uuid,
+      uuid: org.uuid,
       name: owner.name,
       email: owner.email,
       organization: org.name
