@@ -173,7 +173,7 @@ class AdminLayout extends Component {
                     'wizard-step done has-20-margin-top' : 'wizard-step has-20-margin-top'
                 }>
                 <strong>Reglas de negocio </strong>
-                Deberás establecer tus ciclos y periodos de ajuste.
+                Establece tus ciclos y periodos de ajuste.
                 <span className='icon has-text-success'>
                   <i className='fa fa-check fa-lg'/>
                 </span>

@@ -509,6 +509,21 @@ h2 {
   margin-top: 5rem;
 }
 
+.privacy{
+  ul{
+    margin-left: 2rem;
+    li{
+      list-style: initial;
+    }
+  }
+  ol{
+    margin-left: 2rem;
+  }
+  p{
+    margin: 1.5rem 0;
+  }
+}
+
 @import 'wizard';
 @import 'forecast';
 /* @import 'base'; */

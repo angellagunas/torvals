@@ -128,7 +128,7 @@ class NavBar extends Component {
       }
     })
     if (this.props.user.currentOrganization.isConfigured &&
-      !this.props.user.currentOrganization.wizardSteps.bussinesRules) {
+      !this.props.user.currentOrganization.wizardSteps.businessRules) {
       steps--
     }
     this.setState({
