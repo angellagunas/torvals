@@ -3,7 +3,7 @@ import StickTable from '~base/components/stick-table'
 import Checkbox from '~base/components/base-checkbox'
 import Loader from '~base/components/spinner'
 import classNames from 'classnames'
-
+import moment from 'moment'
 
 class WeekTable extends Component {
   constructor(props){
@@ -224,10 +224,22 @@ class WeekTable extends Component {
 
     for (let j = 0; j < periods.length; j++){
       let period = periods[j].period
+      let title = ' '
+      let classP = ''
+      if (moment.utc(periods[j].products[0].period.dateStart).format('MMM D') === 
+          moment.utc(periods[j].products[0].period.dateEnd).format('MMM D')){
+          title += moment.utc(periods[j].products[0].period.dateStart).format('MMM D')
+          classP = 'single'
+        }
+        else{
+        title += moment.utc(periods[j].products[0].period.dateStart).format('MMM D')
+          + ' - ' + moment.utc(periods[j].products[0].period.dateEnd).format('MMM D')
+        }
       cols.push(
         {
-          group: <strong>{this.splitWords('Periodo ' + period
-          + '_Ajuste permitido ' + this.state.range)}</strong>,
+          group: <strong className={classP}>{this.splitWords('Periodo '   
+          + title
+            + '_Ajuste permitido ')}<span className='has-text-info'>{this.state.range}</span></strong>,
           title: 'Predicción',
           property: 'prediction_' + j,
           default: '',

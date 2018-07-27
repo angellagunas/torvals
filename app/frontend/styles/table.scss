@@ -100,10 +100,11 @@
   overflow: visible;
   text-align: center;
   p {
-    margin-left: 170%;
+    margin-left: 120%;
   }
   p:last-of-type {
-    margin-left: 125%;
+    margin-left: 120%;
+    font-size: .75rem;
   }
 }
 
@@ -487,7 +488,17 @@ th {
   }
 }
 
-.modal .modal-card .modal-card-body .table .button{
-    width: auto;
-    height: auto;
+.modal .modal-card .modal-card-body .table .button {
+  width: auto;
+  height: auto;
+}
+
+.single {
+  p {
+    margin-left: 140%;
+  }
+  p:last-of-type {
+    margin-left: 125%;
+    font-size: .75rem;
+  }
 }
