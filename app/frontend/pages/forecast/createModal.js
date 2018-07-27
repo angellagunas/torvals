@@ -459,7 +459,7 @@ class CreateModal extends Component {
                         label={
                           <span>
                             <p className='title is-6 is-capitalized'>{item.name}</p>
-                            <p className='subtitle is-6 tooltip'
+                            <p className='subtitle is-6 tooltip is-tooltip-multiline'
                               data-tooltip={item.description || 'Sin descripción'}>{item.description || 'Sin descripción'}</p>
                           </span>
                         }
