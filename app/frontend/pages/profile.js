@@ -8,6 +8,7 @@ import UpdatePasswordForm from '~base/components/update-password'
 import UpdateProfileForm from '~base/components/update-profile'
 import TokensList from '~base/components/token-list'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import { FormattedMessage } from 'react-intl'
 
 class Profile extends Component {
   render () {
@@ -49,7 +50,12 @@ class Profile extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <div className='card-header-title'>
-                    Detalles
+
+                    <FormattedMessage
+                      id="Profile.form1Title"
+                      defaultMessage={`Detalles`}
+                    />
+
                   </div>
                 </header>
                 <div className='card-content'>
@@ -62,9 +68,14 @@ class Profile extends Component {
             <div className='column is-half'>
               <div className='card update-pass'>
                 <header className='card-header'>
-                  <p className='card-header-title'>
-                  Cambiar contraseña
-                </p>
+                  <div className='card-header-title'>
+
+                    <FormattedMessage
+                      id="Profile.form2Title"
+                      defaultMessage={`Cambiar contraseña`}
+                    />
+
+                  </div>
                 </header>
                 <div className='card-content'>
                   <div className='content'>

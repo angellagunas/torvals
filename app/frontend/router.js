@@ -51,9 +51,9 @@ import es from 'react-intl/locale-data/es'
 
 addLocaleData([...en, ...es])
 
-const language = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage
+const lang = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage
 
-const languageWithoutRegionCode = language.toLowerCase().split(/[_-]+/)[0]
+const language = lang.toLowerCase().split(/[_-]+/)[0] || 'es'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -66,7 +66,7 @@ class AppRouter extends Component {
   render () {
     return (
       <Router>
-        <IntlProvider locale={language || 'es'}>
+        <IntlProvider locale={language}>
           <AdminLayout>
             <div>
               <Switch>
