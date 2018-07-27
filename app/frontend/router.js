@@ -8,12 +8,13 @@ import {
 import { IntlProvider, addLocaleData } from 'react-intl'
 
 import AdminLayout from '~components/admin-layout'
-import LandPage from './pages/land-page'
+import LandPage from './pages//landing/land-page'
 import Dashboard from './pages/dashboard'
 import Profile from './pages/profile'
 import OrganizationDetail from './pages/organizations/detail'
 import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
+import EmailActivateLanding from './pages/emails/activate'
 import ResetPassword from './pages/reset-password'
 import DataSets from './pages/datasets/list'
 import ReadyDataSets from './pages/datasets/list-ready'
@@ -45,6 +46,7 @@ import Roles from './pages/roles/list'
 import Forecast from './pages/forecast/forecast'
 import ForecastDetail from './pages/forecast/detail'
 import ForecastCompare from './pages/forecast/compare'
+import HowItWorks from './pages/landing/how-it-works'
 
 import en from 'react-intl/locale-data/en'
 import es from 'react-intl/locale-data/es'
@@ -74,6 +76,7 @@ class AppRouter extends Component {
                 {ResetPassword.asRouterItem()}
                 {EmailResetLanding.asRouterItem()}
                 {EmailInviteLanding.asRouterItem()}
+                {EmailActivateLanding.asRouterItem()}
                 {Dashboard.asRouterItem()}
                 {Profile.asRouterItem()}
 
@@ -117,6 +120,8 @@ class AppRouter extends Component {
                 {Forecast.asRouterItem()}
                 {ForecastDetail.asRouterItem()}
                 {ForecastCompare.asRouterItem()}
+
+                {HowItWorks.asRouterItem()}
 
                 <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 

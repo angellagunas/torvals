@@ -7,10 +7,13 @@ module.exports = new Route({
   validator: lov.object().keys({
     email: lov.string().email().required(),
     name: lov.string().required(),
-    uuid: lov.string()
+    job: lov.string(),
+    language: lov.string(),
+    phone: lov.string()
   }),
   handler: async function (ctx) {
     const user = ctx.state.user
+    const data = ctx.request.body
 
     var file = ctx.request.body.profile
 
@@ -22,7 +25,13 @@ module.exports = new Route({
       return ctx.throw(403)
     }
 
-    user.set(ctx.request.body)
+    user.set({
+      email: data.email,
+      name: data.name,
+      job: data.job,
+      language: data.language,
+      phone: data.phone
+    })
     await user.save()
 
     ctx.body = {

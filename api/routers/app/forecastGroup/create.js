@@ -26,15 +26,23 @@ module.exports = new Route({
     let data = ctx.request.body
     let user = ctx.state.user
 
-    let project = await Project.findOne({uuid: data.project}).populate('mainDataset rule')
+    let project = await Project.findOne({uuid: data.project})
+      .populate('mainDataset rule organization')
     ctx.assert(project, 404, 'Proyecto no encontrado')
+
+    if (!project.mainDataset) {
+      ctx.throw(422, 'El proyecto no tiene un dataset principal')
+    }
+
+    if ((data.engines && data.engines.length < 1) || (!data.engines)) {
+      ctx.throw(422, 'Debes seleccionar por lo menos un modelo de predicciones')
+    }
 
     let catalogs
     let cycles
     if (data.type === 'compatible') {
       catalogs = {data: project.rule.catalogs}
 
-      // cycles = await Cycle.getCurrent(project.organization, project.rule._id)
       cycles = project.rule.cyclesAvailable
       let cyclesAvailable = await Cycle.getAvailable(
         project.organization._id,
@@ -75,7 +83,10 @@ module.exports = new Route({
           cycles
         )
       }
-      cycles.data = cyclesAvailable.map(item => { return item._id })
+      cycles = {
+        data: cyclesAvailable,
+        ids: cyclesAvailable.map(item => { return item._id })
+      }
     } else {
       catalogs = await Catalog.find({uuid: {$in: data.catalogs}})
       catalogs.data = catalogs.map(item => {
@@ -83,10 +94,15 @@ module.exports = new Route({
       })
 
       cycles = await Cycle.getBetweenDates(project.organization, project.rule._id, data.dateStart, data.dateEnd)
-      cycles.data = cycles.map(item => {
-        return item._id
-      })
+      cycles = {
+        data: cycles,
+        ids: cycles.map(item => { return item._id })
+      }
     }
+
+    let cyclesSorted = cycles.data.sort((a, b) => {
+      return moment.utc(a.startDate, 'YYYY-MM-DD').isBefore(moment.utc(b.startDate))
+    })
 
     let periods = await Period.find({cycle: {$in: cycles.data}})
 
@@ -99,7 +115,7 @@ module.exports = new Route({
       project: project._id,
       alias: data.alias,
       catalogs: catalogs.data,
-      cycles: cycles.data,
+      cycles: cycles.ids,
       engines: engines.data,
       createdBy: user._id,
       type: data.type
@@ -111,15 +127,15 @@ module.exports = new Route({
         organization: project.organization,
         project: project._id,
         createdBy: ctx.state.user,
-        dateMax: data.dateStart,
-        dateMin: data.dateEnd,
+        dateMax: moment.utc(cyclesSorted[cyclesSorted.length - 1].dateEnd).format('YYYY-MM-DD'),
+        dateMin: moment.utc(cyclesSorted[0].dateStart).format('YYYY-MM-DD'),
         status: 'new',
         source: 'forecast',
         columns: project.mainDataset.columns,
         products: project.mainDataset.products,
         newProducts: project.mainDataset.newProducts,
         catalogItems: project.mainDataset.catalogItems,
-        cycles: cycles.data,
+        cycles: cycles.ids,
         periods: periods,
         rule: project.rule._id
       })
@@ -129,14 +145,12 @@ module.exports = new Route({
         engine: engine,
         project: project,
         forecastGroup: forecastGroup._id,
-        dateEnd: data.dateEnd,
-        dateStart: data.dateStart,
+        dateEnd: moment.utc(cyclesSorted[cyclesSorted.length - 1].dateEnd),
+        dateStart: moment.utc(cyclesSorted[0].dateStart),
         dataset: dataset._id,
-        cycles: cycles.data,
+        cycles: cycles.ids,
         instanceKey: v4()
       })
-      console.log(engine)
-      console.log(forecast)
 
       generateForecast.add({uuid: forecast.uuid})
       forecastGroup.forecasts.push(forecast._id)

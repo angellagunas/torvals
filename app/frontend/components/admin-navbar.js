@@ -145,7 +145,7 @@ class NavBar extends Component {
           <div className='navbar-menu'>
             <div className='navbar-start'>
               {
-                this.props.user.currentRole.slug !== 'manager-level-1' &&
+                this.props.user.currentRole && this.props.user.currentRole.slug !== 'manager-level-1' &&
                 <div className='navbar-start'>
                   <div className='navbar-burger burger-desktop' onClick={this.props.handleBurgerEvent}>
                     <span />

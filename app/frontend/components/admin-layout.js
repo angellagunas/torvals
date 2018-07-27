@@ -122,7 +122,7 @@ class AdminLayout extends Component {
             handleBurgerEvent={() => this.handleBurgerEvent()} />
           
           
-          { this.state.user.currentRole.slug !== 'manager-level-1' &&
+          {this.state.user.currentRole && this.state.user.currentRole.slug !== 'manager-level-1' &&
           <div>
           <div className='icon is-large is-clickable is-hamburguer'
           onClick={() => {this.handleBurgerEvent()}}>
@@ -134,7 +134,7 @@ class AdminLayout extends Component {
            </div> 
           }
 
-          <div className={this.state.user.currentRole.slug === 'manager-level-1' ? mainClass + ' main-wrapper-lvl-1' : mainClass}>
+          <div className={this.state.user.currentRole && this.state.user.currentRole.slug === 'manager-level-1' ? mainClass + ' main-wrapper-lvl-1' : mainClass}>
             <section className='card main'>
               {this.props.children}
               <ToastContainer />

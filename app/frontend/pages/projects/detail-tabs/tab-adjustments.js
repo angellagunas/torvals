@@ -1304,6 +1304,7 @@ class TabAdjustment extends Component {
               </h1>
             </div>
           </div>
+
           <div className={this.state.indicators === 'indicators-hide' ?
           'level-item has-text-centered has-text-teal' :
           'level-item has-text-centered has-text-teal disapear'}>
@@ -1324,6 +1325,31 @@ class TabAdjustment extends Component {
               </h1>
             </div>
           </div>
+
+          <div className={
+            this.state.indicators === 'indicators-hide' ?
+            'level-item has-text-centered has-text-danger'
+            : 'level-item has-text-centered has-text-danger disapear'
+            }
+          >
+            <div>
+              <p className='has-text-weight-semibold'>Venta año anterior</p>
+              <h1 className='num has-text-weight-bold'>
+                {this.state.totalPrevSale ?
+                  this.state.prices ?
+                    '$' + this.state.totalPrevSale.toFixed(2).replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })
+                    :
+                    this.state.totalPrevSale.toFixed(2).replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                    })
+                  : null
+                }
+              </h1>
+            </div>
+          </div>
+
           <div className={this.state.indicators === 'indicators-hide' ?
             'level-item has-text-centered' : ' level-item has-text-centered no-border'}>
             <div>
@@ -1383,7 +1409,7 @@ class TabAdjustment extends Component {
               </div>
           </div>
           <div className='columns'>
-            <div className='column is-5-desktop is-4-widescreen is-4-fullhd is-offset-1-fullhd is-offset-1-desktop'>
+            <div className='column is-6-desktop is-4-widescreen is-5-fullhd is-offset-1-fullhd is-offset-1-desktop'>
               <div className='panel sales-table'>
                 <div className='panel-heading'>
                   <h2 className='is-capitalized'>Totales {this.getCycleName()}</h2>

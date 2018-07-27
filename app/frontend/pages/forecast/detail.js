@@ -21,7 +21,8 @@ class ForecastDetail extends Component {
     super(props)
     this.state = {
       loading: true,
-      disabled: true
+      disabled: true,
+      forecastGroup: {}
     }
     this.engineSelected = {}
     this.graphColors = graphColors.sort(function (a, b) { return 0.5 - Math.random() })
@@ -41,7 +42,8 @@ class ForecastDetail extends Component {
         this.setState({
           alias: res.alias,
           forecast: res.forecasts,
-          type: res.type
+          type: res.type,
+          project: res.project
         })
 
         tree.set('activeForecast', {
@@ -144,11 +146,12 @@ class ForecastDetail extends Component {
         sortable: true,
         className: 'status',
         formatter: (row) => {
-          console.log(row.status)
           if (row.status === 'created') {
             return <div className='status-info'>Creado</div>
           } else if (row.status === 'ready') {
             return <div className='status-ready'>Completado</div>
+          } else if (row.status === 'conciliated') {
+            return <div className='status-ready'>Conciliado</div>
           } else {
             return <div className='status-process'>En Proceso</div>
           }
@@ -325,16 +328,25 @@ class ForecastDetail extends Component {
   }
 
   async finishUpConciliate () {
+    this.setState({
+      conciliating: 'is-loading'
+    })
     let url = '/app/forecasts/conciliate/' + this.state.engineConciliate.uuid
     try {
       let res = await api.get(url)
 
       if (res) {
+        this.setState({
+          conciliating: ''
+        })
         await this.hideConciliate()
-        this.props.history.push('/forecast')
+        this.props.history.push('/projects/' + this.state.project.uuid)
       }
     } catch (e) {
       console.log(e)
+      this.setState({
+        conciliating: ''
+      })
       this.notify('Error conciliando ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
@@ -352,7 +364,8 @@ class ForecastDetail extends Component {
         <br />
         <div className='buttons org-rules__modal'>
           <button
-            className='button generate-btn is-primary is-pulled-right'
+            className={'button generate-btn is-primary is-pulled-right ' + this.state.conciliating}
+            disabled={!!this.state.conciliating}
             onClick={() => this.finishUpConciliate()}>
           Conciliar
         </button>
@@ -396,7 +409,7 @@ class ForecastDetail extends Component {
         title={'Compartir predicción'}
         className={'shareModal ' + this.state.shareModal}
         hideModal={() => this.hideShareModal()}>
-        <p>Selecciona los usuarios con quienes quieres compartir la predicción.</p>
+        <p>Selecciona los usuarios con quiénes quieres compartir la predicción.</p>
         <br />
         <br />
 
@@ -415,9 +428,11 @@ class ForecastDetail extends Component {
 
         <div className='buttons org-rules__modal'>
           <button
-            className='button generate-btn is-primary is-pulled-right'
+            className={'button generate-btn is-primary is-pulled-right ' + this.state.sharing}
             onClick={() => this.finishUpShare()}
-            disabled={!this.state.usersEmails || this.state.usersEmails === ''}>
+            disabled={!!this.state.sharing ||
+            !this.state.usersEmails ||
+            this.state.usersEmails === ''}>
             Compartir
         </button>
           <button
@@ -438,12 +453,16 @@ class ForecastDetail extends Component {
 
   hideShareModal () {
     this.setState({
-      shareModal: ''
+      shareModal: '',
+      usersEmails: []
     })
   }
 
   async finishUpShare () {
-    let url = '/app/forecasts/share'
+    this.setState({
+      sharing: 'is-loading'
+    })
+    let url = '/app/forecastGroups/share/' + this.props.match.params.uuid
     try {
       let res = await api.post(url, {
         users: this.state.usersEmails,
@@ -451,10 +470,17 @@ class ForecastDetail extends Component {
       })
 
       if (res) {
+        this.setState({
+          sharing: '',
+          usersEmails: []
+        })
         await this.hideShareModal()
       }
     } catch (e) {
       console.log(e)
+      this.setState({
+        sharing: ''
+      })
       this.notify('Error compartiendo ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
@@ -486,7 +512,7 @@ class ForecastDetail extends Component {
         })
       })
     }
-
+    
     return (
       <div className='forecast-detail'>
         <div className='section-header'>
@@ -544,12 +570,14 @@ class ForecastDetail extends Component {
                 </button>
             </div>
             <div className='level-item'>
-              <DeleteButton
-                titleButton={'Eliminar'}
-                objectName='Predicción'
-                objectDelete={() => this.deleteForecast(this.props.match.params.uuid)}
-                message={`¿Está seguro que desea eliminar el predicción?`}
-              />
+              {this.state.forecastGroup && this.state.forecastGroup.status !== 'conciliated' &&
+                <DeleteButton
+                  titleButton={'Eliminar'}
+                  objectName='Predicción'
+                  objectDelete={() => this.deleteForecast(this.props.match.params.uuid)}
+                  message={`¿Está seguro que desea eliminar el predicción?`}
+                />
+              }
             </div>
           </div>
         </div>
@@ -610,7 +638,9 @@ class ForecastDetail extends Component {
                               <strong>{item.name}</strong>
                             </p>
                             <p className='indicators-number' style={{color: item.color}}>
-                              {item.prediction}
+                              {item.prediction.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })}
                             </p>
                           </div>
                         )
@@ -735,17 +765,19 @@ class ForecastDetail extends Component {
                 </div>
                 <div className='level-right'>
                   {this.state.type !== 'informative' &&
-                  <div className='level-item'>
-                    <button
-                      className='button is-primary'
-                      disabled={
-                        this.state.disabled ||
-                        Object.values(this.engineSelected).length > 1}
-                      onClick={() => { this.showConciliate() }} >
-                      Conciliar
-                  </button>
-                  </div>
-              }
+                    this.state.forecastGroup &&
+                    this.state.forecastGroup.status !== 'conciliated' &&
+                      <div className='level-item'>
+                        <button
+                          className='button is-primary'
+                          disabled={
+                            this.state.disabled ||
+                            Object.values(this.engineSelected).length > 1}
+                          onClick={() => { this.showConciliate() }} >
+                          Conciliar
+                        </button>
+                      </div>
+                  }
 
                   <div className='level-item'>
                     <button

@@ -249,9 +249,9 @@ module.exports = new Route({
         {
           '$group': {
             _id: key,
-            prediction: { $sum: '$data.prediction' },
-            adjustment: { $sum: '$data.adjustment' },
-            sale: { $sum: '$data.sale' }
+            predictionValue: {$push: '$data.prediction'},
+            adjustmentValue: {$push: '$data.adjustment'},
+            saleValue: {$push: '$data.sale'}
           }
         }
       ]
@@ -316,16 +316,16 @@ module.exports = new Route({
       let dateStart = moment(date.dateStart).utc().format('YYYY-MM-DD')
       let item = {
         date: dateStart,
-        prediction: 0,
-        adjustment: 0,
-        sale: 0,
-        previousSale: 0
+        prediction: undefined,
+        adjustment: undefined,
+        sale: undefined,
+        previousSale: undefined
       }
 
       if (saleDict[date._id]) {
-        item.prediction = saleDict[date._id].prediction
-        item.adjustment = saleDict[date._id].adjustment
-        item.sale = saleDict[date._id].sale
+        item.prediction = saleDict[date._id].predictionValue.length ? _.sum(saleDict[date._id].predictionValue) : undefined
+        item.adjustment = saleDict[date._id].adjustmentValue.length ? _.sum(saleDict[date._id].adjustmentValue) : undefined
+        item.sale = saleDict[date._id].saleValue.length ? _.sum(saleDict[date._id].saleValue) : undefined
       }
 
       if (item.prediction && item.sale) {

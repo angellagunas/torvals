@@ -5,6 +5,8 @@ const dataTables = require('mongoose-datatables')
 const moment = require('moment')
 const { aws } = require('../config')
 const awsService = require('aws-sdk')
+const Mailer = require('lib/mailer')
+const assert = require('http-assert')
 
 const organizationSchema = new Schema({
   name: { type: String },
@@ -15,6 +17,39 @@ const organizationSchema = new Schema({
     url: { type: String },
     bucket: { type: String },
     region: { type: String }
+  },
+
+  country: { type: String },
+  status: { type: String,
+    enum: [
+      'active',
+      'inactive',
+      'trial',
+      'activationPending'
+    ],
+    default: 'trial'
+  },
+  employees: { type: Number },
+  rfc: { type: String },
+  billingEmail: { type: String },
+  businessName: { type: String },
+  businessType: { type: String },
+  accountType: { type: String, default: 'managed' },
+  trialStart: { type: Date, default: moment.utc },
+  trialEnd: { type: Date, default: moment.utc().add(30, 'd') },
+  availableUsers: { type: Number, default: 20 },
+  billingStart: { type: Date },
+  billingEnd: { type: Date},
+  salesRep: {
+    name: { type: String },
+    email: { type: String },
+    phone: { type: String }
+  },
+  wizardSteps: {
+    businessRules: { type: Boolean, default: false },
+    project: { type: Boolean, default: false },
+    forecast: { type: Boolean, default: false },
+    users: { type: Boolean, default: false }
   },
 
   dateCreated: { type: Date, default: moment.utc },
@@ -34,7 +69,22 @@ organizationSchema.methods.toPublic = function () {
     dateCreated: this.dateCreated,
     profileUrl: this.profileUrl,
     isConfigured: this.isConfigured,
-    rules: this.rules
+    rules: this.rules,
+
+    country: this.country,
+    status: this.status,
+    employees: this.employees,
+    rfc: this.rfc,
+    billingEmail: this.billingEmail,
+    businessName: this.businessName,
+    accountType: this.accountType,
+    trialStart: this.trialStart,
+    trialEnd: this.trialEnd,
+    availableUsers: this.availableUsers,
+    billingStart: this.billingStart,
+    billingEnd: this.billingEnd,
+    salesRep: this.salesRep,
+    wizardSteps: this.wizardSteps
   }
 }
 
@@ -47,8 +97,46 @@ organizationSchema.methods.toAdmin = function () {
     dateCreated: this.dateCreated,
     profileUrl: this.profileUrl,
     isConfigured: this.isConfigured,
-    rules: this.rules
+    rules: this.rules,
+
+    country: this.country,
+    status: this.status,
+    employees: this.employees,
+    rfc: this.rfc,
+    billingEmail: this.billingEmail,
+    businessName: this.businessName,
+    accountType: this.accountType,
+    trialStart: this.trialStart,
+    trialEnd: this.trialEnd,
+    availableUsers: this.availableUsers,
+    billingStart: this.billingStart,
+    billingEnd: this.billingEnd,
+    salesRep: this.salesRep,
+    wizardSteps: this.wizardSteps
   }
+}
+
+organizationSchema.methods.endTrialPeriod = async function () {
+  const User = mongoose.model('User')
+  const owner = await User.findOne({'organizations.organization': this._id, accountOwner: true})
+  assert(owner, 401, 'La orgnaización o tiene dueño')
+  const email = new Mailer('trial')
+
+  this.status = 'inactive'
+  await this.save()
+
+  const data = this.toJSON()
+
+  await email.format(data)
+  await email.send({
+    recipient: {
+      email: owner.email,
+      name: owner.name
+    },
+    title: 'Período de prueba en Orax ha terminado.'
+  })
+
+  return {orgazation: this, user: owner}
 }
 
 organizationSchema.methods.uploadOrganizationPicture = async function (file) {

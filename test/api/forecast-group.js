@@ -1,6 +1,8 @@
 /* global describe, beforeEach, it */
 require('co-mocha')
 
+const moment = require('moment')
+
 const api = require('api/')
 const http = require('http')
 const { expect } = require('chai')
@@ -17,10 +19,12 @@ describe('/forecast_group', () => {
     it('with valid request', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
 
       const dataset = await createDataset({
@@ -34,7 +38,8 @@ describe('/forecast_group', () => {
       project.set({
         mainDataset: dataset._id,
         dateMin: dataset.dateMin,
-        dateMax: dataset.dateMax
+        dateMax: dataset.dateMax,
+        rule: rule._id
       })
 
       dataset.set({
@@ -44,8 +49,6 @@ describe('/forecast_group', () => {
 
       await dataset.save()
       await project.save()
-
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',
@@ -77,10 +80,12 @@ describe('/forecast_group', () => {
     it('with valid request and extra field, but without save it', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
 
       const dataset = await createDataset({
@@ -104,8 +109,6 @@ describe('/forecast_group', () => {
 
       await dataset.save()
       await project.save()
-
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',
@@ -142,13 +145,13 @@ describe('/forecast_group', () => {
     it('without authorization header', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
-
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',
@@ -207,13 +210,13 @@ describe('/forecast_group', () => {
     it('without alias', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
-
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',
@@ -239,13 +242,15 @@ describe('/forecast_group', () => {
       expect(res.body.message).equals('value: alias: missing required value')
     })
 
-    it('with forecast array empty', async function () {
+    it('with engines array empty', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
 
       const dataset = await createDataset({
@@ -270,8 +275,6 @@ describe('/forecast_group', () => {
       await dataset.save()
       await project.save()
 
-      const rule = await Rule.findOne({organization: credentials.org._id})
-
       const data = {
         project: project.uuid,
         catalogs: rule.catalogs,
@@ -287,19 +290,19 @@ describe('/forecast_group', () => {
         .set('Referer', credentials.referer)
         .expect(422)
 
-      expect(res.body.message).equals('value: engines: missing required value')
+      expect(res.body.message).equals('Debes seleccionar por lo menos un modelo de predicciones')
     })
 
-    it('with project witout mainDataset', async function () {
+    it('with project without mainDataset', async function () {
       await clearDatabase()
       const credentials = await apiHeaders()
+      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const project = await createProject({
         organization: credentials.org._id,
-        createdBy: credentials.user._id
+        createdBy: credentials.user._id,
+        rule: rule._id
       })
-
-      const rule = await Rule.findOne({organization: credentials.org._id})
 
       const engine = await Engine.create({
         name: 'regression',
@@ -323,7 +326,174 @@ describe('/forecast_group', () => {
         .set('Referer', credentials.referer)
         .expect(422)
 
-      expect(res.body.message).equals('value: engines: missing required value')
+      expect(res.body.message).equals('El proyecto no tiene un dataset principal')
+    })
+  })
+
+  describe('/graph/:uuid [POST] should return a success response', () => {
+    it('with valid request', async function () {
+      await clearDatabase()
+      const initialData = await apiHeaders()
+
+      const project = await createProject({
+        organization: initialData.org._id,
+        createdBy: initialData.user._id
+      })
+
+      const forecastGroup = await ForecastGroup.create({
+        project: project._id,
+        forecasts: [],
+        type: 'informative',
+        alias: 'a_forecast_test',
+        createdBy: initialData.user._id
+      })
+
+      const engine = await Engine.create({
+        name: 'regression',
+        descrition: 'a models with perfect prediction',
+        path: 'http://predictionio.orax.io',
+        instructions: '1.- some instructions'
+      })
+
+      const dataset = await createDataset({
+        createdBy: initialData.user._id,
+        organization: initialData.user._id,
+        project: project._id
+      })
+
+      const forecast = await Forecast.create({
+        approvedBy: initialData.user._id,
+        catalogs: [],
+        dataset: dataset._id,
+        engine: engine._id,
+        forecastGroup: forecastGroup._id,
+        dateEnd: moment.utc(),
+        dateStart: moment.utc(),
+        instanceKey: 'a_random_intance_key',
+        port: 1000,
+        status: 'created',
+        uuid: 'a_static_uuid',
+        project: project._id
+      })
+
+      const res = await test()
+        .post('/api/app/forecastGroups/graph/'+forecastGroup.uuid)
+        .send({})
+        .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${initialData.token}`)
+        .set('Referer', initialData.referer)
+        .expect(200)
+    })
+  })
+
+  describe('/graph/compare/:uuid [POST] should return a success response', () => {
+    it('with valid request', async function () {
+      await clearDatabase()
+      const initialData = await apiHeaders()
+
+      const project = await createProject({
+        organization: initialData.org._id,
+        createdBy: initialData.user._id
+      })
+
+      const forecastGroup = await ForecastGroup.create({
+        project: project._id,
+        forecasts: [],
+        type: 'informative',
+        alias: 'a_forecast_test',
+        createdBy: initialData.user._id
+      })
+
+      const engine = await Engine.create({
+        name: 'regression',
+        descrition: 'a models with perfect prediction',
+        path: 'http://predictionio.orax.io',
+        instructions: '1.- some instructions'
+      })
+
+      const dataset = await createDataset({
+        createdBy: initialData.user._id,
+        organization: initialData.user._id,
+        project: project._id
+      })
+
+      const forecast = await Forecast.create({
+        approvedBy: initialData.user._id,
+        catalogs: [],
+        dataset: dataset._id,
+        engine: engine._id,
+        forecastGroup: forecastGroup._id,
+        dateEnd: moment.utc(),
+        dateStart: moment.utc(),
+        instanceKey: 'a_random_intance_key',
+        port: 1000,
+        status: 'created',
+        uuid: 'a_static_uuid',
+        project: project._id
+      })
+
+      const res = await test()
+        .post('/api/app/forecastGroups/graph/compare/'+forecastGroup.uuid)
+        .send({engines: [engine]})
+        .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${initialData.token}`)
+        .set('Referer', initialData.referer)
+        .expect(200)
+    })
+  })
+
+  describe('/:uuid [GET] should return a forecast group with a list of forecast', () => {
+    it('with valid request', async function () {
+      await clearDatabase()
+      const initialData = await apiHeaders()
+
+      const project = await createProject({
+        organization: initialData.org._id,
+        createdBy: initialData.user._id
+      })
+
+      const forecastGroup = await ForecastGroup.create({
+        project: project._id,
+        forecasts: [],
+        type: 'informative',
+        alias: 'a_forecast_test',
+        createdBy: initialData.user._id
+      })
+
+      const engine = await Engine.create({
+        name: 'regression',
+        descrition: 'a models with perfect prediction',
+        path: 'http://predictionio.orax.io',
+        instructions: '1.- some instructions'
+      })
+
+      const dataset = await createDataset({
+        createdBy: initialData.user._id,
+        organization: initialData.user._id,
+        project: project._id
+      })
+
+      const forecast = await Forecast.create({
+        approvedBy: initialData.user._id,
+        catalogs: [],
+        dataset: dataset._id,
+        engine: engine._id,
+        forecastGroup: forecastGroup._id,
+        dateEnd: moment.utc(),
+        dateStart: moment.utc(),
+        instanceKey: 'a_random_intance_key',
+        port: 1000,
+        status: 'created',
+        uuid: 'a_static_uuid',
+        project: project._id
+      })
+
+      const res = await test()
+        .get('/api/app/forecastGroups/'+forecastGroup.uuid)
+        .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${initialData.token}`)
+        .set('Referer', initialData.referer)
+        .expect(200)
     })
   })
 })
