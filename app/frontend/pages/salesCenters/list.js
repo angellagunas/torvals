@@ -9,12 +9,12 @@ import CreateSalesCenter from './create'
 
 export default ListPage({
   path: '/catalogs/salesCenters',
-  title: 'Centros de venta',
+  title: 'Centros de venta', //TODO: translate
   icon: 'credit-card-alt',
   exact: true,
   roles: 'analyst, orgadmin, admin, manager-level-1, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'Centro de venta',
+  titleSingular: 'Centro de venta', //TODO: translate
   create: true,
   createComponent: CreateSalesCenter,
   export: true,
@@ -25,11 +25,11 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
+        label: 'Inicio', //TODO: translate
         current: false
       },
       {
-        path: '/catalogs/salesCenters/',
+        path: '/catalogs/salesCenters/', //TODO: translate
         label: 'Centros de venta',
         current: true
       }
@@ -45,6 +45,7 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
+      //TODO: translate
       general: {type: 'text', title: 'Buscar'}
     }
   },
@@ -54,7 +55,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Nombre',
+        'title': 'Nombre', //TODO: translate
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -67,7 +68,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Creado',
+        'title': 'Creado', //TODO: translate
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -78,7 +79,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Acciones',
+        'title': 'Acciones', //TODO: translate
         formatter: (row) => {
           if (testRoles('consultor-level-3, consultor-level-2')) {
             return (

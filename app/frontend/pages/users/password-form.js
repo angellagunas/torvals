@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import Loader from '~base/components/spinner'
 import { testRoles } from '~base/tools'
 import tree from '~core/tree'
@@ -42,7 +43,7 @@ class PasswordUserForm extends Component {
       if (role && role.slug === 'manager-level-1') {
         if (this.state.projects.length === 0) {
           this.setState({
-            error: '¡No existen proyectos!',
+            error: '¡No existen proyectos!', //TODO: translate
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -64,7 +65,7 @@ class PasswordUserForm extends Component {
         if (this.state.projects.length === 0) {
           return this.setState({
             formData,
-            error: '¡No existen proyectos!',
+            error: '¡No existen proyectos!', //TODO: translate
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -149,6 +150,7 @@ class PasswordUserForm extends Component {
         'email', 'name', 'password_1', 'password_2'
       ],
       properties: {
+        //TODO: translate
         name: {type: 'string', title: 'Nombre'},
         email: {type: 'string', title: 'Email'},
         password_1: {type: 'string', title: 'Contraseña'},
@@ -267,7 +269,10 @@ class PasswordUserForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Se ha creado correctamente al usuario
+              <FormattedMessage
+                id="user.createMsg"
+                defaultMessage={`Se ha creado correctamente al usuario`}
+              />
             </div>
           </div>
 

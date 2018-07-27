@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import { Prompt } from 'react-router-dom'
+import { FormattedMessage } from 'react-intl'
 
 import DeadLines from './deadlines'
 
+//TODO: translate
 const times = {
   'd': 'Día',
 
@@ -43,16 +45,25 @@ class Rules extends Component {
         <Prompt
           when={this.props.unsaved}
           message={location => (
+            //TODO: translate
             `Hay cambios a las reglas de negocio sin aplicar, ¿estás seguro de querer salir de esta página?`
           )}
         />
-        <h1 className='title is-5'>Reglas de la organización</h1>
+        <h1 className='title is-5'>
+          <FormattedMessage
+            id="wizard.rulesTitle"
+            defaultMessage={`Reglas de la organización`}
+          />
+        </h1>
         <div className='columns is-centered'>
           <div className='column'>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Configuración
+                  <FormattedMessage
+                    id="wizard.rulesConfig"
+                    defaultMessage={`Reglas de la organización`}
+                  />
                 </p>
               </header>
               <div className='card-content'>
@@ -60,46 +71,103 @@ class Rules extends Component {
                   <div className='column is-4'>
                     <button className='button is-primary is-small is-pulled-right edit-btn'
                       onClick={() => this.props.setStep(2)}>
-                      Editar
+                      <FormattedMessage
+                        id="wizard.rulesBtnEditar"
+                        defaultMessage={`Editar`}
+                      />
                     </button>
                     <p>
-                      Inicio del ciclo:
-                    <span className='has-text-weight-bold is-capitalized'> {moment.utc(rules.startDate).format('DD-MMM-YYYY')}</span>
+                      <FormattedMessage
+                        id="wizard.rulesCyclesStart"
+                        defaultMessage={`Inicio del ciclo`}
+                      />:
+                      <span className='has-text-weight-bold is-capitalized'> {moment.utc(rules.startDate).format('DD-MMM-YYYY')}</span>
                     </p>
                     <p>
-                      Duración de ciclo:
-                    <span className='has-text-weight-bold is-capitalized'> {rules.cycleDuration + ' ' + times[rules.cycle]}</span>
+                      <FormattedMessage
+                        id="wizard.rulesCyclesEnd"
+                        defaultMessage={`Duración de ciclo`}
+                      />:
+                      <span className='has-text-weight-bold is-capitalized'> {rules.cycleDuration + ' ' + times[rules.cycle]}</span>
                     </p>
                     <p>
-                      Ciclos disponibles para ajuste:
-                    <span className='has-text-weight-bold is-capitalized'> {rules.cyclesAvailable}</span>
+                      <FormattedMessage
+                        id="wizard.rulesCyclesAvailable"
+                        defaultMessage={`Ciclos disponibles para ajuste`}
+                      />:
+                      <span className='has-text-weight-bold is-capitalized'> {rules.cyclesAvailable}</span>
                     </p>
                     <p>
-                      Temporada:
+                      <FormattedMessage
+                        id="wizard.rulesSeason"
+                        defaultMessage={`Temporada`}
+                      />:
                       <span className='has-text-weight-bold is-capitalized'> {rules.season} ciclos</span>
                     </p>
                     <p>
-                      Duración de periodo:
+                      <FormattedMessage
+                        id="wizard.rulesPeriodsDuration"
+                        defaultMessage={`Duración de periodo`}
+                      />:
                       <span className='has-text-weight-bold is-capitalized'> {rules.periodDuration + ' ' + times[rules.period]}</span>
                     </p>
                     <p>
-                      Los periodos pertenecen al ciclo donde
-                      <span className='has-text-weight-bold'> {rules.takeStart ? 'inician.' : 'terminan.'} </span>
+                      <FormattedMessage
+                        id="wizard.rulesPeriods"
+                        defaultMessage={`Los periodos pertenecen al ciclo donde`}
+                      />:
+                      <span className='has-text-weight-bold'>
+                        {
+                          rules.takeStart
+                          ? <FormattedMessage
+                            id="wizard.rulesPeriodsStart"
+                            defaultMessage={`inician`}
+                          />
+                          : <FormattedMessage
+                            id="wizard.rulesPeriodsEnd"
+                            defaultMessage={`inician`}
+                          />
+                        }
+                      </span>
                     </p>
 
                     <hr />
                     <button className='button is-primary is-small is-pulled-right edit-btn'
-                      onClick={() => this.props.setStep(3)}>
-                      Editar
+                      onClick={() => this.props.setStep(3)}
+                    >
+                      <FormattedMessage
+                        id="wizard.rulesBtnEditar"
+                        defaultMessage={`Editar`}
+                      />
                     </button>
-                    <p>Rangos de ajuste:</p>
+                    <p>
+                      <FormattedMessage
+                        id="wizard.rulesRangeTitle"
+                        defaultMessage={`Rangos de ajuste`}
+                      />:
+                    </p>
 
                     <ul className='rules-ranges'>
                       <li>
                         <div className='tags has-addons'>
-                          <span className='tag clear-blue has-text-weight-semibold'> Ciclos</span>
-                          <span className='tag clear-blue has-text-weight-semibold'>Ajuste</span>
-                          <span className='tag clear-blue has-text-weight-semibold'>Manager Lvl 2</span>
+                          <span className='tag clear-blue has-text-weight-semibold'>
+                            <FormattedMessage
+                              id="wizard.rulesRange1"
+                              defaultMessage={`Ciclos`}
+                            />
+                          </span>
+                          <span className='tag clear-blue has-text-weight-semibold'>
+                            <FormattedMessage
+                              id="wizard.rulesRange2"
+                              defaultMessage={`Ajuste`}
+                            />
+                          </span>
+                          <span className='tag clear-blue has-text-weight-semibold'>
+                            <FormattedMessage
+                              id="wizard.rulesRange3"
+                              defaultMessage={`Manager Lvl 2`}
+                            />
+                          </span>
                         </div>
                       </li>
                       {rules.ranges.map((item, key) => {
@@ -108,12 +176,31 @@ class Rules extends Component {
                             <li key={key}>
                               <div className='tags has-addons'>
                                 <span className='tag has-text-weight-semibold'> {key + 1}</span>
-                                <span className='tag has-text-weight-semibold'>{item !== null ? item + '%' : 'ilimitado'}</span>
-                                <span className='tag has-text-weight-semibold'>{
-                                  rules.rangesLvl2[key] !== undefined
-                                  ? rules.rangesLvl2[key] !== null ? rules.rangesLvl2[key] + '%' : 'ilimitado'
-                                  : 'No definido'
-                                  }</span>
+                                <span className='tag has-text-weight-semibold'>
+                                  {
+                                    item !== null
+                                      ? item + '%'
+                                      : <FormattedMessage
+                                        id="wizard.rulesRangeUnlimited"
+                                        defaultMessage={`ilimitado`}
+                                      />
+                                  }
+                                </span>
+                                <span className='tag has-text-weight-semibold'>
+                                  {
+                                    rules.rangesLvl2[key] !== undefined
+                                    ? rules.rangesLvl2[key] !== null
+                                      ? rules.rangesLvl2[key] + '%'
+                                      : <FormattedMessage
+                                        id="wizard.rulesRangeUnlimited"
+                                        defaultMessage={`ilimitado`}
+                                      />
+                                    : <FormattedMessage
+                                      id="wizard.rulesRangeUndefined"
+                                      defaultMessage={`No definido`}
+                                    />
+                                  }
+                                </span>
                               </div>
                             </li>
                           )
@@ -127,39 +214,98 @@ class Rules extends Component {
                     <div>
                       <button className='button is-primary is-small is-pulled-right edit-btn'
                         onClick={() => this.props.setStep(4)}>
-                        Editar
+                        <FormattedMessage
+                          id="wizard.rulesBtnEditar"
+                          defaultMessage={`Editar`}
+                        />
                     </button>
 
-                      <p>Ciclos de operación:</p>
+                      <p>
+                        <FormattedMessage
+                          id="wizard.rulesOperations"
+                          defaultMessage={`Ciclos de operación`}
+                        />:
+                      </p>
                       <ul>
                         <li>
                           <div className='tags has-addons'>
-                            <span className='tag deadline-sales has-text-weight-semibold'> Actualizar datos de ventas</span>
-                            <span className='tag has-text-weight-semibold'>{rules.salesUpload} días</span>
+                            <span className='tag deadline-sales has-text-weight-semibold'>
+                              <FormattedMessage
+                                id="wizard.rulesSalesUpdate"
+                                defaultMessage={`Editar`}
+                              />
+                            </span>
+                            <span className='tag has-text-weight-semibold'>
+                              {rules.salesUpload} <FormattedMessage
+                                id="wizard.rulesDay"
+                                defaultMessage={`días`}
+                              />
+                            </span>
                           </div>
                         </li>
                         <li>
                           <div className='tags has-addons'>
-                            <span className='tag deadline-forecast has-text-weight-semibold'> Generar Predicción</span>
-                            <span className='tag has-text-weight-semibold'>{rules.forecastCreation} días</span>
+                            <span className='tag deadline-forecast has-text-weight-semibold'>
+
+                              <FormattedMessage
+                                id="wizard.rulesPrediction"
+                                defaultMessage={`Generar Predicción`}
+                              />
+                            </span>
+                            <span className='tag has-text-weight-semibold'>
+                              {rules.forecastCreation} <FormattedMessage
+                                id="wizard.rulesDay"
+                                defaultMessage={`días`}
+                              />
+                            </span>
                           </div>
                         </li>
                         <li>
                           <div className='tags has-addons'>
-                            <span className='tag deadline-adjustments has-text-weight-semibold'> Realizar Ajustes</span>
-                            <span className='tag has-text-weight-semibold'>{rules.rangeAdjustment} días</span>
+                            <span className='tag deadline-adjustments has-text-weight-semibold'>
+                              <FormattedMessage
+                                id="wizard.rulesAdjustment"
+                                defaultMessage={`Realizar Ajustes`}
+                              />
+                            </span>
+                            <span className='tag has-text-weight-semibold'>
+                              {rules.rangeAdjustment} <FormattedMessage
+                                id="wizard.rulesDay"
+                                defaultMessage={`días`}
+                              />
+                            </span>
                           </div>
                         </li>
                         <li>
                           <div className='tags has-addons'>
-                            <span className='tag deadline-approve has-text-weight-semibold'> Aprobar Ajustes</span>
-                            <span className='tag has-text-weight-semibold'>{rules.rangeAdjustmentRequest} días</span>
+                            <span className='tag deadline-approve has-text-weight-semibold'>
+                              <FormattedMessage
+                                id="wizard.rulesAdjustmentApprove"
+                                defaultMessage={`Aprobar Ajustes`}
+                              />
+                            </span>
+                            <span className='tag has-text-weight-semibold'>
+                              {rules.rangeAdjustmentRequest} <FormattedMessage
+                                id="wizard.rulesDay"
+                                defaultMessage={`días`}
+                              />
+                            </span>
                           </div>
                         </li>
                         <li>
                           <div className='tags has-addons'>
-                            <span className='tag deadline-consolidate has-text-weight-semibold'> Concentrar Información</span>
-                            <span className='tag has-text-weight-semibold'>{rules.consolidation} días</span>
+                            <span className='tag deadline-consolidate has-text-weight-semibold'>
+                              <FormattedMessage
+                                id="wizard.rulesInfo"
+                                defaultMessage={`Concentrar Información`}
+                              />
+                            </span>
+                            <span className='tag has-text-weight-semibold'>
+                              {rules.consolidation} <FormattedMessage
+                                id="wizard.rulesDay"
+                                defaultMessage={`días`}
+                              />
+                            </span>
                           </div>
                         </li>
                       </ul>
@@ -169,14 +315,27 @@ class Rules extends Component {
 
                     <div>
                       <button className='button is-primary is-small is-pulled-right edit-btn'
-                        onClick={() => this.props.setStep(5)}>
-                        Editar
+                        onClick={() => this.props.setStep(5)}
+                      >
+                        <FormattedMessage
+                          id="wizard.rulesBtnEditar"
+                          defaultMessage={`Editar`}
+                        />
                     </button>
-                      <p>Catálogos:</p>
+                      <p>
+                        <FormattedMessage
+                          id="wizard.rulesCatalogs"
+                          defaultMessage={`Catálogos`}
+                        />:
+                      </p>
                       <br />
                       <div className='tags'>
                         <div className='tag is-capitalized has-text-weight-semibold'>
-                          Precio
+
+                          <FormattedMessage
+                            id="wizard.rulesPrice"
+                            defaultMessage={`Precio`}
+                          />
                         </div>
                         {this.props.rules.catalogs.map((item, key) => {
                           return (
@@ -203,7 +362,10 @@ class Rules extends Component {
                         disabled={!!this.state.isLoading}
                         onClick={() => { this.save() }}
                       >
-                        Aplicar cambios
+                        <FormattedMessage
+                          id="wizard.rulesBtnSave"
+                          defaultMessage={`Aplicar cambios`}
+                        />
                       </button>
                     </div>
                   </div>

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import 'react-datepicker/dist/react-datepicker.css'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
@@ -131,7 +132,7 @@ class Calendar extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del ciclo'
+      tooltipText: 'Inicio del ciclo' //TODO: translate
     }
     return d
   }
@@ -146,7 +147,7 @@ class Calendar extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Fin del ciclo'
+      tooltipText: 'Fin del ciclo' //TODO: translate
     }
     return d
   }
@@ -170,7 +171,7 @@ class Calendar extends Component {
       isToday: false,
       isActive: true,
       isTooltip: true,
-      tooltipText: 'Inicio de periodo ' + key,
+      tooltipText: 'Inicio de periodo ' + key, //TODO: translate
       rangeClass: colors[this.color].rangeClass,
       rangeClassStart: colors[this.color].rangeClassStart
     }
@@ -185,7 +186,7 @@ class Calendar extends Component {
         isToday: false,
         isActive: false,
         isTooltip: true,
-        tooltipText: 'Periodo ' + key,
+        tooltipText: 'Periodo ' + key, //TODO: translate
         rangeClass: colors[this.color].rangeClass
       }
     }
@@ -200,7 +201,7 @@ class Calendar extends Component {
       isTooltip: true,
       rangeClass: colors[this.color].rangeClass,
       rangeClassEnd: colors[this.color].rangeClassStart,
-      tooltipText: 'Fin de periodo ' + key
+      tooltipText: 'Fin de periodo ' + key //TODO: translate
     }
     return range
   }
@@ -258,19 +259,24 @@ class Calendar extends Component {
 
       <div className='calendar-view'>
         <div className='section-header'>
-          <h2>Calendario</h2>
+          <h2>
+            <FormattedMessage
+              id="calendar.title"
+              defaultMessage={`Calendario`}
+            />
+          </h2>
         </div>
 
         <Breadcrumb
           path={[
             {
               path: '/',
-              label: 'Inicio',
+              label: 'Inicio', //TODO: translate
               current: false
             },
             {
               path: '/calendario',
-              label: 'Calendario',
+              label: 'Calendario', //TODO: translate
               current: true
             }
           ]}
@@ -285,7 +291,7 @@ class Calendar extends Component {
                 name='year'
                 value={this.state.selectedYear}
                 type='integer'
-                placeholder='Seleccionar'
+                placeholder='Seleccionar' //TODO: translate
                 options={this.state.years}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
                 />
@@ -296,7 +302,7 @@ class Calendar extends Component {
                 label='Ciclo'
                 name='cycle'
                 value={this.state.selectedCycle}
-                placeholder='Todos los ciclos'
+                placeholder='Todos los ciclos' //TODO: translate
                 optionValue='cycle'
                 optionName='name'
                 options={this.state.cycles.map(item => { return {cycle: item.cycle, name: moment.utc(item.periods[0].cycle.dateStart).format('MMMM')} })}
@@ -305,11 +311,11 @@ class Calendar extends Component {
             </div>
             <div className='level-item'>
               <Checkbox
-                label='Mostrar número de semana'
+                label='Mostrar número de semana' //TODO: translate
                 handleCheckboxChange={(e) => this.showWeeks()}
                 key='showWeeks'
                 checked={this.state.showWeekNumbers}
-                />
+              />
             </div>
 
           </div>
@@ -338,7 +344,12 @@ class Calendar extends Component {
                   <div key={key} className='columns'>
                     <div className='column'>
                       <div className='field'>
-                        <label className='label'>Inicio de ciclo</label>
+                        <label className='label'>
+                          <FormattedMessage
+                            id="calendar.cyclesStart"
+                            defaultMessage={`Inicio de ciclo`}
+                          />
+                        </label>
                         <div className='control'>
                           <input className='input' type='date'
                             value={moment.utc(cycle.dateStart).format('YYYY-MM-DD')}
@@ -346,7 +357,12 @@ class Calendar extends Component {
                         </div>
                       </div>
                       <div className='field'>
-                        <label className='label'>Fin de ciclo</label>
+                        <label className='label'>
+                          <FormattedMessage
+                            id="calendar.cyclesEnd"
+                            defaultMessage={`Fin de ciclo`}
+                          />
+                        </label>
                         <div className='control'>
                           <input className='input' type='date'
                             value={moment.utc(cycle.dateEnd).format('YYYY-MM-DD')}
@@ -357,12 +373,22 @@ class Calendar extends Component {
                       {item.periods.map((item, key) => {
                         return (
                           <div key={moment.utc(item.dateStart).format('YYYY-MM-DD')} className='field'>
-                            <label className='label'>Periodo {key + 1}</label>
+                            <label className='label'>
+                              <FormattedMessage
+                                id="calendar.period"
+                                defaultMessage={`Periodo`}
+                              /> {key + 1}
+                            </label>
                             <div className='control'>
                               <div className='field is-grouped'>
                                 <div className='control'>
                                   <div className='field'>
-                                    <label className='label'>Inicio</label>
+                                    <label className='label'>
+                                      <FormattedMessage
+                                        id="calendar.start"
+                                        defaultMessage={`Inicio`}
+                                      />
+                                    </label>
                                     <div className='control'>
                                       <input className='input' type='date'
                                         value={moment.utc(item.dateStart).format('YYYY-MM-DD')}
@@ -372,7 +398,12 @@ class Calendar extends Component {
                                 </div>
                                 <div className='control'>
                                   <div className='field'>
-                                    <label className='label'>Fin</label>
+                                    <label className='label'>
+                                      <FormattedMessage
+                                        id="calendar.end"
+                                        defaultMessage={`Fin`}
+                                      />
+                                    </label>
                                     <div className='control'>
                                       <input className='input' type='date'
                                         value={moment.utc(item.dateEnd).format('YYYY-MM-DD')}
@@ -413,6 +444,6 @@ export default Page({
   exact: true,
   validate: loggedIn,
   component: Calendar,
-  title: 'Calendario',
+  title: 'Calendario', //TODO: translate
   icon: 'calendar'
 })

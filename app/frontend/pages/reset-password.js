@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import Page from '~base/page'
 
 import api from '~base/api'
@@ -108,7 +109,10 @@ class ResetPassword extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Restabler contraseña
+              <FormattedMessage
+                id="resetPassword.title"
+                defaultMessage={`Restabler contraseña`}
+              />
             </p>
             <a className='card-header-icon'>
               <span className='icon'>
@@ -119,7 +123,10 @@ class ResetPassword extends Component {
           <div className='card-content'>
             <div className='content'>
               <p>
-                Necesitamos tu dirección de correo para enviarte un link de restablecimiento de la contraseña:
+                <FormattedMessage
+                  id="resetPassword.contentTitle"
+                  defaultMessage={`Necesitamos tu dirección de correo para enviarte un link de restablecimiento de la contraseña: `}
+                />
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}
@@ -131,7 +138,10 @@ class ResetPassword extends Component {
                 { spinner }
                 <div className={this.state.apiCallMessage}>
                   <div className='message-body is-size-7 has-text-centered'>
-                    El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias.
+                    <FormattedMessage
+                      id="resetPassword.emailSend"
+                      defaultMessage={`El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias.`}
+                    />
                   </div>
                 </div>
                 <div className={this.state.apiCallErrorMessage}>
@@ -144,7 +154,10 @@ class ResetPassword extends Component {
                   type='submit'
                   disabled={!!error}
                 >
-                  Enviar link a la dirección de correo
+                  <FormattedMessage
+                    id="resetPassword.emailSend"
+                    defaultMessage={`Enviar link a la dirección de correo`}
+                  />
                 </button>
               </BaseForm>
             </div>
@@ -157,7 +170,7 @@ class ResetPassword extends Component {
 
 export default Page({
   path: '/password/forgotten',
-  title: 'Reset Password',
+  title: 'Reset Password', //TODO: translate
   exact: true,
   component: ResetPassword
 })

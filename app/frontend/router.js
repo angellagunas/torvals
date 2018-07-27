@@ -5,7 +5,6 @@ import {
   Route,
   Redirect
 } from 'react-router-dom'
-import { IntlProvider, addLocaleData } from 'react-intl'
 
 import AdminLayout from '~components/admin-layout'
 import LandPage from './pages//landing/land-page'
@@ -48,15 +47,6 @@ import ForecastDetail from './pages/forecast/detail'
 import ForecastCompare from './pages/forecast/compare'
 import HowItWorks from './pages/landing/how-it-works'
 
-import en from 'react-intl/locale-data/en'
-import es from 'react-intl/locale-data/es'
-
-addLocaleData([...en, ...es])
-
-const lang = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage
-
-const language = lang.toLowerCase().split(/[_-]+/)[0] || 'es'
-
 const NoMatch = () => {
   if (window.location.pathname === '/') {
     return <Redirect to={{pathname: env.PREFIX + 'dashboard'}} />
@@ -68,69 +58,67 @@ class AppRouter extends Component {
   render () {
     return (
       <Router>
-        <IntlProvider locale={language}>
-          <AdminLayout>
-            <div>
-              <Switch>
-                {LandPage.asRouterItem()}
-                {ResetPassword.asRouterItem()}
-                {EmailResetLanding.asRouterItem()}
-                {EmailInviteLanding.asRouterItem()}
-                {EmailActivateLanding.asRouterItem()}
-                {Dashboard.asRouterItem()}
-                {Profile.asRouterItem()}
+        <AdminLayout>
+          <div>
+            <Switch>
+              {LandPage.asRouterItem()}
+              {ResetPassword.asRouterItem()}
+              {EmailResetLanding.asRouterItem()}
+              {EmailInviteLanding.asRouterItem()}
+              {EmailActivateLanding.asRouterItem()}
+              {Dashboard.asRouterItem()}
+              {Profile.asRouterItem()}
 
-                {UsersImport.asRouterItem()}
+              {UsersImport.asRouterItem()}
 
-                {OrganizationDetail.asRouterItem()}
+              {OrganizationDetail.asRouterItem()}
 
-                {DataSets.asRouterItem()}
-                {ReadyDataSets.asRouterItem()}
+              {DataSets.asRouterItem()}
+              {ReadyDataSets.asRouterItem()}
 
-                {Projects.asRouterItem()}
+              {Projects.asRouterItem()}
 
-                {Calendar.asRouterItem()}
+              {Calendar.asRouterItem()}
 
-                {ProjectDetail.asRouterItem()}
+              {ProjectDetail.asRouterItem()}
 
-                {SalesCenters.asRouterItem()}
-                {SalesCenterDetail.asRouterItem()}
-                {SalesCentersImport.asRouterItem()}
+              {SalesCenters.asRouterItem()}
+              {SalesCenterDetail.asRouterItem()}
+              {SalesCentersImport.asRouterItem()}
 
-                {Products.asRouterItem()}
-                {ProductDetail.asRouterItem()}
+              {Products.asRouterItem()}
+              {ProductDetail.asRouterItem()}
 
-                {Channels.asRouterItem()}
-                {ChannelsDetail.asRouterItem()}
-                {ChannelImport.asRouterItem()}
-                {ProductsImport.asRouterItem()}
+              {Channels.asRouterItem()}
+              {ChannelsDetail.asRouterItem()}
+              {ChannelImport.asRouterItem()}
+              {ProductsImport.asRouterItem()}
 
-                {Prices.asRouterItem()}
-                {PriceDetail.asRouterItem()}
-                {CatalogDetail.asRouterItem()}
+              {Prices.asRouterItem()}
+              {PriceDetail.asRouterItem()}
+              {CatalogDetail.asRouterItem()}
 
-                {HistoricalReport.asRouterItem()}
-                {StatusReport.asRouterItem()}
-                {DownloadReport.asRouterItem()}
+              {HistoricalReport.asRouterItem()}
+              {StatusReport.asRouterItem()}
+              {DownloadReport.asRouterItem()}
 
-                {OrgRules.asRouterItem()}
-                {UsersGroups.asRouterItem()}
-                {Roles.asRouterItem()}
+              {OrgRules.asRouterItem()}
+              {UsersGroups.asRouterItem()}
+              {Roles.asRouterItem()}
 
-                {Forecast.asRouterItem()}
-                {ForecastDetail.asRouterItem()}
-                {ForecastCompare.asRouterItem()}
+              {Forecast.asRouterItem()}
+              {ForecastDetail.asRouterItem()}
+              {ForecastCompare.asRouterItem()}
 
-                {HowItWorks.asRouterItem()}
+              {HowItWorks.asRouterItem()}
 
-                <CatalogRouter path={env.PREFIX + '/catalogs/'} />
+              <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
-                <Route component={NoMatch} />
+              <Route component={NoMatch} />
 
-              </Switch>
-            </div>
-          </AdminLayout>
-        </IntlProvider>
+            </Switch>
+          </div>
+        </AdminLayout>
       </Router>
     )
   }

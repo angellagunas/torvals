@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -8,7 +9,6 @@ import UpdatePasswordForm from '~base/components/update-password'
 import UpdateProfileForm from '~base/components/update-profile'
 import TokensList from '~base/components/token-list'
 import Breadcrumb from '~base/components/base-breadcrumb'
-import { FormattedMessage } from 'react-intl'
 
 class Profile extends Component {
   render () {
@@ -25,12 +25,12 @@ class Profile extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio',
+                    label: 'Inicio', //TODO: translate
                     current: false
                   },
                   {
                     path: '/profile',
-                    label: 'Mi perfil',
+                    label: 'Mi perfil', //TODO: translate
                     current: true
                   },
                   {
@@ -52,7 +52,7 @@ class Profile extends Component {
                   <div className='card-header-title'>
 
                     <FormattedMessage
-                      id="Profile.form1Title"
+                      id="profile.form1Title"
                       defaultMessage={`Detalles`}
                     />
 
@@ -71,7 +71,7 @@ class Profile extends Component {
                   <div className='card-header-title'>
 
                     <FormattedMessage
-                      id="Profile.form2Title"
+                      id="profile.form2Title"
                       defaultMessage={`Cambiar contraseña`}
                     />
 
@@ -94,7 +94,7 @@ class Profile extends Component {
 
 export default Page({
   path: '/profile',
-  title: 'Profile',
+  title: 'Profile', //TODO: translate
   exact: true,
   validate: loggedIn,
   component: Profile

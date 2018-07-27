@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import OrganizationForm from '../../organizations/form'
 import Editable from '~base/components/base-editable'
 import api from '~base/api'
@@ -44,10 +45,19 @@ class OrgInfo extends Component {
         {this.state.org &&
         <div className='columns'>
           <div className='column is-6'>
-            <h1 className='title is-4'> Bienvenido al asistente de configuración de Orax. </h1>
-            <h2 className='subtitle'> Primero revisa los datos de tu organización.
-            Cuando todo esté correcto da click en guardar y después en continuar.
-          </h2>
+            <h1 className='title is-4'>
+              <FormattedMessage
+                id="wizard.orgWelcome"
+                defaultMessage={`Bienvenido al asistente de configuración de Orax.`}
+              />
+            </h1>
+            <h2 className='subtitle'>
+              <FormattedMessage
+                id="wizard.orgInfo"
+                defaultMessage={`Primero revisa los datos de tu organización.
+                Cuando todo esté correcto da click en guardar y después en continuar.`}
+              />
+            </h2>
             <OrganizationForm
               baseUrl='/app/organizations'
               url={'/app/organizations/' + this.state.org.uuid}
@@ -63,7 +73,12 @@ class OrgInfo extends Component {
                     className={'button is-primary ' + this.state.isLoading}
                     disabled={!!this.state.isLoading}
                     type='submit'
-                  >Guardar</button>
+                  >
+                    <FormattedMessage
+                      id="wizard.orgBtnSave"
+                      defaultMessage={`Guardar`}
+                    />
+                  </button>
                 </div>
               </div>
             </OrganizationForm>
@@ -93,7 +108,12 @@ class OrgInfo extends Component {
 
         }
         <center>
-          <button onClick={() => this.props.nextStep()} className='button is-primary'>Continuar</button>
+          <button onClick={() => this.props.nextStep()} className='button is-primary'>
+            <FormattedMessage
+              id="wizard.orgBtnContinue"
+              defaultMessage={`Continuar`}
+            />
+          </button>
         </center>
       </div>
     )

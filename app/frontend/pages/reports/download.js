@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import moment from 'moment'
+import { FormattedMessage } from 'react-intl'
 import tree from '~core/tree'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -119,6 +120,7 @@ class DownloadReport extends Component {
 
       this.setState({ data: dataItems })
     } catch (error) {
+      //TODO: translate
       this.notify('Algo salio mal al cargar los items', 5000, toast.TYPE.ERROR)
     }
   }
@@ -145,14 +147,24 @@ class DownloadReport extends Component {
     if (Object.keys(this.selectedProjects).length === 0) {
       return (
         <center>
-          <h1 className='has-text-info'>Debes seleccionar al menos un proyecto</h1>
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="report.projectsEmptyMsg"
+              defaultMessage={`Debes seleccionar al menos un proyecto`}
+            />
+          </h1>
         </center>
       )
     }
     else if (Object.keys(this.selectedProjects).length !== 0 && !this.state.noData) {
       return (
         <center>
-          <h1 className='has-text-info'>Cargando, un momento por favor</h1>
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="report.loadingMsg"
+              defaultMessage={`Cargando, un momento por favor`}
+            />
+          </h1>
           <Loader />
         </center>
       )
@@ -179,7 +191,12 @@ class DownloadReport extends Component {
     return (
       <div className='historic-view'>
         <div className='section-header'>
-          <h2>Descarga de ajustes </h2>
+          <h2>
+            <FormattedMessage
+              id="report.downloadTitle"
+              defaultMessage={`Descarga de ajustes`}
+            />
+          </h2>
         </div>
         <div className='section'>
           <div className='columns filters-project'>
@@ -193,7 +210,11 @@ class DownloadReport extends Component {
                         <span className='icon'>
                           <i className='fa fa-folder' />
                         </span>
-                        Proyectos</h1>
+                        <FormattedMessage
+                          id="report.projects"
+                          defaultMessage={`Proyectos`}
+                        />
+                      </h1>
                     </div>
                     <div className='card-content'>
                       <aside className='menu' disabled={this.state.waitingData}>
@@ -241,7 +262,10 @@ class DownloadReport extends Component {
             <div className='column'>
               {this.state.projectSelected &&
                 <h1 className='report-title'>
-                  Estos son los ultimos reportes en proyecto
+                  <FormattedMessage
+                    id="report.downloadInfo"
+                    defaultMessage={`Estos son los ultimos reportes en proyecto`}
+                  />
                   <strong> {this.state.projectSelected.name}</strong>
                 </h1>
               }
@@ -250,8 +274,10 @@ class DownloadReport extends Component {
                 <span className='icon'>
                   <i className='fa fa-info-circle' />
                 </span>
-                Recuerda que tus reportes estan disponibles 24 horas
-                despues de tu cierre.
+                <FormattedMessage
+                  id="report.downloadInfo2"
+                  defaultMessage={`Recuerda que tus reportes estan disponibles 24 horas despues de tu cierre.`}
+                />
               </div>
 
               <div className='columns'>
@@ -282,7 +308,10 @@ class DownloadReport extends Component {
                           </div>
                         : <center>
                             <h1 className='has-text-info'>
-                              No hay datos que mostrar, intente con otro filtro
+                              <FormattedMessage
+                                id="report.noInfo"
+                                defaultMessage={`No hay datos que mostrar, intente con otro filtro`}
+                              />
                             </h1>
                           </center>
                       : <div> {this.loadTable()} </div>
@@ -306,6 +335,6 @@ export default Page({
   exact: true,
   validate: loggedIn,
   component: DownloadReport,
-  title: 'Descargas',
+  title: 'Descargas', //TODO: translate
   icon: 'download'
 })
