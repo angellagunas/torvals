@@ -24,7 +24,7 @@ class RegisterModal extends Component {
         phone: '',
         domain: '',
         orgName: '',
-        turn: '',
+        type: '',
         employees: '',
         country: '',
         region: '',
@@ -43,7 +43,7 @@ class RegisterModal extends Component {
         phone: '',
         domain: '',
         orgName: '',
-        turn: '',
+        type: '',
         employees: '',
         country: '',
         region: '',
@@ -259,7 +259,8 @@ class RegisterModal extends Component {
           employees: r.employees,
           rfc: r.rfc,
           billingEmail: r.orgEmail,
-          businessName: r.orgName,
+          businessName: r.razonSocial,
+          businessType: r.type,
           salesRep: {
             name: r.name,
             email: r.email,
@@ -663,9 +664,9 @@ class RegisterModal extends Component {
                     placeholder='Ingresa el giro de tu empresa'
                     autoComplete='off'
                     required
-                    name='turn'
-                    value={this.state.registerData.turn}
-                    onChange={(e) => this.handleInputChange(e, 'turn')} />
+                    name='type'
+                    value={this.state.registerData.type}
+                    onChange={(e) => this.handleInputChange(e, 'type')} />
                 </div>
               </div>
               <div className='field'>
