@@ -83,7 +83,7 @@ const task = new Task(
           let itemSplit = row.split(',')
 
           for (var j = 0; j < headers.length; j++) {
-            obj[headers[j]] = itemSplit[j]
+            obj[headers[j]] = itemSplit[j] !== undefined ? itemSplit[j].trim() : undefined
           }
 
           if (!obj[dateColumn.name]) {
@@ -127,7 +127,7 @@ const task = new Task(
             }
           }
 
-          bulkOps.push({
+          const datarow = {
             'organization': dataset.organization,
             'project': dataset.project,
             'dataset': dataset._id,
@@ -143,7 +143,9 @@ const task = new Task(
               'productExternalId': obj[productExternalId.name]
             },
             'catalogData': catalogData
-          })
+          }
+
+          bulkOps.push(datarow)
         }
 
         await DataSetRow.insertMany(bulkOps)
