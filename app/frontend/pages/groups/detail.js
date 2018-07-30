@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
@@ -84,13 +85,13 @@ class GroupDetail extends Component {
 
   getColumns () {
     return [
-      {
+      { //TODO: translate
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
-      {
+      { //TODO: translate
         'title': 'Email',
         'property': 'email',
         'default': 'N/A',
@@ -111,7 +112,7 @@ class GroupDetail extends Component {
                 <i className='fa fa-pencil' />
               </span>
             </Link>
-            
+
           }
         }
       } */
@@ -194,24 +195,27 @@ class GroupDetail extends Component {
 
   getColumnsUsersToAsign () {
     return [
-      {
+      { //TODO: translate
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
-      {
+      { //TODO: translate
         'title': 'Email',
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
-      {
+      { //TODO: translate
         'title': 'Acciones',
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.addToGroup(row.uuid) }}>
-              Agregar
+              <FormattedMessage
+                id="groups.btnAdd"
+                defaultMessage={`Agregar`}
+              />
             </button>
           )
         }
@@ -291,11 +295,12 @@ class GroupDetail extends Component {
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
                 <DeleteButton
+                  //TODO: translate
                   titleButton={'Eliminar'}
                   objectName='Grupo'
                   objectDelete={this.deleteObject.bind(this)}
                   message={`¿Está seguro que desea eliminar el grupo ${group.name}?`}
-                    />
+                />
               </div>
             </div>
           </div>
@@ -310,17 +315,17 @@ class GroupDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio',
+                    label: 'Inicio', //TODO: translate
                     current: false
                   },
                   {
                     path: '/manage/groups',
-                    label: 'Grupos',
+                    label: 'Grupos', //TODO: translate
                     current: true
                   },
                   {
                     path: '/manage/groups',
-                    label: 'Detalle',
+                    label: 'Detalle', //TODO: translate
                     current: true
                   },
                   {
@@ -337,8 +342,12 @@ class GroupDetail extends Component {
             <div className='level-item'>
               <a
                 className='button is-info'
-                onClick={() => { this.props.selectGroup() }}>
-                Regresar
+                onClick={() => { this.props.selectGroup() }}
+              >
+                <FormattedMessage
+                  id="groups.btnBack"
+                  defaultMessage={`Regresar`}
+                />
               </a>
             </div>
             <div className='level-item'>
@@ -354,7 +363,10 @@ class GroupDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                      Detalle
+                    <FormattedMessage
+                      id="groups.detail"
+                      defaultMessage={`Detalle`}
+                    />
                   </p>
                 </header>
                 <div className='card-content'>
@@ -371,7 +383,7 @@ class GroupDetail extends Component {
                         canEdit={currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'}
                         canCreate={currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'}
                       >
-                        
+
                         {
                           this.state.catalogItems &&
                           this.state.catalogItems.length > 0 &&
@@ -393,7 +405,7 @@ class GroupDetail extends Component {
                               </div>
                             )
                           })
-                          
+
                         }
                         {currentRole !== 'consultor-level-2' &&
                         <div className='field is-grouped has-20-margin-top'>
@@ -402,7 +414,12 @@ class GroupDetail extends Component {
                               className={'button is-primary ' + this.state.isLoading}
                               disabled={!!this.state.isLoading}
                               type='submit'
-                              >Guardar</button>
+                            >
+                              <FormattedMessage
+                                id="groups.btnSave"
+                                defaultMessage={`Guardar`}
+                              />
+                            </button>
                           </div>
                         </div>
                         }
@@ -416,26 +433,32 @@ class GroupDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                      Usuarios
-                    </p>
+                    <FormattedMessage
+                      id="groups.users"
+                      defaultMessage={`Usuarios`}
+                    />
+                  </p>
                   {currentRole !== 'consultor-level-2' &&
-                  
+
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModalList()}>
-                        Agregar
-                      </button>
+                      <FormattedMessage
+                        id="groups.btnAdd"
+                        defaultMessage={`Agregar`}
+                      />
+                    </button>
                     <BaseModal
                       title='Usuarios para asignar'
                       className={this.state.classNameList}
                       finishUp={this.finishUpList.bind(this)}
                       hideModal={this.hideModalList.bind(this)}
-                         >
+                    >
                       <BranchedPaginatedTable
                         branchName='usersAsign'
                         baseUrl='/app/users'
                         columns={this.getColumnsUsersToAsign()}
                         filters={{groupAsign: this.props.group.uuid, organization: group.organization.uuid}}
-                         />
+                      />
                     </BaseModal>
 
                   </div>
@@ -444,8 +467,11 @@ class GroupDetail extends Component {
 
                   <div className='card-header-select'>
                     <button className='button is-primary' onClick={() => this.showModal()}>
-                        Nuevo usuario
-                      </button>
+                      <FormattedMessage
+                        id="groups.btnNewUser"
+                        defaultMessage={`Nuevo usuario`}
+                      />
+                    </button>
                     <CreateUser
                       className={this.state.className}
                       finishUp={this.finishUp.bind(this)}
@@ -455,7 +481,7 @@ class GroupDetail extends Component {
                       url='/app/users/'
                       filters={{group: this.props.group.uuid}}
                       organization={group.organization._id}
-                      />
+                    />
                   </div>
                   }
                 </header>
@@ -467,7 +493,7 @@ class GroupDetail extends Component {
                         baseUrl='/app/users'
                         columns={this.getColumns()}
                         filters={{group: this.props.group.uuid}}
-                         />
+                      />
                     </div>
                   </div>
                 </div>

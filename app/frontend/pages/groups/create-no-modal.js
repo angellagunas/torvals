@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
@@ -67,9 +68,13 @@ class CreateGroupNoModal extends Component {
             <button
               className={'button is-primary ' + this.state.isLoading}
               disabled={!!this.state.isLoading}
-              type='submit'>
-                Crear
-              </button>
+              type='submit'
+            >
+              <FormattedMessage
+                id="groups.btnCreate"
+                defaultMessage={`Crear`}
+              />
+            </button>
           </div>
         </div>
       </GroupForm>

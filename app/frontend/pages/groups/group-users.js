@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import BaseModal from '~base/components/base-modal'
 import Link from '~base/router/link'
@@ -15,19 +16,19 @@ class GroupUsers extends Component {
   }
   getColumns () {
     return [
-      {
+      { //TODO: translate
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
-      {
+      { //TODO: translate
         'title': 'Email',
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
-      {
+      { //TODO: translate
         'title': 'Acciones',
         formatter: (row) => {
           return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
@@ -78,8 +79,14 @@ class GroupUsers extends Component {
   render () {
     return (
       <div>
-        <a className='is-link' onClick={(e) => { this.loadGroupUsers(e, this.props.group) }}>Ver lista</a>
+        <a className='is-link' onClick={(e) => { this.loadGroupUsers(e, this.props.group) }}>
+          <FormattedMessage
+            id="groups.btnList"
+            defaultMessage={`Ver lista`}
+          />
+        </a>
         <BaseModal
+          //TODO: translate
           title={'Usuarios grupo ' + this.props.group.name}
           className={this.state.classNameList}
           hideModal={this.hideModalList.bind(this)}

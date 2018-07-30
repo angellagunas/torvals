@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
@@ -68,6 +69,7 @@ class OrganizationDetail extends Component {
     const { organization } = this.state
 
     if (this.state.notFound) {
+      //TODO: translate
       return <NotFound msg='esta organización' />
     }
 
@@ -85,7 +87,7 @@ class OrganizationDetail extends Component {
           path={[
             {
               path: '/',
-              label: 'Inicio',
+              label: 'Inicio', //TODO: translate
               current: false
             },
             {
@@ -120,7 +122,7 @@ const branchedOrganizationDetail = branch({organizations: 'organizations'}, Orga
 
 export default Page({
   path: '/manage/organizations/:uuid',
-  title: 'User details',
+  title: 'User details', //TODO: translate
   exact: true,
   roles: 'admin, orgadmin, analyst, manager-level-3',
   validate: [loggedIn, verifyRole],

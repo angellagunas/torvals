@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import BaseModal from '~base/components/base-modal'
 import CreateForm from './create-form'
 
@@ -31,7 +32,8 @@ class CreateCatalog extends Component {
       <BaseModal
         title={'Crear ' + this.props.title}
         className={this.props.className}
-        hideModal={this.hideModal}>
+        hideModal={this.hideModal}
+      >
         <CreateForm
           baseUrl='/app/catalogItems/create'
           url={'/app/catalogItems/create'}
@@ -46,13 +48,20 @@ class CreateCatalog extends Component {
               <button
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
-                type='submit'>
-                Crear
+                type='submit'
+              >
+                <FormattedMessage
+                  id="catalog.btnCreate"
+                  defaultMessage={`Crear`}
+                />
               </button>
             </div>
             <div className='control'>
               <button className='button' type='button' onClick={this.hideModal}>
-                Cancelar
+                <FormattedMessage
+                  id="catalog.btnCancel"
+                  defaultMessage={`Cancelar`}
+                />
               </button>
             </div>
           </div>

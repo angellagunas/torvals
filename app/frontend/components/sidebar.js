@@ -109,12 +109,12 @@ class Sidebar extends Component {
               path: [
                 {
                   path: '/',
-                  label: 'Inicio',
+                  label: 'Inicio', //TODO: translate
                   current: false
                 },
                 {
                   path: '/catalogs/' + item.slug,
-                  label: 'Catalogos',
+                  label: 'Catalogos', //TODO: translate
                   current: true
                 }
               ],
@@ -137,13 +137,13 @@ class Sidebar extends Component {
 
         Dashboard.asSidebarItem(),
         {
-          title: 'Administración',
+          title: 'Administración', //TODO: translate
           icon: 'id-card-o',
           to: '/manage',
           roles: 'orgadmin, admin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
-            {
+            { //TODO: translate
               title: 'Organización',
               icon: 'user-circle-o',
               roles: 'orgadmin, admin, analyst, manager-level-3',
@@ -152,7 +152,7 @@ class Sidebar extends Component {
             OrgRules.asSidebarItem(),
             UsersGroups.asSidebarItem(),
             Roles.asSidebarItem(),
-            {
+            { //TODO: translate
               title: 'Catálogos',
               icon: 'book',
               to: '/catalogs',
@@ -168,7 +168,7 @@ class Sidebar extends Component {
         Forecast.asSidebarItem(),
         Projects.asSidebarItem(),
         Calendar.asSidebarItem(),
-        {
+        { //TODO: translate
           title: 'Cargar Datos',
           icon: 'upload',
           to: '/import',
@@ -177,7 +177,7 @@ class Sidebar extends Component {
             UsersImport.asSidebarItem()
           ]
         },
-        {
+        { //TODO: translate
           title: 'Reportes',
           icon: 'clipboard',
           to: '/reports',

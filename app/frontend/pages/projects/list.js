@@ -9,12 +9,12 @@ import CreateProject from './create'
 
 export default ListPage({
   path: '/projects',
-  title: 'Proyectos',
+  title: 'Proyectos', //TODO: translate
   icon: 'folder',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'Proyecto',
+  titleSingular: 'Proyecto', //TODO: translate
   create: true,
   createComponent: CreateProject,
   breadcrumbs: true,
@@ -22,12 +22,12 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
+        label: 'Inicio', //TODO: translate
         current: false
       },
       {
         path: '/projects/',
-        label: 'Proyectos',
+        label: 'Proyectos', //TODO: translate
         current: true
       }
     ],
@@ -42,6 +42,7 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
+      //TODO: translate
       name: {type: 'text', title: 'Por nombre'}
     }
   },
@@ -51,7 +52,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Nombre',
+        'title': 'Nombre', //TODO: translate
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -64,7 +65,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Creado',
+        'title': 'Creado', //TODO: translate
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -75,7 +76,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Acciones',
+        'title': 'Acciones', //TODO: translate
         formatter: (row) => {
           if (testRoles('consultor-level-2, consultor-level-3')) {
             return (

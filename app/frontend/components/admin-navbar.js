@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
 import env from '~base/env-variables'
@@ -184,14 +185,20 @@ class NavBar extends Component {
                     <span className='icon'>
                       <i className='fa fa-user-o' />
                     </span>
-                    Mi perfil
+                    <FormattedMessage
+                      id="navbar.profile"
+                      defaultMessage={`Mi perfil`}
+                    />
                   </Link>
                   <a className='dropdown-item'
                     onClick={() => this.handleLogout()}>
                     <span className='icon'>
                       <i className='fa fa-sign-out' />
                     </span>
-                    Cerrar sesión
+                    <FormattedMessage
+                      id="navbar.signOut"
+                      defaultMessage={`Cerrar sesión`}
+                    />
                   </a>
                 </div>
               </div>

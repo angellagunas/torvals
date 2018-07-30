@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import moment from 'moment'
 import api from '~base/api'
 import { toast } from 'react-toastify'
@@ -64,9 +65,9 @@ class TabHistorical extends Component {
     try{
     let url = '/app/dashboard/projects'
     let res = await api.get(url, projects)
-    
+
     this.getCatalogFilters(res.catalogItems)
-    
+
     this.setState({
       loading: false,
       filters: res,
@@ -76,6 +77,7 @@ class TabHistorical extends Component {
       this.getProductTable()
     })
     }catch(e){
+      //TODO: translate
       this.notify('Error al obtener los filtros ' + e.message, 5000, toast.TYPE.ERROR)
         this.setState({
           loading: false,
@@ -107,7 +109,7 @@ class TabHistorical extends Component {
           date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
           projects: Object.values(this.selectedProjects),
           catalogItems: Object.keys(this.selectedItems),
-          prices: this.state.prices          
+          prices: this.state.prices
         })
 
         let totalPSale = 0
@@ -164,6 +166,7 @@ class TabHistorical extends Component {
           })
         }, 10)
       } catch (e) {
+        //TODO: translate
         this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
         this.setState({
           noData: e.message + ', intente más tarde'
@@ -200,6 +203,7 @@ class TabHistorical extends Component {
       })
     }
     catch (e) {
+      //TODO: translate
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         noData: e.message + ', intente más tarde'
@@ -248,7 +252,7 @@ class TabHistorical extends Component {
           return row.product.externalId
         }
       },
-      {
+      { //TODO: translate
         'title': 'Producto',
         'property': 'product.name',
         'default': 'N/A',
@@ -257,7 +261,7 @@ class TabHistorical extends Component {
           return row.product.name
         }
       },
-      {
+      { //TODO: translate
         'title': 'Predicción',
         'property': 'prediction',
         'default': '0',
@@ -272,7 +276,7 @@ class TabHistorical extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         'title': 'Ajuste',
         'property': 'adjustment',
         'default': '0',
@@ -287,7 +291,7 @@ class TabHistorical extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         'title': 'Venta',
         'property': 'sale',
         'default': '0',
@@ -301,7 +305,7 @@ class TabHistorical extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         'title': 'Venta año anterior',
         'property': 'previousSale',
         'default': '0',
@@ -315,7 +319,7 @@ class TabHistorical extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         'title': 'MAPE',
         'property': 'mape',
         'default': '0.00%',
@@ -411,14 +415,24 @@ class TabHistorical extends Component {
     if (Object.keys(this.selectedProjects).length === 0) {
       return (
         <center>
-          <h1 className='has-text-info'>Debes seleccionar al menos un proyecto</h1>
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="projects.selectProjectMsg"
+              defaultMessage={`Debes seleccionar al menos un proyecto`}
+            />
+          </h1>
         </center>
       )
     }
     else if (Object.keys(this.selectedProjects).length !== 0 && !this.state.noData) {
       return (
         <center>
-          <h1 className='has-text-info'>Cargando, un momento por favor</h1>
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="projects.loading"
+              defaultMessage={`Cargando, un momento por favor`}
+            />
+          </h1>
           <Loader />
         </center>
       )
@@ -542,7 +556,7 @@ class TabHistorical extends Component {
         isOpen: true
       }))
       .value()
-    
+
     this.setState({
       catalogItems: filters
     }, () => {
@@ -560,8 +574,8 @@ class TabHistorical extends Component {
       if (item.type === type) {
         for (const s of item.objects) {
           s.selected = value
-          if (value) { 
-            this.selectedItems[s.uuid] = s 
+          if (value) {
+            this.selectedItems[s.uuid] = s
           }
           else{
             delete this.selectedItems[s.uuid]
@@ -586,7 +600,7 @@ class TabHistorical extends Component {
 
     obj.selected = value
     item.selectAll = this.countItems(obj.type) === item.objects.length
-  
+
     this.getGraph()
     this.getProductTable()
     this.setState({
@@ -749,7 +763,7 @@ class TabHistorical extends Component {
 
     let callbackLabels = this.getCallback()
     let tooltipCallback = this.getTooltipCallback()
-    
+
     if(this.state.noFilters){
       return (
         <div className='section columns'>
@@ -766,7 +780,7 @@ class TabHistorical extends Component {
         </div>
       )
     }
-
+    //TODO: translate
     const graph = [
       {
         label: 'Predicción',
@@ -821,7 +835,11 @@ class TabHistorical extends Component {
                         <span className='icon'>
                           <i className='fa fa-filter' />
                         </span>
-                        Filtros</h1>
+                        <FormattedMessage
+                          id="projects.filters"
+                          defaultMessage={`Filtros`}
+                        />
+                      </h1>
                     </div>
                     <div className='card-content'>
 
@@ -844,11 +862,22 @@ class TabHistorical extends Component {
                 <div className='column is-3 is-2-widescreen is-paddingless'>
                   <div className='notification is-info has-text-centered'>
                     <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
-                    <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
+                    <h2 className='subtitle has-text-weight-bold'>
+
+                      <FormattedMessage
+                        id="projects.mape"
+                        defaultMessage={`MAPE`}
+                      />
+                    </h2>
                   </div>
 
                   <div className='indicators'>
-                    <p className='indicators-title'>Venta total</p>
+                    <p className='indicators-title'>
+                      <FormattedMessage
+                        id="projects.totalSales"
+                        defaultMessage={`Venta total`}
+                      />
+                    </p>
                     <p className='indicators-number has-text-success'>
                       {
                         this.state.totalSale === 0 ?
@@ -863,7 +892,12 @@ class TabHistorical extends Component {
                           })
                       }
                     </p>
-                    <p className='indicators-title'>Venta año anterior</p>
+                    <p className='indicators-title'>
+                      <FormattedMessage
+                        id="projects.previousSales"
+                        defaultMessage={`Venta año anterior`}
+                      />
+                    </p>
                     <p className='indicators-number has-text-danger'>
                       {
                         this.state.totalPSale === 0 ?
@@ -878,7 +912,12 @@ class TabHistorical extends Component {
                       }
                     </p>
 
-                    <p className='indicators-title'>Ajuste total</p>
+                    <p className='indicators-title'>
+                      <FormattedMessage
+                        id="projects.totalAdjustment"
+                        defaultMessage={`Ajuste total`}
+                      />
+                    </p>
                     <p className='indicators-number has-text-teal'>
                       {
                         this.state.totalAdjustment === 0 ?
@@ -894,7 +933,12 @@ class TabHistorical extends Component {
                       }
                     </p>
 
-                    <p className='indicators-title'>Predicción total</p>
+                    <p className='indicators-title'>
+                      <FormattedMessage
+                        id="projects.totalPrediction"
+                        defaultMessage={`Predicción total`}
+                      />
+                    </p>
                     <p className='indicators-number has-text-info'>
                       {
                         this.state.totalPrediction === 0 ?
@@ -1012,7 +1056,12 @@ class TabHistorical extends Component {
                       />
                       : <section className='section has-30-margin-top'>
                         <center>
-                          <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
+                          <h1 className='has-text-info'>
+                            <FormattedMessage
+                              id="projects.emtyRows"
+                              defaultMessage={`No hay datos que mostrar`}
+                            />
+                          </h1>
                         </center>
                       </section>
                     : <section className='section has-30-margin-top'>
@@ -1028,7 +1077,12 @@ class TabHistorical extends Component {
                   <div className='level-item'>
 
                     <div className='field'>
-                      <label className='label'>Búsqueda general</label>
+                      <label className='label'>
+                        <FormattedMessage
+                          id="projects.search"
+                          defaultMessage={`Búsqueda general`}
+                        />
+                      </label>
                       <div className='control has-icons-right'>
                         <input
                           className='input'
@@ -1045,7 +1099,12 @@ class TabHistorical extends Component {
 
                   <div className='level-item'>
                     <div className="field">
-                      <label className='label'>Mostrar por: </label>
+                      <label className='label'>
+                        <FormattedMessage
+                          id="projects.showBy"
+                          defaultMessage={`Mostrar por:`}
+                        />
+                      </label>
                       <div className='control'>
 
                         <div className="field is-grouped">
@@ -1060,7 +1119,12 @@ class TabHistorical extends Component {
                               disabled={this.state.waitingData}
                               onChange={() => this.showBy(false)} />
                             <label htmlFor='showByquantity'>
-                              <span title='Cantidad'>Cantidad</span>
+                              <span title='Cantidad'>
+                                <FormattedMessage
+                                  id="projects.quantity"
+                                  defaultMessage={`Cantidad`}
+                                />
+                              </span>
                             </label>
                           </div>
 
@@ -1074,7 +1138,12 @@ class TabHistorical extends Component {
                               disabled={this.state.waitingData}
                               onChange={() => this.showBy(true)} />
                             <label htmlFor='showByprice'>
-                              <span title='Precio'>Precio</span>
+                              <span title='Precio'>
+                                <FormattedMessage
+                                  id="projects.price"
+                                  defaultMessage={`Precio`}
+                                />
+                              </span>
                             </label>
                           </div>
                         </div>
@@ -1088,7 +1157,12 @@ class TabHistorical extends Component {
                   {this.state.minPeriod &&
                     <div className='level-item'>
                     <div className='field'>
-                      <label className='label'>Mes inicial</label>
+                      <label className='label'>
+                        <FormattedMessage
+                          id="projects.initialMonth"
+                          defaultMessage={`Mes inicial`}
+                        />
+                      </label>
                       <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
@@ -1128,7 +1202,12 @@ class TabHistorical extends Component {
                   {this.state.maxPeriod &&
                     <div className='level-item'>
                      <div className='field'>
-                        <label className='label'>Mes final</label>
+                        <label className='label'>
+                          <FormattedMessage
+                            id="projects.finalMonth"
+                            defaultMessage={`Mes final`}
+                          />
+                        </label>
                         <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
@@ -1178,7 +1257,12 @@ class TabHistorical extends Component {
                   </div>
                   : <section className='section'>
                     <center>
-                      <h1 className='has-text-info'>No hay productos que mostrar, intente con otro filtro</h1>
+                      <h1 className='has-text-info'>
+                        <FormattedMessage
+                          id="projects.emtyProducts"
+                          defaultMessage={`No hay productos que mostrar, intente con otro filtro`}
+                        />
+                      </h1>
                     </center>
                   </section>
                 : <section className='section'>

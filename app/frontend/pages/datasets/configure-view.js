@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import Loader from '~base/components/spinner'
 import s from 'underscore.string'
 
@@ -45,7 +46,7 @@ class ConfigureViewDataset extends Component {
           label: `${col.name} Id *`,
           name: `is_${col.slug}_id`
         },
-        name: {
+        name: { //TODO: translate
           label: `${col.name} Nombre`,
           name: `is_${col.slug}_name`
         }
@@ -104,40 +105,75 @@ class ConfigureViewDataset extends Component {
         }
         <div className='columns has-borders'>
           <div className='column'>
-            <p className='title is-7'>Fecha mínima</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id="datasets.minimumDate"
+                defaultMessage={`Fecha mínima`}
+              />
+            </p>
             <p className='subtitle is-7'>{this.props.fmin}</p>
           </div>
           <div className='column'>
-            <p className='title is-7'>Fecha máxima</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id="datasets.maximumDate"
+                defaultMessage={`Fecha máxima`}
+              />
+            </p>
             <p className='subtitle is-7'>{this.props.fmax}</p>
           </div>
         </div>
 
         <div className='columns has-borders'>
           <div className='column'>
-            <p className='title is-7'>Fecha*</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id="datasets.date"
+                defaultMessage={`Fecha`}
+              /> *
+            </p>
             <p className='subtitle is-7'>{this.getColumnForValue('isDate')}</p>
           </div>
           <div className='column'>
-            <p className='title is-7'>Análisis*</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id="datasets.analysis"
+                defaultMessage={`Análisis`}
+              /> *
+            </p>
             <p className='subtitle is-7'>{this.getColumnForValue('isAnalysis')}</p>
           </div>
         </div>
 
         <div className='columns has-borders'>
           <div className='column'>
-            <p className='title is-7'>Ajuste</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id="datasets.adjustment"
+                defaultMessage={`Ajuste`}
+              />
+            </p>
             <p className='subtitle is-7'>{this.getColumnForValue('isAdjustment')}</p>
           </div>
           <div className='column'>
-            <p className='title is-7'>Predicción</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id="datasets.prediction"
+                defaultMessage={`Predicción`}
+              />
+            </p>
             <p className='subtitle is-7'>{this.getColumnForValue('isPrediction')}</p>
           </div>
         </div>
 
         <div className='columns has-borders'>
           <div className='column'>
-            <p className='title is-7'>Venta</p>
+            <p className='title is-7'>
+              <FormattedMessage
+                id="datasets.sale"
+                defaultMessage={`Venta`}
+              />
+            </p>
             <p className='subtitle is-7'>{this.getColumnForValue('isSales')}</p>
           </div>
           <div className='column' />
@@ -165,7 +201,12 @@ class ConfigureViewDataset extends Component {
             <table className='table is-fullwidth'>
               <thead>
                 <tr>
-                  <th>Filtro de Operación</th>
+                  <th>
+                    <FormattedMessage
+                      id="datasets.operationFilter"
+                      defaultMessage={`Filtro de Operación`}
+                    />
+                  </th>
                 </tr>
               </thead>
               <tbody >
@@ -177,7 +218,12 @@ class ConfigureViewDataset extends Component {
             <table className='table is-fullwidth'>
               <thead>
                 <tr>
-                  <th>Filtro de Análisis</th>
+                  <th>
+                    <FormattedMessage
+                      id="datasets.analysisFilter"
+                      defaultMessage={`Filtro de Análisis`}
+                    />
+                  </th>
                 </tr>
               </thead>
               <tbody >
@@ -187,19 +233,44 @@ class ConfigureViewDataset extends Component {
           </div>
         </div>
 
-        <label className='label'>Agrupaciones</label>
+        <label className='label'>
+          <FormattedMessage
+            id="datasets.groupings"
+            defaultMessage={`Agrupaciones`}
+          />
+        </label>
         <table className='table is-fullwidth'>
           <thead>
             <tr>
-              <th>Columna</th>
-              <th>Valor 1</th>
-              <th colSpan='2'>Valor 2</th>
+              <th>
+                <FormattedMessage
+                  id="datasets.column"
+                  defaultMessage={`Columna`}
+                />
+              </th>
+              <th>
+                <FormattedMessage
+                  id="datasets.value1"
+                  defaultMessage={`Valor 1`}
+                />
+              </th>
+              <th colSpan='2'>
+                <FormattedMessage
+                  id="datasets.value2"
+                  defaultMessage={`Valor 2`}
+                />
+              </th>
             </tr>
           </thead>
           <tbody>
             {this.state.formData.groupings.length === 0 ? (
               <tr>
-                <td colSpan='4'>No hay agrupaciones que mostrar</td>
+                <td colSpan='4'>
+                  <FormattedMessage
+                    id="datasets.emptyGroups"
+                    defaultMessage={`No hay agrupaciones que mostrar`}
+                  />
+                </td>
               </tr>
             ) : (
               this.state.formData.groupings.map((item, key) => {

@@ -12,13 +12,13 @@ import GroupUsers from './group-users'
 
 export default ListPage({
   path: '/manage/groups',
-  title: 'Grupos',
+  title: 'Grupos', //TODO: translate
   icon: 'users',
   exact: true,
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'Grupo',
+  titleSingular: 'Grupo', //TODO: translate
   create: true,
   createComponent: CreateGroup,
   breadcrumbs: true,
@@ -26,12 +26,12 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
+        label: 'Inicio', //TODO: translate
         current: false
       },
       {
         path: '/manage/groups/',
-        label: 'Grupos',
+        label: 'Grupos', //TODO: translate
         current: true
       }
     ],
@@ -47,7 +47,7 @@ export default ListPage({
   schema: {
     type: 'object',
     required: [],
-    properties: {
+    properties: { //TODO: translate
       general: {type: 'text', title: 'Buscar'}
     }
   },
@@ -57,7 +57,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Nombre',
+        'title': 'Nombre', //TODO: translate
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -70,7 +70,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Creado',
+        'title': 'Creado', //TODO: translate
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -81,7 +81,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Miembros',
+        'title': 'Miembros', //TODO: translate
         'property': 'users',
         'default': '0',
         'sortable': true,
@@ -95,7 +95,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Acciones',
+        'title': 'Acciones', //TODO: translate
         formatter: (row) => {
           const deleteObject = async function () {
             var url = '/app/groups/' + row.uuid
@@ -122,9 +122,9 @@ export default ListPage({
                   iconOnly
                   icon='fa fa-trash'
                   objectName='Grupo'
-                  objectDelete={deleteObject}
+                  objectDelete={deleteObject} //TODO: translate
                   message={`¿Está seguro de querer eliminar el grupo ${row.name} ?`}
-                  />
+                />
               </div>
           }
 

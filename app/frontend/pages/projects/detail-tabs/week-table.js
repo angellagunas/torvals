@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import StickTable from '~base/components/stick-table'
 import Checkbox from '~base/components/base-checkbox'
 import Loader from '~base/components/spinner'
@@ -31,7 +32,7 @@ class WeekTable extends Component {
   setRange () {
     let range
     if (this.props.generalAdjustment < 0) {
-      range = 'Ilimitado'
+      range = 'Ilimitado' //TODO: translate
     } else if (this.props.generalAdjustment === 0) {
       range = 'N/A'
     } else {
@@ -106,12 +107,20 @@ class WeekTable extends Component {
       <div className='field has-addons view-btns'>
         <span className='control'>
           <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info btn-lvl-3' : 'button is-info'}>
-            Vista Periodo
+
+            <FormattedMessage
+              id="projects.periodView"
+              defaultMessage={`Vista Periodo`}
+            />
           </a>
         </span>
         <span className='control'>
           <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
-            Vista Producto
+
+            <FormattedMessage
+              id="projects.productView"
+              defaultMessage={`Vista Producto`}
+            />
           </a>
         </span>
       </div>
@@ -171,7 +180,7 @@ class WeekTable extends Component {
       },
       {
         group: ' ',
-        title: 'Producto',
+        title: 'Producto', //TODO: translate
         property: 'product',
         default: 'N/A',
         sortable: true,
@@ -185,7 +194,7 @@ class WeekTable extends Component {
           }
           if (product === 'Not identified') {
             product = 'No identificado'
-          }
+          }//TODO: translate
           return product
         }
       },
@@ -225,7 +234,7 @@ class WeekTable extends Component {
     for (let j = 0; j < periods.length; j++){
       let period = periods[j].period
       cols.push(
-        {
+        { //TODO: translate
           group: <strong>{this.splitWords('Periodo ' + period
           + '_Ajuste permitido ' + this.state.range)}</strong>,
           title: 'Predicción',
@@ -243,7 +252,7 @@ class WeekTable extends Component {
            }
          }
         },
-        {
+        { //TODO: translate
           group: ' ',
           title: this.splitWords('Ajuste_Anterior '),
           property: 'lastAdjustment_' + j,
@@ -266,7 +275,7 @@ class WeekTable extends Component {
         },
         {
           group: ' ',
-           title: 'Ajuste',
+           title: 'Ajuste', //TODO: translate
            property: 'adjustmentForDisplay_' + j,
            default: '',
            sortable: true,
@@ -306,7 +315,7 @@ class WeekTable extends Component {
           }
 
         },
-        {
+        { //TODO: translate
           group: ' ',
           title: this.splitWords('Rango_Ajustado'),
           property: 'percentage_' + j,
@@ -448,7 +457,7 @@ class WeekTable extends Component {
       let weeks = _.orderBy(data.filter((element, index) => {
         let catItems = element.catalogItems.map(item => {return item.uuid})
           .reduce((item, last) => {return last + ',' + item})
-          
+
           return element.productId + ' (' + catItems + ')' === item
         }), function (e) { return e.period.period }, ['asc'])
 
@@ -482,9 +491,9 @@ class WeekTable extends Component {
     else if(e.indexOf('_') !== -1){
       let sort = e.split('_')
       if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, function (e) { 
+        sorted = _.orderBy(sorted, function (e) {
           if (e.weeks[parseInt(sort[1])]){
-            return e.weeks[parseInt(sort[1])][sort[0]] 
+            return e.weeks[parseInt(sort[1])][sort[0]]
           }
           else{
             return 0
@@ -492,13 +501,13 @@ class WeekTable extends Component {
         }, ['asc'])
       }
       else {
-        sorted = _.orderBy(sorted, function (e) { 
+        sorted = _.orderBy(sorted, function (e) {
           if (e.weeks[parseInt(sort[1])]) {
             return e.weeks[parseInt(sort[1])][sort[0]]
           }
           else {
             return 0
-          } 
+          }
         }, ['desc'])
       }
     }
