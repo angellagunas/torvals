@@ -53,11 +53,11 @@ module.exports = new Route({
 
       if (!validRanges) { ctx.throw(422, 'El valor de los rangos de manager lvl 2 debe de ser númerico y mayor a 0') }
 
-      if (isNaN(data.consolidation) || data.consolidation <= 0) { ctx.throw(422, 'El valor de consolidar debe de ser númerico y mayor a 0') }
-      if (isNaN(data.forecastCreation) || data.forecastCreation <= 0) { ctx.throw(422, 'El valor de forecast debe de ser númerico y mayor a 0') }
-      if (isNaN(data.rangeAdjustmentRequest) || data.rangeAdjustmentRequest <= 0) { ctx.throw(422, 'El valor de ajuste debe de ser númerico y mayor a 0') }
-      if (isNaN(data.rangeAdjustment) || data.rangeAdjustment <= 0) { ctx.throw(422, 'El valor de aprobación debe de ser númerico y mayor a 0') }
-      if (isNaN(data.salesUpload) || data.salesUpload <= 0) { ctx.throw(422, 'El valor de ventas debe de ser númerico y mayor a 0') }
+      if (isNaN(data.consolidation) || data.consolidation < 0) { ctx.throw(422, 'El valor de consolidar debe de ser númerico y mayor o igual a 0') }
+      if (isNaN(data.forecastCreation) || data.forecastCreation < 0) { ctx.throw(422, 'El valor de forecast debe de ser númerico y mayor o igual a 0') }
+      if (isNaN(data.rangeAdjustmentRequest) || data.rangeAdjustmentRequest < 0) { ctx.throw(422, 'El valor de ajuste debe de ser númerico y mayor o igual a 0') }
+      if (isNaN(data.rangeAdjustment) || data.rangeAdjustment < 0) { ctx.throw(422, 'El valor de aprobación debe de ser númerico y mayor o igual a 0') }
+      if (isNaN(data.salesUpload) || data.salesUpload < 0) { ctx.throw(422, 'El valor de ventas debe de ser númerico y mayor o igual a 0') }
 
       let findProductsCatalog = data.catalogs.find(item => { return item.slug === 'producto' || item.slug === 'productos' })
       if (findProductsCatalog === undefined) { ctx.throw(422, 'Se debe de agregar un catálogo de productos') }
@@ -139,11 +139,11 @@ module.exports = new Route({
 
       if (!validRanges) { ctx.throw(422, 'El valor de los rangos de manager lvl 2 debe de ser númerico y mayor a 0') }
 
-      if (isNaN(data.consolidation) || data.consolidation <= 0) { ctx.throw(422, 'El valor de consolidar debe de ser númerico y mayor a 0') }
-      if (isNaN(data.forecastCreation) || data.forecastCreation <= 0) { ctx.throw(422, 'El valor de forecast debe de ser númerico y mayor a 0') }
-      if (isNaN(data.rangeAdjustmentRequest) || data.rangeAdjustmentRequest <= 0) { ctx.throw(422, 'El valor de ajuste debe de ser númerico y mayor a 0') }
-      if (isNaN(data.rangeAdjustment) || data.rangeAdjustment <= 0) { ctx.throw(422, 'El valor de aprobación debe de ser númerico y mayor a 0') }
-      if (isNaN(data.salesUpload) || data.salesUpload <= 0) { ctx.throw(422, 'El valor de ventas debe de ser númerico y mayor a 0') }
+      if (isNaN(data.consolidation) || data.consolidation < 0) { ctx.throw(422, 'El valor de consolidar debe de ser númerico y mayor o igual a 0') }
+      if (isNaN(data.forecastCreation) || data.forecastCreation < 0) { ctx.throw(422, 'El valor de forecast debe de ser númerico y mayor o igual a 0') }
+      if (isNaN(data.rangeAdjustmentRequest) || data.rangeAdjustmentRequest < 0) { ctx.throw(422, 'El valor de ajuste debe de ser númerico y mayor o igual a 0') }
+      if (isNaN(data.rangeAdjustment) || data.rangeAdjustment < 0) { ctx.throw(422, 'El valor de aprobación debe de ser númerico y mayor o igual a 0') }
+      if (isNaN(data.salesUpload) || data.salesUpload < 0) { ctx.throw(422, 'El valor de ventas debe de ser númerico y mayor o igual a 0') }
 
       rule = await Rule.findOne({organization: org._id, isCurrent: true, isDeleted: false}).populate('periods catalogs')
       rule.set({
