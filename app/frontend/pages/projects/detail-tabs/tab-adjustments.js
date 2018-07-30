@@ -1483,7 +1483,7 @@ class TabAdjustment extends Component {
               </div>
             </div>
 
-            <div className='column is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
+            <div className='column is-5-tablet is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
               <div className='panel sales-graph'>
                 <div className='panel-heading'>
                   <h2 className='is-capitalized'>Reporte {this.getCycleName()}</h2>
