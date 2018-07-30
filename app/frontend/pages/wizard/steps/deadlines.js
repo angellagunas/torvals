@@ -419,7 +419,7 @@ class DeadLines extends Component {
 
         </div>
 
-        <div className='buttons wizard-steps'>
+        <div className='buttons wizard-steps has-margin-big'>
           {this.props.org && !this.props.org.isConfigured &&
             this.props.completed && this.props.completed.length < 4
             ? <button onClick={() => this.props.setStep(3)} className='button is-primary'>Atrás</button>

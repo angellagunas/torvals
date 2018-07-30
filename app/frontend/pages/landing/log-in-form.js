@@ -297,6 +297,8 @@ class LogInButton extends Component {
               </div>
             </section>
           </div>
+          <button className='modal-close login is-large has-text-dark' aria-label='close' onClick={() => { this.hideModal() }} />
+
         </div>
       </div>
     )

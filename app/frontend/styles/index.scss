@@ -3,6 +3,7 @@
 @import '~font-awesome/css/font-awesome.css';
 @import '~bulma-calendar';
 @import '~bulma-checkradio';
+@import '~bulma-badge/dist/css/bulma-badge';
 @import 'navbar';
 @import 'sidenav';
 @import 'table';
@@ -495,6 +496,34 @@ h2 {
 .is-checkradio[type=radio]:focus+label::before,
 .is-checkradio[type=radio]:focus+label:before {
     outline: none;
+}
+
+.org-img {
+  border-radius: 100%;
+  padding: 3rem;
+}
+
+.org-card {
+  max-width: 400px;
+}
+
+.has-margin-big {
+  margin-top: 5rem;
+}
+
+.privacy{
+  ul{
+    margin-left: 2rem;
+    li{
+      list-style: initial;
+    }
+  }
+  ol{
+    margin-left: 2rem;
+  }
+  p{
+    margin: 1.5rem 0;
+  }
 }
 
 @import 'wizard';

@@ -50,7 +50,8 @@ module.exports = new Route({
       businessType: data.businessType,
       accountType: data.accountType,
       availableUsers: data.availableUsers,
-      salesRep: data.salesRep
+      salesRep: data.salesRep,
+      description: data.description
     })
 
     if (!data.description) org.set({description: ''})

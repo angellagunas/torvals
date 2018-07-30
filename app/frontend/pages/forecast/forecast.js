@@ -465,7 +465,7 @@ class Forecast extends Component {
                 <br />
                 <a
                   className='button is-info is-medium'
-                  onClick={() => this.showCreateModal()}>
+                  onClick={() => { this.props.history.push('/projects') }}>
                   <span>Crear</span>
                 </a>
               </div>

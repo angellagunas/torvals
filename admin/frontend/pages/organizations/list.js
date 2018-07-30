@@ -1,40 +1,63 @@
 import React from 'react'
-import Link from '~base/router/link'
-import moment from 'moment'
 
-import ListPage from '~base/list-page'
+import env from '~base/env-variables'
+import Link from '~base/router/link'
+import api from '~base/api'
+import ListPageComponent from '~base/list-page-component'
 import {loggedIn} from '~base/middlewares/'
+import moment from 'moment'
+import tree from '~core/tree'
 import CreateOrganization from './create'
 
-export default ListPage({
-  path: '/manage/organizations',
-  title: 'Organizaciones',
-  titleSingular: 'Organización',
-  icon: 'users',
-  exact: true,
-  validate: loggedIn,
-  create: true,
-  createComponent: CreateOrganization,
-  breadcrumbs: true,
-  breadcrumbConfig: {
-    path: [
-      {
-        path: '/admin',
-        label: 'Inicio',
-        current: false
+class OrganizationList extends ListPageComponent {
+  finishUp (data) {
+    this.setState({
+      className: ''
+    })
+
+    this.props.history.push(env.PREFIX + '/manage/organizations/' + data.uuid)
+  }
+
+  getFilters () {
+    const data = {
+      schema: {
+        type: 'object',
+        required: [],
+        properties: {
+          status: {
+            type: 'text',
+            title: 'Por status',
+            values: [
+              {
+                uuid: 'active',
+                name: 'Activa'
+              },
+              {
+                uuid: 'inactive',
+                name: 'Inactiva'
+              },
+              {
+                uuid: 'trial',
+                name: 'Período de prueba'
+              },
+              {
+                uuid: 'activationPending',
+                name: 'Pendiente de activación'
+              }
+            ] },
+          general: {type: 'text', title: 'Buscar'}
+        }
       },
-      {
-        path: '/admin/manage/organizations',
-        label: 'Organizaciones',
-        current: true
+      uiSchema: {
+        status: { 'ui:widget': 'SelectSearchFilter' },
+        general: {'ui:widget': 'SearchFilter'}
       }
-    ],
-    align: 'left'
-  },
-  baseUrl: '/admin/organizations',
-  branchName: 'organizations',
-  detailUrl: '/admin/manage/organizations/',
-  getColumns: () => {
+    }
+
+    return data
+  }
+
+  getColumns () {
     return [
       {
         'title': 'Nombre',
@@ -47,6 +70,27 @@ export default ListPage({
               {row.name}
             </Link>
           )
+        }
+      },
+      {
+        'title': 'No. Empleados',
+        'property': 'employees',
+        'default': '0'
+      },
+      {
+        'title': 'Status',
+        'property': 'status',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          let status = {
+            active: 'Activa',
+            inactive: 'Inactiva',
+            trial: 'Período de prueba',
+            activationPending: 'Pendiente de activación'
+          }
+
+          return status[row.status]
         }
       },
       {
@@ -74,4 +118,44 @@ export default ListPage({
       }
     ]
   }
+}
+
+OrganizationList.config({
+  name: 'organization-list',
+  path: '/manage/organizations',
+  title: 'Organizaciones',
+  titleSingular: 'Organización',
+  icon: 'users',
+  exact: true,
+  validate: loggedIn,
+  breadcrumbs: true,
+  breadcrumbConfig: {
+    path: [
+      {
+        path: '/admin',
+        label: 'Inicio',
+        current: false
+      },
+      {
+        path: '/admin/manage/organizations',
+        label: 'Organizaciones',
+        current: true
+      }
+    ],
+    align: 'left'
+  },
+  headerLayout: 'create',
+  create: true,
+  createComponent: CreateOrganization,
+  createComponentLabel: 'Nueva Organización',
+  branchName: 'organizations',
+  filters: true,
+  uiSchema: {
+    status: { 'ui:widget': 'SelectSearchFilter' },
+    general: {'ui:widget': 'SearchFilter'}
+  },
+  apiUrl: '/admin/organizations',
+  detailUrl: '/admin/manage/organizations/'
 })
+
+export default OrganizationList
