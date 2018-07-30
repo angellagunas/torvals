@@ -406,7 +406,9 @@ class RegisterModal extends Component {
         <h1 className='is-size-2'>
           Bienvenido a Orax
         </h1>
-        <p className='is-size-5 pad-bottom'>Ingresa tus datos. Tu usuario será el administrador de la cuenta y utilizarás tu correo y contraseña para acceder a Orax.</p>
+        <p className='is-size-5 pad-bottom'>
+         Ingresa tus datos como administrador de la cuenta para acceder y utilizar Orax.
+        </p>
         <div className='content'>
           <div className='columns is-centered'>
             <div className='column'>
@@ -471,7 +473,7 @@ class RegisterModal extends Component {
                   </div>
                   <div className='column is-narrow'>
                     <div className='accept__label'>
-                      <strong>Acepto el <a className='has-text-primary'>Aviso de privacidad</a> y condición de uso de mis datos.</strong>
+                      <strong>Acepto el <a className='has-text-primary' href='/privacy' target='blank'>Aviso de privacidad</a> y condición de uso de mis datos.</strong>
                     </div>
                   </div>
                 </div>
@@ -859,14 +861,14 @@ class RegisterModal extends Component {
     if (env.ENV === 'production') {
       if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
         const newHostname = hostnameSplit.slice(-3).join('.')
-        window.location = `//${this.state.org.slug}.${newHostname}/dashboard`
+        window.location = `//${this.state.org.slug}.${newHostname}/rules`
       } else {
         const newHostname = hostnameSplit.slice(-2).join('.')
-        window.location = `//${this.state.org.slug}.${newHostname}/dashboard`
+        window.location = `//${this.state.org.slug}.${newHostname}/rules`
       }
     } else {
       const baseUrl = env.APP_HOST.split('://')
-      window.location = baseUrl[0] + '://' + this.state.org.slug + '.' + baseUrl[1] + '/dashboard'
+      window.location = baseUrl[0] + '://' + this.state.org.slug + '.' + baseUrl[1] + '/rules'
     }
   }
 

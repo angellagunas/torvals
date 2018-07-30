@@ -5,24 +5,43 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #FBFBFB;
+    background-color: rgba(10, 10, 10, 0.86);
+    .card-content {
+      padding: .8rem;
+    }
+    .card-header-icon {
+      padding: 0;
+      margin: 8px;
+    }
+    .org-button {
+      &-save {
+        display: none;
+      }
+      display: block !important;
+      position: absolute;
+      bottom: 1.2rem;
+      right: 4.6rem;
+      font-size: .85rem;
+    }
     .tabs {
       display: none;
     }
     .container {
       margin-top: .3rem;
-      max-width: 100%;
+      max-width: 80rem;
       width: 100%;
       &>div:first-child {
-        margin: 2rem 3rem .2rem;
+        margin: 2rem 3rem -.2rem;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
       }
       &>div:not(:first-child) {
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         margin: 0 3rem 1rem;
         padding: .5rem 2rem 2rem;
         background-color: #fff;
-      }
-      background-color: #FBFBFB;
+        border-radius: 5px;
+      } //background-color: #FBFBFB;
     }
   }
   .tabs {
@@ -44,8 +63,8 @@
   .column ul {
     margin-top: 1rem;
     li {
-      margin-left: 1rem;
-      margin-bottom: .5rem;
+      /* margin-left: 1rem;
+      margin-bottom: .5rem; */
       .tag:first-child {
         width: 200px;
       }
@@ -119,7 +138,11 @@
 }
 
 .wizard-steps {
-  justify-content: center !important;
+  justify-content: flex-end !important;
+  margin-right: 3rem;
+  .button {
+    font-size: 0.85rem;
+  }
 }
 
 .catalogs {
@@ -174,8 +197,8 @@
 .rules-ranges {
   margin-top: 1rem;
   li {
-    margin-left: .5rem !important;
-    margin-bottom: .2rem !important;
+    /* margin-left: .5rem !important;
+    margin-bottom: .2rem !important; */
     .tag {
       width: 100px !important;
     }
@@ -234,28 +257,27 @@
   &__modal {
     justify-content: flex-end;
   }
-  &__project{
-    &-container{
+  &__project {
+    &-container {
       max-height: 50vh;
       overflow-x: hidden;
       overflow-y: auto;
-
-      .card-content{
+      .card-content {
         padding: 0;
-        span{
+        span {
           font-weight: 700;
           font-size: .9rem;
           line-height: 1rem;
         }
-        label{
+        label {
           display: block;
           padding: 1rem .5rem 1rem 0;
           margin: 0 0 0 1rem;
-          &::before{
+          &::before {
             top: inherit;
           }
-          &::after{
-            top:inherit;
+          &::after {
+            top: inherit;
           }
         }
       }
@@ -285,5 +307,53 @@
   .save-btn {
     width: inherit !important;
     height: inherit !important;
+  }
+}
+
+.wizards-button {
+  &.navbar-link {
+    &::after {
+      content: none !important;
+    }
+  }
+}
+
+.wizard-steps-modal {
+   .modal-card {
+    width: 600px;
+  }
+}
+
+.wizard-step {
+  border: 1px solid #E6E8F6;
+  padding: .8rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
+  margin: .5rem 0;
+  &:first-child{
+      margin: 1.5rem 0 .5rem;
+  }
+  strong {
+    margin-right: .3rem;
+  }
+  .icon {
+    display: none;
+  }
+  &.done {
+    cursor: default;
+    background-color: rgba($success, .15);
+    .icon {
+      display: inline;
+      float: right;
+    }
+    box-shadow: none;
+  }
+  &.disabled {
+    cursor: not-allowed;
+    background-color: rgba(grey, .15);
+    .icon {
+      display: none;
+    }
+    box-shadow: none;
   }
 }

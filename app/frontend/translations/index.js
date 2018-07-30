@@ -44,7 +44,7 @@ export const translations = {
       periods: 'Los periodos pertenecen al ciclo donde',
       configBtnSave: 'Guardar configuración',
       configTitle: 'Configura tus reglas de negocio',
-      configInfo: 'Puedes editar los datos las veces que desees sin embargo, recuerda que tus anteriores reglas quedarán deshabilitadas y perderás tu información.',
+      configInfo: 'Edita los datos las veces que desees. Recuerda que tus reglas quedarán deshabilitadas y perderás la información.',
       alertTitle: 'Atención',
       alertContent1: 'Tu configuración ha sido modificada, recuerda que',
       alertContent2: 'debes actualizar tus proyectos',
@@ -53,7 +53,7 @@ export const translations = {
       btnEdit: 'Editar',
       catalogs: 'Catálogos',
       price: 'Precio',
-      title: 'Reglas de organización'
+      title: 'Establece tus ciclos y periodos de ajuste'
     },
     dashboard: {
       tableMsg: 'Debes seleccionar al menos un proyecto',
@@ -325,6 +325,7 @@ export const translations = {
     organizations: {
       formTitle: 'Detalle de tu organización',
       btnSave: 'Guardar',
+      btnContinue: 'Continuar',
       savedMsg: 'Los datos se han guardado correctamente',
       logoUploadMsg: 'Sube el logo de la organización',
       name: 'Nombre',
@@ -489,7 +490,7 @@ export const translations = {
       periods: '[EN] Los periodos pertenecen al ciclo donde',
       configBtnSave: '[EN] Guardar configuración',
       configTitle: '[EN] Configura tus reglas de negocio',
-      configInfo: '[EN] Puedes editar los datos las veces que desees sin embargo, recuerda que tus anteriores reglas quedarán deshabilitadas y perderás tu información.',
+      configInfo: '[EN] Edita los datos las veces que desees. Recuerda que tus reglas quedarán deshabilitadas y perderás la información.',
       alertTitle: '[EN] Atención',
       alertContent1: '[EN] Tu configuración ha sido modificada, recuerda que',
       alertContent2: '[EN] debes actualizar tus proyectos',
@@ -498,7 +499,7 @@ export const translations = {
       btnEdit: '[EN] Editar',
       catalogs: '[EN] Catálogos',
       price: '[EN] Precio',
-      title: '[EN] Reglas de organización'
+      title: '[EN] Establece tus ciclos y periodos de ajuste'
     },
     dashboard: {
       tableMsg: '[EN] Debes seleccionar al menos un proyecto',
@@ -770,6 +771,7 @@ export const translations = {
     organizations: {
       formTitle: '[EN] Detalle de tu organización',
       btnSave: '[EN] Guardar',
+      btnContinue: '[EN] Continuar',
       savedMsg: '[EN] Los datos se han guardado correctamente',
       logoUploadMsg: '[EN] Sube el logo de la organización',
       name: '[EN] Nombre',

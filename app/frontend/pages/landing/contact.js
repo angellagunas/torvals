@@ -11,9 +11,10 @@ class Contact extends Component {
                 <h1 className='title'>
                   ¿Necesitas más información?
                   </h1>
-                <h2 className='subtitle'>
-                  Orax te da la libertad de seleccionar la forma en le das forma a tus datos
-                  </h2>
+                <h2>
+                  Creamos un paquete y cotización especialmente a tus necesidades.
+                  Solicitala y uno de nuestros agentes se pondrá en contacto contigo para ayudarte.
+                </h2>
               </div>
               <div className='column is-offset-1'>
                 <div className='columns'>

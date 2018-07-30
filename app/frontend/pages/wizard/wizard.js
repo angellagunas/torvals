@@ -109,6 +109,29 @@ class Wizard extends Component {
     }
   }
 
+  async updateStep () {
+    try {
+      let user = tree.get('user')
+      let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+      let res = await api.post(url, {
+        step: {
+          name: 'businessRules',
+          value: true
+        }
+      })
+
+      if (res) {
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+  }
+
   async saveData () {
     try {
       let url = '/app/rules'
@@ -127,6 +150,7 @@ class Wizard extends Component {
         )
 
         this.setState({unsaved: false})
+        await this.updateStep()
 
         let me = await api.get('/user/me')
         tree.set('user', me.user)

@@ -98,5 +98,23 @@ export default ListPage({
         }
       }
     ]
-  }
+  },
+  noDataComponent: (<div className='columns is-centered'>
+    <div className='column is-8'>
+      <article className='message is-info'>
+        <div className='message-header has-text-weight-bold'>
+          <p>Proyecto nuevo</p>
+        </div>
+        <div className='message-body is-size-6 has-text-centered'>
+          <span className='icon is-large has-text-info'>
+            <i className='fa fa-magic fa-2x' />
+          </span>
+          <span className='is-size-5'>
+            Debes crear al menos un proyecto para poder crear una predicción
+          </span>
+
+        </div>
+      </article>
+    </div>
+  </div>)
 })

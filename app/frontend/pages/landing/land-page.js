@@ -206,7 +206,7 @@ class LandPage extends Component {
                   </h1>
                   <h2 className='subtitle'>
                     Orax es una herramienta moderna que con base en información histórica,
-                    predice la demanda para guiarnos a través de la incertidumbre, ayudándonos 
+                    predice la demanda para guiarnos a través de la incertidumbre, ayudándonos
                     a tomar mejores decisiones empresariales y a responder de maner más ágil.
                   </h2>
                 </div>

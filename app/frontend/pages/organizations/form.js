@@ -51,7 +51,7 @@ class CustomForm extends Component {
     const profileImg = profile || profileUrl
 
     return (
-      <div className='columns is-multiline test'>
+      <div className='columns is-multiline'>
 
         <div className='column is-12'>
           <p className='subtitle is-pulled-left'>
@@ -64,7 +64,7 @@ class CustomForm extends Component {
           </p>
           <div className='is-pulled-right'>
             <button
-              className={'button is-primary ' + this.state.isLoading}
+              className={'button is-primary org-button-save ' + this.state.isLoading}
               disabled={!!this.state.isLoading}
               type='submit'
             >
@@ -73,18 +73,28 @@ class CustomForm extends Component {
                 defaultMessage={`Guardar`}
               />
             </button>
+            <button
+              className={'button is-primary org-button is-hidden ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'
+            >
+              <FormattedMessage
+                id="organizations.btnContinue"
+                defaultMessage={`Continuar`}
+              />
+            </button>
           </div>
         </div>
 
-        <div className='column is-one-third'>
-          <div className='card'>
+        <div className='column is-narrow'>
+          <div className='card org-card'>
             <div className='card-image'>
               <figure className='image is-1by1'>
-                <img src={profileImg} />
+                <img src={profileImg} className='org-img' />
               </figure>
             </div>
             <div className='card-content'>
-              <div className='form-group field'>
+              <div className='form-group field has-text-centered'>
                 <label className='label'>
                   <FormattedMessage
                     id="organizations.logoUploadMsg"

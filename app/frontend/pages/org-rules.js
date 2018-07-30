@@ -13,6 +13,7 @@ import { toast } from 'react-toastify'
 import api from '~base/api'
 import BaseModal from '~base/components/base-modal'
 import { Prompt } from 'react-router-dom'
+import Wizard from './wizard/wizard'
 
 //TODO: translate
 const times = {
@@ -315,8 +316,23 @@ class OrgRules extends Component {
     })
   }
 
+  componentWillMount () {
+    var userCursor = tree.select('user')
+
+    userCursor.on('update', () => {
+      this.forceUpdate()
+    })
+  }
+
   render () {
-    let org = tree.get('user').currentOrganization
+    let user = tree.get('user')
+    let org = user.currentOrganization
+
+    if (!org.isConfigured && user.currentRole.slug === 'orgadmin') {
+      return (
+        <Wizard rules={this.state.rules} org={user.currentOrganization} />
+      )
+    }
 
     this.tabs = [
       {
@@ -536,7 +552,7 @@ class OrgRules extends Component {
                   <p className='card-header-title'>
                     <FormattedMessage
                       id="orgRules.title"
-                      defaultMessage={`Reglas de organización`}
+                      defaultMessage={`Establece tus ciclos y periodos de ajuste`}
                     />
                   </p>
                 </div>
@@ -690,7 +706,7 @@ class OrgRules extends Component {
             </h4>
             <FormattedMessage
               id="orgRules.configInfo"
-              defaultMessage={`Puedes editar los datos las veces que desees sin embargo, recuerda que tus anteriores reglas quedarán deshabilitadas y perderás tu información.`}
+              defaultMessage={`Edita los datos las veces que desees. Recuerda que tus reglas quedarán deshabilitadas y perderás la información.`}
             />
           </div>
         </div>
