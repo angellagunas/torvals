@@ -74,7 +74,6 @@ const NoMatch = () => {
 const AppRouter = () => {
   return (
     <Router>
-      <IntlProvider locale={language || 'es'}>
         <AdminLayout>
           <div className='c-flex-1 is-flex is-flex-column is-relative'>
             <Switch>
@@ -141,7 +140,6 @@ const AppRouter = () => {
             </Switch>
           </div>
         </AdminLayout>
-      </IntlProvider>
     </Router>
   )
 }
