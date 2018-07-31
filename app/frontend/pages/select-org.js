@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import tree from '~core/tree'
 import cookies from '~base/cookies'
 import env from '~base/env-variables'
@@ -64,7 +65,10 @@ class SelectOrg extends Component {
       )
     }
 
-    return 'Select an organization'
+    return <FormattedMessage
+      id="selectOrg.select"
+      defaultMessage={`Selecciona una organizacion`}
+    />
   }
 
   async changeHandler (slug) {
@@ -136,7 +140,10 @@ class SelectOrg extends Component {
       )
     }
 
-    return 'Select an organization'
+    return <FormattedMessage
+      id="selectOrg.select"
+      defaultMessage={`Selecciona una organizacion`}
+    />
   }
 
   render () {

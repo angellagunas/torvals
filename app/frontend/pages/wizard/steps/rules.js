@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import { Prompt } from 'react-router-dom'
+import { FormattedMessage } from 'react-intl'
 
 import DeadLines from './deadlines'
 
+//TODO: translate
 const times = {
   'd': 'Día',
 
@@ -43,6 +45,7 @@ class Rules extends Component {
         <Prompt
           when={this.props.unsaved}
           message={location => (
+            //TODO: translate
             `Hay cambios a las reglas de negocio sin aplicar, ¿estás seguro de querer salir de esta página?`
           )}
         />

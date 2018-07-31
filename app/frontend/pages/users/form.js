@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import Loader from '~base/components/spinner'
 import tree from '~core/tree'
 
@@ -78,6 +79,7 @@ class UserForm extends Component {
   async submitHandler ({formData}) {
     if (!formData.role) {
       return this.setState({
+        //TODO: translate
         error: '¡Se debe seleccionar un rol!',
         apiCallErrorMessage: 'message is-danger'
       })
@@ -118,6 +120,7 @@ class UserForm extends Component {
         'email'
       ],
       properties: {
+        //TODO: translate
         name: {type: 'string', title: 'Nombre'},
         email: {type: 'string', title: 'Email'},
         role: {
@@ -211,7 +214,10 @@ class UserForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+              <FormattedMessage
+                id="user.saveMsg"
+                defaultMessage={`Los datos se han guardado correctamente`}
+              />
             </div>
           </div>
 

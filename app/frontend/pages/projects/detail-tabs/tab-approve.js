@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 import tree from '~core/tree'
 import moment from 'moment'
@@ -58,7 +59,7 @@ class TabApprove extends Component {
 
   getColumns() {
     return [
-      {
+      {//TODO: translate
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
@@ -107,7 +108,7 @@ class TabApprove extends Component {
           return String(row.product.externalId)
         }
       },
-      {
+      { //TODO: translate
         'title': 'Producto',
         'property': 'product.name',
         'default': 'N/A',
@@ -116,7 +117,7 @@ class TabApprove extends Component {
           return String(row.product.name)
         }
       },
-      {
+      { //TODO: translate
         'title': 'Ciclo',
         'property': 'cycle.dateStart',
         'default': 'N/A',
@@ -128,7 +129,7 @@ class TabApprove extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         'title': 'Periodo',
         'property': 'period.period',
         'default': 'N/A',
@@ -139,7 +140,7 @@ class TabApprove extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         'title': 'Predicción',
         'property': 'datasetRow.data.prediction',
         'default': 0,
@@ -148,7 +149,7 @@ class TabApprove extends Component {
           return String(row.datasetRow.data.prediction)
         }
       },
-      {
+      { //TODO: translate
         'title': 'Ajuste',
         'property': 'newAdjustment',
         'default': 0,
@@ -161,7 +162,7 @@ class TabApprove extends Component {
           return row.newAdjustment
         }
       },
-      {
+      { //TODO: translate
         'title': 'Rango',
         'property': 'percentage',
         'default': 0,
@@ -175,7 +176,7 @@ class TabApprove extends Component {
           return Math.round(percentage) + ' %'
         }
       },
-      {
+      { //TODO: translate
         'title': 'Creado',
         'property': 'dateRequested',
         'sortable': true,
@@ -187,7 +188,7 @@ class TabApprove extends Component {
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Aprobado / Rechazado',
         formatter: (row) => {
           if (row.dateRejected) {
@@ -206,7 +207,7 @@ class TabApprove extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         'title': 'Estado',
         'property': 'statusLevel',
         'default': '',
@@ -294,7 +295,7 @@ class TabApprove extends Component {
   filterbyDate() {
     if (this.state.startDate && this.state.endDate) {
       this.uncheckAll()
-
+      //TODO: translate
       if (this.state.startDate > this.state.endDate) {
         this.notify('Rango de fechas inválido', 5000, toast.TYPE.ERROR)
         return
@@ -313,7 +314,12 @@ class TabApprove extends Component {
           <div className='level-item'>
 
             <div className='field'>
-              <label className='label'>Búsqueda general</label>
+              <label className='label'>
+                <FormattedMessage
+                  id="projects.search"
+                  defaultMessage={`Búsqueda general`}
+                />
+              </label>
               <div className='control has-icons-right'>
                 <input
                   className='input'
@@ -331,7 +337,12 @@ class TabApprove extends Component {
           <div className='level-item'>
             <div className='field is-grouped'>
               <div className='field control'>
-                <label className='label'>Filtrar por fecha</label>
+                <label className='label'>
+                  <FormattedMessage
+                    id="projects.filterDate"
+                    defaultMessage={`Filtrar por fecha`}
+                  />
+                </label>
                 <div className='control'>
                   <DatePicker
                     selected={this.state.startDate}
@@ -340,7 +351,7 @@ class TabApprove extends Component {
                     endDate={this.state.endDate}
                     onChange={this.startDateChange}
                     dateFormat="DD/MM/YYYY"
-                    todayButton={"Hoy"}
+                    todayButton={"Hoy"} //TODO: translate
                     placeholderText="Fecha inicio"
                     customInput={<CustomDate />}
                   />
@@ -356,7 +367,7 @@ class TabApprove extends Component {
                     endDate={this.state.endDate}
                     onChange={this.endDateChange}
                     dateFormat="DD/MM/YYYY"
-                    todayButton={"Hoy"}
+                    todayButton={"Hoy"} //TODO: translate
                     placeholderText="Fecha final"
                     customInput={<CustomDate />}
                   />
@@ -367,19 +378,28 @@ class TabApprove extends Component {
                   onClick={() => {
                     this.clearSearch()
                     this.clearSearchDate()
-                  }}>
-                  Limpiar
-                  </a>
+                  }}
+                >
+                  <FormattedMessage
+                    id="projects.btnClear"
+                    defaultMessage={`Limpiar`}
+                  />
+                </a>
               </div>
             </div>
           </div>
         </div>
 
-        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' 
+        {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2'
           ? <div className='level-right'>
             <div className='level-item'>
               <div className='saleCenter'>
-                <span>Total: </span>
+                <span>
+                  <FormattedMessage
+                    id="projects.total"
+                    defaultMessage={`Total: `}
+                  />
+                </span>
                 <span className='has-text-weight-bold is-capitalized'>{this.state.dataRows.length}
                 </span>
               </div>
@@ -387,7 +407,12 @@ class TabApprove extends Component {
 
             <div className='level-item'>
               <div className='saleCenter'>
-                <span>Pendientes: </span>
+                <span>
+                  <FormattedMessage
+                    id="projects.pending"
+                    defaultMessage={`Pendientes: `}
+                  />
+                </span>
                 <span className='has-text-weight-bold is-capitalized'>{this.state.remainingItems}
                 </span>
               </div>
@@ -398,7 +423,12 @@ class TabApprove extends Component {
                 onClick={this.reject}
                 disabled={this.state.disableButtons}
               >
-                <span>Rechazar</span>
+                <span>
+                  <FormattedMessage
+                    id="projects.refuse"
+                    defaultMessage={`Rechazar`}
+                  />
+                </span>
               </button>
             </div>
             <div className='level-item is-margin-top-20'>
@@ -407,7 +437,12 @@ class TabApprove extends Component {
                 onClick={this.approve}
                 disabled={this.state.disableButtons}
               >
-                <span>Aprobar</span>
+                <span>
+                  <FormattedMessage
+                    id="projects.approve"
+                    defaultMessage={`Aprobar`}
+                  />
+                </span>
               </button>
             </div>
           </div>
@@ -562,7 +597,7 @@ class TabApprove extends Component {
     this.setState({
       dataRows: aux
     })
-
+    //TODO: translate
     if (obj.status === 'approved') {
       this.notify('Ajuste aprobado', 5000, toast.TYPE.SUCCESS)
     }
@@ -644,7 +679,12 @@ class TabApprove extends Component {
           {this.state.dataRows.length === 0 ?
             <section className='section'>
               <center>
-                <h2 className='subtitle has-text-primary'>No hay ajustes por aprobar</h2>
+                <h2 className='subtitle has-text-primary'>
+                  <FormattedMessage
+                    id="projects.emptyApprove"
+                    defaultMessage={`No hay ajustes por aprobar`}
+                  />
+                </h2>
               </center>
             </section>
             :

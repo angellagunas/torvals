@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Loader from '~base/components/spinner'
@@ -83,7 +84,10 @@ class CreateUser extends Component {
               disabled={!!this.state.isLoading}
               type='submit'
             >
-              Crear
+              <FormattedMessage
+                id="profile.btnCreate"
+                defaultMessage={`Crear`}
+              />
             </button>
           </div>
           <div className='control'>
@@ -92,7 +96,10 @@ class CreateUser extends Component {
               onClick={this.hideModal}
               type='button'
             >
-              Cancelar
+              <FormattedMessage
+                id="profile.btnCancel"
+                defaultMessage={`Cancelar`}
+              />
             </button>
           </div>
         </div>
@@ -123,7 +130,10 @@ class CreateUser extends Component {
               disabled={!!this.state.isLoading}
               type='submit'
             >
-              Invitar
+              <FormattedMessage
+                id="profile.btnInvite"
+                defaultMessage={`Invitar`}
+              />
             </button>
           </div>
           <div className='control'>
@@ -132,7 +142,10 @@ class CreateUser extends Component {
               onClick={this.hideModal}
               type='button'
             >
-              Cancelar
+              <FormattedMessage
+                id="profile.btnCancel"
+                defaultMessage={`Cancelar`}
+              />
             </button>
           </div>
         </div>
@@ -154,7 +167,7 @@ class CreateUser extends Component {
 
   render () {
     var modalContent
-    var title = 'Crear usuario'
+    var title = 'Crear usuario' //TODO: translate
 
     this.initialState = {
       name: '',
@@ -174,7 +187,7 @@ class CreateUser extends Component {
 
       if (env.EMAIL_SEND) {
         modalContent = this.getSendInviteForm()
-        title = 'Invitar usuario'
+        title = 'Invitar usuario' //TODO: translate
       } else {
         modalContent = this.getPasswordForm()
       }

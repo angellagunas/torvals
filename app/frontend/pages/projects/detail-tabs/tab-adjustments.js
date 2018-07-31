@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import FontAwesome from 'react-fontawesome'
 import moment from 'moment'
 import _ from 'lodash'
@@ -142,10 +143,10 @@ class TabAdjustment extends Component {
         console.log(e)
         this.setState({
           error: true,
-          filtersLoading: false,
+          filtersLoading: false, //TODO: translate
           errorMessage: '¡No se pudieron cargar los filtros!'
         })
-
+        //TODO: translate
         this.notify(
           'Ha habido un error al obtener los filtros! ' + e.message,
           5000,
@@ -193,6 +194,7 @@ class TabAdjustment extends Component {
 
   async getDataRows () {
     if (!this.state.formData.cycle) {
+      //TODO: translate
       this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
     }
@@ -354,7 +356,12 @@ class TabAdjustment extends Component {
         <div className='column is-narrow'>
           <div className='field'>
             {currentRole !== 'consultor-level-3' && currentRole !== 'consultor-level-2' ?
-              <label className='label'>Búsqueda general</label>:
+              <label className='label'>
+                <FormattedMessage
+                  id="projects.search"
+                  defaultMessage={`Búsqueda general`}
+                />
+              </label>:
               null
             }
             <div className='control has-icons-right'>
@@ -374,7 +381,12 @@ class TabAdjustment extends Component {
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
-                <label className='label'>Modificar por cantidad</label>
+                <label className='label'>
+                  <FormattedMessage
+                    id="projects.modifyByQuantity"
+                    defaultMessage={`Modificar por cantidad`}
+                  />
+                </label>
                 <div className='field is-grouped control'>
 
                   <div className='control'>
@@ -416,7 +428,12 @@ class TabAdjustment extends Component {
           <div className='column is-narrow'>
             <div className='modifier'>
               <div className='field'>
-                <label className='label'>Modificar por porcentaje</label>
+                <label className='label'>
+                  <FormattedMessage
+                    id="projects.modifyByPercentage"
+                    defaultMessage={`Modificar por porcentaje`}
+                  />
+                </label>
                 <div className='field is-grouped control'>
                   <div className='control'>
                     <button
@@ -455,13 +472,23 @@ class TabAdjustment extends Component {
 
         <div className='column is-narrow show-rows'>
           <Checkbox
-            label={<span title='Ajustados'>Ajustados</span>}
+            label={<span title='Ajustados'>
+              <FormattedMessage
+                id="projects.Adjusted"
+                defaultMessage={`Ajustados`}
+              />
+            </span>}
             handleCheckboxChange={(e, value) => this.showRows('showAdjusted', value)}
             checked={this.state.showAdjusted}
             disabled={this.state.waitingData}
           />
           <Checkbox
-            label={<span title='No Ajustados'>No Ajustados</span>}
+            label={<span title='No Ajustados'>
+              <FormattedMessage
+                id="projects.notAdjusted"
+                defaultMessage={`No Ajustados`}
+              />
+            </span>}
             handleCheckboxChange={(e, value) => this.showRows('showNotAdjusted', value)}
             checked={this.state.showNotAdjusted}
             disabled={this.state.waitingData}
@@ -480,7 +507,11 @@ class TabAdjustment extends Component {
           <div className='column products-selected'>
             <p>
             <span>{this.state.byWeek ? this.getProductsSelected() : this.state.selectedCheckboxes.size} </span>
-            Productos Seleccionados
+
+              <FormattedMessage
+                id="projects.selectedProducts"
+                defaultMessage={`Productos Seleccionados`}
+              />
             </p>
           </div>
         }
@@ -507,6 +538,7 @@ class TabAdjustment extends Component {
 
   async onClickButtonPlus (type) {
     if(this.state.selectedCheckboxes.size === 0){
+      //TODO: translate
       this.notify('No tienes productos seleccionados', 3000, toast.TYPE.INFO)
       return
     }
@@ -548,6 +580,7 @@ class TabAdjustment extends Component {
 
   async onClickButtonMinus (type) {
     if (this.state.selectedCheckboxes.size === 0) {
+      //TODO: translate
       this.notify('No tienes productos seleccionados', 3000, toast.TYPE.INFO)
       return
     }
@@ -661,12 +694,16 @@ class TabAdjustment extends Component {
             <span className='icon'>
               <i className='fa fa-warning fa-lg' />
             </span>
-            ¡Debes pedir una solicitud de ajuste haciendo clic sobre el ícono rojo o el botón finalizar!
+            <FormattedMessage
+              id="projects.limitInfo"
+              defaultMessage={`¡Debes pedir una solicitud de ajuste haciendo clic sobre el ícono rojo o el botón finalizar!`}
+            />
           </p>),
           5000,
           toast.TYPE.WARNING
         )
       } else {
+        //TODO: translate
         this.notify('¡Ajustes guardados!', 5000, toast.TYPE.INFO)
       }
       this.props.pendingDataRows(pendingDataRows)
@@ -674,6 +711,7 @@ class TabAdjustment extends Component {
       await this.updateSalesTable(obj)
 
     } catch (e) {
+      //TODO: translate
       this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
 
       for (let row of rowAux) {
@@ -829,13 +867,31 @@ class TabAdjustment extends Component {
   setAlertMsg() {
     let ajuste = (this.state.generalAdjustment * 100)
     if (ajuste < 0){
-      return <span>Modo Ajuste Ilimitado</span>
+      return <span>
+        <FormattedMessage
+          id="projects.unlimitedAdjustmentMode"
+          defaultMessage={`Modo Ajuste Ilimitado`}
+        />
+      </span>
     }
 
     if (currentRole === 'consultor-level-3' || ajuste === 0) {
-      return <span>Modo Visualización</span>
+      return <span>
+        <FormattedMessage
+          id="projects.displayMode"
+          defaultMessage={`Modo Visualización`}
+        />
+      </span>
     } else {
-      return <span>Modo Ajuste {this.state.generalAdjustment * 100} % permitido</span>
+      return <span>
+        <FormattedMessage
+          id="projects.adjustmentMode"
+          defaultMessage={`Modo Ajuste`}
+        /> {this.state.generalAdjustment * 100} % <FormattedMessage
+          id="projects.permitted"
+          defaultMessage={`permitido`}
+        />
+      </span>
     }
   }
 
@@ -874,7 +930,7 @@ class TabAdjustment extends Component {
           salesTable: res.data,
           totalAdjustment: totalAdjustment,
           totalPrediction: totalPrediction,
-          reloadGraph: true,
+          reloadGraph: true, //TODO: translate
           noSalesData: res.data.length === 0 ? 'No hay información' : ''
         }, () => {
             this.setState({
@@ -883,6 +939,7 @@ class TabAdjustment extends Component {
         })
       }
     } catch (e) {
+      //TODO: translate
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         noSalesData: e.message + ', intente más tarde'
@@ -930,7 +987,10 @@ class TabAdjustment extends Component {
     if (this.state.noSalesData === '') {
       return (
         <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
-          Cargando, un momento por favor
+          <FormattedMessage
+            id="projects.loading"
+            defaultMessage={`Cargando, un momento por favor`}
+          />
           <Loader />
         </div>
       )
@@ -968,13 +1028,14 @@ class TabAdjustment extends Component {
         ...formFilters
       })
 
+      //TODO: translate
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}.csv`);
       this.setState({isDownloading: ''})
       this.notify('¡Se ha generado el reporte correctamente!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
-
+      //TODO: translate
       this.setState({
         isLoading: '',
         noSalesData: e.message + ', intente más tarde',
@@ -1134,10 +1195,18 @@ class TabAdjustment extends Component {
           <div className='column'>
             <article className="message is-primary">
               <div className="message-header">
-                <p>Información</p>
+                <p>
+                  <FormattedMessage
+                    id="projects.info"
+                    defaultMessage={`Información`}
+                  />
+                </p>
               </div>
               <div className="message-body">
-                ¡Sus ajustes se han guardado con éxito!
+                <FormattedMessage
+                  id="projects.adjustmentSaved"
+                  defaultMessage={`¡Sus ajustes se han guardado con éxito!`}
+                />
               </div>
             </article>
           </div>
@@ -1150,14 +1219,18 @@ class TabAdjustment extends Component {
     if (dataSetsNumber) {
       adviseContent =
         <div>
-          Debes terminar de configurar al menos un
-          <strong> dataset </strong>
+          <FormattedMessage
+            id="projects.datasetConfigMsg1"
+            defaultMessage={`Debes terminar de configurar al menos un dataset`}
+          />
         </div>
     } else {
       adviseContent =
         <div>
-          Se debe agregar al menos un
-          <strong> dataset </strong> para poder generar ajustes.
+          <FormattedMessage
+            id="projects.adjustmentInfo"
+            defaultMessage={`Se debe agregar al menos un dataset para poder generar ajustes.`}
+          />
         </div>
     }
 
@@ -1167,7 +1240,12 @@ class TabAdjustment extends Component {
           <div className='column'>
             <article className='message is-warning'>
               <div className='message-header'>
-                <p>Atención</p>
+                <p>
+                  <FormattedMessage
+                    id="projects.alertMsg"
+                    defaultMessage={`Atención`}
+                  />
+                </p>
               </div>
               <div className='message-body has-text-centered is-size-5'>
                 {adviseContent}
@@ -1181,7 +1259,10 @@ class TabAdjustment extends Component {
     if (this.props.project.status === 'processing') {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          Se están obteniendo las filas para ajuste, en un momento más las podrá consultar.
+          <FormattedMessage
+            id="projects.processingMsg"
+            defaultMessage={`Se están obteniendo las filas para ajuste, en un momento más las podrá consultar.`}
+          />
           <Loader />
         </div>
       )
@@ -1190,7 +1271,10 @@ class TabAdjustment extends Component {
     if (this.props.project.status === 'cloning') {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          Se esta procesando el clon, favor de esperar...
+          <FormattedMessage
+            id="projects.cloningMsg"
+            defaultMessage={`Se esta procesando el clon, favor de esperar...`}
+          />
           <Loader />
         </div>
       )
@@ -1199,7 +1283,10 @@ class TabAdjustment extends Component {
     if (this.props.project.status === 'conciliating') {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          Se está conciliando el dataset, espere por favor.
+          <FormattedMessage
+            id="projects.cloningMsg"
+            defaultMessage={`Se está conciliando el dataset, espere por favor.`}
+          />
           <Loader />
         </div>
       )
@@ -1208,7 +1295,10 @@ class TabAdjustment extends Component {
     if (this.props.project.status === 'pendingRows') {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          Se está preparando al proyecto para generar un dataset de ajuste, espere por favor.
+          <FormattedMessage
+            id="projects.pendingRowsMsg"
+            defaultMessage={`Se está conciliando el dataset, espere por favor.`}
+          />
           <Loader />
         </div>
       )
@@ -1217,7 +1307,10 @@ class TabAdjustment extends Component {
     if (!this.state.filters.cycles.length > 0 && this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          El proyecto no continene data rows
+          <FormattedMessage
+            id="projects.emptyDataRows"
+            defaultMessage={`El proyecto no continene data rows`}
+          />
         </div>
       )
     }
@@ -1225,12 +1318,15 @@ class TabAdjustment extends Component {
     if (!this.state.filters.cycles.length > 0 && !this.state.filtersLoaded) {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          Cargando, un momento por favor
+          <FormattedMessage
+            id="projects.loading"
+            defaultMessage={`Cargando, un momento por favor`}
+          />
           <Loader />
         </div>
       )
     }
-
+    //TODO: translate
     const graphData = [
       {
         label: 'Predicción',
@@ -1280,7 +1376,12 @@ class TabAdjustment extends Component {
         <div className='level indicators deep-shadow'>
           <div className='level-item has-text-centered'>
             <div>
-              <h1>Indicadores</h1>
+              <h1>
+                <FormattedMessage
+                  id="projects.indicators"
+                  defaultMessage={`Indicadores`}
+                />
+              </h1>
             </div>
           </div>
           <div className={this.state.indicators === 'indicators-hide' ?
@@ -1288,7 +1389,12 @@ class TabAdjustment extends Component {
           'level-item has-text-centered has-text-info disapear'}
           >
             <div>
-              <p className='has-text-weight-semibold'>Predicción</p>
+              <p className='has-text-weight-semibold'>
+                <FormattedMessage
+                  id="projects.prediction"
+                  defaultMessage={`Predicción`}
+                />
+              </p>
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalPrediction ?
                   this.state.prices ?
@@ -1309,7 +1415,12 @@ class TabAdjustment extends Component {
           'level-item has-text-centered has-text-teal' :
           'level-item has-text-centered has-text-teal disapear'}>
             <div>
-              <p className='has-text-weight-semibold'>Ajuste</p>
+              <p className='has-text-weight-semibold'>
+                <FormattedMessage
+                  id="projects.adjustment"
+                  defaultMessage={`Ajuste`}
+                />
+              </p>
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalAdjustment ?
                   this.state.prices ?
@@ -1333,7 +1444,12 @@ class TabAdjustment extends Component {
             }
           >
             <div>
-              <p className='has-text-weight-semibold'>Venta año anterior</p>
+              <p className='has-text-weight-semibold'>
+                <FormattedMessage
+                  id="projects.previousSales"
+                  defaultMessage={`Venta año anterior`}
+                />
+              </p>
               <h1 className='num has-text-weight-bold'>
                 {this.state.totalPrevSale ?
                   this.state.prices ?
@@ -1370,7 +1486,12 @@ class TabAdjustment extends Component {
           <div className='section level'>
               <div className='level-item'>
                 <div className="field">
-                  <label className='label'>Mostrar por: </label>
+                  <label className='label'>
+                    <FormattedMessage
+                      id="projects.showBy"
+                      defaultMessage={`Mostrar por: `}
+                    />
+                  </label>
                   <div className='control'>
 
                     <div className="field is-grouped">
@@ -1385,7 +1506,12 @@ class TabAdjustment extends Component {
                           disabled={this.state.waitingData}
                           onChange={() => this.showBy(false)} />
                         <label htmlFor='showByquantityAd'>
-                          <span title='Cantidad'>Cantidad</span>
+                          <span title='Cantidad'>
+                            <FormattedMessage
+                              id="projects.quantity"
+                              defaultMessage={`Cantidad`}
+                            />
+                          </span>
                         </label>
                       </div>
 
@@ -1399,7 +1525,12 @@ class TabAdjustment extends Component {
                           disabled={this.state.waitingData}
                           onChange={() => this.showBy(true)} />
                         <label htmlFor='showBypriceAd'>
-                          <span title='Precio'>Precio</span>
+                          <span title='Precio'>
+                            <FormattedMessage
+                              id="projects.price"
+                              defaultMessage={`Precio`}
+                            />
+                          </span>
                         </label>
                       </div>
                     </div>
@@ -1412,7 +1543,12 @@ class TabAdjustment extends Component {
             <div className='column is-6-desktop is-4-widescreen is-5-fullhd is-offset-1-fullhd is-offset-1-desktop'>
               <div className='panel sales-table'>
                 <div className='panel-heading'>
-                  <h2 className='is-capitalized'>Totales {this.getCycleName()}</h2>
+                  <h2 className='is-capitalized'>
+                    <FormattedMessage
+                      id="projects.total"
+                      defaultMessage={`Totales`}
+                    /> {this.getCycleName()}
+                  </h2>
                 </div>
                 <div className='panel-block'>
                   {
@@ -1421,10 +1557,30 @@ class TabAdjustment extends Component {
                       <table className='table is-fullwidth is-hoverable'>
                         <thead>
                           <tr>
-                            <th className='has-text-centered'>Periodo</th>
-                            <th className='has-text-info has-text-centered'>Predicción</th>
-                            <th className='has-text-teal has-text-centered'>Ajuste</th>
-                            <th className='has-text-danger has-text-centered'>Venta año anterior</th>
+                            <th className='has-text-centered'>
+                              <FormattedMessage
+                                id="projects.period"
+                                defaultMessage={`Periodo`}
+                              />
+                            </th>
+                            <th className='has-text-info has-text-centered'>
+                              <FormattedMessage
+                                id="projects.prediction"
+                                defaultMessage={`Predicción`}
+                              />
+                            </th>
+                            <th className='has-text-teal has-text-centered'>
+                              <FormattedMessage
+                                id="projects.adjustment"
+                                defaultMessage={`Ajustes`}
+                              />
+                            </th>
+                            <th className='has-text-danger has-text-centered'>
+                              <FormattedMessage
+                                id="projects.previousSales"
+                                defaultMessage={`Venta año anterior`}
+                              />
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1456,7 +1612,10 @@ class TabAdjustment extends Component {
 
                           <tr className='totals'>
                             <th className='has-text-centered'>
-                              Total
+                              <FormattedMessage
+                                id="projects.total"
+                                defaultMessage={`Total`}
+                              />
                             </th>
                             <th className='has-text-info has-text-centered'>
                               {this.state.prices && '$'} {this.state.totalPrediction.toFixed(2).replace(/./g, (c, i, a) => {
@@ -1486,7 +1645,12 @@ class TabAdjustment extends Component {
             <div className='column is-5-tablet is-5-desktop is-4-widescreen is-offset-1-widescreen is-narrow-fullhd is-offset-1-fullhd'>
               <div className='panel sales-graph'>
                 <div className='panel-heading'>
-                  <h2 className='is-capitalized'>Reporte {this.getCycleName()}</h2>
+                  <h2 className='is-capitalized'>
+                    <FormattedMessage
+                      id="projects.report"
+                      defaultMessage={`Reporte`}
+                    /> {this.getCycleName()}
+                  </h2>
                 </div>
                 <div className='panel-block'>
                   {
@@ -1543,7 +1707,10 @@ class TabAdjustment extends Component {
         <section>
           {!this.state.isFiltered || this.state.isLoading !== ''
             ? <div className='section has-text-centered subtitle has-text-primary'>
-                Cargando, un momento por favor
+                <FormattedMessage
+                  id="projects.loading"
+                  defaultMessage={`Cargando, un momento por favor`}
+                />
                 <Loader />
               </div>
             : <div>
@@ -1590,7 +1757,10 @@ class TabAdjustment extends Component {
               </div>
               :
                 <div className='section has-text-centered subtitle has-text-primary'>
-                  No hay información
+                  <FormattedMessage
+                    id="projects.emtyRows"
+                    defaultMessage={`No hay información`}
+                  />
                 </div>
               }
             </div>

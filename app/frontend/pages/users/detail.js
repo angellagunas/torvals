@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
@@ -22,7 +23,7 @@ class UserDetail extends Component {
       loaded: false,
       loading: true,
       resetLoading: false,
-      resetText: 'Restablecer Contraseña',
+      resetText: 'Restablecer Contraseña', //TODO: translate
       resetClass: 'button is-danger',
       user: {},
       roles: [],
@@ -181,7 +182,7 @@ class UserDetail extends Component {
   async resetOnClick () {
     await this.setState({
       resetLoading: true,
-      resetText: 'Enviando email...',
+      resetText: 'Enviando email...', //TODO: translate
       resetClass: 'button is-info'
     })
 
@@ -192,7 +193,7 @@ class UserDetail extends Component {
       setTimeout(() => {
         this.setState({
           resetLoading: true,
-          resetText: '¡Éxito!',
+          resetText: '¡Éxito!', //TODO: translate
           resetClass: 'button is-success'
         })
       }, 3000)
@@ -207,7 +208,7 @@ class UserDetail extends Component {
     setTimeout(() => {
       this.setState({
         resetLoading: false,
-        resetText: 'Restablecer Contraseña',
+        resetText: 'Restablecer Contraseña', //TODO: translate
         resetClass: 'button is-danger'
       })
     }, 10000)
@@ -219,7 +220,10 @@ class UserDetail extends Component {
     if (saving) {
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Saving <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
+          <FormattedMessage
+            id="user.saving"
+            defaultMessage={`Guardando`}
+          /> <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
       )
     }
@@ -237,7 +241,10 @@ class UserDetail extends Component {
 
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Saved
+          <FormattedMessage
+            id="user.saved"
+            defaultMessage={`Guardado`}
+          />
         </p>
       )
     }
@@ -257,6 +264,7 @@ class UserDetail extends Component {
 
   render () {
     if (this.state.notFound) {
+      //TODO: translate
       return <NotFound msg='este usuario' />
     }
     const { user } = this.state
@@ -340,17 +348,17 @@ class UserDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio',
+                    label: 'Inicio', //TODO: translate
                     current: false
                   },
                   {
                     path: '/manage/users-groups',
-                    label: 'Usuarios',
+                    label: 'Usuarios', //TODO: translate
                     current: false
                   },
                   {
                     path: '/manage/users',
-                    label: 'Detalle',
+                    label: 'Detalle', //TODO: translate
                     current: true
                   },
                   {
@@ -367,8 +375,12 @@ class UserDetail extends Component {
             <div className='level-item'>
               <a
                 className='button is-info'
-                onClick={() => { this.props.selectUser() }}>
-                Regresar
+                onClick={() => { this.props.selectUser() }}
+              >
+                <FormattedMessage
+                  id="user.back"
+                  defaultMessage={`Regresar`}
+                />
               </a>
             </div>
             <div className='level-item'>
@@ -383,7 +395,10 @@ class UserDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                      Detalle
+                    <FormattedMessage
+                      id="user.detail"
+                      defaultMessage={`Detalle`}
+                    />
                   </p>
                 </header>
                 <div className='card-content'>
@@ -405,14 +420,17 @@ class UserDetail extends Component {
                         <div className='field is-grouped'>
                           <div className='control'>
                             {!disabledForm &&
-                            <button
-                              className={'button is-primary ' + this.state.isLoading}
-                              disabled={!!this.state.isLoading}
-                              type='submit'
-                                >
-                                  Guardar
-                                </button>
-                              }
+                              <button
+                                className={'button is-primary ' + this.state.isLoading}
+                                disabled={!!this.state.isLoading}
+                                type='submit'
+                              >
+                                <FormattedMessage
+                                  id="user.btnSave"
+                                  defaultMessage={`Guardar`}
+                                />
+                              </button>
+                            }
                           </div>
                         </div>
                       </UserForm>
@@ -427,8 +445,11 @@ class UserDetail extends Component {
                   <div className='card'>
                     <header className='card-header'>
                       <p className='card-header-title'>
-                          Grupos
-                        </p>
+                        <FormattedMessage
+                          id="user.groups"
+                          defaultMessage={`Grupos`}
+                        />
+                      </p>
                       <div>
                         {this.getSavingMessage()}
                       </div>

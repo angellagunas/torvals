@@ -36,17 +36,17 @@ class CatalogRouter extends Component {
           path: [
             {
               path: '/',
-              label: 'Inicio',
+              label: 'Inicio', //TODO: translate
               current: false
             },
             {
               path: '/',
-              label: 'Administración',
+              label: 'Administración', //TODO: translate
               current: true
             },
             {
               path: '/catalogs/' + item.slug,
-              label: 'Catálogos',
+              label: 'Catálogos', //TODO: translate
               current: true
             },
             {
@@ -74,8 +74,8 @@ class CatalogRouter extends Component {
       )
     }
     else return <Route component={NoMatch} />
-       
-    
+
+
   }
 }
 

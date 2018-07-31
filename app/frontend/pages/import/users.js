@@ -23,7 +23,7 @@ class ImportUsers extends Component {
 
 export default Page({
   path: '/import/users',
-  title: 'Usuarios',
+  title: 'Usuarios', //TODO: translate
   icon: 'user-plus',
   exact: true,
   validate: [loggedIn, verifyRole],

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 import moment from 'moment'
 import Link from '~base/router/link'
@@ -58,6 +59,7 @@ class ProductDetail extends Component {
   }
 
   getColumns () {
+    //TODO: translate
     return [
       {
         'title': 'Estado',
@@ -92,7 +94,10 @@ class ProductDetail extends Component {
         formatter: (row) => {
           return (
             <Link className='button' to={'/forecasts/' + row.uuid}>
-              Detalle
+              <FormattedMessage
+                id="products.detail"
+                defaultMessage={`Detalles`}
+              />
             </Link>
           )
         }
@@ -114,6 +119,7 @@ class ProductDetail extends Component {
 
   render () {
     if (this.state.notFound) {
+      //TODO: translate
       return <NotFound msg='este producto' />
     }
     let { loading, canEdit, product } = this.state
@@ -133,12 +139,12 @@ class ProductDetail extends Component {
 
               <Breadcrumb
                 path={[
-                  {
+                  { //TODO: translate
                     path: '/',
                     label: 'Inicio',
                     current: false
                   },
-                  {
+                  { //TODO: translate
                     path: '/catalogs/products',
                     label: 'Productos',
                     current: false
@@ -157,6 +163,7 @@ class ProductDetail extends Component {
             <div className='level-item'>
               {canEdit &&
                 <DeleteButton
+                  //TODO: translate
                   titleButton={'Eliminar'}
                   objectName='Producto'
                   objectDelete={this.deleteObject.bind(this)}
@@ -174,7 +181,10 @@ class ProductDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                      Detalle
+                    <FormattedMessage
+                      id="products.detail"
+                      defaultMessage={`Detalle`}
+                    />
                   </p>
                 </header>
                 <div className='card-content'>
@@ -196,7 +206,12 @@ class ProductDetail extends Component {
                               className={'button is-primary ' + this.state.isLoading}
                               disabled={!!this.state.isLoading}
                               type='submit'
-                              >Guardar</button>
+                            >
+                              <FormattedMessage
+                                id="products.btnSave"
+                                defaultMessage={`Guardar`}
+                              />
+                            </button>
                           </div>
                         </div>
                       </ProductForm>
@@ -214,7 +229,7 @@ class ProductDetail extends Component {
 
 export default Page({
   path: '/catalogs/products/:uuid',
-  title: 'Product detail',
+  title: 'Product detail', //TODO: translate
   exact: true,
   roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],

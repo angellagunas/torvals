@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 import tree from '~core/tree'
 
@@ -129,7 +130,7 @@ class ProjectForm extends Component {
       this.uiSchema['status'] = {'ui:widget': SelectWidget, 'ui:disabled': !this.props.isAdmin}
       this.schema.properties['status'] = {
         type: 'string',
-        title: 'Estado',
+        title: 'Estado', //TODO: translate
         enum: [
           'new',
           'empty',
@@ -148,7 +149,7 @@ class ProjectForm extends Component {
           'updating-rules',
           'pending-configuration'
         ],
-        enumNames: [
+        enumNames: [ //TODO: translate
           'Nuevo',
           'Sin datos',
           'Ajuste',
@@ -168,6 +169,7 @@ class ProjectForm extends Component {
         ]
       }
       this.uiSchema['showOnDashboard'] = {'ui:widget': SelectWidget}
+      //TODO: translate
       this.schema.properties['showOnDashboard'] = {
         type: 'boolean',
         title: 'Primario (Mostrar en dashboard)',
@@ -202,7 +204,7 @@ class ProjectForm extends Component {
       this.uiSchema['cycleStatus'] = {'ui:widget': TextWidget, 'ui:disabled': true}
       this.schema.properties['cycleStatus'] = {
         type: 'string',
-        title: 'Etapa actual del ciclo'
+        title: 'Etapa actual del ciclo' //TODO: translate
       }
     }
     return (
@@ -216,7 +218,10 @@ class ProjectForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+              <FormattedMessage
+                id="projects.saveMsg"
+                defaultMessage={`Los datos se han guardado correctamente`}
+              />
             </div>
           </div>
 

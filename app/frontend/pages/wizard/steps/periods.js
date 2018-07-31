@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import Select from '../../projects/detail-tabs/select'
 import DatePicker from 'react-datepicker'
 import moment from 'moment'
@@ -81,6 +82,7 @@ class Periods extends Component {
       },
       calendar: {}
     }
+    //TODO: translate
     this.times = [
       {
         name: 'Día',
@@ -135,7 +137,7 @@ class Periods extends Component {
       if (this.times[i].value === value) {
         break
       }
-      
+
     }
     return values
   }
@@ -170,7 +172,7 @@ class Periods extends Component {
       }
       else {
         if (value !== '' && Number(value) !== Number(this.props.rules.cycleDuration)) {
-          this.notify(
+          this.notify(//TODO: translate
             'El número de ciclos disponibles cambió, debe establecer los rangos de ajuste nuevamente.',
             5000,
             toast.TYPE.INFO
@@ -192,7 +194,7 @@ class Periods extends Component {
     }
     else if (name === 'cycleDuration') {
       if(value !== '' && Number(value) !== Number(this.props.rules.cycleDuration)){
-        this.notify(
+        this.notify(//TODO: translate
           'El ciclo cambió, debe establecer los ciclos de operación nuevamente.',
           5000,
           toast.TYPE.INFO
@@ -323,7 +325,7 @@ class Periods extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del ciclo'
+      tooltipText: 'Inicio del ciclo' //TODO: translate
     }
     return d
   }
@@ -351,7 +353,7 @@ class Periods extends Component {
       isToday: false,
       isActive: true,
       isTooltip: true,
-      tooltipText: 'Inicio de periodo ' + (Number(key) + 1),
+      tooltipText: 'Inicio de periodo ' + (Number(key) + 1), //TODO: translate
       rangeClass: colors[this.color].rangeClass,
       rangeClassStart: colors[this.color].rangeClassStart
     }
@@ -366,7 +368,7 @@ class Periods extends Component {
         isToday: false,
         isActive: false,
         isTooltip: true,
-        tooltipText: 'Periodo ' + (Number(key) + 1),
+        tooltipText: 'Periodo ' + (Number(key) + 1), //TODO: translate
         rangeClass: colors[this.color].rangeClass
       }
     }
@@ -381,7 +383,7 @@ class Periods extends Component {
       isTooltip: true,
       rangeClass: colors[this.color].rangeClass,
       rangeClassEnd: colors[this.color].rangeClassStart,
-      tooltipText: 'Fin de periodo ' + (Number(key) + 1)
+      tooltipText: 'Fin de periodo ' + (Number(key) + 1) //TODO: translate
     }
     return range
   }
@@ -396,7 +398,7 @@ class Periods extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Fin del ciclo'
+      tooltipText: 'Fin del ciclo' //TODO: translate
     }
     return d
   }
@@ -470,14 +472,27 @@ class Periods extends Component {
   render() {
     return (
       <div className='section pad-sides has-20-margin-top'>
-        <h1 className='title is-5'> Ciclo y periodos</h1>
-        <p className='subtitle is-6'>Completa los campos  con la duración  y ciclos acorde a tus necesidades.</p>
+        <h1 className='title is-5'>
+          <FormattedMessage
+            id="wizard.periodsTitle"
+            defaultMessage={`Ciclo y periodos`}
+          />
+        </h1>
+        <p className='subtitle is-6'>
+          <FormattedMessage
+            id="wizard.periodsSubTitle"
+            defaultMessage={`Completa los campos  con la duración  y ciclos acorde a tus necesidades.`}
+          />
+        </p>
         <div className='columns is-centered'>
           <div className='column is-6'>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Elige tu duración
+                  <FormattedMessage
+                    id="wizard.periodsDuration"
+                    defaultMessage={`Elige tu duración`}
+                  />
                 </p>
               </header>
               <div className='card-content'>
@@ -486,7 +501,12 @@ class Periods extends Component {
                     <div className='field has-addons'>
                       <div className='control'>
                         <div className='field'>
-                          <label className='label'>Duración de ciclo</label>
+                          <label className='label'>
+                            <FormattedMessage
+                              id="wizard.periodsCycleDurationDesc"
+                              defaultMessage={`Duración de ciclo`}
+                            />
+                          </label>
                           <div className='control'>
                             <input className='input' type='text' placeholder='Ejem. 1'
                               name='cycleDuration'
@@ -513,18 +533,23 @@ class Periods extends Component {
                       <div className='control help'>
                         <button className='button is-static tooltip' data-tooltip='Agrupador de periodos'> ? </button>
                       </div>
-                          
+
                     </div>
 
                     <div className='field has-addons'>
                       <div className='control'>
                         <div className='field'>
-                          <label className='label'>Duración de periodo</label>
+                          <label className='label'>
+                            <FormattedMessage
+                              id="wizard.periodsDuration"
+                              defaultMessage={`Duración de periodo`}
+                            />
+                          </label>
                           <div className='control'>
                             <input className='input' type='text' placeholder='Ejem. 1'
                               name='periodDuration'
                               value={this.state.timesSelected.periodDuration}
-                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} 
+                              onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }}
                               onBlur={(e) => { this.blurDefault(e.target.name, e.target.value) }}/>
                           </div>
                         </div>
@@ -543,7 +568,10 @@ class Periods extends Component {
                       </div>
 
                       <div className='control help'>
-                        <button className='button is-static tooltip' data-tooltip='Unidad mínima de predicción'> ? </button>
+                        <button
+                          className='button is-static tooltip'
+                          data-tooltip='Unidad mínima de predicción' //TODO: translate
+                        > ? </button>
                       </div>
                     </div>
 
@@ -551,28 +579,49 @@ class Periods extends Component {
                     <div className='field has-addons'>
                       <div className='control'>
                         <div className='field'>
-                          <label className='label'>Ciclos de ajuste disponibles </label>
+                          <label className='label'>
+                            <FormattedMessage
+                              id="wizard.periodsDuration"
+                              defaultMessage={`Ciclos de ajuste disponibles`}
+                            />
+                          </label>
                           <div className='control'>
-                            <input className='input' type='text' placeholder='Text input'
+                            <input className='input' type='text'
                               name='cyclesAvailable'
                               value={this.state.timesSelected.cyclesAvailable}
                               onChange={(e) => { this.handleInputChange(e.target.name, e.target.value) }} />
                           </div>
-                          <p className={this.state.help.cyclesAvailable}>Deben ser al menos 2 ciclos disponibles</p>
+                          <p className={this.state.help.cyclesAvailable}>
+                            <FormattedMessage
+                              id="wizard.periodsCyclesInfo"
+                              defaultMessage={`Deben ser al menos 2 ciclos disponibles`}
+                            />
+                          </p>
                         </div>
                       </div>
                       <div className='control'>
                         <div className='field'>
-                          <label className='label'>Temporada</label>
+                          <label className='label'>
+                            <FormattedMessage
+                              id="wizard.periodsSeason"
+                              defaultMessage={`Temporada`}
+                            />
+                          </label>
                           <div className='control'>
                             <div className='field has-addons'>
                               <div className='control'>
                                 <a className="button is-static">
-                                  {this.state.timesSelected.season} ciclos
-                            </a>
+                                  {this.state.timesSelected.season} <FormattedMessage
+                                    id="wizard.periodsCycles"
+                                    defaultMessage={`ciclos`}
+                                  />
+                                </a>
                               </div>
                               <div className='control help-btn'>
-                                <button className='button is-static tooltip' data-tooltip='Ciclos de ajuste, el primero siempre es el actual'> ? </button>
+                                <button
+                                  className='button is-static tooltip'
+                                  data-tooltip='Ciclos de ajuste, el primero siempre es el actual' //TODO: translate
+                                > ? </button>
                               </div>
                             </div>
                           </div>
@@ -582,16 +631,26 @@ class Periods extends Component {
 
                     <div className='field has-addons'>
                       <div className='control'>
-                        <label className='label'>Fecha de inicio del primer ciclo</label>
+                        <label className='label'>
+                          <FormattedMessage
+                            id="wizard.periodsCyclesStart"
+                            defaultMessage={`Fecha de inicio del primer ciclo`}
+                          />
+                        </label>
                         <div className='control'>
-                          <input className='input' type='text' placeholder='Text input'
+                          <input className='input' type='text'
                             value={moment.utc(this.state.timesSelected.startDate).format('DD-MMM-YYYY')} readOnly />
                         </div>
                       </div>
                     </div>
                     <br/>
                     <Checkbox
-                      label={<span title='Usar anomalias'>Usar anomalias</span>}
+                      label={<span title='Usar anomalias'>
+                        <FormattedMessage
+                          id="wizard.periodsAnomalies"
+                          defaultMessage={`Usar anomalias`}
+                        />
+                      </span>}
                       handleCheckboxChange={(e, value) => this.hasAnomalies(value)}
                       checked={this.state.timesSelected.hasAnomalies}
                     />
@@ -599,9 +658,9 @@ class Periods extends Component {
 
                       <p>
                         <label className='radio'>
-                          <input 
-                            type='radio' 
-                            name='takeStart' 
+                          <input
+                            type='radio'
+                            name='takeStart'
                             checked={this.state.timesSelected.takeStart === true}
                             onChange={(e) => this.setState({
                               timesSelected: {
@@ -610,16 +669,29 @@ class Periods extends Component {
                               }
                             }, () => { this.makePreview() })
                             } />
-                        <span>Usar la fecha de <strong className='has-text-info'>inicio</strong> del periodo para determinar el ciclo al que pertenece</span>
+                        <span>
+                           <FormattedMessage
+                              id="wizard.periodsAnomalies"
+                              defaultMessage={`Usar la fecha de`}
+                            /> <strong className='has-text-info'>
+                              <FormattedMessage
+                                id="wizard.periodsStart"
+                                defaultMessage={`inicio`}
+                              />
+                            </strong> <FormattedMessage
+                              id="wizard.periodsUseInfo"
+                              defaultMessage={`del periodo para determinar el ciclo al que pertenece`}
+                            />
+                        </span>
                       </label>
                     </p>
                     <br />
 
                     <p>
                       <label className='radio'>
-                        <input 
-                          type='radio' 
-                          name='takeStart' 
+                        <input
+                          type='radio'
+                          name='takeStart'
                           checked={this.state.timesSelected.takeStart === false}
                           onChange={(e) => this.setState({
                             timesSelected: {
@@ -628,9 +700,22 @@ class Periods extends Component {
                             }
                           }, () => { this.makePreview() })
                           } />
-                        <span>Usar la fecha <strong className='has-text-info'>final</strong> del periodo para determinar el ciclo al que pertenece</span>
+                        <span>
+                          <FormattedMessage
+                            id="wizard.periodsAnomalies"
+                            defaultMessage={`Usar la fecha de`}
+                          /> <strong className='has-text-info'>
+                            <FormattedMessage
+                              id="wizard.periodsEnd"
+                              defaultMessage={`final`}
+                            />
+                          </strong> <FormattedMessage
+                            id="wizard.periodsUseInfo"
+                            defaultMessage={`del periodo para determinar el ciclo al que pertenece`}
+                          />
+                        </span>
                       </label>
-                    </p>                    
+                    </p>
                   </div>
                 </div>
               </div>
@@ -653,22 +738,41 @@ class Periods extends Component {
         <div className='buttons wizard-steps'>
           {this.props.org && !this.props.org.isConfigured &&
             this.props.completed && this.props.completed.length < 4
-            ? 
-            <button onClick={() => this.props.setStep(0)} className='button is-primary'>Atrás</button>
+            ?
+            <button onClick={() => this.props.setStep(0)} className='button is-primary'>
+              <FormattedMessage
+                id="wizard.periodsBtnPrev"
+                defaultMessage={`Atrás`}
+              />
+            </button>
           :
-          <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+          <button onClick={() => this.props.setStep(1)} className='button is-danger'>
+            <FormattedMessage
+              id="wizard.periodsBtnCancel"
+              defaultMessage={`Cancelar`}
+            />
+          </button>
           }
           <button
             disabled={this.state.disableBtn}
             onClick={() => this.next()}
-            className='button is-primary'>
-            {this.props.org && !this.props.org.isConfigured 
-            && this.props.completed && this.props.completed.length < 4?
-            'Siguente' : 'Guardar'
+            className='button is-primary'
+          >
+            {
+              this.props.org && !this.props.org.isConfigured
+                && this.props.completed && this.props.completed.length < 4
+                ? <FormattedMessage
+                  id="wizard.periodsBtnNext"
+                  defaultMessage={`Siguente`}
+                />
+                : <FormattedMessage
+                  id="wizard.periodsBtnSave"
+                  defaultMessage={`Guardar`}
+                />
             }
           </button>
         </div>
-  
+
       </div>
     )
   }

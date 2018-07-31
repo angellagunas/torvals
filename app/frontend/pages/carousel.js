@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import styled from 'styled-components'
 
 const CarouselContainer = styled.div`
@@ -65,7 +66,7 @@ class Carousel extends Component {
     if (numItems === 2 && position === 0) return
     if(position === -1)
       return
-    
+
       this.doSliding('prev', position - 1)
   }
 
@@ -82,15 +83,15 @@ class Carousel extends Component {
       })
     }, 50)
   }
-  
+
   render () {
     const { title, children } = this.props
-    
+
     return (
       <div>
         <h2>{title}</h2>
         <Wrapper>
-          <CarouselContainer 
+          <CarouselContainer
             sliding={this.state.sliding}
             direction={this.state.direction}
           >
@@ -106,20 +107,30 @@ class Carousel extends Component {
         </Wrapper>
         <div className='has-text-centered'>
           <button className='button'
-            disabled={this.state.position === -1 ? true : false}          
+            disabled={this.state.position === -1 ? true : false}
             onClick={() => this.prevSlide()}
           >
             <span className='icon'>
               <i className='fa fa-arrow-left'></i>
             </span>
-            <span>Anterior</span>
+            <span>
+              <FormattedMessage
+                id="carousel.prev"
+                defaultMessage={`Anterior`}
+              />
+            </span>
 
           </button>
           <button className='button'
             disabled={this.state.position === children.length - 3 ? true : false}
             onClick={() => this.nextSlide()}
           >
-            <span>Siguiente</span>
+            <span>
+              <FormattedMessage
+                id="carousel.next"
+                defaultMessage={`Siguiente`}
+              />
+            </span>
             <span className='icon'>
               <i className='fa fa-arrow-right'></i>
             </span>

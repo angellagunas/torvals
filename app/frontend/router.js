@@ -122,7 +122,8 @@ class AppRouter extends Component {
             </Switch>
           </div>
         </AdminLayout>
-      </Router>)
+      </Router>
+    )
   }
 }
 
