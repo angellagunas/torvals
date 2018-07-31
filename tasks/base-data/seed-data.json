@@ -79,7 +79,7 @@
             "isDefault": false,
             "priority": 2
 
-        },        
+        },
         {
             "name": "Manager Level 3",
             "isDefault": false,
@@ -158,6 +158,18 @@
             "user": "aruz@grupoabraxas.com",
             "organization": "Barcel",
             "role": "OrgAdmin"
+        }
+    ],
+    "languages": [
+        {
+            "name": "Español",
+            "code": "es-MX",
+            "isDeleted": false
+        },
+        {
+            "name": "Ingles",
+            "code": "en-US",
+            "isDeleted": false
         }
     ]
 }
