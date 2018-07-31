@@ -26,7 +26,6 @@ module.exports = new Route({
     })
   }),
   handler: async function (ctx) {
-    console.log('ctx.params', ctx.params)
     var organizationId = ctx.params.uuid
     var data = ctx.request.body
 
