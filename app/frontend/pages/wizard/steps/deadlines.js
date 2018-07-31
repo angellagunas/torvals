@@ -43,12 +43,13 @@ class DeadLines extends Component {
         consolidation:
           moment.utc(this.props.rules.startDate)
             .add(this.props.rules.cycleDuration, this.props.rules.cycle)
-            .add(-1, 'days').diff(moment.utc(this.props.rules.startDate), 'days')
+            .diff(moment.utc(this.props.rules.startDate), 'days')
       },
       startDate: moment.utc(this.props.rules.startDate) || moment.utc(),
       endDate: moment.utc(this.props.rules.startDate)
       .add(this.props.rules.cycleDuration, this.props.rules.cycle)
-      .add(-1, 'days') || moment.utc().add(1, 'M')
+      .add(-1, 'days') || moment.utc().add(1, 'M'),
+      dates: {}
     }
   }
 
@@ -59,11 +60,11 @@ class DeadLines extends Component {
   verifyCycle () {
     let cycleDays = moment.utc(this.props.rules.startDate)
       .add(this.props.rules.cycleDuration, this.props.rules.cycle)
-      .add(-1, 'days').diff(moment.utc(this.props.rules.startDate), 'days')
+      .diff(moment.utc(this.props.rules.startDate), 'days')
 
     let d = this.state.data
 
-    let totalDays = d.salesUpload + d.forecastCreation + d.rangeAdjustment + d.rangeAdjustmentRequest
+    let totalDays = this.validNumber(d.salesUpload, 1) + this.validNumber(d.forecastCreation, 1) + d.rangeAdjustment + d.rangeAdjustmentRequest
 
     if (totalDays > cycleDays) {
       this.notify(
@@ -93,9 +94,13 @@ class DeadLines extends Component {
 
   handleInputChange (name, value) {
     let aux = this.state.data
-    value = value.replace(/\D/, '')
-
-    aux[name] = Number(value)
+    let val = 1
+    if (!isNaN(Number(value))) {
+      val = Number(value)
+    } else {
+      return
+    }
+    aux[name] = val
 
     this.setState({
       data: aux
@@ -185,6 +190,7 @@ class DeadLines extends Component {
     }
 
     range[e.format('YYYY-MM-DD')] = {
+      key: key,
       date: s,
       isRange: true,
       isRangeEnd: true,
@@ -192,38 +198,63 @@ class DeadLines extends Component {
       isToday: false,
       isActive: true,
       isTooltip: true,
-      rangeClass: colors[key].rangeClass,
+      rangeClass: end.diff(start) > 1 ? colors[key].rangeClass : '',
       rangeClassEnd: colors[key].rangeClassStart,
       tooltipText: 'Límite para ' + colors[key].tooltip
     }
     return range
   }
 
+  validNumber (num, min = 0) {
+    let sd = Number(num) - min
+    if (isNaN(sd) || sd < 0) {
+      sd = 0
+    }
+    return sd
+  }
+
+  overlap (one, two) {
+    if (one[Object.keys(one)[Object.keys(one).length - 1]].date
+      .diff(two[Object.keys(two)[Object.keys(two).length - 1]].date, 'days') === 0) {
+      return true
+    }
+    return false
+  }
+
   makeDates () {
     let data = this.state.data
     let dates = {}
-
     let start = this.makeStartDate(this.state.startDate)
     dates[Object.keys(start)[0]] = Object.values(start)[0]
     let end = this.makeEndDate(this.state.endDate)
     dates[Object.keys(end)[0]] = Object.values(end)[0]
 
     let saleDate = this.state.startDate.clone()
-      .add(Number(data.salesUpload), 'days')
-    let forecastDate = this.state.startDate.clone()
-      .add(Number(data.salesUpload) + Number(data.forecastCreation), 'days')
-    let adjusmentDate = this.state.startDate.clone()
-      .add(Number(data.salesUpload) + Number(data.forecastCreation) + Number(data.rangeAdjustment), 'days')
+      .add(this.validNumber(data.salesUpload, 1), 'days')
 
-    let approveDate = this.state.startDate.clone()
-      .add(Number(data.salesUpload) + Number(data.forecastCreation) +
-      Number(data.rangeAdjustment) + Number(data.rangeAdjustmentRequest), 'days')
+    let forecastDate = saleDate.clone()
+      .add(this.validNumber(data.forecastCreation, 1), 'days')
+
+    let adjusmentDate = forecastDate.clone()
+      .add(this.validNumber(data.rangeAdjustment), 'days')
+
+    let approveDate = adjusmentDate.clone()
+      .add(this.validNumber(data.rangeAdjustmentRequest), 'days')
 
     let sales = this.makeRange(this.state.startDate, saleDate, 2)
     let forecast = this.makeRange(saleDate, forecastDate, 1)
     let adjusment = this.makeRange(forecastDate, adjusmentDate, 3)
     let approve = this.makeRange(adjusmentDate, approveDate, 4)
     let consolidation = this.makeRange(approveDate, this.state.endDate.clone(), 5)
+
+    if (this.overlap(sales, forecast)) {
+      sales[Object.keys(sales)[Object.keys(sales).length - 1]].tooltipText += ' / predicción'
+      sales[Object.keys(sales)[Object.keys(sales).length - 1]].rangeClassEnd = 'limit-sales-forecast'
+    }
+    if (this.overlap(approve, consolidation)) {
+      approve[Object.keys(approve)[Object.keys(approve).length - 1]].tooltipText += ' / concentrar información'
+      approve[Object.keys(approve)[Object.keys(approve).length - 1]].rangeClassEnd = 'limit-approve-consolidate'
+    }
 
     dates = {
       ...dates,
@@ -243,10 +274,10 @@ class DeadLines extends Component {
     let data = this.state.data
     let c = moment.utc(this.props.rules.startDate)
       .add(this.props.rules.cycleDuration, this.props.rules.cycle)
-      .add(-1, 'days').diff(moment.utc(this.props.rules.startDate), 'days')
+      .diff(moment.utc(this.props.rules.startDate), 'days')
 
-    data.consolidation = c - data.salesUpload -
-    data.forecastCreation - data.rangeAdjustment -
+    data.consolidation = c - this.validNumber(data.salesUpload, 1) -
+    this.validNumber(data.forecastCreation, 1) - data.rangeAdjustment -
     data.rangeAdjustmentRequest
 
     this.setState({ data }, () => {
