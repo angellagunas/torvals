@@ -83,6 +83,12 @@ class CustomForm extends Component {
                 defaultMessage={`Continuar`}
               />
             </button>
+            <button
+              className={'button is-primary org-button is-hidden ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'>
+              Continuar
+            </button>
           </div>
         </div>
 

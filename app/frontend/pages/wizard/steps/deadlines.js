@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import Cal from '../../cal'
 import { toast } from 'react-toastify'
+import { FormattedMessage } from 'react-intl'
 
 const colors = {
   1: {

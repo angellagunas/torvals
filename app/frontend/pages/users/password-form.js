@@ -102,6 +102,40 @@ class PasswordUserForm extends Component {
     })
   }
 
+
+  async updateStep() {
+    try {
+      let user = tree.get('user')
+      if (user.currentOrganization.wizardSteps.users) {
+        return
+      }
+      let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+      let res = await api.post(url, {
+        step: {
+          name: 'users',
+          value: true
+        }
+      })
+
+      if (res) {
+        let me = await api.get('/user/me')
+        tree.set('user', me.user)
+        tree.set('organization', me.user.currentOrganization)
+        tree.set('rule', me.rule)
+        tree.set('role', me.user.currentRole)
+        tree.set('loggedIn', me.loggedIn)
+        tree.commit()
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+  }
+
   async submitHandler ({formData}) {
     formData.password = formData.password_1
     formData.password_1 = ''
@@ -122,7 +156,7 @@ class PasswordUserForm extends Component {
       this.clearState()
       this.setState({...this.state, apiCallMessage: 'message is-success'})
       if (this.props.finishUp) this.props.finishUp(data.data)
-
+      await this.updateStep()
       return
     } catch (e) {
       if (this.props.errorHandler) this.props.errorHandler(e)

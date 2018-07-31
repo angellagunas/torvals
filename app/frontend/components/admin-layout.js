@@ -13,6 +13,10 @@ import Sidebar from '~components/sidebar'
 import AdminNavBar from '~components/admin-navbar'
 import { ToastContainer } from 'react-toastify'
 import { withRouter } from 'react-router'
+import BillingForm from '../pages/organizations/billing-form'
+import { toast } from 'react-toastify'
+import { orgStatus } from '~base/tools'
+
 
 class AdminLayout extends Component {
   constructor (props) {
@@ -21,7 +25,8 @@ class AdminLayout extends Component {
       user: {},
       loaded: false,
       sidebarCollapsed: false,
-      activePath: ''
+      activePath: '',
+      activateModal: ''
     }
   }
 
@@ -35,6 +40,7 @@ class AdminLayout extends Component {
 
   async componentWillMount () {
     const userCursor = tree.select('user')
+    let activated = ''
 
     userCursor.on('update', ({data}) => {
       const user = data.currentData
@@ -78,9 +84,14 @@ class AdminLayout extends Component {
         tree.set('loggedIn', false)
         await tree.commit()
       }
+
+      if (me.user.currentOrganization.status === 'inactive' ||
+        me.user.currentOrganization.status === 'activationPending'){
+        activated = ' is-active'
+      }
     }
 
-    this.setState({loaded: true})
+    this.setState({loaded: true, activateModal: activated})
     this.getViewPort()
   }
 
@@ -108,6 +119,55 @@ class AdminLayout extends Component {
   moveTo(route){
     this.openWizards()
     this.props.history.push(route)
+  }
+
+  async requestActivation() {
+    this.setState({
+      isLoading: ' is-loading'
+    })
+    try {
+      let url = '/app/organizations/' + this.state.user.currentOrganization.uuid + '/request-activation'
+      let res = await api.post(url, {})
+
+      if (res.success) {
+        this.setState({
+          user: {
+            ...this.state.user,
+            currentOrganization: {
+              ...this.state.user.currentOrganization,
+              status: 'activationPending'
+            }
+          }
+        })
+        this.notify('Solicitud enviada', 5000, toast.TYPE.INFO)
+      }
+      return true
+    } catch (e) {
+      console.log(e)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+      this.setState({
+        isLoading: ''
+      })
+      return false
+    }
+  }
+
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
   }
 
   render () {
@@ -245,6 +305,38 @@ class AdminLayout extends Component {
               
             </div>
             </div>
+
+          <div className={'modal organization-modal ' + this.state.activateModal}>
+            <div className='modal-background'/>
+            <div className='modal-card'>
+              <header className='modal-card-head'>
+                <p className='modal-card-title'>Activa tu cuenta</p>
+              </header>
+              <section className='modal-card-body'>
+                <p className='is-padding-bottom-small'>
+                  <strong>Tu cuenta se encuentra {orgStatus[this.state.user.currentOrganization.status]}.</strong>
+                </p>
+                <p className='is-padding-bottom-small'>  
+                  Para poder continuar usando Orax necesitas solicitar una activación.
+                  Tus datos e información quedarán guardados.
+                </p>
+                <BillingForm org={this.state.user.currentOrganization} isModal />
+                <br />
+                <div className={'message is-primary'}>
+                  <div className='message-body is-size-7 has-text-centered'>
+                    Al momento de solicitar una activación de cuenta, un agente recibirá tus datos y se comunicará posteriormente.
+                  </div>
+                </div>
+                <button className='button is-success is-pulled-right'
+                  disabled={!!this.state.isLoading}
+                  onClick={() => this.requestActivation()} >
+                  Solicitar activación
+              </button>
+              </section>
+
+            </div>
+          </div>
+
         </div>)
     } else {
       return (<div>
