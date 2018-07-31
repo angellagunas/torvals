@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
@@ -30,7 +31,7 @@ class ReadyDataSets extends Component {
 
   getColumns () {
     return [
-      {
+      { //TODO: translate
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
@@ -43,7 +44,7 @@ class ReadyDataSets extends Component {
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Estado',
         'property': 'status',
         'default': 'new',
@@ -52,7 +53,7 @@ class ReadyDataSets extends Component {
           return datasetStatus[row.status]
         }
       },
-      {
+      { //TODO: translate
         'title': 'Acciones',
         formatter: (row) => {
           if (testRoles('manager-level-2, consultor-level-3')) {
@@ -84,12 +85,12 @@ class ReadyDataSets extends Component {
           <div className='section is-paddingless-top pad-sides'>
             <Breadcrumb
               path={[
-                {
+                { //TODO: translate
                   path: '/',
                   label: 'Inicio',
                   current: false
                 },
-                {
+                { //TODO: translate
                   path: '/datasets/ready',
                   label: 'Datasets Listos',
                   current: true
@@ -101,7 +102,10 @@ class ReadyDataSets extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                    DataSets Listos
+                  <FormattedMessage
+                    id="datasets.datasetsRady"
+                    defaultMessage={`DataSets Listos`}
+                  />
                 </p>
               </header>
               <div className='card-content'>
@@ -111,7 +115,7 @@ class ReadyDataSets extends Component {
                       branchName='datasets'
                       baseUrl='/app/datasets/readylist'
                       columns={this.getColumns()}
-                       />
+                    />
                   </div>
                 </div>
               </div>
@@ -131,7 +135,7 @@ const branchedReadyDataSets = branch({readydatasets: 'readydatasets'}, ReadyData
 
 export default Page({
   path: '/datasets/ready',
-  title: 'Listos',
+  title: 'Listos', //TODO: translate
   icon: 'thumbs-up',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2',

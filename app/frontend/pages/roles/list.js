@@ -8,7 +8,7 @@ import { loggedIn, verifyRole } from '~base/middlewares/'
 
 export default ListPage({
   path: '/manage/roles',
-  title: 'Roles',
+  title: 'Roles', //TODO: translate
   icon: 'sitemap',
   exact: true,
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
@@ -19,12 +19,12 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
+        label: 'Inicio', //TODO: translate
         current: false
       },
       {
         path: '/manage/roles/',
-        label: 'Roles',
+        label: 'Roles', //TODO: translate
         current: true
       }
     ],
@@ -40,6 +40,7 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
+      //TODO: translate
       general: {type: 'text', title: 'Buscar'}
     }
   },
@@ -54,19 +55,19 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Prioridad',
+        'title': 'Prioridad', //TODO: translate
         'property': 'priority',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Nombre',
+        'title': 'Nombre', //TODO: translate
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Fecha de creación',
+        'title': 'Fecha de creación', //TODO: translate
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,

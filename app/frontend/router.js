@@ -46,6 +46,7 @@ import Forecast from './pages/forecast/forecast'
 import ForecastDetail from './pages/forecast/detail'
 import ForecastCompare from './pages/forecast/compare'
 import HowItWorks from './pages/landing/how-it-works'
+import Privacy from './pages/privacy'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -112,6 +113,8 @@ class AppRouter extends Component {
 
               {HowItWorks.asRouterItem()}
 
+              {Privacy.asRouterItem()}
+
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
               <Route component={NoMatch} />
@@ -119,7 +122,8 @@ class AppRouter extends Component {
             </Switch>
           </div>
         </AdminLayout>
-      </Router>)
+      </Router>
+    )
   }
 }
 

@@ -22,7 +22,7 @@ class ImportProducts extends Component {
 
 export default Page({
   path: '/import/products',
-  title: 'Productos',
+  title: 'Productos', //TODO: translate
   icon: 'dropbox',
   exact: true,
   validate: [loggedIn, verifyRole],

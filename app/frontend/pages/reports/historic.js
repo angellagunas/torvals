@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import moment from 'moment'
 import tree from '~core/tree'
 import _ from 'lodash'
@@ -55,7 +56,7 @@ class HistoricReport extends Component {
       filteredData: undefined,
       mapePrediction: 0,
       mapeAdjustment: 0,
-      difference: 0,      
+      difference: 0,
       totalAdjustment: 0,
       totalPrediction: 0,
       totalSale: 0,
@@ -215,6 +216,7 @@ class HistoricReport extends Component {
       } catch (e) {
         this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
         this.setState({
+          //TODO: translate
           noData: e.message + ', intente más tarde'
         })
       }
@@ -273,7 +275,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'Producto',
+        'title': 'Producto', //TODO: translate
         'property': 'product.name',
         'default': 'N/A',
         'sortable': true,
@@ -282,7 +284,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'Predicción',
+        'title': 'Predicción', //TODO: translate
         'property': 'prediction',
         'default': '0',
         'sortable': true,
@@ -295,7 +297,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'Ajuste',
+        'title': 'Ajuste', //TODO: translate
         'property': 'adjustment',
         'default': '0',
         'sortable': true,
@@ -308,7 +310,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'Venta',
+        'title': 'Venta', //TODO: translate
         'property': 'sale',
         'default': '0',
         'sortable': true,
@@ -321,7 +323,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'Venta año anterior',
+        'title': 'Venta año anterior', //TODO: translate
         'property': 'previousSale',
         'default': '0',
         'sortable': true,
@@ -334,7 +336,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'MAPE',
+        'title': 'MAPE', //TODO: translate
         'property': 'mape',
         'default': '0.00%',
         'sortable': true,
@@ -429,14 +431,24 @@ class HistoricReport extends Component {
     if (Object.keys(this.selectedProjects).length === 0) {
       return (
         <center>
-          <h1 className='has-text-info'>Debes seleccionar al menos un proyecto</h1>
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="report.projectsEmptyMsg"
+              defaultMessage={`Debes seleccionar al menos un proyecto`}
+            />
+          </h1>
         </center>
       )
     }
     else if (Object.keys(this.selectedProjects).length !== 0 && !this.state.noData) {
       return (
         <center>
-          <h1 className='has-text-info'>Cargando, un momento por favor</h1>
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="report.loadingMsg"
+              defaultMessage={`Cargando, un momento por favor`}
+            />
+          </h1>
           <Loader />
         </center>
       )
@@ -647,6 +659,7 @@ class HistoricReport extends Component {
                     if (obj.selected === undefined) {
                       obj.selected = true
                     }
+                    //TODO: translate
                     let name = obj.name === 'Not identified' ? obj.externalId + ' (No identificado)' : obj.externalId + ' ' + obj.name
 
                     return (
@@ -800,7 +813,7 @@ class HistoricReport extends Component {
 
       graph = [
         {
-          label: 'Predicción',
+          label: 'Predicción', //TODO: translate
           color: '#187FE6',
           data: prediction
         }
@@ -817,7 +830,7 @@ class HistoricReport extends Component {
         })
 
         graph.push({
-          label: 'Ajuste ' + (key + 1),
+          label: 'Ajuste ' + (key + 1), //TODO: translate
           color: this.getRandColor(4),
           data: data
         })
@@ -838,7 +851,12 @@ class HistoricReport extends Component {
     return (
       <div className='historic-view'>
         <div className='section-header'>
-          <h2>Histórico de ajustes </h2>
+          <h2>
+            <FormattedMessage
+              id="report.historicTitle"
+              defaultMessage={`Histórico de ajustes`}
+            />
+          </h2>
         </div>
         <div className='section'>
           <div className='columns filters-project '>
@@ -852,7 +870,11 @@ class HistoricReport extends Component {
                         <span className='icon'>
                           <i className='fa fa-folder' />
                         </span>
-                        Proyectos</h1>
+                        <FormattedMessage
+                          id="report.projects"
+                          defaultMessage={`Proyectos`}
+                        />
+                      </h1>
                     </div>
                     <div className='card-content'>
                       <aside className='menu' disabled={this.state.waitingData}>
@@ -867,11 +889,11 @@ class HistoricReport extends Component {
                                   <li key={item.uuid}>
                                     <a>
                                       <div className="field" key={item.uuid}>
-                                        <input 
-                                          className="is-checkradio is-info is-small" 
+                                        <input
+                                          className="is-checkradio is-info is-small"
                                           id={item.name}
-                                          type="radio" 
-                                          name='project' 
+                                          type="radio"
+                                          name='project'
                                           checked={this.selectedProjects[item.uuid] !== undefined}
                                           disabled={this.state.waitingData}
                                           onChange={() => this.selectProject(item)} />
@@ -895,12 +917,17 @@ class HistoricReport extends Component {
 
                 </div>
                 <div className='column is-12'>
-                
+
                   <div className='level dash-graph'>
                       {this.state.minPeriod &&
                         <div className='level-item'>
                           <div className='field'>
-                            <label className='label'>Inicial</label>
+                            <label className='label'>
+                              <FormattedMessage
+                                id="report.initial"
+                                defaultMessage={`Inicial`}
+                              />
+                            </label>
                             <div className='field is-grouped control'>
                               <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                                 <div className='dropdown-trigger'>
@@ -940,7 +967,12 @@ class HistoricReport extends Component {
                       {this.state.maxPeriod &&
                         <div className='level-item'>
                           <div className='field'>
-                            <label className='label'>Final</label>
+                            <label className='label'>
+                              <FormattedMessage
+                                id="report.final"
+                                defaultMessage={`Final`}
+                              />
+                            </label>
                             <div className='field is-grouped control'>
                               <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                                 <div className='dropdown-trigger'>
@@ -973,10 +1005,15 @@ class HistoricReport extends Component {
                   </div>
 
                 </div>
-                
+
                 <div className='column is-12'>
                   <div className="field has-pad-sides-5">
-                    <label className='label'>Mostrar por: </label>
+                    <label className='label'>
+                      <FormattedMessage
+                        id="report.showBy"
+                        defaultMessage={`Mostrar por`}
+                      />:
+                    </label>
                     <div className='control'>
 
                       <div className="field is-grouped">
@@ -991,7 +1028,12 @@ class HistoricReport extends Component {
                             disabled={this.state.waitingData}
                             onChange={() => this.showBy(false)} />
                           <label htmlFor='showByquantity'>
-                            <span title='Cantidad'>Cantidad</span>
+                            <span title='Cantidad'>
+                              <FormattedMessage
+                                id="report.quantity"
+                                defaultMessage={`Cantidad`}
+                              />
+                            </span>
                           </label>
                         </div>
 
@@ -1005,7 +1047,12 @@ class HistoricReport extends Component {
                             disabled={this.state.waitingData}
                             onChange={() => this.showBy(true)} />
                           <label htmlFor='showByprice'>
-                            <span title='Precio'>Precio</span>
+                            <span title='Precio'>
+                              <FormattedMessage
+                                id="report.price"
+                                defaultMessage={`Precio`}
+                              />
+                            </span>
                           </label>
                         </div>
                       </div>
@@ -1022,7 +1069,11 @@ class HistoricReport extends Component {
                         <span className='icon'>
                           <i className='fa fa-filter' />
                         </span>
-                        Filtros</h1>
+                        <FormattedMessage
+                          id="report.filters"
+                          defaultMessage={`Filtros`}
+                        />
+                      </h1>
                     </div>
                     <div className='card-content'>
 
@@ -1038,33 +1089,51 @@ class HistoricReport extends Component {
               </div>
             </div>
 
-         
+
             <div className='column dash-graph'>
               {this.state.projectSelected &&
                 <h1 className='report-title'>
-                Resultados de histórico por rango de tiempo en proyecto 
-                <strong> {this.state.projectSelected.name}</strong>
+                  <FormattedMessage
+                    id="report.historicResults"
+                    defaultMessage={`Resultados de histórico por rango de tiempo en proyecto`}
+                  />
+                 <strong> {this.state.projectSelected.name}</strong>
                 </h1>
               }
               <div className='columns'>
                 <div className='column is-paddingless'>
                   <div className='notification is-info has-text-centered'>
                     <h1 className='title is-2'>{this.state.mapePrediction.toFixed(2) || '0.00'}%</h1>
-                    <h2 className='subtitle has-text-weight-bold'>MAPE Predicción</h2>
+                    <h2 className='subtitle has-text-weight-bold'>
+                      <FormattedMessage
+                        id="report.historicColumns1"
+                        defaultMessage={`MAPE Predicción`}
+                      />
+                    </h2>
                   </div>
                 </div>
 
                 <div className='column is-paddingless'>
                   <div className='notification is-info-dark-1 has-text-centered'>
                     <h1 className='title is-2'>{this.state.mapeAdjustment.toFixed(2) || '0.00'}%</h1>
-                    <h2 className='subtitle has-text-weight-bold'>MAPE Ajuste</h2>
+                    <h2 className='subtitle has-text-weight-bold'>
+                      <FormattedMessage
+                        id="report.historicColumns2"
+                        defaultMessage={`MAPE Ajuste`}
+                      />
+                    </h2>
                   </div>
                 </div>
 
                 <div className='column is-paddingless'>
                   <div className='notification is-info-dark-2 has-text-centered'>
                     <h1 className='title is-2'>{this.state.difference.toFixed(2) || '0.00'}%</h1>
-                    <h2 className='subtitle has-text-weight-bold'>Diferencia Predicción - Ajuste</h2>
+                    <h2 className='subtitle has-text-weight-bold'>
+                      <FormattedMessage
+                        id="report.historicColumns3"
+                        defaultMessage={`Diferencia Predicción - Ajuste`}
+                      />
+                    </h2>
                   </div>
                 </div>
               </div>
@@ -1170,7 +1239,12 @@ class HistoricReport extends Component {
                       />
                       : <section className='section has-30-margin-top'>
                         <center>
-                          <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
+                          <h1 className='has-text-info'>
+                            <FormattedMessage
+                              id="report.noInfo"
+                              defaultMessage={`No hay datos que mostrar, intente con otro filtro`}
+                            />
+                          </h1>
                         </center>
                       </section>
                     : <section className='section has-30-margin-top'>
@@ -1181,7 +1255,7 @@ class HistoricReport extends Component {
                 </div>
               </div>
 
-              
+
 
             </div>
           </div>
@@ -1196,7 +1270,7 @@ export default Page({
   exact: true,
   validate: loggedIn,
   component: HistoricReport,
-  title: 'Histórico de ajustes',
+  title: 'Histórico de ajustes', //TODO: translate
   icon: 'history',
-  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'  
+  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'
 })

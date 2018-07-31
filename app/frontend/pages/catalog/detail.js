@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 import { testRoles } from '~base/tools'
 
@@ -82,7 +83,10 @@ class CatalogDetail extends Component {
     if (saving) {
       return (
         <p className='card-header-title' style={{ fontWeight: '200', color: 'grey' }}>
-          Guardando <span style={{ paddingLeft: '5px' }}><FontAwesome className='fa-spin' name='spinner' /></span>
+          <FormattedMessage
+            id="catalog.saving"
+            defaultMessage={`Guardando`}
+          /> <span style={{ paddingLeft: '5px' }}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
       )
     }
@@ -100,7 +104,10 @@ class CatalogDetail extends Component {
 
       return (
         <p className='card-header-title' style={{ fontWeight: '200', color: 'grey' }}>
-          Guardado
+          <FormattedMessage
+            id="catalog.saved"
+            defaultMessage={`Guardado`}
+          />
         </p>
       )
     }
@@ -249,14 +256,18 @@ class CatalogDetail extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Grupos
-                        </p>
+                  <FormattedMessage
+                    id="catalog.groups"
+                    defaultMessage={`Grupos`}
+                  />
+                </p>
                 <div>
                   {this.getSavingMessage()}
                 </div>
               </header>
               <div className='card-content'>
                 <Multiselect
+                  //TODO: translate
                   availableTitle='Disponible'
                   assignedTitle='Asignado'
                   assignedList={this.state.selectedGroups}
@@ -286,12 +297,12 @@ class CatalogDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio',
+                    label: 'Inicio', //TODO: translate
                     current: false
                   },
                   {
                     path: '/catalogs/' + this.props.match.params.catalog,
-                    label: 'Catálogos',
+                    label: 'Catálogos', //TODO: translate
                     current: true
                   },
                   {
@@ -312,7 +323,9 @@ class CatalogDetail extends Component {
           <div className='level-right'>
             <div className='level-item'>
               {canEdit &&
-                <DeleteButton titleButton={'Eliminar'}
+                <DeleteButton
+                  //TODO: translate
+                  titleButton={'Eliminar'}
                   objectName={this.props.match.params.catalog}
                   objectDelete={this.deleteObject.bind(this)}
                   message={`¿Estas seguro de quieres borrar el canal ${catalog.name}?`}
@@ -329,7 +342,10 @@ class CatalogDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                    Detalle
+                    <FormattedMessage
+                      id="catalog.detail"
+                      defaultMessage={`Detalle`}
+                    />
                   </p>
                 </header>
                 <div className='card-content'>
@@ -351,7 +367,12 @@ class CatalogDetail extends Component {
                               className={'button is-primary ' + this.state.isLoading}
                               disabled={!!this.state.isLoading}
                               type='submit'
-                            >Guardar</button>
+                            >
+                              <FormattedMessage
+                                id="catalog.btnSave"
+                                defaultMessage={`Guardar`}
+                              />
+                            </button>
                           </div>
                         </div>
                       </ChannelForm>
@@ -370,7 +391,7 @@ class CatalogDetail extends Component {
 
 export default Page({
   path: '/catalogs/:catalog/:uuid',
-  title: 'Catalog Detail',
+  title: 'Catalog Detail', //TODO: translate
   exact: true,
   roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],

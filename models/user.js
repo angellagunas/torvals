@@ -13,6 +13,8 @@ const Mailer = require('lib/mailer')
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR)
 
 const userSchema = new Schema({
+  language: { type: Schema.Types.ObjectId, ref: 'Language' },
+
   name: { type: String, required: true },
   password: { type: String },
   email: { type: String, required: true, unique: true, trim: true },
@@ -34,7 +36,6 @@ const userSchema = new Schema({
   },
 
   accountOwner: { type: Boolean, default: false },
-  language: { type: String, default: 'ES' },
   job: { type: String },
   phone: { type: String },
   isVerified: { type: Boolean, default: false },

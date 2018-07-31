@@ -80,6 +80,12 @@ class LogInButton extends Component {
       })
     }
 
+    if (!user.languageCode) {
+      localStorage.setItem('lang', 'es-MX')
+    } else {
+      localStorage.setItem('lang', user.languageCode)
+    }
+
     if (user.organizations && user.organizations.length > 1) {
       this.setState({
         organizations: user.organizations,
@@ -297,6 +303,8 @@ class LogInButton extends Component {
               </div>
             </section>
           </div>
+          <button className='modal-close login is-large has-text-dark' aria-label='close' onClick={() => { this.hideModal() }} />
+
         </div>
       </div>
     )

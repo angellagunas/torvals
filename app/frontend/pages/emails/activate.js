@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import Page from '~base/page'
 
 import tree from '~core/tree'
@@ -83,7 +84,10 @@ class EmailActivateLanding extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              Activación de cuenta
+              <FormattedMessage
+                id="emails.activationTitle"
+                defaultMessage={`Activación de cuenta`}
+              />
             </p>
           </header>
           <div className='card-content'>
@@ -93,10 +97,26 @@ class EmailActivateLanding extends Component {
               ? <div>
                 <div className={this.state.apiCallMessage}>
                   <div className='message-body is-size-7 has-text-centered'>
-                    ¡Hola {this.state.user.name}, tu cuenta ha sida activada exitosamente!
+                    <FormattedMessage
+                      id="emails.greeting1"
+                      defaultMessage={`¡Hola`}
+                    /> {this.state.user.name}, <FormattedMessage
+                      id="emails.activationGreeting2"
+                      defaultMessage={`tu cuenta ha sida activada exitosamente!`}
+                    />
                   </div>
                 </div>
-                <p> Ahora puedes usar tu cuenta para acceder, <a href='/landing' > da click aqui </a></p>
+                <p>
+                  <FormattedMessage
+                    id="emails.activationInfo1"
+                    defaultMessage={`Ahora puedes usar tu cuenta para acceder`}
+                  />, <a href='/landing' >
+                    <FormattedMessage
+                      id="emails.activationInfo2"
+                      defaultMessage={`da click aqui`}
+                    />
+                  </a>
+                </p>
               </div>
               : <div className={this.state.apiCallErrorMessage}>
                 <div className='message-body is-size-7 has-text-centered'>
@@ -114,7 +134,7 @@ class EmailActivateLanding extends Component {
 
 export default Page({
   path: '/emails/activate',
-  title: 'Email activate',
+  title: 'Email activate', //TODO: translate
   exact: true,
   component: EmailActivateLanding
 })

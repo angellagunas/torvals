@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import api from '~base/api'
 import DeleteButton from '~base/components/base-deleteButton'
@@ -21,7 +22,7 @@ class GroupsDetail extends Component {
   }
   getColumns () {
     return [
-      {
+      { //TODO: translate
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
@@ -32,7 +33,7 @@ class GroupsDetail extends Component {
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
@@ -43,7 +44,7 @@ class GroupsDetail extends Component {
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Miembros',
         'property': 'users',
         'default': '0',
@@ -57,7 +58,7 @@ class GroupsDetail extends Component {
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Acciones',
         formatter: (row) => {
           const deleteObject = async function () {
@@ -85,9 +86,9 @@ class GroupsDetail extends Component {
                   iconOnly
                   icon='fa fa-trash'
                   objectName='Grupo'
-                  objectDelete={deleteObject}
+                  objectDelete={deleteObject} //TODO: translate
                   message={`¿Está seguro de querer eliminar el grupo ${row.name} ?`}
-                  />
+                />
               </div>
           }
 
@@ -150,7 +151,12 @@ class GroupsDetail extends Component {
           <div className='section level has-10-margin-top'>
             <div className='level-left'>
               <div className='level-item'>
-                <h1 className='title is-5'>Visualiza tus grupos</h1>
+                <h1 className='title is-5'>
+                  <FormattedMessage
+                    id="groups.title"
+                    defaultMessage={`Visualiza tus grupos`}
+                  />
+                </h1>
               </div>
             </div>
             <div className='level-right'>
@@ -161,7 +167,9 @@ class GroupsDetail extends Component {
                       className='input input-search'
                       type='text'
                       value={this.state.searchTerm}
-                      onChange={(e) => { this.searchOnChange(e) }} placeholder='Buscar' />
+                      onChange={(e) => { this.searchOnChange(e) }}
+                      placeholder='Buscar' //TODO: translate
+                    />
 
                     <span className='icon is-small is-right'>
                       <i className='fa fa-search fa-xs' />
@@ -173,8 +181,14 @@ class GroupsDetail extends Component {
               <div className='level-item'>
                 <a
                   className='button is-info is-pulled-right'
-                  onClick={() => this.showModal()}>
-                  <span>Nuevo Grupo</span>
+                  onClick={() => this.showModal()}
+                >
+                  <span>
+                    <FormattedMessage
+                      id="groups.btnNew"
+                      defaultMessage={`Nuevo Grupo`}
+                    />
+                  </span>
                 </a>
               </div>
               }
@@ -197,7 +211,7 @@ class GroupsDetail extends Component {
             finishUp={(obj) => this.finishUp(obj)}
             canCreate={this.state.canCreate}
             selectGroup={() => { this.selectGroup() }}
-            />
+          />
         </div>
       }
         {this.state.groupSelected &&

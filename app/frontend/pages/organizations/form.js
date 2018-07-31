@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 
 import {
@@ -15,7 +15,7 @@ const schema = {
   required: [
     'name', 'slug'
   ],
-  properties: {
+  properties: { //TODO: translate
     name: {type: 'string', title: 'Nombre'},
     description: {type: 'string', title: 'Descripción'},
     slug: {type: 'string', title: 'Subdominio'},
@@ -51,34 +51,55 @@ class CustomForm extends Component {
     const profileImg = profile || profileUrl
 
     return (
-      <div className='columns is-multiline test'>
+      <div className='columns is-multiline'>
 
         <div className='column is-12'>
           <p className='subtitle is-pulled-left'>
-            <strong>Detalle de tu organización</strong>
+            <strong>
+              <FormattedMessage
+                id="organizations.formTitle"
+                defaultMessage={`Detalle de tu organización`}
+              />
+            </strong>
           </p>
           <div className='is-pulled-right'>
             <button
-              className={'button is-primary ' + this.state.isLoading}
+              className={'button is-primary org-button-save ' + this.state.isLoading}
               disabled={!!this.state.isLoading}
               type='submit'
             >
-              Guardar
+              <FormattedMessage
+                id="organizations.btnSave"
+                defaultMessage={`Guardar`}
+              />
+            </button>
+            <button
+              className={'button is-primary org-button is-hidden ' + this.state.isLoading}
+              disabled={!!this.state.isLoading}
+              type='submit'
+            >
+              <FormattedMessage
+                id="organizations.btnContinue"
+                defaultMessage={`Continuar`}
+              />
             </button>
           </div>
         </div>
 
-        <div className='column is-one-third'>
-          <div className='card'>
+        <div className='column is-narrow'>
+          <div className='card org-card'>
             <div className='card-image'>
               <figure className='image is-1by1'>
-                <img src={profileImg} />
+                <img src={profileImg} className='org-img' />
               </figure>
             </div>
             <div className='card-content'>
-              <div className='form-group field'>
+              <div className='form-group field has-text-centered'>
                 <label className='label'>
-                        Sube el logo de la organización
+                  <FormattedMessage
+                    id="organizations.logoUploadMsg"
+                    defaultMessage={`Sube el logo de la organización`}
+                  />
                 </label>
                 <FileWidget
                   value={profile}
@@ -97,7 +118,12 @@ class CustomForm extends Component {
                 <div className='column'>
 
                   <div className='form-group field'>
-                    <label className='label'>Nombre*</label>
+                    <label className='label'>
+                      <FormattedMessage
+                        id="organizations.name"
+                        defaultMessage={`Nombre`}
+                      />*
+                    </label>
                     <div className='control'>
                       <TextWidget
                         required
@@ -109,7 +135,12 @@ class CustomForm extends Component {
                     </div>
                   </div>
                   <div className='form-group field'>
-                    <label className='label'>Descripción</label>
+                    <label className='label'>
+                      <FormattedMessage
+                        id="organizations.description"
+                        defaultMessage={`Descripción`}
+                      />
+                    </label>
                     <div className='control'>
                       <TextareaWidget
                         options={{ rows: 4 }}
@@ -121,11 +152,19 @@ class CustomForm extends Component {
                       />
                     </div>
                     <p className='help-block has-text-grey is-size-7'>
-                      Máximo 140 caracteres
+                      <FormattedMessage
+                        id="organizations.maxMsg"
+                        defaultMessage={`Máximo 140 caracteres`}
+                      />
                     </p>
                   </div>
                   <div className='form-group field'>
-                    <label className='label'>Subdominio*</label>
+                    <label className='label'>
+                      <FormattedMessage
+                        id="organizations.subdomain"
+                        defaultMessage={`Subdominio`}
+                      />*
+                    </label>
                     <div className='control'>
                       <TextWidget
                         required
@@ -181,7 +220,7 @@ class OrganizationForm extends Component {
   async submitHandler ({formData}) {
     if (formData.slug !== this.state.initialState.slug && !this.state.confirmed) {
       return this.setState({
-        ...this.state,
+        ...this.state, //TODO: translate
         error: 'Si modificas el slug, se cerrará la sesión de todos los usuarios que hayan iniciado sesión en esta organización. Si REALMENTE desea continuar, haga clic en guardar de nuevo',
         apiCallErrorMessage: 'message is-danger',
         confirmed: true
@@ -226,7 +265,10 @@ class OrganizationForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+              <FormattedMessage
+                id="organizations.savedMsg"
+                defaultMessage={`Los datos se han guardado correctamente`}
+              />
             </div>
           </div>
 

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import StickTable from '~base/components/stick-table'
 import Checkbox from '~base/components/base-checkbox'
 import Loader from '~base/components/spinner'
@@ -59,12 +60,18 @@ class ProductTable extends Component {
       <div className="field has-addons view-btns">
         <span className="control">
           <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
-            Vista Periodo
+            <FormattedMessage
+              id="projects.periodView"
+              defaultMessage={`Vista Periodo`}
+            />
           </a>
         </span>
         <span className="control">
           <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info btn-lvl-3' : 'button is-info'}>
-            Vista Producto
+            <FormattedMessage
+              id="projects.productView"
+              defaultMessage={`Vista Producto`}
+            />
           </a>
         </span>
       </div>
@@ -151,7 +158,7 @@ class ProductTable extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         group: ' ',
         title: 'Producto',
         property: 'productName',
@@ -171,7 +178,7 @@ class ProductTable extends Component {
           return product
         }
       },
-      {
+      { //TODO: translate
         group: ' ',
         title: <span
           className='icon'
@@ -189,7 +196,7 @@ class ProductTable extends Component {
           return this.getLimit(row)
         }
       },
-      {
+      { //TODO: translate
         group: ' ',
         title: 'Periodo',
         property: 'period.period',
@@ -205,7 +212,7 @@ class ProductTable extends Component {
         }
       },
       ...this.getCatalogColumns(),
-      {
+      { //TODO: translate
         group: ' ',
         title: 'Predicción',
         property: 'prediction',
@@ -237,7 +244,7 @@ class ProductTable extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         group: ' ',
         title: 'Ajuste',
         property: 'adjustmentForDisplay',
@@ -272,7 +279,7 @@ class ProductTable extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         group: ' ',
         title: this.splitWords('Rango_Ajustado'),
         property: 'percentage',
@@ -318,17 +325,17 @@ class ProductTable extends Component {
         sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
       }
 
-    } 
+    }
     else if (e.indexOf('_') !== -1) {
       let sort = e.split('_')
-      
+
       if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, function (e) { 
+        sorted = _.orderBy(sorted, function (e) {
           return e.catalogItems.map((item, key) => {
             if (sort[1] === item.type) {
               return e.catalogItems[key]['name'].toLowerCase()
             }
-          }) 
+          })
         }, ['asc'])
       }
       else {

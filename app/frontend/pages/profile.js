@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -24,12 +25,12 @@ class Profile extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio',
+                    label: 'Inicio', //TODO: translate
                     current: false
                   },
                   {
                     path: '/profile',
-                    label: 'Mi perfil',
+                    label: 'Mi perfil', //TODO: translate
                     current: true
                   },
                   {
@@ -49,7 +50,12 @@ class Profile extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <div className='card-header-title'>
-                    Detalles
+
+                    <FormattedMessage
+                      id="profile.form1Title"
+                      defaultMessage={`Detalles`}
+                    />
+
                   </div>
                 </header>
                 <div className='card-content'>
@@ -62,9 +68,14 @@ class Profile extends Component {
             <div className='column is-half'>
               <div className='card update-pass'>
                 <header className='card-header'>
-                  <p className='card-header-title'>
-                  Cambiar contraseña
-                </p>
+                  <div className='card-header-title'>
+
+                    <FormattedMessage
+                      id="profile.form2Title"
+                      defaultMessage={`Cambiar contraseña`}
+                    />
+
+                  </div>
                 </header>
                 <div className='card-content'>
                   <div className='content'>
@@ -83,7 +94,7 @@ class Profile extends Component {
 
 export default Page({
   path: '/profile',
-  title: 'Profile',
+  title: 'Profile', //TODO: translate
   exact: true,
   validate: loggedIn,
   component: Profile

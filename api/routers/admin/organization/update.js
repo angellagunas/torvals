@@ -10,7 +10,6 @@ module.exports = new Route({
   validator: lov.object().keys({
     name: lov.string().required(),
     country: lov.string(),
-    status: lov.string(),
     employees: lov.number(),
     rfc: lov.string(),
     billingEmail: lov.string(),
@@ -18,13 +17,12 @@ module.exports = new Route({
     businessType: lov.string(),
     accountType: lov.string(),
     availableUsers: lov.number(),
-    billingStart: lov.date(),
-    billingEnd: lov.date(),
     salesRep: lov.object().keys({
       name: lov.string(),
       email: lov.string().email(),
       phone: lov.string()
-    })
+    }),
+    description: lov.string()
   }),
   handler: async function (ctx) {
     var organizationId = ctx.params.uuid
@@ -38,7 +36,6 @@ module.exports = new Route({
     org.set({
       name: data.name,
       country: data.country,
-      status: data.status,
       employees: data.employees,
       rfc: data.rfc,
       billingEmail: data.billingEmail,
@@ -46,9 +43,8 @@ module.exports = new Route({
       businessType: data.businessType,
       accountType: data.accountType,
       availableUsers: data.availableUsers,
-      billingStart: data.billingStart,
-      billingEnd: data.billingEnd,
-      salesRep: data.salesRep
+      salesRep: data.salesRep,
+      description: data.description
     })
 
     if (!data.description) org.set({description: ''})

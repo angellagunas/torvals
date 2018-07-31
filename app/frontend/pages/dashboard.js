@@ -5,6 +5,7 @@ import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 import tree from '~core/tree'
 import _ from 'lodash'
+import { FormattedMessage } from 'react-intl'
 import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -237,7 +238,7 @@ class Dashboard extends Component {
       } catch (e) {
         this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
         this.setState({
-          noData: e.message + ', intente más tarde'
+          noData: e.message + ', intente más tarde' //TODO: translate
         })
       }
     }
@@ -273,7 +274,7 @@ class Dashboard extends Component {
     catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
-        noData: e.message + ', intente más tarde'
+        noData: e.message + ', intente más tarde' //TODO: translate
       })
     }
   }
@@ -320,7 +321,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Producto',
+        'title': 'Producto', //TODO: translate
         'property': 'product.name',
         'default': 'N/A',
         'sortable': true,
@@ -329,7 +330,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Predicción',
+        'title': 'Predicción', //TODO: translate
         'property': 'prediction',
         'default': '0',
         'sortable': true,
@@ -343,7 +344,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Ajuste',
+        'title': 'Ajuste', //TODO: translate
         'property': 'adjustment',
         'default': '0',
         'sortable': true,
@@ -356,7 +357,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Venta',
+        'title': 'Venta', //TODO: translate
         'property': 'sale',
         'default': '0',
         'sortable': true,
@@ -370,7 +371,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Venta año anterior',
+        'title': 'Venta año anterior', //TODO: translate
         'property': 'previousSale',
         'default': '0',
         'sortable': true,
@@ -479,14 +480,24 @@ class Dashboard extends Component {
     if(Object.keys(this.selectedProjects).length === 0){
       return (
       <center>
-        <h1 className='has-text-info'>Debes seleccionar al menos un proyecto</h1>
+        <h1 className='has-text-info'>
+          <FormattedMessage
+            id="dashboard.tableMsg"
+            defaultMessage={`Debes seleccionar al menos un proyecto`}
+          />
+        </h1>
       </center>
       )
     }
     else if (Object.keys(this.selectedProjects).length !== 0 && !this.state.noData) {
       return (
         <center>
-          <h1 className='has-text-info'>Cargando, un momento por favor</h1>
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="dashboard.tableLoading"
+              defaultMessage={`Cargando, un momento por favor`}
+            />
+          </h1>
           <Loader />
         </center>
       )
@@ -688,7 +699,7 @@ class Dashboard extends Component {
               <div>
                 <Checkbox
                   checked={item.selectAll}
-                  label={'Seleccionar Todos'}
+                  label={'Seleccionar Todos'} //TODO: translate
                   handleCheckboxChange={(e, value) => {
                     this.checkAllItems(value, item.type)
                     this.getGraph()
@@ -704,6 +715,7 @@ class Dashboard extends Component {
                     if (obj.selected === undefined) {
                       obj.selected = true
                     }
+                    //TODO: translate
                     let name = obj.name === 'Not identified' ? obj.externalId + ' (No identificado)' : obj.externalId + ' ' + obj.name
 
                     return (
@@ -850,30 +862,30 @@ class Dashboard extends Component {
 
     const graph = [
       {
-        label: 'Predicción',
+        label: 'Predicción', //TODO: translate
         color: '#187FE6',
-        data: this.state.graphData ? 
+        data: this.state.graphData ?
         this.state.graphData.map((item) => { return item.prediction !== undefined ? item.prediction : null })
          : []
       },
       {
-        label: 'Ajuste',
+        label: 'Ajuste', //TODO: translate
         color: '#30C6CC',
-        data: this.state.graphData ? 
+        data: this.state.graphData ?
         this.state.graphData.map((item) => { return item.adjustment !== undefined ? item.adjustment : null })
           : []
       },
       {
-        label: 'Venta',
+        label: 'Venta', //TODO: translate
         color: '#0CB900',
-        data: this.state.graphData ? 
+        data: this.state.graphData ?
         this.state.graphData.map((item) => { return item.sale !== undefined ? item.sale : null})
          : []
       },
       {
-        label: 'Venta año anterior',
+        label: 'Venta año anterior', //TODO: translate
         color: '#EF6950',
-        data: this.state.graphData ? 
+        data: this.state.graphData ?
         this.state.graphData.map((item) => { return item.previousSale !== undefined ? item.previousSale : null })
          : []
       }
@@ -892,7 +904,12 @@ class Dashboard extends Component {
     return (
       <div>
         <div className='section-header'>
-          <h2>Dashboard</h2>
+          <h2>
+            <FormattedMessage
+              id="dashboard.title"
+              defaultMessage={`Dashboard`}
+            />
+          </h2>
         </div>
         <div className='section'>
           <div className='columns filters-project '>
@@ -906,14 +923,19 @@ class Dashboard extends Component {
                         <span className='icon'>
                           <i className='fa fa-folder' />
                         </span>
-                      Proyectos</h1>
+
+                        <FormattedMessage
+                          id="dashboard.projectsTitle"
+                          defaultMessage={`Proyectos`}
+                        />
+                      </h1>
                     </div>
                     <div className='card-content'>
                       <aside className='menu' disabled={this.state.waitingData}>
                         <div>
                           <Checkbox
                             checked={this.state.allProjects}
-                            label={'Seleccionar Todos'}
+                            label={'Seleccionar Todos'} //TODO: translate
                             handleCheckboxChange={(e, value) => this.checkAllProjects(value)}
                             key={'project'}
                             disabled={this.state.waitingData}
@@ -960,7 +982,11 @@ class Dashboard extends Component {
                         <span className='icon'>
                           <i className='fa fa-filter' />
                         </span>
-                    Filtros</h1>
+                        <FormattedMessage
+                          id="dashboard.filtersTitle"
+                          defaultMessage={`Filtros`}
+                        />
+                      </h1>
                     </div>
                     <div className='card-content'>
 
@@ -986,11 +1012,19 @@ class Dashboard extends Component {
                     <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
                   </div>
                   <div className='indicators'>
-                    <p className='indicators-title'>Venta total</p>
+                    <p className='indicators-title'>
+                      <FormattedMessage
+                        id="dashboard.salesTitle"
+                        defaultMessage={`Venta total`}
+                      />
+                    </p>
                     <p className='indicators-number has-text-success'>
                       {
                         this.state.totalSale === 0 ?
-                          'No disponible' :
+                          <FormattedMessage
+                            id="dashboard.notAvailable"
+                            defaultMessage={`No disponible`}
+                          /> :
                         this.state.prices ? '$' +
                           this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
                             return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -1001,11 +1035,19 @@ class Dashboard extends Component {
                           })
                       }
                     </p>
-                    <p className='indicators-title'>Venta año anterior</p>
+                    <p className='indicators-title'>
+                      <FormattedMessage
+                        id="dashboard.lastSalesTitle"
+                        defaultMessage={`Venta año anterior`}
+                      />
+                    </p>
                     <p className='indicators-number has-text-danger'>
                       {
                         this.state.totalPSale === 0 ?
-                        'No disponible' :
+                          <FormattedMessage
+                            id="dashboard.notAvailable"
+                            defaultMessage={`No disponible`}
+                          /> :
                         this.state.prices ? '$' +
                           this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
                             return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -1016,11 +1058,19 @@ class Dashboard extends Component {
                       }
                     </p>
 
-                    <p className='indicators-title'>Ajuste total</p>
+                    <p className='indicators-title'>
+                      <FormattedMessage
+                        id="dashboard.adjustmentsTitle"
+                        defaultMessage={`Ajuste total`}
+                      />
+                    </p>
                     <p className='indicators-number has-text-teal'>
                       {
                         this.state.totalAdjustment === 0 ?
-                          'No disponible' :
+                          <FormattedMessage
+                            id="dashboard.notAvailable"
+                            defaultMessage={`No disponible`}
+                          /> :
                         this.state.prices ? '$' +
                           this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
                             return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -1032,11 +1082,19 @@ class Dashboard extends Component {
                       }
                     </p>
 
-                    <p className='indicators-title'>Predicción total</p>
+                    <p className='indicators-title'>
+                      <FormattedMessage
+                        id="dashboard.perdictionTitle"
+                        defaultMessage={`Predicción total`}
+                      />
+                    </p>
                     <p className='indicators-number has-text-info'>
                       {
                         this.state.totalPrediction === 0 ?
-                          'No disponible' :
+                          <FormattedMessage
+                            id="dashboard.notAvailable"
+                            defaultMessage={`No disponible`}
+                          /> :
                         this.state.prices ? '$' +
                           this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
                             return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -1150,7 +1208,12 @@ class Dashboard extends Component {
                         />
                       : <section className='section has-30-margin-top'>
                         <center>
-                          <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
+                          <h1 className='has-text-info'>
+                            <FormattedMessage
+                              id="dashboard.graphEmptyMsg"
+                              defaultMessage={`No hay datos que mostrar, intente con otro filtro`}
+                            />
+                          </h1>
                         </center>
                       </section>
                     : <section className='section has-30-margin-top'>
@@ -1166,13 +1229,20 @@ class Dashboard extends Component {
                   <div className='level-item'>
 
                     <div className='field'>
-                      <label className='label'>Búsqueda general</label>
+                      <label className='label'>
+                        <FormattedMessage
+                          id="dashboard.searchText"
+                          defaultMessage={`Búsqueda general`}
+                        />
+                      </label>
                       <div className='control has-icons-right'>
                         <input
                           className='input'
                           type='text'
                           value={this.state.searchTerm}
-                          onChange={this.searchOnChange} placeholder='Buscar' />
+                          onChange={this.searchOnChange}
+                          placeholder='Buscar' //TODO: translate
+                        />
 
                         <span className='icon is-small is-right'>
                           <i className='fa fa-search fa-xs' />
@@ -1183,7 +1253,12 @@ class Dashboard extends Component {
 
                   <div className='level-item'>
                     <div className="field">
-                      <label className='label'>Mostrar por: </label>
+                      <label className='label'>
+                        <FormattedMessage
+                          id="dashboard.showBy"
+                          defaultMessage={`Mostrar por`}
+                        />:
+                      </label>
                       <div className='control'>
 
                         <div className="field is-grouped">
@@ -1198,7 +1273,12 @@ class Dashboard extends Component {
                               disabled={this.state.waitingData}
                               onChange={() => this.showBy(false)} />
                             <label htmlFor='showByquantity'>
-                              <span title='Cantidad'>Cantidad</span>
+                              <span title='Cantidad'>
+                                <FormattedMessage
+                                  id="dashboard.showBy"
+                                  defaultMessage={`Mostrar por`}
+                                />
+                              </span>
                             </label>
                           </div>
 
@@ -1212,7 +1292,12 @@ class Dashboard extends Component {
                               disabled={this.state.waitingData}
                               onChange={() => this.showBy(true)} />
                             <label htmlFor='showByprice'>
-                              <span title='Precio'>Precio</span>
+                              <span title='Precio'>
+                                <FormattedMessage
+                                  id="dashboard.price"
+                                  defaultMessage={`Precio`}
+                                />
+                              </span>
                             </label>
                           </div>
                           </div>
@@ -1227,7 +1312,12 @@ class Dashboard extends Component {
                   {this.state.minPeriod &&
                     <div className='level-item'>
                     <div className='field'>
-                      <label className='label'>Mes inicial</label>
+                      <label className='label'>
+                        <FormattedMessage
+                          id="dashboard.initialMonth"
+                          defaultMessage={`Mes inicial`}
+                        />
+                      </label>
                       <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
@@ -1267,7 +1357,12 @@ class Dashboard extends Component {
                   {this.state.maxPeriod &&
                     <div className='level-item'>
                      <div className='field'>
-                        <label className='label'>Mes final</label>
+                        <label className='label'>
+                          <FormattedMessage
+                            id="dashboard.lastMonth"
+                            defaultMessage={`Mes final`}
+                          />
+                        </label>
                         <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
                         <div className='dropdown-trigger'>
@@ -1317,7 +1412,12 @@ class Dashboard extends Component {
                   </div>
                   : <section className='section'>
                     <center>
-                      <h1 className='has-text-info'>No hay productos que mostrar, intente con otro filtro</h1>
+                      <h1 className='has-text-info'>
+                        <FormattedMessage
+                          id="dashboard.productEmptyMsg"
+                          defaultMessage={`No hay productos que mostrar, intente con otro filtro`}
+                        />
+                      </h1>
                     </center>
                   </section>
               : <section className='section'>
@@ -1340,7 +1440,7 @@ const branchedDashboard = branch({forecasts: 'forecasts'}, Dashboard)
 
 export default Page({
   path: '/dashboard',
-  title: 'Dashboard',
+  title: 'Dashboard', //TODO: translate
   icon: 'line-chart',
   exact: true,
   validate: loggedIn,

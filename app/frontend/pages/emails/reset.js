@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import Page from '~base/page'
 
 import tree from '~core/tree'
@@ -11,6 +12,7 @@ import {BaseForm, PasswordWidget} from '~base/components/base-form'
 
 function validate (formData, errors) {
   if (formData.password_1 !== formData.password_2) {
+    //TODO: translate
     errors.password_2.addError('Las contraseñas no concuerdan')
   }
   return errors
@@ -19,7 +21,7 @@ function validate (formData, errors) {
 const schema = {
   type: 'object',
   required: ['password_1', 'password_2'],
-  properties: {
+  properties: { //TODO: translate
     password_1: {type: 'string', title: 'Contraseña'},
     password_2: {type: 'string', title: 'Confirmar Contraseña'}
   }
@@ -129,6 +131,7 @@ class EmailResetLanding extends Component {
 
     if (!user.organizations || user.organizations.length === 0) {
       return this.setState({
+        //TODO: translate
         error: '¡El usuario no tiene una organización asignada, No se puede iniciar sesión automáticamente!',
         loading: false,
         apiCallErrorMessage: 'message is-danger',
@@ -263,6 +266,7 @@ class EmailResetLanding extends Component {
           <header className='card-header'>
             <p className='card-header-title'>
               Selecciona una organización
+
             </p>
             <a className='card-header-icon'>
               <span className='icon'>
@@ -285,7 +289,10 @@ class EmailResetLanding extends Component {
         <div className='card'>
           <header className='card-header'>
             <p className='card-header-title'>
-              ¡Hola {this.state.user.name}!
+              <FormattedMessage
+                id="emails.greeting1"
+                defaultMessage={`¡Hola`}
+              /> {this.state.user.name}!
             </p>
             <a className='card-header-icon'>
               <span className='icon'>
@@ -296,7 +303,10 @@ class EmailResetLanding extends Component {
           <div className='card-content'>
             <div className='content'>
               <p>
-                Necesitas crear una contraseña antes de poder iniciar sesión, puedes crearla aquí.
+                <FormattedMessage
+                  id="emails.info"
+                  defaultMessage={`Necesitas crear una contraseña antes de poder iniciar sesión, puedes crearla aquí.`}
+                />
               </p>
               <BaseForm schema={schema}
                 uiSchema={uiSchema}
@@ -310,8 +320,10 @@ class EmailResetLanding extends Component {
                 { spinner }
                 <div className={this.state.apiCallMessage}>
                   <div className='message-body is-size-7 has-text-centered'>
-                    Contraseña creada con éxito! Te redirigiremos a la
-                    aplicación en un segundo.
+                    <FormattedMessage
+                      id="emails.passCreateMsg"
+                      defaultMessage={`Contraseña creada con éxito! Te redirigiremos a la aplicación en un segundo.`}
+                    />
                   </div>
                 </div>
                 <div className={this.state.apiCallErrorMessage}>
@@ -323,9 +335,12 @@ class EmailResetLanding extends Component {
                   className='button is-primary is-fullwidth'
                   type='submit'
                   disabled={!!error || this.state.bigError}
-                  >
-                    Restablecer contraseña
-                  </button>
+                >
+                  <FormattedMessage
+                    id="emails.restartPass"
+                    defaultMessage={`Restablecer contraseña`}
+                  />
+                </button>
               </BaseForm>
             </div>
           </div>
@@ -337,7 +352,7 @@ class EmailResetLanding extends Component {
 
 export default Page({
   path: '/emails/reset',
-  title: 'Email reset',
+  title: 'Email reset', //TODO: translate
   exact: true,
   component: EmailResetLanding
 })

@@ -117,7 +117,7 @@ class CalendarRules extends Component {
     if (!this.props.limits) {
       return
     }
-
+    //TODO: translate
     if (item === Number(this.props.limits.salesUpload)) {
       return 'Límite para subir ventas'
     } else if (item === Number(this.props.limits.forecastCreation)) {

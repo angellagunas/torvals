@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import moment from 'moment'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -85,7 +86,7 @@ class TabAnomalies extends Component {
             loaded: true
           })
         }
-
+        //TODO: translate
         if(res.data.length === 0)
           this.notify('No hay anomalías que mostrar', 5000, toast.TYPE.INFO)
 
@@ -95,6 +96,7 @@ class TabAnomalies extends Component {
           isFiltered: false,
           loaded: true
         })
+        //TODO: translate
         this.notify('Error:Intente de nuevo', 5000, toast.TYPE.ERROR)
       }
     })
@@ -191,7 +193,7 @@ class TabAnomalies extends Component {
   ).filter(item => item)
 
     let cols = [
-      {
+      { //TODO: translate
         'title': 'Seleccionar Todo',
         'abbreviate': true,
         'abbr': (() => {
@@ -233,7 +235,7 @@ class TabAnomalies extends Component {
           return String(row.newProduct.externalId)
         }
       },
-      {
+      { //TODO: translate
         'title': 'Producto',
         'property': 'product.name',
         'default': 'N/A',
@@ -243,7 +245,7 @@ class TabAnomalies extends Component {
         }
       },
       ...catalogItems,
-      {
+      { //TODO: translate
         'title': 'Tipo de Anomalía',
         'property': 'type',
         'default': 'N/A',
@@ -252,7 +254,7 @@ class TabAnomalies extends Component {
           return String(row.type)
         }
       },
-      {
+      { //TODO: translate
         'title': 'Fecha',
         'property': 'date',
         'default': 'N/A',
@@ -261,7 +263,7 @@ class TabAnomalies extends Component {
           return moment.utc(row.date, 'YYYY-MM-DD').local().format('DD/MM/YYYY')
         }
       },
-      {
+      { //TODO: translate
         'title': 'Predicción',
         'property': 'prediction',
         'default': 0,
@@ -318,7 +320,7 @@ class TabAnomalies extends Component {
       this.setState({
         anomalies: aux
       })
-
+      //TODO: translate
       this.notify('¡Ajuste guardado!', 5000, toast.TYPE.INFO)
 
     }
@@ -508,7 +510,12 @@ class TabAnomalies extends Component {
 
             <div className='column is-narrow pad-top-5'>
               <div className='field'>
-                <label className='label'>Búsqueda general</label>
+                <label className='label'>
+                  <FormattedMessage
+                    id="projects.search"
+                    defaultMessage={`Búsqueda general`}
+                  />
+                </label>
                 <div className='control has-icons-right'>
                   <input
                     className='input input-search'
@@ -530,8 +537,11 @@ class TabAnomalies extends Component {
                   type='button'
                   onClick={e => this.restore()}
                 >
-                  Recuperar ({Object.keys(this.state.selected).length})
-                  </button>
+                  <FormattedMessage
+                    id="projects.btnRecover"
+                    defaultMessage={`Recuperar`}
+                  /> ({Object.keys(this.state.selected).length})
+                </button>
               </div>
             }
           </div>
@@ -542,14 +552,24 @@ class TabAnomalies extends Component {
             <section className='section'>
               <center>
                 <Loader/>
-                <h2 className='has-text-info'>Cargando anomalías</h2>
+                <h2 className='has-text-info'>
+                  <FormattedMessage
+                    id="projects.loadingAnomalies"
+                    defaultMessage={`Cargando anomalías`}
+                  />
+                </h2>
               </center>
             </section>
           :
             this.state.anomalies.length === 0
               ? <section className='section'>
                   <center>
-                  <h2 className='subtitle has-text-primary'>No hay anomalías que mostrar</h2>
+                  <h2 className='subtitle has-text-primary'>
+                    <FormattedMessage
+                      id="projects.emptyAnomalies"
+                      defaultMessage={`No hay anomalías que mostrar`}
+                    />
+                  </h2>
                   </center>
                 </section>
               :
