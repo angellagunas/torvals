@@ -277,7 +277,7 @@ const task = new Task(async function (argv) {
       })
 
       if (!existingLanguage) {
-        existingLanguage = await Organization.create({
+        existingLanguage = await Language.create({
           name: language.name,
           code: language.code,
           isDeleted: language.isDeleted
