@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import api from '~base/api'
 import DeleteButton from '~base/components/base-deleteButton'
@@ -20,25 +21,25 @@ class UsersDetail extends Component {
   getColumns () {
     return [
       {
-        'title': 'Nombre',
+        'title': 'Nombre', //TODO: translate
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Email',
+        'title': 'Email', //TODO: translate
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Rol',
+        'title': 'Rol', //TODO: translate
         'property': 'role',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Grupos',
+        'title': 'Grupos', //TODO: translate
         'property': 'groups',
         'default': 'N/A',
         'sortable': true,
@@ -50,7 +51,10 @@ class UsersDetail extends Component {
                 <br />
                 {row.groups[1].name}
                 <br />
-                {row.groups.length - 2} más
+                {row.groups.length - 2} <FormattedMessage
+                  id="user.detailMore"
+                  defaultMessage={`más`}
+                />
               </div>
             )
           } else if (row.groups.length > 1) {
@@ -71,7 +75,7 @@ class UsersDetail extends Component {
         }
       },
       {
-        'title': 'Acciones',
+        'title': 'Acciones', //TODO: translate
         formatter: (row) => {
           const deleteObject = async function () {
             var url = '/app/users/' + row.uuid
@@ -87,7 +91,43 @@ class UsersDetail extends Component {
               pageLength: cursor.pageLength
             })
             tree.commit()
+            await updateStep()
+            
           }
+
+          const updateStep = async function () {
+            try {
+              let user = tree.get('user')
+              if (user.currentOrganization.wizardSteps.users) {
+                return
+              }
+              let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+              let res = await api.post(url, {
+                step: {
+                  name: 'users',
+                  value: true
+                }
+              })
+
+              if (res) {
+                let me = await api.get('/user/me')
+                tree.set('user', me.user)
+                tree.set('organization', me.user.currentOrganization)
+                tree.set('rule', me.rule)
+                tree.set('role', me.user.currentRole)
+                tree.set('loggedIn', me.loggedIn)
+                tree.commit()
+                return true
+              } else {
+                return false
+              }
+            } catch (e) {
+              console.log(e)
+              return false
+            }
+          }
+
 
           const currentUser = tree.get('user')
           var disabledActions = false
@@ -127,6 +167,7 @@ class UsersDetail extends Component {
                   icon='fa fa-trash'
                   objectName='Usuario'
                   objectDelete={deleteObject}
+                  //TODO: translate
                   message={`¿Está seguro de querer desactivar a ${row.name} ?`}
                 />
               )}
@@ -181,7 +222,12 @@ class UsersDetail extends Component {
           <div className='section level has-10-margin-top'>
             <div className='level-left'>
               <div className='level-item'>
-                <h1 className='title is-5'>Visualiza tus usuarios</h1>
+                <h1 className='title is-5'>
+                  <FormattedMessage
+                    id="user.detailTitle"
+                    defaultMessage={`Visualiza tus usuarios`}
+                  />
+                </h1>
               </div>
             </div>
             <div className='level-right'>
@@ -204,8 +250,14 @@ class UsersDetail extends Component {
               <div className='level-item'>
                 <a
                   className='button is-info is-pulled-right'
-                  onClick={() => this.showModal()}>
-                  <span>Nuevo Usuario</span>
+                  onClick={() => this.showModal()}
+                >
+                  <span>
+                    <FormattedMessage
+                      id="user.detailBtnNew"
+                      defaultMessage={`Nuevo Usuario`}
+                    />
+                  </span>
                 </a>
               </div>
               }

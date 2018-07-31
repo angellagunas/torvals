@@ -3,7 +3,7 @@ require('../config')
 require('lib/databases/mongo')
 const Task = require('lib/task')
 const fs = require('fs')
-const { User, Organization, Role } = require('models')
+const { Language, User, Organization, Role } = require('models')
 const slugify = require('underscore.string/slugify')
 const lov = require('lov')
 const verifyPrices = require('queues/update-prices')
@@ -53,6 +53,13 @@ const schema = lov.object().required().keys({
       user: lov.string().required(),
       organization: lov.string().required(),
       role: lov.string().required()
+    })
+  ),
+  languages: lov.array().required().items(
+    lov.object().keys({
+      name: lov.string().required(),
+      code: lov.string().required(),
+      isDeleted: lov.string().required()
     })
   )
 })
@@ -198,7 +205,7 @@ const task = new Task(async function (argv) {
           slug: slugify(org.name)
         })
       }
-      
+
       verifyPrices.add({uuid: existingOrg.uuid})
 
       delete existingOrg
@@ -260,6 +267,24 @@ const task = new Task(async function (argv) {
       delete existingOrg
       delete existingRole
       delete existingUser
+    }
+
+    console.log('Saving languages ....')
+    for (let language of data.languages) {
+      let existingLanguage = await Language.findOne({
+        name: language.name,
+        code: language.code
+      })
+
+      if (!existingLanguage) {
+        existingLanguage = await Language.create({
+          name: language.name,
+          code: language.code,
+          isDeleted: language.isDeleted
+        })
+      }
+
+      delete existingLanguage
     }
 
     // await getDates.run()

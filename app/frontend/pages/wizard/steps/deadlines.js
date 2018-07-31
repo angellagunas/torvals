@@ -2,32 +2,33 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import Cal from '../../cal'
 import { toast } from 'react-toastify'
+import { FormattedMessage } from 'react-intl'
 
 const colors = {
   1: {
     rangeClass: 'calendar-range-forecast',
     rangeClassStart: 'limit-forecast',
-    tooltip: 'generar predicción'
+    tooltip: 'generar predicción' //TODO: translate
   },
   2: {
     rangeClass: 'calendar-range-sales',
     rangeClassStart: 'limit-sales',
-    tooltip: 'subir ventas'
+    tooltip: 'subir ventas' //TODO: translate
   },
   3: {
     rangeClass: 'calendar-range-adjustments',
     rangeClassStart: 'limit-adjustments',
-    tooltip: 'realizar ajustes'
+    tooltip: 'realizar ajustes' //TODO: translate
   },
   4: {
     rangeClass: 'calendar-range-approve',
     rangeClassStart: 'limit-approve',
-    tooltip: 'aprobar ajustes'
+    tooltip: 'aprobar ajustes' //TODO: translate
   },
   5: {
     rangeClass: 'calendar-range-consolidate',
     rangeClassStart: 'limit-consolidate',
-    tooltip: 'concentrar información'
+    tooltip: 'concentrar información' //TODO: translate
   }
 }
 
@@ -66,7 +67,7 @@ class DeadLines extends Component {
     let totalDays = d.salesUpload + d.forecastCreation + d.rangeAdjustment + d.rangeAdjustmentRequest
 
     if (totalDays > cycleDays) {
-      this.notify(
+      this.notify(//TODO: translate
         'El ciclo cambió, debe establecer los ciclos de operación.',
         5000,
         toast.TYPE.INFO
@@ -144,7 +145,7 @@ class DeadLines extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del primer ciclo'
+      tooltipText: 'Inicio del primer ciclo' //TODO: translate
     }
     return d
   }
@@ -159,7 +160,7 @@ class DeadLines extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Fin del ciclo'
+      tooltipText: 'Fin del ciclo' //TODO: translate
     }
     return d
   }
@@ -194,7 +195,7 @@ class DeadLines extends Component {
       isTooltip: true,
       rangeClass: colors[key].rangeClass,
       rangeClassEnd: colors[key].rangeClassStart,
-      tooltipText: 'Límite para ' + colors[key].tooltip
+      tooltipText: 'Límite para ' + colors[key].tooltip //TODO: translate
     }
     return range
   }
@@ -256,7 +257,7 @@ class DeadLines extends Component {
         })
         this.makeDates()
       } else {
-        this.notify(
+        this.notify(//TODO: translate
           'Error: No puedes tomar más días de los que dura el ciclo.',
           5000,
           toast.TYPE.ERROR
@@ -324,27 +325,27 @@ class DeadLines extends Component {
   render () {
     const deadlines = [
       {
-        title: 'Actualizar datos de ventas',
+        title: 'Actualizar datos de ventas', //TODO: translate
         name: 'salesUpload',
         color: 'deadline-sales'
       },
       {
-        title: 'Generar Predicción',
+        title: 'Generar Predicción', //TODO: translate
         name: 'forecastCreation',
         color: 'deadline-forecast'
       },
       {
-        title: 'Realizar Ajustes',
+        title: 'Realizar Ajustes', //TODO: translate
         name: 'rangeAdjustment',
         color: 'deadline-adjustments'
       },
       {
-        title: 'Aprobar Ajustes',
+        title: 'Aprobar Ajustes', //TODO: translate
         name: 'rangeAdjustmentRequest',
         color: 'deadline-approve'
       },
       {
-        title: 'Concentrar Información',
+        title: 'Concentrar Información', //TODO: translate
         name: 'consolidation',
         color: 'deadline-consolidate'
       }
@@ -363,15 +364,28 @@ class DeadLines extends Component {
 
     return (
       <div className='section pad-sides has-20-margin-top'>
-        <h1 className='title is-5'> Ciclos de operación</h1>
-        <p className='subtitle is-6'>Define las fechas para el ciclo de operación a partir de la fecha de inicio.</p>
+        <h1 className='title is-5'>
+          <FormattedMessage
+            id="wizard.deadlinesTitle"
+            defaultMessage={`Ciclos de operación`}
+          />
+        </h1>
+        <p className='subtitle is-6'>
+          <FormattedMessage
+            id="wizard.deadlinesSubTitle"
+            defaultMessage={`Define las fechas para el ciclo de operación a partir de la fecha de inicio.`}
+          />
+        </p>
         <div className='columns is-centered'>
 
           <div className='column is-6'>
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                  Fechas para operar
+                  <FormattedMessage
+                    id="wizard.deadlinesDates"
+                    defaultMessage={`Fechas para operar`}
+                  />
                 </p>
               </header>
               <div className='card-content'>
@@ -394,7 +408,10 @@ class DeadLines extends Component {
                           </p>
                           <p className='control'>
                             <a className='button is-static'>
-                              Días
+                              <FormattedMessage
+                                id="wizard.deadlinesDays"
+                                defaultMessage={`Días`}
+                              />
                             </a>
                           </p>
                         </div>
@@ -419,11 +436,21 @@ class DeadLines extends Component {
 
         </div>
 
-        <div className='buttons wizard-steps'>
+        <div className='buttons wizard-steps has-margin-big'>
           {this.props.org && !this.props.org.isConfigured &&
             this.props.completed && this.props.completed.length < 4
-            ? <button onClick={() => this.props.setStep(3)} className='button is-primary'>Atrás</button>
-            : <button onClick={() => this.props.setStep(1)} className='button is-danger'>Cancelar</button>
+            ? <button onClick={() => this.props.setStep(3)} className='button is-primary'>
+              <FormattedMessage
+                id="wizard.deadlinesBtnPrev"
+                defaultMessage={`Atrás`}
+              />
+            </button>
+            : <button onClick={() => this.props.setStep(1)} className='button is-danger'>
+              <FormattedMessage
+                id="wizard.deadlinesBtnCancel"
+                defaultMessage={`Cancelar`}
+              />
+            </button>
           }
           <button
             disabled={this.state.disableBtn}
@@ -431,7 +458,14 @@ class DeadLines extends Component {
             className='button is-primary'>
             {this.props.org && !this.props.org.isConfigured &&
               this.props.completed && this.props.completed.length < 4
-              ? 'Siguente' : 'Guardar'
+              ? <FormattedMessage
+                id="wizard.deadlinesBtnNext"
+                defaultMessage={`Siguente`}
+              />
+              : <FormattedMessage
+                id="wizard.deadlinesBtnSave"
+                defaultMessage={`Guardar`}
+              />
             }
           </button>
         </div>

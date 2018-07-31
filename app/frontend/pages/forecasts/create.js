@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { FormattedMessage } from 'react-intl'
 import BaseModal from '~base/components/base-modal'
 import ForecastForm from './create-form'
 
@@ -25,10 +25,20 @@ class CreateForecast extends Component {
     let footer = (
       <div className='field is-grouped'>
         <div className='control'>
-          <button className='button is-primary' type='submit' onClick={() => this.submitOnClick()}>Crear</button>
+          <button className='button is-primary' type='submit' onClick={() => this.submitOnClick()}>
+            <FormattedMessage
+              id="forecasts.btnCrate"
+              defaultMessage={`Crear`}
+            />
+          </button>
         </div>
         <div className='control'>
-          <button className='button' onClick={this.props.hideModal} type='button'>Cancelar</button>
+          <button className='button' onClick={this.props.hideModal} type='button'>
+            <FormattedMessage
+              id="forecasts.btnCancel"
+              defaultMessage={`Cancelar`}
+            />
+          </button>
         </div>
       </div>
     )

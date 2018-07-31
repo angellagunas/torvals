@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 
 import {
@@ -14,6 +15,7 @@ const schema = {
     'name'
   ],
   properties: {
+    //TODO: translate
     name: {type: 'string', title: 'Nombre'},
     description: {type: 'string', title: 'Descripción'},
     address: {type: 'string', title: 'Dirección'},
@@ -103,7 +105,10 @@ class EditSalesCenter extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Los datos se han guardado correctamente
+              <FormattedMessage
+                id="datasets.savedMsg"
+                defaultMessage={`Los datos se han guardado correctamente`}
+              />
             </div>
           </div>
 

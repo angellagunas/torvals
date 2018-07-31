@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 import { BaseForm, FileWidget } from '~base/components/base-form'
 
@@ -6,6 +7,7 @@ const schema = {
   type: 'object',
   required: ['file'],
   properties: {
+    //TODO: translate
     file: { type: 'string', title: 'Archivo a importar', format: 'data-url' }
   }
 }
@@ -89,11 +91,9 @@ class ImportCSV extends Component {
                   onSubmit={(e) => { this.submitHandler(e) }}
                   onError={(e) => { this.errorHandler(e) }}
                   className='has-text-centered is-primary'
-                    >
+                >
                   <div className={this.state.apiCallMessage}>
-                    <div
-                      className='message-body is-size-7 has-text-centered'
-                        >
+                    <div className='message-body is-size-7 has-text-centered'>
                       {this.state.message}
                     </div>
                   </div>
@@ -105,15 +105,22 @@ class ImportCSV extends Component {
                   <div>
                     <button
                       className='button is-primary'
-                      type='submit'>
-                      Importar
+                      type='submit'
+                    >
+                      <FormattedMessage
+                        id="channel.btnImport"
+                        defaultMessage={`Importar`}
+                      />
                     </button>
                   </div>
                 </BaseForm>
               </div>
               <div className='column'>
                 <h4>
-                  El archivo <strong>.csv</strong> debe contener el mismo formato que el mostrado debajo:
+                  <FormattedMessage
+                    id="channel.info"
+                    defaultMessage={`El archivo .csv debe contener el mismo formato que el mostrado debajo: `}
+                  />
                 </h4>
                 {this.props.format}
               </div>
@@ -127,7 +134,12 @@ class ImportCSV extends Component {
     return (
       <div className='importcsv'>
         <div className='section-header'>
-          <h2>Cargar {this.props.title}</h2>
+          <h2>
+            <FormattedMessage
+              id="channel.title"
+              defaultMessage={`Cargar`}
+            /> {this.props.title}
+          </h2>
         </div>
         <div className='section is-paddingless-top'>
           <div className='card'>
@@ -141,11 +153,9 @@ class ImportCSV extends Component {
                     onSubmit={(e) => { this.submitHandler(e) }}
                     onError={(e) => { this.errorHandler(e) }}
                     className='has-text-centered is-primary'
-                    >
+                  >
                     <div className={this.state.apiCallMessage}>
-                      <div
-                        className='message-body is-size-7 has-text-centered'
-                        >
+                      <div className='message-body is-size-7 has-text-centered'>
                         {this.state.message}
                       </div>
                     </div>
@@ -158,16 +168,22 @@ class ImportCSV extends Component {
                       <button
                         className='button is-primary'
                         type='submit'
-                          >
-                            Importar
-                        </button>
+                      >
+                        <FormattedMessage
+                          id="channel.btnImport"
+                          defaultMessage={`Importar`}
+                        />
+                      </button>
                     </div>
                   </BaseForm>
                 </div>
                 <div className='column'>
                   <h4>
-                      El archivo <strong>.csv</strong> debe contener el mismo formato que el mostrado debajo:
-                      </h4>
+                    <FormattedMessage
+                      id="channel.info"
+                      defaultMessage={`El archivo .csv debe contener el mismo formato que el mostrado debajo: `}
+                    />
+                  </h4>
                   {this.props.format}
                 </div>
               </div>

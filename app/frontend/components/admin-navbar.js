@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
 import env from '~base/env-variables'
@@ -33,10 +34,12 @@ class NavBar extends Component {
       this.setState({ path: nextProps.location.pathname })
       this.props.handlePathChange(nextProps.location.pathname)
     }
+    this.stepsRemaining()
   }
 
   componentDidMount () {
     document.addEventListener('mousedown', this.handleClickOutside)
+    this.stepsRemaining()
   }
 
   componentWillUnmount () {
@@ -118,6 +121,25 @@ class NavBar extends Component {
     }
   }
 
+  stepsRemaining () {
+    let steps = 0
+    Object.values(this.props.user.currentOrganization.wizardSteps).map(item => {
+      if (!item) {
+        steps++
+      }
+    })
+    if (this.props.user.currentOrganization.isConfigured &&
+      !this.props.user.currentOrganization.wizardSteps.businessRules) {
+      steps--
+    }
+    this.setState({
+      steps: steps
+    })
+  }
+  showModalWizards () {
+    this.props.openWizards()
+  }
+
   render () {
     let avatar
     let username
@@ -168,6 +190,15 @@ class NavBar extends Component {
               </a>
             </div>
             <div className='navbar-end'>
+              { this.state.steps > 0 &&
+              <div className='navbar-item'>
+                <a className='navbar-link wizards-button' onClick={() => { this.showModalWizards() }}>
+                  <span className='icon is-medium badge is-badge-danger' data-badge={this.state.steps}>
+                    <i className='fa fa-2x fa-list-ul' />
+                  </span>
+                </a>
+              </div>
+              }
               <div className={'navbar-item has-dropdown ' + this.state.profileDropdown}
                 ref={this.setWrapperRef}>
                 <a className='navbar-link'
@@ -184,14 +215,20 @@ class NavBar extends Component {
                     <span className='icon'>
                       <i className='fa fa-user-o' />
                     </span>
-                    Mi perfil
+                    <FormattedMessage
+                      id="navbar.profile"
+                      defaultMessage={`Mi perfil`}
+                    />
                   </Link>
                   <a className='dropdown-item'
                     onClick={() => this.handleLogout()}>
                     <span className='icon'>
                       <i className='fa fa-sign-out' />
                     </span>
-                    Cerrar sesión
+                    <FormattedMessage
+                      id="navbar.signOut"
+                      defaultMessage={`Cerrar sesión`}
+                    />
                   </a>
                 </div>
               </div>

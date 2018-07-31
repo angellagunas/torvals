@@ -11,8 +11,8 @@ import Editable from '~base/components/base-editable'
 
 export default ListPage({
   path: '/catalogs/prices',
-  title: 'Precios',
-  titleSingular: 'Precio',
+  title: 'Precios', //TODO: translate
+  titleSingular: 'Precio', //TODO: translate
   icon: 'list-alt',
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   exact: true,
@@ -26,22 +26,22 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
+        label: 'Inicio', //TODO: translate
         current: false
       },
       {
         path: '/',
-        label: 'Administración',
+        label: 'Administración', //TODO: translate
         current: true
       },
       {
         path: '/',
-        label: 'Catálogos',
+        label: 'Catálogos', //TODO: translate
         current: true
       },
       {
         path: '/catalogs/prices',
-        label: 'Precios',
+        label: 'Precios', //TODO: translate
         current: true
       }
     ],
@@ -54,7 +54,7 @@ export default ListPage({
   schema: {
     type: 'object',
     required: [],
-    properties: {
+    properties: { //TODO: translate
       general: {type: 'text', title: 'Buscar'}
     }
   },
@@ -99,7 +99,7 @@ export default ListPage({
             return 'N/A'
           }
         },
-        {
+        { //TODO: translate
           'title': 'Producto',
           'property': 'product',
           'default': 'N/A',
@@ -113,7 +113,7 @@ export default ListPage({
           }
         },
         ...catalogItems,
-        {
+        { //TODO: translate
           'title': 'Precio',
           'property': 'price',
           'default': 'N/A',
@@ -141,6 +141,7 @@ export default ListPage({
                         if (!res) {
                           return false
                         }
+                        //TODO: translate
                         toast('¡Precio guardado! ', {
                           autoClose: 3000,
                           type: toast.TYPE.INFO,
@@ -170,7 +171,7 @@ export default ListPage({
           }
         },
 
-        {
+        { //TODO: translate
           'title': 'Creado',
           'property': 'dateCreated',
           'default': 'N/A',

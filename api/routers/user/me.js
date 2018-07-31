@@ -6,7 +6,10 @@ module.exports = new Route({
   path: '/me',
   handler: async function (ctx) {
     if (ctx.state.user) {
-      const user = ctx.state.user.toPublic()
+      await ctx.state.user.populate('language').execPopulate()
+      let user = ctx.state.user.toPublic()
+      user.language = ctx.state.user.language.uuid
+      user.languageCode = ctx.state.user.language.code
 
       const data = {
         loggedIn: true,

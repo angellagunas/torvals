@@ -370,6 +370,15 @@ $range-alpha: .2;
     border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent;
 }
 
+.tooltip.is-tooltip-multiline::before {
+    max-width: 24rem;
+    text-overflow: clip;
+    white-space: normal;
+    word-break: keep-all;
+    width: 100%;
+    text-align: center;
+}
+
 .calendar .calendar-range .date-item {
     color: $general_text;
 }

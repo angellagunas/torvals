@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import Loader from '~base/components/spinner'
 import { testRoles } from '~base/tools'
 import tree from '~core/tree'
@@ -42,7 +43,7 @@ class PasswordUserForm extends Component {
       if (role && role.slug === 'manager-level-1') {
         if (this.state.projects.length === 0) {
           this.setState({
-            error: '¡No existen proyectos!',
+            error: '¡No existen proyectos!', //TODO: translate
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -64,7 +65,7 @@ class PasswordUserForm extends Component {
         if (this.state.projects.length === 0) {
           return this.setState({
             formData,
-            error: '¡No existen proyectos!',
+            error: '¡No existen proyectos!', //TODO: translate
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -101,6 +102,40 @@ class PasswordUserForm extends Component {
     })
   }
 
+
+  async updateStep() {
+    try {
+      let user = tree.get('user')
+      if (user.currentOrganization.wizardSteps.users) {
+        return
+      }
+      let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+      let res = await api.post(url, {
+        step: {
+          name: 'users',
+          value: true
+        }
+      })
+
+      if (res) {
+        let me = await api.get('/user/me')
+        tree.set('user', me.user)
+        tree.set('organization', me.user.currentOrganization)
+        tree.set('rule', me.rule)
+        tree.set('role', me.user.currentRole)
+        tree.set('loggedIn', me.loggedIn)
+        tree.commit()
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+  }
+
   async submitHandler ({formData}) {
     formData.password = formData.password_1
     formData.password_1 = ''
@@ -121,7 +156,7 @@ class PasswordUserForm extends Component {
       this.clearState()
       this.setState({...this.state, apiCallMessage: 'message is-success'})
       if (this.props.finishUp) this.props.finishUp(data.data)
-
+      await this.updateStep()
       return
     } catch (e) {
       if (this.props.errorHandler) this.props.errorHandler(e)
@@ -149,6 +184,7 @@ class PasswordUserForm extends Component {
         'email', 'name', 'password_1', 'password_2'
       ],
       properties: {
+        //TODO: translate
         name: {type: 'string', title: 'Nombre'},
         email: {type: 'string', title: 'Email'},
         password_1: {type: 'string', title: 'Contraseña'},
@@ -267,7 +303,10 @@ class PasswordUserForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Se ha creado correctamente al usuario
+              <FormattedMessage
+                id="user.createMsg"
+                defaultMessage={`Se ha creado correctamente al usuario`}
+              />
             </div>
           </div>
 

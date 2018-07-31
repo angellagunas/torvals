@@ -1,6 +1,8 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
+const { Language } = require('models')
+
 module.exports = new Route({
   method: 'post',
   path: '/me/update',
@@ -25,12 +27,17 @@ module.exports = new Route({
       return ctx.throw(403)
     }
 
+    const language = await Language.findOne({uuid: data.language})
+    if (!language) {
+      return ctx.throw(400)
+    }
+
     user.set({
       email: data.email,
       name: data.name,
       job: data.job,
-      language: data.language,
-      phone: data.phone
+      phone: data.phone,
+      language
     })
     await user.save()
 

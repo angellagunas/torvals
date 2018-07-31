@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 
@@ -38,7 +39,7 @@ class CreateProduct extends Component {
   render () {
     return (
       <BaseModal
-        title='Crear Producto'
+        title='Crear Producto' //TODO: translate
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -57,10 +58,20 @@ class CreateProduct extends Component {
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
                 type='submit'
-              >Crear</button>
+              >
+                <FormattedMessage
+                  id="products.btnCreate"
+                  defaultMessage={`Crear`}
+                />
+              </button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
+              <button className='button' onClick={this.hideModal} type='button'>
+                <FormattedMessage
+                  id="products.btnCancel"
+                  defaultMessage={`Cancelar`}
+                />
+              </button>
             </div>
           </div>
         </ProductForm>

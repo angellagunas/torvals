@@ -8,7 +8,7 @@ class Footer extends Component {
           <div className='columns is-mobile is-multiline'>
             <div className='column is-narrow'>
               <img src='/app/public/img/abraxas-logo.svg' />
-              <a href='http://www.grupoabraxas.com' target='blank'>
+              <a href='http://www.grupoabraxas.com' target='_blank'>
                 www.grupoabraxas.com
                 </a>
             </div>
@@ -18,7 +18,7 @@ class Footer extends Component {
             </div>
             <div className='column has-text-right'>
               <p className='top-small'>
-                <span><a href='#'>Aviso de privacidad</a></span>
+                <span><a href='/privacy' target='_self'>Aviso de privacidad</a></span>
                 <a href='#'><span className='icon is-medium'>
                   <i className='fa fa-2x fa-facebook-square' />
                 </span>

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 import shortid from 'shortid'
 
@@ -116,7 +117,12 @@ class DatasetForm extends Component {
     if (this.props.datasets.length === 0) {
       return (
         <div>
-          <h4>There are no processed datasets to select from!</h4>
+          <h4>
+            <FormattedMessage
+              id="projects.emtyProcessed"
+              defaultMessage={`No hay datasets procesados que seleccionar!`}
+            />
+          </h4>
         </div>
       )
     }
@@ -125,7 +131,12 @@ class DatasetForm extends Component {
       <div>
         <form onSubmit={(e) => { this.submitHandler(e) }}>
           <div className='field'>
-            <label className='label'>Select dataset to add*</label>
+            <label className='label'>
+              <FormattedMessage
+                id="projects.selectDataset"
+                defaultMessage={`Selecciona un dataset`}
+              />*
+            </label>
             <div className='control'>
               <div className='select'>
                 <select
@@ -133,7 +144,12 @@ class DatasetForm extends Component {
                   name='dataset'
                   onChange={(e) => { this.handleChange('dataset', e) }}
                 >
-                  <option value=''>Select an option</option>
+                  <option value=''>
+                    <FormattedMessage
+                      id="projects.selectOption"
+                      defaultMessage={`Selecciona una opcion`}
+                    />
+                  </option>
                   {
                     this.props.datasets.map(function (item) {
                       return <option key={item.uuid}
@@ -145,7 +161,12 @@ class DatasetForm extends Component {
             </div>
           </div>
           <div className='field'>
-            <label className='label'>Columns</label>
+            <label className='label'>
+              <FormattedMessage
+                id="projects.columns"
+                defaultMessage={`Columnas`}
+              />
+            </label>
           </div>
           <div className='field is-horizontal'>
             <div className='field-body'>
@@ -160,7 +181,12 @@ class DatasetForm extends Component {
                       readOnly={this.state.disabledControls}
                       disabled={this.state.disabledControls}
                     >
-                      <option value=''>Select an option</option>
+                      <option value=''>
+                        <FormattedMessage
+                          id="projects.selectOption"
+                          defaultMessage={`Selecciona una opcion`}
+                        />
+                      </option>
                       {
                         this.state.dataset.columns.map(function (item) {
                           return <option key={shortid.generate()}
@@ -191,7 +217,10 @@ class DatasetForm extends Component {
                     type='button'
                     disabled={this.state.disabledControls}
                   >
-                    Add
+                    <FormattedMessage
+                      id="projects.add"
+                      defaultMessage={`Agregar`}
+                    />
                   </button>
                 </p>
               </div>
@@ -201,14 +230,29 @@ class DatasetForm extends Component {
           <table className='table is-fullwidth'>
             <thead>
               <tr>
-                <th>Dataset Name</th>
-                <th>Project Name</th>
+                <th>
+                  <FormattedMessage
+                    id="projects.datasetName"
+                    defaultMessage={`Nombre del dataset`}
+                  />
+                </th>
+                <th>
+                  <FormattedMessage
+                    id="projects.projectName"
+                    defaultMessage={`Nombre del proyecto`}
+                  />
+                </th>
               </tr>
             </thead>
             <tbody>
               {this.state.formData.columns.length === 0 ? (
                 <tr>
-                  <td colSpan='3'>No rows to show</td>
+                  <td colSpan='3'>
+                    <FormattedMessage
+                      id="projects.emtyRows"
+                      defaultMessage={`No hay filas para mostrar`}
+                    />
+                  </td>
                 </tr>
                 ) : (
                   this.state.formData.columns.map((item, index) => {
@@ -235,8 +279,11 @@ class DatasetForm extends Component {
 
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-            The dataSet has been added successfuly
-          </div>
+              <FormattedMessage
+                id="projects.datasetSaveMsg"
+                defaultMessage={`El dataset se ha agregado con éxito`}
+              />
+            </div>
           </div>
           <div className={this.state.apiCallErrorMessage}>
             <div className='message-body is-size-7 has-text-centered'>
@@ -246,7 +293,12 @@ class DatasetForm extends Component {
 
           <div className='field is-grouped'>
             <div className='control'>
-              <button className='button is-primary' type='submit'>Save</button>
+              <button className='button is-primary' type='submit'>
+                <FormattedMessage
+                  id="projects.btnSave"
+                  defaultMessage={`Guardar`}
+                />
+              </button>
             </div>
           </div>
         </form>

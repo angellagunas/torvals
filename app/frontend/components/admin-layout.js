@@ -12,6 +12,10 @@ import Loader from '~base/components/spinner'
 import Sidebar from '~components/sidebar'
 import AdminNavBar from '~components/admin-navbar'
 import { ToastContainer } from 'react-toastify'
+import { withRouter } from 'react-router'
+import BillingForm from '../pages/organizations/billing-form'
+import { toast } from 'react-toastify'
+import { orgStatus } from '~base/tools'
 
 
 class AdminLayout extends Component {
@@ -21,7 +25,8 @@ class AdminLayout extends Component {
       user: {},
       loaded: false,
       sidebarCollapsed: false,
-      activePath: ''
+      activePath: '',
+      activateModal: ''
     }
   }
 
@@ -35,6 +40,7 @@ class AdminLayout extends Component {
 
   async componentWillMount () {
     const userCursor = tree.select('user')
+    let activated = ''
 
     userCursor.on('update', ({data}) => {
       const user = data.currentData
@@ -78,9 +84,14 @@ class AdminLayout extends Component {
         tree.set('loggedIn', false)
         await tree.commit()
       }
+
+      if (me.user.currentOrganization.status === 'inactive' ||
+        me.user.currentOrganization.status === 'activationPending'){
+        activated = ' is-active'
+      }
     }
 
-    this.setState({loaded: true})
+    this.setState({loaded: true, activateModal: activated})
     this.getViewPort()
   }
 
@@ -97,6 +108,66 @@ class AdminLayout extends Component {
     this.setState({
       open: this.state.open === 'open' ? '' : 'open'
     })
+  }
+
+  openWizards() {
+    this.setState({
+      openWizards: this.state.openWizards === 'is-active' ? '' : 'is-active'
+    })
+  }
+
+  moveTo(route){
+    this.openWizards()
+    this.props.history.push(route)
+  }
+
+  async requestActivation() {
+    this.setState({
+      isLoading: ' is-loading'
+    })
+    try {
+      let url = '/app/organizations/' + this.state.user.currentOrganization.uuid + '/request-activation'
+      let res = await api.post(url, {})
+
+      if (res.success) {
+        this.setState({
+          user: {
+            ...this.state.user,
+            currentOrganization: {
+              ...this.state.user.currentOrganization,
+              status: 'activationPending'
+            }
+          }
+        })
+        this.notify('Solicitud enviada', 5000, toast.TYPE.INFO)
+      }
+      return true
+    } catch (e) {
+      console.log(e)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+      this.setState({
+        isLoading: ''
+      })
+      return false
+    }
+  }
+
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
+    }
   }
 
   render () {
@@ -119,7 +190,8 @@ class AdminLayout extends Component {
           <AdminNavBar
             handlePathChange={(p) => this.handlePathChange(p)}
             collapsed={this.state.sidebarCollapsed}
-            handleBurgerEvent={() => this.handleBurgerEvent()} />
+            handleBurgerEvent={() => this.handleBurgerEvent()}
+            openWizards={() => this.openWizards()} />
           
           
           {this.state.user.currentRole && this.state.user.currentRole.slug !== 'manager-level-1' &&
@@ -140,6 +212,131 @@ class AdminLayout extends Component {
               <ToastContainer />
             </section>
           </div>
+
+
+          <div className={'modal wizard-steps-modal ' + this.state.openWizards}>
+            <div className='modal-background' onClick={() => this.openWizards()}/>
+            <div className='modal-card'>
+              <header className='modal-card-head'>
+                <p className='modal-card-title'>Inicia con Orax</p>
+                <button className='delete' aria-label='close' onClick={() => this.openWizards()}></button>
+              </header>
+              <section className='modal-card-body'>
+                {!this.state.user.currentOrganization.wizardSteps.businessRules ?
+                  'Comienza con la configuración de reglas de negocio para crear un proyecto.'
+                  :
+                  'Continúa configurando los pasos restantes'
+                }
+                <p className={ 
+                this.state.user.currentOrganization.wizardSteps.businessRules ||
+                    this.state.user.currentOrganization.isConfigured ? 
+                    'wizard-step done has-20-margin-top' : 'wizard-step has-20-margin-top'
+                }>
+                <strong>Reglas de negocio </strong>
+                Establece tus ciclos y periodos de ajuste.
+                <span className='icon has-text-success'>
+                  <i className='fa fa-check fa-lg'/>
+                </span>
+                </p>
+
+                <p className={
+                  this.state.user.currentOrganization.wizardSteps.project ?
+                    'wizard-step done' : 
+                    this.state.user.currentOrganization.wizardSteps.businessRules ||
+                      this.state.user.currentOrganization.isConfigured  ?
+                    'wizard-step' :
+                    'wizard-step disabled' 
+                  }
+                  onClick={() => {
+                    this.moveTo('/projects')
+                  }}
+                >
+                  <strong>Proyecto </strong>
+                  Crea un proyecto para generar predicciones.
+                <span className='icon has-text-success'>
+                    <i className='fa fa-check fa-lg' />
+                  </span>
+                </p>
+
+                <p className={
+                  this.state.user.currentOrganization.wizardSteps.forecast ?
+                    'wizard-step done' : 
+                    this.state.user.currentOrganization.wizardSteps.businessRules ||
+                      this.state.user.currentOrganization.isConfigured &&
+                    this.state.user.currentOrganization.wizardSteps.project ?
+                    'wizard-step' :
+                    'wizard-step disabled'
+                  }
+                  onClick={() => {
+                    this.moveTo('/forecast')
+                  }}
+                  >
+                  <strong>Predicción </strong>
+                  Realiza predicciones por proyecto.
+                <span className='icon has-text-success'>
+                    <i className='fa fa-check fa-lg' />
+                  </span>
+                </p>
+
+                <p className={
+                  this.state.user.currentOrganization.wizardSteps.users ?
+                    'wizard-step done' : 
+                    this.state.user.currentOrganization.wizardSteps.businessRules ||
+                      this.state.user.currentOrganization.isConfigured &&
+                    this.state.user.currentOrganization.wizardSteps.project ?
+                      'wizard-step' :
+                      'wizard-step disabled'
+                  }
+                  onClick={() => {
+                    this.moveTo('/manage/users-groups')
+                  }}
+                  >
+                  <strong>Usuarios </strong>
+                  Agrega, edita o elimina usuarios.
+                <span className='icon has-text-success'>
+                    <i className='fa fa-check fa-lg' />
+                  </span>
+                </p>
+                <br/>
+                <button className='button is-primary is-inverted is-pulled-right'
+                  onClick={() => this.openWizards()}>Omitir</button>
+
+              </section>    
+              
+            </div>
+            </div>
+
+          <div className={'modal organization-modal ' + this.state.activateModal}>
+            <div className='modal-background'/>
+            <div className='modal-card'>
+              <header className='modal-card-head'>
+                <p className='modal-card-title'>Activa tu cuenta</p>
+              </header>
+              <section className='modal-card-body'>
+                <p className='is-padding-bottom-small'>
+                  <strong>Tu cuenta se encuentra {orgStatus[this.state.user.currentOrganization.status]}.</strong>
+                </p>
+                <p className='is-padding-bottom-small'>  
+                  Para poder continuar usando Orax necesitas solicitar una activación.
+                  Tus datos e información quedarán guardados.
+                </p>
+                <BillingForm org={this.state.user.currentOrganization} isModal />
+                <br />
+                <div className={'message is-primary'}>
+                  <div className='message-body is-size-7 has-text-centered'>
+                    Al momento de solicitar una activación de cuenta, un agente recibirá tus datos y se comunicará posteriormente.
+                  </div>
+                </div>
+                <button className='button is-success is-pulled-right'
+                  disabled={!!this.state.isLoading}
+                  onClick={() => this.requestActivation()} >
+                  Solicitar activación
+              </button>
+              </section>
+
+            </div>
+          </div>
+
         </div>)
     } else {
       return (<div>
@@ -149,4 +346,4 @@ class AdminLayout extends Component {
   }
 }
 
-export default root(tree, AdminLayout)
+export default withRouter(root(tree, AdminLayout))

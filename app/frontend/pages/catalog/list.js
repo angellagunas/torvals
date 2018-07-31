@@ -49,13 +49,13 @@ Catalog.opts = (opt) => {
           'default': 'N/A',
           'sortable': true
         },
-        {
+        { //TODO: translate
           'title': 'Nombre',
           'property': 'name',
           'default': 'N/A',
           'sortable': true
         },
-        {
+        { //TODO: translate
           'title': 'Acciones',
           formatter: (row) => {
             if (testRoles('consultor-level-3, consultor-level-2')) {

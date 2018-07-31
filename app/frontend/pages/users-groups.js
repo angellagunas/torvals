@@ -11,7 +11,7 @@ class UsersGroups extends Component {
     let org = tree.get('user').currentOrganization
     let tabs = [{
       name: 'users',
-      title: 'Usuarios',
+      title: 'Usuarios', //TODO: translate
       hide: false,
       reload: true,
       content: (
@@ -20,7 +20,7 @@ class UsersGroups extends Component {
     },
     {
       name: 'groups',
-      title: 'Grupos',
+      title: 'Grupos', //TODO: translate
       hide: false,
       reload: true,
       content: (
@@ -43,7 +43,7 @@ class UsersGroups extends Component {
 
 export default Page({
   path: '/manage/users-groups',
-  title: 'Usuarios y Grupos',
+  title: 'Usuarios y Grupos', //TODO: translate
   icon: 'users',
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
