@@ -10,9 +10,7 @@ import './styles/index.scss'
 
 addLocaleData([...en, ...es])
 
-const lang = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage
-
-const language = lang.toLowerCase().split(/[_-]+/)[0] || 'es'
+const language = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage || 'es-MX'
 
 class RouterInt extends Component {
   constructor(props) {
