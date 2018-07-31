@@ -97,7 +97,7 @@ class OrganizationDetail extends Component {
 
     return (
       <div className='organization-daysleft'>
-        <h2>Tu plan se encuentra {en} <span className={color}>{status}</span></h2>
+        <h2>Tu cuenta se encuentra {en} <span className={color}>{status}</span></h2>
         <button className='button is-primary is-medium is-pulled-right'
           disabled={!!this.state.isLoading}
           onClick={() => this.toggleModal()}>
@@ -127,6 +127,7 @@ class OrganizationDetail extends Component {
             status: 'activationPending'
           }
         })
+        this.toggleModal()
         this.notify('Solicitud enviada', 5000, toast.TYPE.INFO)
       }
       return true

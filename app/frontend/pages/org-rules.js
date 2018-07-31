@@ -696,6 +696,7 @@ class OrgRules extends Component {
                   />
                 </button>
             }
+
             <h4>
               <strong>
                 <FormattedMessage
