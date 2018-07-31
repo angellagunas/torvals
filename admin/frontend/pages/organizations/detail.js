@@ -14,6 +14,7 @@ import Breadcrumb from '~base/components/base-breadcrumb'
 import NotFound from '~base/components/not-found'
 import BaseModal from '~base/components/base-modal'
 import OrganizationActivationForm from './activation-form'
+import ListsNote from '~components/list-note'
 
 class OrganizationDetail extends Component {
   constructor (props) {
@@ -23,7 +24,8 @@ class OrganizationDetail extends Component {
       loaded: false,
       organization: {},
       isLoading: '',
-      className: ''
+      className: '',
+      refreshNotes: false
     }
   }
 
@@ -119,7 +121,8 @@ class OrganizationDetail extends Component {
 
   finishUp () {
     this.setState({
-      className: ''
+      className: '',
+      refreshNotes: true
     })
   }
 
@@ -267,6 +270,20 @@ class OrganizationDetail extends Component {
                          />
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div className='card' style={{margin: '20px 0'}}>
+                  <header className='card-header'>
+                    <p className='card-header-title'>
+                      Observaciones
+                        </p>
+                  </header>
+                  <div className='card-content'>
+                    <ListsNote
+                      uuid={this.state.organization.uuid}
+                      refresh={this.state.refreshNotes}
+                    />
                   </div>
                 </div>
               </div>

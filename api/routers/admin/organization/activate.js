@@ -1,7 +1,7 @@
 const Route = require('lib/router/route')
 const lov = require('lov')
 
-const {Organization} = require('models')
+const {Organization, Note} = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -11,11 +11,13 @@ module.exports = new Route({
     billingEnd: lov.string().required(),
     name: lov.string().required(),
     email: lov.string().required(),
-    phone: lov.string().required()
+    phone: lov.string().required(),
+    observation: lov.string()
   }),
   handler: async function (ctx) {
     var organizationId = ctx.params.uuid
     var data = ctx.request.body
+    var user = ctx.state.user
 
     const org = await Organization.findOne({'uuid': organizationId, 'isDeleted': false})
     ctx.assert(org, 404, 'Organización no encontrada')
@@ -32,6 +34,15 @@ module.exports = new Route({
     })
 
     await org.save()
+
+    if (data.observation) {
+      await Note.create({
+        user: user,
+        organization: org,
+        text: data.observation,
+        source: 'observation'
+      })
+    }
 
     ctx.body = {
       data: org.toAdmin()
