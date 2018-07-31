@@ -258,8 +258,42 @@ class UserDetail extends Component {
     this.setState({ isLoading: '' })
   }
 
-  finishUpHandler () {
+  async finishUpHandler () {
+    await this.updateStep()
     this.setState({ isLoading: '' })
+  }
+
+  async updateStep() {
+    try {
+      let user = tree.get('user')
+      if (user.currentOrganization.wizardSteps.users) {
+        return
+      }
+      let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+      let res = await api.post(url, {
+        step: {
+          name: 'users',
+          value: true
+        }
+      })
+
+      if (res) {
+        let me = await api.get('/user/me')
+        tree.set('user', me.user)
+        tree.set('organization', me.user.currentOrganization)
+        tree.set('rule', me.rule)
+        tree.set('role', me.user.currentRole)
+        tree.set('loggedIn', me.loggedIn)
+        tree.commit()
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
   }
 
   render () {

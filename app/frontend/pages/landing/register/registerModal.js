@@ -474,7 +474,7 @@ class RegisterModal extends Component {
                   </div>
                   <div className='column is-narrow'>
                     <div className='accept__label'>
-                      <strong>Acepto el <a className='has-text-primary' href='/privacy' target='blank'>Aviso de privacidad</a> y condición de uso de mis datos.</strong>
+                      <strong>Acepto el <a className='has-text-primary' href='/privacy' target='_blank'>Aviso de privacidad</a> y condición de uso de mis datos.</strong>
                     </div>
                   </div>
                 </div>
