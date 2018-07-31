@@ -4,6 +4,7 @@ require('lib/databases/mongo')
 
 const moment = require('moment')
 const Task = require('lib/task')
+const Logger = require('lib/utils/logger')
 
 const { Organization, Cycle, Rule, Period } = require('models')
 
@@ -124,6 +125,7 @@ const getLastEndDate = async function (rule, extraDate) {
 
 const task = new Task(
   async function (argv) {
+    const log = new Logger('generate-cycles')
     const { organization, rule } = await validateTask(argv)
     const startDate = utc(rule.startDate)
     const {
@@ -134,6 +136,8 @@ const task = new Task(
       periodDuration,
       takeStart
     } = rule
+
+    log.call(`Starting to generate cycles`)
 
     let isEndOfMonthCycle = false
     let startOfMonth = moment.utc(startDate.format('YYYY-MM'), 'YYYY-MM').startOf('month')
@@ -171,6 +175,7 @@ const task = new Task(
 
       let cycleInstance = await Cycle.findOne(cycleObj)
       if (cycleInstance) {
+        log.call(`Updating cycle ${cycleStartDate}`)
         cycleStartDate = add(utc(cycleInstance.dateEnd), durationToSubtract)
 
         if (period === cycle) {
@@ -194,6 +199,7 @@ const task = new Task(
         continue
       }
 
+      log.call(`Creating cycle ${cycleStartDate}`)
       cycleInstance = await Cycle.create(cycleObj)
 
       let periodStartDate = utc(cycleStartDate)
@@ -254,6 +260,8 @@ const task = new Task(
 
       if (isEndOfMonthCycle) tentativeCycleEndDate.endOf('month')
     }
+
+    log.call(`Finished`)
 
     return true
   }
