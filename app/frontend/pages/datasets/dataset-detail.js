@@ -317,7 +317,7 @@ class DataSetDetail extends Component {
                           </span>
                         </div>
                         <div className='media-content'>
-                          El dataset {dataset.fileChunk.filename} se está procesando
+                          El dataset {dataset.fileChunk ? dataset.fileChunk.filename : ''} se está procesando
                           </div>
                       </div>
                     </div>
