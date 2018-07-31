@@ -1,4 +1,5 @@
 import React from 'react'
+import { FormattedMessage } from 'react-intl'
 import Link from '~base/router/link'
 import api from '~base/api'
 import tree from '~core/tree'
@@ -11,13 +12,13 @@ import CreateUser from './create'
 
 export default ListPage({
   path: '/manage/users',
-  title: 'Usuarios',
+  title: 'Usuarios', //TODO: translate
   icon: 'user',
   exact: true,
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'Usuario',
+  titleSingular: 'Usuario', //TODO: translate
   create: true,
   createComponent: CreateUser,
   breadcrumbs: true,
@@ -25,12 +26,12 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
+        label: 'Inicio', //TODO: translate
         current: false
       },
       {
         path: '/manage/users/',
-        label: 'Usuarios',
+        label: 'Usuarios', //TODO: translate
         current: true
       }
     ],
@@ -56,25 +57,25 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Nombre',
+        'title': 'Nombre', //TODO: translate
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Email',
+        'title': 'Email', //TODO: translate
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Rol',
+        'title': 'Rol', //TODO: translate
         'property': 'role',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Grupos',
+        'title': 'Grupos', //TODO: translate
         'property': 'groups',
         'default': 'N/A',
         'sortable': true,
@@ -86,7 +87,10 @@ export default ListPage({
                 <br />
                 {row.groups[1].name}
                 <br />
-                {row.groups.length - 2} más
+                {row.groups.length - 2} <FormattedMessage
+                  id="user.detailMore"
+                  defaultMessage={`más`}
+                />
               </div>
             )
           } else if (row.groups.length > 1) {
@@ -107,7 +111,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Acciones',
+        'title': 'Acciones', //TODO: translate
         formatter: (row) => {
           const deleteObject = async function () {
             var url = '/app/users/' + row.uuid
@@ -163,6 +167,7 @@ export default ListPage({
                     icon='fa fa-trash'
                     objectName='Usuario'
                     objectDelete={deleteObject}
+                    //TODO: translate
                     message={`¿Está seguro de querer desactivar a ${row.name} ?`}
                   />
                 )}

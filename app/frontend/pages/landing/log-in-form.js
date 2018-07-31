@@ -80,6 +80,12 @@ class LogInButton extends Component {
       })
     }
 
+    if (!user.languageCode) {
+      localStorage.setItem('lang', 'es-MX')
+    } else {
+      localStorage.setItem('lang', user.languageCode)
+    }
+
     if (user.organizations && user.organizations.length > 1) {
       this.setState({
         organizations: user.organizations,

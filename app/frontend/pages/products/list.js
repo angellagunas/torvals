@@ -9,12 +9,12 @@ import CreateProduct from './create'
 
 export default ListPage({
   path: '/catalogs/products',
-  title: 'Productos',
+  title: 'Productos', //TODO: translate
   icon: 'dropbox',
   exact: true,
   roles: 'analyst, orgadmin, admin,  consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'Producto',
+  titleSingular: 'Producto', //TODO: translate
   create: true,
   createComponent: CreateProduct,
   export: true,
@@ -25,12 +25,12 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
+        label: 'Inicio', //TODO: translate
         current: false
       },
       {
         path: '/catalogs/products/',
-        label: 'Productos',
+        label: 'Productos', //TODO: translate
         current: true
       }
     ],
@@ -66,7 +66,7 @@ export default ListPage({
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
@@ -79,13 +79,13 @@ export default ListPage({
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Categoría',
         'property': 'category',
         'default': 'N/A',
         'sortable': true
       },
-      {
+      { //TODO: translate
         'title': 'Creado',
         'property': 'dateCreated',
         'default': 'N/A',
@@ -96,7 +96,7 @@ export default ListPage({
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Acciones',
         formatter: (row) => {
           if (testRoles('consultor-level-3, consultor-level-2')) {

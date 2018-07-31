@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 import { testRoles } from '~base/tools'
 
@@ -76,7 +77,10 @@ class ChannelDetail extends Component {
     if (saving) {
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Guardando <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
+          <FormattedMessage
+            id="channel.savingMsg"
+            defaultMessage={`Guardando`}
+          /> <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
       )
     }
@@ -94,7 +98,10 @@ class ChannelDetail extends Component {
 
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
-          Guardado
+          <FormattedMessage
+            id="channel.saved"
+            defaultMessage={`Guardado`}
+          />
         </p>
       )
     }
@@ -245,14 +252,17 @@ class ChannelDetail extends Component {
             <div className='card'>
               <header className='card-header'>
                 <p className='card-header-title'>
-                          Grupos
-                        </p>
+                  <FormattedMessage
+                    id="channel.groups"
+                    defaultMessage={`Grupos`}
+                  />
+                </p>
                 <div>
                   {this.getSavingMessage()}
                 </div>
               </header>
               <div className='card-content'>
-                <Multiselect
+                <Multiselect //TODO: translate
                   availableTitle='Disponible'
                   assignedTitle='Asignado'
                   assignedList={this.state.selectedGroups}
@@ -260,7 +270,7 @@ class ChannelDetail extends Component {
                   dataFormatter={(item) => { return item.name || 'N/A' }}
                   availableClickHandler={this.availableGroupOnClick.bind(this)}
                   assignedClickHandler={this.assignedGroupOnClick.bind(this)}
-                        />
+                />
               </div>
             </div>
           </div>
@@ -280,17 +290,17 @@ class ChannelDetail extends Component {
 
               <Breadcrumb
                 path={[
-                  {
+                  { //TODO: translate
                     path: '/',
                     label: 'Inicio',
                     current: false
                   },
-                  {
+                  { //TODO: translate
                     path: '/catalogs/channels',
                     label: 'Canales',
                     current: false
                   },
-                  {
+                  { //TODO: translate
                     path: '/catalogs/channels/',
                     label: channel.name,
                     current: true
@@ -303,7 +313,9 @@ class ChannelDetail extends Component {
           <div className='level-right'>
             <div className='level-item'>
               {canEdit &&
-                <DeleteButton titleButton={'Eliminar'}
+                <DeleteButton
+                  //TODO: translate
+                  titleButton={'Eliminar'}
                   objectName='Canal'
                   objectDelete={this.deleteObject.bind(this)}
                   message={`¿Estas seguro de quieres borrar el canal ${channel.name}?`}
@@ -320,7 +332,10 @@ class ChannelDetail extends Component {
               <div className='card'>
                 <header className='card-header'>
                   <p className='card-header-title'>
-                      Detalle
+                    <FormattedMessage
+                      id="channel.detail"
+                      defaultMessage={`Detalle`}
+                    />
                   </p>
                 </header>
                 <div className='card-content'>
@@ -335,14 +350,19 @@ class ChannelDetail extends Component {
                         submitHandler={(data) => this.submitHandler(data)}
                         errorHandler={(data) => this.errorHandler(data)}
                         finishUp={(data) => this.finishUpHandler(data)}
-                        >
+                      >
                         <div className='field is-grouped'>
                           <div className='control'>
                             <button
                               className={'button is-primary ' + this.state.isLoading}
                               disabled={!!this.state.isLoading}
                               type='submit'
-                              >Guardar</button>
+                            >
+                              <FormattedMessage
+                                id="channel.btnSave"
+                                defaultMessage={`Guardar`}
+                              />
+                            </button>
                           </div>
                         </div>
                       </ChannelForm>
@@ -361,7 +381,7 @@ class ChannelDetail extends Component {
 
 export default Page({
   path: '/catalogs/channels/:uuid',
-  title: 'Channel Detail',
+  title: 'Channel Detail', //TODO: translate
   exact: true,
   roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],

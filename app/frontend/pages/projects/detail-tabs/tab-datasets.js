@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import CreateDataSet from '../create-dataset'
 import api from '~base/api'
@@ -19,7 +20,7 @@ class TabDatasets extends Component {
   }
   getColumns () {
     return [
-      {
+      { //TODO: translate
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
@@ -32,7 +33,7 @@ class TabDatasets extends Component {
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Rango Fechas',
         'property': 'dateMin',
         'default': 'N/A',
@@ -43,7 +44,7 @@ class TabDatasets extends Component {
           }
         }
       },
-      {
+      { //TODO: translate
         'title': 'Fuente',
         'property': 'source',
         'default': 'N/A',
@@ -52,7 +53,7 @@ class TabDatasets extends Component {
           return datasetStatus[row.source]
         }
       },
-      {
+      { //TODO: translate
         'title': 'Añadido en',
         'property': 'dateCreated',
         'default': 'N/A',
@@ -63,7 +64,7 @@ class TabDatasets extends Component {
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Acciones',
         formatter: (row) => {
           return (
@@ -103,12 +104,16 @@ class TabDatasets extends Component {
                     : 'is-hidden'
                   }
                 >
-                  Fin. Configuración
+                  <FormattedMessage
+                    id="projects.endConfig"
+                    defaultMessage={`Fin. Configuración`}
+                  />
                 </a>
               </div>
               <div className='control'>
                 { this.props.canEdit && !row.isMain &&
                   <DeleteButton
+                    //TODO: translate
                     iconOnly
                     icon='fa fa-trash'
                     objectName='Dataset'
@@ -199,20 +204,27 @@ class TabDatasets extends Component {
     if (dataSetsNumber) {
       adviseContent =
         <div>
-          Debes terminar de configurar al menos un
-          <strong> dataset </strong>
+          <FormattedMessage
+            id="projects.datasetConfigMsg1"
+            defaultMessage={`Debes terminar de configurar al menos un dataset`}
+          />
         </div>
     } else {
       adviseContent =
         <div>
-          Necesitas subir y configurar al menos un
-          <strong> dataset </strong> para tener información disponible
+          <FormattedMessage
+            id="projects.datasetConfigMsg2"
+            defaultMessage={`Necesitas subir y configurar al menos un dataset para tener información disponible`}
+          />
         </div>
     }
     if (this.props.project.status === 'updating-rules') {
       return (
         <div className='section has-text-centered subtitle has-text-primary'>
-          Actualizando reglas del proyecto
+          <FormattedMessage
+            id="projects.updatingRules"
+            defaultMessage={`Actualizando reglas del proyecto`}
+          />
           <Loader />
         </div>
       )
@@ -226,7 +238,12 @@ class TabDatasets extends Component {
               {this.props.project.status === 'empty'
               ? <article className='message is-warning'>
                 <div className='message-header'>
-                  <p>Atención</p>
+                  <p>
+                    <FormattedMessage
+                      id="projects.alertMsg"
+                      defaultMessage={`Atención`}
+                    />
+                  </p>
                 </div>
                 <div className='message-body is-size-6'>
                   <div className='level'>
@@ -245,7 +262,12 @@ class TabDatasets extends Component {
                         <a
                           className='button is-info is-pulled-right'
                           onClick={() => this.showModalDataset()}>
-                          <span>Agregar Dataset</span>
+                          <span>
+                            <FormattedMessage
+                              id="projects.add"
+                              defaultMessage={`Agregar Dataset`}
+                            />
+                          </span>
                         </a>
                       </div>
                     </div>
@@ -256,7 +278,12 @@ class TabDatasets extends Component {
               <a
                 className='button is-info is-pulled-right has-20-margin-sides'
                 onClick={() => this.showModalDataset()}>
-                <span>Agregar Dataset</span>
+                <span>
+                  <FormattedMessage
+                    id="projects.add"
+                    defaultMessage={`Agregar Dataset`}
+                  />
+                </span>
               </a>
             }
             </div>

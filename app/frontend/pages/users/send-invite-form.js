@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import Loader from '~base/components/spinner'
 import { testRoles } from '~base/tools'
 import tree from '~core/tree'
@@ -34,7 +35,7 @@ class InviteUserForm extends Component {
       if (role && role.slug === 'manager-level-1') {
         if (this.state.projects.length === 0) {
           this.setState({
-            error: '¡No existen proyectos!',
+            error: '¡No existen proyectos!', //TODO: translate
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -56,7 +57,7 @@ class InviteUserForm extends Component {
         if (this.state.projects.length === 0) {
           return this.setState({
             formData,
-            error: '¡No existen proyectos!',
+            error: '¡No existen proyectos!', //TODO: translate
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -170,6 +171,7 @@ class InviteUserForm extends Component {
       title: '',
       required: ['email', 'name'],
       properties: {
+        //TODO: translate
         name: {type: 'string', title: 'Nombre'},
         email: {type: 'string', title: 'Email'},
         role: {
@@ -277,7 +279,10 @@ class InviteUserForm extends Component {
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
-              Se ha enviado la invitación correctamente! La invitación estará vigente durante 24 horas.
+              <FormattedMessage
+                id="user.inviteMsg"
+                defaultMessage={`Se ha enviado la invitación correctamente! La invitación estará vigente durante 24 horas.`}
+              />
             </div>
           </div>
 

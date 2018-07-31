@@ -142,6 +142,7 @@ class Wizard extends Component {
       })
 
       if (res) {
+        //TODO: translate
         this.notify(
           '¡Las nuevas reglas de negocio se han guardado exitosamente!',
           5000,
@@ -179,7 +180,7 @@ class Wizard extends Component {
     this.tabs = [
       {
         name: '0',
-        title: 'Organización',
+        title: 'Organización', //TODO: translate
         hide: !(this.state.currentStep === 0),
         disabled: !(this.state.currentStep === 0),
         content: (
@@ -188,7 +189,7 @@ class Wizard extends Component {
       },
       {
         name: '1',
-        title: 'Resumen',
+        title: 'Resumen', //TODO: translate
         hide: !(this.state.currentStep === 1),
         disabled: !(this.state.currentStep === 1),
         content: (
@@ -204,7 +205,7 @@ class Wizard extends Component {
       },
       {
         name: '2',
-        title: 'Periodos',
+        title: 'Periodos', //TODO: translate
         hide: !(this.state.currentStep === 2),
         disabled: !(this.state.currentStep === 2),
         content: (
@@ -217,7 +218,7 @@ class Wizard extends Component {
           )
       }, {
         name: '3',
-        title: 'Rangos',
+        title: 'Rangos', //TODO: translate
         hide: !(this.state.currentStep === 3),
         disabled: !(this.state.currentStep === 3),
         reload: true,
@@ -232,7 +233,7 @@ class Wizard extends Component {
       },
       {
         name: '4',
-        title: 'Ciclos de operación',
+        title: 'Ciclos de operación', //TODO: translate
         hide: !(this.state.currentStep === 4),
         disabled: !(this.state.currentStep === 4),
         content: (
@@ -247,7 +248,7 @@ class Wizard extends Component {
       },
       {
         name: '5',
-        title: 'Catálogos de Ventas',
+        title: 'Catálogos de Ventas', //TODO: translate
         hide: !(this.state.currentStep === 5),
         disabled: !(this.state.currentStep === 5),
         content: (

@@ -58,7 +58,6 @@ class OrgInfo extends Component {
         </div>
 
         }
-
       </div>
     )
   }

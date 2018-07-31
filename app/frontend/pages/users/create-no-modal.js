@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Loader from '~base/components/spinner'
@@ -97,7 +98,10 @@ class CreateUserNoModal extends Component {
               disabled={!!this.state.isLoading}
               type='submit'
             >
-              Crear
+              <FormattedMessage
+                id="profile.btnCreate"
+                defaultMessage={`Crear`}
+              />
             </button>
           </div>
         </div>
@@ -124,9 +128,13 @@ class CreateUserNoModal extends Component {
             <button
               className={'button is-primary ' + this.state.isLoading}
               disabled={!!this.state.isLoading}
-              type='submit'>
-                Invitar
-              </button>
+              type='submit'
+            >
+              <FormattedMessage
+                id="profile.btnInvite"
+                defaultMessage={`Invitar`}
+              />
+            </button>
           </div>
         </div>
       </InviteUserForm>

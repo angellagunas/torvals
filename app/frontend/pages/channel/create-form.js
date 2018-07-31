@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import api from '~base/api'
 
 import {
@@ -14,6 +15,7 @@ const schema = {
     'externalId'
   ],
   properties: {
+    //TODO: translate
     name: {type: 'string', title: 'Nombre'},
     externalId: {type: 'string', title: 'Id Externo'}
   }
@@ -103,7 +105,10 @@ class ChannelForm extends Component {
         onError={(e) => { this.errorHandler(e) }}>
         <div className={this.state.apiCallMessage}>
           <div className='message-body is-size-7 has-text-centered'>
-            Los datos se han guardado correctamente
+            <FormattedMessage
+              id="channel.savedMsg"
+              defaultMessage={`Los datos se han guardado correctamente`}
+            />
           </div>
         </div>
         <div className={this.state.apiCallErrorMessage}>

@@ -19,12 +19,12 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
+        label: 'Inicio', //TODO: translate
         current: false
       },
       {
         path: '/datasets/',
-        label: 'Datasets',
+        label: 'Datasets', //TODO: translate
         current: true
       }
     ],
@@ -38,10 +38,11 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
+      //TODO: translate
       name: {type: 'text', title: 'Por nombre'},
       status: {
         type: 'text',
-        title: 'Por status',
+        title: 'Por status', //TODO: translate
         values: [
           {
             name: 'new',
@@ -89,7 +90,7 @@ export default ListPage({
   },
   getColumns: () => {
     return [
-      {
+      { //TODO: translate
         'title': 'Nombre',
         'property': 'name',
         'default': 'N/A',
@@ -102,7 +103,7 @@ export default ListPage({
           )
         }
       },
-      {
+      { //TODO: translate
         'title': 'Estado',
         'property': 'status',
         'default': 'new',
@@ -111,7 +112,7 @@ export default ListPage({
           return datasetStatus[row.status]
         }
       },
-      {
+      { //TODO: translate
         'title': 'Acciones',
         formatter: (row) => {
           if (testRoles('manager-level-2, consultor-level-3')) {

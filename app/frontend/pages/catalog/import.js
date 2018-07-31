@@ -23,9 +23,11 @@ class ImportCatalog extends Component {
     return (
       <div>
         <BaseModal
+          //TODO: translate
           title={'Importar ' + this.props.title}
           className={this.props.className + ' import-modal'}
-          hideModal={this.hideModal}>
+          hideModal={this.hideModal}
+        >
           <ImportCSV
             isModal
             type={this.props.branchName}
@@ -34,11 +36,11 @@ class ImportCatalog extends Component {
             finishUp={this.props.finishUp}
             format={
               <pre style={{ marginTop: '1em' }}>
-              "name","externalId"<br />
-              "nombre de {this.props.title}","12888"
-          </pre>
-          }
-        />
+                "name","externalId"<br />
+                "nombre de {this.props.title}","12888"
+              </pre>
+            }
+          />
         </BaseModal>
       </div>
     )

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 
@@ -40,6 +41,7 @@ class CreateSalesCenter extends Component {
   render () {
     return (
       <BaseModal
+        //TODO: translate
         title='Crear Centro de Ventas'
         className={this.props.className}
         hideModal={this.hideModal}
@@ -58,12 +60,21 @@ class CreateSalesCenter extends Component {
               <button
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
-                type='submit'>
-                Crear
+                type='submit'
+              >
+                <FormattedMessage
+                  id="salesCenter.btnCreate"
+                  defaultMessage={`Crear`}
+                />
               </button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
+              <button className='button' onClick={this.hideModal} type='button'>
+                <FormattedMessage
+                  id="salesCenter.btnCancel"
+                  defaultMessage={`Cancelar`}
+                />
+              </button>
             </div>
           </div>
         </SalesCenterForm>
