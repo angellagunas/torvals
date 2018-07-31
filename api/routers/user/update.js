@@ -31,7 +31,6 @@ module.exports = new Route({
     if (!language) {
       return ctx.throw(400)
     }
-    console.log(language)
 
     user.set({
       email: data.email,
