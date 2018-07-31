@@ -7,7 +7,8 @@ import {
   BaseForm,
   TextWidget,
   EmailWidget,
-  DateWidget
+  DateWidget,
+  TextareaWidget
 } from '~base/components/base-form'
 
 const schema = {
@@ -21,7 +22,8 @@ const schema = {
     email: {type: 'string', title: 'Email'},
     phone: {type: 'string', title: 'Teléfono'},
     billingStart: {type: 'string', title: 'Fecha de incio de facturación'},
-    billingEnd: {type: 'string', title: 'Fecha de termino de facturación'}
+    billingEnd: {type: 'string', title: 'Fecha de termino de facturación'},
+    observation: {type: 'string', title: 'Observación'}
   }
 }
 
@@ -30,7 +32,8 @@ const uiSchema = {
   email: {'ui:widget': EmailWidget},
   phone: {'ui:widget': TextWidget},
   billingStart: {'ui:widget': DateWidget},
-  billingEnd: {'ui:widget': DateWidget}
+  billingEnd: {'ui:widget': DateWidget},
+  observation: {'ui:widget': TextareaWidget}
 }
 
 class OrganizationActivationForm extends Component {

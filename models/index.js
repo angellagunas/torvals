@@ -30,6 +30,7 @@ const AdjustmentDownload = require('./adjustment-download')
 const UserReport = require('./user-report')
 const Label = require('./label')
 const Language = require('./language')
+const Note = require('./note')
 // #Import
 
 module.exports = {
@@ -64,5 +65,6 @@ module.exports = {
   AdjustmentDownload,
   UserReport,
   Label,
-  Language// #Exports
+  Language,
+  Note// #Exports
 }

@@ -67,6 +67,17 @@ class OrganizationForm extends Component {
     }
   }
 
+  componentWillReceiveProps (nextProps) {
+    if (JSON.stringify(this.props.initialState) !== JSON.stringify(nextProps.initialState)) {
+      this.setState({
+        initialState: nextProps.initialState,
+        formData: nextProps.initialState,
+        apiCallMessage: 'is-hidden',
+        apiCallErrorMessage: 'is-hidden'
+      })
+    }
+  }
+
   errorHandler (e) {}
 
   changeHandler ({formData}) {
