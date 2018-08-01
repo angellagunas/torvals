@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { Label } = require('models')
+const { Label, Language } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -21,7 +21,7 @@ module.exports = new Route({
     ctx.assert(language, 404, 'Idioma no encontrado')
 
     let filters = {}
-    filters['organization'] = currentOrganization._id
+    filters['organization'] = currentOrganization.organization._id
     filters['language'] = language._id
 
     const labels = await Label.dataTables({

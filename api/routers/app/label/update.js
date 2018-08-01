@@ -5,7 +5,8 @@ module.exports = new Route({
   method: 'post',
   path: '/',
   handler: async function (ctx) {
-    const data = ctx.request.body
+    const data = ctx.request.body.updatedLabels
+    console.log(data)
     const user = ctx.state.user
     let currentOrganization
     if (ctx.state.organization) {
@@ -24,7 +25,7 @@ module.exports = new Route({
       }
 
       labelObj.set({
-        text: label.text
+        text: label.newLabel
       })
       labelObj.save()
     }
