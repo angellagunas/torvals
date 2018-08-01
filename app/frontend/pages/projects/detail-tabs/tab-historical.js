@@ -841,9 +841,13 @@ class TabHistorical extends Component {
 
             <div className='column dash-graph'>
               <div className='columns box'>
+                {this.state.graphData && this.state.filteredData && this.state.graphData.length > 0 &&
+
                 <div className='column is-3 is-2-widescreen is-paddingless'>
                   <div className='notification is-info has-text-centered'>
-                    <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
+                    <h1 className={this.state.totalSale === 0 ? 'title is-4' : 'title is-2'}>{
+                      this.state.totalSale === 0 ?
+                      'No disponible' : this.state.mape.toFixed(2) + '%' || '0.00%'}</h1>
                     <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
                   </div>
 
@@ -911,6 +915,7 @@ class TabHistorical extends Component {
                     </p>
                   </div>
                 </div>
+                }
                 <div className='column card'>
                   {this.state.graphData && this.state.filteredData ?
                     this.state.graphData.length > 0 ?
