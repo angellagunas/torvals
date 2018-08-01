@@ -89,6 +89,10 @@ class AdminLayout extends Component {
         me.user.currentOrganization.status === 'activationPending'){
         activated = ' is-active'
       }
+
+      if (me.user.languageCode) {
+        localStorage.setItem('lang', me.user.languageCode)
+      }
     }
 
     this.setState({loaded: true, activateModal: activated})
@@ -192,8 +196,8 @@ class AdminLayout extends Component {
             collapsed={this.state.sidebarCollapsed}
             handleBurgerEvent={() => this.handleBurgerEvent()}
             openWizards={() => this.openWizards()} />
-          
-          
+
+
           {this.state.user.currentRole && this.state.user.currentRole.slug !== 'manager-level-1' &&
           <div>
           <div className='icon is-large is-clickable is-hamburguer'
@@ -203,7 +207,7 @@ class AdminLayout extends Component {
           <Sidebar
             collapsed={this.state.sidebarCollapsed}
             activePath={this.state.activePath} />
-           </div> 
+           </div>
           }
 
           <div className={this.state.user.currentRole && this.state.user.currentRole.slug === 'manager-level-1' ? mainClass + ' main-wrapper-lvl-1' : mainClass}>
@@ -227,9 +231,9 @@ class AdminLayout extends Component {
                   :
                   'Continúa configurando los pasos restantes'
                 }
-                <p className={ 
+                <p className={
                 this.state.user.currentOrganization.wizardSteps.businessRules ||
-                    this.state.user.currentOrganization.isConfigured ? 
+                    this.state.user.currentOrganization.isConfigured ?
                     'wizard-step done has-20-margin-top' : 'wizard-step has-20-margin-top'
                 }>
                 <strong>Reglas de negocio </strong>
@@ -241,11 +245,11 @@ class AdminLayout extends Component {
 
                 <p className={
                   this.state.user.currentOrganization.wizardSteps.project ?
-                    'wizard-step done' : 
+                    'wizard-step done' :
                     this.state.user.currentOrganization.wizardSteps.businessRules ||
                       this.state.user.currentOrganization.isConfigured  ?
                     'wizard-step' :
-                    'wizard-step disabled' 
+                    'wizard-step disabled'
                   }
                   onClick={() => {
                     this.moveTo('/projects')
@@ -260,7 +264,7 @@ class AdminLayout extends Component {
 
                 <p className={
                   this.state.user.currentOrganization.wizardSteps.forecast ?
-                    'wizard-step done' : 
+                    'wizard-step done' :
                     this.state.user.currentOrganization.wizardSteps.businessRules ||
                       this.state.user.currentOrganization.isConfigured &&
                     this.state.user.currentOrganization.wizardSteps.project ?
@@ -280,7 +284,7 @@ class AdminLayout extends Component {
 
                 <p className={
                   this.state.user.currentOrganization.wizardSteps.users ?
-                    'wizard-step done' : 
+                    'wizard-step done' :
                     this.state.user.currentOrganization.wizardSteps.businessRules ||
                       this.state.user.currentOrganization.isConfigured &&
                     this.state.user.currentOrganization.wizardSteps.project ?
@@ -301,8 +305,8 @@ class AdminLayout extends Component {
                 <button className='button is-primary is-inverted is-pulled-right'
                   onClick={() => this.openWizards()}>Omitir</button>
 
-              </section>    
-              
+              </section>
+
             </div>
             </div>
 
@@ -316,7 +320,7 @@ class AdminLayout extends Component {
                 <p className='is-padding-bottom-small'>
                   <strong>Tu cuenta se encuentra {orgStatus[this.state.user.currentOrganization.status]}.</strong>
                 </p>
-                <p className='is-padding-bottom-small'>  
+                <p className='is-padding-bottom-small'>
                   Para poder continuar usando Orax necesitas solicitar una activación.
                   Tus datos e información quedarán guardados.
                 </p>

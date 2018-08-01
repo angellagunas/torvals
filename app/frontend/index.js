@@ -5,18 +5,18 @@ import Router from './router'
 import en from 'react-intl/locale-data/en'
 import es from 'react-intl/locale-data/es'
 import { translations, flattenMessages } from './translations'
-
+import CurrentLanguage from '~base/utils/current-language'
 import './styles/index.scss'
 
 addLocaleData([...en, ...es])
 
-const language = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage || 'es-MX'
+const currentLang = new CurrentLanguage()
 
 class RouterInt extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      locale: localStorage.getItem('lang') || language,
+      locale: currentLang.current(),
     };
 
     window.addEventListener('lang', this.changeLanguage);

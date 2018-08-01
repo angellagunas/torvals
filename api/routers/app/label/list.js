@@ -1,5 +1,5 @@
 const Route = require('lib/router/route')
-const { Label } = require('models')
+const { Label, Language } = require('models')
 
 module.exports = new Route({
   method: 'get',
@@ -14,14 +14,13 @@ module.exports = new Route({
     }
     ctx.assert(currentOrganization, 404, 'Organización no encontrada')
 
-
     const language = await Language.findOne({
       'code': ctx.request.query.language || 'es-MX'
     })
     ctx.assert(language, 404, 'Idioma no encontrado')
 
     let filters = {}
-    filters['organization'] = currentOrganization._id
+    filters['organization'] = currentOrganization.organization._id
     filters['language'] = language._id
 
     const labels = await Label.dataTables({
