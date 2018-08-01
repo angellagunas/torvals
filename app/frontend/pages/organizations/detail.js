@@ -14,6 +14,7 @@ import BillingForm from './billing-form'
 import OrgUsers from './org-users'
 import { orgStatus } from '~base/tools'
 import { toast } from 'react-toastify'
+import Labels from './labels';
 
 class OrganizationDetail extends Component {
   constructor (props) {
@@ -226,15 +227,7 @@ class OrganizationDetail extends Component {
         disabled: false,
         content: (
           <div className='section pad-sides has-20-margin-top'>
-            <OrganizationForm
-              baseUrl='/app/organizations'
-              url={'/app/organizations/' + this.props.match.params.uuid}
-              initialState={this.state.organization}
-              load={this.load.bind(this)}
-              submitHandler={(data) => this.submitHandler(data)}
-              errorHandler={(data) => this.errorHandler(data)}
-              finishUp={(data) => this.finishUpHandler(data)}
-            />
+            <Labels org={organization}/>
           </div>
         )
       }
