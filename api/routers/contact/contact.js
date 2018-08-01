@@ -11,8 +11,8 @@ module.exports = new Route({
     await email.format(data)
     await email.send({
       recipient: {
-        email: 'areyes@grupoabraxas.com',
-        name: 'A. Reyes'
+        email: 'contacto@grupoabraxas.com',
+        name: 'Contacto Orax'
       },
       title: 'Contacto Orax'
     })
