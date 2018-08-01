@@ -1,0 +1,17 @@
+{% extends "./layout.html" %} {% block content %}
+<tr>
+  <td colSpan="2" class="body">
+    <p class="main">Alguien necesita más información sobre Orax</p>
+    <p class="label">Nombre: <strong>{{name}}</strong></p>
+    <p class="label">
+      Correo:
+      <a class="link" href="mailto:{{email}}">
+      {{email}}
+      </a>
+    </p>
+    <p class="label">Organización: <strong>{{org}}</strong></p>
+    <p class="label">No. Empleados: <strong>{{employees}}</strong></p>
+    <p class="label">Paìs: <strong>{{country}}</strong></p>
+  </td>
+</tr>
+{% endblock %}

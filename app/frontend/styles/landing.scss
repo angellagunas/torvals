@@ -475,3 +475,11 @@ $backGradient: 25%;
 .modal-close.login {
   background: rgba(0, 0, 0, 0.2);
 }
+
+.contact-msg {
+  margin-right: 1rem;
+  .message-body {
+    font-size: .8rem;
+    padding: .2rem 1rem;
+  }
+}
