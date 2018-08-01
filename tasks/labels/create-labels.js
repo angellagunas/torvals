@@ -40,7 +40,7 @@ const task = new Task(async function (argv) {
 
   let labelsJson = JSON.parse(fs.readFileSync('fileName.json').toString());
   labelsJson[languageCode] = labels
-  fs.writeFile(translationFile, JSON.stringify(labelsJson));
+  fs.writeFile(translationFile, JSON.stringify(labelsJson))
 
   console.log(`Labels created!`)
   return true
