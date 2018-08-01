@@ -3,46 +3,60 @@ require('../../config')
 require('lib/databases/mongo')
 
 const fs = require('fs')
+const Logger = require('lib/utils/logger')
+const path = require('path')
 const Task = require('lib/task')
 const { Label, Language, Organization } = require('models')
 
 const task = new Task(async function (argv) {
-  console.log('Fetching organization...')
+  const log = new Logger('create-labels')
 
   if (!argv.organization) {
-    console.log('Error: Organization is required')
+    log.call('Error: Organization is required')
     return false
   }
 
   if (!argv.language) {
-    console.log('Error: Language is required')
+    log.call('Error: Language is required')
     return false
   }
 
-  const labels = await Label.find({
-    organization: argv.organization,
-    language: argv.language
-  }).lean().exec(function (err, labels) {
-    return res.end(JSON.stringify(labels));
-  })
-
+  log.call('Fetching organization...')
   const organization = await Organization.findOne({
-    _id: organization
+    uuid: argv.organization
   })
 
   const language = await Language.findOne({
-    _id: language
+    uuid: argv.language
   })
 
-  const path = './app/frontend/translations'
-  const translationFile = 'translations.json'
+  log.call('Getting labels.')
+  const labels = await Label.find({
+    organization: organization._id,
+    language: language._id
+  }).lean().exec(function (err, labels) {
+    return labels
+  })
+
+  let json = {}
+  for (label of labels) {
+    const keys = label.key.split('.')
+    if (!json[keys[0]]) {
+      json[keys[0]] = {}
+    }
+    if (!json[keys[0]][keys[1]]) {
+      json[keys[0]][keys[1]] = label.text
+    }
+  }
+
+  log.call('Saving json.')
   const languageCode = `${language.code}-${organization.slug}`
+  const translationsPath = path.resolve('.', 'app', 'frontend', 'translations', `${languageCode}.json`)
+  let result = {}
+  result[languageCode] = json
+  fs.writeFileSync(translationsPath, JSON.stringify(result))
 
-  let labelsJson = JSON.parse(fs.readFileSync('fileName.json').toString());
-  labelsJson[languageCode] = labels
-  fs.writeFile(translationFile, JSON.stringify(labelsJson))
-
-  console.log(`Labels created!`)
+  log.call(`Json ${languageCode}.json created!`)
   return true
 })
 

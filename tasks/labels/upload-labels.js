@@ -5,15 +5,16 @@ require('../../config')
 require('lib/databases/mongo')
 
 const fs = require('fs')
+const Logger = require('lib/utils/logger')
 const path = require('path')
 const Task = require('lib/task')
 const { Label, Language, Organization } = require('models')
 
 const task = new Task(async function (argv) {
-  console.log('Fetching organization...')
+  const log = new Logger('upload-labels')
 
   if (!argv.organization) {
-    console.log('Error: Organization is required')
+    log.call('Error: Organization is required')
     return false
   }
 
@@ -24,12 +25,13 @@ const task = new Task(async function (argv) {
     }
   }
 
+  log.call('Fetching organization...')
   const organization = await Organization.findOne({
     uuid: argv.organization
   })
   const languages = await Language.find(filter)
 
-  console.log('Inserting default label languages')
+  log.call('Inserting default label languages')
   // TODO: Change this to a better approach.
   for (language of languages) {
     const translationFile = `${language.code}.json`
@@ -51,7 +53,7 @@ const task = new Task(async function (argv) {
     }
   }
 
-  console.log(`Labels inserted!`)
+  log.call(`Labels inserted!`)
   return true
 })
 
