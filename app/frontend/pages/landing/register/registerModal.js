@@ -634,7 +634,7 @@ class RegisterModal extends Component {
         </h1>
         <p className='is-size-5 pad-bottom'>Completa información de tu empresa y datos de facturación.</p>
 
-        <div className='content'>
+        <div className='content with-scroll'>
           <div className='columns is-centered'>
             <div className='column'>
               <div className='field'>

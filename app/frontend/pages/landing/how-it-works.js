@@ -5,6 +5,7 @@ import { forcePublic } from '~base/middlewares/'
 import LogInButton from './log-in-form'
 import Footer from './footer'
 import Contact from './contact'
+import RegisterModal from './register/registerModal'
 
 class HowItWorks extends Component {
   constructor (props) {
@@ -104,9 +105,7 @@ class HowItWorks extends Component {
 
                 {this.state.isDown
                   ? <div className='navbar-item'>
-                    <button className='button is-success'>
-                      Probar 30 días gratis
-                    </button>
+                    <RegisterModal />
                   </div>
 
                   : <div className='navbar-item'>
@@ -275,9 +274,7 @@ class HowItWorks extends Component {
                 </div>
 
                 <div className='column has-text-centered'>
-                  <button className='button is-success is-medium'>
-                    Probar 30 días gratis
-                  </button>
+                  <RegisterModal buttonClass='is-medium' />
                 </div>
               </div>
 
