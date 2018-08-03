@@ -6,17 +6,21 @@ import api from '~base/api'
 import ListPageComponent from '~base/list-page-component'
 import { loggedIn } from '~base/middlewares/'
 
-import tree from '~core/tree'
-import DeleteButton from '~base/components/base-deleteButton'
-
 class AlertList extends ListPageComponent {
-  async onFirstPageEnter() {
+  constructor (props) {
+    super(props)
+    this.state = {
+      alertSelected: {}
+    }
+  }
+
+  async onFirstPageEnter () {
     const organizations = await this.loadOrgs()
 
     return { organizations }
   }
 
-  async loadOrgs() {
+  async loadOrgs () {
     var url = '/admin/organizations/'
     const body = await api.get(url, {
       start: 0,
@@ -26,12 +30,12 @@ class AlertList extends ListPageComponent {
     return body.data
   }
 
-  async deleteObject(row) {
+  async deleteObject (row) {
     await api.del('/admin/users/' + row.uuid)
     this.reload()
   }
 
-  finishUp(data) {
+  finishUp (data) {
     this.setState({
       className: ''
     })
@@ -39,7 +43,7 @@ class AlertList extends ListPageComponent {
     this.props.history.push(env.PREFIX + '/manage/users/' + data.uuid)
   }
 
-  getFilters() {
+  getFilters () {
     const data = {
       schema: {
         type: 'object',
@@ -56,99 +60,66 @@ class AlertList extends ListPageComponent {
     return data
   }
 
-  getColumns() {
+  toggleModal (alert = {}) {
+    this.setState({
+      alertSelected: alert,
+      alertModal: this.state.alertModal === '' ? 'is-active' : ''
+    })
+  }
+
+  getColumns () {
     return [
       {
         'title': 'Nombre',
         'property': 'name',
-        'default': 'N/A',
-        'sortable': true
+        'default': 'N/A'
       },
       {
-        'title': 'Email',
-        'property': 'email',
-        'default': 'N/A',
-        'sortable': true
+        'title': 'Tipo',
+        'property': 'type',
+        'default': 'N/A'
       },
       {
-        'title': 'Grupos',
-        'property': 'groups',
-        'default': 'N/A',
-        'sortable': true,
-        formatter: (row) => {
-          if (row.groups.length > 2) {
-            return (
-              <div>
-                {row.groups[0].name}
-                <br />
-                {row.groups[1].name}
-                <br />
-                {row.groups.length - 2} más
-              </div>
-            )
-          } else if (row.groups.length > 1) {
-            return (
-              <div>
-                {row.groups[0].name}
-                <br />
-                {row.groups[1].name}
-              </div>
-            )
-          } else if (row.groups.length > 0) {
-            return (
-              <div>
-                {row.groups[0].name}
-              </div>
-            )
-          }
-        }
+        'title': 'Template',
+        'property': 'template',
+        'default': 'N/A'
       },
       {
         'title': 'Acciones',
         formatter: (row) => {
-          const deleteObject = async function () {
-            var url = '/admin/users/' + row.uuid
-            await api.del(url)
-
-            const cursor = tree.get('users')
-
-            const users = await api.get('/admin/users/',
-              {
-                start: 0,
-                limit: 10,
-                sort: cursor.sort || 'name'
-              })
-
-            tree.set('users', {
-              page: cursor.page,
-              totalItems: users.total,
-              items: users.data,
-              pageLength: cursor.pageLength
-            })
-            tree.commit()
-          }
-
-          const currentUser = tree.get('user')
-
           return (
-            <div className='field is-grouped'>
-              <div className='control'>
-                <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-                  <span className='icon is-small'>
-                    <i className='fa fa-pencil' />
-                  </span>
-                </Link>
-              </div>
-              <div className='control'>
-                {currentUser.uuid !== row.uuid && (
-                  <DeleteButton
-                    iconOnly
-                    icon='fa fa-trash'
-                    objectName='Usuario'
-                    objectDelete={() => this.deleteObject(row)}
-                    message={`¿Está seguro de querer desactivar a ${row.email} ?`}
-                  />
-                )}
+            <div>
+              <a className='button is-primary' onClick={() => { this.toggleModal(row) }} >
+                <span className='icon is-small'>
+                  <i className='fa fa-pencil' />
+                </span>
+              </a>
+              <div className={'modal ' + this.state.alertModal}>
+                <div className='modal-background' onClick={() => { this.toggleModal() }} />
+                <div className='modal-card'>
+                  <header className='modal-card-head'>
+                    <p className='modal-card-title'>{this.state.alertSelected.name}</p>
+                    <button className='delete' aria-label='close' onClick={() => { this.toggleModal() }} />
+                  </header>
+                  <section className='modal-card-body'>
+                    <div className='level'>
+                      <div className='level-left'>
+                        <div className='level-item'>
+                          <div className='field'>
+                            <input id='switchRtlExample'
+                              type='checkbox'
+                              name='switchRtlExample'
+                              className='switch is-rtl is-info'
+                              /* checked={this.state.alertSelected.status === 'active'}
+                              onChange={(e) => this.toggleActive(e.target.value)} */
+                            />
+                            <label htmlFor='switchRtlExample'>Activar</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
               </div>
             </div>
           )
@@ -182,7 +153,7 @@ AlertList.config({
     align: 'left'
   },
   create: false,
-  branchName: 'users',
+  branchName: 'alerts',
   titleSingular: 'Alerta',
   filters: true,
   schema: {
@@ -196,7 +167,7 @@ AlertList.config({
     general: { 'ui:widget': 'SearchFilter' }
   },
   apiUrl: '/admin/alerts',
-  detailUrl: '/admin/manage/alerts/'
+  detailUrl: '/admin/alerts/'
 })
 
 export default AlertList
