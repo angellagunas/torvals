@@ -236,13 +236,13 @@ class LandPage extends Component {
           </div>
         </section>
 
-        <section className='hero is-medium is-primary changeBack'>
+        {/* <section className='hero is-medium is-primary changeBack'>
           <div className='hero-body'>
             <div className='container has-text-centered comments'>
               {this.getComments()}
             </div>
           </div>
-        </section>
+        </section> */}
 
         <Contact />
 
