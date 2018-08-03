@@ -4,8 +4,8 @@ const lov = require('lov')
 const {Organization, Alert} = require('models')
 
 module.exports = new Route({
-  method: 'delete',
-  path: '/:uuid',
+  method: 'post',
+  path: '/delete/:uuid',
   validator: lov.object().keys({
     alert: lov.string().uuid().required()
   }),
@@ -26,7 +26,7 @@ module.exports = new Route({
     let orgAlert = org.alerts.findIndex(a => String(a.alert) === String(alert._id))
 
     if (orgAlert >= 0) {
-      org.alerts = org.alerts.splice(orgAlert, 0)
+      org.alerts.splice(orgAlert, 1)
       org.markModified('alerts')
       await org.save()
     } else {

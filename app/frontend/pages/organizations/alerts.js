@@ -3,6 +3,7 @@ import { BaseTable } from '~base/components/base-table'
 import { FormattedMessage } from 'react-intl'
 import Multiselect from '~base/components/base-multiselect'
 import api from '~base/api'
+import tree from '~core/tree'
 
 class Alerts extends Component {
   constructor (props) {
@@ -13,13 +14,15 @@ class Alerts extends Component {
       alertModal: '',
       searchTerm: '',
       selectedUsers: [],
-      users: []      
+      users: []   ,
+      alertSelected: {}   
     }
   }
   
   
   componentWillMount () {
     this.getUsers()
+    this.getAlerts()
   }
   
   getColumns(){
@@ -44,6 +47,9 @@ class Alerts extends Component {
           'property': 'type',
           'default': 'N/A',
           formatter: (row) => {
+            if(this.isInOrg(row.uuid) !== -1){
+              row.status = 'active'
+            }
             return String(row.status)
           }
         },
@@ -64,8 +70,11 @@ class Alerts extends Component {
   }
 
   selectAlert(alert){
+    let index = this.isInOrg(alert.uuid)
+    let users = index !== -1 ? this.state.orgAlerts[index].users : []
     this.setState({
-      alertSelected: alert
+      alertSelected: alert,
+      selectedUsers: users
     }, () => {
     this.toggleModal()
     })
@@ -121,12 +130,14 @@ class Alerts extends Component {
 
     selected.push(user)
 
-    const url = '/app/alerts/'+ this.props.org.uuid + '/' + this.state.alertSelected + '/add-user'
-    await api.post(url,
+    const url = '/app/alerts/'+ this.props.org.uuid + '/alert/' + this.state.alertSelected.uuid + '/add-user'
+    let res = await api.post(url,
       {
         user: uuid
       }
     )
+    tree.set('organization', res.data)
+    tree.commit()
 
     setTimeout(() => {
       this.setState({
@@ -154,14 +165,17 @@ class Alerts extends Component {
       selectedUsers: selected
     })
 
-    const url = '/app/alerts/' + this.props.org.uuid + '/' + this.state.alertSelected + '/remove-user'
+    const url = '/app/alerts/' + this.props.org.uuid + '/alert/' + this.state.alertSelected.uuid + '/remove-user'
     
-    await api.post(url,
+    let res = await api.post(url,
       {
         user: uuid
       }
     )
  
+    tree.set('organization', res.data)
+    tree.commit()
+
     setTimeout(() => {
       this.setState({
         saving: false,
@@ -170,17 +184,71 @@ class Alerts extends Component {
     }, 300)
   }
 
-  toggleActive(val){
+  toggleActive(){
     this.setState({
       saving: true
     })
-    console.log(val)
+    if(this.state.alertSelected.status === 'active'){
+      this.alertOff()
+    }else{
+      this.alertOn()
+    }
+    
     setTimeout(() => {
       this.setState({
         saving: false,
         saved: true
       })
     }, 300)
+  }
+
+  async alertOn() {
+    var url = '/app/alerts/' + this.props.org.uuid
+    try {
+      const body = await api.post(url, {alert: this.state.alertSelected.uuid})
+      if (body.data){
+        this.setState({ 
+          alertSelected: {...this.state.alertSelected, status: 'active'},
+        }, () => {
+          this.getAlerts()
+        })
+        
+        tree.set('organization', body.data)
+        tree.commit()
+      }
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
+  }
+
+  async alertOff() {
+    var url = '/app/alerts/delete/' + this.props.org.uuid
+    try {
+      const body = await api.post(url, { alert: this.state.alertSelected.uuid })
+      if (body.data) {
+        this.setState({
+          alertSelected: {
+            ...this.state.alertSelected,
+            status: 'inactive'
+          }
+        }
+          , () => {
+            this.getAlerts()
+          })
+        tree.set('organization', body.data)
+        tree.commit()
+      }
+    } catch (e) {
+      await this.setState({
+        loading: false,
+        loaded: true,
+        notFound: true
+      })
+    }
   }
 
   async getUsers(){
@@ -254,6 +322,13 @@ class Alerts extends Component {
     }
   }
 
+  isInOrg(alert){
+    let index = this.state.orgAlerts.findIndex(a => { 
+      return a.alert.uuid === alert
+    })
+    return index
+  }
+
   render () {
     
     const availableList = this.state.users.filter(item => {
@@ -268,7 +343,6 @@ class Alerts extends Component {
           <div className='level-left'>
             <div className='level-item'>
               <h1 className='subtitle has-text-weight-bold'>Configuración de alertas</h1>
-              <button className='button' onClick={() => { this.toggleModal() }}>Dummy</button>
             </div>
           </div>
           <div className='level-right'>
@@ -307,7 +381,7 @@ class Alerts extends Component {
           <div className='modal-background' onClick={() => {this.toggleModal()}}></div>
           <div className='modal-card'>
             <header className='modal-card-head'>
-              <p className='modal-card-title'>Modal Alert</p>
+              <p className='modal-card-title'>{this.state.alertSelected.name}</p>
               <button className='delete' aria-label='close' onClick={() => { this.toggleModal() }}></button>
             </header>
             <section className='modal-card-body'>
@@ -319,6 +393,7 @@ class Alerts extends Component {
                         type='checkbox'
                         name='switchRtlExample'
                         className='switch is-rtl is-info'
+                        checked={this.state.alertSelected.status === 'active'}
                         onChange={(e) => this.toggleActive(e.target.value)}
                       />
                       <label htmlFor='switchRtlExample'>Activar</label>
@@ -332,7 +407,7 @@ class Alerts extends Component {
                   </div>
                 </div>
               </div>
-              
+              {this.state.alertSelected.status === 'active' &&
             <Multiselect
                 availableTitle='Usuarios disponibles'
                 assignedTitle='Usuarios asignados'
@@ -343,7 +418,7 @@ class Alerts extends Component {
                 assignedClickHandler={(user) => this.assignedOnClick(user)}
                 disabled={false}
               />
-              
+    }
             </section>
           </div>
         </div>

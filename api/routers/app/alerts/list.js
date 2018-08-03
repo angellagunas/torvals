@@ -13,6 +13,7 @@ module.exports = new Route({
     }
 
     const org = await Organization.findOne({'uuid': organizationId, 'isDeleted': false})
+    .populate('alerts.alert alerts.users')
     ctx.assert(org, 404, 'Organización no encontrada')
 
     const alerts = await Alert.find({isDeleted: false})
@@ -20,7 +21,7 @@ module.exports = new Route({
 
     const data = {
       alerts: alerts.map(a => a.toPublic()),
-      orgAlerts
+      orgAlerts: orgAlerts
     }
 
     ctx.body = {
