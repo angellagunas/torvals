@@ -42,27 +42,47 @@ class Alerts extends Component {
             return String(row.type)
           }
         },
+        {
+          'title': 'Descripción',
+          'property': 'description',
+          'default': 'N/A'
+        },
         { //TODO: translate
           'title': 'Habilitado para tu organización',
           'property': 'type',
           'default': 'N/A',
+          className: 'has-text-centered',
           formatter: (row) => {
             if(this.isInOrg(row.uuid) !== -1){
               row.status = 'active'
+              return (
+                <span className='icon has-text-success'>
+                  <i className='fa fa-check fa-2x'/>
+                </span>
+              )
             }
-            return String(row.status)
+            else {
+              row.status = 'inactive'
+              return (
+                <span className='icon has-text-danger'>
+                  <i className='fa fa-times fa-2x' />
+                </span>
+              )
+            }
           }
         },
         {
           'title': 'Acciones', //TODO: translate
           formatter: (row) => {
-            return (
-              <a className='button is-primary' onClick={() => this.selectAlert(row)}>
-                <span className='icon is-small' title='Editar'>
-                  <i className='fa fa-pencil' />
-                </span>
-              </a>
-            )
+            if(!row.default){
+              return (
+                <a className='button is-primary' onClick={() => this.selectAlert(row)}>
+                  <span className='icon is-small' title='Editar'>
+                    <i className='fa fa-pencil' />
+                  </span>
+                </a>
+              )
+            }
           }
         }
       ]

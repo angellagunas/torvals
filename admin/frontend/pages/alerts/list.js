@@ -1,63 +1,15 @@
 import React from 'react'
-
-import env from '~base/env-variables'
-import Link from '~base/router/link'
-import api from '~base/api'
 import ListPageComponent from '~base/list-page-component'
 import { loggedIn } from '~base/middlewares/'
+import AlertModal from './alert-modal'
 
 class AlertList extends ListPageComponent {
   constructor (props) {
     super(props)
     this.state = {
-      alertSelected: {}
+      alertSelected: {},
+      alertModal: ''
     }
-  }
-
-  async onFirstPageEnter () {
-    const organizations = await this.loadOrgs()
-
-    return { organizations }
-  }
-
-  async loadOrgs () {
-    var url = '/admin/organizations/'
-    const body = await api.get(url, {
-      start: 0,
-      limit: 0
-    })
-
-    return body.data
-  }
-
-  async deleteObject (row) {
-    await api.del('/admin/users/' + row.uuid)
-    this.reload()
-  }
-
-  finishUp (data) {
-    this.setState({
-      className: ''
-    })
-
-    this.props.history.push(env.PREFIX + '/manage/users/' + data.uuid)
-  }
-
-  getFilters () {
-    const data = {
-      schema: {
-        type: 'object',
-        required: [],
-        properties: {
-          general: { type: 'text', title: 'Buscar' }
-        }
-      },
-      uiSchema: {
-        general: { 'ui:widget': 'SearchFilter' }
-      }
-    }
-
-    return data
   }
 
   toggleModal (alert = {}) {
@@ -65,6 +17,10 @@ class AlertList extends ListPageComponent {
       alertSelected: alert,
       alertModal: this.state.alertModal === '' ? 'is-active' : ''
     })
+  }
+
+  finishUp () {
+    this.reload()
   }
 
   getColumns () {
@@ -85,6 +41,32 @@ class AlertList extends ListPageComponent {
         'default': 'N/A'
       },
       {
+        'title': 'Descripción',
+        'property': 'description',
+        'default': 'N/A'
+      },
+      {
+        'title': 'Habilitado',
+        'property': 'status',
+        'default': 'N/A',
+        className: 'has-text-centered',
+        formatter: (row) => {
+          if (row.status === 'active') {
+            return (
+              <span className='icon has-text-success'>
+                <i className='fa fa-check fa-lg' />
+              </span>
+            )
+          } else {
+            return (
+              <span className='icon has-text-danger'>
+                <i className='fa fa-times fa-lg' />
+              </span>
+            )
+          }
+        }
+      },
+      {
         'title': 'Acciones',
         formatter: (row) => {
           return (
@@ -94,33 +76,12 @@ class AlertList extends ListPageComponent {
                   <i className='fa fa-pencil' />
                 </span>
               </a>
-              <div className={'modal ' + this.state.alertModal}>
-                <div className='modal-background' onClick={() => { this.toggleModal() }} />
-                <div className='modal-card'>
-                  <header className='modal-card-head'>
-                    <p className='modal-card-title'>{this.state.alertSelected.name}</p>
-                    <button className='delete' aria-label='close' onClick={() => { this.toggleModal() }} />
-                  </header>
-                  <section className='modal-card-body'>
-                    <div className='level'>
-                      <div className='level-left'>
-                        <div className='level-item'>
-                          <div className='field'>
-                            <input id='switchRtlExample'
-                              type='checkbox'
-                              name='switchRtlExample'
-                              className='switch is-rtl is-info'
-                              /* checked={this.state.alertSelected.status === 'active'}
-                              onChange={(e) => this.toggleActive(e.target.value)} */
-                            />
-                            <label htmlFor='switchRtlExample'>Activar</label>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                </div>
-              </div>
+              <AlertModal
+                alertModal={this.state.alertModal}
+                alertSelected={this.state.alertSelected}
+                toggleModal={() => this.toggleModal()}
+                finishUp={() => this.finishUp()}
+                />
             </div>
           )
         }
