@@ -15,6 +15,7 @@ module.exports = {
   ],
   output: {
     path: path.resolve('./admin/dist'),
+    publicPath: '/assets/',
     filename: 'bundle.js'
   },
   module: {
