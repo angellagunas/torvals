@@ -33,7 +33,7 @@ module.exports = new Route({
     if (orgAlert >= 0) {
       let userAlert = org.alerts[orgAlert].users.findIndex(u => String(u) === String(user._id))
       if (userAlert >= 0) {
-        org.alerts[orgAlert].users = org.alerts[orgAlert].users.splice(userAlert, 0)
+        org.alerts[orgAlert].users.splice(userAlert, 1)
         org.markModified('alerts')
         await org.save()
       } else {

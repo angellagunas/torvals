@@ -15,6 +15,7 @@ import OrgUsers from './org-users'
 import { orgStatus } from '~base/tools'
 import { toast } from 'react-toastify'
 import Labels from './labels';
+import Alerts from './alerts';
 
 class OrganizationDetail extends Component {
   constructor (props) {
@@ -228,6 +229,17 @@ class OrganizationDetail extends Component {
         content: (
           <div className='section pad-sides has-20-margin-top'>
             <Labels org={organization}/>
+          </div>
+        )
+      },
+      {
+        name: '4',
+        title: 'Alertas',
+        hide: false,
+        disabled: false,
+        content: (
+          <div className='section pad-sides has-20-margin-top'>
+            <Alerts org={organization} />
           </div>
         )
       }
