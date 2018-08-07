@@ -348,7 +348,7 @@ class DataSetDetail extends Component {
                           <FormattedMessage
                             id="datasets.processingMsg1"
                             defaultMessage={`El datase`}
-                          /> {dataset.fileChunk.filename} <FormattedMessage
+                          /> {dataset.fileChunk ? dataset.fileChunk.filename : ''} <FormattedMessage
                             id="datasets.processingMsg2"
                             defaultMessage={`se está preprocesando`}
                           />
