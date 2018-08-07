@@ -947,7 +947,7 @@ class TabHistorical extends Component {
                               })
                             : this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                              })ß
+                              })
                         }
                       </p>
 
