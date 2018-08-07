@@ -16,17 +16,20 @@ const task = new Task(async function (argv) {
   const mailer = new Mailer(template)
   await mailer.format(args)
 
-  await mailer.send({
-    recipient: {
-      email,
-      name
-    },
-    title: title
-  })
+  try {
+    await mailer.send({
+      recipient: {
+        email,
+        name
+      },
+      title: title
+    })
+  } catch (e) {
+    console.log(`Error sending email: ${e}`)
+  }
 
-  console.log('Request Activation Notification Email Sent =>', email, uuid)
+  console.log(`$(title) Email Sent =>`, email, uuid)
 })
-
 if (require.main === module) {
   task.setCliHandlers()
   task.run()

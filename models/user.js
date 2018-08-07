@@ -9,6 +9,7 @@ const awsService = require('aws-sdk')
 const moment = require('moment')
 
 const Mailer = require('lib/mailer')
+const sendEmail = require('tasks/emails/send-email')
 
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR)
 
@@ -320,20 +321,16 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
     type: 'reset'
   })
   let url = process.env.APP_HOST
-
   if (admin) url = process.env.ADMIN_HOST + process.env.ADMIN_PREFIX
 
-  const email = new Mailer('reset-password')
-
   const data = this.toJSON()
-  data.url = url + '/emails/reset?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
+  data.url = `${url}/emails/reset?token=${userToken.key}&email=${encodeURIComponent(this.email)}`
 
-  await email.format(data)
-  await email.send({
-    recipient: {
-      email: this.email,
-      name: this.name
-    },
+  sendEmail.run({
+    args: data,
+    email: this.email,
+    name: this.name,
+    template: 'reset-password',
     title: 'Restablecer contraseña en Orax'
   })
 }
