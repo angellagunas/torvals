@@ -57,16 +57,10 @@ if (module.hot) {
 if (!window.intl) {
   // Load the polyfill if there is no native browser support for Intl
   // Safari...
-  require.ensure([
-    'intl',
-    'intl/locale-data/jsonp/en.js',
-    'intl/locale-data/jsonp/es.js'
-  ], (require) => {
-    require('intl')
-    require('intl/locale-data/jsonp/en.js')
-    require('intl/locale-data/jsonp/es.js')
-    render(<RouterInt  Root={Router} />)
-  })
+  require('intl')
+  require('intl/locale-data/jsonp/en.js')
+  require('intl/locale-data/jsonp/es.js')
+  render(<RouterInt  Root={Router} />)
 } else {
   render(<RouterInt  Root={Router} />)
 }
