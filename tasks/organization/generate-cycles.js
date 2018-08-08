@@ -178,11 +178,7 @@ const task = new Task(
         log.call(`Updating cycle ${cycleStartDate}`)
         cycleStartDate = add(utc(cycleInstance.dateEnd), durationToSubtract)
 
-        if (period === cycle) {
-          tentativeCycleEndDate = utc(tentativeCycleEndDate)
-        } else {
-          tentativeCycleEndDate = utc(tentativeCycleEndDate).add(cycleDurationMoment)
-        }
+        tentativeCycleEndDate = utc(tentativeCycleEndDate).add(cycleDurationMoment)
 
         previousPeriodEndDate = utc(cycleInstance.dateEnd)
 
