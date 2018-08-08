@@ -5,8 +5,8 @@ const dataTables = require('mongoose-datatables')
 const moment = require('moment')
 const { aws } = require('../config')
 const awsService = require('aws-sdk')
-const Mailer = require('lib/mailer')
 const assert = require('http-assert')
+const sendEmail = require('tasks/emails/send-email')
 
 const organizationSchema = new Schema({
   name: { type: String },
@@ -122,19 +122,18 @@ organizationSchema.methods.endTrialPeriod = async function () {
   const User = mongoose.model('User')
   const owner = await User.findOne({'organizations.organization': this._id, accountOwner: true})
   assert(owner, 401, 'La orgnaización o tiene dueño')
-  const email = new Mailer('trial')
 
   this.status = 'inactive'
   await this.save()
 
-  const data = this.toJSON()
-
-  await email.format(data)
-  await email.send({
-    recipient: {
-      email: owner.email,
-      name: owner.name
-    },
+  const recipients = {
+    email: owner.email,
+    name: owner.name
+  }
+  sendEmail.run({
+    recipients,
+    args: data,
+    template: 'trial',
     title: 'Período de prueba en Orax ha terminado.'
   })
 

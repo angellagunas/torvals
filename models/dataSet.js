@@ -565,7 +565,7 @@ dataSetSchema.methods.sendFinishedConciliating = async function () {
     recipients,
     args: data,
     template: 'adjustment-finished',
-    title: 'Ajustes conciliados'
+    title: 'Ajustes conciliados.'
   })
 }
 

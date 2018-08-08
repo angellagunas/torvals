@@ -39,7 +39,7 @@ module.exports = new Route({
       recipients,
       args: dataMail,
       template: 'reset-password',
-      title: 'Se ha compartido una predicción'
+      title: 'Se ha compartido una predicción.'
     })
 
     ctx.body = recipients

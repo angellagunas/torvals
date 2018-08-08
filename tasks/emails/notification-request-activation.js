@@ -2,7 +2,7 @@
 require('../../config')
 
 const Task = require('lib/task')
-const Mailer = require('lib/mailer')
+const sendEmail = require('tasks/emails/send-email')
 
 const task = new Task(async function (argv) {
   const {
@@ -11,21 +11,21 @@ const task = new Task(async function (argv) {
     admins
   } = argv
 
-  const mailer = new Mailer('notification-org-activation')
-
   for (let admin of admins) {
-    await mailer.format({
+    const data = {
+      owner,
       name: admin.name,
       email: admin.email,
-      organization: organization.name,
-      owner: owner
-    })
-
-    await mailer.send({
-      recipient: {
-        email: admin.email,
-        name: admin.name
-      },
+      organization: organization.name
+    }
+    const recipients = {
+      email: admin.email,
+      name: admin.name
+    }
+    sendEmail.run({
+      recipients,
+      args: data,
+      template: 'notification-org-activation',
       title: 'Notificación de requerimiento de activación de organización en Orax.'
     })
 

@@ -8,14 +8,14 @@ module.exports = new Route({
     const data = ctx.request.body
 
     const recipients = {
-      email: 'jmonroy@grupoabraxas.com',
+      email: 'contacto@orax.io',
       name: 'Contacto Orax'
     }
     sendEmail.run({
       recipients,
       args: data,
       template: 'contact',
-      title: 'Contacto Orax'
+      title: 'Contacto Orax.'
     })
 
     ctx.body = {success: true}
