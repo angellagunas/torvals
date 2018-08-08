@@ -1,0 +1,20 @@
+{% extends "./layout.html" %} 
+{% block content %}
+    <tr>
+      <td colSpan="2" class="body">
+        <p class="main">Usuario inicio sesión desde otra computadora.</p>
+        <p>
+          <img src="{{ org_logo }}" width="100" height="auto" alt="Orax">
+        </p>
+        <p class="label">El usuario
+          <strong>{{ user }} </strong> ha inicado sesison desde una ubicación y dispositivo diferente. </strong> 
+        </p>
+        <p>
+          Para ir a Orax y verificar esa información:
+        </p>
+        <p>
+          <a class="btn" href="{{ url }}" target="_blank">Ir a Orax</a>
+        </p>
+      </td>
+    </tr>
+{% endblock %}
