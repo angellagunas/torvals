@@ -61,6 +61,8 @@ class AdminLayout extends Component {
           tree.set('organization', null)
           tree.set('role', null)
           tree.commit()
+          window.localStorage.setItem('name', '')
+          window.localStorage.setItem('email', '')
         }
 
         return this.setState({loaded: true})
@@ -83,6 +85,9 @@ class AdminLayout extends Component {
         tree.set('rule', null)
         tree.set('loggedIn', false)
         await tree.commit()
+        window.localStorage.setItem('name', '')
+        window.localStorage.setItem('email', '')
+        return
       }
 
       if (me.user.currentOrganization.status === 'inactive' ||
@@ -93,6 +98,9 @@ class AdminLayout extends Component {
       if (me.user.languageCode) {
         localStorage.setItem('lang', me.user.languageCode)
       }
+
+      window.localStorage.setItem('name', me.user.name)
+      window.localStorage.setItem('email', me.user.email)
     }
 
     this.setState({loaded: true, activateModal: activated})
