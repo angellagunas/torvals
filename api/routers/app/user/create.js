@@ -3,7 +3,7 @@ const lov = require('lov')
 const crypto = require('crypto')
 const ObjectId = require('mongodb').ObjectID
 
-const {User, Role, Group, Project} = require('models')
+const { User, Role, Group, Project, Language } = require('models')
 
 module.exports = new Route({
   method: 'post',
@@ -68,6 +68,11 @@ module.exports = new Route({
       const project = await Project.findOne({'uuid': userData.project})
       ctx.assert(project, 404, 'Proyecto no encontrado')
       orgObj.defaultProject = project
+    }
+
+    if (!userData.language) {
+      const language = await Language.findOne({ code: 'es-MX' })
+      userData.language = language
     }
 
     userData.organizations = [orgObj]
