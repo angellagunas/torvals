@@ -75,6 +75,8 @@ class NavBar extends Component {
     tree.set('organization', null)
     tree.set('loggedIn', false)
     await tree.commit()
+    window.localStorage.setItem('name', '')
+    window.localStorage.setItem('email', '')
 
     history.push('/landing')
   }
@@ -216,7 +218,7 @@ class NavBar extends Component {
                       <i className='fa fa-user-o' />
                     </span>
                     <FormattedMessage
-                      id="navbar.profile"
+                      id='navbar.profile'
                       defaultMessage={`Mi perfil`}
                     />
                   </Link>
@@ -226,7 +228,7 @@ class NavBar extends Component {
                       <i className='fa fa-sign-out' />
                     </span>
                     <FormattedMessage
-                      id="navbar.signOut"
+                      id='navbar.signOut'
                       defaultMessage={`Cerrar sesión`}
                     />
                   </a>
