@@ -388,7 +388,8 @@ class UserDetail extends Component {
                   {
                     path: '/manage/users-groups',
                     label: 'Usuarios', //TODO: translate
-                    current: false
+                    current: false,
+                    onClick: this.props.selectUser
                   },
                   {
                     path: '/manage/users',
