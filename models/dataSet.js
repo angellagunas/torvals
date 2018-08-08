@@ -7,8 +7,8 @@ const { aws } = require('../config')
 const awsService = require('aws-sdk')
 const fs = require('fs-extra')
 const path = require('path')
-const Mailer = require('lib/mailer')
 const _ = require('lodash')
+const sendEmail = require('tasks/emails/send-email')
 
 const dataSetSchema = new Schema({
   name: { type: String, required: true },
@@ -536,11 +536,13 @@ dataSetSchema.methods.process = async function (res) {
 dataSetSchema.methods.sendFinishedConciliating = async function () {
   const { Project, DataSet } = require('models')
 
-  const email = new Mailer('adjustment-finished')
   const project = await Project.findOne({ '_id': this.project }).populate('organization')
   var previousDatasets = []
+  // TODO: Refactor this.
   project.datasets.map(ds => {
-    if (ds.dataset.toString() !== this._id.toString()) { previousDatasets.push(ds.dataset) }
+    if (ds.dataset.toString() !== this._id.toString()) {
+      previousDatasets.push(ds.dataset)
+    }
   })
   const lastDataset = await DataSet.findOne({
     _id: {$in: previousDatasets}
@@ -555,13 +557,14 @@ dataSetSchema.methods.sendFinishedConciliating = async function () {
     name: this.project.name,
     url: `${host}/projects/${project.uuid}`
   }
-
-  await email.format(data)
-  await email.send({
-    recipient: {
-      email: this.createdBy.email,
-      name: this.createdBy.name
-    },
+  const recipients = {
+    email: this.createdBy.email,
+    name: this.createdBy.name
+  }
+  sendEmail.run({
+    recipients,
+    args: data,
+    template: 'adjustment-finished',
     title: 'Ajustes conciliados'
   })
 }

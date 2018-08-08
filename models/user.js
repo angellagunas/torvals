@@ -315,7 +315,7 @@ userSchema.methods.sendInviteEmail = async function () {
 
 userSchema.methods.sendResetPasswordEmail = async function (admin) {
   const UserToken = mongoose.model('UserToken')
-  let userToken = await UserToken.create({
+  const userToken = await UserToken.create({
     user: this._id,
     validUntil: moment().add(10, 'days').utc(),
     type: 'reset'
@@ -328,8 +328,10 @@ userSchema.methods.sendResetPasswordEmail = async function (admin) {
 
   sendEmail.run({
     args: data,
-    email: this.email,
-    name: this.name,
+    recipients: {
+      email: this.email,
+      name: this.name
+    },
     template: 'reset-password',
     title: 'Restablecer contraseña en Orax'
   })

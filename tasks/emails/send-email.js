@@ -7,8 +7,7 @@ const Mailer = require('lib/mailer')
 const task = new Task(async function (argv) {
   const {
     args,
-    email,
-    name,
+    recipients,
     template,
     title
   } = argv
@@ -16,19 +15,20 @@ const task = new Task(async function (argv) {
   const mailer = new Mailer(template)
   await mailer.format(args)
 
+  console.log(recipients)
   try {
     await mailer.send({
-      recipient: {
-        email,
-        name
-      },
-      title: title
+      title,
+      recipient: recipients,
     })
   } catch (e) {
     console.log(`Error sending email: ${e}`)
+    console.log(e)
+    return false
   }
 
-  console.log(`$(title) Email Sent =>`, email, uuid)
+  console.log(`${title} Email Sent =>`, recipients)
+  return true
 })
 if (require.main === module) {
   task.setCliHandlers()

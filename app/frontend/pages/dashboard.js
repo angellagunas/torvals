@@ -835,6 +835,7 @@ class Dashboard extends Component {
       return <Redirect to='/landing' />
     }
 
+    // TODO: Validate if current project is necesary, if not manage this error.
     if (user.currentRole.slug === 'manager-level-1') {
       return <Redirect to={'/projects/' + user.currentProject.uuid} />
     }
