@@ -102,7 +102,7 @@ class EmailActivateLanding extends Component {
                       defaultMessage={`¡Hola`}
                     /> {this.state.user.name}, <FormattedMessage
                       id="emails.activationGreeting2"
-                      defaultMessage={`tu cuenta ha sida activada exitosamente!`}
+                      defaultMessage={`tu cuenta ha sido activada exitosamente!`}
                     />
                   </div>
                 </div>
@@ -113,7 +113,7 @@ class EmailActivateLanding extends Component {
                   />, <a href='/landing' >
                     <FormattedMessage
                       id="emails.activationInfo2"
-                      defaultMessage={`da click aqui`}
+                      defaultMessage={`da click aquí.`}
                     />
                   </a>
                 </p>
