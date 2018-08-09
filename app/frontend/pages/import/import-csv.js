@@ -2,45 +2,38 @@ import React, { Component } from 'react'
 import api from '~base/api'
 import { BaseForm, FileWidget } from '~base/components/base-form'
 
-const schema = {
-  type: 'object',
-  required: ['file'],
-  properties: {
-    file: { type: 'string', title: 'Archivo a importar', format: 'data-url' }
-  }
-}
-
-const uiSchema = {
-  file: {
-    'ui:widget': FileWidget,
-    'ui:className': 'is-centered is-medium is-info',
-    'ui:accept': '.csv',
-    'ui:hidden': true
-  }
-}
-
 class ImportCSV extends Component {
   constructor (props) {
     super(props)
 
+    this.extraData = {}
+    if (this.props.extraFields) {
+      this.extraData = this.props.extraFields.formData
+    }
+
     this.state = {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
+      isLoading: '',
       message: '',
       formData: {
         file: undefined,
-        type: this.props.type
+        type: this.props.type,
+        ...this.extraData
       }
     }
   }
 
-  errorHandler (e) { }
+  errorHandler () {
+    this.setState({ isLoading: '' })
+  }
 
   changeHandler ({ formData }) {
     this.setState({ formData, apiCallMessage: 'is-hidden', apiCallErrorMessage: 'is-hidden' })
   }
 
   async submitHandler ({ formData }) {
+    this.setState({ isLoading: ' is-loading' })
     var data
     try {
       data = await api.post(this.props.url, formData)
@@ -50,7 +43,7 @@ class ImportCSV extends Component {
         apiCallErrorMessage: 'message is-danger'
       })
     }
-    this.setState({ apiCallMessage: 'message is-success', message: data.message })
+    this.setState({ apiCallMessage: 'message is-success', message: data.message, isLoading: '' })
     if (this.props.finishUp) {
       setTimeout(() => {
         this.setState({
@@ -59,7 +52,8 @@ class ImportCSV extends Component {
           message: '',
           formData: {
             file: undefined,
-            type: this.props.type
+            type: this.props.type,
+            ...this.extraData
           }
         })
         this.props.finishUp()
@@ -68,11 +62,33 @@ class ImportCSV extends Component {
   }
 
   render () {
+    let schema = {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: { type: 'string', title: 'Archivo a importar', format: 'data-url' }
+      }
+    }
+
+    let uiSchema = {
+      file: {
+        'ui:widget': FileWidget,
+        'ui:className': 'is-centered is-medium is-info',
+        'ui:accept': '.csv',
+        'ui:hidden': true
+      }
+    }
+
     var error
     if (this.state.error) {
       error = <div>
         {this.state.error}
       </div>
+    }
+
+    if (this.props.extraFields) {
+      schema.properties = {...schema.properties, ...this.props.extraFields.schema.properties}
+      uiSchema = {...uiSchema, ...this.props.extraFields.uiSchema}
     }
 
     if (this.props.isModal) {
@@ -104,8 +120,10 @@ class ImportCSV extends Component {
                   </div>
                   <div>
                     <button
-                      className='button is-primary'
-                      type='submit'>
+                      className={'button is-primary ' + this.state.isLoading}
+                      disabled={!!this.state.isLoading}
+                      type='submit'
+                    >
                       Importar
                     </button>
                   </div>
@@ -156,11 +174,12 @@ class ImportCSV extends Component {
                     </div>
                     <div>
                       <button
-                        className='button is-primary'
+                        className={'button is-primary ' + this.state.isLoading}
+                        disabled={!!this.state.isLoading}
                         type='submit'
-                          >
-                            Importar
-                        </button>
+                      >
+                        Importar
+                      </button>
                     </div>
                   </BaseForm>
                 </div>
