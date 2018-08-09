@@ -57,6 +57,7 @@ import SalesCentersImport from './pages/import/sales-centers'
 
 import en from 'react-intl/locale-data/en'
 import es from 'react-intl/locale-data/es'
+import AlertList from './pages/alerts/list';
 
 addLocaleData([...en, ...es])
 
@@ -133,7 +134,8 @@ const AppRouter = () => {
 
               {Prices.asRouterItem()}
               {PriceDetail.asRouterItem()}
-
+              
+              {AlertList.asRouterItem()}
               <Route component={NoMatch} />
 
               <div id='route' />

@@ -107,10 +107,13 @@ class StatusRepórt extends Component {
     try {
       let res = await api.get(url)
 
-      let cycles = _.orderBy(res.cycles, 'cycle', 'asc')
+      let cycles = _.orderBy(res.cycles, 'dateStart', 'asc')
       .map(item => {
-        return {...item, name: moment.utc(item.dateStart).format('MMMM') + ' - ' + item.cycle}
-      })
+        return {
+          ...item, 
+          name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
+        }
+      })      
 
       cycles = _.orderBy(cycles, 'dateStart', 'asc')
 

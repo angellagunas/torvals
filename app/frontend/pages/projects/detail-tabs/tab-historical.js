@@ -859,102 +859,124 @@ class TabHistorical extends Component {
 
             <div className='column dash-graph'>
               <div className='columns box'>
-                <div className='column is-3 is-2-widescreen is-paddingless'>
-                  <div className='notification is-info has-text-centered'>
-                    <h1 className='title is-2'>{this.state.mape.toFixed(2) || '0.00'}%</h1>
-                    <h2 className='subtitle has-text-weight-bold'>
+                {this.state.graphData && this.state.filteredData && this.state.graphData.length > 0 &&
+                  <div className='column is-3 is-2-widescreen is-paddingless'>
+                    <div className='notification is-info has-text-centered'>
+                      <h1 className={this.state.totalSale === 0 ? 'title is-4' : 'title is-2'}>{
+                        this.state.totalSale === 0 
+                          ? <FormattedMessage
+                              id="projects.notAvailable"
+                              defaultMessage={`No disponible`}
+                            />
+                          : this.state.mape.toFixed(2) + '%' || '0.00%'
+                        }
+                      </h1>
+                      <h2 className='subtitle has-text-weight-bold'>
+                        <FormattedMessage
+                          id="projects.mape"
+                          defaultMessage={`MAPE`}
+                        />
+                      </h2>
+                    </div>
 
-                      <FormattedMessage
-                        id="projects.mape"
-                        defaultMessage={`MAPE`}
-                      />
-                    </h2>
+                    <div className='indicators'>
+                      <p className='indicators-title'>
+                        <FormattedMessage
+                          id="projects.totalSales"
+                          defaultMessage={`Venta total`}
+                        />
+                      </p>
+                      <p className='indicators-number has-text-success'>
+                        {
+                          this.state.totalSale === 0
+                            ? <FormattedMessage
+                                id="projects.notAvailable"
+                                defaultMessage={`No disponible`}
+                              />
+                            : this.state.prices
+                              ? '$' +
+                                this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                })
+                              : this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
+                                  return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                                })
+                        }
+                      </p>
+                      <p className='indicators-title'>
+                        <FormattedMessage
+                          id="projects.previousSales"
+                          defaultMessage={`Venta año anterior`}
+                        />
+                      </p>
+                      <p className='indicators-number has-text-danger'>
+                        {
+                          this.state.totalPSale === 0
+                          ? <FormattedMessage
+                              id="projects.notAvailable"
+                              defaultMessage={`No disponible`}
+                            />
+                          : this.state.prices
+                            ? '$' +
+                              this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                            : this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                        }
+                      </p>
+
+                      <p className='indicators-title'>
+                        <FormattedMessage
+                          id="projects.totalAdjustment"
+                          defaultMessage={`Ajuste total`}
+                        />
+                      </p>
+                      <p className='indicators-number has-text-teal'>
+                        {
+                          this.state.totalAdjustment === 0
+                          ? <FormattedMessage
+                              id="projects.notAvailable"
+                              defaultMessage={`No disponible`}
+                            />
+                          : this.state.prices 
+                            ? '$' +
+                              this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                            : this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                        }
+                      </p>
+
+                      <p className='indicators-title'>
+                        <FormattedMessage
+                          id="projects.totalPrediction"
+                          defaultMessage={`Predicción total`}
+                        />
+                      </p>
+                      <p className='indicators-number has-text-info'>
+                        {
+                          this.state.totalPrediction === 0 
+                          ? <FormattedMessage
+                              id="projects.notAvailable"
+                              defaultMessage={`No disponible`}
+                            />
+                          : this.state.prices
+                            ? '$' +
+                              this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                            : this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
+                                return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+                              })
+                        }
+                      </p>
+                    </div>
                   </div>
-
-                  <div className='indicators'>
-                    <p className='indicators-title'>
-                      <FormattedMessage
-                        id="projects.totalSales"
-                        defaultMessage={`Venta total`}
-                      />
-                    </p>
-                    <p className='indicators-number has-text-success'>
-                      {
-                        this.state.totalSale === 0 ?
-                          'No disponible' :
-                        this.state.prices ? '$' +
-                          this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                          :
-                          this.state.totalSale.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                      }
-                    </p>
-                    <p className='indicators-title'>
-                      <FormattedMessage
-                        id="projects.previousSales"
-                        defaultMessage={`Venta año anterior`}
-                      />
-                    </p>
-                    <p className='indicators-number has-text-danger'>
-                      {
-                        this.state.totalPSale === 0 ?
-                          'No disponible' :
-                        this.state.prices ? '$' +
-                          this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                          : this.state.totalPSale.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                      }
-                    </p>
-
-                    <p className='indicators-title'>
-                      <FormattedMessage
-                        id="projects.totalAdjustment"
-                        defaultMessage={`Ajuste total`}
-                      />
-                    </p>
-                    <p className='indicators-number has-text-teal'>
-                      {
-                        this.state.totalAdjustment === 0 ?
-                          'No disponible' :
-                        this.state.prices ? '$' +
-                          this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                          :
-                          this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                      }
-                    </p>
-
-                    <p className='indicators-title'>
-                      <FormattedMessage
-                        id="projects.totalPrediction"
-                        defaultMessage={`Predicción total`}
-                      />
-                    </p>
-                    <p className='indicators-number has-text-info'>
-                      {
-                        this.state.totalPrediction === 0 ?
-                          'No disponible' :
-                        this.state.prices ? '$' +
-                          this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                          :
-                          this.state.totalPrediction.toFixed().replace(/./g, (c, i, a) => {
-                            return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                          })
-                      }
-                    </p>
-                  </div>
-                </div>
+                }
                 <div className='column card'>
                   {this.state.graphData && this.state.filteredData ?
                     this.state.graphData.length > 0 ?
@@ -1058,7 +1080,7 @@ class TabHistorical extends Component {
                         <center>
                           <h1 className='has-text-info'>
                             <FormattedMessage
-                              id="projects.emtyRows"
+                              id="projects.emptyRows"
                               defaultMessage={`No hay datos que mostrar`}
                             />
                           </h1>
@@ -1259,7 +1281,7 @@ class TabHistorical extends Component {
                     <center>
                       <h1 className='has-text-info'>
                         <FormattedMessage
-                          id="projects.emtyProducts"
+                          id="projects.emptyProducts"
                           defaultMessage={`No hay productos que mostrar, intente con otro filtro`}
                         />
                       </h1>

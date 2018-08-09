@@ -177,10 +177,26 @@ describe('Generate cycles task', () => {
       await clearDatabase()
 
       const org = await createFullOrganization({}, {
+        startDate: moment.utc('2018-01-04'),
+        periodDuration : 1,
         period: 'w',
-        cycle: 'w'
+        cycleDuration : 1,
+        cycle: 'w',
+        season: 4,
+        cyclesAvailable: 2,
+        takeStart : true,
+        isCurrent: true,
+        consolidation : 2,
+        forecastCreation : 1,
+        rangeAdjustmentRequest : 1,
+        rangeAdjustment : 1,
+        salesUpload : 1,
+        rangesLvl2: [0, null],
+        ranges: [0, null]
       })
       const rule = await Rule.findOne({organization: org._id})
+
+      await generateCycles.run({uuid: org.uuid, rule: rule.uuid, extraDate: '2018-04-02'})
 
       const today = new Date()
       const year = today.getFullYear()
@@ -199,12 +215,12 @@ describe('Generate cycles task', () => {
       const expectedCycles = 12 + (month + 1) + parseInt(cyclesAvailable)
       const cyclesForThisYear = (month + 1) + parseInt(cyclesAvailable)
 
-      let firstCycle = await Cycle.aggregate([dateAggregate(2018, 1, 1)])
+      let firstCycle = await Cycle.aggregate([dateAggregate(2018, 1, 4)])
       firstCycle = firstCycle[0]
 
       expect(moment.utc(firstCycle.dateEnd).year()).equals(2018)
       expect(moment.utc(firstCycle.dateEnd).month() + 1).equals(1)
-      expect(moment.utc(firstCycle.dateEnd).date()).equals(7)
+      expect(moment.utc(firstCycle.dateEnd).date()).equals(10)
     })
   })
 

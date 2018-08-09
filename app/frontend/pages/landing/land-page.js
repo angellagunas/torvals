@@ -210,7 +210,7 @@ class LandPage extends Component {
                     a tomar mejores decisiones empresariales y a responder de maner más ágil.
                   </h2>
                 </div>
-                <div className='column'>
+                <div className='column has-35-margin-top'>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
@@ -236,13 +236,13 @@ class LandPage extends Component {
           </div>
         </section>
 
-        <section className='hero is-medium is-primary changeBack'>
+        {/* <section className='hero is-medium is-primary changeBack'>
           <div className='hero-body'>
             <div className='container has-text-centered comments'>
               {this.getComments()}
             </div>
           </div>
-        </section>
+        </section> */}
 
         <Contact />
 

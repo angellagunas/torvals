@@ -52,6 +52,11 @@ const organizationSchema = new Schema({
     users: { type: Boolean, default: false }
   },
 
+  alerts: [{
+    alert: { type: Schema.Types.ObjectId, ref: 'Alert' },
+    users: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+  }],
+
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
@@ -85,7 +90,8 @@ organizationSchema.methods.toPublic = function () {
     billingStart: this.billingStart,
     billingEnd: this.billingEnd,
     salesRep: this.salesRep,
-    wizardSteps: this.wizardSteps
+    wizardSteps: this.wizardSteps,
+    alerts: this.alerts
   }
 }
 
@@ -114,7 +120,8 @@ organizationSchema.methods.toAdmin = function () {
     billingStart: this.billingStart,
     billingEnd: this.billingEnd,
     salesRep: this.salesRep,
-    wizardSteps: this.wizardSteps
+    wizardSteps: this.wizardSteps,
+    alerts: this.alerts
   }
 }
 

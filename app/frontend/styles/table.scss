@@ -96,15 +96,16 @@
 }
 
 .colspan {
-    max-width: 1px;
-    overflow: visible;
-    text-align: center;
-    p {
-        margin-left: 170%;
-    }
-    p:last-of-type {
-        margin-left: 125%;
-    }
+  max-width: 1px;
+  overflow: visible;
+  text-align: center;
+  p {
+    margin-left: 120%;
+  }
+  p:last-of-type {
+    margin-left: 120%;
+    font-size: .75rem;
+  }
 }
 
 .col-border {
@@ -513,4 +514,14 @@ th {
             border-left: 1px solid #FBFBFB;
             text-align: left;
         }
+}
+
+.single {
+  p {
+    margin-left: 140%;
+  }
+  p:last-of-type {
+    margin-left: 125%;
+    font-size: .75rem;
+  }
 }

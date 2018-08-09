@@ -22,10 +22,10 @@ const task = new Task(async function (argv) {
   for (var project of projects) {
     if (project.rule) {
       let sales = project.rule.salesUpload
-      let forecast = project.rule.forecastCreation + sales
-      let adjustment = project.rule.rangeAdjustment + forecast
+      let forecast = project.rule.forecastCreation
+      let adjustment = project.rule.rangeAdjustment
       let adjustmenRequest = project.rule.rangeAdjustmentRequest + adjustment
-      let consolidate = project.rule.consolidation + adjustmenRequest
+      let consolidate = project.rule.consolidation + adjustment
 
       let date
       if (argv.date) {
