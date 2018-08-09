@@ -7,8 +7,8 @@ const { aws } = require('../config')
 const awsService = require('aws-sdk')
 const fs = require('fs-extra')
 const path = require('path')
-const Mailer = require('lib/mailer')
 const _ = require('lodash')
+const sendEmail = require('tasks/emails/send-email')
 
 const dataSetSchema = new Schema({
   name: { type: String, required: true },
@@ -536,33 +536,34 @@ dataSetSchema.methods.process = async function (res) {
 dataSetSchema.methods.sendFinishedConciliating = async function () {
   const { Project, DataSet } = require('models')
 
-  const email = new Mailer('adjustment-finished')
   const project = await Project.findOne({ '_id': this.project }).populate('organization')
-  var previousDatasets = []
-  project.datasets.map(ds => {
-    if (ds.dataset.toString() !== this._id.toString()) { previousDatasets.push(ds.dataset) }
+  const previousDatasets = project.datasets.filter(ds => {
+    if (ds.dataset.toString() !== this._id.toString()) {
+      return ds.dataset
+    }
   })
   const lastDataset = await DataSet.findOne({
-    _id: {$in: previousDatasets}
-  }, {}, {sort: {dateCreated: -1}})
+    _id: { $in: previousDatasets }
+  }, {}, { sort: {dateCreated: -1 }})
 
   if (this.source !== 'adjustment' || lastDataset.source !== 'adjustment' || lastDataset.status !== 'conciliated') { return }
 
   const subdomain = project.organization.slug
-  var host = process.env.APP_HOST
+  let host = process.env.APP_HOST
   host = host.slice(0, host.indexOf('://') + 3) + subdomain + '.' + host.slice(host.indexOf('://') + 3)
   const data = {
     name: this.project.name,
     url: `${host}/projects/${project.uuid}`
   }
-
-  await email.format(data)
-  await email.send({
-    recipient: {
-      email: this.createdBy.email,
-      name: this.createdBy.name
-    },
-    title: 'Ajustes conciliados'
+  const recipients = {
+    email: this.createdBy.email,
+    name: this.createdBy.name
+  }
+  sendEmail.run({
+    recipients,
+    args: data,
+    template: 'adjustment-finished',
+    title: 'Ajustes conciliados.'
   })
 }
 

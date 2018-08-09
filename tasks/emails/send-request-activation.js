@@ -2,7 +2,7 @@
 require('../../config')
 
 const Task = require('lib/task')
-const Mailer = require('lib/mailer')
+const sendEmail = require('tasks/emails/send-email')
 
 const task = new Task(async function (argv) {
   const {
@@ -12,19 +12,20 @@ const task = new Task(async function (argv) {
     organization
   } = argv
 
-  const mailer = new Mailer('request-org-activation')
-
-  await mailer.format({
+  const data = {
     name,
     email,
     organization
-  })
+  }
 
-  await mailer.send({
-    recipient: {
-      email,
-      name
-    },
+  const recipients = {
+    email,
+    name
+  }
+  sendEmail.run({
+    recipients,
+    args: data,
+    template: 'request-org-activation',
     title: 'Confirmación de requerimiento de activación recibido.'
   })
 
