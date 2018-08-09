@@ -537,11 +537,9 @@ dataSetSchema.methods.sendFinishedConciliating = async function () {
   const { Project, DataSet } = require('models')
 
   const project = await Project.findOne({ '_id': this.project }).populate('organization')
-  var previousDatasets = []
-  // TODO: Refactor this.
-  project.datasets.map(ds => {
+  const previousDatasets = project.datasets.filter(ds => {
     if (ds.dataset.toString() !== this._id.toString()) {
-      previousDatasets.push(ds.dataset)
+      return ds.dataset
     }
   })
   const lastDataset = await DataSet.findOne({
@@ -551,7 +549,7 @@ dataSetSchema.methods.sendFinishedConciliating = async function () {
   if (this.source !== 'adjustment' || lastDataset.source !== 'adjustment' || lastDataset.status !== 'conciliated') { return }
 
   const subdomain = project.organization.slug
-  var host = process.env.APP_HOST
+  let host = process.env.APP_HOST
   host = host.slice(0, host.indexOf('://') + 3) + subdomain + '.' + host.slice(host.indexOf('://') + 3)
   const data = {
     name: this.project.name,
