@@ -543,8 +543,8 @@ dataSetSchema.methods.sendFinishedConciliating = async function () {
     }
   })
   const lastDataset = await DataSet.findOne({
-    _id: {$in: previousDatasets}
-  }, {}, {sort: {dateCreated: -1}})
+    _id: { $in: previousDatasets }
+  }, {}, { sort: {dateCreated: -1 }})
 
   if (this.source !== 'adjustment' || lastDataset.source !== 'adjustment' || lastDataset.status !== 'conciliated') { return }
 
