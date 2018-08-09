@@ -16,7 +16,7 @@ class ImportUsers extends Component {
         sendEmail: {'ui:widget': CheckboxWidget}
       },
       formData: {
-        sendEmail: false
+        sendEmail: true
       }
     }
 

@@ -75,6 +75,7 @@ class UserForm extends Component {
   }
 
   render () {
+    console.log(this.props.initialState)
     const currentUser = tree.get('user')
 
     var schema = {
