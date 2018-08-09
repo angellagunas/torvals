@@ -17,11 +17,27 @@ class UserForm extends Component {
     super(props)
 
     this.state = {
-      formData: this.props.initialState,
+      formData: this.getData(),
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
       projects: []
     }
+
+  }
+
+  getData(){
+    let data = this.props.initialState
+
+    if (data.roleDetail.slug === 'manager-level-1') {
+      let org = tree.get('user').currentOrganization
+      data.organizations.map(item => {
+        if (item.organization.uuid === org.uuid) {
+          data.project = item.defaultProject.uuid
+        }
+      })
+    }
+
+    return data
   }
 
   errorHandler (e) {}
@@ -38,7 +54,7 @@ class UserForm extends Component {
     this.setState({
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      formData: this.props.initialState
+      formData: this.getData()
     })
   }
 
@@ -75,7 +91,6 @@ class UserForm extends Component {
   }
 
   render () {
-    console.log(this.props.initialState)
     const currentUser = tree.get('user')
 
     var schema = {
