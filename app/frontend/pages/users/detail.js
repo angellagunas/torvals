@@ -346,7 +346,11 @@ class UserDetail extends Component {
                   {
                     path: '/manage/users-groups',
                     label: 'Usuarios',
-                    current: false
+                    current: false,
+                    onclick: (e) => { 
+                      e.preventDefault() 
+                      this.props.selectUser()
+                    }
                   },
                   {
                     path: '/manage/users',
@@ -457,18 +461,3 @@ class UserDetail extends Component {
 }
 
 export default UserDetail
-
-/* UserDetail.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedUserDetail = branch({}, UserDetail)
-
-export default Page({
-  path: '/manage/users/:uuid',
-  title: 'User details',
-  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
-  exact: true,
-  validate: [loggedIn, verifyRole],
-  component: branchedUserDetail
-}) */

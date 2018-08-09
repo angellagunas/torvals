@@ -52,7 +52,7 @@ class GroupsDetail extends Component {
           return (
             <div>
               {row.users.length}
-              {row.users.length > 0 && <GroupUsers group={row} />}
+              {row.users.length > 0 && <GroupUsers changeTab={(tab) => this.props.changeTab(tab)} group={row} />}
             </div>
           )
         }

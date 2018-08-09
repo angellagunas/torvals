@@ -41,6 +41,8 @@ module.exports = new Route({
       userData.role = currentRole._id
     }
 
+    userData.role = await Role.findOne({ uuid: userData.role })
+    
     if (!userData.role) {
       let defaultRole = await Role.findOne({isDefault: true})
       if (!defaultRole) {
@@ -75,21 +77,6 @@ module.exports = new Route({
     var group = userData.group
     userData.group = undefined
     const user = await User.register(userData)
-
-    var currentRole
-    var currentOrganization
-
-    if (ctx.state.organization) {
-      currentOrganization = ctx.state.user.organizations.find(orgRel => {
-        return ctx.state.organization._id.equals(orgRel.organization._id)
-      })
-
-      if (currentOrganization) {
-        const role = await Role.findOne({_id: currentOrganization.role})
-
-        currentRole = role
-      }
-    }
 
     if (group) {
       group = await Group.findOne({'uuid': group})
