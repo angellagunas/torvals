@@ -332,9 +332,9 @@
       "subdomain": "[EN] Subdominio"
     },
     "emails": {
-      "activationGreeting2": "[EN] tu cuenta ha sida activada exitosamente!",
+      "activationGreeting2": "[EN] tu cuenta ha sido activada exitosamente!",
       "activationInfo1": "[EN] Ahora puedes usar tu cuenta para acceder",
-      "activationInfo2": "[EN] da click aqui",
+      "activationInfo2": "[EN] da click aquí.",
       "activationTitle": "[EN] Activación de cuenta",
       "createPass": "[EN] Crear contraseña",
       "greeting1": "[EN] ¡Hola",
