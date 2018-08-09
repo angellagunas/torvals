@@ -106,18 +106,18 @@ class TabAdjustment extends Component {
 
         if (currentRole !== 'manager-level-1') {
           cycles = cycles.map((item, key) => {
-            return item = { 
-              ...item, 
-              adjustmentRange: this.rules.rangesLvl2[key], 
+            return item = {
+              ...item,
+              adjustmentRange: this.rules.rangesLvl2[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
             }
           })
         }
         else {
           cycles = cycles.map((item, key) => {
-            return item = { 
-              ...item, 
-              adjustmentRange: this.rules.ranges[key], 
+            return item = {
+              ...item,
+              adjustmentRange: this.rules.ranges[key],
               name: moment.utc(item.dateStart).format('MMMM D') + ' - ' + moment.utc(item.dateEnd).format('MMMM D')
             }
           })
@@ -704,7 +704,7 @@ class TabAdjustment extends Component {
             </span>
             <FormattedMessage
               id="projects.limitInfo"
-              defaultMessage={`¡Debes pedir una solicitud de ajuste haciendo clic sobre el ícono rojo o el botón finalizar!`}
+              defaultMessage={`¡Debes pedir una solicitud de aprobación de ajuste haciendo click sobre el ícono rojo o el botón de finalizar!`}
             />
           </p>),
           5000,
