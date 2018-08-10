@@ -877,11 +877,7 @@ class RegisterModal extends Component {
     return (
       <div>
         <div>
-          <a className={this.props.buttonClass ? 'button is-success ' + this.props.buttonClass : 'button is-success'}
-            onClick={(e) => { this.showModal(e) }}>
-            Probar 30 días gratis
-          </a>
-          <div className={'modal register__modal' + this.state.className}>
+          <div className={'modal register__modal' + this.props.modalClass}>
             <div className='modal-background' />
             <div className='modal-content'>
               <section className='register_section'>
@@ -920,7 +916,7 @@ class RegisterModal extends Component {
               </center>
             </div>
 
-            <button className='modal-close is-large has-text-dark' aria-label='close' onClick={() => { this.hideModal() }} />
+            <button className='modal-close is-large has-text-dark' aria-label='close' onClick={() => { this.props.hideModal() }} />
           </div>
         </div>
       </div>

@@ -223,7 +223,7 @@ class OrganizationDetail extends Component {
       },
       {
         name: '3',
-        title: 'Idioma',
+        title: 'Textos',
         hide: false,
         disabled: false,
         content: (
