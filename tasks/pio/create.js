@@ -6,7 +6,7 @@ const Logger = require('lib/utils/logger')
 const Task = require('lib/task')
 const fs = require('fs')
 const path = require('path')
-const Mailer = require('lib/mailer')
+const sendEmail = require('tasks/emails/send-email')
 const replaceAll = require('underscore.string/replaceAll')
 
 const createApp = require('tasks/pio-server/create-app')
@@ -161,7 +161,6 @@ const task = new Task(async function (argv) {
 
   log.call('Done! Forecast generated')
 
-  const email = new Mailer('forecast-ready')
   let url = process.env.APP_HOST
   let base = url.split('://')
   base[1].replace('wwww', '')
@@ -175,26 +174,17 @@ const task = new Task(async function (argv) {
     org_logo: forecast.project.organization.profileUrl
   }
 
-  await email.format(dataMail)
-
-  const recipient = {
+  const recipients = {
     email: forecast.forecastGroup.createdBy.email,
     name: forecast.forecastGroup.createdBy.name
   }
-
-  let recipients = {
-    recipient: recipient
-  }
-
-  try {
-    await email.send({
-      ...recipients,
-      title: 'Se ha generado una predicción'
-    })
-  } catch (e) {
-    log.call(`Error sending email: ${e}`)
-  }
-
+  sendEmail.run({
+    recipients,
+    args: dataMail,
+    template: 'forecast-ready',
+    title: 'Se ha generado una predicción.'
+  })
+ 
   // CLEAN UP
   log.call('Cleaning up...')
   await cleanUp.run({
