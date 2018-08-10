@@ -1088,21 +1088,26 @@ class TabAdjustment extends Component {
 
   makeFilters() {
     let filters = []
+    let zeroFilters = 0
+    let numfilters = 0
+    const unwantedList = [
+      'cycles',
+      'channels',
+      'salesCenters',
+      'categories',
+      'products',
+      'producto',
+      'precio'
+    ]
     for (const key in this.state.filters) {
       if (this.state.filters.hasOwnProperty(key)) {
         const element = this.state.filters[key];
-        const unwantedList = [
-          'cycles',
-          'channels',
-          'salesCenters',
-          'categories',
-          'products',
-          'producto',
-          'precio'
-        ]
+        
         if (unwantedList.includes(key)) {
           continue
         }
+        
+        numfilters++
 
         if(element.length === 1){
           filters.push(
@@ -1113,7 +1118,7 @@ class TabAdjustment extends Component {
             </div>
           )
         }
-        else{
+        else if(element.length > 1){
         filters.push(
           <div key={key} className='column is-narrow'>
             <Select
@@ -1127,9 +1132,27 @@ class TabAdjustment extends Component {
             />
           </div>
         )
-      }
+        }
+        else if (element.length === 0){
+          zeroFilters++
+        }
       }
     }
+
+    if(zeroFilters === numfilters){
+      let msg = 'No hay información disponible'
+
+      if (currentRole === 'manager-level-1' || currentRole === 'manager-level-2'){
+        msg = '¡No tienes catálogos asignados! Por favor contacta a tu supervisor.'
+      }
+
+      this.setState({
+        error: true,
+        filtersLoading: false,
+        errorMessage: msg
+      })
+    }
+
     return filters
   }
 
@@ -1742,39 +1765,50 @@ class TabAdjustment extends Component {
                   </h1>
                   {this.getModifyButtons()}
                 </section>
-                {
-                  !this.state.byWeek ?
+                  {
+                    !this.state.byWeek ?
 
-                    <ProductTable
-                      show={this.showByWeek}
-                      currentRole={currentRole}
-                      data={this.state.filteredData}
-                      checkAll={this.checkAll}
-                      toggleCheckbox={this.toggleCheckbox}
-                      changeAdjustment={this.changeAdjustment}
-                      generalAdjustment={this.state.generalAdjustment}
-                      adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
-                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
-                      rules={this.rules}
-                    />
-                    :
+                      this.state.filteredData.length > 0 ?
 
-                    <WeekTable
-                      show={this.showByProduct}
-                      currentRole={currentRole}
-                      data={this.state.filteredData}
-                      checkAll={this.checkAll}
-                      toggleCheckbox={this.toggleCheckbox}
-                      changeAdjustment={this.changeAdjustment}
-                      generalAdjustment={this.state.generalAdjustment}
-                      adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
-                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
-                    />
-                }
-              </div>
-              :
+                        <ProductTable
+                          show={this.showByWeek}
+                          currentRole={currentRole}
+                          data={this.state.filteredData}
+                          checkAll={this.checkAll}
+                          toggleCheckbox={this.toggleCheckbox}
+                          changeAdjustment={this.changeAdjustment}
+                          generalAdjustment={this.state.generalAdjustment}
+                          adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
+                          handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
+                          handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
+                          rules={this.rules}
+                        />
+                        :
+                        <div className='section has-text-centered subtitle has-text-primary'>
+                          No hay productos
+                        </div>
+                      :
+
+                      this.state.filteredData.length > 0 ?
+                        <WeekTable
+                          show={this.showByProduct}
+                          currentRole={currentRole}
+                          data={this.state.filteredData}
+                          checkAll={this.checkAll}
+                          toggleCheckbox={this.toggleCheckbox}
+                          changeAdjustment={this.changeAdjustment}
+                          generalAdjustment={this.state.generalAdjustment}
+                          adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
+                          handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
+                          handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
+                        />
+                        :
+                        <div className='section has-text-centered subtitle has-text-primary'>
+                          No hay productos
+                        </div>
+                  }
+                </div>
+                :
                 <div className='section has-text-centered subtitle has-text-primary'>
                   <FormattedMessage
                     id="projects.emtyRows"

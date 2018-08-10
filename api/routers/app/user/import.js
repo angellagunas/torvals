@@ -2,12 +2,15 @@ const Route = require('lib/router/route')
 const {User, Role, Project} = require('models')
 const parse = require('csv-parse/lib/sync')
 const lov = require('lov')
+const crypto = require('crypto')
+const slugify = require('underscore.string/slugify')
 
 module.exports = new Route({
   method: 'post',
   path: '/import',
   handler: async function (ctx) {
     const dataType = ctx.request.body.file.split(',')[0].split(';')[0]
+    const sendEmail = ctx.request.body.sendEmail
 
     if (dataType === 'data:') {
       const fileName = ctx.request.body.file.split(',')[0].split(';')[1]
@@ -19,16 +22,15 @@ module.exports = new Route({
       ctx.throw(400, '¡El archivo tiene que ser en formato csv!')
     }
 
-    var buf = Buffer.from(ctx.request.body.file.split(',')[1], 'base64')
-    var data = parse(buf.toString('utf-8'), {columns: true})
+    let buf = Buffer.from(ctx.request.body.file.split(',')[1], 'base64')
+    let data = parse(buf.toString('utf-8'), {columns: true})
 
     const schema = lov.array().required().items(
       lov.object().keys({
         email: lov.string().required(),
-        password: lov.string().required(),
+        password: lov.string(),
         name: lov.string().required(),
-        screenName: lov.string().required(),
-        roleSlug: lov.string().required()
+        role: lov.string().required()
       })
     )
 
@@ -37,44 +39,66 @@ module.exports = new Route({
     if (result.error) {
       ctx.throw(400, result.error)
     }
-    var created = 0
-    var projectError = 0
-    for (var d of data) {
+    let created = 0
+    let existing = 0
+    let projectError = 0
+    for (let d of data) {
       let user = await User.findOne({'email': d.email})
       if (!user) {
-        let role = await Role.findOne({'slug': d.roleSlug})
+        if (!d.password || sendEmail) {
+          d.password = crypto.randomBytes(15).toString('base64')
+        }
+
+        let role = await Role.findOne({'slug': slugify(d.role)})
         if (role) {
-          if (d.roleSlug === 'manager-level-1') {
-            let project = await Project.findOne({'externalId': d.projectExternalId})
+          if (role.slug === 'manager-level-1') {
+            let project = await Project.findOne({'uuid': d.projectId})
             if (project) {
-              await User.create({
+              let user = await User.create({
                 email: d.email,
                 password: d.password,
                 name: d.name,
-                screenName: d.screenName,
+                screenName: d.name,
                 organizations: [{organization: ctx.state.organization._id, role: role._id, defaultProject: project._id}]
               })
               created++
+
+              if (sendEmail) {
+                await user.sendInviteEmail()
+              }
             } else {
               projectError++
             }
           } else {
-            await User.create({
+            let user = await User.create({
               email: d.email,
               password: d.password,
               name: d.name,
-              screenName: d.screenName,
+              screenName: d.name,
               organizations: [{organization: ctx.state.organization._id, role: role._id}]
             })
+
+            if (sendEmail) {
+              await user.sendInviteEmail()
+            }
+
             created++
           }
         }
       }
+
+      if (user) {
+        existing++
+      }
     }
-    var projectMessage = ''
+    let projectMessage = ''
     if (projectError) {
-      projectMessage = `, Ha ocurrido un error con ${projectError} usuarios: Proyecto inválido`
+      projectMessage = `, Ha ocurrido un error con ${projectError} usuarios: Proyecto inválido.`
     }
-    ctx.body = {message: `¡Se han creado ${created} usuarios satisfactoriamente!` + projectMessage}
+    let existingMessage = ''
+    if (existing) {
+      existingMessage = ` Otros ${existing} usuarios ya existían y no se modificaron.`
+    }
+    ctx.body = {message: `¡Se han creado ${created} usuarios satisfactoriamente!${projectMessage}${existingMessage}`}
   }
 })

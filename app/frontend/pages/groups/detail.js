@@ -96,26 +96,7 @@ class GroupDetail extends Component {
         'property': 'email',
         'default': 'N/A',
         'sortable': true
-      },
-      /* {
-        'title': 'Acciones',
-        formatter: (row) => {
-          if (currentRole === 'consultor-level-3' || currentRole === 'consultor-level-2') {
-            return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-              <span className='icon is-small'>
-                <i className='fa fa-eye' />
-              </span>
-            </Link>
-          } else {
-            return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
-              <span className='icon is-small'>
-                <i className='fa fa-pencil' />
-              </span>
-            </Link>
-
-          }
-        }
-      } */
+      }
     ]
   }
 
@@ -321,7 +302,11 @@ class GroupDetail extends Component {
                   {
                     path: '/manage/groups',
                     label: 'Grupos', //TODO: translate
-                    current: true
+                    current: false,
+                    onclick: (e) => {
+                      e.preventDefault()
+                      this.props.selectGroup()
+                    }
                   },
                   {
                     path: '/manage/groups',
@@ -507,17 +492,3 @@ class GroupDetail extends Component {
 }
 
 export default GroupDetail
-/* GroupDetail.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedGroupDetail = branch({groups: 'groups'}, GroupDetail)
-
-export default Page({
-  path: '/manage/groups/:uuid',
-  title: 'Detalles de grupo',
-  exact: true,
-  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
-  validate: [loggedIn, verifyRole],
-  component: branchedGroupDetail
-}) */

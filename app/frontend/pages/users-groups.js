@@ -7,6 +7,17 @@ import UsersDetail from './users/users-detail'
 import GroupsDetail from './groups/groups-detail'
 
 class UsersGroups extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      tab: 'users'
+    }
+  }
+  
+  changeTab(tab){
+    this.setState({tab: tab})
+  }
+
   render () {
     let org = tree.get('user').currentOrganization
     let tabs = [{
@@ -15,7 +26,7 @@ class UsersGroups extends Component {
       hide: false,
       reload: true,
       content: (
-        <UsersDetail />
+        <UsersDetail changeTab={(tab) => this.changeTab(tab)} />
             )
     },
     {
@@ -24,7 +35,7 @@ class UsersGroups extends Component {
       hide: false,
       reload: true,
       content: (
-        <GroupsDetail />
+        <GroupsDetail changeTab={(tab) => this.changeTab(tab)} />
         )
     }
     ]
@@ -33,8 +44,9 @@ class UsersGroups extends Component {
         <Tabs
           tabTitle={org.name}
           tabs={tabs}
-          selectedTab={'users'}
+          selectedTab={this.state.tab}
           className='is-fullwidth'
+          onChangeTab={(tab) => this.setState({ tab: tab })}
           />
       </div>
     )
