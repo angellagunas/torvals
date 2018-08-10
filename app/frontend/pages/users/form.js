@@ -202,6 +202,11 @@ class UserForm extends Component {
       }
     }
 
+    const currentInfo = this.state.formData.organizations.find((info) => info.organization.uuid === currentUser.currentOrganization.uuid)
+    if (currentInfo.defaultProject) {
+      this.state.formData.project = currentInfo.defaultProject.uuid
+    }
+
     return (
       <div>
         <BaseForm
