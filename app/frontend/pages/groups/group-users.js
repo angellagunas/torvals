@@ -13,6 +13,13 @@ class GroupUsers extends Component {
     }
     this.currentRole = tree.get('user').currentRole.slug
   }
+
+  selectUser(user) {
+    tree.set('userDetail', user)
+    tree.commit()
+    this.props.changeTab('users')
+  }
+  
   getColumns () {
     return [
       {
@@ -30,12 +37,12 @@ class GroupUsers extends Component {
       {
         'title': 'Acciones',
         formatter: (row) => {
-          return <Link className='button is-primary' to={'/manage/users/' + row.uuid}>
+          return <button className='button is-primary' onClick={() => this.selectUser(row)} >
                   <span className='icon is-small'>
-              <i className={this.currentRole === 'consultor-level-3' || this.currentRole === 'consultor-level-2'
+                    <i className={this.currentRole === 'consultor-level-3' || this.currentRole === 'consultor-level-2'
                 ? 'fa fa-eye' : 'fa fa-pencil'} />
                   </span>
-                </Link>
+                </button>
         }
       }
     ]

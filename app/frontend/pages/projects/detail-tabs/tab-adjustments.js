@@ -1549,39 +1549,50 @@ class TabAdjustment extends Component {
                   </h1>
                   {this.getModifyButtons()}
                 </section>
-                {
-                  !this.state.byWeek ?
+                  {
+                    !this.state.byWeek ?
 
-                    <ProductTable
-                      show={this.showByWeek}
-                      currentRole={currentRole}
-                      data={this.state.filteredData}
-                      checkAll={this.checkAll}
-                      toggleCheckbox={this.toggleCheckbox}
-                      changeAdjustment={this.changeAdjustment}
-                      generalAdjustment={this.state.generalAdjustment}
-                      adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
-                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
-                      rules={this.rules}
-                    />
-                    :
+                      this.state.filteredData.length > 0 ?
 
-                    <WeekTable
-                      show={this.showByProduct}
-                      currentRole={currentRole}
-                      data={this.state.filteredData}
-                      checkAll={this.checkAll}
-                      toggleCheckbox={this.toggleCheckbox}
-                      changeAdjustment={this.changeAdjustment}
-                      generalAdjustment={this.state.generalAdjustment}
-                      adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
-                      handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
-                      handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
-                    />
-                }
-              </div>
-              :
+                        <ProductTable
+                          show={this.showByWeek}
+                          currentRole={currentRole}
+                          data={this.state.filteredData}
+                          checkAll={this.checkAll}
+                          toggleCheckbox={this.toggleCheckbox}
+                          changeAdjustment={this.changeAdjustment}
+                          generalAdjustment={this.state.generalAdjustment}
+                          adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
+                          handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
+                          handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
+                          rules={this.rules}
+                        />
+                        :
+                        <div className='section has-text-centered subtitle has-text-primary'>
+                          No hay productos
+                        </div>
+                      :
+
+                      this.state.filteredData.length > 0 ?
+                        <WeekTable
+                          show={this.showByProduct}
+                          currentRole={currentRole}
+                          data={this.state.filteredData}
+                          checkAll={this.checkAll}
+                          toggleCheckbox={this.toggleCheckbox}
+                          changeAdjustment={this.changeAdjustment}
+                          generalAdjustment={this.state.generalAdjustment}
+                          adjustmentRequestCount={Object.keys(this.state.pendingDataRows).length}
+                          handleAdjustmentRequest={(row) => { this.props.handleAdjustmentRequest(row) }}
+                          handleAllAdjustmentRequest={() => { this.props.handleAllAdjustmentRequest() }}
+                        />
+                        :
+                        <div className='section has-text-centered subtitle has-text-primary'>
+                          No hay productos
+                        </div>
+                  }
+                </div>
+                :
                 <div className='section has-text-centered subtitle has-text-primary'>
                   No hay información
                 </div>
