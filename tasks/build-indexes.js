@@ -35,6 +35,7 @@ const task = new Task(async function (argv) {
   })
 
   fs.writeFileSync(appIndexDist, appCompileIndex)
+  return true
 })
 
 if (require.main === module) {

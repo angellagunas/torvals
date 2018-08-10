@@ -7,8 +7,7 @@ const assert = require('http-assert')
 const { aws } = require('../config')
 const awsService = require('aws-sdk')
 const moment = require('moment')
-
-const Mailer = require('lib/mailer')
+const sendEmail = require('tasks/emails/send-email')
 
 const SALT_WORK_FACTOR = parseInt(process.env.SALT_WORK_FACTOR)
 
@@ -264,18 +263,19 @@ userSchema.methods.sendActivationEmail = async function () {
     type: 'activation'
   })
 
-  const email = new Mailer('activation')
-
   const data = this.toJSON()
   data.url = process.env.APP_HOST + '/emails/activate?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
+  data.url = `${process.env.APP_HOST}/emails/activate?token=${userToken.key}&email=${encodeURIComponent(this.email)}`
 
-  await email.format(data)
-  await email.send({
-    recipient: {
-      email: this.email,
-      name: this.name
-    },
-    title: 'Activación a Orax'
+  const recipients = {
+    email: this.email,
+    name: this.name
+  }
+  sendEmail.run({
+    recipients,
+    args: data,
+    template: 'activation',
+    title: 'Activación a Orax.'
   })
 }
 
@@ -297,56 +297,55 @@ userSchema.methods.sendInviteEmail = async function () {
     type: 'invite'
   })
 
-  const email = new Mailer('invite')
-
   const data = this.toJSON()
-  data.url = process.env.APP_HOST + '/emails/invite?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
+  data.url = `${process.env.APP_HOST}/emails/invite?token=${userToken.key}&email=${encodeURIComponent(this.email)}`
 
-  await email.format(data)
-  await email.send({
-    recipient: {
-      email: this.email,
-      name: this.name
-    },
-    title: 'Invitación a Orax'
+  const recipients = {
+    email: this.email,
+    name: this.name
+  }
+  sendEmail.run({
+    recipients,
+    args: data,
+    template: 'invite',
+    title: 'Invitación a Orax.'
   })
 }
 
 userSchema.methods.sendResetPasswordEmail = async function (admin) {
   const UserToken = mongoose.model('UserToken')
-  let userToken = await UserToken.create({
+  const userToken = await UserToken.create({
     user: this._id,
     validUntil: moment().add(10, 'days').utc(),
     type: 'reset'
   })
   let url = process.env.APP_HOST
-
   if (admin) url = process.env.ADMIN_HOST + process.env.ADMIN_PREFIX
 
-  const email = new Mailer('reset-password')
-
   const data = this.toJSON()
-  data.url = url + '/emails/reset?token=' + userToken.key + '&email=' + encodeURIComponent(this.email)
+  data.url = `${url}/emails/reset?token=${userToken.key}&email=${encodeURIComponent(this.email)}`
 
-  await email.format(data)
-  await email.send({
-    recipient: {
+  sendEmail.run({
+    args: data,
+    recipients: {
       email: this.email,
       name: this.name
     },
+    template: 'reset-password',
     title: 'Restablecer contraseña en Orax'
   })
 }
 
 userSchema.methods.sendPasswordConfirmation = async function () {
-  const email = new Mailer('confirm-password')
-  await email.format()
-  await email.send({
-    recipient: {
-      email: this.email,
-      name: this.name
-    },
-    title: 'Cambio de contraseña en Orax'
+  const recipients = {
+    email: this.email,
+    name: this.name
+  }
+  sendEmail.run({
+    recipients,
+    args: {},
+    template: 'confirm-password',
+    title: 'Cambio de contraseña en Orax.'
   })
 }
 

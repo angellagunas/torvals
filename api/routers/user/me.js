@@ -8,8 +8,8 @@ module.exports = new Route({
     if (ctx.state.user) {
       await ctx.state.user.populate('language').execPopulate()
       let user = ctx.state.user.toPublic()
-      user.language = ctx.state.user.language.uuid
-      user.languageCode = ctx.state.user.language.code
+      user.language = ctx.state.user.language ? ctx.state.user.language.uuid : undefined
+      user.languageCode = ctx.state.user.language ? ctx.state.user.language.code : undefined
 
       const data = {
         loggedIn: true,

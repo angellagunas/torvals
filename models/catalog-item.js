@@ -60,13 +60,14 @@ catalogItemSchema.index({ catalog: 1, externalId: 1, organization: 1 }, {backgro
 catalogItemSchema.statics.filterByUserRole = async function (filters, role, user) {
   let items = await this.find(filters).select({'_id': 1, 'groups': 1})
 
-  if (
-    role === 'manager-level-1' ||
-    role === 'manager-level-2' ||
-    role === 'manager-level-3' ||
-    role === 'consultor-level-3' ||
-    role === 'consultor-level-2'
-  ) {
+  const permissions = [
+    'manager-level-1' ,
+    'manager-level-2',
+    'manager-level-3',
+    'consultor-level-2' ,
+    'consultor-level-3' 
+  ]
+  if (permissions.includes(role)) {
     items = items
       .filter(item => {
         let checkExistence = item.groups.some(function (e) {
