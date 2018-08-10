@@ -328,22 +328,29 @@ class AdminLayout extends Component {
                 <p className='is-padding-bottom-small'>
                   <strong>Tu cuenta se encuentra {orgStatus[this.state.user.currentOrganization.status]}.</strong>
                 </p>
+                {this.state.user.currentOrganization.status !== 'activationPending' &&                
                 <p className='is-padding-bottom-small'>
                   Para poder continuar usando Orax necesitas solicitar una activación.
                   Tus datos e información quedarán guardados.
                 </p>
+                }
                 <BillingForm org={this.state.user.currentOrganization} isModal />
                 <br />
+                {this.state.user.currentOrganization.status !== 'activationPending' &&
+                <div>
                 <div className={'message is-primary'}>
                   <div className='message-body is-size-7 has-text-centered'>
                     Al momento de solicitar una activación de cuenta, un agente recibirá tus datos y se comunicará posteriormente.
                   </div>
                 </div>
+                
                 <button className='button is-success is-pulled-right'
                   disabled={!!this.state.isLoading}
                   onClick={() => this.requestActivation()} >
                   Solicitar activación
-              </button>
+                </button>
+                </div>
+                }
               </section>
 
             </div>

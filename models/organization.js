@@ -60,7 +60,8 @@ const organizationSchema = new Schema({
   dateCreated: { type: Date, default: moment.utc },
   uuid: { type: String, default: v4 },
   isDeleted: { type: Boolean, default: false },
-  isConfigured: { type: Boolean, default: false }
+  isConfigured: { type: Boolean, default: false },
+  accountOwner: { type: Schema.Types.ObjectId, ref: 'User' }
 }, { usePushEach: true })
 
 organizationSchema.plugin(dataTables)
@@ -91,7 +92,8 @@ organizationSchema.methods.toPublic = function () {
     billingEnd: this.billingEnd,
     salesRep: this.salesRep,
     wizardSteps: this.wizardSteps,
-    alerts: this.alerts
+    alerts: this.alerts,
+    accountOwner: this.accountOwner    
   }
 }
 
@@ -121,14 +123,15 @@ organizationSchema.methods.toAdmin = function () {
     billingEnd: this.billingEnd,
     salesRep: this.salesRep,
     wizardSteps: this.wizardSteps,
-    alerts: this.alerts
+    alerts: this.alerts,
+    accountOwner: this.accountOwner
   }
 }
 
 organizationSchema.methods.endTrialPeriod = async function () {
   const User = mongoose.model('User')
-  const owner = await User.findOne({'organizations.organization': this._id, accountOwner: true})
-  assert(owner, 401, 'La orgnaización o tiene dueño')
+  const owner = await User.findOne({_id: this.accountOwner})
+  assert(owner, 401, 'La organización no tiene dueño')
 
   this.status = 'inactive'
   await this.save()

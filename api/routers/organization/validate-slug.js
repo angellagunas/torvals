@@ -44,7 +44,8 @@ module.exports = new Route({
     }
 
     const org = await Organization.create({
-      slug: slug
+      slug: slug,
+      accountOwner: user._id
     })
 
     let role = await Role.findOne({slug: 'orgadmin'})

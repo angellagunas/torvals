@@ -254,12 +254,8 @@ class LogInButton extends Component {
 
     return (
       <div>
-        <a className='button is-primary is-inverted is-outlined'
-          onClick={(e) => { this.showModal(e) }}>
-          Iniciar sesión
-        </a>
-        <div className={'modal' + this.state.className}>
-          <div className='modal-background' onClick={() => { this.hideModal() }} />
+        <div className={'modal' + this.props.modalClass}>
+          <div className='modal-background' onClick={() => { this.props.hideModal() }} />
           <div className='modal-content land-login'>
             <section>
               <div className='card-image'>
@@ -303,7 +299,7 @@ class LogInButton extends Component {
               </div>
             </section>
           </div>
-          <button className='modal-close login is-large has-text-dark' aria-label='close' onClick={() => { this.hideModal() }} />
+          <button className='modal-close login is-large has-text-dark' aria-label='close' onClick={() => { this.props.hideModal() }} />
 
         </div>
       </div>

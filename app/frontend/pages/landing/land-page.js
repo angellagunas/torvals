@@ -15,7 +15,9 @@ class LandPage extends Component {
       navshadow: '',
       actualComment: 0,
       fade: 'fadeIn',
-      menu: ''
+      menu: '',
+      login: '',
+      register: ''
     }
     this.handleScroll = this.handleScroll.bind(this)
     this.comments = []
@@ -126,6 +128,30 @@ class LandPage extends Component {
     })
   }
 
+  showLogin() {
+    this.setState({
+      login: ' is-active'
+    })
+  }
+
+  hideLogin() {
+    this.setState({
+      login: ''
+    })
+  }
+
+  showReg() {
+    this.setState({
+      register: ' is-active'
+    })
+  }
+
+  hideReg() {
+    this.setState({
+      register: ''
+    })
+  }
+
   render () {
     return (
       <div className='landing'>
@@ -151,16 +177,20 @@ class LandPage extends Component {
                 </a>
               </div>
               <div className='navbar-end'>
-
-                {this.state.isDown
-                  ? <div className='navbar-item'>
-                    <RegisterModal />
+                  <div className={this.state.isDown ? 'navbar-item': 'is-hidden'}>
+                    <a className={this.props.buttonClass ? 'button is-success ' + this.props.buttonClass : 'button is-success'}
+                      onClick={(e) => { this.showReg(e) }}>
+                      Probar 30 días gratis
+                    </a>
                   </div>
 
-                  : <div className='navbar-item'>
-                    <LogInButton />
+                  <div className={!this.state.isDown ? 'navbar-item' : 'is-hidden'}>
+                    <a className='button is-primary is-inverted is-outlined'
+                      onClick={(e) => { this.showLogin(e) }}>
+                      Iniciar sesión
+                    </a>
+                    
                   </div>
-                }
 
                 {!this.state.isDown &&
                   <div className='navbar-item'>
@@ -186,7 +216,10 @@ class LandPage extends Component {
                   <h2 className='subtitle'>
                     A partir de predicciones
                   </h2>
-                  <RegisterModal buttonClass='is-medium' />
+                  <a className='button is-success is-medium'
+                    onClick={(e) => { this.showReg(e) }}>
+                    Probar 30 días gratis
+                    </a>
                   <img className='landing-right-img is-hidden-mobile' src='/app/public/img/dash.jpg' />
 
                 </div>
@@ -247,6 +280,17 @@ class LandPage extends Component {
         <Contact />
 
         <Footer />
+
+        <LogInButton
+          modalClass={this.state.login}
+          showModal={() => this.showLogin()}
+          hideModal={() => this.hideLogin()} />
+
+        <RegisterModal 
+          modalClass={this.state.register}
+          showModal={() => this.showReg()}
+          hideModal={() => this.hideReg()} />
+          
       </div>
     )
   }
