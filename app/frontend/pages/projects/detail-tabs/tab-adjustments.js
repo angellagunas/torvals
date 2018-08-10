@@ -1027,21 +1027,26 @@ class TabAdjustment extends Component {
 
   makeFilters() {
     let filters = []
+    let zeroFilters = 0
+    let numfilters = 0
+    const unwantedList = [
+      'cycles',
+      'channels',
+      'salesCenters',
+      'categories',
+      'products',
+      'producto',
+      'precio'
+    ]
     for (const key in this.state.filters) {
       if (this.state.filters.hasOwnProperty(key)) {
         const element = this.state.filters[key];
-        const unwantedList = [
-          'cycles',
-          'channels',
-          'salesCenters',
-          'categories',
-          'products',
-          'producto',
-          'precio'
-        ]
+        
         if (unwantedList.includes(key)) {
           continue
         }
+        
+        numfilters++
 
         if(element.length === 1){
           filters.push(
@@ -1052,7 +1057,7 @@ class TabAdjustment extends Component {
             </div>
           )
         }
-        else{
+        else if(element.length > 1){
         filters.push(
           <div key={key} className='column is-narrow'>
             <Select
@@ -1066,9 +1071,27 @@ class TabAdjustment extends Component {
             />
           </div>
         )
-      }
+        }
+        else if (element.length === 0){
+          zeroFilters++
+        }
       }
     }
+
+    if(zeroFilters === numfilters){
+      let msg = 'No hay información disponible'
+
+      if (currentRole === 'manager-level-1' || currentRole === 'manager-level-2'){
+        msg = '¡No tienes catálogos asignados! Por favor contacta a tu supervisor.'
+      }
+
+      this.setState({
+        error: true,
+        filtersLoading: false,
+        errorMessage: msg
+      })
+    }
+
     return filters
   }
 
