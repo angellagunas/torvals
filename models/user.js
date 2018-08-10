@@ -35,7 +35,6 @@ const userSchema = new Schema({
     region: { type: String }
   },
 
-  accountOwner: { type: Boolean, default: false },
   job: { type: String },
   phone: { type: String },
   isVerified: { type: Boolean, default: false },
