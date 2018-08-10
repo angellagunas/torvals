@@ -156,12 +156,15 @@ const task = new Task(
     firstStartDate = getFirstDate(firstStartDate, extraDate, seasonDuration)
 
     let seasonEndDate = subtract(add(firstStartDate, seasonDuration), durationToSubtract)
+    seasonEndDate = utc(seasonEndDate).endOf('day')
     let lastEndDate = await getLastEndDate(rule, extraDate)
+    lastEndDate = utc(lastEndDate).endOf('day')
 
     let periodNumber = 1
     let cycleNumber = 1
     let cycleStartDate = moment(firstStartDate)
     let tentativeCycleEndDate = moment(cycleStartDate).add(cycleDurationMoment).subtract(durationToSubtract)
+    tentativeCycleEndDate = utc(tentativeCycleEndDate).endOf('day')
     let firstEndDate = utc(tentativeCycleEndDate).date()
     let previousPeriodEndDate
 
@@ -177,6 +180,7 @@ const task = new Task(
       if (cycleInstance) {
         log.call(`Updating cycle ${cycleStartDate}`)
         cycleStartDate = add(utc(cycleInstance.dateEnd), durationToSubtract)
+        cycleStartDate = utc(cycleStartDate).startOf('day')
 
         tentativeCycleEndDate = utc(tentativeCycleEndDate).add(cycleDurationMoment)
 
@@ -200,6 +204,7 @@ const task = new Task(
 
       let periodStartDate = utc(cycleStartDate)
       let periodEndDate = utc(periodStartDate).add(periodDurationMoment).subtract(durationToSubtract)
+      periodEndDate = utc(periodEndDate).endOf('day')
 
       while (tentativeCycleEndDate.isSameOrAfter(periodStartDate)) {
         if (periodEndDate.isAfter(tentativeCycleEndDate) && !takeStart) break
@@ -216,12 +221,12 @@ const task = new Task(
           periodObj['dateEnd'] = seasonEndDate
           if (!await Period.findOne(periodObj)) await Period.create(periodObj)
 
-          tentativeCycleEndDate = moment.utc(format(tentativeCycleEndDate), 'YYYY-MM-DD')
+          tentativeCycleEndDate = moment.utc(format(tentativeCycleEndDate))
           if (utc(tentativeCycleEndDate).isAfter(utc(seasonEndDate))) {
             tentativeCycleEndDate = utc(tentativeCycleEndDate).subtract(cycleDurationMoment)
           }
 
-          previousPeriodEndDate = utc(seasonEndDate)
+          previousPeriodEndDate = utc(seasonEndDate).endOf('day')
           seasonEndDate = moment(seasonEndDate).add(seasonDuration)
           periodNumber = 1
 
@@ -244,6 +249,7 @@ const task = new Task(
       cycleNumber++
 
       cycleStartDate = utc(previousPeriodEndDate).add(durationToSubtract)
+      cycleStartDate = utc(cycleStartDate).startOf('day')
 
       if (utc(tentativeCycleEndDate).date() !== firstEndDate && cycle === 'm') {
         const endOfMonth = utc(tentativeCycleEndDate).endOf('month').date()

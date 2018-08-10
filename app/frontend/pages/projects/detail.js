@@ -22,7 +22,6 @@ import TabHistorical from './detail-tabs/tab-historical'
 import TabApprove from './detail-tabs/tab-approve'
 import CreateDataSet from './create-dataset'
 import TabAdjustment from './detail-tabs/tab-adjustments'
-// import Breadcrumb from '~base/components/base-breadcrumb'
 import TabAnomalies from './detail-tabs/tab-anomalies'
 import CreateProject from './create'
 
@@ -74,8 +73,6 @@ class ProjectDetail extends Component {
       })
     }
 
-    // await this.hasSaleCenter()
-    // await this.hasChannel()
     await this.load()
 
     this.setState({
@@ -829,34 +826,6 @@ class ProjectDetail extends Component {
 
     return (
       <div>
-        {
-          /* !testRoles('manager-level-1') &&
-          <Breadcrumb
-            path={[
-              {
-                path: '/',
-                label: 'Inicio',
-                current: false
-              },
-              {
-                path: '/projects',
-                label: 'Proyectos',
-                current: false
-              },
-              {
-                path: '/projects/',
-                label: 'Detalle',
-                current: true
-              },
-              {
-                path: '/projects/',
-                label: project.name,
-                current: true
-              }
-            ]}
-            align='left'
-          /> */
-        }
         <Tabs
           onChangeTab={(tab) => this.setState({ actualTab: tab})}
           tabTitle={project.name}
