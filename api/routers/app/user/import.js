@@ -59,7 +59,11 @@ module.exports = new Route({
                 password: d.password,
                 name: d.name,
                 screenName: d.name,
-                organizations: [{organization: ctx.state.organization._id, role: role._id, defaultProject: project._id}]
+                organizations: [{
+                  organization: ctx.state.organization._id,
+                  role: role._id,
+                  defaultProject: project._id
+                }]
               })
               created++
 
@@ -85,20 +89,51 @@ module.exports = new Route({
             created++
           }
         }
-      }
+      } else {
+        let actualOrg = user.organizations.find(item => {
+          return String(item.organization._id) === String(ctx.state.organization._id)
+        })
 
-      if (user) {
-        existing++
+        if (!actualOrg) {
+          let role = await Role.findOne({'slug': slugify(d.role)})
+          if (role) {
+            let data = {
+              organization: ctx.state.organization._id,
+              role: role._id
+            }
+
+            if (role.slug === 'manager-level-1') {
+              let project = await Project.findOne({'uuid': d.projectId})
+              if (project) {
+                data.defaultProject = project._id
+              } else {
+                projectError++
+                continue
+              }
+            }
+
+            user.organizations.push(data)
+            user.markModified('organizations')
+            user.save()
+            created++
+          }
+        } else {
+          existing++
+        }
       }
     }
+
     let projectMessage = ''
+
     if (projectError) {
       projectMessage = `, Ha ocurrido un error con ${projectError} usuarios: Proyecto inválido.`
     }
+
     let existingMessage = ''
     if (existing) {
       existingMessage = ` Otros ${existing} usuarios ya existían y no se modificaron.`
     }
+
     ctx.body = {message: `¡Se han creado ${created} usuarios satisfactoriamente!${projectMessage}${existingMessage}`}
   }
 })
