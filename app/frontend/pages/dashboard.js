@@ -511,12 +511,14 @@ class Dashboard extends Component {
   }
 
   async getDates() {
+    console.log(this.state.dateMax)
+    console.log(this.state.dateMin)
     let d = []
     let p = []
     let dateMin = moment.utc(this.state.dateMin)
     let dateMax = moment.utc(this.state.dateMax)
 
-    if (dateMin.isBefore(moment.utc('2017-01-01'))) {
+    if (dateMin.isBefore(moment.utc('2017-01-01')) && dateMax.isAfter(moment.utc('2017-01-01'))) {
       dateMin = moment.utc('2017-01-01')
     }
 
@@ -526,6 +528,8 @@ class Dashboard extends Component {
     }
 
     d.push(dateMin)
+
+    console.log(d)
 
     for (let i = 0; i < d.length; i++) {
       p.push({
