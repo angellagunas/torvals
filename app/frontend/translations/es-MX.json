@@ -1,17 +1,81 @@
 {
   "es-MX": {
+    "sideMenu": {
+      "dashboard": "Dashboard",
+      "admin": "Administración",
+      "org": "Organización",
+      "rules": "Reglas de Negocio",
+      "catalogs": "Catálogos",
+      "projects": "Proyectos",
+      "calendar": "Calendario Operativo",
+      "upload": "Cargar Archivos",
+      "reports": "Reportes",
+      "users": "Usuarios y Grupos",
+      "roles": "Roles",
+      "prices": "Precios",
+      "forecast": "Predicciones",
+      "uploadUsers": "Agregar Usuarios",
+      "reportStatus": "Estado de proyecto",
+      "reportHistoric": "Histórico de ajustes",
+      "reportDownloads": "Descargas"
+    },
+    "catalogs": {
+      "producto": "Producto",
+      "precio": "Precio",
+      "centro-de-venta": "Centro de venta",
+      "canal": "Canal",
+      "distrito": "Distrito",
+      "division": "División",
+      "gerencia": "Gerencia",
+      "region": "Región",
+      "marca": "Marca",
+      "categoria": "Categoría",
+      "ruta": "Ruta"
+    },
+    "login": {
+      "welcome": "Bienvenido a Orax",
+      "email": "Correo Electrónico",
+      "pass": "Contraseña",
+      "loginBtn": "Iniciar sesión",
+      "forgot": "¿Olvidó su contraseña?",
+      "select": "Selecciona una organización"
+    },
+    "resetPassword": {
+      "contentBtnText": "Solicitar restauración",
+      "contentTitle": "Proporciona tu correo electrónico para recibir un enlace y restablecer tu contraseña.",
+      "emailSend": "El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias."
+    },
+    "dashboard": {
+      "filtersTitle": "Filtros",
+      "salesTitle": "Venta Total",
+      "lastSalesTitle": "Venta Anterior",
+      "adjustmentsTitle": "Ajuste Total",
+      "perdictionTitle": "Predicción Total",
+      "showBy": "Mostrar por",
+      "units": "Unidades",
+      "price": "Precio",
+      "searchText": "Buscar",
+      "initialMonth": "Fecha de inicio",
+      "lastMonth": "Fecha de término",
+      "graphEmptyMsg": "No hay información disponible, intenta con otro filtro.",
+      "productEmptyMsg": "No hay información disponible, intenta con otro filtro.",
+      "selectAll": "Seleccionar Todos",
+      "try": "intenta de nuevo más tarde",
+      "unidentified": "No identificado",
+      "notAvailable": "No disponible",
+      "noFiltersMsg": "Error",
+      "tableLoading": "Cargando un momento por favor...",
+      "tableMsg": "Debes seleccionar por lo menos un proyecto",
+      "colProduct": "Producto",
+      "colForecast": "Predicción",
+      "colId": "Id",
+      "colAdjustment": "Ajuste",
+      "colSales": "Venta",
+      "colLast": "Venta anterior"
+    },
     "profile": {
       "form1Title": "Detalles",
       "form2Title": "Cambiar contraseña"
-    },
-    "selectOrg": {
-      "select": "Selecciona una organizacion"
-    },
-    "resetPassword": {
-      "contentBtnText": "Enviar link a la dirección de correo",
-      "contentTitle": "Necesitamos tu dirección de correo para enviarte un link de restablecimiento de la contraseña: ",
-      "emailSend": "El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias.",
-      "title": "Restabler contraseña"
     },
     "orgRules": {
       "alertBtn": "Actualizar Proyectos",
@@ -54,26 +118,6 @@
       "rulesRangeUnlimited": "ilimitado",
       "season": "Temporada",
       "title": "Establece tus ciclos y periodos de ajuste"
-    },
-    "dashboard": {
-      "adjustmentsTitle": "Ajuste total",
-      "filtersTitle": "Filtros",
-      "graphEmptyMsg": "No hay datos que mostrar, intente con otro filtro",
-      "initialMonth": "Mes inicial",
-      "lastMonth": "Mes final",
-      "lastSalesTitle": "Venta año anterior",
-      "noFiltersMsg": "Error",
-      "notAvailable": "No disponible",
-      "perdictionTitle": "Predicción total",
-      "price": "Precio",
-      "productEmptyMsg": "No hay productos que mostrar, intente con otro filtro",
-      "projectsTitle": "Proyectos",
-      "salesTitle": "Venta total",
-      "searchText": "Búsqueda general",
-      "showBy": "Mostrar por",
-      "tableLoading": "Cargando, un momento por favor",
-      "tableMsg": "Debes seleccionar al menos un proyecto",
-      "title": "Dashboard"
     },
     "carousel": {
       "next": "Siguiente",

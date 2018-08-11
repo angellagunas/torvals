@@ -5,7 +5,7 @@ import PropTypes from 'baobab-react/prop-types'
 import moment from 'moment'
 import tree from '~core/tree'
 import _ from 'lodash'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Link from '~base/router/link'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -17,6 +17,7 @@ import Checkbox from '~base/components/base-checkbox'
 import { toast } from 'react-toastify'
 import Wizard from './wizard/wizard';
 import Empty from '~base/components/empty'
+import { defaultCatalogs } from '~base/tools'
 
 class Dashboard extends Component {
   constructor (props) {
@@ -238,7 +239,7 @@ class Dashboard extends Component {
       } catch (e) {
         this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
         this.setState({
-          noData: e.message + ', intente más tarde' //TODO: translate
+          noData: e.message + ', ' + this.formatTitle('dashboard.try')
         })
       }
     }
@@ -274,7 +275,7 @@ class Dashboard extends Component {
     catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
-        noData: e.message + ', intente más tarde' //TODO: translate
+        noData: e.message + ', ' + this.formatTitle('dashboard.try')
       })
     }
   }
@@ -312,7 +313,7 @@ class Dashboard extends Component {
   getColumns () {
     let cols = [
       {
-        'title': 'Id',
+        'title': this.formatTitle('tables.colId'),
         'property': 'product.externalId',
         'default': 'N/A',
         'sortable': true,
@@ -321,7 +322,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Producto', //TODO: translate
+        'title': this.formatTitle('tables.colProduct'),
         'property': 'product.name',
         'default': 'N/A',
         'sortable': true,
@@ -330,7 +331,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Predicción', //TODO: translate
+        'title': this.formatTitle('tables.colForecast'),
         'property': 'prediction',
         'default': '0',
         'sortable': true,
@@ -344,7 +345,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Ajuste', //TODO: translate
+        'title': this.formatTitle('tables.colAdjustment'),
         'property': 'adjustment',
         'default': '0',
         'sortable': true,
@@ -357,7 +358,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Venta', //TODO: translate
+        'title': this.formatTitle('tables.colSales'),
         'property': 'sale',
         'default': '0',
         'sortable': true,
@@ -371,7 +372,7 @@ class Dashboard extends Component {
         }
       },
       {
-        'title': 'Venta año anterior', //TODO: translate
+        'title': this.formatTitle('tables.colLast'),
         'property': 'previousSale',
         'default': '0',
         'sortable': true,
@@ -614,7 +615,8 @@ class Dashboard extends Component {
         type: this.findName(key),
         objects: value,
         selectAll: true,
-        isOpen: true
+        isOpen: true,
+        slug: key
       }))
       .value()
 
@@ -679,6 +681,14 @@ class Dashboard extends Component {
     return count
   }
 
+  filterTitle(item){
+    let title = item.type
+    if (this.findInCatalogs(item.slug)) {
+      title = this.formatTitle('catalogs.' + item.slug)
+    }
+    return title
+  }
+
   makeFilters() {
     return this.state.catalogItems.map(item => {
       if (item.type !== 'Producto' && item.type !== 'Precio') {
@@ -691,7 +701,7 @@ class Dashboard extends Component {
                   <i className={item.isOpen
                     ? 'fa fa-plus' : 'fa fa-minus'} />
                 </span>
-                {item.type} <strong>{item.objects && item.objects.length}</strong>
+                {this.filterTitle(item)} <strong>{item.objects && item.objects.length}</strong>
               </a>
             </div>
             <aside className={item.isOpen
@@ -699,7 +709,7 @@ class Dashboard extends Component {
               <div>
                 <Checkbox
                   checked={item.selectAll}
-                  label={'Seleccionar Todos'} //TODO: translate
+                  label={this.formatTitle('dashboard.selectAll')}
                   handleCheckboxChange={(e, value) => {
                     this.checkAllItems(value, item.type)
                     this.getGraph()
@@ -715,8 +725,7 @@ class Dashboard extends Component {
                     if (obj.selected === undefined) {
                       obj.selected = true
                     }
-                    //TODO: translate
-                    let name = obj.name === 'Not identified' ? obj.externalId + ' (No identificado)' : obj.externalId + ' ' + obj.name
+                  let name = obj.name === 'Not identified' ? obj.externalId + ' ' + this.formatTitle('dashboard.unidentified') : obj.externalId + ' ' + obj.name
 
                     return (
                       <li key={obj.uuid}>
@@ -813,6 +822,21 @@ class Dashboard extends Component {
     }
   }
 
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
   render () {
     const user = this.context.tree.get('user')
 
@@ -862,28 +886,28 @@ class Dashboard extends Component {
 
     const graph = [
       {
-        label: 'Predicción', //TODO: translate
+        label: this.formatTitle('dashboard.perdictionTitle'),
         color: '#187FE6',
         data: this.state.graphData ?
         this.state.graphData.map((item) => { return item.prediction !== undefined ? item.prediction : null })
          : []
       },
       {
-        label: 'Ajuste', //TODO: translate
+        label: this.formatTitle('dashboard.adjustmentsTitle'),
         color: '#30C6CC',
         data: this.state.graphData ?
         this.state.graphData.map((item) => { return item.adjustment !== undefined ? item.adjustment : null })
           : []
       },
       {
-        label: 'Venta', //TODO: translate
+        label: this.formatTitle('dashboard.salesTitle'),
         color: '#0CB900',
         data: this.state.graphData ?
         this.state.graphData.map((item) => { return item.sale !== undefined ? item.sale : null})
          : []
       },
       {
-        label: 'Venta año anterior', //TODO: translate
+        label: this.formatTitle('dashboard.lastSalesTitle'),
         color: '#EF6950',
         data: this.state.graphData ?
         this.state.graphData.map((item) => { return item.previousSale !== undefined ? item.previousSale : null })
@@ -906,7 +930,7 @@ class Dashboard extends Component {
         <div className='section-header'>
           <h2>
             <FormattedMessage
-              id="dashboard.title"
+              id="sideMenu.dashboard"
               defaultMessage={`Dashboard`}
             />
           </h2>
@@ -925,7 +949,7 @@ class Dashboard extends Component {
                         </span>
 
                         <FormattedMessage
-                          id="dashboard.projectsTitle"
+                          id="sideMenu.projects"
                           defaultMessage={`Proyectos`}
                         />
                       </h1>
@@ -935,7 +959,7 @@ class Dashboard extends Component {
                         <div>
                           <Checkbox
                             checked={this.state.allProjects}
-                            label={'Seleccionar Todos'} //TODO: translate
+                            label={this.formatTitle('dashboard.selectAll')}
                             handleCheckboxChange={(e, value) => this.checkAllProjects(value)}
                             key={'project'}
                             disabled={this.state.waitingData}
@@ -1011,7 +1035,10 @@ class Dashboard extends Component {
                   <div className='notification is-info has-text-centered'>
                     <h1 className={this.state.totalSale === 0 ? 'title is-4' : 'title is-2'}>{
                       this.state.totalSale === 0 ?
-                        'No disponible' : this.state.mape.toFixed(2) + '%' || '0.00%'}</h1>
+                        <FormattedMessage
+                          id="dashboard.notAvailable"
+                          defaultMessage={`No disponible`}
+                        />  : this.state.mape.toFixed(2) + '%' || '0.00%'}</h1>
                     <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
                   </div>
                   <div className='indicators'>
@@ -1245,7 +1272,7 @@ class Dashboard extends Component {
                           type='text'
                           value={this.state.searchTerm}
                           onChange={this.searchOnChange}
-                          placeholder='Buscar' //TODO: translate
+                          placeholder={this.formatTitle('dashboard.searchText')}
                         />
 
                         <span className='icon is-small is-right'>
@@ -1279,8 +1306,8 @@ class Dashboard extends Component {
                             <label htmlFor='showByquantity'>
                               <span title='Cantidad'>
                                 <FormattedMessage
-                                  id="dashboard.showBy"
-                                  defaultMessage={`Mostrar por`}
+                                  id="dashboard.units"
+                                  defaultMessage={`Unidades`}
                                 />
                               </span>
                             </label>
@@ -1444,9 +1471,9 @@ const branchedDashboard = branch({forecasts: 'forecasts'}, Dashboard)
 
 export default Page({
   path: '/dashboard',
-  title: 'Dashboard', //TODO: translate
+  title: 'Dashboard',
   icon: 'line-chart',
   exact: true,
   validate: loggedIn,
-  component: branchedDashboard
+  component: injectIntl(branchedDashboard)
 })

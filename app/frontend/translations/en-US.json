@@ -1,17 +1,108 @@
 {
   "en-US": {
+    "sideMenu": {
+      "dashboard": "Dashboard",
+      "admin": "Adminstration",
+      "org": "Organization",
+      "rules": "Bussines Rules",
+      "catalogs": "Catalogs",
+      "projects": "Projects",
+      "calendar": "Calendar",
+      "upload": "Upload Files",
+      "reports": "Reports",
+      "users": "Users and Groups",
+      "roles": "Roles",
+      "prices": "Prices",
+      "forecast": "Forecasts",
+      "uploadUsers": "Add Users",
+      "reportStatus": "Project Status",
+      "reportHistoric": "Historical Adjustment",
+      "reportDownloads": "Downloads"
+    },
+    "catalogs": {
+      "producto": "Products",
+      "precio": "Prices",
+      "centro-de-venta": "Sales Centers",
+      "canal": "Channels",
+      "distrito": "Districts",
+      "division": "[EN] División",
+      "gerencia": "[EN] Gerencia",
+      "region": "[EN] Región",
+      "marca": "[EN] Marca",
+      "categoria": "[EN] Categoría",
+      "ruta": "[EN] Ruta"
+    },
+    "login": {
+      "welcome": "Welcome to Orax",
+      "email": "E-mail",
+      "pass": "Password",
+      "loginBtn": "Login",
+      "forgot": "Restore password",
+      "select": "Select an organization"
+    },
+    "resetPassword": {
+      "contentBtnText": "Request restoration",
+      "contentTitle": "Provide your email to receive a link and reset your password.",
+      "emailSend": "[EN] El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias."
+    },
+    "dashboard": {
+      "filtersTitle": "Filters",
+      "salesTitle": "Total Sales",
+      "lastSalesTitle": "Last Season Sales",
+      "adjustmentsTitle": "Total Adjustment",
+      "perdictionTitle": "Total Forecast",
+      "showBy": "Show by",
+      "units": "Units",
+      "price": "Price",
+      "searchText": "Search",
+      "initialMonth": "Start Date",
+      "lastMonth": "End Date",
+      "graphEmptyMsg": "No information available, try other filters.",
+      "productEmptyMsg": "No information available, try other filters.",
+      "selectAll": "Select all",
+      "try": "try again later",
+      "unidentified": "Not identified",
+      "notAvailable": "Not available",
+      "noFiltersMsg": "Error",
+      "tableLoading": "Loading, please wait...",
+      "tableMsg": "You must select at least one project"
+    },
+    "tables": {
+      "colProduct": "Product",
+      "colForecast": "Forecast",
+      "colId": "Id",
+      "colAdjustment": "Adjustment",
+      "colSales": "Sales",
+      "colLast": "Last Sales",
+      "colLastAdjustment": "Last Adjustment"
+    },
+    "adjustments": {
+      "cycle": "Cycle",
+      "indicators": "Indicators",
+      "total": "Total",
+      "period": "Period",
+      "report": "Report",
+      "vizMode": "Visualization Mode",
+      "modifyQuantity": "Modify by quantity",
+      "modifyPercentage": "Modify by percentage",
+      "adjusted": "Adjusted",
+      "notAdjusted": "Not adjusted",
+      "locale": "en",
+      "periodView": "Period View",
+      "productView": "Product View",
+      "adjustmentRange": "Adjustment range",
+      "last": "Last",
+      "range": "Range",
+      "unlimited": "Unlimited",
+      "outOfRange": "out of range",
+      "noFilters": "Error loading filters",
+      "noProductsSelected": "You dont have products selected",
+      "save": "Saved adjustments",
+      "report": "Report generated"
+    },
     "profile": {
       "form1Title": "[EN] Detalles",
       "form2Title": "[EN] Cambiar contraseña"
-    },
-    "selectOrg": {
-      "select": "[EN] Selecciona una organizacion"
-    },
-    "resetPassword": {
-      "contentBtnText": "[EN] Enviar link a la dirección de correo",
-      "contentTitle": "[EN] Necesitamos tu dirección de correo para enviarte un link de restablecimiento de la contraseña: ",
-      "emailSend": "[EN] El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias.",
-      "title": "[EN] Restabler contraseña"
     },
     "orgRules": {
       "alertBtn": "[EN] Actualizar Proyectos",
@@ -54,26 +145,6 @@
       "rulesRangeUnlimited": "[EN] ilimitado",
       "season": "[EN] Temporada",
       "title": "[EN] Establece tus ciclos y periodos de ajuste"
-    },
-    "dashboard": {
-      "adjustmentsTitle": "[EN] Ajuste total",
-      "filtersTitle": "[EN] Filtros",
-      "graphEmptyMsg": "[EN] No hay datos que mostrar, intente con otro filtro",
-      "initialMonth": "[EN] Mes inicial",
-      "lastMonth": "[EN] Mes final",
-      "lastSalesTitle": "[EN] Venta año anterior",
-      "noFiltersMsg": "[EN] Error",
-      "notAvailable": "[EN] No disponible",
-      "perdictionTitle": "[EN] Predicción total",
-      "price": "[EN] Precio",
-      "productEmptyMsg": "[EN] No hay productos que mostrar, intente con otro filtro",
-      "projectsTitle": "[EN] Proyectos",
-      "salesTitle": "[EN] Venta total",
-      "searchText": "[EN] Búsqueda general",
-      "showBy": "[EN] Mostrar por",
-      "tableLoading": "[EN] Cargando, un momento por favor",
-      "tableMsg": "[EN] Debes seleccionar al menos un proyecto",
-      "title": "[EN] Dashboard"
     },
     "carousel": {
       "next": "[EN] Siguiente",
