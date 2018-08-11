@@ -1037,7 +1037,7 @@ class TabAdjustment extends Component {
       var blob = new Blob(res.split(''), {type: 'text/csv;charset=utf-8'});
       FileSaver.saveAs(blob, `Proyecto ${this.props.project.name}.csv`);
       this.setState({isDownloading: ''})
-      this.notify('¡' + this.formatTitle('adjustments.report generated') + '!', 5000, toast.TYPE.SUCCESS)
+      this.notify('¡' + this.formatTitle('adjustments.reportSuccess') + '!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({

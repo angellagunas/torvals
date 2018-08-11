@@ -73,8 +73,7 @@
       "colId": "Id",
       "colAdjustment": "Adjustment",
       "colSales": "Sales",
-      "colLast": "Last Sales",
-      "colLastAdjustment": "Last Adjustment"
+      "colLast": "Last Sales"
     },
     "adjustments": {
       "cycle": "Cycle",
@@ -98,7 +97,7 @@
       "noFilters": "Error loading filters",
       "noProductsSelected": "You dont have products selected",
       "save": "Saved adjustments",
-      "report": "Report generated"
+      "reportSuccess": "Report generated"
     },
     "profile": {
       "form1Title": "[EN] Detalles",
