@@ -511,8 +511,6 @@ class Dashboard extends Component {
   }
 
   async getDates() {
-    console.log(this.state.dateMax)
-    console.log(this.state.dateMin)
     let d = []
     let p = []
     let dateMin = moment.utc(this.state.dateMin)
@@ -528,8 +526,6 @@ class Dashboard extends Component {
     }
 
     d.push(dateMin)
-
-    console.log(d)
 
     for (let i = 0; i < d.length; i++) {
       p.push({
