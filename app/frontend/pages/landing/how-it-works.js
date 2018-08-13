@@ -16,7 +16,9 @@ class HowItWorks extends Component {
       actualComment: 0,
       fade: 'fadeIn',
       menu: '',
-      videoModal: ''
+      videoModal: '',
+      login: '',
+      register: ''
     }
     this.handleScroll = this.handleScroll.bind(this)
     this.comments = []
@@ -77,6 +79,30 @@ class HowItWorks extends Component {
     })
   }
 
+  showLogin() {
+    this.setState({
+      login: ' is-active'
+    })
+  }
+
+  hideLogin() {
+    this.setState({
+      login: ''
+    })
+  }
+
+  showReg() {
+    this.setState({
+      register: ' is-active'
+    })
+  }
+
+  hideReg() {
+    this.setState({
+      register: ''
+    })
+  }
+
   render () {
     return (
       <div className='landing'>
@@ -103,15 +129,20 @@ class HowItWorks extends Component {
               </div>
               <div className='navbar-end'>
 
-                {this.state.isDown
-                  ? <div className='navbar-item'>
-                    <RegisterModal />
-                  </div>
+                <div className={this.state.isDown ? 'navbar-item' : 'is-hidden'}>
+                  <a className={this.props.buttonClass ? 'button is-success ' + this.props.buttonClass : 'button is-success'}
+                    onClick={(e) => { this.showReg(e) }}>
+                    Probar 30 días gratis
+                    </a>
+                </div>
 
-                  : <div className='navbar-item'>
-                    <LogInButton />
-                  </div>
-                }
+                <div className={!this.state.isDown ? 'navbar-item' : 'is-hidden'}>
+                  <a className='button is-primary is-inverted is-outlined'
+                    onClick={(e) => { this.showLogin(e) }}>
+                    Iniciar sesión
+                    </a>
+
+                </div>
 
                 {!this.state.isDown &&
                   <div className='navbar-item'>
@@ -298,6 +329,15 @@ class HowItWorks extends Component {
           <button className='modal-close is-large' aria-label='close' onClick={() => { this.hideVideoModal() }} />
         </div>
 
+        <LogInButton
+          modalClass={this.state.login}
+          showModal={() => this.showLogin()}
+          hideModal={() => this.hideLogin()} />
+
+        <RegisterModal
+          modalClass={this.state.register}
+          showModal={() => this.showReg()}
+          hideModal={() => this.hideReg()} />
       </div>
     )
   }

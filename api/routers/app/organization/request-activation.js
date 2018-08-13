@@ -15,7 +15,7 @@ module.exports = new Route({
     const org = await Organization.findOne({'uuid': organizationId, 'isDeleted': false, $or: [{status: 'trial'}, {status: 'inactive'}]})
     ctx.assert(org, 404, 'Organización no encontrada')
 
-    const owner = await User.findOne({'organizations.organization': org._id, accountOwner: true})
+    const owner = await User.findOne({_id: org.accountOwner })
     ctx.assert(owner, 400, 'La organización no cuenta con un dueño.')
 
     org.set({

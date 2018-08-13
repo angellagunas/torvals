@@ -130,7 +130,7 @@ describe('Generate cycles task', () => {
       const lastCycle = await Cycle.findOne({}).sort('-dateEnd').limit(1)
       const originalTotalCycles = await Cycle.find({}).count()
 
-      const extraDate = moment(lastCycle.dateEnd).add(1, 'd')
+      const extraDate = moment.utc(lastCycle.dateEnd).add(1, 'd')
 
       await generateCycles.run({uuid: org.uuid, rule: rule.uuid, extraDate: extraDate})
       const totalCycles = await Cycle.find({}).count()
@@ -241,9 +241,9 @@ describe('Generate cycles task', () => {
 
       assert.exists(firstCycle)
 
-      expect(moment(firstCycle.dateEnd).year()).equals(2018)
-      expect(moment(firstCycle.dateEnd).month() + 1).equals(2)
-      expect(moment(firstCycle.dateEnd).date()).equals(2)
+      expect(moment.utc(firstCycle.dateEnd).year()).equals(2018)
+      expect(moment.utc(firstCycle.dateEnd).month() + 1).equals(2)
+      expect(moment.utc(firstCycle.dateEnd).date()).equals(2)
     })
   })
 

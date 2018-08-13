@@ -447,7 +447,8 @@ class OrgRules extends Component {
                           />
                         </span>
                         <span className='tag has-text-weight-semibold'>
-                          {this.state.rules.salesUpload} <FormattedMessage
+                          {this.state.rules.salesUpload}&nbsp; 
+                          <FormattedMessage
                             id="orgRules.cyclesDay"
                             defaultMessage={`días`}
                           />
@@ -463,7 +464,8 @@ class OrgRules extends Component {
                           />
                         </span>
                         <span className='tag has-text-weight-semibold'>
-                          {this.state.rules.forecastCreation} <FormattedMessage
+                          {this.state.rules.forecastCreation}&nbsp; 
+                          <FormattedMessage
                             id="orgRules.cyclesDay"
                             defaultMessage={`días`}
                           />
@@ -479,7 +481,8 @@ class OrgRules extends Component {
                           />
                         </span>
                         <span className='tag has-text-weight-semibold'>
-                          {this.state.rules.rangeAdjustment} <FormattedMessage
+                          {this.state.rules.rangeAdjustment}&nbsp; 
+                          <FormattedMessage
                             id="orgRules.cyclesDay"
                             defaultMessage={`días`}
                           />
@@ -495,7 +498,8 @@ class OrgRules extends Component {
                           />
                         </span>
                         <span className='tag has-text-weight-semibold'>
-                          {this.state.rules.rangeAdjustmentRequest} <FormattedMessage
+                          {this.state.rules.rangeAdjustmentRequest}&nbsp; 
+                          <FormattedMessage
                             id="orgRules.cyclesDay"
                             defaultMessage={`días`}
                           />
@@ -511,7 +515,8 @@ class OrgRules extends Component {
                           />
                         </span>
                         <span className='tag has-text-weight-semibold'>
-                          {this.state.rules.consolidation} <FormattedMessage
+                          {this.state.rules.consolidation}&nbsp; 
+                          <FormattedMessage
                             id="orgRules.cyclesDay"
                             defaultMessage={`días`}
                           />

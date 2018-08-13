@@ -1,14 +1,10 @@
 import React, { Component } from 'react'
 import { FormattedMessage } from 'react-intl'
-import { branch } from 'baobab-react/higher-order'
-import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
 import moment from 'moment'
 import env from '~base/env-variables'
 import FontAwesome from 'react-fontawesome'
 
-import Page from '~base/page'
-import { loggedIn, verifyRole } from '~base/middlewares/'
 import Loader from '~base/components/spinner'
 import UserForm from './form'
 import Multiselect from '~base/components/base-multiselect'
@@ -23,7 +19,7 @@ class UserDetail extends Component {
       loaded: false,
       loading: true,
       resetLoading: false,
-      resetText: 'Restablecer Contraseña', //TODO: translate
+      resetText: 'Restablecer Contraseña', // TODO: translate
       resetClass: 'button is-danger',
       user: {},
       roles: [],
@@ -182,7 +178,7 @@ class UserDetail extends Component {
   async resetOnClick () {
     await this.setState({
       resetLoading: true,
-      resetText: 'Enviando email...', //TODO: translate
+      resetText: 'Enviando email...', // TODO: translate
       resetClass: 'button is-info'
     })
 
@@ -193,7 +189,7 @@ class UserDetail extends Component {
       setTimeout(() => {
         this.setState({
           resetLoading: true,
-          resetText: '¡Éxito!', //TODO: translate
+          resetText: '¡Éxito!', // TODO: translate
           resetClass: 'button is-success'
         })
       }, 3000)
@@ -208,7 +204,7 @@ class UserDetail extends Component {
     setTimeout(() => {
       this.setState({
         resetLoading: false,
-        resetText: 'Restablecer Contraseña', //TODO: translate
+        resetText: 'Restablecer Contraseña', // TODO: translate
         resetClass: 'button is-danger'
       })
     }, 10000)
@@ -221,7 +217,7 @@ class UserDetail extends Component {
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
           <FormattedMessage
-            id="user.saving"
+            id='user.saving'
             defaultMessage={`Guardando`}
           /> <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
@@ -242,7 +238,7 @@ class UserDetail extends Component {
       return (
         <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
           <FormattedMessage
-            id="user.saved"
+            id='user.saved'
             defaultMessage={`Guardado`}
           />
         </p>
@@ -263,7 +259,7 @@ class UserDetail extends Component {
     this.setState({ isLoading: '' })
   }
 
-  async updateStep() {
+  async updateStep () {
     try {
       let user = tree.get('user')
       if (user.currentOrganization.wizardSteps.users) {
@@ -298,7 +294,7 @@ class UserDetail extends Component {
 
   render () {
     if (this.state.notFound) {
-      //TODO: translate
+      // TODO: translate
       return <NotFound msg='este usuario' />
     }
     const { user } = this.state
@@ -382,18 +378,21 @@ class UserDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio', //TODO: translate
+                    label: 'Inicio', // TODO: translate
                     current: false
                   },
                   {
                     path: '/manage/users-groups',
-                    label: 'Usuarios', //TODO: translate
+                    label: 'Usuarios', // TODO: translate
                     current: false,
-                    onClick: this.props.selectUser
+                    onclick: (e) => {
+                      e.preventDefault()
+                      this.props.selectUser()
+                    }
                   },
                   {
                     path: '/manage/users',
-                    label: 'Detalle', //TODO: translate
+                    label: 'Detalle', // TODO: translate
                     current: true
                   },
                   {
@@ -413,7 +412,7 @@ class UserDetail extends Component {
                 onClick={() => { this.props.selectUser() }}
               >
                 <FormattedMessage
-                  id="user.back"
+                  id='user.back'
                   defaultMessage={`Regresar`}
                 />
               </a>
@@ -431,7 +430,7 @@ class UserDetail extends Component {
                 <header className='card-header'>
                   <p className='card-header-title'>
                     <FormattedMessage
-                      id="user.detail"
+                      id='user.detail'
                       defaultMessage={`Detalle`}
                     />
                   </p>
@@ -461,7 +460,7 @@ class UserDetail extends Component {
                                 type='submit'
                               >
                                 <FormattedMessage
-                                  id="user.btnSave"
+                                  id='user.btnSave'
                                   defaultMessage={`Guardar`}
                                 />
                               </button>
@@ -481,7 +480,7 @@ class UserDetail extends Component {
                     <header className='card-header'>
                       <p className='card-header-title'>
                         <FormattedMessage
-                          id="user.groups"
+                          id='user.groups'
                           defaultMessage={`Grupos`}
                         />
                       </p>
@@ -513,18 +512,3 @@ class UserDetail extends Component {
 }
 
 export default UserDetail
-
-/* UserDetail.contextTypes = {
-  tree: PropTypes.baobab
-}
-
-const branchedUserDetail = branch({}, UserDetail)
-
-export default Page({
-  path: '/manage/users/:uuid',
-  title: 'User details',
-  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
-  exact: true,
-  validate: [loggedIn, verifyRole],
-  component: branchedUserDetail
-}) */
