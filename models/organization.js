@@ -93,7 +93,7 @@ organizationSchema.methods.toPublic = function () {
     salesRep: this.salesRep,
     wizardSteps: this.wizardSteps,
     alerts: this.alerts,
-    accountOwner: this.accountOwner    
+    accountOwner: this.accountOwner
   }
 }
 
@@ -142,7 +142,7 @@ organizationSchema.methods.endTrialPeriod = async function () {
   }
   sendEmail.run({
     recipients,
-    args: data,
+    args: this.toJSON(),
     template: 'trial',
     title: 'Período de prueba en Orax ha terminado.'
   })
