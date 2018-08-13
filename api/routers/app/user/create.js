@@ -82,7 +82,7 @@ module.exports = new Route({
     var group = userData.group
     userData.group = undefined
 
-    let user = User.findOne({email: userData.email})
+    let user = await User.findOne({email: userData.email})
 
     if (user) {
       let actualOrg = user.organizations.find(item => {
