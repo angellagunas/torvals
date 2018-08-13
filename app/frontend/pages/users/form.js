@@ -22,10 +22,9 @@ class UserForm extends Component {
       apiCallErrorMessage: 'is-hidden',
       projects: []
     }
-
   }
 
-  getData(){
+  getData () {
     let data = this.props.initialState
 
     if (data.roleDetail.slug === 'manager-level-1') {
