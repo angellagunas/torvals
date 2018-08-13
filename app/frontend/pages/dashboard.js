@@ -516,7 +516,7 @@ class Dashboard extends Component {
     let dateMin = moment.utc(this.state.dateMin)
     let dateMax = moment.utc(this.state.dateMax)
 
-    if (dateMin.isBefore(moment.utc('2017-01-01'))) {
+    if (dateMin.isBefore(moment.utc('2017-01-01')) && dateMax.isAfter(moment.utc('2017-01-01'))) {
       dateMin = moment.utc('2017-01-01')
     }
 

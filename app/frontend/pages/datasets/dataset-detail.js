@@ -306,7 +306,7 @@ class DataSetDetail extends Component {
                         <div className='media-content'>
                           <FormattedMessage
                             id="datasets.processingMsg1"
-                            defaultMessage={`El datase`}
+                            defaultMessage={`El dataset`}
                           /> {dataset.fileChunk.filename} <FormattedMessage
                             id="datasets.processingMsg2"
                             defaultMessage={`se está preprocesando`}

@@ -42,7 +42,7 @@ module.exports = new Route({
     }
 
     userData.role = await Role.findOne({ uuid: userData.role })
-    
+
     if (!userData.role) {
       let defaultRole = await Role.findOne({isDefault: true})
       if (!defaultRole) {
@@ -81,7 +81,24 @@ module.exports = new Route({
 
     var group = userData.group
     userData.group = undefined
-    const user = await User.register(userData)
+
+    let user = User.findOne({email: userData.email})
+
+    if (user) {
+      let actualOrg = user.organizations.find(item => {
+        return String(item.organization._id) === String(ctx.state.organization._id)
+      })
+
+      if (!actualOrg) {
+        user.organizations.push(orgObj)
+        user.markModified('organizations')
+        user.save()
+      } else {
+        ctx.throw(400, 'Usuario existente!')
+      }
+    } else {
+      user = await User.register(userData)
+    }
 
     if (group) {
       group = await Group.findOne({'uuid': group})
@@ -120,11 +137,17 @@ module.exports = new Route({
           }
         }
       ]
+
       var currentUserGroups = await User.aggregate(statement)
+
       for (let currentGroup of currentUserGroups) {
         if (!group || (group && String(group._id) !== String(currentGroup.infoGroup._id))) {
           user.groups.push(currentGroup.infoGroup)
-          await Group.findOneAndUpdate({'_id': currentGroup.infoGroup._id}, {$push: {'users': user._id}})
+
+          await Group.findOneAndUpdate(
+            {'_id': currentGroup.infoGroup._id},
+            {$push: {'users': user._id}}
+          )
         }
       }
     }
