@@ -14,7 +14,7 @@ module.exports = new Route({
     user: lov.string().required()
   }),
   handler: async function (ctx) {
-    const slug = ctx.request.body.slug
+    const slug = slugify(ctx.request.body.slug)
     const userId = ctx.request.body.user
     const organization = await Organization.findOne({slug: slug})
     const user = await User.findOne({uuid: userId})
