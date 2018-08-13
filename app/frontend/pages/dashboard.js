@@ -836,6 +836,9 @@ class Dashboard extends Component {
     }
 
     if (user.currentRole.slug === 'manager-level-1') {
+      if (!user.currentProject) {
+        return <Redirect to={'/profile'} />
+      }
       return <Redirect to={'/projects/' + user.currentProject.uuid} />
     }
 
