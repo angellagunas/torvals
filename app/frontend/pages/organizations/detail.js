@@ -14,8 +14,8 @@ import BillingForm from './billing-form'
 import OrgUsers from './org-users'
 import { orgStatus } from '~base/tools'
 import { toast } from 'react-toastify'
-import Labels from './labels';
-import Alerts from './alerts';
+import Labels from './labels'
+import Alerts from './alerts'
 
 class OrganizationDetail extends Component {
   constructor (props) {
@@ -171,7 +171,7 @@ class OrganizationDetail extends Component {
     const { organization } = this.state
 
     if (this.state.notFound) {
-      //TODO: translate
+      // TODO: translate
       return <NotFound msg='esta organización' />
     }
 
@@ -223,12 +223,12 @@ class OrganizationDetail extends Component {
       },
       {
         name: '3',
-        title: 'Textos',
+        title: 'Etiquetas',
         hide: false,
         disabled: false,
         content: (
           <div className='section pad-sides has-20-margin-top'>
-            <Labels org={organization}/>
+            <Labels org={organization} />
           </div>
         )
       },
@@ -307,7 +307,7 @@ const branchedOrganizationDetail = branch({organizations: 'organizations'}, Orga
 
 export default Page({
   path: '/manage/organizations/:uuid',
-  title: 'User details', //TODO: translate
+  title: 'User details', // TODO: translate
   exact: true,
   roles: 'admin, orgadmin, analyst, manager-level-3',
   validate: [loggedIn, verifyRole],
