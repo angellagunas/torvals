@@ -19,7 +19,7 @@ function Note ({ note, onClick }) {
       <div className='note-header'>
         <p><strong>{note.user.name}</strong></p>
         <p style={{textAlign: 'right'}}>
-          <strong>{moment(note.dateCreated).format('MM/DD/YYYY')}</strong>
+          <strong>{moment(note.dateCreated).format('DD/MM/YYYY')}</strong>
           <br />
           <i className='fa fa-times' style={{cursor: 'pointer'}} onClick={onClick} />
         </p>
