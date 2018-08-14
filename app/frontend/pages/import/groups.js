@@ -19,7 +19,7 @@ class ImportGroups extends Component {
     let str = '"name","users",'
     for (let a of this.rules.catalogs) {
       if (a.slug === 'producto') continue
-      str += `"${a.slug}-external-id",`
+      str += `"${a.slug}-externalId",`
     }
     str = str.substring(0, str.length - 1)
 
