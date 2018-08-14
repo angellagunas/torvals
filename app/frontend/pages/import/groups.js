@@ -3,7 +3,6 @@ import ImportCSV from './import-csv'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import tree from '~core/tree'
-// import { CheckboxWidget } from '~base/components/base-form'
 
 class ImportGroups extends Component {
   constructor (props) {
@@ -55,19 +54,6 @@ class ImportGroups extends Component {
   }
 
   render () {
-    // let extraFields = {
-    //   schema: {
-    //     properties: {
-    //       sendEmail: {type: 'boolean', title: 'No utilizar contraseña y enviar invitación a Orax'}
-    //     }
-    //   },
-    //   uiSchema: {
-    //     sendEmail: {'ui:widget': CheckboxWidget}
-    //   },
-    //   formData: {
-    //     sendEmail: true
-    //   }
-    // }
     let example = this.getExample()
 
     return (
