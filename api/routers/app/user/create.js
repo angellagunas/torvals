@@ -62,8 +62,8 @@ module.exports = new Route({
     }
 
     let orgObj = {
-      organization: ctx.state.organization,
-      role: userData.role
+      organization: ctx.state.organization._id,
+      role: userData.role._id
     }
 
     if (userData.project) {
@@ -77,17 +77,17 @@ module.exports = new Route({
     var group = userData.group
     userData.group = undefined
 
-    let user = User.findOne({email: userData.email})
+    let user = await User.findOne({email: userData.email})
 
     if (user) {
       let actualOrg = user.organizations.find(item => {
-        return String(item.organization._id) === String(ctx.state.organization._id)
+        return String(item.organization) === String(ctx.state.organization._id)
       })
 
       if (!actualOrg) {
         user.organizations.push(orgObj)
         user.markModified('organizations')
-        user.save()
+        await user.save()
       } else {
         ctx.throw(400, 'Usuario existente!')
       }

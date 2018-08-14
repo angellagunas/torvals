@@ -62,6 +62,7 @@ class TabAdjustment extends Component {
       showNotAdjusted: true,
       prices: true,
       totalPrevSale: 0,
+      filteredData: [],
       prevData: []
     }
 
