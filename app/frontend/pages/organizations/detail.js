@@ -100,11 +100,11 @@ class OrganizationDetail extends Component {
     return (
       <div className='organization-daysleft'>
         <h2>Tu cuenta se encuentra {en} <span className={color}>{status}</span></h2>
-        <button className='button is-primary is-medium is-pulled-right'
+        {org.status !== 'active' && <button className='button is-primary is-medium is-pulled-right'
           disabled={!!this.state.isLoading}
           onClick={() => this.toggleModal()}>
           Solicitar activación
-        </button>
+        </button>}
         <h1>{days} días restantes <span className={color}>{msg}</span></h1>
         <p>
         Del <strong>{moment.utc(start).format('DD/MM/YYYY')}</strong> al <strong>{moment.utc(end).format('DD/MM/YYYY')}</strong>
