@@ -244,7 +244,11 @@ class ProductTable extends Component {
       },
       {
         group: ' ',
-        title: this.splitWords(this.formatTitle('adjustments.last') + '_' + this.formatTitle('tables.colAdjustment') + ' '),
+        title: this.formatTitle('adjustments.locale') === 'en' ?
+          this.splitWords(this.formatTitle('adjustments.last') + '_' + this.formatTitle('tables.colAdjustment') + ' ')
+          :
+          this.splitWords(this.formatTitle('tables.colAdjustment') + '_' + this.formatTitle('adjustments.last') + ' ')
+        ,
         property: 'lastAdjustment',
         default: 0,
         sortable: true,
@@ -296,7 +300,11 @@ class ProductTable extends Component {
       },
       { 
         group: ' ',
-        title: this.splitWords(this.formatTitle('adjustments.adjusted') + '_' + this.formatTitle('adjustments.range')),
+        title: this.formatTitle('adjustments.locale') === 'en' ?
+          this.splitWords(this.formatTitle('adjustments.adjusted') + '_' + this.formatTitle('adjustments.range'))
+          :
+          this.splitWords(this.formatTitle('adjustments.range') + '_' + this.formatTitle('adjustments.adjusted'))
+        ,
         property: 'percentage',
         default: 0,
         sortable: true,

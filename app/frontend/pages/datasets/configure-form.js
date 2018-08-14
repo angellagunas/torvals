@@ -265,7 +265,7 @@ class ConfigureDatasetForm extends Component {
     for (let key of Object.keys(schema)) {
       if (!values[key] || typeof values[key] !== 'string' || values[key].trim() === '') {
         this.setState({isLoading: ''})
-        //TODO: translate
+        // TODO: translate
         return this.setState({
           error: `¡Ha habido errores al procesar el formulario!`,
           apiCallErrorMessage: 'message is-danger',
@@ -302,7 +302,7 @@ class ConfigureDatasetForm extends Component {
               <div className='field'>
                 <label className='label'>
                   <FormattedMessage
-                    id="datasets.date"
+                    id='datasets.date'
                     defaultMessage={`Fecha`}
                   /> *
                 </label>
@@ -316,7 +316,7 @@ class ConfigureDatasetForm extends Component {
                     >
                       <option value=''>
                         <FormattedMessage
-                          id="datasets.selectOption"
+                          id='datasets.selectOption'
                           defaultMessage={`Selecciona una opción`}
                         />
                       </option>
@@ -339,7 +339,7 @@ class ConfigureDatasetForm extends Component {
               <div className='field'>
                 <label className='label'>
                   <FormattedMessage
-                    id="datasets.analysis"
+                    id='datasets.analysis'
                     defaultMessage={`Análisis`}
                   /> *
                 </label>
@@ -353,7 +353,7 @@ class ConfigureDatasetForm extends Component {
                     >
                       <option value=''>
                         <FormattedMessage
-                          id="datasets.selectOption"
+                          id='datasets.selectOption'
                           defaultMessage={`Selecciona una opción`}
                         />
                       </option>
@@ -378,7 +378,7 @@ class ConfigureDatasetForm extends Component {
               <div className='field'>
                 <label className='label'>
                   <FormattedMessage
-                    id="datasets.adjustment"
+                    id='datasets.adjustment'
                     defaultMessage={`Ajuste`}
                   />
                 </label>
@@ -391,7 +391,7 @@ class ConfigureDatasetForm extends Component {
                       onChange={(e) => { this.handleChangeSelect('isAdjustment', e) }}>
                       <option value=''>
                         <FormattedMessage
-                          id="datasets.selectOption"
+                          id='datasets.selectOption'
                           defaultMessage={`Selecciona una opción`}
                         />
                       </option>
@@ -411,7 +411,7 @@ class ConfigureDatasetForm extends Component {
               <div className='field'>
                 <label className='label'>
                   <FormattedMessage
-                    id="datasets.prediction"
+                    id='datasets.prediction'
                     defaultMessage={`Predicción`}
                   />
                 </label>
@@ -424,7 +424,7 @@ class ConfigureDatasetForm extends Component {
                       onChange={(e) => { this.handleChangeSelect('isPrediction', e) }}>
                       <option value=''>
                         <FormattedMessage
-                          id="datasets.selectOption"
+                          id='datasets.selectOption'
                           defaultMessage={`Selecciona una opción`}
                         />
                       </option>
@@ -443,7 +443,7 @@ class ConfigureDatasetForm extends Component {
           <div className='field'>
             <label className='label'>
               <FormattedMessage
-                id="datasets.sale"
+                id='datasets.sale'
                 defaultMessage={`Venta`}
               />
             </label>
@@ -456,7 +456,7 @@ class ConfigureDatasetForm extends Component {
                   onChange={(e) => { this.handleChangeSelect('isSales', e) }}>
                   <option value=''>
                     <FormattedMessage
-                      id="datasets.selectOption"
+                      id='datasets.selectOption'
                       defaultMessage={`Selecciona una opción`}
                     />
                   </option>
@@ -486,7 +486,7 @@ class ConfigureDatasetForm extends Component {
                           onChange={(e) => { this.handleChangeSelect(item.id.name, e) }}>
                           <option value=''>
                             <FormattedMessage
-                              id="datasets.selectOption"
+                              id='datasets.selectOption'
                               defaultMessage={`Selecciona una opción`}
                             />
                           </option>
@@ -517,7 +517,7 @@ class ConfigureDatasetForm extends Component {
                           onChange={(e) => { this.handleChangeSelect(item.name.name, e) }}>
                           <option value=''>
                             <FormattedMessage
-                              id="datasets.selectOption"
+                              id='datasets.selectOption'
                               defaultMessage={`Selecciona una opción`}
                             />
                           </option>
@@ -541,7 +541,7 @@ class ConfigureDatasetForm extends Component {
             <div className='column is-3 has-text-centered'>
               <label className='label'>
                 <FormattedMessage
-                  id="datasets.operationFilter"
+                  id='datasets.operationFilter'
                   defaultMessage={`Filtro de Operación`}
                 />
               </label>
@@ -549,7 +549,7 @@ class ConfigureDatasetForm extends Component {
             <div className='column is-3 has-text-centered'>
               <label className='label'>
                 <FormattedMessage
-                  id="datasets.analysisFilter"
+                  id='datasets.analysisFilter'
                   defaultMessage={`Filtro de Análisis`}
                 />
               </label>
@@ -597,7 +597,7 @@ class ConfigureDatasetForm extends Component {
                     <select onChange={(e) => { this.handleChangeGroupings('groupingColumn', e) }}>
                       <option value='' >
                         <FormattedMessage
-                          id="datasets.selectOption"
+                          id='datasets.selectOption'
                           defaultMessage={`Selecciona una opción`}
                         />
                       </option>
@@ -639,7 +639,7 @@ class ConfigureDatasetForm extends Component {
                     type='button'
                   >
                     <FormattedMessage
-                      id="datasets.btnAdd"
+                      id='datasets.btnAdd'
                       defaultMessage={`Agregar`}
                     />
                   </button>
@@ -653,19 +653,19 @@ class ConfigureDatasetForm extends Component {
               <tr>
                 <th>
                   <FormattedMessage
-                    id="datasets.column"
+                    id='datasets.column'
                     defaultMessage={`Columna`}
                   />
                 </th>
                 <th>
                   <FormattedMessage
-                    id="datasets.value1"
+                    id='datasets.value1'
                     defaultMessage={`Valor 1`}
                   />
                 </th>
                 <th colSpan='2'>
                   <FormattedMessage
-                    id="datasets.value2"
+                    id='datasets.value2'
                     defaultMessage={`Valor 2`}
                   />
                 </th>
@@ -676,7 +676,7 @@ class ConfigureDatasetForm extends Component {
                 <tr>
                   <td colSpan='4'>
                     <FormattedMessage
-                      id="datasets.emptyGroups"
+                      id='datasets.emptyGroups'
                       defaultMessage={`No hay agrupaciones que mostrar`}
                     />
                   </td>
@@ -708,7 +708,7 @@ class ConfigureDatasetForm extends Component {
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
               <FormattedMessage
-                id="datasets.emptyGroups"
+                id='datasets.emptyGroups'
                 defaultMessage={`configuredMsg`}
               />
             </div>
@@ -726,7 +726,7 @@ class ConfigureDatasetForm extends Component {
                 disabled={!!this.state.isLoading}
               >
                 <FormattedMessage
-                  id="datasets.btnProcess"
+                  id='datasets.btnProcess'
                   defaultMessage={`Procesar`}
                 />
               </button>

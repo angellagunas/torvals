@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import { toast } from 'react-toastify'
@@ -56,6 +56,10 @@ class ProjectDetail extends Component {
     this.intervalCounter = null
     this.intervalConciliate = null
     this.rules = tree.get('rule')
+  }
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   async componentWillMount () {
@@ -708,8 +712,8 @@ class ProjectDetail extends Component {
                   hideModal={this.hideModalClone.bind(this)}
                   finishUp={this.finishUpClone.bind(this)}
                   canEdit={canEdit}
-                  title='Clonar Proyecto' //TODO: translate
-                  buttonText='Clonar' //TODO: translate
+                  title={this.formatTitle('projectConfig.clone') + ' ' + this.formatTitle('projectConfig.project')}
+                  buttonText={this.formatTitle('projectConfig.clone')} 
                 />
               }
               {canEdit &&
@@ -725,7 +729,7 @@ class ProjectDetail extends Component {
                               onClick={this.showModalClone.bind(this)}
                             >
                               <FormattedMessage
-                                id="projects.btnClone"
+                                id="projectConfig.clone"
                                 defaultMessage={`Clonar`}
                               />
                             </button>
@@ -733,12 +737,11 @@ class ProjectDetail extends Component {
                         </div>
                         <div className='control'>
                           <DeleteButton
-                            objectName='Proyecto'
+                            objectName={this.formatTitle('projectConfig.project')}
                             objectDelete={() => this.deleteObject()}
                             hideIcon
-                            //TODO: translate
-                            message={'¿Estas seguro de querer eliminar este Proyecto?'}
-                            titleButton={'Eliminar'}
+                            titleButton={this.formatTitle('projectConfig.delete')}
+                            message={this.formatTitle('projectConfig.deleteMsg')}
                           />
                         </div>
                       </div>
@@ -769,7 +772,7 @@ class ProjectDetail extends Component {
                       type='submit'
                     >
                       <FormattedMessage
-                        id="projects.btnSave"
+                        id="projectConfig.save"
                         defaultMessage={`Guardar`}
                       />
                     </button>
@@ -968,5 +971,5 @@ export default Page({
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-1, manager-level-3',
   validate: [loggedIn, verifyRole],
-  component: BranchedProjectDetail
+  component: injectIntl(BranchedProjectDetail)
 })
