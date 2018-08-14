@@ -2,7 +2,6 @@ const Route = require('lib/router/route')
 const {Group, Rule, User, CatalogItem} = require('models')
 const parse = require('csv-parse/lib/sync')
 const lov = require('lov')
-const crypto = require('crypto')
 const slugify = require('underscore.string/slugify')
 
 module.exports = new Route({
@@ -93,37 +92,7 @@ module.exports = new Route({
         await group.save()
         created++
       } else {
-        // let actualOrg = user.organizations.find(item => {
-        //   return String(item.organization._id) === String(ctx.state.organization._id)
-        // })
-
-        // if (!actualOrg) {
-        //   let role = await Role.findOne({'slug': slugify(d.role)})
-        //   if (role) {
-        //     let data = {
-        //       organization: ctx.state.organization._id,
-        //       role: role._id
-        //     }
-
-        //     if (role.slug === 'manager-level-1') {
-        //       let project = await Project.findOne({'uuid': d.projectId})
-        //       if (project) {
-        //         data.defaultProject = project._id
-        //       } else {
-        //         projectError++
-        //         continue
-        //       }
-        //     }
-
-        //     user.organizations.push(data)
-        //     user.markModified('organizations')
-        //     user.save()
-        //     created++
-        //   }
-        // } else {
-        //   existing++
-        // }
-        console.log('Else')
+        existing++
       }
     }
 
