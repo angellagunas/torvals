@@ -114,7 +114,7 @@ class ResetPassword extends Component {
             <p className='card-header-title'>
               <FormattedMessage
                 id='login.forgot'
-                defaultMessage={`Restabler contraseña`}
+                defaultMessage={`¿Olvidó su contraseña?`}
               />
             </p>
           </header>

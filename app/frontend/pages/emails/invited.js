@@ -292,7 +292,7 @@ class EmailInviteLanding extends Component {
               <FormattedMessage
                 id="emails.greeting1"
                 defaultMessage={`¡Hola`}
-              /> {this.state.user.name}!
+              /> &nbsp; {this.state.user.name}!
             </p>
             <a className='card-header-icon'>
               <span className='icon'>
