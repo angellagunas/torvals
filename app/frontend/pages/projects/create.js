@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { injectIntl } from 'react-intl'
 import BaseModal from '~base/components/base-modal'
 import ProjectForm from './create-form'
 
@@ -29,6 +29,10 @@ class CreateProject extends Component {
     this.setState({ isLoading: '' })
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     return (
       <BaseModal
@@ -54,7 +58,9 @@ class CreateProject extends Component {
               >{this.props.buttonText || 'Crear'}</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
+              <button className='button' onClick={this.hideModal} type='button'>
+                {this.formatTitle('projectConfig.cancel')}
+              </button>
             </div>
           </div>
         </ProjectForm>
@@ -63,4 +69,4 @@ class CreateProject extends Component {
   }
 }
 
-export default CreateProject
+export default injectIntl(CreateProject)
