@@ -611,7 +611,7 @@ class Periods extends Component {
                             <div className='field has-addons'>
                               <div className='control'>
                                 <a className="button is-static">
-                                  {this.state.timesSelected.season} <FormattedMessage
+                                  {this.state.timesSelected.season} &nbsp; <FormattedMessage
                                     id="wizard.periodsCycles"
                                     defaultMessage={`ciclos`}
                                   />
