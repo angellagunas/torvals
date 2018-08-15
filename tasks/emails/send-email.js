@@ -19,7 +19,7 @@ const task = new Task(async function (argv) {
   try {
     await mailer.send({
       title,
-      recipient: recipients,
+      recipient: recipients
     })
   } catch (e) {
     console.log(`Error sending email: ${e}`)
