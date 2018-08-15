@@ -546,7 +546,7 @@ class TabAnomalies extends Component {
                     className='input input-search'
                     type='text'
                     value={this.state.searchTerm}
-                    onKeyUp={(e) => { this.searchOnChange(e) }} placeholder='Buscar' />
+                    onKeyUp={(e) => { this.searchOnChange(e) }} placeholder={this.formatTitle('dashboard.searchText')} />
 
                   <span className='icon is-small is-right'>
                     <i className='fa fa-search fa-xs'></i>

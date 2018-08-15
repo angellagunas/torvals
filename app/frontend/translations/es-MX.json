@@ -30,7 +30,9 @@
       "region": "Región",
       "marca": "Marca",
       "categoria": "Categoría",
-      "ruta": "Ruta"
+      "ruta": "Ruta",
+      "new": "Nuevo",
+      "import": "Importar"
     },
     "login": {
       "welcome": "Bienvenido a Orax",
@@ -65,7 +67,12 @@
       "notAvailable": "No disponible",
       "noFiltersMsg": "Error",
       "tableLoading": "Cargando un momento por favor...",
-      "tableMsg": "Debes seleccionar por lo menos un proyecto"
+      "tableMsg": "Debes seleccionar por lo menos un proyecto",
+      "outdatedMsg": "Tus proyectos no cumplen con las reglas de negocio actuales, actualizalos para verlos aquí",
+      "outdatedBtn": "Actualizar",
+      "noProjectsMsg": "Debes crear al menos un proyecto",
+      "noProjectsBtn": "Crear",
+      "msgTitle": "Configuración de proyecto"
     },
     "tables": {
       "colProduct": "Producto",
@@ -104,7 +111,9 @@
       "noFilters": "Error cargando los filtros",
       "noProductsSelected": "No tienes productos seleccionados",
       "save": "Ajustes guardados",
-      "reportSuccess": "Reporte generado con éxito"
+      "reportSuccess": "Reporte generado con éxito",
+      "noInfo": "No hay información disponible",
+      "nofilters": "¡No tienes catálogos asignados! Por favor contacta a tu supervisor"
     },
     "approve": {
       "approve": "Aprobar",
@@ -214,6 +223,14 @@
       "yes": "Sí",
       "no": "No",
       "cancel": "Cancelar"
+    },
+    "tabs": {
+      "graphics": "Graphics",
+      "adjustments": "Adjustments",
+      "approve": "Approve",
+      "datasets": "Datasets",
+      "anomalies": "Anomalies",
+      "config": "Configuration"
     },
     "profile": {
       "form1Title": "Detalles",
@@ -465,6 +482,7 @@
       "notAdjusted": "No Ajustados",
       "notAvailable": "No disponible",
       "outdatedMsg": "Este proyecto se encuentra usando una version pasada de reglas de negocio, ¿Desea actualizarlo?",
+      "outdatedTitle": "Proyecto desactualizado",
       "pending": "Pendientes: ",
       "pendingRowsMsg": "Se está preparando al proyecto para generar un dataset de ajuste, espere por favor.",
       "period": "Periodo",
@@ -540,8 +558,10 @@
     },
     "import": {
       "btnImport": "Importar",
+      "importMsg": "Archivo a importar",
       "info": "El archivo .csv debe contener el mismo formato que el mostrado debajo: ",
-      "title": "Cargar"
+      "title": "Cargar",
+      "selectFile": "Seleccionar archivo"
     },
     "groups": {
       "btnAdd": "Agregar",
@@ -565,7 +585,9 @@
       "groups": "Grupos",
       "saved": "Guardado",
       "savedMsg": "Los datos se han guardado correctamente",
-      "saving": "Guardando"
+      "saving": "Guardando",
+      "delete": "Eliminar",
+      "deleteMsg": "¿Estas seguro de quieres borrar este item?"
     },
     "forecasts": {
       "btnCancel": "Cancelar",
@@ -575,6 +597,10 @@
     "navbar": {
       "profile": "Mi perfil",
       "signOut": "Cerrar sesión"
+    },
+    "multi": {
+      "assigned": "Asignado",
+      "available": "Disponible"
     }
   }
 }

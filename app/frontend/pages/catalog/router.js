@@ -7,6 +7,10 @@ import {
   Route,
   Redirect
 } from 'react-router-dom'
+import { defaultCatalogs } from '~base/tools'
+import { injectIntl } from 'react-intl'
+import { testRoles } from '~base/tools'
+import Link from '~base/router/link'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -16,7 +20,7 @@ const NoMatch = () => {
 }
 
 class CatalogRouter extends Component {
-  constructor(props){
+  constructor(props) {
     super(props)
   }
   cleanName = (item) => {
@@ -24,51 +28,102 @@ class CatalogRouter extends Component {
     return c.charAt(0).toUpperCase() + c.slice(1)
   }
 
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
   catalogs = (rules) => {
     return rules.catalogs.map(item => {
-      let config =
-      {
-        name: item.name,
-        path: '/catalogs/' + item.slug,
-        title: item.name,
-        breadcrumbs: true,
-        breadcrumbConfig: {
-          path: [
-            {
-              path: '/',
-              label: 'Inicio', //TODO: translate
-              current: false
-            },
-            {
-              path: '/',
-              label: 'Administración', //TODO: translate
-              current: true
-            },
-            {
-              path: '/catalogs/' + item.slug,
-              label: 'Catálogos', //TODO: translate
-              current: true
-            },
-            {
-              path: '/catalogs/' + item.slug,
-              label: item.name,
-              current: true
-            }
-          ],
-          align: 'left'
-        },
-        branchName: item.slug,
-        titleSingular: item.name,
-        baseUrl: '/app/catalogItems/' + item.slug,
-        detailUrl: '/catalogs/' + item.slug
+      let title = item.name
+      if (this.findInCatalogs(item.slug)) {
+        title = this.formatTitle('catalogs.' + item.slug)
       }
+      let config =
+        {
+          name: title,
+          path: '/catalogs/' + item.slug,
+          title: title,
+          breadcrumbs: true,
+          breadcrumbConfig: {
+            path: [
+              {
+                path: '/',
+                label: this.formatTitle('sideMenu.admin'),
+                current: true
+              },
+              {
+                path: '/catalogs/' + item.slug,
+                label: this.formatTitle('sideMenu.catalogs'),
+                current: true
+              },
+              {
+                path: '/catalogs/' + item.slug,
+                label: title,
+                current: true
+              }
+            ],
+            align: 'left'
+          },
+          branchName: item.slug,
+          titleSingular: title,
+          baseUrl: '/app/catalogItems/' + item.slug,
+          detailUrl: '/catalogs/' + item.slug,
+          columns: () => {
+            return [
+              {
+                'title': this.formatTitle('tables.colId'),
+                'property': 'externalId',
+                'default': 'N/A',
+                'sortable': true
+              },
+              { 
+                'title': this.formatTitle('tables.colName'),
+                'property': 'name',
+                'default': 'N/A',
+                'sortable': true
+              },
+              { 
+                'title': this.formatTitle('tables.colActions'),
+                formatter: (row) => {
+                  if (testRoles('consultor-level-3, consultor-level-2')) {
+                    return (
+                      <Link className='button is-primary' to={'/catalogs/' + item.slug + '/' + row.uuid}>
+                        <span className='icon is-small' title='Visualizar'>
+                          <i className='fa fa-eye' />
+                        </span>
+                      </Link>
+                    )
+                  } else {
+                    return (
+                      <Link className='button is-primary' to={'/catalogs/' + item.slug + '/' + row.uuid}>
+                        <span className='icon is-small' title='Editar'>
+                          <i className='fa fa-pencil' />
+                        </span>
+                      </Link>
+                    )
+                  }
+                }
+              }
+            ]
+          }
+        }
 
       return Catalogs.opts(config).asRouterItemList(item.slug)
     })
   }
-  render () {
+  render() {
     let rule = tree.get('rule')
-    if(rule){
+    if (rule) {
       return (
         this.catalogs(rule)
       )
@@ -79,4 +134,4 @@ class CatalogRouter extends Component {
   }
 }
 
-export default CatalogRouter
+export default injectIntl(CatalogRouter)

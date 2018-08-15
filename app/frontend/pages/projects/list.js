@@ -9,12 +9,12 @@ import CreateProject from './create'
 
 export default ListPage({
   path: '/projects',
-  title: 'Proyectos', //TODO: translate
+  title: 'sideMenu.projects', //TODO: translate
   icon: 'folder',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'Proyecto', //TODO: translate
+  titleSingular: 'projectConfig.project', //TODO: translate
   create: true,
   createComponent: CreateProject,
   breadcrumbs: true,
@@ -27,7 +27,7 @@ export default ListPage({
       },
       {
         path: '/projects/',
-        label: 'Proyectos', //TODO: translate
+        label: 'sideMenu.projects', //TODO: translate
         current: true
       }
     ],

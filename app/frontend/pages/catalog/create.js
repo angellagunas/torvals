@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import BaseModal from '~base/components/base-modal'
 import CreateForm from './create-form'
 
@@ -27,10 +27,14 @@ class CreateCatalog extends Component {
     this.setState({ isLoading: '' })
   }
 
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     return (
       <BaseModal
-        title={'Crear ' + this.props.title}
+        title={this.formatTitle('catalog.btnCreate') + ' ' + this.props.title}
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -71,4 +75,4 @@ class CreateCatalog extends Component {
   }
 }
 
-export default CreateCatalog
+export default injectIntl(CreateCatalog)

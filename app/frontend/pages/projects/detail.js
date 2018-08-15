@@ -469,8 +469,7 @@ class ProjectDetail extends Component {
     try {
       var res = await api.post('/app/rows/request', {rows: rows, finishAdjustments: finishAdjustments, cycle: cycle.uuid, dataset: this.state.project.activeDataset.uuid})
       if (currentRole === 'manager-level-1' || currentRole === 'manager-level-2') {
-        //TODO: translate
-        this.notify('Sus ajustes se han guardado', 5000, toast.TYPE.INFO)
+        this.notify(this.formatTitle('adjustments.save'), 5000, toast.TYPE.INFO)
         if (showMessage) {
           this.setState({
             adjustmentML1: true
@@ -482,9 +481,7 @@ class ProjectDetail extends Component {
         }
       }
     } catch (e) {
-      //TODO: translate
-      this.notify('Ocurrio un error ' + e.message, 5000, toast.TYPE.ERROR)
-
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       return
     }
 
@@ -597,7 +594,7 @@ class ProjectDetail extends Component {
     const tabs = [
       {
         name: 'graficos',
-        title: 'Gráficos', //TODO: translate
+        title: this.formatTitle('tabs.graphics'),
         hide: (testRoles('manager-level-1') ||
           project.status === 'empty' ||
           project.status === 'conciliating' ||
@@ -615,7 +612,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'ajustes',
-        title: 'Ajustes', //TODO: translate
+        title: this.formatTitle('tabs.adjustments'),
         reload: false,
         hide: project.status === 'empty' ||
               project.status === 'updating-rules' ||
@@ -642,7 +639,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'aprobar',
-        title: 'Aprobar', //TODO: translate
+        title: this.formatTitle('tabs.approve'),
         badge: true,
         valueBadge: this.state.counterAdjustments,
         reload: true,
@@ -663,7 +660,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'datasets',
-        title: 'Datasets', //TODO: translate
+        title: this.formatTitle('tabs.datasets'),
         hide: testRoles('manager-level-1, consultor-level-2, manager-level-2, consultor-level-3'),
         reload: true,
         content: (
@@ -679,7 +676,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'anomalias',
-        title: 'Anomalías', //TODO: translate
+        title: this.formatTitle('tabs.anomalies'),
         reload: true,
         hide: (testRoles('manager-level-1') ||
           project.status === 'processing' ||
@@ -698,7 +695,7 @@ class ProjectDetail extends Component {
       },
       {
         name: 'configuracion',
-        title: 'Configuración', //TODO: translate
+        title: this.formatTitle('tabs.config'),
         hide: testRoles('manager-level-1, consultor-level-2, manager-level-2, consultor-level-3'),
         reload: true,
         content: (
@@ -845,7 +842,7 @@ class ProjectDetail extends Component {
                           <i className='fa fa-gears' />
                         </span>
                         <FormattedMessage
-                          id="projects.adjustment"
+                          id="tabs.adjustments"
                           defaultMessage={`Ajustes`}
                         />
                       </span>
@@ -916,7 +913,7 @@ class ProjectDetail extends Component {
         />
 
         <BaseModal
-          title='Proyecto desactualizado'
+          title={this.formatTitle('projects.outdatedTitle')}
           className={this.state.outdatedClassName}
           hideModal={this.hideModalOutdated.bind(this)}
         >

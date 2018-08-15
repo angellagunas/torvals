@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 import { testRoles } from '~base/tools'
 
@@ -20,7 +20,7 @@ const cleanName = (item) => {
 }
 
 class CatalogDetail extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
       loading: true,
@@ -34,12 +34,12 @@ class CatalogDetail extends Component {
     }
   }
 
-  componentWillMount () {
+  componentWillMount() {
     this.load()
     this.setState({ canEdit: testRoles(this.state.roles) })
   }
 
-  async load () {
+  async load() {
     var url = '/app/catalogItems/detail/' + this.props.match.params.uuid
     try {
       const body = await api.get(url)
@@ -61,7 +61,7 @@ class CatalogDetail extends Component {
     }
   }
 
-  async loadGroups () {
+  async loadGroups() {
     var url = '/app/groups'
     const body = await api.get(
       url,
@@ -77,7 +77,7 @@ class CatalogDetail extends Component {
     })
   }
 
-  getSavingMessage () {
+  getSavingMessage() {
     let { saving, saved } = this.state
 
     if (saving) {
@@ -113,7 +113,7 @@ class CatalogDetail extends Component {
     }
   }
 
-  async availableGroupOnClick (uuid) {
+  async availableGroupOnClick(uuid) {
     this.setState({
       saving: true
     })
@@ -158,7 +158,7 @@ class CatalogDetail extends Component {
     }, 300)
   }
 
-  async assignedGroupOnClick (uuid) {
+  async assignedGroupOnClick(uuid) {
     this.setState({
       saving: true
     })
@@ -191,25 +191,25 @@ class CatalogDetail extends Component {
     }, 300)
   }
 
-  async deleteObject () {
+  async deleteObject() {
     var url = '/app/catalogItems/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/catalogs/' + this.props.match.params.catalog)
   }
 
-  submitHandler () {
+  submitHandler() {
     this.setState({ isLoading: ' is-loading' })
   }
 
-  errorHandler () {
+  errorHandler() {
     this.setState({ isLoading: '' })
   }
 
-  finishUpHandler () {
+  finishUpHandler() {
     this.setState({ isLoading: '' })
   }
 
-  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -227,7 +227,21 @@ class CatalogDetail extends Component {
     }
   }
 
-  render () {
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
+  render() {
     if (this.state.notFound) {
       return <NotFound msg={'este ' + this.props.match.params.uuid} />
     }
@@ -267,9 +281,8 @@ class CatalogDetail extends Component {
               </header>
               <div className='card-content'>
                 <Multiselect
-                  //TODO: translate
-                  availableTitle='Disponible'
-                  assignedTitle='Asignado'
+                  availableTitle={this.formatTitle('multi.available')}
+                  assignedTitle={this.formatTitle('multi.assigned')}
                   assignedList={this.state.selectedGroups}
                   availableList={availableList}
                   dataFormatter={(item) => { return item.name || 'N/A' }}
@@ -297,21 +310,21 @@ class CatalogDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio', //TODO: translate
-                    current: false
-                  },
-                  {
-                    path: '/catalogs/' + this.props.match.params.catalog,
-                    label: 'Catálogos', //TODO: translate
+                    label: this.formatTitle('sideMenu.admin'),
                     current: true
                   },
                   {
                     path: '/catalogs/' + this.props.match.params.catalog,
-                    label: cleanName(this.props.match.params.catalog),
+                    label: this.formatTitle('sideMenu.catalogs'),
+                    current: true
+                  },
+                  {
+                    path: '/catalogs/' + this.props.match.params.catalog,
+                    label: this.formatTitle('catalogs.' + this.props.match.params.catalog),
                     current: false
                   },
                   {
-                    path: '/catalogs/channels/',
+                    path: '/catalogs/',
                     label: catalog.name,
                     current: true
                   }
@@ -324,11 +337,10 @@ class CatalogDetail extends Component {
             <div className='level-item'>
               {canEdit &&
                 <DeleteButton
-                  //TODO: translate
-                  titleButton={'Eliminar'}
-                  objectName={this.props.match.params.catalog}
+                  titleButton={this.formatTitle('catalog.delete')}
+                  objectName={this.formatTitle('catalogs.' + this.props.match.params.catalog)}
                   objectDelete={this.deleteObject.bind(this)}
-                  message={`¿Estas seguro de quieres borrar el canal ${catalog.name}?`}
+                  message={this.formatTitle('catalog.deleteMsg')}
                 />
               }
             </div>
@@ -391,9 +403,9 @@ class CatalogDetail extends Component {
 
 export default Page({
   path: '/catalogs/:catalog/:uuid',
-  title: 'Catalog Detail', //TODO: translate
+  title: 'Catalog Detail',
   exact: true,
   roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
-  component: CatalogDetail
+  component: injectIntl(CatalogDetail)
 })

@@ -1141,10 +1141,10 @@ class TabAdjustment extends Component {
     }
 
     if(zeroFilters === numfilters){
-      let msg = 'No hay información disponible'
+      let msg = this.formatTitle('adjustments.noInfo')
 
       if (currentRole === 'manager-level-1' || currentRole === 'manager-level-2'){
-        msg = '¡No tienes catálogos asignados! Por favor contacta a tu supervisor.'
+        msg = this.formatTitle('adjustments.nofilters')
       }
 
       this.setState({

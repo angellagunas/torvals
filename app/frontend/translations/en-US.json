@@ -20,17 +20,19 @@
       "reportDownloads": "Downloads"
     },
     "catalogs": {
-      "producto": "Products",
-      "precio": "Prices",
-      "centro-de-venta": "Sales Centers",
-      "canal": "Channels",
-      "distrito": "Districts",
+      "producto": "Product",
+      "precio": "Price",
+      "centro-de-venta": "Sale Center",
+      "canal": "Channel",
+      "distrito": "District",
       "division": "[EN] División",
       "gerencia": "[EN] Gerencia",
       "region": "[EN] Región",
       "marca": "[EN] Marca",
       "categoria": "[EN] Categoría",
-      "ruta": "[EN] Ruta"
+      "ruta": "[EN] Ruta",
+      "new": "New",
+      "import": "Import"
     },
     "login": {
       "welcome": "Welcome to Orax",
@@ -65,7 +67,12 @@
       "notAvailable": "Not available",
       "noFiltersMsg": "Error",
       "tableLoading": "Loading, please wait...",
-      "tableMsg": "You must select at least one project"
+      "tableMsg": "You must select at least one project",
+      "outdatedMsg": "Your projects do not comply with the current business rules, update them to see them here",
+      "outdatedBtn": "Update",
+      "noProjectsMsg": "You must create at least one project",
+      "noProjectsBtn": "Create",
+      "msgTitle": "Project settings"
     },
     "tables": {
       "colProduct": "Product",
@@ -104,7 +111,9 @@
       "noFilters": "Error loading filters",
       "noProductsSelected": "You dont have products selected",
       "save": "Saved adjustments",
-      "reportSuccess": "Report generated"
+      "reportSuccess": "Report generated",
+      "noInfo": "No information available",
+      "nofilters": "You do not have catalogs assigned! Please contact your supervisor"
     },
     "approve":{
       "approve": "Approve",
@@ -214,6 +223,14 @@
       "yes": "Yes",
       "no": "No",
       "cancel": "Cancel"
+    },
+    "tabs":{
+      "graphics": "Graphics",
+      "adjustments": "Adjustments",
+      "approve": "Approve",
+      "datasets": "Datasets",
+      "anomalies": "Anomalies",
+      "config": "Configuration"
     },
     "profile": {
       "form1Title": "[EN] Detalles",
@@ -424,15 +441,15 @@
       "alertSalesCenter": "[EN] Necesitas tener asignado al menos un centro de venta para ver esta sección, ponte en contacto con tu supervisor.",
       "alertTitle": "[EN] Atención",
       "approve": "[EN] Aprobar",
-      "btnCancel": "[EN] Cancelar",
+      "btnCancel": "Cancel",
       "btnClear": "[EN] Limpiar",
       "btnClone": "[EN] Clonar",
-      "btnConsolidate": "[EN] Consolidar",
+      "btnConsolidate": "Consolidate",
       "btnCreate": "[EN] Crear",
       "btnFinalize": "[EN] Finalizar",
       "btnRecover": "[EN] Recuperar",
       "btnSave": "[EN] Guardar",
-      "btnUpdate": "[EN] Actualizar",
+      "btnUpdate": "Update",
       "cloningMsg": "[EN] Se esta procesando el clon, favor de esperar...",
       "columns": "[EN] Columnas",
       "conciliatingMsg": "[EN] Se está conciliando el dataset, espere por favor.",
@@ -441,7 +458,7 @@
       "datasetName": "[EN] Nombre del dataset",
       "datasetSaveMsg": "[EN] El dataset se ha agregado con éxito",
       "displayMode": "[EN] Modo Visualización",
-      "done": "[EN] Realizados",
+      "done": "Done",
       "emptyApprove": "[EN] No hay ajustes por aprobar",
       "emptyDataRows": "[EN] El proyecto no continene data rows",
       "emptyMsg": "[EN] Este proyecto aún no contiene datasets, ponte en contacto con tu supervisor.",
@@ -462,7 +479,8 @@
       "modifyByQuantity": "[EN] Modificar por cantidad",
       "notAdjusted": "[EN] No Ajustados",
       "notAvailable": "[EN] No disponible",
-      "outdatedMsg": "[EN] Este proyecto se encuentra usando una version pasada de reglas de negocio, ¿Desea actualizarlo?",
+      "outdatedMsg": "This project is using a past version of business rules, do you want to update it?",
+      "outdatedTitle": "Outdated project",
       "pending": "[EN] Pendientes: ",
       "pendingRowsMsg": "[EN] Se está preparando al proyecto para generar un dataset de ajuste, espere por favor.",
       "period": "[EN] Periodo",
@@ -488,7 +506,7 @@
       "totalAdjustment": "[EN] Ajuste total",
       "totalPrediction": "[EN] Predicción total",
       "totalSales": "[EN] Venta total",
-      "toTry": "[EN] Por aprobar",
+      "toTry": "To approve",
       "unlimitedAdjustmentMode": "[EN] Modo Ajuste Ilimitado",
       "updatingRules": "[EN] Actualizando reglas del proyecto"
     },
@@ -537,9 +555,11 @@
       "savingMsg": "[EN] Guardando"
     },
     "import": {
-      "btnImport": "[EN] Importar",
-      "info": "[EN] El archivo .csv debe contener el mismo formato que el mostrado debajo: ",
-      "title": "[EN] Cargar"
+      "btnImport": "Import",
+      "importMsg": "File to import",
+      "info": "The .csv file must contain the same format as the one shown below:",
+      "title": "Upload",
+      "selectFile": "Select File"
     },
     "groups": {
       "btnAdd": "[EN] Agregar",
@@ -556,14 +576,16 @@
       "users": "[EN] Usuarios"
     },
     "catalog": {
-      "btnCancel": "[EN] Cancelar",
-      "btnCreate": "[EN] Crear",
-      "btnSave": "[EN] Guardar",
-      "detail": "[EN] Detalle",
-      "groups": "[EN] Grupos",
-      "saved": "[EN] Guardado",
-      "savedMsg": "[EN] Los datos se han guardado correctamente",
-      "saving": "[EN] Guardando"
+      "btnCancel": "Cancel",
+      "btnCreate": "Create",
+      "btnSave": "Save",
+      "detail": "Detail",
+      "groups": "Groups",
+      "saved": "Saved",
+      "savedMsg": "The data has been saved correctly",
+      "saving": "Saving",
+      "delete": "Delete",
+      "deleteMsg": "Are you sure you want to delete this item?"      
     },
     "forecasts": {
       "btnCancel": "[EN] Cancelar",
@@ -573,6 +595,10 @@
     "navbar": {
       "profile": "[EN] Mi perfil",
       "signOut": "[EN] Cerrar sesión"
+    },
+    "multi": {
+      "assigned": "Assigned",
+      "available": "Available"
     }
   }
 }

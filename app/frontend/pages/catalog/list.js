@@ -41,44 +41,7 @@ Catalog.opts = (opt) => {
     uiSchema: {
       general: { 'ui:widget': 'SearchFilter' }
     },
-    getColumns: () => {
-      return [
-        {
-          'title': 'Id',
-          'property': 'externalId',
-          'default': 'N/A',
-          'sortable': true
-        },
-        { //TODO: translate
-          'title': 'Nombre',
-          'property': 'name',
-          'default': 'N/A',
-          'sortable': true
-        },
-        { //TODO: translate
-          'title': 'Acciones',
-          formatter: (row) => {
-            if (testRoles('consultor-level-3, consultor-level-2')) {
-              return (
-                <Link className='button is-primary' to={opt.detailUrl + '/' + row.uuid}>
-                  <span className='icon is-small' title='Visualizar'>
-                    <i className='fa fa-eye' />
-                  </span>
-                </Link>
-              )
-            } else {
-              return (
-                <Link className='button is-primary' to={opt.detailUrl + '/' + row.uuid}>
-                  <span className='icon is-small' title='Editar'>
-                    <i className='fa fa-pencil' />
-                  </span>
-                </Link>
-              )
-            }
-          }
-        }
-      ]
-    }
+    getColumns: opt.columns
   })
 }
 
