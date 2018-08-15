@@ -1769,7 +1769,7 @@ class TabAdjustment extends Component {
                   {
                     !this.state.byWeek ?
 
-                      this.state.filteredData.length > 0 ?
+                      this.state.filteredData && this.state.filteredData.length > 0 ?
 
                         <ProductTable
                           show={this.showByWeek}
@@ -1790,7 +1790,7 @@ class TabAdjustment extends Component {
                         </div>
                       :
 
-                      this.state.filteredData.length > 0 ?
+                      this.state.filteredData && this.state.filteredData.length > 0 ?
                         <WeekTable
                           show={this.showByProduct}
                           currentRole={currentRole}
