@@ -83,7 +83,16 @@ module.exports = new Route({
 
     var statementCount = [...statementNoSkip]
 
-    statement.push({ '$limit': parseInt(ctx.request.query['limit']) || 20 })
+    if (ctx.request.query['limit']) {
+      if (parseInt(ctx.request.query['limit']) > 0) {
+        statement.push({ '$limit': parseInt(ctx.request.query['limit']) })
+      } else if (parseInt(ctx.request.query['limit']) < 0) {
+        statement.push({ '$limit': 20 })
+      }
+    } else {
+      statement.push({ '$limit': 20 })
+    }
+
     var groups = await Group.aggregate(statement)
 
     statementCount.push({$count: 'total'})

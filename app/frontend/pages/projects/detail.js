@@ -103,7 +103,7 @@ class ProjectDetail extends Component {
         if (body.data.status === 'empty') {
           tab = 'datasets'
         }
-        else if (body.data.status === 'pendingRows' || body.data.status === 'processing') {
+        else if (body.data.status === 'pendingRows' || body.data.status === 'processing' || body.data.status === 'conciliating') {
           tab = 'ajustes'
         }
         else if (body.data.status === 'adjustment') {
