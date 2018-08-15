@@ -31,6 +31,7 @@ import Calendar from './pages/calendar'
 import Prices from './pages/prices/list'
 import PriceDetail from './pages/prices/detail'
 import UsersImport from './pages/import/users'
+import GroupsImport from './pages/import/groups'
 import ChannelImport from './pages/import/channels'
 import ProductsImport from './pages/import/products'
 import SalesCentersImport from './pages/import/sales-centers'
@@ -71,6 +72,7 @@ class AppRouter extends Component {
               {Profile.asRouterItem()}
 
               {UsersImport.asRouterItem()}
+              {GroupsImport.asRouterItem()}
 
               {OrganizationDetail.asRouterItem()}
 
