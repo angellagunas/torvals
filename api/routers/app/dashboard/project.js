@@ -55,6 +55,8 @@ module.exports = new Route({
       }
     }
 
+    var catalogItems
+
     if (
         currentRole.slug === 'manager-level-1' ||
         currentRole.slug === 'manager-level-2' ||
@@ -67,7 +69,7 @@ module.exports = new Route({
         userGroups.push(ObjectId(g))
       }
 
-      const catalogItems = await CatalogItem.filterByUserRole(
+      catalogItems = await CatalogItem.filterByUserRole(
           { },
           currentRole.slug,
           user
@@ -122,9 +124,18 @@ module.exports = new Route({
       return
     }
 
-    const catalogs = datasetRow[0].catalogItems.filter(item => {
+    let catalogs = datasetRow[0].catalogItems.filter(item => {
       return matchCatalogs.indexOf(item.type) >= 0
     })
+
+    if (catalogItems) {
+      catalogs = catalogs.filter(item => {
+        let checkExistence = catalogItems.some((e) => {
+          return String(item._id) === String(e)
+        })
+        return checkExistence
+      })
+    }
 
     ctx.body = {
       products: datasetRow[0].products,
