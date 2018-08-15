@@ -8,5 +8,6 @@ module.exports = {
   pioPort: parseInt(process.env.PIO_TASK_PORT) || 3010,
   pioHost: process.env.PIO_TASK_HOST || 'http://localhost:3010',
   adminPrefix: process.env.ADMIN_PREFIX || '',
-  static: process.env.WEBPACK_PUBLIC_PATH
+  static: process.env.WEBPACK_PUBLIC_PATH,
+  cookieSufix: process.env.COOKIE_SUFIX || ''
 }
