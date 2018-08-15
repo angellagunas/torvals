@@ -1034,6 +1034,9 @@ class TabAdjustment extends Component {
       let res = await api.post(url, {
         start_date: moment(min).format('YYYY-MM-DD'),
         end_date:  moment(max).format('YYYY-MM-DD'),
+        showAdjusted: this.state.showAdjusted,
+        showNotAdjusted: this.state.showNotAdjusted,
+        searchTerm: this.state.searchTerm,
         ...formFilters
       })
 
