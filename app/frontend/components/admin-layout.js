@@ -1,5 +1,6 @@
 import {isEmpty} from 'lodash'
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { root } from 'baobab-react/higher-order'
 
 import tree from '~core/tree'
@@ -15,7 +16,6 @@ import { ToastContainer } from 'react-toastify'
 import { withRouter } from 'react-router'
 import BillingForm from '../pages/organizations/billing-form'
 import { toast } from 'react-toastify'
-import { orgStatus } from '~base/tools'
 
 
 class AdminLayout extends Component {
@@ -28,10 +28,21 @@ class AdminLayout extends Component {
       activePath: '',
       activateModal: ''
     }
+
+    this.orgStatus = {
+      'trial': this.formatTitle('organizations.orgStatusTrial'),
+      'active': this.formatTitle('organizations.orgStatusActive'),
+      'inactive': this.formatTitle('organizations.orgStatusInactive'),
+      'activationPending': this.formatTitle('organizations.orgStatusActivationPending')
+    }
   }
 
   handleBurgerEvent () {
     this.setState({sidebarCollapsed: !this.state.sidebarCollapsed})
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   handlePathChange (activePath) {
@@ -326,7 +337,7 @@ class AdminLayout extends Component {
               </header>
               <section className='modal-card-body'>
                 <p className='is-padding-bottom-small'>
-                  <strong>Tu cuenta se encuentra {orgStatus[this.state.user.currentOrganization.status]}.</strong>
+                  <strong>Tu cuenta se encuentra {this.orgStatus[this.state.user.currentOrganization.status]}.</strong>
                 </p>
                 {this.state.user.currentOrganization.status !== 'activationPending' &&                
                 <p className='is-padding-bottom-small'>
@@ -365,4 +376,4 @@ class AdminLayout extends Component {
   }
 }
 
-export default withRouter(root(tree, AdminLayout))
+export default withRouter(injectIntl(root(tree, AdminLayout)))

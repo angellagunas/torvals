@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 import { testRoles } from '~base/tools'
 
@@ -13,11 +13,6 @@ import NotFound from '~base/components/not-found'
 import FontAwesome from 'react-fontawesome'
 import { toast } from 'react-toastify'
 import Multiselect from '~base/components/base-multiselect'
-
-const cleanName = (item) => {
-  let c = item.replace(/-/g, ' ')
-  return c.charAt(0).toUpperCase() + c.slice(1)
-}
 
 class CatalogDetail extends Component {
   constructor (props) {
@@ -84,7 +79,7 @@ class CatalogDetail extends Component {
       return (
         <p className='card-header-title' style={{ fontWeight: '200', color: 'grey' }}>
           <FormattedMessage
-            id="catalog.saving"
+            id='catalog.saving'
             defaultMessage={`Guardando`}
           /> <span style={{ paddingLeft: '5px' }}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
@@ -105,7 +100,7 @@ class CatalogDetail extends Component {
       return (
         <p className='card-header-title' style={{ fontWeight: '200', color: 'grey' }}>
           <FormattedMessage
-            id="catalog.saved"
+            id='catalog.saved'
             defaultMessage={`Guardado`}
           />
         </p>
@@ -227,6 +222,10 @@ class CatalogDetail extends Component {
     }
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     if (this.state.notFound) {
       return <NotFound msg={'este ' + this.props.match.params.uuid} />
@@ -257,7 +256,7 @@ class CatalogDetail extends Component {
               <header className='card-header'>
                 <p className='card-header-title'>
                   <FormattedMessage
-                    id="catalog.groups"
+                    id='catalog.groups'
                     defaultMessage={`Grupos`}
                   />
                 </p>
@@ -267,9 +266,8 @@ class CatalogDetail extends Component {
               </header>
               <div className='card-content'>
                 <Multiselect
-                  //TODO: translate
-                  availableTitle='Disponible'
-                  assignedTitle='Asignado'
+                  availableTitle={this.formatTitle('multi.available')}
+                  assignedTitle={this.formatTitle('multi.assigned')}
                   assignedList={this.state.selectedGroups}
                   availableList={availableList}
                   dataFormatter={(item) => { return item.name || 'N/A' }}
@@ -297,21 +295,21 @@ class CatalogDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio', //TODO: translate
-                    current: false
-                  },
-                  {
-                    path: '/catalogs/' + this.props.match.params.catalog,
-                    label: 'Catálogos', //TODO: translate
+                    label: this.formatTitle('sideMenu.admin'),
                     current: true
                   },
                   {
                     path: '/catalogs/' + this.props.match.params.catalog,
-                    label: cleanName(this.props.match.params.catalog),
+                    label: this.formatTitle('sideMenu.catalogs'),
+                    current: true
+                  },
+                  {
+                    path: '/catalogs/' + this.props.match.params.catalog,
+                    label: this.formatTitle('catalogs.' + this.props.match.params.catalog),
                     current: false
                   },
                   {
-                    path: '/catalogs/channels/',
+                    path: '/catalogs/',
                     label: catalog.name,
                     current: true
                   }
@@ -324,11 +322,10 @@ class CatalogDetail extends Component {
             <div className='level-item'>
               {canEdit &&
                 <DeleteButton
-                  //TODO: translate
-                  titleButton={'Eliminar'}
-                  objectName={this.props.match.params.catalog}
+                  titleButton={this.formatTitle('catalog.delete')}
+                  objectName={this.formatTitle('catalogs.' + this.props.match.params.catalog)}
                   objectDelete={this.deleteObject.bind(this)}
-                  message={`¿Estas seguro de quieres borrar el canal ${catalog.name}?`}
+                  message={this.formatTitle('catalog.deleteMsg')}
                 />
               }
             </div>
@@ -343,7 +340,7 @@ class CatalogDetail extends Component {
                 <header className='card-header'>
                   <p className='card-header-title'>
                     <FormattedMessage
-                      id="catalog.detail"
+                      id='catalog.detail'
                       defaultMessage={`Detalle`}
                     />
                   </p>
@@ -369,7 +366,7 @@ class CatalogDetail extends Component {
                               type='submit'
                             >
                               <FormattedMessage
-                                id="catalog.btnSave"
+                                id='catalog.btnSave'
                                 defaultMessage={`Guardar`}
                               />
                             </button>
@@ -391,9 +388,9 @@ class CatalogDetail extends Component {
 
 export default Page({
   path: '/catalogs/:catalog/:uuid',
-  title: 'Catalog Detail', //TODO: translate
+  title: 'Catalog Detail',
   exact: true,
   roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
-  component: CatalogDetail
+  component: injectIntl(CatalogDetail)
 })

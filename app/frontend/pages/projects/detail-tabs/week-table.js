@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import StickTable from '~base/components/stick-table'
 import Checkbox from '~base/components/base-checkbox'
 import Loader from '~base/components/spinner'
@@ -32,7 +32,7 @@ class WeekTable extends Component {
   setRange () {
     let range
     if (this.props.generalAdjustment < 0) {
-      range = 'Ilimitado' //TODO: translate
+      range = this.formatTitle('adjustments.unlimited')
     } else if (this.props.generalAdjustment === 0) {
       range = 'N/A'
     } else {
@@ -109,7 +109,7 @@ class WeekTable extends Component {
           <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info btn-lvl-3' : 'button is-info'}>
 
             <FormattedMessage
-              id="projects.periodView"
+              id="adjustments.periodView"
               defaultMessage={`Vista Periodo`}
             />
           </a>
@@ -118,7 +118,7 @@ class WeekTable extends Component {
           <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
 
             <FormattedMessage
-              id="projects.productView"
+              id="adjustments.productView"
               defaultMessage={`Vista Producto`}
             />
           </a>
@@ -166,7 +166,7 @@ class WeekTable extends Component {
       },
       {
         group: ' ',
-        title: 'Id',
+        title: this.formatTitle('tables.colId'),
         property: 'productId',
         default: 'N/A',
         sortable: true,
@@ -180,7 +180,7 @@ class WeekTable extends Component {
       },
       {
         group: ' ',
-        title: 'Producto', //TODO: translate
+        title: this.formatTitle('tables.colProduct'),
         property: 'product',
         default: 'N/A',
         sortable: true,
@@ -193,8 +193,8 @@ class WeekTable extends Component {
             product = row.product
           }
           if (product === 'Not identified') {
-            product = 'No identificado'
-          }//TODO: translate
+            product = this.formatTitle('dashboard.unidentified')
+          }
           return product
         }
       },
@@ -245,11 +245,11 @@ class WeekTable extends Component {
           + ' - ' + moment.utc(periods[j].products[0].period.dateEnd).format('MMM D')
         }
       cols.push(
-        { //TODO: translate
-          group: <strong className={classP}>{this.splitWords('Periodo '   
+        { 
+          group: <strong className={classP}>{this.splitWords(this.formatTitle('adjustments.period') + ' '   
           + title
-            + '_Ajuste permitido ')}<span className='has-text-info'>{this.state.range}</span></strong>,
-          title: 'Predicción',
+          + '_' + this.formatTitle('adjustments.adjustmentRange') + ' ')}<span className='has-text-info'>{this.state.range}</span></strong>,
+          title: this.formatTitle('tables.colForecast'),
           property: 'prediction_' + j,
           default: '',
           sortable: true,
@@ -264,9 +264,13 @@ class WeekTable extends Component {
            }
          }
         },
-        { //TODO: translate
+        { 
           group: ' ',
-          title: this.splitWords('Ajuste_Anterior '),
+          title: this.formatTitle('dates.locale') === 'en' ? 
+          this.splitWords(this.formatTitle('adjustments.last') + '_' + this.formatTitle('tables.colAdjustment') + ' ')
+          :
+          this.splitWords(this.formatTitle('tables.colAdjustment') + '_' + this.formatTitle('adjustments.last') + ' ')
+          ,
           property: 'lastAdjustment_' + j,
           default: '',
           sortable: true,
@@ -287,7 +291,7 @@ class WeekTable extends Component {
         },
         {
           group: ' ',
-           title: 'Ajuste', //TODO: translate
+          title: this.formatTitle('tables.colAdjustment'), 
            property: 'adjustmentForDisplay_' + j,
            default: '',
            sortable: true,
@@ -327,9 +331,13 @@ class WeekTable extends Component {
           }
 
         },
-        { //TODO: translate
+        { 
           group: ' ',
-          title: this.splitWords('Rango_Ajustado'),
+          title: this.formatTitle('dates.locale') === 'en' ? 
+          this.splitWords(this.formatTitle('adjustments.adjusted') + '_' + this.formatTitle('adjustments.range'))
+          :
+          this.splitWords(this.formatTitle('adjustments.range') + '_' + this.formatTitle('adjustments.adjusted'))
+          ,
           property: 'percentage_' + j,
           default: '',
           sortable: true,
@@ -614,6 +622,11 @@ class WeekTable extends Component {
     })
   }
 
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     if (this.state.filteredDataByWeek.length === 0){
       return (
@@ -635,4 +648,4 @@ class WeekTable extends Component {
   }
 }
 
-export default WeekTable
+export default injectIntl(WeekTable)

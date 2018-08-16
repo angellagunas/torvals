@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { injectIntl } from 'react-intl'
 import BaseModal from '~base/components/base-modal'
 import ProjectForm from './create-form'
 
@@ -29,10 +29,14 @@ class CreateProject extends Component {
     this.setState({ isLoading: '' })
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     return (
       <BaseModal
-        title={this.props.title || 'Crear Proyecto'}
+        title={this.formatTitle(this.props.title) || 'Crear Proyecto'}
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -51,10 +55,12 @@ class CreateProject extends Component {
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
                 type='submit'
-              >{this.props.buttonText || 'Crear'}</button>
+              >{this.props.buttonText || this.formatTitle('dashboard.noProjectsBtn')}</button>
             </div>
             <div className='control'>
-              <button className='button' onClick={this.hideModal} type='button'>Cancelar</button>
+              <button className='button' onClick={this.hideModal} type='button'>
+                {this.formatTitle('projectConfig.cancel')}
+              </button>
             </div>
           </div>
         </ProjectForm>
@@ -63,4 +69,4 @@ class CreateProject extends Component {
   }
 }
 
-export default CreateProject
+export default injectIntl(CreateProject)

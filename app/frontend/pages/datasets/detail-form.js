@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 import { datasetStatus } from '~base/tools'
 
@@ -18,7 +18,6 @@ const schema = {
     'organization'
   ],
   properties: {
-    //TODO: translate
     name: {type: 'string', title: 'Nombre'},
     description: {type: 'string', title: 'Descripción'}
   }
@@ -40,10 +39,17 @@ class DatasetDetailForm extends Component {
     uiSchema['status'] = { 'ui:widget': SelectWidget, 'ui:disabled': true }
     schema.properties['status'] = {
       type: 'string',
-      title: 'Estado',
+      title: this.formatTitle('datasets.status'),
       enum: Object.keys(datasetStatus),
-      enumNames: Object.values(datasetStatus)
+      enumNames: this.formatTitle('dates.locale') === 'en' ? Object.keys(datasetStatus) : Object.values(datasetStatus)
     }
+
+    schema.properties.name.title = this.formatTitle('datasets.name')
+    schema.properties.description.title = this.formatTitle('datasets.description')
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentWillReceiveProps (nextProps) {
@@ -115,7 +121,7 @@ class DatasetDetailForm extends Component {
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
               <FormattedMessage
-                id="datasets.savedMsg"
+                id='datasets.savedMsg'
                 defaultMessage={`Los datos se han guardado correctamente`}
               />
             </div>
@@ -133,4 +139,4 @@ class DatasetDetailForm extends Component {
   }
 }
 
-export default DatasetDetailForm
+export default injectIntl(DatasetDetailForm)

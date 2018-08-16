@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Loader from '~base/components/spinner'
 import s from 'underscore.string'
+import { defaultCatalogs } from '~base/tools'
 
 class ConfigureViewDataset extends Component {
   constructor (props) {
@@ -16,6 +17,20 @@ class ConfigureViewDataset extends Component {
       },
       catalogColumns: []
     }
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs (slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
   }
 
   componentWillMount () {
@@ -41,13 +56,17 @@ class ConfigureViewDataset extends Component {
     let rules = this.state.rules
 
     for (let col of rules.catalogs) {
+      let title = col.name
+      if (this.findInCatalogs(col.slug)) {
+        title = this.formatTitle('catalogs.' + col.slug)
+      }
       cols.push({
         id: {
-          label: `${col.name} Id *`,
+          label: `${title} Id *`,
           name: `is_${col.slug}_id`
         },
-        name: { //TODO: translate
-          label: `${col.name} Nombre`,
+        name: {
+          label: title + ' ' + this.formatTitle('datasets.name'),
           name: `is_${col.slug}_name`
         }
       })
@@ -107,7 +126,7 @@ class ConfigureViewDataset extends Component {
           <div className='column'>
             <p className='title is-7'>
               <FormattedMessage
-                id="datasets.minimumDate"
+                id='datasets.minimumDate'
                 defaultMessage={`Fecha mínima`}
               />
             </p>
@@ -116,7 +135,7 @@ class ConfigureViewDataset extends Component {
           <div className='column'>
             <p className='title is-7'>
               <FormattedMessage
-                id="datasets.maximumDate"
+                id='datasets.maximumDate'
                 defaultMessage={`Fecha máxima`}
               />
             </p>
@@ -128,7 +147,7 @@ class ConfigureViewDataset extends Component {
           <div className='column'>
             <p className='title is-7'>
               <FormattedMessage
-                id="datasets.date"
+                id='datasets.date'
                 defaultMessage={`Fecha`}
               /> *
             </p>
@@ -137,7 +156,7 @@ class ConfigureViewDataset extends Component {
           <div className='column'>
             <p className='title is-7'>
               <FormattedMessage
-                id="datasets.analysis"
+                id='datasets.analysis'
                 defaultMessage={`Análisis`}
               /> *
             </p>
@@ -149,7 +168,7 @@ class ConfigureViewDataset extends Component {
           <div className='column'>
             <p className='title is-7'>
               <FormattedMessage
-                id="datasets.adjustment"
+                id='datasets.adjustment'
                 defaultMessage={`Ajuste`}
               />
             </p>
@@ -158,7 +177,7 @@ class ConfigureViewDataset extends Component {
           <div className='column'>
             <p className='title is-7'>
               <FormattedMessage
-                id="datasets.prediction"
+                id='datasets.prediction'
                 defaultMessage={`Predicción`}
               />
             </p>
@@ -170,7 +189,7 @@ class ConfigureViewDataset extends Component {
           <div className='column'>
             <p className='title is-7'>
               <FormattedMessage
-                id="datasets.sale"
+                id='datasets.sale'
                 defaultMessage={`Venta`}
               />
             </p>
@@ -203,7 +222,7 @@ class ConfigureViewDataset extends Component {
                 <tr>
                   <th>
                     <FormattedMessage
-                      id="datasets.operationFilter"
+                      id='datasets.operationFilter'
                       defaultMessage={`Filtro de Operación`}
                     />
                   </th>
@@ -220,7 +239,7 @@ class ConfigureViewDataset extends Component {
                 <tr>
                   <th>
                     <FormattedMessage
-                      id="datasets.analysisFilter"
+                      id='datasets.analysisFilter'
                       defaultMessage={`Filtro de Análisis`}
                     />
                   </th>
@@ -235,7 +254,7 @@ class ConfigureViewDataset extends Component {
 
         <label className='label'>
           <FormattedMessage
-            id="datasets.groupings"
+            id='datasets.groupings'
             defaultMessage={`Agrupaciones`}
           />
         </label>
@@ -244,19 +263,19 @@ class ConfigureViewDataset extends Component {
             <tr>
               <th>
                 <FormattedMessage
-                  id="datasets.column"
+                  id='datasets.column'
                   defaultMessage={`Columna`}
                 />
               </th>
               <th>
                 <FormattedMessage
-                  id="datasets.value1"
+                  id='datasets.value1'
                   defaultMessage={`Valor 1`}
                 />
               </th>
               <th colSpan='2'>
                 <FormattedMessage
-                  id="datasets.value2"
+                  id='datasets.value2'
                   defaultMessage={`Valor 2`}
                 />
               </th>
@@ -267,7 +286,7 @@ class ConfigureViewDataset extends Component {
               <tr>
                 <td colSpan='4'>
                   <FormattedMessage
-                    id="datasets.emptyGroups"
+                    id='datasets.emptyGroups'
                     defaultMessage={`No hay agrupaciones que mostrar`}
                   />
                 </td>
@@ -290,4 +309,4 @@ class ConfigureViewDataset extends Component {
   }
 }
 
-export default ConfigureViewDataset
+export default injectIntl(ConfigureViewDataset)

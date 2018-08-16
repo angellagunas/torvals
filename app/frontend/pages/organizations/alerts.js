@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { BaseTable } from '~base/components/base-table'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Multiselect from '~base/components/base-multiselect'
 import api from '~base/api'
 import tree from '~core/tree'
@@ -25,30 +25,34 @@ class Alerts extends Component {
     this.getAlerts()
   }
   
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+  
   getColumns(){
     return(
       [
         {
-          'title': 'Alerta',
+          'title': this.formatTitle('organizationAlerts.tableAlert'),
           'default': 'N/A',
           formatter: (row) => {
             return String(row.name)
           }
         },
-        { //TODO: translate
-          'title': 'Tipo',
+        {
+          'title': this.formatTitle('organizationAlerts.tableType'),
           'default': 'N/A',
           formatter: (row) => {
             return String(row.type)
           }
         },
         {
-          'title': 'Descripción',
+          'title': this.formatTitle('organizationAlerts.tableDescription'),
           'property': 'description',
           'default': 'N/A'
         },
-        { //TODO: translate
-          'title': 'Habilitado para tu organización',
+        {
+          'title': this.formatTitle('organizationAlerts.tableEnabled'),
           'property': 'type',
           'default': 'N/A',
           className: 'has-text-centered',
@@ -72,7 +76,7 @@ class Alerts extends Component {
           }
         },
         {
-          'title': 'Acciones', //TODO: translate
+          'title': this.formatTitle('organizationAlerts.tableActions'),
           formatter: (row) => {
             if(!row.default){
               return (
@@ -362,7 +366,12 @@ class Alerts extends Component {
         <div className='level'>
           <div className='level-left'>
             <div className='level-item'>
-              <h1 className='subtitle has-text-weight-bold'>Configuración de alertas</h1>
+              <h1 className='subtitle has-text-weight-bold'>
+                <FormattedMessage
+                  id='organizationAlerts.title'
+                  defaultMessage={`Búsqueda general`}
+                />
+              </h1>
             </div>
           </div>
           <div className='level-right'>
@@ -380,7 +389,7 @@ class Alerts extends Component {
                     type='text'
                     value={this.state.searchTerm}
                     onChange={this.searchOnChange}
-                    placeholder='Buscar' //TODO: translate
+                    placeholder={this.formatTitle('dashboard.searchText')}
                   />
 
                   <span className='icon is-small is-right'>
@@ -416,7 +425,12 @@ class Alerts extends Component {
                         checked={this.state.alertSelected.status === 'active'}
                         onChange={(e) => this.toggleActive(e.target.value)}
                       />
-                      <label htmlFor='switchRtlExample'>Activar</label>
+                      <label htmlFor='switchRtlExample'>
+                        <FormattedMessage
+                          id='organizationAlerts.activateBtn'
+                          defaultMessage={`Activar`}
+                        />
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -429,8 +443,8 @@ class Alerts extends Component {
               </div>
               {this.state.alertSelected.status === 'active' &&
             <Multiselect
-                availableTitle='Usuarios disponibles'
-                assignedTitle='Usuarios asignados'
+                availableTitle={this.formatTitle('organizationAlerts.multiselectAvailableTitle')}
+                assignedTitle={this.formatTitle('organizationAlerts.multiselectAssignedTitle')}
                 assignedList={this.state.selectedUsers}
                 availableList={availableList}
                 dataFormatter={(item) => { return item.name || 'N/A' }}
@@ -447,4 +461,4 @@ class Alerts extends Component {
   }
 }
 
-export default Alerts
+export default injectIntl(Alerts)

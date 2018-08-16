@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
@@ -55,10 +55,14 @@ class CreateDataSet extends Component {
     this.setState({ isLoading: '' })
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     return (
       <BaseModal
-        title='Crear DataSet'
+        title={this.formatTitle('datasets.add')}
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -79,7 +83,7 @@ class CreateDataSet extends Component {
                 type='submit'
               >
                 <FormattedMessage
-                  id="projects.btnCreate"
+                  id='datasets.create'
                   defaultMessage={`Crear`}
                 />
               </button>
@@ -87,7 +91,7 @@ class CreateDataSet extends Component {
             <div className='control'>
               <button className='button is-info is-outlined' onClick={this.hideModal} type='button'>
                 <FormattedMessage
-                  id="projects.btnCancel"
+                  id='datasets.btnCancel'
                   defaultMessage={`Cancelar`}
                 />
               </button>
@@ -109,4 +113,4 @@ const BranchedCreateDataSet = branch((props, context) => {
   }
 }, CreateDataSet)
 
-export default BranchedCreateDataSet
+export default injectIntl(BranchedCreateDataSet)

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import moment from 'moment'
 import api from '~base/api'
 import { toast } from 'react-toastify'
@@ -12,6 +12,7 @@ import { BaseTable } from '~base/components/base-table'
 import InputRange from 'react-input-range'
 import 'react-input-range/lib/css/index.css'
 import Checkbox from '~base/components/base-checkbox'
+import { defaultCatalogs } from '~base/tools'
 
 class TabHistorical extends Component {
   constructor(props) {
@@ -169,7 +170,7 @@ class TabHistorical extends Component {
         //TODO: translate
         this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
         this.setState({
-          noData: e.message + ', intente más tarde'
+          noData: e.message + ', ' + this.formatTitle('dashboard.try')
         })
       }
     }
@@ -206,7 +207,7 @@ class TabHistorical extends Component {
       //TODO: translate
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
-        noData: e.message + ', intente más tarde'
+        noData: e.message + ', ' + this.formatTitle('dashboard.try')
       })
     }
   }
@@ -244,7 +245,7 @@ class TabHistorical extends Component {
   getColumns() {
     let cols = [
       {
-        'title': 'Id',
+        'title': this.formatTitle('tables.colId'),
         'property': 'product.externalId',
         'default': 'N/A',
         'sortable': true,
@@ -252,8 +253,8 @@ class TabHistorical extends Component {
           return row.product.externalId
         }
       },
-      { //TODO: translate
-        'title': 'Producto',
+      {
+        'title': this.formatTitle('tables.colProduct'),
         'property': 'product.name',
         'default': 'N/A',
         'sortable': true,
@@ -261,8 +262,8 @@ class TabHistorical extends Component {
           return row.product.name
         }
       },
-      { //TODO: translate
-        'title': 'Predicción',
+      {
+        'title': this.formatTitle('tables.colForecast'),
         'property': 'prediction',
         'default': '0',
         'sortable': true,
@@ -271,13 +272,12 @@ class TabHistorical extends Component {
             let val = row.prediction.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
-
             return this.state.prices ? '$' + val : val
           }
         }
       },
-      { //TODO: translate
-        'title': 'Ajuste',
+      {
+        'title': this.formatTitle('tables.colAdjustment'),
         'property': 'adjustment',
         'default': '0',
         'sortable': true,
@@ -286,13 +286,11 @@ class TabHistorical extends Component {
             let val = row.adjustment.toFixed().replace(/./g, (c, i, a) => {
               return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
             })
-
-            return this.state.prices ? '$' + val : val
           }
         }
       },
-      { //TODO: translate
-        'title': 'Venta',
+      {
+        'title': this.formatTitle('tables.colSales'),
         'property': 'sale',
         'default': '0',
         'sortable': true,
@@ -305,8 +303,8 @@ class TabHistorical extends Component {
           }
         }
       },
-      { //TODO: translate
-        'title': 'Venta año anterior',
+      {
+        'title': this.formatTitle('tables.colLast'),
         'property': 'previousSale',
         'default': '0',
         'sortable': true,
@@ -319,7 +317,7 @@ class TabHistorical extends Component {
           }
         }
       },
-      { //TODO: translate
+      {
         'title': 'MAPE',
         'property': 'mape',
         'default': '0.00%',
@@ -417,7 +415,7 @@ class TabHistorical extends Component {
         <center>
           <h1 className='has-text-info'>
             <FormattedMessage
-              id="projects.selectProjectMsg"
+              id="dashboard.tableMsg"
               defaultMessage={`Debes seleccionar al menos un proyecto`}
             />
           </h1>
@@ -429,7 +427,7 @@ class TabHistorical extends Component {
         <center>
           <h1 className='has-text-info'>
             <FormattedMessage
-              id="projects.loading"
+              id="dashboard.tableLoading"
               defaultMessage={`Cargando, un momento por favor`}
             />
           </h1>
@@ -553,7 +551,8 @@ class TabHistorical extends Component {
         type: this.findName(key),
         objects: value,
         selectAll: true,
-        isOpen: true
+        isOpen: true,
+        slug: key
       }))
       .value()
 
@@ -618,6 +617,14 @@ class TabHistorical extends Component {
     return count
   }
 
+  filterTitle(item) {
+    let title = item.type
+    if (this.findInCatalogs(item.slug)) {
+      title = this.formatTitle('catalogs.' + item.slug)
+    }
+    return title
+  }
+
   makeFilters() {
     return this.state.catalogItems.map(item => {
       if (item.type !== 'Producto' && item.type !== 'Precio'){
@@ -630,7 +637,7 @@ class TabHistorical extends Component {
                 <i className={item.isOpen
                   ? 'fa fa-plus' : 'fa fa-minus'} />
               </span>
-              {item.type} <strong>{item.objects && item.objects.length}</strong>
+              {this.filterTitle(item)} <strong>{item.objects && item.objects.length}</strong>
             </a>
           </div>
           <aside className={item.isOpen
@@ -638,7 +645,7 @@ class TabHistorical extends Component {
             <div>
               <Checkbox
                 checked={item.selectAll}
-                label={'Seleccionar Todos'}
+                label={this.formatTitle('dashboard.selectAll')}
                 handleCheckboxChange={(e, value) => {
                   this.checkAllItems(value, item.type)
                   this.getGraph()
@@ -654,7 +661,7 @@ class TabHistorical extends Component {
                   if (obj.selected === undefined) {
                     obj.selected = true
                   }
-                  let name = obj.name === 'Not identified' ? obj.externalId + ' (No identificado)' : obj.externalId + ' ' + obj.name
+                  let name = obj.name === 'Not identified' ? obj.externalId + ' ' + this.formatTitle('dashboard.unidentified') : obj.externalId + ' ' + obj.name
 
                   return (
                     <li key={obj.uuid}>
@@ -751,6 +758,20 @@ class TabHistorical extends Component {
     }
   }
 
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
   render() {
 
     const {
@@ -780,35 +801,34 @@ class TabHistorical extends Component {
         </div>
       )
     }
-    //TODO: translate
     const graph = [
       {
-        label: 'Predicción',
+        label: this.formatTitle('dashboard.perdictionTitle'),
         color: '#187FE6',
         data: this.state.graphData ?
           this.state.graphData.map((item) => { return item.prediction !== undefined ? item.prediction : null })
-           : []
+          : []
       },
       {
-        label: 'Ajuste',
+        label: this.formatTitle('dashboard.adjustmentsTitle'),
         color: '#30C6CC',
         data: this.state.graphData ?
           this.state.graphData.map((item) => { return item.adjustment !== undefined ? item.adjustment : null })
-           : []
+          : []
       },
       {
-        label: 'Venta',
+        label: this.formatTitle('dashboard.salesTitle'),
         color: '#0CB900',
         data: this.state.graphData ?
           this.state.graphData.map((item) => { return item.sale !== undefined ? item.sale : null })
           : []
       },
       {
-        label: 'Venta año anterior',
+        label: this.formatTitle('dashboard.lastSalesTitle'),
         color: '#EF6950',
         data: this.state.graphData ?
           this.state.graphData.map((item) => { return item.previousSale !== undefined ? item.previousSale : null })
-           : []
+          : []
       }
     ]
 
@@ -836,7 +856,7 @@ class TabHistorical extends Component {
                           <i className='fa fa-filter' />
                         </span>
                         <FormattedMessage
-                          id="projects.filters"
+                          id="dashboard.filtersTitle"
                           defaultMessage={`Filtros`}
                         />
                       </h1>
@@ -862,35 +882,28 @@ class TabHistorical extends Component {
                 {this.state.graphData && this.state.filteredData && this.state.graphData.length > 0 &&
                   <div className='column is-3 is-2-widescreen is-paddingless'>
                     <div className='notification is-info has-text-centered'>
-                      <h1 className={this.state.totalSale === 0 ? 'title is-4' : 'title is-2'}>{
-                        this.state.totalSale === 0 
-                          ? <FormattedMessage
-                              id="projects.notAvailable"
-                              defaultMessage={`No disponible`}
-                            />
-                          : this.state.mape.toFixed(2) + '%' || '0.00%'
-                        }
-                      </h1>
-                      <h2 className='subtitle has-text-weight-bold'>
+                    <h1 className={this.state.totalSale === 0 ? 'title is-4' : 'title is-2'}>{
+                      this.state.totalSale === 0 ?
                         <FormattedMessage
-                          id="projects.mape"
-                          defaultMessage={`MAPE`}
-                        />
-                      </h2>
+                          id="dashboard.notAvailable"
+                          defaultMessage={`No disponible`}
+                        /> : this.state.mape.toFixed(2) + '%' || '0.00%'}</h1>
+
+                      <h2 className='subtitle has-text-weight-bold'>MAPE</h2>
                     </div>
 
                     <div className='indicators'>
                       <p className='indicators-title'>
-                        <FormattedMessage
-                          id="projects.totalSales"
-                          defaultMessage={`Venta total`}
-                        />
+                      <FormattedMessage
+                        id="dashboard.salesTitle"
+                        defaultMessage={`Venta total`}
+                      />
                       </p>
                       <p className='indicators-number has-text-success'>
                         {
                           this.state.totalSale === 0
                             ? <FormattedMessage
-                                id="projects.notAvailable"
+                                id="dashboard.notAvailable"
                                 defaultMessage={`No disponible`}
                               />
                             : this.state.prices
@@ -904,16 +917,16 @@ class TabHistorical extends Component {
                         }
                       </p>
                       <p className='indicators-title'>
-                        <FormattedMessage
-                          id="projects.previousSales"
-                          defaultMessage={`Venta año anterior`}
-                        />
+                      <FormattedMessage
+                        id="dashboard.lastSalesTitle"
+                        defaultMessage={`Venta año anterior`}
+                      />
                       </p>
                       <p className='indicators-number has-text-danger'>
                         {
                           this.state.totalPSale === 0
                           ? <FormattedMessage
-                              id="projects.notAvailable"
+                              id="dashboard.notAvailable"
                               defaultMessage={`No disponible`}
                             />
                           : this.state.prices
@@ -928,16 +941,16 @@ class TabHistorical extends Component {
                       </p>
 
                       <p className='indicators-title'>
-                        <FormattedMessage
-                          id="projects.totalAdjustment"
-                          defaultMessage={`Ajuste total`}
-                        />
+                      <FormattedMessage
+                        id="dashboard.adjustmentsTitle"
+                        defaultMessage={`Ajuste total`}
+                      />
                       </p>
                       <p className='indicators-number has-text-teal'>
                         {
                           this.state.totalAdjustment === 0
                           ? <FormattedMessage
-                              id="projects.notAvailable"
+                              id="dashboard.notAvailable"
                               defaultMessage={`No disponible`}
                             />
                           : this.state.prices 
@@ -952,16 +965,16 @@ class TabHistorical extends Component {
                       </p>
 
                       <p className='indicators-title'>
-                        <FormattedMessage
-                          id="projects.totalPrediction"
-                          defaultMessage={`Predicción total`}
-                        />
+                      <FormattedMessage
+                        id="dashboard.perdictionTitle"
+                        defaultMessage={`Predicción total`}
+                      />
                       </p>
                       <p className='indicators-number has-text-info'>
                         {
                           this.state.totalPrediction === 0 
                           ? <FormattedMessage
-                              id="projects.notAvailable"
+                              id="dashboard.notAvailable"
                               defaultMessage={`No disponible`}
                             />
                           : this.state.prices
@@ -1080,8 +1093,8 @@ class TabHistorical extends Component {
                         <center>
                           <h1 className='has-text-info'>
                             <FormattedMessage
-                              id="projects.emptyRows"
-                              defaultMessage={`No hay datos que mostrar`}
+                              id="dashboard.graphEmptyMsg"
+                              defaultMessage={`No hay datos que mostrar, intente con otro filtro`}
                             />
                           </h1>
                         </center>
@@ -1101,7 +1114,7 @@ class TabHistorical extends Component {
                     <div className='field'>
                       <label className='label'>
                         <FormattedMessage
-                          id="projects.search"
+                          id="dashboard.searchText"
                           defaultMessage={`Búsqueda general`}
                         />
                       </label>
@@ -1110,7 +1123,7 @@ class TabHistorical extends Component {
                           className='input'
                           type='text'
                           value={this.state.searchTerm}
-                          onChange={this.searchOnChange} placeholder='Buscar' />
+                          onChange={this.searchOnChange} placeholder={this.formatTitle('dashboard.searchText')} />
 
                         <span className='icon is-small is-right'>
                           <i className='fa fa-search fa-xs' />
@@ -1123,9 +1136,9 @@ class TabHistorical extends Component {
                     <div className="field">
                       <label className='label'>
                         <FormattedMessage
-                          id="projects.showBy"
-                          defaultMessage={`Mostrar por:`}
-                        />
+                          id="dashboard.showBy"
+                          defaultMessage={`Mostrar por`}
+                        />:
                       </label>
                       <div className='control'>
 
@@ -1143,8 +1156,8 @@ class TabHistorical extends Component {
                             <label htmlFor='showByquantity'>
                               <span title='Cantidad'>
                                 <FormattedMessage
-                                  id="projects.quantity"
-                                  defaultMessage={`Cantidad`}
+                                  id="dashboard.units"
+                                  defaultMessage={`Unidades`}
                                 />
                               </span>
                             </label>
@@ -1162,7 +1175,7 @@ class TabHistorical extends Component {
                             <label htmlFor='showByprice'>
                               <span title='Precio'>
                                 <FormattedMessage
-                                  id="projects.price"
+                                  id="dashboard.price"
                                   defaultMessage={`Precio`}
                                 />
                               </span>
@@ -1181,7 +1194,7 @@ class TabHistorical extends Component {
                     <div className='field'>
                       <label className='label'>
                         <FormattedMessage
-                          id="projects.initialMonth"
+                          id="dashboard.initialMonth"
                           defaultMessage={`Mes inicial`}
                         />
                       </label>
@@ -1225,10 +1238,10 @@ class TabHistorical extends Component {
                     <div className='level-item'>
                      <div className='field'>
                         <label className='label'>
-                          <FormattedMessage
-                            id="projects.finalMonth"
-                            defaultMessage={`Mes final`}
-                          />
+                        <FormattedMessage
+                          id="dashboard.lastMonth"
+                          defaultMessage={`Mes final`}
+                        />
                         </label>
                         <div className='field is-grouped control'>
                         <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
@@ -1281,7 +1294,7 @@ class TabHistorical extends Component {
                     <center>
                       <h1 className='has-text-info'>
                         <FormattedMessage
-                          id="projects.emptyProducts"
+                          id="dashboard.productEmptyMsg"
                           defaultMessage={`No hay productos que mostrar, intente con otro filtro`}
                         />
                       </h1>
@@ -1298,4 +1311,4 @@ class TabHistorical extends Component {
     )
   }
 }
-export default TabHistorical
+export default injectIntl(TabHistorical)

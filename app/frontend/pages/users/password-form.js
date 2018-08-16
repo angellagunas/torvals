@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Loader from '~base/components/spinner'
 import { testRoles } from '~base/tools'
 import tree from '~core/tree'
@@ -14,13 +14,6 @@ import {
   PasswordWidget
 } from '~base/components/base-form'
 
-function validate (formData, errors) {
-  if (formData.password_1 !== formData.password_2) {
-    errors.password_2.addError("Passwords don't match!")
-  }
-  return errors
-}
-
 class PasswordUserForm extends Component {
   constructor (props) {
     super(props)
@@ -33,6 +26,10 @@ class PasswordUserForm extends Component {
     }
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   async componentWillMount () {
     await this.loadProjects()
 
@@ -43,7 +40,7 @@ class PasswordUserForm extends Component {
       if (role && role.slug === 'manager-level-1') {
         if (this.state.projects.length === 0) {
           this.setState({
-            error: '¡No existen proyectos!', //TODO: translate
+            error: this.formatTitle('user.formProjectErrorMsg'),
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -53,6 +50,13 @@ class PasswordUserForm extends Component {
   }
 
   errorHandler (e) {}
+
+  validate (formData, errors) {
+    if (formData.password_1 !== formData.password_2) {
+      errors.password_2.addError(this.formatTitle('user.formPass2Error'))
+    }
+    return errors
+  }
 
   async changeHandler ({formData}) {
     if (formData.role && this.state.formData.role !== formData.role) {
@@ -65,7 +69,7 @@ class PasswordUserForm extends Component {
         if (this.state.projects.length === 0) {
           return this.setState({
             formData,
-            error: '¡No existen proyectos!', //TODO: translate
+            error: this.formatTitle('user.formProjectErrorMsg'),
             apiCallErrorMessage: 'message is-danger',
             cannotCreate: true
           })
@@ -102,8 +106,7 @@ class PasswordUserForm extends Component {
     })
   }
 
-
-  async updateStep() {
+  async updateStep () {
     try {
       let user = tree.get('user')
       if (user.currentOrganization.wizardSteps.users) {
@@ -184,21 +187,20 @@ class PasswordUserForm extends Component {
         'email', 'name', 'password_1', 'password_2'
       ],
       properties: {
-        //TODO: translate
-        name: {type: 'string', title: 'Nombre'},
-        email: {type: 'string', title: 'Email'},
-        password_1: {type: 'string', title: 'Contraseña'},
-        password_2: {type: 'string', title: 'Confirmar Contraseña'},
+        name: {type: 'string', title: this.formatTitle('user.formName')},
+        email: {type: 'string', title: this.formatTitle('user.formEmail')},
+        password_1: {type: 'string', title: this.formatTitle('user.formPass1')},
+        password_2: {type: 'string', title: this.formatTitle('user.formPass2')},
         role: {
           type: 'string',
-          title: 'Rol',
+          title: this.formatTitle('user.formRole'),
           enum: [],
           enumNames: [],
           default: 'manager-level-1'
         },
         group: {
           type: 'string',
-          title: 'Grupo',
+          title: this.formatTitle('user.formGroup'),
           enum: [],
           enumNames: []
         }
@@ -231,7 +233,12 @@ class PasswordUserForm extends Component {
       })
 
       if (role && role.slug === 'manager-level-1') {
-        schema.properties['project'] = { type: 'string', title: 'Proyecto', enum: [], enumNames: [] }
+        schema.properties['project'] = {
+          type: 'string',
+          title: this.formatTitle('user.formProject'),
+          enum: [],
+          enumNames: []
+        }
         uiSchema['project'] = {'ui:widget': SelectWidget}
         schema.required.push('project')
       } else {
@@ -241,7 +248,6 @@ class PasswordUserForm extends Component {
         schema.required = ['email', 'name', 'password_1', 'password_2']
       }
     }
-
 
     if (this.props.roles.length === 0) {
       return <Loader />
@@ -260,7 +266,12 @@ class PasswordUserForm extends Component {
         schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
         schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
       } else {
-        schema.properties['group'] = { type: 'string', title: 'Grupo', enum: [], enumNames: [] }
+        schema.properties['group'] = {
+          type: 'string',
+          title: this.formatTitle('user.formGroup'),
+          enum: [],
+          enumNames: []
+        }
         uiSchema['group'] = {'ui:widget': SelectWidget}
         schema.properties.group.enum = this.props.groups.map(item => { return item.uuid })
         schema.properties.group.enumNames = this.props.groups.map(item => { return item.name })
@@ -299,12 +310,12 @@ class PasswordUserForm extends Component {
           onChange={(e) => { this.changeHandler(e) }}
           onSubmit={(e) => { this.submitHandler(e) }}
           onError={(e) => { this.errorHandler(e) }}
-          validate={validate}
+          validate={this.validate}
         >
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
               <FormattedMessage
-                id="user.createMsg"
+                id='user.createMsg'
                 defaultMessage={`Se ha creado correctamente al usuario`}
               />
             </div>
@@ -322,4 +333,4 @@ class PasswordUserForm extends Component {
   }
 }
 
-export default PasswordUserForm
+export default injectIntl(PasswordUserForm)
