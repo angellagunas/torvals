@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 import moment from 'moment'
 import env from '~base/env-variables'
@@ -19,7 +19,7 @@ class UserDetail extends Component {
       loaded: false,
       loading: true,
       resetLoading: false,
-      resetText: 'Restablecer Contraseña', // TODO: translate
+      resetText: this.formatTitle('user.resetText'),
       resetClass: 'button is-danger',
       user: {},
       roles: [],
@@ -37,6 +37,10 @@ class UserDetail extends Component {
     this.loadGroups()
     this.loadRoles()
     this.loadProjects()
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   async loadProjects () {
@@ -178,7 +182,7 @@ class UserDetail extends Component {
   async resetOnClick () {
     await this.setState({
       resetLoading: true,
-      resetText: 'Enviando email...', // TODO: translate
+      resetText: this.formatTitle('user.resetText1'),
       resetClass: 'button is-info'
     })
 
@@ -189,14 +193,14 @@ class UserDetail extends Component {
       setTimeout(() => {
         this.setState({
           resetLoading: true,
-          resetText: '¡Éxito!', // TODO: translate
+          resetText: this.formatTitle('user.resetText2'),
           resetClass: 'button is-success'
         })
       }, 3000)
     } catch (e) {
       await this.setState({
         resetLoading: true,
-        resetText: '¡Error!',
+        resetText: this.formatTitle('user.resetText3'),
         resetClass: 'button is-danger'
       })
     }
@@ -204,7 +208,7 @@ class UserDetail extends Component {
     setTimeout(() => {
       this.setState({
         resetLoading: false,
-        resetText: 'Restablecer Contraseña', // TODO: translate
+        resetText: this.formatTitle('user.resetText'),
         resetClass: 'button is-danger'
       })
     }, 10000)
@@ -294,8 +298,7 @@ class UserDetail extends Component {
 
   render () {
     if (this.state.notFound) {
-      // TODO: translate
-      return <NotFound msg='este usuario' />
+      return <NotFound msg={this.formatTitle('user.notFound')} />
     }
     const { user } = this.state
     const currentUser = tree.get('user')
@@ -378,12 +381,12 @@ class UserDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio', // TODO: translate
+                    label: this.formatTitle('user.breadcrumbStart'),
                     current: false
                   },
                   {
                     path: '/manage/users-groups',
-                    label: 'Usuarios', // TODO: translate
+                    label: this.formatTitle('user.breadcrumbUsers'),
                     current: false,
                     onclick: (e) => {
                       e.preventDefault()
@@ -392,7 +395,7 @@ class UserDetail extends Component {
                   },
                   {
                     path: '/manage/users',
-                    label: 'Detalle', // TODO: translate
+                    label: this.formatTitle('user.breadcrumbDetail'),
                     current: true
                   },
                   {
@@ -490,8 +493,8 @@ class UserDetail extends Component {
                     </header>
                     <div className='card-content'>
                       <Multiselect
-                        availableTitle='Disponible'
-                        assignedTitle='Asignado'
+                        availableTitle={this.formatTitle('user.multiselectAvailableTitle')}
+                        assignedTitle={this.formatTitle('user.multiselectAssignedTitle')}
                         assignedList={this.state.selectedGroups}
                         availableList={availableList}
                         dataFormatter={(item) => { return item.name || 'N/A' }}
@@ -511,4 +514,4 @@ class UserDetail extends Component {
   }
 }
 
-export default UserDetail
+export default injectIntl(UserDetail)

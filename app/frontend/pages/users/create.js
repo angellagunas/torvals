@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Loader from '~base/components/spinner'
@@ -24,6 +24,10 @@ class CreateUser extends Component {
   async componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
     await this.loadRoles()
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   async load () {
@@ -85,7 +89,7 @@ class CreateUser extends Component {
               type='submit'
             >
               <FormattedMessage
-                id="profile.btnCreate"
+                id='user.btnCreate'
                 defaultMessage={`Crear`}
               />
             </button>
@@ -97,7 +101,7 @@ class CreateUser extends Component {
               type='button'
             >
               <FormattedMessage
-                id="profile.btnCancel"
+                id='user.btnCancel'
                 defaultMessage={`Cancelar`}
               />
             </button>
@@ -131,7 +135,7 @@ class CreateUser extends Component {
               type='submit'
             >
               <FormattedMessage
-                id="profile.btnInvite"
+                id='user.btnInvite'
                 defaultMessage={`Invitar`}
               />
             </button>
@@ -143,7 +147,7 @@ class CreateUser extends Component {
               type='button'
             >
               <FormattedMessage
-                id="profile.btnCancel"
+                id='user.btnCancel'
                 defaultMessage={`Cancelar`}
               />
             </button>
@@ -167,7 +171,7 @@ class CreateUser extends Component {
 
   render () {
     var modalContent
-    var title = 'Crear usuario' //TODO: translate
+    var title = this.formatTitle('user.createTitle')
 
     this.initialState = {
       name: '',
@@ -187,7 +191,7 @@ class CreateUser extends Component {
 
       if (env.EMAIL_SEND) {
         modalContent = this.getSendInviteForm()
-        title = 'Invitar usuario' //TODO: translate
+        title = this.formatTitle('user.createInviteTitle')
       } else {
         modalContent = this.getPasswordForm()
       }
@@ -217,4 +221,4 @@ const BranchedCreateUser = branch((props, context) => {
   }
 }, CreateUser)
 
-export default BranchedCreateUser
+export default injectIntl(BranchedCreateUser)
