@@ -114,7 +114,8 @@ module.exports = new Route({
 
     let conditions = []
     let group = []
-    if (data.prices) {
+    // if (data.prices) {
+    if (true === false) {
       conditions = [
         {
           '$lookup': {
