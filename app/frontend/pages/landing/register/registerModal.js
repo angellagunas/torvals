@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Checkbox from '~base/components/base-checkbox'
+import slugify from 'underscore.string/slugify'
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector'
 import api from '~base/api'
 import tree from '~core/tree'
@@ -318,6 +319,8 @@ class RegisterModal extends Component {
       if (!isNaN(Number(e.target.value))) {
         val = e.target.value
       }
+    } else if (input === 'domain') {
+      val = slugify(e.target.value)
     } else {
       val = e.target.value
     }

@@ -114,15 +114,17 @@ class OrganizationDetail extends Component {
             id='organizations.daysLeftAccount'
             defaultMessage={`Tu cuenta se encuentra`}
           /> {en} <span className={color}>{status}</span></h2>
-        <button className='button is-primary is-medium is-pulled-right'
-          disabled={!!this.state.isLoading}
-          onClick={() => this.toggleModal()}
-        >
-          <FormattedMessage
-            id='organizations.activateModalBtn'
-            defaultMessage={`Solicitar activación`}
-          />
-        </button>
+        {org.status !== 'active' &&
+          <button className='button is-primary is-medium is-pulled-right'
+            disabled={!!this.state.isLoading}
+            onClick={() => this.toggleModal()}
+          >
+            <FormattedMessage
+              id='organizations.activateModalBtn'
+              defaultMessage={`Solicitar activación`}
+            />
+          </button>
+        }
         <h1>
           {days} <FormattedMessage
             id='organizations.daysLeftDays'

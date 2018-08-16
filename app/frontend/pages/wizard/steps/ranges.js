@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react'
 import { FormattedMessage } from 'react-intl'
 
-function DangerText() {
+function DangerText () {
   return (
-    <p className="has-text-danger">
+    <p className='has-text-danger'>
       * <FormattedMessage
-        id="wizard.rangesWarningMsg"
+        id='wizard.rangesWarningMsg'
         defaultMessage={`En el ciclo actual no se permite realizar ajustes`}
       />
     </p>
@@ -77,12 +77,12 @@ class Ranges extends Component {
             <p className='control'>
               <a className='button is-capitalized'>
                 <FormattedMessage
-                  id="wizard.rangesCycle"
+                  id='wizard.rangesCycle'
                   defaultMessage={`Ciclo`}
-                /> {i + 1} {i === 0 && <Fragment><FormattedMessage
-                  id="wizard.rangesActual"
+                />&nbsp; {i + 1} {i === 0 && <Fragment><FormattedMessage
+                  id='wizard.rangesActual'
                   defaultMessage={`(Actual)`}
-                />) <span className="has-text-danger">*</span></Fragment>}
+                /> <span className='has-text-danger'>*</span></Fragment>}
               </a>
             </p>
             <p className='control'>
@@ -94,8 +94,8 @@ class Ranges extends Component {
             </p>
             <p className='control'>
               <a className='button is-static'>
-                % <FormattedMessage
-                  id="wizard.rangesPercentage"
+                % &nbsp; <FormattedMessage
+                  id='wizard.rangesPercentage'
                   defaultMessage={`de ajuste`}
                 />
               </a>
@@ -108,12 +108,12 @@ class Ranges extends Component {
             <p className='control'>
               <a className='button is-capitalized'>
                 <FormattedMessage
-                  id="wizard.rangesCycle"
+                  id='wizard.rangesCycle'
                   defaultMessage={`Ciclo`}
-                /> {i + 1} {i === 0 && <Fragment><FormattedMessage
-                  id="wizard.rangesActual"
+                />&nbsp; {i + 1} {i === 0 && <Fragment><FormattedMessage
+                  id='wizard.rangesActual'
                   defaultMessage={`(Actual)`}
-                />) <span className="has-text-danger">*</span></Fragment>}
+                /> <span className='has-text-danger'>*</span></Fragment>}
               </a>
             </p>
             <p className='control'>
@@ -124,8 +124,8 @@ class Ranges extends Component {
             </p>
             <p className='control'>
               <a className='button is-static'>
-                % <FormattedMessage
-                  id="wizard.rangesPercentage"
+                % &nbsp;<FormattedMessage
+                  id='wizard.rangesPercentage'
                   defaultMessage={`de ajuste`}
                 />
               </a>
@@ -153,17 +153,17 @@ class Ranges extends Component {
       <div className='section pad-sides has-20-margin-top'>
         <h1 className='title is-5'>
           <FormattedMessage
-            id="wizard.rangesAdjustment"
+            id='wizard.rangesAdjustment'
             defaultMessage={`Rangos de ajuste`}
           />
         </h1>
         <p className='subtitle is-6'>
           <FormattedMessage
-            id="wizard.rangesDescription1"
+            id='wizard.rangesDescription1'
             defaultMessage={`Asigna el porcentaje de ajuste para cada ciclo disponible.`}
           /> <br />
           <FormattedMessage
-            id="wizard.rangesDescription2"
+            id='wizard.rangesDescription2'
             defaultMessage={`Si ingresas "0" no se permitirá ajustar en ese ciclo, mientras que si dejas vacío no habrá límite de ajuste.`}
           />
         </p>
@@ -173,7 +173,7 @@ class Ranges extends Component {
               <header className='card-header'>
                 <p className='card-header-title'>
                   <FormattedMessage
-                    id="wizard.rangesManager1"
+                    id='wizard.rangesManager1'
                     defaultMessage={`Ajustes para Manager Level 1`}
                   />
                 </p>
@@ -192,7 +192,7 @@ class Ranges extends Component {
               <header className='card-header'>
                 <p className='card-header-title'>
                   <FormattedMessage
-                    id="wizard.rangesManager2"
+                    id='wizard.rangesManager2'
                     defaultMessage={`Ajustes para Manager Level 2`}
                   />
                 </p>
@@ -212,13 +212,13 @@ class Ranges extends Component {
             this.props.completed && this.props.completed.length < 4
             ? <button onClick={() => this.props.setStep(2)} className='button is-primary'>
               <FormattedMessage
-                id="wizard.btnPrev"
+                id='wizard.btnPrev'
                 defaultMessage={`Atrás`}
               />
             </button>
             : <button onClick={() => this.props.setStep(1)} className='button is-danger'>
               <FormattedMessage
-                id="wizard.rangesBtnCancel"
+                id='wizard.rangesBtnCancel'
                 defaultMessage={`Cancelar`}
               />
             </button>
@@ -229,11 +229,11 @@ class Ranges extends Component {
             {this.props.org && !this.props.org.isConfigured &&
               this.props.completed && this.props.completed.length < 4
               ? <FormattedMessage
-                id="wizard.rangesBtnNext"
+                id='wizard.rangesBtnNext'
                 defaultMessage={`Siguente`}
               />
               : <FormattedMessage
-                id="wizard.rangesBtnSave"
+                id='wizard.rangesBtnSave'
                 defaultMessage={`Guardar`}
               />
             }

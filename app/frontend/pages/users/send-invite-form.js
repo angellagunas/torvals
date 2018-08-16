@@ -34,7 +34,7 @@ class InviteUserForm extends Component {
 
     if (this.state.formData.role) {
       var role = this.props.roles.find((item) => {
-        return item._id === this.state.formData.role
+        return item.uuid === this.state.formData.role
       })
       if (role && role.slug === 'manager-level-1') {
         if (this.state.projects.length === 0) {
@@ -53,7 +53,7 @@ class InviteUserForm extends Component {
   async changeHandler ({formData}) {
     if (formData.role && this.state.formData.role !== formData.role) {
       var role = this.props.roles.find((item) => {
-        return item._id === formData['role']
+        return item.uuid === formData['role']
       })
 
       if (role && role.slug === 'manager-level-1') {
@@ -206,7 +206,7 @@ class InviteUserForm extends Component {
 
     if (this.state.formData.role) {
       var role = this.props.roles.find((item) => {
-        return item._id === this.state.formData.role
+        return item.uuid === this.state.formData.role
       })
       if (role && role.slug === 'manager-level-1') {
         schema.properties['project'] = {
@@ -236,7 +236,7 @@ class InviteUserForm extends Component {
       return <Loader />
     }
 
-    schema.properties.role.enum = this.props.roles.map(item => { return item._id })
+    schema.properties.role.enum = this.props.roles.map(item => { return item.uuid })
     schema.properties.role.enumNames = this.props.roles.map(item => { return item.name })
 
     if (this.props.groups && this.props.groups.length > 0) {

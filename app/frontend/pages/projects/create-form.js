@@ -174,7 +174,7 @@ class ProjectForm extends Component {
         type: 'string',
         title: this.formatTitle('projectConfig.status'),
         enum: status,
-        enumNames: this.formatTitle('adjustments.locale') === 'en' ? status : statusName
+        enumNames: this.formatTitle('dates.locale') === 'en' ? status : statusName
       }
       this.uiSchema['showOnDashboard'] = {'ui:widget': SelectWidget}
       this.schema.properties['showOnDashboard'] = {

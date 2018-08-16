@@ -9,6 +9,7 @@ import Dashboard from '../pages/dashboard'
 import Projects from '../pages/projects/list'
 import Calendar from '../pages/calendar'
 import UsersImport from '../pages/import/users'
+import GroupsImport from '../pages/import/groups'
 import Catalogs from '../pages/catalog/list'
 import HistoricReport from '../pages/reports/historic'
 import StatusReport from '../pages/reports/status'
@@ -185,7 +186,8 @@ class Sidebar extends Component {
           to: '/import',
           roles: 'orgadmin, admin, manager-level-3',
           dropdown: [
-            this.formatTitle('sideMenu.uploadUsers', UsersImport.asSidebarItem())
+            this.formatTitle('sideMenu.uploadUsers', UsersImport.asSidebarItem()),
+            GroupsImport.asSidebarItem()
           ]
         },
         { // TODO: translate

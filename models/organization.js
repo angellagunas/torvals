@@ -93,7 +93,7 @@ organizationSchema.methods.toPublic = function () {
     salesRep: this.salesRep,
     wizardSteps: this.wizardSteps,
     alerts: this.alerts,
-    accountOwner: this.accountOwner    
+    accountOwner: this.accountOwner
   }
 }
 
@@ -140,14 +140,14 @@ organizationSchema.methods.endTrialPeriod = async function () {
     email: owner.email,
     name: owner.name
   }
-  sendEmail.run({
+  await sendEmail.run({
     recipients,
-    args: data,
+    args: this.toJSON(),
     template: 'trial',
     title: 'Período de prueba en Orax ha terminado.'
   })
 
-  return {orgazation: this, user: owner}
+  return {organization: this, user: owner}
 }
 
 organizationSchema.methods.uploadOrganizationPicture = async function (file) {

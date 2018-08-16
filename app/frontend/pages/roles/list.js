@@ -7,8 +7,9 @@ import ListPage from '~base/list-page'
 import { loggedIn, verifyRole } from '~base/middlewares/'
 
 export default ListPage({
+  translate: true,
   path: '/manage/roles',
-  title: 'Roles', //TODO: translate
+  title: 'sideMenu.roles',
   icon: 'sitemap',
   exact: true,
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
@@ -19,12 +20,12 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio', //TODO: translate
+        label: 'sideMenu.home',
         current: false
       },
       {
         path: '/manage/roles/',
-        label: 'Roles', //TODO: translate
+        label: 'sideMenu.roles',
         current: true
       }
     ],
@@ -40,7 +41,6 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      //TODO: translate
       general: {type: 'text', title: 'Buscar'}
     }
   },
@@ -55,19 +55,19 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Prioridad', //TODO: translate
+        'title': 'tables.colPriority',
         'property': 'priority',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Nombre', //TODO: translate
+        'title': 'tables.colName',
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Fecha de creación', //TODO: translate
+        'title': 'tables.colCreated',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -76,7 +76,7 @@ export default ListPage({
             moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
           )
         }
-      },
+      }
     ]
   }
 })

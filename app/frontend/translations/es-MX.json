@@ -1,5 +1,8 @@
 {
   "es-MX": {
+    "dates": {
+      "locale": "es"
+    },
     "sideMenu": {
       "dashboard": "Dashboard",
       "admin": "Administración",
@@ -17,7 +20,8 @@
       "uploadUsers": "Agregar Usuarios",
       "reportStatus": "Estado de proyecto",
       "reportHistoric": "Histórico de ajustes",
-      "reportDownloads": "Descargas"
+      "reportDownloads": "Descargas",
+      "home": "Inicio"
     },
     "catalogs": {
       "producto": "Producto",
@@ -87,7 +91,10 @@
       "colName": "Nombre",
       "colActions": "Acciones",
       "colEmail": "Correo",
-      "colDate": "Fecha"
+      "colDate": "Fecha",
+      "colPriority": "Prioridad",
+      "colUser": "User",
+      "colAdjustmentsByPeriod": "Adjustments by period"
     },
     "adjustments": {
       "cycle": "Ciclo",
@@ -100,7 +107,6 @@
       "modifyPercentage": "Modificar por porcentaje",
       "adjusted": "Ajustado",
       "notAdjusted": "No adjustado",
-      "locale": "es",
       "periodView": "Vista Periodo",
       "productView": "Vista Producto",
       "adjustmentRange": "Rango permitido",
@@ -113,13 +119,13 @@
       "save": "Ajustes guardados",
       "reportSuccess": "Reporte generado con éxito",
       "noInfo": "No hay información disponible",
-      "nofilters": "¡No tienes catálogos asignados! Por favor contacta a tu supervisor"
+      "nofilters": "¡No tienes catálogos asignados!, por favor contacta a tu supervisor."
     },
     "approve": {
       "approve": "Aprobar",
-      "approved": "aprobado",
+      "approved": "Aprobado",
       "reject": "Rechazar",
-      "rejected": "rechazado",
+      "rejected": "Rechazado",
       "status": "Estado",
       "performed": "Realizado",
       "filter": "Filtrar por fecha",
@@ -276,7 +282,16 @@
       "rulesRangeUndefined": "No definido",
       "rulesRangeUnlimited": "ilimitado",
       "season": "Temporada",
-      "title": "Establece tus ciclos y periodos de ajuste"
+      "title": "Establece tus ciclos y periodos de ajuste",
+      "day": "Día",
+      "week": "Semana",
+      "month": "Mes",
+      "year": "Año",
+      "tabOp": "Configuración de operación",
+      "tabData": "Configuración de datos",
+      "brMsg1": "Hay cambios a las reglas de negocio sin aplicar, ¿estás seguro de querer salir de esta página?",
+      "brMsg2": "¡Las nuevas reglas de negocio se han guardado exitosamente!",
+      "brMsg3": "Cambios en reglas de negocio"
     },
     "carousel": {
       "next": "Siguiente",
@@ -288,9 +303,13 @@
       "end": "Fin",
       "period": "Periodo",
       "start": "Inicio",
-      "title": "Calendario"
+      "title": "Calendario",
+      "select": "Seleccionar",
+      "all": "Todos los ciclos",
+      "showWeek": "Mostrar semana"
     },
     "wizard": {
+      "catalog": "Catálogo",
       "catalogsAdd": "Agregar catálogo",
       "catalogsBtnCancel": "Cancelar",
       "catalogsBtnNext": "Siguente",
@@ -309,6 +328,10 @@
       "deadlinesDays": "Días",
       "deadlinesSubTitle": "Define las fechas para el ciclo de operación a partir de la fecha de inicio.",
       "deadlinesTitle": "Ciclos de operación",
+      "deadlinesLimit": "Límite para",
+      "deadlinesError": "No puedes tomar más días de los que dura el ciclo.",
+      "deadlinesChange": "El ciclo cambió, debe establecer los ciclos de operación.",
+      "deadlinesEnd": "Fin del ciclo",
       "orgBtnContinue": "Continuar",
       "orgBtnSave": "Guardar",
       "orgInfo": "Primero revisa los datos de tu organización. Cuando todo esté correcto da click en guardar y después en continuar.",
@@ -331,7 +354,15 @@
       "periodsTitle": "Ciclo y periodos",
       "periodsUseDate": "Usar la fecha de",
       "periodsUseInfo": "del periodo para determinar el ciclo al que pertenece",
-      "rangesActual": "(Actual)",
+      "periodsCycleChange": "El número de ciclos disponibles cambió, debe establecer los rangos de ajuste nuevamente.",
+      "periodsStartCycle": "Inicio del ciclo",
+      "periodsEndCycle": "Fin del ciclo",
+      "periodsStartPeriod": "Inicio del periodo ",
+      "periodsEndPeriod": "Fin del periodo ",
+      "periodsHelp1": "grupador de periodos",
+      "periodsHelp2": "Unidad mínima de predicción",
+      "periodsHelp3": "Ciclos de ajuste, el primero siempre es el actual",
+      "rangesActual": " (Actual)",
       "rangesAdjustment": "Rangos de ajuste",
       "rangesBtnCancel": "Cancelar",
       "rangesBtnNext": "Siguente",
@@ -654,7 +685,9 @@
       "importMsg": "Archivo a importar",
       "info": "El archivo .csv debe contener el mismo formato que el mostrado debajo: ",
       "title": "Cargar",
-      "selectFile": "Seleccionar archivo"
+      "selectFile": "Seleccionar archivo",
+      "users": "Usuarios",
+      "usersMsg": "No utilizar contraseña y enviar invitación a Orax"
     },
     "groups": {
       "btnAdd": "Agregar",
@@ -684,8 +717,36 @@
     },
     "forecasts": {
       "btnCancel": "Cancelar",
-      "btnCrate": "Crear",
-      "detail": "Detalle"
+      "btnCreate": "Crear",
+      "btnOk": "Aceptar",
+      "detail": "Detalle",
+      "deleteMsg": "¿Estas seguro de querer eliminar este Predicción?",
+      "have": "Tienes ",
+      "many": " predicciones disponibles",
+      "one": " predicción disponibles",
+      "new": "Nueva predicción",
+      "compatible": "Conciliable",
+      "informative": "Informativo",
+      "created": "Creado",
+      "models": "Modelos",
+      "msg1": "Tu predicción se está generando.",
+      "msg2": "Este proceso puede tomar mucho tiempo. Te avisaremos por correo cuando el proceso termine.",
+      "alertTitle": "Configuración de predicciones",
+      "alertMsg": "Aún no tienes predicciones disponibles para este proyecto.",
+      "alertMsg2": "Debes crear al menos un proyecto para poder crear una predicción.",
+      "createChoose": "Elige un tipo de reporte",
+      "createMsg": "En este momento no es posible crear un reporte conciliable hasta tu próximo ciclo.",
+      "createCatalogs": "Elige tus catálogos",
+      "createAlert": "¡Debes elegir al menos un catálogo para generar tu predicción!",
+      "createInitial": "Ciclo inicial",
+      "createFinal": "Ciclo final",
+      "createModels": "Elige uno o varios modelos",
+      "createAlert2": "¡Debes elegir al menos un modelo para generar tu predicción!",
+      "detailDeleted": "Predicción eliminada con éxito",
+      "detailModel": "Modelo",
+      "detailMsg1": "¿Estás seguro de utilizar la predicción del modelo ",
+      "detailMsg2": " en tu proyecto?",
+      "detailMsg3": "No podrás crear otra predicción conciliable hasta el siguiente ciclo de predicciones."
     },
     "navbar": {
       "profile": "Mi perfil",
@@ -694,6 +755,9 @@
     "multi": {
       "assigned": "Asignado",
       "available": "Disponible"
+    },
+    "form": {
+      "required": "Es un campo requerido"
     }
   }
 }

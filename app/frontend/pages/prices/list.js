@@ -6,18 +6,22 @@ import { toast } from 'react-toastify'
 import tree from '~core/tree'
 
 import ListPage from '~base/list-page'
+import ImportPrices from './import'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import Editable from '~base/components/base-editable'
 
 export default ListPage({
+  translate: true,
   path: '/catalogs/prices',
-  title: 'Precios', //TODO: translate
-  titleSingular: 'Precio', //TODO: translate
+  title: 'sideMenu.prices',
+  titleSingular: 'catalog.precio',
   icon: 'list-alt',
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   exact: true,
   validate: [loggedIn, verifyRole],
   create: false,
+  import: true,
+  importComponent: ImportPrices,
   export: true,
   exportRole: 'consultor-level-3',
   exportUrl: '/app/prices',
@@ -26,22 +30,22 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio', //TODO: translate
+        label: 'sideMenu.home',
         current: false
       },
       {
         path: '/',
-        label: 'Administración', //TODO: translate
+        label: 'sideMenu.admin',
         current: true
       },
       {
         path: '/',
-        label: 'Catálogos', //TODO: translate
+        label: 'sideMenu.catalogs',
         current: true
       },
       {
         path: '/catalogs/prices',
-        label: 'Precios', //TODO: translate
+        label: 'sideMenu.prices',
         current: true
       }
     ],
@@ -54,7 +58,7 @@ export default ListPage({
   schema: {
     type: 'object',
     required: [],
-    properties: { //TODO: translate
+    properties: {
       general: {type: 'text', title: 'Buscar'}
     }
   },
@@ -67,7 +71,7 @@ export default ListPage({
       if (catalog.slug !== 'producto') {
         return (
         {
-          'title': ` ${catalog.name}`,
+          'title': 'catalogs.' + catalog.slug,
           'property': '',
           'default': 'N/A',
           'sortable': true,
@@ -87,7 +91,7 @@ export default ListPage({
     let cols =
       [
         {
-          'title': 'Id',
+          'title': 'tables.colId',
           'property': 'product.externalId',
           'default': 'N/A',
           'sortable': true,
@@ -99,8 +103,8 @@ export default ListPage({
             return 'N/A'
           }
         },
-        { //TODO: translate
-          'title': 'Producto',
+        {
+          'title': 'tables.colProduct',
           'property': 'product',
           'default': 'N/A',
           'sortable': true,
@@ -113,8 +117,8 @@ export default ListPage({
           }
         },
         ...catalogItems,
-        { //TODO: translate
-          'title': 'Precio',
+        {
+          'title': 'catalogs.precio',
           'property': 'price',
           'default': 'N/A',
           'sortable': true,
@@ -141,7 +145,7 @@ export default ListPage({
                         if (!res) {
                           return false
                         }
-                        //TODO: translate
+                        // TODO: translate
                         toast('¡Precio guardado! ', {
                           autoClose: 3000,
                           type: toast.TYPE.INFO,
@@ -171,8 +175,8 @@ export default ListPage({
           }
         },
 
-        { //TODO: translate
-          'title': 'Creado',
+        {
+          'title': 'tables.colCreated',
           'property': 'dateCreated',
           'default': 'N/A',
           'sortable': true,

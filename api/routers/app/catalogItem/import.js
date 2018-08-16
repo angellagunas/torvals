@@ -34,10 +34,10 @@ module.exports = new Route({
       ctx.throw(404, 'Catálogo no encontrado')
     }
 
-    if (dataType === 'data:') {
+    if (dataType === 'data:' || dataType === 'data:text/plain') {
       const fileName = ctx.request.body.file.split(',')[0].split(';')[1]
       const ext = fileName.slice((fileName.lastIndexOf('.') - 1 >>> 0) + 2)
-      if (ext !== 'csv') {
+      if (ext.toLowerCase() !== 'csv') {
         ctx.throw(400, '¡El archivo tiene que ser en formato csv!')
       }
     } else if (dataType !== 'data:text/csv') {

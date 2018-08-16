@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { FormattedMessage } from 'react-intl'
+import { toast } from 'react-toastify'
 
 import Page from '~base/page'
 import {loggedIn} from '~base/middlewares/'
@@ -11,8 +12,31 @@ import TokensList from '~base/components/token-list'
 import Breadcrumb from '~base/components/base-breadcrumb'
 
 class Profile extends Component {
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+      if (!toast.isActive(this.toastId)) {
+        this.toastId = toast(message, {
+          autoClose: timeout,
+          type: type,
+          hideProgressBar: true,
+          closeButton: false
+        })
+      } else {
+        toast.update(this.toastId, {
+          render: message,
+          type: type,
+          autoClose: timeout,
+          closeButton: false
+        })
+      }
+    }
+
   render () {
     const currentUser = tree.get('user')
+
+    if (currentUser.currentRole.slug === 'manager-level-1' && !currentUser.currentProject) {
+      this.notify('Contacta a tu administrador para que se te asigne un proyecto.', 10000, toast.TYPE.ERROR)
+    }
+
     return (
       <div className='detail-page'>
         <div className='section-header'>

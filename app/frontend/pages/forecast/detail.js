@@ -15,6 +15,8 @@ import { toast } from 'react-toastify'
 import BaseModal from '~base/components/base-modal'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
+import { injectIntl } from 'react-intl'
+import { defaultCatalogs } from '~base/tools'
 
 class ForecastDetail extends Component {
   constructor (props) {
@@ -26,6 +28,20 @@ class ForecastDetail extends Component {
     }
     this.engineSelected = {}
     this.graphColors = graphColors.sort(function (a, b) { return 0.5 - Math.random() })
+  }
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
   }
 
   componentWillMount () {
@@ -55,7 +71,7 @@ class ForecastDetail extends Component {
       }
     } catch (e) {
       console.log(e)
-      this.notify('Error obteniendo predicción ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -73,7 +89,7 @@ class ForecastDetail extends Component {
       let res = await api.del(url + item)
 
       if (res) {
-        this.notify('Predicción eliminada con éxito', 3000)
+        this.notify(this.formatTitle('forecasts.detailDeleted'), 3000)
         this.props.history.push('/forecast')
       }
     } catch (e) {
@@ -89,7 +105,7 @@ class ForecastDetail extends Component {
       })
 
       if (res) {
-        this.notify('Predicción eliminada con éxito', 3000)
+        this.notify(this.formatTitle('forecasts.detailDeleted'), 3000)
         this.getForecasts()
         this.getGraph()
       }
@@ -123,7 +139,7 @@ class ForecastDetail extends Component {
         }
       },
       {
-        title: 'Modelo',
+        title: this.formatTitle('forecasts.detailModel'),
         property: 'engine.name',
         default: 'N/A',
         sortable: true,
@@ -132,7 +148,7 @@ class ForecastDetail extends Component {
         }
       },
       {
-        title: 'Descripción',
+        title: this.formatTitle('datasets.description'),
         property: 'engine.description',
         default: 'Sin descripción',
         formatter: (row) => {
@@ -140,7 +156,7 @@ class ForecastDetail extends Component {
         }
       },
       {
-        title: 'Estado',
+        title: this.formatTitle('datasets.status'),
         property: 'status',
         default: 'N/A',
         sortable: true,
@@ -223,7 +239,7 @@ class ForecastDetail extends Component {
       }
     } catch (e) {
       console.log(e)
-      this.notify('Error obteniendo gráfica ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -357,9 +373,9 @@ class ForecastDetail extends Component {
         title={'Conciliar predicción'}
         className={this.state.conciliateModal}
         hideModal={() => this.hideConciliate()}>
-        <p>¿Estás seguro de utilizar la predicción del modelo
-          <strong> {this.state.engineConciliate && this.state.engineConciliate.engine.name} </strong> en tu proyecto?<br />
-          No podrás crear otra predicción conciliable hasta el siguiente ciclo de predicciones.
+        <p>{this.formatTitle('forecasts.detailMsg1')}
+          <strong> {this.state.engineConciliate && this.state.engineConciliate.engine.name} </strong> {this.formatTitle('forecasts.detailMsg2')}<br />
+          {this.formatTitle('forecasts.detailMsg3')}
         </p>
         <br />
         <div className='buttons org-rules__modal'>
@@ -367,12 +383,12 @@ class ForecastDetail extends Component {
             className={'button generate-btn is-primary is-pulled-right ' + this.state.conciliating}
             disabled={!!this.state.conciliating}
             onClick={() => this.finishUpConciliate()}>
-          Conciliar
+            {this.formatTitle('datasets.btnConciliate')}
         </button>
           <button
             className='button generate-btn is-danger is-pulled-right'
             onClick={() => this.hideConciliate()}>
-          Cancelar
+            {this.formatTitle('datasets.btnCancel')}
         </button>
         </div>
       </BaseModal>
@@ -395,7 +411,7 @@ class ForecastDetail extends Component {
       }
     } catch (e) {
       console.log(e)
-      this.notify('Error obteniendo usuarios ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 

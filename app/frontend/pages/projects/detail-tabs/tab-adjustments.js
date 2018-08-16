@@ -63,6 +63,7 @@ class TabAdjustment extends Component {
       showNotAdjusted: true,
       prices: true,
       totalPrevSale: 0,
+      filteredData: [],
       prevData: []
     }
 
@@ -70,7 +71,7 @@ class TabAdjustment extends Component {
     this.rules = this.props.rules
     this.toastId = null
 
-    moment.locale(this.formatTitle('adjustments.locale'))
+    moment.locale(this.formatTitle('dates.locale'))
 
   }
 

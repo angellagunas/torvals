@@ -23,10 +23,9 @@ class UserForm extends Component {
       apiCallErrorMessage: 'is-hidden',
       projects: []
     }
-
   }
 
-  getData(){
+  getData () {
     let data = this.props.initialState
 
     if (data.roleDetail.slug === 'manager-level-1') {
@@ -216,6 +215,11 @@ class UserForm extends Component {
         schema.properties.role.enum.push(currentUser.currentRole.uuid)
         schema.properties.role.enumNames.push(currentUser.currentRole.name)
       }
+    }
+
+    const currentInfo = this.state.formData.organizations.find((info) => info.organization.uuid === currentUser.currentOrganization.uuid)
+    if (currentInfo.defaultProject) {
+      this.state.formData.project = currentInfo.defaultProject.uuid
     }
 
     return (

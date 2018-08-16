@@ -2,35 +2,9 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import Cal from '../../cal'
 import { toast } from 'react-toastify'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 
-const colors = {
-  1: {
-    rangeClass: 'calendar-range-forecast',
-    rangeClassStart: 'limit-forecast',
-    tooltip: 'generar predicción' //TODO: translate
-  },
-  2: {
-    rangeClass: 'calendar-range-sales',
-    rangeClassStart: 'limit-sales',
-    tooltip: 'subir ventas' //TODO: translate
-  },
-  3: {
-    rangeClass: 'calendar-range-adjustments',
-    rangeClassStart: 'limit-adjustments',
-    tooltip: 'realizar ajustes' //TODO: translate
-  },
-  4: {
-    rangeClass: 'calendar-range-approve',
-    rangeClassStart: 'limit-approve',
-    tooltip: 'aprobar ajustes' //TODO: translate
-  },
-  5: {
-    rangeClass: 'calendar-range-consolidate',
-    rangeClassStart: 'limit-consolidate',
-    tooltip: 'concentrar información' //TODO: translate
-  }
-}
+let colors = {}
 
 class DeadLines extends Component {
   constructor (props) {
@@ -52,6 +26,34 @@ class DeadLines extends Component {
       .add(-1, 'days') || moment.utc().add(1, 'M'),
       dates: {}
     }
+
+    colors = {
+      1: {
+        rangeClass: 'calendar-range-forecast',
+        rangeClassStart: 'limit-forecast',
+        tooltip: this.formatTitle('wizard.rulesPrediction')
+      },
+      2: {
+        rangeClass: 'calendar-range-sales',
+        rangeClassStart: 'limit-sales',
+        tooltip: this.formatTitle('wizard.rulesSalesUpdate')
+      },
+      3: {
+        rangeClass: 'calendar-range-adjustments',
+        rangeClassStart: 'limit-adjustments',
+        tooltip: this.formatTitle('wizard.rulesAdjustment')
+      },
+      4: {
+        rangeClass: 'calendar-range-approve',
+        rangeClassStart: 'limit-approve',
+        tooltip: this.formatTitle('wizard.rulesAdjustmentApprove')
+      },
+      5: {
+        rangeClass: 'calendar-range-consolidate',
+        rangeClassStart: 'limit-consolidate',
+        tooltip: this.formatTitle('wizard.rulesInfo')
+      }
+    }
   }
 
   componentWillMount () {
@@ -68,8 +70,8 @@ class DeadLines extends Component {
     let totalDays = this.validNumber(d.salesUpload, 1) + this.validNumber(d.forecastCreation, 1) + d.rangeAdjustment + d.rangeAdjustmentRequest
 
     if (totalDays > cycleDays) {
-      this.notify(//TODO: translate
-        'El ciclo cambió, debe establecer los ciclos de operación.',
+      this.notify(
+        this.formatTitle('wizard.deadlinesChange'),
         5000,
         toast.TYPE.INFO
       )
@@ -150,7 +152,7 @@ class DeadLines extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del primer ciclo' //TODO: translate
+      tooltipText: this.formatTitle('wizard.periodsCyclesStart')
     }
     return d
   }
@@ -165,7 +167,7 @@ class DeadLines extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Fin del ciclo' //TODO: translate
+      tooltipText: this.formatTitle('wizard.deadlinesEnd')
     }
     return d
   }
@@ -201,7 +203,7 @@ class DeadLines extends Component {
       isTooltip: true,
       rangeClass: end.diff(start) > 1 ? colors[key].rangeClass : '',
       rangeClassEnd: colors[key].rangeClassStart,
-      tooltipText: 'Límite para ' + colors[key].tooltip //TODO: translate
+      tooltipText: this.formatTitle('wizard.deadlinesLimit') + ' ' + colors[key].tooltip
     }
     return range
   }
@@ -249,11 +251,11 @@ class DeadLines extends Component {
     let consolidation = this.makeRange(approveDate, this.state.endDate.clone(), 5)
 
     if (this.overlap(sales, forecast)) {
-      sales[Object.keys(sales)[Object.keys(sales).length - 1]].tooltipText += ' / predicción'
+      sales[Object.keys(sales)[Object.keys(sales).length - 1]].tooltipText += ' / ' + this.formatTitle('wizard.rulesPrediction')
       sales[Object.keys(sales)[Object.keys(sales).length - 1]].rangeClassEnd = 'limit-sales-forecast'
     }
     if (this.overlap(approve, consolidation)) {
-      approve[Object.keys(approve)[Object.keys(approve).length - 1]].tooltipText += ' / concentrar información'
+      approve[Object.keys(approve)[Object.keys(approve).length - 1]].tooltipText += ' / ' + this.formatTitle('wizard.rulesInfo')
       approve[Object.keys(approve)[Object.keys(approve).length - 1]].rangeClassEnd = 'limit-approve-consolidate'
     }
 
@@ -288,8 +290,8 @@ class DeadLines extends Component {
         })
         this.makeDates()
       } else {
-        this.notify(//TODO: translate
-          'Error: No puedes tomar más días de los que dura el ciclo.',
+        this.notify(
+          'Error: ' + this.formatTitle('wizard.deadlinesError'),
           5000,
           toast.TYPE.ERROR
         )
@@ -353,30 +355,34 @@ class DeadLines extends Component {
     }
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     const deadlines = [
       {
-        title: 'Actualizar datos de ventas', //TODO: translate
+        title: this.formatTitle('wizard.rulesSalesUpdate'),
         name: 'salesUpload',
         color: 'deadline-sales'
       },
       {
-        title: 'Generar Predicción', //TODO: translate
+        title: this.formatTitle('wizard.rulesPrediction'),
         name: 'forecastCreation',
         color: 'deadline-forecast'
       },
       {
-        title: 'Realizar Ajustes', //TODO: translate
+        title: this.formatTitle('wizard.rulesAdjustment'),
         name: 'rangeAdjustment',
         color: 'deadline-adjustments'
       },
       {
-        title: 'Aprobar Ajustes', //TODO: translate
+        title: this.formatTitle('wizard.rulesAdjustmentApprove'),
         name: 'rangeAdjustmentRequest',
         color: 'deadline-approve'
       },
       {
-        title: 'Concentrar Información', //TODO: translate
+        title: this.formatTitle('wizard.rulesInfo'),
         name: 'consolidation',
         color: 'deadline-consolidate'
       }
@@ -397,13 +403,13 @@ class DeadLines extends Component {
       <div className='section pad-sides has-20-margin-top'>
         <h1 className='title is-5'>
           <FormattedMessage
-            id="wizard.deadlinesTitle"
+            id='wizard.deadlinesTitle'
             defaultMessage={`Ciclos de operación`}
           />
         </h1>
         <p className='subtitle is-6'>
           <FormattedMessage
-            id="wizard.deadlinesSubTitle"
+            id='wizard.deadlinesSubTitle'
             defaultMessage={`Define las fechas para el ciclo de operación a partir de la fecha de inicio.`}
           />
         </p>
@@ -414,7 +420,7 @@ class DeadLines extends Component {
               <header className='card-header'>
                 <p className='card-header-title'>
                   <FormattedMessage
-                    id="wizard.deadlinesDates"
+                    id='wizard.deadlinesDates'
                     defaultMessage={`Fechas para operar`}
                   />
                 </p>
@@ -440,7 +446,7 @@ class DeadLines extends Component {
                           <p className='control'>
                             <a className='button is-static'>
                               <FormattedMessage
-                                id="wizard.deadlinesDays"
+                                id='wizard.deadlinesDays'
                                 defaultMessage={`Días`}
                               />
                             </a>
@@ -472,13 +478,13 @@ class DeadLines extends Component {
             this.props.completed && this.props.completed.length < 4
             ? <button onClick={() => this.props.setStep(3)} className='button is-primary'>
               <FormattedMessage
-                id="wizard.deadlinesBtnPrev"
+                id='wizard.deadlinesBtnPrev'
                 defaultMessage={`Atrás`}
               />
             </button>
             : <button onClick={() => this.props.setStep(1)} className='button is-danger'>
               <FormattedMessage
-                id="wizard.deadlinesBtnCancel"
+                id='wizard.deadlinesBtnCancel'
                 defaultMessage={`Cancelar`}
               />
             </button>
@@ -490,11 +496,11 @@ class DeadLines extends Component {
             {this.props.org && !this.props.org.isConfigured &&
               this.props.completed && this.props.completed.length < 4
               ? <FormattedMessage
-                id="wizard.deadlinesBtnNext"
+                id='wizard.deadlinesBtnNext'
                 defaultMessage={`Siguente`}
               />
               : <FormattedMessage
-                id="wizard.deadlinesBtnSave"
+                id='wizard.deadlinesBtnSave'
                 defaultMessage={`Guardar`}
               />
             }
@@ -505,4 +511,4 @@ class DeadLines extends Component {
   }
 }
 
-export default DeadLines
+export default injectIntl(DeadLines)
