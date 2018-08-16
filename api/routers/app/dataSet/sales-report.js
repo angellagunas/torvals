@@ -6,32 +6,32 @@ module.exports = new Route({
   method: 'post',
   path: '/sales/:uuid',
   handler: async function (ctx) {
-    var data = ctx.request.body
-    const dataset = await DataSet.findOne({uuid: ctx.params.uuid}).populate('rule project')
+    const data = ctx.request.body
+    const dataset = await DataSet.findOne({ uuid: ctx.params.uuid }).populate('rule project')
     ctx.assert(dataset, 404, 'Dataset no encontrado')
 
     const user = ctx.state.user
     await dataset.rule.populate('catalogs').execPopulate()
 
     let catalogs = dataset.rule.catalogs
-    var currentRole
+    let currentRole
     const currentOrganization = user.organizations.find(orgRel => {
       return ctx.state.organization._id.equals(orgRel.organization._id)
     })
 
     if (currentOrganization) {
-      const role = await Role.findOne({_id: currentOrganization.role})
+      const role = await Role.findOne({ _id: currentOrganization.role })
 
       currentRole = role.toPublic()
     }
-    var cycle = await Cycle.findOne({organization: ctx.state.organization, uuid: data.cycle})
-    var periods = await Period.find({cycle: cycle._id})
+    const cycle = await Cycle.findOne({ organization: ctx.state.organization, uuid: data.cycle })
+    const periods = await Period.find({ cycle: cycle._id })
 
-    periods.ids = periods.map(item => {
+    const periodsIds = periods.map(item => {
       return item._id
     })
 
-    var match = {
+    let match = {
       'dataset': dataset._id,
       'data.adjustment': {
         '$ne': null
@@ -43,12 +43,12 @@ module.exports = new Route({
         '$ne': null
       },
       'period': {
-        '$in': periods.ids
+        '$in': periodsIds
       }
     }
 
-    let previousStart = moment(cycle.dateStart, 'YYYY-MM-DD').subtract(1, 'years').utc()
-    let previousEnd = moment(cycle.dateEnd, 'YYYY-MM-DD').subtract(1, 'years').utc()
+    const previousStart = moment(cycle.dateStart, 'YYYY-MM-DD').subtract(1, 'years').utc()
+    const previousEnd = moment(cycle.dateEnd, 'YYYY-MM-DD').subtract(1, 'years').utc()
 
     let previousPeriods = await Period.getBetweenDates(
       currentOrganization.organization._id,
@@ -76,7 +76,7 @@ module.exports = new Route({
     let catalogItemsFilters = []
 
     for (let filter of Object.keys(data)) {
-      var isCatalog = catalogs.find(item => {
+      const isCatalog = catalogs.find(item => {
         return item.slug === filter
       })
 
@@ -96,26 +96,26 @@ module.exports = new Route({
       match['catalogItems'] = { '$all': catalogItems }
     }
 
-    if (
-      currentRole.slug === 'manager-level-1' ||
-      currentRole.slug === 'manager-level-2' ||
-      currentRole.slug === 'consultor-level-2' ||
-      currentRole.slug === 'consultor-level-3' ||
-      currentRole.slug === 'manager-level-3'
-    ) {
-      if (catalogItemsFilters.length === 0) {
-        let catalogItems = await CatalogItem.filterByUserRole(
-            { },
-            currentRole.slug,
-            user
-          )
-        match['catalogItems'] = { '$in': catalogItems }
-      }
+    const permissions = [
+      'manager-level-1' ,
+      'manager-level-2',
+      'manager-level-3',
+      'consultor-level-2' ,
+      'consultor-level-3' 
+    ]
+    if (permissions.includes(currentRole.slug) && catalogItemsFilters.length === 0) {
+      let catalogItems = await CatalogItem.filterByUserRole(
+          { },
+          currentRole.slug,
+          user
+        )
+      match['catalogItems'] = { '$in': catalogItems }
     }
 
     let conditions = []
     let group = []
-    if (data.prices) {
+    // if (data.prices) {
+    if (true === false) {
       conditions = [
         {
           '$lookup': {
@@ -210,7 +210,7 @@ module.exports = new Route({
       ]
     }
 
-    var statement = [
+    const statement = [
       {
         '$match': match
       },
@@ -253,7 +253,7 @@ module.exports = new Route({
       }
     ]
 
-    var previousStatement = [
+    const previousStatement = [
       {
         '$match': matchPreviousSale
       },
@@ -297,8 +297,8 @@ module.exports = new Route({
       }
     ]
 
-    var res = await DataSetRow.aggregate(statement)
-    var previous = await DataSetRow.aggregate(previousStatement)
+    const res = await DataSetRow.aggregate(statement)
+    const previous = await DataSetRow.aggregate(previousStatement)
 
     ctx.body = {
       data: res,
