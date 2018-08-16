@@ -18,6 +18,7 @@ module.exports = new Route({
         }
 
         let catalogItemsValues = []
+        let productValues = []
         let catalogItems = await CatalogItem.find({
           $or: [
             {name: new RegExp(ctx.request.query[filter], 'i')},
@@ -27,12 +28,16 @@ module.exports = new Route({
           organization: ctx.state.organization
         })
         catalogItems.map(item => {
-          catalogItemsValues.push(item._id)
+          if (item.type === 'producto') productValues.push(item._id)
+          else catalogItemsValues.push(item._id)
         })
 
         if (catalogItemsValues.length) {
           $or.push({catalogItems: {$in: catalogItemsValues}})
-          $or.push({newProduct: {$in: catalogItemsValues}})
+        }
+
+        if (productValues.length) {
+          $or.push({product: {$in: productValues}})
         }
 
         if ($or.length) { filters['$or'] = $or }
