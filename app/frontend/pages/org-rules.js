@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Page from '~base/page'
 import { loggedIn, verifyRole } from '~base/middlewares/'
 import tree from '~core/tree'
@@ -14,18 +14,7 @@ import api from '~base/api'
 import BaseModal from '~base/components/base-modal'
 import { Prompt } from 'react-router-dom'
 import Wizard from './wizard/wizard'
-
-//TODO: translate
-const times = {
-  'd': 'Día',
-
-  'w': 'Semana',
-
-  'M': 'Mes',
-
-  'y': 'Año'
-
-}
+import { defaultCatalogs } from '~base/tools'
 
 class OrgRules extends Component {
   constructor (props) {
@@ -60,7 +49,7 @@ class OrgRules extends Component {
 
       if (res) {
         this.notify(
-          '¡Las nuevas reglas de negocio se han guardado exitosamente!', //TODO: translate
+          this.formatTitle('orgRules.brMsg2'),
           5000,
           toast.TYPE.SUCCESS
         )
@@ -134,24 +123,24 @@ class OrgRules extends Component {
   confirmMsg () {
     return (
       <BaseModal
-        title='Cambios en reglas de negocio' //TODO: translate
+        title={this.formatTitle('orgRules.brMsg3')}
         className={'modal-confirm ' + this.state.className}
         hideModal={() => { this.hideModal() }}
       >
         <center>
           <h3>
             <FormattedMessage
-              id="orgRules.confirmModalTitle"
+              id='orgRules.confirmModalTitle'
               defaultMessage={`Seguro de guardar las últimas reglas de negocio establecidas?`}
             />
-          <p>
-            <strong>
-              <FormattedMessage
-                id="orgRules.confirmModalTitleWarning"
-                defaultMessage={`Recuerda que tus reglas anteriores se perderán.`}
+            <p>
+              <strong>
+                <FormattedMessage
+                  id='orgRules.confirmModalTitleWarning'
+                  defaultMessage={`Recuerda que tus reglas anteriores se perderán.`}
               />
-            </strong>
-          </p>
+              </strong>
+            </p>
           </h3>
           <br />
           <div className='buttons org-rules__modal'>
@@ -161,7 +150,7 @@ class OrgRules extends Component {
               onClick={() => { this.confirmSave() }}
             >
               <FormattedMessage
-                id="orgRules.confirmModalBtnSave"
+                id='orgRules.confirmModalBtnSave'
                 defaultMessage={`Sí, guardar`}
               />
             </button>
@@ -170,7 +159,7 @@ class OrgRules extends Component {
               onClick={() => { this.hideModal() }}
             >
               <FormattedMessage
-                id="orgRules.confirmModalBtnCancel"
+                id='orgRules.confirmModalBtnCancel'
                 defaultMessage={`No, regresar`}
               />
             </button>
@@ -249,12 +238,12 @@ class OrgRules extends Component {
   projectsModal () {
     return (
       <BaseModal
-        title='Cambios en reglas de negocio' //TODO: translate
+        title={this.formatTitle('orgRules.brMsg3')}
         className={'modal-confirm ' + this.state.projectModal}
         hideModal={() => { this.hideModalProjects() }}>
         <h3>
           <FormattedMessage
-            id="orgRules.projectsModalTitle"
+            id='orgRules.projectsModalTitle'
             defaultMessage={`Selecciona un proyecto para actualizar.`}
           />
         </h3>
@@ -288,7 +277,7 @@ class OrgRules extends Component {
             onClick={() => { this.confirmUpdate() }}
           >
             <FormattedMessage
-              id="orgRules.projectsModalBtnSave"
+              id='orgRules.projectsModalBtnSave'
               defaultMessage={`Actualizar`}
             />
           </button>
@@ -297,7 +286,7 @@ class OrgRules extends Component {
             onClick={() => { this.hideModalProjects() }}
           >
             <FormattedMessage
-              id="orgRules.projectsModalBtnCancel"
+              id='orgRules.projectsModalBtnCancel'
               defaultMessage={`Ahora no`}
             />
           </button>
@@ -324,6 +313,20 @@ class OrgRules extends Component {
     })
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs (slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
   render () {
     let user = tree.get('user')
     let org = user.currentOrganization
@@ -334,10 +337,21 @@ class OrgRules extends Component {
       )
     }
 
+    const times = {
+      'd': this.formatTitle('orgRules.day'),
+
+      'w': this.formatTitle('orgRules.week'),
+
+      'M': this.formatTitle('orgRules.month'),
+
+      'y': this.formatTitle('orgRules.year')
+
+    }
+
     this.tabs = [
       {
         name: '0',
-        title: 'Configuración de operación', //TODO: translate
+        title: this.formatTitle('orgRules.tabOp'),
         hide: false,
         disabled: false,
         content: (
@@ -347,7 +361,7 @@ class OrgRules extends Component {
                 <div className='card-header'>
                   <p className='card-header-title'>
                     <FormattedMessage
-                      id="orgRules.rulesRangeTitle"
+                      id='orgRules.rulesRangeTitle'
                       defaultMessage={`Rangos de ajuste`}
                     />
                   </p>
@@ -358,19 +372,19 @@ class OrgRules extends Component {
                       <div className='columns is-gapless has-addons'>
                         <span className='column has-text-centered clear-blue has-text-weight-semibold'>
                           <FormattedMessage
-                            id="orgRules.rulesRange1"
+                            id='orgRules.rulesRange1'
                             defaultMessage={`Ciclos`}
                           />
                         </span>
                         <span className='column has-text-centered clear-blue has-text-weight-semibold'>
                           <FormattedMessage
-                            id="orgRules.rulesRange2"
+                            id='orgRules.rulesRange2'
                             defaultMessage={`Manager Lvl 1`}
                           />
                         </span>
                         <span className='column has-text-centered clear-blue has-text-weight-semibold'>
                           <FormattedMessage
-                            id="orgRules.rulesRange3"
+                            id='orgRules.rulesRange3'
                             defaultMessage={`Manager Lvl 2`}
                           />
                         </span>
@@ -389,7 +403,7 @@ class OrgRules extends Component {
                                   item !== null
                                     ? item + '%'
                                     : <FormattedMessage
-                                      id="orgRules.rulesRangeUnlimited"
+                                      id='orgRules.rulesRangeUnlimited'
                                       defaultMessage={`ilimitado`}
                                     />
                                 }
@@ -400,11 +414,11 @@ class OrgRules extends Component {
                                     ? this.state.rules.rangesLvl2[key] !== null
                                       ? this.state.rules.rangesLvl2[key] + '%'
                                       : <FormattedMessage
-                                        id="orgRules.rulesRangeUnlimited"
+                                        id='orgRules.rulesRangeUnlimited'
                                         defaultMessage={`ilimitado`}
                                       />
                                     : <FormattedMessage
-                                      id="orgRules.rulesRangeUndefined"
+                                      id='orgRules.rulesRangeUndefined'
                                       defaultMessage={`No definido`}
                                     />
                                 }
@@ -418,7 +432,7 @@ class OrgRules extends Component {
                   <button className='button is-primary edit-btn'
                     onClick={() => this.setStep(3)}>
                     <FormattedMessage
-                      id="orgRules.btnEdit"
+                      id='orgRules.btnEdit'
                       defaultMessage={`Editar`}
                     />
                   </button>
@@ -431,7 +445,7 @@ class OrgRules extends Component {
                 <div className='card-header'>
                   <p className='card-header-title'>
                     <FormattedMessage
-                      id="orgRules.cyclesTitle"
+                      id='orgRules.cyclesTitle'
                       defaultMessage={`Ciclos de operación`}
                     />
                   </p>
@@ -442,14 +456,14 @@ class OrgRules extends Component {
                       <div className='tags has-addons'>
                         <span className='tag deadline-sales has-text-weight-semibold'>
                           <FormattedMessage
-                            id="orgRules.cyclesUpdateSales"
+                            id='orgRules.cyclesUpdateSales'
                             defaultMessage={`Actualizar datos de ventas`}
                           />
                         </span>
                         <span className='tag has-text-weight-semibold'>
-                          {this.state.rules.salesUpload}&nbsp; 
+                          {this.state.rules.salesUpload}&nbsp;
                           <FormattedMessage
-                            id="orgRules.cyclesDay"
+                            id='orgRules.cyclesDay'
                             defaultMessage={`días`}
                           />
                         </span>
@@ -459,14 +473,14 @@ class OrgRules extends Component {
                       <div className='tags has-addons'>
                         <span className='tag deadline-forecast has-text-weight-semibold'>
                           <FormattedMessage
-                            id="orgRules.cyclesPrediction"
+                            id='orgRules.cyclesPrediction'
                             defaultMessage={`Generar Predicción`}
                           />
                         </span>
                         <span className='tag has-text-weight-semibold'>
-                          {this.state.rules.forecastCreation}&nbsp; 
+                          {this.state.rules.forecastCreation}&nbsp;
                           <FormattedMessage
-                            id="orgRules.cyclesDay"
+                            id='orgRules.cyclesDay'
                             defaultMessage={`días`}
                           />
                         </span>
@@ -476,14 +490,14 @@ class OrgRules extends Component {
                       <div className='tags has-addons'>
                         <span className='tag deadline-adjustments has-text-weight-semibold'>
                           <FormattedMessage
-                            id="orgRules.cyclesAdjustment"
+                            id='orgRules.cyclesAdjustment'
                             defaultMessage={`Realizar Ajustes`}
                           />
                         </span>
                         <span className='tag has-text-weight-semibold'>
-                          {this.state.rules.rangeAdjustment}&nbsp; 
+                          {this.state.rules.rangeAdjustment}&nbsp;
                           <FormattedMessage
-                            id="orgRules.cyclesDay"
+                            id='orgRules.cyclesDay'
                             defaultMessage={`días`}
                           />
                         </span>
@@ -493,14 +507,14 @@ class OrgRules extends Component {
                       <div className='tags has-addons'>
                         <span className='tag deadline-approve has-text-weight-semibold'>
                           <FormattedMessage
-                            id="orgRules.cyclesApprove"
+                            id='orgRules.cyclesApprove'
                             defaultMessage={`Aprobar Ajustes`}
                           />
                         </span>
                         <span className='tag has-text-weight-semibold'>
-                          {this.state.rules.rangeAdjustmentRequest}&nbsp; 
+                          {this.state.rules.rangeAdjustmentRequest}&nbsp;
                           <FormattedMessage
-                            id="orgRules.cyclesDay"
+                            id='orgRules.cyclesDay'
                             defaultMessage={`días`}
                           />
                         </span>
@@ -510,14 +524,14 @@ class OrgRules extends Component {
                       <div className='tags has-addons'>
                         <span className='tag deadline-consolidate has-text-weight-semibold'>
                           <FormattedMessage
-                            id="orgRules.cyclesInfo"
+                            id='orgRules.cyclesInfo'
                             defaultMessage={`Concentrar Información`}
                           />
                         </span>
                         <span className='tag has-text-weight-semibold'>
-                          {this.state.rules.consolidation}&nbsp; 
+                          {this.state.rules.consolidation}&nbsp;
                           <FormattedMessage
-                            id="orgRules.cyclesDay"
+                            id='orgRules.cyclesDay'
                             defaultMessage={`días`}
                           />
                         </span>
@@ -528,7 +542,7 @@ class OrgRules extends Component {
                   <button className='button is-primary edit-btn'
                     onClick={() => this.setStep(4)}>
                     <FormattedMessage
-                      id="orgRules.btnEdit"
+                      id='orgRules.btnEdit'
                       defaultMessage={`días`}
                     />
                   </button>
@@ -546,7 +560,7 @@ class OrgRules extends Component {
       },
       {
         name: '1',
-        title: 'Configuración de datos', //TODO: translate
+        title: this.formatTitle('orgRules.tabData'),
         hide: false,
         disabled: false,
         content: (
@@ -556,7 +570,7 @@ class OrgRules extends Component {
                 <div className='card-header'>
                   <p className='card-header-title'>
                     <FormattedMessage
-                      id="orgRules.title"
+                      id='orgRules.title'
                       defaultMessage={`Establece tus ciclos y periodos de ajuste`}
                     />
                   </p>
@@ -564,67 +578,67 @@ class OrgRules extends Component {
                 <div className='card-content'>
                   <p>
                     <FormattedMessage
-                      id="orgRules.cyclesStart"
+                      id='orgRules.cyclesStart'
                       defaultMessage={`Inicio del ciclo`}
-                    />:
+                    />:&nbsp;
                     <span className='has-text-weight-bold is-capitalized'>
                       {moment.utc(this.state.rules.startDate).format('DD-MMM-YYYY')}
                     </span>
                   </p>
                   <p>
                     <FormattedMessage
-                      id="orgRules.cyclesDuration"
+                      id='orgRules.cyclesDuration'
                       defaultMessage={`Duración de ciclo`}
-                    />:
+                    />:&nbsp;
                     <span className='has-text-weight-bold is-capitalized'>
                       {this.state.rules.cycleDuration + ' ' + times[this.state.rules.cycle]}
                     </span>
                   </p>
                   <p>
                     <FormattedMessage
-                      id="orgRules.cyclesAvailable"
+                      id='orgRules.cyclesAvailable'
                       defaultMessage={`Ciclos disponibles para ajuste`}
-                    />:
+                    />:&nbsp;
                     <span className='has-text-weight-bold is-capitalized'>
                       {this.state.rules.cyclesAvailable}
                     </span>
                   </p>
                   <p>
                     <FormattedMessage
-                      id="orgRules.season"
+                      id='orgRules.season'
                       defaultMessage={`Temporada`}
-                    />:
+                    />:&nbsp;
                       <span className='has-text-weight-bold is-capitalized'>
                         {this.state.rules.season}
                         <FormattedMessage
-                          id="orgRules.cycles"
+                          id='orgRules.cycles'
                           defaultMessage={`ciclos`}
                         />
                       </span>
                   </p>
                   <p>
                     <FormattedMessage
-                      id="orgRules.periodDuration"
+                      id='orgRules.periodsDuration'
                       defaultMessage={`Duración de periodo`}
-                    />:
+                    />:&nbsp;
                       <span className='has-text-weight-bold is-capitalized'>
                         {this.state.rules.periodDuration + ' ' + times[this.state.rules.period]}
                       </span>
                   </p>
                   <p>
                     <FormattedMessage
-                      id="orgRules.periods"
+                      id='orgRules.periods'
                       defaultMessage={`Los periodos pertenecen al ciclo donde`}
                     />
                     <span className='has-text-weight-bold'>
                       {
                         this.state.rules.takeStart
-                          ?  <FormattedMessage
-                            id="orgRules.periodsStart"
+                          ? <FormattedMessage
+                            id='orgRules.periodsStart'
                             defaultMessage={`inician.`}
                           />
                           : <FormattedMessage
-                            id="orgRules.periodsEnd"
+                            id='orgRules.periodsEnd'
                             defaultMessage={`terminan.`}
                           />
                       }
@@ -634,7 +648,7 @@ class OrgRules extends Component {
                   <button className='button is-primary edit-btn'
                     onClick={() => this.setStep(2)}>
                     <FormattedMessage
-                      id="orgRules.btnEdit"
+                      id='orgRules.btnEdit'
                       defaultMessage={`Editar`}
                     />
                   </button>
@@ -647,7 +661,7 @@ class OrgRules extends Component {
                 <div className='card-header'>
                   <p className='card-header-title'>
                     <FormattedMessage
-                      id="orgRules.catalogs"
+                      id='orgRules.catalogs'
                       defaultMessage={`Catálogos`}
                     />
                   </p>
@@ -656,14 +670,18 @@ class OrgRules extends Component {
                   <div className='tags'>
                     <div className='tag is-capitalized has-text-weight-semibold'>
                       <FormattedMessage
-                        id="orgRules.price"
+                        id='orgRules.price'
                         defaultMessage={`Precio`}
                       />
                     </div>
                     {this.state.rules.catalogs.map((item, key) => {
+                      let title = item.name
+                      if (this.findInCatalogs(item.slug)) {
+                        title = this.formatTitle('catalogs.' + item.slug)
+                      }
                       return (
                         <div key={key} className='tag is-capitalized has-text-weight-semibold'>
-                          {item.name}
+                          {title}
                         </div>
                       )
                     })}
@@ -672,7 +690,7 @@ class OrgRules extends Component {
                   <button className='button is-primary edit-btn'
                     onClick={() => this.setStep(5)}>
                     <FormattedMessage
-                      id="orgRules.btnEdit"
+                      id='orgRules.btnEdit'
                       defaultMessage={`Editar`}
                     />
                   </button>
@@ -696,7 +714,7 @@ class OrgRules extends Component {
                   onClick={() => { this.saveData() }}
                 >
                   <FormattedMessage
-                    id="orgRules.configBtnSave"
+                    id='orgRules.configBtnSave'
                     defaultMessage={`Guardar configuración`}
                   />
                 </button>
@@ -705,13 +723,13 @@ class OrgRules extends Component {
             <h4>
               <strong>
                 <FormattedMessage
-                  id="orgRules.configTitle"
+                  id='orgRules.configTitle'
                   defaultMessage={`Configura tus reglas de negocio`}
                 />
               </strong>
             </h4>
             <FormattedMessage
-              id="orgRules.configInfo"
+              id='orgRules.configInfo'
               defaultMessage={`Edita los datos las veces que desees. Recuerda que tus reglas quedarán deshabilitadas y perderás la información.`}
             />
           </div>
@@ -722,7 +740,7 @@ class OrgRules extends Component {
               <div className='message-header has-text-white'>
                 <p>
                   <FormattedMessage
-                    id="orgRules.alertTitle"
+                    id='orgRules.alertTitle'
                     defaultMessage={`Atención`}
                   />
                 </p>
@@ -737,12 +755,12 @@ class OrgRules extends Component {
                     </div>
                     <div className='level-item'>
                       <FormattedMessage
-                        id="orgRules.alertContent1"
+                        id='orgRules.alertContent1'
                         defaultMessage={`Tu configuración ha sido modificada, recuerda que`}
                       /> &nbsp;
                       <strong>
                         <FormattedMessage
-                          id="orgRules.alertContent2"
+                          id='orgRules.alertContent2'
                           defaultMessage={`debes actualizar tus proyectos`}
                         />
                       </strong>
@@ -755,7 +773,7 @@ class OrgRules extends Component {
                         onClick={() => this.showModalProjects()}>
                         <span>
                           <FormattedMessage
-                            id="orgRules.alertBtn"
+                            id='orgRules.alertBtn'
                             defaultMessage={`Actualizar Proyectos`}
                           />
                         </span>
@@ -814,8 +832,7 @@ class OrgRules extends Component {
         <Prompt
           when={this.state.unsaved}
           message={location => (
-            //TODO: translate
-            `Hay cambios a las reglas de negocio sin aplicar, ¿estás seguro de querer salir de esta página?`
+            `${this.formatTitle('orgRules.brMsg1')}`
           )}
         />
         <div className='org-rules wizard'>
@@ -833,10 +850,10 @@ class OrgRules extends Component {
 
 export default Page({
   path: '/rules',
-  title: 'Reglas', //TODO: translate
+  title: 'Reglas',
   icon: 'list',
   exact: true,
   roles: 'admin, orgadmin, analyst, manager-level-3',
   validate: [loggedIn, verifyRole],
-  component: OrgRules
+  component: injectIntl(OrgRules)
 })

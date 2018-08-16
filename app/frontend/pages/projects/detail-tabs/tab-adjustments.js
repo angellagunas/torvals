@@ -70,7 +70,7 @@ class TabAdjustment extends Component {
     this.rules = this.props.rules
     this.toastId = null
 
-    moment.locale(this.formatTitle('adjustments.locale'))
+    moment.locale(this.formatTitle('dates.locale'))
 
   }
 

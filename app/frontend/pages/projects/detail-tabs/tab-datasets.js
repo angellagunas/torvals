@@ -55,7 +55,7 @@ class TabDatasets extends Component {
         'default': 'N/A',
         'sortable': true,
         formatter: (row) => {
-          if (this.formatTitle('adjustments.locale') === 'en') {
+          if (this.formatTitle('dates.locale') === 'en') {
             return <span className='is-capitalized'>{row.source}</span>
           } else {
             return datasetStatus[row.source]

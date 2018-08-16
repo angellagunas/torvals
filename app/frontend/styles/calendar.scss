@@ -111,7 +111,7 @@
 
 .radio {
   margin-left: 10px;
-  span {
+  &>span {
     padding-left: 10px;
   }
 }

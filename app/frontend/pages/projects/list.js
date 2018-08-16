@@ -8,13 +8,14 @@ import {loggedIn, verifyRole} from '~base/middlewares/'
 import CreateProject from './create'
 
 export default ListPage({
+  translate: true,
   path: '/projects',
-  title: 'sideMenu.projects', //TODO: translate
+  title: 'sideMenu.projects',
   icon: 'folder',
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
-  titleSingular: 'projectConfig.project', //TODO: translate
+  titleSingular: 'projectConfig.project',
   create: true,
   createComponent: CreateProject,
   breadcrumbs: true,
@@ -22,12 +23,12 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio', //TODO: translate
+        label: 'sideMenu.home',
         current: false
       },
       {
         path: '/projects/',
-        label: 'sideMenu.projects', //TODO: translate
+        label: 'sideMenu.projects',
         current: true
       }
     ],
@@ -42,7 +43,6 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      //TODO: translate
       name: {type: 'text', title: 'Por nombre'}
     }
   },
@@ -52,7 +52,7 @@ export default ListPage({
   getColumns: () => {
     return [
       {
-        'title': 'Nombre', //TODO: translate
+        'title': 'tables.colName',
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -65,7 +65,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Creado', //TODO: translate
+        'title': 'tables.colCreated',
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -76,7 +76,7 @@ export default ListPage({
         }
       },
       {
-        'title': 'Acciones', //TODO: translate
+        'title': 'tables.colActions',
         formatter: (row) => {
           if (testRoles('consultor-level-2, consultor-level-3')) {
             return (

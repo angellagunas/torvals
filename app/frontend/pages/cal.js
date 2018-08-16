@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import classNames from 'classnames'
+import { injectIntl } from 'react-intl'
 
 class Cal extends Component {
   constructor (props) {
@@ -14,7 +15,11 @@ class Cal extends Component {
       startDate: this.props.startDate || moment.utc(),
       dates: this.props.dates || []
     }
-    moment.locale(this.props.locale || 'es')
+    moment.locale(this.formatTitle('dates.locale'))
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentWillMount () {
@@ -142,7 +147,7 @@ class Cal extends Component {
           weeks[w] =
             <div key={'week' + w} className='calendar-date'>
               <button className='date-item week-number tooltip'
-                data-tooltip={'Semana ' + w}>
+                data-tooltip={this.formatTitle('orgRules.week') + ' ' + w}>
                 {w}
               </button>
             </div>
@@ -287,4 +292,4 @@ class Cal extends Component {
   }
 }
 
-export default Cal
+export default injectIntl(Cal)

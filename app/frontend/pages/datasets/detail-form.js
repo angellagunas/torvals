@@ -41,7 +41,7 @@ class DatasetDetailForm extends Component {
       type: 'string',
       title: this.formatTitle('datasets.status'),
       enum: Object.keys(datasetStatus),
-      enumNames: this.formatTitle('adjustments.locale') === 'en' ? Object.keys(datasetStatus) : Object.values(datasetStatus)
+      enumNames: this.formatTitle('dates.locale') === 'en' ? Object.keys(datasetStatus) : Object.values(datasetStatus)
     }
 
     schema.properties.name.title = this.formatTitle('datasets.name')

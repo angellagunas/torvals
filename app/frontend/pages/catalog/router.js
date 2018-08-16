@@ -58,6 +58,11 @@ class CatalogRouter extends Component {
             path: [
               {
                 path: '/',
+                label: this.formatTitle('sideMenu.home'),
+                current: true
+              },
+              {
+                path: '/',
                 label: this.formatTitle('sideMenu.admin'),
                 current: true
               },

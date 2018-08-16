@@ -266,7 +266,7 @@ class WeekTable extends Component {
         },
         { 
           group: ' ',
-          title: this.formatTitle('adjustments.locale') === 'en' ? 
+          title: this.formatTitle('dates.locale') === 'en' ? 
           this.splitWords(this.formatTitle('adjustments.last') + '_' + this.formatTitle('tables.colAdjustment') + ' ')
           :
           this.splitWords(this.formatTitle('tables.colAdjustment') + '_' + this.formatTitle('adjustments.last') + ' ')
@@ -333,7 +333,7 @@ class WeekTable extends Component {
         },
         { 
           group: ' ',
-          title: this.formatTitle('adjustments.locale') === 'en' ? 
+          title: this.formatTitle('dates.locale') === 'en' ? 
           this.splitWords(this.formatTitle('adjustments.adjusted') + '_' + this.formatTitle('adjustments.range'))
           :
           this.splitWords(this.formatTitle('adjustments.range') + '_' + this.formatTitle('adjustments.adjusted'))
