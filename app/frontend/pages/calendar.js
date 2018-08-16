@@ -289,7 +289,7 @@ class Calendar extends Component {
           <div className='level-left'>
             <div className='level-item'>
               <Select
-                label='Año'
+                label={this.formatTitle('orgRules.year')}
                 name='year'
                 value={this.state.selectedYear}
                 type='integer'
@@ -301,7 +301,7 @@ class Calendar extends Component {
             <div className='level-item'>
               {this.state.cycles &&
               <Select
-                label='Ciclo'
+                label={this.formatTitle('adjustments.cycle')}
                 name='cycle'
                 value={this.state.selectedCycle}
                 placeholder={this.formatTitle('calendar.all')}

@@ -36,7 +36,7 @@ class CreateProject extends Component {
   render () {
     return (
       <BaseModal
-        title={this.props.title || 'Crear Proyecto'}
+        title={this.formatTitle(this.props.title) || 'Crear Proyecto'}
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -55,7 +55,7 @@ class CreateProject extends Component {
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
                 type='submit'
-              >{this.props.buttonText || 'Crear'}</button>
+              >{this.props.buttonText || this.formatTitle('dashboard.noProjectsBtn')}</button>
             </div>
             <div className='control'>
               <button className='button' onClick={this.hideModal} type='button'>

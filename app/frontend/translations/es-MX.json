@@ -1,6 +1,6 @@
 {
   "es-MX": {
-    "dates":{
+    "dates": {
       "locale": "es"
     },
     "sideMenu": {
@@ -92,7 +92,9 @@
       "colActions": "Acciones",
       "colEmail": "Correo",
       "colDate": "Fecha",
-      "colPriority": "Prioridad"
+      "colPriority": "Prioridad",
+      "colUser": "User",
+      "colAdjustmentsByPeriod": "Adjustments by period"
     },
     "adjustments": {
       "cycle": "Ciclo",
@@ -117,13 +119,13 @@
       "save": "Ajustes guardados",
       "reportSuccess": "Reporte generado con éxito",
       "noInfo": "No hay información disponible",
-      "nofilters": "¡No tienes catálogos asignados! Por favor contacta a tu supervisor"
+      "nofilters": "¡No tienes catálogos asignados!, por favor contacta a tu supervisor."
     },
     "approve": {
       "approve": "Aprobar",
-      "approved": "aprobado",
+      "approved": "Aprobado",
       "reject": "Rechazar",
-      "rejected": "rechazado",
+      "rejected": "Rechazado",
       "status": "Estado",
       "performed": "Realizado",
       "filter": "Filtrar por fecha",
@@ -622,8 +624,36 @@
     },
     "forecasts": {
       "btnCancel": "Cancelar",
-      "btnCrate": "Crear",
-      "detail": "Detalle"
+      "btnCreate": "Crear",
+      "btnOk": "Aceptar",
+      "detail": "Detalle",
+      "deleteMsg": "¿Estas seguro de querer eliminar este Predicción?",
+      "have": "Tienes ",
+      "many": " predicciones disponibles",
+      "one": " predicción disponibles",
+      "new": "Nueva predicción",
+      "compatible": "Conciliable",
+      "informative": "Informativo",
+      "created": "Creado",
+      "models": "Modelos",
+      "msg1": "Tu predicción se está generando.",
+      "msg2": "Este proceso puede tomar mucho tiempo. Te avisaremos por correo cuando el proceso termine.",
+      "alertTitle": "Configuración de predicciones",
+      "alertMsg": "Aún no tienes predicciones disponibles para este proyecto.",
+      "alertMsg2": "Debes crear al menos un proyecto para poder crear una predicción.",
+      "createChoose": "Elige un tipo de reporte",
+      "createMsg": "En este momento no es posible crear un reporte conciliable hasta tu próximo ciclo.",
+      "createCatalogs": "Elige tus catálogos",
+      "createAlert": "¡Debes elegir al menos un catálogo para generar tu predicción!",
+      "createInitial": "Ciclo inicial",
+      "createFinal": "Ciclo final",
+      "createModels": "Elige uno o varios modelos",
+      "createAlert2": "¡Debes elegir al menos un modelo para generar tu predicción!",
+      "detailDeleted": "Predicción eliminada con éxito",
+      "detailModel": "Modelo",
+      "detailMsg1": "¿Estás seguro de utilizar la predicción del modelo ",
+      "detailMsg2": " en tu proyecto?",
+      "detailMsg3": "No podrás crear otra predicción conciliable hasta el siguiente ciclo de predicciones."
     },
     "navbar": {
       "profile": "Mi perfil",
@@ -633,7 +663,7 @@
       "assigned": "Asignado",
       "available": "Disponible"
     },
-    "form":{
+    "form": {
       "required": "Es un campo requerido"
     }
   }

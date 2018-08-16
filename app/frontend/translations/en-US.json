@@ -1,6 +1,6 @@
 {
   "en-US": {
-    "dates":{
+    "dates": {
       "locale": "en"
     },
     "sideMenu": {
@@ -92,7 +92,9 @@
       "colActions": "Actions",
       "colEmail": "Email",
       "colDate": "Date",
-      "colPriority": "Priority"
+      "colPriority": "Priority",
+      "colUser": "User",
+      "colAdjustmentsByPeriod": "Adjustments by period"
     },
     "adjustments": {
       "cycle": "Cycle",
@@ -119,11 +121,11 @@
       "noInfo": "No information available",
       "nofilters": "You do not have catalogs assigned! Please contact your supervisor"
     },
-    "approve":{
+    "approve": {
       "approve": "Approve",
-      "approved": "approved",
+      "approved": "Approved",
       "reject": "Reject",
-      "rejected": "rejected",
+      "rejected": "Rejected",
       "status": "Status",
       "performed": "Performed",
       "filter": "Filter by date",
@@ -203,7 +205,7 @@
       "delete": "Delete",
       "create": "Create"
     },
-    "anomalies":{
+    "anomalies": {
       "all": "All",
       "emptyAnomalies": "No anomalies to show",
       "loadingAnomalies": "Loading anomalies",
@@ -228,7 +230,7 @@
       "no": "No",
       "cancel": "Cancel"
     },
-    "tabs":{
+    "tabs": {
       "graphics": "Graphics",
       "adjustments": "Adjustments",
       "approve": "Approve",
@@ -429,33 +431,33 @@
       "saving": "[EN] savingsaving"
     },
     "report": {
-      "adjustmentFinished": "[EN] Ajustes finalizados",
-      "adjustmentInProcess": "[EN] Ajustes en proceso",
-      "adjustmentTimeLeft": "[EN] Tiempo restante para ajustar",
-      "days": "[EN] Días",
-      "downloadInfo": "[EN] Estos son los ultimos reportes en proyecto",
-      "downloadInfo2": "[EN] Recuerda que tus reportes estan disponibles 24 horas despues de tu cierre.",
-      "downloadTitle": "[EN] Descarga de ajustes",
-      "filters": "[EN] Filtros",
-      "final": "[EN] Final",
-      "historicColumns1": "[EN] MAPE Predicción",
-      "historicColumns2": "[EN] MAPE Ajuste",
-      "historicColumns3": "[EN] Diferencia Predicción - Ajuste",
-      "historicResults": "[EN] Resultados de histórico por rango de tiempo en proyecto",
-      "historicTitle": "[EN] Histórico de ajustes",
-      "hours": "[EN] Horas",
-      "initial": "[EN] Inicial",
-      "loadingMsg": "[EN] Cargando, un momento por favor",
-      "minutes": "[EN] Min.",
-      "noAdjustment": "[EN] Sin ajustes",
-      "noInfo": "[EN] No hay datos que mostrar, intente con otro filtro",
-      "price": "[EN] Precio",
-      "projects": "[EN] Proyectos",
-      "projectsEmptyMsg": "[EN] Debes seleccionar al menos un proyecto",
-      "quantity": "[EN] Cantidad",
-      "searchTitle": "[EN] Búsqueda general",
-      "showBy": "[EN] Mostrar por",
-      "statusTitle": "[EN] Estado de proyecto"
+      "adjustmentFinished": "Finished adjustments",
+      "adjustmentInProcess": "Adjustments in process",
+      "adjustmentTimeLeft": "Remaining time to adjust",
+      "days": "Days",
+      "downloadInfo": "These are the latest project reports",
+      "downloadInfo2": "Remember that your reports are available 24 hours after your closing.",
+      "downloadTitle": "Download adjustments",
+      "filters": "Filters",
+      "final": "Final",
+      "historicColumns1": "MAPE Prediction",
+      "historicColumns2": "MAPE Adjustment",
+      "historicColumns3": "Prediction - Adjustment Difference",
+      "historicResults": "Historical results by time range in project",
+      "historicTitle": "Historic adjustments",
+      "hours": "Hours",
+      "initial": "Initial",
+      "loadingMsg": "Loading, one moment please",
+      "minutes": "Min.",
+      "noAdjustment": "No adjustments",
+      "noInfo": "No data to show, try another filter",
+      "price": "Price",
+      "projects": "Projects",
+      "projectsEmptyMsg": "You must select at least one project",
+      "quantity": "Quantity",
+      "searchTitle": "Search",
+      "showBy": "Show By",
+      "statusTitle": "Project Status"
     },
     "projects": {
       "add": "[EN] Agregar",
@@ -616,12 +618,40 @@
       "savedMsg": "The data has been saved correctly",
       "saving": "Saving",
       "delete": "Delete",
-      "deleteMsg": "Are you sure you want to delete this item?"      
+      "deleteMsg": "Are you sure you want to delete this item?"
     },
     "forecasts": {
-      "btnCancel": "[EN] Cancelar",
-      "btnCrate": "[EN] Crear",
-      "detail": "[EN] Detalle"
+      "btnCancel": "Cancel",
+      "btnCreate": "Create",
+      "btnOk": "Agree",
+      "detail": "Detail",
+      "deleteMsg": "Are you sure you want to delete this forecast?",
+      "have": "You have ",
+      "many": " forecasts available",
+      "one": " forecast available",
+      "new": "New forecast",
+      "compatible": "Conciliable",
+      "informative": "Informative",
+      "created": "Created",
+      "models": "Models",
+      "msg1": "Your forecast is being generated.",
+      "msg2": "This process can take a long time. We will notify you by mail when the process ends.",
+      "alertTitle": "Forecast configuration",
+      "alertMsg": "You have no forecasts available for this project yet.",
+      "alertMsg2": "You must create at least one project to be able to create a forecast.",
+      "createChoose": "Choose a report type",
+      "createMsg": "At this time it is not possible to create a report that can be reconciled until your next cycle.",
+      "createCatalogs": "Choose your catalogs",
+      "createAlert": "You must choose at least one catalog to generate your prediction!",
+      "createInitial": "Initial cycle",
+      "createFinal": "Final cycle",
+      "createModels": "Choose one or several models",
+      "createAlert2": "You must choose at least one model to generate your prediction!",
+      "detailDeleted": "Predicción eliminada con éxito",
+      "detailModel": "Model",
+      "detailMsg1": "Are you sure you use the model prediction ",
+      "detailMsg2": " in your project?",
+      "detailMsg3": "You will not be able to create another predictable prediction until the next cycle of predictions."
     },
     "navbar": {
       "profile": "[EN] Mi perfil",
