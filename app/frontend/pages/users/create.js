@@ -182,7 +182,7 @@ class CreateUser extends Component {
       })
 
       if (defaultRole) {
-        this.initialState.role = defaultRole._id
+        this.initialState.role = defaultRole.uuid
       }
 
       if (env.EMAIL_SEND) {

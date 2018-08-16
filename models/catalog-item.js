@@ -61,11 +61,11 @@ catalogItemSchema.statics.filterByUserRole = async function (filters, role, user
   let items = await this.find(filters).select({'_id': 1, 'groups': 1})
 
   const permissions = [
-    'manager-level-1' ,
+    'manager-level-1',
     'manager-level-2',
     'manager-level-3',
-    'consultor-level-2' ,
-    'consultor-level-3' 
+    'consultor-level-2',
+    'consultor-level-3'
   ]
   if (permissions.includes(role)) {
     items = items
@@ -79,6 +79,7 @@ catalogItemSchema.statics.filterByUserRole = async function (filters, role, user
   } else {
     items = items.map(item => { return item._id })
   }
+
   return items
 }
 

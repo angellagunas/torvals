@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import tree from '~core/tree'
 
 import ListPage from '~base/list-page'
+import ImportPrices from './import'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import Editable from '~base/components/base-editable'
 
@@ -19,6 +20,8 @@ export default ListPage({
   exact: true,
   validate: [loggedIn, verifyRole],
   create: false,
+  import: true,
+  importComponent: ImportPrices,
   export: true,
   exportRole: 'consultor-level-3',
   exportUrl: '/app/prices',

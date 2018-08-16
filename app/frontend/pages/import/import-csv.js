@@ -41,7 +41,8 @@ class ImportCSV extends Component {
     } catch (e) {
       return this.setState({
         error: e.message,
-        apiCallErrorMessage: 'message is-danger'
+        apiCallErrorMessage: 'message is-danger',
+        isLoading: ''
       })
     }
     this.setState({ apiCallMessage: 'message is-success', message: data.message, isLoading: '' })
@@ -58,7 +59,7 @@ class ImportCSV extends Component {
           }
         })
         this.props.finishUp()
-      }, 3000)
+      }, 10000)
     }
   }
 

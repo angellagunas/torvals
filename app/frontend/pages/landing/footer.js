@@ -28,7 +28,7 @@ class Footer extends Component {
                 </span>
                 </a> */}
               </p>
-              <p>Todos los derechos recervados, 2018</p>
+              <p>Todos los derechos reservados, 2018</p>
             </div>
           </div>
         </div>
