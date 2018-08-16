@@ -29,7 +29,7 @@ const dateAggregate = function(year, month, day){
 }
 
 
-describe('Generate cycles task', () => {
+describe.only('Generate cycles task', () => {
   describe('with one cycle by month and one week as period', () => {
     it('should generate the cycles successfully', async function () {
       await clearDatabase()
@@ -78,7 +78,7 @@ describe('Generate cycles task', () => {
 
       expect(moment.utc(firstCycle.dateEnd).year()).equals(2018)
       expect(moment.utc(firstCycle.dateEnd).month() + 1).equals(1)
-      expect(moment.utc(firstCycle.dateEnd).date()).equals(28)
+      expect(moment.utc(firstCycle.dateEnd).date()).equals(24)
     })
 
     it('and a extraDate before of first season should create two season before', async function () {
@@ -177,13 +177,13 @@ describe('Generate cycles task', () => {
       await clearDatabase()
 
       const org = await createFullOrganization({}, {
-        startDate: moment.utc('2018-01-04'),
+        startDate: moment.utc('2017-12-28'),
         periodDuration : 1,
         period: 'w',
         cycleDuration : 1,
         cycle: 'w',
-        season: 4,
-        cyclesAvailable: 2,
+        season: 12,
+        cyclesAvailable: 6,
         takeStart : true,
         isCurrent: true,
         consolidation : 2,
@@ -215,12 +215,12 @@ describe('Generate cycles task', () => {
       const expectedCycles = 12 + (month + 1) + parseInt(cyclesAvailable)
       const cyclesForThisYear = (month + 1) + parseInt(cyclesAvailable)
 
-      let firstCycle = await Cycle.aggregate([dateAggregate(2018, 1, 4)])
+      let firstCycle = await Cycle.aggregate([dateAggregate(2017, 12, 28)])
       firstCycle = firstCycle[0]
 
       expect(moment.utc(firstCycle.dateEnd).year()).equals(2018)
       expect(moment.utc(firstCycle.dateEnd).month() + 1).equals(1)
-      expect(moment.utc(firstCycle.dateEnd).date()).equals(10)
+      expect(moment.utc(firstCycle.dateEnd).date()).equals(3)
     })
   })
 
