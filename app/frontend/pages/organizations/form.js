@@ -15,7 +15,7 @@ const schema = {
   required: [
     'name', 'slug'
   ],
-  properties: { //TODO: translate
+  properties: { // TODO: translate
     name: {type: 'string', title: 'Nombre'},
     description: {type: 'string', title: 'Descripción'},
     slug: {type: 'string', title: 'Subdominio'},
@@ -57,7 +57,7 @@ class CustomForm extends Component {
           <p className='subtitle is-pulled-left'>
             <strong>
               <FormattedMessage
-                id="organizations.formTitle"
+                id='organizations.formTitle'
                 defaultMessage={`Detalle de tu organización`}
               />
             </strong>
@@ -69,7 +69,7 @@ class CustomForm extends Component {
               type='submit'
             >
               <FormattedMessage
-                id="organizations.btnSave"
+                id='organizations.btnSave'
                 defaultMessage={`Guardar`}
               />
             </button>
@@ -79,7 +79,7 @@ class CustomForm extends Component {
               type='submit'
             >
               <FormattedMessage
-                id="organizations.btnContinue"
+                id='organizations.btnContinue'
                 defaultMessage={`Continuar`}
               />
             </button>
@@ -103,7 +103,7 @@ class CustomForm extends Component {
               <div className='form-group field has-text-centered'>
                 <label className='label'>
                   <FormattedMessage
-                    id="organizations.logoUploadMsg"
+                    id='organizations.logoUploadMsg'
                     defaultMessage={`Sube el logo de la organización`}
                   />
                 </label>
@@ -126,7 +126,7 @@ class CustomForm extends Component {
                   <div className='form-group field'>
                     <label className='label'>
                       <FormattedMessage
-                        id="organizations.name"
+                        id='organizations.name'
                         defaultMessage={`Nombre`}
                       />*
                     </label>
@@ -143,7 +143,7 @@ class CustomForm extends Component {
                   <div className='form-group field'>
                     <label className='label'>
                       <FormattedMessage
-                        id="organizations.description"
+                        id='organizations.description'
                         defaultMessage={`Descripción`}
                       />
                     </label>
@@ -159,7 +159,7 @@ class CustomForm extends Component {
                     </div>
                     <p className='help-block has-text-grey is-size-7'>
                       <FormattedMessage
-                        id="organizations.maxMsg"
+                        id='organizations.maxMsg'
                         defaultMessage={`Máximo 140 caracteres`}
                       />
                     </p>
@@ -167,7 +167,7 @@ class CustomForm extends Component {
                   <div className='form-group field'>
                     <label className='label'>
                       <FormattedMessage
-                        id="organizations.subdomain"
+                        id='organizations.subdomain'
                         defaultMessage={`Subdominio`}
                       />*
                     </label>
@@ -226,7 +226,7 @@ class OrganizationForm extends Component {
   async submitHandler ({formData}) {
     if (formData.slug !== this.state.initialState.slug && !this.state.confirmed) {
       return this.setState({
-        ...this.state, //TODO: translate
+        ...this.state, // TODO: translate
         error: 'Si modificas el slug, se cerrará la sesión de todos los usuarios que hayan iniciado sesión en esta organización. Si REALMENTE desea continuar, haga clic en guardar de nuevo',
         apiCallErrorMessage: 'message is-danger',
         confirmed: true
@@ -272,7 +272,7 @@ class OrganizationForm extends Component {
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
               <FormattedMessage
-                id="organizations.savedMsg"
+                id='organizations.savedMsg'
                 defaultMessage={`Los datos se han guardado correctamente`}
               />
             </div>

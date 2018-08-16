@@ -14,13 +14,8 @@ import FontAwesome from 'react-fontawesome'
 import { toast } from 'react-toastify'
 import Multiselect from '~base/components/base-multiselect'
 
-const cleanName = (item) => {
-  let c = item.replace(/-/g, ' ')
-  return c.charAt(0).toUpperCase() + c.slice(1)
-}
-
 class CatalogDetail extends Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       loading: true,
@@ -34,12 +29,12 @@ class CatalogDetail extends Component {
     }
   }
 
-  componentWillMount() {
+  componentWillMount () {
     this.load()
     this.setState({ canEdit: testRoles(this.state.roles) })
   }
 
-  async load() {
+  async load () {
     var url = '/app/catalogItems/detail/' + this.props.match.params.uuid
     try {
       const body = await api.get(url)
@@ -61,7 +56,7 @@ class CatalogDetail extends Component {
     }
   }
 
-  async loadGroups() {
+  async loadGroups () {
     var url = '/app/groups'
     const body = await api.get(
       url,
@@ -77,14 +72,14 @@ class CatalogDetail extends Component {
     })
   }
 
-  getSavingMessage() {
+  getSavingMessage () {
     let { saving, saved } = this.state
 
     if (saving) {
       return (
         <p className='card-header-title' style={{ fontWeight: '200', color: 'grey' }}>
           <FormattedMessage
-            id="catalog.saving"
+            id='catalog.saving'
             defaultMessage={`Guardando`}
           /> <span style={{ paddingLeft: '5px' }}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
@@ -105,7 +100,7 @@ class CatalogDetail extends Component {
       return (
         <p className='card-header-title' style={{ fontWeight: '200', color: 'grey' }}>
           <FormattedMessage
-            id="catalog.saved"
+            id='catalog.saved'
             defaultMessage={`Guardado`}
           />
         </p>
@@ -113,7 +108,7 @@ class CatalogDetail extends Component {
     }
   }
 
-  async availableGroupOnClick(uuid) {
+  async availableGroupOnClick (uuid) {
     this.setState({
       saving: true
     })
@@ -158,7 +153,7 @@ class CatalogDetail extends Component {
     }, 300)
   }
 
-  async assignedGroupOnClick(uuid) {
+  async assignedGroupOnClick (uuid) {
     this.setState({
       saving: true
     })
@@ -191,25 +186,25 @@ class CatalogDetail extends Component {
     }, 300)
   }
 
-  async deleteObject() {
+  async deleteObject () {
     var url = '/app/catalogItems/' + this.props.match.params.uuid
     await api.del(url)
     this.props.history.push('/catalogs/' + this.props.match.params.catalog)
   }
 
-  submitHandler() {
+  submitHandler () {
     this.setState({ isLoading: ' is-loading' })
   }
 
-  errorHandler() {
+  errorHandler () {
     this.setState({ isLoading: '' })
   }
 
-  finishUpHandler() {
+  finishUpHandler () {
     this.setState({ isLoading: '' })
   }
 
-  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -227,21 +222,11 @@ class CatalogDetail extends Component {
     }
   }
 
-  formatTitle(id) {
+  formatTitle (id) {
     return this.props.intl.formatMessage({ id: id })
   }
 
-  findInCatalogs(slug) {
-    let find = false
-    defaultCatalogs.map(item => {
-      if (item.value === slug) {
-        find = true
-      }
-    })
-    return find
-  }
-
-  render() {
+  render () {
     if (this.state.notFound) {
       return <NotFound msg={'este ' + this.props.match.params.uuid} />
     }
@@ -271,7 +256,7 @@ class CatalogDetail extends Component {
               <header className='card-header'>
                 <p className='card-header-title'>
                   <FormattedMessage
-                    id="catalog.groups"
+                    id='catalog.groups'
                     defaultMessage={`Grupos`}
                   />
                 </p>
@@ -355,7 +340,7 @@ class CatalogDetail extends Component {
                 <header className='card-header'>
                   <p className='card-header-title'>
                     <FormattedMessage
-                      id="catalog.detail"
+                      id='catalog.detail'
                       defaultMessage={`Detalle`}
                     />
                   </p>
@@ -381,7 +366,7 @@ class CatalogDetail extends Component {
                               type='submit'
                             >
                               <FormattedMessage
-                                id="catalog.btnSave"
+                                id='catalog.btnSave'
                                 defaultMessage={`Guardar`}
                               />
                             </button>

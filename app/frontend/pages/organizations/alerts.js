@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { BaseTable } from '~base/components/base-table'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Multiselect from '~base/components/base-multiselect'
 import api from '~base/api'
 import tree from '~core/tree'
@@ -23,6 +23,10 @@ class Alerts extends Component {
   componentWillMount () {
     this.getUsers()
     this.getAlerts()
+  }
+  
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
   
   getColumns(){
@@ -447,4 +451,4 @@ class Alerts extends Component {
   }
 }
 
-export default Alerts
+export default injectIntl(Alerts)

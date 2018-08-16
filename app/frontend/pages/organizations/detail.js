@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
@@ -12,10 +12,9 @@ import moment from 'moment'
 import Tabs from '~base/components/base-tabs'
 import BillingForm from './billing-form'
 import OrgUsers from './org-users'
-import { orgStatus } from '~base/tools'
 import { toast } from 'react-toastify'
-import Labels from './labels';
-import Alerts from './alerts';
+import Labels from './labels'
+import Alerts from './alerts'
 
 class OrganizationDetail extends Component {
   constructor (props) {
@@ -28,6 +27,17 @@ class OrganizationDetail extends Component {
       selectedTab: '0',
       activateModal: ''
     }
+
+    this.orgStatus = {
+      'trial': this.formatTitle('organizations.orgStatusTrial'),
+      'active': this.formatTitle('organizations.orgStatusActive'),
+      'inactive': this.formatTitle('organizations.orgStatusInactive'),
+      'activationPending': this.formatTitle('organizations.orgStatusActivationPending')
+    }
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentWillMount () {
@@ -74,7 +84,7 @@ class OrganizationDetail extends Component {
   }
 
   daysLeft (org) {
-    let status = orgStatus[org.status]
+    let status = this.orgStatus[org.status]
     let color = ''
     let msg = ''
     let en = ''
@@ -83,14 +93,14 @@ class OrganizationDetail extends Component {
 
     if (org.status === 'trial') {
       color = 'has-text-success has-text-weight-semibold'
-      en = 'en'
+      en = this.formatTitle('organizations.connector1')
       start = org.trialStart
       end = org.trialEnd
     } else if (org.status === 'active') {
       color = 'has-text-success has-text-weight-semibold'
     } else if (org.status === 'inactive') {
       color = 'has-text-danger has-text-weight-semibold'
-      msg = 'Solicita tu activación'
+      msg = this.formatTitle('organizations.daysLeftMessage')
     } else if (org.status === 'activationPending') {
       color = 'has-text-warning has-text-weight-semibold'
     }
@@ -99,15 +109,38 @@ class OrganizationDetail extends Component {
 
     return (
       <div className='organization-daysleft'>
-        <h2>Tu cuenta se encuentra {en} <span className={color}>{status}</span></h2>
+        <h2>
+          <FormattedMessage
+            id='organizations.daysLeftAccount'
+            defaultMessage={`Tu cuenta se encuentra`}
+          /> {en} <span className={color}>{status}</span></h2>
         <button className='button is-primary is-medium is-pulled-right'
           disabled={!!this.state.isLoading}
-          onClick={() => this.toggleModal()}>
-          Solicitar activación
+          onClick={() => this.toggleModal()}
+        >
+          <FormattedMessage
+            id='organizations.activateModalBtn'
+            defaultMessage={`Solicitar activación`}
+          />
         </button>
-        <h1>{days} días restantes <span className={color}>{msg}</span></h1>
+        <h1>
+          {days} <FormattedMessage
+            id='organizations.daysLeftDays'
+            defaultMessage={`días restantes`}
+          />
+          <span className={color}>{msg}</span></h1>
         <p>
-        Del <strong>{moment.utc(start).format('DD/MM/YYYY')}</strong> al <strong>{moment.utc(end).format('DD/MM/YYYY')}</strong>
+          <FormattedMessage
+            id='organizations.connector2'
+            defaultMessage={`Del`}
+          /> <strong>
+            {moment.utc(start).format('DD/MM/YYYY')}
+          </strong> <FormattedMessage
+            id='organizations.connector3'
+            defaultMessage={`al`}
+          /> <strong>
+            {moment.utc(end).format('DD/MM/YYYY')}
+          </strong>
         </p>
 
       </div>
@@ -130,11 +163,10 @@ class OrganizationDetail extends Component {
           }
         })
         this.toggleModal()
-        this.notify('Solicitud enviada', 5000, toast.TYPE.INFO)
+        this.notify(this.formatTitle('organizations.activateSuccessMsg'), 5000, toast.TYPE.INFO)
       }
       return true
     } catch (e) {
-      console.log(e)
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
         isLoading: ''
@@ -171,8 +203,7 @@ class OrganizationDetail extends Component {
     const { organization } = this.state
 
     if (this.state.notFound) {
-      //TODO: translate
-      return <NotFound msg='esta organización' />
+      return <NotFound msg={this.formatTitle('organizations.notFound')} />
     }
 
     if (!organization.uuid || !this.state.loaded) {
@@ -182,7 +213,7 @@ class OrganizationDetail extends Component {
     this.tabs = [
       {
         name: '0',
-        title: 'Detalle de organización',
+        title: this.formatTitle('organizations.tabOrganizationsTitle'),
         hide: false,
         disabled: false,
         content: (
@@ -201,7 +232,7 @@ class OrganizationDetail extends Component {
       },
       {
         name: '1',
-        title: 'Facturación',
+        title: this.formatTitle('organizations.tabFacturacionTitle'),
         hide: false,
         disabled: false,
         content: (
@@ -212,7 +243,7 @@ class OrganizationDetail extends Component {
       },
       {
         name: '2',
-        title: 'Usuarios',
+        title: this.formatTitle('organizations.tabUsersTitle'),
         hide: false,
         disabled: false,
         content: (
@@ -223,18 +254,18 @@ class OrganizationDetail extends Component {
       },
       {
         name: '3',
-        title: 'Textos',
+        title: this.formatTitle('organizations.tabLabelsTitle'),
         hide: false,
         disabled: false,
         content: (
           <div className='section pad-sides has-20-margin-top'>
-            <Labels org={organization}/>
+            <Labels org={organization} />
           </div>
         )
       },
       {
         name: '4',
-        title: 'Alertas',
+        title: this.formatTitle('organizations.tabAlertsTitle'),
         hide: false,
         disabled: false,
         content: (
@@ -248,7 +279,12 @@ class OrganizationDetail extends Component {
 
       <div className='organization'>
         <div className='section-header'>
-          <h2>Organización</h2>
+          <h2>
+            <FormattedMessage
+              id='organizations.title'
+              defaultMessage={`Organización`}
+            />
+          </h2>
         </div>
         <div className='card'>
           <div className='card-content'>
@@ -256,7 +292,13 @@ class OrganizationDetail extends Component {
               <button
                 className={'button is-pulled-right is-success save-btn ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
-                onClick={() => { this.saveData() }}>Guardar configuración</button>
+                onClick={() => { this.saveData() }}
+              >
+                <FormattedMessage
+                  id='organizations.btnSaveConf'
+                  defaultMessage={`Guardar configuración`}
+                />
+              </button>
             }
             {this.daysLeft(organization)}
           </div>
@@ -272,22 +314,39 @@ class OrganizationDetail extends Component {
           <div className='modal-background' onClick={() => this.toggleModal()} />
           <div className='modal-card'>
             <header className='modal-card-head'>
-              <p className='modal-card-title'>Solicitud de activación de cuenta</p>
+              <p className='modal-card-title'>
+                <FormattedMessage
+                  id='organizations.activateModalTitle'
+                  defaultMessage={`Solicitud de activación de cuenta`}
+                />
+              </p>
               <button className='delete' aria-label='close' onClick={() => this.toggleModal()} />
             </header>
             <section className='modal-card-body'>
-              <p className='is-padding-bottom-small'>Revisa que tus datos de facturación sean correctos.</p>
+              <p className='is-padding-bottom-small'>
+                <FormattedMessage
+                  id='organizations.activateModalBilling'
+                  defaultMessage={`Revisa que tus datos de facturación sean correctos.`}
+                />
+              </p>
               <BillingForm org={organization} isModal />
               <br />
               <div className={'message is-primary'}>
                 <div className='message-body is-size-7 has-text-centered'>
-                  Al momento de solicitar una activación de cuenta, un agente recibirá tus datos y se comunicará posteriormente.
+                  <FormattedMessage
+                    id='organizations.activateModalMsg'
+                    defaultMessage={`Al momento de solicitar una activación de cuenta, un agente recibirá tus datos y se comunicará posteriormente.`}
+                  />
                 </div>
               </div>
               <button className='button is-success is-pulled-right'
                 disabled={!!this.state.isLoading}
-                onClick={() => this.requestActivation()} >
-                Solicitar activación
+                onClick={() => this.requestActivation()}
+              >
+                <FormattedMessage
+                  id='organizations.activateModalBtn'
+                  defaultMessage={`Solicitar activación`}
+                />
               </button>
             </section>
 
@@ -307,9 +366,9 @@ const branchedOrganizationDetail = branch({organizations: 'organizations'}, Orga
 
 export default Page({
   path: '/manage/organizations/:uuid',
-  title: 'User details', //TODO: translate
+  title: 'User details', // TODO: translate
   exact: true,
   roles: 'admin, orgadmin, analyst, manager-level-3',
   validate: [loggedIn, verifyRole],
-  component: branchedOrganizationDetail
+  component: injectIntl(branchedOrganizationDetail)
 })
