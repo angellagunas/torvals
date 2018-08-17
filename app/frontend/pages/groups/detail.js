@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
@@ -46,6 +46,10 @@ class GroupDetail extends Component {
     this.load()
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   findCatalogName = (name) => {
     let find = ''
     this.rules.catalogs.map(item => {
@@ -70,6 +74,7 @@ class GroupDetail extends Component {
           .groupBy(x => x.type)
           .map((value, key) => ({
             type: this.findCatalogName(key),
+            slug: key,
             objects: value
           }))
           .value()
@@ -85,14 +90,14 @@ class GroupDetail extends Component {
 
   getColumns () {
     return [
-      { //TODO: translate
-        'title': 'Nombre',
+      {
+        'title': this.formatTitle('user.formName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
-      { //TODO: translate
-        'title': 'Email',
+      {
+        'title': this.formatTitle('user.formEmail'),
         'property': 'email',
         'default': 'N/A',
         'sortable': true
@@ -176,20 +181,20 @@ class GroupDetail extends Component {
 
   getColumnsUsersToAsign () {
     return [
-      { //TODO: translate
-        'title': 'Nombre',
+      {
+        'title': this.formatTitle('user.formName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
-      { //TODO: translate
-        'title': 'Email',
+      {
+        'title': this.formatTitle('user.formEmail'),
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
-      { //TODO: translate
-        'title': 'Acciones',
+      {
+        'title': this.formatTitle('groups.tableActions'),
         formatter: (row) => {
           return (
             <button className='button' onClick={e => { this.addToGroup(row.uuid) }}>
@@ -260,7 +265,7 @@ class GroupDetail extends Component {
 
   render () {
     if (this.state.notFound) {
-      return <NotFound msg='este grupo' />
+      return <NotFound msg={this.formatTitle('groups.notFound')} />
     }
 
     const { group } = this.state
@@ -276,11 +281,9 @@ class GroupDetail extends Component {
             <div className='field is-grouped is-grouped-right'>
               <div className='control'>
                 <DeleteButton
-                  //TODO: translate
-                  titleButton={'Eliminar'}
-                  objectName='Grupo'
+                  objectName={this.formatTitle('groups.deleteTitle')}
                   objectDelete={this.deleteObject.bind(this)}
-                  message={`¿Está seguro que desea eliminar el grupo ${group.name}?`}
+                  message={`${this.formatTitle('groups.deleteMsg')} ${group.name}?`}
                 />
               </div>
             </div>
@@ -296,12 +299,12 @@ class GroupDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio', //TODO: translate
+                    label: this.formatTitle('groups.breadcrumbStart'),
                     current: false
                   },
                   {
                     path: '/manage/groups',
-                    label: 'Grupos', //TODO: translate
+                    label: this.formatTitle('groups.breadcrumbGroups'),
                     current: false,
                     onclick: (e) => {
                       e.preventDefault()
@@ -310,7 +313,7 @@ class GroupDetail extends Component {
                   },
                   {
                     path: '/manage/groups',
-                    label: 'Detalle', //TODO: translate
+                    label: this.formatTitle('groups.breadcrumbDetail'),
                     current: true
                   },
                   {
@@ -374,8 +377,8 @@ class GroupDetail extends Component {
                           this.state.catalogItems.length > 0 &&
                           this.state.catalogItems.map(item => {
                             return (
-                              <div className='has-20-margin-top' key={item.type}>
-                                <p className='label'>{item.type}</p>
+                              <div className='has-20-margin-top' key={item.slug}>
+                                <p className='label'>{this.formatTitle('catalogs.' + item.slug)}</p>
                                 <div className='tags'>
                                   {item.objects.map((obj) => {
                                     return (
@@ -433,7 +436,7 @@ class GroupDetail extends Component {
                       />
                     </button>
                     <BaseModal
-                      title='Usuarios para asignar'
+                      title={this.formatTitle('groups.assignUsers')}
                       className={this.state.classNameList}
                       finishUp={this.finishUpList.bind(this)}
                       hideModal={this.hideModalList.bind(this)}
@@ -491,4 +494,4 @@ class GroupDetail extends Component {
   }
 }
 
-export default GroupDetail
+export default injectIntl(GroupDetail)

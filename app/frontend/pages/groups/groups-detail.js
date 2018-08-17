@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import api from '~base/api'
 import DeleteButton from '~base/components/base-deleteButton'
@@ -20,10 +20,15 @@ class GroupsDetail extends Component {
       canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3'
     }
   }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   getColumns () {
     return [
-      { //TODO: translate
-        'title': 'Nombre',
+      {
+        'title': this.formatTitle('groups.formName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true,
@@ -33,8 +38,8 @@ class GroupsDetail extends Component {
           )
         }
       },
-      { //TODO: translate
-        'title': 'Creado',
+      {
+        'title': this.formatTitle('groups.tableCreated'),
         'property': 'dateCreated',
         'default': 'N/A',
         'sortable': true,
@@ -44,8 +49,8 @@ class GroupsDetail extends Component {
           )
         }
       },
-      { //TODO: translate
-        'title': 'Miembros',
+      {
+        'title': this.formatTitle('groups.tableMembers'),
         'property': 'users',
         'default': '0',
         'sortable': true,
@@ -58,8 +63,8 @@ class GroupsDetail extends Component {
           )
         }
       },
-      { //TODO: translate
-        'title': 'Acciones',
+      {
+        'title': this.formatTitle('groups.tableActions'),
         formatter: (row) => {
           const deleteObject = async function () {
             var url = '/app/groups/' + row.uuid
@@ -85,9 +90,9 @@ class GroupsDetail extends Component {
                 <DeleteButton
                   iconOnly
                   icon='fa fa-trash'
-                  objectName='Grupo'
-                  objectDelete={deleteObject} //TODO: translate
-                  message={`¿Está seguro de querer eliminar el grupo ${row.name} ?`}
+                  objectName={this.formatTitle('groups.deleteTitle')}
+                  objectDelete={deleteObject}
+                  message={`${this.formatTitle('groups.deleteMsg')} ${row.name} ?`}
                 />
               </div>
           }
@@ -153,7 +158,7 @@ class GroupsDetail extends Component {
               <div className='level-item'>
                 <h1 className='title is-5'>
                   <FormattedMessage
-                    id="groups.title"
+                    id='groups.title'
                     defaultMessage={`Visualiza tus grupos`}
                   />
                 </h1>
@@ -168,7 +173,7 @@ class GroupsDetail extends Component {
                       type='text'
                       value={this.state.searchTerm}
                       onChange={(e) => { this.searchOnChange(e) }}
-                      placeholder='Buscar' //TODO: translate
+                      placeholder={this.formatTitle('dashboard.searchText')}
                     />
 
                     <span className='icon is-small is-right'>
@@ -185,7 +190,7 @@ class GroupsDetail extends Component {
                 >
                   <span>
                     <FormattedMessage
-                      id="groups.btnNew"
+                      id='groups.btnNew'
                       defaultMessage={`Nuevo Grupo`}
                     />
                   </span>
@@ -228,4 +233,4 @@ class GroupsDetail extends Component {
   }
 }
 
-export default GroupsDetail
+export default injectIntl(GroupsDetail)

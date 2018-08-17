@@ -404,10 +404,15 @@
       "rulesTitle": "Reglas de la organización"
     },
     "user": {
+      "tabTitle": "Usuarios",
       "back": "Regresar",
       "breadcrumbDetail": "Detalle",
       "breadcrumbStart": "Inicio",
       "breadcrumbUsers": "Usuarios",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "deleteObj": "Usuario",
+      "deleteMsg": "¿Estás seguro de querer desactivar a",
       "btnCancel": "Cancelar",
       "btnCreate": "Crear",
       "btnInvite": "Invitar",
@@ -429,6 +434,7 @@
       "formProjectErrorMsg": "¡No existen proyectos!",
       "formRole": "Rol",
       "groups": "Grupos",
+      "tableActions": "Acciones",
       "inviteMsg": "Se ha enviado la invitación correctamente! La invitación estará vigente durante 24 horas.",
       "multiselectAssignedTitle": "Asignado",
       "multiselectAvailableTitle": "Disponible",
@@ -690,18 +696,34 @@
       "usersMsg": "No utilizar contraseña y enviar invitación a Orax"
     },
     "groups": {
+      "tabTitle": "Grupos",
       "btnAdd": "Agregar",
       "btnBack": "Regresar",
       "btnCancel": "Cancelar",
       "btnCreate": "Crear",
+      "btnEdit": "Editar",
       "btnList": "Ver lista",
       "btnNew": "Nuevo Grupo",
       "btnNewUser": "Nuevo usuario",
       "btnSave": "Guardar",
+      "breadcrumbStart": "Inicio",
+      "breadcrumbGroups": "Grupos",
+      "breadcrumbDetail": "Detalle",
+      "deleteTitle": "Grupo",
+      "deleteMsg": "¿Estás seguro de querer eliminar el grupo",
+      "formName": "Nombre",
+      "formDescription": "Descripción",
+      "tableCreated": "Creado",
+      "tableMembers": "Miembros",
+      "tableActions": "Acciones",
+      "notFound": "este grupo",
+      "assignUsers": "Usuarios para asignar",
       "detail": "Detalle",
       "savedMsg": "Los datos se han guardado correctamente",
       "title": "Visualiza tus grupos",
-      "users": "Usuarios"
+      "newTitle": "Nuevo Grupo",
+      "users": "Usuarios",
+      "groupUsers": "Usuarios grupo"
     },
     "catalog": {
       "btnCancel": "Cancelar",
@@ -758,6 +780,14 @@
     },
     "form": {
       "required": "Es un campo requerido"
+    },
+    "notFound": {
+      "title": "No pudimos encontrar"
+    },
+    "deleteButton": {
+      "title": "Eliminar",
+      "message": "¿Estas seguro de querer eliminar este objeto?",
+      "objectName": "Objeto"
     }
   }
 }
