@@ -494,7 +494,7 @@ class Periods extends Component {
               <header className='card-header'>
                 <p className='card-header-title'>
                   <FormattedMessage
-                    id="wizard.periodsDuration"
+                    id="wizard.periodsDurationDesc"
                     defaultMessage={`Elige tu duración`}
                   />
                 </p>
@@ -586,7 +586,7 @@ class Periods extends Component {
                         <div className='field'>
                           <label className='label'>
                             <FormattedMessage
-                              id="wizard.periodsDuration"
+                              id="wizard.rulesCyclesAvailable"
                               defaultMessage={`Ciclos de ajuste disponibles`}
                             />
                           </label>

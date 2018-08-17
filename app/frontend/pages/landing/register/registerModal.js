@@ -6,6 +6,7 @@ import api from '~base/api'
 import tree from '~core/tree'
 import env from '~base/env-variables'
 import cookies from '~base/cookies'
+import { injectIntl } from 'react-intl'
 
 class RegisterModal extends Component {
   constructor (props) {
@@ -54,6 +55,11 @@ class RegisterModal extends Component {
       }
     }
   }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   showModal () {
     this.setState({
       className: ' is-active'
@@ -135,7 +141,7 @@ class RegisterModal extends Component {
           errors: {
             ...this.state.errors,
             error: true,
-            email: 'Ese correo ya se encuentra en uso'
+            email: this.formatTitle('register.emailError')
           }
         })
         return false
@@ -154,7 +160,7 @@ class RegisterModal extends Component {
         errors: {
           ...this.state.errors,
           error: true,
-          email: 'Ese correo ya se encuentra en uso'
+          email: this.formatTitle('register.emailError')
         }
       })
       return false
@@ -176,7 +182,7 @@ class RegisterModal extends Component {
           errors: {
             ...this.state.errors,
             error: true,
-            email: 'Ese correo ya se encuentra en uso'
+            email: this.formatTitle('register.emailError')
           }
         })
         return false
@@ -198,7 +204,7 @@ class RegisterModal extends Component {
         errors: {
           ...this.state.errors,
           error: true,
-          email: 'Ese correo ya se encuentra en uso'
+          email: this.formatTitle('register.emailError')
         }
       })
       return false
@@ -218,7 +224,7 @@ class RegisterModal extends Component {
           errors: {
             ...this.state.errors,
             error: true,
-            domain: 'Ese subdominio ya se encuentra en uso'
+            domain: this.formatTitle('register.domainError')
           }
         })
         return false
@@ -240,7 +246,7 @@ class RegisterModal extends Component {
         errors: {
           ...this.state.errors,
           error: true,
-          domain: 'Ese subdominio ya se encuentra en uso'
+          domain: this.formatTitle('register.domainError')
         }
       })
       return false
@@ -273,7 +279,7 @@ class RegisterModal extends Component {
           errors: {
             ...this.state.errors,
             error: true,
-            domain: 'Ese subdominio ya se encuentra en uso'
+            domain: this.formatTitle('register.domainError')
           }
         })
         return false
@@ -301,7 +307,7 @@ class RegisterModal extends Component {
         errors: {
           ...this.state.errors,
           error: true,
-          domain: 'Ese subdominio ya se encuentra en uso'
+          domain: this.formatTitle('register.domainError')
         }
       })
       return false
@@ -337,7 +343,7 @@ class RegisterModal extends Component {
     if (input === 'email' || input === 'orgEmail') {
       if (!e.target.validity.valid) {
         aux.error = true
-        aux[input] = 'Ingresa una dirección de correo válida'
+        aux[input] = this.formatTitle('register.validEmail')
       } else {
         aux[input] = ''
         aux.error = false
@@ -347,7 +353,7 @@ class RegisterModal extends Component {
     if (input === 'pass') {
       if (!e.target.validity.valid) {
         aux.error = true
-        aux[input] = 'La contraseña debe contener al menos seis caracteres, incluidas mayúsculas, minúsculas y números'
+        aux[input] = this.formatTitle('register.validPass')
       } else {
         aux[input] = ''
         aux.error = false
@@ -356,7 +362,7 @@ class RegisterModal extends Component {
 
     if (input === 'passConfirm') {
       if (!e.target.validity.valid || this.state.registerData.pass !== e.target.value) {
-        aux[input] = 'Las contraseñas no coinciden'
+        aux[input] = this.formatTitle('register.validPass2')
         aux.error = true
       } else {
         aux[input] = ''
@@ -366,7 +372,7 @@ class RegisterModal extends Component {
 
     if (input === 'domain') {
       if (!e.target.validity.valid) {
-        aux[input] = 'El subdominio solo puede contener letras, números y _'
+        aux[input] = this.formatTitle('register.validDomain')
         aux.error = true
       } else {
         aux[input] = ''
@@ -376,7 +382,7 @@ class RegisterModal extends Component {
 
     if (input === 'orgName') {
       if (e.target.value === undefined || e.target.value === '') {
-        aux[input] = 'Falta el nombre de tu empresa'
+        aux[input] = this.formatTitle('register.validOrg')
         aux.error = true
       } else {
         aux[input] = ''
@@ -386,7 +392,7 @@ class RegisterModal extends Component {
 
     if (input === 'rfc') {
       if (!e.target.validity.valid) {
-        aux[input] = 'Ingrese un RFC válido'
+        aux[input] = this.formatTitle('register.validRFC')
         aux.error = true
       } else {
         aux[input] = ''
@@ -408,16 +414,17 @@ class RegisterModal extends Component {
           </span>
         </h1>
         <h1 className='is-size-2'>
-          Bienvenido a Orax
+          {this.formatTitle('login.welcome')}
         </h1>
         <p className='is-size-5 pad-bottom'>
-         Ingresa tus datos como administrador de la cuenta para acceder y utilizar Orax.
+          {this.formatTitle('register.text1')}
+
         </p>
         <div className='content'>
           <div className='columns is-centered'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Correo</label>
+                <label className='label'>{this.formatTitle('login.email')}</label>
                 <div className='control'>
                   <input
                     className='input'
@@ -433,13 +440,13 @@ class RegisterModal extends Component {
                 <p className='help is-danger'>{this.state.errors.email}</p>
               </div>
               <div className='field'>
-                <label className='label'>Contraseña</label>
+                <label className='label'>{this.formatTitle('login.pass')}</label>
                 <div className='control'>
                   <input
                     pattern='^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.]).{8,}$'
                     className='input'
                     type='password'
-                    placeholder='Deberá contener al menos 8 caracteres, incluidas mayúsculas, minúsculas, números y caracteres espeaciales como #?!@$%^&*-.'
+                    placeholder={this.formatTitle('register.validPass')}
                     autoComplete='off'
                     required
                     name='pass'
@@ -449,13 +456,13 @@ class RegisterModal extends Component {
                 <p className='help is-danger'>{this.state.errors.pass}</p>
               </div>
               <div className='field'>
-                <label className='label'>Confirmar contraseña</label>
+                <label className='label'>{this.formatTitle('profile.confirmPass')}</label>
                 <div className='control'>
                   <input
                     pattern='^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-.]).{8,}$'
                     className='input'
                     type='password'
-                    placeholder='Confirmar contraseña'
+                    placeholder={this.formatTitle('profile.confirmPass')}
                     autoComplete='off'
                     required
                     name='passConfirm'
@@ -477,7 +484,7 @@ class RegisterModal extends Component {
                   </div>
                   <div className='column is-narrow'>
                     <div className='accept__label'>
-                      <strong>Acepto el <a className='has-text-primary' href='/privacy' target='_blank'>Aviso de privacidad</a> y condición de uso de mis datos.</strong>
+                      <strong>{this.formatTitle('register.accept')} <a className='has-text-primary' href='/privacy' target='_blank'>{this.formatTitle('landing.privacy')}</a> {this.formatTitle('register.use')}</strong>
                     </div>
                   </div>
                 </div>
@@ -500,21 +507,26 @@ class RegisterModal extends Component {
           </span>
         </h1>
         <h1 className='is-size-2'>
-          Datos personales
+
+          {this.formatTitle('register.userFormTitle')}
         </h1>
-        <p className='is-size-5 pad-bottom'>Completa tu registro para crear tu perfil.</p>
+        <p className='is-size-5 pad-bottom'>
+          {this.formatTitle('register.userFormTitle')}
+        </p>
         <br />
         <br />
         <div className='content'>
           <div className='columns is-centered'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Nombre *</label>
+                <label className='label'>
+                  {this.formatTitle('profile.name')} *
+                  </label>
                 <div className='control'>
                   <input
                     className='input'
                     type='text'
-                    placeholder='Nombre(s)'
+                    placeholder={this.formatTitle('profile.name')}
                     autoComplete='off'
                     required
                     name='name'
@@ -524,12 +536,14 @@ class RegisterModal extends Component {
                 <p className='help is-danger'>{this.state.errors.name}</p>
               </div>
               <div className='field'>
-                <label className='label'>Puesto</label>
+                <label className='label'>
+                  {this.formatTitle('profile.job')}
+                </label>
                 <div className='control'>
                   <input
                     className='input'
                     type='text'
-                    placeholder='Ej. Administrador'
+                    placeholder={this.formatTitle('profile.job')}
                     autoComplete='off'
                     name='job'
                     value={this.state.registerData.job}
@@ -539,12 +553,12 @@ class RegisterModal extends Component {
             </div>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Apellido *</label>
+                <label className='label'>{this.formatTitle('profile.lastName')}  *</label>
                 <div className='control'>
                   <input
                     className='input'
                     type='text'
-                    placeholder='Apellido(s)'
+                    placeholder={this.formatTitle('profile.lastName')}
                     autoComplete='off'
                     required
                     name='lastName'
@@ -554,16 +568,18 @@ class RegisterModal extends Component {
                 <p className='help is-danger'>{this.state.errors.lastName}</p>
               </div>
               <div className='field'>
-                <label className='label'>Teléfono</label>
+                <label className='label'>
+                  {this.formatTitle('profile.phone')}
+                </label>
                 <div className='control'>
                   <input
                     className='input'
                     type='tel'
-                    placeholder='Lada + 10 digitos'
+                    placeholder='01 555 555 555'
                     autoComplete='off'
                     required
                     name='phone'
-                    pattern='[0-9]{10}'
+                    pattern='[0-9]{15}'
                     value={this.state.registerData.phone}
                     onChange={(e) => this.handleInputChange(e, 'phone')} />
                 </div>
@@ -584,23 +600,30 @@ class RegisterModal extends Component {
           </span>
         </h1>
         <h1 className='is-size-2'>
-          Identifica tu sitio
+          {this.formatTitle('register.siteFormTitle')}
+
         </h1>
-        <p className='is-size-5 pad-bottom'>Ingresa un subdominio que identifique a tu empresa, recuerda que debe ser fácil de recordar.</p>
+        <p className='is-size-5 pad-bottom'>
+          {this.formatTitle('register.siteFormSub')}
+
+        </p>
         <div className='content'>
           <br />
           <br />
           <div className='columns is-centered'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>El subdominio que ingreses será la URL a tu espacio de trabajo</label>
+                <label className='label'>
+                  {this.formatTitle('register.text2')}
+
+                </label>
                 <div className='control'>
                   <div className='field has-addons'>
-                    <p className='control  is-expanded'>
+                    <p className='control is-expanded'>
                       <input
                         className='input'
                         type='text'
-                        placeholder='url-de-tu-espacio'
+                        placeholder='org-url'
                         autoComplete='off'
                         required
                         name='domain'
@@ -633,20 +656,25 @@ class RegisterModal extends Component {
           </span>
         </h1>
         <h1 className='is-size-2'>
-            Cuéntanos de tu empresa
+          {this.formatTitle('register.orgFormTitle')}
+
         </h1>
-        <p className='is-size-5 pad-bottom'>Completa información de tu empresa y datos de facturación.</p>
+        <p className='is-size-5 pad-bottom'>
+          {this.formatTitle('register.orgFormSub')}
+
+        </p>
 
         <div className='content with-scroll'>
           <div className='columns is-centered'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Nombre *</label>
+                <label className='label'>
+                  {this.formatTitle('profile.name')} *</label>
                 <div className='control'>
                   <input
                     className='input'
                     type='text'
-                    placeholder='Ingresa el nombre completo de tu empresa'
+                    placeholder={this.formatTitle('landing.contactOrg')}
                     autoComplete='off'
                     required
                     name='orgName'
@@ -661,12 +689,12 @@ class RegisterModal extends Component {
           <div className='columns is-centered'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Giro</label>
+                <label className='label'>{this.formatTitle('register.businessType')}</label>
                 <div className='control'>
                   <input
                     className='input'
                     type='text'
-                    placeholder='Ingresa el giro de tu empresa'
+                    placeholder={this.formatTitle('register.businessType')}
                     autoComplete='off'
                     required
                     name='type'
@@ -675,10 +703,10 @@ class RegisterModal extends Component {
                 </div>
               </div>
               <div className='field'>
-                <label className='label'>País</label>
+                <label className='label'>{this.formatTitle('landing.contactCountry')}</label>
                 <div className='control'>
                   <CountryDropdown
-                    defaultOptionLabel='Selecciona tu país'
+                    defaultOptionLabel={this.formatTitle('landing.contactCountry')}
                     value={this.state.registerData.country}
                     id='my-country-field-id'
                     name='my-country-field'
@@ -689,12 +717,12 @@ class RegisterModal extends Component {
             </div>
             <div className='column'>
               <div className='field'>
-                <label className='label'>No. de empleados</label>
+                <label className='label'>{this.formatTitle('landing.contactNum')}</label>
                 <div className='control'>
                   <input
                     className='input'
                     type='text'
-                    placeholder='No. de empleados de tu empresa'
+                    placeholder={this.formatTitle('landing.contactNum')}
                     autoComplete='off'
                     required
                     name='employees'
@@ -703,11 +731,13 @@ class RegisterModal extends Component {
                 </div>
               </div>
               <div className='field'>
-                <label className='label'>Región</label>
+                <label className='label'>
+                  {this.formatTitle('register.region')}
+                </label>
                 <div className='control'>
                   <RegionDropdown
-                    blankOptionLabel='No hay paìs seleccionado'
-                    defaultOptionLabel='Selecciona tu región'
+                    blankOptionLabel={this.formatTitle('register.region')}
+                    defaultOptionLabel={this.formatTitle('register.region')}
                     country={this.state.registerData.country}
                     value={this.state.registerData.region}
                     name='my-region-field-name'
@@ -724,12 +754,14 @@ class RegisterModal extends Component {
           <div className='columns is-centered'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>RFC</label>
+                <label className='label'>
+                  {this.formatTitle('organizationBilling.rfc')}
+                </label>
                 <div className='control'>
                   <input
                     className='input'
                     type='text'
-                    placeholder='Ingresa el giro de tu empresa'
+                    placeholder={this.formatTitle('organizationBilling.rfc')}
                     autoComplete='off'
                     name='rfc'
                     pattern='[A-Z&Ñ]{3,4}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]'
@@ -744,12 +776,14 @@ class RegisterModal extends Component {
           <div className='columns is-centered'>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Razón Social</label>
+                <label className='label'>
+                  {this.formatTitle('organizationBilling.businessName')}
+                </label>
                 <div className='control'>
                   <input
                     className='input'
                     type='text'
-                    placeholder='Ingresa la razón social giro de tu empresa'
+                    placeholder={this.formatTitle('organizationBilling.businessNamePlaceholder')}
                     autoComplete='off'
                     name='razonSocial'
                     value={this.state.registerData.razonSocial}
@@ -759,12 +793,14 @@ class RegisterModal extends Component {
             </div>
             <div className='column'>
               <div className='field'>
-                <label className='label'>Correo de facturación</label>
+                <label className='label'>
+                  {this.formatTitle('organizationBilling.billingEmail')}
+                </label>
                 <div className='control'>
                   <input
                     className='input'
                     type='email'
-                    placeholder='Ingresa el correo de tu empresa'
+                    placeholder={this.formatTitle('organizationBilling.billingEmailPlaceholder')}
                     autoComplete='off'
                     name='orgEmail'
                     value={this.state.registerData.orgEmail}
@@ -789,13 +825,13 @@ class RegisterModal extends Component {
           </span>
         </h1>
         <h1 className='is-size-2 pad-bottom'>
-          ¡Felicidades!
+          {this.formatTitle('register.congrat')}
         </h1>
         <div className='content'>
           <p className='is-size-5'>
-           Tu cuenta ha sido creada. <strong>Tus 30 días de prueba comienzan hoy. </strong>
-           Solicita tu cotización en cualquier momento desde el apartado "Mi Cuenta" y sigue utilizando Orax.
-           </p>
+            {this.formatTitle('register.your')} <strong>{this.formatTitle('register.30days')} </strong>
+            {this.formatTitle('register.request')}
+          </p>
 
         </div>
       </div>
@@ -893,13 +929,14 @@ class RegisterModal extends Component {
                 <div>
                   <div className='field'>
                     <button className='button is-primary is-inverted is-medium'
+                      disabled={this.state.step === 0}
                       onClick={() => { this.nextStep(this.state.step - 1) }}>
-                    Regresar
-                  </button>
+                      {this.formatTitle('register.back')}
+                    </button>
                     <button className='button is-primary is-medium'
                       disabled={!this.continue()}
                       onClick={() => { this.nextStep(this.state.step + 1) }}>
-                    Siguiente
+                      {this.formatTitle('register.next')}
                     </button>
                   </div>
                   {this.indicators()}
@@ -911,8 +948,8 @@ class RegisterModal extends Component {
                       <button className='button is-primary is-medium'
                         disabled={!this.continue()}
                         onClick={() => { this.finishUp() }}>
-                        Empezar
-                    </button>
+                        {this.formatTitle('register.start')}
+                      </button>
                     </div>
                   </div>
                 }
@@ -927,4 +964,4 @@ class RegisterModal extends Component {
   }
 }
 
-export default RegisterModal
+export default injectIntl(RegisterModal)

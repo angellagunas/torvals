@@ -189,7 +189,7 @@ class Catalogs extends Component {
               </label>
               <div className='control'>
                 <input
-                  className='input' type='text'
+                  className='input input-font' type='text'
                   placeholder={this.formatTitle('wizard.catalogsAdd')}
                   value={this.state.addCatalog}
                   onKeyDown={(e) => { this.addUserCatalog(e) }}

@@ -49,7 +49,7 @@
     "resetPassword": {
       "contentBtnText": "Request restoration",
       "contentTitle": "Provide your email to receive a link and reset your password.",
-      "emailSend": "[EN] El e-mail ha sido enviado. El link tendrá una vigencia de 10 dias."
+      "emailSend": "The e-mail has been sent. The link will have a validity of 10 days."
     },
     "dashboard": {
       "filtersTitle": "Filters",
@@ -238,10 +238,6 @@
       "anomalies": "Anomalies",
       "config": "Configuration"
     },
-    "profile": {
-      "form1Title": "Details",
-      "form2Title": "[EN] Cambiar contraseña"
-    },
     "orgRules": {
       "alertBtn": "Update Projects",
       "alertContent1": "Your configuration has been modified, remember that ",
@@ -380,13 +376,13 @@
       "rulesBtnEditar": "Edit",
       "rulesBtnSave": "Apply changes",
       "rulesCatalogs": "Catalogs",
-      "rulesCyclesAvailable": "Cycles available for adjustment",
+      "rulesCyclesAvailable": "Cycles available",
       "rulesCyclesEnd": "Cycle duration",
       "rulesCyclesStart": "Cycle start",
       "rulesDay": " days",
       "rulesInfo": "Concentrate Information",
       "rulesonfig": "Configuration",
-      "rulesOperations": "Operation cicles",
+      "rulesOperations": "Operation cycles",
       "rulesPeriods": "The periods belong to the cycle where they ",
       "rulesPeriodsDuration": "Period duration",
       "rulesPeriodsEnd": " finish.",
@@ -401,7 +397,24 @@
       "rulesRangeUnlimited": " unlimited",
       "rulesSalesUpdate": "Update sales data",
       "rulesSeason": "Season",
-      "rulesTitle": "Rules of the organization"
+      "rulesTitle": "Rules of the organization",
+      "modalStart": "Start with Orax",
+      "modalMsg1": "Start with configuring business rules to create a project.",
+      "modalMsg2": "Continue configuring the remaining steps",
+      "modalTitle1": "Business rules",
+      "modalSub1": "Set your cycles and adjustment periods.",
+      "modalTitle2": "Project",
+      "modalSub2": "Create a project to generate predictions.",
+      "modalTitle3": "Forecast",
+      "modalSub3": "Make forecasts by project.",
+      "modalTitle4": "Users",
+      "modalSub4": "Add, edit or delete users.",
+      "btnSkip": "Skip",
+      "account": "Activate your account",
+      "accountIs": "Your account is",
+      "accountMsg1": "In order to continue using Orax you need to request an activation. Your data and information will be saved.",
+      "accountMsg2": "When requesting an account activation, an agent will receive your data and will be informed later.",
+      "accountBtn": "Request activation"
     },
     "user": {
       "back": "Back",
@@ -684,7 +697,8 @@
       "title": "Upload",
       "selectFile": "Select File",
       "users": "Users",
-      "usersMsg": "Do not use password and send invitation to Orax"
+      "usersMsg": "Do not use password and send invitation to Orax",
+      "groups": "Groups"
     },
     "groups": {
       "btnAdd": "[EN] Agregar",
@@ -758,8 +772,8 @@
       "compare": "Compare"
     },
     "navbar": {
-      "profile": "[EN] Mi perfil",
-      "signOut": "[EN] Cerrar sesión"
+      "profile": "My profile",
+      "signOut": "Logout"
     },
     "multi": {
       "assigned": "Assigned",
@@ -768,7 +782,7 @@
     "form": {
       "required": "It is a required field"
     },
-    "profile":{
+    "profile": {
       "name": "Name",
       "email": "Email",
       "phone": "Phone",
@@ -776,7 +790,90 @@
       "img": "Picture",
       "verified": "Verified Account",
       "owner": "Organization owner",
-      "save": "Save"
+      "save": "Save",
+      "form1Title": "Details",
+      "form2Title": "Change password",
+      "saved": "Tus datos se han modificado correctamente",
+      "noProject": "Contacta a tu administrador para que se te asigne un proyecto.",
+      "savePass": "La contraseña se ha modificado correctamente",
+      "actualPass": "Actual Password",
+      "newPass": "New Password",
+      "confirmPass": "Confirm Password",
+      "lastName": "Lastname"
+    },
+    "language": {
+      "language": "Language",
+      "Ingles": "English",
+      "Español": "Spanish"
+    },
+    "landing":{
+      "how": "How does it work?",
+      "try": "Try 30 days for free",
+      "title1": "Smart decisions",
+      "sub1": "From predictions",
+      "title2": "What is Orax?",
+      "sub2": "Orax is a modern tool that, based on historical information, predicts demand to guide us through uncertainty, helping us to make better business decisions and respond more agilely.",
+      "list1": "Management of information in real time.",
+      "list2": "Reliable prediction of sales or production.",
+      "list3": "Adjustments between predictions, stocks or orders.",
+      "moreInfo": "Do you need more info?",
+      "moreInfoText": "We create a package and quote especially for your needs. Ask for it and one of our agents will contact you to help you.",
+      "contactName": "Name",
+      "contactEmail": "Email",
+      "contactOrg": "Company or Organization",
+      "contactNum": "Number of employees",
+      "contactCountry": "Country",
+      "contactSend": "Send",
+      "contactOk": "Sent, an agent will receive your data and will communicate later.",
+      "contactError": "An error occurred, try later.",
+      "title3": "Features",
+      "list4": "Artificial intelligence and machine learning.",
+      "list5": "Optimization of prediction and operations models.",
+      "list6": "Flexibility and adaptability to the rules and needs.",
+      "list7": "Management of users and roles.",
+      "list8": "Evaluation and monitoring of information.",
+      "list9": "Intuitive visualization for a complete business analysis.",
+      "title4": "Benefits",
+      "list10": "Minimizes waste/returns and ensures supply.",
+      "list11": "More precise planning.",
+      "list12": "Increase the productivity of people.",
+      "title5": "Value added",
+      "list13": "Real-time centralized information.",
+      "list14": "Flexibility and adaptability to business rules.",
+      "list15": "User control.",
+      "title6": "Pay-as-you-go.",
+      "sub3": "Orax fits your needs.",
+      "privacy": "Privacy policy",
+      "rights": "All rights reserved, 2018"
+    },
+    "register":{
+      "emailError": "That email is already in use",
+      "domainError": "That subdomain is already in use",
+      "validEmail": "Enter a valid email address",
+      "validPass": "The password must contain at least 8 characters, including uppercase, lowercase, numbers and special characters such as #?! @ $% ^ & * -.",
+      "validPass2": "Passwords do not match",
+      "validDomain": "The subdomain can only contain letters, numbers and _",
+      "validOrg": "The name of your company is missing",
+      "validRFC": "Enter a valid RFC",
+      "text1": "Enter your data as administrator of the account to access and use Orax.",
+      "accept": "I accept the",
+      "use": "and condition of use of my data.",
+      "userFormTitle": "Personal information",
+      "userFormSub": "Complete your registration to create your profile.",
+      "siteFormTitle": "Identify your site",
+      "siteFormSub": "Enter a subdomain that identifies your company, remember that it should be easy to remember.",
+      "text2": "The subdomain you enter will be the URL to your workspace",
+      "orgFormTitle": "Tell us about your company",
+      "orgFormSub": "Complete information about your company and billing information.",
+      "region": "Region",
+      "congrat": "Congratulations!",
+      "your": "Your account has been created.",
+      "30days": "Your 30 day trial starts today.",
+      "request": "Request your quote at any time from the section \"My Account\" and continue using Orax.",
+      "next": "Next",
+      "back": "Back",
+      "start": "Start",
+      "businessType": "Business Type"
     }
   }
 }

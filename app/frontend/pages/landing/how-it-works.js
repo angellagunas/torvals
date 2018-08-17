@@ -6,6 +6,7 @@ import LogInButton from './log-in-form'
 import Footer from './footer'
 import Contact from './contact'
 import RegisterModal from './register/registerModal'
+import { injectIntl } from 'react-intl'
 
 class HowItWorks extends Component {
   constructor (props) {
@@ -22,6 +23,10 @@ class HowItWorks extends Component {
     }
     this.handleScroll = this.handleScroll.bind(this)
     this.comments = []
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentDidMount () {
@@ -79,25 +84,25 @@ class HowItWorks extends Component {
     })
   }
 
-  showLogin() {
+  showLogin () {
     this.setState({
       login: ' is-active'
     })
   }
 
-  hideLogin() {
+  hideLogin () {
     this.setState({
       login: ''
     })
   }
 
-  showReg() {
+  showReg () {
     this.setState({
       register: ' is-active'
     })
   }
 
-  hideReg() {
+  hideReg () {
     this.setState({
       register: ''
     })
@@ -124,7 +129,7 @@ class HowItWorks extends Component {
             <div className={'navbar-menu' + this.state.menu}>
               <div className='navbar-start'>
                 <a className='navbar-item'>
-                  ¿Cómo funciona?
+                  {this.formatTitle('landing.how')}
                 </a>
               </div>
               <div className='navbar-end'>
@@ -132,22 +137,22 @@ class HowItWorks extends Component {
                 <div className={this.state.isDown ? 'navbar-item' : 'is-hidden'}>
                   <a className={this.props.buttonClass ? 'button is-success ' + this.props.buttonClass : 'button is-success'}
                     onClick={(e) => { this.showReg(e) }}>
-                    Probar 30 días gratis
-                    </a>
+                    {this.formatTitle('landing.try')}
+                  </a>
                 </div>
 
                 <div className={!this.state.isDown ? 'navbar-item' : 'is-hidden'}>
                   <a className='button is-primary is-inverted is-outlined'
                     onClick={(e) => { this.showLogin(e) }}>
-                    Iniciar sesión
-                    </a>
+                    {this.formatTitle('login.loginBtn')}
+                  </a>
 
                 </div>
 
                 {!this.state.isDown &&
                   <div className='navbar-item'>
-                    <a className='button is-primary is-inverted is-outlined'>
-                      ES
+                    <a className='button is-primary is-inverted is-outlined is-capitalized'>
+                      {this.formatTitle('dates.locale')}
                     </a>
                   </div>
 
@@ -161,7 +166,7 @@ class HowItWorks extends Component {
           <div className='hero-body'>
             <div className='container'>
               <h1 className='title has-text-white'>
-                Características
+                {this.formatTitle('landing.title3')}
               </h1>
               <div className='columns'>
                 <div className='column is-5'>
@@ -170,19 +175,21 @@ class HowItWorks extends Component {
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Inteligencia artificial y machine learning.
+                    {this.formatTitle('landing.list4')}
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                     Optimización de modelos de predicción y operaciones.
+                    {this.formatTitle('landing.list5')}
+
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Flexibilidad y adaptabilidad a las reglas y necesidades.
+                    {this.formatTitle('landing.list6')}
+
                   </p>
                 </div>
                 <div className='column is-5 is-offset-1'>
@@ -191,24 +198,27 @@ class HowItWorks extends Component {
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Gestión de usuarios y roles.
+                    {this.formatTitle('landing.list7')}
+
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Evaluación y monitoreo de la información.
+                    {this.formatTitle('landing.list8')}
+
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Visualización intuitiva para un análisis completo del negocio.
+                    {this.formatTitle('landing.list9')}
                   </p>
                 </div>
               </div>
 
-              <div className='columns is-centered'>
+              <br />
+              {/* <div className='columns is-centered'>
                 <div className='column is-8 has-text-centered how__video'>
                 Mira el video de introducción y conoce más de Orax.
                 <a onClick={() => { this.showVideoModal() }} >
@@ -220,7 +230,7 @@ class HowItWorks extends Component {
 
                 </a>
                 </div>
-              </div>
+              </div> */}
 
               <div className='columns'>
                 <div className='column is-5'>
@@ -228,7 +238,7 @@ class HowItWorks extends Component {
                 </div>
                 <div className='column is-5 is-offset-1'>
                   <h1 className='title'>
-                    Beneficios
+                    {this.formatTitle('landing.title4')}
                   </h1>
                   <h2 className='subtitle'>
                   &nbsp;
@@ -237,19 +247,22 @@ class HowItWorks extends Component {
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Minimiza el desperdicio/devoluciones y asegura el abasto.
+                    {this.formatTitle('landing.list10')}
+
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Planeación más precisa.
+                    {this.formatTitle('landing.list11')}
+
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Incrementa la productividad de las personas
+                    {this.formatTitle('landing.list12')}
+
                   </p>
                 </div>
               </div>
@@ -257,7 +270,8 @@ class HowItWorks extends Component {
               <div className='columns'>
                 <div className='column is-5'>
                   <h1 className='title'>
-                    Valor agregado
+                    {this.formatTitle('landing.title5')}
+
                   </h1>
                   <h2 className='subtitle'>
                     &nbsp;
@@ -266,19 +280,22 @@ class HowItWorks extends Component {
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Información centralizada en tiempo real.
+                    {this.formatTitle('landing.list13')}
+
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Flexibilidad y adaptabilidad a las reglas de negocio.
+                    {this.formatTitle('landing.list14')}
+
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Control de usuarios.
+                    {this.formatTitle('landing.list15')}
+
                   </p>
                 </div>
 
@@ -297,10 +314,11 @@ class HowItWorks extends Component {
               <div className='columns'>
                 <div className='column'>
                   <h1 className='title'>
-                    Pay- as you go.
+                    {this.formatTitle('landing.title6')}
+
                   </h1>
                   <h2 className='subtitle'>
-                    Orax se ajusta a tus necesidades.
+                    {this.formatTitle('landing.sub3')}
                   </h2>
                 </div>
 
@@ -347,5 +365,5 @@ export default Page({
   path: '/how',
   exact: true,
   validate: forcePublic,
-  component: HowItWorks
+  component: injectIntl(HowItWorks)
 })
