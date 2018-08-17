@@ -731,6 +731,7 @@
       "models": "Modelos",
       "msg1": "Tu predicción se está generando.",
       "msg2": "Este proceso puede tomar mucho tiempo. Te avisaremos por correo cuando el proceso termine.",
+      "msg3": "Aún no hay datos disponibles para esta predicción.",
       "alertTitle": "Configuración de predicciones",
       "alertMsg": "Aún no tienes predicciones disponibles para este proyecto.",
       "alertMsg2": "Debes crear al menos un proyecto para poder crear una predicción.",
@@ -746,7 +747,18 @@
       "detailModel": "Modelo",
       "detailMsg1": "¿Estás seguro de utilizar la predicción del modelo ",
       "detailMsg2": " en tu proyecto?",
-      "detailMsg3": "No podrás crear otra predicción conciliable hasta el siguiente ciclo de predicciones."
+      "detailMsg3": "No podrás crear otra predicción conciliable hasta el siguiente ciclo de predicciones.",
+      "detailShare": "Compartir predicción",
+      "detailShareMsg": "Selecciona los usuarios con quiénes quieres compartir la predicción.",
+      "detailShareSelect": "Seleccionar usuario(s)",
+      "detailShareBtn": "Compartir",
+      "detailSelectModel": "Selecciona un modelo para conciliar.",
+      "deleteModel": "¿Estas seguro de querer eliminar estos modelos?",
+      "statusCreated": "Creado",
+      "statusCompleted": "Completado",
+      "statusConciliate": "Conciliado",
+      "statusProcess": "En Proceso",
+      "compare": "Comparar"
     },
     "navbar": {
       "profile": "Mi perfil",
@@ -758,6 +770,16 @@
     },
     "form": {
       "required": "Es un campo requerido"
+    },
+    "profile": {
+      "name": "Nombre",
+      "email": "Correo",
+      "phone": "Teléfono",
+      "job": "Puesto",
+      "img": "Foto",
+      "verified": "Cuenta verificada",
+      "owner": "Propietario de la organización",
+      "save": "Guardar"
     }
   }
 }

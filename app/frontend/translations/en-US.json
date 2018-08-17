@@ -728,6 +728,7 @@
       "models": "Models",
       "msg1": "Your forecast is being generated.",
       "msg2": "This process can take a long time. We will notify you by mail when the process ends.",
+      "msg3": "No data is available yet for this forecast.",
       "alertTitle": "Forecast configuration",
       "alertMsg": "You have no forecasts available for this project yet.",
       "alertMsg2": "You must create at least one project to be able to create a forecast.",
@@ -743,7 +744,18 @@
       "detailModel": "Model",
       "detailMsg1": "Are you sure you use the model prediction ",
       "detailMsg2": " in your project?",
-      "detailMsg3": "You will not be able to create another predictable prediction until the next cycle of predictions."
+      "detailMsg3": "You will not be able to create another predictable prediction until the next cycle of predictions.",
+      "detailShare": "Share forecast",
+      "detailShareMsg": "Select the users with whom you want to share the prediction.",
+      "detailShareSelect": "Select user(s)",
+      "detailShareBtn": "Share",
+      "detailSelectModel": "Select a model to conciliate",
+      "deleteModel": "Are you sure you want to eliminate these models?",
+      "statusCreated": "Created",
+      "statusCompleted": "Completed",
+      "statusConciliate": "Conciliate",
+      "statusProcess": "In Process",
+      "compare": "Compare"
     },
     "navbar": {
       "profile": "[EN] Mi perfil",
@@ -755,6 +767,16 @@
     },
     "form": {
       "required": "It is a required field"
+    },
+    "profile":{
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "job": "Job",
+      "img": "Picture",
+      "verified": "Verified Account",
+      "owner": "Organization owner",
+      "save": "Save"
     }
   }
 }
