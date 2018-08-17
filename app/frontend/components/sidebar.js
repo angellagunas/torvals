@@ -135,7 +135,9 @@ class Sidebar extends Component {
 
   formatTitle (id, sideBarItem) {
     if (sideBarItem) {
-      let component = sideBarItem
+      let component = sideBarItem.asSidebarItem()
+      if (!component) return null
+
       component.title = this.props.intl.formatMessage({ id: id })
       return component
     } else {
@@ -147,7 +149,7 @@ class Sidebar extends Component {
     if (tree.get('organization')) {
       return [
 
-        this.formatTitle('sideMenu.dashboard', Dashboard.asSidebarItem()),
+        this.formatTitle('sideMenu.dashboard', Dashboard),
         {
           title: this.formatTitle('sideMenu.admin'), // TODO: translate
           icon: 'id-card-o',
@@ -161,9 +163,9 @@ class Sidebar extends Component {
               roles: 'orgadmin, admin, analyst, manager-level-3',
               to: '/manage/organizations/' + tree.get('organization').uuid
             },
-            this.formatTitle('sideMenu.rules', OrgRules.asSidebarItem()),
-            this.formatTitle('sideMenu.users', UsersGroups.asSidebarItem()),
-            this.formatTitle('sideMenu.roles', Roles.asSidebarItem()),
+            this.formatTitle('sideMenu.rules', OrgRules),
+            this.formatTitle('sideMenu.users', UsersGroups),
+            this.formatTitle('sideMenu.roles', Roles),
             { // TODO: translate
               title: this.formatTitle('sideMenu.catalogs'),
               icon: 'book',
@@ -171,22 +173,22 @@ class Sidebar extends Component {
               roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
               openedLvl2: false,
               dropdown: [
-                this.formatTitle('sideMenu.prices', Prices.asSidebarItem()),
+                this.formatTitle('sideMenu.prices', Prices),
                 ...this.catalogs()
               ]
             }
           ]
         },
-        this.formatTitle('sideMenu.forecast', Forecast.asSidebarItem()),
-        this.formatTitle('sideMenu.projects', Projects.asSidebarItem()),
-        this.formatTitle('sideMenu.calendar', Calendar.asSidebarItem()),
+        this.formatTitle('sideMenu.forecast', Forecast),
+        this.formatTitle('sideMenu.projects', Projects),
+        this.formatTitle('sideMenu.calendar', Calendar),
         { // TODO: translate
           title: this.formatTitle('sideMenu.upload'),
           icon: 'upload',
           to: '/import',
           roles: 'orgadmin, admin, manager-level-3',
           dropdown: [
-            this.formatTitle('sideMenu.uploadUsers', UsersImport.asSidebarItem()),
+            this.formatTitle('sideMenu.uploadUsers', UsersImport),
             GroupsImport.asSidebarItem()
           ]
         },
@@ -197,9 +199,9 @@ class Sidebar extends Component {
           roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
-            this.formatTitle('sideMenu.reportStatus', StatusReport.asSidebarItem()),
-            this.formatTitle('sideMenu.reportHistoric', HistoricReport.asSidebarItem()),
-            this.formatTitle('sideMenu.reportDownloads', DownloadReport.asSidebarItem())
+            this.formatTitle('sideMenu.reportStatus', StatusReport),
+            this.formatTitle('sideMenu.reportHistoric', HistoricReport),
+            this.formatTitle('sideMenu.reportDownloads', DownloadReport)
           ]
         }
       ]
