@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { injectIntl } from 'react-intl'
 import Tabs from '~base/components/base-tabs'
 import { loggedIn, verifyRole } from '~base/middlewares/'
 import Page from '~base/page'
@@ -13,16 +14,20 @@ class UsersGroups extends Component {
       tab: 'users'
     }
   }
-  
-  changeTab(tab){
+
+  changeTab (tab) {
     this.setState({tab: tab})
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   render () {
     let org = tree.get('user').currentOrganization
     let tabs = [{
       name: 'users',
-      title: 'Usuarios', //TODO: translate
+      title: this.formatTitle('user.tabTitle'),
       hide: false,
       reload: true,
       content: (
@@ -31,7 +36,7 @@ class UsersGroups extends Component {
     },
     {
       name: 'groups',
-      title: 'Grupos', //TODO: translate
+      title: this.formatTitle('groups.tabTitle'),
       hide: false,
       reload: true,
       content: (
@@ -55,11 +60,11 @@ class UsersGroups extends Component {
 
 export default Page({
   path: '/manage/users-groups',
-  title: 'Usuarios y Grupos', //TODO: translate
+  title: 'Usuarios y Grupos',
   icon: 'users',
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3',
   exact: true,
   validate: [loggedIn, verifyRole],
-  component: UsersGroups
+  component: injectIntl(UsersGroups)
 })

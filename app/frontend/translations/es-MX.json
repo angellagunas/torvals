@@ -430,10 +430,14 @@
       "createInviteTitle": "Invitar usuario",
       "createMsg": "Se ha creado correctamente al usuario",
       "createTitle": "Crear usuario",
+      "delete": "Eliminar",
+      "deleteMsg": "¿Estás seguro de querer desactivar a",
+      "deleteObj": "Usuario",
       "detail": "Detalle",
       "detailBtnNew": "Nuevo Usuario",
       "detailMore": "más",
       "detailTitle": "Visualiza tus usuarios",
+      "edit": "Editar",
       "formEmail": "Correo",
       "formGroup": "Grupo",
       "formName": "Nombre",
@@ -454,7 +458,9 @@
       "resetText3": "¡Error!",
       "saved": "Guardado",
       "saveMsg": "Los datos se han guardado correctamente",
-      "saving": "Guardando"
+      "saving": "Guardando",
+      "tableActions": "Acciones",
+      "tabTitle": "Usuarios"
     },
     "salesCenter": {
       "btnCancel": "Cancelar",
@@ -706,16 +712,32 @@
       "groups": "Grupos"
     },
     "groups": {
+      "assignUsers": "Usuarios para asignar",
+      "breadcrumbDetail": "Detalle",
+      "breadcrumbGroups": "Grupos",
+      "breadcrumbStart": "Inicio",
       "btnAdd": "Agregar",
       "btnBack": "Regresar",
       "btnCancel": "Cancelar",
       "btnCreate": "Crear",
+      "btnEdit": "Editar",
       "btnList": "Ver lista",
       "btnNew": "Nuevo Grupo",
       "btnNewUser": "Nuevo usuario",
       "btnSave": "Guardar",
+      "deleteMsg": "¿Estás seguro de querer eliminar el grupo",
+      "deleteTitle": "Grupo",
       "detail": "Detalle",
+      "formDescription": "Descripción",
+      "formName": "Nombre",
+      "groupUsers": "Usuarios grupo",
+      "newTitle": "Nuevo Grupo",
+      "notFound": "este grupo",
       "savedMsg": "Los datos se han guardado correctamente",
+      "tableActions": "Acciones",
+      "tableCreated": "Creado",
+      "tableMembers": "Miembros",
+      "tabTitle": "Grupos",
       "title": "Visualiza tus grupos",
       "users": "Usuarios"
     },
@@ -786,6 +808,14 @@
     },
     "form": {
       "required": "Es un campo requerido"
+    },
+    "notFound": {
+      "title": "No pudimos encontrar"
+    },
+    "deleteButton": {
+      "message": "¿Estas seguro de querer eliminar este objeto?",
+      "objectName": "Objeto",
+      "title": "Eliminar"
     },
     "profile": {
       "name": "Nombre",

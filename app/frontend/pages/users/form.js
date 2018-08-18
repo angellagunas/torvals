@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Loader from '~base/components/spinner'
 import tree from '~core/tree'
 
@@ -38,6 +38,10 @@ class UserForm extends Component {
     }
 
     return data
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   errorHandler (e) {}
@@ -94,8 +98,7 @@ class UserForm extends Component {
   async submitHandler ({formData}) {
     if (!formData.role) {
       return this.setState({
-        //TODO: translate
-        error: '¡Se debe seleccionar un rol!',
+        error: this.formatTitle('user.formRoleErrorMsg'),
         apiCallErrorMessage: 'message is-danger'
       })
     }
@@ -135,12 +138,12 @@ class UserForm extends Component {
         'email'
       ],
       properties: {
-        //TODO: translate
-        name: {type: 'string', title: 'Nombre'},
-        email: {type: 'string', title: 'Email'},
+        // TODO: translate
+        name: {type: 'string', title: this.formatTitle('user.formName')},
+        email: {type: 'string', title: this.formatTitle('user.formEmail')},
         role: {
           type: 'string',
-          title: 'Rol',
+          title: this.formatTitle('user.formRole'),
           enum: [],
           enumNames: []
         }
@@ -157,7 +160,12 @@ class UserForm extends Component {
       let role = this.state.formData.roleDetail
 
       if (role && role.slug === 'manager-level-1') {
-        schema.properties['project'] = { type: 'string', title: 'Proyecto', enum: [], enumNames: [] }
+        schema.properties['project'] = {
+          type: 'string',
+          title: this.formatTitle('user.formProject'),
+          enum: [],
+          enumNames: []
+        }
         uiSchema['project'] = {'ui:widget': SelectWidget}
         schema.required.push('project')
       } else {
@@ -235,7 +243,7 @@ class UserForm extends Component {
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
               <FormattedMessage
-                id="user.saveMsg"
+                id='user.saveMsg'
                 defaultMessage={`Los datos se han guardado correctamente`}
               />
             </div>
@@ -253,4 +261,4 @@ class UserForm extends Component {
   }
 }
 
-export default UserForm
+export default injectIntl(UserForm)

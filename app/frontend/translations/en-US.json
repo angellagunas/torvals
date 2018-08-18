@@ -5,7 +5,7 @@
     },
     "sideMenu": {
       "dashboard": "Dashboard",
-      "admin": "Adminstration",
+      "admin": "Administration",
       "org": "Organization",
       "rules": "Bussines Rules",
       "catalogs": "Catalogs",
@@ -430,19 +430,24 @@
       "createInviteTitle": "Invite User",
       "createMsg": "User created correctly",
       "createTitle": "Create user",
+      "delete": "Delete",
+      "deleteMsg": "Are you shure you want to deactivate",
+      "deleteObj": "User",
       "detail": "Detail",
       "detailBtnNew": "New User",
       "detailMore": "more",
       "detailTitle": "Users",
+      "edit": "Edit",
       "formEmail": "E-mail",
       "formGroup": "Group",
       "formName": "Name",
       "formPass1": "Password",
       "formPass2": "Confirm password",
-      "formPass2Error": "!Passwords aren't the same!",
+      "formPass2Error": "Passwords aren't the same!",
       "formProject": "Project",
-      "formProjectErrorMsg": "¡There aren't any existing projects!",
+      "formProjectErrorMsg": "There aren't any existing projects!",
       "formRole": "Role",
+      "formRoleErrorMsg": "You need to select a Role!",
       "groups": "Groups",
       "inviteMsg": "Invitation sent! The link sent will stay active for 10 days.",
       "multiselectAssignedTitle": "Assigned",
@@ -454,7 +459,10 @@
       "resetText3": "Error!",
       "saved": "Saved",
       "saveMsg": "The information has been saved correctly",
-      "saving": "Saving"
+      "saving": "Saving",
+      "tableActions": "Actions",
+      "tabTitle": "Users",
+      "title": "Users"
     },
     "salesCenter": {
       "btnCancel": "Cancel",
@@ -496,8 +504,8 @@
       "statusTitle": "Project Status"
     },
     "projects": {
-      "add": "[EN] Agregar",
-      "addDataset": "[EN] Agregar Dataset",
+      "add": "Add",
+      "addDataset": "Add Dataset",
       "Adjusted": "[EN] Ajustados",
       "adjustment": "[EN] Ajustes",
       "adjustmentInfo": "[EN] Se debe agregar al menos un dataset para poder generar ajustes.",
@@ -704,18 +712,34 @@
       "groups": "Groups"
     },
     "groups": {
-      "btnAdd": "[EN] Agregar",
-      "btnBack": "[EN] Regresar",
+      "assignUsers": "Users to assign",
+      "breadcrumbDetail": "Detail",
+      "breadcrumbGroups": "Groups",
+      "breadcrumbStart": "Home",
+      "btnAdd": "Add",
+      "btnBack": "Back",
       "btnCancel": "Cancel",
       "btnCreate": "Create",
-      "btnList": "[EN] Ver lista",
-      "btnNew": "[EN] Nuevo Grupo",
-      "btnNewUser": "[EN] Nuevo usuario",
+      "btnEdit": "Edit",
+      "btnList": "See list",
+      "btnNew": "Create group",
+      "btnNewUser": "New User",
       "btnSave": "Save",
+      "deleteMsg": "Are you shure you want to delete the group ",
+      "deleteTitle": "Group",
       "detail": "Detail",
+      "formDescription": "Description",
+      "formName": "Name",
+      "groupUsers": "Users",
+      "newTitle": "Create Group",
+      "notFound": "this group",
       "savedMsg": "The information has been saved correctly",
-      "title": "[EN] Visualiza tus grupos",
-      "users": "[EN] Usuarios"
+      "tableActions": "Actions",
+      "tableCreated": "Created",
+      "tableMembers": "Members",
+      "tabTitle": "Groups",
+      "title": "Groups",
+      "users": "Users"
     },
     "catalog": {
       "btnCancel": "Cancel",
@@ -750,14 +774,14 @@
       "alertMsg": "You have no forecasts available for this project yet.",
       "alertMsg2": "You must create at least one project to be able to create a forecast.",
       "createChoose": "Choose a report type",
-      "createMsg": "At this time it is not possible to create a report that can be reconciled until your next cycle.",
+      "createMsg": "At this time it is not possible to create a report that can be conciliated until your next cycle.",
       "createCatalogs": "Choose your catalogs",
       "createAlert": "You must choose at least one catalog to generate your prediction!",
       "createInitial": "Initial cycle",
       "createFinal": "Final cycle",
       "createModels": "Choose one or several models",
       "createAlert2": "You must choose at least one model to generate your prediction!",
-      "detailDeleted": "Predicción eliminada con éxito",
+      "detailDeleted": "Prediction was deleted correctly",
       "detailModel": "Model",
       "detailMsg1": "Are you sure you use the model prediction ",
       "detailMsg2": " in your project?",
@@ -775,7 +799,7 @@
       "compare": "Compare"
     },
     "navbar": {
-      "profile": "My profile",
+      "profile": "Profile",
       "signOut": "Logout"
     },
     "multi": {
@@ -784,6 +808,14 @@
     },
     "form": {
       "required": "It is a required field"
+    },
+    "notFound": {
+      "title": "We couldn't find"
+    },
+    "deleteButton": {
+      "title": "Delete",
+      "message": "Are you shure you want to delete this object?",
+      "objectName": "Object"
     },
     "profile": {
       "name": "Name",
