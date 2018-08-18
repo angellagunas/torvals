@@ -21,7 +21,8 @@
       "reportStatus": "Project Status",
       "reportHistoric": "Historical Adjustment",
       "reportDownloads": "Downloads",
-      "home": "Home"
+      "home": "Home",
+      "uploadGroups": "Add Groups"
     },
     "catalogs": {
       "producto": "Product",
@@ -203,7 +204,8 @@
       "errorObj": "Could not confirm ",
       "edit": "Edit",
       "delete": "Delete",
-      "create": "Create"
+      "create": "Create",
+      "errorForm": "There have been errors when processing the form!"
     },
     "anomalies": {
       "all": "All",
@@ -619,7 +621,8 @@
       "tabLabelsTitle": "Labels",
       "tabOrganizationsTitle": "Organization information",
       "tabUsersTitle": "Users",
-      "title": "Organization"
+      "title": "Organization",
+      "modify": "If you modify the slug, the session of all users who have logged in to this organization will be closed. If you REALLY want to continue, click save again"
     },
     "organizationBilling": {
       "apiMsgError": "Error: ",

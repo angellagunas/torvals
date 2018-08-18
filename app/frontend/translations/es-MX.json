@@ -21,7 +21,8 @@
       "reportStatus": "Estado de proyecto",
       "reportHistoric": "Histórico de ajustes",
       "reportDownloads": "Descargas",
-      "home": "Inicio"
+      "home": "Inicio",
+      "uploadGroups": "Agregar Grupos"
     },
     "catalogs": {
       "producto": "Producto",
@@ -203,7 +204,8 @@
       "errorObj": "No se pudieron confirmar ",
       "edit": "Editar",
       "delete": "Eliminar",
-      "create": "Crear"
+      "create": "Crear",
+      "errorForm": "¡Ha habido errores al procesar el formulario!"
     },
     "anomalies": {
       "all": "Todos",
@@ -621,7 +623,8 @@
       "tabLabelsTitle": "Etiquetas",
       "tabOrganizationsTitle": "Información de la organización",
       "tabUsersTitle": "Usuarios",
-      "title": "Organización"
+      "title": "Organización",
+      "modify": "Si modificas el slug, se cerrará la sesión de todos los usuarios que hayan iniciado sesión en esta organización. Si REALMENTE desea continuar, haga clic en guardar de nuevo"
     },
     "organizationBilling": {
       "apiMsgError": "Ocurrio un error: ",

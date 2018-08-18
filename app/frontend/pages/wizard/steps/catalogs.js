@@ -11,59 +11,59 @@ class Catalogs extends Component {
     this.state = {
       catalogs: [
         {
-          title: 'Producto', // TODO: translate
+          title: 'Producto',
           value: 'producto',
           checked: true,
           disabled: true
         },
         {
-          title: 'Precio', // TODO: translate
+          title: 'Precio',
           value: 'precio',
           checked: true,
           disabled: true
         },
         {
-          title: 'Centro de venta', // TODO: translate
+          title: 'Centro de venta',
           value: 'centro-de-venta',
           checked: false
         },
         {
-          title: 'Canal', // TODO: translate
+          title: 'Canal',
           value: 'canal',
           checked: false
         },
         {
-          title: 'Distrito', // TODO: translate
+          title: 'Distrito',
           value: 'distrito',
           checked: false
         },
         {
-          title: 'División', // TODO: translate
+          title: 'División',
           value: 'division',
           checked: false
         },
         {
-          title: 'Gerencia', // TODO: translate
+          title: 'Gerencia',
           value: 'gerencia',
           checked: false
         },
         {
-          title: 'Región', // TODO: translate
+          title: 'Región',
           value: 'region',
           checked: false
         },
         {
-          title: 'Marca', // TODO: translate
+          title: 'Marca',
           value: 'marca',
           checked: false
         },
         {
-          title: 'Categoría', // TODO: translate
+          title: 'Categoría',
           value: 'categoria',
           checked: false
         },
         {
-          title: 'Ruta', // TODO: translate
+          title: 'Ruta',
           value: 'ruta',
           checked: false
         }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 
 import {
@@ -8,20 +8,6 @@ import {
   TextareaWidget,
   FileWidget
 } from '~base/components/base-form'
-
-const schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'name', 'slug'
-  ],
-  properties: { // TODO: translate
-    name: {type: 'string', title: 'Nombre'},
-    description: {type: 'string', title: 'Descripción'},
-    slug: {type: 'string', title: 'Subdominio'},
-    profile: {type: 'string', title: 'Logo', format: 'data-url'}
-  }
-}
 
 const uiSchema = {
   'ui:field': 'custom'
@@ -205,6 +191,10 @@ class OrganizationForm extends Component {
     }
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   errorHandler (e) {}
 
   changeHandler ({formData}) {
@@ -226,8 +216,8 @@ class OrganizationForm extends Component {
   async submitHandler ({formData}) {
     if (formData.slug !== this.state.initialState.slug && !this.state.confirmed) {
       return this.setState({
-        ...this.state, // TODO: translate
-        error: 'Si modificas el slug, se cerrará la sesión de todos los usuarios que hayan iniciado sesión en esta organización. Si REALMENTE desea continuar, haga clic en guardar de nuevo',
+        ...this.state,
+        error: this.formatTitle('organizations.modify'),
         apiCallErrorMessage: 'message is-danger',
         confirmed: true
       })
@@ -257,6 +247,20 @@ class OrganizationForm extends Component {
       error = <div>
         Error: {this.state.error}
       </div>
+    }
+
+    const schema = {
+      type: 'object',
+      title: '',
+      required: [
+        'name', 'slug'
+      ],
+      properties: {
+        name: { type: 'string', title: this.formatTitle('organizations.name') },
+        description: { type: 'string', title: this.formatTitle('organizations.description') },
+        slug: { type: 'string', title: this.formatTitle('organizations.subdomain') },
+        profile: { type: 'string', title: 'Logo', format: 'data-url' }
+      }
     }
 
     return (
@@ -289,4 +293,4 @@ class OrganizationForm extends Component {
   }
 }
 
-export default OrganizationForm
+export default injectIntl(OrganizationForm)
