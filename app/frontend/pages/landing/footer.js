@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
+import { injectIntl } from 'react-intl'
 
 class Footer extends Component {
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
   render () {
     return (
       <footer className='footer'>
@@ -18,7 +22,9 @@ class Footer extends Component {
             </div>
             <div className='column has-text-right'>
               <p className='top-small'>
-                <span><a href='/privacy' target='_self'>Aviso de privacidad</a></span>
+                <span><a href='/privacy' target='_self'>
+                  {this.formatTitle('landing.privacy')}
+                </a></span>
                 {/* <a href='#'><span className='icon is-medium'>
                   <i className='fa fa-2x fa-facebook-square' />
                 </span>
@@ -28,7 +34,9 @@ class Footer extends Component {
                 </span>
                 </a> */}
               </p>
-              <p>Todos los derechos reservados, 2018</p>
+              <p>
+                {this.formatTitle('landing.rights')}
+              </p>
             </div>
           </div>
         </div>
@@ -37,4 +45,4 @@ class Footer extends Component {
   }
 }
 
-export default Footer
+export default injectIntl(Footer)

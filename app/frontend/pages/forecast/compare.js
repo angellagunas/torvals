@@ -13,6 +13,8 @@ import tree from '~core/tree'
 import Select from '../projects/detail-tabs/select'
 import _ from 'lodash'
 import { toast } from 'react-toastify'
+import { injectIntl } from 'react-intl'
+import { defaultCatalogs } from '~base/tools'
 
 class ForecastCompare extends Component {
   constructor (props) {
@@ -28,6 +30,20 @@ class ForecastCompare extends Component {
 
   componentWillMount () {
     this.getForecasts()
+  }
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
   }
 
   async getForecasts () {
@@ -98,9 +114,13 @@ class ForecastCompare extends Component {
     const catalogs = this.state.catalogs || []
     const catalogItems = catalogs.map((catalog, i) => {
       if (catalog.slug !== 'producto') {
+        let title = catalog.name
+        if (this.findInCatalogs(catalog.slug)) {
+          title = this.formatTitle('catalogs.' + catalog.slug)
+        }
         return (
         {
-          'title': ` ${catalog.name}`,
+          'title': title,
           'property': catalog.slug,
           'default': 'N/A',
           'sortable': true,
@@ -142,7 +162,7 @@ class ForecastCompare extends Component {
 
     let cols = [
       {
-        title: 'Id',
+        title: this.formatTitle('tables.colId'),
         property: 'externalId',
         default: 'N/A',
         sortable: true,
@@ -151,7 +171,7 @@ class ForecastCompare extends Component {
         }
       },
       {
-        title: 'Producto',
+        title: this.formatTitle('tables.colProduct'),
         property: 'product.name',
         default: 'N/A',
         sortable: true,
@@ -214,7 +234,7 @@ class ForecastCompare extends Component {
       }
     } catch (e) {
       console.log(e)
-      this.notify('Error obteniendo gráfica ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -304,7 +324,7 @@ class ForecastCompare extends Component {
       }
     } catch (e) {
       console.log(e)
-      this.notify('Error obteniendo tabla ' + e.message, 5000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -373,7 +393,7 @@ class ForecastCompare extends Component {
   render () {
     if (this.state.loading) {
       return <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>
-        Cargando, un momento por favor
+        {this.formatTitle('dashboard.tableLoading')}
           <Loader />
       </div>
     }
@@ -401,7 +421,7 @@ class ForecastCompare extends Component {
     return (
       <div className='forecast-detail'>
         <div className='section-header'>
-          <h2>Predicción {this.state.activeForecast.alias}</h2>
+          <h2>{this.formatTitle('tables.colForecast')} {this.state.activeForecast.alias}</h2>
         </div>
         <div className='level'>
           <div className='level-left'>
@@ -410,17 +430,17 @@ class ForecastCompare extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio',
+                    label: this.formatTitle('sideMenu.home'),
                     current: false
                   },
                   {
                     path: '/forecast',
-                    label: 'Predicciones',
+                    label: this.formatTitle('sideMenu.forecast'),
                     current: false
                   },
                   {
                     path: '/forecast/detail/' + this.props.match.params.uuid,
-                    label: 'Detalle',
+                    label: this.formatTitle('forecasts.detail'),
                     current: false
                   },
                   {
@@ -430,7 +450,7 @@ class ForecastCompare extends Component {
                   },
                   {
                     path: '/forecast/compare',
-                    label: 'Comparar',
+                    label: this.formatTitle('forecasts.compare'),
                     current: true
                   }
                   
@@ -446,7 +466,7 @@ class ForecastCompare extends Component {
                   onClick={() => {
                     this.props.history.push('/forecast/detail/' + this.props.match.params.uuid)
                   }}>
-                  Regresar
+                  {this.formatTitle('datasets.btnBack')}
                 </button>
               </div>
             </div>
@@ -457,12 +477,16 @@ class ForecastCompare extends Component {
 
           <div className='columns is-multiline filters'>
             {this.state.catalogs && this.state.catalogs.map((item, key) => {
+              let title = item.name
+              if (this.findInCatalogs(item.slug)) {
+                title = this.formatTitle('catalogs.' + item.slug)
+              }
               return (
                 <div key={key} className='column is-narrow'>
                   <Select
-                    label={item.name}
+                    label={title}
                     name={key}
-                    placeholder='Todos'
+                    placeholder={this.formatTitle('anomalies.all')}
                     value={this.state.catalogItems[key]}
                     optionValue='uuid'
                     optionName='name'
@@ -602,7 +626,7 @@ class ForecastCompare extends Component {
                   />
                   : <section className='section has-30-margin-top'>
                     <center>
-                      <h1 className='has-text-info'>No hay datos que mostrar, intente con otro filtro</h1>
+                      <h1 className='has-text-info'>{this.formatTitle('projects.emptyRows')}</h1>
                     </center>
                   </section>
                 : <section className='section has-30-margin-top'>
@@ -618,13 +642,13 @@ class ForecastCompare extends Component {
               <div className='level-item'>
 
                 <div className='field'>
-                  <label className='label'>Búsqueda general</label>
+                  <label className='label'>{this.formatTitle('dashboard.searchText')}</label>
                   <div className='control has-icons-right'>
                     <input
                       className='input'
                       type='text'
                       value={this.state.searchTerm}
-                      onChange={this.searchOnChange} placeholder='Buscar' />
+                      onChange={this.searchOnChange} placeholder={this.formatTitle('dashboard.searchText')} />
 
                     <span className='icon is-small is-right'>
                       <i className='fa fa-search fa-xs' />
@@ -635,7 +659,7 @@ class ForecastCompare extends Component {
 
               <div className='level-item'>
                 <div className='field'>
-                  <label className='label'>Mostrar por: </label>
+                  <label className='label'>{this.formatTitle('dashboard.showBy')}: </label>
                   <div className='control'>
 
                     <div className='field is-grouped'>
@@ -650,7 +674,7 @@ class ForecastCompare extends Component {
                           disabled={this.state.waitingData}
                           onChange={() => this.showBy(false)} />
                         <label htmlFor='showByquantity'>
-                          <span title='Cantidad'>Cantidad</span>
+                          <span title='Cantidad'>{this.formatTitle('report.quantity')}</span>
                         </label>
                       </div>
 
@@ -664,7 +688,7 @@ class ForecastCompare extends Component {
                           disabled={this.state.waitingData}
                           onChange={() => this.showBy(true)} />
                         <label htmlFor='showByprice'>
-                          <span title='Precio'>Precio</span>
+                          <span title='Precio'>{this.formatTitle('report.price')}</span>
                         </label>
                       </div>
                     </div>
@@ -703,5 +727,5 @@ export default Page({
   exact: true,
   roles: 'consultor-level-3, analyst, orgadmin, admin',
   validate: [loggedIn, verifyRole],
-  component: ForecastCompare
+  component: injectIntl(ForecastCompare)
 })

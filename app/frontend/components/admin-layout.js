@@ -1,6 +1,6 @@
 import {isEmpty} from 'lodash'
 import React, { Component } from 'react'
-import { FormattedMessage, injectIntl } from 'react-intl'
+import { injectIntl } from 'react-intl'
 import { root } from 'baobab-react/higher-order'
 
 import tree from '~core/tree'
@@ -241,22 +241,22 @@ class AdminLayout extends Component {
             <div className='modal-background' onClick={() => this.openWizards()}/>
             <div className='modal-card'>
               <header className='modal-card-head'>
-                <p className='modal-card-title'>Inicia con Orax</p>
+                <p className='modal-card-title'>{this.formatTitle('wizard.modalStart')}</p>
                 <button className='delete' aria-label='close' onClick={() => this.openWizards()}></button>
               </header>
               <section className='modal-card-body'>
                 {!this.state.user.currentOrganization.wizardSteps.businessRules ?
-                  'Comienza con la configuración de reglas de negocio para crear un proyecto.'
+                  this.formatTitle('wizard.modalMsg1')
                   :
-                  'Continúa configurando los pasos restantes'
+                  this.formatTitle('wizard.modalMsg2')
                 }
                 <p className={
                 this.state.user.currentOrganization.wizardSteps.businessRules ||
                     this.state.user.currentOrganization.isConfigured ?
                     'wizard-step done has-20-margin-top' : 'wizard-step has-20-margin-top'
                 }>
-                <strong>Reglas de negocio </strong>
-                Establece tus ciclos y periodos de ajuste.
+                  <strong>{this.formatTitle('wizard.modalTitle1')} </strong>
+                  {this.formatTitle('wizard.modalSub1')}
                 <span className='icon has-text-success'>
                   <i className='fa fa-check fa-lg'/>
                 </span>
@@ -274,8 +274,8 @@ class AdminLayout extends Component {
                     this.moveTo('/projects')
                   }}
                 >
-                  <strong>Proyecto </strong>
-                  Crea un proyecto para generar predicciones.
+                  <strong>{this.formatTitle('wizard.modalTitle2')} </strong>
+                  {this.formatTitle('wizard.modalSub2')}
                 <span className='icon has-text-success'>
                     <i className='fa fa-check fa-lg' />
                   </span>
@@ -294,8 +294,8 @@ class AdminLayout extends Component {
                     this.moveTo('/forecast')
                   }}
                   >
-                  <strong>Predicción </strong>
-                  Realiza predicciones por proyecto.
+                  <strong>{this.formatTitle('wizard.modalTitle3')} </strong>
+                  {this.formatTitle('wizard.modalSub3')}
                 <span className='icon has-text-success'>
                     <i className='fa fa-check fa-lg' />
                   </span>
@@ -314,15 +314,17 @@ class AdminLayout extends Component {
                     this.moveTo('/manage/users-groups')
                   }}
                   >
-                  <strong>Usuarios </strong>
-                  Agrega, edita o elimina usuarios.
+                  <strong>{this.formatTitle('wizard.modalTitle4')} </strong>
+                  {this.formatTitle('wizard.modalSub4')}
                 <span className='icon has-text-success'>
                     <i className='fa fa-check fa-lg' />
                   </span>
                 </p>
                 <br/>
                 <button className='button is-primary is-inverted is-pulled-right'
-                  onClick={() => this.openWizards()}>Omitir</button>
+                  onClick={() => this.openWizards()}>
+                  {this.formatTitle('wizard.btnSkip')}
+                  </button>
 
               </section>
 
@@ -333,16 +335,15 @@ class AdminLayout extends Component {
             <div className='modal-background'/>
             <div className='modal-card'>
               <header className='modal-card-head'>
-                <p className='modal-card-title'>Activa tu cuenta</p>
+                <p className='modal-card-title'>{this.formatTitle('wizard.account')}</p>
               </header>
               <section className='modal-card-body'>
                 <p className='is-padding-bottom-small'>
-                  <strong>Tu cuenta se encuentra {this.orgStatus[this.state.user.currentOrganization.status]}.</strong>
+                  <strong>{this.formatTitle('wizard.accountIs')} {this.orgStatus[this.state.user.currentOrganization.status]}.</strong>
                 </p>
                 {this.state.user.currentOrganization.status !== 'activationPending' &&                
                 <p className='is-padding-bottom-small'>
-                  Para poder continuar usando Orax necesitas solicitar una activación.
-                  Tus datos e información quedarán guardados.
+                  {this.formatTitle('wizard.accountMsg1')}
                 </p>
                 }
                 <BillingForm org={this.state.user.currentOrganization} isModal />
@@ -351,14 +352,14 @@ class AdminLayout extends Component {
                 <div>
                 <div className={'message is-primary'}>
                   <div className='message-body is-size-7 has-text-centered'>
-                    Al momento de solicitar una activación de cuenta, un agente recibirá tus datos y se comunicará posteriormente.
+                    {this.formatTitle('wizard.accountMsg2')}
                   </div>
                 </div>
                 
                 <button className='button is-success is-pulled-right'
                   disabled={!!this.state.isLoading}
                   onClick={() => this.requestActivation()} >
-                  Solicitar activación
+                    {this.formatTitle('wizard.accountBtn')}
                 </button>
                 </div>
                 }

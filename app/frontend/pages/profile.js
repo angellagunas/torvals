@@ -10,31 +10,36 @@ import UpdatePasswordForm from '~base/components/update-password'
 import UpdateProfileForm from '~base/components/update-profile'
 import TokensList from '~base/components/token-list'
 import Breadcrumb from '~base/components/base-breadcrumb'
+import { injectIntl } from 'react-intl'
 
 class Profile extends Component {
-  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
-      if (!toast.isActive(this.toastId)) {
-        this.toastId = toast(message, {
-          autoClose: timeout,
-          type: type,
-          hideProgressBar: true,
-          closeButton: false
-        })
-      } else {
-        toast.update(this.toastId, {
-          render: message,
-          type: type,
-          autoClose: timeout,
-          closeButton: false
-        })
-      }
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false
+      })
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false
+      })
     }
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
 
   render () {
     const currentUser = tree.get('user')
 
     if (currentUser.currentRole.slug === 'manager-level-1' && !currentUser.currentProject) {
-      this.notify('Contacta a tu administrador para que se te asigne un proyecto.', 10000, toast.TYPE.ERROR)
+      this.notify(this.formatTitle('profile.noProject'), 10000, toast.TYPE.ERROR)
     }
 
     return (
@@ -49,12 +54,12 @@ class Profile extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio', //TODO: translate
+                    label: this.formatTitle('sideMenu.home'),
                     current: false
                   },
                   {
                     path: '/profile',
-                    label: 'Mi perfil', //TODO: translate
+                    label: this.formatTitle('navbar.profile'),
                     current: true
                   },
                   {
@@ -76,7 +81,7 @@ class Profile extends Component {
                   <div className='card-header-title'>
 
                     <FormattedMessage
-                      id="profile.form1Title"
+                      id='profile.form1Title'
                       defaultMessage={`Detalles`}
                     />
 
@@ -95,7 +100,7 @@ class Profile extends Component {
                   <div className='card-header-title'>
 
                     <FormattedMessage
-                      id="profile.form2Title"
+                      id='profile.form2Title'
                       defaultMessage={`Cambiar contraseña`}
                     />
 
@@ -118,8 +123,8 @@ class Profile extends Component {
 
 export default Page({
   path: '/profile',
-  title: 'Profile', //TODO: translate
+  title: 'Profile',
   exact: true,
   validate: loggedIn,
-  component: Profile
+  component: injectIntl(Profile)
 })
