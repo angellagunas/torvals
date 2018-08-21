@@ -1,7 +1,8 @@
 const Route = require('lib/router/route')
 const path = require('path')
 const fs = require('fs')
-
+const { promisify } = require('util')
+const mkdirPromisified = promisify(fs.mkdir)
 const finishUpload = require('queues/finish-upload')
 const { FileChunk, DataSet } = require('models')
 const {
@@ -42,9 +43,11 @@ module.exports = new Route({
     const tmpdir = path.join('.', 'media', 'uploads', identifier)
 
     if (chunk && chunk.lastChunk === 0) {
-      fs.mkdir(tmpdir, (err) => {
-        console.log('Folder already exists')
-      })
+      try {
+        await mkdirPromisified(tmpdir)
+      } catch (creatingDirError) {
+        ctx.throw(500, creatingDirError)
+      }
     }
 
     if (!chunk && chunkNumber === 1) {
@@ -58,11 +61,9 @@ module.exports = new Route({
       })
 
       try {
-        await fs.mkdir(tmpdir, (error) => {
-          console.log('El Folder ya existe')
-        })
-      } catch (e) {
-        console.log('Folder ya existe')
+        await mkdirPromisified(tmpdir)
+      } catch (creatingDirError) {
+        ctx.throw(500, creatingDirError)
       }
 
       dataset.set({
@@ -114,19 +115,22 @@ module.exports = new Route({
       for (let key in files) {
         const file = files[key]
         const filePath = path.join(tmpdir, filename + '.' + chunkNumber)
-        var reader
-        var writer
+        let reader
+        let writer
 
         await new Promise((resolve, reject) => {
-          reader = fs.createReadStream(file.path).on('open', () => {
-            writer = fs.createWriteStream(filePath).on('open', () => {
-              reader.pipe(writer)
-              resolve()
-            }).on('error', e => {
-              console.error(e)
-              reject(e)
+          reader = fs
+            .createReadStream(file.path)
+            .on('open', () => {
+              writer = fs
+                .createWriteStream(filePath)
+                .on('open', () => {
+                  reader.pipe(writer)
+                })
+                .on('finish', () => resolve())
+                .on('error', e => reject(e))
             })
-          })
+            .on('error', e => reject(e))
         })
 
         filePaths.push(filePath)
