@@ -68,7 +68,12 @@ module.exports = new Route({
       }
     })
 
-    catalogItems = await CatalogItem.find({ _id: { $in: catalogItems }, type: {$ne: 'producto'}, ...filters })
+    catalogItems = await CatalogItem.find({
+      _id: { $in: catalogItems },
+      isDeleted: false,
+      type: {$ne: 'producto'},
+      ...filters
+    })
 
     await dataset.rule.populate('catalogs').execPopulate()
 
