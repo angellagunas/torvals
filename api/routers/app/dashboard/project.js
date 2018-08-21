@@ -8,11 +8,11 @@ module.exports = new Route({
   method: 'get',
   path: '/projects',
   handler: async function (ctx) {
-    var data = ctx.request.query
-    var projectsUuid = Object.values(data).map(item => { return item })
+    let data = ctx.request.query
+    let projectsUuid = Object.values(data).map(item => { return item })
     const user = ctx.state.user
 
-    var filters = {
+    let filters = {
       organization: ctx.state.organization,
       mainDataset: { $ne: undefined }
     }
@@ -32,8 +32,8 @@ module.exports = new Route({
 
     let matchCatalogs = currentRule.catalogs.map(item => { return item.slug })
 
-    var currentRole
-    var currentOrganization
+    let currentRole
+    let currentOrganization
     if (ctx.state.organization) {
       currentOrganization = user.organizations.find(orgRel => {
         return ctx.state.organization._id.equals(orgRel.organization._id)
@@ -46,7 +46,7 @@ module.exports = new Route({
       }
     }
 
-    var matchCond = {
+    let matchCond = {
       '$match': {
         'dataset': {
           '$in': datasets
@@ -62,13 +62,15 @@ module.exports = new Route({
         currentRole.slug === 'consultor-level-2' ||
         currentRole.slug === 'consultor-level-3'
     ) {
-      var userGroups = []
-      for (var g of user.groups) {
+      let userGroups = []
+      for (let g of user.groups) {
         userGroups.push(ObjectId(g))
       }
 
       const catalogItems = await CatalogItem.filterByUserRole(
-          { },
+          {
+            isDeleted: false
+          },
           currentRole.slug,
           user
         )
@@ -76,7 +78,7 @@ module.exports = new Route({
       matchCond['$match']['catalogItems'] = { $in: catalogItems }
     }
 
-    var statement = [
+    let statement = [
       matchCond,
       {
         '$unwind': {
@@ -112,7 +114,7 @@ module.exports = new Route({
       }
     ]
 
-    var datasetRow = await DataSetRow.aggregate(statement)
+    let datasetRow = await DataSetRow.aggregate(statement)
 
     if (datasetRow.length === 0) {
       ctx.body = {
@@ -123,7 +125,7 @@ module.exports = new Route({
     }
 
     const catalogs = datasetRow[0].catalogItems.filter(item => {
-      return matchCatalogs.indexOf(item.type) >= 0
+      return matchCatalogs.indexOf(item.type) >= 0 && item.isDeleted === false
     })
 
     ctx.body = {
