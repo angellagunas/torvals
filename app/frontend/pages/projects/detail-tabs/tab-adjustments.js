@@ -1373,11 +1373,6 @@ class TabAdjustment extends Component {
               <img src='/app/public/img/grafica.png'
               className={this.state.indicators === 'indicators-hide' ?
               '' : 'disapear'}/>
-              <a className='collapse-btn' onClick={this.toggleIndicators}>
-                <span className='icon is-large'>
-                  <i className={this.state.indicators === 'indicators-show' ? 'fa fa-2x fa-caret-up' : 'fa fa-2x fa-caret-down'}></i>
-                </span>
-              </a>
             </div>
           </div>
         </div>
