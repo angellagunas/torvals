@@ -189,7 +189,7 @@ class Sidebar extends Component {
           roles: 'orgadmin, admin, manager-level-3',
           dropdown: [
             this.formatTitle('sideMenu.uploadUsers', UsersImport),
-            GroupsImport.asSidebarItem()
+            this.formatTitle('sideMenu.uploadGroups', GroupsImport)
           ]
         },
         { // TODO: translate

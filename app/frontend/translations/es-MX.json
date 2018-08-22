@@ -21,7 +21,8 @@
       "reportStatus": "Estado de proyecto",
       "reportHistoric": "Histórico de ajustes",
       "reportDownloads": "Descargas",
-      "home": "Inicio"
+      "home": "Inicio",
+      "uploadGroups": "Agregar Grupos"
     },
     "catalogs": {
       "producto": "Producto",
@@ -148,7 +149,7 @@
       "dateRange": "Rango de Fechas",
       "source": "Fuente",
       "deleteMsg": "¿Estas seguro de querer eliminar este dataset?",
-      "add": "Create dataset",
+      "add": "Crear dataset",
       "actions": "Acciones",
       "adjustment": "Ajuste",
       "adjustmentTitle": "Procesando ajustes del Dataset",
@@ -203,7 +204,8 @@
       "errorObj": "No se pudieron confirmar ",
       "edit": "Editar",
       "delete": "Eliminar",
-      "create": "Crear"
+      "create": "Crear",
+      "errorForm": "¡Ha habido errores al procesar el formulario!"
     },
     "anomalies": {
       "all": "Todos",
@@ -231,16 +233,12 @@
       "cancel": "Cancelar"
     },
     "tabs": {
-      "graphics": "Graphics",
-      "adjustments": "Adjustments",
-      "approve": "Approve",
+      "graphics": "Gráficos",
+      "adjustments": "Ajustes",
+      "approve": "Aprobar",
       "datasets": "Datasets",
-      "anomalies": "Anomalies",
-      "config": "Configuration"
-    },
-    "profile": {
-      "form1Title": "Detalles",
-      "form2Title": "Cambiar contraseña"
+      "anomalies": "Anomalias",
+      "config": "Configuración"
     },
     "orgRules": {
       "alertBtn": "Actualizar Proyectos",
@@ -401,7 +399,24 @@
       "rulesRangeUnlimited": "ilimitado",
       "rulesSalesUpdate": "Actualizar datos de ventas",
       "rulesSeason": "Temporada",
-      "rulesTitle": "Reglas de la organización"
+      "rulesTitle": "Reglas de la organización",
+      "modalStart": "Inicia con Orax",
+      "modalMsg1": "Comienza con la configuración de reglas de negocio para crear un proyecto.",
+      "modalMsg2": "Continúa configurando los pasos restantes",
+      "modalTitle1": "Reglas de negocio",
+      "modalSub1": "Establece tus ciclos y periodos de ajuste.",
+      "modalTitle2": "Proyecto",
+      "modalSub2": "Crea un proyecto para generar predicciones.",
+      "modalTitle3": "Predicción",
+      "modalSub3": "Realiza predicciones por proyecto.",
+      "modalTitle4": "Usuarios",
+      "modalSub4": "Agrega, edita o elimina usuarios.",
+      "btnSkip": "Omitir",
+      "account": "Activa tu cuenta",
+      "accountIs": "Tu cuenta se encuentra",
+      "accountMsg1": "Para poder continuar usando Orax necesitas solicitar una activación. Tus datos e información quedarán guardados.",
+      "accountMsg2": "Al momento de solicitar una activación de cuenta, un agente recibirá tus datos y se comunicará posteriormente.",
+      "accountBtn": "Solicitar activación"
     },
     "user": {
       "back": "Regresar",
@@ -415,10 +430,14 @@
       "createInviteTitle": "Invitar usuario",
       "createMsg": "Se ha creado correctamente al usuario",
       "createTitle": "Crear usuario",
+      "delete": "Eliminar",
+      "deleteMsg": "¿Estás seguro de querer desactivar a",
+      "deleteObj": "Usuario",
       "detail": "Detalle",
       "detailBtnNew": "Nuevo Usuario",
       "detailMore": "más",
       "detailTitle": "Visualiza tus usuarios",
+      "edit": "Editar",
       "formEmail": "Correo",
       "formGroup": "Grupo",
       "formName": "Nombre",
@@ -439,7 +458,9 @@
       "resetText3": "¡Error!",
       "saved": "Guardado",
       "saveMsg": "Los datos se han guardado correctamente",
-      "saving": "Guardando"
+      "saving": "Guardando",
+      "tableActions": "Acciones",
+      "tabTitle": "Usuarios"
     },
     "salesCenter": {
       "btnCancel": "Cancelar",
@@ -449,7 +470,7 @@
       "detail": "Detalle",
       "groups": "Grupos",
       "saved": "Guardado",
-      "saving": "savingsaving"
+      "saving": "Guardando"
     },
     "report": {
       "adjustmentFinished": "Ajustes finalizados",
@@ -592,7 +613,6 @@
       "daysLeftDays": "días restantes",
       "daysLeftMessage": "Solicita tu activación",
       "description": "Descripción",
-      "description": "Descripción",
       "formTitle": "Información de la organización",
       "logoUploadMsg": "Sube el logo de la organización",
       "maxMsg": "Máximo 140 caracteres",
@@ -609,7 +629,8 @@
       "tabLabelsTitle": "Etiquetas",
       "tabOrganizationsTitle": "Información de la organización",
       "tabUsersTitle": "Usuarios",
-      "title": "Organización"
+      "title": "Organización",
+      "modify": "Si modificas el slug, se cerrará la sesión de todos los usuarios que hayan iniciado sesión en esta organización. Si REALMENTE desea continuar, haga clic en guardar de nuevo"
     },
     "organizationBilling": {
       "apiMsgError": "Ocurrio un error: ",
@@ -687,19 +708,36 @@
       "title": "Cargar",
       "selectFile": "Seleccionar archivo",
       "users": "Usuarios",
-      "usersMsg": "No utilizar contraseña y enviar invitación a Orax"
+      "usersMsg": "No utilizar contraseña y enviar invitación a Orax",
+      "groups": "Grupos"
     },
     "groups": {
+      "assignUsers": "Usuarios para asignar",
+      "breadcrumbDetail": "Detalle",
+      "breadcrumbGroups": "Grupos",
+      "breadcrumbStart": "Inicio",
       "btnAdd": "Agregar",
       "btnBack": "Regresar",
       "btnCancel": "Cancelar",
       "btnCreate": "Crear",
+      "btnEdit": "Editar",
       "btnList": "Ver lista",
       "btnNew": "Nuevo Grupo",
       "btnNewUser": "Nuevo usuario",
       "btnSave": "Guardar",
+      "deleteMsg": "¿Estás seguro de querer eliminar el grupo",
+      "deleteTitle": "Grupo",
       "detail": "Detalle",
+      "formDescription": "Descripción",
+      "formName": "Nombre",
+      "groupUsers": "Usuarios grupo",
+      "newTitle": "Nuevo Grupo",
+      "notFound": "este grupo",
       "savedMsg": "Los datos se han guardado correctamente",
+      "tableActions": "Acciones",
+      "tableCreated": "Creado",
+      "tableMembers": "Miembros",
+      "tabTitle": "Grupos",
       "title": "Visualiza tus grupos",
       "users": "Usuarios"
     },
@@ -731,6 +769,7 @@
       "models": "Modelos",
       "msg1": "Tu predicción se está generando.",
       "msg2": "Este proceso puede tomar mucho tiempo. Te avisaremos por correo cuando el proceso termine.",
+      "msg3": "Aún no hay datos disponibles para esta predicción.",
       "alertTitle": "Configuración de predicciones",
       "alertMsg": "Aún no tienes predicciones disponibles para este proyecto.",
       "alertMsg2": "Debes crear al menos un proyecto para poder crear una predicción.",
@@ -746,7 +785,18 @@
       "detailModel": "Modelo",
       "detailMsg1": "¿Estás seguro de utilizar la predicción del modelo ",
       "detailMsg2": " en tu proyecto?",
-      "detailMsg3": "No podrás crear otra predicción conciliable hasta el siguiente ciclo de predicciones."
+      "detailMsg3": "No podrás crear otra predicción conciliable hasta el siguiente ciclo de predicciones.",
+      "detailShare": "Compartir predicción",
+      "detailShareMsg": "Selecciona los usuarios con quiénes quieres compartir la predicción.",
+      "detailShareSelect": "Seleccionar usuario(s)",
+      "detailShareBtn": "Compartir",
+      "detailSelectModel": "Selecciona un modelo para conciliar.",
+      "deleteModel": "¿Estas seguro de querer eliminar estos modelos?",
+      "statusCreated": "Creado",
+      "statusCompleted": "Completado",
+      "statusConciliate": "Conciliado",
+      "statusProcess": "En Proceso",
+      "compare": "Comparar"
     },
     "navbar": {
       "profile": "Mi perfil",
@@ -758,6 +808,107 @@
     },
     "form": {
       "required": "Es un campo requerido"
+    },
+    "notFound": {
+      "title": "No pudimos encontrar"
+    },
+    "deleteButton": {
+      "message": "¿Estas seguro de querer eliminar este objeto?",
+      "objectName": "Objeto",
+      "title": "Eliminar"
+    },
+    "profile": {
+      "name": "Nombre",
+      "email": "Correo",
+      "phone": "Teléfono",
+      "job": "Puesto",
+      "img": "Foto",
+      "verified": "Cuenta verificada",
+      "owner": "Propietario de la organización",
+      "save": "Guardar",
+      "form1Title": "Detalles",
+      "form2Title": "Cambiar contraseña",
+      "saved": "Tus datos se han modificado correctamente",
+      "noProject": "Contacta a tu administrador para que se te asigne un proyecto.",
+      "savePass": "La contraseña se ha modificado correctamente",
+      "actualPass": "Contraseña actual",
+      "newPass": "Nueva Contraseña",
+      "confirmPass": "Confirmar Contraseña",
+      "lastName": "Apellido"
+    },
+    "language": {
+      "language": "Lenguage",
+      "Ingles": "Ingles",
+      "Español": "Español"
+    },
+    "landing": {
+      "how": "¿Cómo funciona?",
+      "try": "Probar 30 días gratis",
+      "title1": "Decisiones inteligentes",
+      "sub1": "A partir de predicciones",
+      "title2": "¿Qué es Orax?",
+      "sub2": "Orax es una herramienta moderna que con base en información histórica, predice la demanda para guiarnos a través de la incertidumbre, ayudándonos a tomar mejores decisiones empresariales y a responder de maner más ágil.",
+      "list1": "Manejo de información en tiempo real.",
+      "list2": "Predicción confiable de ventas o producción.",
+      "list3": "Ajustes entre predicciones, existencias o pedidos.",
+      "moreInfo": "¿Necesitas más información?",
+      "moreInfoText": "Creamos un paquete y cotización especialmente a tus necesidades. Solicitala y uno de nuestros agentes se pondrá en contacto contigo para ayudarte.",
+      "contactName": "Nombre",
+      "contactEmail": "Correo",
+      "contactOrg": "Empresa u Organización",
+      "contactNum": "Número de empleados",
+      "contactCountry": "País",
+      "contactSend": "Enviar",
+      "contactOk": "Enviado, un agente recibirá tus datos y se comunicará posteriormente.",
+      "contactError": "Ocurrió un error, intenta más tarde.",
+      "title3": "Características",
+      "list4": "Inteligencia artificial y machine learning.",
+      "list5": "Optimización de modelos de predicción y operaciones.",
+      "list6": "Flexibilidad y adaptabilidad a las reglas y necesidades.",
+      "list7": "Gestión de usuarios y roles.",
+      "list8": "Evaluación y monitoreo de la información.",
+      "list9": "Visualización intuitiva para un análisis completo del negocio.",
+      "title4": "Beneficios",
+      "list10": "Minimiza el desperdicio/devoluciones y asegura el abasto.",
+      "list11": "Planeación más precisa.",
+      "list12": "Incrementa la productividad de las personas",
+      "title5": "Valor agregado",
+      "list13": "Información centralizada en tiempo real.",
+      "list14": "Flexibilidad y adaptabilidad a las reglas de negocio.",
+      "list15": "Control de usuarios.",
+      "title6": "Pay-as-you-go.",
+      "sub3": "Orax se ajusta a tus necesidades.",
+      "privacy": "Aviso de privacidad",
+      "rights": "Todos los derechos reservados, 2018"
+    },
+    "register": {
+      "emailError": "Ese correo ya se encuentra en uso",
+      "domainError": "Ese subdominio ya se encuentra en uso",
+      "validEmail": "Ingresa una dirección de correo válida",
+      "validPass": "La contraseña debe contener al menos 8 caracteres, incluidas mayúsculas, minúsculas, números y caracteres especiales como #?!@$%^&*-.",
+      "validPass2": "Las contraseñas no coinciden",
+      "validDomain": "El subdominio solo puede contener letras, números y _",
+      "validOrg": "Falta el nombre de tu empresa",
+      "validRFC": "Ingrese un RFC válido",
+      "text1": "Ingresa tus datos como administrador de la cuenta para acceder y utilizar Orax.",
+      "accept": "Acepto el",
+      "use": "y condición de uso de mis datos.",
+      "userFormTitle": "Datos personales",
+      "userFormSub": "Completa tu registro para crear tu perfil.",
+      "siteFormTitle": "Identifica tu sitio",
+      "siteFormSub": "Ingresa un subdominio que identifique a tu empresa, recuerda que debe ser fácil de recordar.",
+      "text2": "El subdominio que ingreses será la URL a tu espacio de trabajo",
+      "orgFormTitle": "Cuéntanos de tu empresa",
+      "orgFormSub": "Completa información de tu empresa y datos de facturación.",
+      "region": "Region",
+      "congrat": "¡Felicidades!",
+      "your": "Tu cuenta ha sido creada.",
+      "30days": "Tus 30 días de prueba comienzan hoy.",
+      "request": "Solicita tu cotización en cualquier momento desde el apartado \"Mi Cuenta\" y sigue utilizando Orax.",
+      "next": "Siguiente",
+      "back": "Regresar",
+      "start": "Empezar",
+      "businessType": "Giro"
     }
   }
 }

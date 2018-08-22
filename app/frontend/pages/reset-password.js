@@ -168,7 +168,7 @@ class ResetPassword extends Component {
 
 export default Page({
   path: '/password/forgotten',
-  title: 'Reset Password', // TODO: translate
+  title: 'Reset Password',
   exact: true,
   component: injectIntl(ResetPassword)
 })

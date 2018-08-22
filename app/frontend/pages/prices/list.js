@@ -14,7 +14,7 @@ export default ListPage({
   translate: true,
   path: '/catalogs/prices',
   title: 'sideMenu.prices',
-  titleSingular: 'catalog.precio',
+  titleSingular: 'catalogs.precio',
   icon: 'list-alt',
   roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   exact: true,
@@ -146,12 +146,14 @@ export default ListPage({
                           return false
                         }
                         // TODO: translate
-                        toast('¡Precio guardado! ', {
+
+                        toast('¡Precio guardado!', {
                           autoClose: 3000,
                           type: toast.TYPE.INFO,
                           hideProgressBar: true,
                           closeButton: false
                         })
+
                         return res
                       } catch (e) {
                         toast('Error: ' + e.message, {

@@ -77,11 +77,11 @@ class ConfigureDatasetForm extends Component {
     }
   }
 
-  formatTitle(id) {
+  formatTitle (id) {
     return this.props.intl.formatMessage({ id: id })
   }
 
-  findInCatalogs(slug) {
+  findInCatalogs (slug) {
     let find = false
     defaultCatalogs.map(item => {
       if (item.value === slug) {
@@ -284,12 +284,11 @@ class ConfigureDatasetForm extends Component {
     for (let key of Object.keys(schema)) {
       if (!values[key] || typeof values[key] !== 'string' || values[key].trim() === '') {
         this.setState({isLoading: ''})
-        // TODO: translate
         return this.setState({
-          error: `¡Ha habido errores al procesar el formulario!`,
+          error: this.formatTitle('datasets.errorForm'),
           apiCallErrorMessage: 'message is-danger',
           errors: {
-            [key]: '¡Valor requerido!'
+            [key]: this.formatTitle('form.required')
           }
         })
       }
@@ -403,7 +402,7 @@ class ConfigureDatasetForm extends Component {
                       value={this.state.isAdjustment}
                       onChange={(e) => { this.handleChangeSelect('isAdjustment', e) }}>
                       <option value=''>
-                        {this.formatTitle('datasets.selectOption')}                        
+                        {this.formatTitle('datasets.selectOption')}
                       </option>
                       {
                     this.state.formData.columns.map(function (item, key) {
@@ -433,7 +432,7 @@ class ConfigureDatasetForm extends Component {
                       value={this.state.isPrediction}
                       onChange={(e) => { this.handleChangeSelect('isPrediction', e) }}>
                       <option value=''>
-                        {this.formatTitle('datasets.selectOption')}                        
+                        {this.formatTitle('datasets.selectOption')}
                       </option>
                       {
                     this.state.formData.columns.map(function (item, key) {
@@ -489,7 +488,7 @@ class ConfigureDatasetForm extends Component {
                           value={this.getValue(item.id.name)}
                           onChange={(e) => { this.handleChangeSelect(item.id.name, e) }}>
                           <option value=''>
-                            {this.formatTitle('datasets.selectOption')}                            
+                            {this.formatTitle('datasets.selectOption')}
                           </option>
                           {
                             this.state.formData.columns.map(function (item, key) {
