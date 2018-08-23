@@ -858,7 +858,8 @@ class TabAdjustment extends Component {
       let res = await api.post(url, {
         ...this.state.formData,
         cycle: cycle.uuid,
-        prices: this.state.prices
+        // prices: this.state.prices
+        prices: false // Remove this line to make prices work
       })
 
       if (res.data) {

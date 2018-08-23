@@ -39,9 +39,6 @@ module.exports = new Route({
       'data.prediction': {
         '$ne': null
       },
-      'data.sale': {
-        '$ne': null
-      },
       'period': {
         '$in': periodsIds
       }
@@ -59,12 +56,6 @@ module.exports = new Route({
 
     let matchPreviousSale = {
       'dataset': dataset.project.mainDataset,
-      'data.adjustment': {
-        '$ne': null
-      },
-      'data.prediction': {
-        '$ne': null
-      },
       'data.sale': {
         '$ne': null
       },
@@ -97,11 +88,11 @@ module.exports = new Route({
     }
 
     const permissions = [
-      'manager-level-1' ,
+      'manager-level-1',
       'manager-level-2',
       'manager-level-3',
-      'consultor-level-2' ,
-      'consultor-level-3' 
+      'consultor-level-2',
+      'consultor-level-3'
     ]
     if (permissions.includes(currentRole.slug) && catalogItemsFilters.length === 0) {
       let catalogItems = await CatalogItem.filterByUserRole(
@@ -114,8 +105,7 @@ module.exports = new Route({
 
     let conditions = []
     let group = []
-    // if (data.prices) {
-    if (true === false) {
+    if (data.prices) {
       conditions = [
         {
           '$lookup': {
@@ -128,20 +118,6 @@ module.exports = new Route({
         {
           '$unwind': {
             'path': '$prices'
-          }
-        },
-        {
-          '$addFields': {
-            'catalogsSize': {
-              '$size': '$prices.catalogItems'
-            }
-          }
-        },
-        {
-          '$match': {
-            'catalogsSize': {
-              '$gte': 1.0
-            }
           }
         },
         {
@@ -163,30 +139,15 @@ module.exports = new Route({
       group = [
         {
           '$group': {
-            '_id': '$period.period',
+            '_id': { 'period': '$period', 'product': '$newProduct' },
             'prediction': {
-              '$sum': {
-                '$multiply': [
-                  '$data.prediction',
-                  '$prices.price'
-                ]
-              }
+              '$sum': '$data.prediction'
             },
             'adjustment': {
-              '$sum': {
-                '$multiply': [
-                  '$data.adjustment',
-                  '$prices.price'
-                ]
-              }
+              '$sum': '$data.adjustment'
             },
             'sale': {
-              '$sum': {
-                '$multiply': [
-                  '$data.sale',
-                  '$prices.price'
-                ]
-              }
+              '$sum': '$data.sale'
             }
           }
         }
@@ -195,7 +156,7 @@ module.exports = new Route({
       group = [
         {
           '$group': {
-            '_id': '$period.period',
+            '_id': '$period',
             'prediction': {
               '$sum': '$data.prediction'
             },
@@ -214,30 +175,7 @@ module.exports = new Route({
       {
         '$match': match
       },
-      {
-        '$lookup': {
-          'from': 'catalogitems',
-          'localField': 'newProduct',
-          'foreignField': '_id',
-          'as': 'products'
-        }
-      },
-      {
-        '$unwind': {
-          'path': '$products',
-          'includeArrayIndex': 'arrayIndex',
-          'preserveNullAndEmptyArrays': false
-        }
-      },
       ...conditions,
-      {
-        '$lookup': {
-          'from': 'periods',
-          'localField': 'period',
-          'foreignField': '_id',
-          'as': 'period'
-        }
-      },
       ...group,
       {
         '$project': {
@@ -257,30 +195,7 @@ module.exports = new Route({
       {
         '$match': matchPreviousSale
       },
-      {
-        '$lookup': {
-          'from': 'catalogitems',
-          'localField': 'newProduct',
-          'foreignField': '_id',
-          'as': 'products'
-        }
-      },
-      {
-        '$unwind': {
-          'path': '$products',
-          'includeArrayIndex': 'arrayIndex',
-          'preserveNullAndEmptyArrays': false
-        }
-      },
       ...conditions,
-      {
-        '$lookup': {
-          'from': 'periods',
-          'localField': 'period',
-          'foreignField': '_id',
-          'as': 'period'
-        }
-      },
       ...group,
       {
         '$project': {
@@ -299,6 +214,26 @@ module.exports = new Route({
 
     const res = await DataSetRow.aggregate(statement)
     const previous = await DataSetRow.aggregate(previousStatement)
+
+    for (let r of res) {
+      let period = periods.find(item => {
+        return String(item._id) === String(r.period)
+      })
+
+      if (period) {
+        r.period = [period.period]
+      }
+    }
+
+    for (let p of previous) {
+      let period = previousPeriods.find(item => {
+        return String(item._id) === String(p.period)
+      })
+
+      if (period) {
+        p.period = [period.period]
+      }
+    }
 
     ctx.body = {
       data: res,
