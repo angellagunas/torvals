@@ -235,9 +235,6 @@ module.exports = new Route({
       }
     }
 
-    console.log(res)
-    console.log(previous)
-
     ctx.body = {
       data: res,
       previous: previous
