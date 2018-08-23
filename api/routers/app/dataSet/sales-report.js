@@ -85,6 +85,7 @@ module.exports = new Route({
         user
       )
       match['catalogItems'] = { '$all': catalogItems }
+      matchPreviousSale['catalogItems'] = { '$all': catalogItems }
     }
 
     const permissions = [
@@ -101,6 +102,7 @@ module.exports = new Route({
           user
         )
       match['catalogItems'] = { '$in': catalogItems }
+      matchPreviousSale['catalogItems'] = { '$in': catalogItems }
     }
 
     let conditions = []
