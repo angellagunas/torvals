@@ -53,55 +53,39 @@ module.exports = new Route({
       }
       const catalogItem = await CatalogItem.findOne({
         uuid: data[filter]
-      })
-      catalogItems.push(catalogItem._id)
+      }).populate('catalog')
+      catalogItems.push(catalogItem)
 
     }
     filters['catalogItems'] = {
-      '$all': catalogItems
+      '$all': catalogItems.map((item) => item._id)
     }
 
-    let rows = await DataSetRow.find({
+    const rows = await DataSetRow.find({
       dataset: project.activeDataset._id,
       isDeleted: false,
       ...filters
-    })
+    }).populate('newProduct')
 
     let rowsCsv = ''
     let names = []
-
-    for (let head of project.mainDataset.columns) {
-      rowsCsv += head.name + ','
-      names.push(head.name)
+    let rowBeginning = ''
+    for (let item of catalogItems) {
+      names.push(`"${item.catalog.slug}_id"`, `"${item.catalog.slug}_name"`)
+      rowBeginning += `"${item.externalId}","${item.name}",`
     }
+    names.push('"producto_id"', '"producto_name"', '"fecha"', '"prediccion"', '"ajuste"')
 
-    rowsCsv = rowsCsv.substring(0, rowsCsv.length - 1) + '\r\n'
+    rowsCsv = `${names.join()}\r\n`
 
     for (let row of rows) {
-      let rowsString = ''
+      let rowsString = rowBeginning
 
-      for (let col of names) {
-        var predictionColumn = project.mainDataset.getPredictionColumn() || {name: ''}
-        var adjustmentColumn = project.mainDataset.getAdjustmentColumn() || {name: ''}
+      rowsString += `"${row.newProduct.externalId}","${row.newProduct.name}",`
 
-        if (col === adjustmentColumn.name) {
-          rowsString += row.data.adjustment + ','
-          continue
-        }
+      rowsString += `"${moment.utc(row.data.forecastDate, 'YYYY-MM-DD').format("YYYY-MM-DD")}",`
 
-        if (col === predictionColumn.name) {
-          rowsString += row.data.prediction + ','
-          continue
-        }
-
-        if (row.apiData[col]) {
-          rowsString += row.apiData[col] + ','
-        } else {
-          rowsString += ','
-        }
-      }
-
-      rowsString = rowsString.substring(0, rowsString.length - 1) + '\r\n'
+      rowsString += `"${row.data.prediction}","${row.data.adjustment}"\r\n`
 
       rowsCsv += rowsString
     }

@@ -60,7 +60,7 @@ class TabAdjustment extends Component {
       errorMessage: '',
       showAdjusted: true,
       showNotAdjusted: true,
-      prices: true,
+      prices: false, // Default is true when working.
       totalPrevSale: 0,
       filteredData: [],
       prevData: []
@@ -858,7 +858,8 @@ class TabAdjustment extends Component {
       let res = await api.post(url, {
         ...this.state.formData,
         cycle: cycle.uuid,
-        prices: this.state.prices
+        // prices: this.state.prices
+        prices: false // Remove this line to make prices work
       })
 
       if (res.data) {
@@ -1295,7 +1296,6 @@ class TabAdjustment extends Component {
     let labelCallback = this.getCallback()
     let tooltipCallback = this.getTooltipCallback()
 
-
     return (
       <div>
         {banner}
@@ -1373,10 +1373,10 @@ class TabAdjustment extends Component {
               <img src='/app/public/img/grafica.png'
               className={this.state.indicators === 'indicators-hide' ?
               '' : 'disapear'}/>
-              <a className='collapse-btn' onClick={this.toggleIndicators}>
-                <span className='icon is-large'>
-                  <i className={this.state.indicators === 'indicators-show' ? 'fa fa-2x fa-caret-up' : 'fa fa-2x fa-caret-down'}></i>
-                </span>
+              <a className='collapse-btn' onClick={this.toggleIndicators}>  
+                <span className='icon is-large'>  
+                  <i className={this.state.indicators === 'indicators-show' ? 'fa fa-2x fa-caret-up' : 'fa fa-2x fa-caret-down'}></i> 
+                </span> 
               </a>
             </div>
           </div>
@@ -1389,10 +1389,8 @@ class TabAdjustment extends Component {
                 <div className="field">
                   <label className='label'>Mostrar por: </label>
                   <div className='control'>
-
                     <div className="field is-grouped">
                       <div className='control'>
-
                         <input
                           className="is-checkradio is-info is-small"
                           id='showByquantityAd'
@@ -1405,22 +1403,7 @@ class TabAdjustment extends Component {
                           <span title='Cantidad'>Cantidad</span>
                         </label>
                       </div>
-
-                      <div className='control'>
-                        <input
-                          className="is-checkradio is-info is-small"
-                          id='showBypriceAd'
-                          type="radio"
-                          name='showByAd'
-                          checked={this.state.prices}
-                          disabled={this.state.waitingData}
-                          onChange={() => this.showBy(true)} />
-                        <label htmlFor='showBypriceAd'>
-                          <span title='Precio'>Precio</span>
-                        </label>
-                      </div>
                     </div>
-
                   </div>
                 </div>
               </div>
