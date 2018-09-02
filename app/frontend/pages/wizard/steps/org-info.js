@@ -1,103 +1,112 @@
-import React, { Component } from 'react'
-import OrganizationForm from '../../organizations/form'
-import Editable from '~base/components/base-editable'
-import api from '~base/api'
+import React, { Component } from 'react';
+import OrganizationForm from '../../organizations/form';
+import Editable from '~base/components/base-editable';
+import api from '~base/api';
 
 class OrgInfo extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       isLoading: '',
-      org: this.props.org
-    }
+      org: this.props.org,
+    };
   }
-  submitHandler () {
-    this.setState({ isLoading: ' is-loading' })
-  }
-
-  errorHandler () {
-    this.setState({ isLoading: '' })
+  submitHandler() {
+    this.setState({ isLoading: ' is-loading' });
   }
 
-  finishUpHandler () {
-    this.setState({ isLoading: '' })
+  errorHandler() {
+    this.setState({ isLoading: '' });
   }
 
-  async load () {
-    var url = '/app/organizations/' + this.state.org.uuid
+  finishUpHandler() {
+    this.setState({ isLoading: '' });
+  }
+
+  async load() {
+    var url = '/app/organizations/' + this.state.org.uuid;
     try {
-      const body = await api.get(url)
+      const body = await api.get(url);
       this.setState({
-        org: body.data
-      })
+        org: body.data,
+      });
     } catch (e) {
       await this.setState({
-        notFound: true
-      })
+        notFound: true,
+      });
     }
   }
 
-  render () {
+  render() {
     return (
-      <div className='section'>
-
-        {this.state.org &&
-        <div className='columns'>
-          <div className='column is-6'>
-            <h1 className='title is-4'> Bienvenido al asistente de configuración de Orax. </h1>
-            <h2 className='subtitle'> Primero revisa los datos de tu organización.
-            Cuando todo esté correcto da click en guardar y después en continuar.
-          </h2>
-            <OrganizationForm
-              baseUrl='/app/organizations'
-              url={'/app/organizations/' + this.state.org.uuid}
-              initialState={this.state.org}
-              submitHandler={(data) => this.submitHandler(data)}
-              errorHandler={(data) => this.errorHandler(data)}
-              finishUp={(data) => this.finishUpHandler(data)}
-              load={() => { this.load() }}
-            >
-              <div className='field is-grouped'>
-                <div className='control'>
-                  <button
-                    className={'button is-primary ' + this.state.isLoading}
-                    disabled={!!this.state.isLoading}
-                    type='submit'
-                  >Guardar</button>
-                </div>
-              </div>
-            </OrganizationForm>
-          </div>
-          <div className='column is-4 is-offset-1'>
-
-            <div className='card'>
-              <div className='card-image'>
-                <figure className='image is-1by1'>
-                  <img src={this.state.org.profileUrl} />
-                </figure>
-              </div>
-              <div className='card-content'>
-                <div className='media'>
-                  <div className='media-content'>
-                    <p className='title is-4'>{this.state.org.name}</p>
+      <div className="section">
+        {this.state.org && (
+          <div className="columns">
+            <div className="column is-6">
+              <h1 className="title is-4">
+                {' '}
+                Bienvenido al asistente de configuración de Orax.{' '}
+              </h1>
+              <h2 className="subtitle">
+                {' '}
+                Primero revisa los datos de tu organización. Cuando todo esté
+                correcto da click en guardar y después en continuar.
+              </h2>
+              <OrganizationForm
+                baseUrl="/app/organizations"
+                url={'/app/organizations/' + this.state.org.uuid}
+                initialState={this.state.org}
+                submitHandler={data => this.submitHandler(data)}
+                errorHandler={data => this.errorHandler(data)}
+                finishUp={data => this.finishUpHandler(data)}
+                load={() => {
+                  this.load();
+                }}
+              >
+                <div className="field is-grouped">
+                  <div className="control">
+                    <button
+                      className={'button is-primary ' + this.state.isLoading}
+                      disabled={!!this.state.isLoading}
+                      type="submit"
+                    >
+                      Guardar
+                    </button>
                   </div>
                 </div>
+              </OrganizationForm>
+            </div>
+            <div className="column is-4 is-offset-1">
+              <div className="card">
+                <div className="card-image">
+                  <figure className="image is-1by1">
+                    <img src={this.state.org.profileUrl} />
+                  </figure>
+                </div>
+                <div className="card-content">
+                  <div className="media">
+                    <div className="media-content">
+                      <p className="title is-4">{this.state.org.name}</p>
+                    </div>
+                  </div>
 
-                <div className='content'>
-                  {this.state.org.description}
+                  <div className="content">{this.state.org.description}</div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        }
+        )}
         <center>
-          <button onClick={() => this.props.nextStep()} className='button is-primary'>Continuar</button>
+          <button
+            onClick={() => this.props.nextStep()}
+            className="button is-primary"
+          >
+            Continuar
+          </button>
         </center>
       </div>
-    )
+    );
   }
 }
 
-export default OrgInfo
+export default OrgInfo;

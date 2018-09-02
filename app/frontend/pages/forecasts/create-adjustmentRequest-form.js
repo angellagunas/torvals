@@ -1,109 +1,114 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 
-import api from '~base/api'
+import api from '~base/api';
 
-import {
-  BaseForm,
-  TextWidget
-} from '~base/components/base-form'
+import { BaseForm, TextWidget } from '~base/components/base-form';
 
 const schema = {
   type: 'object',
   title: '',
-  required: [
-    'newAdjustment'
-  ],
+  required: ['newAdjustment'],
   properties: {
-    newAdjustment: {type: 'string', title: 'Ajuste'}
-  }
-}
+    newAdjustment: { type: 'string', title: 'Ajuste' },
+  },
+};
 
 const uiSchema = {
-  newAdjustment: {'ui:widget': TextWidget}
-}
+  newAdjustment: { 'ui:widget': TextWidget },
+};
 
 class AdjustmentRequestForm extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
-    }
+      apiCallErrorMessage: 'is-hidden',
+    };
   }
 
-  errorHandler (e) {}
+  errorHandler(e) {}
 
-  changeHandler ({formData}) {
-    formData.newAdjustment = formData.newAdjustment.replace(/[^(\-|\+)?][^0-9.]/g, '')
+  changeHandler({ formData }) {
+    formData.newAdjustment = formData.newAdjustment.replace(
+      /[^(\-|\+)?][^0-9.]/g,
+      ''
+    );
 
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
-    })
+      apiCallErrorMessage: 'is-hidden',
+    });
   }
 
-  clearState () {
+  clearState() {
     this.setState({
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      formData: this.props.initialState
-    })
+      formData: this.props.initialState,
+    });
   }
 
-  async submitHandler ({formData}) {
-    formData.newAdjustment = Number(formData.newAdjustment.replace(/[^(\-|\+)?][^0-9.]/g, ''))
-    if (this.props.submitHandler) this.props.submitHandler(formData)
+  async submitHandler({ formData }) {
+    formData.newAdjustment = Number(
+      formData.newAdjustment.replace(/[^(\-|\+)?][^0-9.]/g, '')
+    );
+    if (this.props.submitHandler) this.props.submitHandler(formData);
     try {
-      let res = await api.post(this.props.url, formData)
-      this.clearState()
-      this.setState({...this.state, apiCallMessage: 'message is-success'})
-      if (this.props.finishUp) this.props.finishUp(res)
-      return
+      let res = await api.post(this.props.url, formData);
+      this.clearState();
+      this.setState({ ...this.state, apiCallMessage: 'message is-success' });
+      if (this.props.finishUp) this.props.finishUp(res);
+      return;
     } catch (e) {
-      if (this.props.errorHandler) this.props.errorHandler(e)
+      if (this.props.errorHandler) this.props.errorHandler(e);
       return this.setState({
         ...this.state,
         error: e.message,
-        apiCallErrorMessage: 'message is-danger'
-      })
+        apiCallErrorMessage: 'message is-danger',
+      });
     }
   }
 
-  render () {
-    var error
+  render() {
+    var error;
     if (this.state.error) {
-      error = <div>
-        Error: {this.state.error}
-      </div>
+      error = <div>Error: {this.state.error}</div>;
     }
 
     return (
       <div>
-        <BaseForm schema={schema}
+        <BaseForm
+          schema={schema}
           uiSchema={uiSchema}
           formData={this.state.formData}
-          onChange={(e) => { this.changeHandler(e) }}
-          onSubmit={(e) => { this.submitHandler(e) }}
-          onError={(e) => { this.errorHandler(e) }}
+          onChange={e => {
+            this.changeHandler(e);
+          }}
+          onSubmit={e => {
+            this.submitHandler(e);
+          }}
+          onError={e => {
+            this.errorHandler(e);
+          }}
         >
           <div className={this.state.apiCallMessage}>
-            <div className='message-body is-size-7 has-text-centered'>
+            <div className="message-body is-size-7 has-text-centered">
               Los datos se han guardado correctamente
             </div>
           </div>
 
           <div className={this.state.apiCallErrorMessage}>
-            <div className='message-body is-size-7 has-text-centered'>
+            <div className="message-body is-size-7 has-text-centered">
               {error}
             </div>
           </div>
           {this.props.children}
         </BaseForm>
       </div>
-    )
+    );
   }
 }
 
-export default AdjustmentRequestForm
+export default AdjustmentRequestForm;

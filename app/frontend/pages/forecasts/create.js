@@ -1,40 +1,54 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 
-import BaseModal from '~base/components/base-modal'
-import ForecastForm from './create-form'
+import BaseModal from '~base/components/base-modal';
+import ForecastForm from './create-form';
 
 var initialState = {
   dateStart: '',
-  dateEnd: ''
-}
+  dateEnd: '',
+};
 
 class CreateForecast extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
-      submit: false
-    }
+      submit: false,
+    };
   }
-  submitOnClick () {
-    this.setState({submit: true})
+  submitOnClick() {
+    this.setState({ submit: true });
 
-    setTimeout(() => { this.setState({submit: false}) }, 100)
+    setTimeout(() => {
+      this.setState({ submit: false });
+    }, 100);
   }
 
-  render () {
+  render() {
     let footer = (
-      <div className='field is-grouped'>
-        <div className='control'>
-          <button className='button is-primary' type='submit' onClick={() => this.submitOnClick()}>Crear</button>
+      <div className="field is-grouped">
+        <div className="control">
+          <button
+            className="button is-primary"
+            type="submit"
+            onClick={() => this.submitOnClick()}
+          >
+            Crear
+          </button>
         </div>
-        <div className='control'>
-          <button className='button' onClick={this.props.hideModal} type='button'>Cancelar</button>
+        <div className="control">
+          <button
+            className="button"
+            onClick={this.props.hideModal}
+            type="button"
+          >
+            Cancelar
+          </button>
         </div>
       </div>
-    )
+    );
     return (
       <BaseModal
-        title='Crear Forecast'
+        title="Crear Forecast"
         className={this.props.className}
         hideModal={this.props.hideModal}
         hasFooter
@@ -49,8 +63,8 @@ class CreateForecast extends Component {
           project={this.props.project}
         />
       </BaseModal>
-    )
+    );
   }
 }
 
-export default CreateForecast
+export default CreateForecast;

@@ -1,121 +1,134 @@
-import React, { Component } from 'react'
-import StickTable from '~base/components/stick-table'
-import Checkbox from '~base/components/base-checkbox'
-import Loader from '~base/components/spinner'
-import classNames from 'classnames'
-import moment from 'moment'
+import React, { Component } from 'react';
+import StickTable from '~base/components/stick-table';
+import Checkbox from '~base/components/base-checkbox';
+import Loader from '~base/components/spinner';
+import classNames from 'classnames';
+import moment from 'moment';
 
 class WeekTable extends Component {
-  constructor(props){
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       filteredDataByWeek: [],
       selectedAll: false,
       data: this.props.data,
       sortBy: 'prediction_0',
-      sortAscending: false
-    }
-    this.inputs = new Set()
-    this.lastRow = null
+      sortAscending: false,
+    };
+    this.inputs = new Set();
+    this.lastRow = null;
 
+    this.canEdit = true;
 
-    this.canEdit = true
-
-    if (this.props.currentRole === 'consultor-level-3' ||
+    if (
+      this.props.currentRole === 'consultor-level-3' ||
       this.props.currentRole === 'consultor-level-2' ||
-      this.props.generalAdjustment === 0) {
-      this.canEdit = false
+      this.props.generalAdjustment === 0
+    ) {
+      this.canEdit = false;
     }
   }
 
-  setRange () {
-    let range
+  setRange() {
+    let range;
     if (this.props.generalAdjustment < 0) {
-      range = 'Ilimitado'
+      range = 'Ilimitado';
     } else if (this.props.generalAdjustment === 0) {
-      range = 'N/A'
+      range = 'N/A';
     } else {
-      range = this.props.generalAdjustment * 100 + ' %'
+      range = this.props.generalAdjustment * 100 + ' %';
     }
 
     this.setState({
-      range: range
-    })
+      range: range,
+    });
   }
 
-  splitWords (words){
+  splitWords(words) {
     return words.split('_').map((item, key) => {
-      return <p key={key}>{item}</p>
-    })
+      return <p key={key}>{item}</p>;
+    });
   }
 
   checkAll = () => {
-    let selected = new Set()
+    let selected = new Set();
     for (let row of this.state.filteredDataByWeek) {
       for (const week of row.weeks) {
         if (this.state.selectedAll) {
-          selected.delete(week)
-          week.selected = false
-        }
-        else {
-          week.selected = true
-          selected.add(week)
+          selected.delete(week);
+          week.selected = false;
+        } else {
+          week.selected = true;
+          selected.add(week);
         }
       }
-      row.selected = !this.state.selectedAll
+      row.selected = !this.state.selectedAll;
     }
 
-    this.props.checkAll(selected)
+    this.props.checkAll(selected);
 
     this.setState({
-      selectedAll: !this.state.selectedAll
-    })
+      selectedAll: !this.state.selectedAll,
+    });
 
-    this.getEdited()
-  }
+    this.getEdited();
+  };
 
-  toggleCheckbox = (row) => {
+  toggleCheckbox = row => {
     for (const week of row.weeks) {
-      this.props.toggleCheckbox(week, !week.selected)
+      this.props.toggleCheckbox(week, !week.selected);
     }
-    row.selected = !row.selected
+    row.selected = !row.selected;
 
-    this.getEdited()
-  }
+    this.getEdited();
+  };
 
-  getEdited () {
-    let aux = this.state.filteredDataByWeek
-    aux.map((row) => {
+  getEdited() {
+    let aux = this.state.filteredDataByWeek;
+    aux.map(row => {
       for (const week of row.weeks) {
         if (week.edited) {
-          row.edited = true
+          row.edited = true;
         }
-        if(week.wasEdited){
-          row.wasEdited = true
+        if (week.wasEdited) {
+          row.wasEdited = true;
         }
       }
-    })
+    });
 
     this.setState({
-      filteredDataByWeek: aux
-    })
+      filteredDataByWeek: aux,
+    });
   }
 
   getBtns() {
     return (
-      <div className='field has-addons view-btns'>
-        <span className='control'>
-          <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info btn-lvl-3' : 'button is-info'}>
+      <div className="field has-addons view-btns">
+        <span className="control">
+          <a
+            className={
+              this.props.currentRole === 'consultor-level-3'
+                ? 'button is-info btn-lvl-3'
+                : 'button is-info'
+            }
+          >
             Vista Periodo
           </a>
         </span>
-        <span className='control'>
-          <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
+        <span className="control">
+          <a
+            className={
+              this.props.currentRole === 'consultor-level-3'
+                ? 'button is-info is-outlined btn-lvl-3'
+                : 'button is-info is-outlined'
+            }
+            onClick={this.props.show}
+          >
             Vista Producto
           </a>
         </span>
       </div>
-    )
+    );
   }
 
   getColumnsByWeek() {
@@ -126,12 +139,13 @@ class WeekTable extends Component {
           if (this.canEdit) {
             return (
               <Checkbox
-                label='checkAll'
+                label="checkAll"
                 handleCheckboxChange={this.checkAll}
-                key='checkAll'
+                key="checkAll"
                 checked={this.props.selectedAll}
-                hideLabel />
-            )
+                hideLabel
+              />
+            );
           }
         })(),
         groupClassName: 'col-border-left colspan is-paddingless',
@@ -139,10 +153,10 @@ class WeekTable extends Component {
         className: 'col-border-left',
         property: 'checkbox',
         default: '',
-        formatter: (row) => {
+        formatter: row => {
           if (this.canEdit) {
             if (!row.selected) {
-              row.selected = false
+              row.selected = false;
             }
             return (
               <Checkbox
@@ -150,10 +164,11 @@ class WeekTable extends Component {
                 handleCheckboxChange={this.toggleCheckbox}
                 key={row}
                 checked={row.selected}
-                hideLabel />
-            )
+                hideLabel
+              />
+            );
           }
-        }
+        },
       },
       {
         group: ' ',
@@ -163,11 +178,11 @@ class WeekTable extends Component {
         sortable: true,
         headerClassName: 'has-text-centered table-product-head id',
         className: 'id',
-        formatter: (row) => {
+        formatter: row => {
           if (row.weeks[0].productId) {
-            return row.weeks[0].productId
+            return row.weeks[0].productId;
           }
-        }
+        },
       },
       {
         group: ' ',
@@ -178,68 +193,84 @@ class WeekTable extends Component {
         groupClassName: 'table-week',
         headerClassName: 'table-product table-product-head',
         className: 'table-product productName',
-        formatter: (row) => {
-          let product = 'N/A'
+        formatter: row => {
+          let product = 'N/A';
           if (row.product) {
-            product = row.product
+            product = row.product;
           }
           if (product === 'Not identified') {
-            product = 'No identificado'
+            product = 'No identificado';
           }
-          return product
-        }
+          return product;
+        },
       },
       {
         group: ' ',
-        title: <span
-                className='icon'
-                title={`¡Hay ${this.props.adjustmentRequestCount} productos fuera de rango!`}
-                onClick={() => {
-                  this.props.handleAllAdjustmentRequest()
-                }}
-              >
-                <i className='fa fa-exclamation fa-lg' />
-               </span>,
+        title: (
+          <span
+            className="icon"
+            title={`¡Hay ${
+              this.props.adjustmentRequestCount
+            } productos fuera de rango!`}
+            onClick={() => {
+              this.props.handleAllAdjustmentRequest();
+            }}
+          >
+            <i className="fa fa-exclamation fa-lg" />
+          </span>
+        ),
         groupClassName: 'table-product table-week table-product-shadow',
-        headerClassName: 'table-product table-product-head table-product-head-bord table-product-shadow',
+        headerClassName:
+          'table-product table-product-head table-product-head-bord table-product-shadow',
         className: 'table-product table-product-shadow',
-        formatter: (row) => {
-          return this.getLimit(row)
-        }
-      }
-    ].concat(this.getWeekCols())
+        formatter: row => {
+          return this.getLimit(row);
+        },
+      },
+    ].concat(this.getWeekCols());
   }
 
-  getWeekCols(){
-    let data = this.state.filteredDataByWeek
-    let cols = []
-    let maxWeeks = data.map(item => {return item.weeks.length})
-    maxWeeks = maxWeeks.sort((a,b) => {return b-a})
+  getWeekCols() {
+    let data = this.state.filteredDataByWeek;
+    let cols = [];
+    let maxWeeks = data.map(item => {
+      return item.weeks.length;
+    });
+    maxWeeks = maxWeeks.sort((a, b) => {
+      return b - a;
+    });
 
     let periods = _(this.props.data)
       .groupBy(x => x.period.period)
       .map((value, key) => ({ period: key, products: value }))
-      .value()
+      .value();
 
-
-    for (let j = 0; j < periods.length; j++){
-      let period = periods[j].period
-      let title = ' '
-      let classP = ''
-      if (moment.utc(periods[j].products[0].period.dateStart).format('MMM D') === 
-          moment.utc(periods[j].products[0].period.dateEnd).format('MMM D')){
-          title += moment.utc(periods[j].products[0].period.dateStart).format('MMM D')
-          classP = 'single'
-        }
-        else{
-        title += moment.utc(periods[j].products[0].period.dateStart).format('MMM D')
-          + ' - ' + moment.utc(periods[j].products[0].period.dateEnd).format('MMM D')
-        }
+    for (let j = 0; j < periods.length; j++) {
+      let period = periods[j].period;
+      let title = ' ';
+      let classP = '';
+      if (
+        moment.utc(periods[j].products[0].period.dateStart).format('MMM D') ===
+        moment.utc(periods[j].products[0].period.dateEnd).format('MMM D')
+      ) {
+        title += moment
+          .utc(periods[j].products[0].period.dateStart)
+          .format('MMM D');
+        classP = 'single';
+      } else {
+        title +=
+          moment.utc(periods[j].products[0].period.dateStart).format('MMM D') +
+          ' - ' +
+          moment.utc(periods[j].products[0].period.dateEnd).format('MMM D');
+      }
       cols.push(
         {
-          group: <strong className={classP}>{this.splitWords('Periodo '   
-          + title
-            + '_Ajuste permitido ')}<span className='has-text-info'>{this.state.range}</span></strong>,
+          group: (
+            <strong className={classP}>
+              {this.splitWords('Periodo ' + title + '_Ajuste permitido ')}
+              <span className="has-text-info">{this.state.range}</span>
+            </strong>
+          ),
           title: 'Predicción',
           property: 'prediction_' + j,
           default: '',
@@ -247,13 +278,13 @@ class WeekTable extends Component {
           groupClassName: 'colspan table-week text',
           className: 'table-cell',
           headerClassName: 'table-head',
-          formatter: (row) => {
+          formatter: row => {
             if (row.weeks[j]) {
               if (row.weeks[j].prediction) {
-                return row.weeks[j].prediction
-             }
-           }
-         }
+                return row.weeks[j].prediction;
+              }
+            }
+          },
         },
         {
           group: ' ',
@@ -264,59 +295,67 @@ class WeekTable extends Component {
           groupClassName: 'table-week',
           headerClassName: 'table-head',
           className: 'table-cell',
-          formatter: (row) => {
+          formatter: row => {
             if (row.weeks[j]) {
               if (row.weeks[j].lastAdjustment) {
-                return row.weeks[j].lastAdjustment
-              }else{
-                return row.weeks[j].prediction
+                return row.weeks[j].lastAdjustment;
+              } else {
+                return row.weeks[j].prediction;
               }
             } else {
-              return ''
+              return '';
             }
-          }
+          },
         },
         {
           group: ' ',
-           title: 'Ajuste',
-           property: 'adjustmentForDisplay_' + j,
-           default: '',
-           sortable: true,
-           groupClassName: 'table-week',
-           headerClassName: 'table-head',
-           className: 'table-cell',
-           formatter: (row) => {
-             if (row.weeks[j] && row.weeks[j].prediction) {
-             if (!row.weeks[j].adjustmentForDisplay) {
-               row.weeks[j].adjustmentForDisplay = ''
-             }
-
-             row.tabin = row.key * 10 + j
-             row.weeks[j].tabin = row.key * 10 + j
-             if (this.canEdit) {
-               return (
-                 <input
-                   type='text'
-                   className='input'
-                   value={row.weeks[j].adjustmentForDisplay}
-                   onBlur={(e) => { this.onBlur(e, row.weeks[j], row) }}
-                   onKeyDown={(e) => { this.onEnter(e, row.weeks[j]) }}
-                   onChange={(e) => { this.onChange(e, row.weeks[j])}}
-                   onFocus={(e) => { this.onFocus(e, row.weeks[j], row) }}
-                   tabIndex={row.tabin}
-                   placeholder='0'
-                   ref={(el) => { this.inputs.add({ tabin: row.weeks[j].tabin, el: el }) }}
-                 />
-               )
-              }else{
-                return <span>{row.weeks[j].adjustmentForDisplay}</span>
+          title: 'Ajuste',
+          property: 'adjustmentForDisplay_' + j,
+          default: '',
+          sortable: true,
+          groupClassName: 'table-week',
+          headerClassName: 'table-head',
+          className: 'table-cell',
+          formatter: row => {
+            if (row.weeks[j] && row.weeks[j].prediction) {
+              if (!row.weeks[j].adjustmentForDisplay) {
+                row.weeks[j].adjustmentForDisplay = '';
               }
-            }
-             else {
-               return ''
-             }
-          }
 
+              row.tabin = row.key * 10 + j;
+              row.weeks[j].tabin = row.key * 10 + j;
+              if (this.canEdit) {
+                return (
+                  <input
+                    type="text"
+                    className="input"
+                    value={row.weeks[j].adjustmentForDisplay}
+                    onBlur={e => {
+                      this.onBlur(e, row.weeks[j], row);
+                    }}
+                    onKeyDown={e => {
+                      this.onEnter(e, row.weeks[j]);
+                    }}
+                    onChange={e => {
+                      this.onChange(e, row.weeks[j]);
+                    }}
+                    onFocus={e => {
+                      this.onFocus(e, row.weeks[j], row);
+                    }}
+                    tabIndex={row.tabin}
+                    placeholder="0"
+                    ref={el => {
+                      this.inputs.add({ tabin: row.weeks[j].tabin, el: el });
+                    }}
+                  />
+                );
+              } else {
+                return <span>{row.weeks[j].adjustmentForDisplay}</span>;
+              }
+            } else {
+              return '';
+            }
+          },
         },
         {
           group: ' ',
@@ -327,303 +366,366 @@ class WeekTable extends Component {
           headerClassName: 'col-border table-head',
           groupClassName: 'table-week table-week-r',
           className: 'col-border table-cell',
-          formatter: (row) => {
-            if (row.weeks[j] && row.weeks[j].prediction){
-              let percentage
-              if(row.weeks[j].lastAdjustment){
-                percentage = (
-                  ((row.weeks[j].adjustmentForDisplay - row.weeks[j].lastAdjustment) / row.weeks[j].lastAdjustment) * 100
-                )
-              }else{
-                percentage = (
-                  ((row.weeks[j].adjustmentForDisplay - row.weeks[j].prediction) / row.weeks[j].prediction) * 100
-                )
+          formatter: row => {
+            if (row.weeks[j] && row.weeks[j].prediction) {
+              let percentage;
+              if (row.weeks[j].lastAdjustment) {
+                percentage =
+                  ((row.weeks[j].adjustmentForDisplay -
+                    row.weeks[j].lastAdjustment) /
+                    row.weeks[j].lastAdjustment) *
+                  100;
+              } else {
+                percentage =
+                  ((row.weeks[j].adjustmentForDisplay -
+                    row.weeks[j].prediction) /
+                    row.weeks[j].prediction) *
+                  100;
               }
 
-              if(isNaN(percentage) || !isFinite(percentage))
-                percentage = 0
-              row.weeks[j].percentage = percentage
+              if (isNaN(percentage) || !isFinite(percentage)) percentage = 0;
+              row.weeks[j].percentage = percentage;
               let status = classNames('has-text-weight-bold', {
-                'has-text-success': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'approved',
-                'has-text-warning': row.weeks[j].isLimit && row.weeks[j].adjustmentRequest && row.weeks[j].adjustmentRequest.status === 'created',
-                'has-text-danger': row.weeks[j].isLimit && ((!row.weeks[j].adjustmentRequest || row.weeks[j].adjustmentRequest.status === 'rejected')
-                                                             || this.props.currentRole === 'manager-level-2' )
-              })
-              return <span className={status}>{Math.round(percentage) + ' %'}</span>
-
+                'has-text-success':
+                  row.weeks[j].isLimit &&
+                  row.weeks[j].adjustmentRequest &&
+                  row.weeks[j].adjustmentRequest.status === 'approved',
+                'has-text-warning':
+                  row.weeks[j].isLimit &&
+                  row.weeks[j].adjustmentRequest &&
+                  row.weeks[j].adjustmentRequest.status === 'created',
+                'has-text-danger':
+                  row.weeks[j].isLimit &&
+                  (!row.weeks[j].adjustmentRequest ||
+                    row.weeks[j].adjustmentRequest.status === 'rejected' ||
+                    this.props.currentRole === 'manager-level-2'),
+              });
+              return (
+                <span className={status}>{Math.round(percentage) + ' %'}</span>
+              );
             } else {
-              return ''
+              return '';
             }
-          }
+          },
         }
-      )
+      );
     }
 
-    return cols
+    return cols;
   }
 
   changeCell = (row, direction) => {
-    let edit = Array.from(this.inputs).find(e => e.tabin === row.tabin + 10 * direction)
+    let edit = Array.from(this.inputs).find(
+      e => e.tabin === row.tabin + 10 * direction
+    );
 
     if (edit) {
-      edit.el.focus()
+      edit.el.focus();
     }
-  }
+  };
 
   onFocus(e, week, row) {
-    week.original = week.adjustmentForDisplay
+    week.original = week.adjustmentForDisplay;
 
-    e.target.select()
+    e.target.select();
   }
 
   onEnter = async (e, row) => {
-    let value = e.target.value
+    let value = e.target.value;
 
     if (e.target.type === 'number') {
-      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
+      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''));
     }
 
     if ((e.keyCode === 13 || e.which === 13) && !e.shiftKey) {
-      this.changeCell(row, 1)
+      this.changeCell(row, 1);
+    } else if ((e.keyCode === 13 || e.which === 13) && e.shiftKey) {
+      this.changeCell(row, -1);
     }
-    else if ((e.keyCode === 13 || e.which === 13) && e.shiftKey) {
-      this.changeCell(row, -1)
-    }
-  }
+  };
 
   onBlur = async (e, week, row) => {
-    let value = e.target.value
+    let value = e.target.value;
     if (e.target.type === 'number') {
-      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
+      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''));
     }
-    if (value === '' && week.original !== ''){
-        week.adjustmentForDisplay = week.original
-        let aux = this.state.filteredDataByWeek
-
-        this.setState({
-          filteredDataByWeek: aux
-        })
-
-        return
-      }
-      if(Number(week.original) !== Number(value)) {
-        row.edited = true
-        let res = await this.props.changeAdjustment(value, week)
-        if (!res) {
-          row.edited = false
-
-          week.adjustmentForDisplay = week.original
-
-          let aux = this.state.filteredDataByWeek
-
-          this.setState({
-            filteredDataByWeek: aux
-          })
-        }
-      }
-
-  }
-
-  onChange = (e, row) => {
-    if(e.target.value.length <= 7){
-      row.adjustmentForDisplay = Number(e.target.value)
-      let aux = this.state.filteredDataByWeek
+    if (value === '' && week.original !== '') {
+      week.adjustmentForDisplay = week.original;
+      let aux = this.state.filteredDataByWeek;
 
       this.setState({
-        filteredDataByWeek: aux
-      })
+        filteredDataByWeek: aux,
+      });
+
+      return;
     }
-  }
+    if (Number(week.original) !== Number(value)) {
+      row.edited = true;
+      let res = await this.props.changeAdjustment(value, week);
+      if (!res) {
+        row.edited = false;
+
+        week.adjustmentForDisplay = week.original;
+
+        let aux = this.state.filteredDataByWeek;
+
+        this.setState({
+          filteredDataByWeek: aux,
+        });
+      }
+    }
+  };
+
+  onChange = (e, row) => {
+    if (e.target.value.length <= 7) {
+      row.adjustmentForDisplay = Number(e.target.value);
+      let aux = this.state.filteredDataByWeek;
+
+      this.setState({
+        filteredDataByWeek: aux,
+      });
+    }
+  };
 
   filterData = async () => {
-    if(!this.state.data)
-      return
+    if (!this.state.data) return;
 
-      await this.setState({
-        filteredDataByWeek: []
-      })
+    await this.setState({
+      filteredDataByWeek: [],
+    });
 
-    let data = this.state.data.slice(0)
-    let rw = []
+    let data = this.state.data.slice(0);
+    let rw = [];
     for (let index = 0; index < data.length; index++) {
       const element = data[index];
-      let catItems = element.catalogItems.map(item => {return item.uuid})
-        .reduce((item, last) => {return last + ',' + item})
+      let catItems = element.catalogItems
+        .map(item => {
+          return item.uuid;
+        })
+        .reduce((item, last) => {
+          return last + ',' + item;
+        });
 
-      let find = rw.indexOf(element.productId + ' (' + catItems + ')')
+      let find = rw.indexOf(element.productId + ' (' + catItems + ')');
       if (find === -1) {
-        rw.push(element.productId + ' (' + catItems + ')')
+        rw.push(element.productId + ' (' + catItems + ')');
       }
     }
 
-    rw = rw.map((item) => {
-      let weeks = _.orderBy(data.filter((element, index) => {
-        let catItems = element.catalogItems.map(item => {return item.uuid})
-          .reduce((item, last) => {return last + ',' + item})
-          
-          return element.productId + ' (' + catItems + ')' === item
-        }), function (e) { return e.period.period }, ['asc'])
+    rw = rw.map(item => {
+      let weeks = _.orderBy(
+        data.filter((element, index) => {
+          let catItems = element.catalogItems
+            .map(item => {
+              return item.uuid;
+            })
+            .reduce((item, last) => {
+              return last + ',' + item;
+            });
 
-      let product = weeks[0].productName
+          return element.productId + ' (' + catItems + ')' === item;
+        }),
+        function(e) {
+          return e.period.period;
+        },
+        ['asc']
+      );
+
+      let product = weeks[0].productName;
       return {
         product,
-        weeks
-      }
-    })
+        weeks,
+      };
+    });
 
     await this.setState({
-      filteredDataByWeek: rw
-    })
-    this.getEdited()
-    this.setState({
-      sortAscending: false
-    }, () => {this.handleSortByWeek(this.state.sortBy)})
-  }
+      filteredDataByWeek: rw,
+    });
+    this.getEdited();
+    this.setState(
+      {
+        sortAscending: false,
+      },
+      () => {
+        this.handleSortByWeek(this.state.sortBy);
+      }
+    );
+  };
 
   handleSortByWeek(e) {
-    let sorted = this.state.filteredDataByWeek
+    let sorted = this.state.filteredDataByWeek;
 
     if (e === 'productId') {
       if (this.state.sortAscending) {
-        sorted.sort((a, b) => { return parseFloat(a.weeks[0].productId) - parseFloat(b.weeks[0].productId) })
+        sorted.sort((a, b) => {
+          return (
+            parseFloat(a.weeks[0].productId) - parseFloat(b.weeks[0].productId)
+          );
+        });
+      } else {
+        sorted.sort((a, b) => {
+          return (
+            parseFloat(b.weeks[0].productId) - parseFloat(a.weeks[0].productId)
+          );
+        });
       }
-      else {
-        sorted.sort((a, b) => { return parseFloat(b.weeks[0].productId) - parseFloat(a.weeks[0].productId) })
-      }
-    }
-    else if(e.indexOf('_') !== -1){
-      let sort = e.split('_')
+    } else if (e.indexOf('_') !== -1) {
+      let sort = e.split('_');
       if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, function (e) { 
-          if (e.weeks[parseInt(sort[1])]){
-            return e.weeks[parseInt(sort[1])][sort[0]] 
-          }
-          else{
-            return 0
-          }
-        }, ['asc'])
+        sorted = _.orderBy(
+          sorted,
+          function(e) {
+            if (e.weeks[parseInt(sort[1])]) {
+              return e.weeks[parseInt(sort[1])][sort[0]];
+            } else {
+              return 0;
+            }
+          },
+          ['asc']
+        );
+      } else {
+        sorted = _.orderBy(
+          sorted,
+          function(e) {
+            if (e.weeks[parseInt(sort[1])]) {
+              return e.weeks[parseInt(sort[1])][sort[0]];
+            } else {
+              return 0;
+            }
+          },
+          ['desc']
+        );
       }
-      else {
-        sorted = _.orderBy(sorted, function (e) { 
-          if (e.weeks[parseInt(sort[1])]) {
-            return e.weeks[parseInt(sort[1])][sort[0]]
-          }
-          else {
-            return 0
-          } 
-        }, ['desc'])
-      }
-    }
-    else {
+    } else {
       if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, [e], ['asc'])
-      }
-      else {
-        sorted = _.orderBy(sorted, [e], ['desc'])
+        sorted = _.orderBy(sorted, [e], ['asc']);
+      } else {
+        sorted = _.orderBy(sorted, [e], ['desc']);
       }
     }
 
     this.setState({
       filteredDataByWeek: sorted,
       sortAscending: !this.state.sortAscending,
-      sortBy: e
-    })
+      sortBy: e,
+    });
   }
 
-  getLimit (row){
-    let limit = ''
+  getLimit(row) {
+    let limit = '';
 
     for (const product of row.weeks) {
-      if (product.isLimit && product.adjustmentRequest && product.adjustmentRequest.status === 'approved') {
-        limit =
-          <span
-            className='icon has-text-success'
-            title='Ajustes aprobados'>
-            <i className='fa fa-check fa-lg' />
+      if (
+        product.isLimit &&
+        product.adjustmentRequest &&
+        product.adjustmentRequest.status === 'approved'
+      ) {
+        limit = (
+          <span className="icon has-text-success" title="Ajustes aprobados">
+            <i className="fa fa-check fa-lg" />
           </span>
+        );
       }
 
-      if (product.isLimit && product.adjustmentRequest && product.adjustmentRequest.status === 'created') {
-        limit =
+      if (
+        product.isLimit &&
+        product.adjustmentRequest &&
+        product.adjustmentRequest.status === 'created'
+      ) {
+        limit = (
           <span
-            className='icon has-text-warning'
-            title='Ya se ha pedido un cambio'>
-            <i className='fa fa-clock-o fa-lg' />
+            className="icon has-text-warning"
+            title="Ya se ha pedido un cambio"
+          >
+            <i className="fa fa-clock-o fa-lg" />
           </span>
+        );
       }
 
-      if (product.isLimit && (!product.adjustmentRequest || product.adjustmentRequest.status === 'rejected')) {
-        limit =
+      if (
+        product.isLimit &&
+        (!product.adjustmentRequest ||
+          product.adjustmentRequest.status === 'rejected')
+      ) {
+        limit = (
           <span
-            className='icon has-text-danger'
+            className="icon has-text-danger"
             title={'¡Hay ajustes fuera de rango!'}
             onClick={() => {
-              this.props.handleAdjustmentRequest(row.weeks)
-            }}>
-            <i className='fa fa-times fa-lg' />
+              this.props.handleAdjustmentRequest(row.weeks);
+            }}
+          >
+            <i className="fa fa-times fa-lg" />
           </span>
-        return limit
+        );
+        return limit;
       }
-
     }
-    return limit
+    return limit;
   }
 
-  componentWillReceiveProps(nextProps){
-    if (!nextProps.data) return
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.data) return;
 
     if (!this.props.data) {
-      this.setState({
-        data: nextProps.data
-      }, () => {
-        this.setRange()
-        this.filterData()
-      })
+      this.setState(
+        {
+          data: nextProps.data,
+        },
+        () => {
+          this.setRange();
+          this.filterData();
+        }
+      );
 
-      return
+      return;
     }
 
-    var same = nextProps.data.length === this.props.data.length
-    same = same && nextProps.data.every((v,i)=> v === this.props.data[i])
+    var same = nextProps.data.length === this.props.data.length;
+    same = same && nextProps.data.every((v, i) => v === this.props.data[i]);
 
     if (!same) {
-      this.setState({
-        data: nextProps.data
-      }, () => {
-        this.setRange()
-        this.filterData()
-      })
+      this.setState(
+        {
+          data: nextProps.data,
+        },
+        () => {
+          this.setRange();
+          this.filterData();
+        }
+      );
     }
   }
 
-  componentWillMount(){
-    this.setState({
-      data: this.props.data
-    }, () => {
-      this.setRange()
-      this.filterData()
-    })
+  componentWillMount() {
+    this.setState(
+      {
+        data: this.props.data,
+      },
+      () => {
+        this.setRange();
+        this.filterData();
+      }
+    );
   }
 
-  render () {
-    if (this.state.filteredDataByWeek.length === 0){
-      return (
-        <Loader />
-      )
+  render() {
+    if (this.state.filteredDataByWeek.length === 0) {
+      return <Loader />;
     }
     return (
-        <StickTable
-          height='55vh'
-          data={this.state.filteredDataByWeek}
-          cols={this.getColumnsByWeek()}
-          stickyCols={4}
-          stickyRows={2}
-          sortAscending={this.state.sortAscending}
-          sortBy={this.state.sortBy}
-          handleSort={(e) => this.handleSortByWeek(e)}
-        />
-    )
+      <StickTable
+        height="55vh"
+        data={this.state.filteredDataByWeek}
+        cols={this.getColumnsByWeek()}
+        stickyCols={4}
+        stickyRows={2}
+        sortAscending={this.state.sortAscending}
+        sortBy={this.state.sortBy}
+        handleSort={e => this.handleSortByWeek(e)}
+      />
+    );
   }
 }
 
-export default WeekTable
+export default WeekTable;
