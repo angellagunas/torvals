@@ -3,11 +3,16 @@ import ImportCSV from './import-csv'
 import Page from '~base/page'
 import {loggedIn, verifyRole} from '~base/middlewares/'
 import tree from '~core/tree'
+import { injectIntl } from 'react-intl'
 
 class ImportGroups extends Component {
   constructor (props) {
     super(props)
     this.rules = tree.get('rule')
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   getRandomInt (min, max) {
@@ -59,7 +64,7 @@ class ImportGroups extends Component {
     return (
       <ImportCSV
         url='/app/groups/import/'
-        title='grupos'
+        title={this.formatTitle('import.groups')}
         format={
           <pre style={{ marginTop: '1em' }}>
             {example}
@@ -77,5 +82,5 @@ export default Page({
   exact: true,
   validate: [loggedIn, verifyRole],
   roles: 'orgadmin, manager-level-3',
-  component: ImportGroups
+  component: injectIntl(ImportGroups)
 })

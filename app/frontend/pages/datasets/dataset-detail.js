@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import Link from '~base/router/link'
@@ -53,6 +53,10 @@ class DataSetDetail extends Component {
       isLoadingBtnUn: ''
     }
 
+  }
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentWillMount() {
@@ -110,20 +114,20 @@ class DataSetDetail extends Component {
 
   getColumns() {
     return [
-      { //TODO: translate
-        'title': 'Nombre',
+      { 
+        'title': this.formatTitle('tables.colName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
-      { //TODO: translate
-        'title': 'Email',
+      { 
+        'title': this.formatTitle('tables.colEmail'),
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
-      { //TODO: translate
-        'title': 'Acciones',
+      { 
+        'title': this.formatTitle('tables.colActions'),
         formatter: (row) => {
           return <Link className='button' to={'/manage/users/' + row.uuid}>
             <FormattedMessage
@@ -347,7 +351,7 @@ class DataSetDetail extends Component {
                         <div className='media-content'>
                           <FormattedMessage
                             id="datasets.processingMsg1"
-                            defaultMessage={`El datase`}
+                            defaultMessage={`El dataset`}
                           /> {dataset.fileChunk ? dataset.fileChunk.filename : ''} <FormattedMessage
                             id="datasets.processingMsg2"
                             defaultMessage={`se está preprocesando`}
@@ -478,7 +482,7 @@ class DataSetDetail extends Component {
                       onClick={e => this.configureOnClick()}
                     >
                       <FormattedMessage
-                        id="datasets.reviewing"
+                      id="datasets.btnConfig"
                         defaultMessage={`Configurar`}
                       />
                     </button>
@@ -555,7 +559,7 @@ class DataSetDetail extends Component {
               <ConfigureViewDataset
                 fmin={dataset.dateMin}
                 fmax={dataset.dateMax}
-                statusText={'Dataset conciliado'}
+                statusText={this.formatTitle('datasets.conciliated')}
                 statusIcon={'fa fa-2x fa-check'}
                 initialState={dataset}
               />
@@ -617,7 +621,7 @@ class DataSetDetail extends Component {
               <ConfigureViewDataset
                 fmin={dataset.dateMin}
                 fmax={dataset.dateMax}
-                statusText={'Se está haciendo ajuste de este Dataset'}
+                statusText={this.formatTitle('datasets.adjustmentDesc')}
                 statusIcon={'fa fa-2x fa-pencil'}
                 initialState={dataset}
               />
@@ -800,27 +804,26 @@ class DataSetDetail extends Component {
       }))
 
       if (res.success > 0) {
-        this.notify( //TODO: translate
-          `¡Se confirmaron exitosamente ${res.success} ${type}!`,
+        this.notify( 
+          this.formatTitle('datasets.successObj') + res.success + ' ' + type,
           5000,
           toast.TYPE.SUCCESS
         )
       }
 
       if (res.error > 0) {
-        this.notify( //TODO: translate
-          `¡No se pudieron confirmar ${res.error} ${type}!`,
+        this.notify( 
+          this.formatTitle('datasets.errorObj') + res.error + ' ' + type,
           5000,
           toast.TYPE.ERROR
         )
       }
 
       if (res.error === 0 && res.success === 0) {
-        //TODO: translate
-        this.notify(`¡Error al confirmar ${type}!`, 5000, toast.TYPE.ERROR)
+        this.notify(`Error ${type}`, 5000, toast.TYPE.ERROR)
       }
-    } catch (e) { //TODO: translate
-      this.notify(`¡Error al confirmar ${type}!`, 5000, toast.TYPE.ERROR)
+    } catch (e) {
+      this.notify(`Error ${type}`, 5000, toast.TYPE.ERROR)
     }
 
 
@@ -838,8 +841,7 @@ class DataSetDetail extends Component {
       let currentUnidentified = this.state.currentUnidentified
       currentUnidentified.externalId = String(currentUnidentified.externalId)
       return (<BaseModal
-        //TODO: translate
-        title={'Editar ' + currentUnidentified.catalog.name}
+        title={this.formatTitle('datasets.edit') + ' ' + currentUnidentified.catalog.name}
         className={this.state.classNameUn}
         hideModal={() => this.hideModalUnidentified()} >
         <ChannelForm
@@ -1025,7 +1027,7 @@ renderUnidentified(){
                       <tr>
                         {canEdit &&
                           <th className='has-text-centered'>
-                            <span title='Seleccionar todos'>
+                            <span title={this.formatTitle('dashboard.selectAll')}>
                               <Checkbox
                                 label='checkAll'
                                 handleCheckboxChange={(e, value) => this.checkAllUnidentified(value, key, item.type)}
@@ -1109,8 +1111,7 @@ renderUnidentified(){
 
   render() {
     if (this.state.notFound) {
-      //TODO: translate
-      return <NotFound msg='este dataset' />
+      return <NotFound msg=' dataset' />
     }
 
     const { dataset, canEdit } = this.state
@@ -1121,12 +1122,11 @@ renderUnidentified(){
 
     var deleteButton = (
       <DeleteButton
-        //TODO: translate
         hideIcon
-        titleButton={'Eliminar'}
+        titleButton={this.formatTitle('datasets.delete')}
         objectName='Dataset'
         objectDelete={this.deleteObject.bind(this)}
-        message={`¿Estas seguro de que deseas eliminar el dataset ${dataset.name}?`}
+        message={this.formatTitle('datasets.deleteMsg') + dataset.name + '?'}
       />
     )
 
@@ -1225,5 +1225,5 @@ renderUnidentified(){
   }
 }
 
-export default DataSetDetail
+export default injectIntl(DataSetDetail)
 

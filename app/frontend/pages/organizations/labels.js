@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Select from '../projects/detail-tabs/select'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
 import tree from '~core/tree'
@@ -21,20 +22,24 @@ class Labels extends Component {
   componentWillMount () {
     this.getLanguages()
   }
-  
-  async getLanguages(){
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  async getLanguages () {
     const url = '/app/languages'
     try {
       const body = await api.get(url)
       this.setState({
-        languageSelected: body.data.map(item => {if( item.uuid === this.state.languageSelected) return item.code})[0],
+        languageSelected: body.data.map(item => { if (item.uuid === this.state.languageSelected) return item.code })[0],
         languages: body.data,
         loading: false
       })
       this.getLabels()
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
-      
+
       await this.setState({
         loading: false,
         notFound: true
@@ -42,18 +47,18 @@ class Labels extends Component {
     }
   }
 
-  async getLabels() {
+  async getLabels () {
     const url = '/app/labels'
     this.setState({
-      loadingLabels: true, 
-      labels: [], 
+      loadingLabels: true,
+      labels: [],
       filteredData: []
     })
     try {
       const body = await api.get(url, {code: this.state.languageSelected})
 
       let modules = body.data.map(obj => { return obj.key.split('.')[0] })
-      modules = modules.filter((v, i) => { return modules.indexOf(v) == i })
+      modules = modules.filter((v, i) => { return modules.indexOf(v) === i })
 
       this.setState({
         labels: body.data,
@@ -61,22 +66,22 @@ class Labels extends Component {
         loadingLabels: false,
         isLoading: '',
         isLoadingSave: '',
-        isLoadingRes: '',
+        isLoadingRes: ''
       })
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
-      
+
       await this.setState({
         loadingLabels: false,
         notFound: true,
         isLoading: '',
         isLoadingSave: '',
-        isLoadingRes: '',
+        isLoadingRes: ''
       })
     }
   }
-  
-  changeLanguage(value){
+
+  changeLanguage (value) {
     this.setState({
       languageSelected: value,
       moduleSelected: undefined
@@ -85,42 +90,41 @@ class Labels extends Component {
     })
   }
 
-  changeModule(value){
+  changeModule (value) {
     const data = this.state.labels.map(item => {
-      if (item.key.includes(value)){
+      if (item.key.includes(value)) {
         return item
       }
     }).filter(item => item)
-  
+
     this.setState({
       moduleSelected: value,
       filteredData: data
     })
-
   }
 
-  getColumns() {
+  getColumns () {
     const cols = [
       {
-        'title': 'Término',
+        'title': this.formatTitle('organizationLabels.tableLabel'),
         'default': 'N/A',
         formatter: (row) => {
           return row.text
         }
       },
       {
-        'title': 'Reemplazar', 
+        'title': this.formatTitle('organizationLabels.tableReplace'),
         'property': 'product.name',
         'default': '',
         formatter: (row) => {
-          if(!row.newLabel){
+          if (!row.newLabel) {
             row.newLabel = ''
           }
-          return <input 
-          className='input' 
-          type='text' 
-          value={row.newLabel} 
-          onChange={(e) => this.changeLabel(e.target.value, row)} />
+          return <input
+            className='input'
+            type='text'
+            value={row.newLabel}
+            onChange={(e) => this.changeLabel(e.target.value, row)} />
         }
       }
     ]
@@ -128,76 +132,77 @@ class Labels extends Component {
     return cols
   }
 
-
-  changeLabel(val, row){
+  changeLabel (val, row) {
     row.newLabel = val
     let aux = this.state.labels
     aux = aux.map(item => {
-      if(item.uuid === row.uuid){
+      if (item.uuid === row.uuid) {
         item.newLabel = val
       }
       return item
     })
-   
+
     this.setState({
       labels: aux
     })
   }
 
-  async saveLabels(){
+  async saveLabels () {
     let updatedLabels = this.state.labels.map(item => {
-      if (item.newLabel !== undefined && item.newLabel !== ''){
+      if (item.newLabel !== undefined && item.newLabel !== '') {
         return item
       }
     }).filter(item => item)
 
-    if(updatedLabels.length <= 0){
-      this.notify('No hay cambios que guardar', 5000, toast.TYPE.INFO)
-      
+    if (updatedLabels.length <= 0) {
+      this.notify(this.formatTitle('organizationLabels.saveLabelsNoChanges'), 5000, toast.TYPE.INFO)
+
       return
     }
 
     this.setState({
       isLoading: ' is-loading',
-      isLoadingSave: ' is-loading'      
+      isLoadingSave: ' is-loading'
     })
 
     const url = '/app/labels'
-    
+
     try {
       const body = await api.post(url, { updatedLabels })
-      if(body.success){
-        this.notify('Cambios guardados con éxito', 5000, toast.TYPE.SUCCESS)
+      if (body.success) {
+        this.notify(
+          this.formatTitle('organizationLabels.saveLabelsSuccess'),
+          5000,
+          toast.TYPE.SUCCESS
+        )
       }
       await this.getLabels()
       await this.changeModule(this.state.moduleSelected)
-      
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
-      
+
       await this.setState({
         loadingLabels: false,
         notFound: true,
         isLoading: '',
-        isLoadingSave: ''  
+        isLoadingSave: ''
       })
     }
   }
 
-
-  async restoreDefault(){
+  async restoreDefault () {
     const url = '/app/labels/default'
-    this.setState({ 
+    this.setState({
       isLoading: ' is-loading',
-      isLoadingRes: ' is-loading', 
-      loadingLabels: true, 
-      labels: [], 
+      isLoadingRes: ' is-loading',
+      loadingLabels: true,
+      labels: [],
       filteredData: [] })
     try {
       const body = await api.get(url, { code: this.state.languageSelected })
 
       let modules = body.data.map(obj => { return obj.key.split('.')[0] })
-      modules = modules.filter((v, i) => { return modules.indexOf(v) == i })
+      modules = modules.filter((v, i) => { return modules.indexOf(v) === i })
 
       this.setState({
         labels: body.data,
@@ -206,23 +211,22 @@ class Labels extends Component {
         isLoading: '',
         isLoadingRes: ''
       }, () => {
-          this.changeModule(this.state.moduleSelected)
+        this.changeModule(this.state.moduleSelected)
       })
-      this.notify('Se restauró el idioma por defecto', 5000, toast.TYPE.INFO)
-      
+      this.notify(this.formatTitle('organizationLabels.restoreDefaultsSuccess'), 5000, toast.TYPE.INFO)
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
-      
+
       await this.setState({
         loadingLabels: false,
         notFound: true,
         isLoading: '',
-        isLoadingRes: ''        
+        isLoadingRes: ''
       })
     }
   }
 
-  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
@@ -250,18 +254,26 @@ class Labels extends Component {
         <div className='buttons is-pulled-right'>
           <button className={'button is-primary ' + this.state.isLoadingRes}
             disabled={!!this.state.isLoading}
-            onClick={() => this.restoreDefault()}>
-            Restaurar
-        </button> 
+            onClick={() => this.restoreDefault()}
+          >
+            <FormattedMessage
+              id='organizationLabels.restoreBtn'
+              defaultMessage={`Restaurar`}
+            />
+          </button>
           <button className={'button is-success ' + this.state.isLoadingSave}
-          disabled={!!this.state.isLoading}
-          onClick={() => this.saveLabels()}>
-          Guardar Cambios
-        </button>
-        
+            disabled={!!this.state.isLoading}
+            onClick={() => this.saveLabels()}
+          >
+            <FormattedMessage
+              id='organizationLabels.saveBtn'
+              defaultMessage={`Guardar Cambios`}
+            />
+          </button>
+
         </div>
         <Select
-          label='Idioma seleccionado:'
+          label={this.formatTitle('organizationLabels.languageSelectLabel')}
           name='language'
           value={this.state.languageSelected}
           optionValue='code'
@@ -270,20 +282,18 @@ class Labels extends Component {
           onChange={(name, value) => { this.changeLanguage(value) }}
         />
 
-        {this.state.loadingLabels ?
-          <Loader />
-          :
-          this.state.labels ?
-            <Select
-              placeholder='Seleccione un módulo'
-              label='Módulo'
+        {this.state.loadingLabels
+          ? <Loader />
+          : this.state.labels
+            ? <Select
+              placeholder={this.formatTitle('organizationLabels.moduleSelectPlaceholder')}
+              label={this.formatTitle('organizationLabels.moduleSelectLabel')}
               name='module'
               value={this.state.moduleSelected}
               options={this.state.modules}
               onChange={(name, value) => { this.changeModule(value) }}
             />
-            :
-            <Loader />
+            : <Loader />
 
         }
 
@@ -292,7 +302,7 @@ class Labels extends Component {
             <div className='scroll-table'>
               <div className='scroll-table-container'>
                 <BaseTable
-                className='labels-table is-bordered is-striped is-narrow is-hoverable is-fullwidth'
+                  className='labels-table is-bordered is-striped is-narrow is-hoverable is-fullwidth'
                   data={this.state.filteredData}
                   columns={this.getColumns()}
                 />
@@ -300,10 +310,10 @@ class Labels extends Component {
             </div>
           </div>
         }
-      
+
       </div>
     )
   }
 }
 
-export default Labels
+export default injectIntl(Labels)

@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import SidebarItem from '~components/sidebar-item'
 import tree from '~core/tree'
 import classNames from 'classnames'
+import { injectIntl } from 'react-intl'
+import { defaultCatalogs } from '~base/tools'
 
 import Dashboard from '../pages/dashboard'
 import Projects from '../pages/projects/list'
@@ -95,34 +97,33 @@ class Sidebar extends Component {
     return item
   }
 
+  findInCatalogs (slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
   catalogs () {
     let rules = this.state.rules
 
     return rules.catalogs.map(item => {
       if (item.slug !== 'precio') {
+        let title = item.name
+        if (this.findInCatalogs(item.slug)) {
+          title = this.formatTitle('catalogs.' + item.slug)
+        }
         let config =
           {
-            name: item.name,
+            name: title,
             path: '/catalogs/' + item.slug,
-            title: item.name,
+            title: title,
             breadcrumbs: true,
-            breadcrumbConfig: {
-              path: [
-                {
-                  path: '/',
-                  label: 'Inicio', //TODO: translate
-                  current: false
-                },
-                {
-                  path: '/catalogs/' + item.slug,
-                  label: 'Catalogos', //TODO: translate
-                  current: true
-                }
-              ],
-              align: 'left'
-            },
             branchName: item.slug,
-            titleSingular: item.name,
+            titleSingular: title,
             baseUrl: '/app/catalogItems/' + item.slug,
             detailUrl: '/catalogs/' + item.slug
           }
@@ -132,63 +133,75 @@ class Sidebar extends Component {
     }).filter(item => item)
   }
 
+  formatTitle (id, sideBarItem) {
+    if (sideBarItem) {
+      let component = sideBarItem.asSidebarItem()
+      if (!component) return null
+
+      component.title = this.props.intl.formatMessage({ id: id })
+      return component
+    } else {
+      return this.props.intl.formatMessage({ id: id })
+    }
+  }
+
   getMenuItems () {
     if (tree.get('organization')) {
       return [
 
-        Dashboard.asSidebarItem(),
+        this.formatTitle('sideMenu.dashboard', Dashboard),
         {
-          title: 'Administración', //TODO: translate
+          title: this.formatTitle('sideMenu.admin'), // TODO: translate
           icon: 'id-card-o',
           to: '/manage',
           roles: 'orgadmin, admin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
-            { //TODO: translate
-              title: 'Organización',
+            { // TODO: translate
+              title: this.formatTitle('sideMenu.org'),
               icon: 'user-circle-o',
               roles: 'orgadmin, admin, analyst, manager-level-3',
               to: '/manage/organizations/' + tree.get('organization').uuid
             },
-            OrgRules.asSidebarItem(),
-            UsersGroups.asSidebarItem(),
-            Roles.asSidebarItem(),
-            { //TODO: translate
-              title: 'Catálogos',
+            this.formatTitle('sideMenu.rules', OrgRules),
+            this.formatTitle('sideMenu.users', UsersGroups),
+            this.formatTitle('sideMenu.roles', Roles),
+            { // TODO: translate
+              title: this.formatTitle('sideMenu.catalogs'),
               icon: 'book',
               to: '/catalogs',
               roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
               openedLvl2: false,
               dropdown: [
-                Prices.asSidebarItem(),
+                this.formatTitle('sideMenu.prices', Prices),
                 ...this.catalogs()
               ]
             }
           ]
         },
-        Forecast.asSidebarItem(),
-        Projects.asSidebarItem(),
-        Calendar.asSidebarItem(),
-        { //TODO: translate
-          title: 'Cargar Datos',
+        this.formatTitle('sideMenu.forecast', Forecast),
+        this.formatTitle('sideMenu.projects', Projects),
+        this.formatTitle('sideMenu.calendar', Calendar),
+        { // TODO: translate
+          title: this.formatTitle('sideMenu.upload'),
           icon: 'upload',
           to: '/import',
           roles: 'orgadmin, admin, manager-level-3',
           dropdown: [
-            UsersImport.asSidebarItem(),
-            GroupsImport.asSidebarItem()
+            this.formatTitle('sideMenu.uploadUsers', UsersImport),
+            this.formatTitle('sideMenu.uploadGroups', GroupsImport)
           ]
         },
-        { //TODO: translate
-          title: 'Reportes',
+        { // TODO: translate
+          title: this.formatTitle('sideMenu.reports'),
           icon: 'clipboard',
           to: '/reports',
           roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
           opened: false,
           dropdown: [
-            StatusReport.asSidebarItem(),
-            HistoricReport.asSidebarItem(),
-            DownloadReport.asSidebarItem()
+            this.formatTitle('sideMenu.reportStatus', StatusReport),
+            this.formatTitle('sideMenu.reportHistoric', HistoricReport),
+            this.formatTitle('sideMenu.reportDownloads', DownloadReport)
           ]
         }
       ]
@@ -254,4 +267,4 @@ class Sidebar extends Component {
   }
 }
 
-export default Sidebar
+export default injectIntl(Sidebar)

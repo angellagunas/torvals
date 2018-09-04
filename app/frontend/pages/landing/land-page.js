@@ -6,6 +6,7 @@ import LogInButton from './log-in-form'
 import Footer from './footer'
 import Contact from './contact'
 import RegisterModal from './register/registerModal'
+import { injectIntl } from 'react-intl'
 
 class LandPage extends Component {
   constructor (props) {
@@ -21,6 +22,10 @@ class LandPage extends Component {
     }
     this.handleScroll = this.handleScroll.bind(this)
     this.comments = []
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentDidMount () {
@@ -128,25 +133,25 @@ class LandPage extends Component {
     })
   }
 
-  showLogin() {
+  showLogin () {
     this.setState({
       login: ' is-active'
     })
   }
 
-  hideLogin() {
+  hideLogin () {
     this.setState({
       login: ''
     })
   }
 
-  showReg() {
+  showReg () {
     this.setState({
       register: ' is-active'
     })
   }
 
-  hideReg() {
+  hideReg () {
     this.setState({
       register: ''
     })
@@ -173,29 +178,29 @@ class LandPage extends Component {
             <div className={'navbar-menu' + this.state.menu}>
               <div className='navbar-start'>
                 <a className='navbar-item' onClick={() => { this.props.history.push('/how') }} >
-                  ¿Cómo funciona?
+                  {this.formatTitle('landing.how')}
                 </a>
               </div>
               <div className='navbar-end'>
-                  <div className={this.state.isDown ? 'navbar-item': 'is-hidden'}>
-                    <a className={this.props.buttonClass ? 'button is-success ' + this.props.buttonClass : 'button is-success'}
-                      onClick={(e) => { this.showReg(e) }}>
-                      Probar 30 días gratis
-                    </a>
-                  </div>
+                <div className={this.state.isDown ? 'navbar-item' : 'is-hidden'}>
+                  <a className={this.props.buttonClass ? 'button is-success ' + this.props.buttonClass : 'button is-success'}
+                    onClick={(e) => { this.showReg(e) }}>
+                    {this.formatTitle('landing.try')}
+                  </a>
+                </div>
 
-                  <div className={!this.state.isDown ? 'navbar-item' : 'is-hidden'}>
-                    <a className='button is-primary is-inverted is-outlined'
-                      onClick={(e) => { this.showLogin(e) }}>
-                      Iniciar sesión
-                    </a>
-                    
-                  </div>
+                <div className={!this.state.isDown ? 'navbar-item' : 'is-hidden'}>
+                  <a className='button is-primary is-inverted is-outlined'
+                    onClick={(e) => { this.showLogin(e) }}>
+                    {this.formatTitle('login.loginBtn')}
+                  </a>
+
+                </div>
 
                 {!this.state.isDown &&
                   <div className='navbar-item'>
-                    <a className='button is-primary is-inverted is-outlined'>
-                      ES
+                    <a className='button is-primary is-inverted is-outlined is-capitalized'>
+                      {this.formatTitle('dates.locale')}
                     </a>
                   </div>
 
@@ -211,15 +216,15 @@ class LandPage extends Component {
               <div className='columns'>
                 <div className='column pos-rel'>
                   <h1 className='title'>
-                    Decisiones inteligentes
+                    {this.formatTitle('landing.title1')}
                   </h1>
                   <h2 className='subtitle'>
-                    A partir de predicciones
+                    {this.formatTitle('landing.sub1')}
                   </h2>
                   <a className='button is-success is-medium'
                     onClick={(e) => { this.showReg(e) }}>
-                    Probar 30 días gratis
-                    </a>
+                    {this.formatTitle('landing.try')}
+                  </a>
                   <img className='landing-right-img is-hidden-mobile' src='/app/public/img/dash.jpg' />
 
                 </div>
@@ -234,33 +239,34 @@ class LandPage extends Component {
             <div className='container'>
               <div className='columns'>
                 <div className='column is-6'>
-                  <h1 className='title'>
-                    ¿Qué es Orax?
+                  <h1 className='title is-spaced'>
+                    {this.formatTitle('landing.title2')}
                   </h1>
                   <h2 className='subtitle'>
-                    Orax es una herramienta moderna que con base en información histórica,
-                    predice la demanda para guiarnos a través de la incertidumbre, ayudándonos
-                    a tomar mejores decisiones empresariales y a responder de maner más ágil.
+                    {this.formatTitle('landing.sub2')}
                   </h2>
                 </div>
-                <div className='column has-35-margin-top'>
+                <div className='column is-offset-1'>
+                  <h1 className='title'>
+                    &nbsp;
+                  </h1>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Manejo de información en tiempo real.
+                    {this.formatTitle('landing.list1')}
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Predicción confiable de ventas o producción.
+                    {this.formatTitle('landing.list2')}
                   </p>
                   <p>
                     <span className='icon has-text-success'>
                       <i className='fa fa-check' />
                     </span>
-                    Ajustes entre predicciones, existencias o pedidos.
+                    {this.formatTitle('landing.list3')}
                   </p>
                 </div>
               </div>
@@ -286,11 +292,11 @@ class LandPage extends Component {
           showModal={() => this.showLogin()}
           hideModal={() => this.hideLogin()} />
 
-        <RegisterModal 
+        <RegisterModal
           modalClass={this.state.register}
           showModal={() => this.showReg()}
           hideModal={() => this.hideReg()} />
-          
+
       </div>
     )
   }
@@ -300,5 +306,5 @@ export default Page({
   path: '/landing',
   exact: true,
   validate: forcePublic,
-  component: LandPage
+  component: injectIntl(LandPage)
 })

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import moment from 'moment'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import tree from '~core/tree'
 import api from '~base/api'
 import Loader from '~base/components/spinner'
@@ -99,13 +99,17 @@ class DownloadReport extends Component {
     return str.charAt(0).toUpperCase() + str.slice(1)
   }
 
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   async getData() {
     try {
       const url = `/app/adjustmentDownloads/${this.state.projectSelected.uuid}`
       const { data=[] } = await api.get(url)
       const dataItems = []
 
-      moment.locale('es')
+      moment.locale(this.formatTitle('dates.locale'))
       data.forEach(item => {
         item.minMonth = this.capitalize(moment.utc(item.minDate).format('MMMM'))
         item.maxMonth = this.capitalize(moment.utc(item.maxDate).format('MMMM YYYY'))
@@ -120,8 +124,7 @@ class DownloadReport extends Component {
 
       this.setState({ data: dataItems })
     } catch (error) {
-      //TODO: translate
-      this.notify('Algo salio mal al cargar los items', 5000, toast.TYPE.ERROR)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
@@ -334,7 +337,7 @@ export default Page({
   path: '/reports/download',
   exact: true,
   validate: loggedIn,
-  component: DownloadReport,
-  title: 'Descargas', //TODO: translate
+  component: injectIntl(DownloadReport),
+  title: 'Descargas', 
   icon: 'download'
 })

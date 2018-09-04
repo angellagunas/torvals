@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import moment from 'moment'
 import _ from 'lodash'
 import { toast } from 'react-toastify'
@@ -12,6 +12,7 @@ import { loggedIn } from '~base/middlewares/'
 import { BaseTable } from '~base/components/base-table'
 import Link from '~base/router/link'
 import classNames from 'classnames'
+import { defaultCatalogs } from '~base/tools'
 
 class StatusRepórt extends Component {
   constructor (props) {
@@ -50,6 +51,10 @@ class StatusRepórt extends Component {
 
     this.currentRole = tree.get('user').currentRole.slug
     this.rules = tree.get('rule')
+  }
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentWillMount () {
@@ -146,12 +151,11 @@ class StatusRepórt extends Component {
         },
         error: true,
         filtersLoading: false,
-        errorMessage: '¡No se pudieron cargar los filtros!' //TODO: translate
+        errorMessage: this.formatTitle('adjustments.noFilters')
       })
 
       this.notify(
-        //TODO: translate
-        'Ha habido un error al obtener los filtros! ' + e.message,
+        this.formatTitle('adjustments.noFilters') + ' ' + e.message,
         5000,
         toast.TYPE.ERROR
       )
@@ -239,7 +243,6 @@ class StatusRepórt extends Component {
 
   async getDataRows() {
      if (!this.state.formData.cycle) {
-      //TODO: translate
       this.notify('¡Se debe filtrar por ciclo!', 5000, toast.TYPE.ERROR)
       return
     }
@@ -315,7 +318,7 @@ class StatusRepórt extends Component {
   getColumns() {
     let cols = [
       {
-        'title': 'Usuario', //TODO: translate
+        'title': this.formatTitle('tables.colUser'),
         'property': 'user.name',
         'default': 'N/A',
         'sortable': true,
@@ -324,31 +327,31 @@ class StatusRepórt extends Component {
         }
       },
       {
-        'title': 'Ajustes por periodo', //TODO: translate
+        'title': this.formatTitle('tables.colAdjustmentsByPeriod'),
         'property': 'total',
         'default': '0',
         'sortable': true
       },
       {
-        'title': 'Aprobados', //TODO: translate
+        'title': this.formatTitle('approve.approved'),
         'property': 'approved',
         'default': '0',
         'sortable': true
       },
       {
-        'title': 'Rechazados', //TODO: translate
+        'title': this.formatTitle('approve.rejected'),
         'property': 'rejected',
         'default': '0',
         'sortable': true
       },
       {
-        'title': 'Pendientes', //TODO: translate
+        'title': this.formatTitle('approve.pending'),
         'property': 'created',
         'default': '0',
         'sortable': true
       },
       {
-        'title': 'Acciones', //TODO: translate
+        'title': this.formatTitle('tables.colActions'),
         formatter: (row) => {
             return (
               <a className='button is-primary' onClick={() => this.userDetail(row.user[0])}>
@@ -465,7 +468,21 @@ class StatusRepórt extends Component {
     let find = ''
     this.rules.catalogs.map(item => {
       if (item.slug === name) {
-        find = item.name
+        find = item
+      }
+    })
+    let title = find.name
+    if (this.findInCatalogs(find.slug)) {
+      title = this.formatTitle('catalogs.' + find.slug)
+    }
+    return title
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
       }
     })
     return find
@@ -492,7 +509,7 @@ class StatusRepórt extends Component {
               label={this.findName(key)}
               name={key}
               value={this.state.formData[key]}
-              placeholder='Todas' //TODO: translate
+              placeholder={this.formatTitle('anomalies.all')}
               optionValue='uuid'
               optionName='name'
               options={element}
@@ -579,7 +596,7 @@ class StatusRepórt extends Component {
             {this.state.projectSelected && this.state.projects &&
             <div className='level-item'>
               <Select
-                label='Proyecto' //TODO: translate
+                label={this.formatTitle('projectConfig.project')}
                 name='project'
                 value={this.state.projectSelected.uuid}
                 optionValue='uuid'
@@ -592,7 +609,7 @@ class StatusRepórt extends Component {
             {this.state.filters.cycles.length > 0 &&
             <div className='level-item'>
               <Select
-                label='Ciclo' //TODO: translate
+                label={this.formatTitle('adjustments.cycle')}
                 name='cycle'
                 value={this.state.formData.cycle}
                 optionValue='cycle'
@@ -607,12 +624,12 @@ class StatusRepórt extends Component {
             {this.state.filters.users.length > 0 &&
             <div className='level-item'>
               <Select
-                label='Usuarios' //TODO: translate
+                label={this.formatTitle('import.users')}
                 name='user'
                 value={this.state.formData.user}
                 optionValue='uuid'
                 optionName='name'
-                placeholder='Todos'
+                placeholder={this.formatTitle('anomalies.all')}
                 options={this.state.filters.users}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
                 disabled={this.state.filtersLoading}
@@ -757,7 +774,7 @@ class StatusRepórt extends Component {
               <div className='field'>
                 <label className='label'>
                   <FormattedMessage
-                    id="report.searchTitle"
+                      id="dashboard.searchText"
                     defaultMessage={`Búsqueda general`}
                   />
                 </label>
@@ -767,7 +784,7 @@ class StatusRepórt extends Component {
                     type='text'
                     value={this.state.searchTerm}
                     onChange={this.searchOnChange}
-                    placeholder='Buscar' //TODO: translate
+                    placeholder={this.formatTitle('dashboard.searchText')}
                   />
 
                   <span className='icon is-small is-right'>
@@ -818,8 +835,8 @@ export default Page({
   path: '/reports/status',
   exact: true,
   validate: loggedIn,
-  component: StatusRepórt,
-  title: 'Status de proyecto', //TODO: translate
+  component: injectIntl(StatusRepórt),
+  title: 'Status de proyecto',
   icon: 'calendar-check-o',
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'
 })

@@ -1,7 +1,9 @@
 const Route = require('lib/router/route')
 const path = require('path')
 const fs = require('fs')
+const { promisify } = require('util')
 const fsExtra = require('fs-extra')
+const mkdirPromisified = promisify(fs.mkdir)
 
 const finishUpload = require('queues/finish-upload')
 const { FileChunk, DataSet } = require('models')
@@ -47,9 +49,11 @@ module.exports = new Route({
     const tmpdir = path.resolve('.', 'media', 'uploads', identifier)
 
     if (chunk && chunk.lastChunk === 0) {
-      fs.mkdir(tmpdir, (err) => {
-        console.log('Folder already exists')
-      })
+      try {
+        await mkdirPromisified(tmpdir)
+      } catch (creatingDirError) {
+        ctx.throw(500, creatingDirError)
+      }
     }
 
     if (!chunk && chunkNumber === 1) {
@@ -62,11 +66,12 @@ module.exports = new Route({
         totalChunks: totalChunks
       })
 
-      fs.mkdir(tmpdir, (err) => {
-        if (err) {
-          console.log('El Folder ya existe')
-        }
-      })
+      try {
+        await mkdirPromisified(tmpdir)
+      } catch (creatingDirError) {
+        ctx.throw(500, creatingDirError)
+      }
+
       dataset.set({
         fileChunk: chunk,
         status: 'uploading',
@@ -121,15 +126,18 @@ module.exports = new Route({
         var writer
 
         await new Promise((resolve, reject) => {
-          reader = fs.createReadStream(file.path).on('open', () => {
-            writer = fs.createWriteStream(filePath).on('open', () => {
-              reader.pipe(writer)
-              resolve()
-            }).on('error', e => {
-              console.error(e)
-              reject(e)
+          reader = fs
+            .createReadStream(file.path)
+            .on('open', () => {
+              writer = fs
+                .createWriteStream(filePath)
+                .on('open', () => {
+                  reader.pipe(writer)
+                })
+                .on('finish', () => resolve())
+                .on('error writting', e => reject(e))
             })
-          })
+            .on('error oppening', e => reject(e))
         })
 
         let input = await fsExtra.readFile(file.path)
@@ -197,7 +205,9 @@ module.exports = new Route({
       chunk.set({
         recreated: true
       })
+
       await chunk.save()
+
       finishUpload.add({uuid: dataset.uuid})
     }
 

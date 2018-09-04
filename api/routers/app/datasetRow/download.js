@@ -39,6 +39,16 @@ module.exports = new Route({
       }
     }
 
+    var otherFilters = {
+      showAdjusted: data.showAdjusted,
+      showNotAdjusted: data.showNotAdjusted,
+      searchTerm: data.searchTerm
+    }
+
+    delete data.showAdjusted
+    delete data.showNotAdjusted
+    delete data.searchTerm
+
     catalogItems = []
     for (let filter of Object.keys(data)) {
       const unwantedKeys = [
@@ -55,30 +65,52 @@ module.exports = new Route({
         uuid: data[filter]
       })
       catalogItems.push(catalogItem._id)
-
     }
     filters['catalogItems'] = {
       '$all': catalogItems
+    }
+
+    if (otherFilters.showAdjusted && !otherFilters.showNotAdjusted) {
+      filters['status'] = 'adjusted'
+    } else if (!otherFilters.showAdjusted && otherFilters.showNotAdjusted) {
+      filters['status'] = 'unmodified'
     }
 
     let rows = await DataSetRow.find({
       dataset: project.activeDataset._id,
       isDeleted: false,
       ...filters
-    })
+    }).populate('newProduct catalogItems period')
 
     let rowsCsv = ''
     let names = []
 
     for (let head of project.mainDataset.columns) {
-      rowsCsv += head.name + ','
-      names.push(head.name)
+      if (head.name != 'modelo' && head.name != 'month' && head.name != 'venta' && head.name != 'venta_uni' && head.name != 'year' && head.name != 'semana_bimbo' && head.name != 'clasificacion') {
+        if (head.name === 'agencia_id') {
+          rowsCsv += head.name + ','
+          names.push(head.name)
+
+          rowsCsv += 'agencia_nombre,'
+          names.push('agencia_nombre')
+        } else {
+          rowsCsv += head.name + ','
+          names.push(head.name)
+        }
+      }
     }
 
-    rowsCsv = rowsCsv.substring(0, rowsCsv.length - 1) + '\r\n'
+    rowsCsv += 'periodo, periodo_inicio'
+    names.push('periodo')
+    names.push('periodo_inicio')
 
+    rowsCsv = rowsCsv.substring(0, rowsCsv.length - 1) + '\r\n'
     for (let row of rows) {
       let rowsString = ''
+      const regEx = new RegExp(otherFilters.searchTerm, 'gi')
+      const searchStr = `${row.newProduct.name} ${row.newProduct.externalId}`
+
+      if (!regEx.test(searchStr)) { continue }
 
       for (let col of names) {
         var predictionColumn = project.mainDataset.getPredictionColumn() || {name: ''}
@@ -87,14 +119,37 @@ module.exports = new Route({
         if (col === adjustmentColumn.name) {
           rowsString += row.data.adjustment + ','
           continue
-        }
-
-        if (col === predictionColumn.name) {
+        } else if (col === predictionColumn.name) {
           rowsString += row.data.prediction + ','
           continue
-        }
-
-        if (row.apiData[col]) {
+        } else if (col === 'producto_nombre') {
+          rowsString += row.newProduct.name + ','
+        } else if (col === 'agencia_id') {
+          let agency = row.catalogItems.find(item => item.type === 'centro-de-venta')
+          if (agency) {
+            rowsString += agency.externalId + ','
+          } else {
+            rowsString += ','
+          }
+        } else if (col === 'canal_nombre') {
+          let canal = row.catalogItems.find(item => item.type === 'canal')
+          if (canal) {
+            rowsString += canal.name + ','
+          } else {
+            rowsString += ','
+          }
+        } else if (col === 'agencia_nombre') {
+          let agency = row.catalogItems.find(item => item.type === 'centro-de-venta')
+          if (agency) {
+            rowsString += agency.name + ','
+          } else {
+            rowsString += ','
+          }
+        } else if (col === 'periodo') {
+          rowsString += row.period.period + ','
+        } else if (col === 'periodo_inicio') {
+          rowsString += moment.utc(row.period.dateStart, 'YYYY-MM-DD').format('DD-MM-YYYY') + ','
+        } else if (row.apiData[col]) {
           rowsString += row.apiData[col] + ','
         } else {
           rowsString += ','

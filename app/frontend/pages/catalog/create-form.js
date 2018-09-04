@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 
 import {
@@ -7,19 +7,7 @@ import {
   TextWidget
 } from '~base/components/base-form'
 
-const schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'name',
-    'externalId'
-  ],
-  properties: {
-    //TODO: translate
-    name: {type: 'string', title: 'Nombre'},
-    externalId: {type: 'string', title: 'Id Externo'}
-  }
-}
+
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
@@ -75,7 +63,24 @@ class CreateForm extends Component {
     }
   }
 
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
+    const schema = {
+      type: 'object',
+      title: '',
+      required: [
+        'name',
+        'externalId'
+      ],
+      properties: {
+        name: { type: 'string', title: this.formatTitle('tables.colName') },
+        externalId: { type: 'string', title: this.formatTitle('datasets.externalId') }
+      }
+    }
+
     let { canEdit, canCreate, children } = this.props
     var error
     if (this.state.error) {
@@ -123,4 +128,4 @@ class CreateForm extends Component {
   }
 }
 
-export default CreateForm
+export default injectIntl(CreateForm)

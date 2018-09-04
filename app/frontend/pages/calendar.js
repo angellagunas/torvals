@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import 'react-datepicker/dist/react-datepicker.css'
 import Page from '~base/page'
 import { loggedIn } from '~base/middlewares/'
@@ -132,7 +132,7 @@ class Calendar extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del ciclo' //TODO: translate
+      tooltipText: this.formatTitle('wizard.periodsStartCycle')
     }
     return d
   }
@@ -147,7 +147,7 @@ class Calendar extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Fin del ciclo' //TODO: translate
+      tooltipText: this.formatTitle('wizard.periodsEndCycle')
     }
     return d
   }
@@ -171,7 +171,7 @@ class Calendar extends Component {
       isToday: false,
       isActive: true,
       isTooltip: true,
-      tooltipText: 'Inicio de periodo ' + key, //TODO: translate
+      tooltipText: this.formatTitle('wizard.periodsStartPeriod') + ' ' + key,
       rangeClass: colors[this.color].rangeClass,
       rangeClassStart: colors[this.color].rangeClassStart
     }
@@ -186,7 +186,7 @@ class Calendar extends Component {
         isToday: false,
         isActive: false,
         isTooltip: true,
-        tooltipText: 'Periodo ' + key, //TODO: translate
+        tooltipText: this.formatTitle('calendar.period') + ' ' + key,
         rangeClass: colors[this.color].rangeClass
       }
     }
@@ -201,7 +201,7 @@ class Calendar extends Component {
       isTooltip: true,
       rangeClass: colors[this.color].rangeClass,
       rangeClassEnd: colors[this.color].rangeClassStart,
-      tooltipText: 'Fin de periodo ' + key //TODO: translate
+      tooltipText: this.formatTitle('wizard.periodsEndPeriod') + ' ' + key
     }
     return range
   }
@@ -250,6 +250,10 @@ class Calendar extends Component {
     }
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     if (!this.state.cycles) {
       return <Loader />
@@ -261,37 +265,35 @@ class Calendar extends Component {
         <div className='section-header'>
           <h2>
             <FormattedMessage
-              id="calendar.title"
+              id='calendar.title'
               defaultMessage={`Calendario`}
             />
           </h2>
         </div>
-
         <Breadcrumb
           path={[
             {
               path: '/',
-              label: 'Inicio', //TODO: translate
+              label: this.formatTitle('sideMenu.home'),
               current: false
             },
             {
               path: '/calendario',
-              label: 'Calendario', //TODO: translate
+              label: this.formatTitle('calendar.title'),
               current: true
             }
           ]}
           align='left'
-          />
-
+        />
         <div className='section level selects'>
           <div className='level-left'>
             <div className='level-item'>
               <Select
-                label='Año'
+                label={this.formatTitle('orgRules.year')}
                 name='year'
                 value={this.state.selectedYear}
                 type='integer'
-                placeholder='Seleccionar' //TODO: translate
+                placeholder={this.formatTitle('calendar.select')}
                 options={this.state.years}
                 onChange={(name, value) => { this.filterChangeHandler(name, value) }}
                 />
@@ -299,10 +301,10 @@ class Calendar extends Component {
             <div className='level-item'>
               {this.state.cycles &&
               <Select
-                label='Ciclo'
+                label={this.formatTitle('adjustments.cycle')}
                 name='cycle'
                 value={this.state.selectedCycle}
-                placeholder='Todos los ciclos' //TODO: translate
+                placeholder={this.formatTitle('calendar.all')}
                 optionValue='cycle'
                 optionName='name'
                 options={this.state.cycles.map(item => { return {cycle: item.cycle, name: moment.utc(item.periods[0].cycle.dateStart).format('MMMM')} })}
@@ -311,7 +313,7 @@ class Calendar extends Component {
             </div>
             <div className='level-item'>
               <Checkbox
-                label='Mostrar número de semana' //TODO: translate
+                label={this.formatTitle('calendar.showWeek')}
                 handleCheckboxChange={(e) => this.showWeeks()}
                 key='showWeeks'
                 checked={this.state.showWeekNumbers}
@@ -346,7 +348,7 @@ class Calendar extends Component {
                       <div className='field'>
                         <label className='label'>
                           <FormattedMessage
-                            id="calendar.cyclesStart"
+                            id='calendar.cyclesStart'
                             defaultMessage={`Inicio de ciclo`}
                           />
                         </label>
@@ -359,7 +361,7 @@ class Calendar extends Component {
                       <div className='field'>
                         <label className='label'>
                           <FormattedMessage
-                            id="calendar.cyclesEnd"
+                            id='calendar.cyclesEnd'
                             defaultMessage={`Fin de ciclo`}
                           />
                         </label>
@@ -375,7 +377,7 @@ class Calendar extends Component {
                           <div key={moment.utc(item.dateStart).format('YYYY-MM-DD')} className='field'>
                             <label className='label'>
                               <FormattedMessage
-                                id="calendar.period"
+                                id='calendar.period'
                                 defaultMessage={`Periodo`}
                               /> {key + 1}
                             </label>
@@ -385,7 +387,7 @@ class Calendar extends Component {
                                   <div className='field'>
                                     <label className='label'>
                                       <FormattedMessage
-                                        id="calendar.start"
+                                        id='calendar.start'
                                         defaultMessage={`Inicio`}
                                       />
                                     </label>
@@ -400,7 +402,7 @@ class Calendar extends Component {
                                   <div className='field'>
                                     <label className='label'>
                                       <FormattedMessage
-                                        id="calendar.end"
+                                        id='calendar.end'
                                         defaultMessage={`Fin`}
                                       />
                                     </label>
@@ -443,7 +445,7 @@ export default Page({
   path: '/calendario',
   exact: true,
   validate: loggedIn,
-  component: Calendar,
-  title: 'Calendario', //TODO: translate
+  component: injectIntl(Calendar),
+  title: 'Calendario',
   icon: 'calendar'
 })

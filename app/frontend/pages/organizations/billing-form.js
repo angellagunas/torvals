@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 
 class BillingForm extends Component {
@@ -28,6 +29,10 @@ class BillingForm extends Component {
     }
   }
 
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   handleInputChange (e, input) {
     this.validateInput(e, input)
     let aux = this.state.registerData
@@ -53,7 +58,7 @@ class BillingForm extends Component {
     if (input === 'orgEmail') {
       if (!e.target.validity.valid) {
         aux.error = true
-        aux[input] = 'Ingresa una dirección de correo válida'
+        aux[input] = this.formatTitle('organizationBilling.billingEmailMsgInvalid')
       } else {
         aux[input] = ''
         aux.error = false
@@ -62,7 +67,7 @@ class BillingForm extends Component {
 
     if (input === 'rfc') {
       if (!e.target.validity.valid) {
-        aux[input] = 'Ingrese un RFC válido'
+        aux[input] = this.formatTitle('organizationBilling.rfcMsgInvalid')
         aux.error = true
       } else {
         aux[input] = ''
@@ -120,7 +125,7 @@ class BillingForm extends Component {
         },
         org: org,
         isLoading: '',
-        apiMsg: 'Los datos se han guardado correctamente',
+        apiMsg: this.formatTitle('organizationBilling.apiMsgSuccess'),
         apiMsgclass: 'message is-success'
       })
 
@@ -132,10 +137,9 @@ class BillingForm extends Component {
       }, 3000)
       return true
     } catch (e) {
-      console.log(e)
       this.setState({
         isLoading: '',
-        apiMsg: 'Ocurrio un error: ' + e.message,
+        apiMsg: this.formatTitle('organizationBilling.apiMsgError') + e.message,
         apiMsgclass: 'message is-danger'
       })
       return false
@@ -146,7 +150,12 @@ class BillingForm extends Component {
     return (
       <div>
         {!this.props.isModal &&
-        <h1 className='subtitle has-text-weight-bold'>Datos de facturación</h1>
+          <h1 className='subtitle has-text-weight-bold'>
+            <FormattedMessage
+              id='organizationBilling.title'
+              defaultMessage={`Datos de facturación`}
+            />
+          </h1>
         }
         <div className='columns'>
           <div className={this.props.isModal ? 'column' : 'column is-6'}>
@@ -154,12 +163,17 @@ class BillingForm extends Component {
               <div className='card-content'>
                 <form>
                   <div className='field'>
-                    <label className='label'>RFC</label>
+                    <label className='label'>
+                      <FormattedMessage
+                        id='organizationBilling.rfc'
+                        defaultMessage={`RFC`}
+                      />
+                    </label>
                     <div className='control'>
                       <input
                         className='input'
                         type='text'
-                        placeholder='RFC'
+                        placeholder={this.formatTitle('organizationBilling.rfc')}
                         autoComplete='off'
                         name='rfc'
                         pattern='[A-Z&Ñ]{3,4}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]'
@@ -171,12 +185,17 @@ class BillingForm extends Component {
                   </div>
 
                   <div className='field'>
-                    <label className='label'>Correo de facturación</label>
+                    <label className='label'>
+                      <FormattedMessage
+                        id='organizationBilling.billingEmail'
+                        defaultMessage={`Correo de facturación`}
+                      />
+                    </label>
                     <div className='control'>
                       <input
                         className='input'
                         type='email'
-                        placeholder='Ingresa el correo de tu empresa'
+                        placeholder={this.formatTitle('organizationBilling.billingEmailPlaceholder')}
                         autoComplete='off'
                         name='orgEmail'
                         value={this.state.registerData.orgEmail}
@@ -187,12 +206,17 @@ class BillingForm extends Component {
                   </div>
 
                   <div className='field'>
-                    <label className='label'>Razón Social</label>
+                    <label className='label'>
+                      <FormattedMessage
+                        id='organizationBilling.businessName'
+                        defaultMessage={`Razón Social`}
+                      />
+                    </label>
                     <div className='control'>
                       <input
                         className='input'
                         type='text'
-                        placeholder='Ingresa la razón social giro de tu empresa'
+                        placeholder={this.formatTitle('organizationBilling.businessNamePlaceholder')}
                         autoComplete='off'
                         name='razonSocial'
                         value={this.state.registerData.razonSocial}
@@ -202,12 +226,17 @@ class BillingForm extends Component {
                   </div>
 
                   <div className='field'>
-                    <label className='label'>Teléfono</label>
+                    <label className='label'>
+                      <FormattedMessage
+                        id='organizationBilling.phone'
+                        defaultMessage={`Teléfono`}
+                      />
+                    </label>
                     <div className='control'>
                       <input
                         className='input'
                         type='tel'
-                        placeholder='Lada + 10 digitos'
+                        placeholder={this.formatTitle('organizationBilling.phonePlaceholder')}
                         autoComplete='off'
                         required
                         name='phone'
@@ -219,12 +248,17 @@ class BillingForm extends Component {
                   </div>
 
                   <div className='field'>
-                    <label className='label'>País</label>
+                    <label className='label'>
+                      <FormattedMessage
+                        id='organizationBilling.country'
+                        defaultMessage={`País`}
+                      />
+                    </label>
                     <div className='control'>
                       <input
                         className='input'
                         type='text'
-                        placeholder='País'
+                        placeholder={this.formatTitle('organizationBilling.country')}
                         autoComplete='off'
                         name='country'
                         value={this.state.registerData.country}
@@ -239,8 +273,12 @@ class BillingForm extends Component {
                         this.toggleEdit(e)
                       }}
                       disabled={!!this.state.isLoading}
-                       >{this.state.edit
-                          ? 'Guardar' : 'Editar'}</button>
+                    >
+                      {this.state.edit
+                        ? this.formatTitle('organizationBilling.btnSave')
+                        : this.formatTitle('organizationBilling.btnEdit')
+                      }
+                    </button>
                   </div>
 
                 </form>
@@ -260,4 +298,4 @@ class BillingForm extends Component {
   }
 }
 
-export default BillingForm
+export default injectIntl(BillingForm)

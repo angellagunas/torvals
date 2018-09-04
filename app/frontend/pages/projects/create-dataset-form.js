@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 
 import {
@@ -7,18 +7,6 @@ import {
   TextWidget,
   TextareaWidget
 } from '~base/components/base-form'
-
-const schema = {
-  type: 'object',
-  title: '',
-  required: [
-    'name'
-  ],
-  properties: {//TODO: translate
-    name: {type: 'string', title: 'Nombre'},
-    description: {type: 'string', title: 'Descripción'}
-  }
-}
 
 const uiSchema = {
   name: {'ui:widget': TextWidget},
@@ -33,6 +21,10 @@ class CreateDatsetForm extends Component {
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden'
     }
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   errorHandler (e) {}
@@ -80,6 +72,18 @@ class CreateDatsetForm extends Component {
       </div>
     }
 
+    const schema = {
+      type: 'object',
+      title: '',
+      required: [
+        'name'
+      ],
+      properties: {
+        name: { type: 'string', title: this.formatTitle('datasets.name') },
+        description: { type: 'string', title: this.formatTitle('datasets.description') }
+      }
+    }
+
     return (
       <div>
         <BaseForm schema={schema}
@@ -92,7 +96,7 @@ class CreateDatsetForm extends Component {
           <div className={this.state.apiCallMessage}>
             <div className='message-body is-size-7 has-text-centered'>
               <FormattedMessage
-                id="projects.saveMsg"
+                id='datasets.savedMsg'
                 defaultMessage={`Los datos se han guardado correctamente`}
               />
             </div>
@@ -110,4 +114,4 @@ class CreateDatsetForm extends Component {
   }
 }
 
-export default CreateDatsetForm
+export default injectIntl(CreateDatsetForm)

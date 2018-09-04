@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { branch } from 'baobab-react/higher-order'
 import PropTypes from 'baobab-react/prop-types'
 import api from '~base/api'
@@ -23,6 +23,10 @@ class CreateGroup extends Component {
 
   componentWillMount () {
     this.cursor = this.context.tree.select(this.props.branchName)
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   async load () {
@@ -54,8 +58,7 @@ class CreateGroup extends Component {
   render () {
     return (
       <BaseModal
-        //TODO: translate
-        title='Nuevo Grupo'
+        title={this.formatTitle('groups.btnNew')}
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -78,7 +81,7 @@ class CreateGroup extends Component {
                 type='submit'
               >
                 <FormattedMessage
-                  id="groups.btnCreate"
+                  id='groups.btnCreate'
                   defaultMessage={`Crear`}
                 />
               </button>
@@ -86,7 +89,7 @@ class CreateGroup extends Component {
             <div className='control'>
               <button className='button' onClick={this.hideModal} type='button'>
                 <FormattedMessage
-                  id="groups.btnCancel"
+                  id='groups.btnCancel'
                   defaultMessage={`Cancelar`}
                 />
               </button>
@@ -108,4 +111,4 @@ const BranchedCreateGroup = branch((props, context) => {
   }
 }, CreateGroup)
 
-export default BranchedCreateGroup
+export default injectIntl(BranchedCreateGroup)

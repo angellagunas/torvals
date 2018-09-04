@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import Checkbox from '~base/components/base-checkbox'
 import slugify from 'underscore.string/slugify'
 import DeleteButton from '~base/components/base-deleteButton'
+import { defaultCatalogs } from '~base/tools'
 
 class Catalogs extends Component {
   constructor (props) {
@@ -10,59 +11,59 @@ class Catalogs extends Component {
     this.state = {
       catalogs: [
         {
-          title: 'Producto', //TODO: translate
+          title: 'Producto',
           value: 'producto',
           checked: true,
           disabled: true
         },
         {
-          title: 'Precio', //TODO: translate
+          title: 'Precio',
           value: 'precio',
           checked: true,
           disabled: true
         },
         {
-          title: 'Centro de venta', //TODO: translate
+          title: 'Centro de venta',
           value: 'centro-de-venta',
           checked: false
         },
         {
-          title: 'Canal', //TODO: translate
+          title: 'Canal',
           value: 'canal',
           checked: false
         },
         {
-          title: 'Distrito', //TODO: translate
+          title: 'Distrito',
           value: 'distrito',
           checked: false
         },
         {
-          title: 'División', //TODO: translate
+          title: 'División',
           value: 'division',
           checked: false
         },
         {
-          title: 'Gerencia', //TODO: translate
+          title: 'Gerencia',
           value: 'gerencia',
           checked: false
         },
         {
-          title: 'Región', //TODO: translate
+          title: 'Región',
           value: 'region',
           checked: false
         },
         {
-          title: 'Marca', //TODO: translate
+          title: 'Marca',
           value: 'marca',
           checked: false
         },
         {
-          title: 'Categoría', //TODO: translate
+          title: 'Categoría',
           value: 'categoria',
           checked: false
         },
         {
-          title: 'Ruta', //TODO: translate
+          title: 'Ruta',
           value: 'ruta',
           checked: false
         }
@@ -70,6 +71,20 @@ class Catalogs extends Component {
       ],
       addCatalog: ''
     }
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs (slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
   }
 
   handleCheckboxChange (value, item) {
@@ -152,13 +167,13 @@ class Catalogs extends Component {
       <div className='section pad-sides has-20-margin-top catalogs'>
         <h1 className='title is-5'>
           <FormattedMessage
-            id="wizard.periodsBtnPrev"
+            id='wizard.catalogsTitle'
             defaultMessage={`Catálogos de ventas`}
           />
         </h1>
         <p className='subtitle is-6'>
           <FormattedMessage
-            id="wizard.catalogsSubTitle"
+            id='wizard.catalogsSubTitle'
             defaultMessage={`Selecciona los campos con los que cuentan tus ventas o catálogos.`}
           />
         </p>
@@ -168,14 +183,14 @@ class Catalogs extends Component {
             <div className='field'>
               <label className='label'>
                 <FormattedMessage
-                  id="wizard.catalogsAdd"
+                  id='wizard.catalogsAdd'
                   defaultMessage={`Agregar catálogo`}
                 />
               </label>
               <div className='control'>
                 <input
-                  className='input' type='text'
-                  placeholder='Agregar nuevo catálogo' //TODO: translate
+                  className='input input-font' type='text'
+                  placeholder={this.formatTitle('wizard.catalogsAdd')}
                   value={this.state.addCatalog}
                   onKeyDown={(e) => { this.addUserCatalog(e) }}
                   onChange={(e) => { this.setState({ addCatalog: e.target.value }) }} />
@@ -186,7 +201,7 @@ class Catalogs extends Component {
               <header className='card-header'>
                 <p className='card-header-title'>
                   <FormattedMessage
-                    id="wizard.catalogsSelect"
+                    id='wizard.catalogsSelect'
                     defaultMessage={`Selecciona campos`}
                   />
                 </p>
@@ -196,13 +211,17 @@ class Catalogs extends Component {
 
                   {
                     this.state.catalogs.map((item, key) => {
+                      let title = item.title.replace(/-/g, ' ')
+                      if (this.findInCatalogs(item.value)) {
+                        title = this.formatTitle('catalogs.' + item.value)
+                      }
                       return (
                         <div className='column is-3 is-capitalized' key={key}>
                           <div className='field is-grouped'>
                             <div className='control'>
                               <Checkbox
                                 key={key}
-                                label={item.title.replace(/-/g, ' ')}
+                                label={title}
                                 handleCheckboxChange={(e, value) => this.handleCheckboxChange(value, item)}
                                 checked={item.checked}
                                 disabled={item.disabled}
@@ -211,17 +230,18 @@ class Catalogs extends Component {
                             <div className='control'>
                               {item.delete &&
                                 <DeleteButton
-                                  objectName='Catálogo'
+                                  titleButton={this.formatTitle('datasets.delete')}
+                                  objectName={this.formatTitle('wizard.catalog')}
                                   objectDelete={() => this.removeItem(item)}
                                   message={
                                     <span>
                                       <FormattedMessage
-                                        id="wizard.catalogsDaleteMsg1"
+                                        id='wizard.catalogsDaleteMsg1'
                                         defaultMessage={`¿Estas seguro de querer eliminar este Catálogo?`}
                                       />
                                       <br />
                                       <FormattedMessage
-                                        id="wizard.catalogsDaleteMsg2"
+                                        id='wizard.catalogsDaleteMsg2'
                                         defaultMessage={`Los elementos de éste catálogo ya no estarán disponibles`}
                                       />
                                     </span>
@@ -246,13 +266,13 @@ class Catalogs extends Component {
             this.props.completed && this.props.completed.length < 4
             ? <button onClick={() => this.props.setStep(4)} className='button is-primary'>
               <FormattedMessage
-                id="wizard.catalogsBtnPrev"
+                id='wizard.catalogsBtnPrev'
                 defaultMessage={`Atrás`}
               />
             </button>
             : <button onClick={() => this.props.setStep(1)} className='button is-danger'>
               <FormattedMessage
-                id="wizard.catalogsBtnCancel"
+                id='wizard.catalogsBtnCancel'
                 defaultMessage={`Cancelar`}
               />
             </button>
@@ -263,11 +283,11 @@ class Catalogs extends Component {
             {this.props.org && !this.props.org.isConfigured &&
               this.props.completed && this.props.completed.length < 4
               ? <FormattedMessage
-                id="wizard.catalogsBtnNext"
+                id='wizard.catalogsBtnNext'
                 defaultMessage={`Siguente`}
               />
               : <FormattedMessage
-                id="wizard.catalogsBtnSave"
+                id='wizard.catalogsBtnSave'
                 defaultMessage={`Guardar`}
               />
             }
@@ -278,4 +298,4 @@ class Catalogs extends Component {
   }
 }
 
-export default Catalogs
+export default injectIntl(Catalogs)

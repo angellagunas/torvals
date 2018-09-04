@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl
+ } from 'react-intl'
 import moment from 'moment'
 import tree from '~core/tree'
 import _ from 'lodash'
@@ -12,6 +13,7 @@ import Graph from '~base/components/graph'
 import { BaseTable } from '~base/components/base-table'
 import Checkbox from '~base/components/base-checkbox'
 import { toast } from 'react-toastify'
+import { defaultCatalogs } from '~base/tools'
 
 class HistoricReport extends Component {
   constructor(props) {
@@ -36,6 +38,17 @@ class HistoricReport extends Component {
     this.currentRole = tree.get('user').currentRole.slug
     this.rules = tree.get('rule')
 
+    moment.locale(this.formatTitle('dates.locale'))
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
   }
 
   componentWillMount() {
@@ -216,8 +229,7 @@ class HistoricReport extends Component {
       } catch (e) {
         this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
         this.setState({
-          //TODO: translate
-          noData: e.message + ', intente más tarde'
+          noData: e.message + ', ' + this.formatTitle('dashboard.try')
         })
       }
     }
@@ -266,7 +278,7 @@ class HistoricReport extends Component {
   getColumns() {
     let cols = [
       {
-        'title': 'Id',
+        'title': this.formatTitle('tables.colId'),
         'property': 'product.externalId',
         'default': 'N/A',
         'sortable': true,
@@ -275,7 +287,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'Producto', //TODO: translate
+        'title': this.formatTitle('tables.colProduct'),
         'property': 'product.name',
         'default': 'N/A',
         'sortable': true,
@@ -284,7 +296,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'Predicción', //TODO: translate
+        'title': this.formatTitle('tables.colForecast'),
         'property': 'prediction',
         'default': '0',
         'sortable': true,
@@ -297,7 +309,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'Ajuste', //TODO: translate
+        'title': this.formatTitle('tables.colAdjustment'),
         'property': 'adjustment',
         'default': '0',
         'sortable': true,
@@ -310,7 +322,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'Venta', //TODO: translate
+        'title': this.formatTitle('tables.colSales'),
         'property': 'sale',
         'default': '0',
         'sortable': true,
@@ -323,7 +335,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'Venta año anterior', //TODO: translate
+        'title': this.formatTitle('tables.colLast'),
         'property': 'previousSale',
         'default': '0',
         'sortable': true,
@@ -336,7 +348,7 @@ class HistoricReport extends Component {
         }
       },
       {
-        'title': 'MAPE', //TODO: translate
+        'title': 'MAPE',
         'property': 'mape',
         'default': '0.00%',
         'sortable': true,
@@ -560,7 +572,8 @@ class HistoricReport extends Component {
         type: this.findName(key),
         objects: value,
         selectAll: true,
-        isOpen: true
+        isOpen: true,
+        slug: key
       }))
       .value()
 
@@ -627,6 +640,10 @@ class HistoricReport extends Component {
   makeFilters() {
     return this.state.catalogItems.map(item => {
       if (item.type !== 'Producto' && item.type !== 'Precio') {
+        let title = item.type
+        if (this.findInCatalogs(item.slug)) {
+          title = this.formatTitle('catalogs.' + item.slug)
+        }
         return (
           <li key={item.type} className='filters-item'>
             <div className={item.isOpen ? 'collapsable-title' : 'collapsable-title active'}
@@ -636,7 +653,7 @@ class HistoricReport extends Component {
                   <i className={item.isOpen
                     ? 'fa fa-plus' : 'fa fa-minus'} />
                 </span>
-                {item.type} <strong>{item.objects && item.objects.length}</strong>
+                {title} <strong>{item.objects && item.objects.length}</strong>
               </a>
             </div>
             <aside className={item.isOpen
@@ -644,7 +661,7 @@ class HistoricReport extends Component {
               <div>
                 <Checkbox
                   checked={item.selectAll}
-                  label={'Seleccionar Todos'}
+                  label={this.formatTitle('dashboard.selectAll')}
                   handleCheckboxChange={(e, value) => {
                     this.checkAllItems(value, item.type)
                     this.getGraph()
@@ -659,8 +676,8 @@ class HistoricReport extends Component {
                     if (obj.selected === undefined) {
                       obj.selected = true
                     }
-                    //TODO: translate
-                    let name = obj.name === 'Not identified' ? obj.externalId + ' (No identificado)' : obj.externalId + ' ' + obj.name
+                    
+                  let name = obj.name === 'Not identified' ? obj.externalId + ' ' + this.formatTitle('dashboard.unidentified') : obj.externalId + ' ' + obj.name
 
                     return (
                       <li key={obj.uuid}>
@@ -763,6 +780,10 @@ class HistoricReport extends Component {
     }
   }
 
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render() {
     const user = tree.get('user')
 
@@ -813,7 +834,7 @@ class HistoricReport extends Component {
 
       graph = [
         {
-          label: 'Predicción', //TODO: translate
+          label: this.formatTitle('tables.colForecast'),
           color: '#187FE6',
           data: prediction
         }
@@ -830,7 +851,7 @@ class HistoricReport extends Component {
         })
 
         graph.push({
-          label: 'Ajuste ' + (key + 1), //TODO: translate
+          label: this.formatTitle('datasets.adjustment') + ' ' + (key + 1),
           color: this.getRandColor(4),
           data: data
         })
@@ -1269,8 +1290,8 @@ export default Page({
   path: '/reports/historic',
   exact: true,
   validate: loggedIn,
-  component: HistoricReport,
-  title: 'Histórico de ajustes', //TODO: translate
+  component: injectIntl(HistoricReport),
+  title: 'Histórico de ajustes',
   icon: 'history',
   roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'
 })

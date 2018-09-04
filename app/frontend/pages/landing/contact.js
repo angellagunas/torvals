@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import api from '~base/api'
+import { injectIntl } from 'react-intl'
 
 class Contact extends Component {
   constructor (props) {
@@ -14,6 +15,10 @@ class Contact extends Component {
       },
       success: false
     }
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   async contact (e) {
@@ -82,12 +87,11 @@ class Contact extends Component {
           <div className='container'>
             <div className='columns'>
               <div className='column is-6'>
-                <h1 className='title'>
-                  ¿Necesitas más información?
-                  </h1>
-                <h2>
-                  Creamos un paquete y cotización especialmente a tus necesidades.
-                  Solicitala y uno de nuestros agentes se pondrá en contacto contigo para ayudarte.
+                <h1 className='title is-spaced'>
+                  {this.formatTitle('landing.moreInfo')}
+                </h1>
+                <h2 className='subtitle'>
+                  {this.formatTitle('landing.moreInfoText')}
                 </h2>
               </div>
               <div className='column is-offset-1'>
@@ -95,7 +99,7 @@ class Contact extends Component {
                   <div className='columns'>
                     <div className='column'>
                       <div className='field'>
-                        <label className='label'>Nombre</label>
+                        <label className='label'>{this.formatTitle('landing.contactName')}</label>
                         <div className='control'>
                           <input className='input' type='text' placeholder='Josué Monroy'
                             value={this.state.contact.name}
@@ -105,7 +109,7 @@ class Contact extends Component {
                     </div>
                     <div className='column'>
                       <div className='field'>
-                        <label className='label'>Correo</label>
+                        <label className='label'>{this.formatTitle('landing.contactEmail')}</label>
                         <div className='control'>
                           <input className='input' type='email' placeholder='jm@empresa.com'
                             value={this.state.contact.email}
@@ -118,7 +122,7 @@ class Contact extends Component {
                   <div className='columns'>
                     <div className='column'>
                       <div className='field'>
-                        <label className='label'>Empresa u Organización</label>
+                        <label className='label'>{this.formatTitle('landing.contactOrg')}</label>
                         <div className='control'>
                           <input className='input' type='text' placeholder='Grupo Monroy'
                             value={this.state.contact.org}
@@ -131,7 +135,7 @@ class Contact extends Component {
                   <div className='columns'>
                     <div className='column'>
                       <div className='field'>
-                        <label className='label'>Número de empleados</label>
+                        <label className='label'>{this.formatTitle('landing.contactNum')}</label>
                         <div className='control'>
                           <input className='input' type='text' placeholder='50'
                             value={this.state.contact.employees}
@@ -141,7 +145,7 @@ class Contact extends Component {
                     </div>
                     <div className='column'>
                       <div className='field'>
-                        <label className='label'>País</label>
+                        <label className='label'>{this.formatTitle('landing.contactCountry')}</label>
                         <div className='control'>
                           <input className='input' type='text' placeholder='México'
                             value={this.state.contact.country}
@@ -154,19 +158,19 @@ class Contact extends Component {
                   <button className={'button is-primary is-pulled-right ' + this.state.loading}
                     type='submit'
                     disabled={!!this.state.loading}>
-                  Enviar
-                </button>
+                    {this.formatTitle('landing.contactSend')}
+                  </button>
                   {this.state.success &&
                     <div className='message is-primary contact-msg is-pulled-right'>
                       <div className='message-body has-text-primary'>
-                        Enviado, un agente recibirá tus datos y se comunicará posteriormente.
+                        {this.formatTitle('landing.contactOk')}
                       </div>
                     </div>
                   }
                   {this.state.fail &&
                     <div className='message is-danger contact-msg is-pulled-right'>
                       <div className='message-body has-text-danger'>
-                        Ocurrió un error, intenta más tarde.
+                        {this.formatTitle('landing.contactError')}
                       </div>
                     </div>
                   }
@@ -183,4 +187,4 @@ class Contact extends Component {
   }
 }
 
-export default Contact
+export default injectIntl(Contact)

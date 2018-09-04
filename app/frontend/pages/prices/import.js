@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import ImportCSV from '../import/import-csv'
 import BaseModal from '~base/components/base-modal'
 import tree from '~core/tree'
+import { injectIntl } from 'react-intl'
 
 class ImportPrices extends Component {
   constructor (props) {
@@ -11,6 +12,10 @@ class ImportPrices extends Component {
       isLoading: ''
     }
     this.rules = tree.get('rule')
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   getRandomInt (min, max) {
@@ -56,13 +61,13 @@ class ImportPrices extends Component {
     return (
       <div>
         <BaseModal
-          title={'Importar ' + this.props.title}
+          title={this.formatTitle('catalogs.import') + ' ' + this.formatTitle('sideMenu.prices')}
           className={this.props.className + ' import-modal'}
           hideModal={this.hideModal}>
           <ImportCSV
             isModal
             type={this.props.branchName}
-            title={this.props.title}
+            title={this.formatTitle(this.props.title)}
             finishUp={this.props.finishUp}
             url='/app/prices/import/'
             format={
@@ -77,4 +82,4 @@ class ImportPrices extends Component {
   }
 }
 
-export default ImportPrices
+export default injectIntl(ImportPrices)

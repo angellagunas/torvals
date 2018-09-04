@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import BaseModal from '~base/components/base-modal'
 import Link from '~base/router/link'
@@ -20,23 +20,27 @@ class GroupUsers extends Component {
     tree.commit()
     this.props.changeTab('users')
   }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
   
   getColumns () {
     return [
-      { //TODO: translate
-        'title': 'Nombre',
+      {
+        'title': this.formatTitle('user.formName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
-      { //TODO: translate
-        'title': 'Email',
+      {
+        'title': this.formatTitle('user.formEmail'),
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
-      { //TODO: translate
-        'title': 'Acciones',
+      {
+        'title': this.formatTitle('user.tableActions'),
         formatter: (row) => {
           return <button className='button is-primary' onClick={() => this.selectUser(row)} >
                   <span className='icon is-small'>
@@ -93,8 +97,7 @@ class GroupUsers extends Component {
           />
         </a>
         <BaseModal
-          //TODO: translate
-          title={'Usuarios grupo ' + this.props.group.name}
+          title={this.formatTitle('groups.groupUsers') + ' ' + this.props.group.name}
           className={this.state.classNameList}
           hideModal={this.hideModalList.bind(this)}
         >
@@ -110,4 +113,4 @@ class GroupUsers extends Component {
   }
 }
 
-export default GroupUsers
+export default injectIntl(GroupUsers)

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import api from '~base/api'
 import { BaseForm, FileWidget } from '~base/components/base-form'
 
@@ -63,12 +63,16 @@ class ImportCSV extends Component {
     }
   }
 
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   render () {
     let schema = {
       type: 'object',
       required: ['file'],
       properties: {
-        file: { type: 'string', title: 'Archivo a importar', format: 'data-url' }
+        file: { type: 'string', title: this.formatTitle('import.importMsg'), format: 'data-url' }
       }
     }
 
@@ -125,7 +129,7 @@ class ImportCSV extends Component {
                       type='submit'
                     >
                       <FormattedMessage
-                        id='channel.btnImport'
+                        id='import.btnImport'
                         defaultMessage={`Importar`}
                       />
                     </button>
@@ -135,7 +139,7 @@ class ImportCSV extends Component {
               <div className='column'>
                 <h4>
                   <FormattedMessage
-                    id='channel.info'
+                    id='import.info'
                     defaultMessage={`El archivo .csv debe contener el mismo formato que el mostrado debajo: `}
                   />
                 </h4>
@@ -153,7 +157,7 @@ class ImportCSV extends Component {
         <div className='section-header'>
           <h2>
             <FormattedMessage
-              id='channel.title'
+              id='import.title'
               defaultMessage={`Cargar`}
             /> {this.props.title}
           </h2>
@@ -188,7 +192,7 @@ class ImportCSV extends Component {
                         type='submit'
                       >
                         <FormattedMessage
-                          id='channel.btnImport'
+                          id='import.btnImport'
                           defaultMessage={`Importar`}
                         />
                       </button>
@@ -198,7 +202,7 @@ class ImportCSV extends Component {
                 <div className='column'>
                   <h4>
                     <FormattedMessage
-                      id='channel.info'
+                      id='import.info'
                       defaultMessage={`El archivo .csv debe contener el mismo formato que el mostrado debajo: `}
                     />
                   </h4>
@@ -214,4 +218,4 @@ class ImportCSV extends Component {
   }
 }
 
-export default ImportCSV
+export default injectIntl(ImportCSV)

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, injectIntl } from 'react-intl'
 import { BranchedPaginatedTable } from '~base/components/base-paginated-table'
 import api from '~base/api'
 import DeleteButton from '~base/components/base-deleteButton'
@@ -18,28 +18,33 @@ class UsersDetail extends Component {
       canCreate: 'admin, orgadmin, analyst, manager-level-2, manager-level-3'
     }
   }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
   getColumns () {
     return [
       {
-        'title': 'Nombre', //TODO: translate
+        'title': this.formatTitle('user.formName'),
         'property': 'name',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Email', //TODO: translate
+        'title': this.formatTitle('user.formEmail'),
         'property': 'email',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Rol', //TODO: translate
+        'title': this.formatTitle('user.formRole'),
         'property': 'role',
         'default': 'N/A',
         'sortable': true
       },
       {
-        'title': 'Grupos', //TODO: translate
+        'title': this.formatTitle('user.groups'),
         'property': 'groups',
         'default': 'N/A',
         'sortable': true,
@@ -52,7 +57,7 @@ class UsersDetail extends Component {
                 {row.groups[1].name}
                 <br />
                 {row.groups.length - 2} <FormattedMessage
-                  id="user.detailMore"
+                  id='user.detailMore'
                   defaultMessage={`más`}
                 />
               </div>
@@ -75,7 +80,7 @@ class UsersDetail extends Component {
         }
       },
       {
-        'title': 'Acciones', //TODO: translate
+        'title': this.formatTitle('user.tableActions'),
         formatter: (row) => {
           const deleteObject = async function () {
             var url = '/app/users/' + row.uuid
@@ -92,7 +97,6 @@ class UsersDetail extends Component {
             })
             tree.commit()
             await updateStep()
-            
           }
 
           const updateStep = async function () {
@@ -128,7 +132,6 @@ class UsersDetail extends Component {
             }
           }
 
-
           const currentUser = tree.get('user')
           var disabledActions = false
 
@@ -149,12 +152,12 @@ class UsersDetail extends Component {
               <div className='control'>
                 {disabledActions
                 ? <a className='button is-primary' onClick={() => this.selectUser(row)}>
-                  <span className='icon is-small' title='Visualizar'>
+                  <span className='icon is-small' title={this.formatTitle('user.detail')}>
                     <i className='fa fa-eye' />
                   </span>
                 </a>
                   : <a className='button is-primary' onClick={() => this.selectUser(row)}>
-                    <span className='icon is-small' title='Editar'>
+                    <span className='icon is-small' title={this.formatTitle('user.edit')}>
                       <i className='fa fa-pencil' />
                     </span>
                   </a>
@@ -165,10 +168,10 @@ class UsersDetail extends Component {
                 <DeleteButton
                   iconOnly
                   icon='fa fa-trash'
-                  objectName='Usuario'
+                  objectName={this.formatTitle('user.deleteObj')}
+                  titleButton={this.formatTitle('user.delete')}
                   objectDelete={deleteObject}
-                  //TODO: translate
-                  message={`¿Está seguro de querer desactivar a ${row.name} ?`}
+                  message={`${this.formatTitle('user.deleteMsg')} ${row.name} ?`}
                 />
               )}
               </div>
@@ -224,7 +227,7 @@ class UsersDetail extends Component {
               <div className='level-item'>
                 <h1 className='title is-5'>
                   <FormattedMessage
-                    id="user.detailTitle"
+                    id='user.detailTitle'
                     defaultMessage={`Visualiza tus usuarios`}
                   />
                 </h1>
@@ -238,7 +241,9 @@ class UsersDetail extends Component {
                       className='input input-search'
                       type='text'
                       value={this.state.searchTerm}
-                      onChange={(e) => { this.searchOnChange(e) }} placeholder='Buscar' />
+                      onChange={(e) => { this.searchOnChange(e) }}
+                      placeholder={this.formatTitle('dashboard.searchText')}
+                    />
 
                     <span className='icon is-small is-right'>
                       <i className='fa fa-search fa-xs' />
@@ -254,7 +259,7 @@ class UsersDetail extends Component {
                 >
                   <span>
                     <FormattedMessage
-                      id="user.detailBtnNew"
+                      id='user.detailBtnNew'
                       defaultMessage={`Nuevo Usuario`}
                     />
                   </span>
@@ -292,4 +297,4 @@ class UsersDetail extends Component {
   }
 }
 
-export default UsersDetail
+export default injectIntl(UsersDetail)
