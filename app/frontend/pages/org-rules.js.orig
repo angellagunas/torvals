@@ -1,0 +1,1216 @@
+<<<<<<< HEAD
+import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
+import Page from '~base/page'
+import { loggedIn, verifyRole } from '~base/middlewares/'
+import tree from '~core/tree'
+import Periods from './wizard/steps/periods'
+import Ranges from './wizard/steps/ranges'
+import DeadLines from './wizard/steps/deadlines'
+import Catalogs from './wizard/steps/catalogs'
+import Tabs from '~base/components/base-tabs'
+import moment from 'moment'
+import { toast } from 'react-toastify'
+import api from '~base/api'
+import BaseModal from '~base/components/base-modal'
+import { Prompt } from 'react-router-dom'
+import Wizard from './wizard/wizard'
+import { defaultCatalogs } from '~base/tools'
+=======
+import React, { Component } from 'react';
+import Page from '~base/page';
+import { loggedIn, verifyRole } from '~base/middlewares/';
+import tree from '~core/tree';
+import Periods from './wizard/steps/periods';
+import Ranges from './wizard/steps/ranges';
+import DeadLines from './wizard/steps/deadlines';
+import Catalogs from './wizard/steps/catalogs';
+import Tabs from '~base/components/base-tabs';
+import moment from 'moment';
+import { toast } from 'react-toastify';
+import api from '~base/api';
+import BaseModal from '~base/components/base-modal';
+import { Prompt } from 'react-router-dom';
+
+const times = {
+  d: 'Día',
+
+  w: 'Semana',
+
+  M: 'Mes',
+
+  y: 'Año',
+};
+>>>>>>> release
+
+class OrgRules extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentStep: 1,
+      rules: tree.get('rule'),
+      unsaved: false,
+      important: false,
+      isLoading: '',
+      className: '',
+      projectModal: '',
+      alert: false,
+      selectedTab: '0',
+    };
+    this.tabs = [];
+  }
+
+  async saveData() {
+    if (this.state.important) {
+      this.showModal();
+      return;
+    }
+    this.setState({ isLoading: 'is-loading' });
+
+    try {
+      let url = '/app/rules';
+
+      let res = await api.post(url, {
+        ...this.state.rules,
+      });
+
+      if (res) {
+        this.notify(
+          this.formatTitle('orgRules.brMsg2'),
+          5000,
+          toast.TYPE.SUCCESS
+        );
+
+        this.setState({
+          unsaved: false,
+          isLoading: '',
+          className: '',
+          rules: res.rules,
+        });
+        tree.set('rule', res.rules);
+        tree.commit();
+        return true;
+      } else {
+        this.setState({ isLoading: '', className: '' });
+        return false;
+      }
+    } catch (e) {
+      console.log(e);
+      this.setState({ isLoading: '', className: '' });
+      return false;
+    }
+  }
+
+  nextStep(data, step) {
+    this.setTab();
+
+    if (data) {
+      this.setState({
+        rules: {
+          ...this.state.rules,
+          ...data,
+          step: step,
+        },
+        unsaved: true,
+        important: step === 1 || step === 4 || this.state.important,
+        currentStep: 1,
+      });
+    }
+  }
+
+  setStep(step) {
+    this.setTab();
+    this.setState({ currentStep: step });
+  }
+
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+    let className = '';
+    if (type === toast.TYPE.WARNING) {
+      className = 'has-bg-warning';
+    }
+    if (!toast.isActive(this.toastId)) {
+      this.toastId = toast(message, {
+        autoClose: timeout,
+        type: type,
+        hideProgressBar: true,
+        closeButton: false,
+        className: className,
+      });
+    } else {
+      toast.update(this.toastId, {
+        render: message,
+        type: type,
+        autoClose: timeout,
+        closeButton: false,
+        className: className,
+      });
+    }
+  }
+
+  confirmMsg() {
+    return (
+      <BaseModal
+<<<<<<< HEAD
+        title={this.formatTitle('orgRules.brMsg3')}
+=======
+        title="Cambios en reglas de negocio"
+>>>>>>> release
+        className={'modal-confirm ' + this.state.className}
+        hideModal={() => {
+          this.hideModal();
+        }}
+      >
+        <center>
+          <h3>
+<<<<<<< HEAD
+            <FormattedMessage
+              id='orgRules.confirmModalTitle'
+              defaultMessage={`Seguro de guardar las últimas reglas de negocio establecidas?`}
+            />
+            <p>
+              <strong>
+                <FormattedMessage
+                  id='orgRules.confirmModalTitleWarning'
+                  defaultMessage={`Recuerda que tus reglas anteriores se perderán.`}
+              />
+              </strong>
+=======
+            ¿Estas seguro de guardar las últimas reglas de negocio establecidas?
+            <p>
+              <strong>Recuerda que tus reglas anteriores se perderán.</strong>
+>>>>>>> release
+            </p>
+          </h3>
+          <br />
+          <div className="buttons org-rules__modal">
+            <button
+              className={
+                'button is-pulled-right is-success ' + this.state.isLoading
+              }
+              disabled={!!this.state.isLoading}
+<<<<<<< HEAD
+              onClick={() => { this.confirmSave() }}
+            >
+              <FormattedMessage
+                id='orgRules.confirmModalBtnSave'
+                defaultMessage={`Sí, guardar`}
+              />
+            </button>
+            <button
+              className='button is-primary is-inverted is-pulled-right'
+              onClick={() => { this.hideModal() }}
+            >
+              <FormattedMessage
+                id='orgRules.confirmModalBtnCancel'
+                defaultMessage={`No, regresar`}
+              />
+=======
+              onClick={() => {
+                this.confirmSave();
+              }}
+            >
+              Sí, guardar
+            </button>
+            <button
+              className="button is-primary is-inverted is-pulled-right"
+              onClick={() => {
+                this.hideModal();
+              }}
+            >
+              No, regresar
+>>>>>>> release
+            </button>
+          </div>
+        </center>
+      </BaseModal>
+    );
+  }
+
+  confirmSave() {
+    this.setState(
+      {
+        important: false,
+        rules: { ...this.state.rules, important: true },
+      },
+      async () => {
+        await this.saveData();
+        let url = '/app/projects';
+        let res = await api.get(url, {
+          outdated: true,
+          limit: 0,
+        });
+        if (res.data.length > 0) {
+          this.setState({
+            projectList: res.data,
+            alert: true,
+          });
+        }
+      }
+    );
+  }
+
+  showModal() {
+    this.setState({
+      className: ' is-active',
+    });
+  }
+
+  hideModal() {
+    this.setState({
+      className: '',
+    });
+  }
+
+  showModalProjects() {
+    this.setState({
+      projectModal: ' is-active',
+    });
+  }
+
+  hideModalProjects() {
+    this.setState({
+      projectModal: '',
+    });
+  }
+
+  selectProject(item) {
+    this.setState({
+      projecSelected: item,
+    });
+  }
+
+  async confirmUpdate() {
+    const url = '/app/projects/update/businessRules';
+    try {
+      await api.post(url, { ...this.state.projecSelected });
+      this.hideModalProjects();
+      this.props.history.push('/projects/' + this.state.projecSelected.uuid);
+    } catch (e) {
+      toast('Error: ' + e.message, {
+        autoClose: 5000,
+        type: toast.TYPE.ERROR,
+        hideProgressBar: true,
+        closeButton: false,
+      });
+    }
+  }
+
+  projectsModal() {
+    return (
+      <BaseModal
+<<<<<<< HEAD
+        title={this.formatTitle('orgRules.brMsg3')}
+        className={'modal-confirm ' + this.state.projectModal}
+        hideModal={() => { this.hideModalProjects() }}>
+        <h3>
+          <FormattedMessage
+            id='orgRules.projectsModalTitle'
+            defaultMessage={`Selecciona un proyecto para actualizar.`}
+          />
+        </h3>
+=======
+        title="Cambios en reglas de negocio"
+        className={'modal-confirm ' + this.state.projectModal}
+        hideModal={() => {
+          this.hideModalProjects();
+        }}
+      >
+        <h3>Selecciona un proyecto para actualizar.</h3>
+>>>>>>> release
+        <br />
+        <div className="columns is-multiline org-rules__project-container">
+          {this.state.projectList &&
+            this.state.projectList.map(item => {
+              return (
+                <div className="column is-6" key={item.uuid}>
+                  <div className="card">
+                    <div className="card-content">
+                      <input
+                        className="is-checkradio is-info is-small"
+                        id={item.name}
+                        type="radio"
+                        name="projects"
+                        disabled={this.state.waitingData}
+                        onChange={() => this.selectProject(item)}
+                      />
+                      <label htmlFor={item.name}>
+                        <span title={item.name}>{item.name}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+        <div className="buttons org-rules__modal">
+          <button
+            className={
+              'button is-pulled-right is-primary ' + this.state.isLoading
+            }
+            disabled={!!this.state.isLoading || !this.state.projecSelected}
+<<<<<<< HEAD
+            onClick={() => { this.confirmUpdate() }}
+          >
+            <FormattedMessage
+              id='orgRules.projectsModalBtnSave'
+              defaultMessage={`Actualizar`}
+            />
+          </button>
+          <button
+            className='button is-primary is-inverted is-pulled-right'
+            onClick={() => { this.hideModalProjects() }}
+          >
+            <FormattedMessage
+              id='orgRules.projectsModalBtnCancel'
+              defaultMessage={`Ahora no`}
+            />
+=======
+            onClick={() => {
+              this.confirmUpdate();
+            }}
+          >
+            Actualizar
+          </button>
+          <button
+            className="button is-primary is-inverted is-pulled-right"
+            onClick={() => {
+              this.hideModalProjects();
+            }}
+          >
+            Ahora no
+>>>>>>> release
+          </button>
+        </div>
+      </BaseModal>
+    );
+  }
+
+  setTab() {
+    let tab = '0';
+    if (this.state.currentStep === 2 || this.state.currentStep === 5) {
+      tab = '1';
+    }
+    this.setState({
+      selectedTab: tab,
+    });
+  }
+
+<<<<<<< HEAD
+  componentWillMount () {
+    var userCursor = tree.select('user')
+
+    userCursor.on('update', () => {
+      this.forceUpdate()
+    })
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs (slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
+  render () {
+    let user = tree.get('user')
+    let org = user.currentOrganization
+
+    if (!org.isConfigured && user.currentRole.slug === 'orgadmin') {
+      return (
+        <Wizard rules={this.state.rules} org={user.currentOrganization} />
+      )
+    }
+
+    const times = {
+      'd': this.formatTitle('orgRules.day'),
+
+      'w': this.formatTitle('orgRules.week'),
+
+      'M': this.formatTitle('orgRules.month'),
+
+      'y': this.formatTitle('orgRules.year')
+
+    }
+=======
+  render() {
+    let org = tree.get('user').currentOrganization;
+>>>>>>> release
+
+    this.tabs = [
+      {
+        name: '0',
+        title: this.formatTitle('orgRules.tabOp'),
+        hide: false,
+        disabled: false,
+        content: (
+<<<<<<< HEAD
+          <div className='columns section is-centered'>
+            <div className='column'>
+              <div className='card'>
+                <div className='card-header'>
+                  <p className='card-header-title'>
+                    <FormattedMessage
+                      id='orgRules.rulesRangeTitle'
+                      defaultMessage={`Rangos de ajuste`}
+                    />
+                  </p>
+=======
+          <div className="columns section is-centered">
+            <div className="column">
+              <div className="card">
+                <div className="card-header">
+                  <p className="card-header-title">Rangos de ajuste</p>
+>>>>>>> release
+                </div>
+                <div className="card-content">
+                  <ul className="rules-ranges">
+                    <li>
+<<<<<<< HEAD
+                      <div className='columns is-gapless has-addons'>
+                        <span className='column has-text-centered clear-blue has-text-weight-semibold'>
+                          <FormattedMessage
+                            id='orgRules.rulesRange1'
+                            defaultMessage={`Ciclos`}
+                          />
+                        </span>
+                        <span className='column has-text-centered clear-blue has-text-weight-semibold'>
+                          <FormattedMessage
+                            id='orgRules.rulesRange2'
+                            defaultMessage={`Manager Lvl 1`}
+                          />
+                        </span>
+                        <span className='column has-text-centered clear-blue has-text-weight-semibold'>
+                          <FormattedMessage
+                            id='orgRules.rulesRange3'
+                            defaultMessage={`Manager Lvl 2`}
+                          />
+=======
+                      <div className="columns is-gapless has-addons">
+                        <span className="column has-text-centered clear-blue has-text-weight-semibold">
+                          {' '}
+                          Ciclos
+                        </span>
+                        <span className="column has-text-centered clear-blue has-text-weight-semibold">
+                          Manager Lvl 1
+                        </span>
+                        <span className="column has-text-centered clear-blue has-text-weight-semibold">
+                          Manager Lvl 2
+>>>>>>> release
+                        </span>
+                      </div>
+                    </li>
+                    {this.state.rules.ranges.map((item, key) => {
+                      if (key < this.state.rules.cyclesAvailable) {
+                        return (
+                          <li key={key}>
+<<<<<<< HEAD
+                            <div className='columns is-gapless has-addons'>
+                              <span className='column has-text-centered has-background-light has-text-weight-semibold'>
+                                {key + 1}
+                              </span>
+                              <span className='column has-text-centered has-background-light has-text-weight-semibold'>
+                                {
+                                  item !== null
+                                    ? item + '%'
+                                    : <FormattedMessage
+                                      id='orgRules.rulesRangeUnlimited'
+                                      defaultMessage={`ilimitado`}
+                                    />
+                                }
+                              </span>
+                              <span className='column has-text-centered has-background-light has-text-weight-semibold'>
+                                {
+                                  this.state.rules.rangesLvl2[key] !== undefined
+                                    ? this.state.rules.rangesLvl2[key] !== null
+                                      ? this.state.rules.rangesLvl2[key] + '%'
+                                      : <FormattedMessage
+                                        id='orgRules.rulesRangeUnlimited'
+                                        defaultMessage={`ilimitado`}
+                                      />
+                                    : <FormattedMessage
+                                      id='orgRules.rulesRangeUndefined'
+                                      defaultMessage={`No definido`}
+                                    />
+                                }
+=======
+                            <div className="columns is-gapless has-addons">
+                              <span className="column has-text-centered has-background-light has-text-weight-semibold">
+                                {' '}
+                                {key + 1}
+                              </span>
+                              <span className="column has-text-centered has-background-light has-text-weight-semibold">
+                                {item !== null ? item + '%' : 'ilimitado'}
+                              </span>
+                              <span className="column has-text-centered has-background-light has-text-weight-semibold">
+                                {this.state.rules.rangesLvl2[key] !== undefined
+                                  ? this.state.rules.rangesLvl2[key] !== null
+                                    ? this.state.rules.rangesLvl2[key] + '%'
+                                    : 'ilimitado'
+                                  : 'No definido'}
+>>>>>>> release
+                              </span>
+                            </div>
+                          </li>
+                        );
+                      }
+                    })}
+                  </ul>
+<<<<<<< HEAD
+                  <button className='button is-primary edit-btn'
+                    onClick={() => this.setStep(3)}>
+                    <FormattedMessage
+                      id='orgRules.btnEdit'
+                      defaultMessage={`Editar`}
+                    />
+=======
+                  <button
+                    className="button is-primary edit-btn"
+                    onClick={() => this.setStep(3)}
+                  >
+                    Editar
+>>>>>>> release
+                  </button>
+                </div>
+              </div>
+            </div>
+
+<<<<<<< HEAD
+            <div className='column'>
+              <div className='card'>
+                <div className='card-header'>
+                  <p className='card-header-title'>
+                    <FormattedMessage
+                      id='orgRules.cyclesTitle'
+                      defaultMessage={`Ciclos de operación`}
+                    />
+                  </p>
+=======
+            <div className="column">
+              <div className="card">
+                <div className="card-header">
+                  <p className="card-header-title">Ciclos de operación</p>
+>>>>>>> release
+                </div>
+                <div className="card-content">
+                  <ul>
+                    <li>
+<<<<<<< HEAD
+                      <div className='tags has-addons'>
+                        <span className='tag deadline-sales has-text-weight-semibold'>
+                          <FormattedMessage
+                            id='orgRules.cyclesUpdateSales'
+                            defaultMessage={`Actualizar datos de ventas`}
+                          />
+                        </span>
+                        <span className='tag has-text-weight-semibold'>
+                          {this.state.rules.salesUpload}&nbsp;
+                          <FormattedMessage
+                            id='orgRules.cyclesDay'
+                            defaultMessage={`días`}
+                          />
+=======
+                      <div className="tags has-addons">
+                        <span className="tag deadline-sales has-text-weight-semibold">
+                          {' '}
+                          Actualizar datos de ventas
+                        </span>
+                        <span className="tag has-text-weight-semibold">
+                          {this.state.rules.salesUpload} días
+>>>>>>> release
+                        </span>
+                      </div>
+                    </li>
+                    <li>
+<<<<<<< HEAD
+                      <div className='tags has-addons'>
+                        <span className='tag deadline-forecast has-text-weight-semibold'>
+                          <FormattedMessage
+                            id='orgRules.cyclesPrediction'
+                            defaultMessage={`Generar Predicción`}
+                          />
+                        </span>
+                        <span className='tag has-text-weight-semibold'>
+                          {this.state.rules.forecastCreation}&nbsp;
+                          <FormattedMessage
+                            id='orgRules.cyclesDay'
+                            defaultMessage={`días`}
+                          />
+=======
+                      <div className="tags has-addons">
+                        <span className="tag deadline-forecast has-text-weight-semibold">
+                          {' '}
+                          Generar Predicción
+                        </span>
+                        <span className="tag has-text-weight-semibold">
+                          {this.state.rules.forecastCreation} días
+>>>>>>> release
+                        </span>
+                      </div>
+                    </li>
+                    <li>
+<<<<<<< HEAD
+                      <div className='tags has-addons'>
+                        <span className='tag deadline-adjustments has-text-weight-semibold'>
+                          <FormattedMessage
+                            id='orgRules.cyclesAdjustment'
+                            defaultMessage={`Realizar Ajustes`}
+                          />
+                        </span>
+                        <span className='tag has-text-weight-semibold'>
+                          {this.state.rules.rangeAdjustment}&nbsp;
+                          <FormattedMessage
+                            id='orgRules.cyclesDay'
+                            defaultMessage={`días`}
+                          />
+=======
+                      <div className="tags has-addons">
+                        <span className="tag deadline-adjustments has-text-weight-semibold">
+                          {' '}
+                          Realizar Ajustes
+                        </span>
+                        <span className="tag has-text-weight-semibold">
+                          {this.state.rules.rangeAdjustment} días
+>>>>>>> release
+                        </span>
+                      </div>
+                    </li>
+                    <li>
+<<<<<<< HEAD
+                      <div className='tags has-addons'>
+                        <span className='tag deadline-approve has-text-weight-semibold'>
+                          <FormattedMessage
+                            id='orgRules.cyclesApprove'
+                            defaultMessage={`Aprobar Ajustes`}
+                          />
+                        </span>
+                        <span className='tag has-text-weight-semibold'>
+                          {this.state.rules.rangeAdjustmentRequest}&nbsp;
+                          <FormattedMessage
+                            id='orgRules.cyclesDay'
+                            defaultMessage={`días`}
+                          />
+=======
+                      <div className="tags has-addons">
+                        <span className="tag deadline-approve has-text-weight-semibold">
+                          {' '}
+                          Aprobar Ajustes
+                        </span>
+                        <span className="tag has-text-weight-semibold">
+                          {this.state.rules.rangeAdjustmentRequest} días
+>>>>>>> release
+                        </span>
+                      </div>
+                    </li>
+                    <li>
+<<<<<<< HEAD
+                      <div className='tags has-addons'>
+                        <span className='tag deadline-consolidate has-text-weight-semibold'>
+                          <FormattedMessage
+                            id='orgRules.cyclesInfo'
+                            defaultMessage={`Concentrar Información`}
+                          />
+                        </span>
+                        <span className='tag has-text-weight-semibold'>
+                          {this.state.rules.consolidation}&nbsp;
+                          <FormattedMessage
+                            id='orgRules.cyclesDay'
+                            defaultMessage={`días`}
+                          />
+=======
+                      <div className="tags has-addons">
+                        <span className="tag deadline-consolidate has-text-weight-semibold">
+                          {' '}
+                          Concentrar Información
+                        </span>
+                        <span className="tag has-text-weight-semibold">
+                          {this.state.rules.consolidation} días
+>>>>>>> release
+                        </span>
+                      </div>
+                    </li>
+                  </ul>
+
+<<<<<<< HEAD
+                  <button className='button is-primary edit-btn'
+                    onClick={() => this.setStep(4)}>
+                    <FormattedMessage
+                      id='orgRules.btnEdit'
+                      defaultMessage={`días`}
+                    />
+=======
+                  <button
+                    className="button is-primary edit-btn"
+                    onClick={() => this.setStep(4)}
+                  >
+                    Editar
+>>>>>>> release
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="column">
+              <div className="is-centered-content">
+                <DeadLines rules={this.state.rules} hideInputs />
+              </div>
+            </div>
+          </div>
+        ),
+      },
+      {
+        name: '1',
+        title: this.formatTitle('orgRules.tabData'),
+        hide: false,
+        disabled: false,
+        content: (
+<<<<<<< HEAD
+          <div className='columns section is-centered'>
+            <div className='column'>
+              <div className='card'>
+                <div className='card-header'>
+                  <p className='card-header-title'>
+                    <FormattedMessage
+                      id='orgRules.title'
+                      defaultMessage={`Establece tus ciclos y periodos de ajuste`}
+                    />
+                  </p>
+=======
+          <div className="columns section is-centered">
+            <div className="column">
+              <div className="card">
+                <div className="card-header">
+                  <p className="card-header-title">Reglas de organización</p>
+>>>>>>> release
+                </div>
+                <div className="card-content">
+                  <p>
+<<<<<<< HEAD
+                    <FormattedMessage
+                      id='orgRules.cyclesStart'
+                      defaultMessage={`Inicio del ciclo`}
+                    />:&nbsp;
+                    <span className='has-text-weight-bold is-capitalized'>
+                      {moment.utc(this.state.rules.startDate).format('DD-MMM-YYYY')}
+                    </span>
+                  </p>
+                  <p>
+                    <FormattedMessage
+                      id='orgRules.cyclesDuration'
+                      defaultMessage={`Duración de ciclo`}
+                    />:&nbsp;
+                    <span className='has-text-weight-bold is-capitalized'>
+                      {this.state.rules.cycleDuration + ' ' + times[this.state.rules.cycle]}
+                    </span>
+                  </p>
+                  <p>
+                    <FormattedMessage
+                      id='orgRules.cyclesAvailable'
+                      defaultMessage={`Ciclos disponibles para ajuste`}
+                    />:&nbsp;
+                    <span className='has-text-weight-bold is-capitalized'>
+=======
+                    Inicio del ciclo:
+                    <span className="has-text-weight-bold is-capitalized">
+                      {' '}
+                      {moment
+                        .utc(this.state.rules.startDate)
+                        .format('DD-MMM-YYYY')}
+                    </span>
+                  </p>
+                  <p>
+                    Duración de ciclo:
+                    <span className="has-text-weight-bold is-capitalized">
+                      {' '}
+                      {this.state.rules.cycleDuration +
+                        ' ' +
+                        times[this.state.rules.cycle]}
+                    </span>
+                  </p>
+                  <p>
+                    Ciclos disponibles para ajuste:
+                    <span className="has-text-weight-bold is-capitalized">
+                      {' '}
+>>>>>>> release
+                      {this.state.rules.cyclesAvailable}
+                    </span>
+                  </p>
+                  <p>
+<<<<<<< HEAD
+                    <FormattedMessage
+                      id='orgRules.season'
+                      defaultMessage={`Temporada`}
+                    />:&nbsp;
+                      <span className='has-text-weight-bold is-capitalized'>
+                        {this.state.rules.season}
+                        <FormattedMessage
+                          id='orgRules.cycles'
+                          defaultMessage={`ciclos`}
+                        />
+                      </span>
+                  </p>
+                  <p>
+                    <FormattedMessage
+                      id='orgRules.periodsDuration'
+                      defaultMessage={`Duración de periodo`}
+                    />:&nbsp;
+                      <span className='has-text-weight-bold is-capitalized'>
+                        {this.state.rules.periodDuration + ' ' + times[this.state.rules.period]}
+                      </span>
+                  </p>
+                  <p>
+                    <FormattedMessage
+                      id='orgRules.periods'
+                      defaultMessage={`Los periodos pertenecen al ciclo donde`}
+                    />
+                    <span className='has-text-weight-bold'>
+                      {
+                        this.state.rules.takeStart
+                          ? <FormattedMessage
+                            id='orgRules.periodsStart'
+                            defaultMessage={`inician.`}
+                          />
+                          : <FormattedMessage
+                            id='orgRules.periodsEnd'
+                            defaultMessage={`terminan.`}
+                          />
+                      }
+                    </span>
+                  </p>
+
+                  <button className='button is-primary edit-btn'
+                    onClick={() => this.setStep(2)}>
+                    <FormattedMessage
+                      id='orgRules.btnEdit'
+                      defaultMessage={`Editar`}
+                    />
+=======
+                    Temporada:
+                    <span className="has-text-weight-bold is-capitalized">
+                      {' '}
+                      {this.state.rules.season} ciclos
+                    </span>
+                  </p>
+                  <p>
+                    Duración de periodo:
+                    <span className="has-text-weight-bold is-capitalized">
+                      {' '}
+                      {this.state.rules.periodDuration +
+                        ' ' +
+                        times[this.state.rules.period]}
+                    </span>
+                  </p>
+                  <p>
+                    Los periodos pertenecen al ciclo donde
+                    <span className="has-text-weight-bold">
+                      {' '}
+                      {this.state.rules.takeStart
+                        ? 'inician.'
+                        : 'terminan.'}{' '}
+                    </span>
+                  </p>
+
+                  <button
+                    className="button is-primary edit-btn"
+                    onClick={() => this.setStep(2)}
+                  >
+                    Editar
+>>>>>>> release
+                  </button>
+                </div>
+              </div>
+            </div>
+
+<<<<<<< HEAD
+            <div className='column'>
+              <div className='card'>
+                <div className='card-header'>
+                  <p className='card-header-title'>
+                    <FormattedMessage
+                      id='orgRules.catalogs'
+                      defaultMessage={`Catálogos`}
+                    />
+                  </p>
+                </div>
+                <div className='card-content'>
+                  <div className='tags'>
+                    <div className='tag is-capitalized has-text-weight-semibold'>
+                      <FormattedMessage
+                        id='orgRules.price'
+                        defaultMessage={`Precio`}
+                      />
+=======
+            <div className="column">
+              <div className="card">
+                <div className="card-header">
+                  <p className="card-header-title">Catálogos</p>
+                </div>
+                <div className="card-content">
+                  <div className="tags">
+                    <div className="tag is-capitalized has-text-weight-semibold">
+                      Precio
+>>>>>>> release
+                    </div>
+                    {this.state.rules.catalogs.map((item, key) => {
+                      let title = item.name
+                      if (this.findInCatalogs(item.slug)) {
+                        title = this.formatTitle('catalogs.' + item.slug)
+                      }
+                      return (
+<<<<<<< HEAD
+                        <div key={key} className='tag is-capitalized has-text-weight-semibold'>
+                          {title}
+=======
+                        <div
+                          key={key}
+                          className="tag is-capitalized has-text-weight-semibold"
+                        >
+                          {item.name}
+>>>>>>> release
+                        </div>
+                      );
+                    })}
+                  </div>
+
+<<<<<<< HEAD
+                  <button className='button is-primary edit-btn'
+                    onClick={() => this.setStep(5)}>
+                    <FormattedMessage
+                      id='orgRules.btnEdit'
+                      defaultMessage={`Editar`}
+                    />
+=======
+                  <button
+                    className="button is-primary edit-btn"
+                    onClick={() => this.setStep(5)}
+                  >
+                    Editar
+>>>>>>> release
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ),
+      },
+    ];
+
+    let content = (
+      <div>
+<<<<<<< HEAD
+        <div className='card'>
+          <div className='card-content'>
+            {
+              this.state.unsaved &&
+                <button
+                  className={'button is-pulled-right is-success save-btn ' + this.state.isLoading}
+                  disabled={!!this.state.isLoading}
+                  onClick={() => { this.saveData() }}
+                >
+                  <FormattedMessage
+                    id='orgRules.configBtnSave'
+                    defaultMessage={`Guardar configuración`}
+                  />
+                </button>
+            }
+
+            <h4>
+              <strong>
+                <FormattedMessage
+                  id='orgRules.configTitle'
+                  defaultMessage={`Configura tus reglas de negocio`}
+                />
+              </strong>
+            </h4>
+            <FormattedMessage
+              id='orgRules.configInfo'
+              defaultMessage={`Edita los datos las veces que desees. Recuerda que tus reglas quedarán deshabilitadas y perderás la información.`}
+            />
+          </div>
+        </div>
+        {this.state.alert &&
+          <div className='section'>
+            <article className='message is-warning'>
+              <div className='message-header has-text-white'>
+                <p>
+                  <FormattedMessage
+                    id='orgRules.alertTitle'
+                    defaultMessage={`Atención`}
+                  />
+                </p>
+=======
+        <div className="card">
+          <div className="card-content">
+            {this.state.unsaved && (
+              <button
+                className={
+                  'button is-pulled-right is-success save-btn ' +
+                  this.state.isLoading
+                }
+                disabled={!!this.state.isLoading}
+                onClick={() => {
+                  this.saveData();
+                }}
+              >
+                Guardar configuración
+              </button>
+            )}
+            <h4>
+              <strong>Configura tus reglas de negocio</strong>
+            </h4>
+            Puedes editar los datos las veces que desees sin embargo, recuerda
+            que tus anteriores reglas quedarán deshabilitadas y perderás tu
+            información.
+          </div>
+        </div>
+        {this.state.alert && (
+          <div className="section">
+            <article className="message is-warning">
+              <div className="message-header has-text-white">
+                <p>Atención</p>
+>>>>>>> release
+              </div>
+              <div className="message-body is-size-6">
+                <div className="level">
+                  <div className="level-left">
+                    <div className="level-item">
+                      <span className="icon is-large has-text-warning">
+                        <i className="fa fa-exclamation-triangle fa-2x" />
+                      </span>
+                    </div>
+<<<<<<< HEAD
+                    <div className='level-item'>
+                      <FormattedMessage
+                        id='orgRules.alertContent1'
+                        defaultMessage={`Tu configuración ha sido modificada, recuerda que`}
+                      /> &nbsp;
+                      <strong>
+                        <FormattedMessage
+                          id='orgRules.alertContent2'
+                          defaultMessage={`debes actualizar tus proyectos`}
+                        />
+                      </strong>
+=======
+                    <div className="level-item">
+                      Tu configuración ha sido modificada, recuerda que&nbsp;
+                      <strong>debes actualizar tus proyectos</strong>
+>>>>>>> release
+                    </div>
+                  </div>
+                  <div className="level-right">
+                    <div className="level-item">
+                      <a
+<<<<<<< HEAD
+                        className='button is-info is-pulled-right'
+                        onClick={() => this.showModalProjects()}>
+                        <span>
+                          <FormattedMessage
+                            id='orgRules.alertBtn'
+                            defaultMessage={`Actualizar Proyectos`}
+                          />
+                        </span>
+=======
+                        className="button is-info is-pulled-right"
+                        onClick={() => this.showModalProjects()}
+                      >
+                        <span>Actualizar Proyectos</span>
+>>>>>>> release
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        )}
+        <Tabs
+          tabs={this.tabs}
+          selectedTab={this.state.selectedTab}
+          className="is-fullwidth"
+        />
+        {this.projectsModal()}
+      </div>
+    );
+
+    if (this.state.currentStep === 2) {
+      content = (
+        <Periods
+          rules={this.state.rules}
+          nextStep={data => this.nextStep(data, 1)}
+          setStep={step => this.setStep(step)}
+        />
+      );
+    } else if (this.state.currentStep === 3) {
+      content = (
+        <Ranges
+          rules={this.state.rules}
+          nextStep={data => this.nextStep(data, 2)}
+          setStep={step => this.setStep(step)}
+        />
+      );
+    } else if (this.state.currentStep === 4) {
+      content = (
+        <DeadLines
+          startDate={this.state.rules.startDate}
+          rules={this.state.rules}
+          nextStep={data => this.nextStep(data, 3)}
+          setStep={step => this.setStep(step)}
+        />
+      );
+    } else if (this.state.currentStep === 5) {
+      content = (
+        <Catalogs
+          rules={this.state.rules}
+          nextStep={data => this.nextStep(data, 4)}
+          setStep={step => this.setStep(step)}
+        />
+      );
+    }
+
+    return (
+      <div>
+        <Prompt
+          when={this.state.unsaved}
+<<<<<<< HEAD
+          message={location => (
+            `${this.formatTitle('orgRules.brMsg1')}`
+          )}
+=======
+          message={location =>
+            `Hay cambios a las reglas de negocio sin aplicar, ¿estás seguro de querer salir de esta página?`
+          }
+>>>>>>> release
+        />
+        <div className="org-rules wizard">
+          <div className="section-header">
+            <h2>{org.name}</h2>
+          </div>
+          {content}
+        </div>
+
+        {this.confirmMsg()}
+      </div>
+    );
+  }
+}
+
+export default Page({
+  path: '/rules',
+  title: 'Reglas',
+  icon: 'list',
+  exact: true,
+  roles: 'admin, orgadmin, analyst, manager-level-3',
+  validate: [loggedIn, verifyRole],
+<<<<<<< HEAD
+  component: injectIntl(OrgRules)
+})
+=======
+  component: OrgRules,
+});
+>>>>>>> release
