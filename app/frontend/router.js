@@ -13,6 +13,7 @@ import Profile from './pages/profile'
 import OrganizationDetail from './pages/organizations/detail'
 import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
+import EmailActivateLanding from './pages/emails/activate'
 import ResetPassword from './pages/reset-password'
 import DataSets from './pages/datasets/list'
 import ReadyDataSets from './pages/datasets/list-ready'
@@ -64,6 +65,7 @@ class AppRouter extends Component {
               {ResetPassword.asRouterItem()}
               {EmailResetLanding.asRouterItem()}
               {EmailInviteLanding.asRouterItem()}
+              {EmailActivateLanding.asRouterItem()}
               {Dashboard.asRouterItem()}
               {Profile.asRouterItem()}
 

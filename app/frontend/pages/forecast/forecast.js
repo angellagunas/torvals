@@ -227,7 +227,6 @@ class Forecast extends Component {
                           </small>
                           <br />
                         </div>
-
                         <p>
                           <strong>
                             Reporte

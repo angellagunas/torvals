@@ -32,6 +32,8 @@ module.exports = new Route({
     user.role = defaultRole
     user.save()
 
+    user.sendActivationEmail()
+
     const token = await user.createToken({
       type: 'session'
     })
