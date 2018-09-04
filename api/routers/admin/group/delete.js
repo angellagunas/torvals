@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
 
-const { Group, Channel, SalesCenter } = require('models')
+const { Group, Channel, SalesCenter, CatalogItem } = require('models')
 
 module.exports = new Route({
   method: 'delete',
@@ -41,7 +41,18 @@ module.exports = new Route({
       await channel.save()
     }
 
-    group.set({users: [], channels: []})
+    let catalogItems = await CatalogItem.find({
+      groups: {$in: [group]},
+      organization: group.organization
+    })
+
+    for (let catalogItem of catalogItems) {
+      let pos = catalogItem.groups.indexOf(group._id)
+      catalogItem.groups.splice(pos, 1)
+      await catalogItem.save()
+    }
+
+    group.set({users: [], channels: [], catalogItems: []})
 
     await group.save()
 
