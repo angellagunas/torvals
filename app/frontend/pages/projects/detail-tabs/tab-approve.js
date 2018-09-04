@@ -594,7 +594,7 @@ class TabApprove extends Component {
     this.setState({
       dataRows: aux
     })
-    
+
     if (obj.status === 'approved') {
       this.notify(this.formatTitle('tables.colAdjustment') + ' ' + this.formatTitle('approve.approved'), 5000, toast.TYPE.SUCCESS)
     }

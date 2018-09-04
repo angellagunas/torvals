@@ -14,19 +14,19 @@ import Link from '~base/router/link'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
-    return <Redirect to={{ pathname: env.PREFIX + 'dashboard' }} />
+    return <Redirect to={{ pathname: env.PREFIX + 'dashboard' }} />;
   }
-  return (<NotFound />)
-}
+  return <NotFound />;
+};
 
 class CatalogRouter extends Component {
   constructor(props) {
-    super(props)
+    super(props);
   }
-  cleanName = (item) => {
-    let c = item.replace(/-/g, ' ')
-    return c.charAt(0).toUpperCase() + c.slice(1)
-  }
+  cleanName = item => {
+    let c = item.replace(/-/g, ' ');
+    return c.charAt(0).toUpperCase() + c.slice(1);
+  };
 
   formatTitle(id) {
     return this.props.intl.formatMessage({ id: id })
@@ -91,13 +91,13 @@ class CatalogRouter extends Component {
                 'default': 'N/A',
                 'sortable': true
               },
-              { 
+              {
                 'title': this.formatTitle('tables.colName'),
                 'property': 'name',
                 'default': 'N/A',
                 'sortable': true
               },
-              { 
+              {
                 'title': this.formatTitle('tables.colActions'),
                 formatter: (row) => {
                   if (testRoles('consultor-level-3, consultor-level-2')) {

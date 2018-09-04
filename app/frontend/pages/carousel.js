@@ -5,58 +5,58 @@ import styled from 'styled-components'
 const CarouselContainer = styled.div`
   display: flex;
   margin: 0 0 20px 20px;
-  transition: ${(props) => props.sliding ? 'none' : 'transform 1s ease'};
-`
+  transition: ${props => (props.sliding ? 'none' : 'transform 1s ease')};
+`;
 
 const Wrapper = styled.div`
   width: 100%;
   overflow: hidden;
-`
+`;
 
 const CarouselSlot = styled.div`
   flex: 0 0 100%;
   flex-basis: 32%;
   margin-right: 20px;
-  order: ${(props) => props.order};
-  opacity: ${(props) => {
-    if (props.numSlides === 1) return 1
-    if (props.numSlides === 2) return props.order === props.position ? 1 : 0.5
-    return props.order === 1 ? 1 : 0.5
+  order: ${props => props.order};
+  opacity: ${props => {
+    if (props.numSlides === 1) return 1;
+    if (props.numSlides === 2) return props.order === props.position ? 1 : 0.5;
+    return props.order === 1 ? 1 : 0.5;
   }};
   transition: opacity 1s ease;
-`
+`;
 
 class Carousel extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       position: this.props.initialPosition || 0,
       direction: this.props.children.length === 2 ? 'prev' : 'next',
-      sliding: false
-    }
+      sliding: false,
+    };
   }
 
   getOrder(itemIndex) {
-    const { position } = this.state
-    const { children } = this.props
-    const numItems = children.length
+    const { position } = this.state;
+    const { children } = this.props;
+    const numItems = children.length;
 
-    if (numItems === 2) return itemIndex
+    if (numItems === 2) return itemIndex;
 
-    if (itemIndex - position < 0) return numItems - Math.abs(itemIndex - position)
-    return itemIndex - position
+    if (itemIndex - position < 0)
+      return numItems - Math.abs(itemIndex - position);
+    return itemIndex - position;
   }
 
   nextSlide = () => {
-    const { position } = this.state
-    const { children } = this.props
-    const numItems = children.length
+    const { position } = this.state;
+    const { children } = this.props;
+    const numItems = children.length;
 
-    if (numItems === 2 && position === 1) return
-    if (position === numItems - 3 )
-    return
-    this.doSliding('next', position + 1)
-  }
+    if (numItems === 2 && position === 1) return;
+    if (position === numItems - 3) return;
+    this.doSliding('next', position + 1);
+  };
 
   prevSlide = () => {
     const { position } = this.state
@@ -74,8 +74,8 @@ class Carousel extends Component {
     this.setState({
       sliding: true,
       direction,
-      position
-    })
+      position,
+    });
 
     setTimeout(() => {
       this.setState({
@@ -96,10 +96,7 @@ class Carousel extends Component {
             direction={this.state.direction}
           >
             {children.map((child, index) => (
-              <CarouselSlot
-                key={index}
-                order={this.getOrder(index)}
-              >
+              <CarouselSlot key={index} order={this.getOrder(index)}>
                 {child}
               </CarouselSlot>
             ))}
@@ -110,8 +107,8 @@ class Carousel extends Component {
             disabled={this.state.position === -1 ? true : false}
             onClick={() => this.prevSlide()}
           >
-            <span className='icon'>
-              <i className='fa fa-arrow-left'></i>
+            <span className="icon">
+              <i className="fa fa-arrow-left" />
             </span>
             <span>
               <FormattedMessage
@@ -119,10 +116,12 @@ class Carousel extends Component {
                 defaultMessage={`Anterior`}
               />
             </span>
-
           </button>
-          <button className='button'
-            disabled={this.state.position === children.length - 3 ? true : false}
+          <button
+            className="button"
+            disabled={
+              this.state.position === children.length - 3 ? true : false
+            }
             onClick={() => this.nextSlide()}
           >
             <span>
@@ -134,11 +133,11 @@ class Carousel extends Component {
             <span className='icon'>
               <i className='fa fa-arrow-right'></i>
             </span>
-        </button>
+          </button>
         </div>
       </div>
-    )
+    );
   }
 }
 
-export default Carousel
+export default Carousel;

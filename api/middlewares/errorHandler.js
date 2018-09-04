@@ -1,3 +1,5 @@
+const Raven = require('raven')
+
 module.exports = async function (ctx, next) {
   ctx.type = 'application/json'
 
@@ -10,5 +12,7 @@ module.exports = async function (ctx, next) {
     if (ctx.status === 500) {
       console.error('=>', err.message, err)
     }
+
+    Raven.captureException(err)
   }
 }

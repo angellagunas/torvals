@@ -5,12 +5,12 @@ import moment from 'moment'
 import env from '~base/env-variables'
 import FontAwesome from 'react-fontawesome'
 
-import Loader from '~base/components/spinner'
-import UserForm from './form'
-import Multiselect from '~base/components/base-multiselect'
-import tree from '~core/tree'
-import Breadcrumb from '~base/components/base-breadcrumb'
-import NotFound from '~base/components/not-found'
+import Loader from '~base/components/spinner';
+import UserForm from './form';
+import Multiselect from '~base/components/base-multiselect';
+import tree from '~core/tree';
+import Breadcrumb from '~base/components/base-breadcrumb';
+import NotFound from '~base/components/not-found';
 
 class UserDetail extends Component {
   constructor (props) {

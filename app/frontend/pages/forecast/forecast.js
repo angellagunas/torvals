@@ -428,8 +428,10 @@ class Forecast extends Component {
                     </div>
 
                   </div>
+
                 </div>
               </div>
+            </div>
 
               {this.state.loadingForecasts &&
                 <div className='column is-fullwidth has-text-centered subtitle has-text-primary'>

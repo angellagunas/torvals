@@ -173,7 +173,7 @@ class ProductTable extends Component {
           }
         }
       },
-      { 
+      {
         group: ' ',
         title: this.formatTitle('tables.colProduct'),
         property: 'productName',
@@ -211,7 +211,7 @@ class ProductTable extends Component {
           return this.getLimit(row)
         }
       },
-      { 
+      {
         group: ' ',
         title: this.formatTitle('adjustments.period'),
         property: 'period.period',
@@ -227,7 +227,7 @@ class ProductTable extends Component {
         }
       },
       ...this.getCatalogColumns(),
-      { 
+      {
         group: ' ',
         title: this.formatTitle('tables.colForecast'),
         property: 'prediction',
@@ -263,7 +263,7 @@ class ProductTable extends Component {
           }
         }
       },
-      { 
+      {
         group: ' ',
         title: this.formatTitle('tables.colAdjustment'),
         property: 'adjustmentForDisplay',
@@ -298,7 +298,7 @@ class ProductTable extends Component {
           }
         }
       },
-      { 
+      {
         group: ' ',
         title: this.formatTitle('dates.locale') === 'en' ?
           this.splitWords(this.formatTitle('adjustments.adjusted') + '_' + this.formatTitle('adjustments.range'))

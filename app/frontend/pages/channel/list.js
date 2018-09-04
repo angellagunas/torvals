@@ -49,7 +49,7 @@ export default ListPage({
     }
   },
   uiSchema: {
-    general: {'ui:widget': 'SearchFilter'}
+    general: { 'ui:widget': 'SearchFilter' },
   },
   getColumns: () => {
     return [

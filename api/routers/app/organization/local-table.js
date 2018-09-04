@@ -318,8 +318,8 @@ module.exports = new Route({
       ...previousGroup
     ]
 
-    let allData = await DataSetRow.aggregate(match)
-    let previousSale = await DataSetRow.aggregate(matchPreviousSale)
+    let allData = await DataSetRow.aggregate(match).allowDiskUse(true)
+    let previousSale = await DataSetRow.aggregate(matchPreviousSale).allowDiskUse(true)
     let products = allData.map(item => { return item._id.product })
     let previousProducts = previousSale.map(item => { return item._id.product })
     products = _.concat(products, previousProducts)

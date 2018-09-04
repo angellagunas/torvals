@@ -58,6 +58,14 @@ class OrgInfo extends Component {
         </div>
 
         }
+        <center>
+          <button
+            onClick={() => this.props.nextStep()}
+            className="button is-primary"
+          >
+            Continuar
+          </button>
+        </center>
       </div>
     )
   }

@@ -82,7 +82,6 @@ class Periods extends Component {
       },
       calendar: {}
     }
-    
     this.times = [
       {
         name: this.formatTitle('orgRules.day'),
@@ -137,7 +136,7 @@ class Periods extends Component {
       if (this.times[i].value === value) {
         break
       }
-
+      
     }
     return values
   }
@@ -538,7 +537,7 @@ class Periods extends Component {
                         <button className='button is-static tooltip' 
                           data-tooltip={this.formatTitle('wizard.periodsHelp1')}> ? </button>
                       </div>
-
+                          
                     </div>
 
                     <div className='field has-addons'>
@@ -778,7 +777,6 @@ class Periods extends Component {
             }
           </button>
         </div>
-
       </div>
     )
   }

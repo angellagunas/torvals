@@ -354,7 +354,6 @@ class OrganizationDetail extends Component {
 
           </div>
         </div>
-
       </div>
     )
   }

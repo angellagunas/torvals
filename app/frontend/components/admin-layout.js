@@ -3,8 +3,8 @@ import React, { Component } from 'react'
 import { injectIntl } from 'react-intl'
 import { root } from 'baobab-react/higher-order'
 
-import tree from '~core/tree'
-import classNames from 'classnames'
+import tree from '~core/tree';
+import classNames from 'classnames';
 
 import cookies from '~base/cookies'
 import api from '~base/api'
@@ -17,10 +17,13 @@ import { withRouter } from 'react-router'
 import BillingForm from '../pages/organizations/billing-form'
 import { toast } from 'react-toastify'
 
+import Sidebar from '~components/sidebar';
+import AdminNavBar from '~components/admin-navbar';
+import { ToastContainer } from 'react-toastify';
 
 class AdminLayout extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       user: {},
       loaded: false,
@@ -37,8 +40,8 @@ class AdminLayout extends Component {
     }
   }
 
-  handleBurgerEvent () {
-    this.setState({sidebarCollapsed: !this.state.sidebarCollapsed})
+  handleBurgerEvent() {
+    this.setState({ sidebarCollapsed: !this.state.sidebarCollapsed });
   }
 
   formatTitle (id) {
@@ -53,15 +56,15 @@ class AdminLayout extends Component {
     const userCursor = tree.select('user')
     let activated = ''
 
-    userCursor.on('update', ({data}) => {
-      const user = data.currentData
-      this.setState({user})
-    })
+    userCursor.on('update', ({ data }) => {
+      const user = data.currentData;
+      this.setState({ user });
+    });
 
-    var me
+    var me;
     if (tree.get('jwt')) {
       try {
-        me = await api.get('/user/me')
+        me = await api.get('/user/me');
       } catch (err) {
         if (err.status === 401) {
           cookies.remove('jwt')
@@ -76,15 +79,15 @@ class AdminLayout extends Component {
           window.localStorage.setItem('email', '')
         }
 
-        return this.setState({loaded: true})
+        return this.setState({ loaded: true });
       }
 
-      tree.set('user', me.user)
-      tree.set('organization', me.user.currentOrganization)
-      tree.set('role', me.user.currentRole)
-      tree.set('rule', me.rule)
-      tree.set('loggedIn', me.loggedIn)
-      tree.commit()
+      tree.set('user', me.user);
+      tree.set('organization', me.user.currentOrganization);
+      tree.set('role', me.user.currentRole);
+      tree.set('rule', me.rule);
+      tree.set('loggedIn', me.loggedIn);
+      tree.commit();
 
       if (!me.user.currentOrganization) {
         cookies.remove('jwt')
@@ -118,20 +121,23 @@ class AdminLayout extends Component {
     this.getViewPort()
   }
 
-  getViewPort () {
-    let w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+  getViewPort() {
+    let w = Math.max(
+      document.documentElement.clientWidth,
+      window.innerWidth || 0
+    );
     if (w <= 1024) {
       this.setState({
-        sidebarCollapsed: false
-      })
+        sidebarCollapsed: false,
+      });
     }
   }
 
   openNav = () => {
     this.setState({
-      open: this.state.open === 'open' ? '' : 'open'
-    })
-  }
+      open: this.state.open === 'open' ? '' : 'open',
+    });
+  };
 
   openWizards() {
     this.setState({
@@ -198,20 +204,20 @@ class AdminLayout extends Component {
       'sidenav-open': this.state.sidebarCollapsed
     })
 
-    const burguerIcon = classNames('fa fa-2x',{
+    const burguerIcon = classNames('fa fa-2x', {
       'fa-times': this.state.sidebarCollapsed,
       'fa-bars': !this.state.sidebarCollapsed,
-    })
+    });
 
     if (!this.state.loaded) {
-      return <Loader />
+      return <Loader />;
     }
 
     if (!isEmpty(this.state.user)) {
       return (
-        <div className='is-wrapper'>
+        <div className="is-wrapper">
           <AdminNavBar
-            handlePathChange={(p) => this.handlePathChange(p)}
+            handlePathChange={p => this.handlePathChange(p)}
             collapsed={this.state.sidebarCollapsed}
             handleBurgerEvent={() => this.handleBurgerEvent()}
             openWizards={() => this.openWizards()} />
@@ -235,8 +241,6 @@ class AdminLayout extends Component {
               <ToastContainer />
             </section>
           </div>
-
-
           <div className={'modal wizard-steps-modal ' + this.state.openWizards}>
             <div className='modal-background' onClick={() => this.openWizards()}/>
             <div className='modal-card'>
@@ -341,7 +345,7 @@ class AdminLayout extends Component {
                 <p className='is-padding-bottom-small'>
                   <strong>{this.formatTitle('wizard.accountIs')} {this.orgStatus[this.state.user.currentOrganization.status]}.</strong>
                 </p>
-                {this.state.user.currentOrganization.status !== 'activationPending' &&                
+                {this.state.user.currentOrganization.status !== 'activationPending' &&
                 <p className='is-padding-bottom-small'>
                   {this.formatTitle('wizard.accountMsg1')}
                 </p>
@@ -355,7 +359,7 @@ class AdminLayout extends Component {
                     {this.formatTitle('wizard.accountMsg2')}
                   </div>
                 </div>
-                
+
                 <button className='button is-success is-pulled-right'
                   disabled={!!this.state.isLoading}
                   onClick={() => this.requestActivation()} >
@@ -370,9 +374,7 @@ class AdminLayout extends Component {
 
         </div>)
     } else {
-      return (<div>
-        {this.props.children}
-      </div>)
+      return <div>{this.props.children}</div>;
     }
   }
 }

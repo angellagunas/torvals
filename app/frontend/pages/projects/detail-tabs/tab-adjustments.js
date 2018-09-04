@@ -158,7 +158,7 @@ class TabAdjustment extends Component {
           filtersLoading: false, 
           errorMessage: '¡'+ this.formatTitle('adjustments.noFilters') +'!'
         })
-        
+
         this.notify(
           '¡' + this.formatTitle('adjustments.noFilters') + '!' + e.message,
           5000,
@@ -1044,6 +1044,7 @@ class TabAdjustment extends Component {
       this.notify('¡' + this.formatTitle('adjustments.reportSuccess') + '!', 5000, toast.TYPE.SUCCESS)
     } catch (e) {
       this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
+
       this.setState({
         isLoading: '',
         noSalesData: e.message + ', ' + this.formatTitle('dashboard.try'),
@@ -1386,7 +1387,7 @@ class TabAdjustment extends Component {
         </div>
       )
     }
-    
+
     const graphData = [
       {
         label: this.formatTitle('tables.colForecast'),

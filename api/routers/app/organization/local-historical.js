@@ -289,8 +289,8 @@ module.exports = new Route({
       $sort: { '_id.date': 1 }
     }]
 
-    let responseData = await DataSetRow.aggregate(match)
-    let previousSale = await DataSetRow.aggregate(matchPreviousSale)
+    let responseData = await DataSetRow.aggregate(match).allowDiskUse(true)
+    let previousSale = await DataSetRow.aggregate(matchPreviousSale).allowDiskUse(true)
     previousSale = await Cycle.populate(previousSale, {
       path: '_id.cycle'
     })

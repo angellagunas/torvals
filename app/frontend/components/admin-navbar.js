@@ -4,14 +4,14 @@ import { branch } from 'baobab-react/higher-order'
 import { withRouter } from 'react-router'
 import env from '~base/env-variables'
 
-import cookies from '~base/cookies'
-import api from '~base/api'
-import Link from '~base/router/link'
-import tree from '~core/tree'
+import cookies from '~base/cookies';
+import api from '~base/api';
+import Link from '~base/router/link';
+import tree from '~core/tree';
 
 class NavBar extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       mobileMenu: 'close',
       profileDropdown: '',
@@ -19,20 +19,20 @@ class NavBar extends Component {
       redirect: false,
       navbarBrandCollapsed: false,
       path: '',
-      toggleOrgsClass: 'hide-orgs'
-    }
+      toggleOrgsClass: 'hide-orgs',
+    };
 
-    this.setWrapperRef = this.setWrapperRef.bind(this)
-    this.handleClickOutside = this.handleClickOutside.bind(this)
+    this.setWrapperRef = this.setWrapperRef.bind(this);
+    this.handleClickOutside = this.handleClickOutside.bind(this);
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (this.state.navbarBrandCollapsed !== nextProps.collapsed) {
-      this.setState({ navbarBrandCollapsed: !this.state.navbarBrandCollapsed })
+      this.setState({ navbarBrandCollapsed: !this.state.navbarBrandCollapsed });
     }
     if (nextProps.location.pathname !== this.state.path) {
-      this.setState({ path: nextProps.location.pathname })
-      this.props.handlePathChange(nextProps.location.pathname)
+      this.setState({ path: nextProps.location.pathname });
+      this.props.handlePathChange(nextProps.location.pathname);
     }
     this.stepsRemaining()
   }
@@ -42,29 +42,29 @@ class NavBar extends Component {
     this.stepsRemaining()
   }
 
-  componentWillUnmount () {
-    document.removeEventListener('mousedown', this.handleClickOutside)
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClickOutside);
   }
 
-  setWrapperRef (node) {
-    this.wrapperRef = node
+  setWrapperRef(node) {
+    this.wrapperRef = node;
   }
 
-  handleClickOutside (event) {
+  handleClickOutside(event) {
     if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
       this.setState({
-        profileDropdown: ''
-      })
+        profileDropdown: '',
+      });
     }
   }
 
-  async handleLogout () {
-    const { history } = this.props
+  async handleLogout() {
+    const { history } = this.props;
 
     try {
-      await api.del('/user')
+      await api.del('/user');
     } catch (err) {
-      console.log('Error removing token, logging out anyway ...')
+      console.log('Error removing token, logging out anyway ...');
     }
 
     cookies.remove('jwt')
@@ -78,48 +78,54 @@ class NavBar extends Component {
     window.localStorage.setItem('name', '')
     window.localStorage.setItem('email', '')
 
-    history.push('/landing')
+    history.push('/landing');
   }
 
-  async changeHandler (slug) {
-    tree.set('shouldSelectOrg', false)
-    await tree.commit()
-    cookies.set('organization', slug)
-    const hostname = window.location.hostname
-    const hostnameSplit = hostname.split('.')
+  async changeHandler(slug) {
+    tree.set('shouldSelectOrg', false);
+    await tree.commit();
+    cookies.set('organization', slug);
+    const hostname = window.location.hostname;
+    const hostnameSplit = hostname.split('.');
 
     if (env.ENV === 'production') {
       if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
-        const newHostname = hostnameSplit.slice(-3).join('.')
-        window.location = `//${slug}.${newHostname}/dashboard`
+        const newHostname = hostnameSplit.slice(-3).join('.');
+        window.location = `//${slug}.${newHostname}/dashboard`;
       } else {
-        const newHostname = hostnameSplit.slice(-2).join('.')
-        window.location = `//${slug}.${newHostname}/dashboard`
+        const newHostname = hostnameSplit.slice(-2).join('.');
+        window.location = `//${slug}.${newHostname}/dashboard`;
       }
     } else {
-      const baseUrl = env.APP_HOST.split('://')
-      window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard'
+      const baseUrl = env.APP_HOST.split('://');
+      window.location =
+        baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard';
     }
   }
 
-  toggleBtnClass () {
+  toggleBtnClass() {
     this.setState({
-      profileDropdown: this.state.profileDropdown === 'is-active' ? '' : 'is-active'
-    })
+      profileDropdown:
+        this.state.profileDropdown === 'is-active' ? '' : 'is-active',
+    });
   }
 
-  toggleOrgs () {
+  toggleOrgs() {
     this.setState({
-      dropCaret: this.state.dropCaret === 'fa fa-caret-up' ? 'fa fa-caret-down' : 'fa fa-caret-up',
-      toggleOrgsClass: this.state.toggleOrgsClass === 'hide-orgs' ? 'show-orgs' : 'hide-orgs'
-    })
+      dropCaret:
+        this.state.dropCaret === 'fa fa-caret-up'
+          ? 'fa fa-caret-down'
+          : 'fa fa-caret-up',
+      toggleOrgsClass:
+        this.state.toggleOrgsClass === 'hide-orgs' ? 'show-orgs' : 'hide-orgs',
+    });
   }
 
-  handleNavbarBurgerClick () {
+  handleNavbarBurgerClick() {
     if (this.state.mobileMenu === 'open') {
-      this.setState({ mobileMenu: 'close' })
+      this.setState({ mobileMenu: 'close' });
     } else {
-      this.setState({ mobileMenu: 'open' })
+      this.setState({ mobileMenu: 'open' });
     }
   }
 
@@ -149,20 +155,20 @@ class NavBar extends Component {
     let org = user.currentOrganization
 
     if (this.props.loggedIn) {
-      avatar = '/public/img/avt-default.jpg'
+      avatar = '/public/img/avt-default.jpg';
 
       if (user) {
-        avatar = user.profileUrl
-        username = user.name
+        avatar = user.profileUrl;
+        username = user.name;
       }
     }
     return (
       <div>
-        <nav className='navbar is-transparent'>
-          <div className='navbar-brand'>
-            <Link to='/' className='navbar-item'>
-              <figure className='image'>
-                <img className='logo' src='/app/public/img/oraxh.svg' />
+        <nav className="navbar is-transparent">
+          <div className="navbar-brand">
+            <Link to="/" className="navbar-item">
+              <figure className="image">
+                <img className="logo" src="/app/public/img/oraxh.svg" />
               </figure>
             </Link>
           </div>
@@ -177,18 +183,19 @@ class NavBar extends Component {
                     <span />
                   </div>
                 </div>
-              }
+              )}
 
-              <a className='navbar-item is-size-6 is-capitalized has-text-weight-semibold'
-                onClick={() => this.toggleOrgs()}>
-                <img className='avatar' src={org.profileUrl} alt='Avatar org' />
+              <a
+                className="navbar-item is-size-6 is-capitalized has-text-weight-semibold"
+                onClick={() => this.toggleOrgs()}
+              >
+                <img className="avatar" src={org.profileUrl} alt="Avatar org" />
                 {org.name}
-                {
-                  user.organizations.length > 1 &&
-                  <span className='icon'>
+                {user.organizations.length > 1 && (
+                  <span className="icon">
                     <i className={this.state.dropCaret} />
                   </span>
-                }
+                )}
               </a>
             </div>
             <div className='navbar-end'>
@@ -207,25 +214,29 @@ class NavBar extends Component {
                   onClick={() => this.toggleBtnClass()}>
                   <div className='navbar-item is-size-7 is-capitalized has-text-weight-semibold'>
                     {username}
-                    <img className='avatar' src={avatar} alt='Avatar' />
+                    <img className="avatar" src={avatar} alt="Avatar" />
                   </div>
                 </a>
-                <div className='navbar-dropdown is-right'>
-                  <Link className='dropdown-item'
+                <div className="navbar-dropdown is-right">
+                  <Link
+                    className="dropdown-item"
                     onClick={() => this.toggleBtnClass()}
-                    to='/profile'>
-                    <span className='icon'>
-                      <i className='fa fa-user-o' />
+                    to="/profile"
+                  >
+                    <span className="icon">
+                      <i className="fa fa-user-o" />
                     </span>
                     <FormattedMessage
                       id='navbar.profile'
                       defaultMessage={`Mi perfil`}
                     />
                   </Link>
-                  <a className='dropdown-item'
-                    onClick={() => this.handleLogout()}>
-                    <span className='icon'>
-                      <i className='fa fa-sign-out' />
+                  <a
+                    className="dropdown-item"
+                    onClick={() => this.handleLogout()}
+                  >
+                    <span className="icon">
+                      <i className="fa fa-sign-out" />
                     </span>
                     <FormattedMessage
                       id='navbar.signOut'
@@ -237,32 +248,48 @@ class NavBar extends Component {
             </div>
           </div>
         </nav>
-        <div className={'columns is-multiline is-mobile orgs ' + this.state.toggleOrgsClass}>
-          {
-            user.organizations.map((item, key) => {
-              if (item.organization.slug !== user.currentOrganization.slug) {
-                return (
-                  <div className='column is-narrow is-clickable' key={key}>
-                    <span className='media is-size-6 is-capitalized has-text-weight-semibold'
-                      onClick={() => { this.changeHandler(item.organization.slug) }}>
-                      <figure className='media-left image is-32x32'>
-                        <img className='avatar' src={item.organization.profileUrl} alt='Avatar org' />
-                      </figure>
-                      <span className='media-content'>
-                        {item.organization.name}
-                      </span>
-                    </span>
-                  </div>
-                )
-              }
-            })
+        <div
+          className={
+            'columns is-multiline is-mobile orgs ' + this.state.toggleOrgsClass
           }
+        >
+          {user.organizations.map((item, key) => {
+            if (item.organization.slug !== user.currentOrganization.slug) {
+              return (
+                <div className="column is-narrow is-clickable" key={key}>
+                  <span
+                    className="media is-size-6 is-capitalized has-text-weight-semibold"
+                    onClick={() => {
+                      this.changeHandler(item.organization.slug);
+                    }}
+                  >
+                    <figure className="media-left image is-32x32">
+                      <img
+                        className="avatar"
+                        src={item.organization.profileUrl}
+                        alt="Avatar org"
+                      />
+                    </figure>
+                    <span className="media-content">
+                      {item.organization.name}
+                    </span>
+                  </span>
+                </div>
+              );
+            }
+          })}
         </div>
-      </div>)
+      </div>
+    );
   }
 }
 
-export default withRouter(branch({
-  loggedIn: 'loggedIn',
-  'user': 'user'
-}, NavBar))
+export default withRouter(
+  branch(
+    {
+      loggedIn: 'loggedIn',
+      user: 'user',
+    },
+    NavBar
+  )
+);

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import { FormattedMessage } from 'react-intl'
 
-function DangerText () {
+function DangerText() {
   return (
     <p className='has-text-danger'>
       * <FormattedMessage

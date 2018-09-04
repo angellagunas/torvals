@@ -14,9 +14,14 @@ import FontAwesome from 'react-fontawesome'
 import { toast } from 'react-toastify'
 import Multiselect from '~base/components/base-multiselect'
 
+const cleanName = item => {
+  let c = item.replace(/-/g, ' ');
+  return c.charAt(0).toUpperCase() + c.slice(1);
+};
+
 class CatalogDetail extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       loading: true,
       loaded: false,
@@ -25,55 +30,52 @@ class CatalogDetail extends Component {
       canEdit: false,
       isLoading: '',
       selectedGroups: [],
-      groups: []
-    }
+      groups: [],
+    };
   }
 
-  componentWillMount () {
-    this.load()
-    this.setState({ canEdit: testRoles(this.state.roles) })
+  componentWillMount() {
+    this.load();
+    this.setState({ canEdit: testRoles(this.state.roles) });
   }
 
-  async load () {
-    var url = '/app/catalogItems/detail/' + this.props.match.params.uuid
+  async load() {
+    var url = '/app/catalogItems/detail/' + this.props.match.params.uuid;
     try {
-      const body = await api.get(url)
+      const body = await api.get(url);
 
       this.setState({
         loading: false,
         loaded: true,
         catalog: body.data,
-        selectedGroups: [...body.data.groups]
-      })
+        selectedGroups: [...body.data.groups],
+      });
 
-      await this.loadGroups()
+      await this.loadGroups();
     } catch (e) {
       await this.setState({
         loading: false,
         loaded: true,
-        notFound: true
-      })
+        notFound: true,
+      });
     }
   }
 
-  async loadGroups () {
-    var url = '/app/groups'
-    const body = await api.get(
-      url,
-      {
-        start: 0,
-        limit: 0
-      }
-    )
+  async loadGroups() {
+    var url = '/app/groups';
+    const body = await api.get(url, {
+      start: 0,
+      limit: 0,
+    });
 
     this.setState({
       ...this.state,
-      groups: body.data
-    })
+      groups: body.data,
+    });
   }
 
-  getSavingMessage () {
-    let { saving, saved } = this.state
+  getSavingMessage() {
+    let { saving, saved } = this.state;
 
     if (saving) {
       return (
@@ -83,19 +85,19 @@ class CatalogDetail extends Component {
             defaultMessage={`Guardando`}
           /> <span style={{ paddingLeft: '5px' }}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
-      )
+      );
     }
 
     if (saved) {
       if (this.savedTimeout) {
-        clearTimeout(this.savedTimeout)
+        clearTimeout(this.savedTimeout);
       }
 
       this.savedTimeout = setTimeout(() => {
         this.setState({
-          saved: false
-        })
-      }, 500)
+          saved: false,
+        });
+      }, 500);
 
       return (
         <p className='card-header-title' style={{ fontWeight: '200', color: 'grey' }}>
@@ -104,121 +106,125 @@ class CatalogDetail extends Component {
             defaultMessage={`Guardado`}
           />
         </p>
-      )
+      );
     }
   }
 
-  async availableGroupOnClick (uuid) {
+  async availableGroupOnClick(uuid) {
     this.setState({
-      saving: true
-    })
+      saving: true,
+    });
 
-    var selected = this.state.selectedGroups
-    var group = this.state.groups.find(item => { return item.uuid === uuid })
+    var selected = this.state.selectedGroups;
+    var group = this.state.groups.find(item => {
+      return item.uuid === uuid;
+    });
 
-    if (selected.findIndex(item => { return item.uuid === uuid }) !== -1) {
-      return
+    if (
+      selected.findIndex(item => {
+        return item.uuid === uuid;
+      }) !== -1
+    ) {
+      return;
     }
 
-    selected.push(group)
+    selected.push(group);
 
     this.setState({
-      selectedGroups: selected
-    })
+      selectedGroups: selected,
+    });
 
-    var url = '/app/catalogItems/' + this.props.match.params.uuid + '/add/group'
+    var url =
+      '/app/catalogItems/' + this.props.match.params.uuid + '/add/group';
 
     try {
-      await api.post(url,
-        {
-          group: uuid
-        }
-      )
+      await api.post(url, {
+        group: uuid,
+      });
     } catch (e) {
-      var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
-      var selectedRemove = this.state.selectedGroups
-      selectedRemove.splice(index, 1)
-      this.notify(
-        e.message,
-        5000,
-        toast.TYPE.ERROR
-      )
+      var index = this.state.selectedGroups.findIndex(item => {
+        return item.uuid === uuid;
+      });
+      var selectedRemove = this.state.selectedGroups;
+      selectedRemove.splice(index, 1);
+      this.notify(e.message, 5000, toast.TYPE.ERROR);
     }
 
     setTimeout(() => {
       this.setState({
         saving: false,
-        saved: true
-      })
-    }, 300)
+        saved: true,
+      });
+    }, 300);
   }
 
-  async assignedGroupOnClick (uuid) {
+  async assignedGroupOnClick(uuid) {
     this.setState({
-      saving: true
-    })
+      saving: true,
+    });
 
-    var index = this.state.selectedGroups.findIndex(item => { return item.uuid === uuid })
-    var selected = this.state.selectedGroups
+    var index = this.state.selectedGroups.findIndex(item => {
+      return item.uuid === uuid;
+    });
+    var selected = this.state.selectedGroups;
 
     if (index === -1) {
-      return
+      return;
     }
 
-    selected.splice(index, 1)
+    selected.splice(index, 1);
 
     this.setState({
-      selectedGroups: selected
-    })
+      selectedGroups: selected,
+    });
 
-    var url = '/app/catalogItems/' + this.props.match.params.uuid + '/remove/group'
-    await api.post(url,
-      {
-        group: uuid
-      }
-    )
+    var url =
+      '/app/catalogItems/' + this.props.match.params.uuid + '/remove/group';
+    await api.post(url, {
+      group: uuid,
+    });
 
     setTimeout(() => {
       this.setState({
         saving: false,
-        saved: true
-      })
-    }, 300)
+        saved: true,
+      });
+    }, 300);
   }
 
-  async deleteObject () {
-    var url = '/app/catalogItems/' + this.props.match.params.uuid
-    await api.del(url)
-    this.props.history.push('/catalogs/' + this.props.match.params.catalog)
+  async deleteObject() {
+    var url = '/app/catalogItems/' + this.props.match.params.uuid;
+    await api.del(url);
+    this.props.history.push('/catalogs/' + this.props.match.params.catalog);
   }
 
-  submitHandler () {
-    this.setState({ isLoading: ' is-loading' })
+  submitHandler() {
+    this.setState({ isLoading: ' is-loading' });
   }
 
-  errorHandler () {
-    this.setState({ isLoading: '' })
+  errorHandler() {
+    this.setState({ isLoading: '' });
   }
 
-  finishUpHandler () {
-    this.setState({ isLoading: '' })
+  finishUpHandler() {
+    this.setState({ isLoading: '' });
   }
 
-  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
+  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
         type: type,
         hideProgressBar: true,
-        closeButton: false
-      })
+        closeButton: false,
+      });
     } else {
       toast.update(this.toastId, {
         render: message,
         type: type,
         autoClose: timeout,
-        closeButton: false
-      })
+        closeButton: false,
+      });
     }
   }
 
@@ -228,26 +234,28 @@ class CatalogDetail extends Component {
 
   render () {
     if (this.state.notFound) {
-      return <NotFound msg={'este ' + this.props.match.params.uuid} />
+      return <NotFound msg={'este ' + this.props.match.params.uuid} />;
     }
 
-    let { loaded, canEdit } = this.state
+    let { loaded, canEdit } = this.state;
     if (!loaded) {
-      return <Loader />
+      return <Loader />;
     }
 
     let catalog = {
       name: this.state.catalog.name,
-      externalId: '' + this.state.catalog.externalId
-    }
+      externalId: '' + this.state.catalog.externalId,
+    };
 
     const availableList = this.state.groups.filter(item => {
-      return (this.state.selectedGroups.findIndex(group => {
-        return group.uuid === item.uuid
-      }) === -1)
-    })
+      return (
+        this.state.selectedGroups.findIndex(group => {
+          return group.uuid === item.uuid;
+        }) === -1
+      );
+    });
 
-    let groupField
+    let groupField;
     if (testRoles('analyst') || testRoles('orgadmin')) {
       groupField = <div className='column'>
         <div className='columns'>
@@ -278,19 +286,18 @@ class CatalogDetail extends Component {
             </div>
           </div>
         </div>
-      </div>
+      );
     }
 
     return (
-      <div className='detail-page'>
-        <div className='section-header'>
+      <div className="detail-page">
+        <div className="section-header">
           <h2>{catalog.name}</h2>
         </div>
 
-        <div className='level'>
-          <div className='level-left'>
-            <div className='level-item'>
-
+        <div className="level">
+          <div className="level-left">
+            <div className="level-item">
               <Breadcrumb
                 path={[
                   {
@@ -311,10 +318,10 @@ class CatalogDetail extends Component {
                   {
                     path: '/catalogs/',
                     label: catalog.name,
-                    current: true
-                  }
+                    current: true,
+                  },
                 ]}
-                align='left'
+                align="left"
               />
             </div>
           </div>
@@ -327,11 +334,10 @@ class CatalogDetail extends Component {
                   objectDelete={this.deleteObject.bind(this)}
                   message={this.formatTitle('catalog.deleteMsg')}
                 />
-              }
+              )}
             </div>
           </div>
         </div>
-
         <div className='section is-paddingless-top pad-sides'>
 
           <div className='columns'>
@@ -345,23 +351,27 @@ class CatalogDetail extends Component {
                     />
                   </p>
                 </header>
-                <div className='card-content'>
-                  <div className='columns'>
-                    <div className='column'>
+                <div className="card-content">
+                  <div className="columns">
+                    <div className="column">
                       <ChannelForm
-                        baseUrl='/app/catalogItems'
-                        url={'/app/catalogItems/' + this.props.match.params.uuid}
+                        baseUrl="/app/catalogItems"
+                        url={
+                          '/app/catalogItems/' + this.props.match.params.uuid
+                        }
                         initialState={catalog}
                         load={this.load.bind(this)}
                         canEdit={canEdit}
-                        submitHandler={(data) => this.submitHandler(data)}
-                        errorHandler={(data) => this.errorHandler(data)}
-                        finishUp={(data) => this.finishUpHandler(data)}
+                        submitHandler={data => this.submitHandler(data)}
+                        errorHandler={data => this.errorHandler(data)}
+                        finishUp={data => this.finishUpHandler(data)}
                       >
-                        <div className='field is-grouped'>
-                          <div className='control'>
+                        <div className="field is-grouped">
+                          <div className="control">
                             <button
-                              className={'button is-primary ' + this.state.isLoading}
+                              className={
+                                'button is-primary ' + this.state.isLoading
+                              }
                               disabled={!!this.state.isLoading}
                               type='submit'
                             >
@@ -382,7 +392,7 @@ class CatalogDetail extends Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
 
@@ -390,7 +400,8 @@ export default Page({
   path: '/catalogs/:catalog/:uuid',
   title: 'Catalog Detail',
   exact: true,
-  roles: 'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
+  roles:
+    'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
   component: injectIntl(CatalogDetail)
 })
