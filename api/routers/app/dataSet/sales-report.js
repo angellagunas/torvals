@@ -215,6 +215,8 @@ module.exports = new Route({
     ]
 
     const res = await DataSetRow.aggregate(statement)
+    console.log(statement)
+    console.log(previousStatement)
     const previous = await DataSetRow.aggregate(previousStatement)
 
     for (let r of res) {
