@@ -1,76 +1,76 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 
 class Select extends Component {
-  constructor(props){
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
-      value: this.props.value
-    }
+      value: this.props.value,
+    };
   }
 
-  onChange = (e) => {
-    let val = e.currentTarget.value
-    if (this.props.type){
+  onChange = e => {
+    let val = e.currentTarget.value;
+    if (this.props.type) {
       if (this.props.type === 'integer') {
-        val = parseInt(val)
-      }
-      else if (this.props.type === 'float') {
-        val = parseFloat(val)
+        val = parseInt(val);
+      } else if (this.props.type === 'float') {
+        val = parseFloat(val);
       }
     }
     this.setState({
-      value: val
-    })
-    if(val === '')
-     val = undefined
-     
-    this.props.onChange(this.props.name, val)
-  }
+      value: val,
+    });
+    if (val === '') val = undefined;
 
-  componentWillReceiveProps(next){
-    if(next.value !== this.state.value){
+    this.props.onChange(this.props.name, val);
+  };
+
+  componentWillReceiveProps(next) {
+    if (next.value !== this.state.value) {
       this.setState({
-        value: next.value
-      })
+        value: next.value,
+      });
     }
   }
 
-  render () {
-    if(this.props.options){
+  render() {
+    if (this.props.options) {
       return (
-        <div className='field'>
-          <label className='label'>{this.props.label}</label>
-          <div className='control'>
-            <div className='select'>
+        <div className="field">
+          <label className="label">{this.props.label}</label>
+          <div className="control">
+            <div className="select">
               <select
                 name={this.props.name}
                 value={this.state.value}
                 onChange={this.onChange}
                 disabled={this.props.disabled}
-                >
-                { this.props.placeholder && 
-                  <option value=''>{this.props.placeholder}</option>
-                }
+              >
+                {this.props.placeholder && (
+                  <option value="">{this.props.placeholder}</option>
+                )}
                 {this.props.options.map((item, key) => {
-                  if (this.props.optionValue && this.props.optionName){
+                  if (this.props.optionValue && this.props.optionName) {
                     return (
-                      <option key={key} value={item[this.props.optionValue]}>{item[this.props.optionName]}</option>
-                    )
-                  }
-                  else{
+                      <option key={key} value={item[this.props.optionValue]}>
+                        {item[this.props.optionName]}
+                      </option>
+                    );
+                  } else {
                     return (
-                      <option key={key} value={item}>{item}</option>
-                    )
+                      <option key={key} value={item}>
+                        {item}
+                      </option>
+                    );
                   }
                 })}
-
               </select>
             </div>
           </div>
         </div>
-      )
+      );
     }
   }
 }
 
-export default Select
+export default Select;

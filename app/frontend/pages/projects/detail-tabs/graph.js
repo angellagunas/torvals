@@ -1,20 +1,20 @@
-import React, { PureComponent } from 'react'
-import { Line, Chart } from 'react-chartjs-2'
+import React, { PureComponent } from 'react';
+import { Line, Chart } from 'react-chartjs-2';
 
 class Graph extends PureComponent {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       dataGraph: this.props.data || [],
       data: {
         datasets: [],
-        labels: this.props.labels || []
-      }
-    }
+        labels: this.props.labels || [],
+      },
+    };
   }
 
-  getData () {
-    this.state.dataGraph.map((item) => {
+  getData() {
+    this.state.dataGraph.map(item => {
       this.state.data.datasets.push({
         label: item.label,
         fill: false,
@@ -33,35 +33,36 @@ class Graph extends PureComponent {
         pointHoverBorderWidth: 2,
         pointRadius: 3,
         pointHitRadius: 10,
-        data: item.data
-      })
-    })
+        data: item.data,
+      });
+    });
   }
 
-  componentWillMount () {
-    Chart.boxWidth = 50
-    this.getData()
+  componentWillMount() {
+    Chart.boxWidth = 50;
+    this.getData();
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.reloadGraph) {
-      this.setState({
-        dataGraph: nextProps.data,
-        data: {
-          datasets: [],
-          labels: nextProps.labels
-        }
-      },
+      this.setState(
+        {
+          dataGraph: nextProps.data,
+          data: {
+            datasets: [],
+            labels: nextProps.labels,
+          },
+        },
         () => {
-          this.getData()
+          this.getData();
         }
-      )
+      );
     }
   }
 
-  render () {
+  render() {
     return (
-      <div className='chart-container'>
+      <div className="chart-container">
         <Line
           data={this.state.data}
           width={this.props.width}
@@ -74,30 +75,30 @@ class Graph extends PureComponent {
               xAxes: [
                 {
                   ticks: {
-                    callback: function (label, index, labels) {
-                      return label
+                    callback: function(label, index, labels) {
+                      return label;
                     },
-                    fontSize: 11
-                  }
-                }
+                    fontSize: 11,
+                  },
+                },
               ],
               yAxes: [
                 {
                   ticks: {
-                    callback: function (label, index, labels) {
+                    callback: function(label, index, labels) {
                       if (label <= 999) {
-                        return label
+                        return label;
                       } else if (label >= 1000 && label <= 999999) {
-                        return (label / 1000) + 'K'
+                        return label / 1000 + 'K';
                       } else if (label >= 1000000 && label <= 999999999) {
-                        return (label / 1000000) + 'M'
+                        return label / 1000000 + 'M';
                       }
                     },
-                    fontSize: 11
+                    fontSize: 11,
                   },
-                  display: true
-                }
-              ]
+                  display: true,
+                },
+              ],
             },
             tooltips: this.props.tooltips || {
               mode: 'point',
@@ -106,19 +107,23 @@ class Graph extends PureComponent {
               bodyFontFamily: "'Roboto', sans-serif",
               bodyFontStyle: 'bold',
               callbacks: {
-                label: function (tooltipItem, data) {
-                  let label = ' '
-                  label += data.datasets[tooltipItem.datasetIndex].label || ''
+                label: function(tooltipItem, data) {
+                  let label = ' ';
+                  label += data.datasets[tooltipItem.datasetIndex].label || '';
 
                   if (label) {
-                    label += ': '
+                    label += ': ';
                   }
-                  let yVal = tooltipItem.yLabel.toFixed(2).replace(/./g, (c, i, a) => {
-                    return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
-                  })
-                  return label + yVal
-                }
-              }
+                  let yVal = tooltipItem.yLabel
+                    .toFixed(2)
+                    .replace(/./g, (c, i, a) => {
+                      return i && c !== '.' && (a.length - i) % 3 === 0
+                        ? ',' + c
+                        : c;
+                    });
+                  return label + yVal;
+                },
+              },
             },
             legend: this.props.legend || {
               display: true,
@@ -129,14 +134,14 @@ class Graph extends PureComponent {
                 fontStyle: 'normal',
                 fontFamily: "'Roboto', sans-serif",
                 usePointStyle: false,
-                padding: 12
-              }
-            }
-
-          }} />
+                padding: 12,
+              },
+            },
+          }}
+        />
       </div>
-    )
+    );
   }
 }
 
-export default Graph
+export default Graph;

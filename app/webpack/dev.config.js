@@ -1,6 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
-const config = require('config')
+const config = require('../../config')
 
 module.exports = {
   context: __dirname,
@@ -11,7 +11,7 @@ module.exports = {
   ],
   output: {
     path: __dirname,
-    publicPath: '/assets',
+    publicPath: path.resolve('/assets'),
     filename: 'bundle.js'
   },
   module: {

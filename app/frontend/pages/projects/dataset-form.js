@@ -1,14 +1,14 @@
-import React, { Component } from 'react'
-import api from '~base/api'
-import shortid from 'shortid'
+import React, { Component } from 'react';
+import api from '~base/api';
+import shortid from 'shortid';
 
 class DatasetForm extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       formData: {
         dataset: {},
-        columns: []
+        columns: [],
       },
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
@@ -17,178 +17,188 @@ class DatasetForm extends Component {
       newName: '',
       oldName: '',
       dataset: {
-        columns: []
-      }
-    }
+        columns: [],
+      },
+    };
   }
 
-  errorHandler (e) {}
+  errorHandler(e) {}
 
-  handleChange (type, event) {
+  handleChange(type, event) {
     const data = {
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
-    }
+      apiCallErrorMessage: 'is-hidden',
+    };
 
-    data[type] = event.currentTarget.value
+    data[type] = event.currentTarget.value;
 
     if (type === 'dataset') {
       var posDataset = this.props.datasets.findIndex(e => {
-        return (
-        String(e.uuid) === String(data[type])
-        )
-      })
+        return String(e.uuid) === String(data[type]);
+      });
 
-      data[type] = this.props.datasets[posDataset]
-      data['disabledControls'] = false
+      data[type] = this.props.datasets[posDataset];
+      data['disabledControls'] = false;
     }
 
-    this.setState(data)
+    this.setState(data);
   }
 
-  handleColumnNames (event) {
-    event.preventDefault()
+  handleColumnNames(event) {
+    event.preventDefault();
     if (!this.state.newName || !this.state.oldName) {
-      return false
+      return false;
     }
 
-    var auxColumns = this.state.formData.columns
+    var auxColumns = this.state.formData.columns;
     auxColumns.push({
       name_dataset: this.state.oldName,
-      name_project: this.state.newName
-    })
+      name_project: this.state.newName,
+    });
 
     this.setState({
       formData: {
-        columns: auxColumns
+        columns: auxColumns,
       },
       oldName: '',
-      newName: ''
-    })
+      newName: '',
+    });
   }
 
-  clearState () {
+  clearState() {
     this.setState({
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
       formData: {
         dataset: {},
-        columns: []
-      }
-    })
+        columns: [],
+      },
+    });
   }
 
-  async submitHandler (event) {
-    event.preventDefault()
-    let {dataset, formData} = this.state
+  async submitHandler(event) {
+    event.preventDefault();
+    let { dataset, formData } = this.state;
 
-    formData.dataset = dataset.uuid
+    formData.dataset = dataset.uuid;
 
     try {
-      var data = await api.post(this.props.url, formData)
+      var data = await api.post(this.props.url, formData);
       if (this.props.load) {
-        await this.props.load()
+        await this.props.load();
       }
-      this.clearState()
-      this.setState({apiCallMessage: 'message is-success'})
-      if (this.props.finishUp) this.props.finishUp(data.data)
+      this.clearState();
+      this.setState({ apiCallMessage: 'message is-success' });
+      if (this.props.finishUp) this.props.finishUp(data.data);
 
       setTimeout(() => {
-        this.setState({apiCallMessage: 'is-hidden'})
-      }, 2000)
+        this.setState({ apiCallMessage: 'is-hidden' });
+      }, 2000);
 
-      return
+      return;
     } catch (e) {
       return this.setState({
         error: e.message,
-        apiCallErrorMessage: 'message is-danger'
-      })
+        apiCallErrorMessage: 'message is-danger',
+      });
     }
   }
 
-  removeColumn (index) {
+  removeColumn(index) {
     this.setState({
-      ...this.state.formData.columns.splice(index, 1)
-    })
+      ...this.state.formData.columns.splice(index, 1),
+    });
   }
 
-  render () {
+  render() {
     if (this.props.datasets.length === 0) {
       return (
         <div>
           <h4>There are no processed datasets to select from!</h4>
         </div>
-      )
+      );
     }
 
     return (
       <div>
-        <form onSubmit={(e) => { this.submitHandler(e) }}>
-          <div className='field'>
-            <label className='label'>Select dataset to add*</label>
-            <div className='control'>
-              <div className='select'>
+        <form
+          onSubmit={e => {
+            this.submitHandler(e);
+          }}
+        >
+          <div className="field">
+            <label className="label">Select dataset to add*</label>
+            <div className="control">
+              <div className="select">
                 <select
-                  type='text'
-                  name='dataset'
-                  onChange={(e) => { this.handleChange('dataset', e) }}
+                  type="text"
+                  name="dataset"
+                  onChange={e => {
+                    this.handleChange('dataset', e);
+                  }}
                 >
-                  <option value=''>Select an option</option>
-                  {
-                    this.props.datasets.map(function (item) {
-                      return <option key={item.uuid}
-                        value={item.uuid}>{item.name}</option>
-                    })
-                  }
+                  <option value="">Select an option</option>
+                  {this.props.datasets.map(function(item) {
+                    return (
+                      <option key={item.uuid} value={item.uuid}>
+                        {item.name}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
           </div>
-          <div className='field'>
-            <label className='label'>Columns</label>
+          <div className="field">
+            <label className="label">Columns</label>
           </div>
-          <div className='field is-horizontal'>
-            <div className='field-body'>
-              <div className='field'>
-                <div className='control'>
-                  <div className='select'>
+          <div className="field is-horizontal">
+            <div className="field-body">
+              <div className="field">
+                <div className="control">
+                  <div className="select">
                     <select
-                      type='text'
-                      name='oldName'
+                      type="text"
+                      name="oldName"
                       value={this.state.oldName}
-                      onChange={(e) => { this.handleChange('oldName', e) }}
+                      onChange={e => {
+                        this.handleChange('oldName', e);
+                      }}
                       readOnly={this.state.disabledControls}
                       disabled={this.state.disabledControls}
                     >
-                      <option value=''>Select an option</option>
-                      {
-                        this.state.dataset.columns.map(function (item) {
-                          return <option key={shortid.generate()}
-                            value={item.name}>{item.name}</option>
-                        })
-                      }
+                      <option value="">Select an option</option>
+                      {this.state.dataset.columns.map(function(item) {
+                        return (
+                          <option key={shortid.generate()} value={item.name}>
+                            {item.name}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </div>
               </div>
-              <div className='field'>
-                <p className='control is-expanded'>
+              <div className="field">
+                <p className="control is-expanded">
                   <input
-                    className='input'
-                    type='text'
+                    className="input"
+                    type="text"
                     value={this.state.newName}
-                    onChange={(e) => { this.handleChange('newName', e) }}
+                    onChange={e => {
+                      this.handleChange('newName', e);
+                    }}
                     readOnly={this.state.disabledControls}
                     disabled={this.state.disabledControls}
                   />
                 </p>
               </div>
-              <div className='field'>
-                <p className='control is-expanded'>
+              <div className="field">
+                <p className="control is-expanded">
                   <button
-                    className='button is-primary'
-                    onClick={(e) => this.handleColumnNames(e)}
-                    type='button'
+                    className="button is-primary"
+                    onClick={e => this.handleColumnNames(e)}
+                    type="button"
                     disabled={this.state.disabledControls}
                   >
                     Add
@@ -198,7 +208,7 @@ class DatasetForm extends Component {
             </div>
           </div>
 
-          <table className='table is-fullwidth'>
+          <table className="table is-fullwidth">
             <thead>
               <tr>
                 <th>Dataset Name</th>
@@ -208,51 +218,52 @@ class DatasetForm extends Component {
             <tbody>
               {this.state.formData.columns.length === 0 ? (
                 <tr>
-                  <td colSpan='3'>No rows to show</td>
+                  <td colSpan="3">No rows to show</td>
                 </tr>
-                ) : (
-                  this.state.formData.columns.map((item, index) => {
-                    return (
-                      <tr key={shortid.generate()}>
-                        <td>{item.name_dataset}</td>
-                        <td>{item.name_project}</td>
-                        <td>
-                          <button
-                            className='button is-danger'
-                            type='button'
-                            onClick={() => this.removeColumn(index)}
-                          >
-                            <i className='fa fa-times' aria-hidden='true' />
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })
-
-                )}
+              ) : (
+                this.state.formData.columns.map((item, index) => {
+                  return (
+                    <tr key={shortid.generate()}>
+                      <td>{item.name_dataset}</td>
+                      <td>{item.name_project}</td>
+                      <td>
+                        <button
+                          className="button is-danger"
+                          type="button"
+                          onClick={() => this.removeColumn(index)}
+                        >
+                          <i className="fa fa-times" aria-hidden="true" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
 
           <div className={this.state.apiCallMessage}>
-            <div className='message-body is-size-7 has-text-centered'>
-            The dataSet has been added successfuly
-          </div>
+            <div className="message-body is-size-7 has-text-centered">
+              The dataSet has been added successfuly
+            </div>
           </div>
           <div className={this.state.apiCallErrorMessage}>
-            <div className='message-body is-size-7 has-text-centered'>
+            <div className="message-body is-size-7 has-text-centered">
               {this.state.error}
             </div>
           </div>
 
-          <div className='field is-grouped'>
-            <div className='control'>
-              <button className='button is-primary' type='submit'>Save</button>
+          <div className="field is-grouped">
+            <div className="control">
+              <button className="button is-primary" type="submit">
+                Save
+              </button>
             </div>
           </div>
         </form>
       </div>
-    )
+    );
   }
 }
 
-export default DatasetForm
+export default DatasetForm;

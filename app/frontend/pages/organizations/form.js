@@ -1,85 +1,80 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 
-import api from '~base/api'
+import api from '~base/api';
 
 import {
   BaseForm,
   TextWidget,
   TextareaWidget,
-  FileWidget
-} from '~base/components/base-form'
+  FileWidget,
+} from '~base/components/base-form';
 
 const schema = {
   type: 'object',
   title: '',
-  required: [
-    'name', 'slug'
-  ],
+  required: ['name', 'slug'],
   properties: {
-    name: {type: 'string', title: 'Nombre'},
-    description: {type: 'string', title: 'Descripción'},
-    slug: {type: 'string', title: 'Subdominio'},
-    profile: {type: 'string', title: 'Logo', format: 'data-url'}
-  }
-}
+    name: { type: 'string', title: 'Nombre' },
+    description: { type: 'string', title: 'Descripción' },
+    slug: { type: 'string', title: 'Subdominio' },
+    profile: { type: 'string', title: 'Logo', format: 'data-url' },
+  },
+};
 
 const uiSchema = {
-  'ui:field': 'custom'
-}
+  'ui:field': 'custom',
+};
 
 class CustomForm extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       name: '',
       description: '',
       slug: '',
       profile: '',
-      ...props.formData
-    }
+      ...props.formData,
+    };
   }
 
-  onChange (name) {
+  onChange(name) {
     return value => {
-      this.setState({ [name]: value })
-      setImmediate(() => this.props.onChange(this.state))
-    }
+      this.setState({ [name]: value });
+      setImmediate(() => this.props.onChange(this.state));
+    };
   }
 
-  render () {
-    const { name, slug, description, profile, profileUrl } = this.state
-    const profileImg = profile || profileUrl
+  render() {
+    const { name, slug, description, profile, profileUrl } = this.state;
+    const profileImg = profile || profileUrl;
 
     return (
-      <div className='columns is-multiline test'>
-
-        <div className='column is-12'>
-          <p className='subtitle is-pulled-left'>
+      <div className="columns is-multiline test">
+        <div className="column is-12">
+          <p className="subtitle is-pulled-left">
             <strong>Detalle de tu organización</strong>
           </p>
-          <div className='is-pulled-right'>
+          <div className="is-pulled-right">
             <button
               className={'button is-primary ' + this.state.isLoading}
               disabled={!!this.state.isLoading}
-              type='submit'
+              type="submit"
             >
               Guardar
             </button>
           </div>
         </div>
 
-        <div className='column is-one-third'>
-          <div className='card'>
-            <div className='card-image'>
-              <figure className='image is-1by1'>
+        <div className="column is-one-third">
+          <div className="card">
+            <div className="card-image">
+              <figure className="image is-1by1">
                 <img src={profileImg} />
               </figure>
             </div>
-            <div className='card-content'>
-              <div className='form-group field'>
-                <label className='label'>
-                        Sube el logo de la organización
-                </label>
+            <div className="card-content">
+              <div className="form-group field">
+                <label className="label">Sube el logo de la organización</label>
                 <FileWidget
                   value={profile}
                   onChange={this.onChange('profile')}
@@ -90,155 +85,161 @@ class CustomForm extends Component {
           </div>
         </div>
 
-        <div className='column'>
-          <div className='card'>
-            <div className='card-content'>
-              <div className='columns'>
-                <div className='column'>
-
-                  <div className='form-group field'>
-                    <label className='label'>Nombre*</label>
-                    <div className='control'>
+        <div className="column">
+          <div className="card">
+            <div className="card-content">
+              <div className="columns">
+                <div className="column">
+                  <div className="form-group field">
+                    <label className="label">Nombre*</label>
+                    <div className="control">
                       <TextWidget
                         required
-                        type='text'
-                        className='input'
+                        type="text"
+                        className="input"
                         value={name}
                         onChange={this.onChange('name')}
                       />
                     </div>
                   </div>
-                  <div className='form-group field'>
-                    <label className='label'>Descripción</label>
-                    <div className='control'>
+                  <div className="form-group field">
+                    <label className="label">Descripción</label>
+                    <div className="control">
                       <TextareaWidget
                         options={{ rows: 4 }}
-                        type='text'
-                        className='input'
-                        maxLength='140'
+                        type="text"
+                        className="input"
+                        maxLength="140"
                         value={description}
                         onChange={this.onChange('description')}
                       />
                     </div>
-                    <p className='help-block has-text-grey is-size-7'>
+                    <p className="help-block has-text-grey is-size-7">
                       Máximo 140 caracteres
                     </p>
                   </div>
-                  <div className='form-group field'>
-                    <label className='label'>Subdominio*</label>
-                    <div className='control'>
+                  <div className="form-group field">
+                    <label className="label">Subdominio*</label>
+                    <div className="control">
                       <TextWidget
                         required
                         disabled
-                        type='text'
-                        className='input'
+                        type="text"
+                        className="input"
                         value={slug}
                         onChange={this.onChange('slug')}
                       />
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
           </div>
         </div>
-
       </div>
-    )
+    );
   }
 }
 
 class OrganizationForm extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       initialState: this.props.initialState,
       formData: this.props.initialState,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
-    }
+      apiCallErrorMessage: 'is-hidden',
+    };
   }
 
-  errorHandler (e) {}
+  errorHandler(e) {}
 
-  changeHandler ({formData}) {
+  changeHandler({ formData }) {
     this.setState({
       formData,
       apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden'
-    })
+      apiCallErrorMessage: 'is-hidden',
+    });
   }
 
-  clearState () {
+  clearState() {
     this.setState({
       apiCallMessage: 'is-hidden',
       apiCallErrorMessage: 'is-hidden',
-      formData: this.props.initialState
-    })
+      formData: this.props.initialState,
+    });
   }
 
-  async submitHandler ({formData}) {
-    if (formData.slug !== this.state.initialState.slug && !this.state.confirmed) {
+  async submitHandler({ formData }) {
+    if (
+      formData.slug !== this.state.initialState.slug &&
+      !this.state.confirmed
+    ) {
       return this.setState({
         ...this.state,
-        error: 'Si modificas el slug, se cerrará la sesión de todos los usuarios que hayan iniciado sesión en esta organización. Si REALMENTE desea continuar, haga clic en guardar de nuevo',
+        error:
+          'Si modificas el slug, se cerrará la sesión de todos los usuarios que hayan iniciado sesión en esta organización. Si REALMENTE desea continuar, haga clic en guardar de nuevo',
         apiCallErrorMessage: 'message is-danger',
-        confirmed: true
-      })
+        confirmed: true,
+      });
     }
 
-    if (this.props.submitHandler) this.props.submitHandler(formData)
+    if (this.props.submitHandler) this.props.submitHandler(formData);
     try {
-      var data = await api.post(this.props.url, formData)
-      await this.props.load()
-      this.clearState()
-      this.setState({...this.state, apiCallMessage: 'message is-success'})
-      if (this.props.finishUp) this.props.finishUp(data.data)
-      return
+      var data = await api.post(this.props.url, formData);
+      await this.props.load();
+      this.clearState();
+      this.setState({ ...this.state, apiCallMessage: 'message is-success' });
+      if (this.props.finishUp) this.props.finishUp(data.data);
+      return;
     } catch (e) {
-      if (this.props.errorHandler) this.props.errorHandler(e)
+      if (this.props.errorHandler) this.props.errorHandler(e);
       return this.setState({
         ...this.state,
         error: e.message,
-        apiCallErrorMessage: 'message is-danger'
-      })
+        apiCallErrorMessage: 'message is-danger',
+      });
     }
   }
 
-  render () {
-    var error
+  render() {
+    var error;
     if (this.state.error) {
-      error = <div>
-        Error: {this.state.error}
-      </div>
+      error = <div>Error: {this.state.error}</div>;
     }
 
     return (
       <div>
-        <BaseForm schema={schema}
+        <BaseForm
+          schema={schema}
           uiSchema={uiSchema}
           formData={this.state.formData}
-          onChange={(e) => { this.changeHandler(e) }}
-          onSubmit={(e) => { this.submitHandler(e) }}
-          onError={(e) => { this.errorHandler(e) }}
+          onChange={e => {
+            this.changeHandler(e);
+          }}
+          onSubmit={e => {
+            this.submitHandler(e);
+          }}
+          onError={e => {
+            this.errorHandler(e);
+          }}
           fields={{ custom: CustomForm }}
         >
           <div className={this.state.apiCallMessage}>
-            <div className='message-body is-size-7 has-text-centered'>
+            <div className="message-body is-size-7 has-text-centered">
               Los datos se han guardado correctamente
             </div>
           </div>
 
           <div className={this.state.apiCallErrorMessage}>
-            <div className='message-body is-size-7 has-text-centered'>
+            <div className="message-body is-size-7 has-text-centered">
               {error}
             </div>
           </div>
         </BaseForm>
       </div>
-    )
+    );
   }
 }
 
-export default OrganizationForm
+export default OrganizationForm;
