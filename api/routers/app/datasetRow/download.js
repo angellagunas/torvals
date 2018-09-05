@@ -63,100 +63,39 @@ module.exports = new Route({
       }
       const catalogItem = await CatalogItem.findOne({
         uuid: data[filter]
-      })
-      catalogItems.push(catalogItem._id)
+      }).populate('catalog')
+      catalogItems.push(catalogItem)
     }
     filters['catalogItems'] = {
-      '$all': catalogItems
+      '$all': catalogItems.map((item) => item._id)
     }
 
-    if (otherFilters.showAdjusted && !otherFilters.showNotAdjusted) {
-      filters['status'] = 'adjusted'
-    } else if (!otherFilters.showAdjusted && otherFilters.showNotAdjusted) {
-      filters['status'] = 'unmodified'
-    }
-
-    let rows = await DataSetRow.find({
+    const rows = await DataSetRow.find({
       dataset: project.activeDataset._id,
       isDeleted: false,
       ...filters
-    }).populate('newProduct catalogItems period')
+    }).populate('newProduct')
 
     let rowsCsv = ''
     let names = []
-
-    for (let head of project.mainDataset.columns) {
-      if (head.name != 'modelo' && head.name != 'month' && head.name != 'venta' && head.name != 'venta_uni' && head.name != 'year' && head.name != 'semana_bimbo' && head.name != 'clasificacion') {
-        if (head.name === 'agencia_id') {
-          rowsCsv += head.name + ','
-          names.push(head.name)
-
-          rowsCsv += 'agencia_nombre,'
-          names.push('agencia_nombre')
-        } else {
-          rowsCsv += head.name + ','
-          names.push(head.name)
-        }
-      }
+    let rowBeginning = ''
+    for (let item of catalogItems) {
+      names.push(`"${item.catalog.slug}_id"`, `"${item.catalog.slug}_name"`)
+      rowBeginning += `"${item.externalId}","${item.name}",`
     }
+    names.push('"producto_id"', '"producto_name"', '"fecha"', '"prediccion"', '"ajuste"')
 
-    rowsCsv += 'periodo, periodo_inicio'
-    names.push('periodo')
-    names.push('periodo_inicio')
+    rowsCsv = `${names.join()}\r\n`
 
     rowsCsv = rowsCsv.substring(0, rowsCsv.length - 1) + '\r\n'
     for (let row of rows) {
-      let rowsString = ''
-      const regEx = new RegExp(otherFilters.searchTerm, 'gi')
-      const searchStr = `${row.newProduct.name} ${row.newProduct.externalId}`
+      let rowsString = rowBeginning
 
-      if (!regEx.test(searchStr)) { continue }
+      rowsString += `"${row.newProduct.externalId}","${row.newProduct.name}",`
 
-      for (let col of names) {
-        var predictionColumn = project.mainDataset.getPredictionColumn() || {name: ''}
-        var adjustmentColumn = project.mainDataset.getAdjustmentColumn() || {name: ''}
+      rowsString += `"${moment.utc(row.data.forecastDate, 'YYYY-MM-DD').format("YYYY-MM-DD")}",`
 
-        if (col === adjustmentColumn.name) {
-          rowsString += row.data.adjustment + ','
-          continue
-        } else if (col === predictionColumn.name) {
-          rowsString += row.data.prediction + ','
-          continue
-        } else if (col === 'producto_nombre') {
-          rowsString += row.newProduct.name + ','
-        } else if (col === 'agencia_id') {
-          let agency = row.catalogItems.find(item => item.type === 'centro-de-venta')
-          if (agency) {
-            rowsString += agency.externalId + ','
-          } else {
-            rowsString += ','
-          }
-        } else if (col === 'canal_nombre') {
-          let canal = row.catalogItems.find(item => item.type === 'canal')
-          if (canal) {
-            rowsString += canal.name + ','
-          } else {
-            rowsString += ','
-          }
-        } else if (col === 'agencia_nombre') {
-          let agency = row.catalogItems.find(item => item.type === 'centro-de-venta')
-          if (agency) {
-            rowsString += agency.name + ','
-          } else {
-            rowsString += ','
-          }
-        } else if (col === 'periodo') {
-          rowsString += row.period.period + ','
-        } else if (col === 'periodo_inicio') {
-          rowsString += moment.utc(row.period.dateStart, 'YYYY-MM-DD').format('DD-MM-YYYY') + ','
-        } else if (row.apiData[col]) {
-          rowsString += row.apiData[col] + ','
-        } else {
-          rowsString += ','
-        }
-      }
-
-      rowsString = rowsString.substring(0, rowsString.length - 1) + '\r\n'
+      rowsString += `"${row.data.prediction}","${row.data.adjustment}"\r\n`
 
       rowsCsv += rowsString
     }

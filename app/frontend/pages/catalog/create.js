@@ -6,25 +6,25 @@ import CreateForm from './create-form'
 var initialState = {
   name: '',
   externalId: '',
-  type: ''
-}
+  type: '',
+};
 
 class CreateCatalog extends Component {
-  constructor (props) {
-    super(props)
-    this.hideModal = this.props.hideModal.bind(this)
+  constructor(props) {
+    super(props);
+    this.hideModal = this.props.hideModal.bind(this);
     this.state = {
-      isLoading: ''
-    }
-    initialState.type = this.props.branchName
+      isLoading: '',
+    };
+    initialState.type = this.props.branchName;
   }
 
-  submitHandler () {
-    this.setState({ isLoading: ' is-loading' })
+  submitHandler() {
+    this.setState({ isLoading: ' is-loading' });
   }
 
-  errorHandler () {
-    this.setState({ isLoading: '' })
+  errorHandler() {
+    this.setState({ isLoading: '' });
   }
 
   formatTitle(id) {
@@ -39,16 +39,16 @@ class CreateCatalog extends Component {
         hideModal={this.hideModal}
       >
         <CreateForm
-          baseUrl='/app/catalogItems/create'
+          baseUrl="/app/catalogItems/create"
           url={'/app/catalogItems/create'}
           finishUp={this.props.finishUp}
           initialState={initialState}
-          submitHandler={(data) => this.submitHandler(data)}
-          errorHandler={(data) => this.errorHandler(data)}
+          submitHandler={data => this.submitHandler(data)}
+          errorHandler={data => this.errorHandler(data)}
           canCreate={this.props.canCreate}
         >
-          <div className='field is-grouped'>
-            <div className='control'>
+          <div className="field is-grouped">
+            <div className="control">
               <button
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
@@ -71,7 +71,7 @@ class CreateCatalog extends Component {
           </div>
         </CreateForm>
       </BaseModal>
-    )
+    );
   }
 }
 

@@ -1,17 +1,17 @@
-import Baobab from 'baobab'
+import Baobab from 'baobab';
 
-import cookies from '~base/cookies'
+import cookies from '~base/cookies';
 
 const initialState = {
-  jwt: cookies.get('jwt')
-}
+  jwt: cookies.get('jwt'),
+};
 
 const tree = new Baobab(initialState, {
   autoCommit: false,
   asynchronous: true,
-  immutable: true
-})
+  immutable: true,
+});
 
-window.tree = tree
+window.tree = tree;
 
-export default tree
+export default tree;

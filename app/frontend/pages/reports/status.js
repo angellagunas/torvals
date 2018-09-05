@@ -129,7 +129,6 @@ class StatusRepórt extends Component {
         this.getTimeRemaining()
       }, 60000)
 
-
       this.setState({
         filters: {
           ...this.state.filters,

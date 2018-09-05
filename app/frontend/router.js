@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -51,13 +51,13 @@ import Privacy from './pages/privacy'
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
-    return <Redirect to={{pathname: env.PREFIX + 'dashboard'}} />
+    return <Redirect to={{ pathname: env.PREFIX + 'dashboard' }} />;
   }
-  return (<NotFound />)
-}
+  return <NotFound />;
+};
 
 class AppRouter extends Component {
-  render () {
+  render() {
     return (
       <Router>
         <AdminLayout>
@@ -120,7 +120,6 @@ class AppRouter extends Component {
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
               <Route component={NoMatch} />
-
             </Switch>
           </div>
         </AdminLayout>
@@ -129,4 +128,4 @@ class AppRouter extends Component {
   }
 }
 
-export default AppRouter
+export default AppRouter;

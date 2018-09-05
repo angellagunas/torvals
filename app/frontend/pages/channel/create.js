@@ -5,43 +5,44 @@ import ChannelForm from './create-form'
 
 var initialState = {
   name: '',
-  externalId: ''
-}
+  externalId: '',
+};
 
 class CreateChannel extends Component {
-  constructor (props) {
-    super(props)
-    this.hideModal = this.props.hideModal.bind(this)
+  constructor(props) {
+    super(props);
+    this.hideModal = this.props.hideModal.bind(this);
     this.state = {
-      isLoading: ''
-    }
+      isLoading: '',
+    };
   }
 
-  submitHandler () {
-    this.setState({ isLoading: ' is-loading' })
+  submitHandler() {
+    this.setState({ isLoading: ' is-loading' });
   }
 
-  errorHandler () {
-    this.setState({ isLoading: '' })
+  errorHandler() {
+    this.setState({ isLoading: '' });
   }
 
-  render () {
+  render() {
     return (
       <BaseModal
         title='Crear Canal' //TODO: translate
         className={this.props.className}
-        hideModal={this.hideModal}>
+        hideModal={this.hideModal}
+      >
         <ChannelForm
-          baseUrl='/app/channels'
+          baseUrl="/app/channels"
           url={this.props.url}
           finishUp={this.props.finishUp}
           initialState={initialState}
-          submitHandler={(data) => this.submitHandler(data)}
-          errorHandler={(data) => this.errorHandler(data)}
+          submitHandler={data => this.submitHandler(data)}
+          errorHandler={data => this.errorHandler(data)}
           canCreate={this.props.canCreate}
-          >
-          <div className='field is-grouped'>
-            <div className='control'>
+        >
+          <div className="field is-grouped">
+            <div className="control">
               <button
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
@@ -64,8 +65,8 @@ class CreateChannel extends Component {
           </div>
         </ChannelForm>
       </BaseModal>
-    )
+    );
   }
 }
 
-export default CreateChannel
+export default CreateChannel;

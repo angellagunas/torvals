@@ -4,20 +4,20 @@ import BaseModal from '~base/components/base-modal'
 import { injectIntl } from 'react-intl'
 
 class ImportCatalog extends Component {
-  constructor (props) {
-    super(props)
-    this.hideModal = this.props.hideModal.bind(this)
+  constructor(props) {
+    super(props);
+    this.hideModal = this.props.hideModal.bind(this);
     this.state = {
-      isLoading: ''
-    }
+      isLoading: '',
+    };
   }
 
-  submitHandler () {
-    this.setState({ isLoading: ' is-loading' })
+  submitHandler() {
+    this.setState({ isLoading: ' is-loading' });
   }
 
-  errorHandler () {
-    this.setState({ isLoading: '' })
+  errorHandler() {
+    this.setState({ isLoading: '' });
   }
 
   formatTitle(id) {
@@ -35,7 +35,7 @@ class ImportCatalog extends Component {
           <ImportCSV
             isModal
             type={this.props.branchName}
-            url='/app/catalogItems/import'
+            url="/app/catalogItems/import"
             title={this.props.title}
             finishUp={this.props.finishUp}
             format={
@@ -47,7 +47,7 @@ class ImportCatalog extends Component {
           />
         </BaseModal>
       </div>
-    )
+    );
   }
 }
 
