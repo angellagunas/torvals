@@ -425,9 +425,9 @@ class Calendar extends Component {
                                 </div>
                               </div>
                             </div>
+                          </div>
                           );
                         })}
-                      </div>
                       <div className="column is-narrow">
                         <Cal
                           key={key}
@@ -439,6 +439,7 @@ class Calendar extends Component {
                         />
                       </div>
                     </div>
+                  </div>
                   );
                 }
               }

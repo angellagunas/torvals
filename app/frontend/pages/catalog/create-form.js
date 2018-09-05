@@ -115,8 +115,9 @@ class CreateForm extends Component {
           </div>
           {canEdit && children}
           {canCreate && children}
-        </BaseForm>
-      </div>
+          </div>
+      </BaseForm>
+    </div>
     );
   }
 }

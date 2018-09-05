@@ -17,10 +17,6 @@ import { withRouter } from 'react-router'
 import BillingForm from '../pages/organizations/billing-form'
 import { toast } from 'react-toastify'
 
-import Sidebar from '~components/sidebar';
-import AdminNavBar from '~components/admin-navbar';
-import { ToastContainer } from 'react-toastify';
-
 class AdminLayout extends Component {
   constructor(props) {
     super(props);

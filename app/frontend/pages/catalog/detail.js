@@ -257,7 +257,7 @@ class CatalogDetail extends Component {
 
     let groupField;
     if (testRoles('analyst') || testRoles('orgadmin')) {
-      groupField = <div className='column'>
+      groupField = (<div className='column'>
         <div className='columns'>
           <div className='column'>
             <div className='card'>
@@ -286,6 +286,7 @@ class CatalogDetail extends Component {
             </div>
           </div>
         </div>
+      </div>
       );
     }
 
@@ -327,7 +328,7 @@ class CatalogDetail extends Component {
           </div>
           <div className='level-right'>
             <div className='level-item'>
-              {canEdit &&
+              {canEdit && (
                 <DeleteButton
                   titleButton={this.formatTitle('catalog.delete')}
                   objectName={this.formatTitle('catalogs.' + this.props.match.params.catalog)}

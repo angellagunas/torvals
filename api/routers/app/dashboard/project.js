@@ -124,18 +124,9 @@ module.exports = new Route({
       return
     }
 
-    let catalogs = datasetRow[0].catalogItems.filter(item => {
-      return matchCatalogs.indexOf(item.type) >= 0
+    const catalogs = datasetRow[0].catalogItems.filter(item => {
+      return matchCatalogs.indexOf(item.type) >= 0 && item.isDeleted === false
     })
-
-    if (catalogItems) {
-      catalogs = catalogs.filter(item => {
-        let checkExistence = catalogItems.some((e) => {
-          return String(item._id) === String(e)
-        })
-        return checkExistence
-      })
-    }
 
     ctx.body = {
       products: datasetRow[0].products,

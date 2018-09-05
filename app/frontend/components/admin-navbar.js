@@ -183,7 +183,7 @@ class NavBar extends Component {
                     <span />
                   </div>
                 </div>
-              )}
+              }
 
               <a
                 className="navbar-item is-size-6 is-capitalized has-text-weight-semibold"

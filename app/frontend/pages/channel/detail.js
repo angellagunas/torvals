@@ -246,7 +246,7 @@ class ChannelDetail extends Component {
 
     let groupField;
     if (testRoles('analyst') || testRoles('orgadmin')) {
-      groupField = <div className='column'>
+      groupField = (<div className='column'>
         <div className='columns'>
           <div className='column'>
             <div className='card'>
@@ -275,6 +275,7 @@ class ChannelDetail extends Component {
             </div>
           </div>
         </div>
+      </div>
       );
     }
 
@@ -311,7 +312,7 @@ class ChannelDetail extends Component {
           </div>
           <div className='level-right'>
             <div className='level-item'>
-              {canEdit &&
+              {canEdit && (
                 <DeleteButton
                   //TODO: translate
                   titleButton={'Eliminar'}

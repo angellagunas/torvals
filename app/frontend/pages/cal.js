@@ -171,7 +171,6 @@ class Cal extends Component {
                 {w}
               </button>
             </div>
-          );
         }
       }
     });
