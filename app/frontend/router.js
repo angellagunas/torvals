@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
 import {
-  BrowserRouter as Router,
+  Router,
   Switch,
   Route,
   Redirect
 } from 'react-router-dom'
+import createBrowserHistory from 'history/createBrowserHistory'
+import ReactGA from 'react-ga'
 
+import env from '~base/env-variables'
+import NotFound from '~base/components/not-found'
 import AdminLayout from '~components/admin-layout'
+
 import LandPage from './pages//landing/land-page'
 import Dashboard from './pages/dashboard'
 import Profile from './pages/profile'
@@ -23,10 +28,8 @@ import SalesCenters from './pages/salesCenters/list'
 import SalesCenterDetail from './pages/salesCenters/detail'
 import Products from './pages/products/list'
 import ProductDetail from './pages/products/detail'
-import env from '~base/env-variables'
 import Channels from './pages/channel/list'
 import ChannelsDetail from './pages/channel/detail'
-import NotFound from '~base/components/not-found'
 import Calendar from './pages/calendar'
 import Prices from './pages/prices/list'
 import PriceDetail from './pages/prices/detail'
@@ -49,6 +52,15 @@ import ForecastCompare from './pages/forecast/compare'
 import HowItWorks from './pages/landing/how-it-works'
 import Privacy from './pages/privacy'
 
+const history = createBrowserHistory()
+
+ReactGA.initialize(env.ANALITYCS_ID)
+ReactGA.pageview(window.location.pathname + window.location.search)
+
+history.listen(location => {
+  ReactGA.pageview(window.location.pathname + window.location.search)
+})
+
 const NoMatch = () => {
   if (window.location.pathname === '/') {
     return <Redirect to={{ pathname: env.PREFIX + 'dashboard' }} />;
@@ -59,7 +71,7 @@ const NoMatch = () => {
 class AppRouter extends Component {
   render() {
     return (
-      <Router>
+      <Router history={history}>
         <AdminLayout>
           <div>
             <Switch>
