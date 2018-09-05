@@ -1,6 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
-const config = require('../../config')
+const config = require('config')
 
 module.exports = {
   context: __dirname,
@@ -11,7 +11,7 @@ module.exports = {
   ],
   output: {
     path: __dirname,
-    publicPath: path.resolve('/assets'),
+    publicPath: '/assets',
     filename: 'bundle.js'
   },
   module: {
@@ -49,7 +49,7 @@ module.exports = {
       'APP_HOST': JSON.stringify(config.server.appHost),
       'EMAIL_SEND': JSON.stringify(config.mailer.active),
       'COOKIE_SUFIX': JSON.stringify(config.server.cookieSufix),
-      'ANALITYCS_ID': JSON.stringify(config.analitycs.id),
+      'ANALITYCS_ID': JSON.stringify(config.analitycs.id)
     })
   ],
   resolve: {
