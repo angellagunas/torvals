@@ -179,8 +179,8 @@ class Sidebar extends Component {
         },
         // Forecast.asSidebarItem(),
         Projects.asSidebarItem(),
-        Calendar.asSidebarItem(),
-        {
+        // Calendar.asSidebarItem(),
+        /*{
           title: 'Cargar Datos',
           icon: 'upload',
           to: '/import',
@@ -202,7 +202,7 @@ class Sidebar extends Component {
             HistoricReport.asSidebarItem(),
             DownloadReport.asSidebarItem(),
           ],
-        },
+        },*/
       ];
     }
 

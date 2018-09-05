@@ -1387,21 +1387,6 @@ class Dashboard extends Component {
                               <span title="Cantidad">Cantidad</span>
                             </label>
                           </div>
-
-                          <div className="control">
-                            <input
-                              className="is-checkradio is-info is-small"
-                              id="showByprice"
-                              type="radio"
-                              name="showBy"
-                              checked={this.state.prices}
-                              disabled={this.state.waitingData}
-                              onChange={() => this.showBy(true)}
-                            />
-                            <label htmlFor="showByprice">
-                              <span title="Precio">Precio</span>
-                            </label>
-                          </div>
                         </div>
                       </div>
                     </div>
