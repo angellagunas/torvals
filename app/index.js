@@ -11,7 +11,8 @@ const app = express()
 app.set('views', path.resolve('./app/views'))
 
 expressNunjucks(app, {
-  noCache: true
+  watch: true,
+  noCache: false
 })
 
 if (config.env === 'development') {
