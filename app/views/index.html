@@ -1,79 +1,17 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="utf-8">
   <meta name=viewport content="width=device-width, initial-scale=1">
   <title>Orax</title>
   {% if env == 'production' %}
   <link rel="stylesheet" type="text/css" href="/assets/bundle.css">
-  <script type="text/javascript">
-    window.zESettings = {
-      webWidget: {
-        color: { theme: '#187FE6' },
-        launcher: {
-          chatLabel: {
-            '*': 'Contáctanos'
-          }
-        }
-      }
-    };
-  </script>
-  <script>
-  	/*<![CDATA[*/window.zEmbed || function (e, t) { var n, o, d, i, s, a = [], r = document.createElement("iframe"); window.zEmbed = function () { a.push(arguments) }, window.zE = window.zE || window.zEmbed, r.src = "javascript:false", r.title = "", r.role = "presentation", (r.frameElement || r).style.cssText = "display: none", d = document.getElementsByTagName("script"), d = d[d.length - 1], d.parentNode.insertBefore(r, d), i = r.contentWindow, s = i.document; try { o = s } catch (e) { n = document.domain, r.src = 'javascript:var d=document.open();d.domain="' + n + '";void(0);', o = s } o.open()._l = function () { var e = this.createElement("script"); n && (this.domain = n), e.id = "js-iframe-async", e.src = "https://assets.zendesk.com/embeddable_framework/main.js", this.t = +new Date, this.zendeskHost = "kaminous.zendesk.com", this.zEQueue = a, this.body.appendChild(e) }, o.write('<body onload="document._l();">'), o.close() }();
-  /*]]>*/
-  </script> {% endif %}
-
+  {% endif %}
 </head>
-
 <body>
-  <div id="app">
-    <div id="root"></div>
-  </div>
-  <script src="/assets/bundle.js"></script> {% if env == 'production' %}
-
-  <script type="text/javascript">
-
-    zEmbed(function () {
-      $zopim(function () {
-        $zopim.livechat.window.setTitle('Contáctanos')
-        $zopim.livechat.concierge.setName('Bienvenido a Orax')
-        $zopim.livechat.concierge.setTitle('Puedo ayudarte con cualquier duda.')
-        $zopim.livechat.concierge.setAvatar('http://www.orax.io/admin/public/img/logo.png')
-        $zopim.livechat.setLanguage('es')
-        $zopim.livechat.departments.setVisitorDepartment('Orax')
-        window.$zopim.livechat.removeTags('kamino.us')
-        window.$zopim.livechat.addTags('orax')
-
-        if (window.localStorage.getItem('name') && window.localStorage.getItem('email')) {
-          $zopim.livechat.setName(window.localStorage.getItem('name'))
-          $zopim.livechat.setEmail(window.localStorage.getItem('email'))
-        } else {
-          $zopim.livechat.clearAll()
-        }
-
-        if (window.location.href) { window.$zopim.livechat.addTags('url:' + window.location.href) }
-
-        window.addEventListener('storage', function (e) {
-          if (!e.name || !e.email) {
-            $zopim.livechat.clearAll()
-
-            return
-          }
-
-          $zopim.livechat.setName(e.name)
-          $zopim.livechat.setEmail(e.email)
-        })
-
-        window.setTimeout(function () {
-          if (!$zopim.livechat.isChatting()) {
-            $zopim.livechat.window.show()
-          }
-        }, 30000)
-      })
-    })
-  </script> {% endif %}
-
+<div id="app">
+  <div id="root"></div>
+</div>
+  <script src="/assets/bundle.js"></script>
 </body>
-
 </html>

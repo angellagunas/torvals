@@ -339,7 +339,6 @@ class TabHistorical extends Component {
             }
           }
 
-
           if (mape <= 7) {
             return <span className='has-text-success'>{mape.toFixed(2)}%</span>
           } else if (mape > 7 && mape <= 14) {
@@ -486,7 +485,6 @@ class TabHistorical extends Component {
 
   }
 
-
   setMinPeriod(item) {
     let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
     let min = moment.utc([item.year, item.number - 1])
@@ -531,7 +529,6 @@ class TabHistorical extends Component {
       })
     }
   }
-
 
   findName = (name) => {
     let find = ''
@@ -803,6 +800,7 @@ class TabHistorical extends Component {
         </div>
       )
     }
+
     const graph = [
       {
         label: this.formatTitle('dashboard.perdictionTitle'),
@@ -874,7 +872,6 @@ class TabHistorical extends Component {
                       </ul>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
@@ -955,7 +952,7 @@ class TabHistorical extends Component {
                               id="dashboard.notAvailable"
                               defaultMessage={`No disponible`}
                             />
-                          : this.state.prices 
+                          : this.state.prices
                             ? '$' +
                               this.state.totalAdjustment.toFixed().replace(/./g, (c, i, a) => {
                                 return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
@@ -974,7 +971,7 @@ class TabHistorical extends Component {
                       </p>
                       <p className='indicators-number has-text-info'>
                         {
-                          this.state.totalPrediction === 0 
+                          this.state.totalPrediction === 0
                           ? <FormattedMessage
                               id="dashboard.notAvailable"
                               defaultMessage={`No disponible`}
@@ -1184,7 +1181,6 @@ class TabHistorical extends Component {
                             </label>
                           </div>
                         </div>
-
                       </div>
                     </div>
                   </div>
@@ -1226,7 +1222,7 @@ class TabHistorical extends Component {
                         </div>
                         </div>
                       </div>
-                      </div>
+                    </div>
                     </div>
                   }
 
@@ -1238,7 +1234,7 @@ class TabHistorical extends Component {
 
                   {this.state.maxPeriod &&
                     <div className='level-item'>
-                     <div className='field'>
+                      <div className='field'>
                         <label className='label'>
                         <FormattedMessage
                           id="dashboard.lastMonth"
@@ -1246,31 +1242,31 @@ class TabHistorical extends Component {
                         />
                         </label>
                         <div className='field is-grouped control'>
-                        <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
-                        <div className='dropdown-trigger'>
-                          <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
-                            <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
-                            <span className='icon is-small'>
-                              <i className='fa fa-angle-down' aria-hidden='true'></i>
-                            </span>
-                          </button>
-                        </div>
-                        <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
-                          <div className='dropdown-content'>
-                            {this.state.periods &&
-                                this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
-                            .map((item, key) => {
-                              return (
-                                <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
-                                  onClick={() => this.setMaxPeriod(item)}>
-                                  {item.name + ' ' + item.year}
-                                </a>
-                              )
-                            })}
+                          <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
+                            <div className='dropdown-trigger'>
+                              <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
+                                <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
+                                <span className='icon is-small'>
+                                  <i className='fa fa-angle-down' aria-hidden='true'></i>
+                                </span>
+                              </button>
+                            </div>
+                            <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
+                              <div className='dropdown-content'>
+                                {this.state.periods &&
+                                    this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
+                                .map((item, key) => {
+                                  return (
+                                    <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                      onClick={() => this.setMaxPeriod(item)}>
+                                      {item.name + ' ' + item.year}
+                                    </a>
+                                  )
+                                })}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        </div>
-                      </div>
                       </div>
                     </div>
                   }
