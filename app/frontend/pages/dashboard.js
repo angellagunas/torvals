@@ -405,7 +405,6 @@ class Dashboard extends Component {
             }
           }
 
-
           if (mape <= 7) {
             return <span className='has-text-success'>{mape.toFixed(2)}%</span>
           } else if (mape > 7 && mape <= 14) {
@@ -499,6 +498,15 @@ class Dashboard extends Component {
               defaultMessage={`Cargando, un momento por favor`}
             />
           </h1>
+        </center>
+      );
+    } else if (
+      Object.keys(this.selectedProjects).length !== 0 &&
+      !this.state.noData
+    ) {
+      return (
+        <center>
+          <h1 className="has-text-info">Cargando, un momento por favor</h1>
           <Loader />
         </center>
       )
@@ -550,7 +558,6 @@ class Dashboard extends Component {
     })
 
   }
-
 
   setMinPeriod(item) {
     let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
@@ -616,7 +623,6 @@ class Dashboard extends Component {
         objects: value,
         selectAll: true,
         isOpen: true,
-        slug: key
       }))
       .value()
 
@@ -822,7 +828,6 @@ class Dashboard extends Component {
     }
   }
 
-
   formatTitle(id) {
     return this.props.intl.formatMessage({ id: id })
   }
@@ -999,7 +1004,6 @@ class Dashboard extends Component {
                       </aside>
                     </div>
                   </div>
-
                 </div>
                 <div className='column is-12'>
 
@@ -1026,7 +1030,6 @@ class Dashboard extends Component {
                       </ul>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
@@ -1334,10 +1337,9 @@ class Dashboard extends Component {
                               </span>
                             </label>
                           </div>
-                          </div>
-
                         </div>
                       </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1376,9 +1378,9 @@ class Dashboard extends Component {
                             })}
                           </div>
                         </div>
-                        </div>
                       </div>
                       </div>
+                    </div>
                     </div>
                   }
 
@@ -1421,9 +1423,9 @@ class Dashboard extends Component {
                             })}
                           </div>
                         </div>
-                        </div>
                       </div>
                       </div>
+                    </div>
                     </div>
                   }
                 </div>
