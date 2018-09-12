@@ -1,6 +1,6 @@
 // node tasks/dataset/migrate-rows-to-historical.js
 
-require('../../../config')
+require('../../config')
 require('lib/databases/mongo')
 const _ = require('lodash')
 
@@ -16,13 +16,17 @@ const task = new Task(
     const batchSize = 10000
     log.call(`Start ==>  ${moment().format()}`)
 
-    const projects = await Project.find(
-      {},
-      { name: 1, mainDataset: 2, activeDataset: 3, uuid: 4 })
+    const projects = await Project.find({})
 
     for(project of projects){
-      const datasets = await DataSet.find({project: project._id})
+      log.call('project => ' + project.uuid)
+      const excludeFilters = []
+      if(project.mainDataset){ excludeFilters.push(project.mainDataset) }
+      if(project.activeDataset){ excludeFilters.push(project.activeDataset) }
+
+      const datasets = await DataSet.find({project: project._id, _id: {$nin: excludeFilters}})
       for(dataset of datasets){
+        log.call('dataset => ' + dataset.uuid)
         try {
           /*
            * Old dataset rows
@@ -60,6 +64,8 @@ const task = new Task(
             }
           }
 
+          log.call('Deleting rows from datasetrows...')
+          log.call(JSON.stringify(idsMigratedRows))
           await DataSetRow.deleteMany({ '_id': {'$in': idsMigratedRows}})
 
           log.call(bulkOpsNew.length)
