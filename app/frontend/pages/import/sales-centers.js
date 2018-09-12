@@ -23,7 +23,7 @@ class ImportSalesCenter extends Component {
 
 export default Page({
   path: '/import/salesCenters',
-  title: 'Centros de venta ',
+  title: 'Centros de venta ', //TODO: translate
   icon: 'credit-card-alt',
   exact: true,
   validate: [loggedIn, verifyRole],

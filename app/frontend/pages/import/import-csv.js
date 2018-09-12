@@ -1,14 +1,15 @@
-import React, { Component } from 'react';
-import api from '~base/api';
-import { BaseForm, FileWidget } from '~base/components/base-form';
+import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
+import api from '~base/api'
+import { BaseForm, FileWidget } from '~base/components/base-form'
 
 class ImportCSV extends Component {
-  constructor(props) {
-    super(props);
+  constructor (props) {
+    super(props)
 
-    this.extraData = {};
+    this.extraData = {}
     if (this.props.extraFields) {
-      this.extraData = this.props.extraFields.formData;
+      this.extraData = this.props.extraFields.formData
     }
 
     this.state = {
@@ -19,40 +20,32 @@ class ImportCSV extends Component {
       formData: {
         file: undefined,
         type: this.props.type,
-        ...this.extraData,
-      },
-    };
+        ...this.extraData
+      }
+    }
   }
 
-  errorHandler() {
-    this.setState({ isLoading: '' });
+  errorHandler () {
+    this.setState({ isLoading: '' })
   }
 
-  changeHandler({ formData }) {
-    this.setState({
-      formData,
-      apiCallMessage: 'is-hidden',
-      apiCallErrorMessage: 'is-hidden',
-    });
+  changeHandler ({ formData }) {
+    this.setState({ formData, apiCallMessage: 'is-hidden', apiCallErrorMessage: 'is-hidden' })
   }
 
-  async submitHandler({ formData }) {
-    this.setState({ isLoading: ' is-loading' });
-    var data;
+  async submitHandler ({ formData }) {
+    this.setState({ isLoading: ' is-loading' })
+    var data
     try {
-      data = await api.post(this.props.url, formData);
+      data = await api.post(this.props.url, formData)
     } catch (e) {
       return this.setState({
         error: e.message,
         apiCallErrorMessage: 'message is-danger',
-        isLoading: '',
-      });
+        isLoading: ''
+      })
     }
-    this.setState({
-      apiCallMessage: 'message is-success',
-      message: data.message,
-      isLoading: '',
-    });
+    this.setState({ apiCallMessage: 'message is-success', message: data.message, isLoading: '' })
     if (this.props.finishUp) {
       setTimeout(() => {
         this.setState({
@@ -62,77 +55,70 @@ class ImportCSV extends Component {
           formData: {
             file: undefined,
             type: this.props.type,
-            ...this.extraData,
-          },
-        });
-        this.props.finishUp();
-      }, 10000);
+            ...this.extraData
+          }
+        })
+        this.props.finishUp()
+      }, 10000)
     }
   }
 
-  render() {
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  render () {
     let schema = {
       type: 'object',
       required: ['file'],
       properties: {
-        file: {
-          type: 'string',
-          title: 'Archivo a importar',
-          format: 'data-url',
-        },
-      },
-    };
+        file: { type: 'string', title: this.formatTitle('import.importMsg'), format: 'data-url' }
+      }
+    }
 
     let uiSchema = {
       file: {
         'ui:widget': FileWidget,
         'ui:className': 'is-centered is-medium is-info',
         'ui:accept': '.csv',
-        'ui:hidden': true,
-      },
-    };
+        'ui:hidden': true
+      }
+    }
 
-    var error;
+    var error
     if (this.state.error) {
-      error = <div>{this.state.error}</div>;
+      error = <div>
+        {this.state.error}
+      </div>
     }
 
     if (this.props.extraFields) {
-      schema.properties = {
-        ...schema.properties,
-        ...this.props.extraFields.schema.properties,
-      };
-      uiSchema = { ...uiSchema, ...this.props.extraFields.uiSchema };
+      schema.properties = {...schema.properties, ...this.props.extraFields.schema.properties}
+      uiSchema = {...uiSchema, ...this.props.extraFields.uiSchema}
     }
 
     if (this.props.isModal) {
       return (
-        <div className="importcsv">
-          <div className="section is-paddingless-top">
-            <div className="columns">
-              <div className="column is-6">
-                <BaseForm
-                  schema={schema}
+        <div className='importcsv'>
+          <div className='section is-paddingless-top'>
+
+            <div className='columns'>
+              <div className='column is-6'>
+                <BaseForm schema={schema}
                   uiSchema={uiSchema}
                   formData={this.state.formData}
-                  onChange={e => {
-                    this.changeHandler(e);
-                  }}
-                  onSubmit={e => {
-                    this.submitHandler(e);
-                  }}
-                  onError={e => {
-                    this.errorHandler(e);
-                  }}
-                  className="has-text-centered is-primary"
+                  onChange={(e) => { this.changeHandler(e) }}
+                  onSubmit={(e) => { this.submitHandler(e) }}
+                  onError={(e) => { this.errorHandler(e) }}
+                  className='has-text-centered is-primary'
                 >
                   <div className={this.state.apiCallMessage}>
-                    <div className="message-body is-size-7 has-text-centered">
+                    <div className='message-body is-size-7 has-text-centered'>
                       {this.state.message}
                     </div>
                   </div>
                   <div className={this.state.apiCallErrorMessage}>
-                    <div className="message-body is-size-7 has-text-centered">
+                    <div className='message-body is-size-7 has-text-centered'>
                       {error}
                     </div>
                   </div>
@@ -140,58 +126,62 @@ class ImportCSV extends Component {
                     <button
                       className={'button is-primary ' + this.state.isLoading}
                       disabled={!!this.state.isLoading}
-                      type="submit"
+                      type='submit'
                     >
-                      Importar
+                      <FormattedMessage
+                        id='import.btnImport'
+                        defaultMessage={`Importar`}
+                      />
                     </button>
                   </div>
                 </BaseForm>
               </div>
-              <div className="column">
+              <div className='column'>
                 <h4>
-                  El archivo <strong>.csv</strong> debe contener el mismo
-                  formato que el mostrado debajo:
+                  <FormattedMessage
+                    id='import.info'
+                    defaultMessage={`El archivo .csv debe contener el mismo formato que el mostrado debajo: `}
+                  />
                 </h4>
                 {this.props.format}
               </div>
             </div>
           </div>
         </div>
-      );
+
+      )
     }
 
     return (
-      <div className="importcsv">
-        <div className="section-header">
-          <h2>Cargar {this.props.title}</h2>
+      <div className='importcsv'>
+        <div className='section-header'>
+          <h2>
+            <FormattedMessage
+              id='import.title'
+              defaultMessage={`Cargar`}
+            /> {this.props.title}
+          </h2>
         </div>
-        <div className="section is-paddingless-top">
-          <div className="card">
-            <div className="card-content">
-              <div className="columns">
-                <div className="column is-5">
-                  <BaseForm
-                    schema={schema}
+        <div className='section is-paddingless-top'>
+          <div className='card'>
+            <div className='card-content'>
+              <div className='columns'>
+                <div className='column is-5'>
+                  <BaseForm schema={schema}
                     uiSchema={uiSchema}
                     formData={this.state.formData}
-                    onChange={e => {
-                      this.changeHandler(e);
-                    }}
-                    onSubmit={e => {
-                      this.submitHandler(e);
-                    }}
-                    onError={e => {
-                      this.errorHandler(e);
-                    }}
-                    className="has-text-centered is-primary"
+                    onChange={(e) => { this.changeHandler(e) }}
+                    onSubmit={(e) => { this.submitHandler(e) }}
+                    onError={(e) => { this.errorHandler(e) }}
+                    className='has-text-centered is-primary'
                   >
                     <div className={this.state.apiCallMessage}>
-                      <div className="message-body is-size-7 has-text-centered">
+                      <div className='message-body is-size-7 has-text-centered'>
                         {this.state.message}
                       </div>
                     </div>
                     <div className={this.state.apiCallErrorMessage}>
-                      <div className="message-body is-size-7 has-text-centered">
+                      <div className='message-body is-size-7 has-text-centered'>
                         {error}
                       </div>
                     </div>
@@ -199,17 +189,22 @@ class ImportCSV extends Component {
                       <button
                         className={'button is-primary ' + this.state.isLoading}
                         disabled={!!this.state.isLoading}
-                        type="submit"
+                        type='submit'
                       >
-                        Importar
+                        <FormattedMessage
+                          id='import.btnImport'
+                          defaultMessage={`Importar`}
+                        />
                       </button>
                     </div>
                   </BaseForm>
                 </div>
-                <div className="column">
+                <div className='column'>
                   <h4>
-                    El archivo <strong>.csv</strong> debe contener el mismo
-                    formato que el mostrado debajo:
+                    <FormattedMessage
+                      id='import.info'
+                      defaultMessage={`El archivo .csv debe contener el mismo formato que el mostrado debajo: `}
+                    />
                   </h4>
                   {this.props.format}
                 </div>
@@ -218,8 +213,9 @@ class ImportCSV extends Component {
           </div>
         </div>
       </div>
-    );
+
+    )
   }
 }
 
-export default ImportCSV;
+export default injectIntl(ImportCSV)

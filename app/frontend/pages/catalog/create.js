@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
-import BaseModal from '~base/components/base-modal';
-import CreateForm from './create-form';
+import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
+import BaseModal from '~base/components/base-modal'
+import CreateForm from './create-form'
 
 var initialState = {
   name: '',
@@ -26,10 +27,14 @@ class CreateCatalog extends Component {
     this.setState({ isLoading: '' });
   }
 
-  render() {
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  render () {
     return (
       <BaseModal
-        title={'Crear ' + this.props.title}
+        title={this.formatTitle('catalog.btnCreate') + ' ' + this.props.title}
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -47,14 +52,20 @@ class CreateCatalog extends Component {
               <button
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
-                type="submit"
+                type='submit'
               >
-                Crear
+                <FormattedMessage
+                  id="catalog.btnCreate"
+                  defaultMessage={`Crear`}
+                />
               </button>
             </div>
-            <div className="control">
-              <button className="button" type="button" onClick={this.hideModal}>
-                Cancelar
+            <div className='control'>
+              <button className='button' type='button' onClick={this.hideModal}>
+                <FormattedMessage
+                  id="catalog.btnCancel"
+                  defaultMessage={`Cancelar`}
+                />
               </button>
             </div>
           </div>
@@ -64,4 +75,4 @@ class CreateCatalog extends Component {
   }
 }
 
-export default CreateCatalog;
+export default injectIntl(CreateCatalog)

@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
-import BaseModal from '~base/components/base-modal';
-import ChannelForm from './create-form';
+import React, {Component} from 'react'
+import { FormattedMessage } from 'react-intl'
+import BaseModal from '~base/components/base-modal'
+import ChannelForm from './create-form'
 
 var initialState = {
   name: '',
@@ -27,7 +28,7 @@ class CreateChannel extends Component {
   render() {
     return (
       <BaseModal
-        title="Crear Canal"
+        title='Crear Canal' //TODO: translate
         className={this.props.className}
         hideModal={this.hideModal}
       >
@@ -45,14 +46,20 @@ class CreateChannel extends Component {
               <button
                 className={'button is-primary ' + this.state.isLoading}
                 disabled={!!this.state.isLoading}
-                type="submit"
+                type='submit'
               >
-                Crear
+                <FormattedMessage
+                  id="channel.btnCreate"
+                  defaultMessage={`Crear`}
+                />
               </button>
             </div>
-            <div className="control">
-              <button className="button" type="button" onClick={this.hideModal}>
-                Cancelar
+            <div className='control'>
+              <button className='button' type='button' onClick={this.hideModal}>
+                <FormattedMessage
+                  id="channel.btnCancel"
+                  defaultMessage={`Cancelar`}
+                />
               </button>
             </div>
           </div>

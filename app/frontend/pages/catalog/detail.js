@@ -1,17 +1,18 @@
-import React, { Component } from 'react';
-import api from '~base/api';
-import { testRoles } from '~base/tools';
+import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
+import api from '~base/api'
+import { testRoles } from '~base/tools'
 
-import Page from '~base/page';
-import { loggedIn, verifyRole } from '~base/middlewares/';
-import Loader from '~base/components/spinner';
-import ChannelForm from '../channel/create-form';
-import DeleteButton from '~base/components/base-deleteButton';
-import Breadcrumb from '~base/components/base-breadcrumb';
-import NotFound from '~base/components/not-found';
-import FontAwesome from 'react-fontawesome';
-import { toast } from 'react-toastify';
-import Multiselect from '~base/components/base-multiselect';
+import Page from '~base/page'
+import { loggedIn, verifyRole } from '~base/middlewares/'
+import Loader from '~base/components/spinner'
+import ChannelForm from '../channel/create-form'
+import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
+import FontAwesome from 'react-fontawesome'
+import { toast } from 'react-toastify'
+import Multiselect from '~base/components/base-multiselect'
 
 const cleanName = item => {
   let c = item.replace(/-/g, ' ');
@@ -78,14 +79,11 @@ class CatalogDetail extends Component {
 
     if (saving) {
       return (
-        <p
-          className="card-header-title"
-          style={{ fontWeight: '200', color: 'grey' }}
-        >
-          Guardando{' '}
-          <span style={{ paddingLeft: '5px' }}>
-            <FontAwesome className="fa-spin" name="spinner" />
-          </span>
+        <p className='card-header-title' style={{ fontWeight: '200', color: 'grey' }}>
+          <FormattedMessage
+            id='catalog.saving'
+            defaultMessage={`Guardando`}
+          /> <span style={{ paddingLeft: '5px' }}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
       );
     }
@@ -102,11 +100,11 @@ class CatalogDetail extends Component {
       }, 500);
 
       return (
-        <p
-          className="card-header-title"
-          style={{ fontWeight: '200', color: 'grey' }}
-        >
-          Guardado
+        <p className='card-header-title' style={{ fontWeight: '200', color: 'grey' }}>
+          <FormattedMessage
+            id='catalog.saved'
+            defaultMessage={`Guardado`}
+          />
         </p>
       );
     }
@@ -230,7 +228,11 @@ class CatalogDetail extends Component {
     }
   }
 
-  render() {
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  render () {
     if (this.state.notFound) {
       return <NotFound msg={'este ' + this.props.match.params.uuid} />;
     }
@@ -255,34 +257,36 @@ class CatalogDetail extends Component {
 
     let groupField;
     if (testRoles('analyst') || testRoles('orgadmin')) {
-      groupField = (
-        <div className="column">
-          <div className="columns">
-            <div className="column">
-              <div className="card">
-                <header className="card-header">
-                  <p className="card-header-title">Grupos</p>
-                  <div>{this.getSavingMessage()}</div>
-                </header>
-                <div className="card-content">
-                  <Multiselect
-                    availableTitle="Disponible"
-                    assignedTitle="Asignado"
-                    assignedList={this.state.selectedGroups}
-                    availableList={availableList}
-                    dataFormatter={item => {
-                      return item.name || 'N/A';
-                    }}
-                    availableClickHandler={this.availableGroupOnClick.bind(
-                      this
-                    )}
-                    assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+      groupField = (<div className='column'>
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  <FormattedMessage
+                    id='catalog.groups'
+                    defaultMessage={`Grupos`}
                   />
+                </p>
+                <div>
+                  {this.getSavingMessage()}
                 </div>
+              </header>
+              <div className='card-content'>
+                <Multiselect
+                  availableTitle={this.formatTitle('multi.available')}
+                  assignedTitle={this.formatTitle('multi.assigned')}
+                  assignedList={this.state.selectedGroups}
+                  availableList={availableList}
+                  dataFormatter={(item) => { return item.name || 'N/A' }}
+                  availableClickHandler={this.availableGroupOnClick.bind(this)}
+                  assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                />
               </div>
             </div>
           </div>
         </div>
+      </div>
       );
     }
 
@@ -299,21 +303,21 @@ class CatalogDetail extends Component {
                 path={[
                   {
                     path: '/',
-                    label: 'Inicio',
-                    current: false,
+                    label: this.formatTitle('sideMenu.admin'),
+                    current: true
                   },
                   {
                     path: '/catalogs/' + this.props.match.params.catalog,
-                    label: 'Catálogos',
-                    current: true,
+                    label: this.formatTitle('sideMenu.catalogs'),
+                    current: true
                   },
                   {
                     path: '/catalogs/' + this.props.match.params.catalog,
-                    label: cleanName(this.props.match.params.catalog),
-                    current: false,
+                    label: this.formatTitle('catalogs.' + this.props.match.params.catalog),
+                    current: false
                   },
                   {
-                    path: '/catalogs/channels/',
+                    path: '/catalogs/',
                     label: catalog.name,
                     current: true,
                   },
@@ -322,28 +326,31 @@ class CatalogDetail extends Component {
               />
             </div>
           </div>
-          <div className="level-right">
-            <div className="level-item">
+          <div className='level-right'>
+            <div className='level-item'>
               {canEdit && (
                 <DeleteButton
-                  titleButton={'Eliminar'}
-                  objectName={this.props.match.params.catalog}
+                  titleButton={this.formatTitle('catalog.delete')}
+                  objectName={this.formatTitle('catalogs.' + this.props.match.params.catalog)}
                   objectDelete={this.deleteObject.bind(this)}
-                  message={`¿Estas seguro de quieres borrar el canal ${
-                    catalog.name
-                  }?`}
+                  message={this.formatTitle('catalog.deleteMsg')}
                 />
               )}
             </div>
           </div>
         </div>
+        <div className='section is-paddingless-top pad-sides'>
 
-        <div className="section is-paddingless-top pad-sides">
-          <div className="columns">
-            <div className="column">
-              <div className="card">
-                <header className="card-header">
-                  <p className="card-header-title">Detalle</p>
+          <div className='columns'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                    <FormattedMessage
+                      id='catalog.detail'
+                      defaultMessage={`Detalle`}
+                    />
+                  </p>
                 </header>
                 <div className="card-content">
                   <div className="columns">
@@ -367,9 +374,12 @@ class CatalogDetail extends Component {
                                 'button is-primary ' + this.state.isLoading
                               }
                               disabled={!!this.state.isLoading}
-                              type="submit"
+                              type='submit'
                             >
-                              Guardar
+                              <FormattedMessage
+                                id='catalog.btnSave'
+                                defaultMessage={`Guardar`}
+                              />
                             </button>
                           </div>
                         </div>
@@ -394,5 +404,5 @@ export default Page({
   roles:
     'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',
   validate: [loggedIn, verifyRole],
-  component: CatalogDetail,
-});
+  component: injectIntl(CatalogDetail)
+})

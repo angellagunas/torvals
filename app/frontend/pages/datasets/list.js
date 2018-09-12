@@ -1,18 +1,17 @@
-import React from 'react';
-import Link from '~base/router/link';
-import { testRoles } from '~base/tools';
+import React from 'react'
+import Link from '~base/router/link'
+import { testRoles } from '~base/tools'
 
-import ListPage from '~base/list-page';
-import { loggedIn, verifyRole } from '~base/middlewares/';
-import { datasetStatus } from '~base/tools';
+import ListPage from '~base/list-page'
+import {loggedIn, verifyRole} from '~base/middlewares/'
+import {datasetStatus} from '~base/tools'
 
 export default ListPage({
   path: '/datasets',
   title: 'Datasets',
   icon: 'check',
   exact: true,
-  roles:
-    'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2',
+  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Dataset',
   breadcrumbs: true,
@@ -20,16 +19,16 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
-        current: false,
+        label: 'Inicio', //TODO: translate
+        current: false
       },
       {
         path: '/datasets/',
-        label: 'Datasets',
-        current: true,
-      },
+        label: 'Datasets', //TODO: translate
+        current: true
+      }
     ],
-    align: 'left',
+    align: 'left'
   },
   baseUrl: '/app/datasets',
   branchName: 'datasets',
@@ -39,97 +38,102 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      name: { type: 'text', title: 'Por nombre' },
+      //TODO: translate
+      name: {type: 'text', title: 'Por nombre'},
       status: {
         type: 'text',
-        title: 'Por status',
+        title: 'Por status', //TODO: translate
         values: [
           {
             name: 'new',
-            uuid: 'new',
+            uuid: 'new'
           },
           {
             name: 'uploading',
-            uuid: 'uploading',
+            uuid: 'uploading'
           },
           {
             name: 'uploaded',
-            uuid: 'uploaded',
+            uuid: 'uploaded'
           },
           {
             name: 'preprocessing',
-            uuid: 'preprocessing',
+            uuid: 'preprocessing'
           },
           {
             name: 'configuring',
-            uuid: 'configuring',
+            uuid: 'configuring'
           },
           {
             name: 'processing',
-            uuid: 'processing',
+            uuid: 'processing'
           },
           {
             name: 'reviewing',
-            uuid: 'reviewing',
+            uuid: 'reviewing'
           },
           {
             name: 'ready',
-            uuid: 'ready',
+            uuid: 'ready'
           },
           {
             name: 'conciliated',
-            uuid: 'conciliated',
-          },
-        ],
-      },
-    },
+            uuid: 'conciliated'
+          }
+        ]
+      }
+    }
   },
   uiSchema: {
-    name: { 'ui:widget': 'SearchFilter' },
-    status: { 'ui:widget': 'SelectSearchFilter' },
+    name: {'ui:widget': 'SearchFilter'},
+    status: {'ui:widget': 'SelectSearchFilter'}
   },
   getColumns: () => {
     return [
-      {
-        title: 'Nombre',
-        property: 'name',
-        default: 'N/A',
-        sortable: true,
-        formatter: row => {
-          return <Link to={'/datasets/' + row.uuid}>{row.name}</Link>;
-        },
+      { //TODO: translate
+        'title': 'Nombre',
+        'property': 'name',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            <Link to={'/datasets/' + row.uuid}>
+              {row.name}
+            </Link>
+          )
+        }
       },
-      {
-        title: 'Estado',
-        property: 'status',
-        default: 'new',
-        sortable: true,
-        formatter: row => {
-          return datasetStatus[row.status];
-        },
+      { //TODO: translate
+        'title': 'Estado',
+        'property': 'status',
+        'default': 'new',
+        'sortable': true,
+        formatter: (row) => {
+          return datasetStatus[row.status]
+        }
       },
-      {
-        title: 'Acciones',
-        formatter: row => {
+      { //TODO: translate
+        'title': 'Acciones',
+        formatter: (row) => {
           if (testRoles('manager-level-2, consultor-level-3')) {
             return (
-              <Link className="button is-primary" to={'/datasets/' + row.uuid}>
-                <span className="icon is-small" title="Visualizar">
-                  <i className="fa fa-eye" />
+              <Link className='button is-primary' to={'/datasets/' + row.uuid}>
+                <span className='icon is-small' title='Visualizar'>
+                  <i className='fa fa-eye' />
                 </span>
               </Link>
-            );
+            )
           } else {
             return (
-              <Link className="button is-primary" to={'/datasets/' + row.uuid}>
-                <span className="icon is-small" title="Editar">
-                  <i className="fa fa-pencil" />
+              <Link className='button is-primary' to={'/datasets/' + row.uuid}>
+                <span className='icon is-small' title='Editar'>
+                  <i className='fa fa-pencil' />
                 </span>
               </Link>
-            );
+            )
           }
-        },
-      },
-    ];
-  },
-});
+        }
+      }
+    ]
+  }
+})

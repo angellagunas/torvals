@@ -1,592 +1,516 @@
-import React, { Component } from 'react';
-import BaseModal from '~base/components/base-modal';
-import tree from '~core/tree';
-import Checkbox from '~base/components/base-checkbox';
-import moment from 'moment';
-import api from '~base/api';
-import { toast } from 'react-toastify';
-import _ from 'lodash';
+import React, { Component } from 'react'
+import BaseModal from '~base/components/base-modal'
+import tree from '~core/tree'
+import Checkbox from '~base/components/base-checkbox'
+import moment from 'moment'
+import api from '~base/api'
+import { toast } from 'react-toastify'
+import _ from 'lodash'
+import { injectIntl } from 'react-intl'
+import { defaultCatalogs } from '~base/tools'
 
 class CreateModal extends Component {
-  constructor(props) {
-    super(props);
-    this.hideModal = this.props.hideModal.bind(this);
+  constructor (props) {
+    super(props)
+    this.hideModal = this.props.hideModal.bind(this)
     this.state = {
       reportType: 'compatible',
       project: this.props.project,
-      alias: '',
-    };
-    this.catalogs = {};
-    this.engines = {};
+      alias: ''
+    }
+    this.catalogs = {}
+    this.engines = {}
   }
 
-  selectReport(report) {
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
+  }
+
+  selectReport (report) {
     if (report === 'compatible') {
-      this.catalogs = {};
+      this.catalogs = {}
     }
     this.setState({
-      reportType: report,
-    });
+      reportType: report
+    })
   }
 
-  componentWillMount() {
-    this.getDates();
-    this.getEngines();
-    this.selectAllCatalogs();
+  componentWillMount () {
+    this.getDates()
+    this.getEngines()
+    this.selectAllCatalogs()
   }
 
-  componentWillReceiveProps(next) {
-    this.engines = {};
-    this.selectAllCatalogs();
+  componentWillReceiveProps (next) {
+    this.engines = {}
+    this.selectAllCatalogs()
     this.setState({
       reportType: 'compatible',
       alias: '',
       generating: '',
       emptyCatalogs: false,
-      emptyEngines: false,
-    });
+      emptyEngines: false
+    })
     if (next.project !== this.state.project) {
-      this.setState(
-        {
-          project: next.project,
-        },
-        () => {
-          this.getDates();
-          this.selectAllCatalogs();
-        }
-      );
+      this.setState({
+        project: next.project
+      }, () => {
+        this.getDates()
+        this.selectAllCatalogs()
+      })
     }
   }
 
-  async getDates() {
-    let c = [];
-    let url = '/app/cycles/project/' + this.state.project.uuid;
+  async getDates () {
+    let c = []
+    let url = '/app/cycles/project/' + this.state.project.uuid
 
     try {
-      let res = await api.get(url);
+      let res = await api.get(url)
 
       if (res.data) {
         for (let i = 0; i < res.data.length; i++) {
           c.push({
             number: res.data[i].cycle,
-            name: `${moment.utc(res.data[i].dateStart).format('MMMM') +
-              ' #' +
-              res.data[i].cycle}`,
+            name: `${moment.utc(res.data[i].dateStart).format('MMMM') + ' #' + res.data[i].cycle}`,
             year: moment.utc(res.data[i].dateStart).get('year'),
-            dateStart: res.data[i].dateStart,
-          });
+            dateStart: res.data[i].dateStart
+          })
         }
 
-        c = _.orderBy(c, 'year');
+        c = _.orderBy(c, 'year')
 
-        let min;
+        let min = c[0]
         c.map(item => {
-          if (
-            item.year === 2018 &&
-            item.number === 1 &&
-            item.name === 'enero #1'
-          ) {
-            min = item;
+          if (item.year === 2018 && item.number === 1) {
+            min = item
           }
-        });
+        })
 
         this.setState({
           cycles: c,
           minPeriod: min || { number: 1, name: 'enero', year: 2018 },
-          maxPeriod: c[c.length - 1],
-        });
+          maxPeriod: c[c.length - 1]
+        })
       }
     } catch (e) {
-      console.log(e);
-      this.notify(
-        'Error obteniendo ciclos ' + e.message,
-        5000,
-        toast.TYPE.ERROR
-      );
+      console.log(e)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
     }
   }
 
-  setMinPeriod(item) {
-    let max = moment.utc(this.state.maxPeriod.dateStart);
-    let min = moment.utc(item.dateStart);
+  setMinPeriod (item) {
+    let max = moment.utc(this.state.maxPeriod.dateStart)
+    let min = moment.utc(item.dateStart)
     if (min.isBefore(max)) {
       this.setState({
-        minPeriod: item,
-      });
+        minPeriod: item
+      })
     } else {
       this.setState({
         minPeriod: this.state.maxPeriod,
-        maxPeriod: item,
-      });
+        maxPeriod: item
+      })
     }
   }
 
-  setMaxPeriod(item) {
-    let min = moment.utc(this.state.minPeriod.dateStart);
-    let max = moment.utc(item.dateStart);
+  setMaxPeriod (item) {
+    let min = moment.utc(this.state.minPeriod.dateStart)
+    let max = moment.utc(item.dateStart)
     if (max.isAfter(min)) {
       this.setState({
-        maxPeriod: item,
-      });
+        maxPeriod: item
+      })
     } else {
       this.setState({
         maxPeriod: this.state.minPeriod,
-        minPeriod: item,
-      });
+        minPeriod: item
+      })
     }
   }
 
-  selectCatalog(value, item) {
+  selectCatalog (value, item) {
     if (this.state.emptyCatalogs) {
       this.setState({
-        emptyCatalogs: false,
-      });
+        emptyCatalogs: false
+      })
     }
     if (value) {
-      this.catalogs[item.uuid] = item;
+      this.catalogs[item.uuid] = item
     } else {
-      delete this.catalogs[item.uuid];
+      delete this.catalogs[item.uuid]
     }
   }
 
-  selectEngine(value, item) {
+  selectEngine (value, item) {
     if (this.state.emptyEngines) {
       this.setState({
-        emptyEngines: false,
-      });
+        emptyEngines: false
+      })
     }
     if (value) {
-      this.engines[item.uuid] = item;
+      this.engines[item.uuid] = item
     } else {
-      delete this.engines[item.uuid];
+      delete this.engines[item.uuid]
     }
   }
 
-  async getEngines() {
-    let url = '/app/engines';
+  async getEngines () {
+    let url = '/app/engines'
     try {
-      let res = await api.get(url);
+      let res = await api.get(url)
 
       if (res.data) {
         this.setState({
-          engines: res.data,
-        });
+          engines: res.data
+        })
       }
     } catch (e) {
-      console.log(e);
-      this.notify(
-        'Error obteniendo modelos ' + e.message,
-        5000,
-        toast.TYPE.ERROR
-      );
+      console.log(e)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
-        engines: [],
-      });
+        engines: []
+      })
     }
   }
 
-  async generateForecast() {
+  async updateStep () {
+    try {
+      let user = tree.get('user')
+      if (user.currentOrganization.wizardSteps.forecast) {
+        return
+      }
+      let url = '/app/organizations/' + user.currentOrganization.uuid + '/step'
+
+      let res = await api.post(url, {
+        step: {
+          name: 'forecast',
+          value: true
+        }
+      })
+
+      if (res) {
+        let me = await api.get('/user/me')
+        tree.set('user', me.user)
+        tree.set('organization', me.user.currentOrganization)
+        tree.set('rule', me.rule)
+        tree.set('role', me.user.currentRole)
+        tree.set('loggedIn', me.loggedIn)
+        tree.commit()
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+  }
+
+  async generateForecast () {
     if (Object.values(this.engines).length === 0) {
       this.setState({
-        emptyEngines: true,
-      });
-      return;
+        emptyEngines: true
+      })
+      return
     }
-    if (
-      this.state.reportType === 'informative' &&
-      Object.keys(this.catalogs).length === 0
-    ) {
+    if (this.state.reportType === 'informative' && Object.keys(this.catalogs).length === 0) {
       this.setState({
-        emptyCatalogs: true,
-      });
-      return;
+        emptyCatalogs: true
+      })
+      return
     }
     this.setState({
-      generating: ' is-loading',
-    });
-    let url = '/app/forecastGroups';
+      generating: ' is-loading'
+    })
+    let url = '/app/forecastGroups'
     try {
       let res = await api.post(url, {
         project: this.state.project.uuid,
-        alias:
-          this.state.alias !== ''
-            ? this.state.alias
-            : moment.utc().format('YYYY-MM-DD HH:mm:ss'),
+        alias: this.state.alias !== '' ? this.state.alias : moment.utc().format('YYYY-MM-DD HH:mm:ss'),
         type: this.state.reportType,
         engines: Object.keys(this.engines),
-        catalogs:
-          this.state.reportType === 'informative'
-            ? Object.keys(this.catalogs)
-            : undefined,
-        dateStart:
-          this.state.reportType === 'informative'
-            ? moment
-                .utc(this.state.minPeriod.dateStart)
-                .startOf('month')
-                .format('YYYY-MM-DD')
-            : undefined,
-        dateEnd:
-          this.state.reportType === 'informative'
-            ? moment
-                .utc(this.state.maxPeriod.dateStart)
-                .endOf('month')
-                .format('YYYY-MM-DD')
-            : undefined,
-      });
+        catalogs: this.state.reportType === 'informative' ? Object.keys(this.catalogs) : undefined,
+        dateStart: this.state.reportType === 'informative' ? moment.utc(this.state.minPeriod.dateStart).startOf('month').format('YYYY-MM-DD') : undefined,
+        dateEnd: this.state.reportType === 'informative' ? moment.utc(this.state.maxPeriod.dateStart).endOf('month').format('YYYY-MM-DD') : undefined
+      })
 
       if (res) {
-        this.engines = {};
-        this.selectAllCatalogs();
-        this.setState(
-          {
-            reportType: 'compatible',
-            alias: '',
-            generating: '',
-          },
-          () => {
-            this.hideModal();
-            this.props.finishUp(res);
-          }
-        );
+        this.engines = {}
+        this.selectAllCatalogs()
+        this.setState({
+          reportType: 'compatible',
+          alias: '',
+          generating: ''
+        }, () => {
+          this.hideModal()
+          this.props.finishUp(res)
+        })
+        await this.updateStep()
       }
     } catch (e) {
-      console.log(e);
-      this.notify(
-        'Error generando forecast ' + e.message,
-        5000,
-        toast.TYPE.ERROR
-      );
+      console.log(e)
+      this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
       this.setState({
-        generating: '',
-      });
+        generating: ''
+      })
     }
   }
 
-  notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
+  notify (message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
       this.toastId = toast(message, {
         autoClose: timeout,
         type: type,
         hideProgressBar: true,
-        closeButton: false,
-      });
+        closeButton: false
+      })
     } else {
       toast.update(this.toastId, {
         render: message,
         type: type,
         autoClose: timeout,
-        closeButton: false,
-      });
+        closeButton: false
+      })
     }
   }
 
-  selectAllCatalogs() {
-    let rules = tree.get('rule');
+  selectAllCatalogs () {
+    let rules = tree.get('rule')
     rules.catalogs.map(item => {
-      this.catalogs[item.uuid] = item;
-    });
+      this.catalogs[item.uuid] = item
+    })
   }
 
-  render() {
-    let rules = tree.get('rule');
+  render () {
+    let rules = tree.get('rule')
     return (
-      <div className="forecast">
+      <div className='forecast'>
         <BaseModal
-          title={'Crear predicción'}
+          title={this.formatTitle('forecasts.btnCreate') + ' ' + this.formatTitle('tables.colForecast')}
           className={this.props.className}
-          hideModal={this.hideModal}
-        >
-          <div className="field">
-            <label className="label">Alias</label>
-            <div className="control">
+          hideModal={this.hideModal}>
+
+          <div className='field'>
+            <label className='label'>Alias</label>
+            <div className='control'>
               <input
-                className="input"
-                type="text"
+                className='input'
+                type='text'
                 value={this.state.alias}
-                placeholder="Escribe un alias para identificar tu predicción"
-                onChange={e => this.setState({ alias: e.target.value })}
-              />
+                placeholder='Escribe un alias para identificar tu predicción'
+                onChange={(e) => this.setState({ alias: e.target.value })} />
             </div>
           </div>
 
-          <div className="field">
-            <label className="label">Elige un tipo de reporte </label>
-            <div className="control">
-              <div className="columns">
-                <div className="column is-narrow">
+          <div className='field'>
+            <label className='label'>{this.formatTitle('forecasts.createChoose')} </label>
+            <div className='control'>
+              <div className='columns'>
+                <div className='column is-narrow'>
                   <input
-                    className="is-checkradio is-info is-small"
-                    id="informative"
-                    type="radio"
-                    name="reportType"
+                    className='is-checkradio is-info is-small'
+                    id='informative'
+                    type='radio'
+                    name='reportType'
                     checked={this.state.reportType === 'informative'}
-                    onChange={() => this.selectReport('informative')}
-                  />
-                  <label
-                    className="has-text-weight-normal"
-                    htmlFor="informative"
-                  >
-                    <span title="Informativo">Informativo</span>
+                    onChange={() => this.selectReport('informative')} />
+                  <label className='has-text-weight-normal' htmlFor='informative'>
+                    <span title='Informativo'>{this.formatTitle('forecasts.informative')}</span>
                   </label>
                 </div>
 
-                <div className="column is-narrow">
+                <div className='column is-narrow'>
                   <input
-                    className="is-checkradio is-info is-small"
-                    id="compatible"
-                    type="radio"
-                    name="reportType"
+                    className='is-checkradio is-info is-small'
+                    id='compatible'
+                    type='radio'
+                    name='reportType'
                     checked={this.state.reportType === 'compatible'}
-                    onChange={() => this.selectReport('compatible')}
-                  />
-                  <label
-                    className="has-text-weight-normal"
-                    htmlFor="compatible"
-                  >
-                    <span title="Conciliable">Conciliable</span>
+                    onChange={() => this.selectReport('compatible')} />
+                  <label className='has-text-weight-normal' htmlFor='compatible'>
+                    <span title='Conciliable'>{this.formatTitle('forecasts.compatible')}</span>
                   </label>
                 </div>
               </div>
+
             </div>
             {this.state.reportType === 'compatible' &&
               this.state.project.cycleStatus !== 'empty' &&
               this.state.project.cycleStatus !== 'forecastCreation' &&
-              this.state.project.cycleStatus !== 'salesUpload' && (
-                <p className="help is-danger">
-                  Se están realizando ajustes o no es tiempo de creación de
-                  predicciones. Puedes elegir un reporte informativo.
-                </p>
-              )}
+              this.state.project.cycleStatus !== 'salesUpload' &&
+
+              <p className='help info-message'>{this.formatTitle('forecasts.createMsg')}</p>
+            }
           </div>
 
-          {this.state.reportType === 'informative' && (
-            <div className="field">
-              <label className="label">Elige tus catálogos </label>
-              <div className="control">
-                <div className="columns is-multiline forecast-catalog">
-                  {rules.catalogs.map((item, key) => {
+          {this.state.reportType === 'informative' &&
+          <div className='field'>
+            <label className='label'>{this.formatTitle('forecasts.createcatalogs')} </label>
+            <div className='control'>
+              <div className='columns is-multiline forecast-catalog'>
+                {
+                  rules.catalogs.map((item, key) => {
+                    let title = item.name
+                    if (this.findInCatalogs(item.slug)) {
+                      title = this.formatTitle('catalogs.' + item.slug)
+                    }
                     return (
-                      <div
-                        className="column is-narrow is-capitalized has-text-weight-normal"
-                        key={key}
-                      >
+                      <div className='column is-narrow is-capitalized has-text-weight-normal' key={key}>
                         <Checkbox
                           key={key}
-                          label={item.name}
+                          label={title}
                           checked={this.catalogs[item.uuid] !== undefined}
-                          handleCheckboxChange={(e, value) =>
-                            this.selectCatalog(value, item)
-                          }
+                          handleCheckboxChange={(e, value) => this.selectCatalog(value, item)}
                         />
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-              {this.state.emptyCatalogs && (
-                <p className="help is-danger">
-                  ¡Debes elegir al menos un catálogo para generar tu predicción!
-                </p>
-              )}
-            </div>
-          )}
 
-          <div className="level">
-            <div className="level-left">
-              {this.state.minPeriod && (
-                <div className="level-item">
-                  <div className="field">
-                    <label className="label">Ciclo inicial</label>
-                    <div className="field is-grouped control">
-                      <div
-                        className={
-                          this.state.reportType === 'compatible'
-                            ? 'dropdown is-disabled'
-                            : 'dropdown is-hoverable'
-                        }
-                      >
-                        <div className="dropdown-trigger">
-                          <button
-                            className="button is-static is-capitalized"
-                            aria-haspopup="true"
-                            aria-controls="dropdown-menu4"
-                          >
-                            <span>
-                              {this.state.minPeriod.name +
-                                ' ' +
-                                this.state.minPeriod.year}
-                            </span>
-                            <span className="icon is-small">
-                              <i
-                                className="fa fa-angle-down"
-                                aria-hidden="true"
-                              />
-                            </span>
-                          </button>
-                        </div>
-                        <div
-                          className="dropdown-menu"
-                          id="dropdown-menu4"
-                          role="menu"
-                        >
-                          <div className="dropdown-content">
-                            {this.state.cycles &&
-                              this.state.cycles.map((item, key) => {
-                                return (
-                                  <a
-                                    key={key}
-                                    className={
-                                      this.state.minPeriod.number ===
-                                        item.number &&
-                                      this.state.minPeriod.name === item.name &&
-                                      this.state.minPeriod.year === item.year
-                                        ? 'dropdown-item is-capitalized is-active'
-                                        : 'dropdown-item is-capitalized'
-                                    }
-                                    onClick={() => this.setMinPeriod(item)}
-                                  >
-                                    {item.name + ' ' + item.year}
-                                  </a>
-                                );
-                              })}
-                          </div>
+                    )
+                  })
+                }
+              </div>
+            </div>
+            {this.state.emptyCatalogs &&
+              <p className='help is-danger'>{this.formatTitle('forecasts.createAlert')}</p>
+            }
+          </div>
+          }
+
+          <div className='level'>
+
+            <div className='level-left'>
+
+              {this.state.minPeriod &&
+              <div className='level-item'>
+                <div className='field'>
+                  <label className='label'>{this.formatTitle('forecasts.createInitial')}</label>
+                  <div className='field is-grouped control'>
+                    <div className={this.state.reportType === 'compatible' ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
+                      <div className='dropdown-trigger'>
+                        <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
+                          <span>{this.state.minPeriod.name + ' ' + this.state.minPeriod.year}</span>
+                          <span className='icon is-small'>
+                            <i className='fa fa-angle-down' aria-hidden='true' />
+                          </span>
+                        </button>
+                      </div>
+                      <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
+                        <div className='dropdown-content'>
+                          {this.state.cycles && this.state.cycles.map((item, key) => {
+                            return (
+                              <a key={key} className={this.state.minPeriod.number === item.number &&
+                                this.state.minPeriod.name === item.name &&
+                                this.state.minPeriod.year === item.year ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                onClick={() => this.setMinPeriod(item)}>
+                                {item.name + ' ' + item.year}
+                              </a>
+                            )
+                          })}
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
+            }
 
-              <div className="level-item date-drop">
-                <span className="icon">
-                  <i className="fa fa-minus" />
+              <div className='level-item date-drop'>
+                <span className='icon'>
+                  <i className='fa fa-minus' />
                 </span>
               </div>
 
-              {this.state.maxPeriod && (
-                <div className="level-item">
-                  <div className="field">
-                    <label className="label">Ciclo final</label>
-                    <div className="field is-grouped control">
-                      <div
-                        className={
-                          this.state.reportType === 'compatible'
-                            ? 'dropdown is-disabled'
-                            : 'dropdown is-hoverable'
-                        }
-                      >
-                        <div className="dropdown-trigger">
-                          <button
-                            className="button is-static is-capitalized"
-                            aria-haspopup="true"
-                            aria-controls="dropdown-menu4"
-                          >
-                            <span>
-                              {this.state.maxPeriod.name +
-                                ' ' +
-                                this.state.maxPeriod.year}
-                            </span>
-                            <span className="icon is-small">
-                              <i
-                                className="fa fa-angle-down"
-                                aria-hidden="true"
-                              />
-                            </span>
-                          </button>
-                        </div>
-                        <div
-                          className="dropdown-menu"
-                          id="dropdown-menu4"
-                          role="menu"
-                        >
-                          <div className="dropdown-content">
-                            {this.state.cycles &&
-                              this.state.cycles
-                                .slice(
-                                  this.state.cycles.indexOf(
-                                    this.state.minPeriod
-                                  ),
-                                  this.state.cycles.length
+              {this.state.maxPeriod &&
+              <div className='level-item'>
+                <div className='field'>
+                  <label className='label'>{this.formatTitle('forecasts.createFinal')}</label>
+                  <div className='field is-grouped control'>
+                    <div className={this.state.reportType === 'compatible' ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
+                      <div className='dropdown-trigger'>
+                        <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
+                          <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
+                          <span className='icon is-small'>
+                            <i className='fa fa-angle-down' aria-hidden='true' />
+                          </span>
+                        </button>
+                      </div>
+                      <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
+                        <div className='dropdown-content'>
+                          {this.state.cycles &&
+                            this.state.cycles.slice(this.state.cycles.indexOf(this.state.minPeriod), this.state.cycles.length)
+                              .map((item, key) => {
+                                return (
+                                  <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                    onClick={() => this.setMaxPeriod(item)}>
+                                    {item.name + ' ' + item.year}
+                                  </a>
                                 )
-                                .map((item, key) => {
-                                  return (
-                                    <a
-                                      key={key}
-                                      className={
-                                        this.state.maxPeriod === item
-                                          ? 'dropdown-item is-capitalized is-active'
-                                          : 'dropdown-item is-capitalized'
-                                      }
-                                      onClick={() => this.setMaxPeriod(item)}
-                                    >
-                                      {item.name + ' ' + item.year}
-                                    </a>
-                                  );
-                                })}
-                          </div>
+                              })}
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
+            }
             </div>
           </div>
 
-          <div className="field">
-            <label className="label">Elige uno o varios modelos </label>
-            <div className="control columns is-multiline">
-              {this.state.engines &&
-                this.state.engines.map(item => {
-                  return (
-                    <div className="column is-4 is-capitalized" key={item.uuid}>
-                      <div className="forecast-engine">
-                        <Checkbox
-                          key={item.uuid}
-                          checked={this.engines[item.uuid] !== undefined}
-                          label={
-                            <span>
-                              <p className="title is-6">{item.name}</p>
-                              <p className="subtitle is-6">
-                                {item.description || 'Sin descripción'}
-                              </p>
-                            </span>
-                          }
-                          handleCheckboxChange={(e, value) =>
-                            this.selectEngine(value, item)
-                          }
-                        />
-                      </div>
+          <div className='field'>
+            <label className='label'>{this.formatTitle('forecasts.createModels')} </label>
+            <div className='control columns is-multiline'>
+              {this.state.engines && this.state.engines.map(item => {
+                return (
+                  <div className='column is-4' key={item.uuid}>
+                    <div className='forecast-engine'>
+                      <Checkbox
+                        key={item.uuid}
+                        checked={this.engines[item.uuid] !== undefined}
+                        label={
+                          <span>
+                            <p className='title is-6 is-capitalized'>{item.name}</p>
+                            <p className='subtitle is-6 tooltip is-tooltip-multiline'
+                              data-tooltip={item.description || 'Sin descripción'}>{item.description || 'Sin descripción'}</p>
+                          </span>
+                        }
+                        handleCheckboxChange={(e, value) => this.selectEngine(value, item)}
+                      />
                     </div>
-                  );
-                })}
+                  </div>
+                )
+              })}
             </div>
-            {this.state.emptyEngines && (
-              <p className="help is-danger">
-                ¡Debes elegir al menos un modelo para generar tu predicción!
-              </p>
-            )}
+            {this.state.emptyEngines &&
+              <p className='help is-danger'>{this.formatTitle('forecasts.createAlert2')}</p>
+            }
           </div>
 
           <button
-            className={
-              'button generate-btn is-primary ' + this.state.generating
-            }
-            disabled={
-              !!this.state.generating ||
-              (this.state.reportType === 'compatible' &&
+            className={'button generate-btn is-primary ' + this.state.generating}
+            disabled={!!this.state.generating ||
+              this.state.reportType === 'compatible' &&
                 this.state.project.cycleStatus !== 'empty' &&
                 this.state.project.cycleStatus !== 'forecastCreation' &&
-                this.state.project.cycleStatus !== 'salesUpload')
-            }
-            onClick={() => this.generateForecast()}
-          >
-            Generar predicción
+                this.state.project.cycleStatus !== 'salesUpload'
+              }
+            onClick={() => this.generateForecast()}>
+            {this.formatTitle('forecasts.btnCreate')}
           </button>
+
         </BaseModal>
       </div>
-    );
+    )
   }
 }
 
-export default CreateModal;
+export default injectIntl(CreateModal)

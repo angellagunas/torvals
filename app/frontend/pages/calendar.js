@@ -1,16 +1,17 @@
-import React, { Component } from 'react';
-import 'react-datepicker/dist/react-datepicker.css';
-import Page from '~base/page';
-import { loggedIn } from '~base/middlewares/';
-import api from '~base/api';
-import moment from 'moment';
-import Loader from '~base/components/spinner';
-import Checkbox from '~base/components/base-checkbox';
-import Breadcrumb from '~base/components/base-breadcrumb';
-import Select from './projects/detail-tabs/select';
-import _ from 'lodash';
-import Cal from './cal';
-import tree from '~core/tree';
+import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
+import 'react-datepicker/dist/react-datepicker.css'
+import Page from '~base/page'
+import { loggedIn } from '~base/middlewares/'
+import api from '~base/api'
+import moment from 'moment'
+import Loader from '~base/components/spinner'
+import Checkbox from '~base/components/base-checkbox'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import Select from './projects/detail-tabs/select'
+import _ from 'lodash'
+import Cal from './cal'
+import tree from '~core/tree'
 
 const colors = {
   1: {
@@ -140,9 +141,9 @@ class Calendar extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Inicio del ciclo',
-    };
-    return d;
+      tooltipText: this.formatTitle('wizard.periodsStartCycle')
+    }
+    return d
   }
 
   makeEndDate(date) {
@@ -155,9 +156,9 @@ class Calendar extends Component {
       isToday: true,
       isActive: false,
       isTooltip: true,
-      tooltipText: 'Fin del ciclo',
-    };
-    return d;
+      tooltipText: this.formatTitle('wizard.periodsEndCycle')
+    }
+    return d
   }
 
   makeRange(start, end, key) {
@@ -179,7 +180,7 @@ class Calendar extends Component {
       isToday: false,
       isActive: true,
       isTooltip: true,
-      tooltipText: 'Inicio de periodo ' + key,
+      tooltipText: this.formatTitle('wizard.periodsStartPeriod') + ' ' + key,
       rangeClass: colors[this.color].rangeClass,
       rangeClassStart: colors[this.color].rangeClassStart,
     };
@@ -194,9 +195,9 @@ class Calendar extends Component {
         isToday: false,
         isActive: false,
         isTooltip: true,
-        tooltipText: 'Periodo ' + key,
-        rangeClass: colors[this.color].rangeClass,
-      };
+        tooltipText: this.formatTitle('calendar.period') + ' ' + key,
+        rangeClass: colors[this.color].rangeClass
+      }
     }
 
     range[e.format('YYYY-MM-DD')] = {
@@ -209,9 +210,9 @@ class Calendar extends Component {
       isTooltip: true,
       rangeClass: colors[this.color].rangeClass,
       rangeClassEnd: colors[this.color].rangeClassStart,
-      tooltipText: 'Fin de periodo ' + key,
-    };
-    return range;
+      tooltipText: this.formatTitle('wizard.periodsEndPeriod') + ' ' + key
+    }
+    return range
   }
 
   makeDates(cycle, periods) {
@@ -259,197 +260,174 @@ class Calendar extends Component {
     }
   }
 
-  render() {
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  render () {
     if (!this.state.cycles) {
       return <Loader />;
     }
 
     return (
-      <div className="calendar-view">
-        <div className="section-header">
-          <h2>Calendario</h2>
-        </div>
 
+      <div className='calendar-view'>
+        <div className='section-header'>
+          <h2>
+            <FormattedMessage
+              id='calendar.title'
+              defaultMessage={`Calendario`}
+            />
+          </h2>
+        </div>
         <Breadcrumb
           path={[
             {
               path: '/',
-              label: 'Inicio',
-              current: false,
+              label: this.formatTitle('sideMenu.home'),
+              current: false
             },
             {
               path: '/calendario',
-              label: 'Calendario',
-              current: true,
-            },
+              label: this.formatTitle('calendar.title'),
+              current: true
+            }
           ]}
-          align="left"
+          align='left'
         />
-
-        <div className="section level selects">
-          <div className="level-left">
-            <div className="level-item">
+        <div className='section level selects'>
+          <div className='level-left'>
+            <div className='level-item'>
               <Select
-                label="Año"
-                name="year"
+                label={this.formatTitle('orgRules.year')}
+                name='year'
                 value={this.state.selectedYear}
-                type="integer"
-                placeholder="Seleccionar"
+                type='integer'
+                placeholder={this.formatTitle('calendar.select')}
                 options={this.state.years}
                 onChange={(name, value) => {
                   this.filterChangeHandler(name, value);
                 }}
               />
             </div>
-            <div className="level-item">
-              {this.state.cycles && (
-                <Select
-                  label="Ciclo"
-                  name="cycle"
-                  value={this.state.selectedCycle}
-                  placeholder="Todos los ciclos"
-                  optionValue="cycle"
-                  optionName="name"
-                  options={this.state.cycles.map(item => {
-                    return {
-                      cycle: item.cycle,
-                      name: moment
-                        .utc(item.periods[0].cycle.dateStart)
-                        .format('MMMM'),
-                    };
-                  })}
-                  onChange={(name, value) => {
-                    this.filterChangeHandler(name, value);
-                  }}
-                />
-              )}
+            <div className='level-item'>
+              {this.state.cycles &&
+              <Select
+                label={this.formatTitle('adjustments.cycle')}
+                name='cycle'
+                value={this.state.selectedCycle}
+                placeholder={this.formatTitle('calendar.all')}
+                optionValue='cycle'
+                optionName='name'
+                options={this.state.cycles.map(item => { return {cycle: item.cycle, name: moment.utc(item.periods[0].cycle.dateStart).format('MMMM')} })}
+                onChange={(name, value) => { this.filterChangeHandler(name, value) }}
+              />}
             </div>
             <div className="level-item">
               <Checkbox
-                label="Mostrar número de semana"
-                handleCheckboxChange={e => this.showWeeks()}
-                key="showWeeks"
+                label={this.formatTitle('calendar.showWeek')}
+                handleCheckboxChange={(e) => this.showWeeks()}
+                key='showWeeks'
                 checked={this.state.showWeekNumbers}
               />
             </div>
           </div>
         </div>
+        <div className='columns is-multiline is-centered'>
 
-        <div className="columns is-multiline is-centered">
-          {this.state.cycles &&
-            this.state.cycles.map((item, key) => {
-              let cycle = item.periods[0].cycle;
-              let date = moment.utc(cycle.dateStart);
-              if (this.state.selectedYear === date.get('year')) {
-                if (!this.state.selectedCycle) {
-                  return (
-                    <div key={key} className="column is-narrow">
-                      <Cal
-                        key={key}
-                        showWeekNumber={this.state.showWeekNumbers}
-                        date={date}
-                        minDate={moment.utc(cycle.dateStart).startOf('month')}
-                        maxDate={moment.utc(cycle.dateEnd).endOf('month')}
-                        dates={this.makeDates(cycle, item.periods)}
-                      />
-                    </div>
-                  );
-                } else if (item.cycle === this.state.selectedCycle) {
-                  return (
-                    <div key={key} className="columns">
-                      <div className="column">
-                        <div className="field">
-                          <label className="label">Inicio de ciclo</label>
-                          <div className="control">
-                            <input
-                              className="input"
-                              type="date"
-                              value={moment
-                                .utc(cycle.dateStart)
-                                .format('YYYY-MM-DD')}
-                              onChange={e =>
-                                this.changeCycle(item, e.target.value, 'start')
-                              }
-                            />
-                          </div>
+          {this.state.cycles && this.state.cycles.map((item, key) => {
+            let cycle = item.periods[0].cycle
+            let date = moment.utc(cycle.dateStart)
+            if (this.state.selectedYear === date.get('year')) {
+              if (!this.state.selectedCycle) {
+                return (
+                  <div key={key} className='column is-narrow'>
+                    <Cal
+                      key={key}
+                      showWeekNumber={this.state.showWeekNumbers}
+                      date={date}
+                      minDate={moment.utc(cycle.dateStart).startOf('month')}
+                      maxDate={moment.utc(cycle.dateEnd).endOf('month')}
+                      dates={this.makeDates(cycle, item.periods)} />
+                  </div>
+                )
+              } else if (item.cycle === this.state.selectedCycle) {
+                return (
+                  <div key={key} className='columns'>
+                    <div className='column'>
+                      <div className='field'>
+                        <label className='label'>
+                          <FormattedMessage
+                            id='calendar.cyclesStart'
+                            defaultMessage={`Inicio de ciclo`}
+                          />
+                        </label>
+                        <div className='control'>
+                          <input className='input' type='date'
+                            value={moment.utc(cycle.dateStart).format('YYYY-MM-DD')}
+                            onChange={(e) => this.changeCycle(item, e.target.value, 'start')} />
                         </div>
-                        <div className="field">
-                          <label className="label">Fin de ciclo</label>
-                          <div className="control">
-                            <input
-                              className="input"
-                              type="date"
-                              value={moment
-                                .utc(cycle.dateEnd)
-                                .format('YYYY-MM-DD')}
-                              onChange={e =>
-                                this.changeCycle(item, e.target.value, 'end')
-                              }
-                            />
-                          </div>
+                      </div>
+                      <div className='field'>
+                        <label className='label'>
+                          <FormattedMessage
+                            id='calendar.cyclesEnd'
+                            defaultMessage={`Fin de ciclo`}
+                          />
+                        </label>
+                        <div className='control'>
+                          <input className='input' type='date'
+                            value={moment.utc(cycle.dateEnd).format('YYYY-MM-DD')}
+                            onChange={(e) => this.changeCycle(item, e.target.value, 'end')} />
                         </div>
-                        <hr />
-                        {item.periods.map((item, key) => {
-                          return (
-                            <div
-                              key={moment
-                                .utc(item.dateStart)
-                                .format('YYYY-MM-DD')}
-                              className="field"
-                            >
-                              <label className="label">Periodo {key + 1}</label>
-                              <div className="control">
-                                <div className="field is-grouped">
-                                  <div className="control">
-                                    <div className="field">
-                                      <label className="label">Inicio</label>
-                                      <div className="control">
-                                        <input
-                                          className="input"
-                                          type="date"
-                                          value={moment
-                                            .utc(item.dateStart)
-                                            .format('YYYY-MM-DD')}
-                                          onChange={e =>
-                                            this.changePeriod(
-                                              item,
-                                              e.target.value,
-                                              'start',
-                                              key
-                                            )
-                                          }
-                                        />
-                                      </div>
+                      </div>
+                      <hr />
+                      {item.periods.map((item, key) => {
+                        return (
+                          <div key={moment.utc(item.dateStart).format('YYYY-MM-DD')} className='field'>
+                            <label className='label'>
+                              <FormattedMessage
+                                id='calendar.period'
+                                defaultMessage={`Periodo`}
+                              /> {key + 1}
+                            </label>
+                            <div className='control'>
+                              <div className='field is-grouped'>
+                                <div className='control'>
+                                  <div className='field'>
+                                    <label className='label'>
+                                      <FormattedMessage
+                                        id='calendar.start'
+                                        defaultMessage={`Inicio`}
+                                      />
+                                    </label>
+                                    <div className='control'>
+                                      <input className='input' type='date'
+                                        value={moment.utc(item.dateStart).format('YYYY-MM-DD')}
+                                        onChange={(e) => this.changePeriod(item, e.target.value, 'start', key)} />
                                     </div>
                                   </div>
-                                  <div className="control">
-                                    <div className="field">
-                                      <label className="label">Fin</label>
-                                      <div className="control">
-                                        <input
-                                          className="input"
-                                          type="date"
-                                          value={moment
-                                            .utc(item.dateEnd)
-                                            .format('YYYY-MM-DD')}
-                                          onChange={e =>
-                                            this.changePeriod(
-                                              item,
-                                              e.target.value,
-                                              'end',
-                                              key
-                                            )
-                                          }
-                                        />
-                                      </div>
+                                </div>
+                                <div className='control'>
+                                  <div className='field'>
+                                    <label className='label'>
+                                      <FormattedMessage
+                                        id='calendar.end'
+                                        defaultMessage={`Fin`}
+                                      />
+                                    </label>
+                                    <div className='control'>
+                                      <input className='input' type='date'
+                                        value={moment.utc(item.dateEnd).format('YYYY-MM-DD')}
+                                        onChange={(e) => this.changePeriod(item, e.target.value, 'end', key)} />
                                     </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
+                          </div>
                           );
                         })}
-                      </div>
                       <div className="column is-narrow">
                         <Cal
                           key={key}
@@ -461,6 +439,7 @@ class Calendar extends Component {
                         />
                       </div>
                     </div>
+                  </div>
                   );
                 }
               }
@@ -476,7 +455,7 @@ export default Page({
   path: '/calendario',
   exact: true,
   validate: loggedIn,
-  component: Calendar,
+  component: injectIntl(Calendar),
   title: 'Calendario',
   icon: 'calendar',
 });

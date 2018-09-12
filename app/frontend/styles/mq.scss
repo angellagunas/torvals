@@ -5,6 +5,23 @@
   .is-medium {
     font-size: 1rem !important;
   }
+  .landing {
+    &-right-img {
+      width: 50%;
+      top: 5px;
+    }
+    #header {
+      margin-top: 40px;
+    }
+    .navbar-menu {
+      background-color: rgba(0, 0, 0, 0.2);
+      box-shadow: 0 8px 16px rgba(10, 10, 10, 0.1);
+      padding: 0.5rem 0;
+      .navbar-item {
+        color: #FFF !important;
+      }
+    }
+  }
 }
 
 @include desktop-only {
@@ -283,5 +300,13 @@
   }
   .section-header h2 {
     padding: 0.7rem 1rem;
+  }
+}
+
+@media screen and (max-height: 900px) {
+  .with-scroll {
+    max-height: 40vh;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }

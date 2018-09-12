@@ -1,544 +1,516 @@
-import React, { Component } from 'react';
-import StickTable from '~base/components/stick-table';
-import Checkbox from '~base/components/base-checkbox';
-import Loader from '~base/components/spinner';
-import classNames from 'classnames';
+import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
+import StickTable from '~base/components/stick-table'
+import Checkbox from '~base/components/base-checkbox'
+import Loader from '~base/components/spinner'
+import classNames from 'classnames'
+import { defaultCatalogs } from '~base/tools'
 
 class ProductTable extends Component {
-  constructor(props) {
-    super(props);
+  constructor (props) {
+    super(props)
     this.state = {
       filteredData: this.props.data || [],
       selectedAll: false,
-      data: this.props.data,
-    };
-    this.inputs = {};
+      data: this.props.data
+    }
+    this.inputs = {}
 
-    this.canEdit = true;
+    this.canEdit = true
 
-    if (
-      this.props.currentRole === 'consultor-level-3' ||
+    if (this.props.currentRole === 'consultor-level-3' ||
       this.props.currentRole === 'consultor-level-2' ||
-      this.props.generalAdjustment === 0
-    ) {
-      this.canEdit = false;
+      this.props.generalAdjustment === 0) {
+      this.canEdit = false
     }
 
-    this.rules = this.props.rules;
+    this.rules = this.props.rules
   }
 
-  splitWords(words) {
+  splitWords (words) {
     return words.split('_').map((item, key) => {
-      return <p key={key}>{item}</p>;
-    });
+      return <p key={key}>{item}</p>
+    })
   }
 
   checkAll = () => {
-    let selected = new Set();
+    let selected = new Set()
     for (let row of this.state.filteredData) {
-      if (this.state.selectedAll) {
-        selected.delete(row);
-        row.selected = false;
-      } else {
-        row.selected = true;
-        selected.add(row);
+      if (this.state.selectedAll){
+        selected.delete(row)
+        row.selected = false
+      }
+      else {
+        row.selected = true
+        selected.add(row)
       }
     }
-    this.props.checkAll(selected);
+    this.props.checkAll(selected)
 
     this.setState({
-      selectedAll: !this.state.selectedAll,
-    });
-  };
+      selectedAll: !this.state.selectedAll
+    })
+  }
 
-  toggleCheckbox = row => {
-    this.props.toggleCheckbox(row);
-  };
+  toggleCheckbox = (row) => {
+    this.props.toggleCheckbox(row)
+  }
 
   getBtns() {
     return (
       <div className="field has-addons view-btns">
         <span className="control">
-          <a
-            className={
-              this.props.currentRole === 'consultor-level-3'
-                ? 'button is-info is-outlined btn-lvl-3'
-                : 'button is-info is-outlined'
-            }
-            onClick={this.props.show}
-          >
-            Vista Periodo
+          <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info is-outlined btn-lvl-3' : 'button is-info is-outlined'} onClick={this.props.show}>
+            <FormattedMessage
+              id="adjustments.periodView"
+              defaultMessage={`Vista Periodo`}
+            />
           </a>
         </span>
         <span className="control">
-          <a
-            className={
-              this.props.currentRole === 'consultor-level-3'
-                ? 'button is-info btn-lvl-3'
-                : 'button is-info'
-            }
-          >
-            Vista Producto
+          <a className={this.props.currentRole === 'consultor-level-3' ? 'button is-info btn-lvl-3' : 'button is-info'}>
+            <FormattedMessage
+              id="adjustments.productView"
+              defaultMessage={`Vista Producto`}
+            />
           </a>
         </span>
       </div>
-    );
+    )
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
   }
 
   getCatalogColumns() {
-    return this.rules.catalogs
-      .map(item => {
-        if (item.slug !== 'producto' && item.slug !== 'precio') {
-          return {
-            group: ' ',
-            title: item.name,
-            property: 'catalog_' + item.slug,
-            default: 'N/A',
-            sortable: true,
-            groupClassName: 'table-week',
-            headerClassName: 'table-head',
-            className: 'table-cell is-capitalized',
-            formatter: row => {
-              let name = 'N/A';
-              row.catalogItems.map(obj => {
-                if (obj.catalog.slug === item.slug) {
-                  name = obj.name;
-                }
-              });
-              return name;
-            },
-          };
+    return this.rules.catalogs.map(item => {
+      if (item.slug !== 'producto' && item.slug !== 'precio'){
+        let title = item.name
+        if (this.findInCatalogs(item.slug)) {
+          title = this.formatTitle('catalogs.' + item.slug)
         }
-      })
-      .filter(item => item);
+      return (
+        {
+          group: ' ',
+          title: title,
+          property: 'catalog_' + item.slug,
+          default: 'N/A',
+          sortable: true,
+          groupClassName: 'table-week',
+          headerClassName: 'table-head',
+          className: 'table-cell is-capitalized',
+          formatter: (row) => {
+            let name = 'N/A'
+            row.catalogItems.map(obj => {
+              if(obj.catalog.slug === item.slug){
+                name = obj.name
+              }
+            })
+            return name
+          }
+        }
+      )
+    }
+    }).filter(item => item)
   }
 
-  getColumns() {
+  getColumns () {
     return [
       {
         group: this.getBtns(),
         title: (() => {
           if (this.canEdit) {
-            return (
-              <Checkbox
-                label="checkAll"
-                handleCheckboxChange={this.checkAll}
-                key="checkAll"
-                checked={this.state.selectedAll}
-                hideLabel
-              />
-            );
-          }
+          return (
+            <Checkbox
+              label='checkAll'
+              handleCheckboxChange={this.checkAll}
+              key='checkAll'
+              checked={this.state.selectedAll}
+              hideLabel />
+          )
+        }
         })(),
         groupClassName: 'col-border-left colspan is-paddingless table-week',
         headerClassName: 'col-border-left table-product-head',
         className: 'col-border-left',
-        property: 'checkbox',
-        default: '',
-        formatter: row => {
+        'property': 'checkbox',
+        'default': '',
+        formatter: (row) => {
           if (this.canEdit) {
-            if (!row.selected) {
-              row.selected = false;
-            }
-            return (
-              <Checkbox
-                label={row}
-                handleCheckboxChange={this.toggleCheckbox}
-                key={row}
-                checked={row.selected}
-                hideLabel
-              />
-            );
+          if (!row.selected) {
+            row.selected = false
           }
-        },
+          return (
+            <Checkbox
+              label={row}
+              handleCheckboxChange={this.toggleCheckbox}
+              key={row}
+              checked={row.selected}
+              hideLabel />
+          )
+        }
+        }
       },
       {
         group: ' ',
-        title: 'Id',
+        title: this.formatTitle('tables.colId'),
         property: 'productId',
         default: 'N/A',
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'has-text-centered table-product-head id',
         className: 'id',
-        formatter: row => {
+        formatter: (row) => {
           if (row.productId) {
-            return row.productId;
+            return row.productId
           }
-        },
+        }
       },
       {
         group: ' ',
-        title: 'Producto',
+        title: this.formatTitle('tables.colProduct'),
         property: 'productName',
         default: 'N/A',
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-product table-product-head',
         className: 'table-product productName',
-        formatter: row => {
-          let product = 'N/A';
+        formatter: (row) => {
+          let product = 'N/A'
           if (row.productName) {
-            product = row.productName;
+            product = row.productName
           }
           if (product === 'Not identified') {
-            product = 'No identificado';
+            product = this.formatTitle('dashboard.unidentified')
           }
-          return product;
-        },
+          return product
+        }
       },
       {
         group: ' ',
-        title: (
-          <span
-            className="icon"
-            title={`¡Hay ${
-              this.props.adjustmentRequestCount
-            } productos fuera de rango!`}
-            onClick={() => {
-              this.props.handleAllAdjustmentRequest();
-            }}
-          >
-            <i className="fa fa-exclamation fa-lg" />
-          </span>
-        ),
+        title: <span
+          className='icon'
+          title={`¡${this.props.adjustmentRequestCount} ${this.formatTitle('adjustments.outOfRange')}!`}
+          onClick={() => {
+            this.props.handleAllAdjustmentRequest()
+          }}
+        >
+          <i className='fa fa-exclamation fa-lg' />
+        </span>,
         groupClassName: 'table-product table-week',
-        headerClassName:
-          'table-product table-product-head table-product-head-bord table-product-shadow',
+        headerClassName: 'table-product table-product-head table-product-head-bord table-product-shadow',
         className: 'table-product table-product-shadow',
-        formatter: row => {
-          return this.getLimit(row);
-        },
+        formatter: (row) => {
+          return this.getLimit(row)
+        }
       },
       {
         group: ' ',
-        title: 'Periodo',
+        title: this.formatTitle('adjustments.period'),
         property: 'period.period',
         default: 'N/A',
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
         className: 'table-cell',
-        formatter: row => {
-          if (row.period) {
-            return row.period.period;
+        formatter: (row) => {
+          if(row.period){
+            return row.period.period
           }
-        },
+        }
       },
       ...this.getCatalogColumns(),
       {
         group: ' ',
-        title: 'Predicción',
+        title: this.formatTitle('tables.colForecast'),
         property: 'prediction',
         default: 0,
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
         className: 'table-cell',
-        formatter: row => {
+        formatter: (row) => {
           if (row.prediction) {
-            return row.prediction;
+            return row.prediction
           }
-        },
+        }
       },
       {
         group: ' ',
-        title: this.splitWords('Ajuste_Anterior'),
+        title: this.formatTitle('dates.locale') === 'en' ?
+          this.splitWords(this.formatTitle('adjustments.last') + '_' + this.formatTitle('tables.colAdjustment') + ' ')
+          :
+          this.splitWords(this.formatTitle('tables.colAdjustment') + '_' + this.formatTitle('adjustments.last') + ' ')
+        ,
         property: 'lastAdjustment',
         default: 0,
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
         className: 'table-cell',
-        formatter: row => {
+        formatter: (row) => {
           if (row.lastAdjustment) {
-            return row.lastAdjustment;
-          } else {
-            return row.prediction;
+            return row.lastAdjustment
+          }else{
+            return row.prediction
           }
-        },
+        }
       },
       {
         group: ' ',
-        title: 'Ajuste',
+        title: this.formatTitle('tables.colAdjustment'),
         property: 'adjustmentForDisplay',
         default: '',
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
         className: 'table-cell',
-        formatter: row => {
+        formatter: (row) => {
           if (!row.adjustmentForDisplay) {
-            row.adjustmentForDisplay = '';
+            row.adjustmentForDisplay = ''
           }
 
-          row.tabin = row.key * 10;
+          row.tabin = row.key * 10
           if (this.canEdit) {
             return (
               <input
-                type="text"
-                className="input"
+                type='text'
+                className='input'
                 value={row.adjustmentForDisplay}
-                onBlur={e => {
-                  this.onBlur(e, row);
-                }}
-                onKeyDown={e => {
-                  this.onEnter(e, row);
-                }}
-                onChange={e => {
-                  this.onChange(e, row);
-                }}
-                onFocus={e => {
-                  this.onFocus(e, row);
-                }}
+                onBlur={(e) => { this.onBlur(e, row) }}
+                onKeyDown={(e) => { this.onEnter(e, row) }}
+                onChange={(e) => { this.onChange(e, row) }}
+                onFocus={(e) => { this.onFocus(e, row) }}
                 tabIndex={row.tabin}
-                placeholder="0"
-                ref={el => {
-                  this.inputs[row.tabin] = el;
-                }}
+                placeholder='0'
+                ref={(el) => { this.inputs[row.tabin] = el }}
               />
-            );
-          } else {
-            return <span>{row.adjustmentForDisplay}</span>;
+            )
+          }else{
+            return <span>{row.adjustmentForDisplay}</span>
           }
-        },
+        }
       },
       {
         group: ' ',
-        title: this.splitWords('Rango_Ajustado'),
+        title: this.formatTitle('dates.locale') === 'en' ?
+          this.splitWords(this.formatTitle('adjustments.adjusted') + '_' + this.formatTitle('adjustments.range'))
+          :
+          this.splitWords(this.formatTitle('adjustments.range') + '_' + this.formatTitle('adjustments.adjusted'))
+        ,
         property: 'percentage',
         default: 0,
         sortable: true,
         groupClassName: 'table-week',
         headerClassName: 'table-head',
         className: 'table-cell',
-        formatter: row => {
-          let percentage;
-          if (row.lastAdjustment) {
-            percentage =
-              ((row.adjustmentForDisplay - row.lastAdjustment) /
-                row.lastAdjustment) *
-              100;
-          } else {
-            percentage =
-              ((row.adjustmentForDisplay - row.prediction) / row.prediction) *
-              100;
+        formatter: (row) => {
+          let percentage
+          if(row.lastAdjustment){
+            percentage = (
+              ((row.adjustmentForDisplay - row.lastAdjustment) / row.lastAdjustment) * 100
+            )
+          }else{
+            percentage = (
+              ((row.adjustmentForDisplay - row.prediction) / row.prediction) * 100
+            )
           }
 
-          if (isNaN(percentage) || !isFinite(percentage)) percentage = 0;
+          if(isNaN(percentage) || !isFinite(percentage))
+              percentage = 0
 
-          row.percentage = percentage;
+          row.percentage = percentage
           let status = classNames('has-text-weight-bold', {
-            'has-text-success':
-              row.isLimit &&
-              row.adjustmentRequest &&
-              row.adjustmentRequest.status === 'approved',
-            'has-text-warning':
-              row.isLimit &&
-              row.adjustmentRequest &&
-              row.adjustmentRequest.status === 'created',
-            'has-text-danger':
-              row.isLimit &&
-              (!row.adjustmentRequest ||
-                row.adjustmentRequest.status === 'rejected' ||
-                this.props.currentRole === 'manager-level-2'),
-          });
-          return (
-            <span className={status}>{Math.round(percentage) + ' %'}</span>
-          );
-        },
-      },
-    ];
+            'has-text-success': row.isLimit && row.adjustmentRequest && row.adjustmentRequest.status === 'approved',
+            'has-text-warning': row.isLimit && row.adjustmentRequest && row.adjustmentRequest.status === 'created',
+            'has-text-danger': row.isLimit && ((!row.adjustmentRequest || row.adjustmentRequest.status === 'rejected')
+                                                || this.props.currentRole  === 'manager-level-2')
+          })
+          return <span className={status}>{Math.round(percentage) + ' %'}</span>
+        }
+      }
+    ]
   }
 
-  handleSort(e) {
-    let sorted = this.state.filteredData;
+  handleSort (e) {
+    let sorted = this.state.filteredData
     if (e === 'productId') {
       if (this.state.sortAscending) {
-        sorted.sort((a, b) => {
-          return parseFloat(a[e]) - parseFloat(b[e]);
-        });
+        sorted.sort((a, b) => { return parseFloat(a[e]) - parseFloat(b[e]) })
       } else {
-        sorted.sort((a, b) => {
-          return parseFloat(b[e]) - parseFloat(a[e]);
-        });
+        sorted.sort((a, b) => { return parseFloat(b[e]) - parseFloat(a[e]) })
       }
-    } else if (e.indexOf('_') !== -1) {
-      let sort = e.split('_');
+
+    }
+    else if (e.indexOf('_') !== -1) {
+      let sort = e.split('_')
 
       if (this.state.sortAscending) {
-        sorted = _.orderBy(
-          sorted,
-          function(e) {
-            return e.catalogItems.map((item, key) => {
-              if (sort[1] === item.type) {
-                return e.catalogItems[key]['name'].toLowerCase();
-              }
-            });
-          },
-          ['asc']
-        );
-      } else {
-        sorted = _.orderBy(
-          sorted,
-          function(e) {
-            return e.catalogItems.map((item, key) => {
-              if (sort[1] === item.type) {
-                return e.catalogItems[key]['name'].toLowerCase();
-              }
-            });
-          },
-          ['desc']
-        );
+        sorted = _.orderBy(sorted, function (e) {
+          return e.catalogItems.map((item, key) => {
+            if (sort[1] === item.type) {
+              return e.catalogItems[key]['name'].toLowerCase()
+            }
+          })
+        }, ['asc'])
       }
-    } else {
+      else {
+        sorted = _.orderBy(sorted, function (e) {
+          return e.catalogItems.map((item, key) => {
+            if (sort[1] === item.type) {
+              return e.catalogItems[key]['name'].toLowerCase()
+            }
+          })
+        }, ['desc'])
+      }
+    }
+    else {
       if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, [e], ['asc']);
+        sorted = _.orderBy(sorted, [e], ['asc'])
       } else {
-        sorted = _.orderBy(sorted, [e], ['desc']);
+        sorted = _.orderBy(sorted, [e], ['desc'])
       }
     }
 
     this.setState({
       filteredData: sorted,
       sortAscending: !this.state.sortAscending,
-      sortBy: e,
-    });
+      sortBy: e
+    })
   }
 
-  getLimit(product) {
-    let limit = '';
+  getLimit (product) {
+    let limit = ''
 
-    if (
-      product.isLimit &&
-      product.adjustmentRequest &&
-      product.adjustmentRequest.status === 'approved'
-    ) {
-      limit = (
-        <span className="icon has-text-success" title="Ajustes aprobados">
-          <i className="fa fa-check fa-lg" />
+    if (product.isLimit && product.adjustmentRequest && product.adjustmentRequest.status === 'approved') {
+      limit =
+        <span
+          className='icon has-text-success'
+          title='Ajustes aprobados'>
+          <i className='fa fa-check fa-lg' />
         </span>
-      );
     }
 
-    if (
-      product.isLimit &&
-      product.adjustmentRequest &&
-      product.adjustmentRequest.status === 'created'
-    ) {
-      limit = (
+    if (product.isLimit && product.adjustmentRequest && product.adjustmentRequest.status === 'created') {
+      limit =
         <span
-          className="icon has-text-warning"
-          title="Ya se ha pedido un cambio"
-        >
-          <i className="fa fa-clock-o fa-lg" />
+          className='icon has-text-warning'
+          title='Ya se ha pedido un cambio'>
+          <i className='fa fa-clock-o fa-lg' />
         </span>
-      );
     }
 
-    if (
-      product.isLimit &&
-      (!product.adjustmentRequest ||
-        product.adjustmentRequest.status === 'rejected')
-    ) {
-      limit = (
+    if (product.isLimit && (!product.adjustmentRequest || product.adjustmentRequest.status === 'rejected')) {
+      limit =
         <span
-          className="icon has-text-danger"
+          className='icon has-text-danger'
           title={'Periodo ' + product.period.period + ' fuera de rango'}
           onClick={() => {
-            this.props.handleAdjustmentRequest(product);
-          }}
-        >
-          <i className="fa fa-times fa-lg" />
+              this.props.handleAdjustmentRequest(product)
+            }}>
+          <i className='fa fa-times fa-lg' />
         </span>
-      );
-      return limit;
+      return limit
     }
 
-    return limit;
+    return limit
   }
 
   changeCell = (row, direction) => {
-    this.inputs[row.tabin + 10 * direction].focus();
-  };
+    this.inputs[row.tabin + 10 * direction].focus()
+  }
 
   onFocus(e, row) {
-    row.original = row.adjustmentForDisplay;
+    row.original = row.adjustmentForDisplay
 
-    e.target.select();
+    e.target.select()
   }
 
   onEnter = async (e, row) => {
-    let value = e.target.value;
+    let value = e.target.value
 
     if (e.target.type === 'number') {
-      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''));
+      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
     }
 
     if ((e.keyCode === 13 || e.which === 13) && !e.shiftKey) {
-      this.changeCell(row, 1);
-    } else if ((e.keyCode === 13 || e.which === 13) && e.shiftKey) {
-      this.changeCell(row, -1);
+      this.changeCell(row, 1)
     }
-  };
-
-  onBlur = async (e, row) => {
-    let value = e.target.value;
-    if (e.target.type === 'number') {
-      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''));
-    }
-
-    if (value === '' && row.original !== '') {
-      row.adjustmentForDisplay = row.original;
-      let aux = this.state.filteredData;
-
-      this.setState({
-        filteredData: aux,
-      });
-
-      return;
-    }
-
-    if (Number(row.original) !== Number(value)) {
-      this.props.changeAdjustment(value, row);
-    }
-  };
-
-  onChange = (e, row) => {
-    if (e.target.value.length <= 7) {
-      row.adjustmentForDisplay = Number(e.target.value);
-      let aux = this.state.filteredData;
-      this.setState({
-        filteredData: aux,
-      });
-    }
-  };
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.data !== this.props.data) {
-      this.setState({
-        filteredData: nextProps.data,
-      });
+    else if ((e.keyCode === 13 || e.which === 13) && e.shiftKey) {
+      this.changeCell(row, -1)
     }
   }
 
-  render() {
+  onBlur = async (e, row) => {
+    let value = e.target.value
+    if (e.target.type === 'number') {
+      value = Number(value.replace(/[^(\-|\+)?][^0-9.]/g, ''))
+    }
+
+    if (value === '' && row.original !== '') {
+      row.adjustmentForDisplay = row.original
+      let aux = this.state.filteredData
+
+      this.setState({
+        filteredData: aux
+      })
+
+      return
+    }
+
+    if (Number(row.original) !== Number(value)) {
+      this.props.changeAdjustment(value, row)
+    }
+  }
+
+  onChange = (e, row) => {
+    if(e.target.value.length <= 7){
+      row.adjustmentForDisplay = Number(e.target.value)
+      let aux = this.state.filteredData
+      this.setState({
+        filteredData: aux
+      })
+    }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.data !== this.props.data){
+      this.setState({
+        filteredData: nextProps.data
+      })
+    }
+  }
+
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  render () {
     if (this.state.filteredData.length === 0) {
-      return <Loader />;
+      return (
+        <Loader />
+      )
     }
     return (
       <StickTable
-        height="55vh"
+        height='55vh'
         data={this.state.filteredData}
         cols={this.getColumns()}
         stickyCols={0}
         stickyRows={2}
         sortAscending={this.state.sortAscending}
         sortBy={this.state.sortBy}
-        handleSort={e => this.handleSort(e)}
+        handleSort={(e) => this.handleSort(e)}
       />
-    );
+    )
   }
 }
 
-export default ProductTable;
+export default injectIntl(ProductTable)

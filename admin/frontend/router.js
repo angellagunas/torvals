@@ -5,6 +5,7 @@ import {
   Route,
   Redirect
 } from 'react-router-dom'
+import { IntlProvider, addLocaleData } from 'react-intl'
 
 import AdminLayout from '~components/admin-layout'
 
@@ -53,7 +54,16 @@ import UsersImport from './pages/import/users'
 import ChannelImport from './pages/import/channels'
 import ProductsImport from './pages/import/products'
 import SalesCentersImport from './pages/import/sales-centers'
-// #Import
+
+import en from 'react-intl/locale-data/en'
+import es from 'react-intl/locale-data/es'
+import AlertList from './pages/alerts/list';
+
+addLocaleData([...en, ...es])
+
+const language = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage
+
+const languageWithoutRegionCode = language.toLowerCase().split(/[_-]+/)[0]
 
 const NoMatch = () => {
   if (window.location.pathname.replace(/\//g, '') === 'admin') {
@@ -63,74 +73,77 @@ const NoMatch = () => {
 }
 
 const AppRouter = () => {
-  return (<Router>
-    <AdminLayout>
-      <div className='c-flex-1 is-flex is-flex-column is-relative'>
-        <Switch>
-          {LandPage.asRouterItem()}
-          {ResetPassword.asRouterItem()}
-          {EmailResetLanding.asRouterItem()}
-          {Dashboard.asRouterItem()}
-          {Profile.asRouterItem()}
+  return (
+    <Router>
+        <AdminLayout>
+          <div className='c-flex-1 is-flex is-flex-column is-relative'>
+            <Switch>
+              {LandPage.asRouterItem()}
+              {ResetPassword.asRouterItem()}
+              {EmailResetLanding.asRouterItem()}
+              {Dashboard.asRouterItem()}
+              {Profile.asRouterItem()}
 
-          {Users.asRouterItem()}
-          {DeletedUsers.asRouterItem()}
-          {UserDetail.asRouterItem()}
-          {UsersImport.asRouterItem()}
+              {Users.asRouterItem()}
+              {DeletedUsers.asRouterItem()}
+              {UserDetail.asRouterItem()}
+              {UsersImport.asRouterItem()}
 
-          {Organizations.asRouterItem()}
-          {OrganizationDetail.asRouterItem()}
+              {Organizations.asRouterItem()}
+              {OrganizationDetail.asRouterItem()}
 
-          {Roles.asRouterItem()}
-          {RoleDetail.asRouterItem()}
+              {Roles.asRouterItem()}
+              {RoleDetail.asRouterItem()}
 
-          {Groups.asRouterItem()}
-          {GroupDetail.asRouterItem()}
+              {Groups.asRouterItem()}
+              {GroupDetail.asRouterItem()}
 
-          {DataSets.asRouterItem()}
-          {DeletedDataSets.asRouterItem()}
-          {ReadyDataSets.asRouterItem()}
-          {DataSetDetail.asRouterItem()}
+              {DataSets.asRouterItem()}
+              {DeletedDataSets.asRouterItem()}
+              {ReadyDataSets.asRouterItem()}
+              {DataSetDetail.asRouterItem()}
 
-          {Projects.asRouterItem()}
-          {DeletedProjects.asRouterItem()}
-          {ProjectDetail.asRouterItem()}
+              {Projects.asRouterItem()}
+              {DeletedProjects.asRouterItem()}
+              {ProjectDetail.asRouterItem()}
 
-          {Calendar.asRouterItem()}
+              {Calendar.asRouterItem()}
 
-          {Engines.asRouterItem()}
-          {EngineDetail.asRouterItem()}
+              {Engines.asRouterItem()}
+              {EngineDetail.asRouterItem()}
 
-          {SalesCenters.asRouterItem()}
-          {DeletedSalesCenters.asRouterItem()}
-          {SalesCenterDetail.asRouterItem()}
-          {SalesCentersImport.asRouterItem()}
+              {SalesCenters.asRouterItem()}
+              {DeletedSalesCenters.asRouterItem()}
+              {SalesCenterDetail.asRouterItem()}
+              {SalesCentersImport.asRouterItem()}
 
-          {Products.asRouterItem()}
-          {DeletedProducts.asRouterItem()}
-          {ProductDetail.asRouterItem()}
+              {Products.asRouterItem()}
+              {DeletedProducts.asRouterItem()}
+              {ProductDetail.asRouterItem()}
 
-          {Forecasts.asRouterItem()}
-          {ForecastDetail.asRouterItem()}
+              {Forecasts.asRouterItem()}
+              {ForecastDetail.asRouterItem()}
 
-          {RequestLogs.asRouterItem()}
-          {PredictionHistoric.asRouterItem()}
-          {Channels.asRouterItem()}
-          {DeletedChannels.asRouterItem()}
-          {ChannelDetail.asRouterItem()}
-          {ChannelImport.asRouterItem()}
-          {ProductsImport.asRouterItem()}
+              {RequestLogs.asRouterItem()}
+              {PredictionHistoric.asRouterItem()}
+              {Channels.asRouterItem()}
+              {DeletedChannels.asRouterItem()}
+              {ChannelDetail.asRouterItem()}
+              {ChannelImport.asRouterItem()}
+              {ProductsImport.asRouterItem()}
 
-          {Prices.asRouterItem()}
-          {PriceDetail.asRouterItem()}
+              {Prices.asRouterItem()}
+              {PriceDetail.asRouterItem()}
+              
+              {AlertList.asRouterItem()}
+              <Route component={NoMatch} />
 
-          <Route component={NoMatch} />
-
-          <div id='route' />
-        </Switch>
-      </div>
-    </AdminLayout>
-  </Router>)
+              <div id='route' />
+            </Switch>
+          </div>
+        </AdminLayout>
+    </Router>
+  )
 }
 
 export default AppRouter

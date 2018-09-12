@@ -39,6 +39,16 @@ module.exports = new Route({
       }
     }
 
+    var otherFilters = {
+      showAdjusted: data.showAdjusted,
+      showNotAdjusted: data.showNotAdjusted,
+      searchTerm: data.searchTerm
+    }
+
+    delete data.showAdjusted
+    delete data.showNotAdjusted
+    delete data.searchTerm
+
     catalogItems = []
     for (let filter of Object.keys(data)) {
       const unwantedKeys = [
@@ -55,7 +65,6 @@ module.exports = new Route({
         uuid: data[filter]
       }).populate('catalog')
       catalogItems.push(catalogItem)
-
     }
     filters['catalogItems'] = {
       '$all': catalogItems.map((item) => item._id)
@@ -78,6 +87,7 @@ module.exports = new Route({
 
     rowsCsv = `${names.join()}\r\n`
 
+    rowsCsv = rowsCsv.substring(0, rowsCsv.length - 1) + '\r\n'
     for (let row of rows) {
       let rowsString = rowBeginning
 

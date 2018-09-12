@@ -11,6 +11,7 @@ const app = express()
 app.set('views', path.resolve('./admin/views'))
 
 expressNunjucks(app, {
+  watch: true,
   noCache: false
 })
 

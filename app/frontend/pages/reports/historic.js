@@ -1,20 +1,23 @@
-import React, { Component } from 'react';
-import moment from 'moment';
-import tree from '~core/tree';
-import _ from 'lodash';
-import Link from '~base/router/link';
-import api from '~base/api';
-import Loader from '~base/components/spinner';
-import Page from '~base/page';
-import { loggedIn } from '~base/middlewares/';
-import Graph from '~base/components/graph';
-import { BaseTable } from '~base/components/base-table';
-import Checkbox from '~base/components/base-checkbox';
-import { toast } from 'react-toastify';
+import React, { Component } from 'react'
+import { FormattedMessage, injectIntl
+ } from 'react-intl'
+import moment from 'moment'
+import tree from '~core/tree'
+import _ from 'lodash'
+import Link from '~base/router/link'
+import api from '~base/api'
+import Loader from '~base/components/spinner'
+import Page from '~base/page'
+import { loggedIn } from '~base/middlewares/'
+import Graph from '~base/components/graph'
+import { BaseTable } from '~base/components/base-table'
+import Checkbox from '~base/components/base-checkbox'
+import { toast } from 'react-toastify'
+import { defaultCatalogs } from '~base/tools'
 
 class HistoricReport extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       loading: true,
       totalAdjustment: 0,
@@ -27,27 +30,39 @@ class HistoricReport extends Component {
       searchTerm: '',
       sortBy: 'sale',
       sortAscending: true,
-      projectSelected: '',
-    };
-    this.selectedProjects = {};
-    this.selectedItems = [];
+      projectSelected: ''
+    }
+    this.selectedProjects = {}
+    this.selectedItems = []
 
-    this.currentRole = tree.get('user').currentRole.slug;
-    this.rules = tree.get('rule');
+    this.currentRole = tree.get('user').currentRole.slug
+    this.rules = tree.get('rule')
+
+    moment.locale(this.formatTitle('dates.locale'))
+  }
+
+  findInCatalogs(slug) {
+    let find = false
+    defaultCatalogs.map(item => {
+      if (item.value === slug) {
+        find = true
+      }
+    })
+    return find
   }
 
   componentWillMount() {
-    this.getProjects();
+    this.getProjects()
   }
 
   moveTo(route) {
-    this.props.history.push(route);
+    this.props.history.push(route)
   }
 
   clear() {
-    this.selectedChannels = [];
-    this.selectedSalesCenters = [];
-    this.selectedProducts = [];
+    this.selectedChannels = []
+    this.selectedSalesCenters = []
+    this.selectedProducts = []
     this.setState({
       filters: undefined,
       graphData: undefined,
@@ -59,74 +74,63 @@ class HistoricReport extends Component {
       totalPrediction: 0,
       totalSale: 0,
       totalPSale: 0,
-    });
+    })
   }
 
   async getProjects() {
-    let url = '/app/projects';
+    let url = '/app/projects'
 
     let res = await api.get(url, {
-      showOnDashboard: true,
-    });
+      showOnDashboard: true
+    })
 
-    let activeProjects = res.data.filter(item => {
-      return item.mainDataset;
-    });
-    activeProjects[0].selected = true;
-    this.selectedProjects[activeProjects[0].uuid] = activeProjects[0];
+    let activeProjects = res.data.filter(item => { return item.mainDataset })
+    activeProjects[0].selected = true
+    this.selectedProjects[activeProjects[0].uuid] = activeProjects[0]
 
-    this.setState(
-      {
-        projects: activeProjects,
-        projectSelected: activeProjects[0],
-        loading: false,
-      },
-      () => {
-        this.getAll();
-      }
-    );
+    this.setState({
+      projects: activeProjects,
+      projectSelected: activeProjects[0],
+      loading: false
+    }, () => {
+      this.getAll()
+    })
   }
 
   async selectProject(project) {
-    this.selectedProjects = {};
-    this.selectedProjects[project.uuid] = project;
-    project.selected = true;
-    this.setState(
-      {
-        projectSelected: project,
-      },
-      () => {
-        this.getAll();
-      }
-    );
+    this.selectedProjects = {}
+    this.selectedProjects[project.uuid] = project
+    project.selected = true
+    this.setState({
+      projectSelected: project
+    }, () => {
+      this.getAll()
+    })
   }
 
   async getAll() {
-    let projects = Object.values(this.selectedProjects);
+    let projects = Object.values(this.selectedProjects)
 
     if (projects.length <= 0) {
-      return;
+      return
     }
 
-    let maxD = projects.map(d => moment.utc(d.dateMax));
-    let minD = projects.map(d => moment.utc(d.dateMin));
+    let maxD = projects.map(d => moment.utc(d.dateMax))
+    let minD = projects.map(d => moment.utc(d.dateMin))
 
-    let url = '/app/dashboard/projects';
-    let res = await api.get(url, projects.map(p => p.uuid));
+    let url = '/app/dashboard/projects'
+    let res = await api.get(url, projects.map(p => p.uuid))
 
-    this.getCatalogFilters(res.catalogItems);
+    this.getCatalogFilters(res.catalogItems)
 
-    this.setState(
-      {
-        filters: res,
-        dateMin: moment.min(minD),
-        dateMax: moment.max(maxD),
-      },
-      async () => {
-        await this.getDates();
-        this.getGraph();
-      }
-    );
+    this.setState({
+      filters: res,
+      dateMin: moment.min(minD),
+      dateMax: moment.max(maxD)
+    }, async () => {
+      await this.getDates()
+      this.getGraph()
+    })
   }
 
   async getGraph() {
@@ -140,81 +144,66 @@ class HistoricReport extends Component {
       totalPrediction: 0,
       totalSale: 0,
       totalPSale: 0,
-      noData: undefined,
-    });
+      noData: undefined
+    })
 
     if (!this.state.waitingData) {
       try {
-        let url =
-          '/app/projects/adjustment/historical/' +
-          this.state.projectSelected.uuid;
+        let url = '/app/projects/adjustment/historical/' + this.state.projectSelected.uuid
         this.setState({
-          waitingData: true,
-        });
+          waitingData: true
+        })
         let res = await api.post(url, {
-          date_start: moment
-            .utc([this.state.minPeriod.year, this.state.minPeriod.number - 1])
-            .startOf('month')
-            .format('YYYY-MM-DD'),
-          date_end: moment
-            .utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
-            .endOf('month')
-            .format('YYYY-MM-DD'),
+          date_start: moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1]).startOf('month').format('YYYY-MM-DD'),
+          date_end: moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1]).endOf('month').format('YYYY-MM-DD'),
           catalogItems: Object.keys(this.selectedItems),
-          prices: this.state.prices,
-        });
+          prices: this.state.prices
+        })
 
-        let totalPSale = 0;
-        let totalSale = 0;
-        let totalPrediction = 0;
-        let totalAdjustment = 0;
-        let mapePrediction = 0;
-        let mapeAdjustment = 0;
-        let difference = 0;
+        let totalPSale = 0
+        let totalSale = 0
+        let totalPrediction = 0
+        let totalAdjustment = 0
+        let mapePrediction = 0
+        let mapeAdjustment = 0
+        let difference = 0
 
-        let data = res.data;
-        let activePeriod = [];
-        let topValue = 0;
+        let data = res.data
+        let activePeriod = []
+        let topValue = 0
 
-        data = _.orderBy(
-          res.data,
-          e => {
-            return e.date;
-          },
-          ['asc']
-        );
+        data = _.orderBy(res.data,
+          (e) => {
+            return e.date
+          }
+          , ['asc'])
 
-        let datasets = {};
+        let datasets = {}
 
-        data.map(item => {
-          totalAdjustment += item.adjustment;
-          totalPrediction += item.prediction;
-          totalSale += item.sale;
-          totalPSale += item.previousSale;
+        data.map((item) => {
+          totalAdjustment += item.adjustment
+          totalPrediction += item.prediction
+          totalSale += item.sale
+          totalPSale += item.previousSale
 
-          if (
-            moment(item.date).isBetween(
-              moment().startOf('month'),
-              moment().endOf('month'),
-              null,
-              '[]'
-            )
-          ) {
-            activePeriod.push(item);
+          if (moment(item.date).isBetween(moment().startOf('month'), moment().endOf('month'), null, '[]')) {
+            activePeriod.push(item)
           }
 
-          if (datasets[item.dataset]) {
-            datasets[item.dataset].push(item);
-          } else {
-            datasets[item.dataset] = [item];
+          if(datasets[item.dataset]){
+            datasets[item.dataset].push(item)
+          }else{
+            datasets[item.dataset] = [item]
           }
-        });
 
-        topValue = this.getTopValue(res.data);
+        })
 
-        mapePrediction = res.mapePrediction;
-        mapeAdjustment = res.mapeAdjustment;
-        difference = res.difference;
+        topValue = this.getTopValue(res.data)
+
+        mapePrediction = res.mapePrediction
+        mapeAdjustment = res.mapeAdjustment
+        difference = res.difference
+
 
         this.setState({
           graphData: data,
@@ -230,50 +219,31 @@ class HistoricReport extends Component {
           startPeriod: activePeriod[0],
           endPeriod: activePeriod[activePeriod.length - 1],
           waitingData: false,
-          datasets,
-        });
+          datasets
+        })
         setTimeout(() => {
           this.setState({
-            reloadGraph: false,
-          });
-        }, 10);
+            reloadGraph: false
+          })
+        }, 10)
       } catch (e) {
-        this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR);
+        this.notify('Error ' + e.message, 5000, toast.TYPE.ERROR)
         this.setState({
-          noData: e.message + ', intente más tarde',
-        });
+          noData: e.message + ', ' + this.formatTitle('dashboard.try')
+        })
       }
     }
   }
 
   getTopValue(data) {
-    let maxPrediction = Math.max.apply(
-      Math,
-      data.map(function(item) {
-        return item.prediction;
-      })
-    );
-    let maxAdjustment = Math.max.apply(
-      Math,
-      data.map(function(item) {
-        return item.adjustment;
-      })
-    );
-    let maxSale = Math.max.apply(
-      Math,
-      data.map(function(item) {
-        return item.sale;
-      })
-    );
-    let maxPrevSale = Math.max.apply(
-      Math,
-      data.map(function(item) {
-        return item.previousSale;
-      })
-    );
+    let maxPrediction = Math.max.apply(Math, data.map(function (item) { return item.prediction }))
+    let maxAdjustment = Math.max.apply(Math, data.map(function (item) { return item.adjustment }))
+    let maxSale = Math.max.apply(Math, data.map(function (item) { return item.sale }))
+    let maxPrevSale = Math.max.apply(Math, data.map(function (item) { return item.previousSale }))
 
-    return Math.max(maxPrediction, maxAdjustment, maxSale, maxPrevSale);
+    return Math.max(maxPrediction, maxAdjustment, maxSale, maxPrevSale)
   }
+
 
   notify(message = '', timeout = 5000, type = toast.TYPE.INFO) {
     if (!toast.isActive(this.toastId)) {
@@ -281,336 +251,319 @@ class HistoricReport extends Component {
         autoClose: timeout,
         type: type,
         hideProgressBar: true,
-        closeButton: false,
-      });
+        closeButton: false
+      })
     } else {
       toast.update(this.toastId, {
         render: message,
         type: type,
         autoClose: timeout,
-        closeButton: false,
-      });
+        closeButton: false
+      })
     }
   }
 
   showFilter(filter) {
-    let catalogItems = this.state.catalogItems;
+    let catalogItems = this.state.catalogItems
     catalogItems.map(item => {
       if (item.type === filter) {
-        item.isOpen = !item.isOpen;
+        item.isOpen = !item.isOpen
       }
-    });
+    })
     this.setState({
-      catalogItems,
-    });
+      catalogItems
+    })
   }
 
   getColumns() {
     let cols = [
       {
-        title: 'Id',
-        property: 'product.externalId',
-        default: 'N/A',
-        sortable: true,
-        formatter: row => {
-          return row.product.externalId;
-        },
+        'title': this.formatTitle('tables.colId'),
+        'property': 'product.externalId',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return row.product.externalId
+        }
       },
       {
-        title: 'Producto',
-        property: 'product.name',
-        default: 'N/A',
-        sortable: true,
-        formatter: row => {
-          return row.product.name;
-        },
+        'title': this.formatTitle('tables.colProduct'),
+        'property': 'product.name',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return row.product.name
+        }
       },
       {
-        title: 'Predicción',
-        property: 'prediction',
-        default: '0',
-        sortable: true,
-        formatter: row => {
+        'title': this.formatTitle('tables.colForecast'),
+        'property': 'prediction',
+        'default': '0',
+        'sortable': true,
+        formatter: (row) => {
           if (row.prediction) {
             return row.prediction.toFixed().replace(/./g, (c, i, a) => {
-              return i && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-            });
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
           }
-        },
+        }
       },
       {
-        title: 'Ajuste',
-        property: 'adjustment',
-        default: '0',
-        sortable: true,
-        formatter: row => {
+        'title': this.formatTitle('tables.colAdjustment'),
+        'property': 'adjustment',
+        'default': '0',
+        'sortable': true,
+        formatter: (row) => {
           if (row.adjustment) {
             return row.adjustment.toFixed().replace(/./g, (c, i, a) => {
-              return i && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-            });
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
           }
-        },
+        }
       },
       {
-        title: 'Venta',
-        property: 'sale',
-        default: '0',
-        sortable: true,
-        formatter: row => {
+        'title': this.formatTitle('tables.colSales'),
+        'property': 'sale',
+        'default': '0',
+        'sortable': true,
+        formatter: (row) => {
           if (row.sale) {
             return row.sale.toFixed().replace(/./g, (c, i, a) => {
-              return i && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-            });
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
           }
-        },
+        }
       },
       {
-        title: 'Venta año anterior',
-        property: 'previousSale',
-        default: '0',
-        sortable: true,
-        formatter: row => {
+        'title': this.formatTitle('tables.colLast'),
+        'property': 'previousSale',
+        'default': '0',
+        'sortable': true,
+        formatter: (row) => {
           if (row.previousSale) {
             return row.previousSale.toFixed().replace(/./g, (c, i, a) => {
-              return i && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-            });
+              return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+            })
           }
-        },
+        }
       },
       {
-        title: 'MAPE',
-        property: 'mape',
-        default: '0.00%',
-        sortable: true,
-        className: 'has-text-weight-bold',
-        formatter: row => {
-          let mape = 0;
+        'title': 'MAPE',
+        'property': 'mape',
+        'default': '0.00%',
+        'sortable': true,
+        'className': 'has-text-weight-bold',
+        formatter: (row) => {
+          let mape = 0
 
           if (row.mape) {
-            mape = row.mape;
-          } else {
-            mape = Math.abs(((row.sale - row.prediction) / row.sale) * 100);
+            mape = row.mape
+          }
+          else {
+            mape = Math.abs(((row.sale - row.prediction) / row.sale) * 100)
 
             if (mape === Infinity) {
-              mape = 0;
+              mape = 0
             }
           }
 
-          if (mape <= 7) {
-            return <span className="has-text-success">{mape.toFixed(2)}%</span>;
-          } else if (mape > 7 && mape <= 14) {
-            return <span className="has-text-warning">{mape.toFixed(2)}%</span>;
-          } else if (mape > 14) {
-            return <span className="has-text-danger">{mape.toFixed(2)}%</span>;
-          }
-        },
-      },
-    ];
 
-    return cols;
+          if (mape <= 7) {
+            return <span className='has-text-success'>{mape.toFixed(2)}%</span>
+          } else if (mape > 7 && mape <= 14) {
+            return <span className='has-text-warning'>{mape.toFixed(2)}%</span>
+          } else if (mape > 14) {
+            return <span className='has-text-danger'>{mape.toFixed(2)}%</span>
+          }
+        }
+      }
+    ]
+
+    return cols
   }
 
   handleSort(e) {
-    let sorted = this.state.productTable;
+    let sorted = this.state.productTable
 
     if (e === 'product.externalId') {
       if (this.state.sortAscending) {
-        sorted.sort((a, b) => {
-          return (
-            parseFloat(a.product.externalId) - parseFloat(b.product.externalId)
-          );
-        });
+        sorted.sort((a, b) => { return parseFloat(a.product.externalId) - parseFloat(b.product.externalId) })
       } else {
-        sorted.sort((a, b) => {
-          return (
-            parseFloat(b.product.externalId) - parseFloat(a.product.externalId)
-          );
-        });
+        sorted.sort((a, b) => { return parseFloat(b.product.externalId) - parseFloat(a.product.externalId) })
       }
     } else {
       if (this.state.sortAscending) {
-        sorted = _.orderBy(sorted, [e], ['asc']);
+        sorted = _.orderBy(sorted, [e], ['asc'])
       } else {
-        sorted = _.orderBy(sorted, [e], ['desc']);
+        sorted = _.orderBy(sorted, [e], ['desc'])
       }
     }
 
-    this.setState(
-      {
-        productTable: sorted,
-        sortAscending: !this.state.sortAscending,
-        sortBy: e,
-      },
-      () => {
-        this.searchDatarows();
-      }
-    );
+    this.setState({
+      productTable: sorted,
+      sortAscending: !this.state.sortAscending,
+      sortBy: e
+    }, () => {
+      this.searchDatarows()
+    })
+
   }
 
   async searchDatarows() {
     if (this.state.searchTerm === '') {
       this.setState({
-        filteredData: this.state.productTable,
-      });
+        filteredData: this.state.productTable
+      })
 
-      return;
+      return
     }
 
-    const items = this.state.productTable.filter(item => {
-      const regEx = new RegExp(this.state.searchTerm, 'gi');
-      const searchStr = `${item.product.externalId} ${item.product.name}`;
+    const items = this.state.productTable.filter((item) => {
+      const regEx = new RegExp(this.state.searchTerm, 'gi')
+      const searchStr = `${item.product.externalId} ${item.product.name}`
 
-      if (regEx.test(searchStr)) return true;
+      if (regEx.test(searchStr))
+        return true
 
-      return false;
-    });
+      return false
+    })
 
     await this.setState({
-      filteredData: items,
-    });
+      filteredData: items
+    })
   }
 
-  searchOnChange = e => {
-    this.setState(
-      {
-        searchTerm: e.target.value,
-      },
-      () => this.searchDatarows()
-    );
-  };
+  searchOnChange = (e) => {
+    this.setState({
+      searchTerm: e.target.value
+    }, () => this.searchDatarows())
+  }
 
   loadTable() {
     if (Object.keys(this.selectedProjects).length === 0) {
       return (
         <center>
-          <h1 className="has-text-info">
-            Debes seleccionar al menos un proyecto
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="report.projectsEmptyMsg"
+              defaultMessage={`Debes seleccionar al menos un proyecto`}
+            />
           </h1>
         </center>
-      );
-    } else if (
-      Object.keys(this.selectedProjects).length !== 0 &&
-      !this.state.noData
-    ) {
+      )
+    }
+    else if (Object.keys(this.selectedProjects).length !== 0 && !this.state.noData) {
       return (
         <center>
-          <h1 className="has-text-info">Cargando, un momento por favor</h1>
+          <h1 className='has-text-info'>
+            <FormattedMessage
+              id="report.loadingMsg"
+              defaultMessage={`Cargando, un momento por favor`}
+            />
+          </h1>
           <Loader />
         </center>
-      );
+      )
     } else {
       return (
-        <div className="is-fullwidth has-text-centered subtitle has-text-primary">
+        <div className='is-fullwidth has-text-centered subtitle has-text-primary'>
           {this.state.noData}
         </div>
-      );
+      )
     }
   }
 
   async getDates() {
-    let d = [];
-    let p = [];
-    let dateMin = moment.utc(this.state.dateMin);
-    let dateMax = moment.utc(this.state.dateMax);
+    let d = []
+    let p = []
+    let dateMin = moment.utc(this.state.dateMin)
+    let dateMax = moment.utc(this.state.dateMax)
 
     if (dateMin.isBefore(moment.utc('2017-01-01'))) {
-      dateMin = moment.utc('2017-01-01');
+      dateMin = moment.utc('2017-01-01')
     }
 
     while (dateMin.format('MMMM YYYY') !== dateMax.format('MMMM YYYY')) {
-      d.push(dateMin);
-      dateMin = moment.utc(dateMin).add(1, 'month');
+      d.push(dateMin)
+      dateMin = moment.utc(dateMin).add(1, 'month')
     }
 
-    d.push(dateMin);
+    d.push(dateMin)
 
     for (let i = 0; i < d.length; i++) {
       p.push({
         number: d[i].get('month') + 1,
         name: `${d[i].format('MMMM')}`,
-        year: d[i].get('year'),
-      });
+        year: d[i].get('year')
+      })
     }
 
-    let min = p[0];
+    let min = p[0]
     p.map(item => {
-      if (item.year === 2018 && item.number === 1) {
-        min = item;
+      if(item.year === 2018 && item.number === 1){
+        min = item
       }
-    });
+    })
 
     this.setState({
       periods: p,
-      minPeriod: min || { number: 1, name: 'enero', year: 2018 },
-      maxPeriod: p[p.length - 1],
-    });
+      minPeriod: min || { number: 1, name: "enero", year: 2018 },
+      maxPeriod: p[p.length - 1]
+    })
   }
 
+
   setMinPeriod(item) {
-    let max = moment.utc([
-      this.state.maxPeriod.year,
-      this.state.maxPeriod.number - 1,
-    ]);
-    let min = moment.utc([item.year, item.number - 1]);
+    let max = moment.utc([this.state.maxPeriod.year, this.state.maxPeriod.number - 1])
+    let min = moment.utc([item.year, item.number - 1])
     if (min.isBefore(max)) {
-      this.setState(
-        {
-          minPeriod: item,
-        },
-        () => {
-          this.getGraph();
-        }
-      );
-    } else {
-      this.setState(
-        {
-          minPeriod: this.state.maxPeriod,
-          maxPeriod: item,
-        },
-        () => {
-          this.getGraph();
-        }
-      );
+      this.setState({
+        minPeriod: item
+      }, () => {
+        this.getGraph()
+      })
     }
+    else {
+      this.setState({
+        minPeriod: this.state.maxPeriod,
+        maxPeriod: item
+      }, () => {
+        this.getGraph()
+      })
+    }
+
   }
 
   setMaxPeriod(item) {
-    let min = moment.utc([
-      this.state.minPeriod.year,
-      this.state.minPeriod.number - 1,
-    ]);
-    let max = moment.utc([item.year, item.number - 1]);
+    let min = moment.utc([this.state.minPeriod.year, this.state.minPeriod.number - 1])
+    let max = moment.utc([item.year, item.number - 1])
     if (max.isAfter(min)) {
-      this.setState(
-        {
-          maxPeriod: item,
-        },
-        () => {
-          this.getGraph();
-        }
-      );
-    } else {
-      this.setState(
-        {
-          maxPeriod: this.state.minPeriod,
-          minPeriod: item,
-        },
-        () => {
-          this.getGraph();
-        }
-      );
+      this.setState({
+        maxPeriod: item
+      }, () => {
+        this.getGraph()
+      })
+    }
+    else {
+      this.setState({
+        maxPeriod: this.state.minPeriod,
+        minPeriod: item
+      }, () => {
+        this.getGraph()
+      })
     }
   }
 
-  findName = name => {
-    let find = '';
+
+  findName = (name) => {
+    let find = ''
     this.rules.catalogs.map(item => {
       if (item.slug === name) {
-        find = item.name;
+        find = item.name
       }
-    });
-    return find;
-  };
+    })
+    return find
+  }
 
   async getCatalogFilters(catalogs) {
     let filters = _(catalogs)
@@ -620,302 +573,289 @@ class HistoricReport extends Component {
         objects: value,
         selectAll: true,
         isOpen: true,
+        slug: key
       }))
-      .value();
+      .value()
 
-    this.setState(
-      {
-        catalogItems: filters,
-      },
-      () => {
-        filters.map(item => {
-          if (item.type !== 'Producto' && item.type !== 'Precio') {
-            this.checkAllItems(item.selectAll, item.type);
-          }
-        });
-      }
-    );
+    this.setState({
+      catalogItems: filters
+    }, () => {
+      filters.map(item => {
+        if (item.type !== 'Producto' && item.type !== 'Precio') {
+          this.checkAllItems(item.selectAll, item.type)
+        }
+      })
+    })
   }
 
   async checkAllItems(value, type) {
-    let aux = this.state.catalogItems;
+    let aux = this.state.catalogItems
     aux.map(item => {
       if (item.type === type) {
         for (const s of item.objects) {
-          s.selected = value;
+          s.selected = value
           if (value) {
-            this.selectedItems[s.uuid] = s;
-          } else {
-            delete this.selectedItems[s.uuid];
+            this.selectedItems[s.uuid] = s
+          }
+          else {
+            delete this.selectedItems[s.uuid]
           }
         }
       }
-    });
+    })
 
     await this.setState({
-      catalogItems: aux,
-    });
+      catalogItems: aux
+    })
   }
 
   selectItem(e, value, obj, item) {
-    let aux = this.state.catalogItems;
+    let aux = this.state.catalogItems
 
     if (value) {
-      this.selectedItems[obj.uuid] = obj;
+      this.selectedItems[obj.uuid] = obj
     } else {
-      delete this.selectedItems[obj.uuid];
+      delete this.selectedItems[obj.uuid]
     }
 
-    obj.selected = value;
-    item.selectAll = this.countItems(obj.type) === item.objects.length;
+    obj.selected = value
+    item.selectAll = this.countItems(obj.type) === item.objects.length
 
-    this.getGraph();
+    this.getGraph()
     this.setState({
-      catalogItems: aux,
-    });
+      catalogItems: aux
+    })
   }
 
   countItems(type) {
-    let count = 0;
+    let count = 0
     Object.values(this.selectedItems).map(item => {
       if (type === item.type) {
-        count++;
+        count++
       }
-    });
-    return count;
+    })
+    return count
   }
 
   makeFilters() {
     return this.state.catalogItems.map(item => {
       if (item.type !== 'Producto' && item.type !== 'Precio') {
+        let title = item.type
+        if (this.findInCatalogs(item.slug)) {
+          title = this.formatTitle('catalogs.' + item.slug)
+        }
         return (
-          <li key={item.type} className="filters-item">
-            <div
-              className={
-                item.isOpen ? 'collapsable-title' : 'collapsable-title active'
-              }
-              onClick={() => {
-                this.showFilter(item.type);
-              }}
-            >
+          <li key={item.type} className='filters-item'>
+            <div className={item.isOpen ? 'collapsable-title' : 'collapsable-title active'}
+              onClick={() => { this.showFilter(item.type) }}>
               <a>
-                <span className="icon">
-                  <i className={item.isOpen ? 'fa fa-plus' : 'fa fa-minus'} />
+                <span className='icon'>
+                  <i className={item.isOpen
+                    ? 'fa fa-plus' : 'fa fa-minus'} />
                 </span>
-                {item.type}{' '}
-                <strong>{item.objects && item.objects.length}</strong>
+                {title} <strong>{item.objects && item.objects.length}</strong>
               </a>
             </div>
-            <aside
-              className={item.isOpen ? 'is-hidden' : 'menu'}
-              disabled={this.state.waitingData}
-            >
+            <aside className={item.isOpen
+              ? 'is-hidden' : 'menu'} disabled={this.state.waitingData}>
               <div>
                 <Checkbox
                   checked={item.selectAll}
-                  label={'Seleccionar Todos'}
+                  label={this.formatTitle('dashboard.selectAll')}
                   handleCheckboxChange={(e, value) => {
-                    this.checkAllItems(value, item.type);
-                    this.getGraph();
+                    this.checkAllItems(value, item.type)
+                    this.getGraph()
                   }}
                   key={'channel'}
                   disabled={this.state.waitingData}
                 />
               </div>
-              <ul className="menu-list">
+              <ul className='menu-list'>
                 {item.objects &&
-                  item.objects.map(obj => {
+                  item.objects.map((obj) => {
                     if (obj.selected === undefined) {
-                      obj.selected = true;
+                      obj.selected = true
                     }
-                    let name =
-                      obj.name === 'Not identified'
-                        ? obj.externalId + ' (No identificado)'
-                        : obj.externalId + ' ' + obj.name;
+                    
+                  let name = obj.name === 'Not identified' ? obj.externalId + ' ' + this.formatTitle('dashboard.unidentified') : obj.externalId + ' ' + obj.name
 
                     return (
                       <li key={obj.uuid}>
                         <a>
                           <Checkbox
                             label={<span title={name}>{name}</span>}
-                            handleCheckboxChange={(e, value) =>
-                              this.selectItem(e, value, obj, item)
-                            }
+                            handleCheckboxChange={(e, value) => this.selectItem(e, value, obj, item)}
                             key={obj.uuid}
                             checked={obj.selected}
                             disabled={this.state.waitingData}
                           />
-                          {obj.name === 'Not identified' && (
-                            <span
-                              className="icon is-pulled-right"
-                              onClick={() => {
-                                this.moveTo(
-                                  '/catalogs/' + obj.type + '/' + obj.uuid
-                                );
-                              }}
-                            >
-                              <i
-                                className={
-                                  this.props.currentRole === 'consultor-level-3'
-                                    ? 'fa fa-eye has-text-info'
-                                    : 'fa fa-edit has-text-info'
-                                }
-                              />
+                          {obj.name === 'Not identified' &&
+                            <span className='icon is-pulled-right' onClick={() => { this.moveTo('/catalogs/' + obj.type + '/' + obj.uuid) }}>
+                              <i className={this.props.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                             </span>
-                          )}
+                          }
                         </a>
                       </li>
-                    );
-                  })}
+                    )
+                  })
+                }
               </ul>
             </aside>
           </li>
-        );
+        )
       }
-    });
+    })
   }
 
   getRandColor(brightness) {
     let rgb = [Math.random() * 256, Math.random() * 256, Math.random() * 256];
     let mix = [brightness * 51, brightness * 51, brightness * 51]; //51 => 255/5
-    let mixedrgb = [rgb[0] + mix[0], rgb[1] + mix[1], rgb[2] + mix[2]].map(
-      x => {
-        return Math.round(x / 2.0);
-      }
-    );
-    return 'rgb(' + mixedrgb.join(',') + ')';
+    let mixedrgb = [rgb[0] + mix[0], rgb[1] + mix[1], rgb[2] + mix[2]].map((x) => { return Math.round(x / 2.0) })
+    return "rgb(" + mixedrgb.join(",") + ")";
   }
 
+
   showBy(prices) {
-    this.setState({ prices }, () => {
-      this.getGraph();
-    });
+    this.setState({ prices },
+      () => {
+        this.getGraph()
+      })
   }
 
   getCallback() {
     if (this.state.prices) {
-      return function(label, index, labels) {
-        let val = '';
+      return function (label, index, labels) {
+        let val = ''
         if (label <= 999) {
-          val = label;
+          val = label
         } else if (label >= 1000 && label <= 999999) {
-          val = label / 1000 + 'K';
+          val = (label / 1000) + 'K'
         } else if (label >= 1000000 && label <= 999999999) {
-          val = label / 1000000 + 'M';
+          val = (label / 1000000) + 'M'
         }
-        return '$' + val;
-      };
-    } else {
-      return function(label, index, labels) {
+        return '$' + val
+      }
+    }
+    else {
+      return function (label, index, labels) {
         if (label <= 999) {
-          return label;
+          return label
         } else if (label >= 1000 && label <= 999999) {
-          return label / 1000 + 'K';
+          return (label / 1000) + 'K'
         } else if (label >= 1000000 && label <= 999999999) {
-          return label / 1000000 + 'M';
+          return (label / 1000000) + 'M'
         }
-      };
+      }
     }
   }
 
   getTooltipCallback() {
     if (this.state.prices) {
-      return function(tooltipItem, data) {
-        let label = ' ';
-        label += data.datasets[tooltipItem.datasetIndex].label || '';
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
 
         if (label) {
-          label += ': ';
+          label += ': '
         }
         let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
-          return i && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-        });
-        return label + '$' + yVal;
-      };
-    } else {
-      return function(tooltipItem, data) {
-        let label = ' ';
-        label += data.datasets[tooltipItem.datasetIndex].label || '';
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + '$' + yVal
+      }
+    }
+    else {
+      return function (tooltipItem, data) {
+        let label = ' '
+        label += data.datasets[tooltipItem.datasetIndex].label || ''
 
         if (label) {
-          label += ': ';
+          label += ': '
         }
         let yVal = tooltipItem.yLabel.toFixed().replace(/./g, (c, i, a) => {
-          return i && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-        });
-        return label + yVal;
-      };
+          return i && c !== '.' && ((a.length - i) % 3 === 0) ? ',' + c : c
+        })
+        return label + yVal
+      }
     }
   }
 
-  render() {
-    const user = tree.get('user');
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
 
-    const { loading } = this.state;
+  render() {
+    const user = tree.get('user')
+
+    const {
+      loading
+    } = this.state
 
     if (loading) {
-      return <Loader />;
+      return <Loader />
     }
 
-    let callbackLabels = this.getCallback();
-    let tooltipCallback = this.getTooltipCallback();
+    let callbackLabels = this.getCallback()
+    let tooltipCallback = this.getTooltipCallback()
 
     if (this.state.noFilters) {
       return (
-        <div className="section columns">
-          <div className="column">
+        <div className='section columns'>
+          <div className='column'>
             <article className="message is-danger">
               <div className="message-header">
                 <p>Error</p>
               </div>
-              <div className="message-body">{this.state.noFilters}</div>
+              <div className="message-body">
+                {this.state.noFilters}
+              </div>
             </article>
           </div>
         </div>
-      );
+      )
     }
 
-    let graph = [];
 
-    let labels = {};
+    let graph = []
 
-    let prediction = {};
+    let labels = {}
 
-    if (this.state.graphData) {
-      this.state.graphData.map(item => {
-        labels[item.date] = item.date;
-        prediction[item.date] =
-          item.prediction !== undefined ? item.prediction : null;
-      });
+    let prediction = {}
 
-      prediction = Object.values(prediction);
-      labels = Object.keys(labels);
+
+    if (this.state.graphData){
+      this.state.graphData.map((item) => {
+        labels[item.date] = item.date
+        prediction[item.date] = item.prediction !== undefined ? item.prediction : null
+      })
+
+      prediction = Object.values(prediction)
+      labels = Object.keys(labels)
 
       graph = [
         {
-          label: 'Predicción',
+          label: this.formatTitle('tables.colForecast'),
           color: '#187FE6',
-          data: prediction,
-        },
-      ];
+          data: prediction
+        }
+      ]
 
       Object.values(this.state.datasets).map((arr, key) => {
         let data = Array(labels.length).fill(null);
 
-        arr.map(item => {
-          let index = labels.indexOf(item.date);
-          if (index !== -1) {
-            data[index] =
-              item.adjustment !== undefined ? item.adjustment : null;
+        arr.map((item) => {
+          let index = labels.indexOf(item.date)
+          if ( index !== -1) {
+            data[index] = item.adjustment !== undefined ? item.adjustment : null
           }
-        });
+        })
 
         graph.push({
-          label: 'Ajuste ' + (key + 1),
+          label: this.formatTitle('datasets.adjustment') + ' ' + (key + 1),
           color: this.getRandColor(4),
-          data: data,
-        });
-      });
+          data: data
+        })
+      })
     }
 
     const vLines = (this.state.graphData || []).map(item => ({
@@ -925,36 +865,46 @@ class HistoricReport extends Component {
       scaleID: 'x-axis-0',
       value: item.date,
       borderColor: 'rgba(233, 238, 255, 1)',
-      borderWidth: 1,
-    }));
+      borderWidth: 1
+    }))
+
 
     return (
-      <div className="historic-view">
-        <div className="section-header">
-          <h2>Histórico de ajustes </h2>
+      <div className='historic-view'>
+        <div className='section-header'>
+          <h2>
+            <FormattedMessage
+              id="report.historicTitle"
+              defaultMessage={`Histórico de ajustes`}
+            />
+          </h2>
         </div>
-        <div className="section">
-          <div className="columns filters-project ">
-            <div className="column is-3">
-              <div className="columns is-multiline">
-                <div className="column is-12">
-                  <div className="card projects">
-                    <div className="card-header">
+        <div className='section'>
+          <div className='columns filters-project '>
+            <div className='column is-3'>
+              <div className='columns is-multiline'>
+                <div className='column is-12'>
+
+                  <div className='card projects'>
+                    <div className='card-header'>
                       <h1>
-                        <span className="icon">
-                          <i className="fa fa-folder" />
+                        <span className='icon'>
+                          <i className='fa fa-folder' />
                         </span>
-                        Proyectos
+                        <FormattedMessage
+                          id="report.projects"
+                          defaultMessage={`Proyectos`}
+                        />
                       </h1>
                     </div>
-                    <div className="card-content">
-                      <aside className="menu" disabled={this.state.waitingData}>
-                        <ul className="menu-list">
+                    <div className='card-content'>
+                      <aside className='menu' disabled={this.state.waitingData}>
+                        <ul className='menu-list'>
                           {this.state.projects &&
-                            this.state.projects.map(item => {
+                            this.state.projects.map((item) => {
                               if (item.mainDataset) {
                                 if (!item.selected) {
-                                  item.selected = false;
+                                  item.selected = false
                                 }
                                 return (
                                   <li key={item.uuid}>
@@ -964,299 +914,254 @@ class HistoricReport extends Component {
                                           className="is-checkradio is-info is-small"
                                           id={item.name}
                                           type="radio"
-                                          name="project"
-                                          checked={
-                                            this.selectedProjects[item.uuid] !==
-                                            undefined
-                                          }
+                                          name='project'
+                                          checked={this.selectedProjects[item.uuid] !== undefined}
                                           disabled={this.state.waitingData}
-                                          onChange={() =>
-                                            this.selectProject(item)
-                                          }
-                                        />
+                                          onChange={() => this.selectProject(item)} />
                                         <label htmlFor={item.name}>
-                                          {
-                                            <span title={item.name}>
-                                              {item.name}
-                                            </span>
-                                          }
+                                          {<span title={item.name}>{item.name}</span>}
                                         </label>
                                       </div>
-                                      <span
-                                        className="icon is-pulled-right"
-                                        onClick={() => {
-                                          this.moveTo('/projects/' + item.uuid);
-                                        }}
-                                      >
-                                        <i
-                                          className={
-                                            this.currentRole ===
-                                            'consultor-level-3'
-                                              ? 'fa fa-eye has-text-info'
-                                              : 'fa fa-edit has-text-info'
-                                          }
-                                        />
+                                      <span className='icon is-pulled-right' onClick={() => { this.moveTo('/projects/' + item.uuid) }}>
+                                        <i className={this.currentRole === 'consultor-level-3' ? 'fa fa-eye has-text-info' : 'fa fa-edit has-text-info'} />
                                       </span>
                                     </a>
                                   </li>
-                                );
+                                )
                               }
-                            })}
+                            })
+                          }
                         </ul>
                       </aside>
                     </div>
                   </div>
+
                 </div>
-                <div className="column is-12">
-                  <div className="level dash-graph">
-                    {this.state.minPeriod && (
-                      <div className="level-item">
-                        <div className="field">
-                          <label className="label">Inicial</label>
-                          <div className="field is-grouped control">
-                            <div
-                              className={
-                                this.state.waitingData
-                                  ? 'dropdown is-disabled'
-                                  : 'dropdown is-hoverable'
-                              }
-                            >
-                              <div className="dropdown-trigger">
-                                <button
-                                  className="button is-static is-capitalized"
-                                  aria-haspopup="true"
-                                  aria-controls="dropdown-menu4"
-                                >
-                                  <span>
-                                    {this.state.minPeriod.name +
-                                      ' ' +
-                                      this.state.minPeriod.year}
-                                  </span>
-                                  <span className="icon is-small">
-                                    <i
-                                      className="fa fa-angle-down"
-                                      aria-hidden="true"
-                                    />
-                                  </span>
-                                </button>
-                              </div>
-                              <div
-                                className="dropdown-menu"
-                                id="dropdown-menu4"
-                                role="menu"
-                              >
-                                <div className="dropdown-content">
-                                  {this.state.periods &&
-                                    this.state.periods.map((item, key) => {
+                <div className='column is-12'>
+
+                  <div className='level dash-graph'>
+                      {this.state.minPeriod &&
+                        <div className='level-item'>
+                          <div className='field'>
+                            <label className='label'>
+                              <FormattedMessage
+                                id="report.initial"
+                                defaultMessage={`Inicial`}
+                              />
+                            </label>
+                            <div className='field is-grouped control'>
+                              <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
+                                <div className='dropdown-trigger'>
+                                  <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
+                                    <span>{this.state.minPeriod.name + ' ' + this.state.minPeriod.year}</span>
+                                    <span className='icon is-small'>
+                                      <i className='fa fa-angle-down' aria-hidden='true'></i>
+                                    </span>
+                                  </button>
+                                </div>
+                                <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
+                                  <div className='dropdown-content'>
+                                    {this.state.periods && this.state.periods.map((item, key) => {
                                       return (
-                                        <a
-                                          key={key}
-                                          className={
-                                            this.state.minPeriod.number ===
-                                              item.number &&
-                                            this.state.minPeriod.name ===
-                                              item.name &&
-                                            this.state.minPeriod.year ===
-                                              item.year
-                                              ? 'dropdown-item is-capitalized is-active'
-                                              : 'dropdown-item is-capitalized'
-                                          }
-                                          onClick={() =>
-                                            this.setMinPeriod(item)
-                                          }
-                                        >
+                                        <a key={key} className={this.state.minPeriod.number === item.number &&
+                                          this.state.minPeriod.name === item.name &&
+                                          this.state.minPeriod.year === item.year ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                          onClick={() => this.setMinPeriod(item)}>
                                           {item.name + ' ' + item.year}
                                         </a>
-                                      );
-                                    })}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="level-item date-drop is-hidden-desktop-only">
-                      <span className="icon">
-                        <i className="fa fa-minus" />
-                      </span>
-                    </div>
-
-                    {this.state.maxPeriod && (
-                      <div className="level-item">
-                        <div className="field">
-                          <label className="label">Final</label>
-                          <div className="field is-grouped control">
-                            <div
-                              className={
-                                this.state.waitingData
-                                  ? 'dropdown is-disabled'
-                                  : 'dropdown is-hoverable'
-                              }
-                            >
-                              <div className="dropdown-trigger">
-                                <button
-                                  className="button is-static is-capitalized"
-                                  aria-haspopup="true"
-                                  aria-controls="dropdown-menu4"
-                                >
-                                  <span>
-                                    {this.state.maxPeriod.name +
-                                      ' ' +
-                                      this.state.maxPeriod.year}
-                                  </span>
-                                  <span className="icon is-small">
-                                    <i
-                                      className="fa fa-angle-down"
-                                      aria-hidden="true"
-                                    />
-                                  </span>
-                                </button>
-                              </div>
-                              <div
-                                className="dropdown-menu"
-                                id="dropdown-menu4"
-                                role="menu"
-                              >
-                                <div className="dropdown-content">
-                                  {this.state.periods &&
-                                    this.state.periods
-                                      .slice(
-                                        this.state.periods.indexOf(
-                                          this.state.minPeriod
-                                        ),
-                                        this.state.periods.length
                                       )
-                                      .map((item, key) => {
-                                        return (
-                                          <a
-                                            key={key}
-                                            className={
-                                              this.state.maxPeriod === item
-                                                ? 'dropdown-item is-capitalized is-active'
-                                                : 'dropdown-item is-capitalized'
-                                            }
-                                            onClick={() =>
-                                              this.setMaxPeriod(item)
-                                            }
-                                          >
-                                            {item.name + ' ' + item.year}
-                                          </a>
-                                        );
-                                      })}
+                                    })}
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
+                      }
+
+                      <div className='level-item date-drop is-hidden-desktop-only'>
+                        <span className='icon'>
+                          <i className='fa fa-minus' />
+                        </span>
                       </div>
-                    )}
+
+                      {this.state.maxPeriod &&
+                        <div className='level-item'>
+                          <div className='field'>
+                            <label className='label'>
+                              <FormattedMessage
+                                id="report.final"
+                                defaultMessage={`Final`}
+                              />
+                            </label>
+                            <div className='field is-grouped control'>
+                              <div className={this.state.waitingData ? 'dropdown is-disabled' : 'dropdown is-hoverable'}>
+                                <div className='dropdown-trigger'>
+                                  <button className='button is-static is-capitalized' aria-haspopup='true' aria-controls='dropdown-menu4'>
+                                    <span>{this.state.maxPeriod.name + ' ' + this.state.maxPeriod.year}</span>
+                                    <span className='icon is-small'>
+                                      <i className='fa fa-angle-down' aria-hidden='true'></i>
+                                    </span>
+                                  </button>
+                                </div>
+                                <div className='dropdown-menu' id='dropdown-menu4' role='menu'>
+                                  <div className='dropdown-content'>
+                                    {this.state.periods &&
+                                      this.state.periods.slice(this.state.periods.indexOf(this.state.minPeriod), this.state.periods.length)
+                                        .map((item, key) => {
+                                          return (
+                                            <a key={key} className={this.state.maxPeriod === item ? 'dropdown-item is-capitalized is-active' : 'dropdown-item is-capitalized'}
+                                              onClick={() => this.setMaxPeriod(item)}>
+                                              {item.name + ' ' + item.year}
+                                            </a>
+                                          )
+                                        })}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      }
                   </div>
+
                 </div>
 
-                <div className="column is-12">
+                <div className='column is-12'>
                   <div className="field has-pad-sides-5">
-                    <label className="label">Mostrar por: </label>
-                    <div className="control">
+                    <label className='label'>
+                      <FormattedMessage
+                        id="report.showBy"
+                        defaultMessage={`Mostrar por`}
+                      />:
+                    </label>
+                    <div className='control'>
+
                       <div className="field is-grouped">
-                        <div className="control">
+                        <div className='control'>
+
                           <input
                             className="is-checkradio is-info is-small"
-                            id="showByquantity"
+                            id='showByquantity'
                             type="radio"
-                            name="showBy"
+                            name='showBy'
                             checked={!this.state.prices}
                             disabled={this.state.waitingData}
-                            onChange={() => this.showBy(false)}
-                          />
-                          <label htmlFor="showByquantity">
-                            <span title="Cantidad">Cantidad</span>
+                            onChange={() => this.showBy(false)} />
+                          <label htmlFor='showByquantity'>
+                            <span title='Cantidad'>
+                              <FormattedMessage
+                                id="report.quantity"
+                                defaultMessage={`Cantidad`}
+                              />
+                            </span>
                           </label>
                         </div>
 
-                        <div className="control">
+                        <div className='control'>
                           <input
                             className="is-checkradio is-info is-small"
-                            id="showByprice"
+                            id='showByprice'
                             type="radio"
-                            name="showBy"
+                            name='showBy'
                             checked={this.state.prices}
                             disabled={this.state.waitingData}
-                            onChange={() => this.showBy(true)}
-                          />
-                          <label htmlFor="showByprice">
-                            <span title="Precio">Precio</span>
+                            onChange={() => this.showBy(true)} />
+                          <label htmlFor='showByprice'>
+                            <span title='Precio'>
+                              <FormattedMessage
+                                id="report.price"
+                                defaultMessage={`Precio`}
+                              />
+                            </span>
                           </label>
                         </div>
                       </div>
+
                     </div>
                   </div>
                 </div>
 
-                <div className="column is-12">
-                  <div className="card filters">
-                    <div className="card-header">
+                <div className='column is-12'>
+
+                  <div className='card filters'>
+                    <div className='card-header'>
                       <h1>
-                        <span className="icon">
-                          <i className="fa fa-filter" />
+                        <span className='icon'>
+                          <i className='fa fa-filter' />
                         </span>
-                        Filtros
+                        <FormattedMessage
+                          id="report.filters"
+                          defaultMessage={`Filtros`}
+                        />
                       </h1>
                     </div>
-                    <div className="card-content">
-                      <ul>{this.state.catalogItems && this.makeFilters()}</ul>
+                    <div className='card-content'>
+
+                      <ul>
+                        {this.state.catalogItems &&
+                          this.makeFilters()
+                        }
+                      </ul>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>
 
-            <div className="column dash-graph">
-              {this.state.projectSelected && (
-                <h1 className="report-title">
-                  Resultados de histórico por rango de tiempo en proyecto
-                  <strong> {this.state.projectSelected.name}</strong>
+
+            <div className='column dash-graph'>
+              {this.state.projectSelected &&
+                <h1 className='report-title'>
+                  <FormattedMessage
+                    id="report.historicResults"
+                    defaultMessage={`Resultados de histórico por rango de tiempo en proyecto`}
+                  />
+                 <strong> {this.state.projectSelected.name}</strong>
                 </h1>
-              )}
-              <div className="columns">
-                <div className="column is-paddingless">
-                  <div className="notification is-info has-text-centered">
-                    <h1 className="title is-2">
-                      {this.state.mapePrediction.toFixed(2) || '0.00'}%
-                    </h1>
-                    <h2 className="subtitle has-text-weight-bold">
-                      MAPE Predicción
+              }
+              <div className='columns'>
+                <div className='column is-paddingless'>
+                  <div className='notification is-info has-text-centered'>
+                    <h1 className='title is-2'>{this.state.mapePrediction.toFixed(2) || '0.00'}%</h1>
+                    <h2 className='subtitle has-text-weight-bold'>
+                      <FormattedMessage
+                        id="report.historicColumns1"
+                        defaultMessage={`MAPE Predicción`}
+                      />
                     </h2>
                   </div>
                 </div>
 
-                <div className="column is-paddingless">
-                  <div className="notification is-info-dark-1 has-text-centered">
-                    <h1 className="title is-2">
-                      {this.state.mapeAdjustment.toFixed(2) || '0.00'}%
-                    </h1>
-                    <h2 className="subtitle has-text-weight-bold">
-                      MAPE Ajuste
+                <div className='column is-paddingless'>
+                  <div className='notification is-info-dark-1 has-text-centered'>
+                    <h1 className='title is-2'>{this.state.mapeAdjustment.toFixed(2) || '0.00'}%</h1>
+                    <h2 className='subtitle has-text-weight-bold'>
+                      <FormattedMessage
+                        id="report.historicColumns2"
+                        defaultMessage={`MAPE Ajuste`}
+                      />
                     </h2>
                   </div>
                 </div>
 
-                <div className="column is-paddingless">
-                  <div className="notification is-info-dark-2 has-text-centered">
-                    <h1 className="title is-2">
-                      {this.state.difference.toFixed(2) || '0.00'}%
-                    </h1>
-                    <h2 className="subtitle has-text-weight-bold">
-                      Diferencia Predicción - Ajuste
+                <div className='column is-paddingless'>
+                  <div className='notification is-info-dark-2 has-text-centered'>
+                    <h1 className='title is-2'>{this.state.difference.toFixed(2) || '0.00'}%</h1>
+                    <h2 className='subtitle has-text-weight-bold'>
+                      <FormattedMessage
+                        id="report.historicColumns3"
+                        defaultMessage={`Diferencia Predicción - Ajuste`}
+                      />
                     </h2>
                   </div>
                 </div>
               </div>
-              <div className="columns box">
-                <div className="column card">
-                  {this.state.graphData ? (
-                    this.state.graphData.length > 0 ? (
+              <div className='columns box'>
+                <div className='column card'>
+                  {this.state.graphData ?
+                    this.state.graphData.length > 0 ?
                       <Graph
                         data={graph}
                         maintainAspectRatio={false}
@@ -1271,8 +1176,8 @@ class HistoricReport extends Component {
                             fontStyle: 'normal',
                             fontFamily: "'Roboto', sans-serif",
                             usePointStyle: false,
-                            padding: 12,
-                          },
+                            padding: 12
+                          }
                         }}
                         tooltips={{
                           mode: 'index',
@@ -1281,40 +1186,41 @@ class HistoricReport extends Component {
                           bodyFontFamily: "'Roboto', sans-serif",
                           bodyFontStyle: 'bold',
                           callbacks: {
-                            label: tooltipCallback,
-                          },
+                            label: tooltipCallback
+                          }
                         }}
                         labels={labels}
-                        scales={{
-                          xAxes: [
-                            {
-                              ticks: {
-                                callback: function(label, index, labels) {
-                                  return moment.utc(label).format('DD-MM-YYYY');
+                        scales={
+                          {
+                            xAxes: [
+                              {
+                                ticks: {
+                                  callback: function (label, index, labels) {
+                                    return moment.utc(label).format('DD-MM-YYYY')
+                                  },
+                                  fontSize: 11
                                 },
-                                fontSize: 11,
-                              },
-                              gridLines: {
-                                display: false,
-                              },
-                            },
-                          ],
-                          yAxes: [
-                            {
-                              ticks: {
-                                callback: callbackLabels,
-                                fontSize: 11,
-                              },
-                              gridLines: {
-                                display: false,
-                              },
-                              display: true,
-                            },
-                          ],
-                        }}
-                        annotation={
-                          this.state.startPeriod &&
-                          this.state.startPeriod.date && {
+                                gridLines: {
+                                  display: false
+                                }
+                              }
+                            ],
+                            yAxes: [
+                              {
+                                ticks: {
+                                  callback: callbackLabels,
+                                  fontSize: 11
+                                },
+                                gridLines: {
+                                  display: false
+                                },
+                                display: true
+                              }
+                            ]
+                          }
+                        }
+                        annotation={this.state.startPeriod && this.state.startPeriod.date &&
+                          {
                             annotations: [
                               {
                                 drawTime: 'beforeDatasetsDraw',
@@ -1327,7 +1233,7 @@ class HistoricReport extends Component {
                                 yMax: this.state.topValue,
                                 backgroundColor: 'rgba(233, 238, 255, 0.5)',
                                 borderColor: 'rgba(233, 238, 255, 1)',
-                                borderWidth: 1,
+                                borderWidth: 1
                               },
                               {
                                 drawTime: 'afterDatasetsDraw',
@@ -1344,35 +1250,36 @@ class HistoricReport extends Component {
                                   enabled: true,
                                   fontSize: 10,
                                   position: 'top',
-                                  fontColor: '#424A55',
-                                },
+                                  fontColor: '#424A55'
+                                }
                               },
-                              ...vLines,
-                            ],
+                              ...vLines
+                            ]
                           }
                         }
                       />
-                    ) : (
-                      <section className="section has-30-margin-top">
+                      : <section className='section has-30-margin-top'>
                         <center>
-                          <h1 className="has-text-info">
-                            No hay datos que mostrar, intente con otro filtro
+                          <h1 className='has-text-info'>
+                            <FormattedMessage
+                              id="report.noInfo"
+                              defaultMessage={`No hay datos que mostrar, intente con otro filtro`}
+                            />
                           </h1>
                         </center>
                       </section>
-                    )
-                  ) : (
-                    <section className="section has-30-margin-top">
+                    : <section className='section has-30-margin-top'>
                       {this.loadTable()}
                     </section>
-                  )}
+                  }
+
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    );
+    )
   }
 }
 
@@ -1380,9 +1287,8 @@ export default Page({
   path: '/reports/historic',
   exact: true,
   validate: loggedIn,
-  component: HistoricReport,
+  component: injectIntl(HistoricReport),
   title: 'Histórico de ajustes',
   icon: 'history',
-  roles:
-    'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3',
-});
+  roles: 'consultor-level-3, analyst, orgadmin, admin, consultor-level-2, manager-level-2, manager-level-3'
+})

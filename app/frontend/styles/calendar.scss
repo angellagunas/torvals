@@ -111,7 +111,7 @@
 
 .radio {
   margin-left: 10px;
-  span {
+  &>span {
     padding-left: 10px;
   }
 }
@@ -376,6 +376,15 @@ $range-alpha: .2;
   margin-left: -0.5rem;
   margin-top: -0.5rem;
   border-color: rgba(74, 74, 74, 0.9) transparent transparent transparent;
+}
+
+.tooltip.is-tooltip-multiline::before {
+    max-width: 24rem;
+    text-overflow: clip;
+    white-space: normal;
+    word-break: keep-all;
+    width: 100%;
+    text-align: center;
 }
 
 .calendar .calendar-range .date-item {

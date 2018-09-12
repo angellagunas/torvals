@@ -1,0 +1,17 @@
+{% extends "./layout.html" %}
+
+{% block content %}
+    <tr>
+      <td colspan="2" class="body">
+        <p class="main">Periodo de facturación iniciado.</p>
+        <p class="label">El periodo de facturación ha comenzado, la cuenta para la organización {{ organization }} esta activa y lista para usarse.
+        </p>
+        <p> 
+          Para acceder a su cuenta da click aqui:
+        </p>
+        <p>
+          <a class="btn" href="{{ url }}" target="_blank">Ir a Orax</a>
+        </p>
+      </td>
+    </tr>
+{% endblock %}

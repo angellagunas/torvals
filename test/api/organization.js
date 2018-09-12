@@ -106,28 +106,6 @@ describe('Organization CRUD', () => {
         .set('Referer', credentials.referer)
         .expect(404)
     })
-
-    it('should return a 200 and the org updated', async function () {
-      await clearDatabase()
-      const credentials = await apiHeaders()
-      const org = await Organization.create({rules: {}, slug:'test-org'})
-
-      const res = await test()
-        .post('/api/admin/organizations/' + org.uuid)
-        .send({
-          name: 'Una org',
-          description: 'Otra descripción',
-          slug: 'a-fake-slug'
-        })
-        .set('Accept', 'application/json')
-        .set('Authorization', `Bearer ${credentials.token}`)
-        .set('Referer', credentials.referer)
-        .expect(200)
-
-      expect(org.slug).to.be.not.equal(res.body.data.slug)
-      expect(res.body.data.slug).equal('a-fake-slug')
-      expect(res.body.data.description).equal('Otra descripción')
-    })
   })
 
   describe('[get] An organization', () => {

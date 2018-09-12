@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import styled from 'styled-components';
+import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
+import styled from 'styled-components'
 
 const CarouselContainer = styled.div`
   display: flex;
@@ -58,15 +59,16 @@ class Carousel extends Component {
   };
 
   prevSlide = () => {
-    const { position } = this.state;
-    const { children } = this.props;
-    const numItems = children.length;
+    const { position } = this.state
+    const { children } = this.props
+    const numItems = children.length
 
-    if (numItems === 2 && position === 0) return;
-    if (position === -1) return;
+    if (numItems === 2 && position === 0) return
+    if(position === -1)
+      return
 
-    this.doSliding('prev', position - 1);
-  };
+      this.doSliding('prev', position - 1)
+  }
 
   doSliding = (direction, position) => {
     this.setState({
@@ -77,13 +79,13 @@ class Carousel extends Component {
 
     setTimeout(() => {
       this.setState({
-        sliding: false,
-      });
-    }, 50);
-  };
+        sliding: false
+      })
+    }, 50)
+  }
 
-  render() {
-    const { title, children } = this.props;
+  render () {
+    const { title, children } = this.props
 
     return (
       <div>
@@ -100,16 +102,20 @@ class Carousel extends Component {
             ))}
           </CarouselContainer>
         </Wrapper>
-        <div className="has-text-centered">
-          <button
-            className="button"
+        <div className='has-text-centered'>
+          <button className='button'
             disabled={this.state.position === -1 ? true : false}
             onClick={() => this.prevSlide()}
           >
             <span className="icon">
               <i className="fa fa-arrow-left" />
             </span>
-            <span>Anterior</span>
+            <span>
+              <FormattedMessage
+                id="carousel.prev"
+                defaultMessage={`Anterior`}
+              />
+            </span>
           </button>
           <button
             className="button"
@@ -118,9 +124,14 @@ class Carousel extends Component {
             }
             onClick={() => this.nextSlide()}
           >
-            <span>Siguiente</span>
-            <span className="icon">
-              <i className="fa fa-arrow-right" />
+            <span>
+              <FormattedMessage
+                id="carousel.next"
+                defaultMessage={`Siguiente`}
+              />
+            </span>
+            <span className='icon'>
+              <i className='fa fa-arrow-right'></i>
             </span>
           </button>
         </div>

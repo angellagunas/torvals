@@ -1,17 +1,18 @@
-import React, { Component } from 'react';
-import api from '~base/api';
-import { testRoles } from '~base/tools';
+import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
+import api from '~base/api'
+import { testRoles } from '~base/tools'
 
-import Page from '~base/page';
-import { loggedIn, verifyRole } from '~base/middlewares/';
-import Loader from '~base/components/spinner';
-import ChannelForm from './create-form';
-import DeleteButton from '~base/components/base-deleteButton';
-import Breadcrumb from '~base/components/base-breadcrumb';
-import NotFound from '~base/components/not-found';
-import Multiselect from '~base/components/base-multiselect';
-import FontAwesome from 'react-fontawesome';
-import { toast } from 'react-toastify';
+import Page from '~base/page'
+import { loggedIn, verifyRole } from '~base/middlewares/'
+import Loader from '~base/components/spinner'
+import ChannelForm from './create-form'
+import DeleteButton from '~base/components/base-deleteButton'
+import Breadcrumb from '~base/components/base-breadcrumb'
+import NotFound from '~base/components/not-found'
+import Multiselect from '~base/components/base-multiselect'
+import FontAwesome from 'react-fontawesome'
+import { toast } from 'react-toastify'
 
 class ChannelDetail extends Component {
   constructor(props) {
@@ -72,14 +73,11 @@ class ChannelDetail extends Component {
 
     if (saving) {
       return (
-        <p
-          className="card-header-title"
-          style={{ fontWeight: '200', color: 'grey' }}
-        >
-          Guardando{' '}
-          <span style={{ paddingLeft: '5px' }}>
-            <FontAwesome className="fa-spin" name="spinner" />
-          </span>
+        <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
+          <FormattedMessage
+            id="channel.savingMsg"
+            defaultMessage={`Guardando`}
+          /> <span style={{paddingLeft: '5px'}}><FontAwesome className='fa-spin' name='spinner' /></span>
         </p>
       );
     }
@@ -96,11 +94,11 @@ class ChannelDetail extends Component {
       }, 500);
 
       return (
-        <p
-          className="card-header-title"
-          style={{ fontWeight: '200', color: 'grey' }}
-        >
-          Guardado
+        <p className='card-header-title' style={{fontWeight: '200', color: 'grey'}}>
+          <FormattedMessage
+            id="channel.saved"
+            defaultMessage={`Guardado`}
+          />
         </p>
       );
     }
@@ -248,34 +246,36 @@ class ChannelDetail extends Component {
 
     let groupField;
     if (testRoles('analyst') || testRoles('orgadmin')) {
-      groupField = (
-        <div className="column">
-          <div className="columns">
-            <div className="column">
-              <div className="card">
-                <header className="card-header">
-                  <p className="card-header-title">Grupos</p>
-                  <div>{this.getSavingMessage()}</div>
-                </header>
-                <div className="card-content">
-                  <Multiselect
-                    availableTitle="Disponible"
-                    assignedTitle="Asignado"
-                    assignedList={this.state.selectedGroups}
-                    availableList={availableList}
-                    dataFormatter={item => {
-                      return item.name || 'N/A';
-                    }}
-                    availableClickHandler={this.availableGroupOnClick.bind(
-                      this
-                    )}
-                    assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+      groupField = (<div className='column'>
+        <div className='columns'>
+          <div className='column'>
+            <div className='card'>
+              <header className='card-header'>
+                <p className='card-header-title'>
+                  <FormattedMessage
+                    id="channel.groups"
+                    defaultMessage={`Grupos`}
                   />
+                </p>
+                <div>
+                  {this.getSavingMessage()}
                 </div>
+              </header>
+              <div className='card-content'>
+                <Multiselect //TODO: translate
+                  availableTitle='Disponible'
+                  assignedTitle='Asignado'
+                  assignedList={this.state.selectedGroups}
+                  availableList={availableList}
+                  dataFormatter={(item) => { return item.name || 'N/A' }}
+                  availableClickHandler={this.availableGroupOnClick.bind(this)}
+                  assignedClickHandler={this.assignedGroupOnClick.bind(this)}
+                />
               </div>
             </div>
           </div>
         </div>
+      </div>
       );
     }
 
@@ -290,17 +290,17 @@ class ChannelDetail extends Component {
             <div className="level-item">
               <Breadcrumb
                 path={[
-                  {
+                  { //TODO: translate
                     path: '/',
                     label: 'Inicio',
                     current: false,
                   },
-                  {
+                  { //TODO: translate
                     path: '/catalogs/channels',
                     label: 'Canales',
                     current: false,
                   },
-                  {
+                  { //TODO: translate
                     path: '/catalogs/channels/',
                     label: channel.name,
                     current: true,
@@ -310,12 +310,13 @@ class ChannelDetail extends Component {
               />
             </div>
           </div>
-          <div className="level-right">
-            <div className="level-item">
+          <div className='level-right'>
+            <div className='level-item'>
               {canEdit && (
                 <DeleteButton
+                  //TODO: translate
                   titleButton={'Eliminar'}
-                  objectName="Canal"
+                  objectName='Canal'
                   objectDelete={this.deleteObject.bind(this)}
                   message={`¿Estas seguro de quieres borrar el canal ${
                     channel.name
@@ -326,12 +327,18 @@ class ChannelDetail extends Component {
           </div>
         </div>
 
-        <div className="section is-paddingless-top pad-sides">
-          <div className="columns">
-            <div className="column">
-              <div className="card">
-                <header className="card-header">
-                  <p className="card-header-title">Detalle</p>
+        <div className='section is-paddingless-top pad-sides'>
+
+          <div className='columns'>
+            <div className='column'>
+              <div className='card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                    <FormattedMessage
+                      id="channel.detail"
+                      defaultMessage={`Detalle`}
+                    />
+                  </p>
                 </header>
                 <div className="card-content">
                   <div className="columns">
@@ -342,20 +349,23 @@ class ChannelDetail extends Component {
                         initialState={channel}
                         load={this.load.bind(this)}
                         canEdit={canEdit}
-                        submitHandler={data => this.submitHandler(data)}
-                        errorHandler={data => this.errorHandler(data)}
-                        finishUp={data => this.finishUpHandler(data)}
+                        submitHandler={(data) => this.submitHandler(data)}
+                        errorHandler={(data) => this.errorHandler(data)}
+                        finishUp={(data) => this.finishUpHandler(data)}
                       >
-                        <div className="field is-grouped">
-                          <div className="control">
+                        <div className='field is-grouped'>
+                          <div className='control'>
                             <button
                               className={
                                 'button is-primary ' + this.state.isLoading
                               }
                               disabled={!!this.state.isLoading}
-                              type="submit"
+                              type='submit'
                             >
-                              Guardar
+                              <FormattedMessage
+                                id="channel.btnSave"
+                                defaultMessage={`Guardar`}
+                              />
                             </button>
                           </div>
                         </div>
@@ -375,7 +385,7 @@ class ChannelDetail extends Component {
 
 export default Page({
   path: '/catalogs/channels/:uuid',
-  title: 'Channel Detail',
+  title: 'Channel Detail', //TODO: translate
   exact: true,
   roles:
     'analyst, orgadmin, admin, consultor-level-2, manager-level-2, consultor-level-3, manager-level-3',

@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
-import moment from 'moment';
-import classNames from 'classnames';
+import React, { Component } from 'react'
+import moment from 'moment'
+import classNames from 'classnames'
+import { injectIntl } from 'react-intl'
 
 class Cal extends Component {
   constructor(props) {
@@ -12,9 +13,13 @@ class Cal extends Component {
       weekDayHeader: this.weekHeader(),
       dateSelected: this.props.date || moment.utc(),
       startDate: this.props.startDate || moment.utc(),
-      dates: this.props.dates || [],
-    };
-    moment.locale(this.props.locale || 'es');
+      dates: this.props.dates || []
+    }
+    moment.locale(this.formatTitle('dates.locale'))
+  }
+
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
   }
 
   componentWillMount() {
@@ -156,20 +161,16 @@ class Cal extends Component {
           item.value === 8 ||
           item.value === 15 ||
           item.value === 22 ||
-          item.value >= 28
-        ) {
-          let w = this.dateFromNum(item.value).format('W');
-          numbers.push(Number(w));
-          weeks[w] = (
-            <div key={'week' + w} className="calendar-date">
-              <button
-                className="date-item week-number tooltip"
-                data-tooltip={'Semana ' + w}
-              >
+          item.value >= 28) {
+          let w = this.dateFromNum(item.value).format('W')
+          numbers.push(Number(w))
+          weeks[w] =
+            <div key={'week' + w} className='calendar-date'>
+              <button className='date-item week-number tooltip'
+                data-tooltip={this.formatTitle('orgRules.week') + ' ' + w}>
                 {w}
               </button>
             </div>
-          );
         }
       }
     });
@@ -361,4 +362,4 @@ class Cal extends Component {
   }
 }
 
-export default Cal;
+export default injectIntl(Cal)

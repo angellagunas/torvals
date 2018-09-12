@@ -23,7 +23,7 @@ class ImportChannels extends Component {
 
 export default Page({
   path: '/import/channels',
-  title: 'Canales',
+  title: 'Canales', //TODO: translate
   icon: 'filter',
   exact: true,
   validate: [loggedIn, verifyRole],

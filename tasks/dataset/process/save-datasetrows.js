@@ -11,7 +11,7 @@ const { DataSetRow, DataSet } = require('models')
 const task = new Task(
   async function (argv) {
     const log = new Logger('save-datasetrows')
-    const batchSize = 5
+    const batchSize = 15
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
     }
@@ -134,6 +134,7 @@ const task = new Task(
     return true
   },
   async (argv) => {
+    if (argv.noSlack) return
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
     }
@@ -147,6 +148,7 @@ const task = new Task(
     })
   },
   async (argv) => {
+    if (argv.noSlack) return
     if (!argv.uuid) {
       throw new Error('You need to provide an uuid!')
     }

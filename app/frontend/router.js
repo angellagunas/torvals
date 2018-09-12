@@ -1,18 +1,24 @@
 import React, { Component } from 'react';
 import {
-  BrowserRouter as Router,
+  Router,
   Switch,
   Route,
   Redirect
 } from 'react-router-dom'
+import createBrowserHistory from 'history/createBrowserHistory'
+import ReactGA from 'react-ga'
 
+import env from '~base/env-variables'
+import NotFound from '~base/components/not-found'
 import AdminLayout from '~components/admin-layout'
-import LandPage from './pages/land-page'
+
+import LandPage from './pages//landing/land-page'
 import Dashboard from './pages/dashboard'
 import Profile from './pages/profile'
 import OrganizationDetail from './pages/organizations/detail'
 import EmailInviteLanding from './pages/emails/invited'
 import EmailResetLanding from './pages/emails/reset'
+import EmailActivateLanding from './pages/emails/activate'
 import ResetPassword from './pages/reset-password'
 import DataSets from './pages/datasets/list'
 import ReadyDataSets from './pages/datasets/list-ready'
@@ -22,10 +28,8 @@ import SalesCenters from './pages/salesCenters/list'
 import SalesCenterDetail from './pages/salesCenters/detail'
 import Products from './pages/products/list'
 import ProductDetail from './pages/products/detail'
-import env from '~base/env-variables'
 import Channels from './pages/channel/list'
 import ChannelsDetail from './pages/channel/detail'
-import NotFound from '~base/components/not-found'
 import Calendar from './pages/calendar'
 import Prices from './pages/prices/list'
 import PriceDetail from './pages/prices/detail'
@@ -45,6 +49,17 @@ import Roles from './pages/roles/list'
 import Forecast from './pages/forecast/forecast'
 import ForecastDetail from './pages/forecast/detail'
 import ForecastCompare from './pages/forecast/compare'
+import HowItWorks from './pages/landing/how-it-works'
+import Privacy from './pages/privacy'
+
+const history = createBrowserHistory()
+
+ReactGA.initialize(env.ANALITYCS_ID)
+ReactGA.pageview(window.location.pathname + window.location.search)
+
+history.listen(location => {
+  ReactGA.pageview(window.location.pathname + window.location.search)
+})
 
 const NoMatch = () => {
   if (window.location.pathname === '/') {
@@ -56,7 +71,7 @@ const NoMatch = () => {
 class AppRouter extends Component {
   render() {
     return (
-      <Router>
+      <Router history={history}>
         <AdminLayout>
           <div>
             <Switch>
@@ -64,6 +79,7 @@ class AppRouter extends Component {
               {ResetPassword.asRouterItem()}
               {EmailResetLanding.asRouterItem()}
               {EmailInviteLanding.asRouterItem()}
+              {EmailActivateLanding.asRouterItem()}
               {Dashboard.asRouterItem()}
               {Profile.asRouterItem()}
 
@@ -109,6 +125,10 @@ class AppRouter extends Component {
               {ForecastDetail.asRouterItem()}
               {ForecastCompare.asRouterItem()}
 
+              {HowItWorks.asRouterItem()}
+
+              {Privacy.asRouterItem()}
+
               <CatalogRouter path={env.PREFIX + '/catalogs/'} />
 
               <Route component={NoMatch} />
@@ -116,7 +136,7 @@ class AppRouter extends Component {
           </div>
         </AdminLayout>
       </Router>
-    );
+    )
   }
 }
 

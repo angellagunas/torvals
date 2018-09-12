@@ -1,17 +1,8 @@
-import React, { Component } from 'react';
-import api from '~base/api';
+import React, { Component } from 'react'
+import { FormattedMessage, injectIntl } from 'react-intl'
+import api from '~base/api'
 
 import { BaseForm, TextWidget } from '~base/components/base-form';
-
-const schema = {
-  type: 'object',
-  title: '',
-  required: ['name', 'externalId'],
-  properties: {
-    name: { type: 'string', title: 'Nombre' },
-    externalId: { type: 'string', title: 'Id Externo' },
-  },
-};
 
 const uiSchema = {
   name: { 'ui:widget': TextWidget },
@@ -67,9 +58,28 @@ class ChannelForm extends Component {
     }
   }
 
-  render() {
-    let { canEdit, canCreate, children } = this.props;
-    var error;
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  render () {
+
+    const schema = {
+      type: 'object',
+      title: '',
+      required: [
+        'name',
+        'externalId'
+      ],
+      properties: {
+        name: { type: 'string', title: this.formatTitle('tables.colName') },
+        externalId: { type: 'string', title: this.formatTitle('datasets.externalId') }
+      }
+    }
+
+    let { canEdit, canCreate, children } = this.props
+    var error
+
     if (this.state.error) {
       error = <div>Error: {this.state.error}</div>;
     }
@@ -86,26 +96,19 @@ class ChannelForm extends Component {
       }
     }
 
-    return (
-      <div>
-        <BaseForm
-          schema={schema}
-          uiSchema={uiSchema}
-          formData={this.state.formData}
-          onChange={e => {
-            this.changeHandler(e);
-          }}
-          onSubmit={e => {
-            this.submitHandler(e);
-          }}
-          onError={e => {
-            this.errorHandler(e);
-          }}
-        >
-          <div className={this.state.apiCallMessage}>
-            <div className="message-body is-size-7 has-text-centered">
-              Los datos se han guardado correctamente
-            </div>
+    return (<div>
+      <BaseForm schema={schema}
+        uiSchema={uiSchema}
+        formData={this.state.formData}
+        onChange={(e) => { this.changeHandler(e) }}
+        onSubmit={(e) => { this.submitHandler(e) }}
+        onError={(e) => { this.errorHandler(e) }}>
+        <div className={this.state.apiCallMessage}>
+          <div className='message-body is-size-7 has-text-centered'>
+            <FormattedMessage
+              id="channel.savedMsg"
+              defaultMessage={`Los datos se han guardado correctamente`}
+            />
           </div>
           <div className={this.state.apiCallErrorMessage}>
             <div className="message-body is-size-7 has-text-centered">
@@ -114,10 +117,11 @@ class ChannelForm extends Component {
           </div>
           {canEdit && children}
           {canCreate && children}
-        </BaseForm>
-      </div>
+        </div>
+      </BaseForm>
+    </div>
     );
   }
 }
 
-export default ChannelForm;
+export default injectIntl(ChannelForm)

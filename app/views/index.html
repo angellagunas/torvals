@@ -7,39 +7,11 @@
   {% if env == 'production' %}
   <link rel="stylesheet" type="text/css" href="/assets/bundle.css">
   {% endif %}
-  <script type="text/javascript">
-    window.zESettings = {
-      webWidget: {
-        color: { theme: '#187FE6' },
-        launcher: {
-          chatLabel: {
-            '*': 'Contáctanos'
-          }
-        }
-      }
-    };
-  </script>
 </head>
 <body>
 <div id="app">
   <div id="root"></div>
 </div>
   <script src="/assets/bundle.js"></script>
-  <script type="text/javascript">
-
-    zEmbed(function () {
-      $zopim(function () {
-        $zopim.livechat.window.setTitle('Contáctanos')
-        $zopim.livechat.concierge.setName('Bienvenido a Orax')
-        $zopim.livechat.concierge.setTitle('Puedo ayudarte con cualquier duda.')
-        $zopim.livechat.concierge.setAvatar('http://www.orax.io/admin/public/img/logo.png')
-        $zopim.livechat.setLanguage('es')
-        $zopim.livechat.departments.setVisitorDepartment('Orax')
-        window.$zopim.livechat.removeTags('kamino.us')
-        window.$zopim.livechat.addTags('orax')
-        if (window.location.href) { window.$zopim.livechat.addTags('url:' + window.location.href) }
-      })
-    })
-  </script>
 </body>
 </html>

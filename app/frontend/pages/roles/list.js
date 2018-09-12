@@ -1,18 +1,18 @@
-import React from 'react';
-import moment from 'moment';
-import { uniqBy } from 'lodash';
-import tree from '~core/tree';
+import React from 'react'
+import moment from 'moment'
+import { uniqBy } from 'lodash'
+import tree from '~core/tree'
 
-import ListPage from '~base/list-page';
-import { loggedIn, verifyRole } from '~base/middlewares/';
+import ListPage from '~base/list-page'
+import { loggedIn, verifyRole } from '~base/middlewares/'
 
 export default ListPage({
+  translate: true,
   path: '/manage/roles',
-  title: 'Roles',
+  title: 'sideMenu.roles',
   icon: 'sitemap',
   exact: true,
-  roles:
-    'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
+  roles: 'admin, orgadmin, analyst, consultor-level-3, consultor-level-2, manager-level-2, manager-level-3',
   validate: [loggedIn, verifyRole],
   titleSingular: 'Rol',
   breadcrumbs: true,
@@ -20,16 +20,16 @@ export default ListPage({
     path: [
       {
         path: '/',
-        label: 'Inicio',
-        current: false,
+        label: 'sideMenu.home',
+        current: false
       },
       {
         path: '/manage/roles/',
-        label: 'Roles',
-        current: true,
-      },
+        label: 'sideMenu.roles',
+        current: true
+      }
     ],
-    align: 'left',
+    align: 'left'
   },
   sidePanel: false,
   sidePanelIcon: 'sitemap',
@@ -41,43 +41,42 @@ export default ListPage({
     type: 'object',
     required: [],
     properties: {
-      general: { type: 'text', title: 'Buscar' },
-    },
+      general: {type: 'text', title: 'Buscar'}
+    }
   },
   uiSchema: {
-    general: { 'ui:widget': 'SearchFilter' },
+    general: {'ui:widget': 'SearchFilter'}
   },
   sortBy: 'priority',
-  modifyData: data => {
-    const actualRole = tree.get('role');
-    return uniqBy([actualRole, ...data], 'uuid');
+  modifyData: (data) => {
+    const actualRole = tree.get('role')
+    return uniqBy([actualRole, ...data], 'uuid')
   },
   getColumns: () => {
     return [
       {
-        title: 'Prioridad',
-        property: 'priority',
-        default: 'N/A',
-        sortable: true,
+        'title': 'tables.colPriority',
+        'property': 'priority',
+        'default': 'N/A',
+        'sortable': true
       },
       {
-        title: 'Nombre',
-        property: 'name',
-        default: 'N/A',
-        sortable: true,
+        'title': 'tables.colName',
+        'property': 'name',
+        'default': 'N/A',
+        'sortable': true
       },
       {
-        title: 'Fecha de creación',
-        property: 'dateCreated',
-        default: 'N/A',
-        sortable: true,
-        formatter: row => {
-          return moment
-            .utc(row.dateCreated)
-            .local()
-            .format('DD/MM/YYYY hh:mm a');
-        },
-      },
-    ];
-  },
-});
+        'title': 'tables.colCreated',
+        'property': 'dateCreated',
+        'default': 'N/A',
+        'sortable': true,
+        formatter: (row) => {
+          return (
+            moment.utc(row.dateCreated).local().format('DD/MM/YYYY hh:mm a')
+          )
+        }
+      }
+    ]
+  }
+})

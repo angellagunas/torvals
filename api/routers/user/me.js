@@ -6,7 +6,10 @@ module.exports = new Route({
   path: '/me',
   handler: async function (ctx) {
     if (ctx.state.user) {
-      const user = ctx.state.user.toPublic()
+      await ctx.state.user.populate('language').execPopulate()
+      let user = ctx.state.user.toPublic()
+      user.language = ctx.state.user.language ? ctx.state.user.language.uuid : undefined
+      user.languageCode = ctx.state.user.language ? ctx.state.user.language.code : undefined
 
       const data = {
         loggedIn: true,
@@ -19,7 +22,7 @@ module.exports = new Route({
         })
 
         if (currentOrganization) {
-          const org = await Organization.findOne({_id: currentOrganization.organization})
+          const org = await Organization.findOne({_id: currentOrganization.organization}).populate('accountOwner')
           const role = await Role.findOne({_id: currentOrganization.role})
           const rule = await Rule.findOne({
             organization: org._id,

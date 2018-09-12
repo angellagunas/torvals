@@ -24,6 +24,7 @@ import UsersImport from '../pages/import/users'
 import SalesCentersImport from '../pages/import/sales-centers'
 import ChannelsImport from '../pages/import/channels'
 import ProductsImport from '../pages/import/products'
+import AlertList from '../pages/alerts/list';
 
 class Sidebar extends Component {
   constructor (props) {
@@ -96,7 +97,8 @@ class Sidebar extends Component {
           Roles.asSidebarItem(),
           Groups.asSidebarItem(),
           Users.asSidebarItem(),
-          DeletedUsers.asSidebarItem()
+          DeletedUsers.asSidebarItem(),
+          AlertList.asSidebarItem()
         ]
       },
       {

@@ -1,166 +1,160 @@
-import React, { Component } from 'react';
-import tree from '~core/tree';
-import cookies from '~base/cookies';
-import env from '~base/env-variables';
+import React, { Component } from 'react'
+import { FormattedMessage } from 'react-intl'
+import tree from '~core/tree'
+import cookies from '~base/cookies'
+import env from '~base/env-variables'
 
-var user;
-var organization;
+var user
+var organization
 
 class SelectOrg extends Component {
-  constructor(props) {
-    super(props);
+  constructor (props) {
+    super(props)
     this.state = {
-      toggled: true,
-    };
-    user = tree.get('user');
+      toggled: true
+    }
+    user = tree.get('user')
 
-    organization = tree.get('organization');
+    organization = tree.get('organization')
   }
 
-  handleToggle() {
+  handleToggle () {
     this.setState({
-      toggled: !this.state.toggled,
-    });
+      toggled: !this.state.toggled
+    })
   }
 
-  hideDrop() {
+  hideDrop () {
     this.setState({
-      toggled: true,
-    });
+      toggled: true
+    })
   }
 
-  showDrop() {
+  showDrop () {
     this.setState({
-      toggled: false,
-    });
+      toggled: false
+    })
   }
 
-  getDefaultObject() {
+  getDefaultObject () {
     if (organization) {
       return (
         <div>
-          <a
-            aria-current="false"
-            href="javascript:void(0)"
-            onClick={this.handleToggle.bind(this)}
-          >
-            <div className="media">
-              <figure className="media-left image is-24x24">
-                <img src={organization.profileUrl} alt="Avatar" />
+          <a aria-current='false' href='javascript:void(0)' onClick={this.handleToggle.bind(this)}>
+            <div className='media'>
+              <figure className='media-left image is-24x24'>
+                <img src={organization.profileUrl} alt='Avatar' />
               </figure>
-              <div className="media-content">
-                <span className="item-link-title">{organization.name}</span>
-                {user.organizations.length > 1 ? (
-                  <span className="icon is-pulled-right has-text-primary">
-                    <span
-                      aria-hidden="true"
-                      className={
-                        this.state.toggled
-                          ? 'fa fa-angle-right'
-                          : 'fa fa-angle-down'
-                      }
-                    />
+              <div className='media-content'>
+                <span className='item-link-title'>{organization.name}</span>
+                {
+                  user.organizations.length > 1
+                  ? <span className='icon is-pulled-right has-text-primary'>
+                    <span aria-hidden='true' className={this.state.toggled ? 'fa fa-angle-right' : 'fa fa-angle-down'} />
                   </span>
-                ) : null}
+                  : null
+                }
               </div>
             </div>
           </a>
-          <ul className={this.state.toggled ? 'is-hidden' : ''}>
+          <ul className={this.state.toggled ? 'is-hidden' : ''} >
             {this.getOrgs()}
           </ul>
         </div>
-      );
+
+      )
     }
 
-    return 'Select an organization';
+    return <FormattedMessage
+      id="selectOrg.select"
+      defaultMessage={`Selecciona una organizacion`}
+    />
   }
 
-  async changeHandler(slug) {
-    tree.set('shouldSelectOrg', false);
-    await tree.commit();
-    cookies.set('organization', slug);
-    const hostname = window.location.hostname;
-    const hostnameSplit = hostname.split('.');
+  async changeHandler (slug) {
+    tree.set('shouldSelectOrg', false)
+    await tree.commit()
+    cookies.set('organization', slug)
+    const hostname = window.location.hostname
+    const hostnameSplit = hostname.split('.')
 
     if (env.ENV === 'production') {
       if (hostname.indexOf('stage') >= 0 || hostname.indexOf('staging') >= 0) {
-        const newHostname = hostnameSplit.slice(-3).join('.');
-        window.location = `//${slug}.${newHostname}/dashboard`;
+        const newHostname = hostnameSplit.slice(-3).join('.')
+        window.location = `//${slug}.${newHostname}/dashboard`
       } else {
-        const newHostname = hostnameSplit.slice(-2).join('.');
-        window.location = `//${slug}.${newHostname}/dashboard`;
+        const newHostname = hostnameSplit.slice(-2).join('.')
+        window.location = `//${slug}.${newHostname}/dashboard`
       }
     } else {
-      const baseUrl = env.APP_HOST.split('://');
-      window.location =
-        baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard';
+      const baseUrl = env.APP_HOST.split('://')
+      window.location = baseUrl[0] + '://' + slug + '.' + baseUrl[1] + '/dashboard'
     }
   }
 
-  getOrgs() {
+  getOrgs () {
     let list = user.organizations.map(item => {
       if (organization.slug !== item.organization.slug) {
         return (
           <li
             key={item.organization.slug}
-            onClick={e => {
-              this.changeHandler(item.organization.slug);
-            }}
-          >
-            <a aria-current="false" href="javascript:void(0)">
-              <div className="media">
-                <figure className="media-left image is-24x24">
-                  <img src={item.organization.profileUrl} alt="Avatar" />
+            onClick={e => { this.changeHandler(item.organization.slug) }}>
+            <a
+              aria-current='false'
+              href='javascript:void(0)'>
+              <div className='media'>
+                <figure className='media-left image is-24x24'>
+                  <img src={item.organization.profileUrl} alt='Avatar' />
                 </figure>
-                <div className="media-content">
-                  <span className="item-link-title">
-                    {item.organization.name}
-                  </span>
+                <div className='media-content'>
+                  <span className='item-link-title'>{item.organization.name}</span>
                 </div>
               </div>
             </a>
           </li>
-        );
+        )
       }
-    });
+    })
 
-    return list;
+    return list
   }
 
-  getDropdown() {
+  getDropdown () {
     if (organization) {
       return (
-        <div
-          className="dropdown"
+        <div className='dropdown'
           onMouseLeave={this.hideDrop.bind(this)}
-          onMouseOver={this.showDrop.bind(this)}
-        >
-          <a
-            className="is-paddingless"
-            aria-current="false"
-            href="javascript:void(0)"
-          >
-            <figure className="image is-24x24">
-              <img src={organization.profileUrl} alt="Avatar" />
+          onMouseOver={this.showDrop.bind(this)}>
+          <a className='is-paddingless'
+            aria-current='false'
+            href='javascript:void(0)'>
+            <figure className='image is-24x24'>
+              <img src={organization.profileUrl} alt='Avatar' />
             </figure>
           </a>
-          <ul className={this.state.toggled ? 'is-hidden' : ''}>
+          <ul className={this.state.toggled ? 'is-hidden' : ''} >
             {this.getOrgs()}
           </ul>
         </div>
-      );
+
+      )
     }
 
-    return 'Select an organization';
+    return <FormattedMessage
+      id="selectOrg.select"
+      defaultMessage={`Selecciona una organizacion`}
+    />
   }
 
-  render() {
+  render () {
     return (
+
       <li>
         {this.props.collapsed ? this.getDropdown() : this.getDefaultObject()}
       </li>
-    );
+
+    )
   }
 }
 
-export default SelectOrg;
+export default SelectOrg

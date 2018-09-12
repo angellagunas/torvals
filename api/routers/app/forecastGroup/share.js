@@ -1,6 +1,6 @@
 const Route = require('lib/router/route')
-const {User, ForecastGroup} = require('models')
-const Mailer = require('lib/mailer')
+const { User, ForecastGroup } = require('models')
+const sendEmail = require('tasks/emails/send-email')
 
 module.exports = new Route({
   method: 'post',
@@ -14,24 +14,32 @@ module.exports = new Route({
     })
     ctx.assert(forecastGroup, 404, 'ForecastGroup no encontrado')
 
-    const users = await User.find({uuid: {$in: data.users}})
-    const email = new Mailer('share-forecast')
+    let users = data.users.split(',')
+    users = await User.find({
+      email: { $in: users }
+    })
+    
     let url = process.env.APP_HOST
     let base = url.split('://')
     base[1].replace('wwww', '')
-    url = base[0] + '://' + forecastGroup.project.organization.slug + '.' + base[1]
-    let dataMail = {url: url + '/forecast/detail/' + forecastGroup.uuid, base: url}
-    await email.format(dataMail)
+    url = `${base[0]}://${forecastGroup.project.organization.slug}.${base[1]}`
 
-    let recipients = {
+    const dataMail = {
+      url: `${url}/forecast/detail/${forecastGroup.uuid}`,
+      base: url
+    }
+
+    const recipients = {
       recipient: users.map(item => {
         return {email: item.email, name: item.name}
       })
     }
 
-    await email.send({
-      ...recipients,
-      title: 'Se ha compartido una predicción'
+    sendEmail.run({
+      recipients,
+      args: dataMail,
+      template: 'reset-password',
+      title: 'Se ha compartido una predicción.'
     })
 
     ctx.body = recipients

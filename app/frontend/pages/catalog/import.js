@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
-import ImportCSV from '../import/import-csv';
-import BaseModal from '~base/components/base-modal';
+import React, { Component } from 'react'
+import ImportCSV from '../import/import-csv'
+import BaseModal from '~base/components/base-modal'
+import { injectIntl } from 'react-intl'
 
 class ImportCatalog extends Component {
   constructor(props) {
@@ -19,11 +20,15 @@ class ImportCatalog extends Component {
     this.setState({ isLoading: '' });
   }
 
-  render() {
+  formatTitle(id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  render () {
     return (
       <div>
         <BaseModal
-          title={'Importar ' + this.props.title}
+          title={this.formatTitle('catalogs.import') + ' ' + this.props.title}
           className={this.props.className + ' import-modal'}
           hideModal={this.hideModal}
         >
@@ -35,10 +40,8 @@ class ImportCatalog extends Component {
             finishUp={this.props.finishUp}
             format={
               <pre style={{ marginTop: '1em' }}>
-                "name","externalId"
-                <br />
-                "nombre de {this.props.title}
-                ","12888"
+                "name","externalId"<br />
+                "{this.props.title}","12888"
               </pre>
             }
           />
@@ -48,4 +51,4 @@ class ImportCatalog extends Component {
   }
 }
 
-export default ImportCatalog;
+export default injectIntl(ImportCatalog)

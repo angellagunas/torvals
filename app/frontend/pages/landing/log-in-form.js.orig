@@ -1,13 +1,24 @@
 import React, { Component } from 'react';
 
+<<<<<<< HEAD:app/frontend/pages/landing/log-in-form.js
+import api from '~base/api'
+import env from '~base/env-variables'
+import Link from '~base/router/link'
+import cookies from '~base/cookies'
+import Loader from '~base/components/spinner'
+import { injectIntl } from 'react-intl'
+=======
 import api from '~base/api';
 import env from '~base/env-variables';
 import Link from '~base/router/link';
 import cookies from '~base/cookies';
 import Loader from '~base/components/spinner';
+>>>>>>> release:app/frontend/pages/log-in-form.js
 
 import { BaseForm, PasswordWidget, EmailWidget } from '~components/base-form';
 
+<<<<<<< HEAD:app/frontend/pages/landing/log-in-form.js
+=======
 const schema = {
   type: 'object',
   required: ['email', 'password'],
@@ -17,6 +28,7 @@ const schema = {
   },
 };
 
+>>>>>>> release:app/frontend/pages/log-in-form.js
 const uiSchema = {
   password: { 'ui:widget': PasswordWidget },
   email: { 'ui:widget': EmailWidget },
@@ -26,7 +38,7 @@ class LogInButton extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      className: ' is-active',
+      className: '',
       formData: {
         email: '',
         password: '',
@@ -78,6 +90,12 @@ class LogInButton extends Component {
           password: '',
         },
       });
+    }
+
+    if (!user.languageCode) {
+      localStorage.setItem('lang', 'es-MX')
+    } else {
+      localStorage.setItem('lang', user.languageCode)
     }
 
     if (user.organizations && user.organizations.length > 1) {
@@ -216,8 +234,25 @@ class LogInButton extends Component {
     });
   }
 
+<<<<<<< HEAD:app/frontend/pages/landing/log-in-form.js
+  formatTitle (id) {
+    return this.props.intl.formatMessage({ id: id })
+  }
+
+  render () {
+    const schema = {
+      type: 'object',
+      required: ['email', 'password'],
+      properties: {
+        email: { type: 'string', title: this.formatTitle('login.email') },
+        password: { type: 'string', title: this.formatTitle('login.pass') }
+      }
+    }
+    let spinner
+=======
   render() {
     let spinner;
+>>>>>>> release:app/frontend/pages/log-in-form.js
 
     if (this.state.loading) {
       spinner = <Loader />;
@@ -232,7 +267,13 @@ class LogInButton extends Component {
     if (env.EMAIL_SEND) {
       resetLink = (
         <p>
+<<<<<<< HEAD:app/frontend/pages/landing/log-in-form.js
+          <Link to='/password/forgotten/'>
+            {this.formatTitle('login.forgot')}
+          </Link>
+=======
           <Link to="/password/forgotten/">¿Olvidó su contraseña?</Link>
+>>>>>>> release:app/frontend/pages/log-in-form.js
         </p>
       );
     }
@@ -243,10 +284,17 @@ class LogInButton extends Component {
           <div className="modal-background" />
           <div className="modal-content">
             <div className={'LogIn single-form ' + this.props.className}>
+<<<<<<< HEAD:app/frontend/pages/landing/log-in-form.js
+              <div className='card land-card'>
+                <header className='card-header'>
+                  <p className='card-header-title'>
+                    {this.formatTitle('login.select')}
+=======
               <div className="card land-card">
                 <header className="card-header">
                   <p className="card-header-title">
                     Seleccione una organización
+>>>>>>> release:app/frontend/pages/log-in-form.js
                   </p>
                 </header>
                 <div className="card-content">
@@ -264,6 +312,11 @@ class LogInButton extends Component {
 
     return (
       <div>
+<<<<<<< HEAD:app/frontend/pages/landing/log-in-form.js
+        <div className={'modal' + this.props.modalClass}>
+          <div className='modal-background' onClick={() => { this.props.hideModal() }} />
+          <div className='modal-content land-login'>
+=======
         <a
           className="button is-info is-outlined"
           onClick={e => {
@@ -275,12 +328,23 @@ class LogInButton extends Component {
         <div className={'modal' + this.state.className}>
           <div className="modal-background" onClick={e => {}} />
           <div className="modal-content land-login">
+>>>>>>> release:app/frontend/pages/log-in-form.js
             <section>
               <div className="card-image">
                 <figure className="image">
                   <img src="/app/public/img/logo.png" />
                 </figure>
               </div>
+<<<<<<< HEAD:app/frontend/pages/landing/log-in-form.js
+              <div className='card-container'>
+                <h1 className='is-size-4 pad-bottom'>
+                  {this.formatTitle('login.welcome')}
+                </h1>
+                <div className='content'>
+                  <div className='columns is-centered'>
+                    <div className='column is-10'>
+                      <BaseForm schema={schema}
+=======
               <div className="card-container">
                 <h1 className="is-size-4 pad-bottom">Bienvenido a Orax</h1>
                 <div className="content">
@@ -288,6 +352,7 @@ class LogInButton extends Component {
                     <div className="column is-10">
                       <BaseForm
                         schema={schema}
+>>>>>>> release:app/frontend/pages/log-in-form.js
                         uiSchema={uiSchema}
                         formData={this.state.formData}
                         onChange={e => {
@@ -311,7 +376,11 @@ class LogInButton extends Component {
                             type="submit"
                             disabled={!!error}
                           >
+<<<<<<< HEAD:app/frontend/pages/landing/log-in-form.js
+                            {this.formatTitle('login.loginBtn')}
+=======
                             Iniciar sesión
+>>>>>>> release:app/frontend/pages/log-in-form.js
                           </button>
                         </div>
                       </BaseForm>
@@ -322,9 +391,15 @@ class LogInButton extends Component {
               </div>
             </section>
           </div>
+          <button className='modal-close login is-large has-text-dark' aria-label='close' onClick={() => { this.props.hideModal() }} />
+
         </div>
       </div>
     );
   }
 }
+<<<<<<< HEAD:app/frontend/pages/landing/log-in-form.js
+export default injectIntl(LogInButton)
+=======
 export default LogInButton;
+>>>>>>> release:app/frontend/pages/log-in-form.js
