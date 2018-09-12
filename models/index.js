@@ -32,6 +32,7 @@ const Label = require('./label')
 const Language = require('./language')
 const Note = require('./note')
 const Alert = require('./alert')
+const HistoricalDatasetRow = require('./historical-datasetrow')
 // #Import
 
 module.exports = {
@@ -68,5 +69,6 @@ module.exports = {
   Label,
   Language,
   Note,
+  HistoricalDatasetRow,
   Alert// #Exports
 }
