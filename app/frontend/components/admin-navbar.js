@@ -78,7 +78,7 @@ class NavBar extends Component {
     window.localStorage.setItem('name', '')
     window.localStorage.setItem('email', '')
 
-    history.push('/landing');
+    history.push('/log-in');
   }
 
   async changeHandler(slug) {
@@ -199,7 +199,7 @@ class NavBar extends Component {
               </a>
             </div>
             <div className='navbar-end'>
-              { this.state.steps > 0 &&
+              { /* this.state.steps > 0 &&
               <div className='navbar-item'>
                 <a className='navbar-link wizards-button' onClick={() => { this.showModalWizards() }}>
                   <span className='icon is-medium badge is-badge-danger' data-badge={this.state.steps}>
@@ -207,7 +207,7 @@ class NavBar extends Component {
                   </span>
                 </a>
               </div>
-              }
+              */ }
               <div className={'navbar-item has-dropdown ' + this.state.profileDropdown}
                 ref={this.setWrapperRef}>
                 <a className='navbar-link'

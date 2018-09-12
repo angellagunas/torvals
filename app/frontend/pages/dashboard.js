@@ -1318,25 +1318,6 @@ class Dashboard extends Component {
                               </span>
                             </label>
                           </div>
-
-                          <div className='control'>
-                            <input
-                              className="is-checkradio is-info is-small"
-                              id='showByprice'
-                              type="radio"
-                              name='showBy'
-                              checked={this.state.prices}
-                              disabled={this.state.waitingData}
-                              onChange={() => this.showBy(true)} />
-                            <label htmlFor='showByprice'>
-                              <span title='Precio'>
-                                <FormattedMessage
-                                  id="dashboard.price"
-                                  defaultMessage={`Precio`}
-                                />
-                              </span>
-                            </label>
-                          </div>
                         </div>
                       </div>
                     </div>

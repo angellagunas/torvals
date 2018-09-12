@@ -209,9 +209,7 @@ class Sidebar extends Component {
             }
           ]
         },
-        this.formatTitle('sideMenu.forecast', Forecast),
         this.formatTitle('sideMenu.projects', Projects),
-        this.formatTitle('sideMenu.calendar', Calendar),
         { // TODO: translate
           title: this.formatTitle('sideMenu.upload'),
           icon: 'upload',
